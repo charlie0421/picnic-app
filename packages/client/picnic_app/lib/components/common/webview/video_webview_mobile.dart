@@ -23,12 +23,10 @@ class MobileWebViewProvider implements WebViewProvider {
       initialUrlRequest: URLRequest(
         url: WebUri('https://www.youtube.com/embed/$videoId'),
       ),
-      initialOptions: InAppWebViewGroupOptions(
-        crossPlatform: InAppWebViewOptions(
-          mediaPlaybackRequiresUserGesture: false,
-          transparentBackground: true,
-          useShouldOverrideUrlLoading: true,
-        ),
+      initialSettings: InAppWebViewSettings(
+        mediaPlaybackRequiresUserGesture: false,
+        transparentBackground: true,
+        useShouldOverrideUrlLoading: true,
       ),
       onWebViewCreated: (controller) {
         _controller = controller;

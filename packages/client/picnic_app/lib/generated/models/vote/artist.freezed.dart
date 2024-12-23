@@ -20,18 +20,31 @@ ArtistModel _$ArtistModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ArtistModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name')
   Map<String, dynamic> get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'yy')
   int? get yy => throw _privateConstructorUsedError;
+  @JsonKey(name: 'mm')
   int? get mm => throw _privateConstructorUsedError;
+  @JsonKey(name: 'dd')
   int? get dd => throw _privateConstructorUsedError;
-  DateTime? get birth_date => throw _privateConstructorUsedError;
+  @JsonKey(name: 'birth_date')
+  DateTime? get birthDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'gender')
   String? get gender => throw _privateConstructorUsedError;
-  ArtistGroupModel? get artist_group => throw _privateConstructorUsedError;
+  @JsonKey(name: 'artist_group')
+  ArtistGroupModel? get artistGroup => throw _privateConstructorUsedError;
+  @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
-  DateTime? get created_at => throw _privateConstructorUsedError;
-  DateTime? get updated_at => throw _privateConstructorUsedError;
-  DateTime? get deleted_at => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'deleted_at')
+  DateTime? get deletedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'isBookmarked')
   bool? get isBookmarked => throw _privateConstructorUsedError;
 
   /// Serializes this ArtistModel to a JSON map.
@@ -51,21 +64,21 @@ abstract class $ArtistModelCopyWith<$Res> {
       _$ArtistModelCopyWithImpl<$Res, ArtistModel>;
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> name,
-      int? yy,
-      int? mm,
-      int? dd,
-      DateTime? birth_date,
-      String? gender,
-      ArtistGroupModel? artist_group,
-      String? image,
-      DateTime? created_at,
-      DateTime? updated_at,
-      DateTime? deleted_at,
-      bool? isBookmarked});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name') Map<String, dynamic> name,
+      @JsonKey(name: 'yy') int? yy,
+      @JsonKey(name: 'mm') int? mm,
+      @JsonKey(name: 'dd') int? dd,
+      @JsonKey(name: 'birth_date') DateTime? birthDate,
+      @JsonKey(name: 'gender') String? gender,
+      @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
+      @JsonKey(name: 'deleted_at') DateTime? deletedAt,
+      @JsonKey(name: 'isBookmarked') bool? isBookmarked});
 
-  $ArtistGroupModelCopyWith<$Res>? get artist_group;
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup;
 }
 
 /// @nodoc
@@ -88,13 +101,13 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
     Object? yy = freezed,
     Object? mm = freezed,
     Object? dd = freezed,
-    Object? birth_date = freezed,
+    Object? birthDate = freezed,
     Object? gender = freezed,
-    Object? artist_group = freezed,
+    Object? artistGroup = freezed,
     Object? image = freezed,
-    Object? created_at = freezed,
-    Object? updated_at = freezed,
-    Object? deleted_at = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? deletedAt = freezed,
     Object? isBookmarked = freezed,
   }) {
     return _then(_value.copyWith(
@@ -118,33 +131,33 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
           ? _value.dd
           : dd // ignore: cast_nullable_to_non_nullable
               as int?,
-      birth_date: freezed == birth_date
-          ? _value.birth_date
-          : birth_date // ignore: cast_nullable_to_non_nullable
+      birthDate: freezed == birthDate
+          ? _value.birthDate
+          : birthDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String?,
-      artist_group: freezed == artist_group
-          ? _value.artist_group
-          : artist_group // ignore: cast_nullable_to_non_nullable
+      artistGroup: freezed == artistGroup
+          ? _value.artistGroup
+          : artistGroup // ignore: cast_nullable_to_non_nullable
               as ArtistGroupModel?,
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      created_at: freezed == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      updated_at: freezed == updated_at
-          ? _value.updated_at
-          : updated_at // ignore: cast_nullable_to_non_nullable
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      deleted_at: freezed == deleted_at
-          ? _value.deleted_at
-          : deleted_at // ignore: cast_nullable_to_non_nullable
+      deletedAt: freezed == deletedAt
+          ? _value.deletedAt
+          : deletedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       isBookmarked: freezed == isBookmarked
           ? _value.isBookmarked
@@ -157,13 +170,13 @@ class _$ArtistModelCopyWithImpl<$Res, $Val extends ArtistModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ArtistGroupModelCopyWith<$Res>? get artist_group {
-    if (_value.artist_group == null) {
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup {
+    if (_value.artistGroup == null) {
       return null;
     }
 
-    return $ArtistGroupModelCopyWith<$Res>(_value.artist_group!, (value) {
-      return _then(_value.copyWith(artist_group: value) as $Val);
+    return $ArtistGroupModelCopyWith<$Res>(_value.artistGroup!, (value) {
+      return _then(_value.copyWith(artistGroup: value) as $Val);
     });
   }
 }
@@ -177,22 +190,22 @@ abstract class _$$ArtistModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> name,
-      int? yy,
-      int? mm,
-      int? dd,
-      DateTime? birth_date,
-      String? gender,
-      ArtistGroupModel? artist_group,
-      String? image,
-      DateTime? created_at,
-      DateTime? updated_at,
-      DateTime? deleted_at,
-      bool? isBookmarked});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name') Map<String, dynamic> name,
+      @JsonKey(name: 'yy') int? yy,
+      @JsonKey(name: 'mm') int? mm,
+      @JsonKey(name: 'dd') int? dd,
+      @JsonKey(name: 'birth_date') DateTime? birthDate,
+      @JsonKey(name: 'gender') String? gender,
+      @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
+      @JsonKey(name: 'deleted_at') DateTime? deletedAt,
+      @JsonKey(name: 'isBookmarked') bool? isBookmarked});
 
   @override
-  $ArtistGroupModelCopyWith<$Res>? get artist_group;
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup;
 }
 
 /// @nodoc
@@ -213,13 +226,13 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
     Object? yy = freezed,
     Object? mm = freezed,
     Object? dd = freezed,
-    Object? birth_date = freezed,
+    Object? birthDate = freezed,
     Object? gender = freezed,
-    Object? artist_group = freezed,
+    Object? artistGroup = freezed,
     Object? image = freezed,
-    Object? created_at = freezed,
-    Object? updated_at = freezed,
-    Object? deleted_at = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? deletedAt = freezed,
     Object? isBookmarked = freezed,
   }) {
     return _then(_$ArtistModelImpl(
@@ -243,33 +256,33 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
           ? _value.dd
           : dd // ignore: cast_nullable_to_non_nullable
               as int?,
-      birth_date: freezed == birth_date
-          ? _value.birth_date
-          : birth_date // ignore: cast_nullable_to_non_nullable
+      birthDate: freezed == birthDate
+          ? _value.birthDate
+          : birthDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String?,
-      artist_group: freezed == artist_group
-          ? _value.artist_group
-          : artist_group // ignore: cast_nullable_to_non_nullable
+      artistGroup: freezed == artistGroup
+          ? _value.artistGroup
+          : artistGroup // ignore: cast_nullable_to_non_nullable
               as ArtistGroupModel?,
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      created_at: freezed == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      updated_at: freezed == updated_at
-          ? _value.updated_at
-          : updated_at // ignore: cast_nullable_to_non_nullable
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      deleted_at: freezed == deleted_at
-          ? _value.deleted_at
-          : deleted_at // ignore: cast_nullable_to_non_nullable
+      deletedAt: freezed == deletedAt
+          ? _value.deletedAt
+          : deletedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       isBookmarked: freezed == isBookmarked
           ? _value.isBookmarked
@@ -283,19 +296,19 @@ class __$$ArtistModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ArtistModelImpl extends _ArtistModel {
   const _$ArtistModelImpl(
-      {required this.id,
-      required final Map<String, dynamic> name,
-      this.yy,
-      this.mm,
-      this.dd,
-      this.birth_date,
-      this.gender,
-      this.artist_group,
-      this.image,
-      this.created_at,
-      this.updated_at,
-      this.deleted_at,
-      this.isBookmarked})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'name') required final Map<String, dynamic> name,
+      @JsonKey(name: 'yy') this.yy,
+      @JsonKey(name: 'mm') this.mm,
+      @JsonKey(name: 'dd') this.dd,
+      @JsonKey(name: 'birth_date') this.birthDate,
+      @JsonKey(name: 'gender') this.gender,
+      @JsonKey(name: 'artist_group') this.artistGroup,
+      @JsonKey(name: 'image') this.image,
+      @JsonKey(name: 'created_at') this.createdAt,
+      @JsonKey(name: 'updated_at') this.updatedAt,
+      @JsonKey(name: 'deleted_at') this.deletedAt,
+      @JsonKey(name: 'isBookmarked') this.isBookmarked})
       : _name = name,
         super._();
 
@@ -303,9 +316,11 @@ class _$ArtistModelImpl extends _ArtistModel {
       _$$ArtistModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   final Map<String, dynamic> _name;
   @override
+  @JsonKey(name: 'name')
   Map<String, dynamic> get name {
     if (_name is EqualUnmodifiableMapView) return _name;
     // ignore: implicit_dynamic_type
@@ -313,31 +328,42 @@ class _$ArtistModelImpl extends _ArtistModel {
   }
 
   @override
+  @JsonKey(name: 'yy')
   final int? yy;
   @override
+  @JsonKey(name: 'mm')
   final int? mm;
   @override
+  @JsonKey(name: 'dd')
   final int? dd;
   @override
-  final DateTime? birth_date;
+  @JsonKey(name: 'birth_date')
+  final DateTime? birthDate;
   @override
+  @JsonKey(name: 'gender')
   final String? gender;
   @override
-  final ArtistGroupModel? artist_group;
+  @JsonKey(name: 'artist_group')
+  final ArtistGroupModel? artistGroup;
   @override
+  @JsonKey(name: 'image')
   final String? image;
   @override
-  final DateTime? created_at;
+  @JsonKey(name: 'created_at')
+  final DateTime? createdAt;
   @override
-  final DateTime? updated_at;
+  @JsonKey(name: 'updated_at')
+  final DateTime? updatedAt;
   @override
-  final DateTime? deleted_at;
+  @JsonKey(name: 'deleted_at')
+  final DateTime? deletedAt;
   @override
+  @JsonKey(name: 'isBookmarked')
   final bool? isBookmarked;
 
   @override
   String toString() {
-    return 'ArtistModel(id: $id, name: $name, yy: $yy, mm: $mm, dd: $dd, birth_date: $birth_date, gender: $gender, artist_group: $artist_group, image: $image, created_at: $created_at, updated_at: $updated_at, deleted_at: $deleted_at, isBookmarked: $isBookmarked)';
+    return 'ArtistModel(id: $id, name: $name, yy: $yy, mm: $mm, dd: $dd, birthDate: $birthDate, gender: $gender, artistGroup: $artistGroup, image: $image, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt, isBookmarked: $isBookmarked)';
   }
 
   @override
@@ -350,18 +376,18 @@ class _$ArtistModelImpl extends _ArtistModel {
             (identical(other.yy, yy) || other.yy == yy) &&
             (identical(other.mm, mm) || other.mm == mm) &&
             (identical(other.dd, dd) || other.dd == dd) &&
-            (identical(other.birth_date, birth_date) ||
-                other.birth_date == birth_date) &&
+            (identical(other.birthDate, birthDate) ||
+                other.birthDate == birthDate) &&
             (identical(other.gender, gender) || other.gender == gender) &&
-            (identical(other.artist_group, artist_group) ||
-                other.artist_group == artist_group) &&
+            (identical(other.artistGroup, artistGroup) ||
+                other.artistGroup == artistGroup) &&
             (identical(other.image, image) || other.image == image) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at) &&
-            (identical(other.updated_at, updated_at) ||
-                other.updated_at == updated_at) &&
-            (identical(other.deleted_at, deleted_at) ||
-                other.deleted_at == deleted_at) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.deletedAt, deletedAt) ||
+                other.deletedAt == deletedAt) &&
             (identical(other.isBookmarked, isBookmarked) ||
                 other.isBookmarked == isBookmarked));
   }
@@ -375,13 +401,13 @@ class _$ArtistModelImpl extends _ArtistModel {
       yy,
       mm,
       dd,
-      birth_date,
+      birthDate,
       gender,
-      artist_group,
+      artistGroup,
       image,
-      created_at,
-      updated_at,
-      deleted_at,
+      createdAt,
+      updatedAt,
+      deletedAt,
       isBookmarked);
 
   /// Create a copy of ArtistModel
@@ -402,49 +428,63 @@ class _$ArtistModelImpl extends _ArtistModel {
 
 abstract class _ArtistModel extends ArtistModel {
   const factory _ArtistModel(
-      {required final int id,
-      required final Map<String, dynamic> name,
-      final int? yy,
-      final int? mm,
-      final int? dd,
-      final DateTime? birth_date,
-      final String? gender,
-      final ArtistGroupModel? artist_group,
-      final String? image,
-      final DateTime? created_at,
-      final DateTime? updated_at,
-      final DateTime? deleted_at,
-      final bool? isBookmarked}) = _$ArtistModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'name') required final Map<String, dynamic> name,
+          @JsonKey(name: 'yy') final int? yy,
+          @JsonKey(name: 'mm') final int? mm,
+          @JsonKey(name: 'dd') final int? dd,
+          @JsonKey(name: 'birth_date') final DateTime? birthDate,
+          @JsonKey(name: 'gender') final String? gender,
+          @JsonKey(name: 'artist_group') final ArtistGroupModel? artistGroup,
+          @JsonKey(name: 'image') final String? image,
+          @JsonKey(name: 'created_at') final DateTime? createdAt,
+          @JsonKey(name: 'updated_at') final DateTime? updatedAt,
+          @JsonKey(name: 'deleted_at') final DateTime? deletedAt,
+          @JsonKey(name: 'isBookmarked') final bool? isBookmarked}) =
+      _$ArtistModelImpl;
   const _ArtistModel._() : super._();
 
   factory _ArtistModel.fromJson(Map<String, dynamic> json) =
       _$ArtistModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'name')
   Map<String, dynamic> get name;
   @override
+  @JsonKey(name: 'yy')
   int? get yy;
   @override
+  @JsonKey(name: 'mm')
   int? get mm;
   @override
+  @JsonKey(name: 'dd')
   int? get dd;
   @override
-  DateTime? get birth_date;
+  @JsonKey(name: 'birth_date')
+  DateTime? get birthDate;
   @override
+  @JsonKey(name: 'gender')
   String? get gender;
   @override
-  ArtistGroupModel? get artist_group;
+  @JsonKey(name: 'artist_group')
+  ArtistGroupModel? get artistGroup;
   @override
+  @JsonKey(name: 'image')
   String? get image;
   @override
-  DateTime? get created_at;
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt;
   @override
-  DateTime? get updated_at;
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt;
   @override
-  DateTime? get deleted_at;
+  @JsonKey(name: 'deleted_at')
+  DateTime? get deletedAt;
   @override
+  @JsonKey(name: 'isBookmarked')
   bool? get isBookmarked;
 
   /// Create a copy of ArtistModel

@@ -20,12 +20,18 @@ VideoInfo _$VideoInfoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$VideoInfo {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  String get video_id => throw _privateConstructorUsedError;
-  String get video_url => throw _privateConstructorUsedError;
+  @JsonKey(name: 'video_id')
+  String get videoId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'video_url')
+  String get videoUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
   Map<String, String> get title => throw _privateConstructorUsedError;
-  String get thumbnail_url => throw _privateConstructorUsedError;
-  DateTime get created_at => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail_url')
+  String get thumbnailUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this VideoInfo to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -43,12 +49,12 @@ abstract class $VideoInfoCopyWith<$Res> {
       _$VideoInfoCopyWithImpl<$Res, VideoInfo>;
   @useResult
   $Res call(
-      {int id,
-      String video_id,
-      String video_url,
-      Map<String, String> title,
-      String thumbnail_url,
-      DateTime created_at});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'video_id') String videoId,
+      @JsonKey(name: 'video_url') String videoUrl,
+      @JsonKey(name: 'title') Map<String, String> title,
+      @JsonKey(name: 'thumbnail_url') String thumbnailUrl,
+      @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
 /// @nodoc
@@ -67,36 +73,36 @@ class _$VideoInfoCopyWithImpl<$Res, $Val extends VideoInfo>
   @override
   $Res call({
     Object? id = null,
-    Object? video_id = null,
-    Object? video_url = null,
+    Object? videoId = null,
+    Object? videoUrl = null,
     Object? title = null,
-    Object? thumbnail_url = null,
-    Object? created_at = null,
+    Object? thumbnailUrl = null,
+    Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      video_id: null == video_id
-          ? _value.video_id
-          : video_id // ignore: cast_nullable_to_non_nullable
+      videoId: null == videoId
+          ? _value.videoId
+          : videoId // ignore: cast_nullable_to_non_nullable
               as String,
-      video_url: null == video_url
-          ? _value.video_url
-          : video_url // ignore: cast_nullable_to_non_nullable
+      videoUrl: null == videoUrl
+          ? _value.videoUrl
+          : videoUrl // ignore: cast_nullable_to_non_nullable
               as String,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as Map<String, String>,
-      thumbnail_url: null == thumbnail_url
-          ? _value.thumbnail_url
-          : thumbnail_url // ignore: cast_nullable_to_non_nullable
+      thumbnailUrl: null == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
               as String,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ) as $Val);
   }
@@ -111,12 +117,12 @@ abstract class _$$VideoInfoImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      String video_id,
-      String video_url,
-      Map<String, String> title,
-      String thumbnail_url,
-      DateTime created_at});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'video_id') String videoId,
+      @JsonKey(name: 'video_url') String videoUrl,
+      @JsonKey(name: 'title') Map<String, String> title,
+      @JsonKey(name: 'thumbnail_url') String thumbnailUrl,
+      @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
 /// @nodoc
@@ -133,36 +139,36 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? video_id = null,
-    Object? video_url = null,
+    Object? videoId = null,
+    Object? videoUrl = null,
     Object? title = null,
-    Object? thumbnail_url = null,
-    Object? created_at = null,
+    Object? thumbnailUrl = null,
+    Object? createdAt = null,
   }) {
     return _then(_$VideoInfoImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      video_id: null == video_id
-          ? _value.video_id
-          : video_id // ignore: cast_nullable_to_non_nullable
+      videoId: null == videoId
+          ? _value.videoId
+          : videoId // ignore: cast_nullable_to_non_nullable
               as String,
-      video_url: null == video_url
-          ? _value.video_url
-          : video_url // ignore: cast_nullable_to_non_nullable
+      videoUrl: null == videoUrl
+          ? _value.videoUrl
+          : videoUrl // ignore: cast_nullable_to_non_nullable
               as String,
       title: null == title
           ? _value._title
           : title // ignore: cast_nullable_to_non_nullable
               as Map<String, String>,
-      thumbnail_url: null == thumbnail_url
-          ? _value.thumbnail_url
-          : thumbnail_url // ignore: cast_nullable_to_non_nullable
+      thumbnailUrl: null == thumbnailUrl
+          ? _value.thumbnailUrl
+          : thumbnailUrl // ignore: cast_nullable_to_non_nullable
               as String,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ));
   }
@@ -172,25 +178,29 @@ class __$$VideoInfoImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$VideoInfoImpl implements _VideoInfo {
   const _$VideoInfoImpl(
-      {required this.id,
-      required this.video_id,
-      required this.video_url,
-      required final Map<String, String> title,
-      required this.thumbnail_url,
-      required this.created_at})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'video_id') required this.videoId,
+      @JsonKey(name: 'video_url') required this.videoUrl,
+      @JsonKey(name: 'title') required final Map<String, String> title,
+      @JsonKey(name: 'thumbnail_url') required this.thumbnailUrl,
+      @JsonKey(name: 'created_at') required this.createdAt})
       : _title = title;
 
   factory _$VideoInfoImpl.fromJson(Map<String, dynamic> json) =>
       _$$VideoInfoImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final String video_id;
+  @JsonKey(name: 'video_id')
+  final String videoId;
   @override
-  final String video_url;
+  @JsonKey(name: 'video_url')
+  final String videoUrl;
   final Map<String, String> _title;
   @override
+  @JsonKey(name: 'title')
   Map<String, String> get title {
     if (_title is EqualUnmodifiableMapView) return _title;
     // ignore: implicit_dynamic_type
@@ -198,13 +208,15 @@ class _$VideoInfoImpl implements _VideoInfo {
   }
 
   @override
-  final String thumbnail_url;
+  @JsonKey(name: 'thumbnail_url')
+  final String thumbnailUrl;
   @override
-  final DateTime created_at;
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
 
   @override
   String toString() {
-    return 'VideoInfo(id: $id, video_id: $video_id, video_url: $video_url, title: $title, thumbnail_url: $thumbnail_url, created_at: $created_at)';
+    return 'VideoInfo(id: $id, videoId: $videoId, videoUrl: $videoUrl, title: $title, thumbnailUrl: $thumbnailUrl, createdAt: $createdAt)';
   }
 
   @override
@@ -213,21 +225,20 @@ class _$VideoInfoImpl implements _VideoInfo {
         (other.runtimeType == runtimeType &&
             other is _$VideoInfoImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.video_id, video_id) ||
-                other.video_id == video_id) &&
-            (identical(other.video_url, video_url) ||
-                other.video_url == video_url) &&
+            (identical(other.videoId, videoId) || other.videoId == videoId) &&
+            (identical(other.videoUrl, videoUrl) ||
+                other.videoUrl == videoUrl) &&
             const DeepCollectionEquality().equals(other._title, _title) &&
-            (identical(other.thumbnail_url, thumbnail_url) ||
-                other.thumbnail_url == thumbnail_url) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at));
+            (identical(other.thumbnailUrl, thumbnailUrl) ||
+                other.thumbnailUrl == thumbnailUrl) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, video_id, video_url,
-      const DeepCollectionEquality().hash(_title), thumbnail_url, created_at);
+  int get hashCode => Object.hash(runtimeType, id, videoId, videoUrl,
+      const DeepCollectionEquality().hash(_title), thumbnailUrl, createdAt);
 
   /// Create a copy of VideoInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -247,28 +258,35 @@ class _$VideoInfoImpl implements _VideoInfo {
 
 abstract class _VideoInfo implements VideoInfo {
   const factory _VideoInfo(
-      {required final int id,
-      required final String video_id,
-      required final String video_url,
-      required final Map<String, String> title,
-      required final String thumbnail_url,
-      required final DateTime created_at}) = _$VideoInfoImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'video_id') required final String videoId,
+          @JsonKey(name: 'video_url') required final String videoUrl,
+          @JsonKey(name: 'title') required final Map<String, String> title,
+          @JsonKey(name: 'thumbnail_url') required final String thumbnailUrl,
+          @JsonKey(name: 'created_at') required final DateTime createdAt}) =
+      _$VideoInfoImpl;
 
   factory _VideoInfo.fromJson(Map<String, dynamic> json) =
       _$VideoInfoImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  String get video_id;
+  @JsonKey(name: 'video_id')
+  String get videoId;
   @override
-  String get video_url;
+  @JsonKey(name: 'video_url')
+  String get videoUrl;
   @override
+  @JsonKey(name: 'title')
   Map<String, String> get title;
   @override
-  String get thumbnail_url;
+  @JsonKey(name: 'thumbnail_url')
+  String get thumbnailUrl;
   @override
-  DateTime get created_at;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt;
 
   /// Create a copy of VideoInfo
   /// with the given fields replaced by the non-null parameter values.

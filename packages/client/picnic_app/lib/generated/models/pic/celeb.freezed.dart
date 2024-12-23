@@ -20,10 +20,15 @@ CelebModel _$CelebModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CelebModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  String get name_ko => throw _privateConstructorUsedError;
-  String get name_en => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name_ko')
+  String get nameKo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name_en')
+  String get nameEn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail')
   String? get thumbnail => throw _privateConstructorUsedError;
+  @JsonKey(name: 'users')
   List<UserProfilesModel>? get users => throw _privateConstructorUsedError;
 
   /// Serializes this CelebModel to a JSON map.
@@ -43,11 +48,11 @@ abstract class $CelebModelCopyWith<$Res> {
       _$CelebModelCopyWithImpl<$Res, CelebModel>;
   @useResult
   $Res call(
-      {int id,
-      String name_ko,
-      String name_en,
-      String? thumbnail,
-      List<UserProfilesModel>? users});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name_ko') String nameKo,
+      @JsonKey(name: 'name_en') String nameEn,
+      @JsonKey(name: 'thumbnail') String? thumbnail,
+      @JsonKey(name: 'users') List<UserProfilesModel>? users});
 }
 
 /// @nodoc
@@ -66,8 +71,8 @@ class _$CelebModelCopyWithImpl<$Res, $Val extends CelebModel>
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
+    Object? nameKo = null,
+    Object? nameEn = null,
     Object? thumbnail = freezed,
     Object? users = freezed,
   }) {
@@ -76,13 +81,13 @@ class _$CelebModelCopyWithImpl<$Res, $Val extends CelebModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
+      nameKo: null == nameKo
+          ? _value.nameKo
+          : nameKo // ignore: cast_nullable_to_non_nullable
               as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
+      nameEn: null == nameEn
+          ? _value.nameEn
+          : nameEn // ignore: cast_nullable_to_non_nullable
               as String,
       thumbnail: freezed == thumbnail
           ? _value.thumbnail
@@ -105,11 +110,11 @@ abstract class _$$CelebModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      String name_ko,
-      String name_en,
-      String? thumbnail,
-      List<UserProfilesModel>? users});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name_ko') String nameKo,
+      @JsonKey(name: 'name_en') String nameEn,
+      @JsonKey(name: 'thumbnail') String? thumbnail,
+      @JsonKey(name: 'users') List<UserProfilesModel>? users});
 }
 
 /// @nodoc
@@ -126,8 +131,8 @@ class __$$CelebModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
+    Object? nameKo = null,
+    Object? nameEn = null,
     Object? thumbnail = freezed,
     Object? users = freezed,
   }) {
@@ -136,13 +141,13 @@ class __$$CelebModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
+      nameKo: null == nameKo
+          ? _value.nameKo
+          : nameKo // ignore: cast_nullable_to_non_nullable
               as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
+      nameEn: null == nameEn
+          ? _value.nameEn
+          : nameEn // ignore: cast_nullable_to_non_nullable
               as String,
       thumbnail: freezed == thumbnail
           ? _value.thumbnail
@@ -160,11 +165,11 @@ class __$$CelebModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CelebModelImpl extends _CelebModel {
   const _$CelebModelImpl(
-      {required this.id,
-      required this.name_ko,
-      required this.name_en,
-      this.thumbnail,
-      final List<UserProfilesModel>? users})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'name_ko') required this.nameKo,
+      @JsonKey(name: 'name_en') required this.nameEn,
+      @JsonKey(name: 'thumbnail') this.thumbnail,
+      @JsonKey(name: 'users') final List<UserProfilesModel>? users})
       : _users = users,
         super._();
 
@@ -172,15 +177,20 @@ class _$CelebModelImpl extends _CelebModel {
       _$$CelebModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final String name_ko;
+  @JsonKey(name: 'name_ko')
+  final String nameKo;
   @override
-  final String name_en;
+  @JsonKey(name: 'name_en')
+  final String nameEn;
   @override
+  @JsonKey(name: 'thumbnail')
   final String? thumbnail;
   final List<UserProfilesModel>? _users;
   @override
+  @JsonKey(name: 'users')
   List<UserProfilesModel>? get users {
     final value = _users;
     if (value == null) return null;
@@ -191,7 +201,7 @@ class _$CelebModelImpl extends _CelebModel {
 
   @override
   String toString() {
-    return 'CelebModel(id: $id, name_ko: $name_ko, name_en: $name_en, thumbnail: $thumbnail, users: $users)';
+    return 'CelebModel(id: $id, nameKo: $nameKo, nameEn: $nameEn, thumbnail: $thumbnail, users: $users)';
   }
 
   @override
@@ -200,8 +210,8 @@ class _$CelebModelImpl extends _CelebModel {
         (other.runtimeType == runtimeType &&
             other is _$CelebModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.name_ko, name_ko) || other.name_ko == name_ko) &&
-            (identical(other.name_en, name_en) || other.name_en == name_en) &&
+            (identical(other.nameKo, nameKo) || other.nameKo == nameKo) &&
+            (identical(other.nameEn, nameEn) || other.nameEn == nameEn) &&
             (identical(other.thumbnail, thumbnail) ||
                 other.thumbnail == thumbnail) &&
             const DeepCollectionEquality().equals(other._users, _users));
@@ -209,7 +219,7 @@ class _$CelebModelImpl extends _CelebModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name_ko, name_en, thumbnail,
+  int get hashCode => Object.hash(runtimeType, id, nameKo, nameEn, thumbnail,
       const DeepCollectionEquality().hash(_users));
 
   /// Create a copy of CelebModel
@@ -230,25 +240,31 @@ class _$CelebModelImpl extends _CelebModel {
 
 abstract class _CelebModel extends CelebModel {
   const factory _CelebModel(
-      {required final int id,
-      required final String name_ko,
-      required final String name_en,
-      final String? thumbnail,
-      final List<UserProfilesModel>? users}) = _$CelebModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'name_ko') required final String nameKo,
+          @JsonKey(name: 'name_en') required final String nameEn,
+          @JsonKey(name: 'thumbnail') final String? thumbnail,
+          @JsonKey(name: 'users') final List<UserProfilesModel>? users}) =
+      _$CelebModelImpl;
   const _CelebModel._() : super._();
 
   factory _CelebModel.fromJson(Map<String, dynamic> json) =
       _$CelebModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  String get name_ko;
+  @JsonKey(name: 'name_ko')
+  String get nameKo;
   @override
-  String get name_en;
+  @JsonKey(name: 'name_en')
+  String get nameEn;
   @override
+  @JsonKey(name: 'thumbnail')
   String? get thumbnail;
   @override
+  @JsonKey(name: 'users')
   List<UserProfilesModel>? get users;
 
   /// Create a copy of CelebModel

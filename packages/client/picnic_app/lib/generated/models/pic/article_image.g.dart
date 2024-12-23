@@ -14,10 +14,10 @@ _$ArticleImageModelImpl _$$ArticleImageModelImplFromJson(
       ($checkedConvert) {
         final val = _$ArticleImageModelImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
-          title_ko: $checkedConvert('title_ko', (v) => v as String),
-          title_en: $checkedConvert('title_en', (v) => v as String),
+          titleKo: $checkedConvert('title_ko', (v) => v as String),
+          titleEn: $checkedConvert('title_en', (v) => v as String),
           image: $checkedConvert('image', (v) => v as String?),
-          article_image_user: $checkedConvert(
+          articleImageUser: $checkedConvert(
               'article_image_user',
               (v) => (v as List<dynamic>?)
                   ?.map((e) =>
@@ -26,15 +26,20 @@ _$ArticleImageModelImpl _$$ArticleImageModelImplFromJson(
         );
         return val;
       },
+      fieldKeyMap: const {
+        'titleKo': 'title_ko',
+        'titleEn': 'title_en',
+        'articleImageUser': 'article_image_user'
+      },
     );
 
 Map<String, dynamic> _$$ArticleImageModelImplToJson(
         _$ArticleImageModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'title_ko': instance.title_ko,
-      'title_en': instance.title_en,
+      'title_ko': instance.titleKo,
+      'title_en': instance.titleEn,
       'image': instance.image,
       'article_image_user':
-          instance.article_image_user?.map((e) => e.toJson()).toList(),
+          instance.articleImageUser?.map((e) => e.toJson()).toList(),
     };

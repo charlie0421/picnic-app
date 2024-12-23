@@ -26,7 +26,10 @@ class VoteCommonTitle extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SvgPicture.asset('assets/icons/play_style=fill.svg',
-                width: 16.cw, height: 16, color: AppColors.primary500),
+                width: 16.cw,
+                height: 16,
+                colorFilter:
+                    ColorFilter.mode(AppColors.primary500, BlendMode.srcIn)),
             SizedBox(
               width: 2.cw,
             ),
@@ -62,7 +65,10 @@ class VoteCommonTitle extends StatelessWidget {
             Transform.rotate(
               angle: 3.14,
               child: SvgPicture.asset('assets/icons/play_style=fill.svg',
-                  width: 16.cw, height: 16, color: AppColors.primary500),
+                  width: 16.cw,
+                  height: 16,
+                  colorFilter:
+                      ColorFilter.mode(AppColors.primary500, BlendMode.srcIn)),
             ),
           ],
         ));

@@ -373,7 +373,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
         textAlign: TextAlign.center,
       ),
       Text(
-        getLocaleTextFromJson(artist.artist_group!.name),
+        getLocaleTextFromJson(artist.artistGroup!.name),
         style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
             .copyWith(height: .8),
         textAlign: TextAlign.center,

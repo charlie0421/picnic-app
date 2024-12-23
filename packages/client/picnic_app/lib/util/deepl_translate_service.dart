@@ -25,14 +25,14 @@ class DeepLTranslationService {
   /// Translates text to target language
   Future<String> translateText(
       String text, String sourceLang, String targetLang) async {
-    if (debugMode) print('Translating: "$text" to $targetLang');
+    logger.i('Translating: "$text" to $targetLang');
     int attempts = 0;
 
     while (attempts < _maxAttempts) {
       try {
         final translation = await _translator
             .translateTextSingular(text, targetLang, sourceLang: sourceLang);
-        if (debugMode) print('Translated: "$text" -> "${translation.text}"');
+        logger.i('Translated: "$text" -> "${translation.text}"');
 
         return translation.text;
         // if (!containsKoreanOrEmpty(translation.text)) {
@@ -48,16 +48,14 @@ class DeepLTranslationService {
         // }
       } catch (e, s) {
         logger.e('Error translating text: $e', stackTrace: s);
-        if (debugMode) print('Error translating text: $e');
+        logger.i('Error translating text: $e');
         attempts++;
         await Future.delayed(_retryDelay);
       }
     }
 
-    if (debugMode) {
-      print(
-          'Failed to translate after $_maxAttempts attempts. Using original text.');
-    }
+    logger.i(
+        'Failed to translate after $_maxAttempts attempts. Using original text.');
     return text;
   }
 
@@ -104,9 +102,7 @@ class DeepLTranslationService {
 
     final regex = _languageRegexMap[targetLanguage];
     if (regex == null) {
-      if (debugMode) {
-        print('Warning: No regex defined for language $targetLanguage');
-      }
+      logger.i('Warning: No regex defined for language $targetLanguage');
       return true;
     }
     return regex.hasMatch(textWithoutPlaceholders);

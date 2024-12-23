@@ -14,18 +14,19 @@ _$UserCommentLikeModelImpl _$$UserCommentLikeModelImplFromJson(
       ($checkedConvert) {
         final val = _$UserCommentLikeModelImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
-          user_id: $checkedConvert('user_id', (v) => (v as num).toInt()),
-          created_at:
+          userId: $checkedConvert('user_id', (v) => (v as num).toInt()),
+          createdAt:
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
         );
         return val;
       },
+      fieldKeyMap: const {'userId': 'user_id', 'createdAt': 'created_at'},
     );
 
 Map<String, dynamic> _$$UserCommentLikeModelImplToJson(
         _$UserCommentLikeModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'user_id': instance.user_id,
-      'created_at': instance.created_at.toIso8601String(),
+      'user_id': instance.userId,
+      'created_at': instance.createdAt.toIso8601String(),
     };

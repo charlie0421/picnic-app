@@ -24,23 +24,22 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 600,
-      child: widget.article.article_image != null
+      child: widget.article.articleImage != null
           ? Swiper(
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => _showFullScreenImage(context,
-                      widget.article.article_image![index].image ?? ''),
+                  onTap: () => _showFullScreenImage(
+                      context, widget.article.articleImage![index].image ?? ''),
                   child: Hero(
-                    tag: 'imageHero${widget.article.article_image![index].id}',
+                    tag: 'imageHero${widget.article.articleImage![index].id}',
                     child: Stack(
                       children: [
                         Container(
                           alignment: Alignment.topCenter,
                           child: PicnicCachedNetworkImage(
                             imageUrl:
-                                widget.article.article_image![index].image ??
-                                    '',
+                                widget.article.articleImage![index].image ?? '',
                             fit: BoxFit.fitHeight,
                             height: 600,
                           ),
@@ -54,7 +53,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                   ),
                 );
               },
-              itemCount: widget.article.article_image!.length,
+              itemCount: widget.article.articleImage!.length,
               pagination: const SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
                     color: Colors.grey, activeColor: picMainColor),
@@ -68,14 +67,14 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   //                GestureDetector(
   //                 behavior: HitTestBehavior.opaque,
   //                 onTap: () => _showFullScreenImage(context,
-  //                     widget.article.article_image![index].image ?? ''),
+  //                     widget.article.articleImage![index].image ?? ''),
   //                 child: Stack(
   //                   children: [
   //                     Hero(
   //                       tag:
-  //                           'imageHero${widget.article.article_image![index].id}',
+  //                           'imageHero${widget.article.articleImage![index].id}',
   //                       child: PicnicCachedNetworkImage(
-  //                         Key: widget.article.article_image![index].image ?? '',
+  //                         Key: widget.article.articleImage![index].image ?? '',
   //                         fit: BoxFit.cover,
   //                         height:600,
   //                       ),
@@ -85,7 +84,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   //                 ),
   //               );
   // },
-  // itemCount: widget.article.article_image!.length,
+  // itemCount: widget.article.articleImage!.length,
   // pagination: const SwiperPagination(
   //   builder: DotSwiperPaginationBuilder(
   //       color: Colors.grey, activeColor: picMainColor),
@@ -105,7 +104,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   }
 
   Widget _buildBookmark(ArticleModel article, int index) {
-    return article.article_image![index].article_image_user!.isNotEmpty
+    return article.articleImage![index].articleImageUser!.isNotEmpty
         ? IconButton(
             icon: const Icon(
               Icons.bookmark,
@@ -125,7 +124,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                   useRootNavigator: true,
                   useSafeArea: true,
                   builder: (BuildContext context) =>
-                      AlbumList(imageId: article.article_image![index].id));
+                      AlbumList(imageId: article.articleImage![index].id));
             });
   }
 }

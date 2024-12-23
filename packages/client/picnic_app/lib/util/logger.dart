@@ -171,7 +171,9 @@ class LongMessagePrinter extends PrettyPrinter {
 class LongOutputHandler extends LogOutput {
   @override
   void output(OutputEvent event) {
-    event.lines.forEach(print);
+    if (kDebugMode) {
+      event.lines.forEach(print);
+    }
   }
 }
 

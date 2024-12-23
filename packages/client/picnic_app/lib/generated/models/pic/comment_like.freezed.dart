@@ -20,9 +20,12 @@ UserCommentLikeModel _$UserCommentLikeModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserCommentLikeModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  int get user_id => throw _privateConstructorUsedError;
-  DateTime get created_at => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
+  int get userId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserCommentLikeModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -40,7 +43,10 @@ abstract class $UserCommentLikeModelCopyWith<$Res> {
           $Res Function(UserCommentLikeModel) then) =
       _$UserCommentLikeModelCopyWithImpl<$Res, UserCommentLikeModel>;
   @useResult
-  $Res call({int id, int user_id, DateTime created_at});
+  $Res call(
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'user_id') int userId,
+      @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
 /// @nodoc
@@ -60,21 +66,21 @@ class _$UserCommentLikeModelCopyWithImpl<$Res,
   @override
   $Res call({
     Object? id = null,
-    Object? user_id = null,
-    Object? created_at = null,
+    Object? userId = null,
+    Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      user_id: null == user_id
-          ? _value.user_id
-          : user_id // ignore: cast_nullable_to_non_nullable
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
               as int,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ) as $Val);
   }
@@ -88,7 +94,10 @@ abstract class _$$UserCommentLikeModelImplCopyWith<$Res>
       __$$UserCommentLikeModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, int user_id, DateTime created_at});
+  $Res call(
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'user_id') int userId,
+      @JsonKey(name: 'created_at') DateTime createdAt});
 }
 
 /// @nodoc
@@ -105,21 +114,21 @@ class __$$UserCommentLikeModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? user_id = null,
-    Object? created_at = null,
+    Object? userId = null,
+    Object? createdAt = null,
   }) {
     return _then(_$UserCommentLikeModelImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      user_id: null == user_id
-          ? _value.user_id
-          : user_id // ignore: cast_nullable_to_non_nullable
+      userId: null == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
               as int,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ));
   }
@@ -129,22 +138,27 @@ class __$$UserCommentLikeModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserCommentLikeModelImpl extends _UserCommentLikeModel {
   const _$UserCommentLikeModelImpl(
-      {required this.id, required this.user_id, required this.created_at})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'user_id') required this.userId,
+      @JsonKey(name: 'created_at') required this.createdAt})
       : super._();
 
   factory _$UserCommentLikeModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserCommentLikeModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final int user_id;
+  @JsonKey(name: 'user_id')
+  final int userId;
   @override
-  final DateTime created_at;
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
 
   @override
   String toString() {
-    return 'UserCommentLikeModel(id: $id, user_id: $user_id, created_at: $created_at)';
+    return 'UserCommentLikeModel(id: $id, userId: $userId, createdAt: $createdAt)';
   }
 
   @override
@@ -153,14 +167,14 @@ class _$UserCommentLikeModelImpl extends _UserCommentLikeModel {
         (other.runtimeType == runtimeType &&
             other is _$UserCommentLikeModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.user_id, user_id) || other.user_id == user_id) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at));
+            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, user_id, created_at);
+  int get hashCode => Object.hash(runtimeType, id, userId, createdAt);
 
   /// Create a copy of UserCommentLikeModel
   /// with the given fields replaced by the non-null parameter values.
@@ -182,20 +196,24 @@ class _$UserCommentLikeModelImpl extends _UserCommentLikeModel {
 
 abstract class _UserCommentLikeModel extends UserCommentLikeModel {
   const factory _UserCommentLikeModel(
-      {required final int id,
-      required final int user_id,
-      required final DateTime created_at}) = _$UserCommentLikeModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'user_id') required final int userId,
+          @JsonKey(name: 'created_at') required final DateTime createdAt}) =
+      _$UserCommentLikeModelImpl;
   const _UserCommentLikeModel._() : super._();
 
   factory _UserCommentLikeModel.fromJson(Map<String, dynamic> json) =
       _$UserCommentLikeModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  int get user_id;
+  @JsonKey(name: 'user_id')
+  int get userId;
   @override
-  DateTime get created_at;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt;
 
   /// Create a copy of UserCommentLikeModel
   /// with the given fields replaced by the non-null parameter values.

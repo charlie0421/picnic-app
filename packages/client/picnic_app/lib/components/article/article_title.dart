@@ -18,7 +18,7 @@ class ArticleTitle extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Text(
-              article.title_ko,
+              article.titleKo,
               style: getTextStyle(
                 AppTypo.title18B,
                 AppColors.grey900,
@@ -31,7 +31,7 @@ class ArticleTitle extends StatelessWidget {
           Align(
             alignment: Alignment.topCenter,
             child: Text(
-              DateFormat('yyyy-MM-dd').format(article.created_at),
+              DateFormat('yyyy-MM-dd').format(article.createdAt),
               style: getTextStyle(
                 AppTypo.body14B,
                 AppColors.grey900,

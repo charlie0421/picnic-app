@@ -16,8 +16,8 @@ _$PurchaseProductImpl _$$PurchaseProductImplFromJson(
           id: $checkedConvert('id', (v) => v as String),
           title: $checkedConvert('title', (v) => v as String),
           price: $checkedConvert('price', (v) => (v as num).toDouble()),
-          star_candy: $checkedConvert('star_candy', (v) => (v as num).toInt()),
-          bonus_star_candy:
+          starCandy: $checkedConvert('star_candy', (v) => (v as num).toInt()),
+          bonusStarCandy:
               $checkedConvert('bonus_star_candy', (v) => (v as num).toInt()),
           productDetails: $checkedConvert(
               'product_details',
@@ -26,7 +26,11 @@ _$PurchaseProductImpl _$$PurchaseProductImplFromJson(
         );
         return val;
       },
-      fieldKeyMap: const {'productDetails': 'product_details'},
+      fieldKeyMap: const {
+        'starCandy': 'star_candy',
+        'bonusStarCandy': 'bonus_star_candy',
+        'productDetails': 'product_details'
+      },
     );
 
 Map<String, dynamic> _$$PurchaseProductImplToJson(
@@ -35,8 +39,8 @@ Map<String, dynamic> _$$PurchaseProductImplToJson(
       'id': instance.id,
       'title': instance.title,
       'price': instance.price,
-      'star_candy': instance.star_candy,
-      'bonus_star_candy': instance.bonus_star_candy,
+      'star_candy': instance.starCandy,
+      'bonus_star_candy': instance.bonusStarCandy,
       'product_details':
           const ProductDetailsConverter().toJson(instance.productDetails),
     };

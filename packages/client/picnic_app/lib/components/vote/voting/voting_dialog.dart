@@ -193,7 +193,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   alignment: Alignment.center,
                   child: Text(
                     getLocaleTextFromJson(
-                        widget.voteItemModel.artist.artist_group!.name),
+                        widget.voteItemModel.artist.artistGroup!.name),
                     style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
                   ),
                 ),

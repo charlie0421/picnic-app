@@ -16,24 +16,32 @@ _$ArtistVoteModelImpl _$$ArtistVoteModelImplFromJson(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
           title: $checkedConvert('title', (v) => v as Map<String, dynamic>),
           category: $checkedConvert('category', (v) => v as String),
-          artist_vote_item: $checkedConvert(
+          artistVoteItem: $checkedConvert(
               'artist_vote_item',
               (v) => (v as List<dynamic>?)
                   ?.map((e) =>
                       ArtistVoteItemModel.fromJson(e as Map<String, dynamic>))
                   .toList()),
-          created_at:
+          createdAt:
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
-          updated_at: $checkedConvert('updated_at',
+          updatedAt: $checkedConvert('updated_at',
               (v) => v == null ? null : DateTime.parse(v as String)),
-          visible_at: $checkedConvert('visible_at',
+          visibleAt: $checkedConvert('visible_at',
               (v) => v == null ? null : DateTime.parse(v as String)),
-          stop_at:
+          stopAt:
               $checkedConvert('stop_at', (v) => DateTime.parse(v as String)),
-          start_at:
+          startAt:
               $checkedConvert('start_at', (v) => DateTime.parse(v as String)),
         );
         return val;
+      },
+      fieldKeyMap: const {
+        'artistVoteItem': 'artist_vote_item',
+        'createdAt': 'created_at',
+        'updatedAt': 'updated_at',
+        'visibleAt': 'visible_at',
+        'stopAt': 'stop_at',
+        'startAt': 'start_at'
       },
     );
 
@@ -44,12 +52,12 @@ Map<String, dynamic> _$$ArtistVoteModelImplToJson(
       'title': instance.title,
       'category': instance.category,
       'artist_vote_item':
-          instance.artist_vote_item?.map((e) => e.toJson()).toList(),
-      'created_at': instance.created_at.toIso8601String(),
-      'updated_at': instance.updated_at?.toIso8601String(),
-      'visible_at': instance.visible_at?.toIso8601String(),
-      'stop_at': instance.stop_at.toIso8601String(),
-      'start_at': instance.start_at.toIso8601String(),
+          instance.artistVoteItem?.map((e) => e.toJson()).toList(),
+      'created_at': instance.createdAt.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
+      'visible_at': instance.visibleAt?.toIso8601String(),
+      'stop_at': instance.stopAt.toIso8601String(),
+      'start_at': instance.startAt.toIso8601String(),
     };
 
 _$ArtistVoteItemModelImpl _$$ArtistVoteItemModelImplFromJson(
@@ -60,8 +68,8 @@ _$ArtistVoteItemModelImpl _$$ArtistVoteItemModelImplFromJson(
       ($checkedConvert) {
         final val = _$ArtistVoteItemModelImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
-          vote_total: $checkedConvert('vote_total', (v) => (v as num).toInt()),
-          artist_vote_id:
+          voteTotal: $checkedConvert('vote_total', (v) => (v as num).toInt()),
+          artistVoteId:
               $checkedConvert('artist_vote_id', (v) => (v as num).toInt()),
           title: $checkedConvert('title', (v) => v as Map<String, dynamic>),
           description:
@@ -69,14 +77,18 @@ _$ArtistVoteItemModelImpl _$$ArtistVoteItemModelImplFromJson(
         );
         return val;
       },
+      fieldKeyMap: const {
+        'voteTotal': 'vote_total',
+        'artistVoteId': 'artist_vote_id'
+      },
     );
 
 Map<String, dynamic> _$$ArtistVoteItemModelImplToJson(
         _$ArtistVoteItemModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'vote_total': instance.vote_total,
-      'artist_vote_id': instance.artist_vote_id,
+      'vote_total': instance.voteTotal,
+      'artist_vote_id': instance.artistVoteId,
       'title': instance.title,
       'description': instance.description,
     };
@@ -89,11 +101,11 @@ _$MyStarMemberModelImpl _$$MyStarMemberModelImplFromJson(
       ($checkedConvert) {
         final val = _$MyStarMemberModelImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
-          name_ko: $checkedConvert('name_ko', (v) => v as String),
-          name_en: $checkedConvert('name_en', (v) => v as String),
+          nameKo: $checkedConvert('name_ko', (v) => v as String),
+          nameEn: $checkedConvert('name_en', (v) => v as String),
           gender: $checkedConvert('gender', (v) => v as String),
           image: $checkedConvert('image', (v) => v as String?),
-          mystar_group: $checkedConvert(
+          mystarGroup: $checkedConvert(
               'mystar_group',
               (v) => v == null
                   ? null
@@ -101,17 +113,22 @@ _$MyStarMemberModelImpl _$$MyStarMemberModelImplFromJson(
         );
         return val;
       },
+      fieldKeyMap: const {
+        'nameKo': 'name_ko',
+        'nameEn': 'name_en',
+        'mystarGroup': 'mystar_group'
+      },
     );
 
 Map<String, dynamic> _$$MyStarMemberModelImplToJson(
         _$MyStarMemberModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'name_ko': instance.name_ko,
-      'name_en': instance.name_en,
+      'name_ko': instance.nameKo,
+      'name_en': instance.nameEn,
       'gender': instance.gender,
       'image': instance.image,
-      'mystar_group': instance.mystar_group?.toJson(),
+      'mystar_group': instance.mystarGroup?.toJson(),
     };
 
 _$MyStarGroupModelImpl _$$MyStarGroupModelImplFromJson(
@@ -122,20 +139,21 @@ _$MyStarGroupModelImpl _$$MyStarGroupModelImplFromJson(
       ($checkedConvert) {
         final val = _$MyStarGroupModelImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
-          name_ko: $checkedConvert('name_ko', (v) => v as String),
-          name_en: $checkedConvert('name_en', (v) => v as String),
+          nameKo: $checkedConvert('name_ko', (v) => v as String),
+          nameEn: $checkedConvert('name_en', (v) => v as String),
           image: $checkedConvert('image', (v) => v as String?),
         );
         return val;
       },
+      fieldKeyMap: const {'nameKo': 'name_ko', 'nameEn': 'name_en'},
     );
 
 Map<String, dynamic> _$$MyStarGroupModelImplToJson(
         _$MyStarGroupModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'name_ko': instance.name_ko,
-      'name_en': instance.name_en,
+      'name_ko': instance.nameKo,
+      'name_en': instance.nameEn,
       'image': instance.image,
     };
 
@@ -151,7 +169,7 @@ _$ArtistMemberModelImpl _$$ArtistMemberModelImplFromJson(
               'name', (v) => Map<String, String>.from(v as Map)),
           gender: $checkedConvert('gender', (v) => v as String),
           image: $checkedConvert('image', (v) => v as String?),
-          artist_group: $checkedConvert(
+          artistGroup: $checkedConvert(
               'artist_group',
               (v) => v == null
                   ? null
@@ -159,6 +177,7 @@ _$ArtistMemberModelImpl _$$ArtistMemberModelImplFromJson(
         );
         return val;
       },
+      fieldKeyMap: const {'artistGroup': 'artist_group'},
     );
 
 Map<String, dynamic> _$$ArtistMemberModelImplToJson(
@@ -168,7 +187,7 @@ Map<String, dynamic> _$$ArtistMemberModelImplToJson(
       'name': instance.name,
       'gender': instance.gender,
       'image': instance.image,
-      'artist_group': instance.artist_group?.toJson(),
+      'artist_group': instance.artistGroup?.toJson(),
     };
 
 _$ArtistGroupModelImpl _$$ArtistGroupModelImplFromJson(

@@ -78,7 +78,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                         .read(navigationInfoProvider.notifier)
                         .setCurrentPage(GalleryDetailPage(
                           galleryId: gallery.id,
-                          galleryName: gallery.title_en,
+                          galleryName: gallery.titleEn,
                         ));
                   },
                   child: Stack(
@@ -99,7 +99,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                         child: SizedBox(
                           height: 30,
                           child: Text(
-                            gallery.title_en,
+                            gallery.titleEn,
                             style: getTextStyle(
                               AppTypo.title18B,
                               AppColors.grey00,

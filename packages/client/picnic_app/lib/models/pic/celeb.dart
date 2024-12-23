@@ -10,11 +10,11 @@ class CelebModel with _$CelebModel {
   const CelebModel._();
 
   const factory CelebModel({
-    required int id,
-    required String name_ko,
-    required String name_en,
-    String? thumbnail,
-    List<UserProfilesModel>? users,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'name_ko') required String nameKo,
+    @JsonKey(name: 'name_en') required String nameEn,
+    @JsonKey(name: 'thumbnail') String? thumbnail,
+    @JsonKey(name: 'users') List<UserProfilesModel>? users,
   }) = _CelebModel;
 
   factory CelebModel.fromJson(Map<String, dynamic> json) =>

@@ -123,9 +123,9 @@ class LocalizedCompatibility with _$LocalizedCompatibility {
 }
 
 extension LocalizedCompatibilityX on LocalizedCompatibility {
-  Details? get details {
+  Details? get parsedDetails {
     try {
-      return Details.fromJson(details as Map<String, dynamic>);
+      return Details.fromJson(details?.toJson() ?? {});
     } catch (e, s) {
       logger.d('Error parsing details: $e', stackTrace: s);
       return null;

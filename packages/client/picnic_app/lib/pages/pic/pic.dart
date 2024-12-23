@@ -103,7 +103,7 @@ class _PicPageState extends ConsumerState<PicPage> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(data?[index - 1].name_ko ?? '',
+                    Text(data?[index - 1].nameKo ?? '',
                         style: getTextStyle(AppTypo.body16B, AppColors.grey900))
                   ],
                 ),

@@ -37,7 +37,7 @@ class _VideoListItemState extends State<VideoListItem> {
 
   void _initWebView() {
     _webViewProvider = createWebViewProvider(
-      videoId: widget.item.video_id,
+      videoId: widget.item.videoId,
       onLoadingChanged: (loading) {
         if (mounted) {
           setState(() {
@@ -58,7 +58,7 @@ class _VideoListItemState extends State<VideoListItem> {
   @override
   void didUpdateWidget(VideoListItem oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.item.video_id != widget.item.video_id) {
+    if (oldWidget.item.videoId != widget.item.videoId) {
       _webViewProvider.dispose();
       _initWebView();
     }
@@ -71,15 +71,13 @@ class _VideoListItemState extends State<VideoListItem> {
   }
 
   Future<void> _launchYouTube(BuildContext context) async {
-    final youtubeUrl = widget.item.video_url;
+    final youtubeUrl = widget.item.videoUrl;
     final uri = Uri.parse(youtubeUrl);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S
-            .of(context)
-            .post_cannot_open_youtube)),
+        SnackBar(content: Text(S.of(context).post_cannot_open_youtube)),
       );
     }
   }
@@ -98,7 +96,7 @@ class _VideoListItemState extends State<VideoListItem> {
               alignment: Alignment.center,
               children: [
                 KeyedSubtree(
-                  key: ValueKey('webview-${widget.item.video_id}'),
+                  key: ValueKey('webview-${widget.item.videoId}'),
                   child: _webViewProvider.build(context),
                 ),
                 if (_isLoading)
@@ -138,9 +136,9 @@ class _VideoListItemState extends State<VideoListItem> {
                       style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                     ),
                     Text(
-                      formatDateTimeYYYYMMDD(widget.item.created_at),
+                      formatDateTimeYYYYMMDD(widget.item.createdAt),
                       style:
-                      getTextStyle(AppTypo.caption12M, AppColors.grey900),
+                          getTextStyle(AppTypo.caption12M, AppColors.grey900),
                     ),
                   ],
                 ),

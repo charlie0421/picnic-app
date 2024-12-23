@@ -11,21 +11,21 @@ class GalleryModel with _$GalleryModel {
   const GalleryModel._();
 
   const factory GalleryModel({
-    required int id,
-    required String title_ko,
-    required String title_en,
-    String? cover,
-    required CelebModel? celeb,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'title_ko') required String titleKo,
+    @JsonKey(name: 'title_en') required String titleEn,
+    @JsonKey(name: 'cover') String? cover,
+    @JsonKey(name: 'celeb') required CelebModel? celeb,
   }) = _GalleryModel;
 
   getTitle() {
     switch (getLocaleLanguage()) {
       case 'ko':
-        return title_ko;
+        return titleKo;
       case 'en':
-        return title_en;
+        return titleEn;
       default:
-        return title_en;
+        return titleEn;
     }
   }
 

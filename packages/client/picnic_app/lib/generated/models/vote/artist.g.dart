@@ -17,26 +17,32 @@ _$ArtistModelImpl _$$ArtistModelImplFromJson(Map<String, dynamic> json) =>
           yy: $checkedConvert('yy', (v) => (v as num?)?.toInt()),
           mm: $checkedConvert('mm', (v) => (v as num?)?.toInt()),
           dd: $checkedConvert('dd', (v) => (v as num?)?.toInt()),
-          birth_date: $checkedConvert('birth_date',
+          birthDate: $checkedConvert('birth_date',
               (v) => v == null ? null : DateTime.parse(v as String)),
           gender: $checkedConvert('gender', (v) => v as String?),
-          artist_group: $checkedConvert(
+          artistGroup: $checkedConvert(
               'artist_group',
               (v) => v == null
                   ? null
                   : ArtistGroupModel.fromJson(v as Map<String, dynamic>)),
           image: $checkedConvert('image', (v) => v as String?),
-          created_at: $checkedConvert('created_at',
+          createdAt: $checkedConvert('created_at',
               (v) => v == null ? null : DateTime.parse(v as String)),
-          updated_at: $checkedConvert('updated_at',
+          updatedAt: $checkedConvert('updated_at',
               (v) => v == null ? null : DateTime.parse(v as String)),
-          deleted_at: $checkedConvert('deleted_at',
+          deletedAt: $checkedConvert('deleted_at',
               (v) => v == null ? null : DateTime.parse(v as String)),
-          isBookmarked: $checkedConvert('is_bookmarked', (v) => v as bool?),
+          isBookmarked: $checkedConvert('isBookmarked', (v) => v as bool?),
         );
         return val;
       },
-      fieldKeyMap: const {'isBookmarked': 'is_bookmarked'},
+      fieldKeyMap: const {
+        'birthDate': 'birth_date',
+        'artistGroup': 'artist_group',
+        'createdAt': 'created_at',
+        'updatedAt': 'updated_at',
+        'deletedAt': 'deleted_at'
+      },
     );
 
 Map<String, dynamic> _$$ArtistModelImplToJson(_$ArtistModelImpl instance) =>
@@ -46,12 +52,12 @@ Map<String, dynamic> _$$ArtistModelImplToJson(_$ArtistModelImpl instance) =>
       'yy': instance.yy,
       'mm': instance.mm,
       'dd': instance.dd,
-      'birth_date': instance.birth_date?.toIso8601String(),
+      'birth_date': instance.birthDate?.toIso8601String(),
       'gender': instance.gender,
-      'artist_group': instance.artist_group?.toJson(),
+      'artist_group': instance.artistGroup?.toJson(),
       'image': instance.image,
-      'created_at': instance.created_at?.toIso8601String(),
-      'updated_at': instance.updated_at?.toIso8601String(),
-      'deleted_at': instance.deleted_at?.toIso8601String(),
-      'is_bookmarked': instance.isBookmarked,
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
+      'deleted_at': instance.deletedAt?.toIso8601String(),
+      'isBookmarked': instance.isBookmarked,
     };

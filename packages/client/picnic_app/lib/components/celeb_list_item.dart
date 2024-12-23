@@ -40,7 +40,7 @@ class CelebListItem extends ConsumerWidget {
     return InkWell(
       onTap: () {
         selectedCelebNotifier.setSelectedCeleb(item);
-        logger.i('selectedCeleb: ${item.name_ko}');
+        logger.i('selectedCeleb: ${item.nameKo}');
         onTap?.call();
         Navigator.pop(context);
       },
@@ -58,7 +58,7 @@ class CelebListItem extends ConsumerWidget {
                   height: 40,
                 ),
                 const SizedBox(width: 16),
-                Text(item.name_ko,
+                Text(item.nameKo,
                     style: Theme.of(context).textTheme.titleLarge),
               ],
             ),

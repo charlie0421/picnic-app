@@ -26,7 +26,7 @@ class _ArticleCommentInfoState extends ConsumerState<ArticleCommentInfo> {
         behavior: HitTestBehavior.opaque,
         onTap: () => widget.showComments(context, widget.article),
         child: Text(
-            '${S.of(context).label_read_more_comment} ${ref.watch(commentCountProvider(widget.article.id)).value != 0 ? ref.watch(commentCountProvider(widget.article.id)).value : widget.article.comment_count}',
+            '${S.of(context).label_read_more_comment} ${ref.watch(commentCountProvider(widget.article.id)).value != 0 ? ref.watch(commentCountProvider(widget.article.id)).value : widget.article.commentCount}',
             style: getTextStyle(
               AppTypo.body14B,
               AppColors.grey900,
