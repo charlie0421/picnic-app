@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/ads/banner_ad_widget.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_error.dart';
 import 'package:picnic_app/components/community/compatibility/compatibility_info.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -11,12 +12,10 @@ import 'package:picnic_app/models/common/navigation.dart';
 import 'package:picnic_app/models/community/compatibility.dart';
 import 'package:picnic_app/pages/community/compatibility_result_page.dart';
 import 'package:picnic_app/providers/community/compatibility_provider.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
-import 'package:picnic_app/util/ui.dart';
 
 class CompatibilityLoadingPage extends ConsumerStatefulWidget {
   const CompatibilityLoadingPage({
@@ -42,10 +41,6 @@ class _CompatibilityLoadingPageState
   // Loading view state
   int _seconds = _totalSeconds;
   bool _isLoadingStarted = false;
-  BannerAd? _topBannerAd;
-  BannerAd? _bottomBannerAd;
-  bool _isTopBannerLoaded = false;
-  bool _isBottomBannerLoaded = false;
   Timer? _timer;
 
   String loadingMessage = '';
@@ -76,8 +71,6 @@ class _CompatibilityLoadingPageState
   @override
   void dispose() {
     _timer?.cancel();
-    _topBannerAd?.dispose();
-    _bottomBannerAd?.dispose();
     super.dispose();
   }
 
@@ -92,64 +85,9 @@ class _CompatibilityLoadingPageState
       if (widget.compatibility.isPending ||
           widget.compatibility.isAds == false) {
         ref.read(compatibilityLoadingProvider.notifier).state = true;
-        _loadAds();
       }
     } catch (e, stack) {
       logger.e('Error initializing data', error: e, stackTrace: stack);
-    }
-  }
-
-  void _loadAds() async {
-    final configService = ref.read(configServiceProvider);
-
-    final adTopUnitId = isAndroid()
-        ? await configService
-            .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_TOP')
-        : await configService.getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_TOP');
-    final adBottomUnitId = isAndroid()
-        ? await configService
-            .getConfig('ADMOB_ANDROID_COMPATIBILITY_LOADING_BOTTOM')
-        : await configService
-            .getConfig('ADMOB_IOS_COMPATIBILITY_LOADING_BOTTOM');
-
-    if (adTopUnitId != null) {
-      _topBannerAd = BannerAd(
-        adUnitId: adTopUnitId,
-        size: AdSize.largeBanner,
-        request: const AdRequest(),
-        listener: BannerAdListener(
-          onAdLoaded: (_) {
-            if (mounted) {
-              setState(() {
-                _isTopBannerLoaded = true;
-              });
-            }
-          },
-          onAdFailedToLoad: (ad, error) {
-            ad.dispose();
-          },
-        ),
-      )..load();
-    }
-
-    if (adBottomUnitId != null) {
-      _bottomBannerAd = BannerAd(
-        adUnitId: adBottomUnitId,
-        size: AdSize.largeBanner,
-        request: const AdRequest(),
-        listener: BannerAdListener(
-          onAdLoaded: (_) {
-            if (mounted) {
-              setState(() {
-                _isBottomBannerLoaded = true;
-              });
-            }
-          },
-          onAdFailedToLoad: (ad, error) {
-            ad.dispose();
-          },
-        ),
-      )..load();
     }
   }
 
@@ -255,15 +193,10 @@ class _CompatibilityLoadingPageState
           },
         ),
         SizedBox(height: 24),
-        if (_isTopBannerLoaded && _topBannerAd != null)
-          Container(
-            alignment: Alignment.center,
-            width: _topBannerAd!.size.width.toDouble(),
-            height: _topBannerAd!.size.height.toDouble(),
-            child: AdWidget(ad: _topBannerAd!),
-          )
-        else
-          SizedBox(height: AdSize.largeBanner.height.toDouble()),
+        BannerAdWidget(
+          configKey: 'COMPATIBILITY_LOADING_TOP',
+          adSize: AdSize.largeBanner,
+        ),
         const SizedBox(height: 16),
         Text(
           S.of(context).compatibility_waiting_message,
@@ -283,15 +216,10 @@ class _CompatibilityLoadingPageState
           ),
         ),
         const SizedBox(height: 16),
-        if (_isBottomBannerLoaded && _bottomBannerAd != null)
-          Container(
-            alignment: Alignment.center,
-            width: _bottomBannerAd!.size.width.toDouble(),
-            height: _bottomBannerAd!.size.height.toDouble(),
-            child: AdWidget(ad: _bottomBannerAd!),
-          )
-        else
-          SizedBox(height: AdSize.largeBanner.height.toDouble()),
+        BannerAdWidget(
+          configKey: 'COMPATIBILITY_LOADING_BOTTOM',
+          adSize: AdSize.largeBanner,
+        ),
         SizedBox(height: 200),
       ],
     );

@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/ads/banner_ad_widget.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
@@ -19,7 +20,6 @@ import 'package:picnic_app/dialogs/reward_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
@@ -29,7 +29,6 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/number.dart';
-import 'package:picnic_app/util/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -54,9 +53,6 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   OverlayEntry? _overlayEntry;
   final List<int> _achievedMilestones = [];
 
-  BannerAd? _bannerAd;
-  bool _isBannerLoaded = false;
-
   @override
   void initState() {
     super.initState();
@@ -64,7 +60,6 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 2));
     _setupTimer();
-    _loadAds();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -92,30 +87,6 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
         _checkMilestoneAchievement(currentVotes, _achievements!);
       }
     });
-  }
-
-  void _loadAds() async {
-    final configService = ref.read(configServiceProvider);
-
-    String? adUnitId = isIOS()
-        ? await configService.getConfig('ADMOB_IOS_VOTE_COMPLETE')
-        : await configService.getConfig('ADMOB_ANDROID_VOTE_COMPLETE');
-
-    _bannerAd = BannerAd(
-      adUnitId: adUnitId!,
-      size: AdSize.largeBanner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          setState(() {
-            _isBannerLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-        },
-      ),
-    )..load();
   }
 
   void _checkMilestoneAchievement(
@@ -439,14 +410,13 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                 ),
               ),
               const SizedBox(height: 8),
-              (_isBannerLoaded && _bannerAd != null)
-                  ? Container(
-                      alignment: Alignment.center,
-                      width: _bannerAd!.size.width.toDouble(),
-                      height: _bannerAd!.size.height.toDouble(),
-                      child: AdWidget(ad: _bannerAd!),
-                    )
-                  : SizedBox(height: AdSize.largeBanner.height.toDouble()),
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: BannerAdWidget(
+                  configKey: 'VOTE_DETAIL',
+                  adSize: AdSize.largeBanner,
+                ),
+              ),
               const SizedBox(height: 18),
             ],
           );

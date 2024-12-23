@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_app/components/common/ads/banner_ad_widget.dart';
 import 'package:picnic_app/components/common/common_search_box.dart';
 import 'package:picnic_app/components/common/picnic_cached_network_image.dart';
 import 'package:picnic_app/components/common/share_section.dart';
@@ -59,9 +60,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
 
-  BannerAd? _bannerAd;
-  bool _isBannerLoaded = false;
-
   final GlobalKey _globalKey = GlobalKey();
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   bool _isSaving = false;
@@ -89,22 +87,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     String? adUnitId = isIOS()
         ? await configService.getConfig('ADMOB_IOS_VOTE_DETAIL')
         : await configService.getConfig('ADMOB_ANDROID_VOTE_DETAIL');
-
-    _bannerAd = BannerAd(
-      adUnitId: adUnitId!,
-      size: AdSize.largeBanner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          setState(() {
-            _isBannerLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-        },
-      ),
-    )..load();
   }
 
   void _initializeControllers() {
@@ -141,7 +123,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _textEditingController.dispose();
     _searchSubject.close();
     _updateTimer?.cancel();
-    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -300,15 +281,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ),
         if (!_isSaving) ...[
           const SizedBox(height: 8),
-          if (_isBannerLoaded && _bannerAd != null)
-            Container(
-              alignment: Alignment.center,
-              width: _bannerAd!.size.width.toDouble(),
-              height: _bannerAd!.size.height.toDouble(),
-              child: AdWidget(ad: _bannerAd!),
-            )
-          else
-            SizedBox(height: AdSize.largeBanner.height.toDouble()),
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: BannerAdWidget(
+              configKey: 'VOTE_DETAIL',
+              adSize: AdSize.largeBanner,
+            ),
+          ),
           const SizedBox(height: 8),
         ],
         if (voteModel.reward != null && widget.votePortal == VotePortal.vote)

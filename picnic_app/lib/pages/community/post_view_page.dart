@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_app/components/common/ads/banner_ad_widget.dart';
 import 'package:picnic_app/components/common/comment/comment_item.dart';
 import 'package:picnic_app/components/common/comment/comment_list.dart';
 import 'package:picnic_app/components/common/comment/post_popup_menu.dart';
@@ -23,7 +23,6 @@ import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/providers/community_navigation_provider.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -48,128 +47,14 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   quill.QuillController? _quillController;
   String? _errorMessage;
   bool _isModalOpen = false;
-  final bool _shouldShowAds = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
-  final Map<String, _AdStatus> _adsStatus = {};
   List<CommentModel>? _comments;
   bool _isLoadingComments = false;
   bool _isDisposed = false;
-  Timer? _refreshTimer;
-  bool _isAllAdsLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _postFuture = _loadPost();
-    if (_shouldShowAds) {
-      _initAds();
-    } else {
-      _isAllAdsLoaded = true;
-    }
-
-    _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-      if (!_isModalOpen && mounted) {
-        _refreshPostAndComments();
-      }
-    });
-  }
-
-  Future<void> _initAds() async {
-    if (_isDisposed) return;
-
-    try {
-      setState(() => _isAllAdsLoaded = false); // 광고 로딩 시작 시 상태 업데이트
-
-      final configService = ref.read(configServiceProvider);
-      final topAdUnitId = Platform.isIOS
-          ? await configService.getConfig('ADMOB_IOS_POSTVIEW_TOP')
-          : await configService.getConfig('ADMOB_ANDROID_POSTVIEW_TOP');
-      final bottomAdUnitId = Platform.isIOS
-          ? await configService.getConfig('ADMOB_IOS_POSTVIEW_BOTTOM')
-          : await configService.getConfig('ADMOB_ANDROID_POSTVIEW_BOTTOM');
-
-      if (_isDisposed) return;
-
-      _adsStatus.clear(); // 기존 광고 상태 초기화
-
-      if (topAdUnitId != null) {
-        _adsStatus['top'] = _AdStatus(
-          id: topAdUnitId,
-          size: AdSize.banner,
-          isLoading: true,
-        );
-      }
-      if (bottomAdUnitId != null) {
-        _adsStatus['bottom'] = _AdStatus(
-          id: bottomAdUnitId,
-          size: AdSize.mediumRectangle,
-          isLoading: true,
-        );
-      }
-
-      await _loadAllAds();
-    } catch (e, s) {
-      logger.e('Error initializing ads: $e', stackTrace: s);
-      if (!_isDisposed) {
-        setState(() => _isAllAdsLoaded = true); // Show content even if ads fail
-      }
-    }
-  }
-
-  Future<void> _loadAllAds() async {
-    if (_adsStatus.isEmpty) {
-      setState(() => _isAllAdsLoaded = true);
-      return;
-    }
-
-    final futures = _adsStatus.entries.map((entry) => _loadSingleAd(entry.key));
-    try {
-      await Future.wait(futures);
-      if (!_isDisposed) {
-        setState(() => _isAllAdsLoaded = true);
-      }
-    } catch (e, s) {
-      logger.e('Error loading ads: $e', stackTrace: s);
-      if (!_isDisposed) {
-        setState(() => _isAllAdsLoaded = true); // Show content even if ads fail
-      }
-    }
-  }
-
-  Future<void> _loadSingleAd(String position) async {
-    final status = _adsStatus[position]!;
-    final completer = Completer<void>();
-
-    status.ad = BannerAd(
-      adUnitId: status.id,
-      size: status.size,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          if (!_isDisposed) {
-            setState(() => status.isLoading = false);
-            completer.complete();
-          }
-        },
-        onAdFailedToLoad: (ad, error) {
-          logger.e('Ad failed to load: $error');
-          ad.dispose();
-          status.ad = null;
-          status.isLoading = false;
-          completer.complete(); // Complete anyway to not block content
-        },
-      ),
-    );
-
-    try {
-      await status.ad!.load();
-    } catch (e, s) {
-      logger.e('exception:', error: e, stackTrace: s);
-
-      completer.complete(); // Complete anyway to not block content
-      rethrow;
-    }
-
-    return completer.future;
   }
 
   Future<PostModel> _loadPost({bool isIncrementViewCount = true}) async {
@@ -292,22 +177,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   @override
   void dispose() {
     _isDisposed = true;
-    _refreshTimer?.cancel();
     _quillController?.dispose();
-    for (var status in _adsStatus.values) {
-      status.ad?.dispose();
-    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isAllAdsLoaded) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
     return FutureBuilder<PostModel>(
       future: _postFuture,
       builder: (context, snapshot) {
@@ -355,7 +230,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_shouldShowAds) _buildAdSpace('top'),
+                BannerAdWidget(
+                  configKey: 'POSTVIEW_TOP',
+                  adSize: AdSize.fullBanner,
+                ),
+                // 컨텐츠
+
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.cw),
                   child: Text(
@@ -384,7 +264,11 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                   padding: EdgeInsets.all(16.cw),
                   child: _buildContent(),
                 ),
-                if (_shouldShowAds) _buildAdSpace('bottom'),
+                BannerAdWidget(
+                  configKey: 'POSTVIEW_BOTTOM',
+                  adSize: AdSize.mediumRectangle,
+                ),
+
                 const SizedBox(height: 36),
                 _buildCommentsList(post),
               ],
@@ -442,10 +326,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               try {
                 setState(() {
                   _isModalOpen = true;
-                  for (var status in _adsStatus.values) {
-                    status.ad?.dispose();
-                  }
-                  _adsStatus.clear();
                 });
 
                 final result = await showDialog<bool>(
@@ -465,7 +345,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                   if (result == null) {
                     setState(() {
                       _isModalOpen = false;
-                      if (_shouldShowAds) _initAds();
                     });
                   } else {
                     ref.read(navigationInfoProvider.notifier).goBack();
@@ -505,39 +384,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
             NetworkImageEmbedBuilder(),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAdSpace(String position) {
-    final status = _adsStatus[position];
-    if (status == null) {
-      return SizedBox(
-        width: AdSize.banner.width.toDouble(),
-        height: AdSize.banner.height.toDouble(),
-      );
-    }
-
-    if (status.isLoading) {
-      return SizedBox(
-        width: status.size.width.toDouble(),
-        height: status.size.height.toDouble(),
-        child: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (status.ad == null) {
-      return SizedBox(
-        width: status.size.width.toDouble(),
-        height: status.size.height.toDouble(),
-      );
-    }
-
-    return Center(
-      child: SizedBox(
-        width: status.size.width.toDouble(),
-        height: status.size.height.toDouble(),
-        child: _isModalOpen ? null : AdWidget(ad: status.ad!),
       ),
     );
   }
@@ -643,11 +489,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   ) async {
     setState(() {
       _isModalOpen = true;
-      _isAllAdsLoaded = false; // 모달이 열릴 때 광고 로딩 상태 리셋
-      for (var status in _adsStatus.values) {
-        status.ad?.dispose();
-      }
-      _adsStatus.clear();
     });
 
     await showDialog(
@@ -667,13 +508,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       setState(() {
         _isModalOpen = false;
       });
-      if (_shouldShowAds) {
-        _initAds(); // 모달이 닫힌 후 광고 다시 초기화
-      } else {
-        setState(() {
-          _isAllAdsLoaded = true;
-        });
-      }
       _refreshPostAndComments();
     }
   }
@@ -686,11 +520,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
     setState(() {
       _isModalOpen = true;
-      _isAllAdsLoaded = false; // 모달이 열릴 때 광고 로딩 상태 리셋
-      for (var status in _adsStatus.values) {
-        status.ad?.dispose();
-      }
-      _adsStatus.clear();
     });
 
     showModalBottomSheet(
@@ -719,13 +548,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         setState(() {
           _isModalOpen = false;
         });
-        if (_shouldShowAds) {
-          _initAds(); // 모달이 닫힌 후 광고 다시 초기화
-        } else {
-          setState(() {
-            _isAllAdsLoaded = true;
-          });
-        }
         _refreshPostAndComments();
       }
     });
@@ -744,19 +566,6 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       logger.e('Error refreshing data: $e', stackTrace: s);
     }
   }
-}
-
-class _AdStatus {
-  _AdStatus({
-    required this.id,
-    required this.size,
-    this.isLoading = true,
-  });
-
-  final String id;
-  final AdSize size;
-  bool isLoading;
-  BannerAd? ad;
 }
 
 class AlwaysDisabledFocusNode extends FocusNode {

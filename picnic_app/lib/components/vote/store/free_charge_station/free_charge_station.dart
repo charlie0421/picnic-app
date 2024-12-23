@@ -1,12 +1,12 @@
 // free_charge_station.dart
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_app/components/common/ads/banner_ad_widget.dart';
 import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
 import 'package:picnic_app/components/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
@@ -15,7 +15,6 @@ import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/ad_info.dart';
 import 'package:picnic_app/providers/ad_providers.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
@@ -23,30 +22,6 @@ import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
-
-class BannerAdState {
-  final bool isLoading;
-  final BannerAd? bannerAd;
-  final String? error;
-
-  const BannerAdState({
-    this.isLoading = true,
-    this.bannerAd,
-    this.error,
-  });
-
-  BannerAdState copyWith({
-    bool? isLoading,
-    BannerAd? bannerAd,
-    String? error,
-  }) {
-    return BannerAdState(
-      isLoading: isLoading ?? this.isLoading,
-      bannerAd: bannerAd ?? this.bannerAd,
-      error: error ?? this.error,
-    );
-  }
-}
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -59,19 +34,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _buttonScaleAnimation;
-  BannerAd? _bannerAd;
-  BannerAdState _bannerAdState = const BannerAdState();
-  bool _isPageReady = false;
-  Timer? _retryTimer;
-  int _retryCount = 0;
-  static const int maxRetries = 3;
   bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
     _setupAnimation();
-    _initializePage();
   }
 
   void _setupAnimation() {
@@ -87,118 +55,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   @override
   void dispose() {
     _isDisposed = true;
-    _cleanupAd();
-    _retryTimer?.cancel();
     _animationController.dispose();
     super.dispose();
-  }
-
-  Future<void> _initializePage() async {
-    if (_isDisposed) return;
-
-    try {
-      await _loadBannerAd();
-      if (!_isDisposed) {
-        setState(() {
-          _isPageReady = true;
-        });
-      }
-    } catch (e, s) {
-      logger.e('Error initializing page', error: e, stackTrace: s);
-      if (!_isDisposed) {
-        setState(() {
-          _isPageReady = true;
-        });
-      }
-    }
-  }
-
-  Future<void> _loadBannerAd() async {
-    if (_isDisposed) return;
-
-    try {
-      // 기존 광고 정리
-      await _cleanupAd();
-
-      final configService = ref.read(configServiceProvider);
-      final adUnitId = isIOS()
-          ? await configService.getConfig('ADMOB_IOS_FREE_CHARGE_STATION')
-          : await configService.getConfig('ADMOB_ANDROID_FREE_CHARGE_STATION');
-
-      if (adUnitId == null) throw Exception('Ad unit ID is null');
-
-      if (_isDisposed) return; // 한번 더 체크
-
-      final newBannerAd = BannerAd(
-        adUnitId: adUnitId,
-        size: AdSize.banner,
-        request: const AdRequest(),
-        listener: BannerAdListener(
-          onAdLoaded: (Ad ad) {
-            if (_isDisposed) {
-              ad.dispose();
-              return;
-            }
-            setState(() {
-              _bannerAd = ad as BannerAd;
-              _bannerAdState = BannerAdState(
-                isLoading: false,
-                bannerAd: _bannerAd,
-              );
-              _retryCount = 0;
-            });
-          },
-          onAdFailedToLoad: (Ad ad, LoadAdError error) {
-            ad.dispose();
-            if (_isDisposed) return;
-
-            setState(() {
-              _bannerAdState = BannerAdState(
-                isLoading: false,
-                error: 'Failed to load ad',
-              );
-            });
-            _scheduleRetry();
-          },
-        ),
-      );
-
-      await newBannerAd.load();
-    } catch (e, s) {
-      logger.e('Error loading banner ad', error: e, stackTrace: s);
-      if (!_isDisposed) {
-        _scheduleRetry();
-      }
-    }
-  }
-
-  // cleanup 함수 개선
-  Future<void> _cleanupAd() async {
-    try {
-      final currentAd = _bannerAd;
-      _bannerAd = null; // 먼저 참조 제거
-      await currentAd?.dispose();
-    } catch (e, s) {
-      logger.e('Error disposing banner ad', error: e, stackTrace: s);
-    }
-  }
-
-  void _scheduleRetry() {
-    if (_isDisposed) return;
-
-    setState(() {
-      _retryCount++;
-      _bannerAdState = BannerAdState(
-        isLoading: false,
-        error: 'Failed to load ad. Retrying...',
-      );
-    });
-
-    // 재시도 간격을 점진적으로 증가 (최대 1분)
-    final retryDelay = Duration(seconds: min(5 * _retryCount, 60));
-
-    _retryTimer?.cancel();
-    _retryTimer = Timer(retryDelay, _loadBannerAd);
   }
 
   void _showErrorDialog(String message) {
@@ -295,22 +153,15 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
   @override
   Widget build(BuildContext context) {
-    if (!_isPageReady) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return FreeChargeContent(
-      bannerAdState: _bannerAdState,
       buttonScaleAnimation: _buttonScaleAnimation,
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
       onAdButtonPressed: _showRewardedAdmob,
-      onRetryBannerAd: _loadBannerAd, // maxRetries 조건 제거
     );
   }
 }
 
 class FreeChargeContent extends ConsumerWidget {
-  final BannerAdState bannerAdState;
   final Animation<double> buttonScaleAnimation;
   final VoidCallback onPolicyTap;
   final Function(int) onAdButtonPressed;
@@ -318,7 +169,6 @@ class FreeChargeContent extends ConsumerWidget {
 
   const FreeChargeContent({
     super.key,
-    required this.bannerAdState,
     required this.buttonScaleAnimation,
     required this.onPolicyTap,
     required this.onAdButtonPressed,
@@ -343,7 +193,14 @@ class FreeChargeContent extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: 18),
-          _buildBannerAdSection(),
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: BannerAdWidget(
+              configKey: 'FREE_CHARGE_STATION',
+              adSize: AdSize.fullBanner,
+            ),
+          ),
+
           // const SizedBox(height: 18),
           // _buildMissionSection(),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
@@ -389,29 +246,6 @@ class FreeChargeContent extends ConsumerWidget {
         await placement.requestContent();
       },
       child: Text('Show Offerwall'),
-    );
-  }
-
-  Widget _buildBannerAdSection() {
-    return SizedBox(
-      height: 50,
-      child: Builder(
-        builder: (context) {
-          if (bannerAdState.isLoading) {
-            return buildLoadingOverlay();
-          }
-
-          if (bannerAdState.error != null) {
-            return buildLoadingOverlay();
-          }
-
-          if (bannerAdState.bannerAd != null) {
-            return AdWidget(ad: bannerAdState.bannerAd!);
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
     );
   }
 

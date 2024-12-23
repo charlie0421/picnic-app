@@ -169,8 +169,8 @@ class CompatibilityInfo extends StatelessWidget {
 
                 if (localizedResult != null) {
                   return AnimatedCompatibilityBar(
-                    score: localizedResult.score ?? 0,
-                    message: localizedResult.scoreTitle ?? '',
+                    score: localizedResult.score,
+                    message: localizedResult.scoreTitle,
                   );
                 }
                 return const SizedBox.shrink(); // 결과가 없을 경우 빈 위젯 반환
