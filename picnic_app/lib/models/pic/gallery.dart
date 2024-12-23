@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/util/i18n.dart';
 
