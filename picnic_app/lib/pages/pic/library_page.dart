@@ -86,15 +86,11 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
   Widget _buildPicTab(ref) {
     Widget widget = const PicPage();
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) async {
         if (ref.watch(parmePageIndexProvider.notifier).state == 1) {
           ref.read(parmePageIndexProvider.notifier).state = 0;
-          return false;
-        } else if (ref.watch(picSelectedIndexProvider.notifier).state == 0) {
-          return true;
-        }
-        return true;
+        } else if (ref.watch(picSelectedIndexProvider.notifier).state == 0) {}
       },
       child: widget,
     );

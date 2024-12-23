@@ -172,6 +172,7 @@ class LongOutputHandler extends LogOutput {
   @override
   void output(OutputEvent event) {
     if (kDebugMode) {
+      // ignore: avoid_print
       event.lines.forEach(print);
     }
   }

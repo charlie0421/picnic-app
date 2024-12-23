@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/comment/comment_input.dart';
 import 'package:picnic_app/components/common/comment/comment_item.dart';
 import 'package:picnic_app/components/common/comment/comment_reply_layer.dart';
@@ -148,7 +149,7 @@ class _CommentListState extends ConsumerState<CommentList> {
       logger.e('Error handling comment action: $e', stackTrace: s);
       if (!_isDisposed) {
         if (!context.mounted) return;
-        SnackbarUtil().showSnackbar(S.of(context).error_action_failed);
+        SnackbarUtil().showSnackbar(Intl.message('error_action_failed'));
       }
     } finally {
       _debounceTimer?.cancel();

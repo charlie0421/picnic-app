@@ -27,8 +27,9 @@ class ArtistModel with _$ArtistModel {
   factory ArtistModel.fromJson(Map<String, dynamic> json) =>
       _$ArtistModelFromJson(json);
 
+  @override
   DateTime? get birthDate {
-    if (birthDate != null) return birthDate;
+    if (super.birthDate != null) return super.birthDate;
     if (yy != null && mm != null && dd != null) {
       try {
         return DateTime(yy!, mm!, dd!);

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/avatar_container.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/providers/celeb_list_provider.dart';
 import 'package:picnic_app/providers/celeb_search_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
-import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 
 class CelebListItem extends ConsumerWidget {
   final CelebModel item;
@@ -72,13 +71,8 @@ class CelebListItem extends ConsumerWidget {
                         } else {
                           if (await getBookmarkCount(asyncCelebListState) >=
                               5) {
-                            showOverlayToast(
-                              context,
-                              Text(
-                                S.of(context).toast_max_five_celeb,
-                                style: getTextStyle(
-                                    AppTypo.body16M, AppColors.grey900),
-                              ),
+                            SnackbarUtil().showSnackbar(
+                              Intl.message('toast_max_five_celeb'),
                             );
                             return;
                           }

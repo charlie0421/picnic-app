@@ -1,12 +1,12 @@
 // auth_token_info.dart
 
-import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class AuthTokenInfo {
   final String accessToken;
   final String? refreshToken;
   final DateTime expiresAt;
-  final Supabase.OAuthProvider provider;
+  final supabase.OAuthProvider provider;
 
   AuthTokenInfo({
     required this.accessToken,
@@ -28,7 +28,7 @@ class AuthTokenInfo {
         accessToken: json['accessToken'] as String,
         refreshToken: json['refreshToken'] as String,
         expiresAt: DateTime.parse(json['expiresAt'] as String),
-        provider: Supabase.OAuthProvider.values
+        provider: supabase.OAuthProvider.values
             .firstWhere((e) => e.name == json['provider']),
       );
 }

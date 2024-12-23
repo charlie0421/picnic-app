@@ -13,7 +13,7 @@ import 'package:picnic_app/services/network_connectivity_service.dart';
 import 'package:picnic_app/services/secure_storage_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as Supabase;
+import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class SocialLogin {
@@ -39,7 +39,7 @@ class AuthTimeouts {
 class AuthService {
   final SecureStorageService _storageService;
   final NetworkConnectivityService _networkService;
-  final Map<Supabase.OAuthProvider, SocialLogin> _loginProviders;
+  final Map<supa.OAuthProvider, SocialLogin> _loginProviders;
 
   static const _timeouts = AuthTimeouts();
   final _sessionController = StreamController<Session?>.broadcast();
@@ -47,27 +47,26 @@ class AuthService {
   AuthService({
     SecureStorageService? storageService,
     NetworkConnectivityService? networkService,
-    Map<Supabase.OAuthProvider, SocialLogin>? loginProviders,
+    Map<supa.OAuthProvider, SocialLogin>? loginProviders,
   })  : _storageService = storageService ?? SecureStorageService(),
         _networkService = networkService ?? NetworkConnectivityService(),
         _loginProviders = loginProviders ?? _createDefaultLoginProviders();
 
-  static Map<Supabase.OAuthProvider, SocialLogin>
-      _createDefaultLoginProviders() => {
-            Supabase.OAuthProvider.google: kIsWeb
-                ? GoogleLogin(GoogleSignIn(
-                    clientId: Environment.googleServerClientId,
-                  ))
-                : GoogleLogin(GoogleSignIn(
-                    clientId: Environment.googleClientId,
-                    serverClientId: Environment.googleServerClientId,
-                  )),
-            Supabase.OAuthProvider.apple: AppleLogin(),
-            Supabase.OAuthProvider.kakao: KakaoLogin(),
-          };
+  static Map<supa.OAuthProvider, SocialLogin> _createDefaultLoginProviders() =>
+      {
+        supa.OAuthProvider.google: kIsWeb
+            ? GoogleLogin(GoogleSignIn(
+                clientId: Environment.googleServerClientId,
+              ))
+            : GoogleLogin(GoogleSignIn(
+                clientId: Environment.googleClientId,
+                serverClientId: Environment.googleServerClientId,
+              )),
+        supa.OAuthProvider.apple: AppleLogin(),
+        supa.OAuthProvider.kakao: KakaoLogin(),
+      };
 
-  Future<Supabase.User?> signInWithProvider(
-      Supabase.OAuthProvider provider) async {
+  Future<supa.User?> signInWithProvider(supa.OAuthProvider provider) async {
     try {
       final socialLogin = _loginProviders[provider];
       if (socialLogin == null) {
@@ -193,7 +192,7 @@ class AuthService {
     }
   }
 
-  Future<void> _logoutFromProvider(Supabase.OAuthProvider provider) async {
+  Future<void> _logoutFromProvider(supa.OAuthProvider provider) async {
     final socialLogin = _loginProviders[provider];
     if (socialLogin != null) {
       await socialLogin.logout();
@@ -201,9 +200,8 @@ class AuthService {
     }
   }
 
-  Supabase.OAuthProvider _getProviderFromSession(Session session) {
+  supa.OAuthProvider _getProviderFromSession(Session session) {
     try {
-      // JWT의 payload에서 provider 정보 추출
       final jwt = session.accessToken;
       final parts = jwt.split('.');
       if (parts.length != 3) throw const FormatException('Invalid JWT format');
@@ -217,20 +215,20 @@ class AuthService {
     } catch (e, s) {
       logger.e('Error extracting provider from session',
           error: e, stackTrace: s);
-      return Supabase.OAuthProvider.google; // 기본값 반환
+      return supa.OAuthProvider.google; // 기본값 반환
     }
   }
 
-  Supabase.OAuthProvider _parseProvider(String? provider) {
+  supa.OAuthProvider _parseProvider(String? provider) {
     switch (provider?.toLowerCase()) {
       case 'google':
-        return Supabase.OAuthProvider.google;
+        return supa.OAuthProvider.google;
       case 'apple':
-        return Supabase.OAuthProvider.apple;
+        return supa.OAuthProvider.apple;
       case 'kakao':
-        return Supabase.OAuthProvider.kakao;
+        return supa.OAuthProvider.kakao;
       default:
-        return Supabase.OAuthProvider.google;
+        return supa.OAuthProvider.google;
     }
   }
 

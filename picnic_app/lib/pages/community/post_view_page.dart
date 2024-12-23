@@ -317,7 +317,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               } catch (e, s) {
                 logger.e('Error deleting post: $e', stackTrace: s);
                 if (!_isDisposed) {
-                  SnackbarUtil().showSnackbar(S.of(context).error_delete_post);
+                  SnackbarUtil()
+                      .showSnackbar(Intl.message('error_delete_post'));
                 }
               }
             },

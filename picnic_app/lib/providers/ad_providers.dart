@@ -65,13 +65,14 @@ class RewardedAds extends _$RewardedAds {
     try {
       await ref.read(userInfoProvider.notifier).getUserProfiles();
 
-      if (_isDisposed) return;
+      if (_isDisposed || !context.mounted) return;
 
       switch (result) {
         case AdResult.completed:
           showSimpleDialog(
             content: Intl.message('text_dialog_star_candy_received'),
             onOk: () {
+              if (!context.mounted) return;
               Navigator.of(context).pop();
               ref.read(userInfoProvider.notifier).getUserProfiles();
             },
@@ -87,14 +88,20 @@ class RewardedAds extends _$RewardedAds {
         case AdResult.dismissed:
           showSimpleDialog(
             content: Intl.message('text_dialog_ad_dismissed'),
-            onOk: () => Navigator.of(context).pop(),
+            onOk: () {
+              if (!context.mounted) return;
+              Navigator.of(context).pop();
+            },
           );
           break;
 
         case AdResult.error:
           showSimpleDialog(
             content: Intl.message('text_dialog_ad_failed_to_show'),
-            onOk: () => Navigator.of(context).pop(),
+            onOk: () {
+              if (!context.mounted) return;
+              Navigator.of(context).pop();
+            },
           );
           break;
       }
@@ -106,7 +113,8 @@ class RewardedAds extends _$RewardedAds {
   Future<AdResult?> showAdIfReady(int index, BuildContext context) async {
     if (_isDisposed) return null;
 
-    // 인덱스 범위 검사 추가
+    final currentContext = context; // 현재 context 저장
+
     if (index < 0 || index >= state.ads.length) {
       logger.e('Invalid ad index: $index');
       return AdResult.error;
@@ -116,11 +124,17 @@ class RewardedAds extends _$RewardedAds {
       if (isAdReady(index)) {
         final ad = state.ads[index].ad!;
         final result = await _showAd(ad, index);
-        _handleAdResult(result, context);
+        if (!_isDisposed && currentContext.mounted) {
+          // mounted 체크 추가
+          _handleAdResult(result, currentContext);
+        }
         loadAd(index);
         return result;
       } else {
-        await loadAd(index, showWhenLoaded: true, context: context);
+        if (!_isDisposed && currentContext.mounted) {
+          // mounted 체크 추가
+          await loadAd(index, showWhenLoaded: true, context: currentContext);
+        }
         return null;
       }
     } catch (e, s) {
@@ -131,7 +145,6 @@ class RewardedAds extends _$RewardedAds {
 
   Future<void> loadAd(int index,
       {bool showWhenLoaded = false, BuildContext? context}) async {
-    // 인덱스 범위 및 상태 검사
     if (_isDisposed ||
         index < 0 ||
         index >= state.ads.length ||
@@ -139,6 +152,7 @@ class RewardedAds extends _$RewardedAds {
       return;
     }
 
+    final currentContext = context; // 현재 context 저장
     _updateAdState(index, isLoading: true, ad: null);
 
     try {
@@ -146,7 +160,6 @@ class RewardedAds extends _$RewardedAds {
         await _initializeAdUnitIds();
       }
 
-      // adUnitId 유효성 검사
       if (index >= _adUnitIds.length || _adUnitIds[index].isEmpty) {
         throw Exception('Invalid or uninitialized ad unit ID for index $index');
       }
@@ -161,9 +174,13 @@ class RewardedAds extends _$RewardedAds {
               return;
             }
             _onAdLoaded(index, ad);
-            if (showWhenLoaded && context != null) {
+            if (showWhenLoaded &&
+                currentContext != null &&
+                currentContext.mounted) {
               final result = await _showAd(ad, index);
-              _handleAdResult(result, context);
+              if (!_isDisposed && currentContext.mounted) {
+                _handleAdResult(result, currentContext);
+              }
             }
           },
           onAdFailedToLoad: (error) => _onAdFailedToLoad(index, error),

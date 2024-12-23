@@ -1,3 +1,2 @@
-void clearUrlParameters() {
-  // 모바일에서는 아무것도 하지 않음
-}
+export 'url_strategy_stub.dart'
+    if (dart.library.html) '../web/url_strategy_web.dart';
