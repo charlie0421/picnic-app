@@ -61,6 +61,17 @@ class _AppState extends ConsumerState<App> {
   int? _androidSdkVersion;
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   bool _hasNetwork = true;
+  StreamSubscription? _authSubscription;
+  StreamSubscription? _appLinksSubscription;
+
+  static final Map<String, WidgetBuilder> _routes = {
+    Portal.routeName: (context) => const Portal(),
+    SignUpScreen.routeName: (context) => const SignUpScreen(),
+    '/pic-camera': (context) => const PicCameraScreen(),
+    TermsScreen.routeName: (context) => const TermsScreen(),
+    PrivacyScreen.routeName: (context) => const PrivacyScreen(),
+    PurchaseScreen.routeName: (context) => const PurchaseScreen(),
+  };
 
   @override
   void initState() {
@@ -145,11 +156,12 @@ class _AppState extends ConsumerState<App> {
   }
 
   void _initializeApp() async {
-    await precacheImage(AssetImage("assets/splash.webp"), context);
+    await precacheImage(const AssetImage("assets/splash.webp"), context);
 
     unawaited(_loadProducts());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(appSettingProvider.notifier);
       ref
           .read(globalMediaQueryProvider.notifier)
@@ -157,10 +169,6 @@ class _AppState extends ConsumerState<App> {
       if (!kIsWeb) {
         ref.read(updateCheckerProvider.notifier).checkForUpdate();
       }
-
-      ref
-          .read(globalMediaQueryProvider.notifier)
-          .updateMediaQueryData(MediaQuery.of(context));
     });
   }
 
@@ -177,7 +185,7 @@ class _AppState extends ConsumerState<App> {
   }
 
   void _setupSupabaseAuthListener() {
-    supabase.auth.onAuthStateChange.listen((data) async {
+    _authSubscription = supabase.auth.onAuthStateChange.listen((data) async {
       final session = data.session;
       if (session != null) {
         logger.i('jwtToken: ${session.accessToken}');
@@ -193,7 +201,7 @@ class _AppState extends ConsumerState<App> {
 
   void _setupAppLinksListener() {
     final appLinks = AppLinks();
-    appLinks.uriLinkStream.listen((Uri uri) {
+    _appLinksSubscription = appLinks.uriLinkStream.listen((Uri uri) {
       logger.i('Incoming link: $uri');
       if (uri.pathSegments.contains('terms')) {
         initScreen = uri.pathSegments.contains('ko')
@@ -213,6 +221,8 @@ class _AppState extends ConsumerState<App> {
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
+    _appLinksSubscription?.cancel();
     if (!kIsWeb) {
       ScreenProtector.preventScreenshotOff();
     }
@@ -316,14 +326,7 @@ class _AppState extends ConsumerState<App> {
   }
 
   Map<String, WidgetBuilder> _buildRoutes() {
-    return {
-      Portal.routeName: (context) => const Portal(),
-      SignUpScreen.routeName: (context) => const SignUpScreen(),
-      '/pic-camera': (context) => const PicCameraScreen(),
-      TermsScreen.routeName: (context) => const TermsScreen(),
-      PrivacyScreen.routeName: (context) => const PrivacyScreen(),
-      PurchaseScreen.routeName: (context) => const PurchaseScreen(),
-    };
+    return _routes;
   }
 
   Widget _buildHomeScreen() {
