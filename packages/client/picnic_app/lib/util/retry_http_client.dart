@@ -7,6 +7,19 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:picnic_app/util/logger.dart';
 
+class NetworkError extends Error {
+  final String message;
+  final bool isRetryable;
+
+  NetworkError(this.message, {this.isRetryable = true});
+
+  static bool isRetryableError(String message) {
+    return !message.contains('content size exceeds') &&
+        !message.contains('connection closed') &&
+        !message.contains('connection reset');
+  }
+}
+
 class RetryHttpClient extends http.BaseClient {
   final http.Client _inner;
   final int maxAttempts;
@@ -47,7 +60,7 @@ class RetryHttpClient extends http.BaseClient {
         final optimizedStream =
             await _optimizeResponseStream(response, newRequest);
 
-        // 성공적인 응답인 경우 connection pool 업데이트
+        // 성공적인 응답인 경우 connection pool ��데이트
         if (response.statusCode >= 200 && response.statusCode < 300) {
           _updateConnectionPool(hostKey);
         }
@@ -165,15 +178,12 @@ class RetryHttpClient extends http.BaseClient {
       },
     ).handleError((error) {
       final errorMessage = error.toString().toLowerCase();
-      if (errorMessage.contains('content size exceeds') ||
-          errorMessage.contains('connection closed') ||
-          errorMessage.contains('connection reset')) {
-        // 콘텐츠 크기 초과 에러를 무시하고 계속 진행
+      if (!NetworkError.isRetryableError(errorMessage)) {
         return;
       }
-      throw ClientException(
+      throw NetworkError(
         'Stream processing error: $error',
-        request.url,
+        isRetryable: true,
       );
     });
 

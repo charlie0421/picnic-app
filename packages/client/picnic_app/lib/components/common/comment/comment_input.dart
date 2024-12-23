@@ -35,8 +35,8 @@ class CommentInput extends ConsumerStatefulWidget {
 }
 
 class _CommentInputState extends ConsumerState<CommentInput> {
-  final _textEditingController = TextEditingController();
-  final _focusNode = FocusNode();
+  late final TextEditingController _textEditingController;
+  late final FocusNode _focusNode;
   final int _maxLength = 100;
 
   bool _isInputValid = false;
@@ -46,15 +46,20 @@ class _CommentInputState extends ConsumerState<CommentInput> {
   @override
   void initState() {
     super.initState();
+    _textEditingController = TextEditingController();
+    _focusNode = FocusNode();
+
+    _registerListeners();
+  }
+
+  void _registerListeners() {
     _textEditingController.addListener(_onTextChanged);
     _focusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
-    _textEditingController.removeListener(_onTextChanged);
     _textEditingController.dispose();
-    _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
     super.dispose();
   }
