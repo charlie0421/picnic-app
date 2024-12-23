@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/common/share_section.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card_achieve.dart';
@@ -13,14 +11,12 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_app/pages/vote/vote_detail_page.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/i18n.dart';
-import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/vote_share_util.dart';
 
@@ -50,23 +46,12 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   final GlobalKey _globalKey = GlobalKey();
   final GlobalKey _shareKey = GlobalKey();
   bool _isSaving = false;
-  BannerAd? _bannerAd;
-  bool _isBannerLoaded = false;
-  bool _isAdLoading = true;
-  int _retryCount = 0;
-  static const int maxRetries = 5;
-  Timer? _retryTimer;
   bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!_disposed) {
-        _loadAds();
-      }
-    });
   }
 
   void _initializeAnimations() {
@@ -94,123 +79,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
       ),
     );
-  }
-
-  Future<void> _loadAds() async {
-    if (_disposed || _retryCount >= maxRetries) {
-      safeSetState(() {
-        _isAdLoading = false;
-      });
-      return;
-    }
-
-    safeSetState(() {
-      _isAdLoading = true;
-      _isBannerLoaded = false;
-    });
-
-    try {
-      await _bannerAd?.dispose();
-      _bannerAd = null;
-
-      final configService = ref.read(configServiceProvider);
-      String? adUnitId = isIOS()
-          ? await configService.getConfig('ADMOB_IOS_COMPLETE_VOTE_SHARE')
-          : await configService.getConfig('ADMOB_ANDROID_COMPLETE_VOTE_SHARE');
-
-      if (adUnitId == null) {
-        throw Exception('Ad unit ID is null');
-      }
-
-      final completer = Completer<void>();
-      Timer? timeoutTimer;
-
-      _bannerAd = BannerAd(
-        adUnitId: adUnitId,
-        size: AdSize.largeBanner,
-        request: const AdRequest(),
-        listener: BannerAdListener(
-          onAdLoaded: (ad) {
-            timeoutTimer?.cancel();
-            if (!_disposed) {
-              safeSetState(() {
-                _isBannerLoaded = true;
-                _isAdLoading = false;
-                _retryCount = 0;
-              });
-              completer.complete();
-            }
-          },
-          onAdFailedToLoad: (ad, error) {
-            timeoutTimer?.cancel();
-            ad.dispose();
-            _retryCount++;
-
-            if (!_disposed && _retryCount < maxRetries) {
-              final delay = math.min(math.pow(2, _retryCount).toInt(), 16);
-              _retryTimer?.cancel();
-              _retryTimer = Timer(Duration(seconds: delay), () {
-                if (!_disposed) {
-                  _loadAds();
-                }
-              });
-            } else {
-              safeSetState(() {
-                _isAdLoading = false;
-              });
-            }
-            completer.completeError(error);
-          },
-        ),
-      );
-
-      timeoutTimer = Timer(const Duration(seconds: 10), () {
-        if (!completer.isCompleted && !_disposed) {
-          _bannerAd?.dispose();
-          _retryCount++;
-          if (_retryCount < maxRetries) {
-            _loadAds();
-          } else {
-            safeSetState(() {
-              _isAdLoading = false;
-            });
-          }
-          completer.completeError('Ad load timeout');
-        }
-      });
-
-      await _bannerAd!.load();
-      await completer.future.timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          if (!_disposed) {
-            _loadAds();
-          }
-        },
-      );
-    } catch (e, s) {
-      logger.e('exception:', error: e, stackTrace: s);
-
-      if (!_disposed) {
-        _retryCount++;
-        if (_retryCount < maxRetries) {
-          _retryTimer?.cancel();
-          _retryTimer = Timer(
-            Duration(seconds: math.min(math.pow(2, _retryCount).toInt(), 16)),
-            () {
-              if (!_disposed) {
-                _loadAds();
-              }
-            },
-          );
-        } else {
-          safeSetState(() {
-            _isAdLoading = false;
-          });
-        }
-      }
-      rethrow;
-    }
   }
 
   void _restartAnimation() {
@@ -260,15 +128,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   @override
   void didUpdateWidget(VoteInfoCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.vote.id != widget.vote.id) {
-      _retryCount = 0;
-      _retryTimer?.cancel();
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!_disposed) {
-          _loadAds();
-        }
-      });
-    }
   }
 
   void safeSetState(VoidCallback fn) {
@@ -280,8 +139,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   @override
   void dispose() {
     _disposed = true;
-    _retryTimer?.cancel();
-    _bannerAd?.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -354,29 +211,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                 ),
               ),
               if (widget.status == VoteStatus.end) ...[
-                if (!_isAdLoading && _isBannerLoaded && _bannerAd != null)
-                  Stack(
-                    children: [
-                      if (!_isSaving)
-                        Container(
-                          alignment: Alignment.center,
-                          margin: const EdgeInsets.only(top: 24),
-                          width: _bannerAd!.size.width.toDouble(),
-                          height: _bannerAd!.size.height.toDouble(),
-                          color: Colors.white,
-                          child: AdWidget(ad: _bannerAd!),
-                        ),
-                    ],
-                  )
-                else if (_isAdLoading)
-                  Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(top: 24),
-                    width: AdSize.largeBanner.width.toDouble(),
-                    height: AdSize.largeBanner.height.toDouble(),
-                    color: Colors.white,
-                  ),
-                if (!_isSaving && (!_isAdLoading || !_isBannerLoaded))
+                if (!_isSaving)
                   ShareSection(
                     saveButtonText: S.of(context).save,
                     shareButtonText: S.of(context).share,

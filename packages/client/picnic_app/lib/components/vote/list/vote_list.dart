@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_app/components/common/ads/banner_ad_widget.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_info_card.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/ui.dart';
 
 import '../../../util/logger.dart';
 
@@ -44,44 +45,11 @@ class _VoteListState extends ConsumerState<VoteList> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.status == VoteStatus.end) {
-      return PagedPageView<int, VoteModel>(
-        pagingController: _pagingController,
-        scrollDirection: Axis.vertical,
-        physics: const AlwaysScrollableScrollPhysics(),
-        pageController: _pageController,
-        builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-          firstPageErrorIndicatorBuilder: (context) => buildErrorView(
-            context,
-            error: _pagingController.error.toString(),
-            retryFunction: () => _pagingController.refresh(),
-            stackTrace: _pagingController.error.stackTrace,
-          ),
-          firstPageProgressIndicatorBuilder: (context) =>
-              SizedBox(height: 400, child: buildLoadingOverlay()),
-          noItemsFoundIndicatorBuilder: (context) =>
-              _buildNoItemsFound(context),
-          itemBuilder: (context, item, index) {
-            return SizedBox(
-              height: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  kToolbarHeight,
-              child: VoteInfoCard(
-                context: context,
-                vote: item,
-                status: widget.status,
-              ),
-            );
-          },
-        ),
-      );
-    }
-
-    // 진행중이거나 예정된 투표는 기존 방식대로 표시
-    return PagedListView<int, VoteModel>(
-      shrinkWrap: true,
+    return PagedPageView<int, VoteModel>(
       pagingController: _pagingController,
       scrollDirection: Axis.vertical,
+      physics: const AlwaysScrollableScrollPhysics(),
+      pageController: _pageController,
       builderDelegate: PagedChildBuilderDelegate<VoteModel>(
         firstPageErrorIndicatorBuilder: (context) => buildErrorView(
           context,
@@ -89,15 +57,21 @@ class _VoteListState extends ConsumerState<VoteList> {
           retryFunction: () => _pagingController.refresh(),
           stackTrace: _pagingController.error.stackTrace,
         ),
-        firstPageProgressIndicatorBuilder: (context) =>
-            SizedBox(height: 400, child: buildLoadingOverlay()),
         noItemsFoundIndicatorBuilder: (context) => _buildNoItemsFound(context),
-        itemBuilder: (context, item, index) => Column(
-          children: [
-            VoteInfoCard(context: context, vote: item, status: widget.status),
-            const Divider(height: 1, color: AppColors.grey300),
-          ],
-        ),
+        itemBuilder: (context, item, index) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              VoteInfoCard(
+                context: context,
+                vote: item,
+                status: widget.status,
+              ),
+              BannerAdWidget(
+                  configKey: 'VOTE_DETAIL', adSize: AdSize.largeBanner),
+            ],
+          );
+        },
       ),
     );
   }

@@ -107,6 +107,9 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
+  - gma_mediation_unity (1.1.0):
+    - Flutter
+    - GoogleMobileAdsMediationUnity (~> 4.12.3.1)
   - Google-Mobile-Ads-SDK (11.10.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - google_mobile_ads (5.2.0):
@@ -139,6 +142,9 @@ PODS:
     - GoogleUtilities/Network (~> 8.0)
     - "GoogleUtilities/NSData+zlib (~> 8.0)"
     - nanopb (~> 3.30910.0)
+  - GoogleMobileAdsMediationUnity (4.12.3.1):
+    - Google-Mobile-Ads-SDK (~> 11.0)
+    - UnityAds (= 4.12.3)
   - GoogleSignIn (7.1.0):
     - AppAuth (< 2.0, >= 1.7.3)
     - GTMAppAuth (< 5.0, >= 4.1.1)
@@ -242,6 +248,7 @@ PODS:
     - TapjoySDK/Static (= 14.2.1)
   - TapjoySDK/Static (14.2.1)
   - TOCropViewController (2.7.4)
+  - UnityAds (4.12.3)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -262,6 +269,7 @@ DEPENDENCIES:
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_keyboard_visibility_temp_fork (from `.symlinks/plugins/flutter_keyboard_visibility_temp_fork/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - gma_mediation_unity (from `.symlinks/plugins/gma_mediation_unity/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
@@ -297,6 +305,7 @@ SPEC REPOS:
     - FirebaseInstallations
     - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
+    - GoogleMobileAdsMediationUnity
     - GoogleSignIn
     - GoogleUserMessagingPlatform
     - GoogleUtilities
@@ -311,6 +320,7 @@ SPEC REPOS:
     - SwiftyGif
     - TapjoySDK
     - TOCropViewController
+    - UnityAds
 
 EXTERNAL SOURCES:
   app_links:
@@ -339,6 +349,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_keyboard_visibility_temp_fork/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  gma_mediation_unity:
+    :path: ".symlinks/plugins/gma_mediation_unity/ios"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   google_sign_in_ios:
@@ -406,10 +418,12 @@ SPEC CHECKSUMS:
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_keyboard_visibility_temp_fork: 8a8809c4129e31d25fca77446e0f3fd548122ced
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
+  gma_mediation_unity: 43092b25c891809dbe10b92dc6805b541e5df977
   Google-Mobile-Ads-SDK: 13e6e98edfd78ad8d8a791edb927658cc260a56f
   google_mobile_ads: 2a538d8e42b1813809782792e48f8cf4374c2180
   google_sign_in_ios: 07375bfbf2620bc93a602c0e27160d6afc6ead38
   GoogleAppMeasurement: 987769c4ca6b968f2479fbcc9fe3ce34af454b8e
+  GoogleMobileAdsMediationUnity: 05574d8329a5092d1a1cb0344727e68d30103412
   GoogleSignIn: d4281ab6cf21542b1cfaff85c191f230b399d2db
   GoogleUserMessagingPlatform: a8b56893477f67212fbc8411c139e61d463349f5
   GoogleUtilities: 26a3abef001b6533cf678d3eb38fd3f614b7872d
@@ -442,6 +456,7 @@ SPEC CHECKSUMS:
   tapjoy_offerwall: f2e6807028ff20c24f9f81d74013239b14cc7df0
   TapjoySDK: 419f6cb7d166c8df86c04ee4ecd950e23979e2c6
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
+  UnityAds: 32596c2f76856d643b50d3da51c47a552b80d5a4
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
 
