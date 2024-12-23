@@ -60,7 +60,7 @@ class RetryHttpClient extends http.BaseClient {
         final optimizedStream =
             await _optimizeResponseStream(response, newRequest);
 
-        // 성공적인 응답인 경우 connection pool ��데이트
+        // 성공적인 응답인 경우 connection pool 데이트
         if (response.statusCode >= 200 && response.statusCode < 300) {
           _updateConnectionPool(hostKey);
         }
@@ -73,9 +73,16 @@ class RetryHttpClient extends http.BaseClient {
           logger.e(logMessage, error: e, stackTrace: s);
 
           if (attempts < maxAttempts) {
-            await _handleRetryDelay(attempts);
+            // 지수 백오프 적용 - 밀리초 단위로 계산
+            final delayMs = pow(2, attempts).toInt() * 1000;
+            await _handleRetryDelay(delayMs);
+
             // Connection 재설정
-            _resetConnection(hostKey);
+            if (_shouldResetConnection(lastException)) {
+              _resetConnection(hostKey);
+            }
+
+            logger.i('Retrying request (attempt ${attempts + 1}/$maxAttempts)');
             continue;
           }
         }
@@ -83,7 +90,8 @@ class RetryHttpClient extends http.BaseClient {
       }
     }
 
-    logger.e('All attempts failed. Last error: $lastException');
+    logger.e('All attempts failed. Last error: $lastException',
+        stackTrace: StackTrace.current);
     return _createErrorResponse(lastException);
   }
 
@@ -285,5 +293,12 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
     _connectionPool.clear();
     _inner.close();
     super.close();
+  }
+
+  bool _shouldResetConnection(Exception error) {
+    final errorMessage = error.toString().toLowerCase();
+    return errorMessage.contains('connection') ||
+        errorMessage.contains('timeout') ||
+        errorMessage.contains('network');
   }
 }
