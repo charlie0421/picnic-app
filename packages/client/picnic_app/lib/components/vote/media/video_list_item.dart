@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/common/webview/video_webview.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/video_info.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
@@ -77,7 +77,7 @@ class _VideoListItemState extends State<VideoListItem> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      SnackbarUtil().showSnackbar(S.of(context).post_cannot_open_youtube);
+      SnackbarUtil().showSnackbar(Intl.message('post_cannot_open_youtube'));
     }
   }
 

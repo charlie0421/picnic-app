@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/store/common/store_point_info.dart';
@@ -12,7 +13,6 @@ import 'package:picnic_app/components/vote/store/purchase/receipt_verification_s
 import 'package:picnic_app/components/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/services/purchase_service.dart';
@@ -109,14 +109,15 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       if (!purchaseInitiated) {
         if (mounted) {
           OverlayLoadingProgress.stop();
-          await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
+          await _showErrorDialog(
+              Intl.message('dialog_message_purchase_failed)'));
         }
       }
     } catch (e, s) {
       logger.e('Error starting purchase', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(S.of(context).dialog_message_purchase_failed);
+        await _showErrorDialog(Intl.message('dialog_message_purchase_failed)'));
       }
       rethrow;
     }
@@ -129,7 +130,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   Future<void> _showSuccessDialog() async {
     if (!mounted) return;
-    showSimpleDialog(content: S.of(context).dialog_message_purchase_success);
+    showSimpleDialog(content: Intl.message('dialog_message_purchase_success)'));
   }
 
   @override
@@ -141,7 +142,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           if (supabase.isLogged) ...[
             const SizedBox(height: 36),
             StorePointInfo(
-              title: S.of(context).label_star_candy_pouch,
+              title: Intl.message('label_star_candy_pouch'),
               width: double.infinity,
               height: 90,
             ),
@@ -149,7 +150,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           const SizedBox(height: 36),
           _buildProductsList(),
           const Divider(color: AppColors.grey200, height: 32),
-          Text(S.of(context).text_purchase_vat_included,
+          Text(Intl.message('text_purchase_vat_included'),
               style: getTextStyle(AppTypo.caption12M, AppColors.grey600)),
           const SizedBox(height: 2),
           GestureDetector(
@@ -158,12 +159,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: S.of(context).candy_usage_policy_guide,
+                    text: Intl.message('candy_usage_policy_guide'),
                     style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
                   ),
                   const TextSpan(text: ' '),
                   TextSpan(
-                    text: S.of(context).candy_usage_policy_guide_button,
+                    text: Intl.message('candy_usage_policy_guide_button'),
                     style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
                         .copyWith(decoration: TextDecoration.underline),
                   ),

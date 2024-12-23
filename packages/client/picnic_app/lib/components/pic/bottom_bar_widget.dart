@@ -56,7 +56,7 @@ class BottomBarWidget extends StatelessWidget {
               final ImagePicker picker = ImagePicker();
               final XFile? image =
                   await picker.pickImage(source: ImageSource.gallery);
-              if (image != null) {
+              if (image != null && context.mounted) {
                 final croppedFile = await ImageCropper().cropImage(
                   sourcePath: image.path,
                   aspectRatio: const CropAspectRatio(ratioX: 5.5, ratioY: 8.5),

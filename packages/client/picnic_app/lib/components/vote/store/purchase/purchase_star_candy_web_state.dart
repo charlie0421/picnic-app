@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_app/components/error.dart';
 import 'package:picnic_app/components/vote/list/vote_detail_title.dart';
 import 'package:picnic_app/components/vote/store/purchase/purchase_star_candy_web.dart';
@@ -128,7 +129,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      throw S.of(context).update_cannot_open_appstore;
+      throw Intl.message('update_cannot_open_appstore');
     }
   }
 

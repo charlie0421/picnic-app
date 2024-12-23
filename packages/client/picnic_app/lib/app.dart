@@ -15,7 +15,7 @@ import 'package:picnic_app/components/web/web_download_section.dart';
 import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/optimizedSplashImage.dart';
+import 'package:picnic_app/optimized_splash_image.dart';
 import 'package:picnic_app/pages/oauth_callback_page.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/global_media_query.dart';

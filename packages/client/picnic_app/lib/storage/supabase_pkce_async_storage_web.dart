@@ -1,3 +1,4 @@
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
 import 'package:picnic_app/storage/supabase_pkce_async_storage.dart';

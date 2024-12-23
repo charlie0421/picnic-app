@@ -10,6 +10,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/openai.dart';
 import 'package:picnic_app/util/snackbar_util.dart';
@@ -186,7 +187,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       widget.onPostComment?.call(
         widget.id,
         parentItemState?.parentCommentId ?? parentItemState?.commentId,
-        Localizations.localeOf(context).languageCode,
+        getLocaleLanguage(),
         comment,
       );
 

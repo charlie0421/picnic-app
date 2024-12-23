@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
-import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:picnic_app/components/pic/bottom_bar_widget.dart';
@@ -392,39 +391,44 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
   }
 
   Future<void> _captureImage() async {
+    if (!mounted) return;
     setState(() {
       _remainTime = 0;
       _viewMode = ViewMode.saving;
     });
     try {
-      _controller?.pausePreview(); // Pause the camera preview
+      _controller?.pausePreview();
       RenderRepaintBoundary boundary = _repaintBoundaryKey.currentContext!
           .findRenderObject() as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       ByteData? byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
-      _capturedImageBytes = byteData!.buffer.asUint8List();
 
+      if (!mounted) return;
+      _capturedImageBytes = byteData!.buffer.asUint8List();
       setState(() {
         _viewMode = ViewMode.ready;
       });
-
       _showSaveDialog();
     } catch (e, s) {
       logger.e("Error capturing image: $e", stackTrace: s);
+      if (!mounted) return;
       setState(() {
         _viewMode = ViewMode.ready;
       });
-      _controller?.resumePreview(); // Resume the camera preview on error
+      _controller?.resumePreview();
       rethrow;
     }
   }
 
   void _showSaveDialog() async {
-    await showDialog(
+    if (!mounted) return;
+
+    showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
+        final currentContext = context;
         return Dialog(
           backgroundColor: Colors.transparent,
           child: LargePopupWidget(
@@ -451,8 +455,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                           child: ElevatedButton(
                             onPressed: () async {
                               await _saveImage();
-                              _controller!
-                                  .resumePreview(); // Resume the camera preview
+                              _controller!.resumePreview();
+                              if (!currentContext.mounted) return;
                               Navigator.of(context).pop();
                             },
                             child: Text(S.of(context).button_pic_pic_save),
@@ -466,7 +470,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         );
       },
     );
-    _controller?.resumePreview(); // Resume the camera preview on error
+    if (mounted) {
+      _controller?.resumePreview();
+    }
   }
 
   Future<void> _saveImage() async {
@@ -478,9 +484,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           name: 'captured_image',
         );
 
-        final snackBarContent = result['isSuccess']
-            ? Text(Intl.message('message_pic_pic_save_success'))
-            : Text(Intl.message('message_pic_pic_save_fail'));
         SnackbarUtil().showSnackbar(result['isSuccess']
             ? 'message_pic_pic_save_success'
             : 'message_pic_pic_save_fail');

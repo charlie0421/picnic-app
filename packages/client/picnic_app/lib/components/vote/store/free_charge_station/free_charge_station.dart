@@ -21,7 +21,6 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
-import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -74,20 +73,20 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
     final userState = ref.read(userInfoProvider);
     if (userState.value == null) {
-      if (!_isDisposed) {
+      if (!_isDisposed && mounted) {
         showRequireLoginDialog();
       }
       return;
     }
 
     try {
-      if (!_isDisposed) {
+      if (!_isDisposed && mounted) {
         OverlayLoadingProgress.start(context);
       }
 
       final response = await supabase.functions.invoke('check-ads-count');
 
-      if (_isDisposed) return;
+      if (_isDisposed || !mounted) return;
       OverlayLoadingProgress.stop();
 
       final allowed = response.data['allowed'] as bool?;
@@ -96,6 +95,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         return;
       }
 
+      if (!mounted) return;
       ref
           .read(rewardedAdsProvider.notifier)
           .loadAd(index, showWhenLoaded: true, context: context);
@@ -104,12 +104,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       }
     } catch (e, s) {
       logger.e('Error in _showRewardedAdmob', error: e, stackTrace: s);
-      if (!_isDisposed) {
+      if (!_isDisposed && mounted) {
         _showErrorDialog(Intl.message('label_loading_ads_fail'));
       }
     } finally {
-      if (!_isDisposed) {
-        OverlayLoadingProgress.stop(); // 에러가 발생하더라도 로딩 인디케이터를 멈춤
+      if (!_isDisposed && mounted) {
+        OverlayLoadingProgress.stop();
       }
     }
   }
@@ -214,40 +214,40 @@ class FreeChargeContent extends ConsumerWidget {
     );
   }
 
-  Widget _buildMissionSection() {
-    return ElevatedButton(
-      onPressed: () async {
-        Tapjoy.setUserID(
-            userId: supabase.auth.currentUser!.id,
-            onSetUserIDSuccess: () {
-              logger.i('setUserID onSuccess');
-            },
-            onSetUserIDFailure: (error) {
-              logger.e('setUserID onFailure', error: error);
-            });
-        TJPlacement placement = await TJPlacement.getPlacement(
-            placementName: isIOS() ? 'mission-ios' : 'mission-android',
-            onRequestSuccess: (placement) {
-              logger.i('onRequestSuccess');
-            },
-            onRequestFailure: (placement, error) {
-              logger.e('onRequestFailure', error: error);
-            },
-            onContentReady: (placement) {
-              logger.i('onContentReady');
-              placement.showContent();
-            },
-            onContentShow: (placement) {
-              logger.i('onContentShow');
-            },
-            onContentDismiss: (placement) {
-              logger.i('onContentDismiss');
-            });
-        await placement.requestContent();
-      },
-      child: Text('Show Offerwall'),
-    );
-  }
+  // Widget _buildMissionSection() {
+  //   return ElevatedButton(
+  //     onPressed: () async {
+  //       Tapjoy.setUserID(
+  //           userId: supabase.auth.currentUser!.id,
+  //           onSetUserIDSuccess: () {
+  //             logger.i('setUserID onSuccess');
+  //           },
+  //           onSetUserIDFailure: (error) {
+  //             logger.e('setUserID onFailure', error: error);
+  //           });
+  //       TJPlacement placement = await TJPlacement.getPlacement(
+  //           placementName: isIOS() ? 'mission-ios' : 'mission-android',
+  //           onRequestSuccess: (placement) {
+  //             logger.i('onRequestSuccess');
+  //           },
+  //           onRequestFailure: (placement, error) {
+  //             logger.e('onRequestFailure', error: error);
+  //           },
+  //           onContentReady: (placement) {
+  //             logger.i('onContentReady');
+  //             placement.showContent();
+  //           },
+  //           onContentShow: (placement) {
+  //             logger.i('onContentShow');
+  //           },
+  //           onContentDismiss: (placement) {
+  //             logger.i('onContentDismiss');
+  //           });
+  //       await placement.requestContent();
+  //     },
+  //     child: Text('Show Offerwall'),
+  //   );
+  // }
 
   Widget _buildStoreListTileAdmob(
     BuildContext context,

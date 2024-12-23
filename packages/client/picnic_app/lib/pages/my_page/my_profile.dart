@@ -136,8 +136,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     final userId = supabase.auth.currentUser?.id;
 
-    if (image != null) {
-      // 이미지 크롭
+    if (image != null && mounted) {
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: image.path,
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
@@ -152,7 +151,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ],
       );
 
-      if (croppedFile != null) {
+      if (croppedFile != null && mounted) {
         try {
           OverlayLoadingProgress.start(context);
           final Uint8List fileBytes = await croppedFile.readAsBytes();
@@ -190,7 +189,9 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           SnackbarUtil().showSnackbar(Intl.message('common_fail'));
           rethrow;
         } finally {
-          OverlayLoadingProgress.stop();
+          if (mounted) {
+            OverlayLoadingProgress.stop();
+          }
         }
       }
     }
@@ -456,11 +457,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 if (success) {
                   // 닉네임 변경 성공
                   showSimpleDialog(
-                      content: S.of(context).message_update_nickname_success);
+                      content: Intl.message('message_update_nickname_success'));
                 } else {
                   // 닉네임 변경 실패 (중복 또는 오류)
                   showSimpleDialog(
-                      content: S.of(context).message_update_nickname_fail);
+                      content: Intl.message('message_update_nickname_fail'));
                 }
                 OverlayLoadingProgress.stop();
               });
