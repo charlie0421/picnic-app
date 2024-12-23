@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part '../../generated/models/common/social_login_result.freezed.dart';
-
 part '../../generated/models/common/social_login_result.g.dart';
 
 @freezed

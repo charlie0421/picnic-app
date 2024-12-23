@@ -43,15 +43,15 @@ class PrivacyConsentManager {
       tagForUnderAgeOfConsent: false,
       consentDebugSettings: kDebugMode
           ? ConsentDebugSettings(
-        debugGeography: DebugGeography.debugGeographyEea,
-        testIdentifiers: ['TEST-DEVICE-HASHED-ID'],
-      )
+              debugGeography: DebugGeography.debugGeographyEea,
+              testIdentifiers: ['TEST-DEVICE-HASHED-ID'],
+            )
           : null,
     );
 
     ConsentInformation.instance.requestConsentInfoUpdate(
       params,
-          () async {
+      () async {
         try {
           if (await ConsentInformation.instance.isConsentFormAvailable()) {
             await _showConsentForm();
@@ -61,7 +61,7 @@ class PrivacyConsentManager {
           completer.completeError(e);
         }
       },
-          (FormError error) {
+      (FormError error) {
         completer.completeError(error);
       },
     );
@@ -73,7 +73,7 @@ class PrivacyConsentManager {
     final completer = Completer<void>();
 
     ConsentForm.loadAndShowConsentFormIfRequired(
-          (FormError? error) {
+      (FormError? error) {
         if (error != null) {
           completer.completeError(error);
         } else {
@@ -100,7 +100,7 @@ class PrivacyConsentManager {
 
         // ATT 동의 요청
         final requestedStatus =
-        await AppTrackingTransparency.requestTrackingAuthorization();
+            await AppTrackingTransparency.requestTrackingAuthorization();
         logger.i('ATT status after request: $requestedStatus');
       }
     } catch (e) {
@@ -142,15 +142,15 @@ class PrivacyConsentManager {
 
     try {
       final attStatus =
-      await AppTrackingTransparency.trackingAuthorizationStatus;
+          await AppTrackingTransparency.trackingAuthorizationStatus;
       final umpStatus = await ConsentInformation.instance.getConsentStatus();
 
       return attStatus == TrackingStatus.authorized &&
           (umpStatus == ConsentStatus.obtained ||
               umpStatus == ConsentStatus.notRequired);
     } catch (e, s) {
-      logger.e(
-          'Error checking ads personalization status', error: e, stackTrace: s);
+      logger.e('Error checking ads personalization status',
+          error: e, stackTrace: s);
       return false;
     }
   }

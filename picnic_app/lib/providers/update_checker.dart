@@ -8,7 +8,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:version/version.dart';
 
 part '../generated/providers/update_checker.freezed.dart';
-
 part '../generated/providers/update_checker.g.dart';
 
 enum UpdateStatus { upToDate, updateRecommended, updateRequired }

@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 
 part '../../generated/models/community/board.freezed.dart';
-
 part '../../generated/models/community/board.g.dart';
 
 @freezed

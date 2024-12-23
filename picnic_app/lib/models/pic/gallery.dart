@@ -3,7 +3,6 @@ import 'package:picnic_app/models/pic/celeb.dart';
 import 'package:picnic_app/util/i18n.dart';
 
 part '../../generated/models/pic/gallery.freezed.dart';
-
 part '../../generated/models/pic/gallery.g.dart';
 
 @freezed

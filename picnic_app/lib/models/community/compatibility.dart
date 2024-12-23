@@ -3,7 +3,6 @@ import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/util/logger.dart';
 
 part '../../generated/models/community/compatibility.freezed.dart';
-
 part '../../generated/models/community/compatibility.g.dart';
 
 enum CompatibilityStatus { pending, completed, error, input }

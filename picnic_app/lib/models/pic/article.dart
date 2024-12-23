@@ -4,7 +4,6 @@ import 'package:picnic_app/models/pic/article_image.dart';
 import 'package:picnic_app/models/pic/gallery.dart';
 
 part '../../generated/models/pic/article.freezed.dart';
-
 part '../../generated/models/pic/article.g.dart';
 
 @freezed

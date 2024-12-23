@@ -4,6 +4,7 @@ import 'package:picnic_app/util/ui.dart';
 
 class BottomSheetHeader extends StatelessWidget {
   const BottomSheetHeader({super.key, required this.title});
+
   final String title;
 
   @override

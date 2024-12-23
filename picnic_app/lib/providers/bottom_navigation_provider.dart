@@ -8,7 +8,7 @@ class BottomNavigationBarCount extends StateNotifier<int> {
   }
 }
 
-final bottomNavigationBarIndexStateProvider = StateNotifierProvider<BottomNavigationBarCount, int>((ref) {
+final bottomNavigationBarIndexStateProvider =
+    StateNotifierProvider<BottomNavigationBarCount, int>((ref) {
   return BottomNavigationBarCount();
 });
-

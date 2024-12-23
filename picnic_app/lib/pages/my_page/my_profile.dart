@@ -25,6 +25,7 @@ import 'package:picnic_app/services/auth/auth_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/util.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -179,18 +180,14 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             // 사용자 프로필 업데이트
             await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
 
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(Intl.message('common_success')),
-                duration: const Duration(seconds: 2)));
+            SnackbarUtil().showSnackbar(Intl.message('common_success'));
           } else {
             throw Exception('Failed to upload image');
           }
         } catch (e, s) {
           logger.e('error', error: e, stackTrace: s);
 
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(Intl.message('common_fail')),
-          ));
+          SnackbarUtil().showSnackbar(Intl.message('common_fail'));
           rethrow;
         } finally {
           OverlayLoadingProgress.stop();

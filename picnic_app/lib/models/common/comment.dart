@@ -4,7 +4,6 @@ import 'package:picnic_app/models/pic/comment_like.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 
 part '../../generated/models/common/comment.freezed.dart';
-
 part '../../generated/models/common/comment.g.dart';
 
 @freezed

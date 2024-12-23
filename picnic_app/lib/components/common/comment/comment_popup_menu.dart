@@ -9,6 +9,7 @@ import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class CommentPopupMenu extends ConsumerStatefulWidget {
@@ -65,12 +66,8 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
             logger.e('exception:', error: e, stackTrace: s);
 
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(S.of(context).post_comment_delete_fail),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              SnackbarUtil()
+                  .showSnackbar(S.of(context).post_comment_delete_fail);
             }
             rethrow;
           }

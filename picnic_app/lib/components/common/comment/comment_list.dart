@@ -14,6 +14,7 @@ import 'package:picnic_app/models/common/comment.dart';
 import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 
 final commentsPageProvider = FutureProvider.autoDispose
@@ -147,9 +148,7 @@ class _CommentListState extends ConsumerState<CommentList> {
       logger.e('Error handling comment action: $e', stackTrace: s);
       if (!_isDisposed) {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).error_action_failed)),
-        );
+        SnackbarUtil().showSnackbar(S.of(context).error_action_failed);
       }
     } finally {
       _debounceTimer?.cancel();

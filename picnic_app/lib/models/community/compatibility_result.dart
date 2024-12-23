@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part '../../generated/models/community/compatibility_result.freezed.dart';
-
 part '../../generated/models/community/compatibility_result.g.dart';
 
 @freezed

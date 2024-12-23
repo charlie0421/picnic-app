@@ -12,6 +12,7 @@ import 'package:picnic_app/providers/comment_list_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/openai.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommentInput extends ConsumerStatefulWidget {
@@ -198,23 +199,15 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       _onTextChanged();
       _focusNode.unfocus();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).post_comment_registered_comment),
-          duration: const Duration(seconds: 1),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      SnackbarUtil()
+          .showSnackbar(S.of(context).post_comment_registered_comment);
     } catch (e, s) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).post_comment_register_fail),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-        ),
+      SnackbarUtil().showSnackbar(
+        S.of(context).post_comment_register_fail,
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 2),
       );
 
       logger.e('Error: $e', stackTrace: s);

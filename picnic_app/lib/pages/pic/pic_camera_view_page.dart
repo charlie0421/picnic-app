@@ -20,6 +20,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class PicCameraViewPage extends ConsumerStatefulWidget {
@@ -480,8 +481,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         final snackBarContent = result['isSuccess']
             ? Text(Intl.message('message_pic_pic_save_success'))
             : Text(Intl.message('message_pic_pic_save_fail'));
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: snackBarContent));
+        SnackbarUtil().showSnackbar(result['isSuccess']
+            ? 'message_pic_pic_save_success'
+            : 'message_pic_pic_save_fail');
       }
     } catch (e, s) {
       logger.e("Error saving image: $e", stackTrace: s);

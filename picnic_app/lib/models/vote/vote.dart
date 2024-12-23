@@ -4,7 +4,6 @@ import 'package:picnic_app/models/vote/artist.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
 
 part '../../generated/models/vote/vote.freezed.dart';
-
 part '../../generated/models/vote/vote.g.dart';
 
 @freezed

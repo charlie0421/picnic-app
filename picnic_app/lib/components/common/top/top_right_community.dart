@@ -6,6 +6,7 @@ import 'package:picnic_app/components/ui/bounce_red_dot.dart';
 import 'package:picnic_app/dialogs/require_login_dialog.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -34,10 +35,7 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
                   GestureDetector(
                     onTap: () {
                       supabase.isLogged
-                          ? ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  duration: Duration(milliseconds: 300),
-                                  content: Text('Test')))
+                          ? SnackbarUtil().showSnackbar('Test')
                           : showRequireLoginDialog();
                     },
                     child: Container(
@@ -54,10 +52,7 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
                   GestureDetector(
                     onTap: () {
                       supabase.isLogged
-                          ? ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  duration: Duration(milliseconds: 300),
-                                  content: Text('Test')))
+                          ? SnackbarUtil().showSnackbar('Test')
                           : showRequireLoginDialog();
                     },
                     child: Container(
@@ -91,10 +86,7 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
               GestureDetector(
                 onTap: () {
                   supabase.isLogged
-                      ? ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              duration: Duration(milliseconds: 200),
-                              content: Text('Test')))
+                      ? SnackbarUtil().showSnackbar('Test')
                       : showRequireLoginDialog();
                 },
                 child: Stack(

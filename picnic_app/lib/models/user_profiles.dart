@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part '../generated/models/user_profiles.freezed.dart';
-
 part '../generated/models/user_profiles.g.dart';
 
 @freezed

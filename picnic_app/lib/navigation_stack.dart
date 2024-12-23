@@ -8,6 +8,7 @@ class NavigationStack {
   }
 
   final List<Widget> _list = [];
+
   // Pushes an element onto the stack
   void push(Widget value) {
     _list.add(value);
@@ -31,8 +32,10 @@ class NavigationStack {
 
   // Checks if the stack is empty
   bool get isEmpty => _list.isEmpty;
+
   // Gets the length of the stack
   int get length => _list.length;
+
   // Clears all elements from the stack
   void clear() {
     _list.clear();
