@@ -87,9 +87,11 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   }
 
   Future<void> _handleRefresh() async {
+    // ignore: unused_result
     await ref.refresh(asyncVoteDetailProvider(
             voteId: widget.vote.id, votePortal: widget.votePortal)
         .future);
+    // ignore: unused_result
     await ref.refresh(asyncVoteItemListProvider(voteId: widget.vote.id).future);
     _restartAnimation();
   }
@@ -279,7 +281,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                     opacityAnimation: _opacityAnimation,
                     status: widget.status,
                   ),
-              ].where((widget) => widget != null).toList(),
+              ],
             ),
           ),
         );

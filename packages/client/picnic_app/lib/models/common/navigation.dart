@@ -101,9 +101,6 @@ class Navigation with _$Navigation {
         newCurrentScreen = const MyPageScreen();
         newVoteNavigationStack = NavigationStack()..push(const MyPage());
         break;
-      default:
-        newCurrentScreen = const VoteHomeScreen();
-        newVoteNavigationStack = NavigationStack()..push(const VoteHomePage());
     }
 
     return copyWith(

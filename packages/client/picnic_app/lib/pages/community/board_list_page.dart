@@ -31,13 +31,10 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
   final _pagingController =
       PagingController<int, List<BoardModel>>(firstPageKey: 0);
   final _searchSubject = BehaviorSubject<String>();
-  late final BoardsByArtistNameNotifier _boardsNotifier;
 
   @override
   void initState() {
     super.initState();
-    _boardsNotifier =
-        ref.read(boardsByArtistNameNotifierProvider('', 0, 10).notifier);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(

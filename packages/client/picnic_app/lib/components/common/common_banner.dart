@@ -60,7 +60,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   Widget _buildBannerItem(BannerModel item) {
     String title = getLocaleTextFromJson(item.title);
     String imageUrl = getLocaleTextFromJson(item.image);
-    bool isGif = imageUrl.toLowerCase().endsWith('.gif');
+    imageUrl.toLowerCase().endsWith('.gif');
 
     return Stack(
       alignment: Alignment.center,

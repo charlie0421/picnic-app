@@ -150,6 +150,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
           setState(() => _listKey = UniqueKey());
           _pagingController.refresh();
         }
+        // ignore: unused_result
         ref.refresh(asyncBookmarkedArtistsProvider);
       } else {
         if (mounted) {

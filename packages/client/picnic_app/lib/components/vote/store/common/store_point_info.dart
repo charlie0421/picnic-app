@@ -7,15 +7,15 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class StorePointInfo extends ConsumerWidget {
-  StorePointInfo(
+  const StorePointInfo(
       {super.key,
       required this.title,
-      this.width,
-      this.height,
+      this.width = 48,
+      this.height = 36,
       this.titlePadding});
 
-  double? width = 48.cw;
-  double? height = 36;
+  final double? width;
+  final double? height;
   final String title;
   final double? titlePadding;
 

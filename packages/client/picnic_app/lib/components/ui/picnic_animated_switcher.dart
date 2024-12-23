@@ -16,7 +16,6 @@ class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
 
 class _PicnicAnimatedSwitcherState
     extends ConsumerState<PicnicAnimatedSwitcher> {
-  bool _showAnimation = false;
   Widget? _previousTopWidget;
 
   @override
@@ -26,15 +25,11 @@ class _PicnicAnimatedSwitcherState
 
   void _triggerAnimation() {
     if (mounted) {
-      setState(() {
-        _showAnimation = true;
-      });
+      setState(() {});
 
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
-          setState(() {
-            _showAnimation = false;
-          });
+          setState(() {});
         }
       });
     }

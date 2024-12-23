@@ -26,19 +26,6 @@ class PurchaseService {
   final ReceiptVerificationService receiptVerificationService;
   final AnalyticsService analyticsService;
 
-  VoidCallback? _onSuccess;
-  Function(String)? _onError;
-
-  void _handlePurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
-    for (final purchaseDetails in purchaseDetailsList) {
-      handlePurchase(
-        purchaseDetails,
-        _onSuccess ?? () {},
-        _onError ?? (_) {},
-      );
-    }
-  }
-
   Future<void> handlePurchase(
     PurchaseDetails purchaseDetails,
     VoidCallback onSuccess,
@@ -155,9 +142,6 @@ class PurchaseService {
     required Function(String) onError,
   }) async {
     try {
-      _onSuccess = onSuccess;
-      _onError = onError;
-
       final storeProducts = await ref.read(storeProductsProvider.future);
       final serverProduct = ref
           .read(serverProductsProvider.notifier)

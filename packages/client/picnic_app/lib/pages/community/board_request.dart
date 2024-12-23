@@ -32,7 +32,6 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
   bool _isDescriptionValid = false;
   bool _isRequestMessageValid = false;
   bool _isLoading = true;
-  dynamic _pendingRequest;
   String? _error;
   late BoardRequestNotifier _boardRequestNotifier;
 
@@ -54,7 +53,6 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
       if (!mounted) return;
 
       setState(() {
-        _pendingRequest = request;
         _isLoading = false;
         if (request != null) {
           _nameController.text = getLocaleTextFromJson(request.name);
