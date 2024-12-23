@@ -207,7 +207,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     .read(navigationInfoProvider.notifier)
                     .setCurrentPage(GalleryDetailPage(
                       galleryId: data[index].id,
-                      galleryName: data[index].title_en,
+                      galleryName: data[index].titleEn,
                     ));
               },
               child: Stack(
@@ -318,7 +318,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
             ),
             const SizedBox(width: 8),
             Text(
-              selectedCelebState?.name_ko ?? '',
+              selectedCelebState?.nameKo ?? '',
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
             const SizedBox(width: 8),

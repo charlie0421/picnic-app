@@ -13,24 +13,30 @@ _$VideoInfoImpl _$$VideoInfoImplFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = _$VideoInfoImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
-          video_id: $checkedConvert('video_id', (v) => v as String),
-          video_url: $checkedConvert('video_url', (v) => v as String),
+          videoId: $checkedConvert('video_id', (v) => v as String),
+          videoUrl: $checkedConvert('video_url', (v) => v as String),
           title: $checkedConvert(
               'title', (v) => Map<String, String>.from(v as Map)),
-          thumbnail_url: $checkedConvert('thumbnail_url', (v) => v as String),
-          created_at:
+          thumbnailUrl: $checkedConvert('thumbnail_url', (v) => v as String),
+          createdAt:
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
         );
         return val;
+      },
+      fieldKeyMap: const {
+        'videoId': 'video_id',
+        'videoUrl': 'video_url',
+        'thumbnailUrl': 'thumbnail_url',
+        'createdAt': 'created_at'
       },
     );
 
 Map<String, dynamic> _$$VideoInfoImplToJson(_$VideoInfoImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'video_id': instance.video_id,
-      'video_url': instance.video_url,
+      'video_id': instance.videoId,
+      'video_url': instance.videoUrl,
       'title': instance.title,
-      'thumbnail_url': instance.thumbnail_url,
-      'created_at': instance.created_at.toIso8601String(),
+      'thumbnail_url': instance.thumbnailUrl,
+      'created_at': instance.createdAt.toIso8601String(),
     };

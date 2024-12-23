@@ -83,12 +83,10 @@ bool isIPad(BuildContext context) {
 }
 
 Color getComplementaryColor(Color color) {
-  // RGB 채널에서 각 값을 255에서 빼서 보색을 찾습니다.
-  int red = 255 - color.red;
-  int green = 255 - color.green;
-  int blue = 255 - color.blue;
+  int red = 255 - color.r.toInt();
+  int green = 255 - color.g.toInt();
+  int blue = 255 - color.b.toInt();
 
-  // 계산된 RGB 값을 사용하여 새로운 Color 객체를 생성합니다.
   return Color.fromARGB(255, red, green, blue);
 }
 

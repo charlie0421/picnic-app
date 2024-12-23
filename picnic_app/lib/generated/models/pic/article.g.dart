@@ -13,30 +13,30 @@ _$ArticleModelImpl _$$ArticleModelImplFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = _$ArticleModelImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
-          title_ko: $checkedConvert('title_ko', (v) => v as String),
-          title_en: $checkedConvert('title_en', (v) => v as String),
+          titleKo: $checkedConvert('title_ko', (v) => v as String),
+          titleEn: $checkedConvert('title_en', (v) => v as String),
           content: $checkedConvert('content', (v) => v as String),
           gallery: $checkedConvert(
               'gallery',
               (v) => v == null
                   ? null
                   : GalleryModel.fromJson(v as Map<String, dynamic>)),
-          article_image: $checkedConvert(
+          articleImage: $checkedConvert(
               'article_image',
               (v) => (v as List<dynamic>?)
                   ?.map((e) =>
                       ArticleImageModel.fromJson(e as Map<String, dynamic>))
                   .toList()),
-          created_at:
+          createdAt:
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
-          comment_count:
+          commentCount:
               $checkedConvert('comment_count', (v) => (v as num?)?.toInt()),
           comment: $checkedConvert(
               'comment',
               (v) => v == null
                   ? null
                   : CommentModel.fromJson(v as Map<String, dynamic>)),
-          most_liked_comment: $checkedConvert(
+          mostLikedComment: $checkedConvert(
               'most_liked_comment',
               (v) => v == null
                   ? null
@@ -44,18 +44,26 @@ _$ArticleModelImpl _$$ArticleModelImplFromJson(Map<String, dynamic> json) =>
         );
         return val;
       },
+      fieldKeyMap: const {
+        'titleKo': 'title_ko',
+        'titleEn': 'title_en',
+        'articleImage': 'article_image',
+        'createdAt': 'created_at',
+        'commentCount': 'comment_count',
+        'mostLikedComment': 'most_liked_comment'
+      },
     );
 
 Map<String, dynamic> _$$ArticleModelImplToJson(_$ArticleModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'title_ko': instance.title_ko,
-      'title_en': instance.title_en,
+      'title_ko': instance.titleKo,
+      'title_en': instance.titleEn,
       'content': instance.content,
       'gallery': instance.gallery?.toJson(),
-      'article_image': instance.article_image?.map((e) => e.toJson()).toList(),
-      'created_at': instance.created_at.toIso8601String(),
-      'comment_count': instance.comment_count,
+      'article_image': instance.articleImage?.map((e) => e.toJson()).toList(),
+      'created_at': instance.createdAt.toIso8601String(),
+      'comment_count': instance.commentCount,
       'comment': instance.comment?.toJson(),
-      'most_liked_comment': instance.most_liked_comment?.toJson(),
+      'most_liked_comment': instance.mostLikedComment?.toJson(),
     };

@@ -13,15 +13,17 @@ class ArticleModel with _$ArticleModel {
 
   const factory ArticleModel({
     required int id,
-    required String title_ko,
-    required String title_en,
+    @JsonKey(name: 'title_ko') required String titleKo,
+    @JsonKey(name: 'title_en') required String titleEn,
     required String content,
     required GalleryModel? gallery,
-    required List<ArticleImageModel>? article_image,
-    required DateTime created_at,
-    required int? comment_count,
+    @JsonKey(name: 'article_image')
+    required List<ArticleImageModel>? articleImage,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'comment_count') required int? commentCount,
     required CommentModel? comment,
-    required CommentModel? most_liked_comment,
+    @JsonKey(name: 'most_liked_comment')
+    required CommentModel? mostLikedComment,
   }) = _ArticleModel;
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) =>

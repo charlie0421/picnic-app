@@ -188,11 +188,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
     return List<int>.generate(data.length, (index) => index).where((index) {
       final item = data[index]!;
-      return item.artist != 0 &&
+      return item.artist.id != 0 &&
               getLocaleTextFromJson(item.artist.name)
                   .toLowerCase()
                   .contains(query.toLowerCase()) ||
-          item.artist != 0 &&
+          item.artist.id != 0 &&
               getLocaleTextFromJson(item.artistGroup.name)
                   .toLowerCase()
                   .contains(query.toLowerCase());
@@ -493,7 +493,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                   const TextSpan(text: ' '),
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artist.artist_group!.name),
+                                        item.artist.artistGroup!.name),
                                     style: getTextStyle(
                                         AppTypo.caption10SB, AppColors.grey600),
                                   ),

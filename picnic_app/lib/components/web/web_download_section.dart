@@ -146,8 +146,12 @@ class WebDownloadSection extends ConsumerWidget {
                           data: 'https://picnic.fan/download.html',
                           version: QrVersions.auto,
                           size: 160.0,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
+                          eyeStyle: const QrEyeStyle(
+                            color: Colors.black,
+                          ),
+                          dataModuleStyle: const QrDataModuleStyle(
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),

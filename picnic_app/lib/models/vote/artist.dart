@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/vote/artist_group.dart';
 
 part '../../generated/models/vote/artist.freezed.dart';
-
 part '../../generated/models/vote/artist.g.dart';
 
 @freezed
@@ -10,26 +9,26 @@ class ArtistModel with _$ArtistModel {
   const ArtistModel._();
 
   const factory ArtistModel({
-    required int id,
-    required Map<String, dynamic> name,
-    int? yy,
-    int? mm,
-    int? dd,
-    DateTime? birth_date,
-    String? gender,
-    ArtistGroupModel? artist_group,
-    String? image,
-    DateTime? created_at,
-    DateTime? updated_at,
-    DateTime? deleted_at,
-    bool? isBookmarked,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'name') required Map<String, dynamic> name,
+    @JsonKey(name: 'yy') int? yy,
+    @JsonKey(name: 'mm') int? mm,
+    @JsonKey(name: 'dd') int? dd,
+    @JsonKey(name: 'birth_date') DateTime? birthDate,
+    @JsonKey(name: 'gender') String? gender,
+    @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup,
+    @JsonKey(name: 'image') String? image,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    @JsonKey(name: 'deleted_at') DateTime? deletedAt,
+    @JsonKey(name: 'isBookmarked') bool? isBookmarked,
   }) = _ArtistModel;
 
   factory ArtistModel.fromJson(Map<String, dynamic> json) =>
       _$ArtistModelFromJson(json);
 
   DateTime? get birthDate {
-    if (birth_date != null) return birth_date;
+    if (birthDate != null) return birthDate;
     if (yy != null && mm != null && dd != null) {
       try {
         return DateTime(yy!, mm!, dd!);
@@ -57,5 +56,5 @@ class ArtistModel with _$ArtistModel {
     return null;
   }
 
-  bool get isDeleted => deleted_at != null;
+  bool get isDeleted => deletedAt != null;
 }

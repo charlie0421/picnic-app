@@ -21,16 +21,22 @@ ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ArticleModel {
   int get id => throw _privateConstructorUsedError;
-  String get title_ko => throw _privateConstructorUsedError;
-  String get title_en => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title_ko')
+  String get titleKo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title_en')
+  String get titleEn => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   GalleryModel? get gallery => throw _privateConstructorUsedError;
-  List<ArticleImageModel>? get article_image =>
+  @JsonKey(name: 'article_image')
+  List<ArticleImageModel>? get articleImage =>
       throw _privateConstructorUsedError;
-  DateTime get created_at => throw _privateConstructorUsedError;
-  int? get comment_count => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'comment_count')
+  int? get commentCount => throw _privateConstructorUsedError;
   CommentModel? get comment => throw _privateConstructorUsedError;
-  CommentModel? get most_liked_comment => throw _privateConstructorUsedError;
+  @JsonKey(name: 'most_liked_comment')
+  CommentModel? get mostLikedComment => throw _privateConstructorUsedError;
 
   /// Serializes this ArticleModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -50,19 +56,19 @@ abstract class $ArticleModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      String title_ko,
-      String title_en,
+      @JsonKey(name: 'title_ko') String titleKo,
+      @JsonKey(name: 'title_en') String titleEn,
       String content,
       GalleryModel? gallery,
-      List<ArticleImageModel>? article_image,
-      DateTime created_at,
-      int? comment_count,
+      @JsonKey(name: 'article_image') List<ArticleImageModel>? articleImage,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'comment_count') int? commentCount,
       CommentModel? comment,
-      CommentModel? most_liked_comment});
+      @JsonKey(name: 'most_liked_comment') CommentModel? mostLikedComment});
 
   $GalleryModelCopyWith<$Res>? get gallery;
   $CommentModelCopyWith<$Res>? get comment;
-  $CommentModelCopyWith<$Res>? get most_liked_comment;
+  $CommentModelCopyWith<$Res>? get mostLikedComment;
 }
 
 /// @nodoc
@@ -81,28 +87,28 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
   @override
   $Res call({
     Object? id = null,
-    Object? title_ko = null,
-    Object? title_en = null,
+    Object? titleKo = null,
+    Object? titleEn = null,
     Object? content = null,
     Object? gallery = freezed,
-    Object? article_image = freezed,
-    Object? created_at = null,
-    Object? comment_count = freezed,
+    Object? articleImage = freezed,
+    Object? createdAt = null,
+    Object? commentCount = freezed,
     Object? comment = freezed,
-    Object? most_liked_comment = freezed,
+    Object? mostLikedComment = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      title_ko: null == title_ko
-          ? _value.title_ko
-          : title_ko // ignore: cast_nullable_to_non_nullable
+      titleKo: null == titleKo
+          ? _value.titleKo
+          : titleKo // ignore: cast_nullable_to_non_nullable
               as String,
-      title_en: null == title_en
-          ? _value.title_en
-          : title_en // ignore: cast_nullable_to_non_nullable
+      titleEn: null == titleEn
+          ? _value.titleEn
+          : titleEn // ignore: cast_nullable_to_non_nullable
               as String,
       content: null == content
           ? _value.content
@@ -112,25 +118,25 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
           ? _value.gallery
           : gallery // ignore: cast_nullable_to_non_nullable
               as GalleryModel?,
-      article_image: freezed == article_image
-          ? _value.article_image
-          : article_image // ignore: cast_nullable_to_non_nullable
+      articleImage: freezed == articleImage
+          ? _value.articleImage
+          : articleImage // ignore: cast_nullable_to_non_nullable
               as List<ArticleImageModel>?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      comment_count: freezed == comment_count
-          ? _value.comment_count
-          : comment_count // ignore: cast_nullable_to_non_nullable
+      commentCount: freezed == commentCount
+          ? _value.commentCount
+          : commentCount // ignore: cast_nullable_to_non_nullable
               as int?,
       comment: freezed == comment
           ? _value.comment
           : comment // ignore: cast_nullable_to_non_nullable
               as CommentModel?,
-      most_liked_comment: freezed == most_liked_comment
-          ? _value.most_liked_comment
-          : most_liked_comment // ignore: cast_nullable_to_non_nullable
+      mostLikedComment: freezed == mostLikedComment
+          ? _value.mostLikedComment
+          : mostLikedComment // ignore: cast_nullable_to_non_nullable
               as CommentModel?,
     ) as $Val);
   }
@@ -167,13 +173,13 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $CommentModelCopyWith<$Res>? get most_liked_comment {
-    if (_value.most_liked_comment == null) {
+  $CommentModelCopyWith<$Res>? get mostLikedComment {
+    if (_value.mostLikedComment == null) {
       return null;
     }
 
-    return $CommentModelCopyWith<$Res>(_value.most_liked_comment!, (value) {
-      return _then(_value.copyWith(most_liked_comment: value) as $Val);
+    return $CommentModelCopyWith<$Res>(_value.mostLikedComment!, (value) {
+      return _then(_value.copyWith(mostLikedComment: value) as $Val);
     });
   }
 }
@@ -188,22 +194,22 @@ abstract class _$$ArticleModelImplCopyWith<$Res>
   @useResult
   $Res call(
       {int id,
-      String title_ko,
-      String title_en,
+      @JsonKey(name: 'title_ko') String titleKo,
+      @JsonKey(name: 'title_en') String titleEn,
       String content,
       GalleryModel? gallery,
-      List<ArticleImageModel>? article_image,
-      DateTime created_at,
-      int? comment_count,
+      @JsonKey(name: 'article_image') List<ArticleImageModel>? articleImage,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'comment_count') int? commentCount,
       CommentModel? comment,
-      CommentModel? most_liked_comment});
+      @JsonKey(name: 'most_liked_comment') CommentModel? mostLikedComment});
 
   @override
   $GalleryModelCopyWith<$Res>? get gallery;
   @override
   $CommentModelCopyWith<$Res>? get comment;
   @override
-  $CommentModelCopyWith<$Res>? get most_liked_comment;
+  $CommentModelCopyWith<$Res>? get mostLikedComment;
 }
 
 /// @nodoc
@@ -220,28 +226,28 @@ class __$$ArticleModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? title_ko = null,
-    Object? title_en = null,
+    Object? titleKo = null,
+    Object? titleEn = null,
     Object? content = null,
     Object? gallery = freezed,
-    Object? article_image = freezed,
-    Object? created_at = null,
-    Object? comment_count = freezed,
+    Object? articleImage = freezed,
+    Object? createdAt = null,
+    Object? commentCount = freezed,
     Object? comment = freezed,
-    Object? most_liked_comment = freezed,
+    Object? mostLikedComment = freezed,
   }) {
     return _then(_$ArticleModelImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      title_ko: null == title_ko
-          ? _value.title_ko
-          : title_ko // ignore: cast_nullable_to_non_nullable
+      titleKo: null == titleKo
+          ? _value.titleKo
+          : titleKo // ignore: cast_nullable_to_non_nullable
               as String,
-      title_en: null == title_en
-          ? _value.title_en
-          : title_en // ignore: cast_nullable_to_non_nullable
+      titleEn: null == titleEn
+          ? _value.titleEn
+          : titleEn // ignore: cast_nullable_to_non_nullable
               as String,
       content: null == content
           ? _value.content
@@ -251,25 +257,25 @@ class __$$ArticleModelImplCopyWithImpl<$Res>
           ? _value.gallery
           : gallery // ignore: cast_nullable_to_non_nullable
               as GalleryModel?,
-      article_image: freezed == article_image
-          ? _value._article_image
-          : article_image // ignore: cast_nullable_to_non_nullable
+      articleImage: freezed == articleImage
+          ? _value._articleImage
+          : articleImage // ignore: cast_nullable_to_non_nullable
               as List<ArticleImageModel>?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      comment_count: freezed == comment_count
-          ? _value.comment_count
-          : comment_count // ignore: cast_nullable_to_non_nullable
+      commentCount: freezed == commentCount
+          ? _value.commentCount
+          : commentCount // ignore: cast_nullable_to_non_nullable
               as int?,
       comment: freezed == comment
           ? _value.comment
           : comment // ignore: cast_nullable_to_non_nullable
               as CommentModel?,
-      most_liked_comment: freezed == most_liked_comment
-          ? _value.most_liked_comment
-          : most_liked_comment // ignore: cast_nullable_to_non_nullable
+      mostLikedComment: freezed == mostLikedComment
+          ? _value.mostLikedComment
+          : mostLikedComment // ignore: cast_nullable_to_non_nullable
               as CommentModel?,
     ));
   }
@@ -280,16 +286,17 @@ class __$$ArticleModelImplCopyWithImpl<$Res>
 class _$ArticleModelImpl extends _ArticleModel {
   const _$ArticleModelImpl(
       {required this.id,
-      required this.title_ko,
-      required this.title_en,
+      @JsonKey(name: 'title_ko') required this.titleKo,
+      @JsonKey(name: 'title_en') required this.titleEn,
       required this.content,
       required this.gallery,
-      required final List<ArticleImageModel>? article_image,
-      required this.created_at,
-      required this.comment_count,
+      @JsonKey(name: 'article_image')
+      required final List<ArticleImageModel>? articleImage,
+      @JsonKey(name: 'created_at') required this.createdAt,
+      @JsonKey(name: 'comment_count') required this.commentCount,
       required this.comment,
-      required this.most_liked_comment})
-      : _article_image = article_image,
+      @JsonKey(name: 'most_liked_comment') required this.mostLikedComment})
+      : _articleImage = articleImage,
         super._();
 
   factory _$ArticleModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -298,35 +305,41 @@ class _$ArticleModelImpl extends _ArticleModel {
   @override
   final int id;
   @override
-  final String title_ko;
+  @JsonKey(name: 'title_ko')
+  final String titleKo;
   @override
-  final String title_en;
+  @JsonKey(name: 'title_en')
+  final String titleEn;
   @override
   final String content;
   @override
   final GalleryModel? gallery;
-  final List<ArticleImageModel>? _article_image;
+  final List<ArticleImageModel>? _articleImage;
   @override
-  List<ArticleImageModel>? get article_image {
-    final value = _article_image;
+  @JsonKey(name: 'article_image')
+  List<ArticleImageModel>? get articleImage {
+    final value = _articleImage;
     if (value == null) return null;
-    if (_article_image is EqualUnmodifiableListView) return _article_image;
+    if (_articleImage is EqualUnmodifiableListView) return _articleImage;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
 
   @override
-  final DateTime created_at;
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
   @override
-  final int? comment_count;
+  @JsonKey(name: 'comment_count')
+  final int? commentCount;
   @override
   final CommentModel? comment;
   @override
-  final CommentModel? most_liked_comment;
+  @JsonKey(name: 'most_liked_comment')
+  final CommentModel? mostLikedComment;
 
   @override
   String toString() {
-    return 'ArticleModel(id: $id, title_ko: $title_ko, title_en: $title_en, content: $content, gallery: $gallery, article_image: $article_image, created_at: $created_at, comment_count: $comment_count, comment: $comment, most_liked_comment: $most_liked_comment)';
+    return 'ArticleModel(id: $id, titleKo: $titleKo, titleEn: $titleEn, content: $content, gallery: $gallery, articleImage: $articleImage, createdAt: $createdAt, commentCount: $commentCount, comment: $comment, mostLikedComment: $mostLikedComment)';
   }
 
   @override
@@ -335,21 +348,19 @@ class _$ArticleModelImpl extends _ArticleModel {
         (other.runtimeType == runtimeType &&
             other is _$ArticleModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.title_ko, title_ko) ||
-                other.title_ko == title_ko) &&
-            (identical(other.title_en, title_en) ||
-                other.title_en == title_en) &&
+            (identical(other.titleKo, titleKo) || other.titleKo == titleKo) &&
+            (identical(other.titleEn, titleEn) || other.titleEn == titleEn) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.gallery, gallery) || other.gallery == gallery) &&
             const DeepCollectionEquality()
-                .equals(other._article_image, _article_image) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at) &&
-            (identical(other.comment_count, comment_count) ||
-                other.comment_count == comment_count) &&
+                .equals(other._articleImage, _articleImage) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.commentCount, commentCount) ||
+                other.commentCount == commentCount) &&
             (identical(other.comment, comment) || other.comment == comment) &&
-            (identical(other.most_liked_comment, most_liked_comment) ||
-                other.most_liked_comment == most_liked_comment));
+            (identical(other.mostLikedComment, mostLikedComment) ||
+                other.mostLikedComment == mostLikedComment));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -357,15 +368,15 @@ class _$ArticleModelImpl extends _ArticleModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
-      title_ko,
-      title_en,
+      titleKo,
+      titleEn,
       content,
       gallery,
-      const DeepCollectionEquality().hash(_article_image),
-      created_at,
-      comment_count,
+      const DeepCollectionEquality().hash(_articleImage),
+      createdAt,
+      commentCount,
       comment,
-      most_liked_comment);
+      mostLikedComment);
 
   /// Create a copy of ArticleModel
   /// with the given fields replaced by the non-null parameter values.
@@ -386,15 +397,17 @@ class _$ArticleModelImpl extends _ArticleModel {
 abstract class _ArticleModel extends ArticleModel {
   const factory _ArticleModel(
       {required final int id,
-      required final String title_ko,
-      required final String title_en,
+      @JsonKey(name: 'title_ko') required final String titleKo,
+      @JsonKey(name: 'title_en') required final String titleEn,
       required final String content,
       required final GalleryModel? gallery,
-      required final List<ArticleImageModel>? article_image,
-      required final DateTime created_at,
-      required final int? comment_count,
+      @JsonKey(name: 'article_image')
+      required final List<ArticleImageModel>? articleImage,
+      @JsonKey(name: 'created_at') required final DateTime createdAt,
+      @JsonKey(name: 'comment_count') required final int? commentCount,
       required final CommentModel? comment,
-      required final CommentModel? most_liked_comment}) = _$ArticleModelImpl;
+      @JsonKey(name: 'most_liked_comment')
+      required final CommentModel? mostLikedComment}) = _$ArticleModelImpl;
   const _ArticleModel._() : super._();
 
   factory _ArticleModel.fromJson(Map<String, dynamic> json) =
@@ -403,23 +416,29 @@ abstract class _ArticleModel extends ArticleModel {
   @override
   int get id;
   @override
-  String get title_ko;
+  @JsonKey(name: 'title_ko')
+  String get titleKo;
   @override
-  String get title_en;
+  @JsonKey(name: 'title_en')
+  String get titleEn;
   @override
   String get content;
   @override
   GalleryModel? get gallery;
   @override
-  List<ArticleImageModel>? get article_image;
+  @JsonKey(name: 'article_image')
+  List<ArticleImageModel>? get articleImage;
   @override
-  DateTime get created_at;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt;
   @override
-  int? get comment_count;
+  @JsonKey(name: 'comment_count')
+  int? get commentCount;
   @override
   CommentModel? get comment;
   @override
-  CommentModel? get most_liked_comment;
+  @JsonKey(name: 'most_liked_comment')
+  CommentModel? get mostLikedComment;
 
   /// Create a copy of ArticleModel
   /// with the given fields replaced by the non-null parameter values.

@@ -98,9 +98,9 @@ class CompatibilityInfo extends StatelessWidget {
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900)),
                         Text(
-                          artist.gender! == Gender.MALE.name
+                          artist.gender! == Gender.male.name
                               ? '🧑'
-                              : artist.gender! == Gender.FEMALE.name
+                              : artist.gender! == Gender.female.name
                                   ? '👩'
                                   : '',
                           textAlign: TextAlign.center,

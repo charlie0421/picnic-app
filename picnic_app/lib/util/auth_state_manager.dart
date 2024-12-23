@@ -25,7 +25,6 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
           state = AuthState(isAuthenticated: true, user: session?.user);
           break;
         case AuthChangeEvent.signedOut:
-        case AuthChangeEvent.userDeleted:
           state = AuthState(isAuthenticated: false);
           break;
         case AuthChangeEvent.userUpdated:

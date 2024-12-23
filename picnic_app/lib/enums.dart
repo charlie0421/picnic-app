@@ -15,4 +15,4 @@ enum PolicyType {
 
 enum PortalType { vote, pic, community, novel, mypage }
 
-enum Gender { MALE, FEMALE }
+enum Gender { male, female }

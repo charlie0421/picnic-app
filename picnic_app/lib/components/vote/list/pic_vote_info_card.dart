@@ -73,7 +73,7 @@ class _PicVoteInfoCardState extends ConsumerState<PicVoteInfoCard>
 
   @override
   Widget build(BuildContext context) {
-    final List<ArtistVoteItemModel>? items = widget.vote.artist_vote_item;
+    final List<ArtistVoteItemModel>? items = widget.vote.artistVoteItem;
     final no1 = items?[0];
     final no2 = items?[1];
     final no3 = items?[2];
@@ -88,7 +88,7 @@ class _PicVoteInfoCardState extends ConsumerState<PicVoteInfoCard>
           children: [
             VoteCardInfoHeader(
                 title: getLocaleTextFromJson(widget.vote.title),
-                stopAt: widget.vote.stop_at,
+                stopAt: widget.vote.stopAt,
                 onRefresh: _restartAnimation,
                 status: widget.status),
             const SizedBox(

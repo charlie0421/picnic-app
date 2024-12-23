@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/util/i18n.dart';
 
 part '../../generated/models/pic/artist_vote.freezed.dart';
-
 part '../../generated/models/pic/artist_vote.g.dart';
 
 @freezed
@@ -10,15 +9,16 @@ class ArtistVoteModel with _$ArtistVoteModel {
   const ArtistVoteModel._();
 
   const factory ArtistVoteModel({
-    required int id,
-    required Map<String, dynamic> title,
-    required String category,
-    required List<ArtistVoteItemModel>? artist_vote_item,
-    required DateTime created_at,
-    required DateTime? updated_at,
-    required DateTime? visible_at,
-    required DateTime stop_at,
-    required DateTime start_at,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'title') required Map<String, dynamic> title,
+    @JsonKey(name: 'category') required String category,
+    @JsonKey(name: 'artist_vote_item')
+    required List<ArtistVoteItemModel>? artistVoteItem,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime? updatedAt,
+    @JsonKey(name: 'visible_at') required DateTime? visibleAt,
+    @JsonKey(name: 'stop_at') required DateTime stopAt,
+    @JsonKey(name: 'start_at') required DateTime startAt,
   }) = _ArtistVoteModel;
 
   factory ArtistVoteModel.fromJson(Map<String, dynamic> json) =>
@@ -30,11 +30,11 @@ class ArtistVoteItemModel with _$ArtistVoteItemModel {
   const ArtistVoteItemModel._();
 
   const factory ArtistVoteItemModel({
-    required int id,
-    required int vote_total,
-    required int artist_vote_id,
-    required Map<String, dynamic> title,
-    required Map<String, dynamic> description,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'vote_total') required int voteTotal,
+    @JsonKey(name: 'artist_vote_id') required int artistVoteId,
+    @JsonKey(name: 'title') required Map<String, dynamic> title,
+    @JsonKey(name: 'description') required Map<String, dynamic> description,
   }) = _ArtistVoteItemModel;
 
   factory ArtistVoteItemModel.fromJson(Map<String, dynamic> json) =>
@@ -46,26 +46,26 @@ class MyStarMemberModel with _$MyStarMemberModel {
   const MyStarMemberModel._();
 
   const factory MyStarMemberModel({
-    required int id,
-    required String name_ko,
-    required String name_en,
-    required String gender,
-    required String? image,
-    MyStarGroupModel? mystar_group,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'name_ko') required String nameKo,
+    @JsonKey(name: 'name_en') required String nameEn,
+    @JsonKey(name: 'gender') required String gender,
+    @JsonKey(name: 'image') required String? image,
+    @JsonKey(name: 'mystar_group') MyStarGroupModel? mystarGroup,
   }) = _MyStarMemberModel;
 
   getTitle() {
     String title = '';
     if (getLocaleLanguage() == 'ko') {
-      title = name_ko;
+      title = nameKo;
     } else {
-      title = name_en;
+      title = nameEn;
     }
     return title;
   }
 
   getGroupTitle() {
-    return mystar_group?.getTitle() ?? '';
+    return mystarGroup?.getTitle() ?? '';
   }
 
   factory MyStarMemberModel.fromJson(Map<String, dynamic> json) =>
@@ -77,18 +77,18 @@ class MyStarGroupModel with _$MyStarGroupModel {
   const MyStarGroupModel._();
 
   const factory MyStarGroupModel({
-    required int id,
-    required String name_ko,
-    required String name_en,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'name_ko') required String nameKo,
+    @JsonKey(name: 'name_en') required String nameEn,
     String? image,
   }) = _MyStarGroupModel;
 
   String getTitle() {
     String title = '';
     if (getLocaleLanguage() == 'ko') {
-      title = name_ko;
+      title = nameKo;
     } else {
-      title = name_en;
+      title = nameEn;
     }
     return title;
   }
@@ -102,11 +102,11 @@ class ArtistMemberModel with _$ArtistMemberModel {
   const ArtistMemberModel._();
 
   const factory ArtistMemberModel({
-    required int id,
-    required Map<String, String> name,
-    required String gender,
-    required String? image,
-    ArtistGroupModel? artist_group,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'name') required Map<String, String> name,
+    @JsonKey(name: 'gender') required String gender,
+    @JsonKey(name: 'image') required String? image,
+    @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup,
   }) = _ArtistMemberModel;
 
   factory ArtistMemberModel.fromJson(Map<String, dynamic> json) =>
@@ -118,9 +118,9 @@ class ArtistGroupModel with _$ArtistGroupModel {
   const ArtistGroupModel._();
 
   const factory ArtistGroupModel({
-    required int id,
-    required Map<String, dynamic> name,
-    String? image,
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'name') required Map<String, dynamic> name,
+    @JsonKey(name: 'image') String? image,
   }) = _ArtistGroupModel;
 
   factory ArtistGroupModel.fromJson(Map<String, dynamic> json) =>

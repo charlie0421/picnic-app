@@ -20,11 +20,16 @@ PurchaseProduct _$PurchaseProductFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PurchaseProduct {
+  @JsonKey(name: 'id')
   String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
   String get title => throw _privateConstructorUsedError;
+  @JsonKey(name: 'price')
   double get price => throw _privateConstructorUsedError;
-  int get star_candy => throw _privateConstructorUsedError;
-  int get bonus_star_candy => throw _privateConstructorUsedError;
+  @JsonKey(name: 'star_candy')
+  int get starCandy => throw _privateConstructorUsedError;
+  @JsonKey(name: 'bonus_star_candy')
+  int get bonusStarCandy => throw _privateConstructorUsedError;
   @ProductDetailsConverter()
   ProductDetails? get productDetails => throw _privateConstructorUsedError;
 
@@ -45,11 +50,11 @@ abstract class $PurchaseProductCopyWith<$Res> {
       _$PurchaseProductCopyWithImpl<$Res, PurchaseProduct>;
   @useResult
   $Res call(
-      {String id,
-      String title,
-      double price,
-      int star_candy,
-      int bonus_star_candy,
+      {@JsonKey(name: 'id') String id,
+      @JsonKey(name: 'title') String title,
+      @JsonKey(name: 'price') double price,
+      @JsonKey(name: 'star_candy') int starCandy,
+      @JsonKey(name: 'bonus_star_candy') int bonusStarCandy,
       @ProductDetailsConverter() ProductDetails? productDetails});
 }
 
@@ -71,8 +76,8 @@ class _$PurchaseProductCopyWithImpl<$Res, $Val extends PurchaseProduct>
     Object? id = null,
     Object? title = null,
     Object? price = null,
-    Object? star_candy = null,
-    Object? bonus_star_candy = null,
+    Object? starCandy = null,
+    Object? bonusStarCandy = null,
     Object? productDetails = freezed,
   }) {
     return _then(_value.copyWith(
@@ -88,13 +93,13 @@ class _$PurchaseProductCopyWithImpl<$Res, $Val extends PurchaseProduct>
           ? _value.price
           : price // ignore: cast_nullable_to_non_nullable
               as double,
-      star_candy: null == star_candy
-          ? _value.star_candy
-          : star_candy // ignore: cast_nullable_to_non_nullable
+      starCandy: null == starCandy
+          ? _value.starCandy
+          : starCandy // ignore: cast_nullable_to_non_nullable
               as int,
-      bonus_star_candy: null == bonus_star_candy
-          ? _value.bonus_star_candy
-          : bonus_star_candy // ignore: cast_nullable_to_non_nullable
+      bonusStarCandy: null == bonusStarCandy
+          ? _value.bonusStarCandy
+          : bonusStarCandy // ignore: cast_nullable_to_non_nullable
               as int,
       productDetails: freezed == productDetails
           ? _value.productDetails
@@ -113,11 +118,11 @@ abstract class _$$PurchaseProductImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
-      String title,
-      double price,
-      int star_candy,
-      int bonus_star_candy,
+      {@JsonKey(name: 'id') String id,
+      @JsonKey(name: 'title') String title,
+      @JsonKey(name: 'price') double price,
+      @JsonKey(name: 'star_candy') int starCandy,
+      @JsonKey(name: 'bonus_star_candy') int bonusStarCandy,
       @ProductDetailsConverter() ProductDetails? productDetails});
 }
 
@@ -137,8 +142,8 @@ class __$$PurchaseProductImplCopyWithImpl<$Res>
     Object? id = null,
     Object? title = null,
     Object? price = null,
-    Object? star_candy = null,
-    Object? bonus_star_candy = null,
+    Object? starCandy = null,
+    Object? bonusStarCandy = null,
     Object? productDetails = freezed,
   }) {
     return _then(_$PurchaseProductImpl(
@@ -154,13 +159,13 @@ class __$$PurchaseProductImplCopyWithImpl<$Res>
           ? _value.price
           : price // ignore: cast_nullable_to_non_nullable
               as double,
-      star_candy: null == star_candy
-          ? _value.star_candy
-          : star_candy // ignore: cast_nullable_to_non_nullable
+      starCandy: null == starCandy
+          ? _value.starCandy
+          : starCandy // ignore: cast_nullable_to_non_nullable
               as int,
-      bonus_star_candy: null == bonus_star_candy
-          ? _value.bonus_star_candy
-          : bonus_star_candy // ignore: cast_nullable_to_non_nullable
+      bonusStarCandy: null == bonusStarCandy
+          ? _value.bonusStarCandy
+          : bonusStarCandy // ignore: cast_nullable_to_non_nullable
               as int,
       productDetails: freezed == productDetails
           ? _value.productDetails
@@ -174,11 +179,11 @@ class __$$PurchaseProductImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PurchaseProductImpl extends _PurchaseProduct {
   const _$PurchaseProductImpl(
-      {required this.id,
-      required this.title,
-      required this.price,
-      required this.star_candy,
-      required this.bonus_star_candy,
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'title') required this.title,
+      @JsonKey(name: 'price') required this.price,
+      @JsonKey(name: 'star_candy') required this.starCandy,
+      @JsonKey(name: 'bonus_star_candy') required this.bonusStarCandy,
       @ProductDetailsConverter() this.productDetails})
       : super._();
 
@@ -186,22 +191,27 @@ class _$PurchaseProductImpl extends _PurchaseProduct {
       _$$PurchaseProductImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final String id;
   @override
+  @JsonKey(name: 'title')
   final String title;
   @override
+  @JsonKey(name: 'price')
   final double price;
   @override
-  final int star_candy;
+  @JsonKey(name: 'star_candy')
+  final int starCandy;
   @override
-  final int bonus_star_candy;
+  @JsonKey(name: 'bonus_star_candy')
+  final int bonusStarCandy;
   @override
   @ProductDetailsConverter()
   final ProductDetails? productDetails;
 
   @override
   String toString() {
-    return 'PurchaseProduct(id: $id, title: $title, price: $price, star_candy: $star_candy, bonus_star_candy: $bonus_star_candy, productDetails: $productDetails)';
+    return 'PurchaseProduct(id: $id, title: $title, price: $price, starCandy: $starCandy, bonusStarCandy: $bonusStarCandy, productDetails: $productDetails)';
   }
 
   @override
@@ -212,18 +222,18 @@ class _$PurchaseProductImpl extends _PurchaseProduct {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.price, price) || other.price == price) &&
-            (identical(other.star_candy, star_candy) ||
-                other.star_candy == star_candy) &&
-            (identical(other.bonus_star_candy, bonus_star_candy) ||
-                other.bonus_star_candy == bonus_star_candy) &&
+            (identical(other.starCandy, starCandy) ||
+                other.starCandy == starCandy) &&
+            (identical(other.bonusStarCandy, bonusStarCandy) ||
+                other.bonusStarCandy == bonusStarCandy) &&
             (identical(other.productDetails, productDetails) ||
                 other.productDetails == productDetails));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, price, star_candy,
-      bonus_star_candy, productDetails);
+  int get hashCode => Object.hash(
+      runtimeType, id, title, price, starCandy, bonusStarCandy, productDetails);
 
   /// Create a copy of PurchaseProduct
   /// with the given fields replaced by the non-null parameter values.
@@ -244,11 +254,11 @@ class _$PurchaseProductImpl extends _PurchaseProduct {
 
 abstract class _PurchaseProduct extends PurchaseProduct {
   const factory _PurchaseProduct(
-          {required final String id,
-          required final String title,
-          required final double price,
-          required final int star_candy,
-          required final int bonus_star_candy,
+          {@JsonKey(name: 'id') required final String id,
+          @JsonKey(name: 'title') required final String title,
+          @JsonKey(name: 'price') required final double price,
+          @JsonKey(name: 'star_candy') required final int starCandy,
+          @JsonKey(name: 'bonus_star_candy') required final int bonusStarCandy,
           @ProductDetailsConverter() final ProductDetails? productDetails}) =
       _$PurchaseProductImpl;
   const _PurchaseProduct._() : super._();
@@ -257,15 +267,20 @@ abstract class _PurchaseProduct extends PurchaseProduct {
       _$PurchaseProductImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   String get id;
   @override
+  @JsonKey(name: 'title')
   String get title;
   @override
+  @JsonKey(name: 'price')
   double get price;
   @override
-  int get star_candy;
+  @JsonKey(name: 'star_candy')
+  int get starCandy;
   @override
-  int get bonus_star_candy;
+  @JsonKey(name: 'bonus_star_candy')
+  int get bonusStarCandy;
   @override
   @ProductDetailsConverter()
   ProductDetails? get productDetails;

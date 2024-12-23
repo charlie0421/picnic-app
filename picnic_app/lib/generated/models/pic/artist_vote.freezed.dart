@@ -20,16 +20,25 @@ ArtistVoteModel _$ArtistVoteModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ArtistVoteModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title => throw _privateConstructorUsedError;
+  @JsonKey(name: 'category')
   String get category => throw _privateConstructorUsedError;
-  List<ArtistVoteItemModel>? get artist_vote_item =>
+  @JsonKey(name: 'artist_vote_item')
+  List<ArtistVoteItemModel>? get artistVoteItem =>
       throw _privateConstructorUsedError;
-  DateTime get created_at => throw _privateConstructorUsedError;
-  DateTime? get updated_at => throw _privateConstructorUsedError;
-  DateTime? get visible_at => throw _privateConstructorUsedError;
-  DateTime get stop_at => throw _privateConstructorUsedError;
-  DateTime get start_at => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'visible_at')
+  DateTime? get visibleAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'stop_at')
+  DateTime get stopAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'start_at')
+  DateTime get startAt => throw _privateConstructorUsedError;
 
   /// Serializes this ArtistVoteModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -48,15 +57,16 @@ abstract class $ArtistVoteModelCopyWith<$Res> {
       _$ArtistVoteModelCopyWithImpl<$Res, ArtistVoteModel>;
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> title,
-      String category,
-      List<ArtistVoteItemModel>? artist_vote_item,
-      DateTime created_at,
-      DateTime? updated_at,
-      DateTime? visible_at,
-      DateTime stop_at,
-      DateTime start_at});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title') Map<String, dynamic> title,
+      @JsonKey(name: 'category') String category,
+      @JsonKey(name: 'artist_vote_item')
+      List<ArtistVoteItemModel>? artistVoteItem,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
+      @JsonKey(name: 'visible_at') DateTime? visibleAt,
+      @JsonKey(name: 'stop_at') DateTime stopAt,
+      @JsonKey(name: 'start_at') DateTime startAt});
 }
 
 /// @nodoc
@@ -77,12 +87,12 @@ class _$ArtistVoteModelCopyWithImpl<$Res, $Val extends ArtistVoteModel>
     Object? id = null,
     Object? title = null,
     Object? category = null,
-    Object? artist_vote_item = freezed,
-    Object? created_at = null,
-    Object? updated_at = freezed,
-    Object? visible_at = freezed,
-    Object? stop_at = null,
-    Object? start_at = null,
+    Object? artistVoteItem = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = freezed,
+    Object? visibleAt = freezed,
+    Object? stopAt = null,
+    Object? startAt = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -97,29 +107,29 @@ class _$ArtistVoteModelCopyWithImpl<$Res, $Val extends ArtistVoteModel>
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
               as String,
-      artist_vote_item: freezed == artist_vote_item
-          ? _value.artist_vote_item
-          : artist_vote_item // ignore: cast_nullable_to_non_nullable
+      artistVoteItem: freezed == artistVoteItem
+          ? _value.artistVoteItem
+          : artistVoteItem // ignore: cast_nullable_to_non_nullable
               as List<ArtistVoteItemModel>?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      updated_at: freezed == updated_at
-          ? _value.updated_at
-          : updated_at // ignore: cast_nullable_to_non_nullable
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      visible_at: freezed == visible_at
-          ? _value.visible_at
-          : visible_at // ignore: cast_nullable_to_non_nullable
+      visibleAt: freezed == visibleAt
+          ? _value.visibleAt
+          : visibleAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      stop_at: null == stop_at
-          ? _value.stop_at
-          : stop_at // ignore: cast_nullable_to_non_nullable
+      stopAt: null == stopAt
+          ? _value.stopAt
+          : stopAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      start_at: null == start_at
-          ? _value.start_at
-          : start_at // ignore: cast_nullable_to_non_nullable
+      startAt: null == startAt
+          ? _value.startAt
+          : startAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ) as $Val);
   }
@@ -134,15 +144,16 @@ abstract class _$$ArtistVoteModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      Map<String, dynamic> title,
-      String category,
-      List<ArtistVoteItemModel>? artist_vote_item,
-      DateTime created_at,
-      DateTime? updated_at,
-      DateTime? visible_at,
-      DateTime stop_at,
-      DateTime start_at});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title') Map<String, dynamic> title,
+      @JsonKey(name: 'category') String category,
+      @JsonKey(name: 'artist_vote_item')
+      List<ArtistVoteItemModel>? artistVoteItem,
+      @JsonKey(name: 'created_at') DateTime createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
+      @JsonKey(name: 'visible_at') DateTime? visibleAt,
+      @JsonKey(name: 'stop_at') DateTime stopAt,
+      @JsonKey(name: 'start_at') DateTime startAt});
 }
 
 /// @nodoc
@@ -161,12 +172,12 @@ class __$$ArtistVoteModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? title = null,
     Object? category = null,
-    Object? artist_vote_item = freezed,
-    Object? created_at = null,
-    Object? updated_at = freezed,
-    Object? visible_at = freezed,
-    Object? stop_at = null,
-    Object? start_at = null,
+    Object? artistVoteItem = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = freezed,
+    Object? visibleAt = freezed,
+    Object? stopAt = null,
+    Object? startAt = null,
   }) {
     return _then(_$ArtistVoteModelImpl(
       id: null == id
@@ -181,29 +192,29 @@ class __$$ArtistVoteModelImplCopyWithImpl<$Res>
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
               as String,
-      artist_vote_item: freezed == artist_vote_item
-          ? _value._artist_vote_item
-          : artist_vote_item // ignore: cast_nullable_to_non_nullable
+      artistVoteItem: freezed == artistVoteItem
+          ? _value._artistVoteItem
+          : artistVoteItem // ignore: cast_nullable_to_non_nullable
               as List<ArtistVoteItemModel>?,
-      created_at: null == created_at
-          ? _value.created_at
-          : created_at // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      updated_at: freezed == updated_at
-          ? _value.updated_at
-          : updated_at // ignore: cast_nullable_to_non_nullable
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      visible_at: freezed == visible_at
-          ? _value.visible_at
-          : visible_at // ignore: cast_nullable_to_non_nullable
+      visibleAt: freezed == visibleAt
+          ? _value.visibleAt
+          : visibleAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      stop_at: null == stop_at
-          ? _value.stop_at
-          : stop_at // ignore: cast_nullable_to_non_nullable
+      stopAt: null == stopAt
+          ? _value.stopAt
+          : stopAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      start_at: null == start_at
-          ? _value.start_at
-          : start_at // ignore: cast_nullable_to_non_nullable
+      startAt: null == startAt
+          ? _value.startAt
+          : startAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ));
   }
@@ -213,26 +224,29 @@ class __$$ArtistVoteModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ArtistVoteModelImpl extends _ArtistVoteModel {
   const _$ArtistVoteModelImpl(
-      {required this.id,
-      required final Map<String, dynamic> title,
-      required this.category,
-      required final List<ArtistVoteItemModel>? artist_vote_item,
-      required this.created_at,
-      required this.updated_at,
-      required this.visible_at,
-      required this.stop_at,
-      required this.start_at})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'title') required final Map<String, dynamic> title,
+      @JsonKey(name: 'category') required this.category,
+      @JsonKey(name: 'artist_vote_item')
+      required final List<ArtistVoteItemModel>? artistVoteItem,
+      @JsonKey(name: 'created_at') required this.createdAt,
+      @JsonKey(name: 'updated_at') required this.updatedAt,
+      @JsonKey(name: 'visible_at') required this.visibleAt,
+      @JsonKey(name: 'stop_at') required this.stopAt,
+      @JsonKey(name: 'start_at') required this.startAt})
       : _title = title,
-        _artist_vote_item = artist_vote_item,
+        _artistVoteItem = artistVoteItem,
         super._();
 
   factory _$ArtistVoteModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ArtistVoteModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   final Map<String, dynamic> _title;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title {
     if (_title is EqualUnmodifiableMapView) return _title;
     // ignore: implicit_dynamic_type
@@ -240,32 +254,38 @@ class _$ArtistVoteModelImpl extends _ArtistVoteModel {
   }
 
   @override
+  @JsonKey(name: 'category')
   final String category;
-  final List<ArtistVoteItemModel>? _artist_vote_item;
+  final List<ArtistVoteItemModel>? _artistVoteItem;
   @override
-  List<ArtistVoteItemModel>? get artist_vote_item {
-    final value = _artist_vote_item;
+  @JsonKey(name: 'artist_vote_item')
+  List<ArtistVoteItemModel>? get artistVoteItem {
+    final value = _artistVoteItem;
     if (value == null) return null;
-    if (_artist_vote_item is EqualUnmodifiableListView)
-      return _artist_vote_item;
+    if (_artistVoteItem is EqualUnmodifiableListView) return _artistVoteItem;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
 
   @override
-  final DateTime created_at;
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
   @override
-  final DateTime? updated_at;
+  @JsonKey(name: 'updated_at')
+  final DateTime? updatedAt;
   @override
-  final DateTime? visible_at;
+  @JsonKey(name: 'visible_at')
+  final DateTime? visibleAt;
   @override
-  final DateTime stop_at;
+  @JsonKey(name: 'stop_at')
+  final DateTime stopAt;
   @override
-  final DateTime start_at;
+  @JsonKey(name: 'start_at')
+  final DateTime startAt;
 
   @override
   String toString() {
-    return 'ArtistVoteModel(id: $id, title: $title, category: $category, artist_vote_item: $artist_vote_item, created_at: $created_at, updated_at: $updated_at, visible_at: $visible_at, stop_at: $stop_at, start_at: $start_at)';
+    return 'ArtistVoteModel(id: $id, title: $title, category: $category, artistVoteItem: $artistVoteItem, createdAt: $createdAt, updatedAt: $updatedAt, visibleAt: $visibleAt, stopAt: $stopAt, startAt: $startAt)';
   }
 
   @override
@@ -278,16 +298,15 @@ class _$ArtistVoteModelImpl extends _ArtistVoteModel {
             (identical(other.category, category) ||
                 other.category == category) &&
             const DeepCollectionEquality()
-                .equals(other._artist_vote_item, _artist_vote_item) &&
-            (identical(other.created_at, created_at) ||
-                other.created_at == created_at) &&
-            (identical(other.updated_at, updated_at) ||
-                other.updated_at == updated_at) &&
-            (identical(other.visible_at, visible_at) ||
-                other.visible_at == visible_at) &&
-            (identical(other.stop_at, stop_at) || other.stop_at == stop_at) &&
-            (identical(other.start_at, start_at) ||
-                other.start_at == start_at));
+                .equals(other._artistVoteItem, _artistVoteItem) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.visibleAt, visibleAt) ||
+                other.visibleAt == visibleAt) &&
+            (identical(other.stopAt, stopAt) || other.stopAt == stopAt) &&
+            (identical(other.startAt, startAt) || other.startAt == startAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -297,12 +316,12 @@ class _$ArtistVoteModelImpl extends _ArtistVoteModel {
       id,
       const DeepCollectionEquality().hash(_title),
       category,
-      const DeepCollectionEquality().hash(_artist_vote_item),
-      created_at,
-      updated_at,
-      visible_at,
-      stop_at,
-      start_at);
+      const DeepCollectionEquality().hash(_artistVoteItem),
+      createdAt,
+      updatedAt,
+      visibleAt,
+      stopAt,
+      startAt);
 
   /// Create a copy of ArtistVoteModel
   /// with the given fields replaced by the non-null parameter values.
@@ -323,38 +342,49 @@ class _$ArtistVoteModelImpl extends _ArtistVoteModel {
 
 abstract class _ArtistVoteModel extends ArtistVoteModel {
   const factory _ArtistVoteModel(
-      {required final int id,
-      required final Map<String, dynamic> title,
-      required final String category,
-      required final List<ArtistVoteItemModel>? artist_vote_item,
-      required final DateTime created_at,
-      required final DateTime? updated_at,
-      required final DateTime? visible_at,
-      required final DateTime stop_at,
-      required final DateTime start_at}) = _$ArtistVoteModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'title') required final Map<String, dynamic> title,
+          @JsonKey(name: 'category') required final String category,
+          @JsonKey(name: 'artist_vote_item')
+          required final List<ArtistVoteItemModel>? artistVoteItem,
+          @JsonKey(name: 'created_at') required final DateTime createdAt,
+          @JsonKey(name: 'updated_at') required final DateTime? updatedAt,
+          @JsonKey(name: 'visible_at') required final DateTime? visibleAt,
+          @JsonKey(name: 'stop_at') required final DateTime stopAt,
+          @JsonKey(name: 'start_at') required final DateTime startAt}) =
+      _$ArtistVoteModelImpl;
   const _ArtistVoteModel._() : super._();
 
   factory _ArtistVoteModel.fromJson(Map<String, dynamic> json) =
       _$ArtistVoteModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title;
   @override
+  @JsonKey(name: 'category')
   String get category;
   @override
-  List<ArtistVoteItemModel>? get artist_vote_item;
+  @JsonKey(name: 'artist_vote_item')
+  List<ArtistVoteItemModel>? get artistVoteItem;
   @override
-  DateTime get created_at;
+  @JsonKey(name: 'created_at')
+  DateTime get createdAt;
   @override
-  DateTime? get updated_at;
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt;
   @override
-  DateTime? get visible_at;
+  @JsonKey(name: 'visible_at')
+  DateTime? get visibleAt;
   @override
-  DateTime get stop_at;
+  @JsonKey(name: 'stop_at')
+  DateTime get stopAt;
   @override
-  DateTime get start_at;
+  @JsonKey(name: 'start_at')
+  DateTime get startAt;
 
   /// Create a copy of ArtistVoteModel
   /// with the given fields replaced by the non-null parameter values.
@@ -370,10 +400,15 @@ ArtistVoteItemModel _$ArtistVoteItemModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ArtistVoteItemModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  int get vote_total => throw _privateConstructorUsedError;
-  int get artist_vote_id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vote_total')
+  int get voteTotal => throw _privateConstructorUsedError;
+  @JsonKey(name: 'artist_vote_id')
+  int get artistVoteId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title => throw _privateConstructorUsedError;
+  @JsonKey(name: 'description')
   Map<String, dynamic> get description => throw _privateConstructorUsedError;
 
   /// Serializes this ArtistVoteItemModel to a JSON map.
@@ -393,11 +428,11 @@ abstract class $ArtistVoteItemModelCopyWith<$Res> {
       _$ArtistVoteItemModelCopyWithImpl<$Res, ArtistVoteItemModel>;
   @useResult
   $Res call(
-      {int id,
-      int vote_total,
-      int artist_vote_id,
-      Map<String, dynamic> title,
-      Map<String, dynamic> description});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'vote_total') int voteTotal,
+      @JsonKey(name: 'artist_vote_id') int artistVoteId,
+      @JsonKey(name: 'title') Map<String, dynamic> title,
+      @JsonKey(name: 'description') Map<String, dynamic> description});
 }
 
 /// @nodoc
@@ -416,8 +451,8 @@ class _$ArtistVoteItemModelCopyWithImpl<$Res, $Val extends ArtistVoteItemModel>
   @override
   $Res call({
     Object? id = null,
-    Object? vote_total = null,
-    Object? artist_vote_id = null,
+    Object? voteTotal = null,
+    Object? artistVoteId = null,
     Object? title = null,
     Object? description = null,
   }) {
@@ -426,13 +461,13 @@ class _$ArtistVoteItemModelCopyWithImpl<$Res, $Val extends ArtistVoteItemModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      vote_total: null == vote_total
-          ? _value.vote_total
-          : vote_total // ignore: cast_nullable_to_non_nullable
+      voteTotal: null == voteTotal
+          ? _value.voteTotal
+          : voteTotal // ignore: cast_nullable_to_non_nullable
               as int,
-      artist_vote_id: null == artist_vote_id
-          ? _value.artist_vote_id
-          : artist_vote_id // ignore: cast_nullable_to_non_nullable
+      artistVoteId: null == artistVoteId
+          ? _value.artistVoteId
+          : artistVoteId // ignore: cast_nullable_to_non_nullable
               as int,
       title: null == title
           ? _value.title
@@ -455,11 +490,11 @@ abstract class _$$ArtistVoteItemModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      int vote_total,
-      int artist_vote_id,
-      Map<String, dynamic> title,
-      Map<String, dynamic> description});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'vote_total') int voteTotal,
+      @JsonKey(name: 'artist_vote_id') int artistVoteId,
+      @JsonKey(name: 'title') Map<String, dynamic> title,
+      @JsonKey(name: 'description') Map<String, dynamic> description});
 }
 
 /// @nodoc
@@ -476,8 +511,8 @@ class __$$ArtistVoteItemModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? vote_total = null,
-    Object? artist_vote_id = null,
+    Object? voteTotal = null,
+    Object? artistVoteId = null,
     Object? title = null,
     Object? description = null,
   }) {
@@ -486,13 +521,13 @@ class __$$ArtistVoteItemModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      vote_total: null == vote_total
-          ? _value.vote_total
-          : vote_total // ignore: cast_nullable_to_non_nullable
+      voteTotal: null == voteTotal
+          ? _value.voteTotal
+          : voteTotal // ignore: cast_nullable_to_non_nullable
               as int,
-      artist_vote_id: null == artist_vote_id
-          ? _value.artist_vote_id
-          : artist_vote_id // ignore: cast_nullable_to_non_nullable
+      artistVoteId: null == artistVoteId
+          ? _value.artistVoteId
+          : artistVoteId // ignore: cast_nullable_to_non_nullable
               as int,
       title: null == title
           ? _value._title
@@ -510,10 +545,11 @@ class __$$ArtistVoteItemModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ArtistVoteItemModelImpl extends _ArtistVoteItemModel {
   const _$ArtistVoteItemModelImpl(
-      {required this.id,
-      required this.vote_total,
-      required this.artist_vote_id,
-      required final Map<String, dynamic> title,
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'vote_total') required this.voteTotal,
+      @JsonKey(name: 'artist_vote_id') required this.artistVoteId,
+      @JsonKey(name: 'title') required final Map<String, dynamic> title,
+      @JsonKey(name: 'description')
       required final Map<String, dynamic> description})
       : _title = title,
         _description = description,
@@ -523,13 +559,17 @@ class _$ArtistVoteItemModelImpl extends _ArtistVoteItemModel {
       _$$ArtistVoteItemModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final int vote_total;
+  @JsonKey(name: 'vote_total')
+  final int voteTotal;
   @override
-  final int artist_vote_id;
+  @JsonKey(name: 'artist_vote_id')
+  final int artistVoteId;
   final Map<String, dynamic> _title;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title {
     if (_title is EqualUnmodifiableMapView) return _title;
     // ignore: implicit_dynamic_type
@@ -538,6 +578,7 @@ class _$ArtistVoteItemModelImpl extends _ArtistVoteItemModel {
 
   final Map<String, dynamic> _description;
   @override
+  @JsonKey(name: 'description')
   Map<String, dynamic> get description {
     if (_description is EqualUnmodifiableMapView) return _description;
     // ignore: implicit_dynamic_type
@@ -546,7 +587,7 @@ class _$ArtistVoteItemModelImpl extends _ArtistVoteItemModel {
 
   @override
   String toString() {
-    return 'ArtistVoteItemModel(id: $id, vote_total: $vote_total, artist_vote_id: $artist_vote_id, title: $title, description: $description)';
+    return 'ArtistVoteItemModel(id: $id, voteTotal: $voteTotal, artistVoteId: $artistVoteId, title: $title, description: $description)';
   }
 
   @override
@@ -555,10 +596,10 @@ class _$ArtistVoteItemModelImpl extends _ArtistVoteItemModel {
         (other.runtimeType == runtimeType &&
             other is _$ArtistVoteItemModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.vote_total, vote_total) ||
-                other.vote_total == vote_total) &&
-            (identical(other.artist_vote_id, artist_vote_id) ||
-                other.artist_vote_id == artist_vote_id) &&
+            (identical(other.voteTotal, voteTotal) ||
+                other.voteTotal == voteTotal) &&
+            (identical(other.artistVoteId, artistVoteId) ||
+                other.artistVoteId == artistVoteId) &&
             const DeepCollectionEquality().equals(other._title, _title) &&
             const DeepCollectionEquality()
                 .equals(other._description, _description));
@@ -569,8 +610,8 @@ class _$ArtistVoteItemModelImpl extends _ArtistVoteItemModel {
   int get hashCode => Object.hash(
       runtimeType,
       id,
-      vote_total,
-      artist_vote_id,
+      voteTotal,
+      artistVoteId,
       const DeepCollectionEquality().hash(_title),
       const DeepCollectionEquality().hash(_description));
 
@@ -593,10 +634,11 @@ class _$ArtistVoteItemModelImpl extends _ArtistVoteItemModel {
 
 abstract class _ArtistVoteItemModel extends ArtistVoteItemModel {
   const factory _ArtistVoteItemModel(
-          {required final int id,
-          required final int vote_total,
-          required final int artist_vote_id,
-          required final Map<String, dynamic> title,
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'vote_total') required final int voteTotal,
+          @JsonKey(name: 'artist_vote_id') required final int artistVoteId,
+          @JsonKey(name: 'title') required final Map<String, dynamic> title,
+          @JsonKey(name: 'description')
           required final Map<String, dynamic> description}) =
       _$ArtistVoteItemModelImpl;
   const _ArtistVoteItemModel._() : super._();
@@ -605,14 +647,19 @@ abstract class _ArtistVoteItemModel extends ArtistVoteItemModel {
       _$ArtistVoteItemModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  int get vote_total;
+  @JsonKey(name: 'vote_total')
+  int get voteTotal;
   @override
-  int get artist_vote_id;
+  @JsonKey(name: 'artist_vote_id')
+  int get artistVoteId;
   @override
+  @JsonKey(name: 'title')
   Map<String, dynamic> get title;
   @override
+  @JsonKey(name: 'description')
   Map<String, dynamic> get description;
 
   /// Create a copy of ArtistVoteItemModel
@@ -629,12 +676,18 @@ MyStarMemberModel _$MyStarMemberModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MyStarMemberModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  String get name_ko => throw _privateConstructorUsedError;
-  String get name_en => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name_ko')
+  String get nameKo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name_en')
+  String get nameEn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'gender')
   String get gender => throw _privateConstructorUsedError;
+  @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
-  MyStarGroupModel? get mystar_group => throw _privateConstructorUsedError;
+  @JsonKey(name: 'mystar_group')
+  MyStarGroupModel? get mystarGroup => throw _privateConstructorUsedError;
 
   /// Serializes this MyStarMemberModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -653,14 +706,14 @@ abstract class $MyStarMemberModelCopyWith<$Res> {
       _$MyStarMemberModelCopyWithImpl<$Res, MyStarMemberModel>;
   @useResult
   $Res call(
-      {int id,
-      String name_ko,
-      String name_en,
-      String gender,
-      String? image,
-      MyStarGroupModel? mystar_group});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name_ko') String nameKo,
+      @JsonKey(name: 'name_en') String nameEn,
+      @JsonKey(name: 'gender') String gender,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'mystar_group') MyStarGroupModel? mystarGroup});
 
-  $MyStarGroupModelCopyWith<$Res>? get mystar_group;
+  $MyStarGroupModelCopyWith<$Res>? get mystarGroup;
 }
 
 /// @nodoc
@@ -679,24 +732,24 @@ class _$MyStarMemberModelCopyWithImpl<$Res, $Val extends MyStarMemberModel>
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
+    Object? nameKo = null,
+    Object? nameEn = null,
     Object? gender = null,
     Object? image = freezed,
-    Object? mystar_group = freezed,
+    Object? mystarGroup = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
+      nameKo: null == nameKo
+          ? _value.nameKo
+          : nameKo // ignore: cast_nullable_to_non_nullable
               as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
+      nameEn: null == nameEn
+          ? _value.nameEn
+          : nameEn // ignore: cast_nullable_to_non_nullable
               as String,
       gender: null == gender
           ? _value.gender
@@ -706,9 +759,9 @@ class _$MyStarMemberModelCopyWithImpl<$Res, $Val extends MyStarMemberModel>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      mystar_group: freezed == mystar_group
-          ? _value.mystar_group
-          : mystar_group // ignore: cast_nullable_to_non_nullable
+      mystarGroup: freezed == mystarGroup
+          ? _value.mystarGroup
+          : mystarGroup // ignore: cast_nullable_to_non_nullable
               as MyStarGroupModel?,
     ) as $Val);
   }
@@ -717,13 +770,13 @@ class _$MyStarMemberModelCopyWithImpl<$Res, $Val extends MyStarMemberModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $MyStarGroupModelCopyWith<$Res>? get mystar_group {
-    if (_value.mystar_group == null) {
+  $MyStarGroupModelCopyWith<$Res>? get mystarGroup {
+    if (_value.mystarGroup == null) {
       return null;
     }
 
-    return $MyStarGroupModelCopyWith<$Res>(_value.mystar_group!, (value) {
-      return _then(_value.copyWith(mystar_group: value) as $Val);
+    return $MyStarGroupModelCopyWith<$Res>(_value.mystarGroup!, (value) {
+      return _then(_value.copyWith(mystarGroup: value) as $Val);
     });
   }
 }
@@ -737,15 +790,15 @@ abstract class _$$MyStarMemberModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      String name_ko,
-      String name_en,
-      String gender,
-      String? image,
-      MyStarGroupModel? mystar_group});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name_ko') String nameKo,
+      @JsonKey(name: 'name_en') String nameEn,
+      @JsonKey(name: 'gender') String gender,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'mystar_group') MyStarGroupModel? mystarGroup});
 
   @override
-  $MyStarGroupModelCopyWith<$Res>? get mystar_group;
+  $MyStarGroupModelCopyWith<$Res>? get mystarGroup;
 }
 
 /// @nodoc
@@ -762,24 +815,24 @@ class __$$MyStarMemberModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
+    Object? nameKo = null,
+    Object? nameEn = null,
     Object? gender = null,
     Object? image = freezed,
-    Object? mystar_group = freezed,
+    Object? mystarGroup = freezed,
   }) {
     return _then(_$MyStarMemberModelImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
+      nameKo: null == nameKo
+          ? _value.nameKo
+          : nameKo // ignore: cast_nullable_to_non_nullable
               as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
+      nameEn: null == nameEn
+          ? _value.nameEn
+          : nameEn // ignore: cast_nullable_to_non_nullable
               as String,
       gender: null == gender
           ? _value.gender
@@ -789,9 +842,9 @@ class __$$MyStarMemberModelImplCopyWithImpl<$Res>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      mystar_group: freezed == mystar_group
-          ? _value.mystar_group
-          : mystar_group // ignore: cast_nullable_to_non_nullable
+      mystarGroup: freezed == mystarGroup
+          ? _value.mystarGroup
+          : mystarGroup // ignore: cast_nullable_to_non_nullable
               as MyStarGroupModel?,
     ));
   }
@@ -801,33 +854,39 @@ class __$$MyStarMemberModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MyStarMemberModelImpl extends _MyStarMemberModel {
   const _$MyStarMemberModelImpl(
-      {required this.id,
-      required this.name_ko,
-      required this.name_en,
-      required this.gender,
-      required this.image,
-      this.mystar_group})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'name_ko') required this.nameKo,
+      @JsonKey(name: 'name_en') required this.nameEn,
+      @JsonKey(name: 'gender') required this.gender,
+      @JsonKey(name: 'image') required this.image,
+      @JsonKey(name: 'mystar_group') this.mystarGroup})
       : super._();
 
   factory _$MyStarMemberModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$MyStarMemberModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final String name_ko;
+  @JsonKey(name: 'name_ko')
+  final String nameKo;
   @override
-  final String name_en;
+  @JsonKey(name: 'name_en')
+  final String nameEn;
   @override
+  @JsonKey(name: 'gender')
   final String gender;
   @override
+  @JsonKey(name: 'image')
   final String? image;
   @override
-  final MyStarGroupModel? mystar_group;
+  @JsonKey(name: 'mystar_group')
+  final MyStarGroupModel? mystarGroup;
 
   @override
   String toString() {
-    return 'MyStarMemberModel(id: $id, name_ko: $name_ko, name_en: $name_en, gender: $gender, image: $image, mystar_group: $mystar_group)';
+    return 'MyStarMemberModel(id: $id, nameKo: $nameKo, nameEn: $nameEn, gender: $gender, image: $image, mystarGroup: $mystarGroup)';
   }
 
   @override
@@ -836,18 +895,18 @@ class _$MyStarMemberModelImpl extends _MyStarMemberModel {
         (other.runtimeType == runtimeType &&
             other is _$MyStarMemberModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.name_ko, name_ko) || other.name_ko == name_ko) &&
-            (identical(other.name_en, name_en) || other.name_en == name_en) &&
+            (identical(other.nameKo, nameKo) || other.nameKo == nameKo) &&
+            (identical(other.nameEn, nameEn) || other.nameEn == nameEn) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.image, image) || other.image == image) &&
-            (identical(other.mystar_group, mystar_group) ||
-                other.mystar_group == mystar_group));
+            (identical(other.mystarGroup, mystarGroup) ||
+                other.mystarGroup == mystarGroup));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, name_ko, name_en, gender, image, mystar_group);
+  int get hashCode =>
+      Object.hash(runtimeType, id, nameKo, nameEn, gender, image, mystarGroup);
 
   /// Create a copy of MyStarMemberModel
   /// with the given fields replaced by the non-null parameter values.
@@ -868,29 +927,36 @@ class _$MyStarMemberModelImpl extends _MyStarMemberModel {
 
 abstract class _MyStarMemberModel extends MyStarMemberModel {
   const factory _MyStarMemberModel(
-      {required final int id,
-      required final String name_ko,
-      required final String name_en,
-      required final String gender,
-      required final String? image,
-      final MyStarGroupModel? mystar_group}) = _$MyStarMemberModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'name_ko') required final String nameKo,
+          @JsonKey(name: 'name_en') required final String nameEn,
+          @JsonKey(name: 'gender') required final String gender,
+          @JsonKey(name: 'image') required final String? image,
+          @JsonKey(name: 'mystar_group') final MyStarGroupModel? mystarGroup}) =
+      _$MyStarMemberModelImpl;
   const _MyStarMemberModel._() : super._();
 
   factory _MyStarMemberModel.fromJson(Map<String, dynamic> json) =
       _$MyStarMemberModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  String get name_ko;
+  @JsonKey(name: 'name_ko')
+  String get nameKo;
   @override
-  String get name_en;
+  @JsonKey(name: 'name_en')
+  String get nameEn;
   @override
+  @JsonKey(name: 'gender')
   String get gender;
   @override
+  @JsonKey(name: 'image')
   String? get image;
   @override
-  MyStarGroupModel? get mystar_group;
+  @JsonKey(name: 'mystar_group')
+  MyStarGroupModel? get mystarGroup;
 
   /// Create a copy of MyStarMemberModel
   /// with the given fields replaced by the non-null parameter values.
@@ -906,9 +972,12 @@ MyStarGroupModel _$MyStarGroupModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MyStarGroupModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  String get name_ko => throw _privateConstructorUsedError;
-  String get name_en => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name_ko')
+  String get nameKo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name_en')
+  String get nameEn => throw _privateConstructorUsedError;
   String? get image => throw _privateConstructorUsedError;
 
   /// Serializes this MyStarGroupModel to a JSON map.
@@ -927,7 +996,11 @@ abstract class $MyStarGroupModelCopyWith<$Res> {
           MyStarGroupModel value, $Res Function(MyStarGroupModel) then) =
       _$MyStarGroupModelCopyWithImpl<$Res, MyStarGroupModel>;
   @useResult
-  $Res call({int id, String name_ko, String name_en, String? image});
+  $Res call(
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name_ko') String nameKo,
+      @JsonKey(name: 'name_en') String nameEn,
+      String? image});
 }
 
 /// @nodoc
@@ -946,8 +1019,8 @@ class _$MyStarGroupModelCopyWithImpl<$Res, $Val extends MyStarGroupModel>
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
+    Object? nameKo = null,
+    Object? nameEn = null,
     Object? image = freezed,
   }) {
     return _then(_value.copyWith(
@@ -955,13 +1028,13 @@ class _$MyStarGroupModelCopyWithImpl<$Res, $Val extends MyStarGroupModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
+      nameKo: null == nameKo
+          ? _value.nameKo
+          : nameKo // ignore: cast_nullable_to_non_nullable
               as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
+      nameEn: null == nameEn
+          ? _value.nameEn
+          : nameEn // ignore: cast_nullable_to_non_nullable
               as String,
       image: freezed == image
           ? _value.image
@@ -979,7 +1052,11 @@ abstract class _$$MyStarGroupModelImplCopyWith<$Res>
       __$$MyStarGroupModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String name_ko, String name_en, String? image});
+  $Res call(
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name_ko') String nameKo,
+      @JsonKey(name: 'name_en') String nameEn,
+      String? image});
 }
 
 /// @nodoc
@@ -996,8 +1073,8 @@ class __$$MyStarGroupModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? name_ko = null,
-    Object? name_en = null,
+    Object? nameKo = null,
+    Object? nameEn = null,
     Object? image = freezed,
   }) {
     return _then(_$MyStarGroupModelImpl(
@@ -1005,13 +1082,13 @@ class __$$MyStarGroupModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      name_ko: null == name_ko
-          ? _value.name_ko
-          : name_ko // ignore: cast_nullable_to_non_nullable
+      nameKo: null == nameKo
+          ? _value.nameKo
+          : nameKo // ignore: cast_nullable_to_non_nullable
               as String,
-      name_en: null == name_en
-          ? _value.name_en
-          : name_en // ignore: cast_nullable_to_non_nullable
+      nameEn: null == nameEn
+          ? _value.nameEn
+          : nameEn // ignore: cast_nullable_to_non_nullable
               as String,
       image: freezed == image
           ? _value.image
@@ -1025,9 +1102,9 @@ class __$$MyStarGroupModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MyStarGroupModelImpl extends _MyStarGroupModel {
   const _$MyStarGroupModelImpl(
-      {required this.id,
-      required this.name_ko,
-      required this.name_en,
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'name_ko') required this.nameKo,
+      @JsonKey(name: 'name_en') required this.nameEn,
       this.image})
       : super._();
 
@@ -1035,17 +1112,20 @@ class _$MyStarGroupModelImpl extends _MyStarGroupModel {
       _$$MyStarGroupModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final String name_ko;
+  @JsonKey(name: 'name_ko')
+  final String nameKo;
   @override
-  final String name_en;
+  @JsonKey(name: 'name_en')
+  final String nameEn;
   @override
   final String? image;
 
   @override
   String toString() {
-    return 'MyStarGroupModel(id: $id, name_ko: $name_ko, name_en: $name_en, image: $image)';
+    return 'MyStarGroupModel(id: $id, nameKo: $nameKo, nameEn: $nameEn, image: $image)';
   }
 
   @override
@@ -1054,14 +1134,14 @@ class _$MyStarGroupModelImpl extends _MyStarGroupModel {
         (other.runtimeType == runtimeType &&
             other is _$MyStarGroupModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.name_ko, name_ko) || other.name_ko == name_ko) &&
-            (identical(other.name_en, name_en) || other.name_en == name_en) &&
+            (identical(other.nameKo, nameKo) || other.nameKo == nameKo) &&
+            (identical(other.nameEn, nameEn) || other.nameEn == nameEn) &&
             (identical(other.image, image) || other.image == image));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name_ko, name_en, image);
+  int get hashCode => Object.hash(runtimeType, id, nameKo, nameEn, image);
 
   /// Create a copy of MyStarGroupModel
   /// with the given fields replaced by the non-null parameter values.
@@ -1082,9 +1162,9 @@ class _$MyStarGroupModelImpl extends _MyStarGroupModel {
 
 abstract class _MyStarGroupModel extends MyStarGroupModel {
   const factory _MyStarGroupModel(
-      {required final int id,
-      required final String name_ko,
-      required final String name_en,
+      {@JsonKey(name: 'id') required final int id,
+      @JsonKey(name: 'name_ko') required final String nameKo,
+      @JsonKey(name: 'name_en') required final String nameEn,
       final String? image}) = _$MyStarGroupModelImpl;
   const _MyStarGroupModel._() : super._();
 
@@ -1092,11 +1172,14 @@ abstract class _MyStarGroupModel extends MyStarGroupModel {
       _$MyStarGroupModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  String get name_ko;
+  @JsonKey(name: 'name_ko')
+  String get nameKo;
   @override
-  String get name_en;
+  @JsonKey(name: 'name_en')
+  String get nameEn;
   @override
   String? get image;
 
@@ -1114,11 +1197,16 @@ ArtistMemberModel _$ArtistMemberModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ArtistMemberModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name')
   Map<String, String> get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'gender')
   String get gender => throw _privateConstructorUsedError;
+  @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
-  ArtistGroupModel? get artist_group => throw _privateConstructorUsedError;
+  @JsonKey(name: 'artist_group')
+  ArtistGroupModel? get artistGroup => throw _privateConstructorUsedError;
 
   /// Serializes this ArtistMemberModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1137,13 +1225,13 @@ abstract class $ArtistMemberModelCopyWith<$Res> {
       _$ArtistMemberModelCopyWithImpl<$Res, ArtistMemberModel>;
   @useResult
   $Res call(
-      {int id,
-      Map<String, String> name,
-      String gender,
-      String? image,
-      ArtistGroupModel? artist_group});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name') Map<String, String> name,
+      @JsonKey(name: 'gender') String gender,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup});
 
-  $ArtistGroupModelCopyWith<$Res>? get artist_group;
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup;
 }
 
 /// @nodoc
@@ -1165,7 +1253,7 @@ class _$ArtistMemberModelCopyWithImpl<$Res, $Val extends ArtistMemberModel>
     Object? name = null,
     Object? gender = null,
     Object? image = freezed,
-    Object? artist_group = freezed,
+    Object? artistGroup = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -1184,9 +1272,9 @@ class _$ArtistMemberModelCopyWithImpl<$Res, $Val extends ArtistMemberModel>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      artist_group: freezed == artist_group
-          ? _value.artist_group
-          : artist_group // ignore: cast_nullable_to_non_nullable
+      artistGroup: freezed == artistGroup
+          ? _value.artistGroup
+          : artistGroup // ignore: cast_nullable_to_non_nullable
               as ArtistGroupModel?,
     ) as $Val);
   }
@@ -1195,13 +1283,13 @@ class _$ArtistMemberModelCopyWithImpl<$Res, $Val extends ArtistMemberModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ArtistGroupModelCopyWith<$Res>? get artist_group {
-    if (_value.artist_group == null) {
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup {
+    if (_value.artistGroup == null) {
       return null;
     }
 
-    return $ArtistGroupModelCopyWith<$Res>(_value.artist_group!, (value) {
-      return _then(_value.copyWith(artist_group: value) as $Val);
+    return $ArtistGroupModelCopyWith<$Res>(_value.artistGroup!, (value) {
+      return _then(_value.copyWith(artistGroup: value) as $Val);
     });
   }
 }
@@ -1215,14 +1303,14 @@ abstract class _$$ArtistMemberModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      Map<String, String> name,
-      String gender,
-      String? image,
-      ArtistGroupModel? artist_group});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name') Map<String, String> name,
+      @JsonKey(name: 'gender') String gender,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup});
 
   @override
-  $ArtistGroupModelCopyWith<$Res>? get artist_group;
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup;
 }
 
 /// @nodoc
@@ -1242,7 +1330,7 @@ class __$$ArtistMemberModelImplCopyWithImpl<$Res>
     Object? name = null,
     Object? gender = null,
     Object? image = freezed,
-    Object? artist_group = freezed,
+    Object? artistGroup = freezed,
   }) {
     return _then(_$ArtistMemberModelImpl(
       id: null == id
@@ -1261,9 +1349,9 @@ class __$$ArtistMemberModelImplCopyWithImpl<$Res>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      artist_group: freezed == artist_group
-          ? _value.artist_group
-          : artist_group // ignore: cast_nullable_to_non_nullable
+      artistGroup: freezed == artistGroup
+          ? _value.artistGroup
+          : artistGroup // ignore: cast_nullable_to_non_nullable
               as ArtistGroupModel?,
     ));
   }
@@ -1273,11 +1361,11 @@ class __$$ArtistMemberModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ArtistMemberModelImpl extends _ArtistMemberModel {
   const _$ArtistMemberModelImpl(
-      {required this.id,
-      required final Map<String, String> name,
-      required this.gender,
-      required this.image,
-      this.artist_group})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'name') required final Map<String, String> name,
+      @JsonKey(name: 'gender') required this.gender,
+      @JsonKey(name: 'image') required this.image,
+      @JsonKey(name: 'artist_group') this.artistGroup})
       : _name = name,
         super._();
 
@@ -1285,9 +1373,11 @@ class _$ArtistMemberModelImpl extends _ArtistMemberModel {
       _$$ArtistMemberModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   final Map<String, String> _name;
   @override
+  @JsonKey(name: 'name')
   Map<String, String> get name {
     if (_name is EqualUnmodifiableMapView) return _name;
     // ignore: implicit_dynamic_type
@@ -1295,15 +1385,18 @@ class _$ArtistMemberModelImpl extends _ArtistMemberModel {
   }
 
   @override
+  @JsonKey(name: 'gender')
   final String gender;
   @override
+  @JsonKey(name: 'image')
   final String? image;
   @override
-  final ArtistGroupModel? artist_group;
+  @JsonKey(name: 'artist_group')
+  final ArtistGroupModel? artistGroup;
 
   @override
   String toString() {
-    return 'ArtistMemberModel(id: $id, name: $name, gender: $gender, image: $image, artist_group: $artist_group)';
+    return 'ArtistMemberModel(id: $id, name: $name, gender: $gender, image: $image, artistGroup: $artistGroup)';
   }
 
   @override
@@ -1315,14 +1408,14 @@ class _$ArtistMemberModelImpl extends _ArtistMemberModel {
             const DeepCollectionEquality().equals(other._name, _name) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.image, image) || other.image == image) &&
-            (identical(other.artist_group, artist_group) ||
-                other.artist_group == artist_group));
+            (identical(other.artistGroup, artistGroup) ||
+                other.artistGroup == artistGroup));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id,
-      const DeepCollectionEquality().hash(_name), gender, image, artist_group);
+      const DeepCollectionEquality().hash(_name), gender, image, artistGroup);
 
   /// Create a copy of ArtistMemberModel
   /// with the given fields replaced by the non-null parameter values.
@@ -1343,26 +1436,32 @@ class _$ArtistMemberModelImpl extends _ArtistMemberModel {
 
 abstract class _ArtistMemberModel extends ArtistMemberModel {
   const factory _ArtistMemberModel(
-      {required final int id,
-      required final Map<String, String> name,
-      required final String gender,
-      required final String? image,
-      final ArtistGroupModel? artist_group}) = _$ArtistMemberModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'name') required final Map<String, String> name,
+          @JsonKey(name: 'gender') required final String gender,
+          @JsonKey(name: 'image') required final String? image,
+          @JsonKey(name: 'artist_group') final ArtistGroupModel? artistGroup}) =
+      _$ArtistMemberModelImpl;
   const _ArtistMemberModel._() : super._();
 
   factory _ArtistMemberModel.fromJson(Map<String, dynamic> json) =
       _$ArtistMemberModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'name')
   Map<String, String> get name;
   @override
+  @JsonKey(name: 'gender')
   String get gender;
   @override
+  @JsonKey(name: 'image')
   String? get image;
   @override
-  ArtistGroupModel? get artist_group;
+  @JsonKey(name: 'artist_group')
+  ArtistGroupModel? get artistGroup;
 
   /// Create a copy of ArtistMemberModel
   /// with the given fields replaced by the non-null parameter values.
@@ -1378,8 +1477,11 @@ ArtistGroupModel _$ArtistGroupModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ArtistGroupModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'name')
   Map<String, dynamic> get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
 
   /// Serializes this ArtistGroupModel to a JSON map.
@@ -1398,7 +1500,10 @@ abstract class $ArtistGroupModelCopyWith<$Res> {
           ArtistGroupModel value, $Res Function(ArtistGroupModel) then) =
       _$ArtistGroupModelCopyWithImpl<$Res, ArtistGroupModel>;
   @useResult
-  $Res call({int id, Map<String, dynamic> name, String? image});
+  $Res call(
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name') Map<String, dynamic> name,
+      @JsonKey(name: 'image') String? image});
 }
 
 /// @nodoc
@@ -1445,7 +1550,10 @@ abstract class _$$ArtistGroupModelImplCopyWith<$Res>
       __$$ArtistGroupModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, Map<String, dynamic> name, String? image});
+  $Res call(
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'name') Map<String, dynamic> name,
+      @JsonKey(name: 'image') String? image});
 }
 
 /// @nodoc
@@ -1486,7 +1594,9 @@ class __$$ArtistGroupModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ArtistGroupModelImpl extends _ArtistGroupModel {
   const _$ArtistGroupModelImpl(
-      {required this.id, required final Map<String, dynamic> name, this.image})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'name') required final Map<String, dynamic> name,
+      @JsonKey(name: 'image') this.image})
       : _name = name,
         super._();
 
@@ -1494,9 +1604,11 @@ class _$ArtistGroupModelImpl extends _ArtistGroupModel {
       _$$ArtistGroupModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   final Map<String, dynamic> _name;
   @override
+  @JsonKey(name: 'name')
   Map<String, dynamic> get name {
     if (_name is EqualUnmodifiableMapView) return _name;
     // ignore: implicit_dynamic_type
@@ -1504,6 +1616,7 @@ class _$ArtistGroupModelImpl extends _ArtistGroupModel {
   }
 
   @override
+  @JsonKey(name: 'image')
   final String? image;
 
   @override
@@ -1545,19 +1658,22 @@ class _$ArtistGroupModelImpl extends _ArtistGroupModel {
 
 abstract class _ArtistGroupModel extends ArtistGroupModel {
   const factory _ArtistGroupModel(
-      {required final int id,
-      required final Map<String, dynamic> name,
-      final String? image}) = _$ArtistGroupModelImpl;
+      {@JsonKey(name: 'id') required final int id,
+      @JsonKey(name: 'name') required final Map<String, dynamic> name,
+      @JsonKey(name: 'image') final String? image}) = _$ArtistGroupModelImpl;
   const _ArtistGroupModel._() : super._();
 
   factory _ArtistGroupModel.fromJson(Map<String, dynamic> json) =
       _$ArtistGroupModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
+  @JsonKey(name: 'name')
   Map<String, dynamic> get name;
   @override
+  @JsonKey(name: 'image')
   String? get image;
 
   /// Create a copy of ArtistGroupModel

@@ -20,10 +20,15 @@ GalleryModel _$GalleryModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$GalleryModel {
+  @JsonKey(name: 'id')
   int get id => throw _privateConstructorUsedError;
-  String get title_ko => throw _privateConstructorUsedError;
-  String get title_en => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title_ko')
+  String get titleKo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title_en')
+  String get titleEn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'cover')
   String? get cover => throw _privateConstructorUsedError;
+  @JsonKey(name: 'celeb')
   CelebModel? get celeb => throw _privateConstructorUsedError;
 
   /// Serializes this GalleryModel to a JSON map.
@@ -43,11 +48,11 @@ abstract class $GalleryModelCopyWith<$Res> {
       _$GalleryModelCopyWithImpl<$Res, GalleryModel>;
   @useResult
   $Res call(
-      {int id,
-      String title_ko,
-      String title_en,
-      String? cover,
-      CelebModel? celeb});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title_ko') String titleKo,
+      @JsonKey(name: 'title_en') String titleEn,
+      @JsonKey(name: 'cover') String? cover,
+      @JsonKey(name: 'celeb') CelebModel? celeb});
 
   $CelebModelCopyWith<$Res>? get celeb;
 }
@@ -68,8 +73,8 @@ class _$GalleryModelCopyWithImpl<$Res, $Val extends GalleryModel>
   @override
   $Res call({
     Object? id = null,
-    Object? title_ko = null,
-    Object? title_en = null,
+    Object? titleKo = null,
+    Object? titleEn = null,
     Object? cover = freezed,
     Object? celeb = freezed,
   }) {
@@ -78,13 +83,13 @@ class _$GalleryModelCopyWithImpl<$Res, $Val extends GalleryModel>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      title_ko: null == title_ko
-          ? _value.title_ko
-          : title_ko // ignore: cast_nullable_to_non_nullable
+      titleKo: null == titleKo
+          ? _value.titleKo
+          : titleKo // ignore: cast_nullable_to_non_nullable
               as String,
-      title_en: null == title_en
-          ? _value.title_en
-          : title_en // ignore: cast_nullable_to_non_nullable
+      titleEn: null == titleEn
+          ? _value.titleEn
+          : titleEn // ignore: cast_nullable_to_non_nullable
               as String,
       cover: freezed == cover
           ? _value.cover
@@ -121,11 +126,11 @@ abstract class _$$GalleryModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      String title_ko,
-      String title_en,
-      String? cover,
-      CelebModel? celeb});
+      {@JsonKey(name: 'id') int id,
+      @JsonKey(name: 'title_ko') String titleKo,
+      @JsonKey(name: 'title_en') String titleEn,
+      @JsonKey(name: 'cover') String? cover,
+      @JsonKey(name: 'celeb') CelebModel? celeb});
 
   @override
   $CelebModelCopyWith<$Res>? get celeb;
@@ -145,8 +150,8 @@ class __$$GalleryModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? title_ko = null,
-    Object? title_en = null,
+    Object? titleKo = null,
+    Object? titleEn = null,
     Object? cover = freezed,
     Object? celeb = freezed,
   }) {
@@ -155,13 +160,13 @@ class __$$GalleryModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      title_ko: null == title_ko
-          ? _value.title_ko
-          : title_ko // ignore: cast_nullable_to_non_nullable
+      titleKo: null == titleKo
+          ? _value.titleKo
+          : titleKo // ignore: cast_nullable_to_non_nullable
               as String,
-      title_en: null == title_en
-          ? _value.title_en
-          : title_en // ignore: cast_nullable_to_non_nullable
+      titleEn: null == titleEn
+          ? _value.titleEn
+          : titleEn // ignore: cast_nullable_to_non_nullable
               as String,
       cover: freezed == cover
           ? _value.cover
@@ -179,30 +184,35 @@ class __$$GalleryModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GalleryModelImpl extends _GalleryModel {
   const _$GalleryModelImpl(
-      {required this.id,
-      required this.title_ko,
-      required this.title_en,
-      this.cover,
-      required this.celeb})
+      {@JsonKey(name: 'id') required this.id,
+      @JsonKey(name: 'title_ko') required this.titleKo,
+      @JsonKey(name: 'title_en') required this.titleEn,
+      @JsonKey(name: 'cover') this.cover,
+      @JsonKey(name: 'celeb') required this.celeb})
       : super._();
 
   factory _$GalleryModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$GalleryModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int id;
   @override
-  final String title_ko;
+  @JsonKey(name: 'title_ko')
+  final String titleKo;
   @override
-  final String title_en;
+  @JsonKey(name: 'title_en')
+  final String titleEn;
   @override
+  @JsonKey(name: 'cover')
   final String? cover;
   @override
+  @JsonKey(name: 'celeb')
   final CelebModel? celeb;
 
   @override
   String toString() {
-    return 'GalleryModel(id: $id, title_ko: $title_ko, title_en: $title_en, cover: $cover, celeb: $celeb)';
+    return 'GalleryModel(id: $id, titleKo: $titleKo, titleEn: $titleEn, cover: $cover, celeb: $celeb)';
   }
 
   @override
@@ -211,10 +221,8 @@ class _$GalleryModelImpl extends _GalleryModel {
         (other.runtimeType == runtimeType &&
             other is _$GalleryModelImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.title_ko, title_ko) ||
-                other.title_ko == title_ko) &&
-            (identical(other.title_en, title_en) ||
-                other.title_en == title_en) &&
+            (identical(other.titleKo, titleKo) || other.titleKo == titleKo) &&
+            (identical(other.titleEn, titleEn) || other.titleEn == titleEn) &&
             (identical(other.cover, cover) || other.cover == cover) &&
             (identical(other.celeb, celeb) || other.celeb == celeb));
   }
@@ -222,7 +230,7 @@ class _$GalleryModelImpl extends _GalleryModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, title_ko, title_en, cover, celeb);
+      Object.hash(runtimeType, id, titleKo, titleEn, cover, celeb);
 
   /// Create a copy of GalleryModel
   /// with the given fields replaced by the non-null parameter values.
@@ -242,25 +250,31 @@ class _$GalleryModelImpl extends _GalleryModel {
 
 abstract class _GalleryModel extends GalleryModel {
   const factory _GalleryModel(
-      {required final int id,
-      required final String title_ko,
-      required final String title_en,
-      final String? cover,
-      required final CelebModel? celeb}) = _$GalleryModelImpl;
+          {@JsonKey(name: 'id') required final int id,
+          @JsonKey(name: 'title_ko') required final String titleKo,
+          @JsonKey(name: 'title_en') required final String titleEn,
+          @JsonKey(name: 'cover') final String? cover,
+          @JsonKey(name: 'celeb') required final CelebModel? celeb}) =
+      _$GalleryModelImpl;
   const _GalleryModel._() : super._();
 
   factory _GalleryModel.fromJson(Map<String, dynamic> json) =
       _$GalleryModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int get id;
   @override
-  String get title_ko;
+  @JsonKey(name: 'title_ko')
+  String get titleKo;
   @override
-  String get title_en;
+  @JsonKey(name: 'title_en')
+  String get titleEn;
   @override
+  @JsonKey(name: 'cover')
   String? get cover;
   @override
+  @JsonKey(name: 'celeb')
   CelebModel? get celeb;
 
   /// Create a copy of GalleryModel

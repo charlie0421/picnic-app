@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 part '../../generated/models/vote/purchase_product.freezed.dart';
-
 part '../../generated/models/vote/purchase_product.g.dart';
 
 @freezed
@@ -10,11 +9,11 @@ class PurchaseProduct with _$PurchaseProduct {
   const PurchaseProduct._();
 
   const factory PurchaseProduct({
-    required String id,
-    required String title,
-    required double price,
-    required int star_candy,
-    required int bonus_star_candy,
+    @JsonKey(name: 'id') required String id,
+    @JsonKey(name: 'title') required String title,
+    @JsonKey(name: 'price') required double price,
+    @JsonKey(name: 'star_candy') required int starCandy,
+    @JsonKey(name: 'bonus_star_candy') required int bonusStarCandy,
     @ProductDetailsConverter() ProductDetails? productDetails,
   }) = _PurchaseProduct;
 

@@ -16,7 +16,7 @@ class RewardDialogConstants {
   static const Duration transitionDuration = Duration(milliseconds: 300);
 }
 
-enum RewardType { overview, location, size_guide }
+enum RewardType { overview, location, sizeGuide }
 
 showRewardDialog(BuildContext context, RewardModel data) {
   return showFullScreenDialog(
@@ -205,7 +205,7 @@ class RewardSection extends StatelessWidget {
         }
         break;
 
-      case RewardType.size_guide:
+      case RewardType.sizeGuide:
         if (data.sizeGuide?[locale] != null) {
           for (final guide in data.sizeGuide![locale]) {
             if (guide['image'] != null) {
