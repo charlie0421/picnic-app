@@ -40,7 +40,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   final GlobalKey _saveKey = GlobalKey();
   final GlobalKey _shareKey = GlobalKey();
   bool _isSaving = false;
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   // ExpansionTile Controllers
   final overallController = ExpansionTileController();

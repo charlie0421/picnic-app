@@ -83,7 +83,7 @@ class _ReadOnlyLinkPreviewWidgetState
         final jsonData = json.decode(data);
         debugPrint('Parsed JSON data: $jsonData');
         url = jsonData['url'] as String? ?? '';
-      } catch (e, s) {
+      } catch (e) {
         debugPrint('JSON parsing error: $e');
         url = data;
       }
