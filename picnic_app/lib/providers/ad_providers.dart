@@ -135,7 +135,9 @@ class RewardedAds extends _$RewardedAds {
     if (_isDisposed ||
         index < 0 ||
         index >= state.ads.length ||
-        state.ads[index].isLoading) return;
+        state.ads[index].isLoading) {
+      return;
+    }
 
     _updateAdState(index, isLoading: true, ad: null);
 

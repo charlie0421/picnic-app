@@ -52,7 +52,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       getBuildNumber().then((value) {
         buildNumber = value;
         setState(() {});

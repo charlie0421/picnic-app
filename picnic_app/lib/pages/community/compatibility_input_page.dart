@@ -40,7 +40,7 @@ class _CompatibilityInputScreenState
   bool _agreedToSaveProfile = false;
   List<String>? _timeSlots;
   bool _isLoading = false;
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   static List<Map<String, String>> genderOptions = [
     {'value': 'male', 'label': Intl.message('compatibility_gender_male')},
@@ -624,7 +624,7 @@ class _CompatibilityInputScreenState
                           ),
                           SizedBox(height: 12),
                           Center(
-                            child: Container(
+                            child: SizedBox(
                               height: 26,
                               child: DropdownButtonFormField<String>(
                                 decoration: InputDecoration(

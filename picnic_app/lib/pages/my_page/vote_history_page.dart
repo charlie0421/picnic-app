@@ -35,7 +35,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
       _fetchPage(pageKey);
     });
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(navigationInfoProvider.notifier)
           .setMyPageTitle(pageTitle: S.of(context).label_mypage_vote_history);
