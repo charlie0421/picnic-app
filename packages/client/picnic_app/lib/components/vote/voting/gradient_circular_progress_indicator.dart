@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_app/ui/style.dart';
 
 const Duration _duration = Duration(milliseconds: 1000);
 
@@ -90,7 +91,7 @@ class _GradientCircularProgressPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final Paint backgroundPaint = Paint()
-      ..color = Colors.grey.withOpacity(0.3)
+      ..color = AppColors.grey200.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;

@@ -232,7 +232,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                         borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(8.r),
                             bottomRight: Radius.circular(8.r)),
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                       ),
                       alignment: Alignment.center,
                       padding:

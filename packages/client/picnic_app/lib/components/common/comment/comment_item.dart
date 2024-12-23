@@ -293,7 +293,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
           ),
           boxShadow: [
             BoxShadow(
-              color: _backgroundColor.withOpacity(0.5),
+              color: _backgroundColor.withValues(alpha: 0.5),
               spreadRadius: 5,
               blurRadius: 7,
               offset: const Offset(0, 3),

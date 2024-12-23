@@ -90,7 +90,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: AppColors.grey200.withOpacity(0.5),
+                            color: AppColors.grey200.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(100),
                           ),
                         ),

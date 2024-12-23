@@ -79,7 +79,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             child: Container(
               alignment: Alignment.center,
               padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8.cw),
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               child: Text(
                 title,
                 style: getTextStyle(AppTypo.body14R, Colors.white)

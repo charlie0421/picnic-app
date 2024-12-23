@@ -99,7 +99,7 @@ class VoteCardColumnVertical extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100),
                 border: Border.all(
-                  color: AppColors.grey00,
+                  color: AppColors.grey200.withValues(alpha: 0.5),
                   width: 1.cw,
                 ),
               ),

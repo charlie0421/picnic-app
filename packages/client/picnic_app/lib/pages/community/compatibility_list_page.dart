@@ -188,7 +188,7 @@ class _CompatibilityHistoryPageState
                       decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary500.withOpacity(0.2),
+                            color: AppColors.primary500.withValues(alpha: 0.2),
                             blurRadius: 15,
                             offset: const Offset(0, 4),
                           ),

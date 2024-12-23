@@ -450,7 +450,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
         color: rankChanged
-            ? AppColors.primary500.withOpacity(0.3)
+            ? AppColors.primary500.withValues(alpha: 0.3)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8.r),
       ),
@@ -541,7 +541,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         gradient: index < 3
             ? [goldGradient, silverGradient, bronzeGradient][index]
             : null,
-        color: index >= 3 ? AppColors.grey200 : null,
+        color: index >= 3 ? AppColors.grey200.withValues(alpha: 0.5) : null,
         borderRadius: BorderRadius.circular(22.5),
       ),
       padding: const EdgeInsets.all(3),
