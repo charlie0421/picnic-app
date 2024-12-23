@@ -116,6 +116,19 @@ class RewardSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String fileName;
+    switch (type) {
+      case RewardType.overview:
+        fileName = 'reward_overview.png';
+        break;
+      case RewardType.location:
+        fileName = 'reward_location.png';
+        break;
+      case RewardType.sizeGuide:
+        fileName = 'reward_size_guide.png';
+        break;
+    }
+
     return Stack(
       children: [
         Container(
@@ -133,7 +146,7 @@ class RewardSection extends StatelessWidget {
           top: 0,
           left: 40.cw,
           child: Image.asset(
-            'assets/images/reward_${type.name}.png',
+            'assets/images/$fileName',
             height: 24,
           ),
         ),
