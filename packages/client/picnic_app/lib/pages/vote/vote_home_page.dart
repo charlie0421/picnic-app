@@ -186,7 +186,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                   bottomLeft: const Radius.circular(8),
                                   bottomRight: const Radius.circular(8),
                                 ),
-                                color: AppColors.grey200.withValues(alpha: 0.5),
+                                color: AppColors.grey900.withValues(alpha: 0.7),
                               ),
                               alignment: Alignment.center,
                               padding: const EdgeInsets.symmetric(
