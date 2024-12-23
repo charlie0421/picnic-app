@@ -3,7 +3,6 @@ import 'package:picnic_app/models/community/board.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 
 part '../../generated/models/community/post.freezed.dart';
-
 part '../../generated/models/community/post.g.dart';
 
 @freezed

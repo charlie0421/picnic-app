@@ -8,6 +8,7 @@ import 'package:picnic_app/models/vote/video_info.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class VideoListItem extends StatefulWidget {
@@ -76,9 +77,7 @@ class _VideoListItemState extends State<VideoListItem> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).post_cannot_open_youtube)),
-      );
+      SnackbarUtil().showSnackbar(S.of(context).post_cannot_open_youtube);
     }
   }
 

@@ -84,6 +84,5 @@ class Environment {
   static String get tapjoyAndroidSdkKey =>
       _config['TAPJOY_ANDROID_SDK_KEY'] as String;
 
-  static String get tapjoyIosSdkKey =>
-      _config['TAPJOY_IOS_SDK_KEY'] as String;
+  static String get tapjoyIosSdkKey => _config['TAPJOY_IOS_SDK_KEY'] as String;
 }

@@ -19,6 +19,7 @@ import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/openai.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 
 class PostWrite extends ConsumerStatefulWidget {
   const PostWrite({
@@ -159,9 +160,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
           },
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post saved successfully!')),
-        );
+        SnackbarUtil().showSnackbar('Post saved successfully!');
         ref.read(navigationInfoProvider.notifier).goBack();
       }
     } catch (e, s) {
@@ -177,9 +176,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
         }
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving post: $e')),
-      );
+      SnackbarUtil().showSnackbar('Error saving post: $e');
       rethrow;
     } finally {
       OverlayLoadingProgress.stop();

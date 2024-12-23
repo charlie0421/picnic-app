@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 
 part '../../generated/models/pic/celeb.freezed.dart';
-
 part '../../generated/models/pic/celeb.g.dart';
 
 @freezed

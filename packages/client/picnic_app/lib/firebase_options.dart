@@ -64,8 +64,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     storageBucket: 'picnic-423500.appspot.com',
-    androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosClientId: '853406219989-un8ik8up6hoi6dsgknc0uabn5n60pbp8.apps.googleusercontent.com',
+    androidClientId:
+        '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
+    iosClientId:
+        '853406219989-un8ik8up6hoi6dsgknc0uabn5n60pbp8.apps.googleusercontent.com',
     iosBundleId: 'io.iconcasting.picnic.app',
   );
 
@@ -75,8 +77,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     storageBucket: 'picnic-423500.appspot.com',
-    androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosClientId: '853406219989-56cu5ck4pc60flpsur76hil5v8bj23fs.apps.googleusercontent.com',
+    androidClientId:
+        '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
+    iosClientId:
+        '853406219989-56cu5ck4pc60flpsur76hil5v8bj23fs.apps.googleusercontent.com',
     iosBundleId: 'io.iconcasting.picnic.mac',
   );
 
@@ -89,5 +93,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'picnic-423500.appspot.com',
     measurementId: 'G-GWP6Z8F6GM',
   );
-
 }

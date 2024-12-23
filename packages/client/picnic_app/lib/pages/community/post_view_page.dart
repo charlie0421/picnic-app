@@ -30,6 +30,7 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -316,9 +317,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               } catch (e, s) {
                 logger.e('Error deleting post: $e', stackTrace: s);
                 if (!_isDisposed) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(S.of(context).error_delete_post)),
-                  );
+                  SnackbarUtil().showSnackbar(S.of(context).error_delete_post);
                 }
               }
             },

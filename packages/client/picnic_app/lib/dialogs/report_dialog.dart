@@ -9,6 +9,7 @@ import 'package:picnic_app/providers/community/comments_provider.dart';
 import 'package:picnic_app/providers/community/post_provider.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 
 enum ReportType { comment, post }
 
@@ -193,13 +194,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
 
   Future<void> _submitReport() async {
     if (_selectedReason == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).post_report_reason_input),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      SnackbarUtil().showSnackbar(S.of(context).post_report_reason_input);
       return;
     }
 
@@ -241,12 +236,8 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).post_report_success),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-        ),
+      SnackbarUtil().showSnackbar(
+        S.of(context).post_report_success,
       );
 
       Navigator.of(context).pop(true);
@@ -258,14 +249,8 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         _isSubmitting = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).post_report_fail),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      SnackbarUtil().showSnackbar(S.of(context).post_report_fail,
+          backgroundColor: Colors.red);
       rethrow;
     }
   }

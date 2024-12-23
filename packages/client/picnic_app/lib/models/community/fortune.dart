@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_app/models/vote/artist.dart';
 
 part '../../generated/models/community/fortune.freezed.dart';
-
 part '../../generated/models/community/fortune.g.dart';
 
 @freezed

@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part '../generated/models/policy.freezed.dart';
-
 part '../generated/models/policy.g.dart';
 
 @freezed

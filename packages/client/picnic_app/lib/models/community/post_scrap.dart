@@ -4,7 +4,6 @@ import 'package:picnic_app/models/community/post.dart';
 import 'package:picnic_app/models/user_profiles.dart';
 
 part '../../generated/models/community/post_scrap.freezed.dart';
-
 part '../../generated/models/community/post_scrap.g.dart';
 
 @freezed

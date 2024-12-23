@@ -14,6 +14,7 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommunityMyComment extends ConsumerStatefulWidget {
@@ -86,12 +87,9 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).post_comment_delete_fail),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
+      SnackbarUtil().showSnackbar(
+        S.of(context).post_comment_delete_fail,
+        backgroundColor: Colors.red,
       );
       rethrow;
     }

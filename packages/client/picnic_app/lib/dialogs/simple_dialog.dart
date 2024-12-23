@@ -4,6 +4,7 @@ import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 
 class DialogType {
   static const normal = 'normal';
@@ -161,5 +162,10 @@ void showSimpleDialog({
         ),
       );
     },
+  );
+
+  SnackbarUtil().showSnackbar(
+    'Dialog shown successfully!',
+    duration: const Duration(seconds: 3),
   );
 }

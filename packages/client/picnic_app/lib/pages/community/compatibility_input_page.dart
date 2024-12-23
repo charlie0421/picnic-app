@@ -18,6 +18,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/date.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 
 class CompatibilityInputPage extends ConsumerStatefulWidget {
   const CompatibilityInputPage({
@@ -305,11 +306,7 @@ class _CompatibilityInputScreenState
   }
 
   void _showLoadingMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(S.of(context).compatibility_snackbar_start),
-          duration: const Duration(seconds: 1)),
-    );
+    SnackbarUtil().showSnackbar(S.of(context).compatibility_snackbar_start);
   }
 
   Future<void> _saveUserProfile() async {
@@ -347,16 +344,14 @@ class _CompatibilityInputScreenState
       message = S.of(context).compatibility_snackbar_need_profile_save_agree;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+    SnackbarUtil().showSnackbar(
+      message,
     );
   }
 
   void _showErrorMessage() {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(S.of(context).compatibility_snackbar_error)),
-    );
+    SnackbarUtil().showSnackbar(S.of(context).compatibility_snackbar_error);
   }
 
   @override

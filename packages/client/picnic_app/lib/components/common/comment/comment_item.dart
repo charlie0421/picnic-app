@@ -15,6 +15,7 @@ import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/deepl_translate_service.dart';
 import 'package:picnic_app/util/i18n.dart';
 import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 
 class CommentItem extends ConsumerStatefulWidget {
@@ -151,13 +152,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
     } catch (e, s) {
       logger.e('exception:', error: e, stackTrace: s);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(S.of(context).post_comment_delete_fail),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        SnackbarUtil().showSnackbar(S.of(context).post_comment_delete_fail);
       }
       rethrow;
     } finally {
@@ -208,13 +203,9 @@ class _CommentItemState extends ConsumerState<CommentItem>
       logger.e('Translation error:', error: e, stackTrace: s);
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).post_comment_translate_fail),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-        ),
+      SnackbarUtil().showSnackbar(
+        S.of(context).post_comment_translate_fail,
+        backgroundColor: Colors.red,
       );
     } finally {
       if (mounted) {

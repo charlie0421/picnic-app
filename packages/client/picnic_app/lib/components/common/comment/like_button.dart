@@ -8,6 +8,7 @@ import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
 import 'package:picnic_app/util/number.dart';
+import 'package:picnic_app/util/snackbar_util.dart';
 import 'package:picnic_app/util/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -127,13 +128,8 @@ class LikeButtonState extends ConsumerState<LikeButton>
         isLiked = widget.isLiked;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).post_comment_like_processing_fail),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      SnackbarUtil()
+          .showSnackbar(S.of(context).post_comment_like_processing_fail);
       rethrow;
     } finally {
       if (mounted) {
