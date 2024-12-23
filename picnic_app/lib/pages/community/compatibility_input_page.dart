@@ -370,8 +370,8 @@ class _CompatibilityInputScreenState
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppColors.primary500.withOpacity(0.8),
-              AppColors.mint500.withOpacity(0.8)
+              AppColors.primary500.withValues(alpha: 0.8),
+              AppColors.mint500.withValues(alpha: 0.8)
             ],
           ),
         ),

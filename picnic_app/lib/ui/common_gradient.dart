@@ -47,7 +47,7 @@ const Gradient switchThumbGradient = RadialGradient(
 
 final switchBoxShadow = BoxShadow(
   blurStyle: BlurStyle.inner,
-  color: AppColors.grey00.withOpacity(0.15),
+  color: AppColors.grey00.withValues(alpha: 0.15),
   spreadRadius: 0,
   blurRadius: 4,
 );

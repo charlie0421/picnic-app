@@ -164,7 +164,7 @@ class _FancyPulsingHeartState extends State<FancyPulsingHeart>
                 child: Icon(
                   Icons.favorite,
                   size: widget.size * 1.2,
-                  color: widget.color.withOpacity(0.5),
+                  color: widget.color.withValues(alpha: 0.5),
                 ),
               ),
             );

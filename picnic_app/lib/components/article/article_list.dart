@@ -89,12 +89,12 @@ class _ArticleListState extends ConsumerState<ArticleList> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Colors.grey.withOpacity(1),
+                color: Colors.grey.withValues(alpha: 1),
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: .5),
                   spreadRadius: 1,
                   blurRadius: 7,
                   offset: const Offset(2, 2),

@@ -125,7 +125,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Material(
-        color: Colors.black.withOpacity(0.7),
+        color: Colors.black.withValues(alpha: 0.7),
         child: Stack(
           children: [
             // Confetti effects
@@ -197,7 +197,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary500.withOpacity(0.4),
+                            color: AppColors.primary500.withValues(alpha: 0.4),
                             blurRadius: 15,
                             spreadRadius: 3,
                           ),
@@ -212,7 +212,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
@@ -248,13 +248,14 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                                         bottom: isEven ? 20 : 0,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.2),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(16),
                                         border: Border.all(
                                           color: isNewlyAchieved
                                               ? AppColors.primary500
                                               : AppColors.grey00
-                                                  .withOpacity(0.3),
+                                                  .withValues(alpha: 0.3),
                                           width: isNewlyAchieved ? 2 : 1,
                                         ),
                                       ),
@@ -280,7 +281,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: AppColors.grey00
-                                                        .withOpacity(0.2),
+                                                        .withValues(alpha: 0.2),
                                                     blurRadius: 4,
                                                     spreadRadius: 1,
                                                   ),
@@ -817,8 +818,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   height: 50,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
-                    color:
-                        isAchieved ? null : AppColors.grey400.withOpacity(0.5),
+                    color: isAchieved
+                        ? null
+                        : AppColors.grey400.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -863,7 +865,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     final levelDiff = nextLevel - currentLevel;
     final currentDiff = voteTotal - currentLevel;
 
-    // 현재 단계에서의 진행률을 0-1 사이의 값으로 계산
+    // 현재 단계에서의 진행률을 0-1 사이의 값으로 ��산
     final progressInCurrentStep = levelDiff > 0 ? currentDiff / levelDiff : 0.0;
 
     // 전체 진행률 계산
