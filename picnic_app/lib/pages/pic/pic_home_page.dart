@@ -104,9 +104,6 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 children: [
                   asyncBannerListState.when(
                     data: (data) {
-                      final width = getPlatformScreenSize(context).width;
-                      final height = width * .5;
-
                       return const CommonBanner('pic_home', 16 / 9);
                     },
                     loading: () => SizedBox(
@@ -145,6 +142,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             error: error,
             stackTrace: stackTrace,
             retryFunction: () {
+              // ignore: unused_result
               ref.refresh(asyncMyCelebListProvider);
             },
           );
@@ -382,6 +380,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
                           buildErrorView(
                             context,
                             retryFunction: () {
+                              // ignore: unused_result
                               ref.refresh(asyncMyCelebListProvider);
                             },
                             error: error,
@@ -399,36 +398,32 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
   List<Widget> _buildSearchList(
       BuildContext context, List<CelebModel> data, CelebModel selectedCeleb) {
     data.removeWhere((item) => item.id == selectedCeleb.id);
-    return selectedCeleb != null
-        ? data
-            .map((e) => Container(
-                height: 70,
-                margin: EdgeInsets.symmetric(horizontal: 32.cw, vertical: 4),
-                padding: EdgeInsets.symmetric(horizontal: 8.cw),
-                decoration: BoxDecoration(
-                  color: e.id == selectedCeleb.id
-                      ? const Color(0xFF47E89B)
-                      : AppColors.grey00,
-                  border: Border.all(
-                    color: AppColors.grey100,
-                    width: 1,
-                  ),
-                ),
-                child: InkWell(
-                  onTap: () {
-                    ref
-                        .read(selectedCelebProvider.notifier)
-                        .setSelectedCeleb(e);
-                    ref.read(asyncBannerListProvider(location: 'pic_home'));
-                    Navigator.pop(context);
-                  },
-                  child: CelebListItem(
-                      item: e,
-                      type: 'my',
-                      showBookmark: e.id != selectedCeleb.id,
-                      enableBookmark: false),
-                )))
-            .toList()
-        : [const NoBookmarkCeleb()];
+    return data
+        .map((e) => Container(
+            height: 70,
+            margin: EdgeInsets.symmetric(horizontal: 32.cw, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 8.cw),
+            decoration: BoxDecoration(
+              color: e.id == selectedCeleb.id
+                  ? const Color(0xFF47E89B)
+                  : AppColors.grey00,
+              border: Border.all(
+                color: AppColors.grey100,
+                width: 1,
+              ),
+            ),
+            child: InkWell(
+              onTap: () {
+                ref.read(selectedCelebProvider.notifier).setSelectedCeleb(e);
+                ref.read(asyncBannerListProvider(location: 'pic_home'));
+                Navigator.pop(context);
+              },
+              child: CelebListItem(
+                  item: e,
+                  type: 'my',
+                  showBookmark: e.id != selectedCeleb.id,
+                  enableBookmark: false),
+            )))
+        .toList();
   }
 }

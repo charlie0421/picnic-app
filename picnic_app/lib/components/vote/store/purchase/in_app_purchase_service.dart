@@ -7,7 +7,6 @@ class InAppPurchaseService {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   DateTime? _lastPurchaseAttempt;
-  static const _purchaseDebounceTime = Duration(seconds: 2);
 
   // 진행 중인 구매 추적
   final Set<String> _pendingPurchases = {};

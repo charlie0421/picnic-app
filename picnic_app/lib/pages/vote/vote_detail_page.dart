@@ -20,7 +20,6 @@ import 'package:picnic_app/dialogs/reward_dialog.dart';
 import 'package:picnic_app/dialogs/simple_dialog.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/models/vote/vote.dart';
-import 'package:picnic_app/providers/config_service.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
 import 'package:picnic_app/providers/vote_detail_provider.dart';
 import 'package:picnic_app/providers/vote_list_provider.dart';
@@ -60,7 +59,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
 
-  final GlobalKey _globalKey = GlobalKey();
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   bool _isSaving = false;
 
@@ -70,7 +68,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _initializeControllers();
     _setupListeners();
     _setupUpdateTimer();
-    _loadAds();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -79,14 +76,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           showBottomNavigation: false,
           pageTitle: S.of(context).page_title_vote_detail);
     });
-  }
-
-  void _loadAds() async {
-    final configService = ref.read(configServiceProvider);
-
-    String? adUnitId = isIOS()
-        ? await configService.getConfig('ADMOB_IOS_VOTE_DETAIL')
-        : await configService.getConfig('ADMOB_ANDROID_VOTE_DETAIL');
   }
 
   void _initializeControllers() {
@@ -111,6 +100,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   void _setupUpdateTimer() {
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
+        // ignore: unused_result
         ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
       }
     });

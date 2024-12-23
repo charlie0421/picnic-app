@@ -17,15 +17,9 @@ class GalleryDetailPage extends ConsumerStatefulWidget {
 
 class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
   @override
   initState() {
     super.initState();
-    _tabController = TabController(
-      length: 2,
-      vsync: this,
-    );
   }
 
   @override

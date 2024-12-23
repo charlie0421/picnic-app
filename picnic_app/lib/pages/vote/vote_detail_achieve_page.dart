@@ -74,6 +74,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     _updateTimer?.cancel();
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!_isDisposed && mounted) {
+        // ignore: unused_result
         ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
 
         final voteItemData =

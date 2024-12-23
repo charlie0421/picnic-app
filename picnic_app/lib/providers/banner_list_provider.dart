@@ -1,12 +1,6 @@
-import 'dart:ui' as ui;
-
-import 'package:http/http.dart' as http;
-import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/models/common/banner.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../util/logger.dart';
 
 part '../generated/providers/banner_list_provider.g.dart';
 
@@ -29,29 +23,5 @@ class AsyncBannerList extends _$AsyncBannerList {
         .order('start_at', ascending: false);
 
     return response.map((e) => BannerModel.fromJson(e)).toList();
-  }
-
-  Future<int?> _getGifDuration(String imageUrl) async {
-    try {
-      final response = await http.get(Uri.parse(Environment.cdnUrl + imageUrl));
-      if (response.statusCode == 200) {
-        final codec = await ui.instantiateImageCodec(response.bodyBytes);
-        int totalDuration = 0;
-        for (int i = 0; i < codec.frameCount; i++) {
-          final frame = await codec.getNextFrame();
-          totalDuration += frame.duration.inMilliseconds;
-          frame.image.dispose();
-        }
-        codec.dispose();
-        if (totalDuration < 100 * codec.frameCount) {
-          totalDuration = 100 * codec.frameCount;
-        }
-        logger.d('GIF duration: $totalDuration');
-        return totalDuration + 500;
-      }
-    } catch (e, s) {
-      logger.e('Error getting GIF duration: $e', stackTrace: s);
-    }
-    return null;
   }
 }

@@ -13,8 +13,6 @@ extension PortalTypeExtension on PortalType {
         return 'novel';
       case PortalType.mypage:
         return 'mypage';
-      default:
-        throw Exception('Unknown portal type');
     }
   }
 

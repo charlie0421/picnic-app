@@ -14,7 +14,6 @@ class CustomDropdownMenuItem {
 }
 
 class CustomDropdown extends StatelessWidget {
-  @override
   final String value;
   final ValueChanged<String?> onChanged;
 

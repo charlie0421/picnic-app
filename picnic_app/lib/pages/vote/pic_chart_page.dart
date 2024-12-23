@@ -16,7 +16,6 @@ class PicChartPage extends ConsumerStatefulWidget {
 
 class _PicChartPageState extends ConsumerState<PicChartPage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
   bool _showOverlay = false;
 
   @override
@@ -26,11 +25,6 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true, showTopMenu: true, showBottomNavigation: true);
     });
-
-    _tabController = TabController(
-      length: 3,
-      vsync: this,
-    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {

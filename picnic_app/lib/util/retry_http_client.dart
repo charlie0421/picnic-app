@@ -19,7 +19,8 @@ class RetryHttpClient extends http.BaseClient {
   static const int _maxConcurrentConnections = 6;
   final Random _random = Random();
 
-  RetryHttpClient(this._inner, {
+  RetryHttpClient(
+    this._inner, {
     this.maxAttempts = 3,
     this.timeout = const Duration(seconds: 30),
     this.keepAlive = const Duration(seconds: 60),
@@ -44,7 +45,7 @@ class RetryHttpClient extends http.BaseClient {
 
         // 응답 스트림 최적화
         final optimizedStream =
-        await _optimizeResponseStream(response, newRequest);
+            await _optimizeResponseStream(response, newRequest);
 
         // 성공적인 응답인 경우 connection pool 업데이트
         if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -78,7 +79,7 @@ class RetryHttpClient extends http.BaseClient {
 
     // 오래된 연결 제거
     _connectionPool.removeWhere(
-            (_, timestamp) => now.difference(timestamp) > _connectionMaxAge);
+        (_, timestamp) => now.difference(timestamp) > _connectionMaxAge);
 
     // 최대 연결 수 제한
     if (_connectionPool.length >= _maxConcurrentConnections) {
@@ -267,31 +268,6 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
       ..persistentConnection = true;
 
     return copy;
-  }
-
-  Future<List<int>> _collectResponseBytes(
-      http.StreamedResponse response) async {
-    final completer = Completer<List<int>>();
-    final bytes = <int>[];
-
-    response.stream.listen(
-          (data) {
-        bytes.addAll(data);
-      },
-      onError: (error) {
-        if (!completer.isCompleted) {
-          completer.completeError(error);
-        }
-      },
-      onDone: () {
-        if (!completer.isCompleted) {
-          completer.complete(bytes);
-        }
-      },
-      cancelOnError: true,
-    );
-
-    return completer.future;
   }
 
   @override

@@ -53,6 +53,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
   void _updateLoginState() {
     if (mounted) {
       // ref 사용 전에 위젯이 마운트된 상태인지 확인
+      // ignore: unused_result
       ref.refresh(asyncBookmarkedArtistsProvider);
     }
   }

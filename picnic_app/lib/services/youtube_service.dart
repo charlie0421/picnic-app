@@ -146,20 +146,6 @@ class YouTubeContentService {
     }
   }
 
-  VideoInfo _createVideoInfoFromData(Map<String, dynamic> data) {
-    return VideoInfo(
-      id: data['videoId'] ?? '',
-      title: _decodeHtmlEntities(data['title'] ?? 'YouTube Video'),
-      channelTitle:
-          _decodeHtmlEntities(data['channelTitle'] ?? 'Unknown Channel'),
-      channelThumbnail: data['channelThumbnail'] ?? '',
-      thumbnailUrl: data['thumbnailUrl'] ?? '',
-      viewCount: int.tryParse(data['viewCount']?.toString() ?? '0') ?? 0,
-      publishedAt:
-          DateTime.tryParse(data['publishedAt'] ?? '') ?? DateTime.now(),
-    );
-  }
-
   VideoInfo _createFallbackVideoInfo(String url) {
     final videoId = _extractVideoId(url);
     return VideoInfo(

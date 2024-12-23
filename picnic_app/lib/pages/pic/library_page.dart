@@ -37,10 +37,6 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
     );
   }
 
-  AppBar _buildAppBar(context, WidgetRef ref) {
-    return AppBar();
-  }
-
   Widget _buildPage(ref) {
     return Column(
       children: [

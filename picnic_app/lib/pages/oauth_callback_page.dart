@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/util/logger.dart';
 
 import 'url_strategy.dart' if (dart.html) 'url_strategy_web.dart' as strategy;
@@ -17,7 +16,6 @@ class OAuthCallbackPage extends ConsumerStatefulWidget {
 }
 
 class _OAuthCallbackPageState extends ConsumerState<OAuthCallbackPage> {
-  bool _isProcessing = true;
   String? _error;
 
   @override
@@ -36,7 +34,6 @@ class _OAuthCallbackPageState extends ConsumerState<OAuthCallbackPage> {
       }
 
 // 인증 코드로 세션 교환
-      final response = await supabase.auth.exchangeCodeForSession(code);
       logger.d('Successfully exchanged code for session');
 
       if (mounted) {
@@ -50,7 +47,6 @@ class _OAuthCallbackPageState extends ConsumerState<OAuthCallbackPage> {
       logger.e('Error handling OAuth callback', error: e, stackTrace: s);
       if (mounted) {
         setState(() {
-          _isProcessing = false;
           _error = e.toString();
         });
       }
@@ -63,7 +59,6 @@ class _OAuthCallbackPageState extends ConsumerState<OAuthCallbackPage> {
 
   void _retryAuthentication() {
     setState(() {
-      _isProcessing = true;
       _error = null;
     });
     _handleOAuthCallback();
