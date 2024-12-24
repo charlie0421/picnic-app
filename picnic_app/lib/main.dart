@@ -105,13 +105,11 @@ void main() async {
       await initializeSupabase();
       logger.i('Supabase initialized');
 
-      if (isMobile()) {
-        logger.i('Initializing WebP support...');
-        final supportInfo = await WebPSupportChecker.instance.checkSupport();
-        logger.i(
-            'WebP support: ${supportInfo.webp}, ${supportInfo.animatedWebp}');
-        logger.i('WebP support initialized');
-      }
+      logger.i('Initializing WebP support...');
+      final supportInfo = await WebPSupportChecker.instance.checkSupport();
+      logger
+          .i('WebP support: ${supportInfo.webp}, ${supportInfo.animatedWebp}');
+      logger.i('WebP support initialized');
 
       if (isMobile()) {
         logger.i('Initializing Tapjoy...');
@@ -147,8 +145,8 @@ void main() async {
       );
       logger.i('Firebase initialized');
 
-      final authService = AuthService();
       logger.i('Attempting to recover session...');
+      final authService = AuthService();
       final isSessionRecovered = await authService.recoverSession().timeout(
         const Duration(seconds: 10),
         onTimeout: () {

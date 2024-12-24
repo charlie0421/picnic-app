@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,43 +89,40 @@ Color getComplementaryColor(Color color) {
 }
 
 bool isIOS() {
-  if (UniversalPlatform.isWeb) {
-    return false;
-  }
-  return Platform.isIOS;
+  if (UniversalPlatform.isWeb) return false;
+  return UniversalPlatform.isIOS;
 }
 
 bool isAndroid() {
-  return Platform.isAndroid;
+  if (UniversalPlatform.isWeb) return false;
+  return UniversalPlatform.isAndroid;
 }
 
 bool isMobile() {
-  if (UniversalPlatform.isWeb) {
-    return false;
-  } else {
-    try {
-      return Platform.isAndroid || Platform.isIOS;
-    } catch (e, s) {
-      logger.e('error', error: e, stackTrace: s);
-      return false;
-    }
-  }
+  if (UniversalPlatform.isWeb) return false;
+  return UniversalPlatform.isIOS || UniversalPlatform.isAndroid;
 }
 
 bool isDesktop() {
-  return Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+  if (UniversalPlatform.isWeb) return false;
+  return UniversalPlatform.isMacOS ||
+      UniversalPlatform.isWindows ||
+      UniversalPlatform.isLinux;
 }
 
 bool isMacOS() {
-  return Platform.isMacOS;
+  if (UniversalPlatform.isWeb) return false;
+  return UniversalPlatform.isMacOS;
 }
 
 bool isWindows() {
-  return Platform.isWindows;
+  if (UniversalPlatform.isWeb) return false;
+  return UniversalPlatform.isWindows;
 }
 
 bool isLinux() {
-  return Platform.isLinux;
+  if (UniversalPlatform.isWeb) return false;
+  return UniversalPlatform.isLinux;
 }
 
 extension CustomSizeExtension on num {
