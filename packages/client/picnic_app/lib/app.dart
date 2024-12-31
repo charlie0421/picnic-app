@@ -11,12 +11,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:picnic_app/components/web/web_download_section.dart';
+import 'package:picnic_app/dialogs/force_update_overlay.dart';
 import 'package:picnic_app/dialogs/update_dialog.dart';
 import 'package:picnic_app/enums.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/optimized_splash_image.dart';
 import 'package:picnic_app/pages/oauth_callback_page.dart';
+import 'package:picnic_app/providers/app_initialization_provider.dart';
 import 'package:picnic_app/providers/app_setting_provider.dart';
 import 'package:picnic_app/providers/global_media_query.dart';
 import 'package:picnic_app/providers/navigation_provider.dart';
@@ -24,6 +25,7 @@ import 'package:picnic_app/providers/product_provider.dart';
 import 'package:picnic_app/providers/screen_protector_provider.dart';
 import 'package:picnic_app/providers/update_checker.dart';
 import 'package:picnic_app/providers/user_info_provider.dart';
+import 'package:picnic_app/screens/ban_screen.dart';
 import 'package:picnic_app/screens/network_error_screen.dart';
 import 'package:picnic_app/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_app/screens/portal.dart';
@@ -31,7 +33,9 @@ import 'package:picnic_app/screens/privacy.dart';
 import 'package:picnic_app/screens/purchase.dart';
 import 'package:picnic_app/screens/signup/signup_screen.dart';
 import 'package:picnic_app/screens/terms.dart';
+import 'package:picnic_app/services/device_manager.dart';
 import 'package:picnic_app/services/network_connectivity_service.dart';
+import 'package:picnic_app/services/update_service.dart';
 import 'package:picnic_app/supabase_options.dart';
 import 'package:picnic_app/ui/community_theme.dart';
 import 'package:picnic_app/ui/mypage_theme.dart';
@@ -60,7 +64,6 @@ class _AppState extends ConsumerState<App> {
       FirebaseAnalyticsObserver(analytics: analytics);
   int? _androidSdkVersion;
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
-  bool _hasNetwork = true;
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
 
@@ -76,9 +79,8 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
-    _checkInitialNetwork();
 
-    if (!kIsWeb) {
+    if (UniversalPlatform.isMobile) {
       _setupAppLinksListener();
       _setupSupabaseAuthListener();
       _checkAndroidVersion();
@@ -92,17 +94,14 @@ class _AppState extends ConsumerState<App> {
       final isOnline = await networkService.checkOnlineStatus();
       logger.i('Network check: $isOnline');
 
-      setState(() {
-        _hasNetwork = isOnline;
-      });
-    } catch (e) {
-      logger.e('Network check error: $e');
-      setState(() => _hasNetwork = false);
+      setState(() {});
+    } catch (e, s) {
+      logger.e('Network check error: $e', stackTrace: s);
     }
   }
 
   Future<void> _retryConnection() async {
-    setState(() => _hasNetwork = false); // 재시도 중에는 로딩 상태로
+// 재시도 중에는 로딩 상태로
     await _checkInitialNetwork();
   }
 
@@ -114,8 +113,9 @@ class _AppState extends ConsumerState<App> {
           _androidSdkVersion = androidInfo.version.sdkInt;
           logger.i('Android SDK Version: $_androidSdkVersion'); // 디버깅용
         });
-      } catch (e) {
-        logger.i('Failed to get Android SDK version: $e'); // 디버깅용
+      } catch (e, s) {
+        logger.i('Failed to get Android SDK version: $e',
+            stackTrace: s); // 디버깅용
       }
     }
     _initializeSystemUI();
@@ -155,21 +155,89 @@ class _AppState extends ConsumerState<App> {
     ]);
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final initState = ref.watch(appInitializationProvider);
+    logger.i('initState: $initState');
+    return MaterialApp(
+      home: FlutterSplashScreen.fadeIn(
+        useImmersiveMode: true,
+        duration: const Duration(milliseconds: 3000),
+        animationDuration: const Duration(milliseconds: 1500),
+        onInit: _initializeApp,
+        childWidget: OptimizedSplashImage(ref: ref),
+        nextScreen: initState.isInitialized
+            ? _buildNextScreen()
+            : const SizedBox.shrink(),
+      ),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+    );
+  }
+
   void _initializeApp() async {
-    await precacheImage(const AssetImage("assets/splash.webp"), context);
+    try {
+      logger.i('앱 초기화 시작');
 
-    unawaited(_loadProducts());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+      await precacheImage(const AssetImage("assets/splash.webp"), context);
+      await Future.delayed(
+          const Duration(milliseconds: 2000)); // 최소 스플래시 표시 시간 보장
       ref.read(appSettingProvider.notifier);
       ref
           .read(globalMediaQueryProvider.notifier)
           .updateMediaQueryData(MediaQuery.of(context));
-      if (!kIsWeb) {
-        ref.read(updateCheckerProvider.notifier).checkForUpdate();
+
+      if (UniversalPlatform.isMobile) {
+        final networkService = NetworkConnectivityService();
+        final hasNetwork = await networkService.checkOnlineStatus();
+        logger.i('Network check: $hasNetwork');
+
+        ref.read(appInitializationProvider.notifier).updateState(
+              hasNetwork: hasNetwork,
+            );
+
+        if (hasNetwork) {
+          final isBanned = await DeviceManager.isDeviceBanned();
+          logger.i('Device banned: $isBanned');
+
+          ref.read(appInitializationProvider.notifier).updateState(
+                isBanned: isBanned,
+              );
+
+          final updateInfo = await checkForUpdates(ref);
+
+          logger.i('Update info: $updateInfo');
+          ref
+              .read(appInitializationProvider.notifier)
+              .updateState(updateInfo: updateInfo);
+
+          if (!isBanned && updateInfo?.status == UpdateStatus.updateRequired) {
+            await _loadProducts();
+          }
+        }
+      } else {
+        await _loadProducts();
       }
-    });
+
+      if (!mounted) return;
+
+      ref.read(appInitializationProvider.notifier).updateState(
+            isInitialized: true,
+          );
+    } catch (e, s) {
+      logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: s);
+      if (mounted) {
+        ref.read(appInitializationProvider.notifier).updateState(
+              hasNetwork: false,
+              isInitialized: true,
+            );
+      }
+    }
   }
 
   Future<void> _loadProducts() async {
@@ -178,8 +246,8 @@ class _AppState extends ConsumerState<App> {
         ref.read(serverProductsProvider.future),
         ref.read(storeProductsProvider.future),
       ]);
-    } catch (e) {
-      logger.e('Failed to load products: $e');
+    } catch (e, s) {
+      logger.e('Failed to load products', error: e, stackTrace: s);
       // 제품 로드 실패 처리
     }
   }
@@ -229,11 +297,28 @@ class _AppState extends ConsumerState<App> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (!_hasNetwork) {
-      return NetworkErrorScreen(
-        onRetry: _retryConnection,
+  Widget _buildNextScreen() {
+    final initState = ref.watch(appInitializationProvider);
+
+    if (!initState.hasNetwork) {
+      return MaterialApp(
+        home: NetworkErrorScreen(
+          onRetry: _retryConnection,
+        ),
+      );
+    }
+
+    if (initState.isBanned) {
+      return MaterialApp(
+        home: const BanScreen(),
+      );
+    }
+
+    if (initState.updateInfo?.status == UpdateStatus.updateRequired) {
+      return MaterialApp(
+        home: ForceUpdateOverlay(
+          updateInfo: initState.updateInfo!,
+        ),
       );
     }
 
@@ -249,7 +334,7 @@ class _AppState extends ConsumerState<App> {
 
             _updateScreenProtector(isScreenProtector);
 
-            Widget app = MaterialApp(
+            return MaterialApp(
               navigatorKey: navigatorKey,
               title: 'Picnic',
               theme: _getCurrentTheme(ref),
@@ -277,36 +362,16 @@ class _AppState extends ConsumerState<App> {
                 return MaterialPageRoute(builder: (_) => const Portal());
               },
               navigatorObservers: [observer],
-              builder: (context, child) {
-                return _ScaleAwareBuilder(
-                  builder: (context, child) => UpdateDialog(
-                    child: child ?? const SizedBox.shrink(),
-                  ),
-                  child: child!,
-                );
-              },
-              home: _buildHomeScreen(),
+              builder: UniversalPlatform.isWeb
+                  ? (context, child) => MediaQuery(
+                        data: ref
+                            .watch(globalMediaQueryProvider)
+                            .copyWith(size: const Size(600, 800)),
+                        child: child ?? const SizedBox.shrink(),
+                      )
+                  : (context, child) => child ?? const SizedBox.shrink(),
+              home: UpdateDialog(child: initScreen ?? const Portal()),
             );
-
-            if (kIsWeb) {
-              return Row(
-                textDirection: TextDirection.ltr, // 추가된 부분
-                children: [
-                  const WebDownloadSection(),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 600),
-                        child: app,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return app;
-            }
           },
         ),
       ),
@@ -329,21 +394,6 @@ class _AppState extends ConsumerState<App> {
     return _routes;
   }
 
-  Widget _buildHomeScreen() {
-    if (UniversalPlatform.isWeb) {
-      return initScreen ?? const Portal();
-    } else {
-      return FlutterSplashScreen.fadeIn(
-        useImmersiveMode: true,
-        duration: const Duration(milliseconds: 2000),
-        animationDuration: const Duration(milliseconds: 1500),
-        childWidget: OptimizedSplashImage(),
-        nextScreen: initScreen ?? const Portal(),
-        onInit: _initializeApp,
-      );
-    }
-  }
-
   ThemeData _getCurrentTheme(WidgetRef ref) {
     final currentPortal = ref.watch(navigationInfoProvider);
     switch (currentPortal.portalType) {
@@ -357,30 +407,6 @@ class _AppState extends ConsumerState<App> {
         return novelThemeLight;
       case PortalType.mypage:
         return mypageThemeLight;
-    }
-  }
-}
-
-class _ScaleAwareBuilder extends ConsumerWidget {
-  final Widget child;
-  final Widget Function(BuildContext, Widget?) builder;
-
-  const _ScaleAwareBuilder({
-    required this.child,
-    required this.builder,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (kIsWeb) {
-      return MediaQuery(
-        data: ref.watch(globalMediaQueryProvider).copyWith(
-              size: const Size(600, 800),
-            ),
-        child: builder(context, child),
-      );
-    } else {
-      return builder(context, child);
     }
   }
 }

@@ -1,3 +1,5 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class PicnicAuthExceptions {
   static PicnicAuthException invalidToken() =>
       PicnicAuthException('invalid_token', '유효하지 않은 토큰입니다.');
@@ -18,6 +20,11 @@ class PicnicAuthExceptions {
   static PicnicAuthException unknown({dynamic originalError}) =>
       PicnicAuthException('unknown', '알 수 없는 오류가 발생했습니다.',
           originalError: originalError);
+
+  static AuthException deviceBanned() => const AuthException(
+        'This device has been banned.',
+        statusCode: 'DEVICE_BANNED',
+      );
 }
 
 class PicnicAuthException implements Exception {
