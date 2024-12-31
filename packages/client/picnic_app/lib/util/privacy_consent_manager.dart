@@ -58,6 +58,7 @@ class PrivacyConsentManager {
           }
           completer.complete();
         } catch (e, s) {
+          logger.e('Error showing consent form', error: e, stackTrace: s);
           completer.completeError(e);
         }
       },
