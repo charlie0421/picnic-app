@@ -6,10 +6,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/exceptions/auth_exception.dart';
 import 'package:picnic_app/models/common/social_login_result.dart';
-import 'package:picnic_app/services/device_manager.dart';
 import 'package:picnic_app/services/auth/social_login/apple_login.dart';
 import 'package:picnic_app/services/auth/social_login/google_login.dart';
 import 'package:picnic_app/services/auth/social_login/kakao_login.dart';
+import 'package:picnic_app/services/device_manager.dart';
 import 'package:picnic_app/services/network_connectivity_service.dart';
 import 'package:picnic_app/services/secure_storage_service.dart';
 import 'package:picnic_app/supabase_options.dart';
@@ -135,8 +135,9 @@ class AuthService {
           await _saveAndNotifySession(response.session!);
           return true;
         }
-      } catch (e) {
-        logger.e('Session recovery failed, trying refresh', error: e);
+      } catch (e, s) {
+        logger.e('Session recovery failed, trying refresh',
+            error: e, stackTrace: s);
       }
 
       // 복구 실패시 refresh 시도

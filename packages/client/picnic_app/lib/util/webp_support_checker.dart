@@ -1,5 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:picnic_app/util/logger.dart';
 
 class WebPSupportInfo {
   final bool webp;
@@ -67,8 +68,8 @@ class WebPSupportChecker {
         animatedWebp: false,
       );
       return _supportInfo!;
-    } catch (e) {
-      debugPrint('WebP 지원 확인 중 오류 발생: $e');
+    } catch (e, s) {
+      logger.e('WebP 지원 확인 중 오류 발생', error: e, stackTrace: s);
       rethrow;
     }
   }

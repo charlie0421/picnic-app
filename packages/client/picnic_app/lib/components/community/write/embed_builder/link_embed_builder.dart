@@ -83,8 +83,8 @@ class _ReadOnlyLinkPreviewWidgetState
         final jsonData = json.decode(data);
         debugPrint('Parsed JSON data: $jsonData');
         url = jsonData['url'] as String? ?? '';
-      } catch (e) {
-        debugPrint('JSON parsing error: $e');
+      } catch (e, s) {
+        logger.e('JSON parsing error', error: e, stackTrace: s);
         url = data;
       }
     } else if (data is Map<String, dynamic>) {
