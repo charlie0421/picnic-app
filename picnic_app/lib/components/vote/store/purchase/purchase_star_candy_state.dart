@@ -49,28 +49,48 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       List<PurchaseDetails> purchaseDetailsList) async {
     try {
       for (final purchaseDetails in purchaseDetailsList) {
-        await _purchaseService.handlePurchase(
-          purchaseDetails,
-          () async {
-            // 구매 성공 시 처리
-            await ref.read(userInfoProvider.notifier).getUserProfiles();
-            if (mounted) {
-              await _showSuccessDialog();
-            }
-          },
-          (error) async {
-            // 에러 발생 시 처리
-            if (mounted) {
-              await _showErrorDialog(error);
-            }
-          },
-        );
+        logger.d('Purchase updated: ${purchaseDetails.status}');
+
+        // pending 상태일 때는 계속 로딩바 유지
+        if (purchaseDetails.status == PurchaseStatus.pending) {
+          continue;
+        }
+
+        // 구매 상태가 청구 가능일 때 영수증 검증 및 처리 진행
+        if (purchaseDetails.status == PurchaseStatus.purchased) {
+          await _purchaseService.handlePurchase(
+            purchaseDetails,
+            () async {
+              // 구매 성공 시 처리
+              await ref.read(userInfoProvider.notifier).getUserProfiles();
+              if (mounted) {
+                OverlayLoadingProgress.stop();
+                await _showSuccessDialog();
+              }
+            },
+            (error) async {
+              // 에러 발생 시 처리
+              if (mounted) {
+                OverlayLoadingProgress.stop();
+                await _showErrorDialog(error);
+              }
+            },
+          );
+        } else if (purchaseDetails.status == PurchaseStatus.error) {
+          // 구매 오류 발생 시
+          if (mounted) {
+            OverlayLoadingProgress.stop();
+            await _showErrorDialog(purchaseDetails.error?.message ??
+                Intl.message('dialog_message_purchase_failed'));
+          }
+        }
       }
-    } finally {
-      // 모든 구매 처리가 완료된 후에만 로딩바 숨김
+    } catch (e, s) {
       if (mounted) {
         OverlayLoadingProgress.stop();
+        await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
       }
+      rethrow;
     }
   }
 
@@ -110,14 +130,14 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
         if (mounted) {
           OverlayLoadingProgress.stop();
           await _showErrorDialog(
-              Intl.message('dialog_message_purchase_failed)'));
+              Intl.message('dialog_message_purchase_failed'));
         }
       }
     } catch (e, s) {
       logger.e('Error starting purchase', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(Intl.message('dialog_message_purchase_failed)'));
+        await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
       }
       rethrow;
     }
@@ -130,7 +150,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   Future<void> _showSuccessDialog() async {
     if (!mounted) return;
-    showSimpleDialog(content: Intl.message('dialog_message_purchase_success)'));
+    showSimpleDialog(content: Intl.message('dialog_message_purchase_success'));
   }
 
   @override

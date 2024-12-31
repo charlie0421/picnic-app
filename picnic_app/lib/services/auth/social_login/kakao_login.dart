@@ -35,7 +35,7 @@ class KakaoLogin implements SocialLogin {
             accessToken: session?.accessToken,
             userData: user?.userMetadata ?? {},
           );
-        } catch (e) {
+        } catch (e, s) {
           throw _handleKakaoLoginError(e);
         }
       }

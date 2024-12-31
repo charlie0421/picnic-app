@@ -57,7 +57,7 @@ class PrivacyConsentManager {
             await _showConsentForm();
           }
           completer.complete();
-        } catch (e) {
+        } catch (e, s) {
           completer.completeError(e);
         }
       },
