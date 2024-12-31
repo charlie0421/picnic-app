@@ -6,7 +6,7 @@ part of '../../providers/ad_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$rewardedAdsHash() => r'a9981ccc0b34b035d96c5a4b40391025e5e02d67';
+String _$rewardedAdsHash() => r'395540f761e80b468c9bf2d3aa8fa9b01f14c9c2';
 
 /// See also [RewardedAds].
 @ProviderFor(RewardedAds)

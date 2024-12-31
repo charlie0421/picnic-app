@@ -70,7 +70,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final appSettingState = ref.watch(appSettingProvider);
     final appSettingNotifier = ref.read(appSettingProvider.notifier);
     final userInfoState = ref.watch(userInfoProvider);
-    final updateChecker = ref.watch(updateCheckerProvider);
+    final updateChecker = ref.watch(checkUpdateProvider);
     final isAdmin =
         ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
             false;

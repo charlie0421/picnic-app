@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:picnic_app/config/environment.dart';
 import 'package:picnic_app/exceptions/auth_exception.dart';
 import 'package:picnic_app/models/common/social_login_result.dart';
+import 'package:picnic_app/services/device_manager.dart';
 import 'package:picnic_app/services/auth/social_login/apple_login.dart';
 import 'package:picnic_app/services/auth/social_login/google_login.dart';
 import 'package:picnic_app/services/auth/social_login/kakao_login.dart';
@@ -68,6 +69,10 @@ class AuthService {
 
   Future<supa.User?> signInWithProvider(supa.OAuthProvider provider) async {
     try {
+      if (await DeviceManager.isDeviceBanned()) {
+        throw PicnicAuthExceptions.deviceBanned();
+      }
+
       final socialLogin = _loginProviders[provider];
       if (socialLogin == null) {
         throw PicnicAuthExceptions.unsupportedProvider(provider.name);
@@ -90,6 +95,8 @@ class AuthService {
       if (response.session == null || response.user == null) {
         throw PicnicAuthExceptions.invalidToken();
       }
+
+      await DeviceManager.registerDevice(response.user!.id);
 
       await _saveAndNotifySession(response.session!);
       return response.user;
@@ -124,6 +131,7 @@ class AuthService {
             .timeout(_timeouts.sessionRecovery);
 
         if (response.session != null) {
+          await DeviceManager.updateLastSeen();
           await _saveAndNotifySession(response.session!);
           return true;
         }
@@ -184,6 +192,7 @@ class AuthService {
       if (session != null) {
         final provider = _getProviderFromSession(session);
         await _logoutFromProvider(provider);
+        await DeviceManager.updateLastSeen();
       }
       await _clearAuthState();
     } catch (e, s) {

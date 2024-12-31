@@ -1,49 +1,45 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/logger.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_app/providers/app_initialization_provider.dart';
 
-class OptimizedSplashImage extends StatelessWidget {
-  const OptimizedSplashImage({super.key});
+class OptimizedSplashImage extends ConsumerStatefulWidget {
+  final WidgetRef ref;
+
+  const OptimizedSplashImage({
+    super.key,
+    required this.ref,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.primary500,
-      alignment: Alignment.center,
-      width: double.infinity,
-      height: double.infinity,
-      child: Image.asset(
-        _getOptimizedImagePath(),
-        fit: BoxFit.contain,
-        cacheWidth: 800,
-        cacheHeight: 1600,
-        errorBuilder: (context, error, stackTrace) {
-          logger.e('error:', error: error, stackTrace: stackTrace);
-          return Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: AppColors.primary500);
-        },
-      ),
-    );
-  }
+  ConsumerState<OptimizedSplashImage> createState() =>
+      _OptimizedSplashImageState();
+}
 
-  String _getOptimizedImagePath() {
-    if (Platform.isIOS) {
-      try {
-        final version = Platform.operatingSystemVersion;
-        final major = int.tryParse(
-            version.split('.').first.replaceAll(RegExp(r'[^0-9]'), ''));
-        if (major != null && major >= 14) {
-          return 'assets/splash.webp';
-        }
-      } catch (e, s) {
-        logger.e('Failed to parse iOS version', error: e, stackTrace: s);
-      }
-      return 'assets/splash.png';
-    }
-    return 'assets/splash.webp';
+class _OptimizedSplashImageState extends ConsumerState<OptimizedSplashImage> {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Center(
+          child: Image.asset(
+            'assets/splash.webp',
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        ),
+        if (!ref.watch(appInitializationProvider).isInitialized)
+          const Positioned(
+            bottom: 32,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }
