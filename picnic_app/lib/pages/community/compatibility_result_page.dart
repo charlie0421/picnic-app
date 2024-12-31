@@ -86,30 +86,63 @@ class _CompatibilityResultPageState
       List<PurchaseDetails> purchaseDetailsList) async {
     try {
       for (final purchaseDetails in purchaseDetailsList) {
-        await _purchaseService.handlePurchase(
-          purchaseDetails,
-          () async {
-            // 구매 성공 시 처리
-            if (mounted) {
-              OverlayLoadingProgress.stop();
-              _openCompatibility(widget.compatibility.id);
+        logger.d('Purchase updated: ${purchaseDetails.status}');
+
+        // pending 상태일 때는 계속 로딩바 유지
+        if (purchaseDetails.status == PurchaseStatus.pending) {
+          continue;
+        }
+
+        // 구매 상태가 청구 가능일 때 영수증 검증 및 처리 진행
+        if (purchaseDetails.status == PurchaseStatus.purchased) {
+          await _purchaseService.handlePurchase(
+            purchaseDetails,
+            () async {
+              if (mounted) {
+                OverlayLoadingProgress.stop();
+                _openCompatibility(widget.compatibility.id);
+              }
+            },
+            (error) async {
+              if (mounted) {
+                OverlayLoadingProgress.stop();
+                await _showErrorDialog(
+                    Intl.message('dialog_message_purchase_failed'));
+              }
+            },
+          );
+        } else if (purchaseDetails.status == PurchaseStatus.error) {
+          if (mounted) {
+            OverlayLoadingProgress.stop();
+            // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
+            if (purchaseDetails.error?.message
+                    ?.toLowerCase()
+                    .contains('canceled') !=
+                true) {
+              await _showErrorDialog(purchaseDetails.error?.message ??
+                  Intl.message('dialog_message_purchase_failed'));
             }
-          },
-          (error) async {
-            // 에러 발생 시 처리
-            if (mounted) {
-              OverlayLoadingProgress.stop();
-              await _showErrorDialog(error);
-            }
-          },
-        );
+          }
+        } else if (purchaseDetails.status == PurchaseStatus.canceled) {
+          // 구매 취소 시 구매 정보 정리하고 로딩바만 숨김
+          if (mounted) {
+            await _purchaseService.inAppPurchaseService
+                .completePurchase(purchaseDetails);
+            OverlayLoadingProgress.stop();
+          }
+        }
+
+        // 모든 상태 처리 후 구매 완료 처리
+        if (purchaseDetails.pendingCompletePurchase) {
+          await _purchaseService.inAppPurchaseService
+              .completePurchase(purchaseDetails);
+        }
       }
     } catch (e, s) {
-      logger.e('exception:', error: e, stackTrace: s);
-
+      logger.e('Error handling purchase update', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog('구매 처리 중 오류가 발생했습니다.');
+        await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
       }
       rethrow;
     }
@@ -117,21 +150,43 @@ class _CompatibilityResultPageState
 
   Future<bool> _buyProduct(Map<String, dynamic> product) async {
     try {
+      // 이전 구매 상태 초기화
+      await _purchaseService.inAppPurchaseService.clearTransactions();
+
+      // 구매 시작 시 로딩바 표시
+      if (mounted) {
+        OverlayLoadingProgress.start(
+          context,
+          barrierDismissible: false,
+          color: AppColors.primary500,
+        );
+      }
+
       final purchaseInitiated = await _purchaseService.initiatePurchase(
         product['id'],
         onSuccess: () {
+          // 성공 콜백에서는 로딩바를 숨기지 않음 (_handlePurchaseUpdated에서 처리)
           _openCompatibility(widget.compatibility.id);
-          _showSuccessDialog();
         },
         onError: (message) {
+          // 에러 콜백에서는 로딩바를 숨기지 않음 (_handlePurchaseUpdated에서 처리)
           _showErrorDialog(message);
         },
       );
 
+      // 구매 시도 자체가 실패한 경우에만 여기서 로딩바 숨김
+      if (!purchaseInitiated && mounted) {
+        OverlayLoadingProgress.stop();
+        await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
+      }
+
       return purchaseInitiated;
     } catch (e, s) {
       logger.e('Error buying product', error: e, stackTrace: s);
-      await _showErrorDialog(Intl.message('message_error_occurred'));
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        await _showErrorDialog(Intl.message('message_error_occurred'));
+      }
       return false;
     }
   }
@@ -477,67 +532,91 @@ class _CompatibilityResultPageState
 
   void _openCompatibility(String compatibilityId) async {
     try {
+      // 호환성 결과 열기 전에 로딩바 표시
+      if (mounted) {
+        OverlayLoadingProgress.start(
+          context,
+          barrierDismissible: false,
+          color: AppColors.primary500,
+        );
+      }
+
       final userProfile =
           await ref.read(userInfoProvider.notifier).getUserProfiles();
 
       if (userProfile == null) {
-        showSimpleDialog(
-          content: Intl.message('message_error_occurred'),
-          onOk: () {
-            ref
-                .read(navigationInfoProvider.notifier)
-                .setCurrentPage(StorePage());
-            Navigator.of(context).pop();
-          },
-        );
+        if (mounted) {
+          OverlayLoadingProgress.stop();
+          showSimpleDialog(
+            content: Intl.message('message_error_occurred'),
+            onOk: () {
+              ref
+                  .read(navigationInfoProvider.notifier)
+                  .setCurrentPage(StorePage());
+              Navigator.of(context).pop();
+            },
+          );
+        }
+        return;
       }
 
-      if ((userProfile!.starCandy ?? 0) < 100) {
-        showSimpleDialog(
-          title: Intl.message('fortune_lack_of_star_candy_title'),
-          content: Intl.message('fortune_lack_of_star_candy_message'),
-          onOk: () {
-            ref
-                .read(navigationInfoProvider.notifier)
-                .setCurrentPage(StorePage());
-            Navigator.of(context).pop();
-          },
-        );
-      } else {
-        await supabase.functions.invoke('open-compatibility', body: {
-          'userId': userProfile.id,
-          'compatibilityId': compatibilityId,
-        });
-        final updatedProfile =
-            await ref.read(userInfoProvider.notifier).getUserProfiles();
-        if (updatedProfile == null) {
-          throw Exception('Failed to get updated user profile');
+      if ((userProfile.starCandy ?? 0) < 100) {
+        if (mounted) {
+          OverlayLoadingProgress.stop();
+          showSimpleDialog(
+            title: Intl.message('fortune_lack_of_star_candy_title'),
+            content: Intl.message('fortune_lack_of_star_candy_message'),
+            onOk: () {
+              ref
+                  .read(navigationInfoProvider.notifier)
+                  .setCurrentPage(StorePage());
+              Navigator.of(context).pop();
+            },
+          );
         }
-        await _refreshData();
+        return;
+      }
 
+      await supabase.functions.invoke('open-compatibility', body: {
+        'userId': userProfile.id,
+        'compatibilityId': compatibilityId,
+      });
+
+      final updatedProfile =
+          await ref.read(userInfoProvider.notifier).getUserProfiles();
+      if (updatedProfile == null) {
+        throw Exception('Failed to get updated user profile');
+      }
+
+      await _refreshData();
+
+      if (mounted) {
+        OverlayLoadingProgress.stop();
         showSimpleDialog(
-            contentWidget: Column(
-          children: [
-            Text(Intl.message('compatibility_remain_star_candy')),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/icons/store/star_100.png',
-                  width: 36,
-                ),
-                Text(
-                  '${updatedProfile.starCandy}',
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                ),
-              ],
-            ),
-          ],
-        ));
+          contentWidget: Column(
+            children: [
+              Text(Intl.message('compatibility_remain_star_candy')),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/icons/store/star_100.png', width: 36),
+                  Text(
+                    '${updatedProfile.starCandy}',
+                    style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
       }
     } catch (e, s) {
       logger.e('Error opening compatibility', error: e, stackTrace: s);
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        await _showErrorDialog(Intl.message('message_error_occurred'));
+      }
       rethrow;
     }
   }

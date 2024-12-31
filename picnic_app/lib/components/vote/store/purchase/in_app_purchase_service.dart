@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:picnic_app/util/logger.dart';
 
 class InAppPurchaseService {
@@ -33,8 +36,10 @@ class InAppPurchaseService {
         return false;
       }
 
-      // 이전에 완료되지 않은 구매가 있는지 확인하고 처리
-      await _handlePendingPurchases();
+      // iOS의 경우 pending 구매를 먼저 처리
+      if (Platform.isIOS) {
+        await _handlePendingPurchases();
+      }
 
       _lastPurchaseAttempt = now;
       _pendingPurchases.add(productDetails.id);
@@ -73,7 +78,13 @@ class InAppPurchaseService {
 
   Future<void> completePurchase(PurchaseDetails purchaseDetails) async {
     try {
-      await _inAppPurchase.completePurchase(purchaseDetails);
+      if (Platform.isAndroid && purchaseDetails is GooglePlayPurchaseDetails) {
+        await _inAppPurchase.completePurchase(purchaseDetails);
+      } else if (Platform.isIOS && purchaseDetails is AppStorePurchaseDetails) {
+        await _inAppPurchase.completePurchase(purchaseDetails);
+      } else {
+        logger.w('Skipping completePurchase for unsupported platform/type');
+      }
       _pendingPurchases.remove(purchaseDetails.productID);
       logger.i('Purchase completed successfully: ${purchaseDetails.productID}');
     } catch (e, stack) {
@@ -112,6 +123,25 @@ class InAppPurchaseService {
 
     // 초기화시 pending 구매 처리
     _handlePendingPurchases();
+  }
+
+  /// 진행 중인 구매 트랜잭션을 정리합니다.
+  Future<void> clearTransactions() async {
+    try {
+      // iOS의 경우만 restore 호출
+      if (Platform.isIOS) {
+        await _inAppPurchase.restorePurchases();
+      }
+
+      // pending 상태의 구매 목록 초기화
+      _pendingPurchases.clear();
+      _lastPurchaseAttempt = null;
+
+      logger.i('Transactions cleared');
+    } catch (e, s) {
+      logger.e('Error clearing transactions', error: e, stackTrace: s);
+      rethrow;
+    }
   }
 
   void dispose() {

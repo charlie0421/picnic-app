@@ -61,7 +61,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
           await _purchaseService.handlePurchase(
             purchaseDetails,
             () async {
-              // 구매 성공 시 처리
               await ref.read(userInfoProvider.notifier).getUserProfiles();
               if (mounted) {
                 OverlayLoadingProgress.stop();
@@ -69,25 +68,38 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
               }
             },
             (error) async {
-              // 에러 발생 시 처리
               if (mounted) {
                 OverlayLoadingProgress.stop();
-                await _showErrorDialog(error);
+                await _showErrorDialog(
+                    Intl.message('dialog_message_purchase_failed'));
               }
             },
           );
         } else if (purchaseDetails.status == PurchaseStatus.error) {
-          // 구매 오류 발생 시
           if (mounted) {
             OverlayLoadingProgress.stop();
-            await _showErrorDialog(purchaseDetails.error?.message ??
-                Intl.message('dialog_message_purchase_failed'));
+            // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
+            if (purchaseDetails.error?.message
+                    .toLowerCase()
+                    .contains('canceled') !=
+                true) {
+              await _showErrorDialog(
+                  Intl.message('dialog_message_purchase_failed'));
+            }
           }
         } else if (purchaseDetails.status == PurchaseStatus.canceled) {
-          // 구매 취소 시
+          // 구매 취소 시 구매 정보 정리하고 로딩바만 숨김
           if (mounted) {
+            await _purchaseService.inAppPurchaseService
+                .completePurchase(purchaseDetails);
             OverlayLoadingProgress.stop();
           }
+        }
+
+        // 모든 상태 처리 후 구매 완료 처리
+        if (purchaseDetails.pendingCompletePurchase) {
+          await _purchaseService.inAppPurchaseService
+              .completePurchase(purchaseDetails);
         }
       }
     } catch (e, s) {
@@ -111,27 +123,25 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
     }
 
     try {
-      // 구매 시작시 로딩바 표시
+      // 이전 구매 상태 초기화
+      await _purchaseService.inAppPurchaseService.clearTransactions();
+
       OverlayLoadingProgress.start(
         context,
         barrierDismissible: false,
         color: AppColors.primary500,
       );
 
-      // 구매 시도
       final purchaseInitiated = await _purchaseService.initiatePurchase(
         serverProduct['id'],
         onSuccess: () async {
-          // 구매 성공시 로딩바는 _handlePurchaseUpdated에서 숨김
           await _showSuccessDialog();
         },
         onError: (message) async {
-          // 에러 발생시 로딩바는 _handlePurchaseUpdated에서 숨김
           await _showErrorDialog(message);
         },
       );
 
-      // 구매 시도 자체가 실패한 경우에만 여기서 로딩바 숨김
       if (!purchaseInitiated) {
         if (mounted) {
           OverlayLoadingProgress.stop();
@@ -151,7 +161,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   Future<void> _showErrorDialog(String message) async {
     if (!mounted) return;
-    showSimpleDialog(content: message);
+    showSimpleDialog(type: DialogType.error, content: message);
   }
 
   Future<void> _showSuccessDialog() async {
