@@ -36,6 +36,7 @@ class KakaoLogin implements SocialLogin {
             userData: user?.userMetadata ?? {},
           );
         } catch (e, s) {
+          logger.e('Kakao login error', error: e, stackTrace: s);
           throw _handleKakaoLoginError(e);
         }
       }

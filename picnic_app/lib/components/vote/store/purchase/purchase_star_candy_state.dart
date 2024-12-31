@@ -83,9 +83,15 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
             await _showErrorDialog(purchaseDetails.error?.message ??
                 Intl.message('dialog_message_purchase_failed'));
           }
+        } else if (purchaseDetails.status == PurchaseStatus.canceled) {
+          // 구매 취소 시
+          if (mounted) {
+            OverlayLoadingProgress.stop();
+          }
         }
       }
     } catch (e, s) {
+      logger.e('Error handling purchase update', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
         await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
