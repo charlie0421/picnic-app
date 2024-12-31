@@ -11,14 +11,25 @@ void showRequireLoginDialog() {
     return;
   }
 
+  final context = navigatorKey.currentContext!;
+
   try {
     showSimpleDialog(
-      content: S.of(navigatorKey.currentContext!).dialog_content_login_required,
-      onOk: () => Navigator.pushNamed(
-              navigatorKey.currentContext!, SignUpScreen.routeName)
-          .then(
-              (value) => Navigator.of(navigatorKey.currentContext!).pop(true)),
-      onCancel: () => Navigator.of(navigatorKey.currentContext!).pop(false),
+      content: S.of(context).dialog_content_login_required,
+      onOk: () async {
+        if (context.mounted) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (context.mounted) {
+          Navigator.pushNamed(context, SignUpScreen.routeName);
+        }
+      },
+      onCancel: () {
+        if (context.mounted) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
+      },
     );
   } catch (e, s) {
     logger.e('error', error: e, stackTrace: s);
