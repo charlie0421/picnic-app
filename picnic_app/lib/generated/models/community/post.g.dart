@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/community/post.dart';
+part of '../../../data/models/community/post.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

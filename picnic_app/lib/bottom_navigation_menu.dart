@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_app/constants.dart';
+import 'package:picnic_app/core/constatns/constants.dart';
 import 'package:picnic_app/enums.dart';
-import 'package:picnic_app/pages/community/board_list_page.dart';
-import 'package:picnic_app/pages/community/community_home_page.dart';
-import 'package:picnic_app/pages/community/community_my_page.dart';
-import 'package:picnic_app/pages/pic/gallery_page.dart';
-import 'package:picnic_app/pages/pic/library_page.dart';
-import 'package:picnic_app/pages/pic/pic_home_page.dart';
-import 'package:picnic_app/pages/vote/pic_chart_page.dart';
-import 'package:picnic_app/pages/vote/store_page.dart';
-import 'package:picnic_app/pages/vote/vote_home_page.dart';
-import 'package:picnic_app/pages/vote/vote_media_list_page.dart';
+import 'package:picnic_app/presentation/pages/community/board_list_page.dart';
+import 'package:picnic_app/presentation/pages/community/community_home_page.dart';
+import 'package:picnic_app/presentation/pages/community/community_my_page.dart';
+import 'package:picnic_app/presentation/pages/pic/gallery_page.dart';
+import 'package:picnic_app/presentation/pages/pic/library_page.dart';
+import 'package:picnic_app/presentation/pages/pic/pic_home_page.dart';
+import 'package:picnic_app/presentation/pages/vote/pic_chart_page.dart';
+import 'package:picnic_app/presentation/pages/vote/store_page.dart';
+import 'package:picnic_app/presentation/pages/vote/vote_home_page.dart';
+import 'package:picnic_app/presentation/pages/vote/vote_media_list_page.dart';
 
 ScreenInfo voteScreenInfo = ScreenInfo(
   type: PortalType.vote,

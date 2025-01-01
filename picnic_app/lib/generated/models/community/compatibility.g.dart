@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/community/compatibility.dart';
+part of '../../../data/models/community/compatibility.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

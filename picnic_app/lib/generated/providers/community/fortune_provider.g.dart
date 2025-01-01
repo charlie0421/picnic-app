@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../providers/community/fortune_provider.dart';
+part of '../../../presentation/providers/community/fortune_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator

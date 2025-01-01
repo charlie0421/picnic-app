@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/pic/comment_like.dart';
+part of '../../../data/models/pic/comment_like.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

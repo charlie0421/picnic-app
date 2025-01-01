@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../models/policy.dart';
+part of '../../data/models/policy.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

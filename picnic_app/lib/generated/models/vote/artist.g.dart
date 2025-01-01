@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/vote/artist.dart';
+part of '../../../data/models/vote/artist.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

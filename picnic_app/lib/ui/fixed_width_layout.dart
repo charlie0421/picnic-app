@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/providers/global_media_query.dart';
+import 'package:picnic_app/presentation/providers/global_media_query.dart';
 
 class FixedWidthLayout extends ConsumerWidget {
   final Widget child;

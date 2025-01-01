@@ -1,0 +1,97 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_app/presentation/widgets/vote/list/vote_detail_title.dart';
+import 'package:picnic_app/generated/l10n.dart';
+import 'package:picnic_app/ui/style.dart';
+import 'package:picnic_app/core/utils/ui.dart';
+
+class LargePopupWidget extends StatelessWidget {
+  final String? title;
+  final Widget content;
+  final Widget? closeButton;
+  final Color? backgroundColor;
+  final double? width;
+  final bool showCloseButton;
+
+  const LargePopupWidget({
+    super.key,
+    this.title,
+    required this.content,
+    this.closeButton,
+    this.backgroundColor,
+    this.width,
+    this.showCloseButton = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardDismissOnTap(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+                width: width ?? 345.cw,
+                decoration: BoxDecoration(
+                  color: backgroundColor ?? AppColors.grey00,
+                  border: Border.all(
+                    color: AppColors.mint500,
+                    width: 2.r,
+                  ),
+                  borderRadius: BorderRadius.circular(120.r),
+                ),
+                child: content),
+            if (title != null)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                    height: 48,
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.symmetric(horizontal: 33.cw),
+                    child: VoteCommonTitle(title: title!)),
+              ),
+          ],
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            if (showCloseButton) {
+              Navigator.pop(context);
+            }
+          },
+          child: Container(
+              height: 24,
+              padding: EdgeInsets.only(right: 16.cw),
+              child: closeButton != null
+                  ? closeButton!
+                  : showCloseButton
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Text(S.of(context).label_button_close,
+                                style: getTextStyle(
+                                    AppTypo.body14B, AppColors.grey00)),
+                            SizedBox(width: 4.cw),
+                            SvgPicture.asset(
+                              'assets/icons/cancel_style=line.svg',
+                              width: 24.cw,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(
+                                  AppColors.grey00, BlendMode.srcIn),
+                            ),
+                          ],
+                        )
+                      : const SizedBox.shrink()),
+        ),
+      ],
+    ));
+  }
+}

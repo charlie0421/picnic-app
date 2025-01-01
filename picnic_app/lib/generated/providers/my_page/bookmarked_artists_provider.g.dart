@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../providers/my_page/bookmarked_artists_provider.dart';
+part of '../../../presentation/providers/my_page/bookmarked_artists_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
