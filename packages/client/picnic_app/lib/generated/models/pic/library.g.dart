@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/pic/library.dart';
+part of '../../../data/models/pic/library.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

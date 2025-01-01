@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
-import 'package:picnic_app/config/environment.dart';
-import 'package:picnic_app/storage/supabase_pkce_async_storage.dart';
-import 'package:picnic_app/util/retry_http_client.dart';
+import 'package:picnic_app/core/config/environment.dart';
+import 'package:picnic_app/core/utils/retry_http_client.dart';
+import 'package:picnic_app/data/storage/supabase_pkce_async_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final customHttpClient = RetryHttpClient(http.Client());

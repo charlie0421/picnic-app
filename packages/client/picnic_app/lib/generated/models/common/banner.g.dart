@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/common/banner.dart';
+part of '../../../data/models/common/banner.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

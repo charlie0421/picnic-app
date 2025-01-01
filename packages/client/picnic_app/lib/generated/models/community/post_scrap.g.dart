@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/community/post_scrap.dart';
+part of '../../../data/models/community/post_scrap.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

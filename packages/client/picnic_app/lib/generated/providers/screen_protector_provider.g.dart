@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../providers/screen_protector_provider.dart';
+part of '../../presentation/providers/screen_protector_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator

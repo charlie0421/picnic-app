@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/core/utils/ui.dart';
 
 TabBarTheme commonTabBarTheme = TabBarTheme(
   labelStyle: getTextStyle(

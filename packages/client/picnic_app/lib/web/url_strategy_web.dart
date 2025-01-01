@@ -1,6 +1,6 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
-import 'package:picnic_app/util/logger.dart';
+import 'package:picnic_app/core/utils/logger.dart';
 
 void clearUrlParameters() {
   try {

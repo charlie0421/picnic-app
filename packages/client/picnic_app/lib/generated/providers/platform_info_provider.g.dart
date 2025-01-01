@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../providers/platform_info_provider.dart';
+part of '../../presentation/providers/platform_info_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/common/social_login_result.dart';
+part of '../../../data/models/common/social_login_result.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

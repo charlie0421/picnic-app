@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../providers/celeb_search_provider.dart';
+part of '../../presentation/providers/celeb_search_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator

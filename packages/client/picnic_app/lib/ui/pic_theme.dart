@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_app/ui/common_theme.dart';
 import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/util/ui.dart';
+import 'package:picnic_app/core/utils/ui.dart';
 
 ThemeData picThemeLight = ThemeData.light().copyWith(
   textTheme: const TextTheme(

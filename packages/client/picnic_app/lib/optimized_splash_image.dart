@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/providers/app_initialization_provider.dart';
+import 'package:picnic_app/presentation/providers/app_initialization_provider.dart';
 
 class OptimizedSplashImage extends ConsumerStatefulWidget {
   final WidgetRef ref;

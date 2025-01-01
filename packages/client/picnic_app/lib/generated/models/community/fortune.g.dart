@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../models/community/fortune.dart';
+part of '../../../data/models/community/fortune.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
