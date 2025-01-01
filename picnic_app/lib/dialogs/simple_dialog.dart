@@ -3,8 +3,8 @@ import 'package:picnic_app/app.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/ui/style.dart';
 import 'package:picnic_app/util/logger.dart';
-import 'package:picnic_app/util/ui.dart';
 import 'package:picnic_app/util/snackbar_util.dart';
+import 'package:picnic_app/util/ui.dart';
 
 class DialogType {
   static const normal = 'normal';
@@ -58,6 +58,7 @@ void showSimpleDialog({
     context: context,
     barrierDismissible: true,
     barrierLabel: '',
+    useRootNavigator: false,
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, animation, secondaryAnimation) {
       return Container();
