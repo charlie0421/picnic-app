@@ -1,0 +1,152 @@
+name: picnic_lib
+description: Picnic Library
+
+version: 0.0.1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  shimmer: ^3.0.0
+  sentry_flutter: ^8.12.0
+  universal_platform: ^1.1.0
+  url_launcher: ^6.3.1
+  flutter_cache_manager: ^3.4.1
+  another_flutter_splash_screen: ^1.2.1
+  google_mobile_ads: ^5.2.0
+  logger: ^2.5.0
+  flutter_secure_storage: ^9.2.2
+  flutter_card_swiper: ^7.0.2
+  file_picker: ^8.1.6
+  animated_digit: ^3.2.3
+  supabase_extensions: ^1.0.1
+  shared_preferences: ^2.3.4
+  image_picker: ^1.1.2
+  riverpod: ^2.6.1
+  package_info_plus: ^8.1.2
+  flutter_riverpod: ^2.6.1
+  flutter_svg: ^2.0.16
+  load_switch: ^2.1.0
+  riverpod_annotation: ^2.6.1
+  flutter_quill: ^10.8.5
+  intl: ^0.19.0
+  camera: ^0.11.0+2
+  flutter_screenutil: ^5.9.3
+  overlay_loading_progress: ^1.0.1
+  reflectable: ^4.0.10
+  cached_network_image: ^3.4.1
+  card_swiper: ^3.0.1
+  infinite_scroll_pagination: ^4.1.0
+  flutter_keyboard_visibility: ^6.0.0
+  font_awesome_flutter: ^10.8.0
+  overlay_support: ^2.1.0
+  screen_protector: ^1.4.2+1
+  bubble_box: ^0.5.3
+  supabase_flutter: ^2.8.2
+  google_sign_in: ^6.2.2
+  sign_in_with_apple: ^6.1.4
+  kakao_flutter_sdk_user: ^1.9.6
+  firebase_core: ^3.9.0
+  image: ^4.3.0
+  image_gallery_saver_plus: ^3.0.5
+  in_app_purchase: ^3.2.0
+  photo_manager: ^3.6.3
+  permission_handler: ^11.3.1
+  flutter_markdown: ^0.7.4+3
+  path_provider: ^2.1.5
+  app_tracking_transparency: ^2.0.6+1
+  freezed_annotation: ^2.4.4
+  app_links: ^6.3.3
+  http: ^1.2.2
+  deepl_dart: ^1.5.0
+  firebase_analytics: ^11.3.6
+  timezone: ^0.10.0
+  connectivity_plus: ^6.1.1
+  image_cropper: ^8.1.0
+  flutter_inappwebview: ^6.1.5
+  version: ^3.0.2
+  rxdart: ^0.28.0
+  universal_html: ^2.2.4
+  url_strategy: ^0.3.0
+  crypto: ^3.0.6
+  keyboard_height_plugin: ^0.1.5
+  flutter_animation_progress_bar: ^2.3.1
+  qr_flutter: ^4.1.0
+  universal_io: ^2.2.2
+  confetti: ^0.8.0
+  dart_openai: ^5.1.0
+  share_plus: ^10.1.3
+  tapjoy_offerwall: ^14.2.1
+  device_info_plus: ^11.2.0
+  flutter_phoenix: ^1.1.1
+  mime: ^2.0.0
+  path: ^1.9.0
+  stack_trace: ^1.12.0
+  in_app_purchase_android: ^0.3.6+12
+  in_app_purchase_storekit: ^0.3.20+2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  json_serializable: ^6.9.0
+  riverpod_generator: ^2.6.3
+  intl_utils: ^2.8.7
+  build_runner: ^2.4.13
+  custom_lint: ^0.7.0
+  riverpod_lint: ^2.6.3
+  change_app_package_name: ^1.4.0
+  freezed: ^2.5.7
+  intl_translation: ^0.20.1
+
+flutter_intl:
+  enabled: true
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/
+    - assets/images/
+    - assets/images/login/
+    - assets/images/vote/
+    - assets/images/fortune/
+    - assets/icons/
+    - assets/icons/login/
+    - assets/icons/vote/
+    - assets/icons/header/
+    - assets/icons/bottom/
+    - assets/icons/store/
+    - assets/icons/post/
+    - assets/icons/fortune/
+    - assets/mockup/
+    - assets/mockup/pic/
+    - assets/landing/
+    - assets/web/
+    - assets/splash.webp
+    - lib/l10n/
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard/Pretendard-ExtraLight.otf
+          weight: 100
+        - asset: assets/fonts/Pretendard/Pretendard-Thin.otf
+          weight: 200
+        - asset: assets/fonts/Pretendard/Pretendard-Light.otf
+          weight: 300
+        - asset: assets/fonts/Pretendard/Pretendard-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Pretendard/Pretendard-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Pretendard/Pretendard-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/Pretendard/Pretendard-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Pretendard/Pretendard-ExtraBold.otf
+          weight: 800
+        - asset: assets/fonts/Pretendard/Pretendard-Black.otf
+          weight: 900
