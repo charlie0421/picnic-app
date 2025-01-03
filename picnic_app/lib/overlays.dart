@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
-
-import 'core/constatns/constants.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 
 OverlaySupportEntry? blackScreenOverlaySupport;
 OverlaySupportEntry? lockScreenOverlaySupport;

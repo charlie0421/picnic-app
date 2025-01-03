@@ -7,48 +7,46 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:picnic_app/core/services/device_manager.dart';
-import 'package:picnic_app/core/services/network_connectivity_service.dart';
-import 'package:picnic_app/core/services/update_service.dart';
-import 'package:picnic_app/core/utils/logger.dart';
-import 'package:picnic_app/enums.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/optimized_splash_image.dart';
-import 'package:picnic_app/presentation/dialogs/force_update_overlay.dart';
-import 'package:picnic_app/presentation/dialogs/update_dialog.dart';
-import 'package:picnic_app/presentation/pages/oauth_callback_page.dart';
-import 'package:picnic_app/presentation/providers/app_initialization_provider.dart';
-import 'package:picnic_app/presentation/providers/app_setting_provider.dart';
-import 'package:picnic_app/presentation/providers/global_media_query.dart';
-import 'package:picnic_app/presentation/providers/navigation_provider.dart';
-import 'package:picnic_app/presentation/providers/product_provider.dart';
-import 'package:picnic_app/presentation/providers/screen_protector_provider.dart';
-import 'package:picnic_app/presentation/providers/update_checker.dart';
-import 'package:picnic_app/presentation/providers/user_info_provider.dart';
-import 'package:picnic_app/presentation/screens/ban_screen.dart';
-import 'package:picnic_app/presentation/screens/network_error_screen.dart';
-import 'package:picnic_app/presentation/screens/pic/pic_camera_screen.dart';
-import 'package:picnic_app/presentation/screens/portal.dart';
-import 'package:picnic_app/presentation/screens/privacy.dart';
-import 'package:picnic_app/presentation/screens/purchase.dart';
-import 'package:picnic_app/presentation/screens/signup/signup_screen.dart';
-import 'package:picnic_app/presentation/screens/terms.dart';
-import 'package:picnic_app/supabase_options.dart';
-import 'package:picnic_app/ui/community_theme.dart';
-import 'package:picnic_app/ui/mypage_theme.dart';
-import 'package:picnic_app/ui/novel_theme.dart';
-import 'package:picnic_app/ui/pic_theme.dart';
-import 'package:picnic_app/ui/style.dart';
-import 'package:picnic_app/ui/vote_theme.dart';
+import 'package:picnic_lib/core/services/device_manager.dart';
+import 'package:picnic_lib/core/services/network_connectivity_service.dart';
+import 'package:picnic_lib/core/services/update_service.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/l10n_setup.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
+import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
+import 'package:picnic_lib/presentation/pages/oauth_callback_page.dart';
+import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
+import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/global_media_query.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/product_provider.dart';
+import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
+import 'package:picnic_lib/presentation/providers/update_checker.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/screens/ban_screen.dart';
+import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
+import 'package:picnic_lib/presentation/screens/pic/pic_camera_screen.dart';
+import 'package:picnic_lib/presentation/screens/portal.dart';
+import 'package:picnic_lib/presentation/screens/privacy.dart';
+import 'package:picnic_lib/presentation/screens/purchase.dart';
+import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
+import 'package:picnic_lib/presentation/screens/terms.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/community_theme.dart';
+import 'package:picnic_lib/ui/mypage_theme.dart';
+import 'package:picnic_lib/ui/novel_theme.dart';
+import 'package:picnic_lib/ui/pic_theme.dart';
+import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
-
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -170,13 +168,8 @@ class _AppState extends ConsumerState<App> {
             ? _buildNextScreen()
             : const SizedBox.shrink(),
       ),
-      localizationsDelegates: const [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: S.delegate.supportedLocales,
+      localizationsDelegates: PicnicLibL10n.localizationsDelegates,
+      supportedLocales: PicnicLibL10n.supportedLocales,
     );
   }
 
@@ -309,8 +302,8 @@ class _AppState extends ConsumerState<App> {
     }
 
     if (initState.isBanned) {
-      return MaterialApp(
-        home: const BanScreen(),
+      return const MaterialApp(
+        home: BanScreen(),
       );
     }
 
@@ -340,13 +333,8 @@ class _AppState extends ConsumerState<App> {
               theme: _getCurrentTheme(ref),
               themeMode: appSettingState.themeMode,
               locale: appSettingState.locale,
-              localizationsDelegates: const [
-                S.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: S.delegate.supportedLocales,
+              localizationsDelegates: PicnicLibL10n.localizationsDelegates,
+              supportedLocales: PicnicLibL10n.supportedLocales,
               routes: _buildRoutes(),
               onGenerateRoute: (settings) {
                 final uri = Uri.parse(settings.name ?? '');
