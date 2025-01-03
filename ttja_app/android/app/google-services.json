@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "283818621579",
+    "project_id": "ttja-prod",
+    "storage_bucket": "ttja-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283818621579:android:b7469e32aad8e9fe8cf28e",
+        "android_client_info": {
+          "package_name": "com.ttja"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw5nm42z-OK_v3fZATNEtRuPFFPdzEotQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
