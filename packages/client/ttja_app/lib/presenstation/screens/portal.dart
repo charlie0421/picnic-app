@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/common/top/top_menu.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
+import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/fixed_width_layout.dart';
@@ -100,7 +101,7 @@ class _PortalState extends ConsumerState<Portal> {
                       width: webDesignSize.width,
                       child: Column(children: [
                         if (showTopMenu) const TopMenu(),
-                        Expanded(child: currentScreen),
+                        Expanded(child: currentScreen ?? VoteHomeScreen()),
                       ]),
                     ))
                   : SizedBox(
@@ -108,7 +109,7 @@ class _PortalState extends ConsumerState<Portal> {
                       height: constraints.maxHeight,
                       child: Column(children: [
                         if (showTopMenu) const TopMenu(),
-                        Expanded(child: currentScreen),
+                        Expanded(child: currentScreen ?? VoteHomeScreen()),
                       ]),
                     );
             },

@@ -9,11 +9,6 @@ import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/reflector.dart';
-import 'package:picnic_lib/presentation/screens/community/community_home_screen.dart';
-import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
-import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
-import 'package:picnic_lib/presentation/screens/pic/pic_home_screen.dart';
-import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
 
 part '../../../generated/models/common/navigation.freezed.dart';
 
@@ -30,7 +25,7 @@ class Navigation with _$Navigation {
     @Default(0) int voteBottomNavigationIndex,
     @Default(0) int communityBottomNavigationIndex,
     @Default(0) int novelBottomNavigationIndex,
-    @Default(VoteHomeScreen()) Widget currentScreen,
+    Widget? currentScreen,
     @Default(true) bool showPortal,
     @Default(true) bool showTopMenu,
     @Default(TopRightType.common) TopRightType topRightMenu,
@@ -78,27 +73,27 @@ class Navigation with _$Navigation {
 
     switch (newPortalType) {
       case PortalType.vote:
-        newCurrentScreen = const VoteHomeScreen();
+        newCurrentScreen = votePages.first.pageWidget;
         newVoteNavigationStack = NavigationStack()
           ..push(votePages[newVoteBottomNavigationIndex].pageWidget);
         break;
       case PortalType.pic:
-        newCurrentScreen = const PicHomeScreen();
+        newCurrentScreen = picPages.first.pageWidget;
         newVoteNavigationStack = NavigationStack()
           ..push(picPages[newPicBottomNavigationIndex].pageWidget);
         break;
       case PortalType.community:
-        newCurrentScreen = const CommunityHomeScreen();
+        newCurrentScreen = communityPages.first.pageWidget;
         newVoteNavigationStack = NavigationStack()
           ..push(communityPages[newCommunityBottomNavigationIndex].pageWidget);
         break;
       case PortalType.novel:
-        newCurrentScreen = const NovelHomeScreen();
+        newCurrentScreen = novelPages.first.pageWidget;
         newVoteNavigationStack = NavigationStack()
           ..push(novelPages[newNovelBottomNavigationIndex].pageWidget);
         break;
       case PortalType.mypage:
-        newCurrentScreen = const MyPageScreen();
+        newCurrentScreen = myPages.first.pageWidget;
         newVoteNavigationStack = NavigationStack()..push(const MyPage());
         break;
     }
