@@ -21,7 +21,7 @@ mixin _$Navigation {
   int get voteBottomNavigationIndex => throw _privateConstructorUsedError;
   int get communityBottomNavigationIndex => throw _privateConstructorUsedError;
   int get novelBottomNavigationIndex => throw _privateConstructorUsedError;
-  Widget get currentScreen => throw _privateConstructorUsedError;
+  Widget? get currentScreen => throw _privateConstructorUsedError;
   bool get showPortal => throw _privateConstructorUsedError;
   bool get showTopMenu => throw _privateConstructorUsedError;
   TopRightType get topRightMenu => throw _privateConstructorUsedError;
@@ -55,7 +55,7 @@ abstract class $NavigationCopyWith<$Res> {
       int voteBottomNavigationIndex,
       int communityBottomNavigationIndex,
       int novelBottomNavigationIndex,
-      Widget currentScreen,
+      Widget? currentScreen,
       bool showPortal,
       bool showTopMenu,
       TopRightType topRightMenu,
@@ -87,7 +87,7 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
     Object? voteBottomNavigationIndex = null,
     Object? communityBottomNavigationIndex = null,
     Object? novelBottomNavigationIndex = null,
-    Object? currentScreen = null,
+    Object? currentScreen = freezed,
     Object? showPortal = null,
     Object? showTopMenu = null,
     Object? topRightMenu = null,
@@ -119,10 +119,10 @@ class _$NavigationCopyWithImpl<$Res, $Val extends Navigation>
           ? _value.novelBottomNavigationIndex
           : novelBottomNavigationIndex // ignore: cast_nullable_to_non_nullable
               as int,
-      currentScreen: null == currentScreen
+      currentScreen: freezed == currentScreen
           ? _value.currentScreen
           : currentScreen // ignore: cast_nullable_to_non_nullable
-              as Widget,
+              as Widget?,
       showPortal: null == showPortal
           ? _value.showPortal
           : showPortal // ignore: cast_nullable_to_non_nullable
@@ -177,7 +177,7 @@ abstract class _$$NavigationImplCopyWith<$Res>
       int voteBottomNavigationIndex,
       int communityBottomNavigationIndex,
       int novelBottomNavigationIndex,
-      Widget currentScreen,
+      Widget? currentScreen,
       bool showPortal,
       bool showTopMenu,
       TopRightType topRightMenu,
@@ -207,7 +207,7 @@ class __$$NavigationImplCopyWithImpl<$Res>
     Object? voteBottomNavigationIndex = null,
     Object? communityBottomNavigationIndex = null,
     Object? novelBottomNavigationIndex = null,
-    Object? currentScreen = null,
+    Object? currentScreen = freezed,
     Object? showPortal = null,
     Object? showTopMenu = null,
     Object? topRightMenu = null,
@@ -239,10 +239,10 @@ class __$$NavigationImplCopyWithImpl<$Res>
           ? _value.novelBottomNavigationIndex
           : novelBottomNavigationIndex // ignore: cast_nullable_to_non_nullable
               as int,
-      currentScreen: null == currentScreen
+      currentScreen: freezed == currentScreen
           ? _value.currentScreen
           : currentScreen // ignore: cast_nullable_to_non_nullable
-              as Widget,
+              as Widget?,
       showPortal: null == showPortal
           ? _value.showPortal
           : showPortal // ignore: cast_nullable_to_non_nullable
@@ -292,7 +292,7 @@ class _$NavigationImpl extends _Navigation {
       this.voteBottomNavigationIndex = 0,
       this.communityBottomNavigationIndex = 0,
       this.novelBottomNavigationIndex = 0,
-      this.currentScreen = const VoteHomeScreen(),
+      this.currentScreen,
       this.showPortal = true,
       this.showTopMenu = true,
       this.topRightMenu = TopRightType.common,
@@ -320,8 +320,7 @@ class _$NavigationImpl extends _Navigation {
   @JsonKey()
   final int novelBottomNavigationIndex;
   @override
-  @JsonKey()
-  final Widget currentScreen;
+  final Widget? currentScreen;
   @override
   @JsonKey()
   final bool showPortal;
@@ -427,7 +426,7 @@ abstract class _Navigation extends Navigation {
       final int voteBottomNavigationIndex,
       final int communityBottomNavigationIndex,
       final int novelBottomNavigationIndex,
-      final Widget currentScreen,
+      final Widget? currentScreen,
       final bool showPortal,
       final bool showTopMenu,
       final TopRightType topRightMenu,
@@ -450,7 +449,7 @@ abstract class _Navigation extends Navigation {
   @override
   int get novelBottomNavigationIndex;
   @override
-  Widget get currentScreen;
+  Widget? get currentScreen;
   @override
   bool get showPortal;
   @override
