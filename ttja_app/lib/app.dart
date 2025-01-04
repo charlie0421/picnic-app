@@ -32,7 +32,6 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_camera_screen.dart';
-import 'package:picnic_lib/presentation/screens/portal.dart';
 import 'package:picnic_lib/presentation/screens/privacy.dart';
 import 'package:picnic_lib/presentation/screens/purchase.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
@@ -46,6 +45,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class App extends ConsumerStatefulWidget {
