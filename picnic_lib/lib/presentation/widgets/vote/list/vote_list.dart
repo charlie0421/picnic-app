@@ -9,7 +9,6 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 class VoteList extends ConsumerStatefulWidget {
@@ -58,7 +57,7 @@ class _VoteListState extends ConsumerState<VoteList> {
           stackTrace: _pagingController.error.stackTrace,
         ),
         noItemsFoundIndicatorBuilder: (context) =>
-            VoteNoItem(status:  widget.status, context: context),
+            VoteNoItem(status: widget.status, context: context),
         itemBuilder: (context, item, index) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
