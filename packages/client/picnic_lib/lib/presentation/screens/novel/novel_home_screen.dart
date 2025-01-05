@@ -14,41 +14,40 @@ class NovelHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final showBottomNavigation = ref.watch(
         navigationInfoProvider.select((value) => value.showBottomNavigation));
-    final screenInfo = ref.watch(screenInfosProvider);
     final screenInfoAsync = ref.watch(screenInfosProvider);
 
     return screenInfoAsync.when(
-        data: (screenInfoMap) {
-      final screenInfo = screenInfoMap[PortalType.vote.name.toString()];
-      if (screenInfo == null) {
-        logger.w('Vote 화면 정보가 없습니다');
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
+      data: (screenInfoMap) {
+        final screenInfo = screenInfoMap[PortalType.vote.name.toString()];
+        if (screenInfo == null) {
+          logger.w('Vote 화면 정보가 없습니다');
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
 
-    return Stack(
-      children: [
-        const PicnicAnimatedSwitcher(),
-        if (showBottomNavigation == true)
-          Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-          child: CommonBottomNavigationBar(screenInfo: screenInfo),
+        return Stack(
+          children: [
+            const PicnicAnimatedSwitcher(),
+            if (showBottomNavigation == true)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: CommonBottomNavigationBar(screenInfo: screenInfo),
               ),
-      ],
-    );
-  },
-        loading: () => const Center(
-      child: CircularProgressIndicator(),
-    ),
-    error: (error, stack) {
-    logger.e('screenInfo 로드 중 오류 발생', error: error, stackTrace: stack);
-    return const Center(
-    child: Text('화면 정보를 불러오는데 실패했습니다'),
-    );
-    },
+          ],
+        );
+      },
+      loading: () => const Center(
+        child: CircularProgressIndicator(),
+      ),
+      error: (error, stack) {
+        logger.e('screenInfo 로드 중 오류 발생', error: error, stackTrace: stack);
+        return const Center(
+          child: Text('화면 정보를 불러오는데 실패했습니다'),
+        );
+      },
     );
   }
 }
