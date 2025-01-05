@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_lib/bottom_navigation_menu.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/extensions/portal_type_extension.dart';
@@ -71,41 +70,49 @@ class Navigation with _$Navigation {
     Widget newCurrentScreen;
     NavigationStack newVoteNavigationStack;
 
-    switch (newPortalType) {
-      case PortalType.vote:
-        newCurrentScreen = votePages.first.pageWidget;
-        newVoteNavigationStack = NavigationStack()
-          ..push(votePages[newVoteBottomNavigationIndex].pageWidget);
-        break;
-      case PortalType.pic:
-        newCurrentScreen = picPages.first.pageWidget;
-        newVoteNavigationStack = NavigationStack()
-          ..push(picPages[newPicBottomNavigationIndex].pageWidget);
-        break;
-      case PortalType.community:
-        newCurrentScreen = communityPages.first.pageWidget;
-        newVoteNavigationStack = NavigationStack()
-          ..push(communityPages[newCommunityBottomNavigationIndex].pageWidget);
-        break;
-      case PortalType.novel:
-        newCurrentScreen = novelPages.first.pageWidget;
-        newVoteNavigationStack = NavigationStack()
-          ..push(novelPages[newNovelBottomNavigationIndex].pageWidget);
-        break;
-      case PortalType.mypage:
-        newCurrentScreen = myPages.first.pageWidget;
-        newVoteNavigationStack = NavigationStack()..push(const MyPage());
-        break;
-    }
+    // switch (newPortalType) {
+    //   case PortalType.vote:
+    //     newCurrentScreen = votePages.first.pageWidget;
+    //     newVoteNavigationStack = NavigationStack()
+    //       ..push(votePages[newVoteBottomNavigationIndex].pageWidget);
+    //     break;
+    //   case PortalType.pic:
+    //     newCurrentScreen = picPages.first.pageWidget;
+    //     newVoteNavigationStack = NavigationStack()
+    //       ..push(picPages[newPicBottomNavigationIndex].pageWidget);
+    //     break;
+    //   case PortalType.community:
+    //     newCurrentScreen = communityPages.first.pageWidget;
+    //     newVoteNavigationStack = NavigationStack()
+    //       ..push(communityPages[newCommunityBottomNavigationIndex].pageWidget);
+    //     break;
+    //   case PortalType.novel:
+    //     newCurrentScreen = novelPages.first.pageWidget;
+    //     newVoteNavigationStack = NavigationStack()
+    //       ..push(novelPages[newNovelBottomNavigationIndex].pageWidget);
+    //     break;
+    //   case PortalType.mypage:
+    //     newCurrentScreen = myPages.first.pageWidget;
+    //     newVoteNavigationStack = NavigationStack()..push(const MyPage());
+    //     break;
+    // }
 
-    return copyWith(
+    // return copyWith(
+    //   portalType: newPortalType,
+    //   picBottomNavigationIndex: newPicBottomNavigationIndex,
+    //   voteBottomNavigationIndex: newVoteBottomNavigationIndex,
+    //   communityBottomNavigationIndex: newCommunityBottomNavigationIndex,
+    //   novelBottomNavigationIndex: newNovelBottomNavigationIndex,
+    //   currentScreen: newCurrentScreen,
+    //   voteNavigationStack: newVoteNavigationStack,
+    // );
+
+    return Navigation(
       portalType: newPortalType,
       picBottomNavigationIndex: newPicBottomNavigationIndex,
       voteBottomNavigationIndex: newVoteBottomNavigationIndex,
       communityBottomNavigationIndex: newCommunityBottomNavigationIndex,
       novelBottomNavigationIndex: newNovelBottomNavigationIndex,
-      currentScreen: newCurrentScreen,
-      voteNavigationStack: newVoteNavigationStack,
     );
   }
 

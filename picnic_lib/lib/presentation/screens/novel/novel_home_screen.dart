@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/bottom_navigation_menu.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/bottom/common_bottom_navigation_bar.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 
@@ -12,6 +14,18 @@ class NovelHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final showBottomNavigation = ref.watch(
         navigationInfoProvider.select((value) => value.showBottomNavigation));
+    final screenInfo = ref.watch(screenInfosProvider);
+    final screenInfoAsync = ref.watch(screenInfosProvider);
+
+    return screenInfoAsync.when(
+        data: (screenInfoMap) {
+      final screenInfo = screenInfoMap[PortalType.vote.name.toString()];
+      if (screenInfo == null) {
+        logger.w('Vote 화면 정보가 없습니다');
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
 
     return Stack(
       children: [
@@ -21,10 +35,20 @@ class NovelHomeScreen extends ConsumerWidget {
               bottom: 0,
               left: 0,
               right: 0,
-              child: CommonBottomNavigationBar(
-                screenInfo: novelScreenInfo,
-              )),
+          child: CommonBottomNavigationBar(screenInfo: screenInfo),
+              ),
       ],
+    );
+  },
+        loading: () => const Center(
+      child: CircularProgressIndicator(),
+    ),
+    error: (error, stack) {
+    logger.e('screenInfo 로드 중 오류 발생', error: error, stackTrace: stack);
+    return const Center(
+    child: Text('화면 정보를 불러오는데 실패했습니다'),
+    );
+    },
     );
   }
 }

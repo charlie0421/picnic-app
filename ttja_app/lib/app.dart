@@ -45,8 +45,10 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:ttja_app/bottom_navigation_menu.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -157,6 +159,17 @@ class _AppState extends ConsumerState<App> {
   Widget build(BuildContext context) {
     final initState = ref.watch(appInitializationProvider);
     logger.i('initState: $initState');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final screenInfoMap = {
+        PortalType.vote.name.toString(): voteScreenInfo,
+        PortalType.pic.name.toString(): picScreenInfo,
+        PortalType.community.name.toString(): communityScreenInfo,
+        PortalType.novel.name.toString(): novelScreenInfo,
+      };
+      ref.read(screenInfosProvider.notifier).setScreenInfoMap(screenInfoMap);
+    });
+    logger.d('screenInfoMap 초기화 완료');
+
     return MaterialApp(
       home: FlutterSplashScreen.fadeIn(
         useImmersiveMode: true,
@@ -177,9 +190,10 @@ class _AppState extends ConsumerState<App> {
     try {
       logger.i('앱 초기화 시작');
 
+      // 다른 초기화 작업들...
       await precacheImage(const AssetImage("assets/splash.webp"), context);
-      await Future.delayed(
-          const Duration(milliseconds: 2000)); // 최소 스플래시 표시 시간 보장
+      await Future.delayed(const Duration(milliseconds: 2000));
+
       ref.read(appSettingProvider.notifier);
       ref
           .read(globalMediaQueryProvider.notifier)
@@ -219,6 +233,7 @@ class _AppState extends ConsumerState<App> {
 
       if (!mounted) return;
 
+      // 모든 초기화가 완료된 후에 상태 업데이트
       ref.read(appInitializationProvider.notifier).updateState(
             isInitialized: true,
           );
@@ -292,6 +307,7 @@ class _AppState extends ConsumerState<App> {
 
   Widget _buildNextScreen() {
     final initState = ref.watch(appInitializationProvider);
+
 
     if (!initState.hasNetwork) {
       return MaterialApp(

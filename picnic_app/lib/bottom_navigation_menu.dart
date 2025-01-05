@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
+import 'package:picnic_lib/data/models/navigator/bottom_navigation_item.dart';
+import 'package:picnic_lib/data/models/navigator/screen_info.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
@@ -45,7 +47,7 @@ List<BottomNavigationItem> votePages = [
     pageWidget: VoteHomePage(),
     needLogin: false,
   ),
-  const BottomNavigationItem(
+  BottomNavigationItem(
     title: 'nav_picchart',
     assetPath: 'assets/icons/bottom/pic_chart.svg',
     index: 1,
@@ -142,30 +144,3 @@ List<BottomNavigationItem> myPages = [
     needLogin: true,
   ),
 ];
-
-class BottomNavigationItem {
-  final String title;
-  final String assetPath;
-  final int index;
-  final Widget pageWidget;
-  final bool needLogin;
-
-  const BottomNavigationItem(
-      {required this.title,
-      required this.assetPath,
-      required this.index,
-      required this.pageWidget,
-      required this.needLogin});
-}
-
-class ScreenInfo {
-  PortalType type;
-  Color color;
-  List<BottomNavigationItem> pages;
-
-  ScreenInfo({
-    required this.type,
-    required this.color,
-    required this.pages,
-  });
-}
