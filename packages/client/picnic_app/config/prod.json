@@ -12,7 +12,7 @@
     "ENABLE_SENTRY": true,
     "SENTRY_APP_DSN": "https://2a10b0168b427bbdc6eb3a1f16a1f2a2@o4507695222685696.ingest.us.sentry.io/4507695242739712",
     "SENTRY_WEB_DSN": "https://9125a97b1328d1c4b578b69a1a4f4774@o4507695222685696.ingest.us.sentry.io/4507964278046720",
-    "CDN_URL": "https://cdn.picnic.fan",
+    "CDN_URL": "https://cdn.picnic.fan/picnic",
     "YOUTUBE_API_KEY": "AIzaSyCaLg2a8kx1-JYh878enFIqyvVH5VNqYxk",
     "AWS_ACCESS_KEY_ID": "AKIA4MTWN2EOHQLM2CVX",
     "AWS_SECRET_ACCESS_KEY": "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",

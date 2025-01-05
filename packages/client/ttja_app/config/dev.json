@@ -12,7 +12,7 @@
     "ENABLE_SENTRY": true,
     "SENTRY_APP_DSN": "https://6f60c3c4856195131f497118679f9ab6@o4507695222685696.ingest.us.sentry.io/4508580846764032",
     "SENTRY_WEB_DSN": "https://2a9000d01c4bdf373f83044c325539ff@o4507695222685696.ingest.us.sentry.io/4508580849319936",
-    "CDN_URL": "",
+    "CDN_URL": "https://ttja-cdn.picnic.fan",
     "YOUTUBE_API_KEY": "",
     "AWS_ACCESS_KEY_ID": "AKIA4MTWN2EOHQLM2CVX",
     "AWS_SECRET_ACCESS_KEY": "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",

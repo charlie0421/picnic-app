@@ -22,10 +22,41 @@ const s3Client = new S3Client({
 });
 
 const CONFIG = {
-    BUCKET: "picnic-prod-cdn",
+    BUCKETS: {
+        'picnic': {
+            source: 'picnic-prod-cdn',
+            destination: 'picnic-prod-cdn'
+        },
+        'ttja': {
+            source: 'ttja-prod-cdn',
+            destination: 'ttja-prod-cdn'
+        }
+    },
+    DEFAULT_SERVICE: 'picnic',
     DEFAULT_QUALITY: 80,
     SUPPORTED_FORMATS: ['jpeg', 'webp', 'png', 'gif'],
     MAX_BUFFER_SIZE: 50 * 1024 * 1024
+};
+
+const getBucketForRequest = (uri) => {
+    let service = CONFIG.DEFAULT_SERVICE;
+    let pathPrefix = '/picnic/';
+
+    const pathParts = uri.split('/').filter(Boolean);
+    if (pathParts.length > 0) {
+        const firstPart = pathParts[0];
+        if (CONFIG.BUCKETS[firstPart]) {
+            service = firstPart;
+            pathPrefix = `/${firstPart}/`;
+        }
+    }
+
+    return {
+        source: CONFIG.BUCKETS[service].source,
+        destination: CONFIG.BUCKETS[service].destination,
+        pathPrefix: pathPrefix,
+        service: service
+    };
 };
 
 const parseQueryParams = (qs) => {
@@ -38,10 +69,10 @@ const parseQueryParams = (qs) => {
     };
 };
 
-const fetchOriginalImage = async (key) => {
+const fetchOriginalImage = async (key, bucket) => {
     try {
         const command = new GetObjectCommand({
-            Bucket: CONFIG.BUCKET,
+            Bucket: bucket,
             Key: key
         });
         const originalImage = await s3Client.send(command);
@@ -116,7 +147,7 @@ const generateTransformedKey = (originalKey, { width, height, format, quality })
     return `cache/${parsedPath.dir}/${parsedPath.name}_w${width || 'auto'}_h${height || 'auto'}_f${extension}_q${quality}.${extension}`;
 };
 
-const uploadProcessedImage = async (processedImage, key, outputFormat) => {
+const uploadProcessedImage = async (processedImage, key, outputFormat, bucket) => {
     try {
         const resizedImageBuffer = await processedImage.toBuffer();
 
@@ -125,7 +156,7 @@ const uploadProcessedImage = async (processedImage, key, outputFormat) => {
         }
 
         await s3Client.send(new PutObjectCommand({
-            Bucket: CONFIG.BUCKET,
+            Bucket: bucket,
             Key: key,
             Body: resizedImageBuffer,
             ContentType: `image/${outputFormat}`,
@@ -154,18 +185,26 @@ exports.handler = async (event) => {
     };
 
     try {
-        const originalKey = uri.startsWith('/') ? uri.slice(1) : uri;
-        const originalImage = await fetchOriginalImage(originalKey);
+        const bucketConfig = getBucketForRequest(uri);
+
+        // 서비스 prefix를 제거하고 실제 이미지 경로 추출
+        let originalKey = uri;
+        if (uri.startsWith(bucketConfig.pathPrefix)) {
+            originalKey = uri.slice(bucketConfig.pathPrefix.length);
+        } else if (uri.startsWith('/')) {
+            originalKey = uri.slice(1);
+        }
+
+        const originalImage = await fetchOriginalImage(originalKey, bucketConfig.source);
         const imageBuffer = await originalImage.Body.transformToByteArray();
 
         // GIF 체크
         const isGif = imageBuffer.toString('ascii', 0, 3) === 'GIF';
         if (isGif) {
-            // GIF는 원본 그대로 cache 폴더에 복사
             const transformedKey = `cache/${originalKey}`;
 
             await s3Client.send(new PutObjectCommand({
-                Bucket: CONFIG.BUCKET,
+                Bucket: bucketConfig.destination,
                 Key: transformedKey,
                 Body: imageBuffer,
                 ContentType: 'image/gif',
@@ -177,12 +216,14 @@ exports.handler = async (event) => {
                 status: "302",
                 statusDescription: "Found",
                 headers: {
-                    location: [{ key: "Location", value: `/${transformedKey}` }]
+                    location: [{
+                        key: "Location",
+                        value: `${bucketConfig.pathPrefix}${transformedKey}`
+                    }]
                 }
             };
         }
 
-        // GIF가 아닌 경우만 변환 파라미터 적용
         const params = parseQueryParams(qs);
         if (!params.width && !params.height && !params.format && !params.quality) {
             logger.log('No transformation requested, returning original response');
@@ -195,14 +236,17 @@ exports.handler = async (event) => {
             format: outputFormat
         });
 
-        await uploadProcessedImage(processedImage, transformedKey, outputFormat);
+        await uploadProcessedImage(processedImage, transformedKey, outputFormat, bucketConfig.destination);
 
         logger.log('Redirecting to processed image', { transformedKey });
         return {
             status: "302",
             statusDescription: "Found",
             headers: {
-                location: [{ key: "Location", value: `/${transformedKey}` }]
+                location: [{
+                    key: "Location",
+                    value: `${bucketConfig.pathPrefix}${transformedKey}`
+                }]
             }
         };
 
