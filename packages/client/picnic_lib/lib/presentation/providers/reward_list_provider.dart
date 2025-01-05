@@ -16,6 +16,7 @@ class AsyncRewardList extends _$AsyncRewardList {
         .from('reward')
         .select(
             'id, title, thumbnail, overview_images, location, size_guide, size_guide_images')
+        .filter('deleted_at', 'is', null)
         .order('order', ascending: true);
 
     return List<RewardModel>.from(response.map((e) => RewardModel.fromJson(e)));
