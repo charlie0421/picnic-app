@@ -8,6 +8,7 @@ import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
@@ -56,7 +57,8 @@ class _VoteListState extends ConsumerState<VoteList> {
           retryFunction: () => _pagingController.refresh(),
           stackTrace: _pagingController.error.stackTrace,
         ),
-        noItemsFoundIndicatorBuilder: (context) => _buildNoItemsFound(context),
+        noItemsFoundIndicatorBuilder: (context) =>
+            VoteNoItem(status:  widget.status, context: context),
         itemBuilder: (context, item, index) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -72,29 +74,6 @@ class _VoteListState extends ConsumerState<VoteList> {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildNoItemsFound(BuildContext context) {
-    String message;
-    switch (widget.status) {
-      case VoteStatus.active:
-        message = S.of(context).message_noitem_vote_active;
-        break;
-      case VoteStatus.end:
-        message = S.of(context).message_noitem_vote_end;
-        break;
-      case VoteStatus.upcoming:
-        message = S.of(context).message_noitem_vote_upcoming;
-        break;
-      default:
-        return Container();
-    }
-    return Container(
-      height: 100,
-      alignment: Alignment.center,
-      child: Text(message,
-          style: getTextStyle(AppTypo.caption12M, AppColors.grey500)),
     );
   }
 

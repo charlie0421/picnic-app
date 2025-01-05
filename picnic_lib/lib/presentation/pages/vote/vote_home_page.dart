@@ -16,6 +16,7 @@ import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -121,6 +122,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
           builderDelegate: PagedChildBuilderDelegate<VoteModel>(
             firstPageProgressIndicatorBuilder: (context) =>
                 SizedBox(height: 400, child: buildLoadingOverlay()),
+            noItemsFoundIndicatorBuilder: (context) =>
+                VoteNoItem(status: VoteStatus.active, context: context),
             itemBuilder: (context, vote, index) {
               final now = DateTime.now().toUtc();
               final status = vote.startAt!.isAfter(now)
