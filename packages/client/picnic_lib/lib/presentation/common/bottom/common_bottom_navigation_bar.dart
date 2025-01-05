@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/navigator/screen_info.dart';
-import 'package:picnic_lib/presentation/widgets/navigator/bottom/menu_item.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/presentation/widgets/navigator/bottom/menu_item.dart';
 
 class CommonBottomNavigationBar extends ConsumerStatefulWidget {
   final ScreenInfo screenInfo;

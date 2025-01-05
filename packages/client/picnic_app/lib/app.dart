@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_app/presentation/screens/portal.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
@@ -26,6 +27,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
 import 'package:picnic_lib/presentation/providers/update_checker.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -157,6 +159,17 @@ class _AppState extends ConsumerState<App> {
   Widget build(BuildContext context) {
     final initState = ref.watch(appInitializationProvider);
     logger.i('initState: $initState');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final screenInfoMap = {
+        PortalType.vote.name.toString(): voteScreenInfo,
+        PortalType.pic.name.toString(): picScreenInfo,
+        PortalType.community.name.toString(): communityScreenInfo,
+        PortalType.novel.name.toString(): novelScreenInfo,
+      };
+      ref.read(screenInfosProvider.notifier).setScreenInfoMap(screenInfoMap);
+    });
+    logger.d('screenInfoMap 초기화 완료');
+
     return MaterialApp(
       home: FlutterSplashScreen.fadeIn(
         useImmersiveMode: true,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:picnic_lib/data/navigator/bottom_navigation_item.dart';
-import 'package:picnic_lib/data/navigator/screen_info.dart';
+import 'package:picnic_lib/data/models/navigator/bottom_navigation_item.dart';
+import 'package:picnic_lib/data/models/navigator/screen_info.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
@@ -10,7 +10,6 @@ import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/library_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/pic_chart_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_media_list_page.dart';
@@ -48,23 +47,16 @@ List<BottomNavigationItem> votePages = [
     needLogin: false,
   ),
   const BottomNavigationItem(
-    title: 'nav_picchart',
-    assetPath: 'assets/icons/bottom/pic_chart.svg',
-    index: 1,
-    pageWidget: PicChartPage(),
-    needLogin: false,
-  ),
-  const BottomNavigationItem(
     title: 'nav_media',
     assetPath: 'assets/icons/bottom/media.svg',
-    index: 2,
+    index: 1,
     pageWidget: VoteMediaListPage(),
     needLogin: false,
   ),
   const BottomNavigationItem(
     title: 'nav_store',
     assetPath: 'assets/icons/bottom/store.svg',
-    index: 3,
+    index: 2,
     pageWidget: StorePage(),
     needLogin: false,
   ),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/bottom_navigation_menu.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/navigation_stack.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/screens/community/community_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_home_screen.dart';
@@ -33,29 +33,53 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setPortal(PortalType portalType) {
+    final votePages = ref
+        .read(screenInfosProvider)
+        .value?[PortalType.vote.name]
+        ?.pages;
+    final picPages = ref
+        .read(screenInfosProvider)
+    .value?[PortalType.pic.name]
+
+        ?.pages;
+    final communityPages = ref
+        .read(screenInfosProvider)
+    .value?[PortalType.community.name]
+        ?.pages;
+    final novelPages = ref
+        .read(screenInfosProvider)
+    .value?[PortalType.novel.name]
+        ?.pages;
+
     Widget currentScreen;
     Widget currentPage;
     switch (portalType) {
       case PortalType.vote:
         currentScreen = const VoteHomeScreen();
-        currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
+        currentPage = votePages?[state.voteBottomNavigationIndex].pageWidget ??
+            const SizedBox.shrink();
         break;
       case PortalType.pic:
         currentScreen = const PicHomeScreen();
-        currentPage = picPages[state.picBottomNavigationIndex].pageWidget;
+        currentPage = picPages?[state.picBottomNavigationIndex].pageWidget ??
+            const SizedBox.shrink();
         break;
       case PortalType.community:
         currentScreen = const CommunityHomeScreen();
         currentPage =
-            communityPages[state.communityBottomNavigationIndex].pageWidget;
+            communityPages?[state.communityBottomNavigationIndex].pageWidget ??
+                const SizedBox.shrink();
         break;
       case PortalType.novel:
         currentScreen = const NovelHomeScreen();
-        currentPage = novelPages[state.novelBottomNavigationIndex].pageWidget;
+        currentPage =
+            novelPages?[state.novelBottomNavigationIndex].pageWidget ??
+                const SizedBox.shrink();
         break;
       default:
         currentScreen = const VoteHomeScreen();
-        currentPage = votePages[state.voteBottomNavigationIndex].pageWidget;
+        currentPage = votePages?[state.voteBottomNavigationIndex].pageWidget ??
+            const SizedBox.shrink();
     }
 
     state = state.copyWith(
@@ -115,36 +139,48 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setPicBottomNavigationIndex(int index) {
+    final picPages = ref
+        .read(screenInfosProvider).value?[PortalType.pic.name]
+        ?.pages;
     state = state.copyWith(
       picBottomNavigationIndex: index,
     );
     state = state.copyWith(
-      voteNavigationStack: NavigationStack()..push(picPages[index].pageWidget),
+      voteNavigationStack: NavigationStack()..push(picPages![index].pageWidget),
     );
     globalStorage.saveData('picBottomNavigationIndex', index.toString());
   }
 
   setVoteBottomNavigationIndex(int index) {
+    final votePages = ref
+        .read(screenInfosProvider).value?[PortalType.vote.name]
+        ?.pages;
     state = state.copyWith(
         voteBottomNavigationIndex: index,
         voteNavigationStack: NavigationStack()
-          ..push(votePages[index].pageWidget));
+          ..push(votePages![index].pageWidget));
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
   }
 
   setCommunityBottomNavigationIndex(int index) {
+    final communityPages = ref
+        .read(screenInfosProvider).value?[PortalType.community.name]
+        ?.pages;
     state = state.copyWith(
         communityBottomNavigationIndex: index,
         voteNavigationStack: NavigationStack()
-          ..push(communityPages[index].pageWidget));
+          ..push(communityPages![index].pageWidget));
     globalStorage.saveData('communityBottomNavigationIndex', index.toString());
   }
 
   setNovelBottomNavigationIndex(int index) {
+    final novelPages = ref
+        .read(screenInfosProvider).value?[PortalType.novel.name]
+        ?.pages;
     state = state.copyWith(
         novelBottomNavigationIndex: index,
         voteNavigationStack: NavigationStack()
-          ..push(novelPages[index].pageWidget));
+          ..push(novelPages![index].pageWidget));
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 
