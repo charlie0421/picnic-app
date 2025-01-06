@@ -33,23 +33,14 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setPortal(PortalType portalType) {
-    final votePages = ref
-        .read(screenInfosProvider)
-        .value?[PortalType.vote.name]
-        ?.pages;
-    final picPages = ref
-        .read(screenInfosProvider)
-    .value?[PortalType.pic.name]
-
-        ?.pages;
-    final communityPages = ref
-        .read(screenInfosProvider)
-    .value?[PortalType.community.name]
-        ?.pages;
-    final novelPages = ref
-        .read(screenInfosProvider)
-    .value?[PortalType.novel.name]
-        ?.pages;
+    final votePages =
+        ref.read(screenInfosProvider).value?[portalType.name]?.pages;
+    final picPages =
+        ref.read(screenInfosProvider).value?[portalType.name]?.pages;
+    final communityPages =
+        ref.read(screenInfosProvider).value?[portalType.name]?.pages;
+    final novelPages =
+        ref.read(screenInfosProvider).value?[portalType.name]?.pages;
 
     Widget currentScreen;
     Widget currentPage;
@@ -139,9 +130,8 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setPicBottomNavigationIndex(int index) {
-    final picPages = ref
-        .read(screenInfosProvider).value?[PortalType.pic.name]
-        ?.pages;
+    final picPages =
+        ref.read(screenInfosProvider).value?[PortalType.pic.name]?.pages;
     state = state.copyWith(
       picBottomNavigationIndex: index,
     );
@@ -152,9 +142,8 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setVoteBottomNavigationIndex(int index) {
-    final votePages = ref
-        .read(screenInfosProvider).value?[PortalType.vote.name]
-        ?.pages;
+    final votePages =
+        ref.read(screenInfosProvider).value?[PortalType.vote.name]?.pages;
     state = state.copyWith(
         voteBottomNavigationIndex: index,
         voteNavigationStack: NavigationStack()
@@ -163,9 +152,8 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setCommunityBottomNavigationIndex(int index) {
-    final communityPages = ref
-        .read(screenInfosProvider).value?[PortalType.community.name]
-        ?.pages;
+    final communityPages =
+        ref.read(screenInfosProvider).value?[PortalType.community.name]?.pages;
     state = state.copyWith(
         communityBottomNavigationIndex: index,
         voteNavigationStack: NavigationStack()
@@ -174,9 +162,8 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setNovelBottomNavigationIndex(int index) {
-    final novelPages = ref
-        .read(screenInfosProvider).value?[PortalType.novel.name]
-        ?.pages;
+    final novelPages =
+        ref.read(screenInfosProvider).value?[PortalType.novel.name]?.pages;
     state = state.copyWith(
         novelBottomNavigationIndex: index,
         voteNavigationStack: NavigationStack()

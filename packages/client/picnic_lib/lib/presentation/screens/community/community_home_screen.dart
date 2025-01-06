@@ -92,7 +92,7 @@ class _CommunityHomeScreenState extends ConsumerState<CommunityHomeScreen> {
                       bottom: getBottomPadding(context),
                       left: 0,
                       right: 0,
-                      child: CommonBottomNavigationBar(screenInfo: screenInfo),
+                      child: CommonBottomNavigationBar(),
                     ),
                 ],
               ),
