@@ -5,14 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/config/dev.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/config/dev.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/config/local.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/config/local.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/config/prod.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/config/prod.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/config/dev.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/config/dev.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/config/local.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/config/local.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/config/prod.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/config/prod.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/vote_no_item.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/vote_no_item.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resize_image_lambda/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/resize_image_lambda/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,26 +47,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Node.js.index.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "production",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/charlie.hyun/Repositories/picnic/packages/serverless",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "advanced.settings",
-    "show.migrate.to.gradle.popup": "false",
-    "ts.external.directory.path": "/Users/charlie.hyun/Repositories/picnic/packages/serverless/supabase-on-aws/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Node.js.index.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;production&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/charlie.hyun/Repositories/picnic/packages/serverless&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/charlie.hyun/Repositories/picnic/packages/serverless/supabase-on-aws/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -106,6 +102,7 @@
       <workItem from="1732145004357" duration="599000" />
       <workItem from="1732153993144" duration="464000" />
       <workItem from="1736093054502" duration="3219000" />
+      <workItem from="1736138265530" duration="1130000" />
     </task>
     <servers />
   </component>
