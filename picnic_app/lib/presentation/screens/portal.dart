@@ -17,6 +17,7 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/fixed_width_layout.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:picnic_lib/presentation/common/bottom/common_bottom_navigation_bar.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';

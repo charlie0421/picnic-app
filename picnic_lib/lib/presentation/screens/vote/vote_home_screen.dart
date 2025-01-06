@@ -89,7 +89,7 @@ class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
                     bottom: getBottomPadding(context),
                     left: 0,
                     right: 0,
-                    child: CommonBottomNavigationBar(screenInfo: screenInfo),
+                    child: CommonBottomNavigationBar(),
                   ),
               ],
             ),
