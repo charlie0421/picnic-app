@@ -17,7 +17,6 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/fixed_width_layout.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
-import 'package:picnic_lib/presentation/common/bottom/common_bottom_navigation_bar.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';
@@ -144,7 +143,8 @@ class _PortalState extends ConsumerState<Portal> {
                       height: constraints.maxHeight,
                       child: Column(children: [
                         if (showTopMenu) const TopMenu(),
-                        Expanded(child: currentScreen ?? const VoteHomeScreen())
+                        Expanded(
+                            child: currentScreen ?? const VoteHomeScreen()),
                       ]),
                     );
             },

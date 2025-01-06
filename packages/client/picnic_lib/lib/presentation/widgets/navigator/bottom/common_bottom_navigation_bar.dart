@@ -1,34 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/data/models/navigator/screen_info.dart';
-import 'package:picnic_lib/presentation/widgets/navigator/bottom/menu_item.dart';
-import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/presentation/widgets/navigator/bottom/menu_item.dart';
 
-class CommonBottomNavigationBar extends ConsumerStatefulWidget {
-  final ScreenInfo screenInfo;
-
-  const CommonBottomNavigationBar({super.key, required this.screenInfo});
+class CommonBottomNavigationBar extends ConsumerWidget {
+  const CommonBottomNavigationBar({super.key});
 
   @override
-  ConsumerState<CommonBottomNavigationBar> createState() =>
-      _CommonBottomNavigationBarState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final navigationInfo = ref.watch(navigationInfoProvider);
+    final screenInfoMap = ref.watch(screenInfosProvider).value ?? {};
 
-class _CommonBottomNavigationBarState
-    extends ConsumerState<CommonBottomNavigationBar> {
-  @override
-  Widget build(BuildContext context) {
-    ref.watch(appSettingProvider.select((value) => value.locale));
+    final screenInfo = screenInfoMap[navigationInfo.portalType.name.toString()];
+
+    if (screenInfo == null) {
+      return const SizedBox();
+    }
+
     final userInfoState = ref.watch(userInfoProvider);
+
     return userInfoState.when(
       data: (data) {
         return Container(
           margin: EdgeInsets.only(
-            left: 16.cw,
-            right: 16.cw,
+            left: 16.w,
+            right: 16.w,
             bottom: 0,
           ),
           decoration: const BoxDecoration(
@@ -45,16 +44,16 @@ class _CommonBottomNavigationBarState
           ),
           child: Container(
             height: 52,
-            padding: EdgeInsets.symmetric(horizontal: 24.cw),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             decoration: ShapeDecoration(
-              color: widget.screenInfo.color,
+              color: screenInfo.color,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               shadows: [
                 BoxShadow(
                   color: const Color(0x3F000000),
-                  blurRadius: 8.r,
+                  blurRadius: 8,
                   offset: const Offset(0, 0),
                   spreadRadius: 0,
                 )
@@ -62,7 +61,7 @@ class _CommonBottomNavigationBarState
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: widget.screenInfo.pages
+              children: screenInfo.pages
                   .map((e) => MenuItem(
                         title: e.title,
                         assetPath: e.assetPath,
@@ -76,8 +75,6 @@ class _CommonBottomNavigationBarState
       },
       loading: () => const SizedBox(),
       error: (e, s) {
-        // showSimpleDialog(context: context, content: e.toString());
-        // showSimpleDialog(context: context, content: s.toString());
         return const SizedBox();
       },
     );

@@ -155,7 +155,7 @@ class _AppState extends ConsumerState<App> {
       } else {
         // Android 11 이상
         SystemChrome.setEnabledSystemUIMode(
-          SystemUiMode.edgeToEdge,
+          SystemUiMode.manual,
         );
       }
     }
