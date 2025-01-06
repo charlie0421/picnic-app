@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteNoItem extends StatelessWidget {

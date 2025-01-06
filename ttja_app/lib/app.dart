@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:app_links/app_links.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -58,6 +57,8 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
+  late Future<void> _initializationFuture;
+  bool _didInitialize = false;
   Widget? initScreen;
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer =
@@ -79,11 +80,21 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
+    _initializationFuture = Future.value();
 
     if (UniversalPlatform.isMobile) {
       _setupAppLinksListener();
       _setupSupabaseAuthListener();
       _checkAndroidVersion();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInitialize) {
+      _didInitialize = true;
+      _initializationFuture = _initializeAppWithSplash();
     }
   }
 
@@ -159,6 +170,7 @@ class _AppState extends ConsumerState<App> {
   Widget build(BuildContext context) {
     final initState = ref.watch(appInitializationProvider);
     logger.i('initState: $initState');
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final screenInfoMap = {
         PortalType.vote.name.toString(): voteScreenInfo,
@@ -168,32 +180,41 @@ class _AppState extends ConsumerState<App> {
       };
       ref.read(screenInfosProvider.notifier).setScreenInfoMap(screenInfoMap);
     });
-    logger.d('screenInfoMap 초기화 완료');
 
     return MaterialApp(
-      home: FlutterSplashScreen.fadeIn(
-        useImmersiveMode: true,
-        duration: const Duration(milliseconds: 3000),
-        animationDuration: const Duration(milliseconds: 1500),
-        onInit: _initializeApp,
-        childWidget: OptimizedSplashImage(ref: ref),
-        nextScreen: initState.isInitialized
-            ? _buildNextScreen()
-            : const SizedBox.shrink(),
+      home: FutureBuilder(
+        future: _initializationFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return initState.isInitialized
+                ? _buildNextScreen()
+                : const Center(child: CircularProgressIndicator());
+          }
+
+          return AnimatedOpacity(
+            opacity: 1.0,
+            duration: const Duration(milliseconds: 1500),
+            child: OptimizedSplashImage(ref: ref),
+          );
+        },
       ),
       localizationsDelegates: PicnicLibL10n.localizationsDelegates,
       supportedLocales: PicnicLibL10n.supportedLocales,
     );
   }
 
-  void _initializeApp() async {
+  Future<void> _initializeAppWithSplash() async {
+    await Future.wait([
+      _initializeApp(),
+      Future.delayed(const Duration(milliseconds: 3000)),
+    ]);
+  }
+
+  Future<void> _initializeApp() async {
     try {
       logger.i('앱 초기화 시작');
 
-      // 다른 초기화 작업들...
       await precacheImage(const AssetImage("assets/splash.webp"), context);
-      await Future.delayed(const Duration(milliseconds: 2000));
-
       ref.read(appSettingProvider.notifier);
       ref
           .read(globalMediaQueryProvider.notifier)
@@ -233,7 +254,6 @@ class _AppState extends ConsumerState<App> {
 
       if (!mounted) return;
 
-      // 모든 초기화가 완료된 후에 상태 업데이트
       ref.read(appInitializationProvider.notifier).updateState(
             isInitialized: true,
           );
@@ -307,7 +327,6 @@ class _AppState extends ConsumerState<App> {
 
   Widget _buildNextScreen() {
     final initState = ref.watch(appInitializationProvider);
-
 
     if (!initState.hasNetwork) {
       return MaterialApp(
