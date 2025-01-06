@@ -2,7 +2,7 @@ name: picnic_app
 description: "Picnic App"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.1.16+111605
+version: 1.1.17+111701
 
 environment:
     sdk: '>=3.3.1 <4.0.0'
