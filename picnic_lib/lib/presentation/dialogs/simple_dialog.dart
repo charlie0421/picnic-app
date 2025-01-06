@@ -58,7 +58,7 @@ void showSimpleDialog({
     context: context,
     barrierDismissible: true,
     barrierLabel: '',
-    useRootNavigator: false,
+    useRootNavigator: true,
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, animation, secondaryAnimation) {
       return Container();
