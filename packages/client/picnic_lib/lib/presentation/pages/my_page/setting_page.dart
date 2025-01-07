@@ -61,7 +61,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
       ref
           .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: S.of(context).mypage_setting);
+          .setPageTitle(pageTitle: S.of(context).mypage_setting);
     });
   }
 
@@ -198,7 +198,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       );
                     }).toList(),
                     onChanged: (value) {
-                      if ( value == null) {
+                      if (value == null) {
                         return;
                       }
                       logger.d('onChanged: $value');

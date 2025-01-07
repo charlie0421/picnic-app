@@ -125,8 +125,12 @@ class NavigationInfo extends _$NavigationInfo {
     );
   }
 
-  void setMyPageTitle({required String pageTitle}) {
+  void setPageTitle({required String pageTitle}) {
     state = state.copyWith(pageTitle: pageTitle);
+  }
+
+  void setMyPageTitle({required String pageTitle}) {
+    state = state.copyWith(myPageTitle: pageTitle);
   }
 
   setPicBottomNavigationIndex(int index) {
