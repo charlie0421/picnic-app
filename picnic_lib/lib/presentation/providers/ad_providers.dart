@@ -71,11 +71,6 @@ class RewardedAds extends _$RewardedAds {
         case AdResult.completed:
           showSimpleDialog(
             content: Intl.message('text_dialog_star_candy_received'),
-            onOk: () {
-              if (!context.mounted) return;
-              Navigator.of(context).pop();
-              ref.read(userInfoProvider.notifier).getUserProfiles();
-            },
           );
 
           Future.delayed(const Duration(seconds: 2), () {
