@@ -103,15 +103,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
   Widget _buildSwiper() {
     return Swiper(
-      itemCount: 3,
+      itemCount: 2,
       autoplay: true,
       pagination: SwiperPagination(
         builder: CustomPaginationBuilder(),
       ),
       itemBuilder: (BuildContext context, int index) {
         return Image.asset(
-            package: 'picnic_lib',
-            'assets/images/login/${getLocaleLanguage()}_${index + 1}.png');
+            'assets/login/${getLocaleLanguage()}_${index + 1}.png');
       },
     );
   }

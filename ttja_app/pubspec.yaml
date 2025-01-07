@@ -51,4 +51,5 @@ flutter:
     generate: true
     assets:
         - config/
+        - assets/login/
         - assets/splash.webp
