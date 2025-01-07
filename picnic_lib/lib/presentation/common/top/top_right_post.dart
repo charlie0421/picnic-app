@@ -46,7 +46,7 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
               width: 24.cw,
               height: 24,
               colorFilter:
-                  const ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+                  ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
             ),
           ),
         ),

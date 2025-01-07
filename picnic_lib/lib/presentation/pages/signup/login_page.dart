@@ -55,7 +55,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(gradient: commonGradient),
+      decoration: BoxDecoration(gradient: commonGradient),
       child: Center(
         child: Container(
           color: voteMainColor,
@@ -174,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               package: 'picnic_lib',
               'assets/icons/global_style=line.svg',
               colorFilter:
-                  const ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+                  ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
               width: 20.cw,
               height: 20,
             ),
@@ -216,8 +216,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
-              side: const BorderSide(
-                  color: AppColors.mint500,
+              side: BorderSide(
+                  color: AppColors.secondary500,
                   width: 1,
                   strokeAlign: BorderSide.strokeAlignInside),
             ),
@@ -549,7 +549,7 @@ class LastProvider extends StatelessWidget {
           position: const BubblePosition.center(0),
           direction: BubbleDirection.right,
         ),
-        backgroundColor: AppColors.mint500,
+        backgroundColor: AppColors.secondary500,
         child: Center(
           child: Text(
             S.of(context).label_last_provider,

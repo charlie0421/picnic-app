@@ -100,7 +100,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: AppColors.primary500,
             width: 1,
           ),
@@ -139,7 +139,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   Widget _buildSendButton() {
     if (_isLoading) {
-      return const SizedBox(
+      return SizedBox(
         width: 24,
         height: 24,
         child: CircularProgressIndicator(

@@ -79,7 +79,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
           insetPadding: EdgeInsets.symmetric(horizontal: 24.cw),
           backgroundColor: Colors.transparent,
           child: LargePopupWidget(
-            backgroundColor: AppColors.mint500,
+            backgroundColor: AppColors.secondary500,
             content: Column(
               children: [
                 Container(
@@ -102,7 +102,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(26.r),
                       border: Border.all(
-                          color: AppColors.mint500,
+                          color: AppColors.secondary500,
                           width: 2.5.r,
                           strokeAlign: BorderSide.strokeAlignInside),
                     ),
@@ -240,7 +240,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: widget.voteItemModel.artist.id != 0
                                       ? _artist(widget.voteItemModel.artist)
-                                      : _group(widget.voteItemModel.artistGroup),
+                                      : _group(
+                                          widget.voteItemModel.artistGroup),
                                 ),
                               ),
                             ),
@@ -267,19 +268,21 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       AnimatedDigitWidget(
-                                          value:
-                                              widget.result['existingVoteTotal'],
+                                          value: widget
+                                              .result['existingVoteTotal'],
                                           enableSeparator: true,
                                           duration: _duration,
                                           textStyle: getTextStyle(
                                               AppTypo.caption12B,
                                               AppColors.grey400)),
                                       AnimatedDigitWidget(
-                                          value: widget.result['addedVoteTotal'],
+                                          value:
+                                              widget.result['addedVoteTotal'],
                                           enableSeparator: true,
                                           prefix: '+',
                                           duration: _duration,
-                                          textStyle: getTextStyle(AppTypo.body14B,
+                                          textStyle: getTextStyle(
+                                              AppTypo.body14B,
                                               AppColors.primary500)),
                                     ],
                                   ))

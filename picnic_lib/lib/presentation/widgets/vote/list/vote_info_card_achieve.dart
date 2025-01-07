@@ -38,7 +38,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
           width: width,
           height: barHeight,
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: commonGradient,
             ),
           ),

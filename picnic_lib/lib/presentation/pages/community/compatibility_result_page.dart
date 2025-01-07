@@ -439,7 +439,7 @@ class _CompatibilityResultPageState
                                         EdgeInsets.symmetric(
                                             horizontal: 32.cw, vertical: 0)),
                                     backgroundColor: WidgetStateProperty.all(
-                                        AppColors.mint500),
+                                        AppColors.secondary500),
                                     foregroundColor: WidgetStateProperty.all(
                                         AppColors.grey900),
                                     shape: WidgetStateProperty.all(
@@ -852,7 +852,7 @@ class _CompatibilityResultPageState
                         end: Alignment.bottomCenter,
                         colors: [
                           AppColors.primary500.withValues(alpha: .7),
-                          AppColors.mint500.withValues(alpha: .7),
+                          AppColors.secondary500.withValues(alpha: .7),
                         ],
                       ),
                     ),
@@ -869,7 +869,8 @@ class _CompatibilityResultPageState
                                       colors: [
                                         AppColors.primary500
                                             .withValues(alpha: .7),
-                                        AppColors.mint500.withValues(alpha: .7),
+                                        AppColors.secondary500
+                                            .withValues(alpha: .7),
                                       ],
                                     )
                                   : null,

@@ -218,7 +218,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
-            borderSide: const BorderSide(
+            borderSide: BorderSide(
               color: AppColors.primary500,
               width: 2.0,
             ),
@@ -505,7 +505,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
             onPressed: () =>
                 Navigator.of(context).pop({'url': urlController.text}),
             child: Text(S.of(context).button_ok,
-                style: const TextStyle(color: AppColors.primary500)),
+                style: TextStyle(color: AppColors.primary500)),
           ),
         ],
       ),
@@ -547,7 +547,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(textController.text),
             child: Text(S.of(context).button_ok,
-                style: const TextStyle(color: AppColors.primary500)),
+                style: TextStyle(color: AppColors.primary500)),
           ),
         ],
       ),

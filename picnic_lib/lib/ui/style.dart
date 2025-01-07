@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 
 class AppColors {
-  static const Color mint500 = Color(0xFF83FBC8);
-  static const Color primary500 = Color(0xFF9374FF);
-  static const Color sub500 = Color(0xFFCDFB5D);
-  static const Color point500 = Color(0xFFFFA9BD);
-  static const Color point900 = Color(0xFFEB4A71);
+  static Color primary500 = Environment.primaryColor;
+  static Color secondary500 = Environment.secondaryColor;
+  static Color sub500 = Environment.subColor;
+  static Color point500 = Environment.pointColor;
+  static Color point900 = Environment.point900Color;
 
   static const Color statusError = Color(0xFFFF4242);
 

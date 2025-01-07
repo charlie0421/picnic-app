@@ -40,7 +40,7 @@ class LargePopupWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: backgroundColor ?? AppColors.grey00,
                   border: Border.all(
-                    color: AppColors.mint500,
+                    color: AppColors.secondary500,
                     width: 2.r,
                   ),
                   borderRadius: BorderRadius.circular(120.r),

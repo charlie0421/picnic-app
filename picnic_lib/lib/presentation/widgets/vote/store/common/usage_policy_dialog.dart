@@ -88,7 +88,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                         //   ],
                         // );
                       } else {
-                        return const CircularProgressIndicator(
+                        return CircularProgressIndicator(
                             color: AppColors.primary500);
                       }
                     }),

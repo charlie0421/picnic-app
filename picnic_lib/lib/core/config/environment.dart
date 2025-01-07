@@ -81,4 +81,17 @@ class Environment {
   static double get sentryErrorSampleRate =>
       _config['SENTRY_ERROR_SAMPLE_RATE'] as double;
 
+  static Color get primaryColor =>
+      Color(int.parse(_config['PRIMARY_COLOR'] as String));
+
+  static Color get secondaryColor =>
+      Color(int.parse(_config['SECONDARY_COLOR'] as String));
+
+  static Color get subColor => Color(int.parse(_config['SUB_COLOR'] as String));
+
+  static Color get pointColor =>
+      Color(int.parse(_config['POINT_COLOR'] as String));
+
+  static Color get point900Color =>
+      Color(int.parse(_config['POINT_900_COLOR'] as String));
 }

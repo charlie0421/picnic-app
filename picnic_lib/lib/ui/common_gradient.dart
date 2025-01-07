@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-const Gradient commonGradient = LinearGradient(
+Gradient commonGradient = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [AppColors.mint500, AppColors.primary500]);
+    colors: [AppColors.secondary500, AppColors.primary500]);
 
-const Gradient commonGradientVertical = LinearGradient(
+Gradient commonGradientVertical = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [AppColors.mint500, AppColors.primary500]);
+    colors: [AppColors.secondary500, AppColors.primary500]);
 
-const Gradient commonGradientReverse = LinearGradient(
+Gradient commonGradientReverse = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [AppColors.primary500, AppColors.mint500]);
+    colors: [AppColors.primary500, AppColors.secondary500]);
 
 const Gradient voteGradient = LinearGradient(
     begin: Alignment.topCenter,

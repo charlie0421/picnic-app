@@ -294,8 +294,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                   S
                                       .of(context)
                                       .label_setting_recent_version_up_to_date,
-                                  style: getTextStyle(
-                                      AppTypo.caption12B, AppColors.mint500),
+                                  style: getTextStyle(AppTypo.caption12B,
+                                      AppColors.secondary500),
                                   textAlign: TextAlign.start,
                                 ),
                               ),

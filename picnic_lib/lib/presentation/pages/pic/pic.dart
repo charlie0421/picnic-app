@@ -59,7 +59,7 @@ class _PicPageState extends ConsumerState<PicPage> {
       child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: AppColors.mint500,
+            color: AppColors.secondary500,
             border: Border.all(
               color: AppColors.primary500,
               width: 3.cw,

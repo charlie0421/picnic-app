@@ -147,7 +147,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   color: Colors.transparent,
                   child: Center(
                     child: Text(S.of(context).label_pic_pic_synthesizing_image,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 30, color: AppColors.primary500)),
                   ),
                 ),
@@ -182,8 +182,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   child: Center(
                     child: Text(
                       S.of(context).label_pic_pic_initializing_camera,
-                      style: const TextStyle(
-                          fontSize: 30, color: AppColors.primary500),
+                      style:
+                          TextStyle(fontSize: 30, color: AppColors.primary500),
                     ),
                   ),
                 )
@@ -204,8 +204,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   child: Center(
                     child: Text(
                       S.of(context).label_pic_pic_synthesizing_image,
-                      style: const TextStyle(
-                          fontSize: 30, color: AppColors.primary500),
+                      style:
+                          TextStyle(fontSize: 30, color: AppColors.primary500),
                     ),
                   ),
                 ),

@@ -168,10 +168,13 @@ class _CompatibilityLoadingPageState
                             0),
                         child: Container(
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
-                              colors: [AppColors.mint500, AppColors.primary500],
+                              colors: [
+                                AppColors.secondary500,
+                                AppColors.primary500
+                              ],
                             ),
                           ),
                         ),
@@ -230,11 +233,11 @@ class _CompatibilityLoadingPageState
     return SingleChildScrollView(
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.primary500, AppColors.mint500],
+            colors: [AppColors.primary500, AppColors.secondary500],
           ),
         ),
         child: Column(
