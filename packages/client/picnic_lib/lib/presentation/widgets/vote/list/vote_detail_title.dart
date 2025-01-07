@@ -16,7 +16,7 @@ class VoteCommonTitle extends StatelessWidget {
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 16.cw),
         decoration: BoxDecoration(
-            color: AppColors.mint500,
+            color: AppColors.secondary500,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: AppColors.primary500,

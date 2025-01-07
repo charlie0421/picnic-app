@@ -261,7 +261,7 @@ class AnimatedCompatibilityBarState extends State<AnimatedCompatibilityBar>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColors.mint500,
+                              AppColors.secondary500,
                               AppColors.primary500,
                             ],
                           ),

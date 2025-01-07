@@ -129,7 +129,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
           errorText: _errorText,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30.0),
-            borderSide: const BorderSide(
+            borderSide: BorderSide(
               color: AppColors.primary500,
               width: 1,
             ),
@@ -260,7 +260,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(38),
-        side: const BorderSide(color: AppColors.sub500, width: 1),
+        side: BorderSide(color: AppColors.sub500, width: 1),
       ),
       child: Container(
         padding: const EdgeInsets.all(20),

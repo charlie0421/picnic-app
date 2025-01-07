@@ -43,7 +43,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
           child: Container(
             width: barWidth.cw,
             height: 50,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: commonGradientReverse,
             ),
           ),

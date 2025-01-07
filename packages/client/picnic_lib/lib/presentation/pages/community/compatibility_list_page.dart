@@ -71,11 +71,11 @@ class _CompatibilityHistoryPageState
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.primary500, AppColors.mint500],
+            colors: [AppColors.primary500, AppColors.secondary500],
           ),
         ),
         child: history.items.isEmpty && !history.isLoading

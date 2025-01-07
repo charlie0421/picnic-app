@@ -4,7 +4,7 @@ import 'package:picnic_lib/ui/common_theme.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 ThemeData communityThemeLight = ThemeData.light().copyWith(
-  appBarTheme: const AppBarTheme(
+  appBarTheme: AppBarTheme(
     backgroundColor: communityMainColor,
     foregroundColor: Colors.white,
   ),

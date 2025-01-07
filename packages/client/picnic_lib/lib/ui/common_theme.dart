@@ -24,7 +24,7 @@ ElevatedButtonThemeData commonElevatedButtonThemeData = ElevatedButtonThemeData(
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(
+          side: BorderSide(
               color: AppColors.primary500,
               width: 1,
               strokeAlign: BorderSide.strokeAlignInside),

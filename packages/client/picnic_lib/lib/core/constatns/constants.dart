@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-const voteMainColor = AppColors.mint500;
-const picMainColor = AppColors.primary500;
-const communityMainColor = AppColors.sub500;
-const novelMainColor = AppColors.point500;
+final voteMainColor = AppColors.secondary500;
+final picMainColor = AppColors.primary500;
+final communityMainColor = AppColors.sub500;
+final novelMainColor = AppColors.point500;
 
 class Constants {
   static const double webWidth = 600;

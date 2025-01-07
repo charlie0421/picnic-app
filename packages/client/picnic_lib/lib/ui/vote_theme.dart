@@ -4,7 +4,7 @@ import 'package:picnic_lib/ui/common_theme.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 ThemeData voteThemeLight = ThemeData.light().copyWith(
-  appBarTheme: const AppBarTheme(
+  appBarTheme: AppBarTheme(
     backgroundColor: voteMainColor,
     foregroundColor: Colors.white,
   ),

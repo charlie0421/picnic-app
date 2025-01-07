@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class StrokedText extends StatelessWidget {
-  const StrokedText({
+  StrokedText({
     super.key,
     required this.text,
     required this.textStyle,
-    this.strokeColor = AppColors.primary500,
+    Color? strokeColor,
     this.strokeWidth = 1,
-  });
+  }) : strokeColor = strokeColor ?? AppColors.primary500;
 
   final String text;
   final TextStyle textStyle;

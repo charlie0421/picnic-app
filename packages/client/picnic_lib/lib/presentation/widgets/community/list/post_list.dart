@@ -134,7 +134,7 @@ class _PostListState extends ConsumerState<PostList> {
                                       horizontal: 20.cw, vertical: 10),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
-                                    side: const BorderSide(
+                                    side: BorderSide(
                                       color: AppColors.primary500,
                                       width: 1,
                                     ),

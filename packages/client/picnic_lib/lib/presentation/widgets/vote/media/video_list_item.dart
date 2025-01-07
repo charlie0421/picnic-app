@@ -107,13 +107,13 @@ class _VideoListItemState extends State<VideoListItem> {
                         children: [
                           CircularProgressIndicator(
                             value: _loadingProgress,
-                            valueColor: const AlwaysStoppedAnimation<Color>(
+                            valueColor: AlwaysStoppedAnimation<Color>(
                                 AppColors.primary500),
                           ),
                           const SizedBox(height: 10),
                           Text(
                             '${(_loadingProgress * 100).toStringAsFixed(0)}%',
-                            style: const TextStyle(color: AppColors.primary500),
+                            style: TextStyle(color: AppColors.primary500),
                           ),
                         ],
                       ),

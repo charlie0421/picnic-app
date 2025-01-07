@@ -334,7 +334,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: AppColors.primary500),
+              borderSide: BorderSide(color: AppColors.primary500),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),

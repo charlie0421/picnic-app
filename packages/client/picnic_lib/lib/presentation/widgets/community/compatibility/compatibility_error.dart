@@ -13,7 +13,7 @@ class CompatibilityErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline,
             size: 48,
             color: AppColors.point900,

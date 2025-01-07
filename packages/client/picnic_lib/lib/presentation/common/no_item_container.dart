@@ -19,7 +19,7 @@ class NoItemContainer extends StatelessWidget {
             'assets/icons/information_style=fill.svg',
             width: 40,
             height: 40,
-            colorFilter: const ColorFilter.mode(
+            colorFilter: ColorFilter.mode(
               AppColors.primary500,
               BlendMode.srcIn,
             ),

@@ -20,7 +20,7 @@ class CountdownTimer extends StatefulWidget {
 class _CountdownTimerState extends State<CountdownTimer> {
   Timer? _timer;
   Duration _timeLeft = Duration.zero;
-  Color _color = AppColors.mint500;
+  Color _color = AppColors.secondary500;
 
   @override
   void initState() {
@@ -56,7 +56,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
 
   void _updateColor() {
     if (_timeLeft.inHours > 24) {
-      _color = AppColors.mint500;
+      _color = AppColors.secondary500;
     } else if (_timeLeft.inHours > 1) {
       _color = AppColors.sub500;
     } else if (_timeLeft.inMinutes > 0) {

@@ -54,7 +54,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                 );
               },
               itemCount: widget.article.articleImage!.length,
-              pagination: const SwiperPagination(
+              pagination: SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
                     color: Colors.grey, activeColor: picMainColor),
               ),
@@ -106,14 +106,14 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   Widget _buildBookmark(ArticleModel article, int index) {
     return article.articleImage![index].articleImageUser!.isNotEmpty
         ? IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.bookmark,
               color: picMainColor,
             ),
             onPressed: () {},
           )
         : IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.bookmark_border,
               color: picMainColor,
             ),
@@ -172,7 +172,7 @@ class _FullScreenImageViewerState extends ConsumerState<FullScreenImageViewer>
       backgroundColor: Colors.transparent,
       body: Container(
         padding: ref.watch(globalMediaQueryProvider).padding,
-        decoration: const BoxDecoration(gradient: commonGradient),
+        decoration: BoxDecoration(gradient: commonGradient),
         child: Stack(
           children: [
             Center(

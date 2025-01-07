@@ -42,7 +42,7 @@ class PostWriteActions extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(color: AppColors.primary500, width: 1),
+                side: BorderSide(color: AppColors.primary500, width: 1),
               ),
             ),
             onPressed: isTitleValid

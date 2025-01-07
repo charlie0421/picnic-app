@@ -20,11 +20,11 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ko';
 
-  static String m0(artist_name) =>
-      "나와 #${artist_name} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!";
+  static String m0(artistName) =>
+      "나와 #${artistName} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!";
 
-  static String m1(artist_name) =>
-      "#${artist_name} 의 2025년 운세가 궁금하다면? 지금 바로 #피크닠 으로 오세요! 우리 같이 빛나는 운세 확인해요!";
+  static String m1(artistName) =>
+      "#${artistName} 의 2025년 운세가 궁금하다면? 지금 바로 #피크닠 으로 오세요! 우리 같이 빛나는 운세 확인해요!";
 
   static String m2(year) => "${year}년 마이 아티스트 운세";
 

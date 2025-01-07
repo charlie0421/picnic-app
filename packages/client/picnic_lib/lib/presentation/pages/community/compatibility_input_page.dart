@@ -123,7 +123,7 @@ class _CompatibilityInputScreenState
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
+            colorScheme: ColorScheme.light(
               primary: AppColors.primary500,
               onPrimary: AppColors.grey00,
               surface: AppColors.grey00,
@@ -366,7 +366,7 @@ class _CompatibilityInputScreenState
             end: Alignment.bottomCenter,
             colors: [
               AppColors.primary500.withValues(alpha: 0.8),
-              AppColors.mint500.withValues(alpha: 0.8)
+              AppColors.secondary500.withValues(alpha: 0.8)
             ],
           ),
         ),

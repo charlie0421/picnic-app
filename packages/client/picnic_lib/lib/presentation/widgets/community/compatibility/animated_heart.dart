@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class PulsingHeart extends StatefulWidget {
-  const PulsingHeart({
+  PulsingHeart({
     super.key,
     this.size = 24.0,
-    this.color = AppColors.primary500,
+    Color? color,
     this.duration = const Duration(seconds: 1),
-  });
+  }) : color = color ?? AppColors.primary500;
 
   final double size;
   final Color color;
@@ -87,12 +87,12 @@ class _PulsingHeartState extends State<PulsingHeart>
 
 // 더 화려한 버전을 원하시면 아래 컴포넌트를 사용하세요
 class FancyPulsingHeart extends StatefulWidget {
-  const FancyPulsingHeart({
+  FancyPulsingHeart({
     super.key,
     this.size = 24.0,
-    this.color = AppColors.primary500,
+    Color? color,
     this.duration = const Duration(seconds: 2),
-  });
+  }) : color = color ?? AppColors.primary500;
 
   final double size;
   final Color color;

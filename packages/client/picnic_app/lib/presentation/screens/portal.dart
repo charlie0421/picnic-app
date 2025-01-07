@@ -36,7 +36,7 @@ class _PortalState extends ConsumerState<Portal> {
         ref.watch(navigationInfoProvider.select((value) => value.showTopMenu));
     final userInfoState = ref.watch(userInfoProvider);
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: commonGradient,
       ),
       child: FixedWidthLayout(

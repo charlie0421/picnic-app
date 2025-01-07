@@ -144,7 +144,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         position: const BubblePosition.center(0),
         direction: BubbleDirection.top,
       ),
-      backgroundColor: AppColors.mint500,
+      backgroundColor: AppColors.secondary500,
       child: Text(
         S.of(context).voting_share_benefit_text,
         style: getTextStyle(
@@ -263,7 +263,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         height: 32,
         padding: EdgeInsets.symmetric(horizontal: 12.cw),
         decoration: BoxDecoration(
-          color: AppColors.mint500,
+          color: AppColors.secondary500,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: AppColors.primary500, width: 1),
         ),
@@ -281,7 +281,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               width: 16.cw,
               height: 16,
               colorFilter:
-                  const ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+                  ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
             ),
           ],
         ),

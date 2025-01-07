@@ -19,29 +19,29 @@ ThemeData picThemeLight = ThemeData.light().copyWith(
     labelLarge: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
     labelSmall: TextStyle(fontFamily: 'Pretendard', color: Colors.black),
   ),
-  appBarTheme: const AppBarTheme(
+  appBarTheme: AppBarTheme(
     backgroundColor: AppColors.primary500,
     foregroundColor: Colors.white,
   ),
-  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
     backgroundColor: AppColors.primary500,
-    selectedIconTheme: IconThemeData(color: Colors.black),
-    unselectedIconTheme: IconThemeData(color: Colors.black54),
+    selectedIconTheme: const IconThemeData(color: Colors.black),
+    unselectedIconTheme: const IconThemeData(color: Colors.black54),
     selectedItemColor: Colors.black,
     unselectedItemColor: Colors.black54,
-    selectedLabelStyle: TextStyle(color: Colors.black),
-    unselectedLabelStyle: TextStyle(color: Colors.black54),
+    selectedLabelStyle: const TextStyle(color: Colors.black),
+    unselectedLabelStyle: const TextStyle(color: Colors.black54),
   ),
   scaffoldBackgroundColor: AppColors.grey00,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
             EdgeInsets.symmetric(horizontal: 32.cw, vertical: 0)),
-        backgroundColor: WidgetStateProperty.all(AppColors.mint500),
+        backgroundColor: WidgetStateProperty.all(AppColors.secondary500),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(
+            side: BorderSide(
                 color: AppColors.primary500,
                 width: 1,
                 strokeAlign: BorderSide.strokeAlignInside),
