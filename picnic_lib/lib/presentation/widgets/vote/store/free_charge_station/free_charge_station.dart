@@ -214,41 +214,6 @@ class FreeChargeContent extends ConsumerWidget {
     );
   }
 
-  // Widget _buildMissionSection() {
-  //   return ElevatedButton(
-  //     onPressed: () async {
-  //       Tapjoy.setUserID(
-  //           userId: supabase.auth.currentUser!.id,
-  //           onSetUserIDSuccess: () {
-  //             logger.i('setUserID onSuccess');
-  //           },
-  //           onSetUserIDFailure: (error) {
-  //             logger.e('setUserID onFailure', error: error);
-  //           });
-  //       TJPlacement placement = await TJPlacement.getPlacement(
-  //           placementName: isIOS() ? 'mission-ios' : 'mission-android',
-  //           onRequestSuccess: (placement) {
-  //             logger.i('onRequestSuccess');
-  //           },
-  //           onRequestFailure: (placement, error) {
-  //             logger.e('onRequestFailure', error: error);
-  //           },
-  //           onContentReady: (placement) {
-  //             logger.i('onContentReady');
-  //             placement.showContent();
-  //           },
-  //           onContentShow: (placement) {
-  //             logger.i('onContentShow');
-  //           },
-  //           onContentDismiss: (placement) {
-  //             logger.i('onContentDismiss');
-  //           });
-  //       await placement.requestContent();
-  //     },
-  //     child: Text('Show Offerwall'),
-  //   );
-  // }
-
   Widget _buildStoreListTileAdmob(
     BuildContext context,
     int index,
