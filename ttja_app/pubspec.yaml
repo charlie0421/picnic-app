@@ -41,7 +41,8 @@ dev_dependencies:
     json_serializable: ^6.9.0
     intl_utils: ^2.8.7
     intl_translation: ^0.20.1
-
+    flutter_launcher_icons: ^0.14.2
+    flutter_native_splash: ^2.4.4
 flutter_intl:
     enabled: true
 
