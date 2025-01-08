@@ -1,4 +1,4 @@
-package com.example.ttja_app
+package com.ttja
 
 import io.flutter.embedding.android.FlutterActivity
 
