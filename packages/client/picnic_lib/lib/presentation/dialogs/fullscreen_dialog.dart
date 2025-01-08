@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 // 공통 상수 정의
 class FullScreenDialogConstants {
@@ -54,7 +55,8 @@ class _FullScreenDialogState extends State<FullScreenDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: widget.borderRadius ?? BorderRadius.circular(0),
       ),
-      child: SizedBox(
+      child: Container(
+        color: AppColors.grey00,
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Stack(
