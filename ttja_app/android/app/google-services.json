@@ -1,26 +1,43 @@
 {
   "project_info": {
-    "project_number": "108842433672",
-    "project_id": "ttja-bcd75",
-    "storage_bucket": "ttja-bcd75.firebasestorage.app"
+    "project_number": "922874925395",
+    "project_id": "ttja-447309",
+    "storage_bucket": "ttja-447309.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:108842433672:android:285c4d4fd59ac3e5e4f33d",
+        "mobilesdk_app_id": "1:922874925395:android:b4d581b0906a87f09591a6",
         "android_client_info": {
           "package_name": "com.ttja"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "922874925395-4i0a0pb0t2g7i21jjfauro9ofgc00img.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCp0IZlaILj7_xju_ug428H7k8izT2p3oQ"
+          "current_key": "AIzaSyA5-FgixW_t8RDw9koOSMKDyuL_xASJGDI"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "922874925395-4i0a0pb0t2g7i21jjfauro9ofgc00img.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "922874925395-j8si8jhhs02sc1475mn7t60cff06l23s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ttjaApp"
+              }
+            }
+          ]
         }
       }
     }
