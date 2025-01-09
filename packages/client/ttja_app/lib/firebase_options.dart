@@ -41,46 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD_eKEsybg4L6lcp198iEzXrNJXhW041zA',
-    appId: '1:283818621579:web:44123cac7d0185c48cf28e',
-    messagingSenderId: '283818621579',
-    projectId: 'ttja-prod',
-    authDomain: 'ttja-prod.firebaseapp.com',
-    storageBucket: 'ttja-prod.firebasestorage.app',
+    apiKey: 'AIzaSyBooFK0UjiZ0E1wPRBVZaSrjp-RWtBcS-Y',
+    appId: '1:108842433672:web:208e5662b79616b7e4f33d',
+    messagingSenderId: '108842433672',
+    projectId: 'ttja-bcd75',
+    authDomain: 'ttja-bcd75.firebaseapp.com',
+    storageBucket: 'ttja-bcd75.firebasestorage.app',
+    measurementId: 'G-EEK4E6CSFM',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBw5nm42z-OK_v3fZATNEtRuPFFPdzEotQ',
-    appId: '1:283818621579:android:b7469e32aad8e9fe8cf28e',
-    messagingSenderId: '283818621579',
-    projectId: 'ttja-prod',
-    storageBucket: 'ttja-prod.firebasestorage.app',
+    apiKey: 'AIzaSyCp0IZlaILj7_xju_ug428H7k8izT2p3oQ',
+    appId: '1:108842433672:android:285c4d4fd59ac3e5e4f33d',
+    messagingSenderId: '108842433672',
+    projectId: 'ttja-bcd75',
+    storageBucket: 'ttja-bcd75.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBCan6QVK1TaKxQrrzcVK3fI2tqKq1Di7Y',
-    appId: '1:283818621579:ios:532a98f177b8aa568cf28e',
-    messagingSenderId: '283818621579',
-    projectId: 'ttja-prod',
-    storageBucket: 'ttja-prod.firebasestorage.app',
-    iosBundleId: 'com.example.ttjaApp',
+    apiKey: 'AIzaSyBZMZORqornOZs0vp72EbMQfT_mnO512iI',
+    appId: '1:108842433672:ios:bf7409e73f1ac54ae4f33d',
+    messagingSenderId: '108842433672',
+    projectId: 'ttja-bcd75',
+    storageBucket: 'ttja-bcd75.firebasestorage.app',
+    iosBundleId: 'com.fasoo.TTJA',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBCan6QVK1TaKxQrrzcVK3fI2tqKq1Di7Y',
-    appId: '1:283818621579:ios:532a98f177b8aa568cf28e',
-    messagingSenderId: '283818621579',
-    projectId: 'ttja-prod',
-    storageBucket: 'ttja-prod.firebasestorage.app',
+    apiKey: 'AIzaSyBZMZORqornOZs0vp72EbMQfT_mnO512iI',
+    appId: '1:108842433672:ios:c6ef46f97fb67df7e4f33d',
+    messagingSenderId: '108842433672',
+    projectId: 'ttja-bcd75',
+    storageBucket: 'ttja-bcd75.firebasestorage.app',
     iosBundleId: 'com.example.ttjaApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyD_eKEsybg4L6lcp198iEzXrNJXhW041zA',
-    appId: '1:283818621579:web:8e379a0bf3e77a088cf28e',
-    messagingSenderId: '283818621579',
-    projectId: 'ttja-prod',
-    authDomain: 'ttja-prod.firebaseapp.com',
-    storageBucket: 'ttja-prod.firebasestorage.app',
+    apiKey: 'AIzaSyBooFK0UjiZ0E1wPRBVZaSrjp-RWtBcS-Y',
+    appId: '1:108842433672:web:a5c086bca44a6c4ee4f33d',
+    messagingSenderId: '108842433672',
+    projectId: 'ttja-bcd75',
+    authDomain: 'ttja-bcd75.firebaseapp.com',
+    storageBucket: 'ttja-bcd75.firebasestorage.app',
+    measurementId: 'G-55RFPW5ZMZ',
   );
+
 }
