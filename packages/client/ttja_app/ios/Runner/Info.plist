@@ -59,5 +59,16 @@
 		<string>이 앱은 타사 SDK를 사용하여 맞춤형 광고를 제공하기 위해 사용자 활동을 추적합니다.</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>922874925395-t3anf1iksojil5fc7lss9h4ahr1kgbkm.apps.googleusercontent.com</string>
+			</array>
+			</dict>
+		</array>
 	</dict>
 </plist>
