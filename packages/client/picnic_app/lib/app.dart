@@ -37,7 +37,7 @@ import 'package:picnic_lib/presentation/screens/privacy.dart';
 import 'package:picnic_lib/presentation/screens/purchase.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
 import 'package:picnic_lib/presentation/screens/terms.dart';
-import 'package:picnic_lib/presentation/widgets/optimized_splash_image.dart';
+import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
@@ -185,17 +185,15 @@ class _AppState extends ConsumerState<App> {
       home: FutureBuilder(
         future: _initializationFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return initState.isInitialized
-                ? _buildNextScreen()
-                : const Center(child: CircularProgressIndicator());
+          if (initState.isInitialized) {
+            return _buildNextScreen();
+          } else {
+            return AnimatedOpacity(
+              opacity: 1.0,
+              duration: const Duration(milliseconds: 1500),
+              child: SplashImage(ref: ref),
+            );
           }
-
-          return AnimatedOpacity(
-            opacity: 1.0,
-            duration: const Duration(milliseconds: 1500),
-            child: OptimizedSplashImage(ref: ref),
-          );
         },
       ),
       localizationsDelegates: PicnicLibL10n.localizationsDelegates,
@@ -204,7 +202,6 @@ class _AppState extends ConsumerState<App> {
   }
 
   Future<void> _initializeAppWithSplash() async {
-    // 최소 스플래시 표시 시간 보장
     await Future.wait([
       _initializeApp(),
       Future.delayed(const Duration(milliseconds: 3000)),
@@ -217,23 +214,15 @@ class _AppState extends ConsumerState<App> {
 
       // 1. 기본 초기화
       await precacheImage(const AssetImage("assets/splash.webp"), context);
-      logger.i('스플래시 이미지 프리캐시 완료');
-
-      if (!mounted) return;
-
       ref.read(appSettingProvider.notifier);
       ref
           .read(globalMediaQueryProvider.notifier)
           .updateMediaQueryData(MediaQuery.of(context));
-      logger.i('기본 설정 초기화 완료');
 
-      // 2. 모바일 전용 초기화
       if (UniversalPlatform.isMobile) {
         final networkService = NetworkConnectivityService();
         final hasNetwork = await networkService.checkOnlineStatus();
         logger.i('네트워크 상태 확인: $hasNetwork');
-
-        if (!mounted) return;
 
         // 네트워크 상태 업데이트
         ref.read(appInitializationProvider.notifier).updateState(
@@ -245,17 +234,12 @@ class _AppState extends ConsumerState<App> {
             final isBanned = await DeviceManager.isDeviceBanned();
             logger.i('디바이스 밴 상태: $isBanned');
 
-            if (!mounted) return;
-
-            // 밴 상태 업데이트
             ref.read(appInitializationProvider.notifier).updateState(
                   isBanned: isBanned,
                 );
 
             final updateInfo = await checkForUpdates(ref);
-            logger.i('업데이트 정보: $updateInfo');
-
-            if (!mounted) return;
+            logger.i('Update info: $updateInfo');
 
             // 업데이트 정보 업데이트
             ref.read(appInitializationProvider.notifier).updateState(
@@ -265,7 +249,6 @@ class _AppState extends ConsumerState<App> {
             if (!isBanned &&
                 updateInfo?.status == UpdateStatus.updateRequired) {
               await _loadProducts();
-              logger.i('제품 정보 로드 완료');
             }
           } catch (e) {
             logger.e('모바일 초기화 중 오류: $e');
@@ -278,12 +261,9 @@ class _AppState extends ConsumerState<App> {
 
       if (!mounted) return;
 
-      // 최종 초기화 완료 상태 설정
       ref.read(appInitializationProvider.notifier).updateState(
             isInitialized: true,
           );
-
-      logger.i('앱 초기화 완료 - isInitialized: true로 설정됨');
     } catch (e, s) {
       logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: s);
       if (mounted) {
@@ -291,7 +271,6 @@ class _AppState extends ConsumerState<App> {
               hasNetwork: false,
               isInitialized: true,
             );
-        logger.i('에러 발생으로 인한 초기화 완료 처리');
       }
     }
   }

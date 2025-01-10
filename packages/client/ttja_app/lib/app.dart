@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:picnic_lib/presentation/widgets/optimized_splash_image.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/core/services/update_service.dart';
@@ -35,6 +34,7 @@ import 'package:picnic_lib/presentation/screens/privacy.dart';
 import 'package:picnic_lib/presentation/screens/purchase.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
 import 'package:picnic_lib/presentation/screens/terms.dart';
+import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
@@ -185,17 +185,15 @@ class _AppState extends ConsumerState<App> {
       home: FutureBuilder(
         future: _initializationFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return initState.isInitialized
-                ? _buildNextScreen()
-                : const Center(child: CircularProgressIndicator());
+          if (initState.isInitialized) {
+            return _buildNextScreen();
+          } else {
+            return AnimatedOpacity(
+              opacity: 1.0,
+              duration: const Duration(milliseconds: 1500),
+              child: SplashImage(ref: ref),
+            );
           }
-
-          return AnimatedOpacity(
-            opacity: 1.0,
-            duration: const Duration(milliseconds: 1500),
-            child: OptimizedSplashImage(ref: ref),
-          );
         },
       ),
       localizationsDelegates: PicnicLibL10n.localizationsDelegates,
@@ -230,29 +228,32 @@ class _AppState extends ConsumerState<App> {
             );
 
         if (hasNetwork) {
-          final isBanned = await DeviceManager.isDeviceBanned();
-          logger.i('Device banned: $isBanned');
+          try {
+            final isBanned = await DeviceManager.isDeviceBanned();
+            logger.i('Device banned: $isBanned');
 
-          ref.read(appInitializationProvider.notifier).updateState(
-                isBanned: isBanned,
-              );
+            ref.read(appInitializationProvider.notifier).updateState(
+                  isBanned: isBanned,
+                );
 
-          final updateInfo = await checkForUpdates(ref);
+            final updateInfo = await checkForUpdates(ref);
 
-          logger.i('Update info: $updateInfo');
-          ref
-              .read(appInitializationProvider.notifier)
-              .updateState(updateInfo: updateInfo);
+            logger.i('Update info: $updateInfo');
+            ref
+                .read(appInitializationProvider.notifier)
+                .updateState(updateInfo: updateInfo);
 
-          if (!isBanned && updateInfo?.status == UpdateStatus.updateRequired) {
-            await _loadProducts();
+            if (!isBanned &&
+                updateInfo?.status == UpdateStatus.updateRequired) {
+              await _loadProducts();
+            }
+          } catch (e) {
+            logger.e('모바일 초기화 중 오류: $e');
           }
         }
       } else {
         await _loadProducts();
       }
-
-      if (!mounted) return;
 
       ref.read(appInitializationProvider.notifier).updateState(
             isInitialized: true,
