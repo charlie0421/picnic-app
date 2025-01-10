@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
@@ -92,6 +93,14 @@ class _PortalState extends ConsumerState<Portal> {
             ),
             leadingWidth: 52.cw,
             titleSpacing: 0,
+            actions: [
+              SvgPicture.asset(
+                'assets/top_logo.svg',
+                width: 36.cw,
+                height: 15,
+              ),
+              SizedBox(width: 16.cw),
+            ],
           ),
           body: LayoutBuilder(
             builder: (context, constraints) {
