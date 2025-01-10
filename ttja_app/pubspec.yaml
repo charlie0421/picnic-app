@@ -52,4 +52,4 @@ flutter:
     assets:
         - config/
         - assets/login/
-        - assets/splash.webp
+        - assets/
