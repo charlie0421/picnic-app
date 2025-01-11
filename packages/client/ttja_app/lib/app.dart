@@ -83,10 +83,10 @@ class _AppState extends ConsumerState<App> {
     _initializationFuture = Future.value();
 
     if (UniversalPlatform.isMobile) {
-      _setupAppLinksListener();
       _setupSupabaseAuthListener();
       _checkAndroidVersion();
     }
+    _setupAppLinksListener();
   }
 
   @override
