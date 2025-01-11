@@ -5,21 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11e4844d-d946-4133-bdfe-177e6d8bead2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/overlays.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/presentation/screens/portal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/presentation/screens/portal.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/common/bottom/common_bottom_navigation_bar.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/dialogs/simple_dialog.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/dialogs/simple_dialog.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/community/community_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/community/community_home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/novel/novel_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/novel/novel_home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/pic/pic_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/pic/pic_home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/vote/vote_home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/vote/vote_home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/navigator/bottom/common_bottom_navigation_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/navigator/bottom/common_bottom_navigation_bar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/flutter_launcher_icons.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/flutter_launcher_icons.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/flutter_launcher_icons.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/flutter_launcher_icons.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,7 +100,7 @@
       <workItem from="1732145004357" duration="599000" />
       <workItem from="1732153993144" duration="464000" />
       <workItem from="1736093054502" duration="3219000" />
-      <workItem from="1736138265530" duration="1130000" />
+      <workItem from="1736138265530" duration="1730000" />
     </task>
     <servers />
   </component>
