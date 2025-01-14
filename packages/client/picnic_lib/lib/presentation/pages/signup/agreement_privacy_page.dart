@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/data/models/policy.dart';
@@ -133,8 +134,10 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                               ),
                               onOk: () {
                                 navigationInfoNotifier.setResetStackSignUp();
-                                Navigator.of(navigatorKey.currentContext!).pop();
-                                Navigator.of(navigatorKey.currentContext!).pop();
+                                Navigator.of(navigatorKey.currentContext!)
+                                    .pop();
+                                Navigator.of(navigatorKey.currentContext!)
+                                    .pop();
                               });
                         });
                       } else {
@@ -143,7 +146,8 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                               title: Intl.message('title_dialog_error'),
                               content: Intl.message('message_agreement_fail'),
                               onOk: () {
-                                Navigator.of(navigatorKey.currentContext!).pop();
+                                Navigator.of(navigatorKey.currentContext!)
+                                    .pop();
                               });
                         });
                       }
