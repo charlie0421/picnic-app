@@ -289,8 +289,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         showSimpleDialog(
             content: Intl.message('error_message_withdrawal'),
             onOk: () {
+              ref.read(userInfoProvider.notifier).logout();
               Navigator.of(navigatorKey.currentContext!).pop();
             });
+
       } else if (userProfile.userAgreement == null) {
         ref
             .read(navigationInfoProvider.notifier)

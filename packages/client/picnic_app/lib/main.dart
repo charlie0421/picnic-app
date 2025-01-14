@@ -14,9 +14,11 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:url_strategy/url_strategy.dart';
 
@@ -108,6 +110,34 @@ void main() async {
       logger
           .i('WebP support: ${supportInfo.webp}, ${supportInfo.animatedWebp}');
       logger.i('WebP support initialized');
+
+      if (isMobile()) {
+        logger.i('Initializing Tapjoy...');
+        final Map<String, dynamic> optionFlags = {};
+        await Tapjoy.setDebugEnabled(true);
+        await Tapjoy.connect(
+          sdkKey: isIOS()
+              ? Environment.tapjoyIosSdkKey
+              : Environment.tapjoyAndroidSdkKey,
+          options: optionFlags,
+          onConnectSuccess: () async {
+            logger.i('Tapjoy connected');
+            Tapjoy.getPrivacyPolicy().setSubjectToGDPR(TJStatus.trueStatus);
+            Tapjoy.getPrivacyPolicy().setUserConsent(TJStatus.falseStatus);
+            Tapjoy.getPrivacyPolicy()
+                .setBelowConsentAge(TJStatus.unknownStatus);
+            Tapjoy.getPrivacyPolicy().setUSPrivacy('1---');
+            logger.i(Tapjoy.getPluginVersion());
+          },
+          onConnectFailure: (int code, String? error) async {
+            logger.e('Tapjoy connect failed: $code, $error');
+          },
+          onConnectWarning: (int code, String? warning) async {
+            logger.w('Tapjoy connect warning: $code, $warning');
+          },
+        );
+        logger.i('Tapjoy initialized');
+      }
 
       logger.i('Initializing Firebase...');
       await Firebase.initializeApp(

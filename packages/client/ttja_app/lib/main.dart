@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:ttja_app/app.dart';
 import 'package:ttja_app/firebase_options.dart';
 import 'package:ttja_app/main.reflectable.dart';
@@ -108,6 +110,34 @@ void main() async {
       logger
           .i('WebP support: ${supportInfo.webp}, ${supportInfo.animatedWebp}');
       logger.i('WebP support initialized');
+
+      if (isMobile()) {
+        logger.i('Initializing Tapjoy...');
+        final Map<String, dynamic> optionFlags = {};
+        Tapjoy.setDebugEnabled(true);
+        await Tapjoy.connect(
+          sdkKey: isIOS()
+              ? Environment.tapjoyIosSdkKey
+              : Environment.tapjoyAndroidSdkKey,
+          options: optionFlags,
+          onConnectSuccess: () async {
+            logger.i('Tapjoy connected');
+            Tapjoy.getPrivacyPolicy().setSubjectToGDPR(TJStatus.trueStatus);
+            Tapjoy.getPrivacyPolicy().setUserConsent(TJStatus.falseStatus);
+            Tapjoy.getPrivacyPolicy()
+                .setBelowConsentAge(TJStatus.unknownStatus);
+            Tapjoy.getPrivacyPolicy().setUSPrivacy('1---');
+            logger.i(Tapjoy.getPluginVersion());
+          },
+          onConnectFailure: (int code, String? error) async {
+            logger.e('Tapjoy connect failed: $code, $error');
+          },
+          onConnectWarning: (int code, String? warning) async {
+            logger.w('Tapjoy connect warning: $code, $warning');
+          },
+        );
+        logger.i('Tapjoy initialized');
+      }
 
       logger.i('Initializing Firebase...');
       await Firebase.initializeApp(

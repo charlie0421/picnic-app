@@ -36,6 +36,7 @@ dependencies:
     flutter_svg: ^2.0.16
     supabase_extensions: ^1.0.1
     url_launcher: ^6.2.5
+    tapjoy_offerwall: ^14.2.1
 
 dev_dependencies:
     flutter_test:

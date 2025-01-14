@@ -87,7 +87,6 @@ class DeviceManager {
           .select()
           .eq('device_id', deviceId)
           .maybeSingle();
-      logger.d(result);
       return result != null;
     } catch (e, s) {
       logger.e('Error checking device ban status', error: e, stackTrace: s);

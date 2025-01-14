@@ -21,6 +21,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -33,7 +34,6 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _buttonScaleAnimation;
-  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -53,40 +53,29 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
   @override
   void dispose() {
-    _isDisposed = true;
     _animationController.dispose();
     super.dispose();
   }
 
   void _showErrorDialog(String message) {
-    if (_isDisposed) return;
     showSimpleDialog(
-      contentWidget: Text(
-        message,
-        style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-      ),
+      contentWidget: Text(message,
+          style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
     );
   }
 
   Future<void> _showRewardedAdmob(int index) async {
-    if (_isDisposed) return;
-
     final userState = ref.read(userInfoProvider);
     if (userState.value == null) {
-      if (!_isDisposed && mounted) {
-        showRequireLoginDialog();
-      }
+      if (mounted) showRequireLoginDialog();
       return;
     }
 
     try {
-      if (!_isDisposed && mounted) {
-        OverlayLoadingProgress.start(context);
-      }
+      if (mounted) OverlayLoadingProgress.start(context);
 
       final response = await supabase.functions.invoke('check-ads-count');
-
-      if (_isDisposed || !mounted) return;
+      if (!mounted) return;
       OverlayLoadingProgress.stop();
 
       final allowed = response.data['allowed'] as bool?;
@@ -99,23 +88,17 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       ref
           .read(rewardedAdsProvider.notifier)
           .loadAd(index, showWhenLoaded: true, context: context);
-      if (!_isDisposed) {
-        _animateButton();
-      }
+      _animateButton();
     } catch (e, s) {
       logger.e('Error in _showRewardedAdmob', error: e, stackTrace: s);
-      if (!_isDisposed && mounted) {
-        _showErrorDialog(Intl.message('label_loading_ads_fail'));
-      }
+      if (mounted) _showErrorDialog(Intl.message('label_loading_ads_fail'));
     } finally {
-      if (!_isDisposed && mounted) {
-        OverlayLoadingProgress.stop();
-      }
+      if (mounted) OverlayLoadingProgress.stop();
     }
   }
 
   void _handleExceededAdsLimit(String? nextAvailableTimeStr) {
-    if (_isDisposed || nextAvailableTimeStr == null) return;
+    if (nextAvailableTimeStr == null) return;
 
     final nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
     final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
@@ -124,31 +107,23 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       contentWidget: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            S.of(context).label_ads_exceeded,
-            style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-            textAlign: TextAlign.center,
-          ),
+          Text(S.of(context).label_ads_exceeded,
+              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              textAlign: TextAlign.center),
           const SizedBox(height: 8),
-          Text(
-            S.of(context).ads_available_time,
-            style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            formatter.format(nextAvailableTime),
-            style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-            textAlign: TextAlign.center,
-          ),
+          Text(S.of(context).ads_available_time,
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+              textAlign: TextAlign.center),
+          Text(formatter.format(nextAvailableTime),
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+              textAlign: TextAlign.center),
         ],
       ),
     );
   }
 
   void _animateButton() {
-    if (!_isDisposed) {
-      _animationController.forward(from: 0.0);
-    }
+    _animationController.forward(from: 0.0);
   }
 
   @override
@@ -200,9 +175,9 @@ class FreeChargeContent extends ConsumerWidget {
               adSize: AdSize.fullBanner,
             ),
           ),
-
-          // const SizedBox(height: 18),
-          // _buildMissionSection(),
+          const SizedBox(height: 18),
+          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
+          _buildMissionSection(context),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 0, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
@@ -214,11 +189,51 @@ class FreeChargeContent extends ConsumerWidget {
     );
   }
 
+  Widget _buildMissionSection(BuildContext context) {
+    return StoreListTile(
+      title: Text(
+        S.of(context).label_button_mission_and_charge,
+        style: getTextStyle(AppTypo.body14B, AppColors.grey900)
+            .copyWith(height: 1),
+      ),
+      buttonOnPressed: () async {
+        Tapjoy.setUserID(
+            userId: supabase.auth.currentUser!.id,
+            onSetUserIDSuccess: () => logger
+                .i('setUserID onSuccess: ${supabase.auth.currentUser!.id}'),
+            onSetUserIDFailure: (error) =>
+                logger.e('setUserID onFailure', error: error));
+
+        TJPlacement placement = await TJPlacement.getPlacement(
+          placementName: 'mission',
+          onRequestSuccess: (placement) async {
+            logger.i('onRequestSuccess');
+          },
+          onRequestFailure: (placement, error) =>
+              logger.e('onRequestFailure', error: error),
+          onContentReady: (placement) {
+            logger.i('onContentReady');
+            placement.showContent();
+          },
+          onContentShow: (placement) => logger.i('onContentShow'),
+          onContentDismiss: (placement) => logger.i('onContentDismiss'),
+        );
+        placement.setEntryPoint(TJEntryPoint.entryPointStore);
+
+        await placement.requestContent();
+      },
+      icon: Image.asset(
+        package: 'picnic_lib',
+        'assets/icons/store/star_100.png',
+        width: 48.cw,
+        height: 48.cw,
+      ),
+      buttonText: S.of(context).label_mission,
+    );
+  }
+
   Widget _buildStoreListTileAdmob(
-    BuildContext context,
-    int index,
-    AdState adState,
-  ) {
+      BuildContext context, int index, AdState adState) {
     final adInfo = adState.ads[index];
     final isLoading = adInfo.isLoading;
 
