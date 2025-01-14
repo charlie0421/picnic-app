@@ -289,7 +289,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         showSimpleDialog(
             content: Intl.message('error_message_withdrawal'),
             onOk: () {
-              Navigator.of(context).pop();
+              Navigator.of(navigatorKey.currentContext!).pop();
             });
       } else if (userProfile.userAgreement == null) {
         ref
@@ -308,7 +308,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           title: Intl.message('error_title'),
           content: Intl.message('error_message_login_failed'),
           onOk: () {
-            Navigator.of(context).pop();
+            Navigator.of(navigatorKey.currentContext!).pop();
           });
       rethrow;
     }
@@ -348,7 +348,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     title: Intl.message('error_title'),
                     content: e.message,
                     onOk: () {
-                      Navigator.of(context).pop();
+                      Navigator.of(navigatorKey.currentContext!).pop();
                     });
               } catch (e, s) {
                 OverlayLoadingProgress.stop();
@@ -359,7 +359,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     title: Intl.message('error_title'),
                     content: Intl.message('error_message_login_failed'),
                     onOk: () {
-                      Navigator.of(context).pop();
+                      Navigator.of(navigatorKey.currentContext!).pop();
                     });
                 rethrow;
               } finally {
@@ -409,7 +409,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   title: Intl.message('error_title'),
                   content: Intl.message('error_message_login_failed'),
                   onOk: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(navigatorKey.currentContext!).pop();
                   });
               rethrow;
             } finally {
@@ -478,7 +478,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   title: Intl.message('error_title'),
                   content: e.message,
                   onOk: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(navigatorKey.currentContext!).pop();
                   });
             } catch (e, s) {
               OverlayLoadingProgress.stop();
@@ -489,7 +489,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   title: Intl.message('error_title'),
                   content: Intl.message('error_message_login_failed'),
                   onOk: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(navigatorKey.currentContext!).pop();
                   });
               rethrow;
             } finally {

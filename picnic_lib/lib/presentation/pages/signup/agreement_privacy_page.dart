@@ -133,8 +133,8 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                               ),
                               onOk: () {
                                 navigationInfoNotifier.setResetStackSignUp();
-                                Navigator.pop(context);
-                                Navigator.pop(context);
+                                Navigator.of(navigatorKey.currentContext!).pop();
+                                Navigator.of(navigatorKey.currentContext!).pop();
                               });
                         });
                       } else {
@@ -143,7 +143,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                               title: Intl.message('title_dialog_error'),
                               content: Intl.message('message_agreement_fail'),
                               onOk: () {
-                                Navigator.pop(context);
+                                Navigator.of(navigatorKey.currentContext!).pop();
                               });
                         });
                       }
@@ -159,7 +159,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                             title: Intl.message('title_dialog_error'),
                             content: Intl.message('message_agreement_fail'),
                             onOk: () {
-                              Navigator.pop(context);
+                              Navigator.of(navigatorKey.currentContext!).pop();
                             });
                       });
                       rethrow;
