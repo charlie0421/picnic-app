@@ -20,11 +20,11 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ko';
 
-  static String m0(artistName) =>
-      "나와 #${artistName} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!";
+  static String m0(artist_name) =>
+      "나와 #${artist_name} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!";
 
-  static String m1(artistName) =>
-      "#${artistName} 의 2025년 운세가 궁금하다면? 지금 바로 #피크닠 으로 오세요! 우리 같이 빛나는 운세 확인해요!";
+  static String m1(artist_name) =>
+      "#${artist_name} 의 2025년 운세가 궁금하다면? 지금 바로 #피크닠 으로 오세요! 우리 같이 빛나는 운세 확인해요!";
 
   static String m2(year) => "${year}년 마이 아티스트 운세";
 
@@ -339,6 +339,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_close": MessageLookupByLibrary.simpleMessage("닫기"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("비동의"),
+        "label_button_mission_and_charge":
+            MessageLookupByLibrary.simpleMessage("미션하고 충전하기"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("충전하기"),
         "label_button_save_vote_paper":
             MessageLookupByLibrary.simpleMessage("투표증 저장"),
@@ -376,6 +378,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("광고 로딩중"),
         "label_loading_ads_fail":
             MessageLookupByLibrary.simpleMessage("광고 로딩 실패"),
+        "label_mission": MessageLookupByLibrary.simpleMessage("미션하기"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("아티스트 갤러리로 이동"),
         "label_mypage_charge_history":
@@ -744,6 +747,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("결과 공유"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("투표 완료!"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
-            "100개 이상 투표 후 공유하면 100개당 1개 보너스 별사탕 지급!")
+            "100개 이상 투표 후 공유하면 100개당 1개 보너스 별사탕 지급!"),
+        "withdrawal_success":
+            MessageLookupByLibrary.simpleMessage("탈퇴가 성공적으로 처리 되었습니다.")
       };
 }

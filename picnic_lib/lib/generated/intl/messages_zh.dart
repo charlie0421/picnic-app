@@ -20,10 +20,10 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh';
 
-  static String m0(artistName) => "我与 #${artistName} 的闪耀默契度是多少％呢？我的心已经怦怦直跳！";
+  static String m0(artist_name) => "我与 #${artist_name} 的闪耀默契度是多少％呢？我的心已经怦怦直跳！";
 
-  static String m1(artistName) =>
-      "想知道#${artistName}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！";
+  static String m1(artist_name) =>
+      "想知道#${artist_name}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！";
 
   static String m2(year) => "${year} 年星座运势";
 
@@ -319,6 +319,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_close": MessageLookupByLibrary.simpleMessage("關閉"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("不同意"),
+        "label_button_mission_and_charge":
+            MessageLookupByLibrary.simpleMessage("使命和职责"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充电"),
         "label_button_save_vote_paper":
             MessageLookupByLibrary.simpleMessage("存储您的选票"),
@@ -350,6 +352,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("加载广告"),
         "label_loading_ads_fail":
             MessageLookupByLibrary.simpleMessage("广告无法加载"),
+        "label_mission": MessageLookupByLibrary.simpleMessage("使命"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往艺术家画廊"),
         "label_mypage_charge_history":
@@ -687,6 +690,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("分享您的成果"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("投了赞成票！"),
         "voting_share_benefit_text":
-            MessageLookupByLibrary.simpleMessage("每 100 次投票和分享可获得 1 个奖励星星糖果！")
+            MessageLookupByLibrary.simpleMessage("每 100 次投票和分享可获得 1 个奖励星星糖果！"),
+        "withdrawal_success": MessageLookupByLibrary.simpleMessage("退订已成功处理.")
       };
 }

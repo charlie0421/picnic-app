@@ -20,11 +20,11 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(artistName) =>
-      "What percentage is my shining chemistry compatibility with #${artistName}} ? My heart is racing!";
+  static String m0(artist_name) =>
+      "What percentage is my shining chemistry compatibility with #${artist_name}} ? My heart is racing!";
 
-  static String m1(artistName) =>
-      "Curious about #${artistName}’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!";
+  static String m1(artist_name) =>
+      "Curious about #${artist_name}’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!";
 
   static String m2(year) => "Fortune of ${year}";
 
@@ -378,6 +378,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_close": MessageLookupByLibrary.simpleMessage("닫기"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("Non-Consent"),
+        "label_button_mission_and_charge":
+            MessageLookupByLibrary.simpleMessage("Mission and charge"),
         "label_button_recharge":
             MessageLookupByLibrary.simpleMessage("Charging"),
         "label_button_save_vote_paper":
@@ -419,6 +421,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("Loading ad"),
         "label_loading_ads_fail":
             MessageLookupByLibrary.simpleMessage("Ads fail to load"),
+        "label_mission": MessageLookupByLibrary.simpleMessage("Mission"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Go to the Artist Gallery"),
         "label_mypage_charge_history":
@@ -833,6 +836,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Share your results"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("Voted!"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
-            "Get 1 bonus star candy for every 100 votes and share!")
+            "Get 1 bonus star candy for every 100 votes and share!"),
+        "withdrawal_success": MessageLookupByLibrary.simpleMessage(
+            "The unsubscribe was processed successfully.")
       };
 }

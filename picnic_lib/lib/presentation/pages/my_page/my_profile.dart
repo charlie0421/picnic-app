@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:path/path.dart' as path;
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/core/config/environment.dart';
@@ -326,8 +327,12 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       if (response.statusCode == 200) {
         logger.i('User deleted successfully');
         ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
-        final authService = AuthService();
-        await authService.signOut();
+        ref.read(userInfoProvider.notifier).logout();
+        ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
+        Navigator.of(context).pop();
+
+        showSimpleDialog(
+            content: Intl.message('withdrawal_success'));
       } else {
         throw Exception('Failed to delete user: ${response.body}');
       }

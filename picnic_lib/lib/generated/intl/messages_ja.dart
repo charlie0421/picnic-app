@@ -20,10 +20,10 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
-  static String m0(artistName) => "私と#${artistName} の輝くケミは何％かな？ドキドキが止まらない！";
+  static String m0(artist_name) => "私と#${artist_name} の輝くケミは何％かな？ドキドキが止まらない！";
 
-  static String m1(artistName) =>
-      "想知道#${artistName}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！\n#picnic #新年运势 #Fourtuneteller\n";
+  static String m1(artist_name) =>
+      "想知道#${artist_name}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！\n#picnic #新年运势 #Fourtuneteller\n";
 
   static String m2(year) => "${year}年の運勢";
 
@@ -334,6 +334,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_button_close": MessageLookupByLibrary.simpleMessage("閉じる"),
         "label_button_disagreement":
             MessageLookupByLibrary.simpleMessage("非同意"),
+        "label_button_mission_and_charge":
+            MessageLookupByLibrary.simpleMessage("ミッションして充電する"),
         "label_button_recharge": MessageLookupByLibrary.simpleMessage("充電する"),
         "label_button_save_vote_paper":
             MessageLookupByLibrary.simpleMessage("投票券の保存"),
@@ -371,6 +373,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_loading_ads": MessageLookupByLibrary.simpleMessage("広告読み込み中"),
         "label_loading_ads_fail":
             MessageLookupByLibrary.simpleMessage("広告の読み込みに失敗"),
+        "label_mission": MessageLookupByLibrary.simpleMessage("ミッションをする"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
         "label_mypage_charge_history":
@@ -732,6 +735,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("結果共有"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("投票完了！"),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
-            "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！")
+            "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！"),
+        "withdrawal_success":
+            MessageLookupByLibrary.simpleMessage("退会が正常に処理されました。")
       };
 }

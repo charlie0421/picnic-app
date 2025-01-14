@@ -1290,6 +1290,16 @@ class S {
     );
   }
 
+  /// `Mission and charge`
+  String get label_button_mission_and_charge {
+    return Intl.message(
+      'Mission and charge',
+      name: 'label_button_mission_and_charge',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `The Artist Asks You!`
   String get label_celeb_ask_to_you {
     return Intl.message(
@@ -2115,6 +2125,16 @@ class S {
     return Intl.message(
       'View ads',
       name: 'label_watch_ads',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mission`
+  String get label_mission {
+    return Intl.message(
+      'Mission',
+      name: 'label_mission',
       desc: '',
       args: [],
     );
@@ -4285,6 +4305,16 @@ class S {
     return Intl.message(
       '#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합',
       name: 'compatibility_share_hashtag',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The unsubscribe was processed successfully.`
+  String get withdrawal_success {
+    return Intl.message(
+      'The unsubscribe was processed successfully.',
+      name: 'withdrawal_success',
       desc: '',
       args: [],
     );
