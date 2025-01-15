@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
@@ -506,6 +507,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             'user_id': userId,
           });
 
+      if ( response.status != 200) {
+        throw Exception('Failed to vote');
+      }
+
       await ref.read(userInfoProvider.notifier).getUserProfiles();
 
       ref
@@ -529,8 +534,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       OverlayLoadingProgress.stop();
-
-      if (!mounted) return;
+      Navigator.of(context).pop();
 
       _showVotingFailDialog();
       rethrow;
@@ -548,8 +552,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   void _showVotingFailDialog() {
     showSimpleDialog(
+      type: DialogType.error,
       content: S.of(context).dialog_title_vote_fail,
-      onOk: () => Navigator.of(context).pop(),
+      onOk: () => Navigator.of(navigatorKey.currentContext!).pop()
+
     );
   }
 }
