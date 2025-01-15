@@ -1,0 +1,12 @@
+{
+  "artist_id": "1300",
+  "artist_name": "다니엘라",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:14:18.732Z"
+}

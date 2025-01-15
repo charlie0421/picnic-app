@@ -1,0 +1,12 @@
+{
+  "artist_id": "442",
+  "artist_name": "키",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:12:17.288Z"
+}

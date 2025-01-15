@@ -1,0 +1,12 @@
+{
+  "artist_id": "101",
+  "artist_name": "앤",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:54:29.984Z"
+}

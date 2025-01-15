@@ -1,0 +1,12 @@
+{
+  "artist_id": "116",
+  "artist_name": "오로라",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:11:31.901Z"
+}

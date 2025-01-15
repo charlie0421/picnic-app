@@ -1,0 +1,12 @@
+{
+  "artist_id": "1207",
+  "artist_name": "유키",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:33:16.686Z"
+}

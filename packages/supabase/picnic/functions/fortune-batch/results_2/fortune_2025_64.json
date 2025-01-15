@@ -1,0 +1,12 @@
+{
+  "artist_id": "64",
+  "artist_name": "재민",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:53:14.599Z"
+}

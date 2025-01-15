@@ -1,0 +1,12 @@
+{
+  "artist_id": "888",
+  "artist_name": "먼데이",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:20:21.595Z"
+}

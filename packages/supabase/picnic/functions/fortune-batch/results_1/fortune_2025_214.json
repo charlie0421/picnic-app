@@ -1,0 +1,12 @@
+{
+  "artist_id": "214",
+  "artist_name": "김민서",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:32:19.800Z"
+}

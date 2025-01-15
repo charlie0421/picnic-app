@@ -1,0 +1,12 @@
+{
+  "artist_id": "97",
+  "artist_name": "소소",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:25:12.123Z"
+}

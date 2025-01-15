@@ -1,0 +1,12 @@
+{
+  "artist_id": "1331",
+  "artist_name": "마시로",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:14:22.971Z"
+}

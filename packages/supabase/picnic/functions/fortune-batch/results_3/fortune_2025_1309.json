@@ -1,0 +1,12 @@
+{
+  "artist_id": "1309",
+  "artist_name": "안나",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:14:20.198Z"
+}

@@ -1,0 +1,12 @@
+{
+  "artist_id": "137",
+  "artist_name": "민지",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:27:31.793Z"
+}

@@ -1,0 +1,12 @@
+{
+  "artist_id": "199",
+  "artist_name": "에릭",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:57:45.121Z"
+}

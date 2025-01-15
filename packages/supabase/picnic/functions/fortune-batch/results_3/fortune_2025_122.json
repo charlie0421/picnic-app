@@ -1,0 +1,12 @@
+{
+  "artist_id": "122",
+  "artist_name": "채빈",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:11:33.382Z"
+}

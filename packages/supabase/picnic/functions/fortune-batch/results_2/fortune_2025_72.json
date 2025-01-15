@@ -1,0 +1,12 @@
+{
+  "artist_id": "72",
+  "artist_name": "잭슨",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:53:33.065Z"
+}

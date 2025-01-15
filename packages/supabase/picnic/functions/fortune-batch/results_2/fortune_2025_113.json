@@ -1,0 +1,12 @@
+{
+  "artist_id": "113",
+  "artist_name": "베리",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:54:48.944Z"
+}

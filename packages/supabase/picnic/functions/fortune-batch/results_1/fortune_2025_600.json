@@ -1,0 +1,12 @@
+{
+  "artist_id": "600",
+  "artist_name": "유마",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:54:51.006Z"
+}

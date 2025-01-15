@@ -1,0 +1,12 @@
+{
+  "artist_id": "121",
+  "artist_name": "선샤인",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:11:33.398Z"
+}

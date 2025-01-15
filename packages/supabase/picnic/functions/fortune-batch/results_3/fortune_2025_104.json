@@ -1,0 +1,12 @@
+{
+  "artist_id": "104",
+  "artist_name": "윤",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:11:30.553Z"
+}

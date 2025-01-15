@@ -1,0 +1,12 @@
+{
+  "artist_id": "1026",
+  "artist_name": "니콜",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:13:40.738Z"
+}

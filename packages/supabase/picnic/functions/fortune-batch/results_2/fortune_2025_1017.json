@@ -1,0 +1,12 @@
+{
+  "artist_id": "1017",
+  "artist_name": "제이셉",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:24:22.746Z"
+}

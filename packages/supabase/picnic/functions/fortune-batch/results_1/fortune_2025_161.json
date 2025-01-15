@@ -1,0 +1,12 @@
+{
+  "artist_id": "161",
+  "artist_name": "렉스",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:29:29.522Z"
+}

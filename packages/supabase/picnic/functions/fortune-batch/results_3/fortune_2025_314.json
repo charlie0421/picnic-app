@@ -1,0 +1,12 @@
+{
+  "artist_id": "314",
+  "artist_name": "화사",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:11:59.821Z"
+}

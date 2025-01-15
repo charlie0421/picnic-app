@@ -1,0 +1,12 @@
+{
+  "artist_id": "306",
+  "artist_name": "진원",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:01:19.170Z"
+}

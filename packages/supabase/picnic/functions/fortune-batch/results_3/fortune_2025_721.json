@@ -1,0 +1,12 @@
+{
+  "artist_id": "721",
+  "artist_name": "쟈니",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:12:56.640Z"
+}

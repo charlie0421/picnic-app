@@ -1,0 +1,12 @@
+{
+  "artist_id": "144",
+  "artist_name": "최지안",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:55:48.272Z"
+}

@@ -1,0 +1,12 @@
+{
+  "artist_id": "1024",
+  "artist_name": "한승연",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:24:22.507Z"
+}

@@ -1,0 +1,12 @@
+{
+  "artist_id": "43",
+  "artist_name": "세현",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:11:21.784Z"
+}

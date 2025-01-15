@@ -1,0 +1,12 @@
+{
+  "artist_id": "77",
+  "artist_name": "유겸",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:24:19.171Z"
+}

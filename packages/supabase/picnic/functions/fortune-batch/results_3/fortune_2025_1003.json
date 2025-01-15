@@ -1,0 +1,12 @@
+{
+  "artist_id": "1003",
+  "artist_name": "안다미로",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:13:36.496Z"
+}

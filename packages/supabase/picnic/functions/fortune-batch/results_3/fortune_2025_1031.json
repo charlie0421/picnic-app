@@ -1,0 +1,12 @@
+{
+  "artist_id": "1031",
+  "artist_name": "사랑",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:13:40.769Z"
+}

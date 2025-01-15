@@ -1,0 +1,12 @@
+{
+  "artist_id": "300",
+  "artist_name": "카즈하",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:01:00.888Z"
+}

@@ -1,0 +1,12 @@
+{
+  "artist_id": "1001",
+  "artist_name": "시온",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:13:36.517Z"
+}

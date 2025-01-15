@@ -1,0 +1,12 @@
+{
+  "artist_id": "1111",
+  "artist_name": "최현석",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:25:26.517Z"
+}

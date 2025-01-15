@@ -1,0 +1,12 @@
+{
+  "artist_id": "180",
+  "artist_name": "최한빈",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:29:59.391Z"
+}

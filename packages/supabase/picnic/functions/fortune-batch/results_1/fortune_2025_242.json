@@ -1,0 +1,12 @@
+{
+  "artist_id": "242",
+  "artist_name": "은석",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:34:20.694Z"
+}

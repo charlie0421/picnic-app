@@ -1,0 +1,12 @@
+{
+  "artist_id": "117",
+  "artist_name": "소희",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:26:21.703Z"
+}

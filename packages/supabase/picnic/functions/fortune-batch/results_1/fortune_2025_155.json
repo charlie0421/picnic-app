@@ -1,0 +1,12 @@
+{
+  "artist_id": "155",
+  "artist_name": "리쿠",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:28:52.960Z"
+}

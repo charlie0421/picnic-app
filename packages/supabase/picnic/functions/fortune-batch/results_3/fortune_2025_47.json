@@ -1,0 +1,12 @@
+{
+  "artist_id": "47",
+  "artist_name": "정화",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:11:21.769Z"
+}

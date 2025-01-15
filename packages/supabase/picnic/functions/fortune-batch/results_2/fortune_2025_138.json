@@ -1,0 +1,12 @@
+{
+  "artist_id": "138",
+  "artist_name": "해린",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:55:26.102Z"
+}

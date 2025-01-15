@@ -1,0 +1,12 @@
+{
+  "artist_id": "198",
+  "artist_name": "큐",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:57:40.794Z"
+}

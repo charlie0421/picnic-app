@@ -1,0 +1,12 @@
+{
+  "artist_id": "373",
+  "artist_name": "로라",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:03:08.623Z"
+}

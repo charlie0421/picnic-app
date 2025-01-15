@@ -1,0 +1,12 @@
+{
+  "artist_id": "160",
+  "artist_name": "민재",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:28:40.354Z"
+}

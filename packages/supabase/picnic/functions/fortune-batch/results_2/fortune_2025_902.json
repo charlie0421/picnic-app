@@ -1,0 +1,12 @@
+{
+  "artist_id": "902",
+  "artist_name": "은호",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:20:40.533Z"
+}

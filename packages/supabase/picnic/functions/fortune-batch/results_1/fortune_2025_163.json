@@ -1,0 +1,12 @@
+{
+  "artist_id": "163",
+  "artist_name": "은채",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:29:25.370Z"
+}

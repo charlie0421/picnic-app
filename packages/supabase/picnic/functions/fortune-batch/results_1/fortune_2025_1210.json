@@ -1,0 +1,12 @@
+{
+  "artist_id": "1210",
+  "artist_name": "키노",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:34:13.454Z"
+}

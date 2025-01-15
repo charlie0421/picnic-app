@@ -1,0 +1,12 @@
+{
+  "artist_id": "1094",
+  "artist_name": "박봄",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:26:36.296Z"
+}

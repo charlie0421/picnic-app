@@ -1,0 +1,12 @@
+{
+  "artist_id": "118",
+  "artist_name": "새봄",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:26:23.078Z"
+}

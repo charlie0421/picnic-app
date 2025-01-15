@@ -1,0 +1,12 @@
+{
+  "artist_id": "393",
+  "artist_name": "제니",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:42:08.551Z"
+}

@@ -1,0 +1,12 @@
+{
+  "artist_id": "707",
+  "artist_name": "한나",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:14:21.211Z"
+}

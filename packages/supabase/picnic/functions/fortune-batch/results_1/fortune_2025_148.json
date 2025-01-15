@@ -1,0 +1,12 @@
+{
+  "artist_id": "148",
+  "artist_name": "리오",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:27:59.185Z"
+}

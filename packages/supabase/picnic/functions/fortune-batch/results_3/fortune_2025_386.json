@@ -1,0 +1,12 @@
+{
+  "artist_id": "386",
+  "artist_name": "유권",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:12:09.783Z"
+}

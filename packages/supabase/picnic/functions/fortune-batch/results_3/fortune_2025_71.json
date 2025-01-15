@@ -1,0 +1,12 @@
+{
+  "artist_id": "71",
+  "artist_name": "제이비",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:11:26.252Z"
+}

@@ -1,0 +1,12 @@
+{
+  "artist_id": "1103",
+  "artist_name": "송선",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:24:56.704Z"
+}

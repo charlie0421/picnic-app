@@ -1,0 +1,12 @@
+{
+  "artist_id": "468",
+  "artist_name": "서현",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:12:21.490Z"
+}

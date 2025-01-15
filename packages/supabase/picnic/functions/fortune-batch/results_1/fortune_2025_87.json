@@ -1,0 +1,12 @@
+{
+  "artist_id": "87",
+  "artist_name": "이대열",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:24:26.540Z"
+}

@@ -1,0 +1,12 @@
+{
+  "artist_id": "905",
+  "artist_name": "경문",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:13:22.400Z"
+}

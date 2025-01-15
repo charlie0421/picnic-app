@@ -1,0 +1,12 @@
+{
+  "artist_id": "550",
+  "artist_name": "엠제이",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:51:28.098Z"
+}

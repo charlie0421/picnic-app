@@ -1,0 +1,12 @@
+{
+  "artist_id": "173",
+  "artist_name": "룬",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:30:03.984Z"
+}

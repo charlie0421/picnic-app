@@ -1,0 +1,12 @@
+{
+  "artist_id": "129",
+  "artist_name": "도의",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:26:58.557Z"
+}

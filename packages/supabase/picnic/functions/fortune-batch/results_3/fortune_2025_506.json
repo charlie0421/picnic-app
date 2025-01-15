@@ -1,0 +1,12 @@
+{
+  "artist_id": "506",
+  "artist_name": "한",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:12:27.166Z"
+}

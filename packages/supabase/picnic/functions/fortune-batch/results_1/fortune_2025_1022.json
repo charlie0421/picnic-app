@@ -1,0 +1,12 @@
+{
+  "artist_id": "1022",
+  "artist_name": "강지영",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:20:42.338Z"
+}

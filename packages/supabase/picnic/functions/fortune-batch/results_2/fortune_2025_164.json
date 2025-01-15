@@ -1,0 +1,12 @@
+{
+  "artist_id": "164",
+  "artist_name": "주은",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:56:30.498Z"
+}

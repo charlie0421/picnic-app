@@ -1,0 +1,12 @@
+{
+  "artist_id": "46",
+  "artist_name": "하니",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:52:36.339Z"
+}

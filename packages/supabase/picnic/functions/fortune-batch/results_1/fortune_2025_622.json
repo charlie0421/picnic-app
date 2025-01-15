@@ -1,0 +1,12 @@
+{
+  "artist_id": "622",
+  "artist_name": "시현",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:55:55.318Z"
+}

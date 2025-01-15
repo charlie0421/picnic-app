@@ -1,0 +1,12 @@
+{
+  "artist_id": "1339",
+  "artist_name": "예원",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:14:24.306Z"
+}

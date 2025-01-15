@@ -1,0 +1,12 @@
+{
+  "artist_id": "845",
+  "artist_name": "소라",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:13:13.732Z"
+}

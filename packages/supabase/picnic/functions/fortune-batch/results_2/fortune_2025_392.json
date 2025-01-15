@@ -1,0 +1,12 @@
+{
+  "artist_id": "392",
+  "artist_name": "지수",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:03:46.329Z"
+}

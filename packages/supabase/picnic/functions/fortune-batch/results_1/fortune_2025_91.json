@@ -1,0 +1,12 @@
+{
+  "artist_id": "91",
+  "artist_name": "와이",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:25:20.426Z"
+}

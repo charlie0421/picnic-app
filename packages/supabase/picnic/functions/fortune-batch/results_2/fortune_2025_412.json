@@ -1,0 +1,12 @@
+{
+  "artist_id": "412",
+  "artist_name": "원진",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:04:22.738Z"
+}

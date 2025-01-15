@@ -1,0 +1,12 @@
+{
+  "artist_id": "332",
+  "artist_name": "김민석",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T13:39:25.094Z"
+}

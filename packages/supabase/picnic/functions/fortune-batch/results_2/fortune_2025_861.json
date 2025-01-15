@@ -1,0 +1,12 @@
+{
+  "artist_id": "861",
+  "artist_name": "동명",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T15:19:17.940Z"
+}

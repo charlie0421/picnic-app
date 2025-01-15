@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/ai/completion.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/ai/deepl.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/ai/errors.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/ai/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/ai/openai.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/auth.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/cors.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/database.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/response.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/services/compatibility.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/services/fortune.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/services/prompt.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/types/compatibility.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/types/fortune.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/types/openai.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/types/prompt.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/_shared/utils.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/.vscode/extensions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/.vscode/settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/config.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/ai/completion.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/ai/deepl.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/ai/errors.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/ai/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/ai/openai.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/auth.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/cors.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/database.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/response.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/services/compatibility.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/services/fortune.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/services/prompt.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/types/compatibility.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/types/fortune.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/types/openai.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/types/prompt.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/utils.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/deno.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/ai/deepl.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/ai/errors.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/ai/openai.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/auth.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/cors.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/database.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/response.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/services/compatibility.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/services/prompt.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/types/openai.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/file:/Users/charlie.hyun/Repositories/picnic/packages/client/picnic_app/supabase/supabase/functions/_shared/utils.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/compatibility/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/delete-user/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/voting/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ttja/supabase/functions/callback-admob/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ttja/supabase/functions/check-ads-count/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ttja/supabase/functions/check-and-award-bonus/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ttja/supabase/functions/delete-user/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ttja/supabase/functions/get-client-ip/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ttja/supabase/functions/update-nickname/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ttja/supabase/functions/verify_receipt/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ttja/supabase/functions/voting/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/android/app/src/main/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/android/app/src/main/kotlin/com/ttja/picnic/MainActivity.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/config.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/deno.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/ai/completion.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/ai/deepl.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/ai/errors.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/ai/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/ai/openai.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/auth.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/cors.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/database.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/response.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/services/compatibility.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/services/fortune.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/services/prompt.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/types/compatibility.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/types/fortune.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/types/openai.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/types/prompt.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/_shared/utils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/alarm-board-request/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/alarm-receipt/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/callback-admob/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/callback-tapjoy/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/check-ads-count/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/check-and-award-bonus/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/compatibility/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/delete-user/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/fortune-batch.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/results/fortune_2024_0.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/results/fortune_2024_1.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/results/fortune_2024_3.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/results/fortune_batch_log.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-batch/run.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/fortune-teller/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/get-client-ip/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/google-play-notifications/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/image-resize/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/kakao-login/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/link-preview/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/open-compatibility/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/openai-moderation/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/pic-voting/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/process-ads-reward/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/reward-unity/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/serve-assetlinks/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/update-nickname/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/verify_receipt/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/voting/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/youtube-preview/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/supabase/supabase/functions/youtube-thumbnail/index.ts" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "charlie0421"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/charlie0421/picnic.git",
+    "accountId": "02e3624c-a758-4bc0-9d6c-c132ff5d9cb0"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="2rennZniHyekBwRXecDYWeT9gUa" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "deno.use.library": "true",
+    "git-widget-placeholder": "production",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/charlie.hyun/Repositories/picnic/packages/supabase/ttja/supabase/functions",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "show.migrate.to.gradle.popup": "false",
+    "ts.external.directory.path": "/Users/charlie.hyun/Applications/IntelliJ IDEA Ultimate.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ttja/supabase/functions" />
+      <recent name="$PROJECT_DIR$/picnic/supabase/functions" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ttja/supabase" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SwiftWorkspaceSettings">
+    <option name="detectedToolchain" value="true" />
+    <option name="toolchainPathValue" value="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="" />
+      <created>1736928576109</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1736928576109</updated>
+      <workItem from="1736928578301" duration="2962000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

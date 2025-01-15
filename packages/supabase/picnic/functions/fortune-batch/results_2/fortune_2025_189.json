@@ -1,0 +1,12 @@
+{
+  "artist_id": "189",
+  "artist_name": "주연",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:57:14.809Z"
+}

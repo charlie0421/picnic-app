@@ -1,0 +1,12 @@
+{
+  "artist_id": "190",
+  "artist_name": "케빈",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-28T14:57:15.107Z"
+}

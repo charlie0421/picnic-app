@@ -1,0 +1,12 @@
+{
+  "artist_id": "1033",
+  "artist_name": "준형",
+  "year": 2025,
+  "fortune": {
+    "success": true,
+    "data": {
+      "fortune": null
+    }
+  },
+  "processed_at": "2024-11-29T04:13:40.745Z"
+}
