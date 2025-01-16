@@ -33,6 +33,7 @@ migrate_working_dir/
 /build/
 
 # Except for the build/web directory
+/build/*
 !/build/web/
 
 # Symbolication related
