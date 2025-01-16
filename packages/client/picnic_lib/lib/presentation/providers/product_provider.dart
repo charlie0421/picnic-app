@@ -2,6 +2,8 @@
 import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -77,12 +79,12 @@ class StoreProducts extends _$StoreProducts {
                       ? product['id']
                           .toString()
                           .toLowerCase() // convert to lowercase for Android
-                      : product['id'].toString() // use original ID for the rest
+                      : Environment.inappAppNamePrefix + product['id'].toString() // use original ID for the rest
               )
           .toSet();
 
       final ProductDetailsResponse response =
-          await inAppPurchase.queryProductDetails(productIds);
+           await inAppPurchase.queryProductDetails(productIds);
 
       if (response.notFoundIDs.isNotEmpty) {
         logger
