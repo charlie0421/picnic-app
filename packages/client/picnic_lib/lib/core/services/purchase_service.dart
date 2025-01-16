@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/in_app_purchase_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/receipt_verification_service.dart';
@@ -154,7 +155,8 @@ class PurchaseService {
       final productDetails = storeProducts.firstWhere(
         (element) => isAndroid()
             ? element.id.toUpperCase() == serverProduct['id']
-            : element.id == serverProduct['id'],
+            : element.id ==
+                Environment.inappAppNamePrefix + serverProduct['id'],
         orElse: () => throw Exception('스토어에서 상품을 찾을 수 없습니다'),
       );
 

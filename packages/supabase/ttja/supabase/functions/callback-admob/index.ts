@@ -9,7 +9,8 @@ function base64UrlToBase64(base64Url) {
 }
 
 // admob 추가시 테스트 데이터
-// 7ae352a2-74af-4d4d-90a5-cdd9d8c8310d
+// https://rocqgevonvtqxlwqbamm.supabase.co/functions/v1/callback-admob
+// 866a3da2-38d1-4f16-b69f-3ca6a5a048c3
 // {"reward_amount":1, "reward_type":"free_charge_station"}
 
 function safeAtob(base64) {

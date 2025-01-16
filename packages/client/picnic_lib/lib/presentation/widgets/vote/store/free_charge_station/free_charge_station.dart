@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
@@ -31,14 +32,19 @@ class FreeChargeStation extends ConsumerStatefulWidget {
 }
 
 class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _buttonScaleAnimation;
+  late final AnimationController _rotationController;
 
   @override
   void initState() {
     super.initState();
     _setupAnimation();
+    _rotationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
   }
 
   void _setupAnimation() {
@@ -132,6 +138,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       buttonScaleAnimation: _buttonScaleAnimation,
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
       onAdButtonPressed: _showRewardedAdmob,
+      rotationController: _rotationController,
     );
   }
 }
@@ -141,12 +148,14 @@ class FreeChargeContent extends ConsumerWidget {
   final VoidCallback onPolicyTap;
   final Function(int) onAdButtonPressed;
   final VoidCallback? onRetryBannerAd;
+  final AnimationController rotationController;
 
   const FreeChargeContent({
     super.key,
     required this.buttonScaleAnimation,
     required this.onPolicyTap,
     required this.onAdButtonPressed,
+    required this.rotationController,
     this.onRetryBannerAd,
   });
 
@@ -160,7 +169,33 @@ class FreeChargeContent extends ConsumerWidget {
       child: ListView(
         children: [
           if (isLogged) ...[
-            const SizedBox(height: 36),
+            const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () {
+                  rotationController.forward(from: 0);
+                  ref.read(userInfoProvider.notifier).getUserProfiles();
+                },
+                child: RotationTransition(
+                  turns: Tween(begin: 0.0, end: 1.0).animate(
+                    CurvedAnimation(
+                      parent: rotationController,
+                      curve: Curves.easeInOut,
+                    ),
+                  ),
+                  child: SvgPicture.asset(
+                    package: 'picnic_lib',
+                    'assets/icons/reset_style=line.svg',
+                    width: 30,
+                    height: 30,
+                    colorFilter:
+                        ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
             StorePointInfo(
               title: S.of(context).label_star_candy_pouch,
               width: double.infinity,
@@ -177,7 +212,7 @@ class FreeChargeContent extends ConsumerWidget {
           ),
           const SizedBox(height: 18),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildMissionSection(ref,context),
+          _buildMissionSection(ref, context),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 0, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
@@ -197,6 +232,7 @@ class FreeChargeContent extends ConsumerWidget {
             .copyWith(height: 1),
       ),
       buttonOnPressed: () async {
+        OverlayLoadingProgress.start(context);
         Tapjoy.setUserID(
             userId: supabase.auth.currentUser!.id,
             onSetUserIDSuccess: () => logger
@@ -208,20 +244,24 @@ class FreeChargeContent extends ConsumerWidget {
           placementName: 'mission',
           onRequestSuccess: (placement) async {
             logger.i('onRequestSuccess');
+            OverlayLoadingProgress.stop();
           },
-          onRequestFailure: (placement, error) =>
-              logger.e('onRequestFailure', error: error),
+          onRequestFailure: (placement, error) {
+            logger.e('onRequestFailure', error: error);
+            OverlayLoadingProgress.stop();
+          },
           onContentReady: (placement) {
             logger.i('onContentReady');
+            OverlayLoadingProgress.stop();
             placement.showContent();
           },
-          onContentShow: (placement) => logger.i('onContentShow'),
+          onContentShow: (placement) {
+            logger.i('onContentShow');
+            OverlayLoadingProgress.stop();
+          },
           onContentDismiss: (placement) {
             logger.i('onContentDismiss');
-            ref.read(userInfoProvider.notifier).getProfiles();
-            Future.delayed(const Duration(seconds: 2), () {
-              ref.read(userInfoProvider.notifier).getProfiles();
-            });
+            OverlayLoadingProgress.stop();
           },
         );
         placement.setEntryPoint(TJEntryPoint.entryPointStore);
