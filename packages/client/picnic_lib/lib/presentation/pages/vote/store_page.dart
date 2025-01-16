@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_web.dart';
