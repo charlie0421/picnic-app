@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
@@ -24,12 +25,18 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
-class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
+class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
+    with SingleTickerProviderStateMixin {
   late final PurchaseService _purchaseService;
+  late final AnimationController _rotationController;
 
   @override
   void initState() {
     super.initState();
+    _rotationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
     _purchaseService = PurchaseService(
       ref: ref,
       inAppPurchaseService: InAppPurchaseService(),
@@ -41,6 +48,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
 
   @override
   void dispose() {
+    _rotationController.dispose();
     _purchaseService.inAppPurchaseService.dispose();
     super.dispose();
   }
@@ -176,7 +184,33 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy> {
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
-            const SizedBox(height: 36),
+            const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () {
+                  _rotationController.forward(from: 0);
+                  ref.read(userInfoProvider.notifier).getUserProfiles();
+                },
+                child: RotationTransition(
+                  turns: Tween(begin: 0.0, end: 1.0).animate(
+                    CurvedAnimation(
+                      parent: _rotationController,
+                      curve: Curves.easeInOut,
+                    ),
+                  ),
+                  child: SvgPicture.asset(
+                    package: 'picnic_lib',
+                    'assets/icons/reset_style=line.svg',
+                    width: 30,
+                    height: 30,
+                    colorFilter:
+                        ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
             StorePointInfo(
               title: Intl.message('label_star_candy_pouch'),
               width: double.infinity,
