@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "922874925395-9rir1bpif83ujb602ts6r8ma12rlpdvo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ttja",
+            "certificate_hash": "dfd5edb7c2d075a320b0594376de91ccb31e0678"
+          }
+        },
+        {
           "client_id": "922874925395-4i0a0pb0t2g7i21jjfauro9ofgc00img.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -39,7 +47,8 @@
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-1539304887624918~2924485777"
     }
   ],
   "configuration_version": "1"

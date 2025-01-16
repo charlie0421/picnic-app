@@ -10,9 +10,7 @@ console.log('Supabase client created');
 
 const SANDBOX_URL = 'https://sandbox.itunes.apple.com/verifyReceipt';
 const PRODUCTION_URL = 'https://buy.itunes.apple.com/verifyReceipt';
-const GOOGLE_PRIVATE_KEY = Deno.env
-  .get('GOOGLE_PRIVATE_KEY')
-  .replace(/\\n/g, '\n');
+const GOOGLE_PRIVATE_KEY = Deno.env.get('GOOGLE_PRIVATE_KEY').replace(/\\n/g, '\n');
 const GOOGLE_CLIENT_EMAIL = Deno.env.get('GOOGLE_CLIENT_EMAIL');
 
 console.log('Private key length:', GOOGLE_PRIVATE_KEY.length);

@@ -177,7 +177,7 @@ class FreeChargeContent extends ConsumerWidget {
           ),
           const SizedBox(height: 18),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildMissionSection(context),
+          _buildMissionSection(ref,context),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 0, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
@@ -189,7 +189,7 @@ class FreeChargeContent extends ConsumerWidget {
     );
   }
 
-  Widget _buildMissionSection(BuildContext context) {
+  Widget _buildMissionSection(ref, BuildContext context) {
     return StoreListTile(
       title: Text(
         S.of(context).label_button_mission_and_charge,
@@ -216,7 +216,13 @@ class FreeChargeContent extends ConsumerWidget {
             placement.showContent();
           },
           onContentShow: (placement) => logger.i('onContentShow'),
-          onContentDismiss: (placement) => logger.i('onContentDismiss'),
+          onContentDismiss: (placement) {
+            logger.i('onContentDismiss');
+            ref.read(userInfoProvider.notifier).getProfiles();
+            Future.delayed(const Duration(seconds: 2), () {
+              ref.read(userInfoProvider.notifier).getProfiles();
+            });
+          },
         );
         placement.setEntryPoint(TJEntryPoint.entryPointStore);
 

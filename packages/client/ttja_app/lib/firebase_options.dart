@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '922874925395',
     projectId: 'ttja-447309',
     storageBucket: 'ttja-447309.firebasestorage.app',
+    androidClientId: '922874925395-9rir1bpif83ujb602ts6r8ma12rlpdvo.apps.googleusercontent.com',
     iosClientId: '922874925395-t3anf1iksojil5fc7lss9h4ahr1kgbkm.apps.googleusercontent.com',
     iosBundleId: 'com.fasoo.TTJA',
   );
@@ -74,6 +75,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '922874925395',
     projectId: 'ttja-447309',
     storageBucket: 'ttja-447309.firebasestorage.app',
+    androidClientId: '922874925395-9rir1bpif83ujb602ts6r8ma12rlpdvo.apps.googleusercontent.com',
     iosClientId: '922874925395-j8si8jhhs02sc1475mn7t60cff06l23s.apps.googleusercontent.com',
     iosBundleId: 'com.example.ttjaApp',
   );
