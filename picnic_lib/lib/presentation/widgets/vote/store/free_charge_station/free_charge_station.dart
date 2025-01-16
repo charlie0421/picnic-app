@@ -132,12 +132,65 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     _animationController.forward(from: 0.0);
   }
 
+  Future<void> _showTapjoyMission() async {
+    final userState = ref.read(userInfoProvider);
+    if (userState.value == null) {
+      if (mounted) showRequireLoginDialog();
+      return;
+    }
+
+    try {
+      if (mounted) OverlayLoadingProgress.start(context);
+
+      Tapjoy.setUserID(
+          userId: supabase.auth.currentUser!.id,
+          onSetUserIDSuccess: () =>
+              logger.i('setUserID onSuccess: ${supabase.auth.currentUser!.id}'),
+          onSetUserIDFailure: (error) =>
+              logger.e('setUserID onFailure', error: error));
+
+      TJPlacement placement = await TJPlacement.getPlacement(
+        placementName: 'mission',
+        onRequestSuccess: (placement) async {
+          logger.i('onRequestSuccess');
+          if (mounted) OverlayLoadingProgress.stop();
+        },
+        onRequestFailure: (placement, error) {
+          logger.e('onRequestFailure', error: error);
+          if (mounted) OverlayLoadingProgress.stop();
+        },
+        onContentReady: (placement) {
+          logger.i('onContentReady');
+          if (mounted) OverlayLoadingProgress.stop();
+          placement.showContent();
+        },
+        onContentShow: (placement) {
+          logger.i('onContentShow');
+          if (mounted) OverlayLoadingProgress.stop();
+        },
+        onContentDismiss: (placement) {
+          logger.i('onContentDismiss');
+          if (mounted) OverlayLoadingProgress.stop();
+        },
+      );
+      placement.setEntryPoint(TJEntryPoint.entryPointStore);
+
+      await placement.requestContent();
+    } catch (e, s) {
+      logger.e('Error in _showTapjoyMission', error: e, stackTrace: s);
+      if (mounted) _showErrorDialog(Intl.message('label_loading_mission_fail'));
+    } finally {
+      if (mounted) OverlayLoadingProgress.stop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FreeChargeContent(
       buttonScaleAnimation: _buttonScaleAnimation,
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
       onAdButtonPressed: _showRewardedAdmob,
+      onMissionPressed: _showTapjoyMission,
       rotationController: _rotationController,
     );
   }
@@ -147,6 +200,7 @@ class FreeChargeContent extends ConsumerWidget {
   final Animation<double> buttonScaleAnimation;
   final VoidCallback onPolicyTap;
   final Function(int) onAdButtonPressed;
+  final VoidCallback onMissionPressed;
   final VoidCallback? onRetryBannerAd;
   final AnimationController rotationController;
 
@@ -155,6 +209,7 @@ class FreeChargeContent extends ConsumerWidget {
     required this.buttonScaleAnimation,
     required this.onPolicyTap,
     required this.onAdButtonPressed,
+    required this.onMissionPressed,
     required this.rotationController,
     this.onRetryBannerAd,
   });
@@ -231,43 +286,7 @@ class FreeChargeContent extends ConsumerWidget {
         style: getTextStyle(AppTypo.body14B, AppColors.grey900)
             .copyWith(height: 1),
       ),
-      buttonOnPressed: () async {
-        OverlayLoadingProgress.start(context);
-        Tapjoy.setUserID(
-            userId: supabase.auth.currentUser!.id,
-            onSetUserIDSuccess: () => logger
-                .i('setUserID onSuccess: ${supabase.auth.currentUser!.id}'),
-            onSetUserIDFailure: (error) =>
-                logger.e('setUserID onFailure', error: error));
-
-        TJPlacement placement = await TJPlacement.getPlacement(
-          placementName: 'mission',
-          onRequestSuccess: (placement) async {
-            logger.i('onRequestSuccess');
-            OverlayLoadingProgress.stop();
-          },
-          onRequestFailure: (placement, error) {
-            logger.e('onRequestFailure', error: error);
-            OverlayLoadingProgress.stop();
-          },
-          onContentReady: (placement) {
-            logger.i('onContentReady');
-            OverlayLoadingProgress.stop();
-            placement.showContent();
-          },
-          onContentShow: (placement) {
-            logger.i('onContentShow');
-            OverlayLoadingProgress.stop();
-          },
-          onContentDismiss: (placement) {
-            logger.i('onContentDismiss');
-            OverlayLoadingProgress.stop();
-          },
-        );
-        placement.setEntryPoint(TJEntryPoint.entryPointStore);
-
-        await placement.requestContent();
-      },
+      buttonOnPressed: onMissionPressed,
       icon: Image.asset(
         package: 'picnic_lib',
         'assets/icons/store/star_100.png',
