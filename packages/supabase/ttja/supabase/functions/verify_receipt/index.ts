@@ -447,43 +447,43 @@ async function grantReward(userId, productId, transactionId) {
         star_candy: 10000,
         star_candy_bonus: 2100,
       },
-      STAR100: {
+      TTJA_STAR100: {
         star_candy: 100,
         star_candy_bonus: 0,
       },
-      STAR200: {
+      TTJA_STAR200: {
         star_candy: 200,
         star_candy_bonus: 25,
       },
-      STAR600: {
+      TTJA_STAR600: {
         star_candy: 600,
         star_candy_bonus: 85,
       },
-      STAR1000: {
+      TTJA_STAR1000: {
         star_candy: 1000,
         star_candy_bonus: 150,
       },
-      STAR2000: {
+      TTJA_STAR2000: {
         star_candy: 2000,
         star_candy_bonus: 320,
       },
-      STAR3000: {
+      TTJA_STAR3000: {
         star_candy: 3000,
         star_candy_bonus: 540,
       },
-      STAR4000: {
+      TTJA_STAR4000: {
         star_candy: 4000,
         star_candy_bonus: 760,
       },
-      STAR5000: {
+      TTJA_STAR5000: {
         star_candy: 5000,
         star_candy_bonus: 1000,
       },
-      STAR7000: {
+      TTJA_STAR7000: {
         star_candy: 7000,
         star_candy_bonus: 1500,
       },
-      STAR10000: {
+      TTJA_STAR10000: {
         star_candy: 10000,
         star_candy_bonus: 2100,
       },
