@@ -8,6 +8,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
@@ -153,7 +154,6 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         placementName: 'mission',
         onRequestSuccess: (placement) async {
           logger.i('onRequestSuccess');
-          if (mounted) OverlayLoadingProgress.stop();
         },
         onRequestFailure: (placement, error) {
           logger.e('onRequestFailure', error: error);
@@ -161,12 +161,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
         },
         onContentReady: (placement) {
           logger.i('onContentReady');
-          if (mounted) OverlayLoadingProgress.stop();
           placement.showContent();
         },
         onContentShow: (placement) {
           logger.i('onContentShow');
-          if (mounted) OverlayLoadingProgress.stop();
         },
         onContentDismiss: (placement) {
           logger.i('onContentDismiss');
@@ -179,9 +177,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     } catch (e, s) {
       logger.e('Error in _showTapjoyMission', error: e, stackTrace: s);
       if (mounted) _showErrorDialog(Intl.message('label_loading_mission_fail'));
-    } finally {
-      if (mounted) OverlayLoadingProgress.stop();
-    }
+    } finally {}
   }
 
   @override
