@@ -544,6 +544,10 @@
     "@label_button_watch_and_charge": {
         "manualTranslation": false
     },
+    "label_button_mission_and_charge": "ミッションして充電する",
+    "@label_button_mission_and_charge": {
+        "manualTranslation": false
+    },
     "label_celeb_ask_to_you": "アーティストがあなたに尋ねる！",
     "@label_celeb_ask_to_you": {
         "manualTranslation": false
@@ -874,6 +878,10 @@
     },
     "label_watch_ads": "広告を見る",
     "@label_watch_ads": {
+        "manualTranslation": false
+    },
+    "label_mission": "ミッションをする",
+    "@label_mission": {
         "manualTranslation": false
     },
     "lable_my_celeb": "私のアーティスト",
@@ -1693,5 +1701,9 @@
     "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
     "@compatibility_share_hashtag": {
         "manualTranslation": true
+    },
+    "withdrawal_success": "退会が正常に処理されました。",
+    "@withdrawal_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108"
     }
 }

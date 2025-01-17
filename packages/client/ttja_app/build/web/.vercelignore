@@ -1,0 +1,5 @@
+# .vercelignore
+*.map
+tests/
+docs/
+build/cache/
