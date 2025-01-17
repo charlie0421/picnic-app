@@ -26,7 +26,7 @@ class IsScreenProtector extends _$IsScreenProtector {
       state = false;
     }
 
-    logger.e('isAdmin: $isAdmin, portalType: $portalType, state: $state');
+    logger.i('isAdmin: $isAdmin, portalType: $portalType, state: $state');
     return state;
   }
 }

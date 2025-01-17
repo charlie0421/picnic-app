@@ -132,7 +132,7 @@ class _AppState extends ConsumerState<App> {
     _initializeSystemUI();
   }
 
-  void _initializeSystemUI() {
+  void _initializeSystemUI() async {
     if (kIsWeb) return;
 
     if (UniversalPlatform.isAndroid) {
@@ -154,9 +154,9 @@ class _AppState extends ConsumerState<App> {
         );
       } else {
         // Android 11 이상
-        SystemChrome.setEnabledSystemUIMode(
-          SystemUiMode.manual,
-        );
+        // await SystemChrome.setEnabledSystemUIMode(
+        // SystemUiMode.manual,
+        // );
       }
     }
 

@@ -90,6 +90,10 @@ android {
             ndk {
                 debugSymbolLevel "FULL"
             }
+
+            minifyEnabled false
+            shrinkResources false
+
         }
     }
 }

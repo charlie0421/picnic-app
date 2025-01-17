@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "922874925395-jknh9jfn9epd821dff545vaq896c2ll2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ttja",
+            "certificate_hash": "d3c0307a6c9a8d10eae79340f2c0550351e42c24"
+          }
+        },
+        {
           "client_id": "922874925395-4i0a0pb0t2g7i21jjfauro9ofgc00img.apps.googleusercontent.com",
           "client_type": 3
         }
