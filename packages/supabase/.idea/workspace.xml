@@ -5,13 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/android/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/screen_protector_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/screen_protector_provider.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/android/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/android/app/google-services.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
