@@ -3,7 +3,7 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"flutter_bootstrap.js": "4e4fe7e1b988701eaba19b6a85281003",
+const RESOURCES = {"flutter_bootstrap.js": "c5f94645c8611f7b3df6cdefc2e94b1a",
 ".vercel/project.json": "563d234e39c4e5ca78f542507b0fb170",
 ".vercel/README.txt": "2b13c79d37d6ed82a3255b83b6815034",
 "version.json": "7a5e863356a553c6a8cc4ccd4bfc29b1",
@@ -27,7 +27,7 @@ const RESOURCES = {"flutter_bootstrap.js": "4e4fe7e1b988701eaba19b6a85281003",
 "icons/Icon-maskable-512.png": "98fb42034cfabce1c6a71df7a7531199",
 "icons/Icon-512.png": "98fb42034cfabce1c6a71df7a7531199",
 "manifest.json": "561f62344127f49267ed3e263093c425",
-"download.html": "955776b90c2a27debbefc73bfb095a0b",
+"download.html": "c81df0a66f1b204ac20835632284b730",
 "assets/config/dev.json": "c484da2726b06eddcb81ad2f6ed605b9",
 "assets/config/prod.json": "2830ac8790d287401ff00056a0b6345b",
 "assets/config/local.json": "c484da2726b06eddcb81ad2f6ed605b9",
