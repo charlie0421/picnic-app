@@ -72,8 +72,10 @@ class _AppState extends ConsumerState<App> {
     Portal.routeName: (context) => const Portal(),
     SignUpScreen.routeName: (context) => const SignUpScreen(),
     '/pic-camera': (context) => const PicCameraScreen(),
-    TermsScreen.routeName: (context) => const TermsScreen(),
-    PrivacyScreen.routeName: (context) => const PrivacyScreen(),
+    'terms/ko': (context) => const TermsScreen(),
+    'terms/en': (context) => const TermsScreen(),
+    'privacy/ko': (context) => const PrivacyScreen(),
+    'privacy/en': (context) => const PrivacyScreen(),
     PurchaseScreen.routeName: (context) => const PurchaseScreen(),
   };
 
@@ -372,6 +374,9 @@ class _AppState extends ConsumerState<App> {
               localizationsDelegates: PicnicLibL10n.localizationsDelegates,
               supportedLocales: PicnicLibL10n.supportedLocales,
               routes: _buildRoutes(),
+              onUnknownRoute: (settings) {
+                return MaterialPageRoute(builder: (context) => NotFoundPage());
+              },
               onGenerateRoute: (settings) {
                 final uri = Uri.parse(settings.name ?? '');
                 final path = uri.path;
@@ -432,5 +437,35 @@ class _AppState extends ConsumerState<App> {
       case PortalType.mypage:
         return mypageThemeLight;
     }
+  }
+}
+
+class NotFoundPage extends StatelessWidget {
+  const NotFoundPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('404 - Page Not Found')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Oops! The page you are looking for does not exist.',
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/'); // 홈으로 돌아가기
+              },
+              child: Text('Go to Home'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

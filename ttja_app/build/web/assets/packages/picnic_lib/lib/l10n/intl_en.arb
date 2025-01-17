@@ -540,6 +540,11 @@
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
     },
+    "label_button_mission_and_charge": "Mission and charge",
+    "@label_button_mission_and_charge": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
     "label_celeb_ask_to_you": "The Artist Asks You!",
     "@label_celeb_ask_to_you": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
@@ -943,6 +948,11 @@
     },
     "label_watch_ads": "View ads",
     "@label_watch_ads": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108",
+        "manualTranslation": false
+    },
+    "label_mission": "Mission",
+    "@label_mission": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
         "manualTranslation": false
     },
@@ -1877,5 +1887,9 @@
     "compatibility_share_hashtag": "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합",
     "@compatibility_share_hashtag": {
         "manualTranslation": true
+    },
+    "withdrawal_success": "The unsubscribe was processed successfully.",
+    "@withdrawal_success": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108"
     }
 }

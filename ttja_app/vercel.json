@@ -1,15 +1,24 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "build/web",
-            "use": "@vercel/static"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "/build/web/index.html"
-        }
-    ]
+  "version": 2,
+  "builds": [
+    {
+      "src": "build/web/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/download",
+      "dest": "/download.html",
+      "status": 200
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html",
+      "status": 200
+    }
+  ]
 }

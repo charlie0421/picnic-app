@@ -466,6 +466,10 @@
   "@label_button_watch_and_charge": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+  "label_button_mission_and_charge": "미션하고 충전하기",
+  "@label_button_mission_and_charge": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
   "label_celeb_ask_to_you": "아티스트가 당신에게 묻다!",
   "@label_celeb_ask_to_you": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -596,6 +600,10 @@
   "@label_mypage_withdrawal": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
+    "withdrawal_success": "탈퇴가 성공적으로 처리 되었습니다.",
+    "@withdrawal_success": {
+      "translationTimestamp": "2024-07-21T11:18:53.669108"
+    },
   "label_no_ads": "광고 없음",
   "@label_no_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -806,8 +814,12 @@
   "@label_vote_vote_gather": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_watch_ads": "광고보기",
-  "@label_watch_ads": {
+    "label_watch_ads": "광고보기",
+    "@label_watch_ads": {
+        "translationTimestamp": "2024-07-21T11:18:53.669108"
+    },
+    "label_mission": "미션하기",
+  "@label_mission": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
   "lable_my_celeb": "나의 아티스트",
