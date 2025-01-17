@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/screen_protector_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/screen_protector_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/android/app/google-services.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -37,25 +41,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "deno.use.library": "true",
-    "git-widget-placeholder": "production",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/charlie.hyun/Repositories/picnic/packages/supabase",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "show.migrate.to.gradle.popup": "false",
-    "ts.external.directory.path": "/Users/charlie.hyun/Applications/IntelliJ IDEA Ultimate.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;deno.use.library&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;production&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/charlie.hyun/Repositories/picnic/packages/supabase&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/charlie.hyun/Applications/IntelliJ IDEA Ultimate.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
