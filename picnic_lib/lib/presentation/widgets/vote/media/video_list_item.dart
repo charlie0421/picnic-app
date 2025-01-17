@@ -3,7 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/common/webview/video_webview.dart';
+import 'package:picnic_lib/presentation/common/webview/video_webview_interface.dart';
+import 'package:picnic_lib/presentation/common/webview/video_webview_stub.dart';
 import 'package:picnic_lib/data/models/vote/video_info.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/date.dart';
@@ -137,7 +138,7 @@ class _VideoListItemState extends State<VideoListItem> {
                     Text(
                       formatDateTimeYYYYMMDD(widget.item.createdAt),
                       style:
-                      getTextStyle(AppTypo.caption12M, AppColors.grey900),
+                          getTextStyle(AppTypo.caption12M, AppColors.grey900),
                     ),
                   ],
                 ),
