@@ -102,4 +102,6 @@ class Environment {
 
   static String get inappAppNamePrefix =>
       _config['INAPP_APPNAME_PREFIX'] as String;
+
+  static String get downloadLink => _config['DOWNLOAD_LINK'] as String;
 }
