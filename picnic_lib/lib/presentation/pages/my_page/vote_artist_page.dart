@@ -49,7 +49,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(navigationInfoProvider.notifier)
-          .setPageTitle(pageTitle: S.of(context).label_mypage_my_artist);
+          .setMyPageTitle(pageTitle: S.of(context).label_mypage_my_artist);
     });
   }
 

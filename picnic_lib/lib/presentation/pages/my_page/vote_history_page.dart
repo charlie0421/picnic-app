@@ -14,8 +14,6 @@ import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 
 class VoteHistoryPage extends ConsumerStatefulWidget {
-  final String pageName = 'label_mypage_vote_history';
-
   const VoteHistoryPage({super.key});
 
   @override
@@ -38,7 +36,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(navigationInfoProvider.notifier)
-          .setPageTitle(pageTitle: S.of(context).label_mypage_vote_history);
+          .setMyPageTitle(pageTitle: S.of(context).label_mypage_vote_history);
     });
   }
 
