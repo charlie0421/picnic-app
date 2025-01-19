@@ -34,5 +34,6 @@
     "POINT_900_COLOR": "0xFFEB4A71",
     "TAPJOY_IOS_SDK_KEY": "pBnrfy3zRC6j03GvH4QoEwEBRVja2XbI3iokRJa1roxfZzfYAzgjaIs8sfOP",
     "TAPJOY_ANDROID_SDK_KEY": "cAl4XIbiTqmQDwpMU1zRogECCVRjf0cCYfuf6KfWQD5A7gLih5JeTA4NqirN",
-    "INAPP_APPNAME_PREFIX": ""
+    "INAPP_APPNAME_PREFIX": "",
+    "DOWNLOAD_LINK": "https://www.picnic.fan/download.html"
 }

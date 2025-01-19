@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:share_plus/share_plus.dart';
@@ -51,7 +52,7 @@ class ShareUtils {
     GlobalKey key, {
     required String message,
     required String hashtag,
-    String downloadLink = 'https://picnic.fan/download.html',
+    String? downloadLink,
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
@@ -65,7 +66,8 @@ class ShareUtils {
         throw Exception('Failed to capture content');
       }
 
-      final shareText = '$message\n $hashtag $downloadLink     ';
+      final finalDownloadLink = downloadLink ?? Environment.downloadLink;
+      final shareText = '$message\n $hashtag $finalDownloadLink     ';
 
       // share_plus를 사용한 공유
       final result = await Share.shareXFiles(
