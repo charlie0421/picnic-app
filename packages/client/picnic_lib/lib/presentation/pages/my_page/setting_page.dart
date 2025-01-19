@@ -22,7 +22,6 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
-  final String pageName = 'page_title_setting';
 
   const SettingPage({super.key});
 
@@ -61,7 +60,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
       ref
           .read(navigationInfoProvider.notifier)
-          .setPageTitle(pageTitle: S.of(context).mypage_setting);
+          .setMyPageTitle(pageTitle: S.of(context).mypage_setting);
     });
   }
 

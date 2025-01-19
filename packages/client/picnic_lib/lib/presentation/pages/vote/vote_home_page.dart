@@ -51,7 +51,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       final newItems = await ref.read(asyncVoteListProvider(
         pageKey,
         _pageSize,
-        'vote.id',
+        'vote.end_at',
         'DESC',
         status: VoteStatus.activeAndUpcoming,
         category: VoteCategory.all,

@@ -30,7 +30,7 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final userInfoState = ref.watch(userInfoProvider);
 
-    String pageName = navigationInfo.pageTitle;
+    String pageName = navigationInfo.myPageTitle;
 
     return PopScope(
       canPop: false,
