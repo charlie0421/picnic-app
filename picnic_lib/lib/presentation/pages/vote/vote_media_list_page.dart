@@ -44,26 +44,28 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PagedListView<int, VideoInfo>(
-      pagingController: _pagingController,
-      builderDelegate: PagedChildBuilderDelegate<VideoInfo>(
-        itemBuilder: (context, item, index) => VideoListItem(
-          item: item,
-          onTap: () {},
-        ),
-        firstPageErrorIndicatorBuilder: (context) {
-          return SliverToBoxAdapter(
-            child: buildErrorView(
-              context,
-              error: _pagingController.error.toString(),
-              retryFunction: () => _pagingController.refresh(),
-              stackTrace: _pagingController.error is Error
-                  ? (_pagingController.error as Error).stackTrace
-                  : StackTrace.current,
+    return CustomScrollView(
+      slivers: [
+        PagedSliverList<int, VideoInfo>(
+          pagingController: _pagingController,
+          builderDelegate: PagedChildBuilderDelegate<VideoInfo>(
+            itemBuilder: (context, item, index) => VideoListItem(
+              videoId: item.videoId,
+              onTap: () {},
             ),
-          );
-        },
-      ),
+            firstPageErrorIndicatorBuilder: (context) {
+              return buildErrorView(
+                context,
+                error: _pagingController.error.toString(),
+                retryFunction: () => _pagingController.refresh(),
+                stackTrace: _pagingController.error is Error
+                    ? (_pagingController.error as Error).stackTrace
+                    : StackTrace.current,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
