@@ -49,7 +49,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>프로필 이미지 등록을 위한 갤러리 사용에 동의하시겠습니까?</string>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>이 앱은 타사 SDK를 사용하여 맞춤형 광고를 제공하기 위해 사용자 활동을 추적합니다.</string>
+	<string>추적 권한을 허용하면 맞춤형 광고와 동영상이 제공되며, 거부하면 이러한 기능들이 제한됩니다.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -70,5 +70,14 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
+	<key>NSAllowsLocalNetworking</key>
+	<true/>
 </dict>
 </plist>
