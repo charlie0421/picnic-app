@@ -40,7 +40,7 @@ class MobileWebViewProvider implements WebViewProvider {
             ),
           );
         }
-        
+
         return Container(
           constraints: const BoxConstraints(
             minHeight: 200,
