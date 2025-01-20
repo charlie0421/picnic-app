@@ -2,6 +2,10 @@
   "version": 2,
   "routes": [
     {
+      "src": "/privacy",
+      "dest": "/build/web/private.html"
+    },
+    {
       "src": "/download.html",
       "dest": "/build/web/download.html"
     },
