@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/mypage_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/screens/mypage_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
