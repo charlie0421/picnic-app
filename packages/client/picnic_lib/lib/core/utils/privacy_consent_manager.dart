@@ -116,25 +116,28 @@ class PrivacyConsentManager {
 
     logger.i('Initializing AdMob with ATT: $attStatus, UMP: $umpStatus');
 
-    if (attStatus == TrackingStatus.authorized &&
-        (umpStatus == ConsentStatus.obtained ||
-            umpStatus == ConsentStatus.notRequired)) {
-      // 모든 권한이 허용된 경우
-      await MobileAds.instance.initialize();
-    } else {
-      // 하나라도 거부된 경우 비개인화 광고로 초기화
+    // ATT가 거부되었거나 UMP 동의가 없는 경우 비개인화 광고만 표시
+    if (attStatus != TrackingStatus.authorized ||
+        (umpStatus != ConsentStatus.obtained &&
+            umpStatus != ConsentStatus.notRequired)) {
       await _initializeNonPersonalizedAds();
+      return;
     }
+
+    // 모든 권한이 허용된 경우에만 개인화 광고 초기화
+    await MobileAds.instance.initialize();
   }
 
   static Future<void> _initializeNonPersonalizedAds() async {
-    await MobileAds.instance.updateRequestConfiguration(
-      RequestConfiguration(
-        tagForChildDirectedTreatment: TagForUnderAgeOfConsent.unspecified,
-        tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
-        maxAdContentRating: MaxAdContentRating.g,
-      ),
+    final config = RequestConfiguration(
+      tagForChildDirectedTreatment: TagForUnderAgeOfConsent.unspecified,
+      tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.unspecified,
+      maxAdContentRating: MaxAdContentRating.g,
+      // 추적 거부 시 테스트 디바이스 ID도 제거
+      testDeviceIds: [],
     );
+
+    await MobileAds.instance.updateRequestConfiguration(config);
     await MobileAds.instance.initialize();
   }
 
