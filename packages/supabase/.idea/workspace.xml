@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="chore (supabase) .gitignor">
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/pubspec.lock" afterDir="false" />
+    <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="feat (ttja) 영수증 검증 임시로 비활성화">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ttja/supabase/functions/verify_receipt/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/ttja/supabase/functions/verify_receipt/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/picnic/supabase/functions/callback-tapjoy/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/picnic/supabase/functions/callback-tapjoy/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/picnic/supabase/functions/voting/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/picnic/supabase/functions/voting/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ttja/supabase/functions/callback-tapjoy/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/ttja/supabase/functions/callback-tapjoy/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ttja/supabase/functions/voting/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/ttja/supabase/functions/voting/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,8 +89,18 @@
       <option name="presentableId" value="Default" />
       <updated>1736928576109</updated>
       <workItem from="1736928578301" duration="7830000" />
-      <workItem from="1737427674027" duration="9544000" />
+      <workItem from="1737427674027" duration="14595000" />
+      <workItem from="1737456768583" duration="1788000" />
     </task>
+    <task id="LOCAL-00001" summary="feat (ttja) 영수증 검증 임시로 비활성화">
+      <option name="closed" value="true" />
+      <created>1737448677657</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1737448677657</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -105,5 +116,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat (ttja) 영수증 검증 임시로 비활성화" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat (ttja) 영수증 검증 임시로 비활성화" />
   </component>
 </project>

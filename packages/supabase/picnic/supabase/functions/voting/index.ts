@@ -24,6 +24,20 @@ async function isIPBlocked(supabaseClient, ip) {
   }
   return !!data;
 }
+
+function getNextMonth15thAt9AM() {
+    const now = new Date();
+    const nextMonth = now.getMonth() + 1;
+    const nextMonth15th = new Date(now.getFullYear(), nextMonth, 15, 9, 0, 0);
+    const year = nextMonth15th.getFullYear();
+    const month = String(nextMonth15th.getMonth() + 1).padStart(2, '0');
+    const day = String(nextMonth15th.getDate()).padStart(2, '0');
+    const hours = String(nextMonth15th.getHours()).padStart(2, '0');
+    const minutes = String(nextMonth15th.getMinutes()).padStart(2, '0');
+    const seconds = String(nextMonth15th.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 Deno.serve(async (req)=>{
   const origin = req.headers.get('origin');
   console.log('Request origin:', origin);
@@ -61,6 +75,8 @@ Deno.serve(async (req)=>{
   }
   try {
     const { vote_id, vote_item_id, amount, user_id } = await req.json();
+      const expired_dt = getNextMonth15thAt9AM();
+
     console.log('Request data:', {
       vote_id,
       vote_item_id,
@@ -71,7 +87,7 @@ Deno.serve(async (req)=>{
       p_vote_id: vote_id,
       p_vote_item_id: vote_item_id,
       p_amount: amount,
-      p_user_id: user_id
+      p_user_id: user_id,
     });
     if (error) throw error;
     console.log('Response data:', data);

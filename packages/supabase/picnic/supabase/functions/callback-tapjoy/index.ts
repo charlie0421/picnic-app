@@ -8,6 +8,19 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 console.log('Callback Tapjoy 함수가 시작되었습니다.');
 
+function getNextMonth15thAt9AM() {
+    const now = new Date();
+    const nextMonth = now.getMonth() + 1;
+    const nextMonth15th = new Date(now.getFullYear(), nextMonth, 15, 9, 0, 0);
+    const year = nextMonth15th.getFullYear();
+    const month = String(nextMonth15th.getMonth() + 1).padStart(2, '0');
+    const day = String(nextMonth15th.getDate()).padStart(2, '0');
+    const hours = String(nextMonth15th.getHours()).padStart(2, '0');
+    const minutes = String(nextMonth15th.getMinutes()).padStart(2, '0');
+    const seconds = String(nextMonth15th.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 Deno.serve(async (req) => {
   // CORS 헤더 설정
   const corsHeaders = {
@@ -88,6 +101,8 @@ Deno.serve(async (req) => {
         user_id: snuid,
         amount: currency,
         type: 'MISSION',
+          remain_amount: currency,
+          expired_dt: getNextMonth15thAt9AM(),
       })
       .eq('user_id', snuid);
 
