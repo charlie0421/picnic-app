@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/privacy_consent_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/privacy_consent_manager.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/common/webview/video_webview_mobile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/common/webview/video_webview_mobile.dart" afterDir="false" />
+    <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="chore (supabase) .gitignor">
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/ios/Podfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ttja/supabase/functions/verify_receipt/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/ttja/supabase/functions/verify_receipt/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,10 +88,22 @@
       <option name="presentableId" value="Default" />
       <updated>1736928576109</updated>
       <workItem from="1736928578301" duration="7830000" />
+      <workItem from="1737427674027" duration="9544000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
