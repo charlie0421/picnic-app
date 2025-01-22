@@ -67,6 +67,7 @@ class AsyncVoteItemList extends _$AsyncVoteItemList {
           .select(
               'id, vote_id, vote_total, artist(*,artist_group(*)), artist_group(*)')
           .eq('vote_id', voteId)
+          .filter('deleted_at', 'is', null)
           .order('vote_total', ascending: false);
 
       List<VoteItemModel> voteItemList = List<VoteItemModel>.from(
