@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="feat (ttja) 영수증 검증 임시로 비활성화">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/vote_detail_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/vote_detail_provider.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
