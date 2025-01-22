@@ -14,17 +14,39 @@ enum VotePortal { vote, pic }
 
 @riverpod
 class AsyncVoteList extends _$AsyncVoteList {
+  List<VoteModel> _allItems = [];
+
   @override
   Future<List<VoteModel>> build(int page, int limit, String sort, String order,
       {VotePortal votePortal = VotePortal.vote,
       required VoteStatus status,
       required VoteCategory category}) async {
-    return fetch(1, 10, 'id', 'DESC',
-        votePortal: votePortal, category: category.name, status: status);
+    // 첫 페이지이거나 아직 데이터가 없는 경우에만 전체 데이터를 가져옴
+    if (page == 1 || _allItems.isEmpty) {
+      _allItems = await _fetchAll(sort, order,
+          votePortal: votePortal, category: category.name, status: status);
+    }
+
+    logger.i('allItems: ${_allItems.length}');
+    // 페이지에 해당하는 아이템 반환
+    final startIndex = (page - 1) * limit;
+    final endIndex = startIndex + limit;
+
+    if (startIndex >= _allItems.length) {
+      return []; // 더 이상 아이템이 없음
+    }
+
+    // 현재 페이지의 아이템들 반환
+    return _allItems
+        .sublist(
+          startIndex,
+          endIndex > _allItems.length ? _allItems.length : endIndex,
+        )
+        .toList();
   }
 
-  Future<List<VoteModel>> fetch(int page, int limit, String sort, String order,
-      {VotePortal votePortal = VotePortal.vote,
+  Future<List<VoteModel>> _fetchAll(String sort, String order,
+      {required VotePortal votePortal,
       required String category,
       required VoteStatus status}) async {
     String voteTable = VotePortal.vote == votePortal ? 'vote' : 'pic_vote';
@@ -33,9 +55,7 @@ class AsyncVoteList extends _$AsyncVoteList {
 
     try {
       PostgrestList response;
-      // status가 'all'이 아닌 경우에만 start_at과 end_at 필드를 기준으로 필터링합니다.
       if (status == VoteStatus.active) {
-        // status가 'active'인 경우, start_at은 현재 시간보다 이전이고 end_at은 현재 시간보다 이후여야 합니다.
         response = await supabase
             .from(voteTable)
             .select(
@@ -44,7 +64,6 @@ class AsyncVoteList extends _$AsyncVoteList {
             .gt('stop_at', 'now()')
             .order(sort, ascending: order == 'ASC');
       } else if (status == VoteStatus.end) {
-        // status가 'end'인 경우, stop_at은 현재 시간보다 이전이어야 합니다.
         response = await supabase
             .from(voteTable)
             .select(
@@ -60,7 +79,6 @@ class AsyncVoteList extends _$AsyncVoteList {
             .gt('start_at', 'now()')
             .order(sort, ascending: order == 'ASC');
       } else if (status == VoteStatus.activeAndUpcoming) {
-        // status가 'all'인 경우, 필터링 없이 모든 데이터를 가져옵니다.
         response = await supabase
             .from(voteTable)
             .select(
@@ -69,14 +87,18 @@ class AsyncVoteList extends _$AsyncVoteList {
             .gt('stop_at', 'now()')
             .order(sort, ascending: order == 'ASC');
       } else {
-        response = await supabase.from(voteTable).select(
-            'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))');
+        response = await supabase
+            .from(voteTable)
+            .select(
+                'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+            .order(sort, ascending: order == 'ASC');
       }
+
       return response.map((e) => VoteModel.fromJson(e)).toList();
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       rethrow;
-    } finally {}
+    }
   }
 }
 
