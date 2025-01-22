@@ -2,6 +2,8 @@ import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/gradient_border_painter.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -30,9 +32,15 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
 
     return GestureDetector(
       onTap: () {
+        final votePages =
+            ref.read(screenInfosProvider).value?[PortalType.vote.name]?.pages;
+
+        if ( votePages == null ) {
+          return;
+        }
         ref
             .read(navigationInfoProvider.notifier)
-            .setVoteBottomNavigationIndex(3);
+            .setVoteBottomNavigationIndex(votePages.length - 1);
       },
       child: SizedBox(
         child: CustomPaint(
