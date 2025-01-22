@@ -427,12 +427,25 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     final previousVoteCount = _previousVoteCounts[item.id] ?? item.voteTotal;
     final voteCountDiff = item.voteTotal! - previousVoteCount!;
 
-    final previousRank = _previousRanks[item.id] ?? index + 1;
-    final rankChanged = previousRank != index + 1;
+    // 현재 아이템의 실제 순위 계산
+    int actualRank = 1;
+    final allItems = ref
+            .read(asyncVoteItemListProvider(
+                voteId: widget.voteId, votePortal: widget.votePortal))
+            .value ??
+        [];
+    for (var otherItem in allItems) {
+      if (otherItem!.voteTotal! > item.voteTotal!) {
+        actualRank++;
+      }
+    }
+
+    final previousRank = _previousRanks[item.id] ?? actualRank;
+    final rankChanged = previousRank != actualRank;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _previousVoteCounts[item.id] = item.voteTotal!;
-      _previousRanks[item.id] = index + 1;
+      _previousRanks[item.id] = actualRank;
     });
 
     return AnimatedContainer(
@@ -457,14 +470,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (index < 3)
+                    if (actualRank <= 3)
                       SvgPicture.asset(
                         package: 'picnic_lib',
-                        'assets/icons/vote/crown${index + 1}.svg',
+                        'assets/icons/vote/crown$actualRank.svg',
                       ),
                     Text(
-                      Intl.message('text_vote_rank', args: [index + 1])
-                          .toString(),
+                      // 공동 순위 표시 추가
+                      _buildRankText(actualRank, item, allItems),
                       style:
                           getTextStyle(AppTypo.caption12B, AppColors.point900),
                       textAlign: TextAlign.center,
@@ -526,6 +539,23 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ),
       ),
     );
+  }
+
+  // 순위 텍스트를 생성하는 새로운 메서드
+  String _buildRankText(
+      int rank, VoteItemModel currentItem, List<VoteItemModel?> allItems) {
+    // 동일한 투표 수를 가진 항목이 있는지 확인
+    final hasSameVotes = allItems
+        .where((item) =>
+            item != null &&
+            item.id != currentItem.id &&
+            item.voteTotal == currentItem.voteTotal)
+        .isNotEmpty;
+
+    if (hasSameVotes) {
+      return S.of(context).text_vote_rank(rank);
+    }
+    return S.of(context).text_vote_rank(rank);
   }
 
   Widget _buildArtistImage(VoteItemModel item, int index) {
