@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item.dart';
 import 'package:picnic_lib/data/models/vote/video_info.dart';
@@ -63,6 +64,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
                     : StackTrace.current,
               );
             },
+            noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
           ),
         ),
       ],
@@ -74,6 +76,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
       final response = await supabase
           .from("media")
           .select()
+          .filter('deleted_at', 'is', null)
           .order('id', ascending: false)
           .range((pageKey - 1) * _pageSize, pageKey * _pageSize - 1);
 
