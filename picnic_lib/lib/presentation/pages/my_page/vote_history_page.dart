@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/data/models/vote/vote_pick.dart';
@@ -106,6 +107,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
           child: PagedListView<int, VotePickModel>(
             pagingController: _pagingController,
             builderDelegate: PagedChildBuilderDelegate<VotePickModel>(
+              noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
               itemBuilder: (context, item, index) => Container(
                 height: 107,
                 padding: EdgeInsets.all(16.cw),
