@@ -349,8 +349,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                   ),
                 SizedBox(height: 4),
                 Image.asset(
-                  package: 'picnic_lib',
-                  'assets/images/logo.png',
+                  'assets/app_icon_128.png',
                   width: 50,
                 ),
               ],
