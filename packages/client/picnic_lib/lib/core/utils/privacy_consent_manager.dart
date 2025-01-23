@@ -14,7 +14,12 @@ class PrivacyConsentManager {
     try {
       // iOS에서만 ATT 동의를 먼저 얻습니다
       if (Platform.isIOS) {
-        await _requestATTConsent();
+        final attGranted = await _requestATTConsent();
+        if (!attGranted) {
+          // ATT 동의를 얻지 못한 경우 비개인화 광고로 초기화
+          await _initializeNonPersonalizedAds();
+          return;
+        }
       }
 
       // UMP 초기화 및 동의 얻기
@@ -22,7 +27,12 @@ class PrivacyConsentManager {
 
       // Android에서는 UMP 이후에 ATT 동의를 얻습니다
       if (Platform.isAndroid) {
-        await _requestATTConsent();
+        final attGranted = await _requestATTConsent();
+        if (!attGranted) {
+          // ATT 동의를 얻지 못한 경우 비개인화 광고로 초기화
+          await _initializeNonPersonalizedAds();
+          return;
+        }
       }
 
       // AdMob 초기화
@@ -86,7 +96,7 @@ class PrivacyConsentManager {
     return completer.future;
   }
 
-  static Future<void> _requestATTConsent() async {
+  static Future<bool> _requestATTConsent() async {
     try {
       // ATT 상태 확인 전에 잠시 대기 (iOS 14+ 권장사항)
       await Future.delayed(const Duration(milliseconds: 500));
@@ -103,10 +113,14 @@ class PrivacyConsentManager {
         final requestedStatus =
             await AppTrackingTransparency.requestTrackingAuthorization();
         logger.i('ATT status after request: $requestedStatus');
+
+        return requestedStatus == TrackingStatus.authorized;
       }
+
+      return status == TrackingStatus.authorized;
     } catch (e) {
       logger.e('Error requesting ATT consent: $e');
-      rethrow;
+      return false;
     }
   }
 
