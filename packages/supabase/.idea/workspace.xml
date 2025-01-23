@@ -5,10 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="feat (ttja) 영수증 검증 임시로 비활성화">
-      <change afterPath="$PROJECT_DIR$/picnic/supabase/functions/open-compatibility/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/app_initializer.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/picnic/functions/open-compatibility/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/picnic/supabase/functions/_shared/services/compatibility.ts" beforeDir="false" afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/services/compatibility.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,6 +92,7 @@
       <workItem from="1736928578301" duration="7830000" />
       <workItem from="1737427674027" duration="14595000" />
       <workItem from="1737456768583" duration="1788000" />
+      <workItem from="1737599439484" duration="599000" />
     </task>
     <task id="LOCAL-00001" summary="feat (ttja) 영수증 검증 임시로 비활성화">
       <option name="closed" value="true" />
