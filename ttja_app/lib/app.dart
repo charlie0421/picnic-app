@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:app_links/app_links.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:picnic_lib/core/services/device_manager.dart';
-import 'package:picnic_lib/core/services/network_connectivity_service.dart';
-import 'package:picnic_lib/core/services/update_service.dart';
+import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/l10n_setup.dart';
@@ -23,10 +19,8 @@ import 'package:picnic_lib/presentation/providers/app_initialization_provider.da
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
 import 'package:picnic_lib/presentation/providers/update_checker.dart';
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_camera_screen.dart';
@@ -35,7 +29,6 @@ import 'package:picnic_lib/presentation/screens/purchase.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
 import 'package:picnic_lib/presentation/screens/terms.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
@@ -43,7 +36,6 @@ import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:screen_protector/screen_protector.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ttja_app/bottom_navigation_menu.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -63,8 +55,6 @@ class _AppState extends ConsumerState<App> {
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
-  int? _androidSdkVersion;
-  final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
 
@@ -85,10 +75,10 @@ class _AppState extends ConsumerState<App> {
     _initializationFuture = Future.value();
 
     if (UniversalPlatform.isMobile) {
-      _setupSupabaseAuthListener();
-      _checkAndroidVersion();
+      AppInitializer.initializeSystemUI();
+      AppInitializer.setupSupabaseAuthListener(ref);
+      AppInitializer.setupAppLinksListener(ref);
     }
-    _setupAppLinksListener();
   }
 
   @override
@@ -96,76 +86,9 @@ class _AppState extends ConsumerState<App> {
     super.didChangeDependencies();
     if (!_didInitialize) {
       _didInitialize = true;
-      _initializationFuture = _initializeAppWithSplash();
+      _initializationFuture =
+          AppInitializer.initializeAppWithSplash(context, ref);
     }
-  }
-
-  Future<void> _checkInitialNetwork() async {
-    try {
-      final networkService = NetworkConnectivityService();
-
-      final isOnline = await networkService.checkOnlineStatus();
-      logger.i('Network check: $isOnline');
-
-      setState(() {});
-    } catch (e, s) {
-      logger.e('Network check error: $e', stackTrace: s);
-    }
-  }
-
-  Future<void> _retryConnection() async {
-// 재시도 중에는 로딩 상태로
-    await _checkInitialNetwork();
-  }
-
-  Future<void> _checkAndroidVersion() async {
-    if (UniversalPlatform.isAndroid) {
-      try {
-        final androidInfo = await _deviceInfo.androidInfo;
-        setState(() {
-          _androidSdkVersion = androidInfo.version.sdkInt;
-          logger.i('Android SDK Version: $_androidSdkVersion'); // 디버깅용
-        });
-      } catch (e, s) {
-        logger.i('Failed to get Android SDK version: $e',
-            stackTrace: s); // 디버깅용
-      }
-    }
-    _initializeSystemUI();
-  }
-
-  void _initializeSystemUI() async {
-    if (kIsWeb) return;
-
-    if (UniversalPlatform.isAndroid) {
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarDividerColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark,
-        ),
-      );
-
-      if (_androidSdkVersion != null && _androidSdkVersion! < 30) {
-        // Android 11 미만
-        SystemChrome.setEnabledSystemUIMode(
-          SystemUiMode.manual,
-          overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
-        );
-      } else {
-        // Android 11 이상
-        // await SystemChrome.setEnabledSystemUIMode(
-        // SystemUiMode.manual,
-        // );
-      }
-    }
-
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
   }
 
   @override
@@ -203,129 +126,8 @@ class _AppState extends ConsumerState<App> {
     );
   }
 
-  Future<void> _initializeAppWithSplash() async {
-    await Future.wait([
-      _initializeApp(),
-      Future.delayed(const Duration(milliseconds: 3000)),
-    ]);
-  }
-
-  Future<void> _initializeApp() async {
-    try {
-      logger.i('앱 초기화 시작');
-
-      await precacheImage(const AssetImage("assets/splash.webp"), context);
-      ref.read(appSettingProvider.notifier);
-      ref
-          .read(globalMediaQueryProvider.notifier)
-          .updateMediaQueryData(MediaQuery.of(context));
-
-      if (UniversalPlatform.isMobile) {
-        final networkService = NetworkConnectivityService();
-        final hasNetwork = await networkService.checkOnlineStatus();
-        logger.i('Network check: $hasNetwork');
-
-        ref.read(appInitializationProvider.notifier).updateState(
-              hasNetwork: hasNetwork,
-            );
-
-        if (hasNetwork) {
-          try {
-            final isBanned = await DeviceManager.isDeviceBanned();
-            logger.i('Device banned: $isBanned');
-
-            ref.read(appInitializationProvider.notifier).updateState(
-                  isBanned: isBanned,
-                );
-
-            final updateInfo = await checkForUpdates(ref);
-
-            logger.i('Update info: $updateInfo');
-            ref
-                .read(appInitializationProvider.notifier)
-                .updateState(updateInfo: updateInfo);
-
-            if (!isBanned &&
-                updateInfo?.status == UpdateStatus.updateRequired) {
-              await _loadProducts();
-            }
-          } catch (e) {
-            logger.e('모바일 초기화 중 오류: $e');
-          }
-        }
-      } else {
-        await _loadProducts();
-      }
-
-      ref.read(appInitializationProvider.notifier).updateState(
-            isInitialized: true,
-          );
-    } catch (e, s) {
-      logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: s);
-      if (mounted) {
-        ref.read(appInitializationProvider.notifier).updateState(
-              hasNetwork: false,
-              isInitialized: true,
-            );
-      }
-    }
-  }
-
-  Future<void> _loadProducts() async {
-    try {
-      await Future.wait([
-        ref.read(serverProductsProvider.future),
-        ref.read(storeProductsProvider.future),
-      ]);
-    } catch (e, s) {
-      logger.e('Failed to load products', error: e, stackTrace: s);
-      // 제품 로드 실패 처리
-    }
-  }
-
-  void _setupSupabaseAuthListener() {
-    _authSubscription = supabase.auth.onAuthStateChange.listen((data) async {
-      final session = data.session;
-      if (session != null) {
-        logger.i('jwtToken: ${session.accessToken}');
-      }
-
-      if (data.event == AuthChangeEvent.signedIn) {
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
-      } else if (data.event == AuthChangeEvent.signedOut) {
-        logger.i('User signed out');
-      }
-    });
-  }
-
-  void _setupAppLinksListener() {
-    final appLinks = AppLinks();
-    _appLinksSubscription = appLinks.uriLinkStream.listen((Uri uri) {
-      logger.i('Incoming link: $uri');
-      if (uri.pathSegments.contains('terms')) {
-        initScreen = uri.pathSegments.contains('ko')
-            ? const TermsScreen(language: 'ko')
-            : const TermsScreen(language: 'en');
-      } else if (uri.pathSegments.contains('privacy')) {
-        initScreen = uri.pathSegments.contains('ko')
-            ? const PrivacyScreen(language: 'ko')
-            : const PrivacyScreen(language: 'en');
-      } else {
-        ref.read(userInfoProvider.notifier).getUserProfiles();
-      }
-    }, onError: (err) {
-      logger.e('Error: $err');
-    });
-  }
-
-  @override
-  void dispose() {
-    _authSubscription?.cancel();
-    _appLinksSubscription?.cancel();
-    if (!kIsWeb) {
-      ScreenProtector.preventScreenshotOff();
-    }
-    super.dispose();
+  Future<void> _retryConnection() async {
+    await AppInitializer.retryConnection(ref);
   }
 
   Widget _buildNextScreen() {
@@ -367,16 +169,13 @@ class _AppState extends ConsumerState<App> {
 
             return MaterialApp(
               navigatorKey: navigatorKey,
-              title: 'Picnic',
+              title: 'TTJA',
               theme: _getCurrentTheme(ref),
               themeMode: appSettingState.themeMode,
               locale: appSettingState.locale,
               localizationsDelegates: PicnicLibL10n.localizationsDelegates,
               supportedLocales: PicnicLibL10n.supportedLocales,
               routes: _buildRoutes(),
-              onUnknownRoute: (settings) {
-                return MaterialPageRoute(builder: (context) => NotFoundPage());
-              },
               onGenerateRoute: (settings) {
                 final uri = Uri.parse(settings.name ?? '');
                 final path = uri.path;
@@ -438,34 +237,14 @@ class _AppState extends ConsumerState<App> {
         return mypageThemeLight;
     }
   }
-}
-
-class NotFoundPage extends StatelessWidget {
-  const NotFoundPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('404 - Page Not Found')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Oops! The page you are looking for does not exist.',
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed('/'); // 홈으로 돌아가기
-              },
-              child: Text('Go to Home'),
-            ),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    _authSubscription?.cancel();
+    _appLinksSubscription?.cancel();
+    if (!kIsWeb) {
+      ScreenProtector.preventScreenshotOff();
+    }
+    super.dispose();
   }
 }
