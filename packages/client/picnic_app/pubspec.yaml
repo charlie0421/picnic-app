@@ -36,6 +36,7 @@ dependencies:
     supabase_extensions: ^1.0.1
     flutter_svg: ^2.0.16
     tapjoy_offerwall: ^14.2.1
+    flutter_branch_sdk: ^8.3.2
 
 dev_dependencies:
     build_runner: ^2.4.13
