@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/firebase_options.dart';
@@ -36,6 +37,22 @@ void main() async {
 
       setPathUrlStrategy();
 
+      await FlutterBranchSdk.init(
+        enableLogging: true,
+        branchAttributionLevel: BranchAttributionLevel.NONE,
+      );
+      FlutterBranchSdk.validateSDKIntegration();
+      StreamSubscription<Map> streamSubscription =
+          FlutterBranchSdk.listSession().listen((data) {
+        if (data.containsKey("+clicked_branch_link") &&
+            data["+clicked_branch_link"] == true) {
+          //Link clicked. Add logic to get link data
+          print('Custom string: ${data["custom_string"]}');
+        }
+      }, onError: (error) {
+        print('listSession error: ${error.toString()}');
+      });
+
       logger.i('Starting app...');
       runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
       logger.i('App started successfully');
@@ -48,4 +65,3 @@ void main() async {
     await Sentry.captureException(error, stackTrace: s);
   });
 }
-
