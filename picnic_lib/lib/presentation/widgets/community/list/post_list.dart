@@ -92,7 +92,7 @@ class _PostListState extends ConsumerState<PostList> {
             onTap: () {
               if (supabase.isLogged) {
                 navigationInfoNotifier.setCurrentPage(
-                    CompatibilityHistoryPage(artistId: currentArtist?.id));
+                    CompatibilityListPage(artistId: currentArtist?.id));
               } else {
                 showRequireLoginDialog();
               }

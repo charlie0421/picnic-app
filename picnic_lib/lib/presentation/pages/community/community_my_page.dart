@@ -124,7 +124,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             onTap: () {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(const CompatibilityHistoryPage());
+                  .setCurrentPage(const CompatibilityListPage());
             },
           ),
         ],

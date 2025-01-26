@@ -41,17 +41,7 @@ void main() async {
         enableLogging: true,
         branchAttributionLevel: BranchAttributionLevel.NONE,
       );
-      FlutterBranchSdk.validateSDKIntegration();
-      StreamSubscription<Map> streamSubscription =
-          FlutterBranchSdk.listSession().listen((data) {
-        if (data.containsKey("+clicked_branch_link") &&
-            data["+clicked_branch_link"] == true) {
-          //Link clicked. Add logic to get link data
-          print('Custom string: ${data["custom_string"]}');
-        }
-      }, onError: (error) {
-        print('listSession error: ${error.toString()}');
-      });
+      // FlutterBranchSdk.validateSDKIntegration();
 
       logger.i('Starting app...');
       runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));

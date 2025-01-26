@@ -14,18 +14,17 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 
-class CompatibilityHistoryPage extends ConsumerStatefulWidget {
-  const CompatibilityHistoryPage({super.key, this.artistId});
+class CompatibilityListPage extends ConsumerStatefulWidget {
+  const CompatibilityListPage({super.key, this.artistId});
 
   final int? artistId;
 
   @override
-  ConsumerState<CompatibilityHistoryPage> createState() =>
-      _CompatibilityHistoryPageState();
+  ConsumerState<CompatibilityListPage> createState() =>
+      _CompatibilityListPageState();
 }
 
-class _CompatibilityHistoryPageState
-    extends ConsumerState<CompatibilityHistoryPage> {
+class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
   final _scrollController = ScrollController();
 
   @override

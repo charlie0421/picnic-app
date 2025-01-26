@@ -6,7 +6,7 @@ part of '../../../presentation/providers/community/boards_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$boardsNotifierHash() => r'3bf2919f8c41eaf900af69990c5d73163e6cd7c2';
+String _$boardDetailHash() => r'0ca1e17d39c739838a4ebc18cc31e13cf860eb95';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -28,6 +28,152 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+abstract class _$BoardDetail
+    extends BuildlessAutoDisposeAsyncNotifier<BoardModel?> {
+  late final String boardId;
+
+  FutureOr<BoardModel?> build(
+    String boardId,
+  );
+}
+
+/// See also [BoardDetail].
+@ProviderFor(BoardDetail)
+const boardDetailProvider = BoardDetailFamily();
+
+/// See also [BoardDetail].
+class BoardDetailFamily extends Family<AsyncValue<BoardModel?>> {
+  /// See also [BoardDetail].
+  const BoardDetailFamily();
+
+  /// See also [BoardDetail].
+  BoardDetailProvider call(
+    String boardId,
+  ) {
+    return BoardDetailProvider(
+      boardId,
+    );
+  }
+
+  @override
+  BoardDetailProvider getProviderOverride(
+    covariant BoardDetailProvider provider,
+  ) {
+    return call(
+      provider.boardId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'boardDetailProvider';
+}
+
+/// See also [BoardDetail].
+class BoardDetailProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<BoardDetail, BoardModel?> {
+  /// See also [BoardDetail].
+  BoardDetailProvider(
+    String boardId,
+  ) : this._internal(
+          () => BoardDetail()..boardId = boardId,
+          from: boardDetailProvider,
+          name: r'boardDetailProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$boardDetailHash,
+          dependencies: BoardDetailFamily._dependencies,
+          allTransitiveDependencies:
+              BoardDetailFamily._allTransitiveDependencies,
+          boardId: boardId,
+        );
+
+  BoardDetailProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.boardId,
+  }) : super.internal();
+
+  final String boardId;
+
+  @override
+  FutureOr<BoardModel?> runNotifierBuild(
+    covariant BoardDetail notifier,
+  ) {
+    return notifier.build(
+      boardId,
+    );
+  }
+
+  @override
+  Override overrideWith(BoardDetail Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: BoardDetailProvider._internal(
+        () => create()..boardId = boardId,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        boardId: boardId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<BoardDetail, BoardModel?>
+      createElement() {
+    return _BoardDetailProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BoardDetailProvider && other.boardId == boardId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, boardId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin BoardDetailRef on AutoDisposeAsyncNotifierProviderRef<BoardModel?> {
+  /// The parameter `boardId` of this provider.
+  String get boardId;
+}
+
+class _BoardDetailProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<BoardDetail, BoardModel?>
+    with BoardDetailRef {
+  _BoardDetailProviderElement(super.provider);
+
+  @override
+  String get boardId => (origin as BoardDetailProvider).boardId;
+}
+
+String _$boardsNotifierHash() => r'3bf2919f8c41eaf900af69990c5d73163e6cd7c2';
 
 abstract class _$BoardsNotifier
     extends BuildlessAutoDisposeAsyncNotifier<List<BoardModel>?> {

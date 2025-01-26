@@ -68,46 +68,6 @@ class Navigation with _$Navigation {
     int newNovelBottomNavigationIndex =
         int.parse(novelBottomNavigationIndexString!);
 
-    Widget newCurrentScreen;
-    NavigationStack newVoteNavigationStack;
-
-    // switch (newPortalType) {
-    //   case PortalType.vote:
-    //     newCurrentScreen = votePages.first.pageWidget;
-    //     newVoteNavigationStack = NavigationStack()
-    //       ..push(votePages[newVoteBottomNavigationIndex].pageWidget);
-    //     break;
-    //   case PortalType.pic:
-    //     newCurrentScreen = picPages.first.pageWidget;
-    //     newVoteNavigationStack = NavigationStack()
-    //       ..push(picPages[newPicBottomNavigationIndex].pageWidget);
-    //     break;
-    //   case PortalType.community:
-    //     newCurrentScreen = communityPages.first.pageWidget;
-    //     newVoteNavigationStack = NavigationStack()
-    //       ..push(communityPages[newCommunityBottomNavigationIndex].pageWidget);
-    //     break;
-    //   case PortalType.novel:
-    //     newCurrentScreen = novelPages.first.pageWidget;
-    //     newVoteNavigationStack = NavigationStack()
-    //       ..push(novelPages[newNovelBottomNavigationIndex].pageWidget);
-    //     break;
-    //   case PortalType.mypage:
-    //     newCurrentScreen = myPages.first.pageWidget;
-    //     newVoteNavigationStack = NavigationStack()..push(const MyPage());
-    //     break;
-    // }
-
-    // return copyWith(
-    //   portalType: newPortalType,
-    //   picBottomNavigationIndex: newPicBottomNavigationIndex,
-    //   voteBottomNavigationIndex: newVoteBottomNavigationIndex,
-    //   communityBottomNavigationIndex: newCommunityBottomNavigationIndex,
-    //   novelBottomNavigationIndex: newNovelBottomNavigationIndex,
-    //   currentScreen: newCurrentScreen,
-    //   voteNavigationStack: newVoteNavigationStack,
-    // );
-
     return Navigation(
       portalType: newPortalType,
       picBottomNavigationIndex: newPicBottomNavigationIndex,

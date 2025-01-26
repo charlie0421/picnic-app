@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/common/underlined_widget.dart';
@@ -988,6 +989,9 @@ class _CompatibilityResultPageState
       message: Intl.message('compatibility_share_message',
           args: [getLocaleTextFromJson(compatibility.artist.name)]),
       hashtag: S.of(context).compatibility_share_hashtag,
+      downloadLink: await createBranchLink(
+          getLocaleTextFromJson(compatibility.artist.name),
+          'https://applink.picnic.fan/community/compatibility/${compatibility.artist.id}'),
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() {
