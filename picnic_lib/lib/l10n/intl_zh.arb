@@ -1376,6 +1376,9 @@
     "@text_achievement": {
         "manualTranslation": true
     },
+    "compatibility_purchase_message": "如果我想知道我和{artist_name}的契合度评分呢？",
+    "@compatibility_purchase_message": {},
+
     "text_ads_random": "查看广告并收集随机图片。",
     "@text_ads_random": {
         "manualTranslation": false

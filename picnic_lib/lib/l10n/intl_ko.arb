@@ -1156,6 +1156,8 @@
   },
   "text_achievement": "🎉 지금까지 ${count}개 목표 달성! 🎉",
   "@text_achievement": {},
+  "compatibility_purchase_message": "나와 {artist_name}의 궁합 점수가 궁금하다면?🎉",
+  "@compatibility_purchase_message": {},
   "text_ads_random": "광고 보기 및 무작위 이미지 수집.",
   "@text_ads_random": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"

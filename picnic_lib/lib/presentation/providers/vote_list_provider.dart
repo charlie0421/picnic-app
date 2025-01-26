@@ -27,8 +27,6 @@ class AsyncVoteList extends _$AsyncVoteList {
           votePortal: votePortal, category: category.name, status: status);
     }
 
-    logger.i('allItems: ${_allItems.length}');
-    // 페이지에 해당하는 아이템 반환
     final startIndex = (page - 1) * limit;
     final endIndex = startIndex + limit;
 

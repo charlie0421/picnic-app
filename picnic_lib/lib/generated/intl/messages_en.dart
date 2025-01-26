@@ -21,30 +21,33 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
   static String m0(artist_name) =>
-      "What percentage is my shining chemistry compatibility with #${artist_name}} ? My heart is racing!";
+      "If I want to know the Goong-hap score between me and the ${artist_name}?";
 
   static String m1(artist_name) =>
+      "What percentage is my shining chemistry compatibility with #${artist_name}} ? My heart is racing!";
+
+  static String m2(artist_name) =>
       "Curious about #${artist_name}’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!";
 
-  static String m2(year) => "Fortune of ${year}";
+  static String m3(year) => "Fortune of ${year}";
 
-  static String m3(day) => "${day} days ago";
+  static String m4(day) => "${day} days ago";
 
-  static String m4(hour) => "${hour} hours ago";
+  static String m5(hour) => "${hour} hours ago";
 
-  static String m5(minute) => "${minute} minutes ago";
+  static String m6(minute) => "${minute} minutes ago";
 
-  static String m6(nickname) => "Replying to ${nickname}...";
+  static String m7(nickname) => "Replying to ${nickname}...";
 
-  static String m7(count) => "🎉 You\'ve reached \$${count} goals so far! 🎉";
+  static String m8(count) => "🎉 You\'ve reached \$${count} goals so far! 🎉";
 
-  static String m8(num1) => "${num1} + ${num1} Bonuses";
+  static String m9(num1) => "${num1} + ${num1} Bonuses";
 
-  static String m9(rank) => "Rank ${rank}";
+  static String m10(rank) => "Rank ${rank}";
 
-  static String m10(version) => "A new version (${version}) is available.";
+  static String m11(version) => "A new version (${version}) is available.";
 
-  static String m11(version) =>
+  static String m12(version) =>
       "You need to update to a new version (${version}).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -129,13 +132,14 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Want to see a new pairing?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("Compatibility"),
+        "compatibility_purchase_message": m0,
         "compatibility_remain_star_candy":
             MessageLookupByLibrary.simpleMessage("Remaining Star Candy"),
         "compatibility_result_not_found":
             MessageLookupByLibrary.simpleMessage("궁합이 없어요 😔"),
         "compatibility_share_hashtag": MessageLookupByLibrary.simpleMessage(
             "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합"),
-        "compatibility_share_message": m0,
+        "compatibility_share_message": m1,
         "compatibility_snackbar_error":
             MessageLookupByLibrary.simpleMessage("An error occurred."),
         "compatibility_snackbar_need_birthday":
@@ -349,8 +353,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Interpersonal"),
         "fortune_share_hashtag": MessageLookupByLibrary.simpleMessage(
             "#picnic #신년운세 #Fourtuneteller"),
-        "fortune_share_message": m1,
-        "fortune_title": m2,
+        "fortune_share_message": m2,
+        "fortune_title": m3,
         "fortune_total_title":
             MessageLookupByLibrary.simpleMessage("Comprehensive Fortune"),
         "fortune_with_me":
@@ -513,9 +517,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("Exit"),
         "label_tabbar_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Upcoming"),
-        "label_time_ago_day": m3,
-        "label_time_ago_hour": m4,
-        "label_time_ago_minute": m5,
+        "label_time_ago_day": m4,
+        "label_time_ago_hour": m5,
+        "label_time_ago_minute": m6,
         "label_time_ago_right_now":
             MessageLookupByLibrary.simpleMessage("Just a moment ago"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("Comments"),
@@ -713,7 +717,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_no_comment": MessageLookupByLibrary.simpleMessage("No comments."),
         "post_not_found":
             MessageLookupByLibrary.simpleMessage("No posts were found."),
-        "post_replying_comment": m6,
+        "post_replying_comment": m7,
         "post_report_fail":
             MessageLookupByLibrary.simpleMessage("The report failed."),
         "post_report_label":
@@ -760,7 +764,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("X app is missing."),
         "share_twitter":
             MessageLookupByLibrary.simpleMessage("Share on Twitter"),
-        "text_achievement": m7,
+        "text_achievement": m8,
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
@@ -805,12 +809,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*Price includes VAT."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("Star Candy"),
-        "text_star_candy_with_bonus": m8,
+        "text_star_candy_with_bonus": m9,
         "text_this_time_vote":
             MessageLookupByLibrary.simpleMessage("This Vote"),
         "text_vote_complete":
             MessageLookupByLibrary.simpleMessage("Voting complete"),
-        "text_vote_rank": m9,
+        "text_vote_rank": m10,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("Rank in Rewards"),
         "text_vote_where_is_my_bias":
@@ -825,8 +829,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("Update"),
         "update_cannot_open_appstore": MessageLookupByLibrary.simpleMessage(
             "I can\'t open the app store."),
-        "update_recommend_text": m10,
-        "update_required_text": m11,
+        "update_recommend_text": m11,
+        "update_required_text": m12,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("An update is required."),
         "views": MessageLookupByLibrary.simpleMessage("Views"),

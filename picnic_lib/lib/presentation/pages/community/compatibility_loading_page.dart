@@ -6,7 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_info.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
@@ -44,6 +44,11 @@ class _CompatibilityLoadingPageState
   Timer? _timer;
 
   String loadingMessage = '';
+
+  // 성능 최적화를 위한 const 상수 활용
+  static const _progressBarHeight = 48.0;
+  static const _progressBarRadius = 32.0;
+  static const _animationDuration = Duration(milliseconds: 1000);
 
   @override
   void initState() {
@@ -138,61 +143,72 @@ class _CompatibilityLoadingPageState
     });
   }
 
-  Widget _buildLoadingView() {
-    final progress = _isLoadingStarted ? _seconds / _totalSeconds : 1.0;
+  // 성능 최적화를 위한 계산 캐싱
+  double get _progress => _isLoadingStarted ? _seconds / _totalSeconds : 1.0;
 
+  // 불필요한 리빌드 방지를 위한 메서드 분리
+  Widget _buildProgressBar(BoxConstraints constraints) {
+    return Container(
+      height: _progressBarHeight,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.grey200,
+        borderRadius: BorderRadius.circular(_progressBarRadius),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(_progressBarRadius),
+        child: Stack(
+          children: [
+            _buildProgressIndicator(constraints),
+            _buildProgressText(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressIndicator(BoxConstraints constraints) {
+    return Positioned.fill(
+      child: AnimatedContainer(
+        duration: _animationDuration,
+        curve: Curves.linear,
+        transform: Matrix4.translationValues(
+            -constraints.maxWidth * (1 - _progress),
+            // MediaQuery 대신 실제 Container 너비 사용
+            0,
+            0),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [AppColors.secondary500, AppColors.primary500],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressText() {
+    return Center(
+      child: Text(
+        '${_isLoadingStarted ? S.of(context).compatibility_analyzing : S.of(context).compatibility_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${S.of(context).seconds})' : ''}',
+        style: getTextStyle(
+          AppTypo.body14B,
+          AppColors.grey00,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingView() {
     return Column(
       children: [
         SizedBox(height: 24),
         LayoutBuilder(
           builder: (context, constraints) {
-            return Container(
-              height: 48,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppColors.grey200,
-                borderRadius: BorderRadius.circular(32),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(32),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 1000),
-                        curve: Curves.linear,
-                        transform: Matrix4.translationValues(
-                            -constraints.maxWidth * (1 - progress),
-                            // MediaQuery 대신 실제 Container 너비 사용
-                            0,
-                            0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [
-                                AppColors.secondary500,
-                                AppColors.primary500
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '${_isLoadingStarted ? S.of(context).compatibility_analyzing : S.of(context).compatibility_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${S.of(context).seconds})' : ''}',
-                        style: getTextStyle(
-                          AppTypo.body14B,
-                          AppColors.grey00,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            return _buildProgressBar(constraints);
           },
         ),
         SizedBox(height: 24),
@@ -246,7 +262,7 @@ class _CompatibilityLoadingPageState
               key: _printKey,
               child: Column(
                 children: [
-                  CompatibilityInfo(
+                  CompatibilityCard(
                     artist: widget.compatibility.artist,
                     ref: ref,
                     birthDate: widget.compatibility.birthDate,

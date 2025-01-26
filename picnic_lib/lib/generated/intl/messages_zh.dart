@@ -20,30 +20,32 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh';
 
-  static String m0(artist_name) => "我与 #${artist_name} 的闪耀默契度是多少％呢？我的心已经怦怦直跳！";
+  static String m0(artist_name) => "如果我想知道我和${artist_name}的契合度评分呢？";
 
-  static String m1(artist_name) =>
+  static String m1(artist_name) => "我与 #${artist_name} 的闪耀默契度是多少％呢？我的心已经怦怦直跳！";
+
+  static String m2(artist_name) =>
       "想知道#${artist_name}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！";
 
-  static String m2(year) => "${year} 年星座运势";
+  static String m3(year) => "${year} 年星座运势";
 
-  static String m3(day) => "${day}일 전";
+  static String m4(day) => "${day}일 전";
 
-  static String m4(hour) => "${hour}小时前";
+  static String m5(hour) => "${hour}小时前";
 
-  static String m5(minute) => "${minute}分钟前";
+  static String m6(minute) => "${minute}分钟前";
 
-  static String m6(nickname) => "回复 ${nickname}...";
+  static String m7(nickname) => "回复 ${nickname}...";
 
-  static String m7(count) => "🎉 到目前为止，您已达到 \$${count} 目标！ 🎉";
+  static String m8(count) => "🎉 到目前为止，您已达到 \$${count} 目标！ 🎉";
 
-  static String m8(num1) => "${num1} +${num1}奖金";
+  static String m9(num1) => "${num1} +${num1}奖金";
 
-  static String m9(rank) => "第${rank}名";
+  static String m10(rank) => "第${rank}名";
 
-  static String m10(version) => "新版本(${version})发布。";
+  static String m11(version) => "新版本(${version})发布。";
 
-  static String m11(version) => "您需要更新到新版本(${version})";
+  static String m12(version) => "您需要更新到新版本(${version})";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -116,13 +118,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("想看看新的配对吗？"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("兼容性"),
+        "compatibility_purchase_message": m0,
         "compatibility_remain_star_candy":
             MessageLookupByLibrary.simpleMessage("剩余的糖果"),
         "compatibility_result_not_found":
             MessageLookupByLibrary.simpleMessage("我们不相容 😔"),
         "compatibility_share_hashtag": MessageLookupByLibrary.simpleMessage(
             "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합"),
-        "compatibility_share_message": m0,
+        "compatibility_share_message": m1,
         "compatibility_snackbar_error":
             MessageLookupByLibrary.simpleMessage("出现错误。"),
         "compatibility_snackbar_need_birthday":
@@ -297,8 +300,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("人际关系"),
         "fortune_share_hashtag": MessageLookupByLibrary.simpleMessage(
             "#picnic #신년운세 #Fourtuneteller"),
-        "fortune_share_message": m1,
-        "fortune_title": m2,
+        "fortune_share_message": m2,
+        "fortune_title": m3,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("综合星座运势"),
         "fortune_with_me": MessageLookupByLibrary.simpleMessage("您与艺术家的兼容性"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("专辑名称"),
@@ -432,9 +435,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("退出"),
         "label_tabbar_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("即将推出"),
-        "label_time_ago_day": m3,
-        "label_time_ago_hour": m4,
-        "label_time_ago_minute": m5,
+        "label_time_ago_day": m4,
+        "label_time_ago_hour": m5,
+        "label_time_ago_minute": m6,
         "label_time_ago_right_now":
             MessageLookupByLibrary.simpleMessage("就在刚才"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("评论"),
@@ -589,7 +592,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_my_written_scrap": MessageLookupByLibrary.simpleMessage("我的废品"),
         "post_no_comment": MessageLookupByLibrary.simpleMessage("无评论。"),
         "post_not_found": MessageLookupByLibrary.simpleMessage("未找到帖子。"),
-        "post_replying_comment": m6,
+        "post_replying_comment": m7,
         "post_report_fail": MessageLookupByLibrary.simpleMessage("报告失败。"),
         "post_report_label": MessageLookupByLibrary.simpleMessage("提交报告"),
         "post_report_other_input":
@@ -625,7 +628,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "share_image_success": MessageLookupByLibrary.simpleMessage("成功共享图像"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 应用程序丢失。"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("在 Twitter 上分享"),
-        "text_achievement": m7,
+        "text_achievement": m8,
         "text_ads_random": MessageLookupByLibrary.simpleMessage("查看广告并收集随机图片。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "text_bookmark_failed": MessageLookupByLibrary.simpleMessage("取消书签失败"),
@@ -664,10 +667,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*价格包含增值税。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("星形糖果"),
-        "text_star_candy_with_bonus": m8,
+        "text_star_candy_with_bonus": m9,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("这次投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票结束"),
-        "text_vote_rank": m9,
+        "text_vote_rank": m10,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("奖励排名"),
         "text_vote_where_is_my_bias":
@@ -681,8 +684,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("更新"),
         "update_cannot_open_appstore":
             MessageLookupByLibrary.simpleMessage("我无法打开应用程序商店。"),
-        "update_recommend_text": m10,
-        "update_required_text": m11,
+        "update_recommend_text": m11,
+        "update_required_text": m12,
         "update_required_title": MessageLookupByLibrary.simpleMessage("需要更新。"),
         "views": MessageLookupByLibrary.simpleMessage("意见"),
         "vote_result_save_button": MessageLookupByLibrary.simpleMessage("保存结果"),

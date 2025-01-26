@@ -20,30 +20,32 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ja';
 
-  static String m0(artist_name) => "私と#${artist_name} の輝くケミは何％かな？ドキドキが止まらない！";
+  static String m0(artist_name) => "私と「${artist_name}」の相性スコアが気になる方は？";
 
-  static String m1(artist_name) =>
+  static String m1(artist_name) => "私と#${artist_name} の輝くケミは何％かな？ドキドキが止まらない！";
+
+  static String m2(artist_name) =>
       "想知道#${artist_name}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！\n#picnic #新年运势 #Fourtuneteller\n";
 
-  static String m2(year) => "${year}年の運勢";
+  static String m3(year) => "${year}年の運勢";
 
-  static String m3(day) => "${day}日前";
+  static String m4(day) => "${day}日前";
 
-  static String m4(hour) => "${hour}時間前";
+  static String m5(hour) => "${hour}時間前";
 
-  static String m5(minute) => "${minute}分前";
+  static String m6(minute) => "${minute}分前";
 
-  static String m6(nickname) => "${nickname}さんへの返信中...";
+  static String m7(nickname) => "${nickname}さんへの返信中...";
 
-  static String m7(count) => "🎉 これまでに\$${count}個の目標達成！ 🎉";
+  static String m8(count) => "🎉 これまでに\$${count}個の目標達成！ 🎉";
 
-  static String m8(num1) => "${num1}個  +${num1}個のボーナス";
+  static String m9(num1) => "${num1}個  +${num1}個のボーナス";
 
-  static String m9(rank) => "${rank}位";
+  static String m10(rank) => "${rank}位";
 
-  static String m10(version) => "新しいバージョン(${version})が利用可能です。";
+  static String m11(version) => "新しいバージョン(${version})が利用可能です。";
 
-  static String m11(version) => "新しいバージョン(${version})へのアップデートが必要です。";
+  static String m12(version) => "新しいバージョン(${version})へのアップデートが必要です。";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -118,13 +120,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("新しい相性を見ませんか？"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("相性"),
+        "compatibility_purchase_message": m0,
         "compatibility_remain_star_candy":
             MessageLookupByLibrary.simpleMessage("残りの星飴"),
         "compatibility_result_not_found":
             MessageLookupByLibrary.simpleMessage("相性が悪いです😔。"),
         "compatibility_share_hashtag": MessageLookupByLibrary.simpleMessage(
             "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합"),
-        "compatibility_share_message": m0,
+        "compatibility_share_message": m1,
         "compatibility_snackbar_error":
             MessageLookupByLibrary.simpleMessage("エラーが発生しました。"),
         "compatibility_snackbar_need_birthday":
@@ -309,8 +312,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("対人関係"),
         "fortune_share_hashtag": MessageLookupByLibrary.simpleMessage(
             "#picnic #신년운세 #Fourtuneteller"),
-        "fortune_share_message": m1,
-        "fortune_title": m2,
+        "fortune_share_message": m2,
+        "fortune_title": m3,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("総合占い"),
         "fortune_with_me": MessageLookupByLibrary.simpleMessage("アーティストと私の相性"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("アルバム名"),
@@ -458,9 +461,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("終了"),
         "label_tabbar_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("予定"),
-        "label_time_ago_day": m3,
-        "label_time_ago_hour": m4,
-        "label_time_ago_minute": m5,
+        "label_time_ago_day": m4,
+        "label_time_ago_hour": m5,
+        "label_time_ago_minute": m6,
         "label_time_ago_right_now": MessageLookupByLibrary.simpleMessage("先ほど"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("コメント"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("報告する"),
@@ -627,7 +630,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("私のスクラップ"),
         "post_no_comment": MessageLookupByLibrary.simpleMessage("コメントはありません。"),
         "post_not_found": MessageLookupByLibrary.simpleMessage("投稿が見つかりません。"),
-        "post_replying_comment": m6,
+        "post_replying_comment": m7,
         "post_report_fail": MessageLookupByLibrary.simpleMessage("申告に失敗しました。"),
         "post_report_label": MessageLookupByLibrary.simpleMessage("報告する"),
         "post_report_other_input":
@@ -666,7 +669,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("Xアプリがありません。"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("Twitter共有"),
-        "text_achievement": m7,
+        "text_achievement": m8,
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
@@ -708,10 +711,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*価格はVAT込みの価格です。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
-        "text_star_candy_with_bonus": m8,
+        "text_star_candy_with_bonus": m9,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票完了"),
-        "text_vote_rank": m9,
+        "text_vote_rank": m10,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("ランクインリワード"),
         "text_vote_where_is_my_bias":
@@ -725,8 +728,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("最新情報"),
         "update_cannot_open_appstore":
             MessageLookupByLibrary.simpleMessage("アプリストアを開くことができません。"),
-        "update_recommend_text": m10,
-        "update_required_text": m11,
+        "update_recommend_text": m11,
+        "update_required_text": m12,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("アップデートが必要です。"),
         "views": MessageLookupByLibrary.simpleMessage("再生回数"),
