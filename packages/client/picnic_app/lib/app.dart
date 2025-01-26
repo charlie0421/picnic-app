@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:app_links/app_links.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_app/presentation/screens/portal.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
-import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/l10n_setup.dart';
@@ -28,8 +26,6 @@ import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
-import 'package:picnic_lib/presentation/providers/community/compatibility_list_provider.dart';
-import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';

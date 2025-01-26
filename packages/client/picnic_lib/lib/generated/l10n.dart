@@ -3390,6 +3390,16 @@ class S {
     );
   }
 
+  /// `If I want to know the Goong-hap score between me and the {artist_name}?`
+  String compatibility_purchase_message(Object artist_name) {
+    return Intl.message(
+      'If I want to know the Goong-hap score between me and the $artist_name?',
+      name: 'compatibility_purchase_message',
+      desc: '',
+      args: [artist_name],
+    );
+  }
+
   /// `Viewing ads and collecting random images.`
   String get text_ads_random {
     return Intl.message(

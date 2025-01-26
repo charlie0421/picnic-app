@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'dart:ui';
 
-import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/presentation/common/share_section.dart';
-import 'package:picnic_lib/presentation/common/underlined_text.dart';
-import 'package:picnic_lib/presentation/common/underlined_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_logo_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_info.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/in_app_purchase_service.dart';
@@ -25,15 +22,14 @@ import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
+import 'package:picnic_lib/presentation/pages/community/compatibility_result_content.dart';
 
 class CompatibilityResultPage extends ConsumerStatefulWidget {
   const CompatibilityResultPage({
@@ -60,6 +56,10 @@ class _CompatibilityResultPageState
   bool _isSharing = false;
   final ScrollController _scrollController =
       ScrollController(); // Add ScrollController
+  static const _animationDuration = Duration(milliseconds: 300);
+  static const _scrollCurve = Curves.easeOut;
+  late final _shareMessage = Intl.message('compatibility_share_message',
+      args: [getLocaleTextFromJson(widget.compatibility.artist.name)]);
 
   @override
   void initState() {
@@ -247,286 +247,16 @@ class _CompatibilityResultPageState
     });
   }
 
-  Widget _buildStyleItem(BuildContext context, String label, String content) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          content,
-          style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeaderSection(LocalizedCompatibility? localizedResult) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      constraints: const BoxConstraints(maxHeight: 72),
-      child: Stack(
-        children: [
-          if (localizedResult != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 36),
-              constraints: const BoxConstraints(minHeight: 60),
-              child: Center(
-                child: Text(
-                  localizedResult.compatibilitySummary,
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey00),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          Positioned(
-            top: 10,
-            left: 0,
-            child: SvgPicture.asset(
-              package: 'picnic_lib',
-              'assets/icons/fortune/quote_open.svg',
-              width: 20,
-              colorFilter: ColorFilter.mode(AppColors.grey00, BlendMode.srcIn),
-            ),
-          ),
-          Positioned(
-            bottom: 10,
-            right: 0,
-            child: SvgPicture.asset(
-              package: 'picnic_lib',
-              'assets/icons/fortune/quote_close.svg',
-              width: 20,
-              colorFilter: ColorFilter.mode(AppColors.grey00, BlendMode.srcIn),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultContent(String compatibilityId) {
+  Widget _buildResultContent() {
     final compatibility = ref.read(compatibilityProvider).value;
-    String language = getLocaleLanguage();
-    if (compatibility?.localizedResults?.isEmpty ?? true) {
-      return Center(
-        child: Text(
-          S.of(context).compatibility_result_not_found,
-          style: getTextStyle(AppTypo.body14R, AppColors.grey500),
-        ),
-      );
-    }
 
-    final localizedResult = compatibility?.getLocalizedResult(language) ??
-        compatibility?.localizedResults?.values.firstOrNull;
-
-    if (localizedResult == null) {
-      return Center(
-        child: Text(
-          S.of(context).compatibility_result_not_found,
-          style: getTextStyle(AppTypo.body14R, AppColors.grey500),
-        ),
-      );
-    }
-
-    final style = localizedResult.details?.style;
-    final activities = localizedResult.details?.activities;
-    final tips = localizedResult.tips;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!(compatibility?.isPaid ?? false))
-          Stack(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Column(
-                  children: [
-                    if (style != null) _buildStyleSection(style),
-                    SizedBox(height: 36),
-                    if (activities != null) _buildActivitiesSection(activities),
-                    SizedBox(height: 36),
-                    if (tips.isNotEmpty) _buildTipsSection(tips),
-                    if (!_isSaving)
-                      ShareSection(
-                        saveButtonText: S.of(context).save,
-                        shareButtonText: S.of(context).share,
-                        onSave: () => _handleSave(compatibility!),
-                        onShare: () => _handleShare(compatibility!),
-                      ),
-                    SizedBox(height: 16),
-                  ],
-                ),
-              ),
-              Positioned.fill(
-                child: ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 32),
-                            BubbleBox(
-                                backgroundColor: AppColors.grey00,
-                                elevation: 2,
-                                shape: BubbleShapeBorder(
-                                  border: BubbleBoxBorder(
-                                    color: AppColors.grey300,
-                                    width: 1.5,
-                                    style: BubbleBoxBorderStyle.solid,
-                                  ),
-                                  radius: const BorderRadius.all(
-                                    Radius.circular(10),
-                                  ),
-                                  position: const BubblePosition.center(0),
-                                  direction: BubbleDirection.bottom,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 0,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      package: 'picnic_lib',
-                                      'assets/icons/store/star_100.png',
-                                      width: 36,
-                                    ),
-                                    Text(
-                                      '100',
-                                      style: getTextStyle(
-                                        AppTypo.body16B,
-                                        AppColors.grey900,
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                            SizedBox(height: 8),
-                            Container(
-                              constraints: BoxConstraints(
-                                minWidth: 240,
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  OverlayLoadingProgress.start(context);
-                                  _openCompatibility(compatibilityId);
-                                  OverlayLoadingProgress.stop();
-                                },
-                                child: Text(S
-                                    .of(context)
-                                    .fortune_purchase_by_star_candy),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            Container(
-                              constraints: BoxConstraints(
-                                minWidth: 240,
-                              ),
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                    padding: WidgetStateProperty.all(
-                                        EdgeInsets.symmetric(
-                                            horizontal: 32.cw, vertical: 0)),
-                                    backgroundColor: WidgetStateProperty.all(
-                                        AppColors.secondary500),
-                                    foregroundColor: WidgetStateProperty.all(
-                                        AppColors.grey900),
-                                    shape: WidgetStateProperty.all(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                        side: BorderSide(
-                                            color: AppColors.primary500,
-                                            width: 1,
-                                            style: BorderStyle.solid),
-                                      ),
-                                    ),
-                                    textStyle: WidgetStateProperty.all(
-                                      getTextStyle(
-                                        AppTypo.caption12B,
-                                        AppColors.grey00,
-                                      ),
-                                    ),
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap),
-                                onPressed: () async {
-                                  if (!mounted) return;
-
-                                  try {
-                                    OverlayLoadingProgress.start(context);
-
-                                    final productDetail = ref
-                                        .read(serverProductsProvider.notifier)
-                                        .getProductDetailById('STAR100');
-
-                                    if (productDetail == null) {
-                                      throw Exception('상품 정보를 찾을 수 없습니다.');
-                                    }
-
-                                    logger.i('Buy product: $productDetail');
-
-                                    // 구매 시도
-                                    final purchaseInitiated =
-                                        await _buyProduct(productDetail);
-
-                                    // 구매 시도 실패시에만 에러 다이얼로그 표시하고 로딩바 숨김
-                                    if (!purchaseInitiated) {
-                                      if (!mounted) return;
-                                      await _showErrorDialog(
-                                          '구매를 시작할 수 없습니다. 잠시 후 다시 시도해 주세요.');
-                                      OverlayLoadingProgress.stop();
-                                    }
-                                    // 구매 시도 성공시에는 로딩바 유지 (실제 구매 완료/실패시 _handlePurchaseUpdated에서 로딩바 숨김)
-                                  } catch (e, s) {
-                                    logger.e('Error starting purchase',
-                                        error: e, stackTrace: s);
-                                    if (!mounted) return;
-                                    await _showErrorDialog('구매 중 오류가 발생했습니다.');
-                                    OverlayLoadingProgress.stop();
-                                    rethrow;
-                                  }
-                                },
-                                child: Text(
-                                    S.of(context).fortune_purchase_by_one_click,
-                                    style: TextStyle(color: AppColors.grey900)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          )
-        else ...[
-          if (style != null) _buildStyleSection(style),
-          SizedBox(height: 36),
-          if (activities != null) _buildActivitiesSection(activities),
-          SizedBox(height: 36),
-          if (tips.isNotEmpty) _buildTipsSection(tips),
-          if (!_isSaving)
-            ShareSection(
-              saveButtonText: S.of(context).save,
-              shareButtonText: S.of(context).share,
-              onSave: () => _handleSave(compatibility!),
-              onShare: () => _handleShare(compatibility!),
-            ),
-          SizedBox(height: 16),
-        ],
-      ],
+    return CompatibilityResultContent(
+      compatibility: compatibility!,
+      isSaving: _isSaving,
+      onSave: _handleSave,
+      onShare: _handleShare,
+      onOpenCompatibility: _openCompatibility,
+      onBuyProduct: _buyProduct,
     );
   }
 
@@ -624,210 +354,6 @@ class _CompatibilityResultPageState
     }
   }
 
-  Widget _buildStyleSection(StyleDetails style) {
-    return Card(
-      elevation: 2,
-      child: ExpansionTile(
-        controller: styleController,
-        initiallyExpanded: true,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        title: SizedBox(
-          height: 28,
-          child: Row(
-            children: [
-              UnderlinedWidget(
-                underlineGap: 2,
-                child: SvgPicture.asset(
-                  package: 'picnic_lib',
-                  'assets/images/fortune/fortune_style.svg',
-                  width: 24,
-                  colorFilter: ColorFilter.mode(
-                    AppColors.primary500,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
-              UnderlinedText(
-                text: ' ${S.of(context).compatibility_style_title}',
-                textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                underlineGap: 1.5,
-              ),
-            ],
-          ),
-        ),
-        children: [
-          InkWell(
-            onTap: () => styleController.collapse(),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildStyleItem(
-                    context,
-                    S.of(context).compatibility_idol_style,
-                    style.idolStyle,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildStyleItem(
-                    context,
-                    S.of(context).compatibility_user_style,
-                    style.userStyle,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildStyleItem(
-                    context,
-                    S.of(context).compatibility_couple_style,
-                    style.coupleStyle,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActivitiesSection(ActivitiesDetails activities) {
-    return Card(
-      elevation: 2,
-      child: ExpansionTile(
-        controller: activityController,
-        initiallyExpanded: true,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        title: Row(
-          children: [
-            UnderlinedWidget(
-              underlineGap: 2,
-              child: SvgPicture.asset(
-                package: 'picnic_lib',
-                'assets/images/fortune/fortune_activities.svg',
-                width: 24,
-                colorFilter: ColorFilter.mode(
-                  AppColors.primary500,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-            UnderlinedText(
-              text: ' ${S.of(context).compatibility_activities_title}',
-              textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              underlineGap: 1.5,
-            ),
-          ],
-        ),
-        children: [
-          InkWell(
-            onTap: () => activityController.collapse(),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: activities.recommended.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 4),
-                    itemBuilder: (context, index) {
-                      return Text('✔️ ${activities.recommended[index]}',
-                          style: getTextStyle(
-                            AppTypo.caption12B,
-                            AppColors.grey900,
-                          ));
-                    },
-                  ),
-                  Text(
-                    activities.description.trim(),
-                    style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTipsSection(List<String> tips) {
-    return Card(
-      elevation: 2,
-      child: ExpansionTile(
-        controller: tipController,
-        initiallyExpanded: true,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        title: Row(
-          children: [
-            UnderlinedWidget(
-              underlineGap: 2,
-              child: SvgPicture.asset(
-                package: 'picnic_lib',
-                'assets/images/fortune/fortune_tips.svg',
-                width: 24,
-                colorFilter: ColorFilter.mode(
-                  AppColors.primary500,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-            UnderlinedText(
-              text: ' ${S.of(context).compatibility_tips_title}',
-              textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              underlineGap: 1.5,
-            ),
-          ],
-        ),
-        children: [
-          InkWell(
-            onTap: () => tipController.collapse(),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: tips.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      return Text('✔️ ${tips[index]}',
-                          style: getTextStyle(
-                            AppTypo.caption12B,
-                            AppColors.grey900,
-                          ));
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     try {
@@ -836,7 +362,7 @@ class _CompatibilityResultPageState
       return compatibilityState.when(
         data: (compatibility) {
           if (compatibility == null) {
-            return const Center(child: CircularProgressIndicator());
+            return _buildLoadingIndicator();
           }
 
           return CustomScrollView(
@@ -884,17 +410,9 @@ class _CompatibilityResultPageState
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 SizedBox(height: 24),
-                                SizedBox(
-                                  height: 20,
-                                  child: SvgPicture.asset(
-                                    package: 'picnic_lib',
-                                    'assets/images/fortune/picnic_logo.svg',
-                                    width: 78,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
+                                CompatibilityLogoWidget(),
                                 SizedBox(height: 36),
-                                CompatibilityInfo(
+                                CompatibilityCard(
                                   artist: compatibility.artist,
                                   ref: ref,
                                   birthDate: compatibility.birthDate,
@@ -903,15 +421,19 @@ class _CompatibilityResultPageState
                                   gender: compatibility.gender,
                                 ),
                                 SizedBox(height: 24),
-                                _buildHeaderSection(compatibility
-                                    .getLocalizedResult(getLocaleLanguage())),
-                                SizedBox(height: 36),
+                                CompatibilitySummaryWidget(
+                                    localizedResult:
+                                        compatibility.getLocalizedResult(
+                                            getLocaleLanguage())),
+                                SizedBox(height: 24),
+                                CompatibilityScoreWidget(
+                                  compatibility: compatibility,
+                                ),
+                                SizedBox(height: 12),
                               ],
                             ),
                           ),
                         ),
-                        FortuneDivider(color: AppColors.grey00),
-                        SizedBox(height: 36),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Column(
@@ -922,7 +444,7 @@ class _CompatibilityResultPageState
                                       S.of(context).error_unknown,
                                 )
                               else if (compatibility.isCompleted)
-                                _buildResultContent(compatibility.id)
+                                _buildResultContent()
                             ],
                           ),
                         ),
@@ -934,7 +456,7 @@ class _CompatibilityResultPageState
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => _buildLoadingIndicator(),
         error: (error, stack) => Center(
           child: Text(
             'Error: $error',
@@ -952,6 +474,14 @@ class _CompatibilityResultPageState
         ),
       );
     }
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Center(
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
+      ),
+    );
   }
 
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
@@ -974,8 +504,8 @@ class _CompatibilityResultPageState
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollController.animateTo(
             _scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeOut,
+            duration: _animationDuration,
+            curve: _scrollCurve,
           );
         });
       },
@@ -986,8 +516,7 @@ class _CompatibilityResultPageState
     logger.i('Share to Twitter');
     return ShareUtils.shareToSocial(
       _shareKey,
-      message: Intl.message('compatibility_share_message',
-          args: [getLocaleTextFromJson(compatibility.artist.name)]),
+      message: _shareMessage,
       hashtag: S.of(context).compatibility_share_hashtag,
       downloadLink: await createBranchLink(
           getLocaleTextFromJson(compatibility.artist.name),
@@ -1006,8 +535,8 @@ class _CompatibilityResultPageState
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollController.animateTo(
             _scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeOut,
+            duration: _animationDuration,
+            curve: _scrollCurve,
           );
         });
       },

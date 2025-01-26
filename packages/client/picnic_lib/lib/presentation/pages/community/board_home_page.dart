@@ -42,10 +42,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      logger.i('initState');
-      logger.i('widget.artistId: ${widget.artistId}');
       final artist = await ref.read(getArtistProvider(widget.artistId).future);
-      logger.i('artist: ${artist.name}');
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true,
           showTopMenu: true,

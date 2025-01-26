@@ -1376,6 +1376,9 @@
     "@text_achievement": {
         "manualTranslation": true
     },
+    "compatibility_purchase_message": "私と「{artist_name}」の相性スコアが気になる方は？",
+    "@compatibility_purchase_message": {},
+
     "text_ads_random": "広告表示とランダム画像収集。",
     "@text_ads_random": {
         "manualTranslation": false

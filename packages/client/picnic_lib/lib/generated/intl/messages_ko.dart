@@ -20,31 +20,33 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ko';
 
-  static String m0(artist_name) =>
-      "나와 #${artist_name} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!";
+  static String m0(artist_name) => "나와 ${artist_name}의 궁합 점수가 궁금하다면?🎉";
 
   static String m1(artist_name) =>
+      "나와 #${artist_name} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!";
+
+  static String m2(artist_name) =>
       "#${artist_name} 의 2025년 운세가 궁금하다면? 지금 바로 #피크닠 으로 오세요! 우리 같이 빛나는 운세 확인해요!";
 
-  static String m2(year) => "${year}년 마이 아티스트 운세";
+  static String m3(year) => "${year}년 마이 아티스트 운세";
 
-  static String m3(day) => "${day}일 전";
+  static String m4(day) => "${day}일 전";
 
-  static String m4(hour) => "${hour}시간 전";
+  static String m5(hour) => "${hour}시간 전";
 
-  static String m5(minute) => "${minute}분 전";
+  static String m6(minute) => "${minute}분 전";
 
-  static String m6(nickname) => "${nickname}님에게 답글 쓰는 중...";
+  static String m7(nickname) => "${nickname}님에게 답글 쓰는 중...";
 
-  static String m7(count) => "🎉 지금까지 \$${count}개 목표 달성! 🎉";
+  static String m8(count) => "🎉 지금까지 \$${count}개 목표 달성! 🎉";
 
-  static String m8(num1) => "${num1}개 +${num1}개 보너스";
+  static String m9(num1) => "${num1}개 +${num1}개 보너스";
 
-  static String m9(rank) => "${rank}위";
+  static String m10(rank) => "${rank}위";
 
-  static String m10(version) => "새로운 버전(${version})이 사용 가능합니다.";
+  static String m11(version) => "새로운 버전(${version})이 사용 가능합니다.";
 
-  static String m11(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
+  static String m12(version) => "새로운 버전(${version})으로 업데이트가 필요합니다.";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -122,13 +124,14 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("새로운 궁합을 보시겠습니까?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("아티스트 궁합보기"),
+        "compatibility_purchase_message": m0,
         "compatibility_remain_star_candy":
             MessageLookupByLibrary.simpleMessage("남은 별사탕"),
         "compatibility_result_not_found":
             MessageLookupByLibrary.simpleMessage("궁합이 없어요 😔"),
         "compatibility_share_hashtag": MessageLookupByLibrary.simpleMessage(
             "#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합"),
-        "compatibility_share_message": m0,
+        "compatibility_share_message": m1,
         "compatibility_snackbar_error":
             MessageLookupByLibrary.simpleMessage("오류가 발생했습니다."),
         "compatibility_snackbar_need_birthday":
@@ -314,8 +317,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "fortune_relationship": MessageLookupByLibrary.simpleMessage("대인관계"),
         "fortune_share_hashtag": MessageLookupByLibrary.simpleMessage(
             "#picnic #신년운세 #Fourtuneteller"),
-        "fortune_share_message": m1,
-        "fortune_title": m2,
+        "fortune_share_message": m2,
+        "fortune_title": m3,
         "fortune_total_title": MessageLookupByLibrary.simpleMessage("종합운세"),
         "fortune_with_me": MessageLookupByLibrary.simpleMessage("아티스트와 나의 궁합"),
         "hint_library_add": MessageLookupByLibrary.simpleMessage("앨범명"),
@@ -463,9 +466,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("종료"),
         "label_tabbar_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("예정"),
-        "label_time_ago_day": m3,
-        "label_time_ago_hour": m4,
-        "label_time_ago_minute": m5,
+        "label_time_ago_day": m4,
+        "label_time_ago_hour": m5,
+        "label_time_ago_minute": m6,
         "label_time_ago_right_now":
             MessageLookupByLibrary.simpleMessage("방금 전"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("댓글"),
@@ -635,7 +638,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_no_comment": MessageLookupByLibrary.simpleMessage("댓글이 없습니다."),
         "post_not_found":
             MessageLookupByLibrary.simpleMessage("게시글을 찾을 수 없습니다."),
-        "post_replying_comment": m6,
+        "post_replying_comment": m7,
         "post_report_fail": MessageLookupByLibrary.simpleMessage("신고에 실패했습니다."),
         "post_report_label": MessageLookupByLibrary.simpleMessage("신고하기"),
         "post_report_other_input":
@@ -676,7 +679,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("이미지 공유 성공"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("X 앱이 없습니다."),
         "share_twitter": MessageLookupByLibrary.simpleMessage("트위터 공유"),
-        "text_achievement": m7,
+        "text_achievement": m8,
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("광고 보기 및 무작위 이미지 수집."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
@@ -719,10 +722,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*VAT 포함 가격입니다."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("별사탕"),
-        "text_star_candy_with_bonus": m8,
+        "text_star_candy_with_bonus": m9,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("이번 투표"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("투표 완료"),
-        "text_vote_rank": m9,
+        "text_vote_rank": m10,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("랭크 인 리워드"),
         "text_vote_where_is_my_bias":
@@ -736,8 +739,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("업데이트"),
         "update_cannot_open_appstore":
             MessageLookupByLibrary.simpleMessage("앱스토어를 열 수 없습니다."),
-        "update_recommend_text": m10,
-        "update_required_text": m11,
+        "update_recommend_text": m11,
+        "update_required_text": m12,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("업데이트가 필요합니다."),
         "views": MessageLookupByLibrary.simpleMessage("조회수"),

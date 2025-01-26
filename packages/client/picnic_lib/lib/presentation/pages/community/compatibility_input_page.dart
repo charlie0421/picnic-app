@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_info.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
 import 'package:picnic_lib/presentation/widgets/stroked_text.dart';
 import 'package:picnic_lib/generated/l10n.dart';
@@ -378,7 +378,7 @@ class _CompatibilityInputScreenState
               strokeWidth: 3,
             ),
             const SizedBox(height: 12),
-            CompatibilityInfo(
+            CompatibilityCard(
               artist: widget.artist,
               ref: ref,
               compatibility: null,
@@ -431,59 +431,7 @@ class _CompatibilityInputScreenState
                           underlineGap: 4,
                         ),
                         SizedBox(height: 16),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _gender = genderOptions[1]['value'];
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: _gender == genderOptions[1]['value']
-                                      ? AppColors.primary500
-                                      : AppColors.grey300,
-                                ),
-                                width: 60,
-                                height: 19,
-                                child: Center(
-                                  child: Text(
-                                    S.of(context).compatibility_gender_female,
-                                    style: getTextStyle(
-                                        AppTypo.caption10SB, AppColors.grey00),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _gender = genderOptions[0]['value'];
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: _gender == genderOptions[0]['value']
-                                      ? AppColors.primary500
-                                      : AppColors.grey300,
-                                ),
-                                width: 60,
-                                height: 19,
-                                child: Center(
-                                  child: Text(
-                                    S.of(context).compatibility_gender_male,
-                                    style: getTextStyle(
-                                        AppTypo.caption10SB, AppColors.grey00),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
+                        _buildGenderSelection(),
                       ],
                     ),
                   ),
@@ -767,6 +715,43 @@ class _CompatibilityInputScreenState
 
             const SizedBox(height: 48),
           ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildGenderSelection() {
+    return Row(
+      children: [
+        _buildGenderButton(genderOptions[1]),
+        const SizedBox(width: 8),
+        _buildGenderButton(genderOptions[0]),
+      ],
+    );
+  }
+
+  Widget _buildGenderButton(Map<String, String> option) {
+    final isSelected = _gender == option['value'];
+    return GestureDetector(
+      onTap: () => setState(() => _gender = option['value']),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: isSelected ? AppColors.primary500 : AppColors.grey300,
+        ),
+        width: 60,
+        height: 19,
+        child: Center(
+          child: Text(
+            option['label'] ?? '',
+            style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+          ),
         ),
       ),
     );

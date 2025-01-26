@@ -1496,6 +1496,9 @@
     "@text_achievement": {
         "manualTranslation": true
     },
+    "compatibility_purchase_message": "If I want to know the Goong-hap score between me and the {artist_name}?",
+    "@compatibility_purchase_message": {},
+
     "text_ads_random": "Viewing ads and collecting random images.",
     "@text_ads_random": {
         "translationTimestamp": "2024-07-21T11:18:53.669108",
