@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/presentation/providers/artist_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/list/post_list.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/generated/l10n.dart';
@@ -17,17 +18,16 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
-class PostListPage extends ConsumerStatefulWidget {
-  const PostListPage(this.artistId, this.artistName, {super.key});
+class BoardHomePage extends ConsumerStatefulWidget {
+  const BoardHomePage(this.artistId, {super.key});
 
   final int artistId;
-  final String artistName;
 
   @override
-  ConsumerState<PostListPage> createState() => _PostListPageState();
+  ConsumerState<BoardHomePage> createState() => _PostListPageState();
 }
 
-class _PostListPageState extends ConsumerState<PostListPage>
+class _PostListPageState extends ConsumerState<BoardHomePage>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late final PageController _pageController = PageController();
   late final BoardsNotifier _boardsNotifier;
@@ -40,16 +40,18 @@ class _PostListPageState extends ConsumerState<PostListPage>
   @override
   void initState() {
     super.initState();
-    _boardsNotifier =
-        ref.read(boardsNotifierProvider(widget.artistId).notifier);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      logger.i('initState');
+      logger.i('widget.artistId: ${widget.artistId}');
+      final artist = await ref.read(getArtistProvider(widget.artistId).future);
+      logger.i('artist: ${artist.name}');
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true,
           showTopMenu: true,
           topRightMenu: TopRightType.board,
           showBottomNavigation: false,
-          pageTitle: widget.artistName);
+          pageTitle: getLocaleTextFromJson(artist.name));
     });
   }
 
@@ -110,7 +112,9 @@ class _PostListPageState extends ConsumerState<PostListPage>
             return Column(
               children: [
                 _buildTabBar(boards, totalPages, showRequestButton),
-                Expanded(child: _buildPageView(boards, showRequestButton)),
+                Expanded(
+                    child: _buildPageView(
+                        boards, widget.artistId, showRequestButton)),
               ],
             );
           },
@@ -160,7 +164,8 @@ class _PostListPageState extends ConsumerState<PostListPage>
     );
   }
 
-  Widget _buildPageView(List<BoardModel> boards, bool showRequestButton) {
+  Widget _buildPageView(
+      List<BoardModel> boards, int artistId, bool showRequestButton) {
     return PageView(
       controller: _pageController,
       onPageChanged: (index) {
@@ -174,9 +179,9 @@ class _PostListPageState extends ConsumerState<PostListPage>
         }
       },
       children: [
-        PostList(PostListType.artist, widget.artistId),
+        PostList(PostListType.artist, artistId),
         ...boards.map((board) => PostList(PostListType.board, board.boardId)),
-        if (showRequestButton) BoardRequest(widget.artistId),
+        if (showRequestButton) BoardRequest(artistId),
       ],
     );
   }

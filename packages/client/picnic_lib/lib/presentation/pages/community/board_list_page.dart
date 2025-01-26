@@ -8,7 +8,7 @@ import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart'
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
-import 'package:picnic_lib/presentation/pages/community/post_list_page.dart';
+import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -203,9 +203,9 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
         ref
             .read(communityStateInfoProvider.notifier)
             .setCurrentArtist(board.artist!);
-        ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
-            PostListPage(
-                board.artist!.id, getLocaleTextFromJson(board.artist!.name)));
+        ref
+            .read(navigationInfoProvider.notifier)
+            .setCommunityCurrentPage(BoardHomePage(board.artistId));
       },
       child: Chip(
         label: Text(

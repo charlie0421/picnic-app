@@ -328,7 +328,7 @@ class _AsyncVoteDetailProviderElement
   VotePortal get votePortal => (origin as AsyncVoteDetailProvider).votePortal;
 }
 
-String _$asyncVoteItemListHash() => r'8c5c2b8c54501c1e42ddab7c9e176c6bb7a280cb';
+String _$asyncVoteItemListHash() => r'e83a599a864da32a61b3f423cee07b16c46e4e70';
 
 abstract class _$AsyncVoteItemList
     extends BuildlessAutoDisposeAsyncNotifier<List<VoteItemModel?>> {

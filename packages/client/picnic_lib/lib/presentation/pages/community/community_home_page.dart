@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
-import 'package:picnic_lib/presentation/widgets/community/home/post_home_list.dart';
+import 'package:picnic_lib/presentation/widgets/community/home/community_home.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
@@ -151,7 +151,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                                 },
                               ),
                             ),
-                            if (currentArtist != null) const PostHomeList(),
+                            if (currentArtist != null) const CommunityHome(),
                           ],
                         )
                       : Container(

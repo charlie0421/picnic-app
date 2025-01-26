@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -203,7 +204,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                           saveButtonText: S.of(context).save,
                           shareButtonText: S.of(context).share,
                           onSave: _handleSave,
-                          onShare: () {
+                          onShare: () async {
                             if (_isSaving) return;
                             ShareUtils.shareToSocial(
                               _shareKey,
@@ -213,6 +214,9 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                                     getLocaleTextFromJson(fortune.artist.name)
                                   ]),
                               hashtag: S.of(context).fortune_share_hashtag,
+                              downloadLink: await createBranchLink(
+                                  getLocaleTextFromJson(fortune.artist.name),
+                                  'https://applink.picnic.fan/community/fortune/${widget.artistId}'),
                               onStart: () {
                                 OverlayLoadingProgress.start(context,
                                     color: AppColors.primary500);

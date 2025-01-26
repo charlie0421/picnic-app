@@ -1,25 +1,17 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:ttja_app/app.dart';
 import 'package:ttja_app/firebase_options.dart';
 import 'package:ttja_app/main.reflectable.dart';
-import 'package:picnic_lib/core/config/environment.dart';
-import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
-import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
-import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:timezone/data/latest.dart' as tz;
 import 'package:url_strategy/url_strategy.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 

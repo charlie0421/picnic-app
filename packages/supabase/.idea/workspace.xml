@@ -5,13 +5,43 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="feat (ttja) 영수증 검증 임시로 비활성화">
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/deeplink.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/artist_provider.g.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/board_home_page.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/artist_provider.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/home/community_home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/config/dev.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/config/dev.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/config/local.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/config/local.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/config/prod.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/config/prod.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Runner/Info.plist" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Runner/Runner.entitlements" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Runner/Runner.entitlements" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/core/config/environment.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/core/config/environment.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/app_initializer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/app_initializer.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/data/models/common/navigation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/data/models/common/navigation.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/community/boards_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/community/boards_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/product_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/product_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/screen_protector_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/screen_protector_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/user_info_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/user_info_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/vote_detail_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/vote_detail_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/vote_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/vote_list_provider.g.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/dialogs/fortune_dialog.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/dialogs/fortune_dialog.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/board_list_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/board_list_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/community_home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/community_home_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/community_my_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/community_my_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_list_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_list_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/post_list_page.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/community/boards_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/community/boards_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/product_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/product_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/home/post_home_list.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/list/post_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/list/post_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/config/dev.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/config/dev.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/config/local.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/config/local.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/config/prod.json" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/config/prod.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/lib/app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/ttja_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

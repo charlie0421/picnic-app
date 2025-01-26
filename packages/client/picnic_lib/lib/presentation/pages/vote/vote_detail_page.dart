@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -142,7 +143,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     );
   }
 
-  void _handleShare() {
+  void _handleShare() async {
     if (_isSaving) return;
     ShareUtils.shareToSocial(
       _captureKey,
@@ -153,6 +154,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           .title),
       hashtag:
           '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(ref.read(asyncVoteDetailProvider(voteId: widget.voteId, votePortal: widget.votePortal)).value!.title).replaceAll(' ', '')}',
+      downloadLink: await createBranchLink(
+          getLocaleTextFromJson(ref
+              .read(asyncVoteDetailProvider(
+                  voteId: widget.voteId, votePortal: widget.votePortal))
+              .value!
+              .title),
+          'https://applink.picnic.fan/vote/detail/${widget.voteId}'),
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() => _isSaving = true);

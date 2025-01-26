@@ -7,6 +7,32 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part '../../../generated/providers/community/boards_provider.g.dart';
 
 @riverpod
+class BoardDetail extends _$BoardDetail {
+  @override
+  Future<BoardModel?> build(String boardId) {
+    return _fetchBoardDetail(boardId);
+  }
+
+  Future<BoardModel?> _fetchBoardDetail(String boardId) async {
+    return boardDetail(boardId);
+  }
+
+  Future<BoardModel?> boardDetail(String boardId) async {
+    try {
+      final response = await supabase
+          .from('boards')
+          .select()
+          .eq('board_id', boardId)
+          .maybeSingle();
+      return response == null ? null : BoardModel.fromJson(response);
+    } catch (e, s) {
+      logger.e('Error fetching board detail:', error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+}
+
+@riverpod
 class BoardsNotifier extends _$BoardsNotifier {
   @override
   Future<List<BoardModel>?> build(int artistId) async {

@@ -10,7 +10,7 @@
 	</array>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:uwwtw.app.link</string>
+		<string>applinks:applink.picnic.fan</string>
 		<string>applinks:uwwtw-alternate.app.link</string>
 		<string>applinks:uwwtw.test-app.link</string>
 		<string>applinks:uwwtw-alternate.test-app.link</string>
