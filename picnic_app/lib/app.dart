@@ -84,26 +84,17 @@ class _AppState extends ConsumerState<App> {
       AppInitializer.initializeSystemUI();
       AppInitializer.setupSupabaseAuthListener(ref);
 
-      // Branch SDK 초기화
-      FlutterBranchSdk.init(
-        enableLogging: true,
-        branchAttributionLevel: BranchAttributionLevel.NONE,
-      ).then((_) {
-        // Branch 링크 리스너 설정
-        FlutterBranchSdk.listSession().listen((data) {
-          logger.i('Incoming Branch link data: $data');
-          if (data.containsKey("+clicked_branch_link") &&
-              data["+clicked_branch_link"] == true) {
-            // 링크 클릭 시 처리 로직
-            final longUrl = data["\$desktop_url"];
-            // longUrl을 사용하여 원하는 페이지로 이동
-            _handleDeepLink(longUrl);
-          }
-        }, onError: (error) {
-          logger.e('Branch link error: $error');
-        });
-      }).catchError((error) {
-        logger.e('Branch SDK initialization error: $error');
+      FlutterBranchSdk.listSession().listen((data) {
+        logger.i('Incoming Branch link data: $data');
+        if (data.containsKey("+clicked_branch_link") &&
+            data["+clicked_branch_link"] == true) {
+          // 링크 클릭 시 처리 로직
+          final longUrl = data["\$desktop_url"];
+          // longUrl을 사용하여 원하는 페이지로 이동
+          _handleDeepLink(longUrl);
+        }
+      }, onError: (error) {
+        logger.e('Branch link error: $error');
       });
     }
   }

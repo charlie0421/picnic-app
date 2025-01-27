@@ -118,6 +118,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("想看看新的配对吗？"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("兼容性"),
+        "compatibility_perfect_score_exists":
+            MessageLookupByLibrary.simpleMessage(
+                "请注意，此条件的兼容性数据已获得奖励，因此我们无法再颁发额外奖励。"),
+        "compatibility_perfect_score_exists_title":
+            MessageLookupByLibrary.simpleMessage("已赢得比赛的数据"),
         "compatibility_purchase_message": m0,
         "compatibility_remain_star_candy":
             MessageLookupByLibrary.simpleMessage("剩余的糖果"),

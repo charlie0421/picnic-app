@@ -132,6 +132,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Want to see a new pairing?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("Compatibility"),
+        "compatibility_perfect_score_exists": MessageLookupByLibrary.simpleMessage(
+            "Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards."),
+        "compatibility_perfect_score_exists_title":
+            MessageLookupByLibrary.simpleMessage(
+                "Already Winning Matches Data"),
         "compatibility_purchase_message": m0,
         "compatibility_remain_star_candy":
             MessageLookupByLibrary.simpleMessage("Remaining Star Candy"),

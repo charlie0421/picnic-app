@@ -410,11 +410,31 @@ class S {
     );
   }
 
+  /// `Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.`
+  String get compatibility_perfect_score_exists {
+    return Intl.message(
+      'Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.',
+      name: 'compatibility_perfect_score_exists',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Compatibility data that already exists`
   String get compatibility_duplicate_data_title {
     return Intl.message(
       'Compatibility data that already exists',
       name: 'compatibility_duplicate_data_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Already Winning Matches Data`
+  String get compatibility_perfect_score_exists_title {
+    return Intl.message(
+      'Already Winning Matches Data',
+      name: 'compatibility_perfect_score_exists_title',
       desc: '',
       args: [],
     );

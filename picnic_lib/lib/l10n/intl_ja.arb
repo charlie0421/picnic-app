@@ -144,10 +144,14 @@
     "@compatibility_duplicate_data_message": {
         "manualTranslation": false
     },
+    "compatibility_perfect_score_exists": "当該条件の相性データは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。",
+    "@compatibility_perfect_score_exists": {},
     "compatibility_duplicate_data_title": "既に存在する相性データ",
     "@compatibility_duplicate_data_title": {
         "manualTranslation": false
     },
+    "compatibility_perfect_score_exists_title": "すでに当選した相性データ",
+    "@compatibility_perfect_score_exists_title": {},
     "compatibility_gender": "性別",
     "@compatibility_gender": {
         "manualTranslation": false

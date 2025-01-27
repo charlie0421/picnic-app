@@ -144,10 +144,14 @@
     "@compatibility_duplicate_data_message": {
         "manualTranslation": false
     },
+    "compatibility_perfect_score_exists": "请注意，此条件的兼容性数据已获得奖励，因此我们无法再颁发额外奖励。",
+    "@compatibility_perfect_score_exists": {},
     "compatibility_duplicate_data_title": "现有兼容性数据",
     "@compatibility_duplicate_data_title": {
         "manualTranslation": false
     },
+    "compatibility_perfect_score_exists_title": "已赢得比赛的数据",
+    "@compatibility_perfect_score_exists_title": {},
     "compatibility_gender": "性别",
     "@compatibility_gender": {
         "manualTranslation": false
