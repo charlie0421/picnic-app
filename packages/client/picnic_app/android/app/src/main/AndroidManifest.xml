@@ -60,7 +60,8 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<!-- REPLACE `android:host` with your `app.link` domain -->
-				<data android:scheme="https" android:host="uwwtw.app.link" />
+				<data android:scheme="https" android:host="applink.picnic.fan" android:pathPattern="/.*" />
+
 				<!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
 				<data android:scheme="https" android:host="uwwtw-alternate.app.link" />
 			</intent-filter>
@@ -70,9 +71,9 @@
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="https" android:host="uwwtw.app.link" />
+				<data android:scheme="https" android:host="uwwtw.test-app.link" />
 				<!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
-				<data android:scheme="https" android:host="uwwtw-alternate.app.link" />
+				<data android:scheme="https" android:host="uwwtw-alternate.test-app.link" />
 			</intent-filter>
 
         </activity>
@@ -84,7 +85,7 @@
 		<meta-data android:name="io.branch.sdk.BranchKey.test" android:value="secret_live_liz5dsCbxcOSBFfS0mCJ4CRYKlqCVw4l" />
 		<!-- Set to `true` to use `BranchKey.test` -->
 		<meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
-        <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
+        <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
         
         <activity
                 android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
@@ -124,7 +125,12 @@
     </application>
 
     <queries>
+    
         <package android:name="com.twitter.android" />
+		<intent>
+			<action android:name="android.intent.action.SEND" />
+			<data android:mimeType="text/plain" />
+		</intent>
 
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>

@@ -167,9 +167,23 @@ export class CompatibilityService {
       result.score =
         Math.random() < 0.0001 ? 100 : Math.floor(Math.random() * 100);
 
+      // 새로운 결과를 먼저 데이터베이스에 삽입
+      const { data: insertedResult, error: insertError } = await this.supabase
+        .from('compatibility_results')
+        .update({
+          score: result.score,
+          details: result.details,
+          tips: result.tips,
+        })
+        .eq('id', compatibility.id)
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
       await this.generateAndStoreTranslations(compatibility.id, result);
 
-      return result;
+      return insertedResult;
     } catch (error) {
       logError(error, {
         context: 'compatibility-generation',

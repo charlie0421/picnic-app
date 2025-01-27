@@ -155,12 +155,25 @@ class _CompatibilityInputScreenState
     });
 
     try {
-      final existingCompatibility = await _checkExistingCompatibility();
+      final hasPerfectScore = await _hasPerfectScore();
+      logger.d('hasPerfectScore: $hasPerfectScore');
 
+      if (hasPerfectScore) {
+        if (!mounted) return;
+        final shouldProceed = await _showPerfectScoreDialog();
+
+        if (!shouldProceed) {
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
+      final existingCompatibility = await _checkExistingCompatibility();
       if (existingCompatibility != null) {
         if (!mounted) return;
-        final shouldProceed =
-            await _showCompatibilityDuplicateDialog(existingCompatibility);
+        final shouldProceed = await _showDuplicateDialog(existingCompatibility);
 
         if (!shouldProceed) {
           setState(() {
@@ -231,8 +244,99 @@ class _CompatibilityInputScreenState
     });
   }
 
-  Future<bool> _showCompatibilityDuplicateDialog(
-      CompatibilityModel existing) async {
+  Future<bool> _hasPerfectScore() async {
+    var query = supabase
+        .from('compatibility_results')
+        .select()
+        .eq('user_id', supabase.auth.currentUser!.id)
+        .eq('artist_id', widget.artist.id)
+        .eq('user_birth_date', _birthDate!.toIso8601String())
+        .eq('gender', _gender!)
+        .eq('score', 100);
+
+    query = _birthTime == null
+        ? query.isFilter('user_birth_time', null)
+        : query.eq('user_birth_time', _birthTime!);
+
+    final result = await query.select();
+
+    return result.isNotEmpty;
+  }
+
+  Future<bool> _showPerfectScoreDialog() async {
+    if (!mounted) return false;
+
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                S.of(context).compatibility_perfect_score_exists_title,
+                style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    S.of(context).compatibility_perfect_score_exists,
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey900),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• ${S.of(context).compatibility_birthday}: ${formatDateTimeYYYYMMDD(_birthDate!)}',
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+                  ),
+                  if (_birthTime != null)
+                    Text(
+                      '• ${S.of(context).compatibility_birthtime}: ${_timeSlots![int.parse(_birthTime!) - 1].split('|')[0]}',
+                      style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+                    ),
+                  Text(
+                    '• ${S.of(context).compatibility_gender}: ${_gender == 'male' ? S.of(context).compatibility_gender_male : S.of(context).compatibility_gender_female}',
+                    style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    S.of(context).compatibility_new_compatibility_ask,
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    S.of(context).button_cancel,
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey500),
+                  ),
+                ),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary500,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(
+                    S.of(context).compatibility_analyze_start,
+                    style: getTextStyle(AppTypo.body14M, AppColors.grey00),
+                  ),
+                ),
+              ],
+              actionsPadding: const EdgeInsets.all(16),
+            );
+          },
+        ) ??
+        false;
+  }
+
+  Future<bool> _showDuplicateDialog(CompatibilityModel existing) async {
     if (!mounted) return false;
 
     return await showDialog<bool>(

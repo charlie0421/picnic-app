@@ -120,6 +120,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "compatibility_new_compatibility_ask":
             MessageLookupByLibrary.simpleMessage("新しい相性を見ませんか？"),
         "compatibility_page_title": MessageLookupByLibrary.simpleMessage("相性"),
+        "compatibility_perfect_score_exists":
+            MessageLookupByLibrary.simpleMessage(
+                "当該条件の相性データは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。"),
+        "compatibility_perfect_score_exists_title":
+            MessageLookupByLibrary.simpleMessage("すでに当選した相性データ"),
         "compatibility_purchase_message": m0,
         "compatibility_remain_star_candy":
             MessageLookupByLibrary.simpleMessage("残りの星飴"),

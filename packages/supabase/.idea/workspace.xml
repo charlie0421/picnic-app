@@ -5,31 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="feat (ttja) 영수증 검증 임시로 비활성화">
-      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_result_content.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/compatibility/compatibility_card.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/compatibility/compatibility_logo_widget.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/android/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/intl/messages_en.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/intl/messages_en.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/intl/messages_ja.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/intl/messages_ja.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/intl/messages_ko.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/intl/messages_ko.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/intl/messages_zh.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/intl/messages_zh.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/l10n.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/l10n.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/vote_list_provider.g.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/generated/providers/vote_list_provider.g.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/l10n/intl_en.arb" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/l10n/intl_en.arb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/l10n/intl_ja.arb" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/l10n/intl_ja.arb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/l10n/intl_ko.arb" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/l10n/intl_ko.arb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/l10n/intl_zh.arb" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/l10n/intl_zh.arb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/board_home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/board_home_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_input_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_input_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_list_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_list_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_loading_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_loading_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_result_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/pages/community/compatibility_result_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/vote_list_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/providers/vote_list_provider.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/community/compatibility/compatibility_info.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/picnic/supabase/functions/_shared/services/compatibility.ts" beforeDir="false" afterPath="$PROJECT_DIR$/picnic/supabase/functions/_shared/services/compatibility.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -124,6 +124,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("새로운 궁합을 보시겠습니까?"),
         "compatibility_page_title":
             MessageLookupByLibrary.simpleMessage("아티스트 궁합보기"),
+        "compatibility_perfect_score_exists":
+            MessageLookupByLibrary.simpleMessage(
+                "해당 조건의 궁합 데이터는 이미 리워드 당첨 이력이 있어, 추가적인 리워드 지급은 어려운 점 양해 부탁드립니다."),
+        "compatibility_perfect_score_exists_title":
+            MessageLookupByLibrary.simpleMessage("이미 존재하는 궁합 데이터"),
         "compatibility_purchase_message": m0,
         "compatibility_remain_star_candy":
             MessageLookupByLibrary.simpleMessage("남은 별사탕"),

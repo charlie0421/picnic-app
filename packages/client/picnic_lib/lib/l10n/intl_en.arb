@@ -153,10 +153,14 @@
     "@compatibility_duplicate_data_message": {
         "manualTranslation": false
     },
+    "compatibility_perfect_score_exists": "Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.",
+    "@compatibility_perfect_score_exists": {},
     "compatibility_duplicate_data_title": "Compatibility data that already exists",
     "@compatibility_duplicate_data_title": {
         "manualTranslation": false
     },
+    "compatibility_perfect_score_exists_title": "Already Winning Matches Data",
+    "@compatibility_perfect_score_exists_title": {},
     "compatibility_gender": "Gender",
     "@compatibility_gender": {
         "manualTranslation": false
