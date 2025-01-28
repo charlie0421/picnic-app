@@ -364,14 +364,14 @@ class AppInitializer {
         // 링크 클릭 시 처리 로직
         final longUrl = data["\$desktop_url"];
         // longUrl을 사용하여 원하는 페이지로 이동
-        _handleDeepLink(ref, longUrl);
+        handleDeepLink(ref, longUrl);
       }
     }, onError: (error) {
       logger.e('Branch link error: $error');
     });
   }
 
-  static void _handleDeepLink(WidgetRef ref, String longUrl) {
+  static void handleDeepLink(WidgetRef ref, String longUrl) {
     final uri = Uri.parse(longUrl);
 
     if (uri.pathSegments.isNotEmpty) {
