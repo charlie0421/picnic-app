@@ -7,6 +7,8 @@ Future<String> createBranchLink(String? title, String? longUrl) async {
   final url = Uri.parse('https://api2.branch.io/v1/url');
   final branchKey = Environment.branchKey;
 
+  logger.i('Creating Branch link: $title, $longUrl');
+
   final response = await http.post(url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({

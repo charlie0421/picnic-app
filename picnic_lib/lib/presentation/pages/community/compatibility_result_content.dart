@@ -8,10 +8,8 @@ import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
-import 'package:picnic_lib/presentation/common/underlined_widget.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityResultContent extends ConsumerStatefulWidget {

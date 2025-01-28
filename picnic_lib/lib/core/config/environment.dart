@@ -106,4 +106,6 @@ class Environment {
   static String get downloadLink => _config['DOWNLOAD_LINK'] as String;
 
   static String get branchKey => _config['BRANCH_KEY'] as String;
+
+  static String get appLinkPrefix => _config['APP_LINK_PREFIX'] as String;
 }

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/services/update_service.dart';
@@ -11,9 +11,18 @@ import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
+import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
+import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
+import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
+import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/update_checker.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -347,23 +356,97 @@ class AppInitializer {
     });
   }
 
-  static void setupAppLinksListener(WidgetRef ref) {
-    final appLinks = AppLinks();
-    appLinks.uriLinkStream.listen((Uri uri) {
-      logger.i('Incoming link: $uri');
-      if (uri.pathSegments.contains('terms')) {
-        uri.pathSegments.contains('ko')
-            ? const TermsScreen(language: 'ko')
-            : const TermsScreen(language: 'en');
-      } else if (uri.pathSegments.contains('privacy')) {
-        uri.pathSegments.contains('ko')
-            ? const PrivacyScreen(language: 'ko')
-            : const PrivacyScreen(language: 'en');
-      } else {
-        ref.read(userInfoProvider.notifier).getUserProfiles();
+  static void setupBranchListener(ref) {
+    FlutterBranchSdk.listSession().listen((data) {
+      logger.i('Incoming Branch link data: $data');
+      if (data.containsKey("+clicked_branch_link") &&
+          data["+clicked_branch_link"] == true) {
+        // 링크 클릭 시 처리 로직
+        final longUrl = data["\$desktop_url"];
+        // longUrl을 사용하여 원하는 페이지로 이동
+        _handleDeepLink(ref, longUrl);
       }
-    }, onError: (err) {
-      logger.e('Error: $err');
+    }, onError: (error) {
+      logger.e('Branch link error: $error');
     });
+  }
+
+  static void _handleDeepLink(WidgetRef ref, String longUrl) {
+    final uri = Uri.parse(longUrl);
+
+    if (uri.pathSegments.isNotEmpty) {
+      final portal = uri.pathSegments[0];
+      final page = uri.pathSegments[1];
+      switch (portal) {
+        case 'vote':
+          switch (page) {
+            case 'list':
+              ref.read(navigationInfoProvider.notifier).setCurrentPage(
+                    const VoteListPage(),
+                  );
+              break;
+            case 'detail':
+              final voteId = uri.pathSegments[2];
+              final type = uri.queryParameters['type'];
+              if (type == 'achieve') {
+                ref.read(navigationInfoProvider.notifier).setCurrentPage(
+                      VoteDetailAchievePage(voteId: int.parse(voteId)),
+                    );
+              } else {
+                ref.read(navigationInfoProvider.notifier).setCurrentPage(
+                      VoteDetailPage(voteId: int.parse(voteId)),
+                    );
+              }
+              break;
+          }
+          break;
+        case 'community':
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setPortal(PortalType.community);
+          switch (page) {
+            case 'home':
+              ref.read(navigationInfoProvider.notifier).setCurrentPage(
+                    const CommunityHomePage(),
+                  );
+              break;
+            case 'board_list':
+              ref.read(navigationInfoProvider.notifier).setCurrentPage(
+                    const BoardListPage(),
+                  );
+              break;
+            case 'board_detail':
+              final artistId = uri.pathSegments[2];
+              logger.i('artistId: $artistId');
+              ref.read(navigationInfoProvider.notifier).setCurrentPage(
+                    BoardHomePage(int.parse(artistId)),
+                  );
+              break;
+            case 'fortune':
+              final artistId = uri.pathSegments[2];
+              ref.read(navigationInfoProvider.notifier).setCurrentPage(
+                    CompatibilityListPage(artistId: int.parse(artistId)),
+                  );
+              break;
+            case 'compatibility':
+              final artistId = uri.pathSegments[2];
+              ref.read(navigationInfoProvider.notifier).setCurrentPage(
+                    CompatibilityListPage(artistId: int.parse(artistId)),
+                  );
+              break;
+          }
+      }
+    }
+    if (uri.pathSegments.contains('terms')) {
+      uri.pathSegments.contains('ko')
+          ? const TermsScreen(language: 'ko')
+          : const TermsScreen(language: 'en');
+    } else if (uri.pathSegments.contains('privacy')) {
+      uri.pathSegments.contains('ko')
+          ? const PrivacyScreen(language: 'ko')
+          : const PrivacyScreen(language: 'en');
+    } else {
+      ref.read(userInfoProvider.notifier).getUserProfiles();
+    }
   }
 }

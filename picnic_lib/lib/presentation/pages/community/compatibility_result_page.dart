@@ -5,12 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_logo_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
+// ignore: unused_import
 import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/in_app_purchase_service.dart';
@@ -520,7 +522,7 @@ class _CompatibilityResultPageState
       hashtag: S.of(context).compatibility_share_hashtag,
       downloadLink: await createBranchLink(
           getLocaleTextFromJson(compatibility.artist.name),
-          'https://applink.picnic.fan/community/compatibility/${compatibility.artist.id}'),
+          '${Environment.appLinkPrefix}/community/compatibility/${compatibility.artist.id}'),
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() {

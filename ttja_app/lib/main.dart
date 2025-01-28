@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ttja_app/app.dart';
@@ -37,6 +38,11 @@ void main() async {
       await AppInitializer.initializePrivacyConsent();
 
       setPathUrlStrategy();
+
+      await FlutterBranchSdk.init(
+        enableLogging: true,
+        branchAttributionLevel: BranchAttributionLevel.NONE,
+      );
 
       logger.i('Starting app...');
       runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));

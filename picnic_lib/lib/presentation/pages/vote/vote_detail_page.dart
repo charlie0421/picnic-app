@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
@@ -160,7 +161,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   voteId: widget.voteId, votePortal: widget.votePortal))
               .value!
               .title),
-          'https://applink.picnic.fan/vote/detail/${widget.voteId}'),
+          '${Environment.appLinkPrefix}/vote/detail/${widget.voteId}'),
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() => _isSaving = true);

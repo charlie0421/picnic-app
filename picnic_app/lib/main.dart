@@ -41,7 +41,6 @@ void main() async {
         enableLogging: true,
         branchAttributionLevel: BranchAttributionLevel.NONE,
       );
-      FlutterBranchSdk.validateSDKIntegration();
 
       logger.i('Starting app...');
       runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));

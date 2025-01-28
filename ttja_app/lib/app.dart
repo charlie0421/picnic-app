@@ -76,7 +76,7 @@ class _AppState extends ConsumerState<App> {
     if (UniversalPlatform.isMobile) {
       AppInitializer.initializeSystemUI();
       AppInitializer.setupSupabaseAuthListener(ref);
-      AppInitializer.setupAppLinksListener(ref);
+      AppInitializer.setupBranchListener(ref);
     }
   }
 

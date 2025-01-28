@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
@@ -216,7 +217,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                               hashtag: S.of(context).fortune_share_hashtag,
                               downloadLink: await createBranchLink(
                                   getLocaleTextFromJson(fortune.artist.name),
-                                  'https://applink.picnic.fan/community/fortune/${widget.artistId}'),
+                                  '${Environment.appLinkPrefix}/community/fortune/${widget.artistId}'),
                               onStart: () {
                                 OverlayLoadingProgress.start(context,
                                     color: AppColors.primary500);
