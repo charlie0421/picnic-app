@@ -37,7 +37,61 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="ttja.net" />
+            </intent-filter>
+
+            <!-- Branch URI Scheme -->
+            <intent-filter>
+				<!-- If utilizing $deeplink_path please explicitly declare your hosts, or utilize a wildcard(*) -->
+				<!-- REPLACE `android:scheme` with your Android URI scheme -->
+				<data android:scheme="com.ttja" android:host="open" />
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+
+
+            <!-- Branch App Links - Live App -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="applink.ttja.net" android:pathPattern="/.*" />
+                <data android:scheme="https" android:host="zt93x-alternate.app.link" />
+            </intent-filter>
+
+            <!-- Branch App Links - Test App -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="zt93x.test.app.link" android:pathPattern="/.*" />
+                <data android:scheme="https" android:host="zt93x-alternate.test.app.link" />
+            </intent-filter>
         </activity>
+
+        <!-- Branch init -->
+        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_cveOHIXaGzRcWLguNfY3LjgbxFoTfuE6" />
+        <meta-data android:name="io.branch.sdk.BranchKey.test" android:value="secret_live_8M7lDUhunj8F12hG2iUCG74t4hWV7NZo" />
+        <meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
+        <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
+
+        <activity
+                android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:host="oauth"
+                      android:scheme="kakao3193f86672e3d14b5603d422b32c93f2"/>
+            </intent-filter>
+        </activity>
+
         <activity
                 android:name="com.yalantis.ucrop.UCropActivity"
                 android:screenOrientation="portrait"
