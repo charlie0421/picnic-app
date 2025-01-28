@@ -45,6 +45,8 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+				<string>kakao3193f86672e3d14b5603d422b32c93f2</string>
 				<string>com.googleusercontent.apps.922874925395-t3anf1iksojil5fc7lss9h4ahr1kgbkm</string>
 				<string>com.fasoo.TTJA</string>
 			</array>
@@ -56,6 +58,24 @@
 	<string>ca-app-pub-1539304887624918~2126022075</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>instagram</string>
+		<string>fb</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
+		<string>fbapi</string>
+		<string>facebook-reels</string>
+		<string>facebook-stories</string>
+		<string>fb-messenger-share-api</string>
+		<string>fb-messenger</string>
+		<string>tg</string>
+		<string>whatsapp</string>
+		<string>twitter</string>
+		<string>kakao</string>
+		<string>kakaokompassauth</string>
+		<string>kakaolink</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
