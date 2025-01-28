@@ -16,7 +16,7 @@ class AsyncBannerList extends _$AsyncBannerList {
 
     final response = await supabase
         .from('banner')
-        .select('id, title, thumbnail, image, duration')
+        .select('id, title, thumbnail, image, duration, link')
         .eq('location', location)
         .or('and(start_at.lte.${now.toIso8601String()},or(end_at.gte.${now.toIso8601String()},end_at.is.null)),and(start_at.is.null,end_at.is.null)')
         .order('order', ascending: true)

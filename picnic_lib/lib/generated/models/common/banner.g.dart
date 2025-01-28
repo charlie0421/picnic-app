@@ -18,6 +18,7 @@ _$BannerModelImpl _$$BannerModelImplFromJson(Map<String, dynamic> json) =>
           image: $checkedConvert('image', (v) => v as Map<String, dynamic>),
           duration:
               $checkedConvert('duration', (v) => (v as num?)?.toInt() ?? 3000),
+          link: $checkedConvert('link', (v) => v as String?),
         );
         return val;
       },
@@ -30,4 +31,5 @@ Map<String, dynamic> _$$BannerModelImplToJson(_$BannerModelImpl instance) =>
       'thumbnail': instance.thumbnail,
       'image': instance.image,
       'duration': instance.duration,
+      'link': instance.link,
     };

@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/utils/app_initializer.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -62,33 +65,40 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
     String imageUrl = getLocaleTextFromJson(item.image);
     imageUrl.toLowerCase().endsWith('.gif');
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // key를 추가하여 위젯을 강제로 리빌드
-        PicnicCachedNetworkImage(
-          key: ValueKey('${item.id}_$_currentIndex'),
-          imageUrl: imageUrl,
-          fit: BoxFit.cover,
-        ),
-        if (title.isNotEmpty)
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8.cw),
-              color: Colors.black.withValues(alpha: 0.5),
-              child: Text(
-                title,
-                style: getTextStyle(AppTypo.body14R, Colors.white)
-                    .copyWith(overflow: TextOverflow.ellipsis),
-                textAlign: TextAlign.center,
+    return GestureDetector(
+      onTap: () {
+        if (item.link != null) {
+          AppInitializer.handleDeepLink(ref, item.link!);
+        }
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // key를 추가하여 위젯을 강제로 리빌드
+          PicnicCachedNetworkImage(
+            key: ValueKey('${item.id}_$_currentIndex'),
+            imageUrl: imageUrl,
+            fit: BoxFit.cover,
+          ),
+          if (title.isNotEmpty)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8.cw),
+                color: Colors.black.withValues(alpha: 0.5),
+                child: Text(
+                  title,
+                  style: getTextStyle(AppTypo.body14R, Colors.white)
+                      .copyWith(overflow: TextOverflow.ellipsis),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
