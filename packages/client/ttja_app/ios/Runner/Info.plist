@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>branch_key</key>
+	<dict>
+		<key>live</key>
+		<string>key_live_cveOHIXaGzRcWLguNfY3LjgbxFoTfuE6</string>
+		<key>test</key>
+		<string>secret_live_8M7lDUhunj8F12hG2iUCG74t4hWV7NZo</string>
+	</dict>
+	<key>branch_universal_link_domains</key>
+	<array>
+		<string>applink.ttja.net</string>
+		<string>zt93x-alternate.app.link</string>
+		<string>zt93x.test.app.link</string>
+		<string>zt93x-alternate.test.app.link</string>
+	</array>
+	<key>FlutterDeepLinkingEnabled</key>
+	<true/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

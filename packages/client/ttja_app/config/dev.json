@@ -36,5 +36,6 @@
   "TAPJOY_ANDROID_SDK_KEY": "fsQBJ3MgTCiy7tvirTnPCQEC6ndkVbxkSpWzq0Koqyv7rMYC9qfa43NIdTlE",
   "INAPP_APPNAME_PREFIX": "TTJA_",
   "DOWNLOAD_LINK": "https://ttja.picnic.fan/download.html",
-  "BRANCH_KEY": "key_live_dsiXNxlgIa3pmcn6eK0djnjmzucZNIS4"
+  "BRANCH_KEY": "key_live_dsiXNxlgIa3pmcn6eK0djnjmzucZNIS4",
+  "APP_LINK_PREFIX": "https://applink.ttja.net"
 }

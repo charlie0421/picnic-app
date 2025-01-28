@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -330,6 +332,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       final voteTitle =
                           getLocaleTextFromJson(widget.voteModel.title);
 
+                      logger.i('Environment.appLinkPrefix: ${Environment.appLinkPrefix}');
+
                       ShareUtils.shareToSocial(
                         _globalKey,
                         message:
@@ -338,7 +342,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                             '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
                         downloadLink: await createBranchLink(
                             getLocaleTextFromJson(widget.voteModel.title),
-                            'https://applink.picnic.fan/vote/detail/${widget.voteModel.id}'),
+                            '${Environment.appLinkPrefix}/vote/detail/${widget.voteModel.id}'),
                         onStart: () {
                           OverlayLoadingProgress.start(context,
                               color: AppColors.primary500);
