@@ -164,10 +164,26 @@ class AppInitializer {
 
   static Future<void> _logStorageData() async {
     const storage = FlutterSecureStorage();
-    final storageData = await storage.readAll();
-    final storageDataString =
-        storageData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
-    logger.i(storageDataString);
+    try {
+      final storageData = await storage.readAll();
+      final storageDataString =
+          storageData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+      logger.i(storageDataString);
+    } catch (e, s) {
+      if (e is PlatformException &&
+          e.message?.contains('BAD_DECRYPT') == true) {
+        logger.e('보안 저장소 복호화 오류 발생. 데이터 초기화 시도:', error: e, stackTrace: s);
+        try {
+          await storage.deleteAll();
+          logger.i('보안 저장소 데이터 초기화 완료');
+        } catch (deleteError, deleteStack) {
+          logger.e('보안 저장소 데이터 초기화 실패:',
+              error: deleteError, stackTrace: deleteStack);
+        }
+      } else {
+        logger.e('보안 저장소 읽기 실패:', error: e, stackTrace: s);
+      }
+    }
   }
 
   static Future<void> initializeWebP() async {
