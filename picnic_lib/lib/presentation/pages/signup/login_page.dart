@@ -74,7 +74,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       alignment: Alignment.centerLeft,
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pop();
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          }
                         },
                         child: SvgPicture.asset(
                           package: 'picnic_lib',
@@ -292,7 +294,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               ref.read(userInfoProvider.notifier).logout();
               Navigator.of(navigatorKey.currentContext!).pop();
             });
-
       } else if (userProfile.userAgreement == null) {
         ref
             .read(navigationInfoProvider.notifier)
