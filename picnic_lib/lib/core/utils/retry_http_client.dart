@@ -172,10 +172,8 @@ class RetryHttpClient extends http.BaseClient {
 
   Future<http.StreamedResponse> _optimizeResponseStream(
       http.StreamedResponse response, http.BaseRequest request) async {
-    final optimizedStream = response.stream
-        .transform(utf8.decoder) // UTF-8 디코딩
-        .transform(utf8.encoder) // UTF-8 인코딩
-        .timeout(
+    final optimizedStream =
+        response.stream.transform(utf8.decoder).transform(utf8.encoder).timeout(
       timeout,
       onTimeout: (EventSink<List<int>> sink) {
         sink.addError(TimeoutException(
@@ -184,15 +182,19 @@ class RetryHttpClient extends http.BaseClient {
         ));
         sink.close();
       },
-    ).handleError((error) {
+    ).handleError((error, StackTrace stackTrace) {
+      // 에러 로깅 추가
+      logger.e('Stream processing error', error: error, stackTrace: stackTrace);
+
       final errorMessage = error.toString().toLowerCase();
-      if (!NetworkError.isRetryableError(errorMessage)) {
-        return;
+      if (NetworkError.isRetryableError(errorMessage)) {
+        throw NetworkError(
+          'Stream processing error: $error',
+          isRetryable: true,
+        );
       }
-      throw NetworkError(
-        'Stream processing error: $error',
-        isRetryable: true,
-      );
+      // 재시도 불가능한 에러는 그대로 전파
+      throw error;
     });
 
     return http.StreamedResponse(
