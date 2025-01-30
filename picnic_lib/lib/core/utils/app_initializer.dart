@@ -245,19 +245,19 @@ class AppInitializer {
   /// 가상 머신 감지 및 초기화
   static Future<bool> initializeVirtualMachineCheck() async {
     if (!isMobile()) return false;
-    
+
     try {
       logger.i('가상 머신 검사 시작...');
-      
+
       if (UniversalPlatform.isAndroid) {
         final androidInfo = await _deviceInfo.androidInfo;
-        
+
         final String manufacturer = androidInfo.manufacturer.toLowerCase();
         final String model = androidInfo.model.toLowerCase();
         final String brand = androidInfo.brand.toLowerCase();
         final String fingerprint = androidInfo.fingerprint.toLowerCase();
         final String product = androidInfo.product.toLowerCase();
-        
+
         final List<String> vmKeywords = [
           'generic',
           'android sdk built',
@@ -274,13 +274,12 @@ class AppInitializer {
           'ldplayer'
         ];
 
-        final isVirtual = vmKeywords.any((keyword) => 
-          manufacturer.contains(keyword) || 
-          model.contains(keyword) || 
-          brand.contains(keyword) ||
-          fingerprint.contains(keyword) ||
-          product.contains(keyword)
-        );
+        final isVirtual = vmKeywords.any((keyword) =>
+            manufacturer.contains(keyword) ||
+            model.contains(keyword) ||
+            brand.contains(keyword) ||
+            fingerprint.contains(keyword) ||
+            product.contains(keyword));
 
         if (isVirtual) {
           logger.w('가상 머신 감지됨: $manufacturer, $model');
@@ -289,26 +288,26 @@ class AppInitializer {
 
         return isVirtual;
       }
-      
+
       if (UniversalPlatform.isIOS) {
         final iosInfo = await _deviceInfo.iosInfo;
-        
+
         // 개발 모드에서는 시뮬레이터 허용
         if (kDebugMode && !iosInfo.isPhysicalDevice) {
           logger.i('iOS 시뮬레이터 감지됨 (개발 모드에서 허용)');
           return false;
         }
-        
+
         // 프로덕션 모드에서 가상 기기 체크
         if (!kDebugMode && !iosInfo.isPhysicalDevice) {
           logger.w('iOS 가상 디바이스 감지됨');
           await _banVirtualDevice();
           return true;
         }
-        
+
         return false;
       }
-      
+
       return false;
     } catch (e, s) {
       logger.e('가상 머신 검사 중 오류 발생:', error: e, stackTrace: s);
@@ -343,7 +342,8 @@ class AppInitializer {
       try {
         // 가상 머신 체크 추가
         final isVirtualDevice = await initializeVirtualMachineCheck();
-        final isBanned = isVirtualDevice || await DeviceManager.isDeviceBanned();
+        final isBanned =
+            isVirtualDevice || await DeviceManager.isDeviceBanned();
         logger.i('디바이스 상태 - 가상머신: $isVirtualDevice, 차단: $isBanned');
 
         ref.read(appInitializationProvider.notifier).updateState(
@@ -390,46 +390,61 @@ class AppInitializer {
   static Future<void> initializeSystemUI() async {
     if (kIsWeb) return;
 
-    int? androidSdkVersion;
-    if (UniversalPlatform.isAndroid) {
+    try {
+      int? androidSdkVersion;
+      if (UniversalPlatform.isAndroid) {
+        try {
+          final androidInfo = await _deviceInfo.androidInfo;
+          androidSdkVersion = androidInfo.version.sdkInt;
+          logger.i('Android SDK Version: $androidSdkVersion');
+        } catch (e, s) {
+          logger.e('안드로이드 SDK 버전 확인 실패:', error: e, stackTrace: s);
+          // SDK 버전을 확인할 수 없는 경우 기본값 설정
+          androidSdkVersion = 29; // Android 10을 기본값으로 설정
+        }
+
+        try {
+          SystemChrome.setSystemUIOverlayStyle(
+            const SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+              systemNavigationBarColor: Colors.transparent,
+              systemNavigationBarDividerColor: Colors.transparent,
+              systemNavigationBarIconBrightness: Brightness.dark,
+            ),
+          );
+
+          if (androidSdkVersion < 30) {
+            await SystemChrome.setEnabledSystemUIMode(
+              SystemUiMode.manual,
+              overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+            );
+          } else {
+            await SystemChrome.setEnabledSystemUIMode(
+              SystemUiMode.edgeToEdge,
+            );
+          }
+        } catch (e, s) {
+          logger.e('시스템 UI 설정 실패:', error: e, stackTrace: s);
+          // 기본 설정으로 폴백
+          await SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.manual,
+            overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+          );
+        }
+      }
+
       try {
-        final androidInfo = await _deviceInfo.androidInfo;
-        androidSdkVersion = androidInfo.version.sdkInt;
-        logger.i('Android SDK Version: $androidSdkVersion');
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
       } catch (e, s) {
-        logger.i('Failed to get Android SDK version: $e', stackTrace: s);
+        logger.e('화면 방향 설정 실패:', error: e, stackTrace: s);
       }
+    } catch (e, s) {
+      logger.e('시스템 UI 초기화 중 오류 발생:', error: e, stackTrace: s);
     }
-
-    if (UniversalPlatform.isAndroid) {
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarDividerColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark,
-        ),
-      );
-
-      if (androidSdkVersion != null && androidSdkVersion < 30) {
-        // Android 11 미만
-        SystemChrome.setEnabledSystemUIMode(
-          SystemUiMode.manual,
-          overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
-        );
-      } else {
-        // Android 11 이상
-        SystemChrome.setEnabledSystemUIMode(
-          SystemUiMode.manual,
-        );
-      }
-    }
-
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
   }
 
   static void setupSupabaseAuthListener(WidgetRef ref) {
