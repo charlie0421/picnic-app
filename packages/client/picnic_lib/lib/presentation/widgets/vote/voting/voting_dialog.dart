@@ -507,7 +507,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             'user_id': userId,
           });
 
-      if ( response.status != 200) {
+      if (response.status != 200) {
         throw Exception('Failed to vote');
       }
 
@@ -537,7 +537,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       Navigator.of(context).pop();
 
       _showVotingFailDialog();
-      rethrow;
     }
   }
 
@@ -552,10 +551,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   void _showVotingFailDialog() {
     showSimpleDialog(
-      type: DialogType.error,
-      content: S.of(context).dialog_title_vote_fail,
-      onOk: () => Navigator.of(navigatorKey.currentContext!).pop()
-
-    );
+        type: DialogType.error,
+        content: S.of(context).dialog_title_vote_fail,
+        onOk: () => Navigator.of(navigatorKey.currentContext!).pop());
   }
 }
