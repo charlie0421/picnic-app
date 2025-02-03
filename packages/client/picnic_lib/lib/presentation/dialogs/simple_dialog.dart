@@ -42,7 +42,7 @@ void showSimpleDialog({
 }) {
   final context = navigatorKey.currentContext;
   if (context == null) {
-    logger.e('Navigator context is null in showRequireLoginDialog');
+    logger.e('Navigator context is null in showSimpleDialog');
     return;
   }
 

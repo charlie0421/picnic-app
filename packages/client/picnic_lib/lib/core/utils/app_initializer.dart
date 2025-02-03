@@ -6,7 +6,6 @@ import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/services/update_service.dart';
-import 'package:picnic_lib/core/utils/device_fingerprint.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
@@ -41,6 +40,7 @@ import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 
 class AppInitializer {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
@@ -258,93 +258,6 @@ class AppInitializer {
     }
   }
 
-  /// 가상 머신 감지 및 초기화
-  static Future<bool> initializeVirtualMachineCheck() async {
-    if (!isMobile()) return false;
-
-    try {
-      logger.i('가상 머신 검사 시작...');
-
-      if (UniversalPlatform.isAndroid) {
-        final androidInfo = await _deviceInfo.androidInfo;
-
-        final String manufacturer = androidInfo.manufacturer.toLowerCase();
-        final String model = androidInfo.model.toLowerCase();
-        final String brand = androidInfo.brand.toLowerCase();
-        final String fingerprint = androidInfo.fingerprint.toLowerCase();
-        final String product = androidInfo.product.toLowerCase();
-
-        final List<String> vmKeywords = [
-          'generic',
-          'android sdk built',
-          'google sdk',
-          'sdk phone',
-          'vbox',
-          'virtual',
-          'vmware',
-          'genymotion',
-          'emulator',
-          'android studio',
-          'bluestacks',
-          'nox',
-          'ldplayer'
-        ];
-
-        final isVirtual = vmKeywords.any((keyword) =>
-            manufacturer.contains(keyword) ||
-            model.contains(keyword) ||
-            brand.contains(keyword) ||
-            fingerprint.contains(keyword) ||
-            product.contains(keyword));
-
-        if (isVirtual) {
-          logger.w('가상 머신 감지됨: $manufacturer, $model');
-          await _banVirtualDevice();
-        }
-
-        return isVirtual;
-      }
-
-      if (UniversalPlatform.isIOS) {
-        final iosInfo = await _deviceInfo.iosInfo;
-
-        // 개발 모드에서는 시뮬레이터 허용
-        if (kDebugMode && !iosInfo.isPhysicalDevice) {
-          logger.i('iOS 시뮬레이터 감지됨 (개발 모드에서 허용)');
-          return false;
-        }
-
-        // 프로덕션 모드에서 가상 기기 체크
-        if (!kDebugMode && !iosInfo.isPhysicalDevice) {
-          logger.w('iOS 가상 디바이스 감지됨');
-          await _banVirtualDevice();
-          return true;
-        }
-
-        return false;
-      }
-
-      return false;
-    } catch (e, s) {
-      logger.e('가상 머신 검사 중 오류 발생:', error: e, stackTrace: s);
-      return false;
-    }
-  }
-
-  static Future<void> _banVirtualDevice() async {
-    try {
-      final deviceId = await DeviceFingerprint.getDeviceId();
-      await supabase.from('device_bans').upsert({
-        'device_id': deviceId,
-        'reason': 'Virtual device detected',
-        'created_at': DateTime.now().toIso8601String(),
-      });
-      logger.i('가상 디바이스 차단 정보 저장됨: $deviceId');
-    } catch (e, s) {
-      logger.e('가상 디바이스 차단 중 오류 발생:', error: e, stackTrace: s);
-    }
-  }
-
   static Future<void> _initializeMobileApp(WidgetRef ref) async {
     final networkService = NetworkConnectivityService();
     final hasNetwork = await networkService.checkOnlineStatus();
@@ -356,8 +269,7 @@ class AppInitializer {
 
     if (hasNetwork) {
       try {
-        // 가상 머신 체크 추가
-        final isVirtualDevice = await initializeVirtualMachineCheck();
+        final isVirtualDevice = await VirtualMachineDetector.detect(ref);
         final isBanned =
             isVirtualDevice || await DeviceManager.isDeviceBanned();
         logger.i('디바이스 상태 - 가상머신: $isVirtualDevice, 차단: $isBanned');
