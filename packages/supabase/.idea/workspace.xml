@@ -5,15 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1102070a-85af-4d74-a13f-2f91b910cfdc" name="Changes" comment="feat (ttja) 영수증 검증 임시로 비활성화">
-      <change afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/virtual_machine_detector.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/ios/Podfile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_app/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_app/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/app_initializer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/core/utils/app_initializer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/common/common_banner.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/common/common_banner.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/dialogs/simple_dialog.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../client/picnic_lib/lib/presentation/dialogs/simple_dialog.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/ttja_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../client/ttja_app/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
