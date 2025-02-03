@@ -155,7 +155,7 @@ class AppInitializer {
     );
     logger.i('Session recovery completed: $isSessionRecovered');
 
-    await _logStorageData();
+    // await _logStorageData();
 
     final tokenRefreshManager = TokenRefreshManager(authService);
     tokenRefreshManager.startPeriodicRefresh();
@@ -168,20 +168,28 @@ class AppInitializer {
       final storageData = await storage.readAll();
       final storageDataString =
           storageData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
-      logger.i(storageDataString);
+      logger.i('보안 저장소 데이터:\n$storageDataString');
     } catch (e, s) {
       if (e is PlatformException &&
-          e.message?.contains('BAD_DECRYPT') == true) {
+          (e.message?.contains('BAD_DECRYPT') == true ||
+              e.message?.contains('error:1e000065') == true)) {
         logger.e('보안 저장소 복호화 오류 발생. 데이터 초기화 시도:', error: e, stackTrace: s);
         try {
           await storage.deleteAll();
           logger.i('보안 저장소 데이터 초기화 완료');
+
+          // 새로운 보안 저장소 인스턴스 생성 시도
+          await storage.write(key: 'test_key', value: 'test_value');
+          await storage.delete(key: 'test_key');
+          logger.i('새로운 보안 저장소 초기화 성공');
         } catch (deleteError, deleteStack) {
-          logger.e('보안 저장소 데이터 초기화 실패:',
+          logger.e('보안 저장소 초기화 실패:',
               error: deleteError, stackTrace: deleteStack);
+          rethrow; // 상위 레벨에서 처리하도록 에러 전파
         }
       } else {
         logger.e('보안 저장소 읽기 실패:', error: e, stackTrace: s);
+        rethrow;
       }
     }
   }
