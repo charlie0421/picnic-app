@@ -217,15 +217,13 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                   ],
                 ),
               ),
-              if (widget.status == VoteStatus.end) ...[
-                if (!_isSaving)
-                  ShareSection(
-                    saveButtonText: S.of(context).save,
-                    shareButtonText: S.of(context).share,
-                    onSave: _handleSaveImage,
-                    onShare: _handleShareToTwitter,
-                  ),
-              ],
+              if (!_isSaving)
+                ShareSection(
+                  saveButtonText: S.of(context).save,
+                  shareButtonText: S.of(context).share,
+                  onSave: _handleSaveImage,
+                  onShare: _handleShareToTwitter,
+                ),
             ],
           ),
         ),
