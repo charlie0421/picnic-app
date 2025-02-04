@@ -7,6 +7,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class VirtualMachineDetector {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
@@ -44,7 +45,96 @@ class VirtualMachineDetector {
           logger.w('Build 체크: $buildInfo');
           logger.w('하드웨어 체크: $hardwareCheck');
           logger.w('네트워크 체크: $networkCheck');
+
+          // Sentry에 상세 정보 전송
+          await Sentry.captureMessage(
+            '가상 머신 감지',
+            level: SentryLevel.warning,
+            withScope: (scope) async {
+              // 기본 디바이스 정보
+              scope.setContexts('device_info', {
+                'manufacturer': androidInfo.manufacturer,
+                'model': androidInfo.model,
+                'brand': androidInfo.brand,
+                'device': androidInfo.device,
+                'product': androidInfo.product,
+                'hardware': androidInfo.hardware,
+                'fingerprint': androidInfo.fingerprint,
+              });
+
+              // 시스템 정보
+              scope.setContexts('system_info', {
+                'android_version': androidInfo.version.release,
+                'sdk_int': androidInfo.version.sdkInt,
+                'security_patch': androidInfo.version.securityPatch,
+                'board': androidInfo.board,
+                'bootloader': androidInfo.bootloader,
+                'host': androidInfo.host,
+                'id': androidInfo.id,
+              });
+
+              // 하드웨어 상세 정보
+              scope.setContexts('hardware_info', {
+                'supported_abis': androidInfo.supportedAbis,
+                'physical_device': androidInfo.isPhysicalDevice,
+                'cpu_info': await _readCpuInfo(),
+              });
+
+              // 체크 결과
+              scope.setContexts('detection_results', {
+                'build_check': buildInfo,
+                'hardware_check': hardwareCheck,
+                'network_check': networkCheck,
+              });
+
+              // 네트워크 정보
+              scope.setContexts('network_info', {
+                'ttl': await _getTTL(),
+                'mac_address': await _getMacAddress(),
+              });
+
+              // 감지 상세 정보 추가
+              scope.setContexts('detection_details', {
+                'build_check_details': {
+                  'matched_vm_keywords':
+                      _detectionDetails['matched_vm_keywords'],
+                  'matched_bluestacks_keywords':
+                      _detectionDetails['matched_bluestacks_keywords'],
+                  'matched_hardware_keywords':
+                      _detectionDetails['matched_hardware_keywords'],
+                  'matched_manufacturer_keywords':
+                      _detectionDetails['matched_manufacturer_keywords'],
+                  'empty_manufacturer': _detectionDetails['empty_manufacturer'],
+                },
+                'hardware_check_details': {
+                  'matched_cpu_keywords':
+                      _detectionDetails['matched_cpu_keywords'],
+                  'has_sensors': _detectionDetails['has_sensors'],
+                },
+                'network_check_details': {
+                  'ttl_value': await _getTTL(),
+                  'ttl_range': await ref
+                      .read(configServiceProvider)
+                      .getConfig('VIRTUAL_TTL_RANGE'),
+                  'mac_address': await _getMacAddress(),
+                  'suspicious_mac_prefixes': await ref
+                      .read(configServiceProvider)
+                      .getConfig('VIRTUAL_MAC_KEYWORDS'),
+                },
+              });
+
+              // 태그 설정
+              scope.setTag('device_type', 'virtual_machine');
+              scope.setTag('os_version', androidInfo.version.release);
+              scope.setTag('device_model',
+                  '${androidInfo.manufacturer} ${androidInfo.model}');
+            },
+          );
+
           await _banVirtualDevice();
+
+          // 감지 상세 정보 초기화
+          _detectionDetails = {};
         }
 
         return isEmulator;
@@ -73,6 +163,11 @@ class VirtualMachineDetector {
 
   static Future<bool> _checkBuildValues(
       AndroidDeviceInfo info, WidgetRef ref) async {
+    // 디버그 로그 추가
+    logger.d('제조사: ${info.manufacturer}');
+    logger.d('모델: ${info.model}');
+    logger.d('하드웨어: ${info.hardware}');
+
     final String deviceInfo = '''
       ${info.manufacturer}
       ${info.model}
@@ -124,6 +219,30 @@ class VirtualMachineDetector {
     final bool hasBluestacksKeywords =
         bluestacksKeywords.any((keyword) => deviceInfo.contains(keyword));
 
+    // 매칭된 키워드 찾기
+    final List<String> matchedVmKeywords =
+        vmKeywords.where((keyword) => deviceInfo.contains(keyword)).toList();
+    final List<String> matchedBluestacksKeywords = bluestacksKeywords
+        .where((keyword) => deviceInfo.contains(keyword))
+        .toList();
+    final List<String> matchedHardwareKeywords = suspiciousHardwareKeywords
+        .where((keyword) => info.hardware.toLowerCase().contains(keyword))
+        .toList();
+    final List<String> matchedManufacturerKeywords =
+        suspiciousManufacturerKeywords
+            .where(
+                (keyword) => info.manufacturer.toLowerCase().contains(keyword))
+            .toList();
+
+    // 결과와 매칭된 키워드 저장
+    _detectionDetails = {
+      'matched_vm_keywords': matchedVmKeywords,
+      'matched_bluestacks_keywords': matchedBluestacksKeywords,
+      'matched_hardware_keywords': matchedHardwareKeywords,
+      'matched_manufacturer_keywords': matchedManufacturerKeywords,
+      'empty_manufacturer': info.manufacturer.isEmpty,
+    };
+
     return hasVmKeywords ||
         hasBluestacksKeywords ||
         suspiciousHardware ||
@@ -137,14 +256,23 @@ class VirtualMachineDetector {
       final suspiciousCpuKeywords =
           (await configService.getConfig('VIRTUAL_CPU_KEYWORD'))?.split(',') ??
               [];
-      final bool suspiciousCpu = suspiciousCpuKeywords
-          .any((keyword) => cpuInfo.toLowerCase().contains(keyword));
-      if (suspiciousCpu) return true;
 
+      // 매칭된 CPU 키워드 찾기
+      final List<String> matchedCpuKeywords = suspiciousCpuKeywords
+          .where((keyword) => cpuInfo.toLowerCase().contains(keyword))
+          .toList();
+
+      final bool suspiciousCpu = matchedCpuKeywords.isNotEmpty;
       final bool hasSensors = await _checkSensors();
-      if (!hasSensors) return true;
 
-      return false;
+      // 하드웨어 체크 결과 저장
+      _detectionDetails.addAll({
+        'matched_cpu_keywords': matchedCpuKeywords,
+        'cpu_info': cpuInfo,
+        'has_sensors': hasSensors,
+      });
+
+      return suspiciousCpu || !hasSensors;
     } catch (e) {
       logger.e('하드웨어 체크 중 오류:', error: e);
       return false;
@@ -225,4 +353,7 @@ class VirtualMachineDetector {
       logger.e('가상 디바이스 차단 중 오류 발생:', error: e, stackTrace: s);
     }
   }
+
+  // 감지 상세 정보를 저장할 static 변수
+  static Map<String, dynamic> _detectionDetails = {};
 }
