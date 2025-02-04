@@ -66,7 +66,7 @@ class VirtualMachineDetector {
     // 디버그 모드에서는 가상 머신 체크 건너뛰기
     if (kDebugMode) {
       logger.d('디버그 모드: 가상 머신 체크 건너뛰기');
-      // return false;
+      return false;
     }
 
     try {
