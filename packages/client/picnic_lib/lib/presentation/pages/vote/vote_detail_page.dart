@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
+import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
@@ -299,10 +300,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               ...voteModel.reward!.map((rewardModel) => GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => showRewardDialog(context, rewardModel),
-                    child: Text(
-                      getLocaleTextFromJson(rewardModel.title!),
-                      style: getTextStyle(AppTypo.caption12R, AppColors.grey900)
-                          .copyWith(decoration: TextDecoration.underline),
+                    child: UnderlinedText(
+                      text: getLocaleTextFromJson(rewardModel.title!),
+                      textStyle:
+                          getTextStyle(AppTypo.caption12R, AppColors.grey900),
+                      underlineColor: AppColors.grey700,
+                      underlineHeight: .5,
+                      underlineGap: 1,
                     ),
                   ))
             ],
