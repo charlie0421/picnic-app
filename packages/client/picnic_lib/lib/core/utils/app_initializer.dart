@@ -277,10 +277,14 @@ class AppInitializer {
 
     if (hasNetwork) {
       try {
-        final isVirtualDevice = await VirtualMachineDetector.detect(ref);
-        final isBanned =
-            isVirtualDevice || await DeviceManager.isDeviceBanned();
-        logger.i('디바이스 상태 - 가상머신: $isVirtualDevice, 차단: $isBanned');
+        bool isBanned = false;
+
+        // 디버그 모드가 아닐 때만 가상머신과 디바이스 차단 체크
+        if (!kDebugMode) {
+          final isVirtualDevice = await VirtualMachineDetector.detect(ref);
+          isBanned = isVirtualDevice || await DeviceManager.isDeviceBanned();
+          logger.i('디바이스 상태 - 가상머신: $isVirtualDevice, 차단: $isBanned');
+        }
 
         ref.read(appInitializationProvider.notifier).updateState(
               isBanned: isBanned,
