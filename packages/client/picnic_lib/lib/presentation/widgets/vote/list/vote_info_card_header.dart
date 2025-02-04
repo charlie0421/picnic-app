@@ -41,7 +41,9 @@ class VoteCardInfoHeader extends StatelessWidget {
                 ),
               ),
             ),
-          ),
+          )
+        else
+          const SizedBox(height: 42),
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           alignment: Alignment.center,

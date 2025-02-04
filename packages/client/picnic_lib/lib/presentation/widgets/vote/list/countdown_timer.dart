@@ -78,6 +78,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
         if (widget.status == VoteStatus.upcoming)
           Container(
             height: 20,
+            margin: const EdgeInsets.only(bottom: 16),
             alignment: Alignment.center,
             child: Text(S.of(context).label_vote_upcoming,
                 style: getTextStyle(AppTypo.caption12B, _color)),
