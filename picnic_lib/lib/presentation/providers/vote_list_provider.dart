@@ -83,7 +83,7 @@ class AsyncVoteList extends _$AsyncVoteList {
                 'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
             .lt('visible_at', 'now()')
             .gt('stop_at', 'now()')
-            .order(sort, ascending: order == 'ASC');
+            .order('stop_at', ascending: true);
       } else {
         response = await supabase
             .from(voteTable)
