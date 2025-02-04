@@ -9,6 +9,52 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+// 클래스들을 파일 상단으로 이동
+class KeywordMatch {
+  final String keyword;
+  final bool isMatch;
+
+  KeywordMatch(this.keyword, this.isMatch);
+}
+
+class BuildCheckResults {
+  final String deviceInfo;
+  final List<String> vmKeywords;
+  final List<String> bluestacksKeywords;
+  final List<String> hardwareKeywords;
+  final List<String> manufacturerKeywords;
+  final List<KeywordMatch> vmMatches;
+  final List<KeywordMatch> bluestacksMatches;
+  final List<KeywordMatch> hardwareMatches;
+  final List<KeywordMatch> manufacturerMatches;
+  final Map<String, dynamic> checkResults;
+
+  BuildCheckResults({
+    required this.deviceInfo,
+    required this.vmKeywords,
+    required this.bluestacksKeywords,
+    required this.hardwareKeywords,
+    required this.manufacturerKeywords,
+    required this.vmMatches,
+    required this.bluestacksMatches,
+    required this.hardwareMatches,
+    required this.manufacturerMatches,
+    required this.checkResults,
+  });
+}
+
+class HardwareCheckResults {
+  final List<String> cpuKeywords;
+  final bool hasSensors;
+  final Map<String, dynamic> checkResults;
+
+  HardwareCheckResults({
+    required this.cpuKeywords,
+    required this.hasSensors,
+    required this.checkResults,
+  });
+}
+
 class VirtualMachineDetector {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
   static final SupabaseClient _supabase = Supabase.instance.client;
@@ -19,8 +65,8 @@ class VirtualMachineDetector {
 
     // 디버그 모드에서는 가상 머신 체크 건너뛰기
     if (kDebugMode) {
-      // logger.i('디버그 모드: 가상 머신 체크 건너뛰기');
-      return false;
+      logger.d('디버그 모드: 가상 머신 체크 건너뛰기');
+      // return false;
     }
 
     try {
@@ -28,113 +74,129 @@ class VirtualMachineDetector {
 
       if (UniversalPlatform.isAndroid) {
         final androidInfo = await _deviceInfo.androidInfo;
+        final configService = ref.read(configServiceProvider);
 
-        // 1. Build 값 체크
-        final buildInfo = await _checkBuildValues(androidInfo, ref);
+        // 모든 설정값 한 번에 가져오기
+        final configs = await Future.wait([
+          configService.getConfig('VIRTUAL_KEYWORDS'),
+          configService.getConfig('VIRTUAL_BLUESTACK_KEWORDS'),
+          configService.getConfig('VIRTUAL_HARDWARE_KEYWORDS'),
+          configService.getConfig('VIRTUAL_MANUFACTURER_KEYWORDS'),
+          configService.getConfig('VIRTUAL_CPU_KEYWORD'),
+          configService.getConfig('VIRTUAL_TTL_RANGE'),
+          configService.getConfig('VIRTUAL_MAC_KEYWORDS'),
+        ]);
 
-        // 2. 하드웨어 기반 체크
-        final hardwareCheck = await _checkHardware(ref);
+        // 자주 사용되는 값들 미리 가져오기
+        final cpuInfo = await _readCpuInfo();
+        final ttl = await _getTTL();
+        final macAddress = await _getMacAddress();
+        final hasSensors = await _checkSensors();
 
-        // 3. 네트워크 환경 체크
-        final networkCheck = await _checkNetworkEnvironment(ref);
+        // 체크 수행
+        final buildInfo =
+            await _checkBuildValues(androidInfo, configs.sublist(0, 4));
+        final hardwareCheck =
+            _checkHardwareWithInfo(cpuInfo, hasSensors, configs[4]);
+        final networkCheck =
+            _checkNetworkWithInfo(ttl, macAddress, configs.sublist(5));
 
         final isEmulator = buildInfo || hardwareCheck || networkCheck;
 
         if (isEmulator) {
-          logger.w('가상 머신 감지됨 (상세 정보):');
-          logger.w('Build 체크: $buildInfo');
-          logger.w('하드웨어 체크: $hardwareCheck');
-          logger.w('네트워크 체크: $networkCheck');
-
-          // Sentry에 상세 정보 전송
-          await Sentry.captureMessage(
-            '가상 머신 감지',
-            level: SentryLevel.warning,
-            withScope: (scope) async {
-              // 기본 디바이스 정보
-              scope.setContexts('device_info', {
-                'manufacturer': androidInfo.manufacturer,
-                'model': androidInfo.model,
-                'brand': androidInfo.brand,
-                'device': androidInfo.device,
-                'product': androidInfo.product,
-                'hardware': androidInfo.hardware,
-                'fingerprint': androidInfo.fingerprint,
-              });
-
-              // 시스템 정보
-              scope.setContexts('system_info', {
-                'android_version': androidInfo.version.release,
-                'sdk_int': androidInfo.version.sdkInt,
-                'security_patch': androidInfo.version.securityPatch,
-                'board': androidInfo.board,
-                'bootloader': androidInfo.bootloader,
-                'host': androidInfo.host,
-                'id': androidInfo.id,
-              });
-
-              // 하드웨어 상세 정보
-              scope.setContexts('hardware_info', {
-                'supported_abis': androidInfo.supportedAbis,
-                'physical_device': androidInfo.isPhysicalDevice,
-                'cpu_info': await _readCpuInfo(),
-              });
-
-              // 체크 결과
-              scope.setContexts('detection_results', {
-                'build_check': buildInfo,
-                'hardware_check': hardwareCheck,
-                'network_check': networkCheck,
-              });
-
-              // 네트워크 정보
-              scope.setContexts('network_info', {
-                'ttl': await _getTTL(),
-                'mac_address': await _getMacAddress(),
-              });
-
-              // 감지 상세 정보 추가
-              scope.setContexts('detection_details', {
-                'build_check_details': {
-                  'matched_vm_keywords':
-                      _detectionDetails['matched_vm_keywords'],
-                  'matched_bluestacks_keywords':
-                      _detectionDetails['matched_bluestacks_keywords'],
-                  'matched_hardware_keywords':
-                      _detectionDetails['matched_hardware_keywords'],
-                  'matched_manufacturer_keywords':
-                      _detectionDetails['matched_manufacturer_keywords'],
-                  'empty_manufacturer': _detectionDetails['empty_manufacturer'],
+          // 감지 결과 요약 로깅
+          logger.w(
+            '가상 머신 감지됨',
+            error: {
+              'detection_summary': {
+                'detection_type': [
+                  if (buildInfo) 'Build 체크 ✅',
+                  if (hardwareCheck) 'Hardware 체크 ✅',
+                  if (networkCheck) 'Network 체크 ✅',
+                ].join(', '),
+                'device_info': {
+                  'manufacturer': androidInfo.manufacturer,
+                  'model': androidInfo.model,
+                  'hardware': androidInfo.hardware,
+                  'android_version': androidInfo.version.release,
+                  'sdk': androidInfo.version.sdkInt,
                 },
-                'hardware_check_details': {
-                  'matched_cpu_keywords':
-                      _detectionDetails['matched_cpu_keywords'],
-                  'has_sensors': _detectionDetails['has_sensors'],
-                },
-                'network_check_details': {
-                  'ttl_value': await _getTTL(),
-                  'ttl_range': await ref
-                      .read(configServiceProvider)
-                      .getConfig('VIRTUAL_TTL_RANGE'),
-                  'mac_address': await _getMacAddress(),
-                  'suspicious_mac_prefixes': await ref
-                      .read(configServiceProvider)
-                      .getConfig('VIRTUAL_MAC_KEYWORDS'),
-                },
-              });
-
-              // 태그 설정
-              scope.setTag('device_type', 'virtual_machine');
-              scope.setTag('os_version', androidInfo.version.release);
-              scope.setTag('device_model',
-                  '${androidInfo.manufacturer} ${androidInfo.model}');
+              },
             },
           );
 
-          await _banVirtualDevice();
+          // 상세 감지 정보 로깅
+          if (buildInfo) {
+            final results =
+                await _getBuildCheckResults(androidInfo, configs.sublist(0, 4));
+            logger.w(
+              'Build 체크 상세 정보',
+              error: {
+                'detection_details': {
+                  'matched_keywords': {
+                    'vm': results.vmMatches.map((e) => e.keyword).toList(),
+                    'bluestacks': results.bluestacksMatches
+                        .map((e) => e.keyword)
+                        .toList(),
+                    'hardware':
+                        results.hardwareMatches.map((e) => e.keyword).toList(),
+                    'manufacturer': results.manufacturerMatches
+                        .map((e) => e.keyword)
+                        .toList(),
+                  },
+                  'manufacturer_empty':
+                      results.checkResults['suspicious_manufacturer'],
+                },
+              },
+            );
+          }
 
-          // 감지 상세 정보 초기화
-          _detectionDetails = {};
+          if (hardwareCheck) {
+            final results = await _getHardwareCheckResults(configs);
+            logger.w('Hardware 체크 상세 정보', error: {
+              'detection_details': {
+                'cpu_info': cpuInfo,
+                'cpu_keywords': results.cpuKeywords,
+                'has_sensors': hasSensors,
+                'is_physical_device': androidInfo.isPhysicalDevice,
+              },
+            });
+          }
+
+          if (networkCheck) {
+            logger.w('Network 체크 상세 정보', error: {
+              'detection_details': {
+                'ttl': {
+                  'value': ttl,
+                  'range': configs[5],
+                },
+                'mac': {
+                  'address': macAddress,
+                  'matched_keywords': _sanitizeKeywords(configs[6])
+                      .where(
+                          (keyword) => macAddress?.startsWith(keyword) ?? false)
+                      .toList(),
+                },
+              },
+            });
+          }
+
+          // Sentry에 상세 정보 전송
+          await _sendSentryReport(
+            androidInfo: androidInfo,
+            configs: configs,
+            cpuInfo: cpuInfo,
+            ttl: ttl,
+            macAddress: macAddress,
+            hasSensors: hasSensors,
+            buildInfo: buildInfo,
+            hardwareCheck: hardwareCheck,
+            networkCheck: networkCheck,
+          );
+
+          await _banVirtualDevice();
+        } else {
+          logger.i('가상 머신 검사 결과: 정상 기기');
         }
 
         return isEmulator;
@@ -162,12 +224,29 @@ class VirtualMachineDetector {
   }
 
   static Future<bool> _checkBuildValues(
-      AndroidDeviceInfo info, WidgetRef ref) async {
-    // 디버그 로그 추가
-    logger.d('제조사: ${info.manufacturer}');
-    logger.d('모델: ${info.model}');
-    logger.d('하드웨어: ${info.hardware}');
+    AndroidDeviceInfo info,
+    List<String?> configs,
+  ) async {
+    try {
+      final buildCheckResults = await _getBuildCheckResults(info, configs);
 
+      return buildCheckResults.checkResults['has_vm_keywords'] == true ||
+          buildCheckResults.checkResults['has_bluestacks_keywords'] == true ||
+          buildCheckResults.checkResults['suspicious_hardware'] == true ||
+          buildCheckResults.checkResults['suspicious_manufacturer'] == true;
+    } catch (e) {
+      logger.e('Build 체크 중 오류:', error: e);
+      return false;
+    }
+  }
+
+  static List<String> _sanitizeKeywords(String? config) {
+    if (config == null || config.isEmpty) return [];
+    return config.split(',').where((k) => k.isNotEmpty).toList();
+  }
+
+  static Future<BuildCheckResults> _getBuildCheckResults(
+      AndroidDeviceInfo info, List<String?> configs) async {
     final String deviceInfo = '''
       ${info.manufacturer}
       ${info.model}
@@ -184,127 +263,100 @@ class VirtualMachineDetector {
     '''
         .toLowerCase();
 
-    final configService = ref.read(configServiceProvider);
-
-    // 일반 가상 머신 키워드
-    final List<String> vmKeywords =
-        (await configService.getConfig('VIRTUAL_KEYWORDS'))?.split(',') ?? [];
-
-    // 블루스택스 특정 키워드
-    final List<String> bluestacksKeywords =
-        (await configService.getConfig('VIRTUAL_BLUESTACK_KEWORDS'))
-                ?.split(',') ??
-            [];
-
-    final List<String> suspiciousHardwareKeywords =
-        (await configService.getConfig('VIRTUAL_HARDWARE_KEYWORDS'))
-                ?.split(',') ??
-            [];
-    // 추가 하드웨어 체크
-    final bool suspiciousHardware = suspiciousHardwareKeywords
-        .any((keyword) => info.hardware.toLowerCase().contains(keyword));
-
-    // 추가 제조사 체크
-    final List<String> suspiciousManufacturerKeywords =
-        (await configService.getConfig('VIRTUAL_MANUFACTURER_KEYWORDS'))
-                ?.split(',') ??
-            [];
-
-    final bool suspiciousManufacturer = suspiciousManufacturerKeywords.any(
-            (keyword) => info.manufacturer.toLowerCase().contains(keyword)) ||
-        info.manufacturer.isEmpty;
-
-    final bool hasVmKeywords =
-        vmKeywords.any((keyword) => deviceInfo.contains(keyword));
-    final bool hasBluestacksKeywords =
-        bluestacksKeywords.any((keyword) => deviceInfo.contains(keyword));
+    final vmKeywords = _sanitizeKeywords(configs[0]);
+    final bluestacksKeywords = _sanitizeKeywords(configs[1]);
+    final hardwareKeywords = _sanitizeKeywords(configs[2]);
+    final manufacturerKeywords = _sanitizeKeywords(configs[3]);
 
     // 매칭된 키워드 찾기
-    final List<String> matchedVmKeywords =
-        vmKeywords.where((keyword) => deviceInfo.contains(keyword)).toList();
-    final List<String> matchedBluestacksKeywords = bluestacksKeywords
-        .where((keyword) => deviceInfo.contains(keyword))
+    final vmMatches = vmKeywords
+        .map((keyword) => KeywordMatch(keyword, deviceInfo.contains(keyword)))
+        .where((match) => match.isMatch)
         .toList();
-    final List<String> matchedHardwareKeywords = suspiciousHardwareKeywords
-        .where((keyword) => info.hardware.toLowerCase().contains(keyword))
+
+    final bluestacksMatches = bluestacksKeywords
+        .map((keyword) => KeywordMatch(keyword, deviceInfo.contains(keyword)))
+        .where((match) => match.isMatch)
         .toList();
-    final List<String> matchedManufacturerKeywords =
-        suspiciousManufacturerKeywords
-            .where(
-                (keyword) => info.manufacturer.toLowerCase().contains(keyword))
-            .toList();
 
-    // 결과와 매칭된 키워드 저장
-    _detectionDetails = {
-      'matched_vm_keywords': matchedVmKeywords,
-      'matched_bluestacks_keywords': matchedBluestacksKeywords,
-      'matched_hardware_keywords': matchedHardwareKeywords,
-      'matched_manufacturer_keywords': matchedManufacturerKeywords,
-      'empty_manufacturer': info.manufacturer.isEmpty,
-    };
+    final hardwareMatches = hardwareKeywords
+        .map((keyword) => KeywordMatch(
+            keyword, info.hardware.toLowerCase().contains(keyword)))
+        .where((match) => match.isMatch)
+        .toList();
 
-    return hasVmKeywords ||
-        hasBluestacksKeywords ||
-        suspiciousHardware ||
-        suspiciousManufacturer;
+    final manufacturerMatches = manufacturerKeywords
+        .map((keyword) => KeywordMatch(
+            keyword, info.manufacturer.toLowerCase().contains(keyword)))
+        .where((match) => match.isMatch)
+        .toList();
+
+    // 디버그 로그
+    logger.d({
+      'manufacturer': info.manufacturer,
+      'model': info.model,
+      'hardware': info.hardware,
+      'matched_vm_keywords': vmMatches.map((e) => e.keyword).toList(),
+      'matched_bluestacks_keywords':
+          bluestacksMatches.map((e) => e.keyword).toList(),
+      'matched_hardware_keywords':
+          hardwareMatches.map((e) => e.keyword).toList(),
+      'matched_manufacturer_keywords':
+          manufacturerMatches.map((e) => e.keyword).toList(),
+    });
+
+    return BuildCheckResults(
+      deviceInfo: deviceInfo,
+      vmKeywords: vmKeywords,
+      bluestacksKeywords: bluestacksKeywords,
+      hardwareKeywords: hardwareKeywords,
+      manufacturerKeywords: manufacturerKeywords,
+      vmMatches: vmMatches,
+      bluestacksMatches: bluestacksMatches,
+      hardwareMatches: hardwareMatches,
+      manufacturerMatches: manufacturerMatches,
+      checkResults: {
+        'has_vm_keywords': vmMatches.isNotEmpty,
+        'has_bluestacks_keywords': bluestacksMatches.isNotEmpty,
+        'suspicious_hardware': hardwareMatches.isNotEmpty,
+        'suspicious_manufacturer':
+            manufacturerMatches.isNotEmpty || info.manufacturer.isEmpty,
+      },
+    );
   }
 
-  static Future<bool> _checkHardware(WidgetRef ref) async {
-    try {
-      final String cpuInfo = await _readCpuInfo();
-      final configService = ref.read(configServiceProvider);
-      final suspiciousCpuKeywords =
-          (await configService.getConfig('VIRTUAL_CPU_KEYWORD'))?.split(',') ??
-              [];
-
-      // 매칭된 CPU 키워드 찾기
-      final List<String> matchedCpuKeywords = suspiciousCpuKeywords
-          .where((keyword) => cpuInfo.toLowerCase().contains(keyword))
-          .toList();
-
-      final bool suspiciousCpu = matchedCpuKeywords.isNotEmpty;
-      final bool hasSensors = await _checkSensors();
-
-      // 하드웨어 체크 결과 저장
-      _detectionDetails.addAll({
-        'matched_cpu_keywords': matchedCpuKeywords,
-        'cpu_info': cpuInfo,
-        'has_sensors': hasSensors,
-      });
-
-      return suspiciousCpu || !hasSensors;
-    } catch (e) {
-      logger.e('하드웨어 체크 중 오류:', error: e);
-      return false;
-    }
+  static bool _checkHardwareWithInfo(
+    String cpuInfo,
+    bool hasSensors,
+    String? cpuKeywordsConfig,
+  ) {
+    final cpuKeywords = _sanitizeKeywords(cpuKeywordsConfig);
+    final suspiciousCpu = cpuKeywords.any(
+      (keyword) => cpuInfo.toLowerCase().contains(keyword),
+    );
+    return suspiciousCpu || !hasSensors;
   }
 
-  static Future<bool> _checkNetworkEnvironment(WidgetRef ref) async {
-    try {
-      final int? ttl = await _getTTL();
-      final configService = ref.read(configServiceProvider);
-      final suspiciousTtlKeywords =
-          (await configService.getConfig('VIRTUAL_TTL_RANGE'))?.split(',') ??
-              [];
-      final bool suspiciousTtl = suspiciousTtlKeywords.length == 2 &&
-          ttl != null &&
-          ttl >= int.parse(suspiciousTtlKeywords[0]) &&
-          ttl <= int.parse(suspiciousTtlKeywords[1]);
-      if (suspiciousTtl) return true;
+  static bool _checkNetworkWithInfo(
+    int? ttl,
+    String? macAddress,
+    List<String?> configs,
+  ) {
+    final ttlRange = _sanitizeKeywords(configs[0]);
+    final macKeywords = _sanitizeKeywords(configs[1]);
 
-      final String? macAddress = await _getMacAddress();
-      final suspiciousMacAddressKeywords =
-          (await configService.getConfig('VIRTUAL_MAC_KEYWORDS'))?.split(',') ??
-              [];
-      final bool suspiciousMacAddress = suspiciousMacAddressKeywords.any(
-          (keyword) => macAddress != null && macAddress.startsWith(keyword));
-      if (suspiciousMacAddress) return true;
+    final suspiciousTtl = ttlRange.length == 2 &&
+        ttl != null &&
+        int.tryParse(ttlRange[0]) != null &&
+        int.tryParse(ttlRange[1]) != null &&
+        ttl >= int.parse(ttlRange[0]) &&
+        ttl <= int.parse(ttlRange[1]);
 
-      return false;
-    } catch (e) {
-      logger.e('네트워크 환경 체크 중 오류:', error: e);
-      return false;
-    }
+    final suspiciousMac = macAddress != null &&
+        macKeywords.any(
+            (keyword) => keyword.isNotEmpty && macAddress.startsWith(keyword));
+
+    return suspiciousTtl || suspiciousMac;
   }
 
   static Future<String> _readCpuInfo() async {
@@ -354,6 +406,142 @@ class VirtualMachineDetector {
     }
   }
 
-  // 감지 상세 정보를 저장할 static 변수
-  static Map<String, dynamic> _detectionDetails = {};
+  // Sentry 리포트 전송을 위한 별도 메서드
+  static Future<void> _sendSentryReport({
+    required AndroidDeviceInfo androidInfo,
+    required List<String?> configs,
+    required String cpuInfo,
+    required int? ttl,
+    required String? macAddress,
+    required bool hasSensors,
+    required bool buildInfo,
+    required bool hardwareCheck,
+    required bool networkCheck,
+  }) async {
+    final buildCheckResults = await _getBuildCheckResults(androidInfo, configs);
+    final hardwareCheckResults = await _getHardwareCheckResults(configs);
+
+    await Sentry.captureMessage(
+      '가상 머신 감지 ⚠️',
+      level: SentryLevel.warning,
+      withScope: (scope) async {
+        scope.setContexts('detection_report', {
+          'summary': {
+            'detection_conditions': {
+              'build_check': buildInfo ? '✅ 감지됨' : '❌ 정상',
+              'hardware_check': hardwareCheck ? '✅ 감지됨' : '❌ 정상',
+              'network_check': networkCheck ? '✅ 감지됨' : '❌ 정상',
+            },
+            'device': {
+              'manufacturer_model':
+                  '${androidInfo.manufacturer} ${androidInfo.model}',
+              'android_version': androidInfo.version.release,
+              'sdk_level': androidInfo.version.sdkInt,
+              'hardware': androidInfo.hardware,
+              'fingerprint': androidInfo.fingerprint,
+            },
+          },
+          'detection_details': {
+            'build': buildInfo
+                ? {
+                    'matched_keywords': {
+                      'vm': buildCheckResults.vmMatches
+                          .map((e) => e.keyword)
+                          .toList(),
+                      'bluestacks': buildCheckResults.bluestacksMatches
+                          .map((e) => e.keyword)
+                          .toList(),
+                      'hardware': buildCheckResults.hardwareMatches
+                          .map((e) => e.keyword)
+                          .toList(),
+                      'manufacturer': buildCheckResults.manufacturerMatches
+                          .map((e) => e.keyword)
+                          .toList(),
+                    },
+                    'manufacturer_empty': buildCheckResults
+                        .checkResults['suspicious_manufacturer'],
+                  }
+                : '감지되지 않음',
+            'hardware': hardwareCheck
+                ? {
+                    'cpu_info': cpuInfo,
+                    'matched_cpu_keywords': hardwareCheckResults.cpuKeywords,
+                    'has_sensors': hasSensors,
+                    'is_physical_device': androidInfo.isPhysicalDevice,
+                  }
+                : '감지되지 않음',
+            'network': networkCheck
+                ? {
+                    'ttl_value': ttl,
+                    'ttl_range': configs[5],
+                    'mac_address': macAddress,
+                    'mac_keywords_matched': _sanitizeKeywords(configs[6])
+                        .where((keyword) =>
+                            macAddress?.startsWith(keyword) ?? false)
+                        .toList(),
+                  }
+                : '감지되지 않음',
+          },
+          'configuration': {
+            'keywords': {
+              'vm': buildCheckResults.vmKeywords,
+              'bluestacks': buildCheckResults.bluestacksKeywords,
+              'hardware': buildCheckResults.hardwareKeywords,
+              'manufacturer': buildCheckResults.manufacturerKeywords,
+              'cpu': hardwareCheckResults.cpuKeywords,
+            },
+          },
+          'raw_device_info': buildCheckResults.deviceInfo,
+        });
+
+        scope.setTag(
+            'detection_type',
+            [
+              if (buildInfo) 'build',
+              if (hardwareCheck) 'hardware',
+              if (networkCheck) 'network'
+            ].join('+'));
+        scope.setTag(
+            'device_model', '${androidInfo.manufacturer} ${androidInfo.model}');
+        scope.setTag('os_version', androidInfo.version.release);
+      },
+    );
+  }
+
+  static Future<HardwareCheckResults> _getHardwareCheckResults(
+      List<String?> configs) async {
+    final cpuKeywordsConfig = configs[4];
+    final cpuInfo = await _readCpuInfo();
+    final hasSensors = await _checkSensors();
+
+    final cpuKeywords = _sanitizeKeywords(cpuKeywordsConfig);
+    final suspiciousCpu = cpuKeywords.any(
+      (keyword) => cpuInfo.toLowerCase().contains(keyword),
+    );
+
+    return HardwareCheckResults(
+      cpuKeywords: cpuKeywords,
+      hasSensors: hasSensors,
+      checkResults: {
+        'cpu_info_full': cpuInfo,
+        'has_sensors': hasSensors,
+        'suspicious_cpu': suspiciousCpu,
+        'supported_abis': (await _deviceInfo.androidInfo).supportedAbis,
+        'is_physical_device': (await _deviceInfo.androidInfo).isPhysicalDevice,
+      },
+    );
+  }
+
+  static Future<Map<String, dynamic>> _getNetworkCheckResults(
+      List<String?> configs) async {
+    final ttl = await _getTTL();
+    final macAddress = await _getMacAddress();
+
+    return {
+      'ttl_value': ttl,
+      'mac_address': macAddress,
+      'ttl_range': configs[0],
+      'mac_keywords': configs[1],
+    };
+  }
 }
