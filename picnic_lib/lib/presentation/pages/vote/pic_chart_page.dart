@@ -56,18 +56,6 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        S.of(context).text_comming_soon_pic_chart1,
-                        style: getTextStyle(
-                          AppTypo.body14M,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const Divider(
-                        color: AppColors.grey300,
-                        thickness: 1,
-                        height: 40,
-                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
