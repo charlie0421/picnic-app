@@ -72,8 +72,8 @@ class _AppState extends ConsumerState<App> {
     _initializationFuture = Future.value();
 
     if (UniversalPlatform.isMobile) {
-      AppInitializer.initializeSystemUI();
       AppInitializer.setupSupabaseAuthListener(ref);
+      AppInitializer.setupBranchListener(ref);
     }
   }
 
@@ -82,9 +82,15 @@ class _AppState extends ConsumerState<App> {
     super.didChangeDependencies();
     if (!_didInitialize) {
       _didInitialize = true;
-      _initializationFuture =
-          AppInitializer.initializeAppWithSplash(context, ref);
+      _initializationFuture = _initializeApp();
     }
+  }
+
+  Future<void> _initializeApp() async {
+    if (UniversalPlatform.isMobile) {
+      await AppInitializer.initializeSystemUI();
+    }
+    await AppInitializer.initializeAppWithSplash(context, ref);
   }
 
   @override
