@@ -277,9 +277,25 @@ class AppInitializer {
 
     if (hasNetwork) {
       try {
-        bool isBanned = false;
+        // 먼저 업데이트 체크
+        final updateInfo = await checkForUpdates(ref);
+        logger.i('업데이트 정보: $updateInfo');
 
-        // 디버그 모드가 아닐 때만 가상머신과 디바이스 차단 체크
+        ref
+            .read(appInitializationProvider.notifier)
+            .updateState(updateInfo: updateInfo
+                // 강업 테스트
+                // updateInfo?.copyWith(status: UpdateStatus.updateRequired),
+                );
+
+        // 강제 업데이트가 필요한 경우, 밴 체크를 하지 않고 바로 업데이트 화면으로
+        if (updateInfo?.status == UpdateStatus.updateRequired) {
+          await _loadProducts(ref);
+          return;
+        }
+
+        // 강제 업데이트가 필요하지 않은 경우에만 밴 체크
+        bool isBanned = false;
         if (!kDebugMode) {
           final isVirtualDevice = await VirtualMachineDetector.detect(ref);
           isBanned = isVirtualDevice || await DeviceManager.isDeviceBanned();
@@ -289,17 +305,6 @@ class AppInitializer {
         ref.read(appInitializationProvider.notifier).updateState(
               isBanned: isBanned,
             );
-
-        final updateInfo = await checkForUpdates(ref);
-        logger.i('업데이트 정보: $updateInfo');
-
-        ref.read(appInitializationProvider.notifier).updateState(
-              updateInfo: updateInfo,
-            );
-
-        if (!isBanned && updateInfo?.status == UpdateStatus.updateRequired) {
-          await _loadProducts(ref);
-        }
       } catch (e, s) {
         logger.e('모바일 초기화 중 오류 발생:', error: e, stackTrace: s);
       }
