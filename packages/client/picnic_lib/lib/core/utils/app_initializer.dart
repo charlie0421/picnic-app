@@ -344,11 +344,11 @@ class AppInitializer {
           logger.i('Android SDK Version: $androidSdkVersion');
         } catch (e, s) {
           logger.e('안드로이드 SDK 버전 확인 실패:', error: e, stackTrace: s);
-          // SDK 버전을 확인할 수 없는 경우 기본값 설정
-          androidSdkVersion = 29; // Android 10을 기본값으로 설정
+          androidSdkVersion = 29;
         }
 
         try {
+          // 시스템 UI 스타일 설정
           SystemChrome.setSystemUIOverlayStyle(
             const SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
@@ -359,14 +359,28 @@ class AppInitializer {
             ),
           );
 
-          if (androidSdkVersion < 30) {
+          // Android 버전별 SystemUiMode 설정
+          if (androidSdkVersion >= 30) {
             await SystemChrome.setEnabledSystemUIMode(
               SystemUiMode.manual,
-              overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+              overlays: [
+                SystemUiOverlay.top,
+                SystemUiOverlay.bottom,
+              ],
+            );
+
+            SystemChrome.setSystemUIOverlayStyle(
+              const SystemUiOverlayStyle(
+                systemNavigationBarContrastEnforced: false,
+              ),
             );
           } else {
             await SystemChrome.setEnabledSystemUIMode(
-              SystemUiMode.edgeToEdge,
+              SystemUiMode.manual,
+              overlays: [
+                SystemUiOverlay.top,
+                SystemUiOverlay.bottom,
+              ],
             );
           }
         } catch (e, s) {
