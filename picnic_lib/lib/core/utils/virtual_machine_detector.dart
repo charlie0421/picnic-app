@@ -485,14 +485,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
         'has_vm_keywords': vmMatches.isNotEmpty,
         'has_bluestacks_keywords': bluestacksMatches.isNotEmpty,
         'suspicious_hardware': hardwareMatches.isNotEmpty || suspiciousHardware,
-        'suspicious_manufacturer': manufacturerMatches.isNotEmpty ||
-            suspiciousManufacturer ||
-            suspiciousModel ||
-            suspiciousProduct ||
-            suspiciousDevice ||
-            suspiciousBoard ||
-            suspiciousArchitecture ||
-            isSuspiciousSamsung,
+        'suspicious_manufacturer': manufacturerMatches.isNotEmpty 
       },
     );
   }
