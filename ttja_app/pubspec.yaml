@@ -58,3 +58,4 @@ flutter:
         - config/
         - assets/login/
         - assets/
+        - assets/app_icon_128.png
