@@ -63,3 +63,4 @@ flutter:
         - config/
         - assets/login/
         - assets/splash.webp
+        - assets/app_icon_128.png
