@@ -1,0 +1,125 @@
+.card {
+  width: 100%;
+  position: relative;
+}
+
+.imageContainer {
+  width: 100%;
+  aspect-ratio: 1/1;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  background-color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noImageText {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.logo {
+  margin-top: 1rem;
+  width: 4rem;
+  height: 4rem;
+}
+
+.name {
+  margin-top: 0.75rem;
+  font-weight: bold;
+  color: white;
+}
+
+.nameTextLarge {
+  font-size: 1.5rem;
+}
+
+.nameTextNormal {
+  font-size: 1.25rem;
+}
+
+.nameTextSmall {
+  font-size: 1.125rem;
+}
+
+.voteCount {
+  margin-top: 0.5rem;
+  font-weight: bold;
+  color: #ec4899;
+  font-size: 1.25rem;
+}
+
+/* 세로 텍스트 스타일 */
+.verticalName {
+  position: absolute;
+  right: -32px; /* 기둥 바로 옆에 붙임 */
+  top: 0px; /* 상단 정렬 */
+  transform: translateY(0);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: 900;
+  color: black; /* 검정색으로 변경 */
+  letter-spacing: 2px;
+  font-size: 32px; /* 지정하신 폰트 크기 */
+  font-family: 'Noto Sans KR', sans-serif; /* 지정하신 폰트 패밀리 */
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  line-height: 38.4px;
+  text-transform: uppercase;
+  /* text-shadow 제거 */
+  /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); */
+}
+
+/* 1위 기둥에만 적용 */
+.rankItem:nth-child(1) .verticalName {
+  display: block;
+}
+
+/* 2,3위 기둥에는 숨김 */
+.rankItem:nth-child(2) .verticalName,
+.rankItem:nth-child(3) .verticalName {
+  display: none;
+}
+
+.rankItem {
+  position: relative; /* verticalName의 기준점 */
+}
+
+.qrCode {
+  display: none;
+}
+
+.qrCode img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 8px 8px;
+  background-color: white;
+  padding: 0.5rem;
+}
