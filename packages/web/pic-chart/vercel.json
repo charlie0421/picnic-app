@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "/package/web/pic-chart/package.json", "use": "@vercel/next" }
+  ],
+  "routes": [{ "src": "/(.*)", "dest": "/package/web/pic-chart/$1" }]
+}
