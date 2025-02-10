@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "vercel-build": "git rev-parse HEAD > .git-hash && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -30,8 +29,5 @@
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
-  },
-  "engines": {
-    "node": ">=20.0.0"
   }
 }
