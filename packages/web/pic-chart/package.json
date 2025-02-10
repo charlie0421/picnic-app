@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "git rev-parse HEAD > .git-hash && next build",
     "start": "next start",
     "lint": "next lint"
   },
