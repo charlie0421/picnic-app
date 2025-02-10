@@ -11,7 +11,12 @@ import Image from 'next/image';
 export default function HomePage() {
   const [voteData, setVoteData] = useState<VoteData>();
   const [currentHash, setCurrentHash] = useState<string>('dev');
+  const currentHashRef = useRef(currentHash);
   const prevVotes = useRef<number[]>([]);
+
+  useEffect(() => {
+    currentHashRef.current = currentHash;
+  }, [currentHash]);
 
   useEffect(() => {
     if (voteData !== undefined) {
@@ -97,13 +102,13 @@ export default function HomePage() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const { hash } = await response.json();
-
-        console.log('currentHash', currentHash);
-        console.log('hash', hash);
-
-        setCurrentHash(hash);
-
-        if (hash !== currentHash) {
+  
+        console.log('currentHash:', currentHashRef.current);
+        console.log('fetched hash:', hash);
+  
+        if (currentHashRef.current === 'dev') {
+          setCurrentHash(hash);
+        } else if (hash !== currentHashRef.current) {
           window.location.reload();
         }
       } catch (error) {
@@ -114,7 +119,7 @@ export default function HomePage() {
         });
       }
     };
-
+  
     checkVersion();
     const versionInterval = setInterval(checkVersion, 60000);
     return () => clearInterval(versionInterval);
@@ -220,38 +225,4 @@ export default function HomePage() {
             {/* QR 코드 */}
             <div className={styles.titleQrCode}>
               <QRCode
-                value={`https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`}
-                size={110}
-              />
-            </div>
-            {/* Realtime 이미지 */}
-            <div>
-              <Image
-                src='/images/realtime.svg'
-                alt='Realtime'
-                width={116}
-                height={42}
-              />
-            </div>
-            {/* 로고 */}
-            <div>
-              <Image
-                src='/images/logo.svg'
-                alt='Realtime'
-                width={410}
-                height={90} // height 추가 필요
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 오른쪽: 광고 영역 */}
-        <div className={styles.adSection}>
-          <video className={styles.adVideo} autoPlay loop muted playsInline>
-            <source src='/480_768.mp4' type='video/mp4' />
-          </video>
-        </div>
-      </div>
-    </div>
-  );
-}
+                value={`https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`
