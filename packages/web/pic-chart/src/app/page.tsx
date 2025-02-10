@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabaseClient';
 import { RankCard } from '@/components/RankCard';
 import type { VoteData, VoteItem } from '@/types/database.types';
 import styles from './page.module.css';
-import { motion } from 'framer-motion';
 import QRCode from 'react-qr-code';
 import Image from 'next/image';
 
