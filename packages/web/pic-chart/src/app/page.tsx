@@ -10,7 +10,7 @@ import Image from 'next/image';
 
 export default function HomePage() {
   const [voteData, setVoteData] = useState<VoteData>();
-  const [version, setVersion] = useState<string | null>(null);
+  const [currentHash, setCurrentHash] = useState<string>('dev');
   const prevVotes = useRef<number[]>([]);
 
   useEffect(() => {
@@ -89,24 +89,25 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    async function checkVersion() {
+    const checkVersion = async () => {
       try {
-        const res = await fetch('/api/version');
-        const json = await res.json();
-        if (version && version !== json.version) {
+        const response = await fetch('/api/version');
+        const { hash } = await response.json();
+
+        setCurrentHash(hash);
+
+        if (hash !== currentHash) {
           window.location.reload();
-        } else {
-          setVersion(json.version);
         }
-      } catch (err) {
-        console.error('버전 체크 실패:', err);
+      } catch (error) {
+        console.error('버전 체크 중 오류 발생:', error);
       }
-    }
+    };
 
     checkVersion();
     const versionInterval = setInterval(checkVersion, 30000);
     return () => clearInterval(versionInterval);
-  }, [version]);
+  }, [currentHash]);
 
   // --------------------- 여기서부터 레이아웃 코드 ----------------------
   return (
@@ -201,6 +202,10 @@ export default function HomePage() {
 
           {/* 타이틀 */}
           <div className={styles.titleBottom}>
+            {/* 버전 정보 */}
+            {/* <div className={styles.versionInfo}>
+              v.{currentHash.slice(0, 7)}
+            </div> */}
             {/* QR 코드 */}
             <div className={styles.titleQrCode}>
               <QRCode
@@ -214,7 +219,7 @@ export default function HomePage() {
                 src='/images/realtime.svg'
                 alt='Realtime'
                 width={116}
-                height={42} // height 추가 필요
+                height={42}
               />
             </div>
             {/* 로고 */}

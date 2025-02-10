@@ -37,6 +37,8 @@
   gap: 29px;
   padding-left: 13px;
   padding-right: 13px;
+  position: relative;
+  padding-bottom: 32px;  /* 버전 정보를 위한 하단 여백 */
 }
 
 .titleQrCode {
@@ -298,4 +300,17 @@
 
 .rankItem {
   position: relative; /* verticalName의 기준점 */
+}
+
+.versionInfo {
+  position: absolute;
+  bottom: 8px;
+  left: 13px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
