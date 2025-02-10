@@ -91,26 +91,34 @@ export default function HomePage() {
   useEffect(() => {
     const checkVersion = async () => {
       try {
+        console.log('Fetching version...');
         const response = await fetch('/api/version');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const { hash } = await response.json();
-
-        setCurrentHash(hash);
 
         console.log('currentHash', currentHash);
         console.log('hash', hash);
+
+        setCurrentHash(hash);
 
         if (hash !== currentHash) {
           window.location.reload();
         }
       } catch (error) {
-        console.error('버전 체크 중 오류 발생:', error);
+        console.error('버전 체크 중 오류 발생:', {
+          message: (error as Error).message,
+          stack: (error as Error).stack,
+          url: '/api/version',
+        });
       }
     };
 
     checkVersion();
-    const versionInterval = setInterval(checkVersion, 30000);
+    const versionInterval = setInterval(checkVersion, 60000);
     return () => clearInterval(versionInterval);
-  }, [currentHash]);
+  }, []);
 
   // --------------------- 여기서부터 레이아웃 코드 ----------------------
   return (
