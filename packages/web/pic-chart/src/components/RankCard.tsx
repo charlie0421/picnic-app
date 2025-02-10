@@ -3,31 +3,28 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import styles from './RankCard.module.css';
-import QRCode from 'react-qr-code';
 import Image from 'next/image';
-
-const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL as string;
 
 type RankCardProps = {
   rank: number;
   name: string | { [key: string]: string };
+  groupName: string | { [key: string]: string };
   votes: number;
-  logoUrl?: string;
   photoUrl?: string;
 };
+
+const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL as string;
 
 export function RankCard({
   rank,
   name,
   votes,
-  logoUrl,
   photoUrl,
+  groupName,
 }: RankCardProps) {
   const voteRef = useRef<number>(votes);
 
-  // ===============================
-  // 3) 이미지 크기 설정 (rank)
-  // ===============================
+  // 이미지 크기 설정
   const sizeMap: Record<number, number> = {
     1: 280,
     2: 120,
@@ -35,9 +32,7 @@ export function RankCard({
   };
   const photoSize = sizeMap[rank] || 90;
 
-  // ===============================
-  // 4) 투표수 변경 감지
-  // ===============================
+  // 투표수 변경 감지
   const [voteChanged, setVoteChanged] = useState(false);
 
   useEffect(() => {
@@ -50,38 +45,51 @@ export function RankCard({
   }, [votes]);
 
   const displayName =
-    typeof name === 'object' ? name.ko || Object.values(name)[0] : name;
+    typeof name === 'object' ? name.en || Object.values(name)[0] : name;
 
   return (
     <motion.div
-      className={styles.card}
+      className={`${styles.card} ${styles.rankItem}`}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
     >
       <div className={styles.imageContainer}>
         {photoUrl ? (
-          <Image
-            src={`${cdnUrl}/${photoUrl}?w=${photoSize}`}
-            alt={displayName}
-            width={photoSize}
-            height={photoSize}
-            className={styles.image}
-          />
+          <div className={styles.image}>
+            <Image
+              src={`${cdnUrl}/${photoUrl}?w=${photoSize}`}
+              alt={displayName}
+              fill
+              sizes={`${photoSize}px`}
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
         ) : (
           <div className={styles.noImage}>
             <span className={styles.noImageText}>No Image</span>
           </div>
         )}
-        <div className={styles.logoContainer}>
-          {logoUrl && (
-            <Image
-              src={`${cdnUrl}/${logoUrl}`}
-              alt={`${displayName} Logo`}
-              width={rank === 1 ? 70 : rank === 2 ? 60 : 45}
-              height={rank === 1 ? 70 : rank === 2 ? 60 : 45}
-            />
-          )}
+        <div
+          className={`${styles.logoContainer} ${
+            styles[`logoContainer${rank}`]
+          }`}
+        >
+          <div className={`${styles.groupName} ${styles[`groupName${rank}`]}`}>
+            {typeof groupName === 'object'
+              ? groupName.en || Object.values(groupName)[0]
+              : groupName}
+          </div>
         </div>
+      </div>
+
+      <div className={`${styles.voteCountCard} ${styles[`voteCount${rank}`]}`}>
+        <motion.span
+          initial={{ scale: 1 }}
+          animate={{ scale: voteChanged ? 1.3 : 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          {votes.toLocaleString()}
+        </motion.span>
       </div>
 
       {rank === 1 && (
@@ -95,7 +103,6 @@ export function RankCard({
           </motion.span>
         </div>
       )}
-
     </motion.div>
   );
 }

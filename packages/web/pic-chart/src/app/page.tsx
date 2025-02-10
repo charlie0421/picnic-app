@@ -28,22 +28,26 @@ export default function HomePage() {
         .from('vote')
         .select(
           `
-        id,
-        vote_category,
-        title,
-        start_at,
-        stop_at,
-        vote_item(
           id,
-          vote_total,
-          artist(
+          vote_category,
+          title,
+          start_at,
+          stop_at,
+          vote_item(
             id,
-            name,
-            image,
-            artist_group(
+            vote_total,
+            artist(
               id,
               name,
               image,
+              artist_group(
+                id,
+                name,
+                image,
+                created_at,
+                updated_at,
+                deleted_at
+              ),
               created_at,
               updated_at,
               deleted_at
@@ -51,12 +55,8 @@ export default function HomePage() {
             created_at,
             updated_at,
             deleted_at
-          ),
-          created_at,
-          updated_at,
-          deleted_at
-        )
-      `,
+          )
+        `,
         )
         .eq('vote_category', 'birthday')
         .lte('start_at', 'now()')
@@ -88,6 +88,7 @@ export default function HomePage() {
     const interval = setInterval(fetchVotes, 1000);
     return () => clearInterval(interval);
   }, []);
+
   useEffect(() => {
     async function checkVersion() {
       try {
@@ -122,8 +123,8 @@ export default function HomePage() {
                   <Image
                     src='/images/1st.svg'
                     alt='1st'
-                    width={48}
-                    height={48}
+                    width={60}
+                    height={50}
                   />
                 </div>
                 <div className={styles.rankPillar}>
@@ -132,23 +133,12 @@ export default function HomePage() {
                     rank={1}
                     name={voteData?.topThree[0].artist?.name['en'] || ''}
                     votes={voteData?.topThree[0].vote_total}
-                    logoUrl={voteData?.topThree[0].artist?.artist_group?.image}
                     photoUrl={voteData?.topThree[0].artist?.image}
+                    groupName={
+                      voteData?.topThree[0].artist?.artist_group?.name['en'] ||
+                      ''
+                    }
                   />
-                  <motion.div
-                    className={styles.voteCount}
-                    initial={{ scale: 1 }}
-                    animate={{
-                      scale:
-                        voteData?.topThree[0].vote_total !==
-                        prevVotes.current[0]
-                          ? 1.3
-                          : 1,
-                    }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {voteData?.topThree[0].vote_total.toLocaleString()}
-                  </motion.div>
                 </div>
               </div>
             )}
@@ -160,8 +150,8 @@ export default function HomePage() {
                   <Image
                     src='/images/2nd.svg'
                     alt='2nd'
-                    width={48}
-                    height={48}
+                    width={66}
+                    height={40}
                   />
                 </div>
                 <div className={styles.rankPillar}>
@@ -170,14 +160,14 @@ export default function HomePage() {
                     rank={2}
                     name={voteData?.topThree[1].artist?.name['en'] || ''}
                     votes={voteData?.topThree[1].vote_total}
-                    logoUrl={voteData?.topThree[1].artist?.artist_group?.image}
                     photoUrl={voteData?.topThree[1].artist?.image}
+                    groupName={
+                      voteData?.topThree[1].artist?.artist_group?.name['en'] ||
+                      ''
+                    }
                   />
-                  <motion.div className={styles.voteCount}>
-                    {voteData?.topThree[1].vote_total.toLocaleString()}
-                  </motion.div>
+                  {/* 2, 3등에는 이름 표시 없음 */}
                 </div>
-                {/* 2, 3등에는 이름 표시 없음 */}
               </div>
             )}
 
@@ -188,8 +178,8 @@ export default function HomePage() {
                   <Image
                     src='/images/3rd.svg'
                     alt='3rd'
-                    width={48}
-                    height={48}
+                    width={45}
+                    height={30}
                   />
                 </div>
                 <div className={styles.rankPillar}>
@@ -198,47 +188,44 @@ export default function HomePage() {
                     rank={3}
                     name={voteData?.topThree[2].artist?.name['en'] || ''}
                     votes={voteData?.topThree[2].vote_total}
-                    logoUrl={voteData?.topThree[2].artist?.artist_group?.image}
                     photoUrl={voteData?.topThree[2].artist?.image}
+                    groupName={
+                      voteData?.topThree[2].artist?.artist_group?.name['en'] ||
+                      ''
+                    }
                   />
-                  <motion.div className={styles.voteCount}>
-                    {voteData?.topThree[2].vote_total.toLocaleString()}
-                  </motion.div>
+                  {/* 2, 3등에는 이름 표시 없음 */}
                 </div>
-                {/* 2, 3등에는 이름 표시 없음 */}
               </div>
             )}
           </div>
 
           {/* 타이틀 */}
-          <div className={styles.title}>
-            {/* 하단 타이틀 영역을 가로 배치로 수정 */}
-            <div className={styles.titleBottom}>
-              {/* QR 코드 */}
-              <div className={styles.titleQrCode}>
-                <QRCode
-                  value={`https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`}
-                  size={110}
-                />
-              </div>
-              {/* Realtime 이미지 */}
-              <div>
-                <Image
-                  src='/images/realtime.svg'
-                  alt='Realtime'
-                  width={116}
-                  height={50}
-                />
-              </div>
-              {/* Logo 이미지 */}
-              <div>
-                <Image
-                  src='/images/logo.svg'
-                  alt='Logo'
-                  width={410}
-                  height={90}
-                />
-              </div>
+          <div className={styles.titleBottom}>
+            {/* QR 코드 */}
+            <div className={styles.titleQrCode}>
+              <QRCode
+                value={`https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`}
+                size={110}
+              />
+            </div>
+            {/* Realtime 이미지 */}
+            <div>
+              <Image
+                src='/images/realtime.svg'
+                alt='Realtime'
+                width={116}
+                height={42} // height 추가 필요
+              />
+            </div>
+            {/* 로고 */}
+            <div>
+              <Image
+                src='/images/logo.svg'
+                alt='Realtime'
+                width={410}
+                height={90} // height 추가 필요
+              />
             </div>
           </div>
         </div>

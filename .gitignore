@@ -1,2 +1,5 @@
 /node_modules/
 /packages/api/node_modules/
+.DS_Store
+packages/.DS_Store
+packages/client/.DS_Store

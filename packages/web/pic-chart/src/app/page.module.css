@@ -29,28 +29,18 @@
   overflow: hidden;
 }
 
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 1rem;
-}
-
 .titleBottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
   background: rgba(255, 255, 255, 0.1);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  gap: 29px;
+  padding-left: 13px;
+  padding-right: 13px;
 }
 
 .titleQrCode {
   background: white;
-  padding: 4px;
-  border-radius: 4px;
 }
 
 .titleImage {
@@ -85,6 +75,7 @@
   height: 535px;
   margin: 0 auto;
   z-index: 1;
+  gap: 37px; /* 기둥 간격 37px 설정 */
 }
 
 .rankItem {
@@ -101,19 +92,20 @@
 
 .rankItem:nth-child(2) {
   width: 172px;
-  height: 398.8px;
+  height: 378px;
+  margin-left: 39px;
 }
 
 .rankItem:nth-child(3) {
   width: 130px;
-  height: 355.2px;
+  height: 293.2px;
 }
 
 /* 순위 이미지 - 기둥 위에 배치 */
 .rankImage {
   display: flex;
   justify-content: center;
-  margin-bottom: 8px; /* 기둥과의 간격 */
+  margin-bottom: 16px; /* 기둥과의 간격 */
 }
 
 .rankItem:nth-child(1) .rankImage {
@@ -169,36 +161,6 @@
 
 .rankItem:nth-child(3) .voteCount {
   font-size: 20px;
-}
-
-.rankItem:nth-child(1) .logo {
-  font-size: 36px;
-}
-
-.rankItem:nth-child(2) .logo {
-  font-size: 28px;
-}
-
-.rankItem:nth-child(3) .logo {
-  font-size: 24px;
-}
-
-.rankItem:nth-child(1) .rankCrown {
-  width: 52px;
-  height: 52px;
-  top: -36px;
-}
-
-.rankItem:nth-child(2) .rankCrown {
-  width: 40px;
-  height: 40px;
-  top: -28px;
-}
-
-.rankItem:nth-child(3) .rankCrown {
-  width: 28px;
-  height: 28px;
-  top: -20px;
 }
 
 .rankCrown {
@@ -336,4 +298,4 @@
 
 .rankItem {
   position: relative; /* verticalName의 기준점 */
-} 
+}
