@@ -11,6 +11,7 @@ import Image from 'next/image';
 export default function HomePage() {
   const [voteData, setVoteData] = useState<VoteData>();
   const [currentHash, setCurrentHash] = useState<string>('dev');
+  const currentHashRef = useRef<string>('dev');
   const prevVotes = useRef<number[]>([]);
 
   useEffect(() => {
@@ -98,12 +99,13 @@ export default function HomePage() {
         }
         const { hash } = await response.json();
 
-        console.log('currentHash', currentHash);
+        console.log('currentHashRef', currentHashRef.current);
         console.log('hash', hash);
 
-        setCurrentHash(hash);
-
-        if (hash !== currentHash) {
+        if (currentHashRef.current === 'dev') {
+          currentHashRef.current = hash;
+          setCurrentHash(hash);
+        } else if (hash !== currentHashRef.current) {
           window.location.reload();
         }
       } catch (error) {
