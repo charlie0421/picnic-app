@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { RankCard } from '@/components/RankCard';
 import type { VoteData, VoteItem } from '@/types/database.types';
@@ -10,7 +10,6 @@ import Image from 'next/image';
 
 export default function HomePage() {
   const [voteData, setVoteData] = useState<VoteData>();
-  const [currentHash, setCurrentHash] = useState<string>('dev');
   const currentHashRef = useRef<string>('dev');
   const prevVotes = useRef<number[]>([]);
 
@@ -104,7 +103,6 @@ export default function HomePage() {
 
         if (currentHashRef.current === 'dev') {
           currentHashRef.current = hash;
-          setCurrentHash(hash);
         } else if (hash !== currentHashRef.current) {
           window.location.reload();
         }
