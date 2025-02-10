@@ -150,9 +150,6 @@ export default function HomePage() {
                     {voteData?.topThree[0].vote_total.toLocaleString()}
                   </motion.div>
                 </div>
-                <div className={styles.verticalName}>
-                  {voteData?.topThree[0].artist?.name['en'] || ''}
-                </div>
               </div>
             )}
 

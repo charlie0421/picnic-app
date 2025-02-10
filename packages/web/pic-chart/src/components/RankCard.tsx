@@ -77,8 +77,8 @@ export function RankCard({
             <Image
               src={`${cdnUrl}/${logoUrl}`}
               alt={`${displayName} Logo`}
-              width={48}
-              height={48}
+              width={rank === 1 ? 70 : rank === 2 ? 60 : 45}
+              height={rank === 1 ? 70 : rank === 2 ? 60 : 45}
             />
           )}
         </div>
@@ -96,12 +96,6 @@ export function RankCard({
         </div>
       )}
 
-      <div className={styles.qrCode}>
-        <QRCode
-          value={`https://www.picnic.fan/vote/detail/${rank}`}
-          size={96}
-        />
-      </div>
     </motion.div>
   );
 }
