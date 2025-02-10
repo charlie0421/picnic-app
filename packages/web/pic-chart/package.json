@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "git rev-parse HEAD > .git-hash && next build",
+    "vercel-build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
