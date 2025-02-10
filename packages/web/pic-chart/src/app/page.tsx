@@ -96,6 +96,9 @@ export default function HomePage() {
 
         setCurrentHash(hash);
 
+        console.log('currentHash', currentHash);
+        console.log('hash', hash);
+
         if (hash !== currentHash) {
           window.location.reload();
         }
