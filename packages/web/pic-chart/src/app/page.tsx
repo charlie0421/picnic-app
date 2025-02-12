@@ -8,12 +8,29 @@ import styles from './page.module.css';
 import QRCode from 'react-qr-code';
 import Image from 'next/image';
 
+// Branch SDK에 대한 간단한 타입 정의 (필요에 따라 확장하세요)
+interface BranchSDK {
+  init: (key: string) => void;
+  link: (
+    options: {
+      data: {
+        $canonical_url: string;
+        $desktop_url: string;
+        $og_title: string;
+        $og_description: string;
+      };
+    },
+    callback: (err: Error | null, link?: string) => void,
+  ) => void;
+}
+
 export default function HomePage() {
   const [voteData, setVoteData] = useState<VoteData>();
   const [shortUrl, setShortUrl] = useState<string>('');
   const lastVoteIdRef = useRef<string>('');
   const currentHashRef = useRef<string>('dev');
   const prevVotes = useRef<number[]>([]);
+  const [branchInstance, setBranchInstance] = useState<BranchSDK | null>(null);
 
   useEffect(() => {
     if (voteData !== undefined) {
@@ -127,9 +144,10 @@ export default function HomePage() {
     if (typeof window !== 'undefined') {
       (async () => {
         const branchModule = await import('branch-sdk');
-        const branch = branchModule.default;
+        const branch = branchModule.default as BranchSDK;
         if (process.env.NEXT_PUBLIC_BRANCH_KEY) {
           branch.init(process.env.NEXT_PUBLIC_BRANCH_KEY);
+          setBranchInstance(branch);
         } else {
           console.error('NEXT_PUBLIC_BRANCH_KEY가 정의되어 있지 않습니다.');
         }
@@ -137,36 +155,32 @@ export default function HomePage() {
     }
   }, []);
 
-  // voteData 업데이트시 동적 import를 통한 Branch의 Short URL 생성
+  // voteData 업데이트시 준비된 Branch 인스턴스를 통한 Short URL 생성
   useEffect(() => {
-    if (voteData?.voteInfo?.id && typeof window !== 'undefined') {
+    if (voteData?.voteInfo?.id && branchInstance) {
       // 같은 vote id에 대해 중복 호출 방지
       if (lastVoteIdRef.current === voteData.voteInfo.id) return;
       lastVoteIdRef.current = voteData.voteInfo.id;
-      (async () => {
-        const branchModule = await import('branch-sdk');
-        const branch = branchModule.default;
-        branch.link(
-          {
-            data: {
-              $canonical_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo?.id}`,
-              $desktop_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo?.id}`,
-              $og_title: voteData.voteInfo?.title['en'] || '',
-              $og_description: '투표 결과 확인하기',
-            },
+      branchInstance.link(
+        {
+          data: {
+            $canonical_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo?.id}`,
+            $desktop_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo?.id}`,
+            $og_title: voteData.voteInfo?.title['en'] || '',
+            $og_description: '투표 결과 확인하기',
           },
-          (err, link) => {
-            if (err) {
-              console.error('Branch short URL 생성 오류:', err);
-            } else {
-              setShortUrl(link || '');
-              console.log('link', link);
-            }
-          },
-        );
-      })();
+        },
+        (err, link) => {
+          if (err) {
+            console.error('Branch short URL 생성 오류:', err);
+          } else {
+            setShortUrl(link || '');
+            console.log('link', link);
+          }
+        },
+      );
     }
-  }, [voteData?.voteInfo?.id, voteData?.voteInfo?.title]);
+  }, [voteData?.voteInfo?.id, voteData?.voteInfo?.title, branchInstance]);
 
   // --------------------- 여기서부터 레이아웃 코드 ----------------------
   return (
