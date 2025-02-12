@@ -10,6 +10,8 @@ import Image from 'next/image';
 
 export default function HomePage() {
   const [voteData, setVoteData] = useState<VoteData>();
+  const [shortUrl, setShortUrl] = useState<string>('');
+  const lastVoteIdRef = useRef<string>('');
   const currentHashRef = useRef<string>('dev');
   const prevVotes = useRef<number[]>([]);
 
@@ -120,6 +122,52 @@ export default function HomePage() {
     return () => clearInterval(versionInterval);
   }, []);
 
+  // Branch SDK 초기화 (최초 한 번만 - 동적 import 사용)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (async () => {
+        const branchModule = await import('branch-sdk');
+        const branch = branchModule.default;
+        if (process.env.NEXT_PUBLIC_BRANCH_KEY) {
+          branch.init(process.env.NEXT_PUBLIC_BRANCH_KEY);
+        } else {
+          console.error('NEXT_PUBLIC_BRANCH_KEY가 정의되어 있지 않습니다.');
+        }
+      })();
+    }
+  }, []);
+
+  // voteData 업데이트시 동적 import를 통한 Branch의 Short URL 생성
+  useEffect(() => {
+    if (voteData?.voteInfo?.id && typeof window !== 'undefined') {
+      // 같은 vote id에 대해 중복 호출 방지
+      if (lastVoteIdRef.current === voteData.voteInfo.id) return;
+      lastVoteIdRef.current = voteData.voteInfo.id;
+      (async () => {
+        const branchModule = await import('branch-sdk');
+        const branch = branchModule.default;
+        branch.link(
+          {
+            data: {
+              $canonical_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo?.id}`,
+              $desktop_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo?.id}`,
+              $og_title: voteData.voteInfo?.title['en'] || '',
+              $og_description: '투표 결과 확인하기',
+            },
+          },
+          (err, link) => {
+            if (err) {
+              console.error('Branch short URL 생성 오류:', err);
+            } else {
+              setShortUrl(link || '');
+              console.log('link', link);
+            }
+          },
+        );
+      })();
+    }
+  }, [voteData?.voteInfo?.id, voteData?.voteInfo?.title]);
+
   // --------------------- 여기서부터 레이아웃 코드 ----------------------
   return (
     <div className={styles.container}>
@@ -220,7 +268,11 @@ export default function HomePage() {
             {/* QR 코드 */}
             <div className={styles.titleQrCode}>
               <QRCode
-                value={`https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`}
+                value={
+                  // shortUrl가 존재하면 shortUrl, 아니면 기존 URL 사용
+                  shortUrl ||
+                  `https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`
+                }
                 size={110}
               />
             </div>
