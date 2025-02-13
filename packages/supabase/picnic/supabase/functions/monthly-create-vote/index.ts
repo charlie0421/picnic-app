@@ -3,21 +3,33 @@
 // This enables autocomplete, go to definition, etc.
 
 // Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
+// 새로 추가: deno 표준 http 서버에서 serve 함수 임포트
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+// 새로운 서비스 호출을 위한 임포트 (경로는 실제 디렉토리 구조에 맞게 조정)
+import { createMonthlyVote } from '../_shared/services/monthlyVoteService.ts';
 
-console.log("Hello from Functions!")
+console.log('Hello from Functions!');
 
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+// handler 함수 내부에서 서비스를 호출하여 월별 투표 생성 로직을 수행
+const handler = async (req: Request) => {
+  try {
+    // 필요한 경우 요청 데이터를 파싱하여 인자로 전달할 수 있음
+    const result = await createMonthlyVote();
+    return new Response(
+      JSON.stringify({ message: 'Vote created successfully', result }),
+      { headers: { 'Content-Type': 'application/json' } },
+    );
+  } catch (err) {
+    console.error('Error in create vote: ', err);
+    return new Response(
+      JSON.stringify({ error: 'Failed to create vote', details: err.message }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
+    );
   }
+};
 
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
+serve(handler);
 
 /* To invoke locally:
 
