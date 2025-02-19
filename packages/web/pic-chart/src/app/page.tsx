@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { RankCard } from '@/components/RankCard';
 import type { VoteData, VoteItem } from '@/types/database.types';
-import styles from '@/app/page.module.css';
+import styles from './page.module.css';
 import QRCode from 'react-qr-code';
 import Image from 'next/image';
 
-// Branch SDK에 대한 간단한 타입 정의
+// Branch SDK에 대한 간단한 타입 정의 (필요에 따라 확장하세요)
 interface BranchSDK {
   init: (key: string) => void;
   link: (
@@ -24,10 +24,11 @@ interface BranchSDK {
   ) => void;
 }
 
-export default function HomePageClient() {
+export default function HomePage() {
   const [voteData, setVoteData] = useState<VoteData>();
   const [shortUrl, setShortUrl] = useState<string>('');
   const lastVoteIdRef = useRef<string>('');
+  const currentHashRef = useRef<string>('dev');
   const prevVotes = useRef<number[]>([]);
   const [branchInstance, setBranchInstance] = useState<BranchSDK | null>(null);
 
@@ -38,7 +39,7 @@ export default function HomePageClient() {
     }
   }, [voteData]);
 
-  // 1초 간격으로 투표 데이터를 fetch (실시간 업데이트)
+  // 1초 폴링 & 버전 체크는 기존 코드 동일 ---------------------------
   useEffect(() => {
     const fetchVotes = async () => {
       const { data, error } = await supabase
@@ -64,8 +65,14 @@ export default function HomePageClient() {
                 created_at,
                 updated_at,
                 deleted_at
-              )
-            )
+              ),
+              created_at,
+              updated_at,
+              deleted_at
+            ),
+            created_at,
+            updated_at,
+            deleted_at
           )
         `,
         )
@@ -100,7 +107,39 @@ export default function HomePageClient() {
     return () => clearInterval(interval);
   }, []);
 
-  // Branch SDK 초기화 (동적 import)
+  useEffect(() => {
+    const checkVersion = async () => {
+      try {
+        console.log('Fetching version...');
+        const response = await fetch('/api/version');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const { hash } = await response.json();
+
+        console.log('currentHashRef', currentHashRef.current);
+        console.log('hash', hash);
+
+        if (currentHashRef.current === 'dev') {
+          currentHashRef.current = hash;
+        } else if (hash !== currentHashRef.current) {
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error('버전 체크 중 오류 발생:', {
+          message: (error as Error).message,
+          stack: (error as Error).stack,
+          url: '/api/version',
+        });
+      }
+    };
+
+    checkVersion();
+    const versionInterval = setInterval(checkVersion, 60000);
+    return () => clearInterval(versionInterval);
+  }, []);
+
+  // Branch SDK 초기화 (최초 한 번만 - 동적 import 사용)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (async () => {
@@ -116,7 +155,7 @@ export default function HomePageClient() {
     }
   }, []);
 
-  // voteData 업데이트 시 Branch 인스턴스를 통한 Short URL 생성
+  // voteData 업데이트시 준비된 Branch 인스턴스를 통한 Short URL 생성
   useEffect(() => {
     if (voteData?.voteInfo?.id && branchInstance) {
       // 같은 vote id에 대해 중복 호출 방지
@@ -125,8 +164,8 @@ export default function HomePageClient() {
       branchInstance.link(
         {
           data: {
-            $canonical_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo.id}`,
-            $desktop_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo.id}`,
+            $canonical_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo?.id}`,
+            $desktop_url: `https://applink.picnic.fan/vote/detail/${voteData.voteInfo?.id}`,
             $og_title: voteData.voteInfo?.title['en'] || '',
             $og_description: '투표 결과 확인하기',
           },
@@ -143,6 +182,7 @@ export default function HomePageClient() {
     }
   }, [voteData?.voteInfo?.id, voteData?.voteInfo?.title, branchInstance]);
 
+  // --------------------- 여기서부터 레이아웃 코드 ----------------------
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -154,7 +194,7 @@ export default function HomePageClient() {
               <div className={styles.rankItem}>
                 <div className={styles.rankImage}>
                   <Image
-                    src='./images/1st.svg'
+                    src='/images/1st.svg'
                     alt='1st'
                     width={60}
                     height={50}
@@ -162,13 +202,13 @@ export default function HomePageClient() {
                 </div>
                 <div className={styles.rankPillar}>
                   <RankCard
-                    key={voteData.topThree[0].id}
+                    key={voteData?.topThree[0].id}
                     rank={1}
-                    name={voteData.topThree[0].artist?.name['en'] || ''}
-                    votes={voteData.topThree[0].vote_total}
-                    photoUrl={voteData.topThree[0].artist?.image}
+                    name={voteData?.topThree[0].artist?.name['en'] || ''}
+                    votes={voteData?.topThree[0].vote_total}
+                    photoUrl={voteData?.topThree[0].artist?.image}
                     groupName={
-                      voteData.topThree[0].artist?.artist_group?.name['en'] ||
+                      voteData?.topThree[0].artist?.artist_group?.name['en'] ||
                       ''
                     }
                   />
@@ -181,7 +221,7 @@ export default function HomePageClient() {
               <div className={styles.rankItem}>
                 <div className={styles.rankImage}>
                   <Image
-                    src='./images/2nd.svg'
+                    src='/images/2nd.svg'
                     alt='2nd'
                     width={66}
                     height={40}
@@ -189,16 +229,17 @@ export default function HomePageClient() {
                 </div>
                 <div className={styles.rankPillar}>
                   <RankCard
-                    key={voteData.topThree[1].id}
+                    key={voteData?.topThree[1].id}
                     rank={2}
-                    name={voteData.topThree[1].artist?.name['en'] || ''}
-                    votes={voteData.topThree[1].vote_total}
-                    photoUrl={voteData.topThree[1].artist?.image}
+                    name={voteData?.topThree[1].artist?.name['en'] || ''}
+                    votes={voteData?.topThree[1].vote_total}
+                    photoUrl={voteData?.topThree[1].artist?.image}
                     groupName={
-                      voteData.topThree[1].artist?.artist_group?.name['en'] ||
+                      voteData?.topThree[1].artist?.artist_group?.name['en'] ||
                       ''
                     }
                   />
+                  {/* 2, 3등에는 이름 표시 없음 */}
                 </div>
               </div>
             )}
@@ -208,7 +249,7 @@ export default function HomePageClient() {
               <div className={styles.rankItem}>
                 <div className={styles.rankImage}>
                   <Image
-                    src='./images/3rd.svg'
+                    src='/images/3rd.svg'
                     alt='3rd'
                     width={45}
                     height={30}
@@ -216,27 +257,33 @@ export default function HomePageClient() {
                 </div>
                 <div className={styles.rankPillar}>
                   <RankCard
-                    key={voteData.topThree[2].id}
+                    key={voteData?.topThree[2].id}
                     rank={3}
-                    name={voteData.topThree[2].artist?.name['en'] || ''}
-                    votes={voteData.topThree[2].vote_total}
-                    photoUrl={voteData.topThree[2].artist?.image}
+                    name={voteData?.topThree[2].artist?.name['en'] || ''}
+                    votes={voteData?.topThree[2].vote_total}
+                    photoUrl={voteData?.topThree[2].artist?.image}
                     groupName={
-                      voteData.topThree[2].artist?.artist_group?.name['en'] ||
+                      voteData?.topThree[2].artist?.artist_group?.name['en'] ||
                       ''
                     }
                   />
+                  {/* 2, 3등에는 이름 표시 없음 */}
                 </div>
               </div>
             )}
           </div>
 
-          {/* 타이틀 영역: 버전 정보, QR 코드, Realtime 이미지, 로고 등 */}
+          {/* 타이틀 */}
           <div className={styles.titleBottom}>
+            {/* 버전 정보 */}
+            {/* <div className={styles.versionInfo}>
+              v.{currentHash.slice(0, 7)}
+            </div> */}
             {/* QR 코드 */}
             <div className={styles.titleQrCode}>
               <QRCode
                 value={
+                  // shortUrl가 존재하면 shortUrl, 아니면 기존 URL 사용
                   shortUrl ||
                   `https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`
                 }
@@ -246,7 +293,7 @@ export default function HomePageClient() {
             {/* Realtime 이미지 */}
             <div>
               <Image
-                src='./images/realtime.svg'
+                src='/images/realtime.svg'
                 alt='Realtime'
                 width={116}
                 height={42}
@@ -255,10 +302,10 @@ export default function HomePageClient() {
             {/* 로고 */}
             <div>
               <Image
-                src='./images/logo.svg'
-                alt='Logo'
+                src='/images/logo.svg'
+                alt='Realtime'
                 width={410}
-                height={90}
+                height={90} // height 추가 필요
               />
             </div>
           </div>
@@ -267,7 +314,7 @@ export default function HomePageClient() {
         {/* 오른쪽: 광고 영역 */}
         <div className={styles.adSection}>
           <video className={styles.adVideo} autoPlay loop muted playsInline>
-            <source src='./480_768.mp4' type='video/mp4' />
+            <source src='/480_768.mp4' type='video/mp4' />
           </video>
         </div>
       </div>
