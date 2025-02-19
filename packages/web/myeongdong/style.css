@@ -1,0 +1,301 @@
+/* 전체 페이지에 Pretendard 폰트를 적용 */
+body {
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* 로컬 폰트: Pretendard - Regular */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('./fonts/Pretendard-Regular.woff2') format('woff2'),
+       url('./fonts/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* 로컬 폰트: Pretendard - Bold */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('./fonts/Pretendard-Bold.woff2') format('woff2'),
+       url('./fonts/Pretendard-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+}
+
+/* 컨테이너 및 전체 레이아웃 */
+.page_container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.page_content {
+  width: 1248px;
+  height: 768px;
+  display: flex;
+}
+
+/* 투표 현황 영역 스타일 */
+.page_rankingSection {
+  width: 768px;
+  height: 768px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-image: url('images/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* 순위 리스트 */
+.page_rankingList {
+  width: 696px;
+  height: 540px;
+  background: white;
+  border-radius: 36px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin: 0 auto;
+}
+
+/* 각 순위 아이템 */
+.rankItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 36px 0 36px;
+}
+
+.rankItem:nth-child(1) {
+  width: 198px;
+  height: 499px;
+}
+
+.rankItem:nth-child(2) {
+  width: 172px;
+  height: 378px;
+  margin-left: 39px;
+}
+
+.rankItem:nth-child(3) {
+  width: 130px;
+  height: 293.2px;
+}
+
+.rankItem img {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: top;
+  margin-bottom: 10px;
+}
+
+/* 순위 이미지 */
+.rankImage1 {
+  display: flex;
+  justify-content: center;
+}
+
+.rankImage2 {
+  display: flex;
+  justify-content: center;
+}
+
+.rankImage3 {
+  display: flex;
+  justify-content: center;
+}
+
+.rankImage1 img {
+  width: 60px;
+  height: 50px;
+}
+
+.rankImage2 img {
+  width: 66px;
+  height: 40px;
+}
+
+.rankImage3 img {
+  width: 45px;
+  height: 30px;
+}
+
+/* 기둥 영역 */
+.rankPillar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(180deg, #9374FF 0%, rgba(147, 116, 255, 0) 100%);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 4px 8px rgba(255, 255, 255, 0.25),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 투표 수 스타일 */
+.voteCount {
+  color: #FF4D00;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-weight: bold;
+  text-align: center;
+  font-size: 30px;
+}
+
+/* 새로 추가: 투표 수 컨테이너 (남은 기둥 영역에 중앙 정렬) */
+.voteCountWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* 그룹명 공통 스타일 수정 */
+[class^="groupName"] {
+  font-weight: bold;
+  font-style: italic;
+  text-align: center;
+  background-color: #ffffff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.groupName1 {
+  height: 70px;
+  font-size: 24px;
+}
+
+.groupName2 {
+  height: 60px;
+  font-size: 20px;
+}
+
+.groupName3 {
+  height: 45px;
+  font-size: 16px;
+}
+
+/* 새로 추가: vote count 변경 애니메이션 */
+@keyframes voteChange {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.voteCount.animate {
+  animation: voteChange 0.5s ease-in-out;
+}
+
+/* 새로 추가: 등수에 따른 vote count 크기 차별화 */
+.voteCount1 {
+  font-size: 30px;
+}
+.voteCount2 {
+  font-size: 20px;
+}
+.voteCount3 {
+  font-size: 14px;
+}
+
+/* RankCard 관련 스타일 (세로 텍스트 등) */
+.verticalName {
+  position: absolute;
+  right: -50px;
+  top: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: 900;
+  color: black;
+  letter-spacing: 2px;
+  font-family: 'Pretendard', sans-serif;
+  text-align: left;
+  line-height: 38.4px;
+  text-transform: uppercase;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  font-size: 32px;
+}
+
+/* 하단 타이틀 영역 */
+.page_titleBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.1);
+  gap: 29px;
+  padding-top: 30px;
+  padding-left: 36px;
+  padding-right: 36px;
+  position: relative;
+  padding-bottom: 32px;
+}
+
+/* QR 코드 영역 */
+.page_titleQrCode {
+  background: white;
+  width: 110px;
+  height: 110px;
+}
+
+/* 광고 영역 */
+.page_adSection {
+  width: 480px;
+  height: 768px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page_adVideo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 간단한 카드 및 그룹명 스타일 */
+.card img {
+  width: 100%;
+  height: auto;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.card > img {
+  margin-bottom: 0;
+} 
