@@ -76,7 +76,7 @@ export default function HomePage() {
           )
         `,
         )
-        .eq('vote_category', 'birthday')
+        // .eq('vote_category', 'birthday')
         .lte('start_at', 'now()')
         .gte('stop_at', 'now()')
         .order('vote_total', { ascending: false, foreignTable: 'vote_item' })
