@@ -314,7 +314,7 @@ export default function HomePage() {
         {/* 오른쪽: 광고 영역 */}
         <div className={styles.adSection}>
           <video className={styles.adVideo} autoPlay loop muted playsInline>
-            <source src='/480_768.mp4' type='video/mp4' />
+            <source src='/videos/picnic.mp4' type='video/mp4' />
           </video>
         </div>
       </div>

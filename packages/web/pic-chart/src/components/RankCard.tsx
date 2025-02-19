@@ -57,7 +57,7 @@ export function RankCard({
         {photoUrl ? (
           <div className={styles.image}>
             <Image
-              src={`${cdnUrl}/${photoUrl}?w=${photoSize}`}
+              src={`${cdnUrl}/${photoUrl}?w=${photoSize * 2}&q=90`}
               alt={displayName}
               fill
               sizes={`${photoSize}px`}
