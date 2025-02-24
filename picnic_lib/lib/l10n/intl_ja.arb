@@ -1712,5 +1712,7 @@
     "withdrawal_success": "退会が正常に処理されました。",
     "@withdrawal_success": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
-    }
+    },
+    "voting_limit_text": "トラフィック急増防止のため、全体の使用は一度に1万個まで可能です。",
+    "voting_limit_warning" : "最大1万個までしかできません"
 }

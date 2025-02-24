@@ -697,6 +697,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "vote_result_share_button":
             MessageLookupByLibrary.simpleMessage("分享您的成果"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("投了赞成票！"),
+        "voting_limit_text":
+            MessageLookupByLibrary.simpleMessage("为防流量激增，总使用量一次最多1万个。"),
+        "voting_limit_warning":
+            MessageLookupByLibrary.simpleMessage("最多只能使用1万个。"),
         "voting_share_benefit_text":
             MessageLookupByLibrary.simpleMessage("每 100 次投票和分享可获得 1 个奖励星星糖果！"),
         "withdrawal_success": MessageLookupByLibrary.simpleMessage("退订已成功处理.")

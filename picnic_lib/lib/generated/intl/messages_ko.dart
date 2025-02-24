@@ -754,6 +754,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "vote_result_share_button":
             MessageLookupByLibrary.simpleMessage("결과 공유"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("투표 완료!"),
+        "voting_limit_text": MessageLookupByLibrary.simpleMessage(
+            "급격한 트래픽 증가 방지를 위해 전체 사용은 한 번에 1만개 까지 가능합니다."),
+        "voting_limit_warning":
+            MessageLookupByLibrary.simpleMessage("최대 1만개 까지만 가능해요."),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
             "100개 이상 투표 후 공유하면 100개당 1개 보너스 별사탕 지급!"),
         "withdrawal_success":

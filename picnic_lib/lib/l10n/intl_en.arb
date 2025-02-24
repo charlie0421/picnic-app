@@ -1898,5 +1898,7 @@
     "withdrawal_success": "The unsubscribe was processed successfully.",
     "@withdrawal_success": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
-    }
+    },
+    "voting_limit_text": "To prevent traffic surges, total usage is limited to 10,000 at a time.",
+    "voting_limit_warning" : "Only up to 10,000 is allowed."
 }

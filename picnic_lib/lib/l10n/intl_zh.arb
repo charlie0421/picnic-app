@@ -1712,5 +1712,9 @@
     "withdrawal_success": "退订已成功处理.",
     "@withdrawal_success": {
         "translationTimestamp": "2024-07-21T11:18:53.669108"
-    }
+    },
+    "voting_limit_text": "为防流量激增，总使用量一次最多1万个。",
+    "voting_limit_warning" : "最多只能使用1万个。"
+
+
 }
