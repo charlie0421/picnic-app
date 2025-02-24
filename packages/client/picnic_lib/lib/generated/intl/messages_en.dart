@@ -844,6 +844,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "vote_result_share_button":
             MessageLookupByLibrary.simpleMessage("Share your results"),
         "vote_share_message": MessageLookupByLibrary.simpleMessage("Voted!"),
+        "voting_limit_text": MessageLookupByLibrary.simpleMessage(
+            "To prevent traffic surges, total usage is limited to 10,000 at a time."),
+        "voting_limit_warning": MessageLookupByLibrary.simpleMessage(
+            "Only up to 10,000 is allowed."),
         "voting_share_benefit_text": MessageLookupByLibrary.simpleMessage(
             "Get 1 bonus star candy for every 100 votes and share!"),
         "withdrawal_success": MessageLookupByLibrary.simpleMessage(

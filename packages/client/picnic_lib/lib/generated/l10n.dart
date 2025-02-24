@@ -4349,6 +4349,26 @@ class S {
       args: [],
     );
   }
+
+  /// `To prevent traffic surges, total usage is limited to 10,000 at a time.`
+  String get voting_limit_text {
+    return Intl.message(
+      'To prevent traffic surges, total usage is limited to 10,000 at a time.',
+      name: 'voting_limit_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only up to 10,000 is allowed.`
+  String get voting_limit_warning {
+    return Intl.message(
+      'Only up to 10,000 is allowed.',
+      name: 'voting_limit_warning',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
