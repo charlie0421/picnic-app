@@ -46,7 +46,7 @@ dependencies:
   overlay_support: ^2.1.0
   screen_protector: ^1.4.2+1
   bubble_box: ^0.5.3
-  supabase_flutter: ^2.8.2
+  supabase_flutter: ^2.8.4
   google_sign_in: ^6.2.2
   sign_in_with_apple: ^6.1.4
   kakao_flutter_sdk_user: ^1.9.6
