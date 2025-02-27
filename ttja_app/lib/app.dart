@@ -112,15 +112,20 @@ class _AppState extends ConsumerState<App> {
 
     return MaterialApp(
       home: FutureBuilder(
-        future: _initializationFuture,
+        future: Future.wait([
+          _initializationFuture,
+          // 최소 3초 대기
+          Future.delayed(const Duration(seconds: 3)),
+        ]),
         builder: (context, snapshot) {
-          if (initState.isInitialized) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              initState.isInitialized) {
             return _buildNextScreen();
           } else {
             return AnimatedOpacity(
               opacity: 1.0,
               duration: const Duration(milliseconds: 1500),
-              child: SplashImage(ref: ref),
+              child: const SplashImage(),
             );
           }
         },

@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/supabase_options.dart';
+
+class SplashImageData {
+  final String imageUrl;
+  final DateTime startDate;
+  final DateTime endDate;
+
+  SplashImageData({
+    required this.imageUrl,
+    required this.startDate,
+    required this.endDate,
+  });
+}
 
 class SplashImage extends ConsumerStatefulWidget {
-  final WidgetRef ref;
-
   const SplashImage({
     super.key,
-    required this.ref,
   });
 
   @override
@@ -16,29 +27,65 @@ class SplashImage extends ConsumerStatefulWidget {
 }
 
 class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
+  String? scheduledSplashUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchScheduledSplashImage();
+    });
+  }
+
+  Future<void> _fetchScheduledSplashImage() async {
+    logger.d('스플래시 이미지 fetch 시작');
+    try {
+      // Supabase RPC 함수 호출
+      final response =
+          await supabase.rpc('get_current_splash_image').maybeSingle();
+
+      logger.d('스플래시 response: $response');
+
+      // response.data가 null 이면, 현재 노출할 이미지가 없다는 의미
+      if (response == null) {
+        logger.d('스플래시 이미지 없음');
+        return;
+      }
+
+      final splashData = SplashImageData(
+        imageUrl: getLocaleTextFromJson(response['image']),
+        startDate: DateTime.parse(response['start_at'] as String),
+        endDate: DateTime.parse(response['end_at'] as String),
+      );
+
+      logger.d('스플래시 데이터: $splashData');
+
+      setState(() {
+        scheduledSplashUrl = splashData.imageUrl;
+
+        logger.d('스플래시 이미지 url: $scheduledSplashUrl');
+      });
+    } catch (e, stack) {
+      logger.e('스플래시 이미지 fetch 실패: $e\n$stack');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
+      fit: StackFit.expand,
       children: [
-        Center(
-          child: Image.asset(
-            'assets/splash.webp',
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          ),
+        // 1) 기본(로컬) 스플래시 이미지
+        Image.asset(
+          'assets/splash.webp',
+          fit: BoxFit.cover,
         ),
-        if (!ref.watch(appInitializationProvider).isInitialized)
-          Positioned(
-            bottom: 100,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(AppColors.secondary500),
-              ),
-            ),
+
+        // 2) 서버에서 조회된 이미지가 있으면 덮어씌우기
+        if (scheduledSplashUrl != null)
+          PicnicCachedNetworkImage(
+            imageUrl: scheduledSplashUrl!,
+            fit: BoxFit.contain,
           ),
       ],
     );
