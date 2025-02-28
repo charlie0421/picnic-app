@@ -9,6 +9,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/pincruxOfferwallPlugin.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
@@ -26,6 +28,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
+import 'package:universal_io/io.dart';
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -182,13 +185,29 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     } finally {}
   }
 
+  Future<void> _showPincruxOfferwall() async {
+    logger.i('showPincruxOfferwall');
+    try {
+      PincruxOfferwallPlugin.init(
+          Platform.isIOS
+              ? Environment.pincruxIosAppKey
+              : Environment.pincruxAndroidAppKey,
+          supabase.auth.currentUser!.id);
+      PincruxOfferwallPlugin.setOfferwallType(1);
+      PincruxOfferwallPlugin.startPincruxOfferwall();
+    } catch (e, s) {
+      logger.e('Error in _showPincruxOfferwall', error: e, stackTrace: s);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FreeChargeContent(
       buttonScaleAnimation: _buttonScaleAnimation,
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
       onAdButtonPressed: _showRewardedAdmob,
-      onMissionPressed: _showTapjoyMission,
+      onTajoyPressed: _showTapjoyMission,
+      onPincruxOfferwallPressed: _showPincruxOfferwall,
       rotationController: _rotationController,
     );
   }
@@ -198,7 +217,8 @@ class FreeChargeContent extends ConsumerWidget {
   final Animation<double> buttonScaleAnimation;
   final VoidCallback onPolicyTap;
   final Function(int) onAdButtonPressed;
-  final VoidCallback onMissionPressed;
+  final VoidCallback onTajoyPressed;
+  final VoidCallback onPincruxOfferwallPressed;
   final VoidCallback? onRetryBannerAd;
   final AnimationController rotationController;
 
@@ -207,7 +227,8 @@ class FreeChargeContent extends ConsumerWidget {
     required this.buttonScaleAnimation,
     required this.onPolicyTap,
     required this.onAdButtonPressed,
-    required this.onMissionPressed,
+    required this.onTajoyPressed,
+    required this.onPincruxOfferwallPressed,
     required this.rotationController,
     this.onRetryBannerAd,
   });
@@ -265,7 +286,9 @@ class FreeChargeContent extends ConsumerWidget {
           ),
           const SizedBox(height: 18),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildMissionSection(ref, context),
+          _buildMissionTapjoy(ref, context),
+          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
+          _buildMissionPincrux(ref, context),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 0, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
@@ -277,14 +300,32 @@ class FreeChargeContent extends ConsumerWidget {
     );
   }
 
-  Widget _buildMissionSection(ref, BuildContext context) {
+  Widget _buildMissionTapjoy(ref, BuildContext context) {
     return StoreListTile(
       title: Text(
-        S.of(context).label_button_mission_and_charge,
+        '${S.of(context).label_button_mission_and_charge} #1',
         style: getTextStyle(AppTypo.body14B, AppColors.grey900)
             .copyWith(height: 1),
       ),
-      buttonOnPressed: onMissionPressed,
+      buttonOnPressed: onTajoyPressed,
+      icon: Image.asset(
+        package: 'picnic_lib',
+        'assets/icons/store/star_100.png',
+        width: 48.cw,
+        height: 48.cw,
+      ),
+      buttonText: S.of(context).label_mission,
+    );
+  }
+
+  Widget _buildMissionPincrux(ref, BuildContext context) {
+    return StoreListTile(
+      title: Text(
+        '${S.of(context).label_button_mission_and_charge} #2',
+        style: getTextStyle(AppTypo.body14B, AppColors.grey900)
+            .copyWith(height: 1),
+      ),
+      buttonOnPressed: onPincruxOfferwallPressed,
       icon: Image.asset(
         package: 'picnic_lib',
         'assets/icons/store/star_100.png',

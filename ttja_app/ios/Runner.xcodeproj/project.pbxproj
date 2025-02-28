@@ -16,6 +16,8 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		B9202B22D961F1751DD81DD6 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81E7E8ABDC418E52DB19863B /* Pods_RunnerTests.framework */; };
+		E1C4099B2D71973000AC2749 /* PincruxOfferwall.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1C4099A2D71973000AC2749 /* PincruxOfferwall.xcframework */; };
+		E1C4099C2D71973000AC2749 /* PincruxOfferwall.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E1C4099A2D71973000AC2749 /* PincruxOfferwall.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F9CEFDC9EC31BB7419AEA081 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4EA50B04E18B11BC1A64D976 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +38,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				E1C4099C2D71973000AC2749 /* PincruxOfferwall.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -66,6 +69,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DC95EE1D5E1582B8761BBB5 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
+		E1C4099A2D71973000AC2749 /* PincruxOfferwall.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PincruxOfferwall.xcframework; path = Frameworks/PincruxOfferwall.xcframework; sourceTree = "<group>"; };
 		E1FAB90D2D30B3AE00207F41 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		F99CB755BEB162D30655DE53 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -75,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1C4099B2D71973000AC2749 /* PincruxOfferwall.xcframework in Frameworks */,
 				F9CEFDC9EC31BB7419AEA081 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,6 +106,7 @@
 		8E44E8F6A1FCFDD5EBA24465 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E1C4099A2D71973000AC2749 /* PincruxOfferwall.xcframework */,
 				4EA50B04E18B11BC1A64D976 /* Pods_Runner.framework */,
 				81E7E8ABDC418E52DB19863B /* Pods_RunnerTests.framework */,
 			);
