@@ -108,4 +108,10 @@ class Environment {
   static String get branchKey => _config['BRANCH_KEY'] as String;
 
   static String get appLinkPrefix => _config['APP_LINK_PREFIX'] as String;
+
+  static String get pincruxAndroidAppKey =>
+      _config['PINCRUX_ANDROID_APP_KEY'] as String;
+
+  static String get pincruxIosAppKey =>
+      _config['PINCRUX_IOS_APP_KEY'] as String;
 }

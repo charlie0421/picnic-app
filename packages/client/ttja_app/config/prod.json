@@ -37,5 +37,7 @@
   "INAPP_APPNAME_PREFIX": "TTJA_",
   "DOWNLOAD_LINK": "https://www.ttja.net/download.html",
   "BRANCH_KEY": "key_live_cveOHIXaGzRcWLguNfY3LjgbxFoTfuE6",
-  "APP_LINK_PREFIX": "https://applink.ttja.net"
+  "APP_LINK_PREFIX": "https://applink.ttja.net",
+  "PINCRUX_ANDROID_APP_KEY": "911884",
+  "PINCRUX_IOS_APP_KEY": "911885"
 }
