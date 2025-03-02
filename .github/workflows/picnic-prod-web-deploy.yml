@@ -15,7 +15,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          version: "3.30.0-1.0.pre.425"
+          flutter-version: "3.30.0-1.0.pre.425"
 
       - name: Flutter web build
         working-directory: packages/client/picnic_app
