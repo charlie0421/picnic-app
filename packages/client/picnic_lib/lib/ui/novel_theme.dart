@@ -37,7 +37,7 @@ ThemeData novelThemeLight = ThemeData.light().copyWith(
       padding: WidgetStateProperty.all(const EdgeInsets.all(4)),
     ),
   ),
-  tabBarTheme: commonTabBarTheme as TabBarThemeData,
+  tabBarTheme: commonTabBarTheme,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
     primary: Colors.black,
@@ -51,5 +51,5 @@ ThemeData novelThemeLight = ThemeData.light().copyWith(
     brightness: Brightness.light,
   ),
   bottomSheetTheme: commonBottomSheetTheme,
-  dialogTheme: commonDialogTheme as DialogThemeData,
+  dialogTheme: commonDialogTheme,
 );

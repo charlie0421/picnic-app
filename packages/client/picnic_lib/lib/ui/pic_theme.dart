@@ -55,7 +55,7 @@ ThemeData picThemeLight = ThemeData.light().copyWith(
         ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap),
   ),
-  tabBarTheme: commonTabBarTheme as TabBarThemeData,
+  tabBarTheme: commonTabBarTheme,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
     primary: Colors.black,
@@ -69,5 +69,5 @@ ThemeData picThemeLight = ThemeData.light().copyWith(
     brightness: Brightness.light,
   ),
   bottomSheetTheme: commonBottomSheetTheme,
-  dialogTheme: commonDialogTheme as DialogThemeData,
+  dialogTheme: commonDialogTheme,
 );

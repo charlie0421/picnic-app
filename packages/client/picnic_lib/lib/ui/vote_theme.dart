@@ -14,7 +14,7 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
   scaffoldBackgroundColor: AppColors.grey00,
   elevatedButtonTheme: getElevatedButtonThemeData(
       borderColor: AppColors.sub500, textColor: AppColors.grey00),
-  tabBarTheme: commonTabBarTheme as TabBarThemeData,
+  tabBarTheme: commonTabBarTheme,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
     primary: Colors.black,
@@ -28,5 +28,5 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
     brightness: Brightness.light,
   ),
   bottomSheetTheme: commonBottomSheetTheme,
-  dialogTheme: commonDialogTheme as DialogThemeData,
+  dialogTheme: commonDialogTheme,
 );

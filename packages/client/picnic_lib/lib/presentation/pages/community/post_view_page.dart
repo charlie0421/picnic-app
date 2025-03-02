@@ -373,10 +373,11 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     }
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 100),
-      child: quill.QuillEditor.basic(
+      child: quill.QuillEditor(
         controller: _quillController!,
+        scrollController: ScrollController(),
         focusNode: AlwaysDisabledFocusNode(),
-        config: quill.QuillEditorConfig(
+        configurations: quill.QuillEditorConfigurations(
           embedBuilders: [
             LinkEmbedBuilder(),
             YouTubeEmbedBuilder(),
