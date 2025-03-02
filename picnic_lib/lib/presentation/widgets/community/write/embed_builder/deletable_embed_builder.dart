@@ -15,11 +15,10 @@ class DeletableEmbedBuilder extends EmbedBuilder {
   String get key => embedType;
 
   @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle textStyle) {
+  Widget build(BuildContext context, EmbedContext embedContext) {
     return _DeletableEmbedWidget(
-      controller: controller,
-      node: node,
+      controller: embedContext.controller,
+      node: embedContext.node,
       embedType: embedType,
       contentBuilder: contentBuilder,
     );

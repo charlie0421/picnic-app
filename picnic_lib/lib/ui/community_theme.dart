@@ -14,7 +14,7 @@ ThemeData communityThemeLight = ThemeData.light().copyWith(
   scaffoldBackgroundColor: AppColors.grey00,
   elevatedButtonTheme: getElevatedButtonThemeData(
       borderColor: AppColors.sub500, textColor: AppColors.grey00),
-  tabBarTheme: commonTabBarTheme,
+  tabBarTheme: commonTabBarTheme as TabBarThemeData,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
     primary: Colors.black,
@@ -28,5 +28,5 @@ ThemeData communityThemeLight = ThemeData.light().copyWith(
     brightness: Brightness.light,
   ),
   bottomSheetTheme: commonBottomSheetTheme,
-  dialogTheme: commonDialogTheme,
+  dialogTheme: commonDialogTheme as DialogThemeData,
 );
