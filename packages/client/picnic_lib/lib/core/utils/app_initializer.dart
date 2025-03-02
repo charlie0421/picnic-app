@@ -245,9 +245,10 @@ class AppInitializer {
 
       if (isMobile()) {
         await _initializeMobileApp(ref);
-      } else {
         await _loadProducts(ref);
         logger.i('제품 정보 로드 완료');
+      } else {
+        logger.i('데스크탑 앱 초기화 완료');
       }
 
       if (!context.mounted) return;
