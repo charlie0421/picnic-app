@@ -14,8 +14,9 @@ class YouTubeEmbedBuilder extends EmbedBuilder {
   String get key => 'youtube';
 
   @override
-  Widget build(BuildContext context, EmbedContext embedContext) {
-    return _YouTubeEmbedContent(node: embedContext.node);
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle textStyle) {
+    return _YouTubeEmbedContent(node: node);
   }
 }
 

@@ -28,8 +28,9 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
   String get key => 'local-image';
 
   @override
-  Widget build(BuildContext context, EmbedContext embedContext) {
-    final imageUrl = embedContext.node.value.data;
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle textStyle) {
+    final imageUrl = node.value.data;
     return FutureBuilder<String>(
       future: _uploadImage(imageUrl),
       builder: (context, snapshot) {
@@ -141,8 +142,9 @@ class NetworkImageEmbedBuilder extends EmbedBuilder {
   String get key => BlockEmbed.imageType;
 
   @override
-  Widget build(BuildContext context, EmbedContext embedContext) {
-    final imageUrl = embedContext.node.value.data;
+  Widget build(BuildContext context, QuillController controller, Embed node,
+      bool readOnly, bool inline, TextStyle? textStyle) {
+    final imageUrl = node.value.data;
     final screenWidth = getPlatformScreenSize(context).width;
     final width = screenWidth / 2;
     return SizedBox(
