@@ -5,7 +5,7 @@ on:
     paths:
       - "packages/client/picnic_app/**"
     branches: [ "production" ]
-
+  workflow_dispatch:
 jobs:
   build-and-deploy-picnic:
     runs-on: ubuntu-latest

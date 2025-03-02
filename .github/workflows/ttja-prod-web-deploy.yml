@@ -5,6 +5,7 @@ on:
     paths:
       - "packages/client/ttja_app/**"
     branches: [ "production" ]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy-picnic:
