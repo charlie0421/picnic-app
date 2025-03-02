@@ -17,7 +17,7 @@ jobs:
           channel: "stable"
 
       - name: Flutter web build
-        working-directory: packages/client/picnic/picnic_app
+        working-directory: packages/client/picnic_app
         run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
 
       - name: Install Vercel CLI
