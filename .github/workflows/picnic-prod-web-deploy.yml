@@ -17,7 +17,7 @@ jobs:
           channel: "stable"
 
       - name: Flutter web build
-        run: flutter build web --release --web-renderer=html
+        run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
 
       - name: Install Vercel CLI
         run: npm install -g vercel
