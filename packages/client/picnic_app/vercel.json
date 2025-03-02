@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "name": "ttja-prod",
+  "name": "picnic-prod",
   "ignoreCommand": "exit 0",
 
   "builds": [
     {
-      "src": "packages/client/ttja_app/build/web/**/*",
+      "src": "packages/client/picnic_app/build/web/**/*",
       "use": "@vercel/static"
     }
   ],
