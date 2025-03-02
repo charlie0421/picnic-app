@@ -18,7 +18,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          
+
       - name: Install Vercel CLI
         run: npm install -g vercel
 
@@ -34,6 +34,7 @@ jobs:
             echo "BUILD_EXISTS=true" >> $GITHUB_OUTPUT
           else
             echo "BUILD_EXISTS=false" >> $GITHUB_OUTPUT
+          fi
       
       - name: Deploy if build exists
         if: steps.check_build.outputs.BUILD_EXISTS == 'true'
