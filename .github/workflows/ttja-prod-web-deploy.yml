@@ -1,4 +1,4 @@
-name: Build & Deploy Picnic App
+name: Build & Deploy TTJA App
 
 on:
   push:
@@ -18,11 +18,10 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: "3.13.7"
 
       - name: Build ttja_app
         working-directory: packages/client/ttja_app
-        run: flutter build web --release --web-renderer=html
+        run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
 
       - name: Deploy ttja_app to Vercel
         working-directory: packages/client/ttja_app/build/web
