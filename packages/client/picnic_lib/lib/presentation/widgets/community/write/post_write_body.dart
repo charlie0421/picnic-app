@@ -174,7 +174,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
                 controller: _controller,
                 scrollController: ScrollController(),
                 focusNode: _editorFocusNode,
-                configurations: quill.QuillEditorConfigurations(
+                config: quill.QuillEditorConfig(
                   placeholder: S.of(context).post_content_placeholder,
                   embedBuilders: [
                     DeletableLinkEmbedBuilder(),

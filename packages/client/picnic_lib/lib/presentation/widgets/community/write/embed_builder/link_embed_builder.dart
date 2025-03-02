@@ -14,11 +14,10 @@ class LinkEmbedBuilder extends EmbedBuilder {
   String get key => 'link';
 
   @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle textStyle) {
-    return readOnly
-        ? _ReadOnlyLinkPreviewWidget(node: node, textStyle: textStyle)
-        : _EditableLinkPreviewWidget(node: node);
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    return embedContext.readOnly
+        ? _ReadOnlyLinkPreviewWidget(node: embedContext.node, textStyle: embedContext.textStyle)
+        : _EditableLinkPreviewWidget(node: embedContext.node);
   }
 }
 
@@ -27,9 +26,8 @@ class EditableLinkEmbedBuilder extends EmbedBuilder {
   String get key => 'link';
 
   @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle textStyle) {
-    return _EditableLinkPreviewWidget(node: node);
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    return _EditableLinkPreviewWidget(node: embedContext.node);
   }
 }
 

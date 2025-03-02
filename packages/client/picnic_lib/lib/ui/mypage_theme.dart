@@ -27,7 +27,7 @@ ThemeData mypageThemeLight = ThemeData.light().copyWith(
       padding: WidgetStateProperty.all(const EdgeInsets.all(4)),
     ),
   ),
-  tabBarTheme: commonTabBarTheme,
+  tabBarTheme: commonTabBarTheme as TabBarThemeData,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(
     primary: Colors.black,
@@ -41,5 +41,5 @@ ThemeData mypageThemeLight = ThemeData.light().copyWith(
     brightness: Brightness.light,
   ),
   bottomSheetTheme: commonBottomSheetTheme,
-  dialogTheme: commonDialogTheme,
+  dialogTheme: commonDialogTheme as DialogThemeData,
 );
