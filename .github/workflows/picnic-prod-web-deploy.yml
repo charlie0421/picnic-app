@@ -1,0 +1,31 @@
+name: Build & Deploy Flutter Web to Vercel Production
+
+on:
+  push:
+    branches: [ "production" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: "latest"
+
+      - name: Flutter web build
+        run: flutter build web --release --web-renderer=html
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          cd build/web
+          vercel --prod --token $VERCEL_TOKEN --confirm
