@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy-picnic:
+  build-and-deploy-ttja:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,16 +20,27 @@ jobs:
         with:
           channel: stable
 
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+  
       - name: Build ttja_app
         working-directory: packages/client/ttja_app
         run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
-      - name: Deploy ttja_app to Vercel
+      - name: Check build existence
+        working-directory: packages/client/ttja_app
+        id: check_build
+        run: |
+          if [ -d "./build/web" ]; then
+            echo "BUILD_EXISTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "BUILD_EXISTS=false" >> $GITHUB_OUTPUT
+      
+      - name: Deploy if build exists
+        if: steps.check_build.outputs.BUILD_EXISTS == 'true'
         working-directory: packages/client/ttja_app/build/web
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel --prod --confirm --token $VERCEL_TOKEN --name ttja-prod
+          vercel --prod --confirm --token $VERCEL_TOKEN --name ttja-prod        
+
