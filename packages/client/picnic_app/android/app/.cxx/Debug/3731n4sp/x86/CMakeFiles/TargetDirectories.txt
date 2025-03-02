@@ -1,0 +1,2 @@
+/Users/cheolhyun/Repositories/picnic/picnic/packages/client/picnic_app/android/app/.cxx/Debug/3731n4sp/x86/CMakeFiles/edit_cache.dir
+/Users/cheolhyun/Repositories/picnic/picnic/packages/client/picnic_app/android/app/.cxx/Debug/3731n4sp/x86/CMakeFiles/rebuild_cache.dir
