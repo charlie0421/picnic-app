@@ -1,11 +1,11 @@
 {
-    "name": "picnic_app",
-    "short_name": "picnic_app",
+    "name": "Picnic",
+    "short_name": "Picnic",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#hexcode",
-    "theme_color": "#hexcode",
-    "description": "Picnic App",
+    "background_color": "#FFFFFF",
+    "theme_color": "#0175C2",
+    "description": "Picnic 앱",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -31,5 +31,14 @@
             "type": "image/png",
             "purpose": "maskable"
         }
-    ]
+    ],
+    "shortcuts": [
+        {
+            "name": "Home",
+            "url": "/"
+        }
+    ],
+    "categories": ["social", "entertainment"],
+    "lang": "ko",
+    "dir": "ltr"
 }
