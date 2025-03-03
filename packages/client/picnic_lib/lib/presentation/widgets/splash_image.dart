@@ -4,6 +4,7 @@ import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SplashImageData {
   final String imageUrl;
@@ -32,6 +33,12 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
   @override
   void initState() {
     super.initState();
+    
+    // 웹 환경에서는 스플래시 이미지를 가져오지 않음
+    if (UniversalPlatform.isWeb) {
+      return;
+    }
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchScheduledSplashImage();
     });
@@ -72,6 +79,11 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
   @override
   Widget build(BuildContext context) {
+    // 웹 환경에서는 스플래시 이미지를 표시하지 않음
+    if (UniversalPlatform.isWeb) {
+      return const SizedBox.shrink();
+    }
+    
     return Stack(
       fit: StackFit.expand,
       children: [

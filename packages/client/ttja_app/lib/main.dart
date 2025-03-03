@@ -55,9 +55,10 @@ void main() async {
       }
 
       // URL 전략 설정 (웹에만 적용)
-      if (kIsWeb) {
-        setPathUrlStrategy();
-      }
+      // 웹에서 URL 전략 설정 부분 제거 - 에러가 나고 있어서 주석 처리
+      // if (kIsWeb) {
+      //   setPathUrlStrategy();
+      // }
 
       // Branch SDK는 모바일에서만 초기화
       if (!kIsWeb && UniversalPlatform.isMobile) {
