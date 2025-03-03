@@ -13,6 +13,8 @@ import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_strategy/url_strategy.dart';
+import 'package:flutter/foundation.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 void main() async {
   await runZonedGuarded(() async {
@@ -24,23 +26,44 @@ void main() async {
       await AppInitializer.initializeSentry();
 
       await initializeSupabase();
-      await AppInitializer.initializeWebP();
-      await AppInitializer.initializeTapjoy();
+      
+      // 웹에서 불필요한 기능들은 조건부로 초기화
+      if (!kIsWeb) {
+        await AppInitializer.initializeWebP();
+        await AppInitializer.initializeTapjoy();
+      }
+      
+      // Firebase는 웹과 모바일 모두 필요할 수 있지만, 웹 환경에서 다른 설정이 필요한 경우 처리
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
       await AppInitializer.initializeAuth();
-      await AppInitializer.initializeTimezone();
+      
+      // 타임존 초기화는 모바일에서만 필요할 수 있음
+      if (!kIsWeb) {
+        await AppInitializer.initializeTimezone();
+      }
+      
       initializeReflectable();
-      await AppInitializer.initializePrivacyConsent();
+      
+      // 프라이버시 동의 관련 기능은 모바일에서만 필요할 수 있음
+      if (!kIsWeb) {
+        await AppInitializer.initializePrivacyConsent();
+      }
 
-      setPathUrlStrategy();
+      // URL 전략 설정 (웹에만 적용)
+      if (kIsWeb) {
+        setPathUrlStrategy();
+      }
 
-      await FlutterBranchSdk.init(
-        enableLogging: true,
-        branchAttributionLevel: BranchAttributionLevel.NONE,
-      );
+      // Branch SDK는 모바일에서만 초기화
+      if (!kIsWeb && UniversalPlatform.isMobile) {
+        await FlutterBranchSdk.init(
+          enableLogging: true,
+          branchAttributionLevel: BranchAttributionLevel.NONE,
+        );
+      }
 
       logger.i('Starting app...');
       runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));

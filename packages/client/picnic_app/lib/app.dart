@@ -71,8 +71,11 @@ class _AppState extends ConsumerState<App> {
     super.initState();
     _initializationFuture = Future.value();
 
-    if (UniversalPlatform.isMobile) {
-      AppInitializer.setupSupabaseAuthListener(ref);
+    // Supabase 인증 리스너는 웹과 모바일 모두에서 필요함
+    AppInitializer.setupSupabaseAuthListener(ref);
+    
+    // Branch 리스너는 모바일에서만 필요
+    if (UniversalPlatform.isMobile && !kIsWeb) {
       AppInitializer.setupBranchListener(ref);
     }
   }
@@ -87,7 +90,8 @@ class _AppState extends ConsumerState<App> {
   }
 
   Future<void> _initializeApp() async {
-    if (UniversalPlatform.isMobile) {
+    // 모바일 환경에서만 시스템 UI 초기화
+    if (UniversalPlatform.isMobile && !kIsWeb) {
       await AppInitializer.initializeSystemUI();
     }
     await AppInitializer.initializeAppWithSplash(context, ref);
@@ -155,11 +159,14 @@ class _AppState extends ConsumerState<App> {
     }
 
     if (initState.updateInfo?.status == UpdateStatus.updateRequired) {
-      return MaterialApp(
-        home: ForceUpdateOverlay(
-          updateInfo: initState.updateInfo!,
-        ),
-      );
+      // 웹에서는 강제 업데이트 화면 표시하지 않음
+      if (!kIsWeb) {
+        return MaterialApp(
+          home: ForceUpdateOverlay(
+            updateInfo: initState.updateInfo!,
+          ),
+        );
+      }
     }
 
     return ScreenUtilInit(
@@ -214,7 +221,8 @@ class _AppState extends ConsumerState<App> {
   }
 
   void _updateScreenProtector(bool isScreenProtector) {
-    if (!kIsWeb) {
+    // 웹에서는 스크린 프로텍터 기능 사용하지 않음
+    if (!kIsWeb && UniversalPlatform.isMobile) {
       if (isScreenProtector) {
         ScreenProtector.protectDataLeakageWithColor(AppColors.primary500);
         ScreenProtector.preventScreenshotOn();

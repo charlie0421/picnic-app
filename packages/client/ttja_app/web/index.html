@@ -16,7 +16,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="TTJA 앱">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -30,9 +30,11 @@
   <title>ttja_app</title>
   <link rel="manifest" href="manifest.json">
   
-  
+  <!-- 반응형 디자인을 위한 viewport 설정 -->
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
   
+  <!-- 리소스 사전 로딩 (필요한 이미지 및 스크립트 사전 로딩) -->
+  <link rel="preload" href="flutter_bootstrap.js" as="script">
   
   <style id="splash-screen-style">
     html {
@@ -43,7 +45,7 @@
       margin: 0;
       min-height: 100%;
       background-color: #FFFFFF;
-          background-size: 100% 100%;
+      background-size: 100% 100%;
     }
 
     .center {
@@ -107,8 +109,7 @@
       <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
   </picture>
   
-  
-  <script src="flutter_bootstrap.js" async=""></script>
-
+  <!-- 스크립트를 defer로 로딩하여 페이지 렌더링 차단 방지 -->
+  <script src="flutter_bootstrap.js" defer></script>
 
 </body></html>
