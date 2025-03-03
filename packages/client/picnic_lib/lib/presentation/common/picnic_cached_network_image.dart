@@ -55,6 +55,14 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
 
   List<String> _getTransformedUrls(
       BuildContext context, double resolutionMultiplier) {
+    // 웹 환경에서는 고품질 이미지만 로드 (다중 해상도 불필요)
+    if (UniversalPlatform.isWeb) {
+      return [
+        _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
+      ];
+    }
+    
+    // 모바일 환경에서는 점진적 로딩을 위해 여러 해상도 제공
     return [
       _getTransformedUrl(widget.imageUrl, resolutionMultiplier * .2, 20),
       _getTransformedUrl(widget.imageUrl, resolutionMultiplier * .5, 50),
