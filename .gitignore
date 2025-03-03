@@ -5,3 +5,6 @@ packages/.DS_Store
 packages/client/.DS_Store
 packages/supabase/.idea/workspace.xml
 packages/supabase/.idea/workspace.xml
+# 빌드 출력 파일
+/build/
+**/build/
