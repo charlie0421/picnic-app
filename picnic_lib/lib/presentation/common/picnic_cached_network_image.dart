@@ -58,7 +58,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
     // 웹 환경에서는 고품질 이미지만 로드 (다중 해상도 불필요)
     if (UniversalPlatform.isWeb) {
       return [
-        _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80),
+        _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 100), // 웹에서는 최고 품질 사용
       ];
     }
     
