@@ -20,7 +20,7 @@ jobs:
 
       - name: Build flutter web
         working-directory: packages/client/picnic_app
-        run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
+        run: flutter build web --release
 
       - name: Install Vercel CLI
         working-directory: packages/client/picnic_app
@@ -30,6 +30,6 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel --prod --yes --token $VERCEL_TOKEN --name picnic-prod
+          vercel --prod --yes --token $VERCEL_TOKEN
 
 
