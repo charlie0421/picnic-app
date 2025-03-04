@@ -58,10 +58,11 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
     // 웹 환경에서는 고품질 이미지만 로드 (다중 해상도 불필요)
     if (UniversalPlatform.isWeb) {
       return [
-        _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 100), // 웹에서는 최고 품질 사용
+        _getTransformedUrl(
+            widget.imageUrl, resolutionMultiplier, 100), // 웹에서는 최고 품질 사용
       ];
     }
-    
+
     // 모바일 환경에서는 점진적 로딩을 위해 여러 해상도 제공
     return [
       _getTransformedUrl(widget.imageUrl, resolutionMultiplier * .2, 20),
@@ -83,11 +84,20 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
       'q': quality.toString(),
     };
 
+    // GIF는 변환하지 않고 원본 그대로 사용
     if (!isGif) {
-      queryParameters['f'] = WebPSupportChecker.instance.supportInfo != null &&
-              WebPSupportChecker.instance.supportInfo!.webp
-          ? 'webp'
-          : 'png';
+      // 웹 환경에서는 대부분의 브라우저가 webp를 지원한다고 가정
+      if (UniversalPlatform.isWeb) {
+        // 웹에서는 webp 포맷 사용 (대부분의 모던 브라우저 지원)
+        queryParameters['f'] = 'webp';
+      } else {
+        // 모바일 환경에서는 기존 로직 유지
+        queryParameters['f'] =
+            WebPSupportChecker.instance.supportInfo != null &&
+                    WebPSupportChecker.instance.supportInfo!.webp
+                ? 'webp'
+                : 'png';
+      }
     }
 
     return uri.replace(queryParameters: queryParameters).toString();
@@ -113,7 +123,15 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
             memCacheHeight: widget.memCacheHeight,
             errorWidget: (context, url, error) {
               logger.e('Image loading error: $error for url: $url');
-              return const SizedBox.shrink();
+              // 오류 발생 시 기본 이미지나 오류 표시 위젯 반환
+              return Container(
+                width: width,
+                height: height,
+                color: Colors.grey[200],
+                child: const Center(
+                  child: Icon(Icons.image_not_supported, color: Colors.grey),
+                ),
+              );
             },
             progressIndicatorBuilder: (context, url, downloadProgress) =>
                 buildLoadingOverlay(),
