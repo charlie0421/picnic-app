@@ -23,5 +23,6 @@
       "dest": "/index.html",
       "status": 200
     }
-  ]
+  ],
+  "outputDirectory": "packages/client/picnic_app/build/web"
 }

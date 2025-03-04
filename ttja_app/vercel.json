@@ -23,5 +23,6 @@
       "dest": "/index.html",
       "status": 200
     }
-  ]
+  ],
+  "outputDirectory": "packages/client/ttja_app/build/web"
 }
