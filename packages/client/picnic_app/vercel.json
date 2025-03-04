@@ -12,15 +12,19 @@
   "routes": [
     {
       "src": "/download",
-      "dest": "/download.html",
+      "dest": "/build/web/download.html",
       "status": 200
+    },
+    {
+      "src": "/privacy",
+      "dest": "/build/web/private.html"
     },
     {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html",
+      "dest": "/build/web/index.html",
       "status": 200
     }
   ],
