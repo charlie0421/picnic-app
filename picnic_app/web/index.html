@@ -1,258 +1,131 @@
-<!DOCTYPE html><html><head>
-    <base href="$FLUTTER_BASE_HREF">
+<!DOCTYPE html>
+<html>
+  <head>
+    <base href="$FLUTTER_BASE_HREF" />
 
-    <meta charset="UTF-8">
-    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-    <meta name="description" content="Picnic 앱">
+    <meta charset="UTF-8" />
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+    <meta name="description" content="Picnic 앱" />
 
     <!-- iOS meta tags & icons -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Picnic">
-    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Picnic" />
+    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png" />
 
     <title>Picnic</title>
-    <link rel="manifest" href="manifest.json">
-    
+    <link rel="manifest" href="manifest.json" />
+
     <!-- 반응형 디자인을 위한 viewport 설정 -->
-    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
-    
+    <meta
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      name="viewport"
+    />
+
     <!-- 리소스 사전 로딩 -->
-    <link rel="preload" href="flutter.js" as="script">
-    <link rel="preload" href="main.dart.js" as="script">
+    <link rel="preload" href="flutter_bootstrap.js" as="script" />
 
-    <style>
-        .loading-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #ffffff;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-            z-index: 9999;
-        }
+    <style id="splash-screen-style">
+      html {
+        height: 100%;
+      }
 
-        .loading-container.hide {
-            opacity: 0;
-        }
+      body {
+        margin: 0;
+        min-height: 100%;
+        background-color: #ffffff;
+        background-size: 100% 100%;
+      }
 
-        .loading-indicator {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 20px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+      .center {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+      }
 
-        .loading-text {
-            color: #333333;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-            margin-top: 10px;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
+      .contain {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
 
-        .loading-progress {
-            width: 200px;
-            height: 4px;
-            background: #f3f3f3;
-            border-radius: 2px;
-            margin-top: 20px;
-            overflow: hidden;
-        }
+      .stretch {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
 
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: #3498db;
-            border-radius: 2px;
-            animation: progress 2s ease-in-out infinite;
-        }
+      .cover {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      .bottom {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        -ms-transform: translate(-50%, 0);
+        transform: translate(-50%, 0);
+      }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+      .bottomLeft {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+      }
 
-        @keyframes progress {
-            0% { width: 0%; }
-            50% { width: 70%; }
-            100% { width: 100%; }
-        }
+      .bottomRight {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+      }
     </style>
-  <style id="splash-screen-style">
-    html {
-      height: 100%
-    }
+    <script id="splash-screen-script">
+      function removeSplashFromWeb() {
+        document.getElementById('splash')?.remove();
+        document.getElementById('splash-branding')?.remove();
+        document.body.style.background = 'transparent';
+      }
+    </script>
+  </head>
+  <body>
+    <picture id="splash">
+      <source
+        srcset="
+          splash/img/light-1x.png 1x,
+          splash/img/light-2x.png 2x,
+          splash/img/light-3x.png 3x,
+          splash/img/light-4x.png 4x
+        "
+        media="(prefers-color-scheme: light)"
+      />
+      <source
+        srcset="
+          splash/img/dark-1x.png 1x,
+          splash/img/dark-2x.png 2x,
+          splash/img/dark-3x.png 3x,
+          splash/img/dark-4x.png 4x
+        "
+        media="(prefers-color-scheme: dark)"
+      />
+      <img
+        class="center"
+        aria-hidden="true"
+        src="splash/img/light-1x.png"
+        alt=""
+      />
+    </picture>
 
-    body {
-      margin: 0;
-      min-height: 100%;
-      background-color: #FFFFFF;
-      background-size: 100% 100%;
-    }
-
-    .center {
-      margin: 0;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      -ms-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%);
-    }
-
-    .contain {
-      display:block;
-      width:100%; height:100%;
-      object-fit: contain;
-    }
-
-    .stretch {
-      display:block;
-      width:100%; height:100%;
-    }
-
-    .cover {
-      display:block;
-      width:100%; height:100%;
-      object-fit: cover;
-    }
-
-    .bottom {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      -ms-transform: translate(-50%, 0);
-      transform: translate(-50%, 0);
-    }
-
-    .bottomLeft {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-    }
-
-    .bottomRight {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-    }
-  </style>
-  <script id="splash-screen-script">
-    function removeSplashFromWeb() {
-      document.getElementById("splash")?.remove();
-      document.getElementById("splash-branding")?.remove();
-      document.body.style.background = "transparent";
-    }
-  </script>
-</head>
-<body>
-  <picture id="splash">
-      <source srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" media="(prefers-color-scheme: light)">
-      <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
-      <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
-  </picture>
-<div class="loading-container" id="loading">
-    <div class="loading-indicator"></div>
-    <div class="loading-text">앱 시작하는 중...</div>
-    <div class="loading-progress">
-        <div class="progress-bar"></div>
-    </div>
-</div>
-
-<!-- Flutter 초기화 스크립트 - defer로 로딩하여 페이지 렌더링 차단 방지 -->
-<script src="flutter.js" defer></script>
-<script>
-    window.addEventListener('load', function(ev) {
-        // Flutter 초기화 준비
-        _flutter = {
-            loader: {
-                loadEntrypoint: function(options) {
-                    return new Promise(function(resolve, reject) {
-                        try {
-                            var main = document.createElement('script');
-                            main.src = 'main.dart.js';
-                            main.type = 'text/javascript';
-                            main.defer = true; // 렌더링 차단 방지
-
-                            // InAppWebView 설정
-                            window.flutter_inappwebview = {
-                                nativeCommunication: {
-                                    networkProxySettings: function() {
-                                        return {
-                                            autoDetect: false,
-                                            autoConfig: {},
-                                            autoConfigUrl: '',
-                                            bypass: [],
-                                            host: '',
-                                            password: '',
-                                            port: 0,
-                                            username: ''
-                                        };
-                                    }
-                                }
-                            };
-
-                            main.addEventListener('load', function() {
-                                if (options.onEntrypointLoaded) {
-                                    options.onEntrypointLoaded({
-                                        initializeEngine: function() {
-                                            return Promise.resolve({
-                                                runApp: function() {
-                                                    // 로딩 화면 제거
-                                                    var loading = document.getElementById('loading');
-                                                    if (loading) {
-                                                        loading.classList.add('hide');
-                                                        setTimeout(function() {
-                                                            loading.remove();
-                                                        }, 500);
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                                resolve();
-                            });
-
-                            document.body.appendChild(main);
-                        } catch (error) {
-                            console.error('Flutter 초기화 중 오류 발생:', error);
-                            reject(error);
-                        }
-                    });
-                }
-            }
-        };
-
-        // Flutter 앱 시작
-        _flutter.loader.loadEntrypoint({
-            serviceWorker: {
-                serviceWorkerVersion: '{{flutter_service_worker_version}}',
-            },
-            onEntrypointLoaded: function(engineInitializer) {
-                engineInitializer.initializeEngine().then(function(appRunner) {
-                    appRunner.runApp();
-                });
-            }
-        });
-    });
-</script>
-<script type="application/javascript" src="/assets/packages/flutter_inappwebview_web/assets/web/web_support.js" defer></script>
-</body></html>
+    <!-- 스크립트를 defer로 로딩하여 페이지 렌더링 차단 방지 -->
+    <script src="flutter_bootstrap.js" defer></script>
+  </body>
+</html>
