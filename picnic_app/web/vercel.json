@@ -1,8 +1,0 @@
-{
-  "redirects": [
-    { "source": "/.well-known/assetlinks.json", "destination": "/custom_build/web/.well-known/assetlinks.json", "statusCode": 200 }
-  ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ]
-}
