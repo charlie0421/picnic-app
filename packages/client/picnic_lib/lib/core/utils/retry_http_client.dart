@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class NetworkError extends Error {
   final String message;
@@ -118,15 +119,25 @@ class RetryHttpClient extends http.BaseClient {
   }
 
   void _setOptimizedHeaders(http.BaseRequest request) {
-    final optimizedHeaders = {
-      'Connection': 'keep-alive',
-      'Keep-Alive': 'timeout=${keepAlive.inSeconds}',
-      'Accept-Encoding': 'gzip, deflate',
-      'Accept-Charset': 'utf-8',
-      'X-DNS-Prefetch-Control': 'on',
-    };
-
-    request.headers.addAll(optimizedHeaders);
+    // 웹 환경에서는 브라우저가 제한하는 헤더를 설정하지 않음
+    if (UniversalPlatform.isWeb) {
+      // 웹에서 안전한 헤더만 설정
+      final webSafeHeaders = {
+        'X-DNS-Prefetch-Control': 'on',
+        // 다른 안전한 헤더가 필요하면 여기에 추가
+      };
+      request.headers.addAll(webSafeHeaders);
+    } else {
+      // 네이티브 환경에서는 모든 최적화 헤더 사용
+      final optimizedHeaders = {
+        'Connection': 'keep-alive',
+        'Keep-Alive': 'timeout=${keepAlive.inSeconds}',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Charset': 'utf-8',
+        'X-DNS-Prefetch-Control': 'on',
+      };
+      request.headers.addAll(optimizedHeaders);
+    }
   }
 
   Future<http.StreamedResponse> _sendWithTimeout(
