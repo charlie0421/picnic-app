@@ -20,7 +20,7 @@ jobs:
 
       - name: Build flutter web
         working-directory: packages/client/picnic_app
-        run: flutter build web --release
+        run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
 
       - name: Install Vercel CLI
         working-directory: packages/client/picnic_app
