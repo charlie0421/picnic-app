@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "packages/client/picnic_app/**"
+      - "packages/client/picnic_web/**"
     branches: [ "production" ]
   workflow_dispatch:
 jobs:
@@ -17,6 +18,22 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+
+      # Node.js 설정 (Next.js 빌드용)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'packages/client/picnic_web/package-lock.json'
+
+      # Next.js 빌드 및 내보내기
+      - name: Build Next.js sidebar
+        working-directory: packages/client/picnic_web
+        run: |
+          npm ci
+          npm run export
+          npm run export:picnic
 
       - name: Build flutter web
         working-directory: packages/client/picnic_app

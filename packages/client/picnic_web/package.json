@@ -1,0 +1,25 @@
+{
+  "name": "picnic_web",
+  "version": "1.0.0",
+  "description": "사이드바 컴포넌트 - Next.js 구현",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "export": "next build && next export -o ../picnic_app/web/next-export",
+    "export:ttja": "next build && next export -o ../ttja_app/web/next-export"
+  },
+  "keywords": [
+    "nextjs",
+    "flutter",
+    "sidebar"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

@@ -1,0 +1,32 @@
+ # Next.js 빌드 결과물
+.next/
+out/
+
+# 의존성 파일
+node_modules/
+
+# 환경 변수 파일
+.env
+.env*.local
+
+# Vercel 관련 파일
+.vercel
+
+# 내보내기(export) 결과물
+/next-export/
+../ttja_app/web/next-export/
+
+# 디버그 로그
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS 관련 파일
+.DS_Store
+*.pem
+
+# IDE 관련 파일
+.idea/
+.vscode/
+*.swp
+*.swo
