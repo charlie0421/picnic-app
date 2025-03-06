@@ -34,7 +34,7 @@
 
     <!-- 반응형 디자인을 위한 viewport 설정 -->
     <meta
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
       name="viewport"
     />
 
@@ -44,13 +44,21 @@
     <style id="splash-screen-style">
       html {
         height: 100%;
+        min-width: 393px;
       }
 
       body {
         margin: 0;
         min-height: 100%;
+        min-width: 393px;
         background-color: #ffffff;
         background-size: 100% 100%;
+        overflow-x: auto;
+      }
+
+      /* 모든 컨테이너에 최소 너비 적용 */
+      #flutter_target {
+        min-width: 393px;
       }
 
       .center {
