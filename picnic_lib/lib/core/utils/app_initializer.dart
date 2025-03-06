@@ -232,6 +232,13 @@ class AppInitializer {
     ]);
   }
 
+  static Future<void> initializeWebApp(BuildContext context, WidgetRef ref) async {
+    await Future.wait([
+      initializeApp(context, ref),
+    ]);
+  }
+
+
   static Future<void> initializeApp(BuildContext context, WidgetRef ref) async {
     try {
       logger.i('앱 초기화 시작');

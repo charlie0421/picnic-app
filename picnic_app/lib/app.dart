@@ -94,7 +94,11 @@ class _AppState extends ConsumerState<App> {
     if (UniversalPlatform.isMobile && !kIsWeb) {
       await AppInitializer.initializeSystemUI();
     }
-    await AppInitializer.initializeAppWithSplash(context, ref);
+    if (UniversalPlatform.isMobile) {
+      await AppInitializer.initializeAppWithSplash(context, ref);
+    } else {
+      await AppInitializer.initializeWebApp(context, ref);
+    }
   }
 
   @override
@@ -117,7 +121,8 @@ class _AppState extends ConsumerState<App> {
         future: Future.wait([
           _initializationFuture,
           // 최소 3초 대기
-          Future.delayed(const Duration(seconds: 3)),
+          if (UniversalPlatform.isMobile)
+            Future.delayed(const Duration(seconds: 3)),
         ]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done &&
