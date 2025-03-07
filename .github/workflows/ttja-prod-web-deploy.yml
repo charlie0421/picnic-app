@@ -32,8 +32,9 @@ jobs:
         working-directory: packages/client/ttja_web
         run: |
           npm ci
-          npm run export
-          npm run export:ttja
+          npm run build
+          mkdir -p ../ttja_app/web/next-export
+          cp -r out/* ../ttja_app/web/next-export/
 
       - name: Build flutter web
         working-directory: packages/client/ttja_app

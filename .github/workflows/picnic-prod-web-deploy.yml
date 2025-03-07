@@ -32,8 +32,9 @@ jobs:
         working-directory: packages/client/picnic_web
         run: |
           npm ci
-          npm run export
-          npm run export:picnic
+          npm run build
+          mkdir -p ../picnic_app/web/next-export
+          cp -r out/* ../picnic_app/web/next-export/
 
       - name: Build flutter web
         working-directory: packages/client/picnic_app
