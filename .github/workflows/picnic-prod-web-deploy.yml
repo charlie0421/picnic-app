@@ -31,7 +31,7 @@ jobs:
       - name: Build Next.js sidebar
         working-directory: packages/client/picnic_web
         run: |
-          npm ci
+          npm install
           npm run build
           mkdir -p ../picnic_app/web/next-export
           cp -r out/* ../picnic_app/web/next-export/

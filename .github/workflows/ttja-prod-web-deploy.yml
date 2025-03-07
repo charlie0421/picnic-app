@@ -31,7 +31,7 @@ jobs:
       - name: Build Next.js sidebar
         working-directory: packages/client/ttja_web
         run: |
-          npm ci
+          npm install
           npm run build
           mkdir -p ../ttja_app/web/next-export
           cp -r out/* ../ttja_app/web/next-export/
