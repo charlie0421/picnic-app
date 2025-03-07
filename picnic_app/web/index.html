@@ -221,11 +221,42 @@
     </script>
   </head>
   <body>
+    <!-- 개발/배포 환경 감지 및 iframe 소스 설정 스크립트 추가 -->
+    <script>
+      // iframe 소스 동적 설정
+      document.addEventListener('DOMContentLoaded', function () {
+        const isLocalhost =
+          window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1';
+
+        // Picnic Next.js 서버 URL 결정 (3001 포트)
+        const leftSidebarSrc = isLocalhost
+          ? 'http://localhost:3001/left-sidebar'
+          : './next-export/left-sidebar.html';
+
+        const rightSidebarSrc = isLocalhost
+          ? 'http://localhost:3001/right-sidebar'
+          : './next-export/right-sidebar.html';
+
+        // iframe 요소 가져오기
+        const leftIframe = document.querySelector('#sidebar-left iframe');
+        const rightIframe = document.querySelector('#sidebar-right iframe');
+
+        // iframe 소스 설정
+        if (leftIframe) leftIframe.src = leftSidebarSrc;
+        if (rightIframe) rightIframe.src = rightSidebarSrc;
+
+        console.log(
+          'Picnic 사이드바 설정 완료:',
+          isLocalhost ? '개발 환경' : '배포 환경',
+        );
+      });
+    </script>
+
     <div class="layout-container">
-      <!-- 좌측 사이드바 (Next.js로 구현) -->
+      <!-- 좌측 사이드바 (Next.js로 구현) - 비어있는 iframe 사용 -->
       <div id="sidebar-left" class="sidebar-left">
         <iframe
-          src="./next-export/left-sidebar"
           frameborder="0"
           width="100%"
           height="100%"
@@ -266,10 +297,9 @@
         </div>
       </div>
 
-      <!-- 우측 사이드바 (Next.js로 구현) -->
+      <!-- 우측 사이드바 (Next.js로 구현) - 비어있는 iframe 사용 -->
       <div id="sidebar-right" class="sidebar-right">
         <iframe
-          src="./next-export/right-sidebar"
           frameborder="0"
           width="100%"
           height="100%"
@@ -282,7 +312,7 @@
     <!-- 스크립트를 defer로 로딩하여 페이지 렌더링 차단 방지 -->
     <script src="flutter_bootstrap.js" defer></script>
     <script>
-      // iframe 메시지 처리
+      // 기존 메시지 처리 코드 유지
       window.addEventListener('message', function (event) {
         // 메시지 처리 로직
         console.log('메시지 수신:', event.data);
