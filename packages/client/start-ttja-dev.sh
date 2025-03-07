@@ -18,7 +18,7 @@ cd $ORIGINAL_DIR
 # Flutter 웹 서버 (ttja_app) 실행
 cd ttja_app
 echo "TTJA Flutter 웹 앱을 시작합니다 (포트: 8080)..."
-flutter run -d chrome --web-port=8080 &
+flutter run -d chrome --web-port=8080 --dart-define=FLUTTER_WEB_USE_SKIA=false &
 TTJA_APP_PID=$!
 echo "TTJA Flutter 웹 앱이 시작되었습니다. (PID: $TTJA_APP_PID)"
 
