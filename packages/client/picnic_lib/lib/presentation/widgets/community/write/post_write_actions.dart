@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PostWriteActions extends StatelessWidget {
   final bool isTitleValid;
@@ -31,7 +31,7 @@ class PostWriteActions extends StatelessWidget {
             style: getTextStyle(AppTypo.body14B, AppColors.primary500),
           ),
         ),
-        SizedBox(width: 16.cw),
+        SizedBox(width: 16.w),
         SizedBox(
           height: 32,
           child: ElevatedButton(

@@ -1,8 +1,8 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
-import 'package:picnic_lib/data/models/common/social_login_result.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/common/social_login_result.dart';
 
 class GoogleLogin implements SocialLogin {
   final GoogleSignIn _googleSignIn;

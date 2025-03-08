@@ -1,8 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PostWriteAttachments extends StatelessWidget {
   final List<PlatformFile> attachments;
@@ -34,7 +34,7 @@ class PostWriteAttachments extends StatelessWidget {
                 width: 18,
                 height: 18,
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               Text(
                 file.name,
                 style: getTextStyle(
@@ -42,7 +42,7 @@ class PostWriteAttachments extends StatelessWidget {
                   AppColors.grey800,
                 ),
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               GestureDetector(
                 onTap: () => onAttachmentRemoved(index),
                 child: SvgPicture.asset(

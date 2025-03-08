@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
-import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/common/comment.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/avatar_container.dart';
+import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
+import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class CommunityMyComment extends ConsumerStatefulWidget {
   const CommunityMyComment({super.key});
@@ -150,7 +151,7 @@ class CommentListItem extends StatelessWidget {
       height: 71,
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.symmetric(
-        horizontal: 16.cw,
+        horizontal: 16.w,
         vertical: 8,
       ),
       decoration: const BoxDecoration(
@@ -176,7 +177,7 @@ class CommentListItem extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(width: 10.cw),
+          SizedBox(width: 10.w),
           CommentPopupMenu(
             postId: item.post!.postId,
             comment: item,
@@ -195,19 +196,19 @@ class CommentListItem extends StatelessWidget {
           getLocaleTextFromJson(item.post!.board!.name),
           style: getTextStyle(AppTypo.caption12B, AppColors.primary500),
         ),
-        SizedBox(width: 4.cw),
+        SizedBox(width: 4.w),
         ProfileImageContainer(
           avatarUrl: item.user?.avatarUrl,
           borderRadius: 4,
           width: 18,
           height: 18,
         ),
-        SizedBox(width: 4.cw),
+        SizedBox(width: 4.w),
         Text(
           item.user?.nickname ?? '',
           style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
         ),
-        SizedBox(width: 4.cw),
+        SizedBox(width: 4.w),
         Text(
           formatTimeAgo(context, item.createdAt),
           style: getTextStyle(AppTypo.caption10SB, AppColors.grey400),

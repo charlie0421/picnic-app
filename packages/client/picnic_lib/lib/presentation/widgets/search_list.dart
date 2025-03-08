@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/pic/celeb.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/providers/celeb_search_provider.dart';
 import 'package:picnic_lib/presentation/widgets/celeb_list_item.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/pic/celeb.dart';
-import 'package:picnic_lib/presentation/providers/celeb_search_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class SearchList extends ConsumerStatefulWidget {
   const SearchList({super.key});
@@ -25,7 +26,7 @@ class _SearchListState extends ConsumerState<SearchList> {
     final asyncCelebSearchNotifier =
         ref.read(asyncCelebSearchProvider.notifier);
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
           Container(
@@ -41,7 +42,7 @@ class _SearchListState extends ConsumerState<SearchList> {
                 hintText: S.of(context).text_hint_search,
                 hintStyle: getTextStyle(AppTypo.body14B, AppColors.grey300),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.cw),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
                 suffixIcon: IconButton(
                   icon: SvgPicture.asset(
                       package: 'picnic_lib', 'assets/icons/textclear.svg'),

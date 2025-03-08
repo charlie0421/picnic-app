@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/community/fortune.dart';
 import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
@@ -455,7 +455,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                 SvgPicture.asset(
                   package: 'picnic_lib',
                   'assets/icons/fortune/fortune_teller_title.svg',
-                  width: 283.cw,
+                  width: 283.w,
                 ),
                 SizedBox(height: 8),
                 Row(
@@ -464,7 +464,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                     SvgPicture.asset(
                       package: 'picnic_lib',
                       'assets/icons/play_style=fill.svg',
-                      width: 16.cw,
+                      width: 16.w,
                       height: 16,
                       colorFilter: ColorFilter.mode(
                           AppColors.primary500, BlendMode.srcIn),
@@ -482,7 +482,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                       child: SvgPicture.asset(
                         package: 'picnic_lib',
                         'assets/icons/play_style=fill.svg',
-                        width: 16.cw,
+                        width: 16.w,
                         height: 16,
                         colorFilter: ColorFilter.mode(
                           AppColors.primary500,

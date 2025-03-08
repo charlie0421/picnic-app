@@ -1,8 +1,8 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/utils/device_fingerprint.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class DeviceManager {

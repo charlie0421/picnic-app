@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/vote/video_info.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item.dart';
-import 'package:picnic_lib/data/models/vote/video_info.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 
 class VoteMediaListPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_vote_gather';

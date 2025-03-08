@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/presentation/widgets/rotate_image.dart';
-import 'package:picnic_lib/presentation/widgets/ui/bounce_red_dot.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/rotate_image.dart';
+import 'package:picnic_lib/presentation/widgets/ui/bounce_red_dot.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class TopRightCommunity extends ConsumerStatefulWidget {
@@ -40,12 +40,12 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
                     },
                     child: Container(
                       alignment: Alignment.centerLeft,
-                      width: 40.cw,
+                      width: 40.w,
                       height: 36,
                       child: SvgPicture.asset(
                         package: 'picnic_lib',
                         'assets/icons/calendar_style=line.svg',
-                        width: 24.cw,
+                        width: 24.w,
                         height: 24,
                       ),
                     ),
@@ -58,12 +58,12 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
                     },
                     child: Container(
                       alignment: Alignment.centerLeft,
-                      width: 40.cw,
+                      width: 40.w,
                       height: 36,
                       child: SvgPicture.asset(
                         package: 'picnic_lib',
                         'assets/icons/calendar_style=line.svg',
-                        width: 24.cw,
+                        width: 24.w,
                         height: 24,
                       ),
                     ),
@@ -77,7 +77,7 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
                           image: Image.asset(
                             package: 'picnic_lib',
                             'assets/icons/store/star_100.png',
-                            width: 24.cw,
+                            width: 24.w,
                             height: 24,
                           ),
                         ),
@@ -95,20 +95,20 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
                 child: Stack(
                   children: [
                     SizedBox(
-                      width: 24.cw,
+                      width: 24.w,
                       height: 24,
                       child: SvgPicture.asset(
                         package: 'picnic_lib',
                         'assets/icons/alarm_style=line.svg',
-                        width: 24.cw,
+                        width: 24.w,
                         height: 24,
                       ),
                     ),
                     Positioned(
-                      top: 0.cw,
-                      right: 0.cw,
-                      left: 0.cw,
-                      bottom: 3.cw,
+                      top: 0.w,
+                      right: 0.w,
+                      left: 0.w,
+                      bottom: 3.w,
                       child: const BounceRedDot(),
                     ),
                   ],

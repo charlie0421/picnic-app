@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class VoteCommonTitle extends StatelessWidget {
   final String title;
@@ -14,7 +14,7 @@ class VoteCommonTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
             color: AppColors.secondary500,
             borderRadius: BorderRadius.circular(24),
@@ -28,12 +28,12 @@ class VoteCommonTitle extends StatelessWidget {
             SvgPicture.asset(
                 package: 'picnic_lib',
                 'assets/icons/play_style=fill.svg',
-                width: 16.cw,
+                width: 16.w,
                 height: 16,
                 colorFilter:
                     ColorFilter.mode(AppColors.primary500, BlendMode.srcIn)),
             SizedBox(
-              width: 2.cw,
+              width: 2.w,
             ),
             Expanded(
               child: Container(
@@ -62,14 +62,14 @@ class VoteCommonTitle extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 2.cw,
+              width: 2.w,
             ),
             Transform.rotate(
               angle: 3.14,
               child: SvgPicture.asset(
                   package: 'picnic_lib',
                   'assets/icons/play_style=fill.svg',
-                  width: 16.cw,
+                  width: 16.w,
                   height: 16,
                   colorFilter:
                       ColorFilter.mode(AppColors.primary500, BlendMode.srcIn)),

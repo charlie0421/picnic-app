@@ -91,15 +91,15 @@ class _PortalState extends ConsumerState<Portal> {
                 );
               },
             ),
-            leadingWidth: 52.cw,
+            leadingWidth: 52.w,
             titleSpacing: 0,
             actions: [
               SvgPicture.asset(
                 'assets/top_logo.svg',
-                width: 36.cw,
+                width: 36.w,
                 height: 15,
               ),
-              SizedBox(width: 16.cw),
+              SizedBox(width: 16.w),
             ],
           ),
           body: LayoutBuilder(

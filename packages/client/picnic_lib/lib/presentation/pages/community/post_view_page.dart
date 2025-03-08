@@ -5,33 +5,34 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
-import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
-import 'package:picnic_lib/presentation/common/comment/comment_list.dart';
-import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/link_embed_builder.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/youtube_embed_builder.dart';
-import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
-import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
-import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
-import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
-import 'package:picnic_lib/presentation/providers/global_media_query.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/common/comment.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/data/models/community/post.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
+import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
+import 'package:picnic_lib/presentation/common/comment/comment_list.dart';
+import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
+import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
+import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
+import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
+import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/global_media_query.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/link_embed_builder.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/youtube_embed_builder.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
@@ -238,7 +239,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                 // 컨텐츠
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Text(
                     post.title ?? '',
                     style: const TextStyle(
@@ -246,7 +247,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
                   child: post.isAnonymous ?? false
                       ? Text(
                           S.of(context).anonymous,
@@ -262,7 +263,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                 _buildPostInfo(post),
                 const Divider(color: AppColors.grey500),
                 Padding(
-                  padding: EdgeInsets.all(16.cw),
+                  padding: EdgeInsets.all(16.w),
                   child: _buildContent(),
                 ),
                 BannerAdWidget(
@@ -282,7 +283,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
   Widget _buildPostInfo(PostModel post) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -293,13 +294,13 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                 style:
                     getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               Text(
                 '${S.of(context).replies}: ${post.replyCount}',
                 style:
                     getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               Text(
                 formatDateTimeYYYYMMDDHHM(post.createdAt!),
                 style:
@@ -415,7 +416,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         Positioned(
           top: 0,
           child: Container(
-            width: 120.cw,
+            width: 120.w,
             height: 36,
             alignment: Alignment.center,
             decoration: BoxDecoration(

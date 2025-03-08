@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PortalMenuItem extends ConsumerWidget {
   const PortalMenuItem({
@@ -23,7 +22,7 @@ class PortalMenuItem extends ConsumerWidget {
 
     return Container(
       height: 26,
-      margin: EdgeInsets.only(left: 16.cw),
+      margin: EdgeInsets.only(left: 16.w),
       child: InkWell(
         borderRadius: BorderRadius.circular(13),
         onTap: () {
@@ -32,7 +31,7 @@ class PortalMenuItem extends ConsumerWidget {
         child: Container(
           height: 26,
           alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(horizontal: 12.cw),
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(13),
             border: Border.all(

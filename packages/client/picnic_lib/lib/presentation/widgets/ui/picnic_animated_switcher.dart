@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
   const PicnicAnimatedSwitcher({super.key});

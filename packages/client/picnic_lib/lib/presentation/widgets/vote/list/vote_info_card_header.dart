@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteCardInfoHeader extends StatelessWidget {

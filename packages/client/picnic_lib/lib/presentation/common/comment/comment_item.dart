@@ -1,22 +1,23 @@
 // comment_item.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/presentation/common/comment/comment_actions.dart';
-import 'package:picnic_lib/presentation/common/comment/comment_contents.dart';
-import 'package:picnic_lib/presentation/common/comment/comment_header.dart';
-import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
 import 'package:picnic_lib/core/config/environment.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/deepl_translate_service.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/common/comment.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/avatar_container.dart';
+import 'package:picnic_lib/presentation/common/comment/comment_actions.dart';
+import 'package:picnic_lib/presentation/common/comment/comment_contents.dart';
+import 'package:picnic_lib/presentation/common/comment/comment_header.dart';
+import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
+import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class CommentItem extends ConsumerStatefulWidget {
   const CommentItem({
@@ -293,7 +294,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
         ),
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: 16.cw,
+            horizontal: 16.w,
             vertical: 8,
           ),
           width: getPlatformScreenSize(context).width,
@@ -301,9 +302,9 @@ class _CommentItemState extends ConsumerState<CommentItem>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildProfileImage(),
-              SizedBox(width: 10.cw),
+              SizedBox(width: 10.w),
               _buildCommentContent(),
-              SizedBox(width: 10.cw),
+              SizedBox(width: 10.w),
               if (_isProcessing)
                 const SizedBox(
                   width: 20,

@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_web.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -29,14 +28,14 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.cw, vertical: 50),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 50),
       child: ListView(
         children: [
           Stack(
             children: [
               Container(
                 height: 150,
-                margin: EdgeInsets.only(top: 24, left: 8.cw, right: 8.cw),
+                margin: EdgeInsets.only(top: 24, left: 8.w, right: 8.w),
                 padding: const EdgeInsets.only(top: 16),
                 decoration: BoxDecoration(
                     border: Border.all(
@@ -56,7 +55,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
               Positioned.fill(
                   child: Container(
                       alignment: Alignment.topCenter,
-                      padding: EdgeInsets.symmetric(horizontal: 33.cw),
+                      padding: EdgeInsets.symmetric(horizontal: 33.w),
                       child: const VoteCommonTitle(title: '수동 결제'))),
             ],
           ),
@@ -101,7 +100,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
       icon: Image.asset(
         package: 'picnic_lib',
         'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
-        width: 48.cw,
+        width: 48.w,
         height: 48,
       ),
       title: Text(serverProduct['id'],
@@ -152,7 +151,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
   Widget _buildShimmerItem() {
     return ListTile(
       leading: Container(
-        width: 48.cw,
+        width: 48.w,
         height: 48,
         color: Colors.white,
       ),

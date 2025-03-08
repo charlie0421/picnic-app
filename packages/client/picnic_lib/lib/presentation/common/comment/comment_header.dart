@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/date.dart';
 
 class CommentHeader extends StatelessWidget {
   final CommentModel item;

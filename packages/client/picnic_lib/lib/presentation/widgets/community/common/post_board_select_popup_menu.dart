@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PostBoardSelectPopupMenu extends ConsumerStatefulWidget {
   final int artistId;
@@ -88,9 +88,9 @@ class _PostBoardSelectPopupMenuState
   Widget _buildSelectedBoardButton(BoardModel selectedBoard) {
     return Container(
       height: 26,
-      width: 120.cw,
+      width: 120.w,
       alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: 10.cw),
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.grey300, width: 1),
         borderRadius: BorderRadius.circular(13),

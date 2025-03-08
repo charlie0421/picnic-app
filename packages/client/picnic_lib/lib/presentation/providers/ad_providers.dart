@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/data/models/ad_info.dart';
-import 'package:picnic_lib/presentation/providers/config_service.dart';
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/ad_info.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/providers/config_service.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 
 String formatTimeAgo(BuildContext context, DateTime timestamp) {
   final now = DateTime.now().toUtc();

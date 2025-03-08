@@ -1,14 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/ui/style.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class BannerAdWidget extends ConsumerStatefulWidget {

@@ -1,15 +1,16 @@
 import 'dart:ui';
+
+import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:bubble_box/bubble_box.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityResultContent extends ConsumerStatefulWidget {

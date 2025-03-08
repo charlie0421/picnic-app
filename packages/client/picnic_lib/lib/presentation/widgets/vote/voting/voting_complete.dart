@@ -7,22 +7,21 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/vote_share_util.dart';
+import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/data/models/vote/artist_group.dart';
+import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/gradient_circular_progress_indicator.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/vote/artist.dart';
-import 'package:picnic_lib/data/models/vote/artist_group.dart';
-import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/core/utils/vote_share_util.dart';
 
 const Duration _duration = Duration(milliseconds: 1000);
 
@@ -79,7 +78,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
       child: RepaintBoundary(
         key: _globalKey,
         child: Dialog(
-          insetPadding: EdgeInsets.symmetric(horizontal: 24.cw),
+          insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
           backgroundColor: Colors.transparent,
           child: LargePopupWidget(
             backgroundColor: AppColors.secondary500,
@@ -88,7 +87,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
               child: Column(
                 children: [
                   Container(
-                    width: 203.cw,
+                    width: 203.w,
                     height: 51,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
@@ -101,9 +100,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     ),
                     child: Container(
                       alignment: Alignment.center,
-                      width: 195.cw,
+                      width: 195.w,
                       height: 43,
-                      padding: EdgeInsets.symmetric(horizontal: 24.cw),
+                      padding: EdgeInsets.symmetric(horizontal: 24.w),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(26.r),
                         border: Border.all(
@@ -117,7 +116,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                           Image.asset(
                             package: 'picnic_lib',
                             'assets/icons/header/star.png',
-                            width: 24.cw,
+                            width: 24.w,
                             height: 24,
                           ),
                           Expanded(
@@ -130,7 +129,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                           Image.asset(
                             package: 'picnic_lib',
                             'assets/icons/header/star.png',
-                            width: 24.cw,
+                            width: 24.w,
                             height: 24,
                           ),
                         ],
@@ -139,9 +138,9 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                      width: 291.cw,
+                      width: 291.w,
                       height: 70,
-                      padding: EdgeInsets.only(left: 12.cw),
+                      padding: EdgeInsets.only(left: 12.w),
                       decoration: BoxDecoration(
                         color: AppColors.grey00,
                         borderRadius: BorderRadius.circular(20.r),
@@ -163,7 +162,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                               borderRadius: 48,
                             ),
                           ),
-                          SizedBox(width: 16.cw),
+                          SizedBox(width: 16.w),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +185,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       )),
                   const SizedBox(height: 8),
                   Container(
-                    width: 291.cw,
+                    width: 291.w,
                     decoration: BoxDecoration(
                       color: AppColors.grey00,
                       borderRadius: BorderRadius.circular(20.r),
@@ -201,7 +200,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       children: [
                         Container(
                           padding: EdgeInsets.only(
-                              top: 2, bottom: 2, left: 24.cw, right: 24.cw),
+                              top: 2, bottom: 2, left: 24.w, right: 24.w),
                           alignment: Alignment.center,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -224,14 +223,14 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                         ),
                         Divider(
                           color: AppColors.grey300,
-                          indent: 13.cw,
-                          endIndent: 13.cw,
+                          indent: 13.w,
+                          endIndent: 13.w,
                           thickness: 1,
                           height: 1,
                         ),
                         const SizedBox(height: 4),
                         Container(
-                          padding: EdgeInsets.only(right: 16.cw),
+                          padding: EdgeInsets.only(right: 16.w),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,

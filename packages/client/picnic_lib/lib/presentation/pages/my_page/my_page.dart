@@ -60,7 +60,7 @@ class _MyPageState extends ConsumerState<MyPage> {
         data: (data) {
           return Scaffold(
             body: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: ListView(
                 children: [
                   const SizedBox(height: 24),
@@ -132,8 +132,8 @@ class _MyPageState extends ConsumerState<MyPage> {
       child: Row(
         children: [
           Container(
-            width: 80.cw,
-            height: 80.cw,
+            width: 80.w,
+            height: 80.w,
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: AppColors.grey200,
@@ -142,23 +142,23 @@ class _MyPageState extends ConsumerState<MyPage> {
             child: SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/header/default_avatar.svg',
-              width: 80.cw,
-              height: 80.cw,
+              width: 80.w,
+              height: 80.w,
               colorFilter: const ColorFilter.mode(
                 AppColors.grey00,
                 BlendMode.srcIn,
               ),
             ),
           ),
-          SizedBox(width: 16.cw),
+          SizedBox(width: 16.w),
           Text(S.of(context).label_mypage_should_login,
               style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
-          SizedBox(width: 16.cw),
+          SizedBox(width: 16.w),
           SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/setting_style=line.svg',
-              width: 20.cw,
-              height: 20.cw,
+              width: 20.w,
+              height: 20.w,
               colorFilter: const ColorFilter.mode(
                 AppColors.grey900,
                 BlendMode.srcIn,
@@ -176,7 +176,7 @@ class _MyPageState extends ConsumerState<MyPage> {
           .read(navigationInfoProvider.notifier)
           .setCurrentMyPage(const MyProfilePage()),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: userInfo.when(
           data: (data) {
             return Row(
@@ -187,16 +187,16 @@ class _MyPageState extends ConsumerState<MyPage> {
                   height: 80,
                   borderRadius: 80.r,
                 ),
-                SizedBox(width: 16.cw),
+                SizedBox(width: 16.w),
                 Text(
                   data?.nickname ?? '',
                   style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                 ),
-                SizedBox(width: 8.cw),
+                SizedBox(width: 8.w),
                 SvgPicture.asset(
                     package: 'picnic_lib',
                     'assets/icons/setting_style=line.svg',
-                    width: 20.cw,
+                    width: 20.w,
                     height: 20,
                     colorFilter: const ColorFilter.mode(
                       AppColors.grey900,
@@ -248,7 +248,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 SvgPicture.asset(
                     package: 'picnic_lib',
                     'assets/icons/arrow_right_style=line.svg',
-                    width: 20.cw,
+                    width: 20.w,
                     height: 20,
                     colorFilter: const ColorFilter.mode(
                       AppColors.grey900,
@@ -286,7 +286,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                           ],
                         ),
                         separatorBuilder: (BuildContext context, int index) {
-                          return SizedBox(width: 14.cw);
+                          return SizedBox(width: 14.w);
                         },
                       );
                     },
@@ -317,8 +317,8 @@ class _MyPageState extends ConsumerState<MyPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
-                width: 60.cw,
-                height: 60.cw,
+                width: 60.w,
+                height: 60.w,
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: AppColors.grey200,
@@ -328,7 +328,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             ],
           ),
           separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(width: 14.cw);
+            return SizedBox(width: 14.w);
           },
         ));
   }

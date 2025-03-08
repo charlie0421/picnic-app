@@ -5,15 +5,15 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
-import 'package:picnic_lib/data/models/common/social_login_result.dart';
 import 'package:picnic_lib/core/services/auth/social_login/apple_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/google_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/kakao_login.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/core/services/secure_storage_service.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/common/social_login_result.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import 'package:supabase_flutter/supabase_flutter.dart';
 

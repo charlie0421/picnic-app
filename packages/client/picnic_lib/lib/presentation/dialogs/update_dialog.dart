@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/widgets/ui/overlay_notifier.dart';
-import 'package:picnic_lib/presentation/widgets/ui/smooth_circular_countdown.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/update_checker.dart';
+import 'package:picnic_lib/presentation/widgets/ui/overlay_notifier.dart';
+import 'package:picnic_lib/presentation/widgets/ui/smooth_circular_countdown.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class UpdateDialog extends ConsumerStatefulWidget {
@@ -37,7 +37,7 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
           context.showOverlayNotification(
             childBuilder: (remainingSeconds) => Container(
               color: Colors.yellow,
-              padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12),
               child: Row(
                 children: [
                   Expanded(
@@ -55,7 +55,7 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
                     onPressed: () => _launchAppStore(updateInfo.url ?? '',
                         S.of(context).update_cannot_open_appstore),
                   ),
-                  SizedBox(width: 8.cw),
+                  SizedBox(width: 8.w),
                   SmoothCircularCountdown(
                     remainingSeconds: remainingSeconds,
                     totalSeconds: 5,

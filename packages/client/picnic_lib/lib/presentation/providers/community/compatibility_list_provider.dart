@@ -1,6 +1,6 @@
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../../generated/providers/community/compatibility_list_provider.g.dart';

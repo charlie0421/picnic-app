@@ -3,28 +3,29 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
+import 'package:picnic_lib/core/services/auth/auth_service.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/custom_pagination.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/signup/agreement_terms_page.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -81,7 +82,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                         child: SvgPicture.asset(
                           package: 'picnic_lib',
                           'assets/icons/arrow_left_style=line.svg',
-                          width: 24.cw,
+                          width: 24.w,
                           height: 24,
                           colorFilter: const ColorFilter.mode(
                               AppColors.grey900, BlendMode.srcIn),
@@ -162,7 +163,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       },
       child: Container(
         height: 48,
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.primary500, width: 1.5),
           borderRadius: BorderRadius.circular(30),
@@ -176,10 +177,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               'assets/icons/global_style=line.svg',
               colorFilter:
                   ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
-              width: 20.cw,
+              width: 20.w,
               height: 20,
             ),
-            SizedBox(width: 20.cw),
+            SizedBox(width: 20.w),
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
@@ -196,7 +197,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 'assets/icons/play_style=fill.svg',
                 colorFilter:
                     const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
-                width: 20.cw,
+                width: 20.w,
                 height: 20,
               ),
             ),
@@ -435,9 +436,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   Image.asset(
                       package: 'picnic_lib',
                       'assets/icons/login/google.png',
-                      width: 20.cw,
+                      width: 20.w,
                       height: 20),
-                  SizedBox(width: 8.cw),
+                  SizedBox(width: 8.w),
                   Text('Sign in with Google',
                       style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
                 ],
@@ -516,9 +517,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   Image.asset(
                       package: 'picnic_lib',
                       'assets/icons/login/kakao.png',
-                      width: 20.cw,
+                      width: 20.w,
                       height: 20),
-                  SizedBox(width: 8.cw),
+                  SizedBox(width: 8.w),
                   Text('Login with Kakao',
                       style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
                 ],
@@ -540,7 +541,7 @@ class LastProvider extends StatelessWidget {
     return Positioned(
       top: 10,
       bottom: 10,
-      left: 10.cw,
+      left: 10.w,
       child: BubbleBox(
         shape: BubbleShapeBorder(
           border: BubbleBoxBorder(

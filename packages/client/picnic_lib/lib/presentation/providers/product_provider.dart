@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/config/environment.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/product_provider.g.dart';

@@ -1,7 +1,7 @@
-import 'package:picnic_lib/data/models/community/board.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/community/board.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../../generated/providers/community/boards_provider.g.dart';

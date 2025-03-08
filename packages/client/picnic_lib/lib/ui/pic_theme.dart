@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/ui/common_theme.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 ThemeData picThemeLight = ThemeData.light().copyWith(
   textTheme: const TextTheme(
@@ -36,7 +36,7 @@ ThemeData picThemeLight = ThemeData.light().copyWith(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
-            EdgeInsets.symmetric(horizontal: 32.cw, vertical: 0)),
+            EdgeInsets.symmetric(horizontal: 32.w, vertical: 0)),
         backgroundColor: WidgetStateProperty.all(AppColors.secondary500),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(

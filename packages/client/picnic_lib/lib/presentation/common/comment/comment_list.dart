@@ -2,21 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
+import 'package:picnic_lib/data/models/common/comment.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_input.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_reply_layer.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
-import 'package:picnic_lib/presentation/widgets/ui/bottom_sheet_header.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/ui/bottom_sheet_header.dart';
 
 final commentsPageProvider = FutureProvider.autoDispose
     .family<List<CommentModel>, CommentsPageParams>((ref, params) async {
@@ -222,7 +222,7 @@ class _CommentListState extends ConsumerState<CommentList> {
       itemBuilder: (context, index) {
         final childItem = children[index];
         return Padding(
-          padding: EdgeInsets.only(left: 40.cw),
+          padding: EdgeInsets.only(left: 40.w),
           child: CommentItem(
             postId: widget.id,
             commentModel: childItem,

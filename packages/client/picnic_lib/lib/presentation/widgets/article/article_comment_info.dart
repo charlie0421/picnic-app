@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/data/models/pic/article.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/providers/article_list_provider.dart';
 
 import '../../../ui/style.dart';

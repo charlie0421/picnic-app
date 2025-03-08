@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class CommentReplyLayer extends ConsumerWidget {
   const CommentReplyLayer({
@@ -22,7 +22,7 @@ class CommentReplyLayer extends ConsumerWidget {
       color: AppColors.primary500,
       width: double.infinity,
       height: 40,
-      padding: EdgeInsets.symmetric(horizontal: 10.cw),
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

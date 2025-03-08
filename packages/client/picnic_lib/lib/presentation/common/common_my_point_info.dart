@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/enums.dart';
-import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
-import 'package:picnic_lib/presentation/widgets/ui/gradient_border_painter.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/gradient_border_painter.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class CommonMyPoint extends ConsumerStatefulWidget {
   const CommonMyPoint({
@@ -53,14 +52,14 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
               Image.asset(
                 package: 'picnic_lib',
                 'assets/icons/store/star_100.png',
-                width: 30.cw,
+                width: 30.w,
                 height: 30,
               ),
               Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(bottom: 3),
                 height: 18,
-                constraints: BoxConstraints(minWidth: 60.cw),
+                constraints: BoxConstraints(minWidth: 60.w),
                 child: AnimatedDigitWidget(
                     value: starCandy + starCandyBonus,
                     duration: const Duration(milliseconds: 500),
@@ -69,14 +68,14 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
                     textStyle:
                         getTextStyle(AppTypo.caption12B, AppColors.primary500)),
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               Image.asset(
                 package: 'picnic_lib',
                 'assets/icons/header/plus.png',
-                width: 16.cw,
+                width: 16.w,
                 height: 16,
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
             ],
           ),
         ),

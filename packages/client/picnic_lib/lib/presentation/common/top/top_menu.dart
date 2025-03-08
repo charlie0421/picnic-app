@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/presentation/common/common_my_point_info.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_common.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_community.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post_view.dart';
-import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class TopMenu extends ConsumerStatefulWidget {
   const TopMenu({
@@ -37,7 +37,7 @@ class _TopState extends ConsumerState<TopMenu> {
 
     return Container(
       height: 54,
-      padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10),
       child: Stack(
         children: [
           Container(
@@ -62,12 +62,12 @@ class _TopState extends ConsumerState<TopMenu> {
                       navigationInfoNotifier.goBack();
                     },
                     child: SizedBox(
-                      width: 24.cw,
+                      width: 24.w,
                       height: 24,
                       child: SvgPicture.asset(
                         package: 'picnic_lib',
                         'assets/icons/arrow_left_style=line.svg',
-                        width: 24.cw,
+                        width: 24.w,
                         height: 24,
                       ),
                     ),

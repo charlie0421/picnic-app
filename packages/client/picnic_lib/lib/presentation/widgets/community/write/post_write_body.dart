@@ -6,19 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/community/board.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/post_write_attachments.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/community/board.dart';
-import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PostWriteBody extends ConsumerStatefulWidget {
   final TextEditingController titleController;
@@ -118,7 +118,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
   Widget build(BuildContext context) {
     final currentBoard = ref.watch(communityStateInfoProvider).currentBoard;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: GestureDetector(
         onTap: _unFocusAll,
         behavior: HitTestBehavior.translucent,
@@ -286,7 +286,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
               ],
             ),
           ),
-          SizedBox(width: 16.cw),
+          SizedBox(width: 16.w),
           Flexible(
             flex: 1,
             child: Row(

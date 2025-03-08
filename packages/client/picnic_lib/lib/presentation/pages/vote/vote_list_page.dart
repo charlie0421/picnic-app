@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 
 class VoteListPage extends ConsumerStatefulWidget {
   const VoteListPage({super.key});

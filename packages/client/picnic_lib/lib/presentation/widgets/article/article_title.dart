@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/data/models/pic/article.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class ArticleTitle extends StatelessWidget {
   final ArticleModel article;
@@ -26,7 +26,7 @@ class ArticleTitle extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 10.cw,
+            width: 10.w,
           ),
           Align(
             alignment: Alignment.topCenter,

@@ -1,7 +1,7 @@
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 

@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/vote/artist.dart';
 
 part '../../../generated/models/community/compatibility.freezed.dart';
 part '../../../generated/models/community/compatibility.g.dart';

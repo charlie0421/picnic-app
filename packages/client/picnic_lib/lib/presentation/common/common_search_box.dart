@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class CommonSearchBox extends StatelessWidget {
   const CommonSearchBox({
@@ -41,7 +40,7 @@ class CommonSearchBox extends StatelessWidget {
               }
             },
             child: Padding(
-              padding: EdgeInsets.only(left: 16.cw, right: 8.cw),
+              padding: EdgeInsets.only(left: 16.w, right: 8.w),
               child: SvgPicture.asset(
                 package: 'picnic_lib',
                 'assets/icons/vote/search_icon.svg',
@@ -73,7 +72,7 @@ class CommonSearchBox extends StatelessWidget {
               onSubmitted?.call('');
             },
             child: Padding(
-              padding: EdgeInsets.only(left: 8.cw, right: 16.cw),
+              padding: EdgeInsets.only(left: 8.w, right: 16.w),
               child: SvgPicture.asset(
                 package: 'picnic_lib',
                 'assets/icons/cancel_style=fill.svg',

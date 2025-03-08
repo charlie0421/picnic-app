@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/data/models/common/comment.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/like_button.dart';
 import 'package:picnic_lib/presentation/common/comment/reply_button.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class CommentActions extends StatelessWidget {
   final CommentModel item;
@@ -48,7 +48,7 @@ class CommentActions extends StatelessWidget {
     if (item.parentCommentId != null) return const SizedBox.shrink();
 
     return Container(
-      margin: EdgeInsets.only(right: 16.cw),
+      margin: EdgeInsets.only(right: 16.w),
       child: ReplyButton(
         comment: item,
         initialReplies: item.replies,
@@ -143,11 +143,11 @@ class CommentActions extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildLikeButton(),
-          SizedBox(width: 16.cw),
+          SizedBox(width: 16.w),
           _buildReplyCounter(),
           _buildReplyButton(),
           if (isDifferentLanguage) ...[
-            SizedBox(width: 16.cw),
+            SizedBox(width: 16.w),
             _buildTranslateButton(context),
           ],
         ],

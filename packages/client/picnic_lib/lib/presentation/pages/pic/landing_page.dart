@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
+import 'package:picnic_lib/presentation/providers/celeb_search_provider.dart';
 import 'package:picnic_lib/presentation/widgets/celeb_list_item.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/no_bookmark_celeb.dart';
 import 'package:picnic_lib/presentation/widgets/search_list.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
-import 'package:picnic_lib/presentation/providers/celeb_search_provider.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -91,7 +92,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
-                  padding: EdgeInsets.only(right: 8.cw),
+                  padding: EdgeInsets.only(right: 8.w),
                   child: SvgPicture.asset(
                     package: 'picnic_lib',
                     'assets/landing/search_icon.svg',

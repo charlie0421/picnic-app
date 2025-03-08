@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 
 void showRequireLoginDialog() {
   if (navigatorKey.currentContext == null) {

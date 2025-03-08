@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/util.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/core/utils/util.dart';
 
 class StarCandyInfoText extends ConsumerStatefulWidget {
   final MainAxisAlignment alignment;
@@ -53,7 +53,7 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
         Image.asset(
           package: 'picnic_lib',
           'assets/icons/store/star_100.png',
-          width: 48.cw,
+          width: 48.w,
           height: 48,
         ),
         Text.rich(

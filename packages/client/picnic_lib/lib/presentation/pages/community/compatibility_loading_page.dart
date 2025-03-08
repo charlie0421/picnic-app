@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 
 class CompatibilityLoadingPage extends ConsumerStatefulWidget {
   const CompatibilityLoadingPage({

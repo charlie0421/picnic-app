@@ -1,5 +1,5 @@
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/supabase_options.dart';
 
 Future<Map<String, dynamic>> checkContent(String text) async {
   try {

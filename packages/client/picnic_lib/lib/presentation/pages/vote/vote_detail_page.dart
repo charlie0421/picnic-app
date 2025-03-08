@@ -9,30 +9,30 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/vote_share_util.dart';
+import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
-import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/date.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -139,7 +139,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   void _scrollToSearchBox() {
     _scrollController.animateTo(
-      210.cw,
+      210.w,
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
     );
@@ -266,7 +266,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           ),
         const SizedBox(height: 36),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 57.cw),
+          padding: EdgeInsets.symmetric(horizontal: 57.w),
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
         const SizedBox(height: 12),
@@ -345,7 +345,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                       Container(
                         width: double.infinity,
                         margin:
-                            EdgeInsets.only(top: 24, left: 16.cw, right: 16.cw),
+                            EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
                         decoration: BoxDecoration(
                           border: Border.all(
                               color: AppColors.primary500, width: 1.r),
@@ -358,7 +358,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         ),
                         child: Padding(
                           padding: EdgeInsets.only(
-                                  top: 56, left: 16.cw, right: 16.cw)
+                                  top: 56, left: 16.w, right: 16.w)
                               .r,
                           child: filteredIndices.isEmpty &&
                                   searchQuery.isNotEmpty
@@ -409,7 +409,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               data: (data) {
                 return Container(
                   width: double.infinity,
-                  margin: EdgeInsets.symmetric(horizontal: 16.cw),
+                  margin: EdgeInsets.symmetric(horizontal: 16.w),
                   decoration: BoxDecoration(
                     border: Border.all(color: AppColors.primary500, width: 1.r),
                     borderRadius: BorderRadius.circular(40.r),
@@ -498,9 +498,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ],
                 ),
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               _buildArtistImage(item, index),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -538,10 +538,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                   ],
                 ),
               ),
-              SizedBox(width: 16.cw),
+              SizedBox(width: 16.w),
               if (!isEnded && !_isSaving)
                 SizedBox(
-                  width: 24.cw,
+                  width: 24.w,
                   height: 24,
                   child: SvgPicture.asset(
                       package: 'picnic_lib',
@@ -618,7 +618,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         Container(
           width: double.infinity,
           height: 20,
-          padding: EdgeInsets.only(right: 16.cw, bottom: 3),
+          padding: EdgeInsets.only(right: 16.w, bottom: 3),
           alignment: Alignment.centerRight,
           child: hasChanged
               ? AnimatedDigitWidget(
@@ -636,7 +636,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ),
         if (voteCountDiff > 0)
           Positioned(
-            right: 16.cw,
+            right: 16.w,
             top: -15,
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: 1),
@@ -683,10 +683,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   Widget _buildSearchBox() {
     return Positioned(
       top: 0,
-      right: 0.cw,
-      left: 0.cw,
+      right: 0.w,
+      left: 0.w,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 32.cw),
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
         child: CommonSearchBox(
           focusNode: _focusNode,
           textEditingController: _textEditingController,
@@ -710,44 +710,44 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             ),
             const SizedBox(height: 24),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
                 height: 24,
-                width: 250.cw,
+                width: 250.w,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 12),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
                 height: 16,
-                width: 200.cw,
+                width: 200.w,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 24),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
                 height: 18,
-                width: 180.cw,
+                width: 180.w,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
                 height: 16,
-                width: 150.cw,
+                width: 150.w,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 32),
             Center(
               child: Container(
-                width: 280.cw,
+                width: 280.w,
                 height: 48,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24.r),
@@ -758,25 +758,25 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             const SizedBox(height: 24),
             for (int i = 0; i < 5; i++) ...[
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Row(
                   children: [
                     Container(
-                      width: 45.cw,
+                      width: 45.w,
                       height: 45,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(width: 16.cw),
+                    SizedBox(width: 16.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
                             height: 16,
-                            width: 120.cw,
+                            width: 120.w,
                             color: Colors.white,
                           ),
                           const SizedBox(height: 8),

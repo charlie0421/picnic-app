@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/policy.dart';
 import 'package:picnic_lib/presentation/pages/signup/agreement_privacy_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/policy_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class AgreementTermsPage extends ConsumerStatefulWidget {
   const AgreementTermsPage({super.key});
@@ -61,7 +62,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                 textAlign: TextAlign.center,
               ),
               Positioned(
-                left: 10.cw,
+                left: 10.w,
                 child: GestureDetector(
                   onTap: () {
                     navigationInfoNotifier.goBackSignUp();
@@ -69,7 +70,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                   child: SvgPicture.asset(
                     package: 'picnic_lib',
                     'assets/icons/arrow_left_style=line.svg',
-                    width: 24.cw,
+                    width: 24.w,
                     height: 24,
                     colorFilter: const ColorFilter.mode(
                         AppColors.grey900, BlendMode.srcIn),

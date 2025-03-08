@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:load_switch/load_switch.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/platform_info_provider.dart';
@@ -18,7 +20,6 @@ import 'package:picnic_lib/presentation/providers/update_checker.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
@@ -77,7 +78,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
     return userInfoState.when(
         data: (data) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: ListView(
                 children: [
                   const SizedBox(height: 16),
@@ -88,7 +89,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     leading: S.of(context).label_setting_push_alarm,
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     tailing: LoadSwitch(
-                      width: 48.cw,
+                      width: 48.w,
                       height: 28,
                       value: value1,
                       future: _getFuture1,
@@ -122,7 +123,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   PicnicListItem(
                     leading: S.of(context).label_setting_event_alarm,
                     title: Container(
-                      margin: EdgeInsets.only(left: 8.cw),
+                      margin: EdgeInsets.only(left: 8.w),
                       alignment: Alignment.centerLeft,
                       child: Text(
                         S.of(context).label_setting_event_alarm_desc,
@@ -133,7 +134,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     ),
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     tailing: LoadSwitch(
-                      width: 48.cw,
+                      width: 48.w,
                       height: 28,
                       value: value2,
                       future: _getFuture2,
@@ -241,7 +242,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Container(
-                                margin: EdgeInsets.only(right: 8.cw),
+                                margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
                                   '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
@@ -264,7 +265,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Container(
-                                margin: EdgeInsets.only(right: 8.cw),
+                                margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
                                   '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
@@ -287,7 +288,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               leading:
                                   '${S.of(context).label_setting_current_version} ${info.currentVersion}${isAdmin ? ' ($buildNumber)' : ''}',
                               title: Container(
-                                margin: EdgeInsets.only(right: 8.cw),
+                                margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
                                   S

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/number.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class ReplyButton extends ConsumerStatefulWidget {
   final CommentModel comment;
@@ -58,7 +58,7 @@ class ReplyButtonState extends ConsumerState<ReplyButton> {
                 isReplied ? AppColors.primary500 : AppColors.grey300,
                 BlendMode.srcIn),
           ),
-          SizedBox(width: 4.cw),
+          SizedBox(width: 4.w),
           Text(formatNumberWithComma(replies),
               style: getTextStyle(AppTypo.body14M, AppColors.grey900))
         ],

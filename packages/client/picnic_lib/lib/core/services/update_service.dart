@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/providers/update_checker.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/providers/update_checker.dart';
 
 Future<UpdateInfo?> checkForUpdates(WidgetRef ref) async {
   try {

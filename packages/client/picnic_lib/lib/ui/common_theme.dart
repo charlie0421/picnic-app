@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 TabBarTheme commonTabBarTheme = TabBarTheme(
   labelStyle: getTextStyle(
@@ -19,7 +19,7 @@ TabBarTheme commonTabBarTheme = TabBarTheme(
 ElevatedButtonThemeData commonElevatedButtonThemeData = ElevatedButtonThemeData(
   style: ButtonStyle(
       padding: WidgetStateProperty.all(
-          EdgeInsets.symmetric(horizontal: 32.cw, vertical: 0)),
+          EdgeInsets.symmetric(horizontal: 32.w, vertical: 0)),
       backgroundColor: WidgetStateProperty.all(AppColors.primary500),
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(
@@ -74,7 +74,7 @@ getElevatedButtonThemeData(
   return ElevatedButtonThemeData(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
-            EdgeInsets.symmetric(horizontal: 32.cw, vertical: 0)),
+            EdgeInsets.symmetric(horizontal: 32.w, vertical: 0)),
         backgroundColor:
             WidgetStateProperty.all(backgroundColor ?? AppColors.primary500),
         foregroundColor: WidgetStateProperty.all(textColor ?? AppColors.grey00),

@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/community/post.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
-import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/dialogs/fortune_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/post_write_page.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 enum PostListType { artist, board }
@@ -77,7 +78,7 @@ class _PostListState extends ConsumerState<PostList> {
             },
             child: Container(
               height: 40,
-              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               alignment: Alignment.centerLeft,
               child: Text(S.of(context).fortune_button_title,
                   style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
@@ -99,7 +100,7 @@ class _PostListState extends ConsumerState<PostList> {
             },
             child: Container(
               height: 40,
-              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               alignment: Alignment.centerLeft,
               child: Text(S.of(context).fortune_with_me,
                   style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
@@ -131,7 +132,7 @@ class _PostListState extends ConsumerState<PostList> {
                                   backgroundColor: AppColors.grey00,
                                   textStyle: getTextStyle(AppTypo.body14B),
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: 20.cw, vertical: 10),
+                                      horizontal: 20.w, vertical: 10),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                     side: BorderSide(

@@ -6,19 +6,19 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/post_write_body.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/post_write_bottom_bar.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/post_write_header.dart';
-import 'package:picnic_lib/presentation/widgets/ui/s3_uploader.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/openai.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/post_write_body.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/post_write_bottom_bar.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/post_write_header.dart';
+import 'package:picnic_lib/presentation/widgets/ui/s3_uploader.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/openai.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 class PostWrite extends ConsumerStatefulWidget {
   const PostWrite({

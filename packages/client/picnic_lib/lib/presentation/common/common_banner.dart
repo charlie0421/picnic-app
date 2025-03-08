@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/data/models/common/banner.dart';
 import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
-import 'package:picnic_lib/data/models/common/banner.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CommonBanner extends ConsumerStatefulWidget {
@@ -85,7 +85,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
               right: 0,
               child: Container(
                 alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8.cw),
+                padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8.w),
                 color: Colors.black.withValues(alpha: 0.5),
                 child: Text(
                   title,
@@ -169,9 +169,9 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
               children: List.generate(
                 3,
                 (index) => Container(
-                  width: 8.cw,
+                  width: 8.w,
                   height: 8,
-                  margin: EdgeInsets.symmetric(horizontal: 4.cw),
+                  margin: EdgeInsets.symmetric(horizontal: 4.w),
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,

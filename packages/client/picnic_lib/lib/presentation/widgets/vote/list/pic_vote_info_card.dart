@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_horizontal.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/pic/artist_vote.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_horizontal.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PicVoteInfoCard extends ConsumerStatefulWidget {
   const PicVoteInfoCard(
@@ -82,7 +82,7 @@ class _PicVoteInfoCardState extends ConsumerState<PicVoteInfoCard>
       behavior: HitTestBehavior.opaque,
       onTap: () {},
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         margin: const EdgeInsets.only(bottom: 32),
         child: Column(
           children: [
@@ -98,14 +98,14 @@ class _PicVoteInfoCardState extends ConsumerState<PicVoteInfoCard>
               width: double.infinity,
               height: 220,
               padding:
-                  EdgeInsets.only(left: 0, right: 18.cw, top: 16, bottom: 16),
+                  EdgeInsets.only(left: 0, right: 18.w, top: 16, bottom: 16),
               clipBehavior: Clip.hardEdge,
               // 추가
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(40),
                 border: Border.all(
                   color: AppColors.primary500,
-                  width: 1.5.cw,
+                  width: 1.5.w,
                 ),
               ),
               child: Visibility(

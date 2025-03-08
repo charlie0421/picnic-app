@@ -1,6 +1,6 @@
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/pic/celeb.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';

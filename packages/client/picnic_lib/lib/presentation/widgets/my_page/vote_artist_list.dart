@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/vote_artist_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -100,7 +100,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 57.cw, vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: 57.w, vertical: 16),
           child: CommonSearchBox(
             focusNode: _focusNode,
             textEditingController: _textEditingController,
@@ -237,7 +237,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
           baseColor: Colors.grey[300]!,
           highlightColor: Colors.grey[100]!,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.cw),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Column(
               children: [
                 ListTile(
@@ -297,7 +297,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
         }
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Column(
           children: [
             ListTile(

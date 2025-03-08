@@ -3,25 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_lib/presentation/widgets/celeb_list_item.dart';
-import 'package:picnic_lib/presentation/common/common_banner.dart';
-import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
-import 'package:picnic_lib/presentation/widgets/no_bookmark_celeb.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/pic/celeb.dart';
 import 'package:picnic_lib/data/models/pic/gallery.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/common_banner.dart';
+import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/gallery_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/celeb_list_item.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/no_bookmark_celeb.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 import '../../providers/celeb_list_provider.dart';
 
@@ -119,7 +119,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   const SizedBox(height: 20),
                   Container(
                     alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(left: 16.cw),
+                    padding: EdgeInsets.only(left: 16.w),
                     child: Text(
                       S.of(context).label_celeb_gallery,
                       style: getTextStyle(AppTypo.title18B, AppColors.grey900),
@@ -152,7 +152,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
   Widget _buildVoteListTitle() {
     return Container(
       alignment: Alignment.centerLeft,
-      padding: EdgeInsets.only(left: 16.cw),
+      padding: EdgeInsets.only(left: 16.w),
       child: Row(
         children: [
           Text(
@@ -162,7 +162,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           SvgPicture.asset(
             package: 'picnic_lib',
             'assets/icons/arrow_right_style=line.svg',
-            width: 8.cw,
+            width: 8.w,
             height: 15,
             colorFilter:
                 const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
@@ -195,7 +195,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
       alignment: Alignment.centerLeft,
       height: 100,
       width: double.infinity,
-      padding: EdgeInsets.only(left: 16.cw),
+      padding: EdgeInsets.only(left: 16.w),
       child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
@@ -226,7 +226,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   Positioned(
                     bottom: 0,
                     child: Container(
-                      width: 140.cw,
+                      width: 140.w,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(8.r),
@@ -235,7 +235,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       ),
                       alignment: Alignment.center,
                       padding:
-                          EdgeInsets.symmetric(vertical: 4, horizontal: 8.cw),
+                          EdgeInsets.symmetric(vertical: 4, horizontal: 8.w),
                       child: Text(
                         title,
                         style: getTextStyle(AppTypo.body14R, Colors.white)
@@ -305,7 +305,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
       child: Container(
         alignment: Alignment.centerLeft,
         height: 44,
-        padding: EdgeInsets.only(left: 16.cw, top: 8, bottom: 8),
+        padding: EdgeInsets.only(left: 16.w, top: 8, bottom: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -326,7 +326,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/arrow_down_style=line.svg',
-              width: 20.cw,
+              width: 20.w,
               height: 20,
             ),
           ],
@@ -403,8 +403,8 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
     return data
         .map((e) => Container(
             height: 70,
-            margin: EdgeInsets.symmetric(horizontal: 32.cw, vertical: 4),
-            padding: EdgeInsets.symmetric(horizontal: 8.cw),
+            margin: EdgeInsets.symmetric(horizontal: 32.w, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
             decoration: BoxDecoration(
               color: e.id == selectedCeleb.id
                   ? const Color(0xFF47E89B)

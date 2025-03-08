@@ -2,7 +2,6 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class CustomPaginationBuilder extends SwiperPlugin {
   final int? itemCount;
@@ -18,7 +17,7 @@ class CustomPaginationBuilder extends SwiperPlugin {
         bool active = index == config.activeIndex;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          margin: EdgeInsets.symmetric(horizontal: 2.cw),
+          margin: EdgeInsets.symmetric(horizontal: 2.w),
           width: active ? 12 : 8,
           height: active ? 12 : 8,
           decoration: BoxDecoration(
@@ -51,7 +50,7 @@ class CustomPagination extends StatelessWidget {
           bool active = index == activeIndex;
           return AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            margin: EdgeInsets.symmetric(horizontal: 2.cw),
+            margin: EdgeInsets.symmetric(horizontal: 2.w),
             width: active ? 12 : 8,
             height: active ? 12 : 8,
             decoration: BoxDecoration(

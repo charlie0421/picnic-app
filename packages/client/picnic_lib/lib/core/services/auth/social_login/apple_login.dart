@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
-import 'package:picnic_lib/data/models/common/social_login_result.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/common/social_login_result.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AppleLogin implements SocialLogin {

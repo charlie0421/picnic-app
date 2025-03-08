@@ -12,15 +12,14 @@ import 'package:image/image.dart' as img;
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/widgets/pic/bottom_bar_widget.dart';
 import 'package:picnic_lib/presentation/widgets/pic/image_overlay_painter.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PicCameraViewPage extends ConsumerStatefulWidget {
   const PicCameraViewPage({super.key});
@@ -437,21 +436,21 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                 ? Container(
                     height: 500,
                     padding: EdgeInsets.symmetric(
-                        horizontal: 16.cw, vertical: 16.cw),
+                        horizontal: 16.w, vertical: 16.w),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                            width: 200.cw,
+                            width: 200.w,
                             child: AspectRatio(
                                 aspectRatio: 5.5 / 8.5,
                                 child: Image.memory(
                                   _capturedImageBytes!,
                                 ))),
                         Container(
-                          width: 200.cw,
-                          padding: EdgeInsets.symmetric(vertical: 16.cw),
+                          width: 200.w,
+                          padding: EdgeInsets.symmetric(vertical: 16.w),
                           child: ElevatedButton(
                             onPressed: () async {
                               await _saveImage();

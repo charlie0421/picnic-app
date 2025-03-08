@@ -3,18 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
-import 'package:picnic_lib/presentation/common/common_search_box.dart';
-import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
+import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PostSearchPage extends ConsumerStatefulWidget {
@@ -160,7 +159,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
 
   Widget _buildSearchBox() {
     return Container(
-      padding: EdgeInsets.only(left: 16.cw, right: 16.cw, top: 23, bottom: 33),
+      padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 23, bottom: 33),
       child: CommonSearchBox(
         focusNode: focusNode,
         textEditingController: _textController,
@@ -239,13 +238,13 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
 
   Widget _buildSearchResultLabel() {
     return Container(
-      width: 100.cw,
+      width: 100.w,
       height: 32,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: AppColors.primary500,
         border: Border.all(
-            color: AppColors.primary500, width: 1.cw, style: BorderStyle.solid),
+            color: AppColors.primary500, width: 1.w, style: BorderStyle.solid),
         borderRadius: BorderRadius.all(Radius.circular(16.r)),
       ),
       child: Text(S.of(context).common_text_search_result_label,
@@ -260,7 +259,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
       children: [
         Container(
           margin: const EdgeInsets.only(bottom: 24),
-          padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
           decoration: BoxDecoration(
             border: Border.all(color: AppColors.primary500, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(20.r)),
@@ -291,7 +290,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             style: getTextStyle(AppTypo.caption12B, AppColors.grey500)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.5),
-          side: BorderSide(color: AppColors.grey400, width: 1.cw),
+          side: BorderSide(color: AppColors.grey400, width: 1.w),
         ),
         backgroundColor: AppColors.grey00,
         deleteIcon: SvgPicture.asset(
@@ -309,7 +308,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
 
   Widget _buildNoResultsWidget() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 56),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 56),
       child: Text(S.of(context).text_no_search_result,
           style: getTextStyle(AppTypo.body16M, AppColors.grey400)),
     );

@@ -93,12 +93,12 @@ class _PortalState extends ConsumerState<Portal> {
                 );
               },
             ),
-            leadingWidth: 52.cw,
+            leadingWidth: 52.w,
             titleSpacing: 0,
             title: Container(
               height: 26,
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(right: 24.cw),
+              padding: EdgeInsets.only(right: 24.w),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
