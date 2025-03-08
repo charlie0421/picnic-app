@@ -3,9 +3,9 @@
     "short_name": "ttja_app",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FFFFFF",
+    "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "TTJA 앱",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -31,14 +31,5 @@
             "type": "image/png",
             "purpose": "maskable"
         }
-    ],
-    "shortcuts": [
-        {
-            "name": "Home",
-            "url": "/"
-        }
-    ],
-    "categories": ["productivity", "social"],
-    "lang": "ko",
-    "dir": "ltr"
+    ]
 }

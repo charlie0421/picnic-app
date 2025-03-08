@@ -1,461 +1,478 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base href="$FLUTTER_BASE_HREF" />
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
 
-    <meta charset="UTF-8" />
-    <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
-    <meta name="description" content="TTJA" />
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
 
-    <!-- iOS meta tags & icons -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="ttja_app" />
-    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png" />
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
 
-    <title>ttja_app</title>
-    <link rel="manifest" href="manifest.json" />
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
 
-    <!-- 뷰포트 설정 -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <meta name="theme-color" content="#ffffff" />
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="ttja_app">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-    <!-- Flutter 초기화 스크립트 -->
-    <script src="flutter.js" defer></script>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
 
-    <!-- Next.js 리액트 -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <title>ttja_app</title>
+  <link rel="manifest" href="manifest.json">
 
-    <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        overflow: hidden; /* 중요: 외부 스크롤 방지 */
-        background-color: #FFFFFF;
+  <!-- 뷰포트 설정 -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <meta name="theme-color" content="#ffffff" />
+
+  <!-- Next.js 리액트 -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow: hidden; /* 중요: 외부 스크롤 방지 */
+      background-color: #FFFFFF;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      background-color: #FFFFFF;
+      touch-action: auto; /* 터치 액션 활성화 */
+    }
+
+    .container {
+      display: flex;
+      max-width: 1300px;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background-color: #FFFFFF;
+      padding: 0; /* 여백 제거 */
+      margin: 0; /* 여백 제거 */
+    }
+
+    .sidebar-left,
+    .sidebar-right {
+      flex: 0 0 393px;
+      width: 393px;
+      height: 100%;
+      display: block; /* 기본값을 block으로 설정 */
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      z-index: 5;
+    }
+
+    .sidebar-left iframe,
+    .sidebar-right iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .app-container {
+      flex: 0 0 393px;
+      width: 393px;
+      max-width: 393px;
+      min-width: 393px;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+      background-color: #FFFFFF; /* 단색 배경 */
+      margin: 0; /* 여백 제거 */
+      padding: 0; /* 여백 제거 */
+    }
+
+    /* Flutter 렌더링 관련 요소의 크기 및 이벤트 설정 */
+    flt-glass-pane, 
+    flt-scene-host, 
+    flt-semantics-host,
+    flt-text-editing-host,
+    canvas,
+    #flutter-app-container > * {
+      width: 393px !important;
+      max-width: 393px !important;
+      pointer-events: auto !important;
+      touch-action: auto !important;
+      background-color: #FFFFFF !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      position: absolute !important;
+      left: 0 !important;
+    }
+
+    /* Flutter 엔진이 생성하는 로딩바를 전체가 아닌 393px 영역으로 제한 */
+    flt-glass-pane > .flutter-loader {
+      width: 393px !important;
+      left: 0 !important;
+      right: 0 !important;
+    }
+
+    #splash {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      background-color: #FFFFFF; /* 단색 배경으로 설정 */
+    }
+
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #flutter-error {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 0, 0, 0.1);
+      border: 1px solid red;
+      padding: 20px;
+      border-radius: 5px;
+      color: red;
+      font-family: sans-serif;
+      text-align: center;
+      max-width: 300px;
+      z-index: 999;
+    }
+
+    .loading-indicator {
+      width: 40px;
+      height: 40px;
+      margin: 15px auto;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: #3498db;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
       }
+    }
 
-      body {
-        display: flex;
-        justify-content: center;
-        background-color: #FFFFFF;
-        touch-action: auto; /* 터치 액션 활성화 */
-      }
-
-      .container {
-        display: flex;
-        max-width: 1300px;
-        width: 100%;
-        height: 100%;
-        position: relative;
-        background-color: #FFFFFF;
-        padding: 0; /* 여백 제거 */
-        margin: 0; /* 여백 제거 */
-      }
-
+    /* 반응형 디자인 */
+    @media (max-width: 843px) {
       .sidebar-left,
       .sidebar-right {
-        flex: 0 0 393px;
-        width: 393px;
-        height: 100%;
-        display: block; /* 기본값을 block으로 설정 */
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        background-color: #f8f9fa;
-        z-index: 5;
+        display: none !important; /* !important로 강제 적용 */
       }
-
-      .sidebar-left iframe,
-      .sidebar-right iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-      }
-
-      .app-container {
-        flex: 0 0 393px;
-        width: 393px;
-        max-width: 393px;
-        min-width: 393px;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-        z-index: 10;
-        background-color: #FFFFFF; /* 단색 배경 */
-        margin: 0; /* 여백 제거 */
-        padding: 0; /* 여백 제거 */
-      }
-
-      /* Flutter 렌더링 관련 요소의 크기 및 이벤트 설정 */
-      flt-glass-pane, 
-      flt-scene-host, 
-      flt-semantics-host,
-      flt-text-editing-host,
-      canvas,
-      #flutter-app-container > * {
-        width: 393px !important;
-        max-width: 393px !important;
-        pointer-events: auto !important;
-        touch-action: auto !important;
-        background-color: #FFFFFF !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-        position: absolute !important;
-        left: 0 !important;
-      }
-
-      /* Flutter 엔진이 생성하는 로딩바를 전체가 아닌 393px 영역으로 제한 */
-      flt-glass-pane > .flutter-loader {
-        width: 393px !important;
-        left: 0 !important;
-        right: 0 !important;
-      }
-
-      #splash {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        z-index: 2;
-        background-color: #FFFFFF; /* 단색 배경으로 설정 */
-      }
-
-      #flutter_target {
-        width: 393px;
-        height: 100%;
-      }
-
-      #loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
+      .container {
         justify-content: center;
-        align-items: center;
-        background-color: white;
-        z-index: 2;
       }
+    }
 
-      #error {
-        display: none;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 20px;
-        background-color: rgba(255, 0, 0, 0.1);
-        border: 1px solid red;
-        border-radius: 5px;
-        text-align: center;
-        z-index: 999;
+    @media (min-width: 844px) and (max-width: 1236px) {
+      .sidebar-left {
+        display: block !important; /* !important로 강제 적용 */
       }
-
-      /* 반응형 디자인 */
-      @media (max-width: 843px) {
-        .sidebar-left,
-        .sidebar-right {
-          display: none !important; /* !important로 강제 적용 */
-        }
-        .container {
-          justify-content: center;
-        }
+      .sidebar-right {
+        display: none !important; /* !important로 강제 적용 */
       }
-
-      @media (min-width: 844px) and (max-width: 1236px) {
-        .sidebar-left {
-          display: block !important; /* !important로 강제 적용 */
-        }
-        .sidebar-right {
-          display: none !important; /* !important로 강제 적용 */
-        }
-        .container {
-          justify-content: center; /* 중앙 정렬로 변경 */
-        }
+      .container {
+        justify-content: center; /* 중앙 정렬로 변경 */
       }
+    }
 
-      @media (min-width: 1237px) {
-        .sidebar-left,
-        .sidebar-right {
-          display: block !important; /* !important로 강제 적용 */
-        }
-        .container {
-          justify-content: center; /* 중앙 정렬로 변경 */
-        }
+    @media (min-width: 1237px) {
+      .sidebar-left,
+      .sidebar-right {
+        display: block !important; /* !important로 강제 적용 */
       }
-    </style>
-  </head>
-  <body>
-    <div class="container" style="background-color: #FFFFFF; justify-content: center;">
-      <!-- 좌측 사이드바 -->
-      <div class="sidebar-left" id="sidebar-left">
-        <iframe frameborder="0" title="Left Sidebar"></iframe>
-      </div>
-
-      <!-- Flutter 앱 -->
-      <div class="app-container" id="flutter-app-container" style="margin: 0; padding: 0;">
-        <!-- 스플래시 화면 (심플하게 유지) -->
-        <picture id="splash">
-          <source
-            srcset="
-              splash/img/light-1x.png 1x,
-              splash/img/light-2x.png 2x,
-              splash/img/light-3x.png 3x,
-              splash/img/light-4x.png 4x
-            "
-            media="(prefers-color-scheme: light)"
-          />
-          <source
-            srcset="
-              splash/img/dark-1x.png 1x,
-              splash/img/dark-2x.png 2x,
-              splash/img/dark-3x.png 3x,
-              splash/img/dark-4x.png 4x
-            "
-            media="(prefers-color-scheme: dark)"
-          />
-          <img
-            class="center"
-            aria-hidden="true"
-            src="splash/img/light-1x.png"
-            alt=""
-          />
-        </picture>
-      </div>
-
-      <!-- 우측 사이드바 -->
-      <div class="sidebar-right" id="sidebar-right">
-        <iframe frameborder="0" title="Right Sidebar"></iframe>
-      </div>
+      .container {
+        justify-content: center; /* 중앙 정렬로 변경 */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" style="background-color: #FFFFFF; justify-content: center;">
+    <!-- 좌측 사이드바 -->
+    <div class="sidebar-left" id="sidebar-left">
+      <iframe frameborder="0" title="Left Sidebar"></iframe>
     </div>
 
-    <script>
-      // 전역 변수 선언
-      let splashRemoved = false;
-      let sidebarInitialized = false;
-      let flutterInitialized = false;
+    <!-- 중앙 Flutter 앱 컨테이너 -->
+    <div class="app-container" id="flutter-app-container" style="margin: 0; padding: 0;">
+      <!-- 스플래시 화면 (심플하게 유지) -->
+      <picture id="splash">
+        <source
+          srcset="
+            splash/img/light-1x.png 1x,
+            splash/img/light-2x.png 2x,
+            splash/img/light-3x.png 3x,
+            splash/img/light-4x.png 4x
+          "
+          media="(prefers-color-scheme: light)"
+        />
+        <source
+          srcset="
+            splash/img/dark-1x.png 1x,
+            splash/img/dark-2x.png 2x,
+            splash/img/dark-3x.png 3x,
+            splash/img/dark-4x.png 4x
+          "
+          media="(prefers-color-scheme: dark)"
+        />
+        <img
+          class="center"
+          aria-hidden="true"
+          src="splash/img/light-1x.png"
+          alt=""
+        />
+      </picture>
+    </div>
 
-      // 스플래시 제거 함수
-      function removeSplash() {
-        if (splashRemoved) return;
+    <!-- 우측 사이드바 -->
+    <div class="sidebar-right" id="sidebar-right">
+      <iframe frameborder="0" title="Right Sidebar"></iframe>
+    </div>
+  </div>
 
-        const splash = document.getElementById('splash');
-        if (splash) splash.remove();
+  <!-- 새로운 Flutter 3.22+ 초기화 방식 -->
+  <script src="flutter_bootstrap.js" async></script>
 
-        splashRemoved = true;
-        console.log('스플래시 화면 제거 완료');
+  <!-- 사이드바 및 스플래시 제어 스크립트 -->
+  <script>
+    // 전역 변수 선언
+    let splashRemoved = false;
+    let sidebarInitialized = false;
+    let flutterInitialized = false;
 
-        // 사이드바 상태 업데이트
-        updateSidebars();
+    // 스플래시 제거 함수
+    function removeSplash() {
+      if (splashRemoved) return;
+
+      const splash = document.getElementById('splash');
+      if (splash) splash.remove();
+
+      splashRemoved = true;
+      console.log('스플래시 화면 제거 완료');
+
+      // 사이드바 상태 업데이트
+      updateSidebars();
+      
+      // Flutter 요소 수정
+      fixFlutterElementsOnce();
+    }
+
+    // Flutter 요소 수정 함수 (한 번만 실행)
+    function fixFlutterElementsOnce() {
+      console.log('Flutter 요소 수정 시작...');
+      
+      // Flutter 요소 찾기
+      const flutterElement = document.querySelector('flt-glass-pane');
+      if (flutterElement) {
+        console.log('Flutter 요소 발견, 스타일 적용 중...');
         
-        // Flutter 요소 수정
-        fixFlutterElementsOnce();
-      }
-
-      // Flutter 요소 수정 함수 (한 번만 실행)
-      function fixFlutterElementsOnce() {
-        console.log('Flutter 요소 수정 시작...');
+        // 스타일 적용
+        flutterElement.style.width = '393px';
+        flutterElement.style.maxWidth = '393px';
+        flutterElement.style.pointerEvents = 'auto';
+        flutterElement.style.touchAction = 'auto';
+        flutterElement.style.backgroundColor = '#FFFFFF';
+        flutterElement.style.margin = '0';
+        flutterElement.style.padding = '0';
+        flutterElement.style.left = '0';
+        flutterElement.style.position = 'absolute';
         
-        // Flutter 요소 찾기
-        const flutterElement = document.querySelector('flt-glass-pane');
-        if (flutterElement) {
-          console.log('Flutter 요소 발견, 스타일 적용 중...');
-          
-          // 스타일 적용
-          flutterElement.style.width = '393px';
-          flutterElement.style.maxWidth = '393px';
-          flutterElement.style.pointerEvents = 'auto';
-          flutterElement.style.touchAction = 'auto';
-          flutterElement.style.backgroundColor = '#FFFFFF';
-          flutterElement.style.margin = '0';
-          flutterElement.style.padding = '0';
-          flutterElement.style.left = '0';
-          flutterElement.style.position = 'absolute';
-          
-          // 모든 자식 요소에도 터치 이벤트 활성화
-          const allFlutterElements = flutterElement.querySelectorAll('*');
-          allFlutterElements.forEach(el => {
-            if (el.style) {
-              el.style.pointerEvents = 'auto';
-              el.style.touchAction = 'auto';
-              
-              // 위치 관련 요소는 여백 제거
-              if (el.tagName && (el.tagName.toLowerCase().includes('flt-') || el.tagName.toLowerCase() === 'canvas')) {
-                el.style.margin = '0';
-                el.style.padding = '0';
-                el.style.left = '0';
-                if (el.style.position) {
-                  el.style.position = 'absolute';
-                }
+        // 모든 자식 요소에도 터치 이벤트 활성화
+        const allFlutterElements = flutterElement.querySelectorAll('*');
+        allFlutterElements.forEach(el => {
+          if (el.style) {
+            el.style.pointerEvents = 'auto';
+            el.style.touchAction = 'auto';
+            
+            // 위치 관련 요소는 여백 제거
+            if (el.tagName && (el.tagName.toLowerCase().includes('flt-') || el.tagName.toLowerCase() === 'canvas')) {
+              el.style.margin = '0';
+              el.style.padding = '0';
+              el.style.left = '0';
+              if (el.style.position) {
+                el.style.position = 'absolute';
               }
             }
-          });
-          
-          console.log('Flutter 요소 스타일 적용 완료');
-        }
-      }
-
-      // 정기적으로 Flutter 요소 수정 (초당 1회)
-      setInterval(() => {
-        const flutterElement = document.querySelector('flt-glass-pane');
-        if (flutterElement) {
-          flutterElement.style.width = '393px';
-          flutterElement.style.maxWidth = '393px';
-          flutterElement.style.pointerEvents = 'auto';
-          flutterElement.style.touchAction = 'auto';
-          flutterElement.style.margin = '0';
-          flutterElement.style.padding = '0';
-          flutterElement.style.left = '0';
-          flutterElement.style.position = 'absolute';
-          
-          // 로딩 바 크기 조정
-          const loaderBar = document.querySelector('.flutter-loader');
-          if (loaderBar) {
-            loaderBar.style.width = '393px';
-            loaderBar.style.left = '0';
-            loaderBar.style.right = '0';
-            loaderBar.style.margin = '0';
-            loaderBar.style.padding = '0';
           }
-          
-          // 주요 캔버스 요소 조정
-          const canvasElements = document.querySelectorAll('canvas');
-          canvasElements.forEach(canvas => {
-            canvas.style.width = '393px';
-            canvas.style.maxWidth = '393px';
-            canvas.style.margin = '0';
-            canvas.style.padding = '0';
-            canvas.style.left = '0';
-            canvas.style.position = 'absolute';
-          });
-        }
-      }, 1000);
-
-      // Flutter 초기화 완료 콜백
-      function onFlutterInited() {
-        console.log('Flutter 초기화 완료');
-        flutterInitialized = true;
+        });
         
-        // 약간 지연시켜 스플래시 제거
-        setTimeout(() => {
-          removeSplash();
-        }, 500);
-        
-        // 터치 이벤트 활성화
-        fixFlutterElementsOnce();
+        console.log('Flutter 요소 스타일 적용 완료');
       }
+    }
 
-      // 디바운싱 처리 함수
-      function debounce(func, wait) {
-        let timeout;
-        return function() {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => func.apply(this, arguments), wait);
-        };
-      }
-
-      // 사이드바 업데이트 함수
-      function updateSidebars() {
-        const width = window.innerWidth;
+    // 정기적으로 Flutter 요소 수정 (초당 1회)
+    setInterval(() => {
+      const flutterElement = document.querySelector('flt-glass-pane');
+      if (flutterElement) {
+        flutterElement.style.width = '393px';
+        flutterElement.style.maxWidth = '393px';
+        flutterElement.style.pointerEvents = 'auto';
+        flutterElement.style.touchAction = 'auto';
+        flutterElement.style.margin = '0';
+        flutterElement.style.padding = '0';
+        flutterElement.style.left = '0';
+        flutterElement.style.position = 'absolute';
         
-        const leftSidebar = document.getElementById('sidebar-left');
-        const rightSidebar = document.getElementById('sidebar-right');
-
-        // 사이드바가 없는 경우 처리
-        if (!leftSidebar || !rightSidebar) return;
-
-        if (width >= 1237) {
-          // 3칸 모드
-          leftSidebar.style.display = 'block';
-          rightSidebar.style.display = 'block';
-        } else if (width >= 844) {
-          // 2칸 모드
-          leftSidebar.style.display = 'block';
-          rightSidebar.style.display = 'none';
-        } else {
-          // 1칸 모드
-          leftSidebar.style.display = 'none';
-          rightSidebar.style.display = 'none';
+        // 로딩 바 크기 조정
+        const loaderBar = document.querySelector('.flutter-loader');
+        if (loaderBar) {
+          loaderBar.style.width = '393px';
+          loaderBar.style.left = '0';
+          loaderBar.style.right = '0';
+          loaderBar.style.margin = '0';
+          loaderBar.style.padding = '0';
         }
+        
+        // 주요 캔버스 요소 조정
+        const canvasElements = document.querySelectorAll('canvas');
+        canvasElements.forEach(canvas => {
+          canvas.style.width = '393px';
+          canvas.style.maxWidth = '393px';
+          canvas.style.margin = '0';
+          canvas.style.padding = '0';
+          canvas.style.left = '0';
+          canvas.style.position = 'absolute';
+        });
       }
+    }, 1000);
 
-      // 사이드바 초기화 함수
-      function initSidebars() {
-        if (sidebarInitialized) return;
+    // Flutter 초기화 완료 콜백
+    function onFlutterInited() {
+      console.log('Flutter 초기화 완료');
+      flutterInitialized = true;
+      
+      // 약간 지연시켜 스플래시 제거
+      setTimeout(() => {
+        removeSplash();
+      }, 500);
+      
+      // 터치 이벤트 활성화
+      fixFlutterElementsOnce();
+    }
 
-        const isLocalhost = 
-          window.location.hostname === 'localhost' || 
-          window.location.hostname === '127.0.0.1';
+    // 디바운싱 처리 함수
+    function debounce(func, wait) {
+      let timeout;
+      return function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, arguments), wait);
+      };
+    }
 
-        // TTJA Next.js 서버 URL 설정
-        const leftSidebarSrc = isLocalhost
-          ? 'http://localhost:3002/left-sidebar'
-          : './next-export/left-sidebar.html';
+    // 사이드바 업데이트 함수
+    function updateSidebars() {
+      const width = window.innerWidth;
+      
+      const leftSidebar = document.getElementById('sidebar-left');
+      const rightSidebar = document.getElementById('sidebar-right');
 
-        const rightSidebarSrc = isLocalhost
-          ? 'http://localhost:3002/right-sidebar'
-          : './next-export/right-sidebar.html';
+      // 사이드바가 없는 경우 처리
+      if (!leftSidebar || !rightSidebar) return;
 
-        // iframe 요소 설정
-        const leftIframe = document.querySelector('#sidebar-left iframe');
-        const rightIframe = document.querySelector('#sidebar-right iframe');
-
-        if (leftIframe && rightIframe) {
-          leftIframe.src = leftSidebarSrc;
-          rightIframe.src = rightSidebarSrc;
-          
-          sidebarInitialized = true;
-          
-          // 초기 사이드바 상태 설정
-          updateSidebars();
-        }
+      if (width >= 1237) {
+        // 3칸 모드
+        leftSidebar.style.display = 'block';
+        rightSidebar.style.display = 'block';
+      } else if (width >= 844) {
+        // 2칸 모드
+        leftSidebar.style.display = 'block';
+        rightSidebar.style.display = 'none';
+      } else {
+        // 1칸 모드
+        leftSidebar.style.display = 'none';
+        rightSidebar.style.display = 'none';
       }
+    }
 
-      // 디바운싱된 리사이즈 핸들러
-      const debouncedResize = debounce(updateSidebars, 250);
+    // 사이드바 초기화 함수
+    function initSidebars() {
+      if (sidebarInitialized) return;
 
-      // DOM 로드 완료 시 실행
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM 로드 완료');
+      const isLocalhost = 
+        window.location.hostname === 'localhost' || 
+        window.location.hostname === '127.0.0.1';
+
+      // TTJA Next.js 서버 URL 설정
+      const leftSidebarSrc = isLocalhost
+        ? 'http://localhost:3001/left-sidebar'
+        : './next-export/left-sidebar.html';
+
+      const rightSidebarSrc = isLocalhost
+        ? 'http://localhost:3001/right-sidebar'
+        : './next-export/right-sidebar.html';
+
+      // iframe 요소 설정
+      const leftIframe = document.querySelector('#sidebar-left iframe');
+      const rightIframe = document.querySelector('#sidebar-right iframe');
+
+      if (leftIframe && rightIframe) {
+        leftIframe.src = leftSidebarSrc;
+        rightIframe.src = rightSidebarSrc;
         
-        // 사이드바 초기화
-        initSidebars();
+        sidebarInitialized = true;
         
-        // 윈도우 리사이즈 이벤트 리스너
-        window.addEventListener('resize', debouncedResize);
-        
-        // Flutter 초기화 (심플한 방식)
-        if (window._flutter) {
-          window._flutter.loader.loadEntrypoint({
-            onEntrypointLoaded: function(engineInitializer) {
-              engineInitializer.initializeEngine({
-                hostElement: document.getElementById('flutter-app-container'),
-                renderer: 'html',
-                canvasKitBaseUrl: "/canvaskit/",
-                width: 393,
-              }).then(function(appRunner) {
-                appRunner.runApp();
-                onFlutterInited();
-              });
-            }
-          });
-        } else {
-          console.error('Flutter 로더를 찾을 수 없습니다.');
-        }
+        // 초기 사이드바 상태 설정
+        updateSidebars();
+      }
+    }
+
+    // 디바운싱된 리사이즈 핸들러
+    const debouncedResize = debounce(updateSidebars, 250);
+    
+    // DOM 로드 완료시 실행할 초기화 함수
+    function initOnDOMLoaded() {
+      console.log('DOM 로드 완료');
+      
+      // 사이드바 초기화
+      initSidebars();
+      
+      // 윈도우 리사이즈 이벤트 리스너
+      window.addEventListener('resize', debouncedResize);
+      
+      // Flutter가 로드되면 스플래시 제거를 위한 이벤트 리스너 설정
+      window.addEventListener('flutter-initialized', function() {
+        console.log('Flutter 초기화 완료 이벤트 수신');
+        onFlutterInited();
       });
-    </script>
-  </body>
+    }
+
+    // DOM 로드 완료 시 이벤트 리스너 등록
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', initOnDOMLoaded);
+    } else {
+      initOnDOMLoaded();
+    }
+  </script>
+</body>
 </html>

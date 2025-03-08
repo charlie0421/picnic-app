@@ -1,11 +1,11 @@
 {
-    "name": "Picnic",
-    "short_name": "Picnic",
+    "name": "picnic_app",
+    "short_name": "picnic_app",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FFFFFF",
+    "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Picnic 앱",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -31,14 +31,5 @@
             "type": "image/png",
             "purpose": "maskable"
         }
-    ],
-    "shortcuts": [
-        {
-            "name": "Home",
-            "url": "/"
-        }
-    ],
-    "categories": ["social", "entertainment"],
-    "lang": "ko",
-    "dir": "ltr"
+    ]
 }
