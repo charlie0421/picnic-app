@@ -25,11 +25,11 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'packages/client/picnic_web/package-lock.json'
+          cache-dependency-path: 'packages/web/picnic_web/package-lock.json'
 
       # Next.js 빌드 및 내보내기
       - name: Build Next.js sidebar
-        working-directory: packages/client/picnic_web
+        working-directory: packages/web/picnic_web
         run: |
           npm install
           npm run build
@@ -37,11 +37,11 @@ jobs:
           cp -r out/* ../picnic_app/web/next-export/
 
       - name: Build flutter web
-        working-directory: packages/client/picnic_app
+        working-directory: packages/app/picnic_app
         run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
 
       - name: Install Vercel CLI
-        working-directory: packages/client/picnic_app
+        working-directory: packages/app/picnic_app
         run: npm install -g vercel
 
       - name: Deploy to Vercel

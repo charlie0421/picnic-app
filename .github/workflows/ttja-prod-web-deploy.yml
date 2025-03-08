@@ -26,10 +26,10 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'packages/client/ttja_web/package-lock.json'
+          cache-dependency-path: 'packages/web/ttja_web/package-lock.json'
 
       - name: Build Next.js sidebar
-        working-directory: packages/client/ttja_web
+        working-directory: packages/web/ttja_web
         run: |
           npm install
           npm run build
@@ -37,11 +37,11 @@ jobs:
           cp -r out/* ../ttja_app/web/next-export/
 
       - name: Build flutter web
-        working-directory: packages/client/ttja_app
+        working-directory: packages/app/ttja_app
         run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
 
       - name: Install Vercel CLI
-        working-directory: packages/client/ttja_app
+        working-directory: packages/app/ttja_app
         run: npm install -g vercel
   
       - name: Deploy to Vercel
