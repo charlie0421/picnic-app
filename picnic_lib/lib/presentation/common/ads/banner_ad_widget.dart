@@ -1,11 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/ui/style.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class BannerAdWidget extends ConsumerStatefulWidget {
   final String configKey;
@@ -15,6 +19,7 @@ class BannerAdWidget extends ConsumerStatefulWidget {
   final Widget? loadingWidget;
   final Widget? errorWidget;
   final Duration loadingUIDelay; // 로딩 UI 지연 시간
+  final String? logoAssetPath; // 웹 환경에서 표시할 로고 경로
 
   const BannerAdWidget({
     super.key,
@@ -25,6 +30,7 @@ class BannerAdWidget extends ConsumerStatefulWidget {
     this.loadingWidget,
     this.errorWidget,
     this.loadingUIDelay = const Duration(milliseconds: 1000),
+    this.logoAssetPath,
   });
 
   @override
@@ -39,12 +45,21 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
   int _retryCount = 0;
   bool _isDisposed = false;
   Timer? _loadingUITimer;
+  bool _isWeb = false;
 
   @override
   void initState() {
     super.initState();
-    _loadBannerAd();
-    _scheduleLoadingUI();
+    _isWeb = kIsWeb || UniversalPlatform.isWeb;
+    
+    if (!_isWeb) {
+      _loadBannerAd();
+      _scheduleLoadingUI();
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _scheduleLoadingUI() {
@@ -149,6 +164,11 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // 웹 환경일 경우 빈 위젯 반환 (광고 배너를 표시하지 않음)
+    if (_isWeb) {
+      return const SizedBox.shrink();
+    }
+
     if (_isLoading && _showLoadingUI) {
       return Center(
         child: SizedBox(
