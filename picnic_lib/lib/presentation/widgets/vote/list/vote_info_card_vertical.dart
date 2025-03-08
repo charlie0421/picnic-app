@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class VoteCardColumnVertical extends StatelessWidget {
   const VoteCardColumnVertical({
@@ -100,7 +100,7 @@ class VoteCardColumnVertical extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100),
                 border: Border.all(
                   color: AppColors.grey200.withValues(alpha: 0.5),
-                  width: 1.cw,
+                  width: 1.w,
                 ),
               ),
               child: FadeTransition(

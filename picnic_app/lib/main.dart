@@ -12,7 +12,6 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:url_strategy/url_strategy.dart';
 import 'package:flutter/foundation.dart';
 import 'package:universal_platform/universal_platform.dart';
 

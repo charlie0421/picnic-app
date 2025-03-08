@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_common.dart';
-import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class MyPageScreen extends ConsumerStatefulWidget {
   static const String routeName = '/mypage';
@@ -55,13 +55,13 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
               }
             },
             child: Container(
-              padding: EdgeInsets.only(left: 16.cw),
-              width: 24.cw,
+              padding: EdgeInsets.only(left: 16.w),
+              width: 24.w,
               height: 24,
               child: SvgPicture.asset(
                 package: 'picnic_lib',
                 'assets/icons/arrow_left_style=line.svg',
-                width: 24.cw,
+                width: 24.w,
                 height: 24,
               ),
             ),
@@ -69,7 +69,7 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
           title: Text(Intl.message(pageName),
               style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
           centerTitle: true,
-          leadingWidth: 40.cw,
+          leadingWidth: 40.w,
           actions: [
             userInfoState.when(
                 data: (data) => data != null && (data.isAdmin ?? false)
@@ -77,7 +77,7 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
                     : Container(),
                 loading: () => Container(),
                 error: (error, stackTrace) => Container()),
-            SizedBox(width: 16.cw),
+            SizedBox(width: 16.w),
           ],
         ),
         body: const DrawerAnimatedSwitcher(),

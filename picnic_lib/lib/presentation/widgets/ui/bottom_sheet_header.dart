@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class BottomSheetHeader extends StatelessWidget {
   const BottomSheetHeader({super.key, required this.title});
@@ -19,7 +19,7 @@ class BottomSheetHeader extends StatelessWidget {
         children: [
           Container(
             height: 5,
-            width: 100.cw,
+            width: 100.w,
             color: AppColors.grey300,
           ),
           Text(

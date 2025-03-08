@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
-import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/pages/community/community_my_comment.dart';
 import 'package:picnic_lib/presentation/pages/community/community_my_scraps.dart';
 import 'package:picnic_lib/presentation/pages/community/community_my_writen.dart';
@@ -11,7 +12,6 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class CommunityMyPage extends ConsumerStatefulWidget {
   const CommunityMyPage({super.key});
@@ -45,7 +45,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
           postAnonymousMode
               ? Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                   const NoAvatar(width: 60, height: 60, borderRadius: 30),
-                  SizedBox(width: 16.cw),
+                  SizedBox(width: 16.w),
                   Text(
                     S.of(context).anonymous,
                     style: getTextStyle(AppTypo.title18B, AppColors.grey900),

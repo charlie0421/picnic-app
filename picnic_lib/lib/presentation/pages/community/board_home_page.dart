@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/presentation/providers/artist_provider.dart';
-import 'package:picnic_lib/presentation/widgets/community/list/post_list.dart';
-import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/board_request.dart';
+import 'package:picnic_lib/presentation/providers/artist_provider.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/list/post_list.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class BoardHomePage extends ConsumerStatefulWidget {
@@ -143,7 +143,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
   Widget _buildTabBar(
       List<BoardModel> boards, int totalPages, bool showRequestButton) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.grey300, width: 1)),
       ),
@@ -194,9 +194,9 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
         setState(() => _currentIndex = index);
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         height: 32,
-        constraints: BoxConstraints(minWidth: 80.cw),
+        constraints: BoxConstraints(minWidth: 80.w),
         decoration: _currentIndex == index
             ? const BoxDecoration(
                 border: Border(
@@ -229,7 +229,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
       },
       child: Container(
         alignment: Alignment.center,
-        constraints: BoxConstraints(minWidth: 80.cw),
+        constraints: BoxConstraints(minWidth: 80.w),
         decoration: _currentIndex == index
             ? const BoxDecoration(
                 border: Border(

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 
 class CompatibilityListPage extends ConsumerStatefulWidget {
   const CompatibilityListPage({super.key, this.artistId});

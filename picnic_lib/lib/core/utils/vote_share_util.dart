@@ -7,8 +7,8 @@ import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_lib/core/config/environment.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ShareUtils {

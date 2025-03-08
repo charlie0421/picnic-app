@@ -11,22 +11,21 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:path/path.dart' as path;
+import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
+import 'package:picnic_lib/core/utils/util.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
-import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
-import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/pages/my_page/privacy_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/terms_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/core/utils/util.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -68,7 +67,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         FocusScope.of(context).unfocus();
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: ListView(
           children: [
             const SizedBox(height: 24),
@@ -89,7 +88,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   ),
                 ),
                 tailing:
-                    Icon(Icons.copy, color: AppColors.primary500, size: 16.cw),
+                    Icon(Icons.copy, color: AppColors.primary500, size: 16.w),
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => copyToClipboard(
                     context, supabase.auth.currentUser?.id ?? ''),
@@ -220,7 +219,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         builder: (context) => StatefulBuilder(
               builder: (context, setState) => Container(
                 padding:
-                    EdgeInsets.symmetric(horizontal: 16.cw, vertical: 40.h),
+                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(
                     S.of(context).dialog_withdraw_title,
@@ -256,13 +255,13 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                             child: Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20.cw, vertical: 8),
+                                    horizontal: 20.w, vertical: 8),
                                 constraints: BoxConstraints(
-                                  minWidth: 100.cw,
+                                  minWidth: 100.w,
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppColors.grey300,
-                                  borderRadius: BorderRadius.circular(30.cw),
+                                  borderRadius: BorderRadius.circular(30.w),
                                 ),
                                 child: Text(
                                     S.of(context).dialog_withdraw_button_ok,
@@ -275,16 +274,16 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                             child: Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20.cw, vertical: 8),
+                                    horizontal: 20.w, vertical: 8),
                                 constraints: BoxConstraints(
-                                  minWidth: 100.cw,
+                                  minWidth: 100.w,
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppColors.grey00,
-                                  borderRadius: BorderRadius.circular(30.cw),
+                                  borderRadius: BorderRadius.circular(30.w),
                                   border: Border.all(
                                       color: AppColors.primary500,
-                                      width: 1.5.cw),
+                                      width: 1.5.w),
                                 ),
                                 child: Text(S.of(context).dialog_button_cancel,
                                     style: getTextStyle(AppTypo.title18SB,
@@ -344,8 +343,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     return Container(
       height: 32,
       alignment: Alignment.topLeft,
-      padding: EdgeInsets.only(left: 16.cw),
-      margin: EdgeInsets.symmetric(horizontal: 57.cw),
+      padding: EdgeInsets.only(left: 16.w),
+      margin: EdgeInsets.symmetric(horizontal: 57.w),
       child: isValid == false
           ? Text(
               S.of(context).nickname_validation_error,
@@ -362,16 +361,16 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       children: [
         Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24.cw),
+              borderRadius: BorderRadius.circular(24.w),
               border: Border.all(
                   color: isValid ? AppColors.primary500 : AppColors.statusError,
                   strokeAlign: BorderSide.strokeAlignInside,
-                  width: 1.5.cw),
+                  width: 1.5.w),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 16.cw),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             alignment: Alignment.center,
             height: 48,
-            width: 200.cw,
+            width: 200.w,
             child: Form(
               key: _formKey,
               child: TextFormField(
@@ -385,7 +384,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 },
                 cursorColor: AppColors.primary500,
                 focusNode: _focusNode,
-                cursorHeight: 16.cw,
+                cursorHeight: 16.w,
                 keyboardType: TextInputType.text,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 decoration: InputDecoration(
@@ -398,8 +397,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   focusedBorder: InputBorder.none,
                   errorBorder: InputBorder.none,
                   suffixIconConstraints: BoxConstraints(
-                    minWidth: 20.cw,
-                    minHeight: 20.cw,
+                    minWidth: 20.w,
+                    minHeight: 20.w,
                   ),
                   suffixIcon: _focusNode.hasFocus
                       ? GestureDetector(
@@ -420,7 +419,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                     AppColors.grey300,
                                     BlendMode.srcIn,
                                   ),
-                                  width: 20.cw,
+                                  width: 20.w,
                                   height: 20,
                                 )
                               : GestureDetector(
@@ -439,7 +438,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                       AppColors.grey700,
                                       BlendMode.srcIn,
                                     ),
-                                    width: 20.cw,
+                                    width: 20.w,
                                     height: 20,
                                   ),
                                 ),
@@ -473,17 +472,17 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             }
           },
           child: Container(
-            width: 48.cw,
+            width: 48.w,
             height: 48,
             alignment: Alignment.center,
-            margin: EdgeInsets.only(left: 8.cw),
+            margin: EdgeInsets.only(left: 8.w),
             decoration: BoxDecoration(
               color: isValid &&
                       _textEditingController.text !=
                           ref.watch(userInfoProvider).value?.nickname
                   ? AppColors.primary500
                   : AppColors.grey300,
-              borderRadius: BorderRadius.circular(24.cw),
+              borderRadius: BorderRadius.circular(24.w),
             ),
             child: SvgPicture.asset(
                 package: 'picnic_lib',
@@ -492,7 +491,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   AppColors.grey900,
                   BlendMode.srcIn,
                 ),
-                width: 24.cw,
+                width: 24.w,
                 height: 24),
           ),
         ),
@@ -505,19 +504,19 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     return userInfo.when(
         data: (data) => data != null
             ? Container(
-                width: 100.cw,
-                height: 100.cw,
+                width: 100.w,
+                height: 100.w,
                 alignment: Alignment.center,
                 child: Stack(
                   children: [
                     SizedBox(
-                      width: 100.cw,
-                      height: 100.cw,
+                      width: 100.w,
+                      height: 100.w,
                       child: ProfileImageContainer(
                         avatarUrl: userInfo.value?.avatarUrl,
-                        borderRadius: 50.cw,
-                        width: 100.cw,
-                        height: 100.cw,
+                        borderRadius: 50.w,
+                        width: 100.w,
+                        height: 100.w,
                       ),
                     ),
                     Positioned(
@@ -526,17 +525,17 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       child: GestureDetector(
                         onTap: () => _uploadProfileImage(),
                         child: Container(
-                            width: 24.cw,
+                            width: 24.w,
                             height: 24,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: AppColors.primary500,
-                              borderRadius: BorderRadius.circular(50.cw),
+                              borderRadius: BorderRadius.circular(50.w),
                             ),
                             child: SvgPicture.asset(
                                 package: 'picnic_lib',
                                 'assets/icons/camera_style=line.svg',
-                                width: 16.cw,
+                                width: 16.w,
                                 height: 16,
                                 colorFilter: const ColorFilter.mode(
                                   AppColors.grey00,

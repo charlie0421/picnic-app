@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PicPage extends ConsumerStatefulWidget {
   const PicPage({super.key});
@@ -62,7 +63,7 @@ class _PicPageState extends ConsumerState<PicPage> {
             color: AppColors.secondary500,
             border: Border.all(
               color: AppColors.primary500,
-              width: 3.cw,
+              width: 3.w,
               strokeAlign: BorderSide.strokeAlignOutside,
             ),
           ),
@@ -87,11 +88,11 @@ class _PicPageState extends ConsumerState<PicPage> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: data?.length ?? 0,
-            separatorBuilder: (context, index) => SizedBox(width: 16.cw),
+            separatorBuilder: (context, index) => SizedBox(width: 16.w),
             itemBuilder: (BuildContext context, int index) {
-              if (index == 0) return SizedBox(width: 16.cw);
+              if (index == 0) return SizedBox(width: 16.w);
               return SizedBox(
-                width: 60.cw,
+                width: 60.w,
                 height: 60,
                 child: Column(
                   children: [
@@ -99,7 +100,7 @@ class _PicPageState extends ConsumerState<PicPage> {
                       borderRadius: BorderRadius.circular(70),
                       child: Image.network(
                         data?[index - 1].thumbnail ?? '',
-                        width: 60.cw,
+                        width: 60.w,
                         height: 60,
                       ),
                     ),

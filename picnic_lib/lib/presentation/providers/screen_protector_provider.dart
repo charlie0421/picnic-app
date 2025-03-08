@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/screen_protector_provider.g.dart';

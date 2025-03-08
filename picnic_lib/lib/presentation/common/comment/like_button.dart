@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
-import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
+import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class LikeButton extends ConsumerStatefulWidget {
@@ -186,12 +186,12 @@ class LikeButtonState extends ConsumerState<LikeButton>
       onTap: _toggleLike,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 4.cw),
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildLikeIcon(),
-            SizedBox(width: 4.cw),
+            SizedBox(width: 4.w),
             _buildLikeCount(),
           ],
         ),

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/vote/vote_pick.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/vote/vote_pick.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class VoteHistoryPage extends ConsumerStatefulWidget {
   const VoteHistoryPage({super.key});
@@ -80,7 +80,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.cw),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           alignment: Alignment.centerRight,
           child: CustomDropdown(
             key: const Key('sortOrderDropdown'),
@@ -110,7 +110,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
               noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
               itemBuilder: (context, item, index) => Container(
                 height: 107,
-                padding: EdgeInsets.all(16.cw),
+                padding: EdgeInsets.all(16.w),
                 decoration: const BoxDecoration(
                   border: Border(
                     bottom: BorderSide(color: AppColors.grey300, width: 1),

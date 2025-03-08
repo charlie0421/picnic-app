@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/common/underlined_text.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
-import 'package:picnic_lib/presentation/widgets/stroked_text.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/core/utils/date.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
+import 'package:picnic_lib/presentation/widgets/stroked_text.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/date.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 class CompatibilityInputPage extends ConsumerStatefulWidget {
   const CompatibilityInputPage({

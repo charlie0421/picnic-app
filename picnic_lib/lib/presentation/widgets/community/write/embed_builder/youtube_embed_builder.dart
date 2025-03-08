@@ -2,11 +2,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/youtube_service.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class YouTubeEmbedBuilder extends EmbedBuilder {

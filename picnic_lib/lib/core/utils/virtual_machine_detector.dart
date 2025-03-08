@@ -1,12 +1,12 @@
 import 'dart:io';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/config_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:universal_platform/universal_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 // 클래스들을 파일 상단으로 이동
 class KeywordMatch {

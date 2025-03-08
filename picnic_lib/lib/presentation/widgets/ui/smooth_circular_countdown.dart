@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class SmoothCircularCountdown extends StatefulWidget {
   final int remainingSeconds;
@@ -56,7 +56,7 @@ class _SmoothCircularCountdownState extends State<SmoothCircularCountdown>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 16.cw,
+      width: 16.w,
       height: 16,
       child: Stack(
         alignment: Alignment.center,
@@ -65,7 +65,7 @@ class _SmoothCircularCountdownState extends State<SmoothCircularCountdown>
             animation: _animation,
             builder: (context, child) {
               return CustomPaint(
-                size: Size(16.cw, 16.cw),
+                size: Size(16.w, 16.w),
                 painter: CircularCountdownPainter(
                   progress: _animation.value,
                   remainingSeconds: _currentSeconds,

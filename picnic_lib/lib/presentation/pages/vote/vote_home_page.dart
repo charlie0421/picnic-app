@@ -5,22 +5,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:shimmer/shimmer.dart';
 
 class VoteHomePage extends ConsumerStatefulWidget {
@@ -144,7 +144,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.only(left: 16.cw),
+          padding: EdgeInsets.only(left: 16.w),
           alignment: Alignment.centerLeft,
           child: Text(S.of(context).label_vote_reward_list,
               style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
@@ -153,7 +153,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         asyncRewardListState.when(
           data: (data) => Container(
             alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(left: 16.cw),
+            padding: EdgeInsets.only(left: 16.w),
             height: 100,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -223,7 +223,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   width: 120,
                   height: 100,
                   margin: EdgeInsets.only(
-                      left: 16.cw, right: index == 4 ? 16.cw : 0),
+                      left: 16.w, right: index == 4 ? 16.w : 0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.r),
                       color: Colors.white),

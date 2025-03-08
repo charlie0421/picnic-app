@@ -2,13 +2,13 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/widgets/library/library_list.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:picnic_lib/data/models/pic/article.dart';
-import 'package:picnic_lib/presentation/providers/global_media_query.dart';
-import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/pic/article.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/providers/global_media_query.dart';
+import 'package:picnic_lib/presentation/widgets/library/library_list.dart';
+import 'package:picnic_lib/ui/common_gradient.dart';
 
 class ArticleImages extends ConsumerStatefulWidget {
   final ArticleModel article;
@@ -46,7 +46,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                         ),
                         Positioned(
                             top: 10.h,
-                            right: 10.cw,
+                            right: 10.w,
                             child: _buildBookmark(widget.article, index))
                       ],
                     ),
@@ -59,7 +59,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                     color: Colors.grey, activeColor: picMainColor),
               ),
             )
-          : SizedBox(width: 300.cw, height: 300),
+          : SizedBox(width: 300.w, height: 300),
     );
   }
 
@@ -90,7 +90,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   //       color: Colors.grey, activeColor: picMainColor),
   // ),
   // )
-  // : SizedBox(width: 300.cw, height:300),
+  // : SizedBox(width: 300.w, height:300),
   // );
   // }
 

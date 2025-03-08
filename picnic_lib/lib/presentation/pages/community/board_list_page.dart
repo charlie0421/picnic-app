@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/data/models/community/board.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BoardListPage extends ConsumerStatefulWidget {
@@ -106,7 +105,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12),
               child: CommonSearchBox(
                 focusNode: focusNode,
                 textEditingController: _textEditingController,
@@ -159,7 +158,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
           child: Row(
             children: [
               ClipRRect(
@@ -169,7 +168,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
                   width: 32,
                 ),
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               Expanded(
                 child: Text(
                   getLocaleTextFromJson(artist.name),
@@ -181,9 +180,9 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.cw),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Wrap(
-            spacing: 8.cw,
+            spacing: 8.w,
             children:
                 artistBoards.map((board) => _buildBoardChip(board)).toList(),
           ),
@@ -218,7 +217,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
         ),
         side: const BorderSide(color: AppColors.grey300, width: 1),
         backgroundColor: AppColors.grey00,
-        padding: EdgeInsets.symmetric(horizontal: 8.cw, vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4),
       ),
     );
   }

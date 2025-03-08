@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
-import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
-import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
+import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.dart';
+import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class CommunityHome extends ConsumerStatefulWidget {
   const CommunityHome({super.key});
@@ -105,7 +106,7 @@ class _PostHomeListState extends ConsumerState<CommunityHome> {
                     backgroundColor: AppColors.grey00,
                     textStyle: getTextStyle(AppTypo.body14B),
                     padding:
-                        EdgeInsets.symmetric(horizontal: 20.cw, vertical: 10),
+                        EdgeInsets.symmetric(horizontal: 20.w, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide(color: AppColors.primary500, width: 1),

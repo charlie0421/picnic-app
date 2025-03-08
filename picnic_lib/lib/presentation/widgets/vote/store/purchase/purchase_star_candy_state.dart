@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/services/purchase_service.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/providers/product_provider.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
@@ -12,16 +20,8 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/in_app_purch
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
-import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/presentation/providers/product_provider.dart';
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
@@ -180,7 +180,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
@@ -286,7 +286,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   Widget _buildShimmerItem() {
     return ListTile(
       leading: Container(
-        width: 48.cw,
+        width: 48.w,
         height: 48,
         color: Colors.white,
       ),
@@ -320,7 +320,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       icon: Image.asset(
         package: 'picnic_lib',
         'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
-        width: 48.cw,
+        width: 48.w,
         height: 48,
       ),
       title: Text(serverProduct['id'],

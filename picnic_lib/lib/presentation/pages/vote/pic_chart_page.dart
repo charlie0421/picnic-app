@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PicChartPage extends ConsumerStatefulWidget {
   const PicChartPage({super.key});
@@ -50,7 +50,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                 title: S.of(context).text_comming_soon_pic_chart_title,
                 content: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 16.cw,
+                    horizontal: 16.w,
                     vertical: 80,
                   ),
                   child: Column(
@@ -62,7 +62,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                           SvgPicture.asset(
                               package: 'picnic_lib',
                               'assets/icons/play_style=fill.svg',
-                              width: 16.cw,
+                              width: 16.w,
                               height: 16,
                               colorFilter: ColorFilter.mode(
                                   AppColors.primary500, BlendMode.srcIn)),
@@ -79,7 +79,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                             child: SvgPicture.asset(
                                 package: 'picnic_lib',
                                 'assets/icons/play_style=fill.svg',
-                                width: 16.cw,
+                                width: 16.w,
                                 height: 16,
                                 colorFilter: ColorFilter.mode(
                                     AppColors.primary500, BlendMode.srcIn)),

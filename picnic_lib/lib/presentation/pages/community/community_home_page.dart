@@ -2,18 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
-import 'package:picnic_lib/presentation/widgets/community/home/community_home.dart';
-import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/home/community_home.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 
 class CommunityHomePage extends ConsumerStatefulWidget {
@@ -68,7 +69,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
       const CommonBanner('community_home', 3144 / 1200),
       const SizedBox(height: 32),
       Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Text('My ARTISTS',
             style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
       ),
@@ -90,7 +91,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                       ? Column(
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
                               height: 84,
                               child: ListView.separated(
                                 itemCount: artists.length,
@@ -147,7 +148,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
                                 },
                                 separatorBuilder:
                                     (BuildContext context, int index) {
-                                  return SizedBox(width: 14.cw);
+                                  return SizedBox(width: 14.w);
                                 },
                               ),
                             ),

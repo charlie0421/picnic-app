@@ -4,9 +4,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:picnic_lib/core/services/link_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LinkEmbedBuilder extends EmbedBuilder {

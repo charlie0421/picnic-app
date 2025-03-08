@@ -1,9 +1,9 @@
 // comment_contents.dart
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/common/comment.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class CommentContents extends StatefulWidget {
   final CommentModel item;

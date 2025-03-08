@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/board_dropdown.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/post_write_actions.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 
 class PostWriteHeader extends ConsumerStatefulWidget {
   final Function(bool isTemporary) onSave;

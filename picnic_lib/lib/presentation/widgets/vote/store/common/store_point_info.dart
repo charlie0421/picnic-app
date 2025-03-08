@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class StorePointInfo extends ConsumerWidget {
   const StorePointInfo(
@@ -26,7 +25,7 @@ class StorePointInfo extends ConsumerWidget {
         Container(
           height: height,
           width: width,
-          margin: EdgeInsets.only(top: 24, left: 16.cw, right: 16.cw),
+          margin: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
           padding: const EdgeInsets.only(top: 16),
           decoration: BoxDecoration(
               border: Border.all(
@@ -44,7 +43,7 @@ class StorePointInfo extends ConsumerWidget {
         Positioned.fill(
             child: Container(
                 alignment: Alignment.topCenter,
-                padding: EdgeInsets.symmetric(horizontal: 33.cw),
+                padding: EdgeInsets.symmetric(horizontal: 33.w),
                 child: VoteCommonTitle(title: title))),
       ],
     );

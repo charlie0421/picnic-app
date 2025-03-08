@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class DialogType {
   static const normal = 'normal';
@@ -79,13 +80,13 @@ void showSimpleDialog({
             child: Container(
               width: getPlatformScreenSize(context).width,
               constraints: BoxConstraints(
-                minWidth: 151.cw,
+                minWidth: 151.w,
               ),
               padding: EdgeInsets.only(
                 top: 28,
                 bottom: 20,
-                left: 20.cw,
-                right: 20.cw,
+                left: 20.w,
+                right: 20.w,
               ),
               decoration: BoxDecoration(
                 color: backgroundColor,

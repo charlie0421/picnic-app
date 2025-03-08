@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/enums.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/date.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/presentation/common/avatar_container.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 // ignore: unused_import
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/date.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class CompatibilityCard extends StatelessWidget {
   const CompatibilityCard({
@@ -60,8 +60,8 @@ class CompatibilityCard extends StatelessWidget {
                       ),
                       child: PicnicCachedNetworkImage(
                         imageUrl: artist.image ?? '',
-                        width: 150.cw,
-                        height: 150.cw,
+                        width: 150.w,
+                        height: 150.w,
                       ),
                     ),
                     Positioned(

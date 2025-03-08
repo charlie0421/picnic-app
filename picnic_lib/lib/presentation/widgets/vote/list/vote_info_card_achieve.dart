@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class VoteCardColumnAchieve extends StatelessWidget {
   const VoteCardColumnAchieve({
@@ -71,7 +71,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100),
                 border: Border.all(
                   color: AppColors.grey00,
-                  width: 1.cw,
+                  width: 1.w,
                 ),
               ),
               child: FadeTransition(

@@ -6,32 +6,32 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/vote_share_util.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/pages/community/compatibility_result_content.dart';
+import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
+import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_logo_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 // ignore: unused_import
 import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/in_app_purchase_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/receipt_verification_service.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
-import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/vote_share_util.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_result_content.dart';
 
 class CompatibilityResultPage extends ConsumerStatefulWidget {
   const CompatibilityResultPage({

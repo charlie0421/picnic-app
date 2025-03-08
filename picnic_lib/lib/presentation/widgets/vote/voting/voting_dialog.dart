@@ -6,24 +6,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/number.dart';
+import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
-import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/number.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 Future showVotingDialog({
   required BuildContext context,
@@ -108,12 +107,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
 
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 0),
+      insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 0),
       backgroundColor: Colors.transparent,
       child: LargePopupWidget(
         content: Container(
           padding:
-              EdgeInsets.only(top: 32, bottom: 24, left: 24.cw, right: 24.cw),
+              EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -202,7 +201,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     : widget.voteItemModel.artistGroup.name),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
-              SizedBox(width: 8.cw),
+              SizedBox(width: 8.w),
               if (widget.voteItemModel.artist.id != 0)
                 Align(
                   alignment: Alignment.center,
@@ -227,16 +226,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 32.cw,
+            width: 32.w,
             height: 32,
             alignment: Alignment.centerLeft,
             child: Image.asset(
                 package: 'picnic_lib',
                 'assets/icons/store/star_100.png',
-                width: 32.cw,
+                width: 32.w,
                 height: 32),
           ),
-          SizedBox(width: 2.cw),
+          SizedBox(width: 2.w),
           Expanded(
             child: Container(
               height: 26,
@@ -249,7 +248,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 enableSeparator: true,
                 curve: Curves.easeInOut,
                 textStyle: TextStyle(
-                  fontSize: 16.cw,
+                  fontSize: 16.w,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary500,
                 ),
@@ -276,7 +275,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       },
       child: Container(
         height: 32,
-        padding: EdgeInsets.symmetric(horizontal: 12.cw),
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
           color: AppColors.secondary500,
           borderRadius: BorderRadius.circular(20.r),
@@ -289,11 +288,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               S.of(context).label_button_recharge,
               style: getTextStyle(AppTypo.body14B, AppColors.primary500),
             ),
-            SizedBox(width: 4.cw),
+            SizedBox(width: 4.w),
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/plus_style=fill.svg',
-              width: 16.cw,
+              width: 16.w,
               height: 16,
               colorFilter:
                   ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
@@ -331,14 +330,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/check_style=line.svg',
-              width: 20.cw,
+              width: 20.w,
               height: 20,
               colorFilter: ColorFilter.mode(
                 _checkAll ? AppColors.primary500 : AppColors.grey300,
                 BlendMode.srcIn,
               ),
             ),
-            SizedBox(width: 4.cw),
+            SizedBox(width: 4.w),
             Text(
               S.of(context).label_checkbox_entire_use,
               style: getTextStyle(
@@ -364,7 +363,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ),
         borderRadius: BorderRadius.circular(24),
       ),
-      padding: EdgeInsets.only(right: 16.cw),
+      padding: EdgeInsets.only(right: 16.w),
       child: Row(
         children: [
           Expanded(
@@ -384,7 +383,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 fillColor: AppColors.grey900,
                 isCollapsed: true,
                 contentPadding: EdgeInsets.symmetric(
-                    horizontal: 24.cw, vertical: 5), // 수직 패딩 조정
+                    horizontal: 24.w, vertical: 5), // 수직 패딩 조정
               ),
               onChanged: (_) => _validateVote(),
               inputFormatters: [
@@ -446,7 +445,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           _hasValue ? AppColors.grey700 : AppColors.grey200,
           BlendMode.srcIn,
         ),
-        width: 20.cw,
+        width: 20.w,
         height: 20,
       ),
     );
@@ -484,7 +483,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       behavior: HitTestBehavior.opaque,
       onTap: _canVote ? () => _handleVote(myStarCandy, userId) : null,
       child: Container(
-        width: 172.cw,
+        width: 172.w,
         height: 52,
         decoration: BoxDecoration(
           color: _canVote ? AppColors.primary500 : AppColors.grey300,

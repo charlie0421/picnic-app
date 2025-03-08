@@ -7,7 +7,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_camera_view_page.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class BottomBarWidget extends StatelessWidget {
   final CameraController? controller;
@@ -45,7 +44,7 @@ class BottomBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 100,
-      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,12 +81,12 @@ class BottomBarWidget extends StatelessWidget {
               }
             },
             child: recentImage == null
-                ? Container(color: Colors.grey, width: 50.cw, height: 50)
+                ? Container(color: Colors.grey, width: 50.w, height: 50)
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.file(
                       recentImage!,
-                      width: 50.cw,
+                      width: 50.w,
                       height: 50,
                       fit: BoxFit.cover,
                     ),
@@ -110,7 +109,7 @@ class BottomBarWidget extends StatelessWidget {
                     }
                   },
             child: Container(
-              width: 40.cw,
+              width: 40.w,
               height: 40,
               decoration: BoxDecoration(
                 color: viewType == ViewType.image ||
@@ -136,7 +135,7 @@ class BottomBarWidget extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: viewMode == ViewMode.ready ? onCapture : null,
             child: Container(
-              width: 70.cw,
+              width: 70.w,
               height: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -146,7 +145,7 @@ class BottomBarWidget extends StatelessWidget {
                   color: (viewMode == ViewMode.ready)
                       ? AppColors.primary500
                       : Colors.grey,
-                  width: 10.cw,
+                  width: 10.w,
                 ),
               ),
               child: Icon(
@@ -176,7 +175,7 @@ class BottomBarWidget extends StatelessWidget {
                     : AppColors.primary500,
                 borderRadius: BorderRadius.circular(50),
               ),
-              width: 45.cw,
+              width: 45.w,
               height: 45,
               child: Column(
                 mainAxisSize: MainAxisSize.min,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/navigation_stack.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
@@ -10,7 +11,6 @@ import 'package:picnic_lib/presentation/screens/community/community_home_screen.
 import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/navigation_provider.g.dart';

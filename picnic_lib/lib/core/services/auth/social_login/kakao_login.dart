@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
-import 'package:picnic_lib/data/models/common/social_login_result.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/data/models/common/social_login_result.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class KakaoLogin implements SocialLogin {

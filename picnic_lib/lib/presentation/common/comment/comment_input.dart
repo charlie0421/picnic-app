@@ -5,16 +5,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/openai.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/common/comment.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class CommentInput extends ConsumerStatefulWidget {
   const CommentInput({
@@ -113,9 +113,9 @@ class _CommentInputState extends ConsumerState<CommentInput> {
           ),
         ),
         contentPadding: EdgeInsets.only(
-          left: 10.cw,
-          right: 80.cw,
-          bottom: 30.ch,
+          left: 10.w,
+          right: 80.w,
+          bottom: 30.h,
         ),
         counterText: '',
       ),
@@ -125,8 +125,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   Widget _buildCharCounter() {
     return Positioned(
-      right: 60.cw,
-      bottom: 8.ch,
+      right: 60.w,
+      bottom: 8.h,
       child: Text(
         '$_currentLength/$_maxLength',
         style: getTextStyle(
@@ -253,7 +253,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
                 _buildTextField(),
                 _buildCharCounter(),
                 Positioned(
-                  right: 16.cw,
+                  right: 16.w,
                   top: 0,
                   bottom: 0,
                   child: Center(child: _buildSendButton()),
@@ -261,7 +261,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
               ],
             ),
           ),
-          SizedBox(width: 10.cw),
+          SizedBox(width: 10.w),
         ],
       ),
     );

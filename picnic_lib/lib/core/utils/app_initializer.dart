@@ -1,15 +1,22 @@
 import 'dart:async';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
+import 'package:picnic_lib/core/services/device_manager.dart';
+import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/core/services/update_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
@@ -33,14 +40,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/core/services/network_connectivity_service.dart';
-import 'package:picnic_lib/core/services/device_manager.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/services.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 
 class AppInitializer {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();

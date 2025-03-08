@@ -2,25 +2,26 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/presentation/common/share_section.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/core/utils/vote_share_util.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
   const VoteInfoCard({
@@ -186,7 +187,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       child: RepaintBoundary(
         key: _globalKey,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.cw),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           margin: EdgeInsets.only(top: 8, bottom: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -254,7 +255,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
             borderRadius: BorderRadius.circular(40),
             border: Border.all(
               color: AppColors.primary500,
-              width: 1.5.cw,
+              width: 1.5.w,
             ),
           ),
           child: SlideTransition(
@@ -307,7 +308,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           borderRadius: BorderRadius.circular(40),
           border: Border.all(
             color: AppColors.primary500,
-            width: 1.5.cw,
+            width: 1.5.w,
           ),
         ),
         child: FutureBuilder(

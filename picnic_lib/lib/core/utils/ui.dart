@@ -1,10 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -123,12 +121,6 @@ bool isWindows() {
 bool isLinux() {
   if (UniversalPlatform.isWeb) return false;
   return UniversalPlatform.isLinux;
-}
-
-extension CustomSizeExtension on num {
-  double get cw => w;
-
-  double get ch => h;
 }
 
 double getAppBarHeight(WidgetRef ref) {

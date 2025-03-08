@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/date.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/pages/community/post_view_page.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/core/utils/date.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 
 class PostListItem extends ConsumerStatefulWidget {
   final PostModel post;
@@ -35,12 +35,12 @@ class _PostListItemState extends ConsumerState<PostListItem> {
             .setCurrentPage(PostViewPage(widget.post.postId));
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
               color: AppColors.grey300,
-              width: 1.cw,
+              width: 1.w,
             ),
           ),
         ),
@@ -57,7 +57,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                       Text(getLocaleTextFromJson(widget.post.board!.name),
                           style: getTextStyle(
                               AppTypo.caption12B, AppColors.primary500)),
-                    SizedBox(width: 4.cw),
+                    SizedBox(width: 4.w),
                     widget.post.isAnonymous ?? false
                         ? const NoAvatar(
                             width: 18,
@@ -70,7 +70,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             width: 18,
                             height: 18,
                           ),
-                    SizedBox(width: 4.cw),
+                    SizedBox(width: 4.w),
                     widget.post.isAnonymous ?? false
                         ? Text(S.of(context).anonymous,
                             style: getTextStyle(
@@ -78,7 +78,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                         : Text(widget.post.userProfiles?.nickname ?? '',
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900)),
-                    SizedBox(width: 4.cw),
+                    SizedBox(width: 4.w),
                     Text(formatTimeAgo(context, widget.post.createdAt!),
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey400)),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/generated/l10n.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 Widget buildErrorView(final BuildContext context,

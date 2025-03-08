@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class BoardRequest extends ConsumerStatefulWidget {
   const BoardRequest(this.artistId, {super.key});
@@ -173,7 +173,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                     ),
                     const SizedBox(height: 24),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.cw),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: SizedBox(
                         width: double.infinity,
                         height: 48,
@@ -202,7 +202,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 32.cw),
+                    SizedBox(height: 32.w),
                   ],
                 ),
               ),
@@ -307,7 +307,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     return [
       Container(
         alignment: Alignment.centerLeft,
-        padding: EdgeInsets.only(left: 16.cw, top: 24),
+        padding: EdgeInsets.only(left: 16.w, top: 24),
         child: Text(
           title,
           style: getTextStyle(AppTypo.body14B, AppColors.grey900),
@@ -315,7 +315,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
       ),
       const SizedBox(height: 7),
       Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.cw),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: TextFormField(
           focusNode: focusNode,
           maxLines: maxLines,
@@ -327,7 +327,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
             hintText: hintText,
             hintStyle: getTextStyle(AppTypo.body16M, AppColors.grey400),
             contentPadding:
-                EdgeInsets.symmetric(horizontal: 16.cw, vertical: 16.cw),
+                EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
               borderSide: const BorderSide(color: AppColors.grey400),
