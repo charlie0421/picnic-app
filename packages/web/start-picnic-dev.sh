@@ -16,7 +16,7 @@ echo "Picnic 사이드바 서버가 시작되었습니다. (PID: $PICNIC_WEB_PID
 cd $ORIGINAL_DIR
 
 # Flutter 웹 서버 (picnic_app) 실행
-cd picnic_app
+cd ../client/picnic_app
 echo "Picnic Flutter 웹 앱을 시작합니다 (포트: 8081)..."
 flutter run -d chrome --web-port=8081 --dart-define=FLUTTER_WEB_USE_SKIA=false &
 PICNIC_APP_PID=$!
