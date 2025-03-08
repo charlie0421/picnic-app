@@ -59,7 +59,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
     if (UniversalPlatform.isWeb) {
       return [
         _getTransformedUrl(
-            widget.imageUrl, resolutionMultiplier, 100), // 웹에서는 최고 품질 사용
+            widget.imageUrl, resolutionMultiplier, 90), // 웹에서는 최고 품질 사용
       ];
     }
 
