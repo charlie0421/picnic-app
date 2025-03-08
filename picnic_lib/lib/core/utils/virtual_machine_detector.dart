@@ -387,34 +387,9 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
           manufacturerMatches.map((e) => e.keyword).toList(),
     });
 
-    // 추가 의심 체크
-    final suspiciousManufacturer = info.manufacturer.isEmpty ||
-        manufacturerKeywords.any(
-            (keyword) => info.manufacturer.toLowerCase().contains(keyword));
-
-    final suspiciousModel = info.model.isEmpty ||
-        vmKeywords.any((keyword) => info.model.toLowerCase().contains(keyword));
-
     final suspiciousHardware = info.hardware.isEmpty ||
         hardwareKeywords
             .any((keyword) => info.hardware.toLowerCase().contains(keyword));
-
-    final suspiciousProduct = info.product.isEmpty ||
-        vmKeywords
-            .any((keyword) => info.product.toLowerCase().contains(keyword));
-
-    final suspiciousDevice = info.device.isEmpty ||
-        vmKeywords
-            .any((keyword) => info.device.toLowerCase().contains(keyword));
-
-    final suspiciousBoard = info.board.isEmpty ||
-        vmKeywords.any((keyword) => info.board.toLowerCase().contains(keyword));
-
-    // 추가: CPU 아키텍처 체크
-    final suspiciousArchitecture = info.supported64BitAbis.any((abi) =>
-            abi.toLowerCase().contains('arm64') ||
-            abi.toLowerCase().contains('aarch64')) &&
-        info.supported32BitAbis.isEmpty; // ARM64 전용인 경우
 
     // 삼성 기기 관련 의심스러운 패턴 체크 추가
     final suspiciousSamsung = info.manufacturer.toLowerCase() == 'samsung' &&
@@ -462,14 +437,6 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
             ''');
       }
     }
-
-    final isSuspiciousSamsung = suspiciousSamsung &&
-        (info.board.toLowerCase() != info.hardware.toLowerCase() ||
-            !info.fingerprint.toLowerCase().contains('release-keys') ||
-            info.host.toLowerCase().contains('build') ||
-            info.bootloader.toLowerCase() == 'unknown' ||
-            !info.systemFeatures.any((f) => f.contains('knox')) ||
-            !info.systemFeatures.any((f) => f.contains('samsung')));
 
     return BuildCheckResults(
       deviceInfo: deviceInfo,
@@ -607,7 +574,6 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     try {
       final buildCheckResults =
           await _getBuildCheckResults(androidInfo, configs);
-      final hardwareCheckResults = await _getHardwareCheckResults(configs);
 
       logger.i('Sentry 리포트 전송 시작...');
 
