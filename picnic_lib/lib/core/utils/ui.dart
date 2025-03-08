@@ -126,9 +126,9 @@ bool isLinux() {
 }
 
 extension CustomSizeExtension on num {
-  double get cw => kIsWeb ? (this * 600 / 393) : w;
+  double get cw => w;
 
-  double get ch => kIsWeb ? (this * 800 / 852) : h;
+  double get ch => h;
 }
 
 double getAppBarHeight(WidgetRef ref) {
