@@ -437,16 +437,19 @@
         // 윈도우 리사이즈 이벤트 리스너
         window.addEventListener('resize', debouncedResize);
         
-        // Flutter 초기화 (최신 방식)
+        // Flutter 초기화 (심플한 방식)
         if (window._flutter) {
-          window._flutter.loader.load({
-            target: document.getElementById('flutter-app-container'),
-            engineSettings: {
-              renderer: 'html',
-              canvasKitBaseUrl: "/canvaskit/"
-            },
-            onLoad: function() {
-              onFlutterInited();
+          window._flutter.loader.loadEntrypoint({
+            onEntrypointLoaded: function(engineInitializer) {
+              engineInitializer.initializeEngine({
+                hostElement: document.getElementById('flutter-app-container'),
+                renderer: 'html',
+                canvasKitBaseUrl: "/canvaskit/",
+                width: 393,
+              }).then(function(appRunner) {
+                appRunner.runApp();
+                onFlutterInited();
+              });
             }
           });
         } else {
