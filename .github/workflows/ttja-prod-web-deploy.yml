@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "packages/client/ttja_app/**"
-      - "packages/client/ttja_web/**"
+      - "packages/web/ttja_web/**"
     branches: [ "production" ]
   workflow_dispatch:
 

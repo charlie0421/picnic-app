@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "packages/client/picnic_app/**"
-      - "packages/client/picnic_web/**"
+      - "packages/web/picnic_web/**"
     branches: [ "production" ]
   workflow_dispatch:
 jobs:
