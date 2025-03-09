@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev -p 3001",
-    "build": "next build && npm run copy-files",
-    "start": "next start -p 3001",
-    "copy-files": "mkdir -p ../../client/picnic_app/web/next-export && cp -r out/* ../../client/picnic_app/web/next-export/"
+    "build": "next build",
+    "start": "next start -p 3001"
   },
   "keywords": [
     "nextjs",
@@ -28,7 +27,7 @@
     "supabase": "^2.9.6"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "19.0.10",
     "@types/react-dom": "^19",
     "typescript": "5.8.2"

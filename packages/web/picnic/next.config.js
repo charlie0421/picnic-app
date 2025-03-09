@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  distDir: 'out',
+  // 정적 내보내기 설정 제거
+  // output: 'export',
+  // distDir: 'out',
   images: {
     unoptimized: true,
   },
-  assetPrefix: '.', // 상대 경로로 에셋 참조
+  // 상대 경로 에셋 프리픽스 제거
+  // assetPrefix: '.',
   trailingSlash: true, // URL 끝에 슬래시 추가
   
   // 브라우저 전용 코드를 서버에서 실행할 때 발생하는 문제 해결
