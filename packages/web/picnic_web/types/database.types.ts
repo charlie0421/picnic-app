@@ -9,7 +9,7 @@ interface BaseModel {
 }
 
 // JSON 이름 타입 (다국어 지원)
-interface LocalizedName {
+export interface LocalizedName {
   ko?: string;
   en?: string;
   ja?: string;

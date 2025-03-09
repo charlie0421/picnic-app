@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RankCard } from '../components/RankCard';
 import { supabase } from '../lib/supabaseClient';
-import { VoteItem, VoteData } from '../../types/database.types';
+import { VoteItem, VoteData, LocalizedName } from '../../types/database.types';
 import styles from './left-sidebar.module.css';
 import Image from 'next/image';
 import QRCode from 'react-qr-code';
@@ -90,11 +90,11 @@ export default function LeftSidebarPage() {
       if (data) {
         setVoteData({
           voteInfo: {
-            id: data.id,
-            vote_category: data.vote_category,
-            title: data.title,
-            start_at: data.start_at,
-            stop_at: data.stop_at,
+            id: data.id as string,
+            vote_category: data.vote_category as string,
+            title: data.title as unknown as LocalizedName,
+            start_at: data.start_at as string,
+            stop_at: data.stop_at as string,
           },
           topThree: data.vote_item as unknown as VoteItem[],
         });
