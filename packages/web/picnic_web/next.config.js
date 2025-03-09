@@ -5,8 +5,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // basePath: '', // 필요한 경우 기본 경로 설정
-  // trailingSlash: true, // 필요한 경우 URL 끝에 슬래시 추가
+  assetPrefix: '.', // 상대 경로로 에셋 참조
+  trailingSlash: true, // URL 끝에 슬래시 추가
   
   // 브라우저 전용 코드를 서버에서 실행할 때 발생하는 문제 해결
   webpack: (config, { isServer }) => {

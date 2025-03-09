@@ -7,7 +7,7 @@
     "dev": "next dev -p 3001",
     "build": "next build && npm run copy-files",
     "start": "next start -p 3001",
-    "copy-files": "mkdir -p ../../client/picnic_app/web/next-export && cp -r out/left-sidebar.html ../../client/picnic_app/web/next-export/left-sidebar.html && cp -r out/right-sidebar.html ../../client/picnic_app/web/next-export/right-sidebar.html && cp -r out/_next ../../client/picnic_app/web/next-export/"
+    "copy-files": "mkdir -p ../../client/picnic_app/web/next-export && cp -r out/* ../../client/picnic_app/web/next-export/"
   },
   "keywords": [
     "nextjs",
