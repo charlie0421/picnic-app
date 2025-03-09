@@ -22,18 +22,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
-          cache-dependency-path: 'packages/web/picnic_web/package-lock.json'
+          cache-dependency-path: 'packages/web/picnic/package-lock.json'
 
       # Next.js 빌드 및 내보내기
       - name: Build Next.js sidebar
-        working-directory: packages/web/picnic_web
+        working-directory: packages/web/picnic
         run: |
           npm install
           npm run build
-          mkdir -p ../../client/picnic_app/web/next-export
-          cp -r out/* ../../client/picnic_app/web/next-export/
 
       - name: Build flutter web
         working-directory: packages/client/picnic_app
