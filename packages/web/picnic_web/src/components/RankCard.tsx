@@ -27,7 +27,16 @@ export function RankCard({
   console.log('RankCard 컴포넌트 렌더링됨');
 
   const voteRef = useRef(votes);
-  const [voteData, setVoteData] = useState();
+  const [voteData, setVoteData] = useState<{
+    voteInfo: {
+      id: string;
+      vote_category: string;
+      title: string;
+      start_at: string;
+      stop_at: string;
+    };
+    topThree: VoteItem[];
+  }>();
 
   // 이미지 크기 설정
   const sizeMap: Record<number, number> = {
@@ -125,7 +134,6 @@ export function RankCard({
       className={`${styles.card} ${styles.rankItem}`}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      as="div"
     >
       <div className={styles.imageContainer}>
         {photoUrl ? (
