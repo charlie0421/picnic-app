@@ -460,18 +460,6 @@
         // 윈도우 리사이즈 이벤트 리스너
         window.addEventListener('resize', debouncedResize);
         
-        // Flutter buildConfig 설정
-        // _flutter.buildConfig가 없어서 발생하는 오류 수정
-        window._flutter = window._flutter || {};
-        window._flutter.buildConfig = window._flutter.buildConfig || {};
-        
-        // serviceWorkerVersion 설정 (이 값은 빌드 과정에서 자동으로 설정됨)
-        // 없는 경우 기본값 설정
-        const serviceWorkerVersion = window.flutter_service_worker_version || null;
-        if (serviceWorkerVersion) {
-          window._flutter.buildConfig.serviceWorkerVersion = serviceWorkerVersion;
-        }
-        
         // Flutter 초기화 (최신 방식)
         if (window._flutter) {
           window._flutter.loader.load({
@@ -485,56 +473,7 @@
             }
           });
         } else {
-          // 대체 초기화 방법 시도
-          _flutter = {
-            loader: {
-              loadEntrypoint: function(options) {
-                const entrypointUrl = options.entrypointUrl || 'main.dart.js';
-                
-                // 스크립트 태그 생성 및 로드
-                const scriptTag = document.createElement('script');
-                scriptTag.src = entrypointUrl;
-                scriptTag.type = 'application/javascript';
-                
-                // 로드 완료 후 콜백 실행
-                scriptTag.addEventListener('load', function() {
-                  if (options.onEntrypointLoaded) {
-                    options.onEntrypointLoaded({
-                      initialize: function(InitConfiguration) {
-                        if (options.onInitializationComplete) {
-                          window.addEventListener('flutter-initialized', function() {
-                            options.onInitializationComplete();
-                          });
-                        }
-                      }
-                    });
-                  }
-                });
-                
-                // 오류 처리
-                scriptTag.addEventListener('error', function(e) {
-                  console.error('Flutter 엔트리포인트 로드 실패:', e);
-                });
-                
-                document.body.appendChild(scriptTag);
-              }
-            }
-          };
-          
-          // 수동으로 Flutter 엔트리포인트 로드
-          _flutter.loader.loadEntrypoint({
-            entrypointUrl: 'main.dart.js',
-            onEntrypointLoaded: function(engineInitializer) {
-              engineInitializer.initialize({
-                hostElement: document.getElementById('flutter-app-container'),
-                renderer: 'html',
-                canvasKitBaseUrl: "/canvaskit/"
-              });
-            },
-            onInitializationComplete: function() {
-              onFlutterInited();
-            }
-          });
+          console.error('Flutter 로더를 찾을 수 없습니다.');
         }
       });
     </script>
