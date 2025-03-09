@@ -3,7 +3,7 @@ name: Build & Deploy TTJA App
 on:
   push:
     paths:
-      - "packages/web/ttja/**"
+      - "packages/client/ttja_app/**"
     branches: [ "production" ]
   workflow_dispatch:
 
@@ -19,19 +19,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: 'packages/web/ttja/package-lock.json'
-
-      - name: Build Next.js sidebar
-        working-directory: packages/web/ttja
-        run: |
-          npm install
-          npm run build
 
       - name: Build flutter web
         working-directory: packages/client/ttja_app
