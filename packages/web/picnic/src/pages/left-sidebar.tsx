@@ -22,7 +22,6 @@ interface BranchSDK {
 }
 
 export default function LeftSidebarPage() {
-  console.log('LeftSidebarPage');
 
   const [voteData, setVoteData] = useState<VoteData>();
   const [shortUrl, setShortUrl] = useState<string>('');

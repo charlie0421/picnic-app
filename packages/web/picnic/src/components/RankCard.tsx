@@ -24,7 +24,6 @@ export function RankCard({
   photoUrl,
   groupName = '테스트 그룹',
 }: RankCardProps) {
-  console.log('RankCard 컴포넌트 렌더링됨');
 
   const voteRef = useRef(votes);
   const [voteData, setVoteData] = useState<{
@@ -50,7 +49,6 @@ export function RankCard({
   const [voteChanged, setVoteChanged] = useState(false);
 
   useEffect(() => {
-    console.log('useEffect 훅이 실행됨 - 렌더링 후');
     const fetchVotes = async () => {
       const { data, error } = await supabase
         .from('vote')
@@ -112,7 +110,6 @@ export function RankCard({
       }
     };
 
-    console.log(voteData);
     fetchVotes();
     const interval = setInterval(fetchVotes, 1000);
     return () => clearInterval(interval);

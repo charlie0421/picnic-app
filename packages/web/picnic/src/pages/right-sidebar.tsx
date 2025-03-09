@@ -3,7 +3,7 @@
 import * as React from 'react';
 import styles from './right-sidebar.module.css';
 
-export default function RightSidebar() {
+export default function RightSidebarPage() {
   return (
     <div className={styles.container}>
       <div className={styles.videoContainer}>
