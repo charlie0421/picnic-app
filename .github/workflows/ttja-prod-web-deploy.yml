@@ -37,11 +37,11 @@ jobs:
           cp -r out/* ../ttja_app/web/next-export/
 
       - name: Build flutter web
-        working-directory: packages/app/ttja_app
+        working-directory: packages/client/ttja_app
         run: flutter build web --release --dart-define=FLUTTER_WEB_USE_SKIA=false
 
       - name: Install Vercel CLI
-        working-directory: packages/app/ttja_app
+        working-directory: packages/client/ttja_app
         run: npm install -g vercel
   
       - name: Deploy to Vercel
