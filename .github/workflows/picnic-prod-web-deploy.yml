@@ -3,8 +3,7 @@ name: Build & Deploy Picnic App
 on:
   push:
     paths:
-      - "packages/client/picnic_app/**"
-      - "packages/web/picnic_web/**"
+      - "packages/web/picnic/**"
     branches: [ "production" ]
   workflow_dispatch:
 jobs:
