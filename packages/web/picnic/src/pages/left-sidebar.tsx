@@ -22,7 +22,6 @@ interface BranchSDK {
 }
 
 export default function LeftSidebarPage() {
-
   const [voteData, setVoteData] = useState<VoteData>();
   const [shortUrl, setShortUrl] = useState<string>('');
   const lastVoteIdRef = useRef<string>('');
@@ -105,108 +104,97 @@ export default function LeftSidebarPage() {
     return () => clearInterval(interval);
   }, []);
 
-
   return (
-    <div style={{ height: '100vh', overflow: 'auto' }}>
-        <div className={styles.rankingSection}>
-          <div className={styles.rankingList}>
-            {/* 1등 */}
-            {voteData?.topThree?.[0] && (
-              <div className={styles.rankItem}>
-                <div className={styles.rankImage}>
-                  <Image
-                    src='/images/1st.svg'
-                    alt='1st'
-                    width={60}
-                    height={50}
-                  />
-                </div>
-                <div className={styles.rankPillar}>
-                  <RankCard
-                    key={voteData?.topThree[0].id}
-                    rank={1}
-                    name={voteData?.topThree[0].artist?.name['en'] || ''}
-                    votes={voteData?.topThree[0].vote_total}
-                    photoUrl={voteData?.topThree[0].artist?.image}
-                    groupName={
-                      voteData?.topThree[0].artist?.artist_group?.name['en'] ||
-                      ''
-                    }
-                  />
-                </div>
+    <div
+      style={{
+        height: '100vh',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <div className={styles.rankingSection}>
+        <div className={styles.rankingList}>
+          {/* 1등 */}
+          {voteData?.topThree?.[0] && (
+            <div className={styles.rankItem}>
+              <div className={styles.rankImage}>
+                <Image src='/images/1st.svg' alt='1st' width={60} height={50} />
               </div>
-            )}
-
-            {/* 2등 */}
-            {voteData?.topThree?.[1] && (
-              <div className={styles.rankItem}>
-                <div className={styles.rankImage}>
-                  <Image
-                    src='/images/2nd.svg'
-                    alt='2nd'
-                    width={66}
-                    height={40}
-                  />
-                </div>
-                <div className={styles.rankPillar}>
-                  <RankCard
-                    key={voteData?.topThree[1].id}
-                    rank={2}
-                    name={voteData?.topThree[1].artist?.name['en'] || ''}
-                    votes={voteData?.topThree[1].vote_total}
-                    photoUrl={voteData?.topThree[1].artist?.image}
-                    groupName={
-                      voteData?.topThree[1].artist?.artist_group?.name['en'] ||
-                      ''
-                    }
-                  />
-                </div>
+              <div className={styles.rankPillar}>
+                <RankCard
+                  key={voteData?.topThree[0].id}
+                  rank={1}
+                  name={voteData?.topThree[0].artist?.name['en'] || ''}
+                  votes={voteData?.topThree[0].vote_total}
+                  photoUrl={voteData?.topThree[0].artist?.image}
+                  groupName={
+                    voteData?.topThree[0].artist?.artist_group?.name['en'] || ''
+                  }
+                />
               </div>
-            )}
-
-            {/* 3등 */}
-            {voteData?.topThree?.[2] && (
-              <div className={styles.rankItem}>
-                <div className={styles.rankImage}>
-                  <Image
-                    src='/images/3rd.svg'
-                    alt='3rd'
-                    width={45}
-                    height={30}
-                  />
-                </div>
-                <div className={styles.rankPillar}>
-                  <RankCard
-                    key={voteData?.topThree[2].id}
-                    rank={3}
-                    name={voteData?.topThree[2].artist?.name['en'] || ''}
-                    votes={voteData?.topThree[2].vote_total}
-                    photoUrl={voteData?.topThree[2].artist?.image}
-                    groupName={
-                      voteData?.topThree[2].artist?.artist_group?.name['en'] ||
-                      ''
-                    }
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 타이틀 */}
-          <div className={styles.titleBottom}>
-            {/* QR 코드 */}
-            <div className={styles.titleQrCode}>
-              <QRCode
-                value={
-                  // shortUrl가 존재하면 shortUrl, 아니면 기존 URL 사용
-                  shortUrl ||
-                  `https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`
-                }
-                size={60}
-              />
             </div>
+          )}
+
+          {/* 2등 */}
+          {voteData?.topThree?.[1] && (
+            <div className={styles.rankItem}>
+              <div className={styles.rankImage}>
+                <Image src='/images/2nd.svg' alt='2nd' width={66} height={40} />
+              </div>
+              <div className={styles.rankPillar}>
+                <RankCard
+                  key={voteData?.topThree[1].id}
+                  rank={2}
+                  name={voteData?.topThree[1].artist?.name['en'] || ''}
+                  votes={voteData?.topThree[1].vote_total}
+                  photoUrl={voteData?.topThree[1].artist?.image}
+                  groupName={
+                    voteData?.topThree[1].artist?.artist_group?.name['en'] || ''
+                  }
+                />
+              </div>
+            </div>
+          )}
+
+          {/* 3등 */}
+          {voteData?.topThree?.[2] && (
+            <div className={styles.rankItem}>
+              <div className={styles.rankImage}>
+                <Image src='/images/3rd.svg' alt='3rd' width={45} height={30} />
+              </div>
+              <div className={styles.rankPillar}>
+                <RankCard
+                  key={voteData?.topThree[2].id}
+                  rank={3}
+                  name={voteData?.topThree[2].artist?.name['en'] || ''}
+                  votes={voteData?.topThree[2].vote_total}
+                  photoUrl={voteData?.topThree[2].artist?.image}
+                  groupName={
+                    voteData?.topThree[2].artist?.artist_group?.name['en'] || ''
+                  }
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 타이틀 */}
+        <div className={styles.titleBottom}>
+          {/* QR 코드 */}
+          <div className={styles.titleQrCode}>
+            <QRCode
+              value={
+                // shortUrl가 존재하면 shortUrl, 아니면 기존 URL 사용
+                shortUrl ||
+                `https://applink.picnic.fan/vote/detail/${voteData?.voteInfo?.id}`
+              }
+              size={60}
+            />
           </div>
         </div>
+      </div>
     </div>
   );
 }
