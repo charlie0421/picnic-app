@@ -6,7 +6,7 @@ echo "Picnic 개발 환경을 시작합니다..."
 ORIGINAL_DIR=$(pwd)
 
 # Next.js 서버 (picnic_web) 실행
-cd picnic_web
+cd picnic
 echo "Picnic 사이드바 서버를 시작합니다 (포트: 3001)..."
 npm run dev &
 PICNIC_WEB_PID=$!

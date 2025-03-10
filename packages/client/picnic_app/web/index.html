@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
     <base href="$FLUTTER_BASE_HREF" />
 
     <meta charset="UTF-8" />
@@ -39,10 +26,35 @@
     />
     <meta name="theme-color" content="#ffffff" />
 
-    <!-- Flutter 초기화 스크립트 -->
+    <!-- 
+      ====================================================================
+      ============ (1) Flutter 환경 설정 스크립트 추가 ====================
+      ====================================================================
+      flutter.js보다 먼저 _flutter.buildConfig 설정을 해줘야
+      FlutterLoader.load() 호출 시 에러가 발생하지 않습니다.
+    -->
+    <script>
+      // _flutter 객체가 없으면 생성
+      window._flutter = window._flutter || {};
+
+      // 최신 Flutter 웹 엔진에서 요구하는 빌드 설정
+      // (BUILD_MODE, BUILD_NAME, BUILD_NUMBER, 등 필요 항목 자유롭게 추가 가능)
+      window._flutter.buildConfig = {
+        BUILD_MODE: 'release', // 예: release, debug
+        BUILD_NAME: '1.0.0', // 앱 버전명
+        BUILD_NUMBER: '1', // 빌드 번호
+      };
+    </script>
+
+    <!-- 
+      ====================================================================
+      ============ (2) Flutter 로더 스크립트 로드 =========================
+      ====================================================================
+      defer를 사용하면 DOM 파싱 이후에 로드되므로, buildConfig가 먼저 선언된 상태를 보장합니다.
+    -->
     <script src="flutter.js" defer></script>
 
-    <!-- Next.js 리액트 -->
+    <!-- (선택) Next.js 리액트 라이브러리 예시 (사용하신다면 그대로 유지) -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
@@ -53,14 +65,14 @@
         margin: 0;
         padding: 0;
         width: 100%;
-        overflow: hidden; /* 중요: 외부 스크롤 방지 */
-        background-color: #FFFFFF;
+        overflow: hidden;
+        background-color: #ffffff;
       }
 
       body {
         display: flex;
         justify-content: center;
-        background-color: #FFFFFF;
+        background-color: #ffffff;
         touch-action: auto; /* 터치 액션 활성화 */
       }
 
@@ -70,9 +82,9 @@
         width: 100%;
         height: 100%;
         position: relative;
-        background-color: #FFFFFF;
-        padding: 0; /* 여백 제거 */
-        margin: 0; /* 여백 제거 */
+        background-color: #ffffff;
+        padding: 0;
+        margin: 0;
       }
 
       .sidebar-left,
@@ -80,7 +92,7 @@
         flex: 0 0 393px;
         width: 393px;
         height: 100%;
-        display: block; /* 기본값을 block으로 설정 */
+        display: block;
         box-sizing: border-box;
         margin: 0;
         padding: 0;
@@ -104,14 +116,13 @@
         position: relative;
         overflow: hidden;
         z-index: 10;
-        background-color: #FFFFFF; /* 단색 배경 */
-        margin: 0; /* 여백 제거 */
-        padding: 0; /* 여백 제거 */
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
       }
 
-      /* Flutter 렌더링 관련 요소의 크기 및 이벤트 설정 */
-      flt-glass-pane, 
-      flt-scene-host, 
+      flt-glass-pane,
+      flt-scene-host,
       flt-semantics-host,
       flt-text-editing-host,
       canvas,
@@ -120,7 +131,7 @@
         max-width: 393px !important;
         pointer-events: auto !important;
         touch-action: auto !important;
-        background-color: #FFFFFF !important;
+        background-color: #ffffff !important;
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
@@ -128,7 +139,6 @@
         left: 0 !important;
       }
 
-      /* Flutter 엔진이 생성하는 로딩바를 전체가 아닌 393px 영역으로 제한 */
       flt-glass-pane > .flutter-loader {
         width: 393px !important;
         left: 0 !important;
@@ -142,7 +152,7 @@
         top: 0;
         left: 0;
         z-index: 2;
-        background-color: #FFFFFF; /* 단색 배경으로 설정 */
+        background-color: #ffffff;
       }
 
       .center {
@@ -186,11 +196,10 @@
         }
       }
 
-      /* 반응형 디자인 */
       @media (max-width: 843px) {
         .sidebar-left,
         .sidebar-right {
-          display: none !important; /* !important로 강제 적용 */
+          display: none !important;
         }
         .container {
           justify-content: center;
@@ -199,37 +208,45 @@
 
       @media (min-width: 844px) and (max-width: 1236px) {
         .sidebar-left {
-          display: block !important; /* !important로 강제 적용 */
+          display: block !important;
         }
         .sidebar-right {
-          display: none !important; /* !important로 강제 적용 */
+          display: none !important;
         }
         .container {
-          justify-content: center; /* 중앙 정렬로 변경 */
+          justify-content: center;
         }
       }
 
       @media (min-width: 1237px) {
         .sidebar-left,
         .sidebar-right {
-          display: block !important; /* !important로 강제 적용 */
+          display: block !important;
         }
         .container {
-          justify-content: center; /* 중앙 정렬로 변경 */
+          justify-content: center;
         }
       }
     </style>
   </head>
+
   <body>
-    <div class="container" style="background-color: #FFFFFF; justify-content: center;">
+    <div
+      class="container"
+      style="background-color: #ffffff; justify-content: center"
+    >
       <!-- 좌측 사이드바 -->
       <div class="sidebar-left" id="sidebar-left">
         <iframe frameborder="0" title="Left Sidebar"></iframe>
       </div>
 
       <!-- 중앙 Flutter 앱 컨테이너 -->
-      <div class="app-container" id="flutter-app-container" style="margin: 0; padding: 0;">
-        <!-- 스플래시 화면 (심플하게 유지) -->
+      <div
+        class="app-container"
+        id="flutter-app-container"
+        style="margin: 0; padding: 0"
+      >
+        <!-- 스플래시 화면 -->
         <picture id="splash">
           <source
             srcset="
@@ -264,9 +281,18 @@
       </div>
     </div>
 
-    <!-- 기본 스크립트 -->
+    <!-- 
+      ====================================================================
+      ============ (3) Flutter 메인 엔트리포인트(main.dart.js) 로드 =======
+      ====================================================================
+      ※ 아래 경로는 Flutter 빌드 결과물에 맞춰 수정하세요.
+      ※ flutter.js가 엔트리포인트를 직접 불러올 수도 있으므로,
+        원하는 방식대로 조절하셔도 됩니다.
+    -->
+    <script src="main.dart.js" type="application/javascript"></script>
+
     <script>
-      // 전역 변수 선언
+      // 전역 변수
       let splashRemoved = false;
       let sidebarInitialized = false;
       let flutterInitialized = false;
@@ -274,30 +300,21 @@
       // 스플래시 제거 함수
       function removeSplash() {
         if (splashRemoved) return;
-
         const splash = document.getElementById('splash');
         if (splash) splash.remove();
-
         splashRemoved = true;
         console.log('스플래시 화면 제거 완료');
 
-        // 사이드바 상태 업데이트
         updateSidebars();
-        
-        // Flutter 요소 수정
         fixFlutterElementsOnce();
       }
 
       // Flutter 요소 수정 함수 (한 번만 실행)
       function fixFlutterElementsOnce() {
         console.log('Flutter 요소 수정 시작...');
-        
-        // Flutter 요소 찾기
         const flutterElement = document.querySelector('flt-glass-pane');
         if (flutterElement) {
           console.log('Flutter 요소 발견, 스타일 적용 중...');
-          
-          // 스타일 적용
           flutterElement.style.width = '393px';
           flutterElement.style.maxWidth = '393px';
           flutterElement.style.pointerEvents = 'auto';
@@ -307,16 +324,19 @@
           flutterElement.style.padding = '0';
           flutterElement.style.left = '0';
           flutterElement.style.position = 'absolute';
-          
+
           // 모든 자식 요소에도 터치 이벤트 활성화
           const allFlutterElements = flutterElement.querySelectorAll('*');
-          allFlutterElements.forEach(el => {
+          allFlutterElements.forEach((el) => {
             if (el.style) {
               el.style.pointerEvents = 'auto';
               el.style.touchAction = 'auto';
-              
-              // 위치 관련 요소는 여백 제거
-              if (el.tagName && (el.tagName.toLowerCase().includes('flt-') || el.tagName.toLowerCase() === 'canvas')) {
+
+              if (
+                el.tagName &&
+                (el.tagName.toLowerCase().includes('flt-') ||
+                  el.tagName.toLowerCase() === 'canvas')
+              ) {
                 el.style.margin = '0';
                 el.style.padding = '0';
                 el.style.left = '0';
@@ -326,12 +346,11 @@
               }
             }
           });
-          
           console.log('Flutter 요소 스타일 적용 완료');
         }
       }
 
-      // 정기적으로 Flutter 요소 수정 (초당 1회)
+      // 주기적으로 Flutter 요소 스타일 재조정 (1초 간격)
       setInterval(() => {
         const flutterElement = document.querySelector('flt-glass-pane');
         if (flutterElement) {
@@ -343,8 +362,8 @@
           flutterElement.style.padding = '0';
           flutterElement.style.left = '0';
           flutterElement.style.position = 'absolute';
-          
-          // 로딩 바 크기 조정
+
+          // 로딩바 크기 조정
           const loaderBar = document.querySelector('.flutter-loader');
           if (loaderBar) {
             loaderBar.style.width = '393px';
@@ -353,10 +372,10 @@
             loaderBar.style.margin = '0';
             loaderBar.style.padding = '0';
           }
-          
+
           // 주요 캔버스 요소 조정
           const canvasElements = document.querySelectorAll('canvas');
-          canvasElements.forEach(canvas => {
+          canvasElements.forEach((canvas) => {
             canvas.style.width = '393px';
             canvas.style.maxWidth = '393px';
             canvas.style.margin = '0';
@@ -371,20 +390,18 @@
       function onFlutterInited() {
         console.log('Flutter 초기화 완료');
         flutterInitialized = true;
-        
-        // 약간 지연시켜 스플래시 제거
+
         setTimeout(() => {
           removeSplash();
         }, 500);
-        
-        // 터치 이벤트 활성화
+
         fixFlutterElementsOnce();
       }
 
-      // 디바운싱 처리 함수
+      // 디바운스 함수
       function debounce(func, wait) {
         let timeout;
-        return function() {
+        return function () {
           clearTimeout(timeout);
           timeout = setTimeout(() => func.apply(this, arguments), wait);
         };
@@ -393,90 +410,96 @@
       // 사이드바 업데이트 함수
       function updateSidebars() {
         const width = window.innerWidth;
-        
         const leftSidebar = document.getElementById('sidebar-left');
         const rightSidebar = document.getElementById('sidebar-right');
-
-        // 사이드바가 없는 경우 처리
         if (!leftSidebar || !rightSidebar) return;
 
         if (width >= 1237) {
-          // 3칸 모드
           leftSidebar.style.display = 'block';
           rightSidebar.style.display = 'block';
         } else if (width >= 844) {
-          // 2칸 모드
           leftSidebar.style.display = 'block';
           rightSidebar.style.display = 'none';
         } else {
-          // 1칸 모드
           leftSidebar.style.display = 'none';
           rightSidebar.style.display = 'none';
         }
       }
 
-      // 사이드바 초기화 함수
+      // 사이드바 초기화
       function initSidebars() {
         if (sidebarInitialized) return;
 
-        const isLocalhost = 
-          window.location.hostname === 'localhost' || 
+        const isLocalhost =
+          window.location.hostname === 'localhost' ||
           window.location.hostname === '127.0.0.1';
 
-        // Picnic Next.js 서버 URL 설정
         const leftSidebarSrc = isLocalhost
           ? 'http://localhost:3001/left-sidebar'
           : 'https://sidebar.picnic.fan/left-sidebar';
-
         const rightSidebarSrc = isLocalhost
           ? 'http://localhost:3001/right-sidebar'
           : 'https://sidebar.picnic.fan/right-sidebar';
 
-        // iframe 요소 설정
         const leftIframe = document.querySelector('#sidebar-left iframe');
         const rightIframe = document.querySelector('#sidebar-right iframe');
 
         if (leftIframe && rightIframe) {
           leftIframe.src = leftSidebarSrc;
           rightIframe.src = rightSidebarSrc;
-          
           sidebarInitialized = true;
-          
-          // 초기 사이드바 상태 설정
           updateSidebars();
         }
       }
 
-      // 디바운싱된 리사이즈 핸들러
+      // 리사이즈 시 사이드바 업데이트 (디바운스)
       const debouncedResize = debounce(updateSidebars, 250);
 
-      // DOM 로드 완료 시 실행
-      document.addEventListener('DOMContentLoaded', function() {
+      // DOMContentLoaded 이벤트
+      document.addEventListener('DOMContentLoaded', () => {
         console.log('DOM 로드 완료');
-        
+
         // 사이드바 초기화
         initSidebars();
-        
-        // 윈도우 리사이즈 이벤트 리스너
+        // 리사이즈 이벤트 등록
         window.addEventListener('resize', debouncedResize);
-        
-        // Flutter 초기화 (심플한 방식)
-        if (window._flutter) {
-          window._flutter.loader.loadEntrypoint({
-            onEntrypointLoaded: function(engineInitializer) {
-              engineInitializer.initializeEngine({
-                hostElement: document.getElementById('flutter-app-container'),
-                renderer: 'html',
-                canvasKitBaseUrl: "/canvaskit/",
-                width: 393,
-              }).then(function(appRunner) {
-                appRunner.runApp();
-                onFlutterInited();
-              });
-            }
-          });
+
+        // =================================================================
+        // (4) Flutter 웹 엔트리포인트 로드
+        // =================================================================
+        // _flutter.loader가 정상적으로 있는지 확인 후 로드
+        if (window._flutter && window._flutter.loader) {
+          // entrypointUrl을 지정하지 않으면, 기본값은 "main.dart.js"를 사용
+          // 이미 상단에서 <script src="main.dart.js">를 쓴다면 생략 가능
+          // 여기서는 명시적으로 entrypointUrl을 넣어 예시로 보여줍니다.
+          window._flutter.loader
+            .loadEntrypoint({
+              entrypointUrl: 'main.dart.js',
+              onEntrypointLoaded: (engineInitializer) => {
+                // Flutter 엔진 초기화
+                engineInitializer
+                  .initializeEngine({
+                    hostElement: document.getElementById(
+                      'flutter-app-container',
+                    ),
+                    renderer: 'auto', // auto | html | canvaskit
+                    canvasKitBaseUrl: '/canvaskit/',
+                    width: 393,
+                  })
+                  .then((appRunner) => {
+                    // 실제 Flutter 앱 실행
+                    appRunner.runApp();
+                    onFlutterInited();
+                  });
+              },
+            })
+            .catch((err) => {
+              console.error('Flutter 엔트리포인트 로딩 에러:', err);
+            });
         } else {
-          console.error('Flutter 로더를 찾을 수 없습니다.');
+          console.error(
+            'window._flutter.loader가 존재하지 않습니다. flutter.js 로드 여부 확인 필요.',
+          );
         }
       });
     </script>

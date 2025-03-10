@@ -6,7 +6,7 @@ echo "TTJA 개발 환경을 시작합니다..."
 ORIGINAL_DIR=$(pwd)
 
 # Next.js 서버 (ttja_web) 실행
-cd ttja_web
+cd ttja
 echo "TTJA 사이드바 서버를 시작합니다 (포트: 3002)..."
 npm run dev &
 TTJA_WEB_PID=$!
