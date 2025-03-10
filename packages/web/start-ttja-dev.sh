@@ -4,9 +4,11 @@ echo "TTJA 개발 환경을 시작합니다..."
 
 # 현재 디렉토리 저장
 ORIGINAL_DIR=$(pwd)
+APP_DIR=../client/ttja_app
+WEB_DIR=ttja
 
 # Next.js 서버 (ttja_web) 실행
-cd ttja
+cd $WEB_DIR
 echo "TTJA 사이드바 서버를 시작합니다 (포트: 3002)..."
 npm run dev &
 TTJA_WEB_PID=$!
@@ -16,7 +18,7 @@ echo "TTJA 사이드바 서버가 시작되었습니다. (PID: $TTJA_WEB_PID)"
 cd $ORIGINAL_DIR
 
 # Flutter 웹 서버 (ttja_app) 실행
-cd ../client/ttja_app
+cd $APP_DIR
 echo "TTJA Flutter 웹 앱을 시작합니다 (포트: 8080)..."
 flutter run -d chrome --web-port=8080 --dart-define=FLUTTER_WEB_USE_SKIA=false &
 TTJA_APP_PID=$!

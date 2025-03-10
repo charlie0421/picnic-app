@@ -4,9 +4,11 @@ echo "Picnic 개발 환경을 시작합니다..."
 
 # 현재 디렉토리 저장
 ORIGINAL_DIR=$(pwd)
+APP_DIR=../client/picnic_app
+WEB_DIR=picnic
 
 # Next.js 서버 (picnic_web) 실행
-cd picnic
+cd $WEB_DIR
 echo "Picnic 사이드바 서버를 시작합니다 (포트: 3001)..."
 npm run dev &
 PICNIC_WEB_PID=$!
@@ -16,7 +18,7 @@ echo "Picnic 사이드바 서버가 시작되었습니다. (PID: $PICNIC_WEB_PID
 cd $ORIGINAL_DIR
 
 # Flutter 웹 서버 (picnic_app) 실행
-cd ../client/picnic_app
+cd $APP_DIR
 echo "Picnic Flutter 웹 앱을 시작합니다 (포트: 8081)..."
 flutter run -d chrome --web-port=8081 --dart-define=FLUTTER_WEB_USE_SKIA=false &
 PICNIC_APP_PID=$!
