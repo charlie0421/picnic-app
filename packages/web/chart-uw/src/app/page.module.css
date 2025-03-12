@@ -1,0 +1,340 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.content {
+  max-width: 1664px;
+  width: 100%;
+  height: auto;
+  max-height: 832px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 1700px) {
+  .content {
+    max-width: 95%;
+    height: auto;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .content {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.rankingSection {
+  width: 832px;
+  height: 832px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 42px;
+  background-image: url('/images/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.titleBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.1);
+  gap: 29px;
+  padding-top: 30px;
+  padding-left: 13px;
+  padding-right: 13px;
+  position: relative;
+  padding-bottom: 32px;  /* 버전 정보를 위한 하단 여백 */
+}
+
+.titleQrCode {
+  background: white;
+}
+
+.titleImage {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.titleText {
+  font-size: 48px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.titleFirst {
+  color: #10b981; /* 민트색 */
+}
+
+.titleSecond {
+  color: #8b5cf6; /* 보라색 */
+}
+
+.rankingList {
+  background: white;
+  border-radius: 36px;
+  padding: 36px 36px 0 36px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 696px;
+  height: 535px;
+  margin: 0 auto;
+  z-index: 1;
+  gap: 37px; /* 기둥 간격 37px 설정 */
+}
+
+.rankItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rankItem:nth-child(1) {
+  width: 198px;
+  height: 499px;
+}
+
+.rankItem:nth-child(2) {
+  width: 172px;
+  height: 378px;
+  margin-left: 39px;
+}
+
+.rankItem:nth-child(3) {
+  width: 130px;
+  height: 293.2px;
+}
+
+/* 순위 이미지 - 기둥 위에 배치 */
+.rankImage {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px; /* 기둥과의 간격 */
+}
+
+.rankItem:nth-child(1) .rankImage {
+  width: 50px;
+}
+
+.rankItem:nth-child(2) .rankImage {
+  width: 40px;
+}
+
+.rankItem:nth-child(3) .rankImage {
+  width: 35px;
+}
+
+.rankImage img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 순위별 이미지 크기 차별화 - 기둥 너비에 맞춤 */
+.rankItem:nth-child(1) .rankImage img {
+  width: 198px;
+  height: auto;
+}
+
+.rankItem:nth-child(2) .rankImage img {
+  width: 172px;
+  height: auto;
+}
+
+.rankItem:nth-child(3) .rankImage img {
+  width: 130px;
+  height: auto;
+}
+
+/* 투표수 스타일 */
+.voteCount {
+  color: #FF4D00;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* 순위별 투표수 크기 */
+.rankItem:nth-child(1) .voteCount {
+  font-size: 30px;
+}
+
+.rankItem:nth-child(2) .voteCount {
+  font-size: 26px;
+}
+
+.rankItem:nth-child(3) .voteCount {
+  font-size: 20px;
+}
+
+.rankCrown {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+}
+
+.rankCrown img {
+  width: 100%;
+  height: 100%;
+}
+
+.logo {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.adSection {
+  width: 480px;
+  height: 768px;
+  position: relative;
+  overflow: hidden;
+}
+
+.adVideo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0;
+}
+
+/* 카드 내 사진 크기 조정 */
+.image {
+  width: 100% !important;
+  aspect-ratio: 1/1 !important;
+  margin-top: 0 !important;
+}
+
+.imageContainer {
+  margin-top: 0 !important;
+}
+
+.image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 사진 크기 제한 */
+.rankItem:nth-child(1) .card {
+  width: 198px;
+}
+
+.rankItem:nth-child(2) .card {
+  width: 172px;
+}
+
+.rankItem:nth-child(3) .card {
+  width: 130px;
+}
+
+/* 기둥 스타일 */
+.rankPillar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0px 8px 12px 0px #00000080 inset;
+}
+
+/* 순위별 기둥 크기와 배경 */
+.rankItem:nth-child(1) .rankPillar {
+  background: linear-gradient(180deg, #9374ff 0%, rgba(147, 116, 255, 0) 100%);
+}
+
+.rankItem:nth-child(2) .rankPillar {
+  background: linear-gradient(180deg, #9374ff 0%, rgba(147, 116, 255, 0) 100%);
+}
+
+.rankItem:nth-child(3) .rankPillar {
+  background: linear-gradient(180deg, #9374ff 0%, rgba(147, 116, 255, 0) 100%);
+}
+
+/* 세로 텍스트 스타일 */
+.verticalName {
+  right: -32px;
+  top: 0; /* 기둥 상단부터 시작하도록 수정 */
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: 900;
+  color: black;
+  letter-spacing: 2px;
+  font-size: 32px;
+  font-family: 'Noto Sans KR', sans-serif;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  line-height: 38.4px;
+  text-transform: uppercase;
+  height: 280px; /* 이미지 영역 높이와 동일하게 설정 */
+  display: flex;
+  align-items: center;
+}
+
+/* 1위 기둥에만 적용 */
+.rankItem:nth-child(1) .verticalName {
+  display: flex;
+}
+
+/* 2,3위 기둥에는 숨김 */
+.rankItem:nth-child(2) .verticalName,
+.rankItem:nth-child(3) .verticalName {
+  display: none;
+}
+
+.rankItem {
+  position: relative; /* verticalName의 기준점 */
+}
+
+.versionInfo {
+  position: absolute;
+  bottom: 8px;
+  left: 13px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}

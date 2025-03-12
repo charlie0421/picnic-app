@@ -1,0 +1,181 @@
+.card {
+  width: 100%;
+  height: 100%; /* 높이를 100%로 설정 */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1; /* 카드의 z-index 설정 */
+}
+
+.imageContainer {
+  width: 100%;
+  position: relative;
+  margin-bottom: 20px;
+  flex-shrink: 0; /* 이미지 컨테이너는 크기 고정 */
+}
+
+.image {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* 1:1 비율 유지 */
+}
+
+.image img {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.noImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noImageText {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.nameTextLarge {
+  font-size: 1.5rem;
+}
+
+.nameTextNormal {
+  font-size: 1.25rem;
+}
+
+.nameTextSmall {
+  font-size: 1.125rem;
+}
+
+.voteCountCard {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #FF4D00;
+  position: relative;
+  z-index: 2;
+  margin-top: -20px; /* 위쪽 여백을 줄여서 중앙으로 올림 */
+}
+
+/* 순위별 하단 영역 높이 조정 */
+.voteCount1 {
+  font-size: 30px;
+  min-height: 100px;
+}
+
+.voteCount2 {
+  font-size: 20px;
+  min-height: 80px;
+}
+
+.voteCount3 {
+  font-size: 14px;
+  min-height: 60px;
+}
+
+/* 세로 텍스트 스타일 */
+.verticalName {
+  position: absolute;
+  right: -50px; /* 기둥 바로 옆에 붙임 */
+  top: 0px; /* 상단 정렬 */
+  transform: translateY(0);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: 900;
+  color: black; /* 검정색으로 변경 */
+  letter-spacing: 2px;
+  font-size: 32px; /* 지정하신 폰트 크기 */
+  font-family: 'Noto Sans KR', sans-serif; /* 지정하신 폰트 패밀리 */
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  line-height: 38.4px;
+  text-transform: uppercase;
+  z-index: 0; /* 기둥을 카드 뒤로 보냄 */
+  height: 100%; /* 높이를 카드와 동일하게 설정 */
+  pointer-events: none; /* 기둥이 클릭 이벤트를 방해하지 않도록 설정 */
+}
+
+/* 1위 기둥에만 적용 */
+.rankItem:nth-child(1) .verticalName {
+  display: block;
+}
+
+/* 2,3위 기둥에는 숨김 */
+.rankItem:nth-child(2) .verticalName,
+.rankItem:nth-child(3) .verticalName {
+  display: none;
+}
+
+.rankItem {
+  position: relative; /* verticalName의 기준점 */
+}
+
+.qrCode {
+  display: none;
+}
+
+.qrCode img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logoContainer {
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 8px 8px;
+  background-color: white;
+}
+
+.logoContainer1 {
+  height: 70px;
+}
+
+.logoContainer2 {
+  height: 60px;
+}
+
+.logoContainer3 {
+  height: 45px;
+}
+
+.groupName {
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  font-style: italic;
+}
+
+.groupName1 {
+  font-size: 30px;
+}
+
+.groupName2 {
+  font-size: 20px;
+}
+
+.groupName3 {
+  font-size: 14px;
+}
+
+
