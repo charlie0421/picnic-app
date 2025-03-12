@@ -32,7 +32,7 @@ dependencies:
   flutter_svg: ^2.0.16
   load_switch: ^2.1.0
   riverpod_annotation: ^2.6.1
-  flutter_quill: ^11.1.0
+  flutter_quill: ^10.8.5
   intl: ^0.19.0
   camera: ^0.11.0+2
   flutter_screenutil: ^5.9.3
@@ -40,7 +40,7 @@ dependencies:
   reflectable: ^4.0.10
   cached_network_image: ^3.4.1
   card_swiper: ^3.0.1
-  infinite_scroll_pagination: ^5.0.0
+  infinite_scroll_pagination: ^4.1.0
   flutter_keyboard_visibility: ^6.0.0
   font_awesome_flutter: ^10.8.0
   overlay_support: ^2.1.0
