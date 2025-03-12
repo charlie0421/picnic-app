@@ -11,6 +11,7 @@
             android:name="${applicationName}"
             android:icon="@mipmap/launcher_icon"
             android:usesCleartextTraffic="true"
+            android:largeHeap="true"
             android:requestLegacyExternalStorage="true">
         <property
             android:name="android.adservices.AD_SERVICES_CONFIG"
