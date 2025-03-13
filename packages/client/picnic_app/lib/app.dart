@@ -49,13 +49,18 @@ class App extends ConsumerStatefulWidget {
 
 class _AppState extends ConsumerState<App> {
   late Future<void> _initializationFuture;
-  bool _didInitialize = false;
   Widget? initScreen;
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer =
       FirebaseAnalyticsObserver(analytics: analytics);
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
+
+  // 앱이 이미 초기화되었는지 여부를 추적하는 플래그
+  bool _isAppInitialized = false;
+
+  // 앱이 초기화된 후의 화면을 캐시하기 위한 변수
+  Widget? _initializedAppScreen;
 
   static final Map<String, WidgetBuilder> _routes = {
     Portal.routeName: (context) => const Portal(),
@@ -69,65 +74,111 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
-    _initializationFuture = Future.value();
+    logger.i('App initState 호출됨');
 
     // Supabase 인증 리스너는 웹과 모바일 모두에서 필요함
     AppInitializer.setupSupabaseAuthListener(ref);
-    
+
     // Branch 리스너는 모바일에서만 필요
     if (UniversalPlatform.isMobile && !kIsWeb) {
       AppInitializer.setupBranchListener(ref);
     }
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_didInitialize) {
-      _didInitialize = true;
-      _initializationFuture = _initializeApp();
-    }
+    // 초기화 로직을 initState()에서 수행
+    _initializationFuture = _initializeApp();
   }
 
   Future<void> _initializeApp() async {
+    logger.i('_initializeApp 시작');
+
+    // 앱이 이미 초기화되었다면 바로 반환
+    if (_isAppInitialized) {
+      logger.i('앱이 이미 초기화됨. 초기화 과정 스킵');
+      return;
+    }
+
     // 모바일 환경에서만 시스템 UI 초기화
     if (UniversalPlatform.isMobile && !kIsWeb) {
       await AppInitializer.initializeSystemUI();
     }
+
+    // AppInitializer 클래스 내부에 스크린 정보 설정 로직이 있는지 확인을 위한 로그
+    logger.i('AppInitializer 클래스 메서드 호출 전 - 스크린 정보 확인');
+
+    // 앱 초기화 로직 실행 전, 현재 스크린 정보 프로바이더 상태 로깅
+    final currentScreenInfos = ref.read(screenInfosProvider);
+    logger.i('현재 스크린 정보 상태: $currentScreenInfos');
+
     if (UniversalPlatform.isMobile) {
       await AppInitializer.initializeAppWithSplash(context, ref);
     } else {
       await AppInitializer.initializeWebApp(context, ref);
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    final initState = ref.watch(appInitializationProvider);
-    logger.i('initState: $initState');
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // 앱 초기화 로직 실행 후 스크린 정보 설정
+    logger.i('앱 초기화 후 스크린 정보 설정 시작');
+    try {
+      // 스크린 정보 맵 생성
       final screenInfoMap = {
         PortalType.vote.name.toString(): voteScreenInfo,
         PortalType.pic.name.toString(): picScreenInfo,
         PortalType.community.name.toString(): communityScreenInfo,
         PortalType.novel.name.toString(): novelScreenInfo,
       };
+
+      // screenInfosProvider에 스크린 정보 설정
       ref.read(screenInfosProvider.notifier).setScreenInfoMap(screenInfoMap);
-    });
+
+      // 설정 후 스크린 정보 상태 확인
+      final updatedScreenInfos = ref.read(screenInfosProvider);
+      logger.i('스크린 정보 설정 완료, 업데이트된 상태: $updatedScreenInfos');
+
+      // 앱 초기화 완료 플래그 설정
+      _isAppInitialized = true;
+    } catch (e) {
+      logger.e('스크린 정보 설정 중 오류 발생: $e');
+    }
+
+    logger.i('_initializeApp 완료');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initState = ref.watch(appInitializationProvider);
+    logger.i(
+        'build 메서드: initState=$initState, _isAppInitialized=$_isAppInitialized');
+
+    // 이미 초기화되었고 화면이 캐시되어 있다면 그것을 반환
+    if (_isAppInitialized && _initializedAppScreen != null) {
+      logger.i('이미 초기화된 앱 화면 반환');
+      return _initializedAppScreen!;
+    }
 
     return MaterialApp(
       home: FutureBuilder(
         future: Future.wait([
           _initializationFuture,
           // 최소 3초 대기
-          if (UniversalPlatform.isMobile)
+          if (UniversalPlatform.isMobile && !_isAppInitialized)
             Future.delayed(const Duration(seconds: 3)),
         ]),
         builder: (context, snapshot) {
+          logger.i(
+              'FutureBuilder: connectionState=${snapshot.connectionState}, isInitialized=${initState.isInitialized}, _isAppInitialized=$_isAppInitialized');
+
+          // 이미 초기화되었다면 스플래시를 건너뛰고 메인 화면으로 이동
+          if (_isAppInitialized) {
+            logger.i('앱이 이미 초기화됨. 메인 화면으로 바로 이동');
+            _initializedAppScreen ??= _buildMainApp();
+            return _initializedAppScreen!;
+          }
+
           if (snapshot.connectionState == ConnectionState.done &&
               initState.isInitialized) {
-            return _buildNextScreen();
+            logger.i('초기화 완료, 메인 화면 빌드');
+            _isAppInitialized = true;
+            _initializedAppScreen = _buildMainApp();
+            return _initializedAppScreen!;
           } else {
             return AnimatedOpacity(
               opacity: 1.0,
@@ -142,12 +193,23 @@ class _AppState extends ConsumerState<App> {
     );
   }
 
+  // 앱의 메인 화면 구성
+  Widget _buildMainApp() {
+    logger.i('_buildMainApp 호출됨');
+    return _buildNextScreen();
+  }
+
   Future<void> _retryConnection() async {
     await AppInitializer.retryConnection(ref);
   }
 
   Widget _buildNextScreen() {
+    logger.i('_buildNextScreen 호출됨 - 앱 초기화 완료');
     final initState = ref.watch(appInitializationProvider);
+
+    // 스크린 정보 상태 확인 (현재 상태 로깅)
+    final screenInfos = ref.read(screenInfosProvider);
+    logger.i('_buildNextScreen에서 스크린 정보 상태: $screenInfos');
 
     if (!initState.hasNetwork) {
       return MaterialApp(
