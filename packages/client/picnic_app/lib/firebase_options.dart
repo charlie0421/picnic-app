@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     authDomain: 'picnic-423500.firebaseapp.com',
-    storageBucket: 'picnic-423500.appspot.com',
+    storageBucket: 'picnic-423500.firebasestorage.app',
     measurementId: 'G-KREGF7NTP9',
   );
 
@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
     appId: '1:853406219989:android:93153a1e2d8a391cbcac5c',
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
-    storageBucket: 'picnic-423500.appspot.com',
+    storageBucket: 'picnic-423500.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -63,11 +63,9 @@ class DefaultFirebaseOptions {
     appId: '1:853406219989:ios:5a5d708a16024a79bcac5c',
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
-    storageBucket: 'picnic-423500.appspot.com',
-    androidClientId:
-        '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosClientId:
-        '853406219989-un8ik8up6hoi6dsgknc0uabn5n60pbp8.apps.googleusercontent.com',
+    storageBucket: 'picnic-423500.firebasestorage.app',
+    androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
+    iosClientId: '853406219989-un8ik8up6hoi6dsgknc0uabn5n60pbp8.apps.googleusercontent.com',
     iosBundleId: 'io.iconcasting.picnic.app',
   );
 
@@ -76,11 +74,9 @@ class DefaultFirebaseOptions {
     appId: '1:853406219989:ios:52e09030672f28c0bcac5c',
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
-    storageBucket: 'picnic-423500.appspot.com',
-    androidClientId:
-        '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
-    iosClientId:
-        '853406219989-56cu5ck4pc60flpsur76hil5v8bj23fs.apps.googleusercontent.com',
+    storageBucket: 'picnic-423500.firebasestorage.app',
+    androidClientId: '853406219989-8ji54q3mci0tqvin09aigsghk5vo4t0i.apps.googleusercontent.com',
+    iosClientId: '853406219989-56cu5ck4pc60flpsur76hil5v8bj23fs.apps.googleusercontent.com',
     iosBundleId: 'io.iconcasting.picnic.mac',
   );
 
@@ -90,7 +86,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '853406219989',
     projectId: 'picnic-423500',
     authDomain: 'picnic-423500.firebaseapp.com',
-    storageBucket: 'picnic-423500.appspot.com',
+    storageBucket: 'picnic-423500.firebasestorage.app',
     measurementId: 'G-GWP6Z8F6GM',
   );
+
 }

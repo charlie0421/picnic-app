@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "853406219989",
     "project_id": "picnic-423500",
-    "storage_bucket": "picnic-423500.appspot.com"
+    "storage_bucket": "picnic-423500.firebasestorage.app"
   },
   "client": [
     {
@@ -13,6 +13,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "853406219989-alkbhuo4lb4fkk9481fk3uqjtje8ildi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.iconcasting.picnic.app",
+            "certificate_hash": "7e582a3eaf92bce0f8a0e11976d39537f90bc8a5"
+          }
+        },
         {
           "client_id": "853406219989-b8f17rtdgh5ab2r8vdp2bnrfqs2ludv4.apps.googleusercontent.com",
           "client_type": 1,
