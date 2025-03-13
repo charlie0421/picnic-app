@@ -6,9 +6,11 @@ on:
       - "packages/client/picnic_app/**"
     branches: [ "production" ]
   workflow_dispatch:
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out
         uses: actions/checkout@v3
@@ -30,6 +32,6 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel --prod --yes --token $VERCEL_TOKEN --name picnic-prod
+          vercel --prod --yes --token $VERCEL_TOKEN --name picnic-flutter-web
 
 
