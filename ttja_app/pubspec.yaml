@@ -2,7 +2,7 @@ name: ttja_app
 description: "Ttja App"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.5.10+151002
+version: 1.5.11+151101
 
 environment:
     sdk: '>=3.3.1 <4.0.0'
