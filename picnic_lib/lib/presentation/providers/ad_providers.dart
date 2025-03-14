@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/ad_info.dart';
@@ -11,12 +12,14 @@ import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 part '../../generated/providers/ad_providers.g.dart';
 
 @Riverpod(keepAlive: true)
 class RewardedAds extends _$RewardedAds {
   List<String> _adUnitIds = [];
+  String _unityAdPlacement = ''; // Unity 광고 배치 ID
   bool _isDisposed = false;
 
   @override
@@ -46,16 +49,22 @@ class RewardedAds extends _$RewardedAds {
       _adUnitIds = isAndroid()
           ? [
               (await configService.getConfig('ADMOB_ANDROID_AD1')).toString(),
-              (await configService.getConfig('ADMOB_ANDROID_AD2')).toString(),
+              '', // 유니티 광고는 AdMob ID가 필요 없음
             ]
           : [
               (await configService.getConfig('ADMOB_IOS_AD1')).toString(),
-              (await configService.getConfig('ADMOB_IOS_AD2')).toString(),
+              '', // 유니티 광고는 AdMob ID가 필요 없음
             ];
+
+      // Unity Ads 배치 ID 초기화
+      _unityAdPlacement = isAndroid()
+          ? Environment.unityAndroidPlacementId
+          : Environment.unityIosPlacementId;
     } catch (e, s) {
       logger.e('Error initializing ad unit IDs', error: e, stackTrace: s);
       // 설정 실패 시 빈 문자열로 초기화하여 길이 유지
       _adUnitIds = ['', ''];
+      _unityAdPlacement = '';
     }
   }
 
@@ -116,18 +125,21 @@ class RewardedAds extends _$RewardedAds {
     }
 
     try {
-      if (isAdReady(index)) {
+      if (index == 0 && isAdReady(index)) {
+        // AdMob 광고 표시
         final ad = state.ads[index].ad!;
         final result = await _showAd(ad, index);
         if (!_isDisposed && currentContext.mounted) {
-          // mounted 체크 추가
           _handleAdResult(result, currentContext);
         }
         loadAd(index);
         return result;
+      } else if (index == 1) {
+        // Unity Ads는 직접 로드 및 표시
+        await _loadAndShowUnityAd(index, currentContext);
+        return AdResult.completed; // 결과는 _loadAndShowUnityAd 내에서 처리됨
       } else {
         if (!_isDisposed && currentContext.mounted) {
-          // mounted 체크 추가
           await loadAd(index, showWhenLoaded: true, context: currentContext);
         }
         return null;
@@ -155,32 +167,51 @@ class RewardedAds extends _$RewardedAds {
         await _initializeAdUnitIds();
       }
 
-      if (index >= _adUnitIds.length || _adUnitIds[index].isEmpty) {
-        throw Exception('Invalid or uninitialized ad unit ID for index $index');
-      }
+      // 첫 번째 광고는 AdMob, 두 번째 광고는 Unity Ads
+      if (index == 0) {
+        // AdMob 광고 로드
+        if (_adUnitIds[index].isEmpty) {
+          throw Exception('Invalid or uninitialized AdMob ad unit ID');
+        }
 
-      await RewardedAd.load(
-        adUnitId: _adUnitIds[index],
-        request: const AdRequest(),
-        rewardedAdLoadCallback: RewardedAdLoadCallback(
-          onAdLoaded: (ad) async {
-            if (_isDisposed) {
-              ad.dispose();
-              return;
-            }
-            _onAdLoaded(index, ad);
-            if (showWhenLoaded &&
-                currentContext != null &&
-                currentContext.mounted) {
-              final result = await _showAd(ad, index);
-              if (!_isDisposed && currentContext.mounted) {
-                _handleAdResult(result, currentContext);
+        await RewardedAd.load(
+          adUnitId: _adUnitIds[index],
+          request: const AdRequest(),
+          rewardedAdLoadCallback: RewardedAdLoadCallback(
+            onAdLoaded: (ad) async {
+              if (_isDisposed) {
+                ad.dispose();
+                return;
               }
-            }
-          },
-          onAdFailedToLoad: (error) => _onAdFailedToLoad(index, error),
-        ),
-      );
+              _onAdLoaded(index, ad);
+              if (showWhenLoaded &&
+                  currentContext != null &&
+                  currentContext.mounted) {
+                final result = await _showAd(ad, index);
+                if (!_isDisposed && currentContext.mounted) {
+                  _handleAdResult(result, currentContext);
+                }
+              }
+            },
+            onAdFailedToLoad: (error) => _onAdFailedToLoad(index, error),
+          ),
+        );
+      } else if (index == 1) {
+        // Unity Ads 광고 로드
+        if (_unityAdPlacement.isEmpty) {
+          throw Exception('Invalid or uninitialized Unity Ad placement ID');
+        }
+
+        // Unity Ads는 로드와 표시가 함께 처리됨
+        if (showWhenLoaded &&
+            currentContext != null &&
+            currentContext.mounted) {
+          await _loadAndShowUnityAd(index, currentContext);
+        } else {
+          // Unity Ads는 사전 로드를 지원하지 않으므로 바로 ready 상태로 만듦
+          _updateAdState(index, isLoading: false);
+        }
+      }
     } catch (e, s) {
       logger.e('Error loading ad', error: e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);
@@ -251,6 +282,65 @@ class RewardedAds extends _$RewardedAds {
     }
   }
 
+  Future<void> _loadAndShowUnityAd(int index, BuildContext context) async {
+    if (_isDisposed) return;
+
+    try {
+      _updateAdState(index, isShowing: true);
+
+      final resultCompleter = Completer<AdResult>();
+
+      // Unity Ads 리워드 광고 표시
+      UnityAds.showVideoAd(
+        placementId: _unityAdPlacement,
+        onComplete: (placementId) {
+          logger.i('Unity Ads completed: $placementId');
+          if (!_isDisposed) {
+            _updateAdState(index, isShowing: false);
+          }
+          if (!resultCompleter.isCompleted) {
+            resultCompleter.complete(AdResult.completed);
+          }
+        },
+        onFailed: (placementId, error, message) {
+          logger.e('Unity Ads failed: $placementId, $error, $message');
+          if (!_isDisposed) {
+            _updateAdState(index, isShowing: false);
+          }
+          if (!resultCompleter.isCompleted) {
+            resultCompleter.complete(AdResult.error);
+          }
+        },
+        onStart: (placementId) {
+          logger.i('Unity Ads started: $placementId');
+        },
+        onSkipped: (placementId) {
+          logger.i('Unity Ads skipped: $placementId');
+          if (!_isDisposed) {
+            _updateAdState(index, isShowing: false);
+          }
+          if (!resultCompleter.isCompleted) {
+            resultCompleter.complete(AdResult.dismissed);
+          }
+        },
+      );
+
+      final result = await resultCompleter.future;
+      if (!_isDisposed && context.mounted) {
+        _handleAdResult(result, context);
+      }
+    } catch (e, s) {
+      logger.e('Error showing Unity ad', error: e, stackTrace: s);
+      Sentry.captureException(e, stackTrace: s);
+      if (!_isDisposed) {
+        _updateAdState(index, isShowing: false);
+      }
+      if (context.mounted) {
+        _handleAdResult(AdResult.error, context);
+      }
+    }
+  }
+
   void _onAdLoaded(int index, RewardedAd ad) {
     if (!_isDisposed) {
       _updateAdState(index, ad: ad, isLoading: false);
@@ -287,6 +377,13 @@ class RewardedAds extends _$RewardedAds {
 
   bool isAdReady(int index) {
     if (index < 0 || index >= state.ads.length) return false;
+
+    // Unity Ads(index==1)는 항상 준비된 것으로 간주
+    if (index == 1) {
+      return !state.ads[index].isLoading && !state.ads[index].isShowing;
+    }
+
+    // AdMob은 기존 방식대로 확인
     final adInfo = state.ads[index];
     return adInfo.ad != null && !adInfo.isLoading && !adInfo.isShowing;
   }

@@ -25,27 +25,28 @@ void main() async {
       await AppInitializer.initializeSentry();
 
       await initializeSupabase();
-      
+
       // 웹에서 불필요한 기능들은 조건부로 초기화
       if (!kIsWeb) {
         await AppInitializer.initializeWebP();
         await AppInitializer.initializeTapjoy();
+        await AppInitializer.initializeUnityAds();
       }
-      
+
       // Firebase는 웹과 모바일 모두 필요할 수 있지만, 웹 환경에서 다른 설정이 필요한 경우 처리
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
       await AppInitializer.initializeAuth();
-      
+
       // 타임존 초기화는 모바일에서만 필요할 수 있음
       if (!kIsWeb) {
         await AppInitializer.initializeTimezone();
       }
-      
+
       initializeReflectable();
-      
+
       // 프라이버시 동의 관련 기능은 모바일에서만 필요할 수 있음
       if (!kIsWeb) {
         await AppInitializer.initializePrivacyConsent();
