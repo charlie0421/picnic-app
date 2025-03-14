@@ -282,6 +282,10 @@ PODS:
     - TapjoySDK/Static (= 14.2.1)
   - TapjoySDK/Static (14.2.1)
   - TOCropViewController (2.7.4)
+  - unity_ads_plugin (0.0.1):
+    - Flutter
+    - UnityAds (= 4.13.0)
+  - UnityAds (4.13.0)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -326,6 +330,7 @@ DEPENDENCIES:
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - tapjoy_offerwall (from `.symlinks/plugins/tapjoy_offerwall/ios`)
+  - unity_ads_plugin (from `.symlinks/plugins/unity_ads_plugin/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
@@ -362,6 +367,7 @@ SPEC REPOS:
     - SwiftyGif
     - TapjoySDK
     - TOCropViewController
+    - UnityAds
 
 EXTERNAL SOURCES:
   app_links:
@@ -438,6 +444,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   tapjoy_offerwall:
     :path: ".symlinks/plugins/tapjoy_offerwall/ios"
+  unity_ads_plugin:
+    :path: ".symlinks/plugins/unity_ads_plugin/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webview_flutter_wkwebview:
@@ -512,6 +520,8 @@ SPEC CHECKSUMS:
   tapjoy_offerwall: f2e6807028ff20c24f9f81d74013239b14cc7df0
   TapjoySDK: 419f6cb7d166c8df86c04ee4ecd950e23979e2c6
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
+  unity_ads_plugin: e0a2c2b6587a56ce5e904958bc61e824fb11c536
+  UnityAds: 89a816d8497b5c910719b71697c74e6410ded37a
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
 

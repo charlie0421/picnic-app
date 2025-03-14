@@ -65,6 +65,12 @@ class Environment {
   static String get unityAndroidGameId =>
       _config['UNITY_GOOGLE_GAME_ID'] as String;
 
+  static String get unityIosPlacementId =>
+      _config['UNITY_IOS_PLACEMENT_ID'] as String;
+
+  static String get unityAndroidPlacementId =>
+      _config['UNITY_ANDROID_PLACEMENT_ID'] as String;
+
   static String get webDomain => _config['WEB_DOMAIN'] as String;
 
   static String get deepLApiKey => _config['DEEPL_API_KEY'] as String;

@@ -338,9 +338,13 @@ class FreeChargeContent extends ConsumerWidget {
   }
 
   Widget _buildStoreListTileAdmob(
-      BuildContext context, int index, AdState adState) {
+    BuildContext context,
+    int index,
+    AdState adState,
+  ) {
     final adInfo = adState.ads[index];
-    final isLoading = adInfo.isLoading;
+    final isLoading = adInfo.isLoading || adInfo.isShowing;
+    final adType = index == 0 ? '(AdMob)' : '(Unity Ads)';
 
     return StoreListTile(
       index: index,
@@ -351,7 +355,7 @@ class FreeChargeContent extends ConsumerWidget {
         height: 48.w,
       ),
       title: Text(
-        S.of(context).label_button_watch_and_charge,
+        '${S.of(context).label_button_watch_and_charge} $adType',
         style: getTextStyle(AppTypo.body14B, AppColors.grey900)
             .copyWith(height: 1),
       ),
