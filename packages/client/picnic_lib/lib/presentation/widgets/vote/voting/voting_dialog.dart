@@ -37,7 +37,7 @@ Future showVotingDialog({
   return Navigator.of(context).push(
     PageRouteBuilder(
       opaque: false,
-      barrierDismissible: false,
+      barrierDismissible: true,
       pageBuilder: (BuildContext context, _, __) {
         return VotingDialog(
           voteModel: voteModel,
@@ -84,7 +84,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   bool _canVote = false;
   bool _isInitialRender = true;
   bool _isProcessingTap = false;
-  bool _isKeyboardVisible = false;
 
   @override
   void initState() {
@@ -95,9 +94,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   void _onFocusChange() {
-    setState(() {
-      _isKeyboardVisible = _focusNode.hasFocus;
-    });
     _validateVote();
   }
 
@@ -136,51 +132,83 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // 키보드 높이 계산
     final mediaQuery = MediaQuery.of(context);
     final keyboardHeight = mediaQuery.viewInsets.bottom;
+    final screenHeight = mediaQuery.size.height;
     final isKeyboardOpen = keyboardHeight > 0;
+
+    // 작은 화면에 대한 조정: 화면이 작을수록 더 많이 올라가도록 함
+    final screenSizeRatio = math.min(1.0, screenHeight / 700);
+    final offsetY = isKeyboardOpen
+        ? -keyboardHeight * (0.5 + (1 - screenSizeRatio) * 0.3)
+        : 0.0;
 
     return Material(
       color: Colors.black54,
       child: SafeArea(
-        bottom: false, // 하단 안전 영역 제외 (키보드가 올라올 때 공간 확보)
+        bottom: false,
         child: GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
           },
           behavior: HitTestBehavior.opaque,
-          child: Center(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutCubic,
-              margin: EdgeInsets.only(
-                bottom: isKeyboardOpen ? keyboardHeight * 0.5 : 0,
-              ),
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 16.w),
-                child: LargePopupWidget(
-                  content: Container(
-                    padding: EdgeInsets.only(
-                        top: 32, bottom: 24, left: 24.w, right: 24.w),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 8),
-                        _buildMemberInfo(),
-                        _buildStarCandyInfo(myStarCandy),
-                        const SizedBox(height: 8),
-                        _buildCheckAllOption(),
-                        const SizedBox(height: 8),
-                        _buildVoteAmountInput(context),
-                        const SizedBox(height: 8),
-                        _buildErrorMessage(),
-                        _buildBubble(),
-                        const SizedBox(height: 9),
-                        _buildVoteButton(myStarCandy, userId),
-                      ],
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              // 스크롤 상태를 감지하여 필요시 추가 작업 수행
+              return false;
+            },
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.easeOutQuint,
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      transform: Matrix4.translationValues(0, offsetY, 0),
+                      constraints: BoxConstraints(
+                        maxHeight: isKeyboardOpen
+                            ? screenHeight - keyboardHeight * 0.8
+                            : screenHeight * 0.9,
+                      ),
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: LargePopupWidget(
+                            content: Container(
+                              padding: EdgeInsets.only(
+                                  top: 32, bottom: 24, left: 24.w, right: 24.w),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 8),
+                                  _buildMemberInfo(),
+                                  _buildStarCandyInfo(myStarCandy),
+                                  const SizedBox(height: 8),
+                                  _buildCheckAllOption(),
+                                  const SizedBox(height: 8),
+                                  _buildVoteAmountInput(context),
+                                  const SizedBox(height: 8),
+                                  _buildErrorMessage(),
+                                  _buildBubble(),
+                                  const SizedBox(height: 9),
+                                  _buildVoteButton(myStarCandy, userId),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -192,6 +220,19 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isInitialRender) {
         _isInitialRender = false;
+      }
+
+      // 포커스가 있을 때 텍스트 필드가 보이도록 적절한 위치로 스크롤
+      if (_focusNode.hasFocus) {
+        final RenderObject? renderObject =
+            _inputFieldKey.currentContext?.findRenderObject();
+        if (renderObject != null) {
+          Scrollable.ensureVisible(
+            _inputFieldKey.currentContext!,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 300),
+          );
+        }
       }
     });
 
