@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui';
+
 import 'package:animated_digit/animated_digit.dart';
 import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
@@ -30,15 +34,27 @@ Future showVotingDialog({
   required VoteItemModel voteItemModel,
   VotePortal portalType = VotePortal.vote,
 }) {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return VotingDialog(
-        voteModel: voteModel,
-        voteItemModel: voteItemModel,
-        portalType: portalType,
-      );
-    },
+  return Navigator.of(context).push(
+    PageRouteBuilder(
+      opaque: false,
+      barrierDismissible: false,
+      pageBuilder: (BuildContext context, _, __) {
+        return VotingDialog(
+          voteModel: voteModel,
+          voteItemModel: voteItemModel,
+          portalType: portalType,
+        );
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 0.1);
+        const end = Offset.zero;
+        const curve = Curves.easeOut;
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+    ),
   );
 }
 
@@ -62,16 +78,27 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   static const int maxVoteAmount = 10000;
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
+  final GlobalKey _inputFieldKey = GlobalKey();
   bool _checkAll = false;
   bool _hasValue = false;
   bool _canVote = false;
+  bool _isInitialRender = true;
+  bool _isProcessingTap = false;
+  bool _isKeyboardVisible = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
-    _focusNode.addListener(_validateVote);
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    setState(() {
+      _isKeyboardVisible = _focusNode.hasFocus;
+    });
+    _validateVote();
   }
 
   void _validateVote() {
@@ -106,32 +133,155 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final userId =
         ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
 
-    return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 0),
-      backgroundColor: Colors.transparent,
-      child: LargePopupWidget(
-        content: Container(
-          padding:
-              EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 8),
-              _buildMemberInfo(),
-              _buildStarCandyInfo(myStarCandy),
-              const SizedBox(height: 8),
-              _buildCheckAllOption(),
-              const SizedBox(height: 8),
-              _buildVoteAmountInput(),
-              const SizedBox(height: 8),
-              _buildErrorMessage(),
-              _buildBubble(),
-              const SizedBox(height: 9),
-              _buildVoteButton(myStarCandy, userId),
-            ],
+    // 키보드 높이 계산
+    final mediaQuery = MediaQuery.of(context);
+    final keyboardHeight = mediaQuery.viewInsets.bottom;
+    final isKeyboardOpen = keyboardHeight > 0;
+
+    return Material(
+      color: Colors.black54,
+      child: SafeArea(
+        bottom: false, // 하단 안전 영역 제외 (키보드가 올라올 때 공간 확보)
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          behavior: HitTestBehavior.opaque,
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOutCubic,
+              margin: EdgeInsets.only(
+                bottom: isKeyboardOpen ? keyboardHeight * 0.5 : 0,
+              ),
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 16.w),
+                child: LargePopupWidget(
+                  content: Container(
+                    padding: EdgeInsets.only(
+                        top: 32, bottom: 24, left: 24.w, right: 24.w),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 8),
+                        _buildMemberInfo(),
+                        _buildStarCandyInfo(myStarCandy),
+                        const SizedBox(height: 8),
+                        _buildCheckAllOption(),
+                        const SizedBox(height: 8),
+                        _buildVoteAmountInput(context),
+                        const SizedBox(height: 8),
+                        _buildErrorMessage(),
+                        _buildBubble(),
+                        const SizedBox(height: 9),
+                        _buildVoteButton(myStarCandy, userId),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildVoteAmountInput(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isInitialRender) {
+        _isInitialRender = false;
+      }
+    });
+
+    return Container(
+      key: _inputFieldKey,
+      height: 36,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: !_canVote && _hasValue
+              ? AppColors.statusError
+              : AppColors.primary500,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      padding: EdgeInsets.only(right: 16.w),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (_isProcessingTap) return;
+
+                _isProcessingTap = true;
+
+                Future.delayed(const Duration(milliseconds: 50), () {
+                  if (!mounted) return;
+                  _focusNode.requestFocus();
+                  _isProcessingTap = false;
+                });
+              },
+              child: TextFormField(
+                cursorHeight: 16.h,
+                cursorColor: AppColors.primary500,
+                focusNode: _focusNode,
+                controller: _textEditingController,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.left,
+                enableInteractiveSelection: true,
+                showCursor: true,
+                keyboardAppearance: Brightness.light,
+                decoration: InputDecoration(
+                  hintText: S.of(context).label_input_input,
+                  hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
+                  border: InputBorder.none,
+                  focusColor: AppColors.primary500,
+                  fillColor: AppColors.grey900,
+                  isCollapsed: true,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 24.w, vertical: 5),
+                ),
+                onChanged: (_) => _validateVote(),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    String newText = newValue.text.replaceAll(',', '');
+
+                    // Remove leading zeros
+                    newText = newText.replaceFirst(RegExp(r'^0+'), '');
+
+                    if (newText.isEmpty) {
+                      setState(() {
+                        _hasValue = false;
+                        _checkAll = false;
+                      });
+                      return const TextEditingValue(text: '');
+                    }
+
+                    final voteAmount = int.parse(newText);
+                    if (voteAmount == 0) return oldValue;
+
+                    setState(() {
+                      _hasValue = true;
+                      _checkAll = false;
+                    });
+
+                    final formattedText = formatNumberWithComma(newText);
+                    return TextEditingValue(
+                      text: formattedText,
+                      selection:
+                          TextSelection.collapsed(offset: formattedText.length),
+                    );
+                  }),
+                ],
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+            ),
+          ),
+          _buildClearButton(),
+        ],
       ),
     );
   }
@@ -307,6 +457,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
+        FocusScope.of(context).unfocus();
+
         setState(() {
           _checkAll = !_checkAll;
           _hasValue = _checkAll;
@@ -351,82 +503,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-  Widget _buildVoteAmountInput() {
-    return Container(
-      height: 36,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: !_canVote && _hasValue
-              ? AppColors.statusError
-              : AppColors.primary500,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      padding: EdgeInsets.only(right: 16.w),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              cursorHeight: 16.h,
-              cursorColor: AppColors.primary500,
-              focusNode: _focusNode,
-              controller: _textEditingController,
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.left,
-              // 왼쪽 정렬
-              decoration: InputDecoration(
-                hintText: S.of(context).label_input_input,
-                hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
-                border: InputBorder.none,
-                focusColor: AppColors.primary500,
-                fillColor: AppColors.grey900,
-                isCollapsed: true,
-                contentPadding: EdgeInsets.symmetric(
-                    horizontal: 24.w, vertical: 5), // 수직 패딩 조정
-              ),
-              onChanged: (_) => _validateVote(),
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                TextInputFormatter.withFunction((oldValue, newValue) {
-                  String newText = newValue.text.replaceAll(',', '');
-
-                  // Remove leading zeros
-                  newText = newText.replaceFirst(RegExp(r'^0+'), '');
-
-                  if (newText.isEmpty) {
-                    setState(() {
-                      _hasValue = false;
-                      _checkAll = false;
-                    });
-                    return const TextEditingValue(text: '');
-                  }
-
-                  final voteAmount = int.parse(newText);
-                  if (voteAmount == 0) return oldValue;
-
-                  setState(() {
-                    _hasValue = true;
-                    _checkAll = false;
-                  });
-
-                  final formattedText = formatNumberWithComma(newText);
-                  return TextEditingValue(
-                    text: formattedText,
-                    selection:
-                        TextSelection.collapsed(offset: formattedText.length),
-                  );
-                }),
-              ],
-              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-            ),
-          ),
-          _buildClearButton(),
-        ],
-      ),
-    );
-  }
-
   Widget _buildClearButton() {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -437,6 +513,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           _checkAll = false;
         });
         _validateVote();
+
+        _focusNode.requestFocus();
       },
       child: SvgPicture.asset(
         package: 'picnic_lib',
