@@ -31,6 +31,7 @@ void main() async {
         await AppInitializer.initializeWebP();
         await AppInitializer.initializeTapjoy();
         await AppInitializer.initializeUnityAds();
+        await AppInitializer.initializePangle();
       }
 
       // Firebase는 웹과 모바일 모두 필요할 수 있지만, 웹 환경에서 다른 설정이 필요한 경우 처리
