@@ -39,5 +39,7 @@
   "BRANCH_KEY": "key_live_dsiXNxlgIa3pmcn6eK0djnjmzucZNIS4",
   "APP_LINK_PREFIX": "https://applink.picnic.fan",
   "UNITY_IOS_PLACEMENT_ID": "Rewarded_iOS",
-  "UNITY_ANDROID_PLACEMENT_ID": "Rewarded_Android"
+  "UNITY_ANDROID_PLACEMENT_ID": "Rewarded_Android",
+  "PANGLE_APP_ID": "8615122",
+  "PANGLE_REWARDED_VIDEO_ID": "981881164"
 }

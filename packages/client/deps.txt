@@ -1,0 +1,6 @@
+implementation "androidx.multidex:multidex:2.0.1"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "com.tapjoy:tapjoy-android-sdk:14.2.1"
+    implementation "com.pangle.global:ads-sdk:5.5.0.4"
+}

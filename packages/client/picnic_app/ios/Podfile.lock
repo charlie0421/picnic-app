@@ -1,4 +1,12 @@
 PODS:
+  - Ads-Global (5.7.0.9):
+    - Ads-Global/BUAdSDK (= 5.7.0.9)
+  - Ads-Global/BUAdSDK (5.7.0.9):
+    - Ads-Global/BURelyAdSDK
+    - Ads-Global/Dep_Accurate
+  - Ads-Global/BURelyAdSDK (5.7.0.9)
+  - Ads-Global/Dep_Accurate (5.7.0.9):
+    - BURelyFoundation_Global/Pangle (= 0.2.1.3)
   - app_links (0.0.2):
     - Flutter
   - app_tracking_transparency (0.0.1):
@@ -10,6 +18,34 @@ PODS:
   - AppAuth/ExternalUserAgent (1.7.6):
     - AppAuth/Core
   - BranchSDK (3.9.1)
+  - BURelyFoundation_Global/AFNetworking (0.2.1.3)
+  - BURelyFoundation_Global/APM (0.2.1.3)
+  - BURelyFoundation_Global/Foundation (0.2.1.3):
+    - BURelyFoundation_Global/NETWork
+  - BURelyFoundation_Global/Gecko (0.2.1.3):
+    - BURelyFoundation_Global/Foundation
+  - BURelyFoundation_Global/Header (0.2.1.3)
+  - BURelyFoundation_Global/NETWork (0.2.1.3):
+    - BURelyFoundation_Global/AFNetworking
+  - BURelyFoundation_Global/Pangle (0.2.1.3):
+    - BURelyFoundation_Global/AFNetworking
+    - BURelyFoundation_Global/APM
+    - BURelyFoundation_Global/Foundation
+    - BURelyFoundation_Global/Gecko
+    - BURelyFoundation_Global/Header
+    - BURelyFoundation_Global/NETWork
+    - BURelyFoundation_Global/SDWebImage
+    - BURelyFoundation_Global/YYModel
+    - BURelyFoundation_Global/ZFPlayer
+    - BURelyFoundation_Global/Zip
+  - BURelyFoundation_Global/SDWebImage (0.2.1.3):
+    - BURelyFoundation_Global/Foundation
+  - BURelyFoundation_Global/YYModel (0.2.1.3)
+  - BURelyFoundation_Global/ZFPlayer (0.2.1.3):
+    - BURelyFoundation_Global/Foundation
+    - BURelyFoundation_Global/Zip
+  - BURelyFoundation_Global/Zip (0.2.1.3):
+    - BURelyFoundation_Global/Foundation
   - camera_avfoundation (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
@@ -293,6 +329,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - Ads-Global (~> 5.7.0.2)
   - app_links (from `.symlinks/plugins/app_links/ios`)
   - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
@@ -335,9 +372,11 @@ DEPENDENCIES:
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
+    - Ads-Global
     - AppAuth
     - BranchSDK
+    - BURelyFoundation_Global
     - DKImagePickerController
     - DKPhotoGallery
     - Firebase
@@ -452,10 +491,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  Ads-Global: 3507c2d29fccca922598b9d422ff3a893d8a614a
   app_links: f3e17e4ee5e357b39d8b95290a9b2c299fca71c6
   app_tracking_transparency: e169b653478da7bb15a6c61209015378ca73e375
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   BranchSDK: a12f9aa63d7ba562fdff5509d4aed081f1098ec0
+  BURelyFoundation_Global: 932804aa7bac8c2c482b609371bbb6a079cc207b
   camera_avfoundation: dd002b0330f4981e1bbcb46ae9b62829237459a4
   connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
   device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
@@ -525,6 +566,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
 
-PODFILE CHECKSUM: b4a228b1cd0a6cbc7bab1fad6bcb7cc747196e2a
+PODFILE CHECKSUM: abe9f995a840c2f2243c9c3bb989b7b5f2d726d2
 
 COCOAPODS: 1.16.2

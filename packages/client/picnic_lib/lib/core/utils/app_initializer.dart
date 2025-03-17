@@ -19,6 +19,7 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/native/pangle_native.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
@@ -123,6 +124,18 @@ class AppInitializer {
     );
   }
 
+  // static Future<void> initializeMetaAudienceNetwork() async {
+  //   if (!isMobile()) return;
+  //   logger.i('Initializing Meta Audience Network...');
+  //   FacebookAudienceNetwork.init();
+  // }
+
+  static Future<void> initializePangle() async {
+    if (!isMobile()) return;
+    logger.i('Initializing Pangle...');
+    await PangleNative.initPangle(Environment.pangleAppId);
+  }
+
   static Future<void> initializeTapjoy() async {
     if (!isMobile()) return;
 
@@ -177,37 +190,37 @@ class AppInitializer {
     logger.i('Token refresh manager started');
   }
 
-  static Future<void> _logStorageData() async {
-    const storage = FlutterSecureStorage();
-    try {
-      final storageData = await storage.readAll();
-      final storageDataString =
-          storageData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
-      logger.i('보안 저장소 데이터:\n$storageDataString');
-    } catch (e, s) {
-      if (e is PlatformException &&
-          (e.message?.contains('BAD_DECRYPT') == true ||
-              e.message?.contains('error:1e000065') == true)) {
-        logger.e('보안 저장소 복호화 오류 발생. 데이터 초기화 시도:', error: e, stackTrace: s);
-        try {
-          await storage.deleteAll();
-          logger.i('보안 저장소 데이터 초기화 완료');
+  // static Future<void> _logStorageData() async {
+  //   const storage = FlutterSecureStorage();
+  //   try {
+  //     final storageData = await storage.readAll();
+  //     final storageDataString =
+  //         storageData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+  //     logger.i('보안 저장소 데이터:\n$storageDataString');
+  //   } catch (e, s) {
+  //     if (e is PlatformException &&
+  //         (e.message?.contains('BAD_DECRYPT') == true ||
+  //             e.message?.contains('error:1e000065') == true)) {
+  //       logger.e('보안 저장소 복호화 오류 발생. 데이터 초기화 시도:', error: e, stackTrace: s);
+  //       try {
+  //         await storage.deleteAll();
+  //         logger.i('보안 저장소 데이터 초기화 완료');
 
-          // 새로운 보안 저장소 인스턴스 생성 시도
-          await storage.write(key: 'test_key', value: 'test_value');
-          await storage.delete(key: 'test_key');
-          logger.i('새로운 보안 저장소 초기화 성공');
-        } catch (deleteError, deleteStack) {
-          logger.e('보안 저장소 초기화 실패:',
-              error: deleteError, stackTrace: deleteStack);
-          rethrow; // 상위 레벨에서 처리하도록 에러 전파
-        }
-      } else {
-        logger.e('보안 저장소 읽기 실패:', error: e, stackTrace: s);
-        rethrow;
-      }
-    }
-  }
+  //         // 새로운 보안 저장소 인스턴스 생성 시도
+  //         await storage.write(key: 'test_key', value: 'test_value');
+  //         await storage.delete(key: 'test_key');
+  //         logger.i('새로운 보안 저장소 초기화 성공');
+  //       } catch (deleteError, deleteStack) {
+  //         logger.e('보안 저장소 초기화 실패:',
+  //             error: deleteError, stackTrace: deleteStack);
+  //         rethrow; // 상위 레벨에서 처리하도록 에러 전파
+  //       }
+  //     } else {
+  //       logger.e('보안 저장소 읽기 실패:', error: e, stackTrace: s);
+  //       rethrow;
+  //     }
+  //   }
+  // }
 
   static Future<void> initializeWebP() async {
     logger.i('Initializing WebP support...');

@@ -219,6 +219,12 @@ async function processTransaction(
   ad_network,
   key_id,
 ) {
+  // 디버깅 목적으로 사용된 user_id인 경우 실제 DB 업데이트를 건너뜁니다
+  if (user_id === 'fakeForAdDebugLog') {
+    console.log('디버깅 모드: 데이터베이스 업데이트를 건너뜁니다.');
+    return;
+  }
+
   const connection = await pool.connect();
   try {
     await connection.queryObject('BEGIN');

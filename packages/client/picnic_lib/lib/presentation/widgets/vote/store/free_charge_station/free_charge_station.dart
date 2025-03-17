@@ -15,6 +15,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/ad_info.dart';
 import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/native/pangle_native.dart';
 import 'package:picnic_lib/pincruxOfferwallPlugin.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -201,6 +202,22 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     }
   }
 
+  Future<void> _showPangleMission() async {
+    final result =
+        await PangleNative.loadRewardedAd(Environment.pangleRewardedVideoId);
+    if (result) {
+      await PangleNative.showRewardedAd();
+    } else {
+      showSimpleDialog(
+        type: DialogType.error,
+        contentWidget: Text(
+          '광고 로드에 실패했습니다. 다시 시도해주세요.',
+          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FreeChargeContent(
@@ -208,6 +225,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
       onAdButtonPressed: _showRewardedAdmob,
       onTajoyPressed: _showTapjoyMission,
+      onPanglePressed: _showPangleMission,
       onPincruxOfferwallPressed: _showPincruxOfferwall,
       rotationController: _rotationController,
     );
@@ -219,6 +237,7 @@ class FreeChargeContent extends ConsumerWidget {
   final VoidCallback onPolicyTap;
   final Function(int) onAdButtonPressed;
   final VoidCallback onTajoyPressed;
+  final VoidCallback onPanglePressed;
   final VoidCallback onPincruxOfferwallPressed;
   final VoidCallback? onRetryBannerAd;
   final AnimationController rotationController;
@@ -229,6 +248,7 @@ class FreeChargeContent extends ConsumerWidget {
     required this.onPolicyTap,
     required this.onAdButtonPressed,
     required this.onTajoyPressed,
+    required this.onPanglePressed,
     required this.onPincruxOfferwallPressed,
     required this.rotationController,
     this.onRetryBannerAd,
@@ -295,6 +315,8 @@ class FreeChargeContent extends ConsumerWidget {
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 1, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
+          _buildMissionPangle(ref, context),
+          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildPolicyGuide(),
         ],
       ),
@@ -316,6 +338,30 @@ class FreeChargeContent extends ConsumerWidget {
         height: 48.w,
       ),
       buttonText: S.of(context).label_mission,
+    );
+  }
+
+  Widget _buildMissionPangle(ref, BuildContext context) {
+    return StoreListTile(
+      title: Text(
+        '${S.of(context).label_button_watch_and_charge} #3',
+      ),
+      buttonText: S.of(context).label_mission,
+      buttonOnPressed: onPanglePressed,
+      icon: Image.asset(
+        package: 'picnic_lib',
+        'assets/icons/store/star_100.png',
+      ),
+      subtitle: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '+${S.of(context).label_bonus} 1',
+              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
