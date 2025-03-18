@@ -1,4 +1,4 @@
-package io.iconcasting.picnic.lib.pangle.native
+package pangle.custom
 
 import android.content.Context
 import android.os.Handler

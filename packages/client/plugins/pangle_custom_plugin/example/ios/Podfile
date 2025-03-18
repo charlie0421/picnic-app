@@ -31,8 +31,15 @@ flutter_ios_podfile_setup
 source 'https://github.com/CocoaPods/Specs.git'
 source 'https://github.com/bytedance/cocoapods_sdk_source_repo.git'
 
+# 정적 라이브러리 검증 비활성화
+pre_install do |installer|
+  # 정적 프레임워크 종속성 검증 비활성화
+  Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
+end
+
 target 'Runner' do
-  use_frameworks!
+  # 정적 링키지 사용 - Pangle SDK에 필요함
+  use_frameworks! :linkage => :static
   use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
@@ -52,6 +59,15 @@ post_install do |installer|
       
       # 최소 배포 버전 설정
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+      
+      # 빌드 설정에 정적 라이브러리 지원 추가
+      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+      
+      # Pangle SDK에 필요한 시스템 라이브러리 지원 - 개별 플래그로 설정
+      if target.name == 'Ads-Global' || target.name == 'pangle_custom_plugin'
+        # 기존 배열 방식 대신 각 플래그를 별도로 추가
+        config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -lz -lsqlite3 -lbz2 -lresolv -lc++ -lxml2'
+      end
     end
   end
 end 

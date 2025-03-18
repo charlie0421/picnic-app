@@ -15,7 +15,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/ad_info.dart';
 import 'package:picnic_lib/generated/l10n.dart';
-import 'package:picnic_lib/native/pangle_native.dart';
+import 'package:pangle_custom_plugin/pangle_custom_plugin.dart';
 import 'package:picnic_lib/pincruxOfferwallPlugin.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -31,6 +31,9 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:universal_io/io.dart';
+
+// pangleAdLoadingProvider 추가
+final pangleAdLoadingProvider = StateProvider<bool>((ref) => false);
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -203,18 +206,53 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   }
 
   Future<void> _showPangleMission() async {
-    final result =
-        await PangleNative.loadRewardedAd(Environment.pangleRewardedVideoId);
-    if (result) {
-      await PangleNative.showRewardedAd();
-    } else {
-      showSimpleDialog(
-        type: DialogType.error,
-        contentWidget: Text(
-          '광고 로드에 실패했습니다. 다시 시도해주세요.',
-          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-        ),
-      );
+    final userState = ref.read(userInfoProvider);
+    if (userState.value == null) {
+      if (mounted) showRequireLoginDialog();
+      return;
+    }
+
+    try {
+      if (mounted) {
+        ref.read(pangleAdLoadingProvider.notifier).state = true;
+        OverlayLoadingProgress.start(context);
+      }
+
+      // 5초 타임아웃 설정
+      final result = await Future.any([
+        PangleCustomPlugin.loadRewardedAd(isIOS()
+            ? Environment.pangleIosRewardedVideoId
+            : Environment.pangleAndroidRewardedVideoId),
+        Future.delayed(const Duration(seconds: 5),
+            () => throw TimeoutException('광고 로드 시간이 초과되었습니다.')),
+      ]);
+
+      if (!mounted) return;
+      OverlayLoadingProgress.stop();
+
+      if (result) {
+        await PangleCustomPlugin.showRewardedAd();
+      } else {
+        showSimpleDialog(
+          type: DialogType.error,
+          contentWidget: Text(
+            '광고 로드에 실패했습니다. 다시 시도해주세요.',
+            style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+          ),
+        );
+      }
+    } catch (e, s) {
+      logger.e('Error in _showPangleMission', error: e, stackTrace: s);
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        _showErrorDialog(e is TimeoutException
+            ? '광고 로드 시간이 초과되었습니다. 다시 시도해주세요.'
+            : '광고 로드에 실패했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      if (mounted) {
+        ref.read(pangleAdLoadingProvider.notifier).state = false;
+      }
     }
   }
 
@@ -342,12 +380,17 @@ class FreeChargeContent extends ConsumerWidget {
   }
 
   Widget _buildMissionPangle(ref, BuildContext context) {
+    final pangleAdLoading = ref.watch(pangleAdLoadingProvider);
+
     return StoreListTile(
       title: Text(
         '${S.of(context).label_button_watch_and_charge} #3',
       ),
-      buttonText: S.of(context).label_mission,
-      buttonOnPressed: onPanglePressed,
+      buttonText: pangleAdLoading
+          ? S.of(context).label_loading_ads
+          : S.of(context).label_mission,
+      buttonOnPressed: pangleAdLoading ? null : onPanglePressed,
+      isLoading: pangleAdLoading,
       icon: Image.asset(
         package: 'picnic_lib',
         'assets/icons/store/star_100.png',

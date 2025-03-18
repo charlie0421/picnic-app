@@ -1,4 +1,4 @@
-group 'pangle.native'
+group 'pangle.custom'
 version '1.0'
 
 buildscript {
@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10'
+        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
     }
 }
 
@@ -17,7 +17,6 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://artifact.bytedance.com/repository/pangle" }
     }
 }
 
@@ -25,6 +24,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'pangle.custom'
     compileSdkVersion 33
 
     compileOptions {
@@ -43,7 +43,7 @@ android {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'com.pangle.global:ads-sdk:5.1.0.6'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10'
-    implementation 'io.flutter:flutter_embedding_debug:1.0.0-fba9fcfcdb5c9c6790a0e3e0e2ed1e613ed5efa2'
+    implementation 'com.pangle.global:ads-sdk:5.7.0.2'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
 } 

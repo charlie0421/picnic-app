@@ -1,12 +1,18 @@
-# Pangle 라이브러리
+# Pangle 커스텀 플러그인
 
-Pangle SDK를 Flutter에서 사용하기 위한 라이브러리입니다.
+Pangle SDK를 Flutter에서 사용하기 위한 커스텀 플러그인입니다.
 
 ## 설치 및 설정
 
 ### 1. 종속성 추가
 
-`pubspec.yaml` 파일에 picnic_lib 종속성이 이미 추가되어 있어야 합니다.
+`pubspec.yaml` 파일에 pangle_custom_plugin 종속성을 추가합니다:
+
+```yaml
+dependencies:
+  pangle_custom_plugin:
+    path: ../lib/pangle_custom_plugin
+```
 
 ### 2. 네이티브 설정
 
@@ -34,7 +40,7 @@ pod 'Ads-Global'
 ```swift
 import UIKit
 import Flutter
-import picnic_lib
+import pangle_custom_plugin
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -83,7 +89,7 @@ package your.package.name
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
-import io.iconcasting.picnic.lib.pangle.native.PangleNativeHandler
+import pangle.native.PangleNativeHandler
 
 class MainActivity: FlutterActivity() {
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -101,7 +107,7 @@ class MainActivity: FlutterActivity() {
 앱 시작 시 Pangle SDK를 초기화해야 합니다:
 
 ```dart
-import 'package:picnic_lib/picnic_lib.dart';
+import 'package:pangle_custom_plugin/pangle_custom_plugin.dart';
 
 // 앱 시작 시 초기화
 void initializeApp() async {
@@ -113,7 +119,7 @@ void initializeApp() async {
 #### 보상형 광고 로드 및 표시
 
 ```dart
-import 'package:picnic_lib/picnic_lib.dart';
+import 'package:pangle_custom_plugin/pangle_custom_plugin.dart';
 
 // 광고 로드
 Future<void> loadAd() async {
@@ -140,4 +146,20 @@ Future<void> showAd() async {
 
 1. 실제 광고를 표시하기 전에 반드시 로드를 먼저 해야 합니다.
 2. 네이티브 플랫폼(iOS/Android)별 설정이 추가로 필요할 수 있습니다.
-3. 프로덕션 환경에서는 실제 앱 ID와 광고 유닛 ID를 사용해야 합니다. 
+3. 프로덕션 환경에서는 실제 앱 ID와 광고 유닛 ID를 사용해야 합니다.
+
+## 알려진 문제 해결
+
+### 네이티브 코드의 Linter 오류
+
+네이티브 코드를 통합할 때 다음과 같은 Linter 오류가 발생할 수 있습니다:
+
+#### iOS (PangleNativeHandler.swift)
+- `No such module 'UIKit'` 및 `No such module 'Flutter'` 오류
+
+해결 방법: 이 코드는 Flutter 플러그인으로 동작하는 것이 의도된 것이므로, 실제 iOS 앱 프로젝트에 통합할 때는 Runner 타겟 내부에 파일을 추가해야 합니다. 독립 라이브러리에서는 참조용 코드로만 사용됩니다.
+
+#### Android (PangleNativeHandler.kt)
+- `Unresolved reference: bytedance`, `Unresolved reference: embedding` 등의 오류
+
+해결 방법: Android Studio에서 해당 파일을 올바른 패키지 구조에 배치하고, 프로젝트의 build.gradle에 필요한 의존성(Pangle SDK)을 추가해야 합니다. 이 코드 역시 참조용으로, 실제 프로젝트에 통합할 때 올바른 패키지 경로에 배치해야 합니다. 

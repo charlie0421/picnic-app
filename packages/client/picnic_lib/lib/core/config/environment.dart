@@ -121,8 +121,14 @@ class Environment {
   static String get pincruxIosAppKey =>
       _config['PINCRUX_IOS_APP_KEY'] as String;
 
-  static String get pangleAppId => _config['PANGLE_APP_ID'] as String;
+  static String get pangleIosAppId => _config['PANGLE_IOS_APP_ID'] as String;
 
-  static String get pangleRewardedVideoId =>
-      _config['PANGLE_REWARDED_VIDEO_ID'] as String;
+  static String get pangleAndroidAppId =>
+      _config['PANGLE_ANDROID_APP_ID'] as String;
+
+  static String get pangleIosRewardedVideoId =>
+      _config['PANGLE_IOS_REWARDED_VIDEO_ID'] as String;
+
+  static String get pangleAndroidRewardedVideoId =>
+      _config['PANGLE_ANDROID_REWARDED_VIDEO_ID'] as String;
 }

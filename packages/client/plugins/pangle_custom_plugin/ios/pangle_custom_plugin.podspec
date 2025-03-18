@@ -14,10 +14,18 @@ Flutter 앱에서 Pangle SDK를 쉽게 통합할 수 있는 커스텀 플러그�
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'PAGAdSDK', '~> 5.1.0'
-  s.platform = :ios, '11.0'
+  s.dependency 'Ads-Global'
+  s.platform = :ios, '13.0'
+
+  # 필요한 시스템 프레임워크와 라이브러리 추가
+  s.frameworks = 'UIKit', 'Foundation', 'CoreTelephony', 'SystemConfiguration', 'CoreLocation', 'Security', 'StoreKit', 'AdSupport', 'WebKit'
+  s.libraries = 'z', 'sqlite3', 'bz2', 'resolv', 'c++', 'xml2'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
-end 
+  
+  # 디버그 빌드에 대한 설정 추가
+  s.user_target_xcconfig = { 'OTHER_LDFLAGS' => '-ObjC' }
+  s.static_framework = true
+end
