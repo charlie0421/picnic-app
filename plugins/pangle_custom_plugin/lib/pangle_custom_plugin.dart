@@ -12,6 +12,7 @@ class PangleCustomPlugin {
   /// [appId] - Pangle 앱 ID
   static Future<bool> initPangle(String appId) async {
     try {
+      print('Pangle SDK 초기화 시작: $appId');
       final bool result =
           await _channel.invokeMethod('initPangle', {'appId': appId});
       print('Pangle SDK 초기화 성공: $result');

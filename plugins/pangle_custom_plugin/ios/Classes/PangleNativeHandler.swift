@@ -4,33 +4,42 @@ import PAGAdSDK
 
 /// Pangle iOS 네이티브 구현
 public class PangleNativeHandler: NSObject, FlutterPlugin {
+    private static var channel: FlutterMethodChannel?
     private var rewardedAd: PAGRewardedAd?
     private var isSDKInitialized = false
     private var appID: String?
     
     /// Flutter 플러그인 등록
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "pangle_native_channel", 
+        print("PangleNativeHandler 등록 시작")
+        channel = FlutterMethodChannel(name: "pangle_native_channel", 
                                           binaryMessenger: registrar.messenger())
         let instance = PangleNativeHandler()
-        registrar.addMethodCallDelegate(instance, channel: channel)
+        registrar.addMethodCallDelegate(instance, channel: channel!)
+        print("PangleNativeHandler 등록 완료")
     }
     
     /// Flutter 메서드 호출 처리
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        print("메서드 호출 수신: \(call.method), 인자: \(String(describing: call.arguments))")
+        
         switch call.method {
         case "initPangle":
             if let args = call.arguments as? [String: Any],
                 let appId = args["appId"] as? String {
+                print("Pangle 초기화 시작 - appId: \(appId)")
                 self.appID = appId
                 self.initPangle(appId: appId) { success, errorMessage in
                     if success {
+                        print("Pangle 초기화 성공 - 결과 리턴")
                         result(true)
                     } else {
+                        print("Pangle 초기화 실패 - 에러: \(errorMessage)")
                         result(FlutterError(code: "InitFailed", message: errorMessage, details: nil))
                     }
                 }
             } else {
+                print("Pangle 초기화 실패 - 인자 없음")
                 result(FlutterError(code: "InvalidParams", message: "App ID is null", details: nil))
             }
         case "loadRewardedAd":
@@ -57,6 +66,7 @@ public class PangleNativeHandler: NSObject, FlutterPlugin {
         case "showRewardedAd":
             self.showRewardedAd(result: result)
         default:
+            print("지원하지 않는 메서드: \(call.method)")
             result(FlutterMethodNotImplemented)
         }
     }
@@ -65,7 +75,7 @@ public class PangleNativeHandler: NSObject, FlutterPlugin {
 /// Pangle 광고 관련 기능 구현
 extension PangleNativeHandler: PAGRewardedAdDelegate {
     func initPangle(appId: String, completion: @escaping (Bool, String) -> Void) {
-        print("Flutter에서 Pangle SDK 초기화 시작 - appId: \(appId)")
+        print("initPangle 메서드 호출됨 - appId: \(appId)")
         
         // 이미 초기화된 상태면 바로 성공 반환
         if isSDKInitialized && self.appID == appId {
@@ -80,8 +90,7 @@ extension PangleNativeHandler: PAGRewardedAdDelegate {
         
         // 디버그 모드 활성화 및 추가 설정
         #if DEBUG
-        print("디버그 모드 활성화: 로그 레벨 설정")
-        PAGSdk.setLogLevel(.debug)
+        print("디버그 모드 활성화")
         #endif
         
         // 메인 스레드에서 초기화 확실히 보장
@@ -225,16 +234,20 @@ extension PangleNativeHandler: PAGRewardedAdDelegate {
     
     // MARK: - PAGRewardedAdDelegate
     
-    func adDidShow(_ ad: PAGRewardedAd) {
-        print("리워드 광고가 표시됨: \(ad)")
+    func rewardedAdDidShow(_ rewardedAd: PAGRewardedAd) {
+        print("리워드 광고가 표시됨: \(rewardedAd)")
     }
     
-    func adDidClick(_ ad: PAGRewardedAd) {
-        print("리워드 광고가 클릭됨: \(ad)")
+    func rewardedAdDidClick(_ rewardedAd: PAGRewardedAd) {
+        print("리워드 광고가 클릭됨: \(rewardedAd)")
     }
     
-    func adDidDismiss(_ ad: PAGRewardedAd) {
-        print("리워드 광고가 닫힘: \(ad)")
+    func rewardedAdDidClose(_ rewardedAd: PAGRewardedAd) {
+        print("리워드 광고가 닫힘: \(rewardedAd)")
         self.rewardedAd = nil
+    }
+    
+    func rewardedAd(_ rewardedAd: PAGRewardedAd, didRewardSuccess rewardInfo: PAGRewardModel) {
+        print("사용자가 보상을 받음: \(rewardInfo)")
     }
 } 

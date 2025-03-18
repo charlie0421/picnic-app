@@ -19,7 +19,7 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/enums.dart';
-import 'package:picnic_lib/native/pangle_native.dart';
+import 'package:pangle_custom_plugin/pangle_custom_plugin.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
@@ -133,7 +133,9 @@ class AppInitializer {
   static Future<void> initializePangle() async {
     if (!isMobile()) return;
     logger.i('Initializing Pangle...');
-    await PangleNative.initPangle(Environment.pangleAppId);
+    await PangleCustomPlugin.initPangle(
+      isIOS() ? Environment.pangleIosAppId : Environment.pangleAndroidAppId,
+    );
   }
 
   static Future<void> initializeTapjoy() async {
