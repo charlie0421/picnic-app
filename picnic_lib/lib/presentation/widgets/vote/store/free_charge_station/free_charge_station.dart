@@ -15,7 +15,6 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/ad_info.dart';
 import 'package:picnic_lib/generated/l10n.dart';
-import 'package:pangle_custom_plugin/pangle_custom_plugin.dart';
 import 'package:picnic_lib/pincruxOfferwallPlugin.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -31,6 +30,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:universal_io/io.dart';
+import 'package:flutter/services.dart';
 
 // pangleAdLoadingProvider 추가
 final pangleAdLoadingProvider = StateProvider<bool>((ref) => false);
@@ -212,47 +212,90 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       return;
     }
 
+    const channel = MethodChannel('pangle_native_channel');
+
+    if (mounted) {
+      ref.read(pangleAdLoadingProvider.notifier).state = true;
+      OverlayLoadingProgress.start(context);
+    }
+
+    // 1단계: SDK 초기화
     try {
-      if (mounted) {
-        ref.read(pangleAdLoadingProvider.notifier).state = true;
-        OverlayLoadingProgress.start(context);
-      }
+      final initResult = await channel.invokeMethod<bool>('initPangle', {
+        'appId': isIOS()
+            ? Environment.pangleIosAppId
+            : Environment.pangleAndroidAppId,
+        'userId': supabase.auth.currentUser!.id,
+      });
 
-      // 5초 타임아웃 설정
-      final result = await Future.any([
-        PangleCustomPlugin.loadRewardedAd(isIOS()
-            ? Environment.pangleIosRewardedVideoId
-            : Environment.pangleAndroidRewardedVideoId),
-        Future.delayed(const Duration(seconds: 5),
-            () => throw TimeoutException('광고 로드 시간이 초과되었습니다.')),
-      ]);
-
-      if (!mounted) return;
-      OverlayLoadingProgress.stop();
-
-      if (result) {
-        await PangleCustomPlugin.showRewardedAd();
-      } else {
-        showSimpleDialog(
-          type: DialogType.error,
-          contentWidget: Text(
-            '광고 로드에 실패했습니다. 다시 시도해주세요.',
-            style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-          ),
-        );
+      if (initResult != true) {
+        throw Exception('Pangle SDK 초기화 실패');
       }
     } catch (e, s) {
-      logger.e('Error in _showPangleMission', error: e, stackTrace: s);
+      logger.e('Error in Pangle SDK initialization', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
+        ref.read(pangleAdLoadingProvider.notifier).state = false;
+        _showErrorDialog('SDK 초기화에 실패했습니다. 다시 시도해주세요.');
+      }
+      return;
+    }
+
+    // 2단계: 광고 로드
+    bool adLoadSuccess = false;
+    try {
+      final result = await Future.any([
+        channel.invokeMethod<bool>('loadRewardedAd', {
+          'placementId': isIOS()
+              ? Environment.pangleIosRewardedVideoId
+              : Environment.pangleAndroidRewardedVideoId,
+          'userId': supabase.auth.currentUser!.id,
+        }),
+        Future.delayed(
+          const Duration(seconds: 5),
+          () => throw TimeoutException('광고 로드 시간이 초과되었습니다.'),
+        ),
+      ]);
+
+      adLoadSuccess = result == true;
+    } catch (e, s) {
+      logger.e('Error in loading rewarded ad', error: e, stackTrace: s);
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        ref.read(pangleAdLoadingProvider.notifier).state = false;
         _showErrorDialog(e is TimeoutException
             ? '광고 로드 시간이 초과되었습니다. 다시 시도해주세요.'
             : '광고 로드에 실패했습니다. 다시 시도해주세요.');
       }
-    } finally {
-      if (mounted) {
-        ref.read(pangleAdLoadingProvider.notifier).state = false;
+      return;
+    }
+
+    if (!mounted) return;
+
+    // 3단계: 광고 표시
+    if (adLoadSuccess) {
+      try {
+        await channel.invokeMethod('showRewardedAd');
+      } catch (e, s) {
+        logger.e('Error in showing rewarded ad', error: e, stackTrace: s);
+        if (mounted) {
+          _showErrorDialog('광고 표시에 실패했습니다. 다시 시도해주세요.');
+        }
       }
+    } else {
+      showSimpleDialog(
+        type: DialogType.error,
+        contentWidget: Text(
+          '광고 로드에 실패했습니다. 다시 시도해주세요.',
+          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+        ),
+      );
+    }
+
+    // 최종 상태 정리
+    if (mounted) {
+      OverlayLoadingProgress.stop();
+      ref.read(pangleAdLoadingProvider.notifier).state = false;
     }
   }
 

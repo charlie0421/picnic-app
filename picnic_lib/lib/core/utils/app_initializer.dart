@@ -130,14 +130,6 @@ class AppInitializer {
   //   FacebookAudienceNetwork.init();
   // }
 
-  static Future<void> initializePangle() async {
-    if (!isMobile()) return;
-    logger.i('Initializing Pangle...');
-    await PangleCustomPlugin.initPangle(
-      isIOS() ? Environment.pangleIosAppId : Environment.pangleAndroidAppId,
-    );
-  }
-
   static Future<void> initializeTapjoy() async {
     if (!isMobile()) return;
 
