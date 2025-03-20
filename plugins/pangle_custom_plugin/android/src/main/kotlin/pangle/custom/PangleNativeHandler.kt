@@ -159,23 +159,36 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
             rewardedAd?.setAdInteractionListener(object : PAGRewardedAdInteractionListener {
                 override fun onAdShowed() {
                     println("리워드 광고가 표시됨")
+                    channel.invokeMethod("onAdShowed", null)
                 }
 
                 override fun onAdClicked() {
                     println("리워드 광고가 클릭됨")
+                    channel.invokeMethod("onAdClicked", null)
                 }
 
                 override fun onAdDismissed() {
                     println("리워드 광고가 닫힘")
                     rewardedAd = null
+                    channel.invokeMethod("onAdClosed", null)
                 }
 
                 override fun onUserEarnedReward(item: PAGRewardItem) {
                     println("사용자가 보상을 받음: ${item.rewardAmount} ${item.rewardName}")
+                    val rewardData = mapOf(
+                        "amount" to item.rewardAmount,
+                        "name" to item.rewardName
+                    )
+                    channel.invokeMethod("onUserEarnedReward", rewardData)
                 }
 
                 override fun onUserEarnedRewardFail(code: Int, msg: String) {
                     println("사용자 보상 획득 실패: $msg (코드: $code)")
+                    val errorData = mapOf(
+                        "code" to code,
+                        "message" to msg
+                    )
+                    channel.invokeMethod("onUserEarnedRewardFail", errorData)
                 }
             })
 

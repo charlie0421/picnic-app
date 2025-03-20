@@ -219,6 +219,39 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       OverlayLoadingProgress.start(context);
     }
 
+    // 이벤트 핸들러 설정
+    channel.setMethodCallHandler((call) async {
+      logger.i('Pangle 이벤트 수신: ${call.method}');
+      switch (call.method) {
+        case 'onAdShowed':
+          logger.i('Pangle 광고가 표시됨');
+          break;
+        case 'onAdClicked':
+          logger.i('Pangle 광고가 클릭됨');
+          break;
+        case 'onAdClosed':
+          logger.i('Pangle 광고가 닫힘');
+          if (mounted) {
+            ref.read(userInfoProvider.notifier).getUserProfiles();
+          }
+          break;
+        case 'onUserEarnedReward':
+          final rewardData = call.arguments as Map<String, dynamic>;
+          logger.i(
+              'Pangle 광고 보상 획득: ${rewardData['amount']} ${rewardData['name']}');
+          break;
+        case 'onUserEarnedRewardFail':
+          final errorData = call.arguments as Map<String, dynamic>;
+          logger.e('Pangle 광고 보상 획득 실패',
+              error:
+                  'code: ${errorData['code']}, message: ${errorData['message']}');
+          if (mounted) {
+            _showErrorDialog('보상 획득에 실패했습니다. 다시 시도해주세요.');
+          }
+          break;
+      }
+    });
+
     // 1단계: SDK 초기화
     try {
       final initResult = await channel.invokeMethod<bool>('initPangle', {
