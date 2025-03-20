@@ -10,11 +10,13 @@ class PangleCustomPlugin {
   /// Pangle SDK 초기화
   ///
   /// [appId] - Pangle 앱 ID
-  static Future<bool> initPangle(String appId) async {
+  static Future<bool> initPangle(String appId, String userId) async {
     try {
       print('Pangle SDK 초기화 시작: $appId');
-      final bool result =
-          await _channel.invokeMethod('initPangle', {'appId': appId});
+      final bool result = await _channel.invokeMethod('initPangle', {
+        'appId': appId,
+        'userId': userId,
+      });
       print('Pangle SDK 초기화 성공: $result');
       return result;
     } catch (e) {
@@ -26,10 +28,17 @@ class PangleCustomPlugin {
   /// 보상형 광고 로드
   ///
   /// [placementId] - 광고 슬롯 ID
-  static Future<bool> loadRewardedAd(String placementId) async {
+  static Future<bool> loadRewardedAd(
+    String appId,
+    String placementId,
+    String userId,
+  ) async {
     try {
-      final bool result = await _channel
-          .invokeMethod('loadRewardedAd', {'placementId': placementId});
+      await initPangle(appId, userId);
+
+      final bool result = await _channel.invokeMethod('loadRewardedAd', {
+        'placementId': placementId,
+      });
       print('보상형 광고 로드 성공: $result');
       return result;
     } catch (e) {
