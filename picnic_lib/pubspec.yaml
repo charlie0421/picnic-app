@@ -12,8 +12,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  pangle_custom_plugin:
-    path: ../plugins/pangle_custom_plugin
   shimmer: ^3.0.0
   sentry_flutter: ^8.13.2
   universal_platform: ^1.1.0

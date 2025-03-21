@@ -7,6 +7,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.util.Locale
+import pangle.custom.PangleNativeHandler
 
 class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +39,8 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         GeneratedPluginRegistrant.registerWith(flutterEngine)
+        // Pangle 네이티브 핸들러 등록
+        flutterEngine.plugins.add(PangleNativeHandler())
     }
 
     // 문제가 있는 MediaTek 기기 감지
