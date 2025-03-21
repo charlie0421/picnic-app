@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/pangle_ads.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/ad_info.dart';
 import 'package:picnic_lib/generated/l10n.dart';
@@ -30,6 +31,10 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:universal_io/io.dart';
+import 'package:flutter/services.dart';
+
+// pangleAdLoadingProvider 추가
+final pangleAdLoadingProvider = StateProvider<bool>((ref) => false);
 
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
@@ -201,6 +206,136 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     }
   }
 
+  Future<void> _showPangleMission() async {
+    final userState = ref.read(userInfoProvider);
+    if (userState.value == null) {
+      if (mounted) showRequireLoginDialog();
+      return;
+    }
+
+    const channel = MethodChannel('pangle_native_channel');
+
+    if (mounted) {
+      ref.read(pangleAdLoadingProvider.notifier).state = true;
+      OverlayLoadingProgress.start(context);
+    }
+
+    // 이벤트 핸들러 설정
+    channel.setMethodCallHandler((call) async {
+      logger.i('Pangle 이벤트 수신: ${call.method}');
+      switch (call.method) {
+        case 'onAdShowed':
+          logger.i('Pangle 광고가 표시됨');
+          break;
+        case 'onAdClicked':
+          logger.i('Pangle 광고가 클릭됨');
+          break;
+        case 'onAdClosed':
+          logger.i('Pangle 광고가 닫힘');
+          if (mounted) {
+            ref.read(userInfoProvider.notifier).getUserProfiles();
+          }
+          break;
+        case 'onUserEarnedReward':
+          final rewardData = call.arguments as Map<String, dynamic>;
+          logger.i(
+              'Pangle 광고 보상 획득: ${rewardData['amount']} ${rewardData['name']}');
+          break;
+        case 'onUserEarnedRewardFail':
+          final errorData = call.arguments as Map<String, dynamic>;
+          logger.e('Pangle 광고 보상 획득 실패',
+              error:
+                  'code: ${errorData['code']}, message: ${errorData['message']}');
+          if (mounted) {
+            _showErrorDialog('보상 획득에 실패했습니다. 다시 시도해주세요.');
+          }
+          break;
+      }
+    });
+
+    PangleAds.setOnProfileRefreshNeeded(() {
+      // 여기서 프로필 갱신 API 호출
+      ref.read(userInfoProvider.notifier).getUserProfiles();
+    });
+
+    // 1단계: SDK 초기화
+    try {
+      final initResult = await PangleAds.initPangle(
+        isIOS() ? Environment.pangleIosAppId : Environment.pangleAndroidAppId,
+      );
+
+      if (initResult != true) {
+        throw Exception('Pangle SDK 초기화 실패');
+      }
+    } catch (e, s) {
+      logger.e('Error in Pangle SDK initialization', error: e, stackTrace: s);
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        ref.read(pangleAdLoadingProvider.notifier).state = false;
+        _showErrorDialog('SDK 초기화에 실패했습니다. 다시 시도해주세요.');
+      }
+      return;
+    }
+
+    Future.delayed(const Duration(seconds: 1));
+    // 2단계: 광고 로드
+    bool adLoadSuccess = false;
+    try {
+      final result = await Future.any([
+        PangleAds.loadRewardedAd(
+          isIOS()
+              ? Environment.pangleIosRewardedVideoId
+              : Environment.pangleAndroidRewardedVideoId,
+          supabase.auth.currentUser!.id,
+        ),
+        Future.delayed(
+          const Duration(seconds: 5),
+          () => throw TimeoutException('광고 로드 시간이 초과되었습니다.'),
+        ),
+      ]);
+
+      adLoadSuccess = result == true;
+    } catch (e, s) {
+      logger.e('Error in loading rewarded ad', error: e, stackTrace: s);
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        ref.read(pangleAdLoadingProvider.notifier).state = false;
+        _showErrorDialog(e is TimeoutException
+            ? '광고 로드 시간이 초과되었습니다. 다시 시도해주세요.'
+            : '광고 로드에 실패했습니다. 다시 시도해주세요.');
+      }
+      return;
+    }
+
+    if (!mounted) return;
+
+    // 3단계: 광고 표시
+    if (adLoadSuccess) {
+      try {
+        await PangleAds.showRewardedAd();
+      } catch (e, s) {
+        logger.e('Error in showing rewarded ad', error: e, stackTrace: s);
+        if (mounted) {
+          _showErrorDialog('광고 표시에 실패했습니다. 다시 시도해주세요.');
+        }
+      }
+    } else {
+      showSimpleDialog(
+        type: DialogType.error,
+        contentWidget: Text(
+          '광고 로드에 실패했습니다. 다시 시도해주세요.',
+          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+        ),
+      );
+    }
+
+    // 최종 상태 정리
+    if (mounted) {
+      OverlayLoadingProgress.stop();
+      ref.read(pangleAdLoadingProvider.notifier).state = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FreeChargeContent(
@@ -208,6 +343,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
       onAdButtonPressed: _showRewardedAdmob,
       onTajoyPressed: _showTapjoyMission,
+      onPanglePressed: _showPangleMission,
       onPincruxOfferwallPressed: _showPincruxOfferwall,
       rotationController: _rotationController,
     );
@@ -219,6 +355,7 @@ class FreeChargeContent extends ConsumerWidget {
   final VoidCallback onPolicyTap;
   final Function(int) onAdButtonPressed;
   final VoidCallback onTajoyPressed;
+  final VoidCallback onPanglePressed;
   final VoidCallback onPincruxOfferwallPressed;
   final VoidCallback? onRetryBannerAd;
   final AnimationController rotationController;
@@ -229,6 +366,7 @@ class FreeChargeContent extends ConsumerWidget {
     required this.onPolicyTap,
     required this.onAdButtonPressed,
     required this.onTajoyPressed,
+    required this.onPanglePressed,
     required this.onPincruxOfferwallPressed,
     required this.rotationController,
     this.onRetryBannerAd,
@@ -295,6 +433,8 @@ class FreeChargeContent extends ConsumerWidget {
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildStoreListTileAdmob(context, 1, adState),
           const Divider(height: 32, thickness: 1, color: AppColors.grey200),
+          _buildMissionPangle(ref, context),
+          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
           _buildPolicyGuide(),
         ],
       ),
@@ -319,6 +459,35 @@ class FreeChargeContent extends ConsumerWidget {
     );
   }
 
+  Widget _buildMissionPangle(ref, BuildContext context) {
+    final pangleAdLoading = ref.watch(pangleAdLoadingProvider);
+
+    return StoreListTile(
+      title: Text(
+        '${S.of(context).label_button_watch_and_charge} #3',
+      ),
+      buttonText: pangleAdLoading
+          ? S.of(context).label_loading_ads
+          : S.of(context).label_mission,
+      buttonOnPressed: pangleAdLoading ? null : onPanglePressed,
+      isLoading: pangleAdLoading,
+      icon: Image.asset(
+        package: 'picnic_lib',
+        'assets/icons/store/star_100.png',
+      ),
+      subtitle: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '+${S.of(context).label_bonus} 1',
+              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMissionPincrux(ref, BuildContext context) {
     return StoreListTile(
       title: Text(
@@ -338,9 +507,13 @@ class FreeChargeContent extends ConsumerWidget {
   }
 
   Widget _buildStoreListTileAdmob(
-      BuildContext context, int index, AdState adState) {
+    BuildContext context,
+    int index,
+    AdState adState,
+  ) {
     final adInfo = adState.ads[index];
-    final isLoading = adInfo.isLoading;
+    final isLoading = adInfo.isLoading || adInfo.isShowing;
+    final adType = index == 0 ? '(AdMob)' : '(Unity Ads)';
 
     return StoreListTile(
       index: index,
@@ -351,7 +524,7 @@ class FreeChargeContent extends ConsumerWidget {
         height: 48.w,
       ),
       title: Text(
-        S.of(context).label_button_watch_and_charge,
+        '${S.of(context).label_button_watch_and_charge} $adType',
         style: getTextStyle(AppTypo.body14B, AppColors.grey900)
             .copyWith(height: 1),
       ),

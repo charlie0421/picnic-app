@@ -65,6 +65,12 @@ class Environment {
   static String get unityAndroidGameId =>
       _config['UNITY_GOOGLE_GAME_ID'] as String;
 
+  static String get unityIosPlacementId =>
+      _config['UNITY_IOS_PLACEMENT_ID'] as String;
+
+  static String get unityAndroidPlacementId =>
+      _config['UNITY_ANDROID_PLACEMENT_ID'] as String;
+
   static String get webDomain => _config['WEB_DOMAIN'] as String;
 
   static String get deepLApiKey => _config['DEEPL_API_KEY'] as String;
@@ -114,4 +120,15 @@ class Environment {
 
   static String get pincruxIosAppKey =>
       _config['PINCRUX_IOS_APP_KEY'] as String;
+
+  static String get pangleIosAppId => _config['PANGLE_IOS_APP_ID'] as String;
+
+  static String get pangleAndroidAppId =>
+      _config['PANGLE_ANDROID_APP_ID'] as String;
+
+  static String get pangleIosRewardedVideoId =>
+      _config['PANGLE_IOS_REWARDED_VIDEO_ID'] as String;
+
+  static String get pangleAndroidRewardedVideoId =>
+      _config['PANGLE_ANDROID_REWARDED_VIDEO_ID'] as String;
 }

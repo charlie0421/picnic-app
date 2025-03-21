@@ -2,6 +2,7 @@ name: picnic_lib
 description: Picnic Library
 
 version: 0.0.1
+publish_to: none
 
 environment:
   sdk: ^3.6.0
@@ -89,6 +90,7 @@ dependencies:
   in_app_purchase_storekit: ^0.3.20+3
   tapjoy_offerwall: ^14.2.1
   flutter_branch_sdk: ^8.3.2
+  unity_ads_plugin: ^0.3.23
 
 dev_dependencies:
   flutter_test:

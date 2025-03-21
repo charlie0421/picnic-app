@@ -26,4 +26,16 @@ plugins {
     id "org.jetbrains.kotlin.android" version "2.1.0" apply false
 }
 
+dependencyResolutionManagement {
+    repositories {
+        maven {
+            url 'https://artifact.bytedance.com/repository/pangle'
+        }
+        maven {
+            url 'https://artifact.bytedance.com/repository/pangle-global'
+        }
+        google()
+        mavenCentral()
+    }
+}
 include ":app"
