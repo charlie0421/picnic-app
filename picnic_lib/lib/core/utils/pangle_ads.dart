@@ -95,6 +95,8 @@ class PangleAds {
               logger.i(
                   '보상 획득 이벤트 처리: ${args['rewardName']}, 수량: ${args['rewardAmount']}');
               _rewardEarnedController.add(args);
+              _performProfileRefresh(timestamp);
+
               logger.i('보상 획득 이벤트 전파 완료');
             } catch (e) {
               logger.e('보상 획득 이벤트 처리 중 오류: $e');
@@ -108,6 +110,7 @@ class PangleAds {
               final String errorMessage = args['errorMessage'] ?? '알 수 없는 오류';
               logger.e('보상 지급 실패 이벤트 처리: $errorMessage');
               _rewardFailedController.add(errorMessage);
+              _performProfileRefresh(timestamp);
               logger.i('보상 실패 이벤트 전파 완료');
             } catch (e) {
               logger.e('보상 실패 이벤트 처리 중 오류: $e');
@@ -145,7 +148,9 @@ class PangleAds {
     try {
       if (_onProfileRefreshNeeded != null) {
         logger.i('프로필 새로고침 콜백 실행 중...');
-        _onProfileRefreshNeeded!();
+        Future.delayed(Duration(seconds: 1), () {
+          _onProfileRefreshNeeded!();
+        });
       } else {
         logger.w('프로필 새로고침 콜백이 등록되지 않았습니다.');
       }
@@ -277,67 +282,3 @@ class PangleAds {
     return result;
   }
 }
-
-/* 사용 예시:
-
-// 광고 닫힘 후 프로필 갱신 콜백 설정하기
-void initializeAds() {
-  PangleAds.initPangle("YOUR_APP_ID");
-  
-  // 방법 1: 프로필 갱신 콜백 설정 (권장)
-  PangleAds.setOnProfileRefreshNeeded(() {
-    // 여기서 프로필 갱신 API 호출
-    refreshUserProfile();
-  });
-  
-  // 방법 2: 이벤트 스트림 구독 (대안)
-  final subscription = PangleAds.onAdDismissed.listen((_) {
-    // 여기서 프로필 갱신 API 호출
-    refreshUserProfile();
-  });
-  
-  // 구독 해제 (위젯 dispose 시)
-  // subscription.cancel();
-}
-
-// 예시: 프로필 갱신 메서드
-void refreshUserProfile() async {
-  try {
-    // 프로필 갱신 API 호출
-    // await UserRepository.refreshProfile();
-    print('프로필이 성공적으로 갱신되었습니다');
-  } catch (e) {
-    print('프로필 갱신 중 오류 발생: $e');
-  }
-}
-
-// 디버깅: 이벤트 전달 테스트 방법
-void testAdEvents() {
-  // 1. 우선 콜백 설정
-  PangleAds.setOnProfileRefreshNeeded(() {
-    print('프로필 갱신 테스트 성공!');
-  });
-  
-  // 2. 이벤트 스트림 구독 확인
-  final subscription = PangleAds.onAdDismissed.listen((_) {
-    print('광고 닫힘 이벤트 수신 성공!');
-  });
-  
-  // 3. 테스트 함수 호출로 이벤트 강제 발생
-  PangleAds.testAdDismissed().then((_) {
-    print('이벤트 테스트 완료');
-  });
-  
-  // 테스트 후 구독 해제 필요 시
-  // subscription.cancel();
-}
-
-// 문제 해결: 광고 닫힘 이벤트가 동작하지 않을 경우
-// 1. 로그 확인: iOS와 Flutter 모두 로그 확인
-// 2. 테스트 함수로 이벤트 전달 확인: PangleAds.testAdDismissed()
-// 3. 광고 종료 후 수동 호출 임시 방편:
-//    광고가 닫히지 않을 경우 수동으로 PangleAds.refreshProfileManually()를 호출
-// 4. 대안: 이벤트 대신 타이머 기반 갱신 사용
-//    PangleAds.showRewardedAdWithProfileRefresh() 호출
-
-*/
