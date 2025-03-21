@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/pangle_ads.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/ad_info.dart';
 import 'package:picnic_lib/generated/l10n.dart';
@@ -252,14 +253,16 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       }
     });
 
+    PangleAds.setOnProfileRefreshNeeded(() {
+      // 여기서 프로필 갱신 API 호출
+      ref.read(userInfoProvider.notifier).getUserProfiles();
+    });
+
     // 1단계: SDK 초기화
     try {
-      final initResult = await channel.invokeMethod<bool>('initPangle', {
-        'appId': isIOS()
-            ? Environment.pangleIosAppId
-            : Environment.pangleAndroidAppId,
-        'userId': supabase.auth.currentUser!.id,
-      });
+      final initResult = await PangleAds.initPangle(
+        isIOS() ? Environment.pangleIosAppId : Environment.pangleAndroidAppId,
+      );
 
       if (initResult != true) {
         throw Exception('Pangle SDK 초기화 실패');
@@ -274,16 +277,17 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       return;
     }
 
+    Future.delayed(const Duration(seconds: 1));
     // 2단계: 광고 로드
     bool adLoadSuccess = false;
     try {
       final result = await Future.any([
-        channel.invokeMethod<bool>('loadRewardedAd', {
-          'placementId': isIOS()
+        PangleAds.loadRewardedAd(
+          isIOS()
               ? Environment.pangleIosRewardedVideoId
               : Environment.pangleAndroidRewardedVideoId,
-          'userId': supabase.auth.currentUser!.id,
-        }),
+          supabase.auth.currentUser!.id,
+        ),
         Future.delayed(
           const Duration(seconds: 5),
           () => throw TimeoutException('광고 로드 시간이 초과되었습니다.'),
@@ -308,7 +312,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     // 3단계: 광고 표시
     if (adLoadSuccess) {
       try {
-        await channel.invokeMethod('showRewardedAd');
+        await PangleAds.showRewardedAd();
       } catch (e, s) {
         logger.e('Error in showing rewarded ad', error: e, stackTrace: s);
         if (mounted) {

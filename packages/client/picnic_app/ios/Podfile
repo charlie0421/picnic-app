@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '13.0'
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -38,7 +38,7 @@ pre_install do |installer|
   
   # 디버그 로그 활성화
   installer.pod_targets.each do |pod|
-    if pod.name.start_with?('pangle_custom_plugin') || pod.name.include?('Ads-Global')
+    if pod.name.include?('Ads-Global')
       puts "설치 중인 pod 타겟: #{pod.name}"
     end
   end
@@ -50,6 +50,8 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
+  # Pangle SDK 명시적으로 추가
+  pod 'Ads-Global', '6.5.0.9'
 end
 
 post_install do |installer|
@@ -57,6 +59,22 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
+      # Flutter 모듈 경로 명시적으로 설정
+      config.build_settings['HEADER_SEARCH_PATHS'] ||= [
+        '$(inherited)',
+        "${PODS_ROOT}/Headers/Public",
+        "${PODS_ROOT}/Headers/Public/Flutter",
+        "${PODS_CONFIGURATION_BUILD_DIR}/Flutter-framework.framework/Headers",
+        "${PODS_ROOT}/../Flutter"
+      ]
+      
+      config.build_settings['FRAMEWORK_SEARCH_PATHS'] ||= [
+        '$(inherited)',
+        "${PODS_CONFIGURATION_BUILD_DIR}",
+        "${PODS_ROOT}/../Flutter",
+        "${PODS_XCFRAMEWORKS_BUILD_DIR}/Flutter"
+      ]
+      
       # Flutter 3.0.0 이상에서는 이 설정이 필요합니다
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
         '$(inherited)',
@@ -68,7 +86,7 @@ post_install do |installer|
       config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
       
       # Pangle SDK에 필요한 시스템 라이브러리 지원 - 개별 플래그로 설정
-      if target.name == 'Ads-Global' || target.name == 'pangle_custom_plugin'
+      if target.name == 'Ads-Global' || target.name.include?('Runner')
         # 기존 배열 방식 대신 각 플래그를 별도로 추가
         config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -lz -lsqlite3 -lbz2 -lresolv -lc++ -lxml2 -ObjC'
         
@@ -81,6 +99,15 @@ post_install do |installer|
       
       # 모든 타겟의 Bitcode 비활성화 (Pangle SDK와 호환성을 위해)
       config.build_settings['ENABLE_BITCODE'] = 'NO'
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      
+      # 의존성 프레임워크 검색 경로 설정
+      config.build_settings['LD_RUNPATH_SEARCH_PATHS'] = [
+        '$(inherited)',
+        '/usr/lib/swift',
+        '@executable_path/Frameworks'
+      ]
     end
   end
 end

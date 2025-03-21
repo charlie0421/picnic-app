@@ -183,7 +183,7 @@ function extractParameters(url) {
   let reward_type = 'free_charge_station'; // 기본값
   let platform = '';
   // user_id가 'defaultUser'이면 extra 값을 사용
-  if (user_id === 'defaultUser' && extra) {
+  if (extra) {
     const extraArray = extra.split(',');
     user_id = extraArray[0];
     platform = extraArray[1];

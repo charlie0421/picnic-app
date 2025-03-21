@@ -242,9 +242,6 @@ PODS:
   - OrderedSet (6.0.3)
   - package_info_plus (0.4.5):
     - Flutter
-  - pangle_custom_plugin (0.0.1):
-    - Ads-Global
-    - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -299,6 +296,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - Ads-Global (= 6.5.0.9)
   - app_links (from `.symlinks/plugins/app_links/ios`)
   - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
@@ -325,7 +323,6 @@ DEPENDENCIES:
   - keyboard_height_plugin (from `.symlinks/plugins/keyboard_height_plugin/ios`)
   - network_info_plus (from `.symlinks/plugins/network_info_plus/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
-  - pangle_custom_plugin (from `.symlinks/plugins/pangle_custom_plugin/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
@@ -430,8 +427,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/network_info_plus/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
-  pangle_custom_plugin:
-    :path: ".symlinks/plugins/pangle_custom_plugin/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
@@ -512,7 +507,6 @@ SPEC CHECKSUMS:
   network_info_plus: 6613d9d7cdeb0e6f366ed4dbe4b3c51c52d567a9
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
-  pangle_custom_plugin: 99a2f93c886a4e935a9259455cdfa26f07c0a547
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   photo_manager: ff695c7a1dd5bc379974953a2b5c0a293f7c4c8a
@@ -537,6 +531,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
 
-PODFILE CHECKSUM: eccbbfc24d4d807389836d02f059165662c81283
+PODFILE CHECKSUM: 5298d9012b6751838d4f2f3deaa7158fc67e76af
 
 COCOAPODS: 1.16.2

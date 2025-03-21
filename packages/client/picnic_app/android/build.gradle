@@ -7,6 +7,8 @@ allprojects {
             url "https://sdk.tapjoy.com/"
         }
         maven { url 'https://artifact.bytedance.com/repository/pangle' }
+        maven { url "https://jitpack.io" }
+        maven { url "https://www.jitpack.io" }
     }
 }
 
