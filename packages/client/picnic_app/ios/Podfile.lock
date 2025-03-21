@@ -1,4 +1,7 @@
 PODS:
+  - Ads-Global (6.5.0.9):
+    - Ads-Global/BUAdSDK (= 6.5.0.9)
+  - Ads-Global/BUAdSDK (6.5.0.9)
   - app_links (0.0.2):
     - Flutter
   - app_tracking_transparency (0.0.1):
@@ -111,7 +114,7 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - PromisesObjC (~> 2.4)
-  - FirebaseRemoteConfigInterop (11.9.0)
+  - FirebaseRemoteConfigInterop (11.10.0)
   - FirebaseSessions (11.8.0):
     - FirebaseCore (~> 11.8.0)
     - FirebaseCoreExtension (~> 11.8.0)
@@ -282,6 +285,10 @@ PODS:
     - TapjoySDK/Static (= 14.2.1)
   - TapjoySDK/Static (14.2.1)
   - TOCropViewController (2.7.4)
+  - unity_ads_plugin (0.0.1):
+    - Flutter
+    - UnityAds (= 4.13.0)
+  - UnityAds (4.13.0)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -289,6 +296,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - Ads-Global (= 6.5.0.9)
   - app_links (from `.symlinks/plugins/app_links/ios`)
   - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
@@ -326,11 +334,13 @@ DEPENDENCIES:
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - tapjoy_offerwall (from `.symlinks/plugins/tapjoy_offerwall/ios`)
+  - unity_ads_plugin (from `.symlinks/plugins/unity_ads_plugin/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
+    - Ads-Global
     - AppAuth
     - BranchSDK
     - DKImagePickerController
@@ -362,6 +372,7 @@ SPEC REPOS:
     - SwiftyGif
     - TapjoySDK
     - TOCropViewController
+    - UnityAds
 
 EXTERNAL SOURCES:
   app_links:
@@ -438,12 +449,15 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   tapjoy_offerwall:
     :path: ".symlinks/plugins/tapjoy_offerwall/ios"
+  unity_ads_plugin:
+    :path: ".symlinks/plugins/unity_ads_plugin/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  Ads-Global: 4ae64395eb89220f3a257c1aaff9c83f900c2155
   app_links: f3e17e4ee5e357b39d8b95290a9b2c299fca71c6
   app_tracking_transparency: e169b653478da7bb15a6c61209015378ca73e375
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
@@ -464,7 +478,7 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: df24ce5af28864660ecbd13596fc8dd3a8c34629
   FirebaseCrashlytics: a1102c035f18d5dd94a5969ee439c526d0c9e313
   FirebaseInstallations: 6c963bd2a86aca0481eef4f48f5a4df783ae5917
-  FirebaseRemoteConfigInterop: 710954a00e956c5fe5144a8e46164f0361389203
+  FirebaseRemoteConfigInterop: 7c9a9c65eff32cbb0f7bf8d18140612ad57dfcc6
   FirebaseSessions: c4d40a97f88f9eaff2834d61b4fea0a522d62123
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_branch_sdk: b86e089a216b3a181e49b0aa4cb36e23b6c6e102
@@ -512,9 +526,11 @@ SPEC CHECKSUMS:
   tapjoy_offerwall: f2e6807028ff20c24f9f81d74013239b14cc7df0
   TapjoySDK: 419f6cb7d166c8df86c04ee4ecd950e23979e2c6
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
+  unity_ads_plugin: e0a2c2b6587a56ce5e904958bc61e824fb11c536
+  UnityAds: 89a816d8497b5c910719b71697c74e6410ded37a
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
 
-PODFILE CHECKSUM: b4a228b1cd0a6cbc7bab1fad6bcb7cc747196e2a
+PODFILE CHECKSUM: 5298d9012b6751838d4f2f3deaa7158fc67e76af
 
 COCOAPODS: 1.16.2
