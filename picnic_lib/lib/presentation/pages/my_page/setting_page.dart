@@ -21,9 +21,9 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
 class SettingPage extends ConsumerStatefulWidget {
-
   const SettingPage({super.key});
 
   @override
@@ -34,6 +34,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   bool value1 = false;
   bool value2 = false;
   String buildNumber = '';
+  String? patchVersion;
+  bool isPatched = false;
+  String _patchInfo = "Loading...";
 
   Future<bool> _getFuture1() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -53,6 +56,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   void initState() {
     super.initState();
+    _fetchPatchInfo();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getBuildNumber().then((value) {
         buildNumber = value;
@@ -237,6 +241,22 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           return Container();
                         }
                         switch (info.status) {
+                          case UpdateStatus.needPatch:
+                            return PicnicListItem(
+                              leading:
+                                  '${S.of(context).label_setting_current_version} ${info.currentVersion}',
+                              title: Container(
+                                margin: EdgeInsets.only(right: 8.w),
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  '${S.of(context).label_setting_recent_version} (${info.latestVersion})${isAdmin ? ' 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}' : ''}',
+                                  style: getTextStyle(
+                                      AppTypo.caption12B, AppColors.primary500),
+                                ),
+                              ),
+                              assetPath:
+                                  'assets/icons/arrow_right_style=line.svg',
+                            );
                           case UpdateStatus.updateRequired:
                             return PicnicListItem(
                               leading:
@@ -245,7 +265,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
+                                  '${S.of(context).label_setting_recent_version} (${info.latestVersion})${isAdmin ? ' 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
@@ -268,7 +288,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${S.of(context).label_setting_recent_version} (${info.latestVersion})',
+                                  '${S.of(context).label_setting_recent_version} (${info.latestVersion})${isAdmin ? ' 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
@@ -286,14 +306,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           case UpdateStatus.upToDate:
                             return PicnicListItem(
                               leading:
-                                  '${S.of(context).label_setting_current_version} ${info.currentVersion}${isAdmin ? ' ($buildNumber)' : ''}',
+                                  '${S.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Container(
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  S
-                                      .of(context)
-                                      .label_setting_recent_version_up_to_date,
+                                  '${S.of(context).label_setting_recent_version_up_to_date}${isAdmin ? ' 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}' : ''}',
                                   style: getTextStyle(AppTypo.caption12B,
                                       AppColors.secondary500),
                                   textAlign: TextAlign.start,
@@ -306,10 +324,40 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       },
                       loading: () => buildLoadingOverlay(),
                       error: (_, __) => Container()),
+                  if (isAdmin)
+                    PicnicListItem(
+                      leading: 'Patch',
+                      title: Container(
+                        margin: EdgeInsets.only(right: 8.w),
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          _patchInfo,
+                          style: getTextStyle(
+                              AppTypo.caption12B, AppColors.secondary500),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      tailing: SizedBox.shrink(),
+                    ),
                 ],
               ),
             ),
         loading: () => buildLoadingOverlay(),
         error: (error, stackTrace) => Container());
+  }
+
+  Future<void> _fetchPatchInfo() async {
+    try {
+      final patchNumber = await shorebird.ShorebirdUpdater().readCurrentPatch();
+      setState(() {
+        _patchInfo =
+            patchNumber != null ? "Current Patch: $patchNumber" : "No patch";
+      });
+    } catch (e) {
+      setState(() {
+        _patchInfo = "Failed to load patch info";
+      });
+    }
   }
 }

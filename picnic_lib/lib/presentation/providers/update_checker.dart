@@ -10,7 +10,12 @@ import 'package:version/version.dart';
 part '../../generated/providers/update_checker.freezed.dart';
 part '../../generated/providers/update_checker.g.dart';
 
-enum UpdateStatus { upToDate, updateRecommended, updateRequired }
+enum UpdateStatus {
+  upToDate,
+  updateRecommended,
+  updateRequired,
+  needPatch,
+}
 
 @freezed
 class UpdateInfo with _$UpdateInfo {
