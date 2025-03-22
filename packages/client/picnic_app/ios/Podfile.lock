@@ -262,6 +262,9 @@ PODS:
   - SDWebImage (5.21.0):
     - SDWebImage/Core (= 5.21.0)
   - SDWebImage/Core (5.21.0)
+  - Sentry (8.46.0):
+    - Sentry/Core (= 8.46.0)
+  - Sentry/Core (8.46.0)
   - Sentry/HybridSDK (8.46.0)
   - sentry_flutter (8.14.0):
     - Flutter
@@ -328,6 +331,8 @@ DEPENDENCIES:
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
   - quill_native_bridge_ios (from `.symlinks/plugins/quill_native_bridge_ios/ios`)
   - screen_protector (from `.symlinks/plugins/screen_protector/ios`)
+  - Sentry (= 8.46.0)
+  - Sentry/HybridSDK (= 8.46.0)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -531,6 +536,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
 
-PODFILE CHECKSUM: 86b9df6238c13cb16cb186a3f40103ac4b06cba7
+PODFILE CHECKSUM: b5a4be089e6140af892cb2657ab3c6915804340c
 
 COCOAPODS: 1.16.2
