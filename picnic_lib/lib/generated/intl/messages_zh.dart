@@ -314,14 +314,28 @@ class MessageLookup extends MessageLookupByLibrary {
         "image_save_success": MessageLookupByLibrary.simpleMessage("图像已保存。"),
         "label_ads_exceeded":
             MessageLookupByLibrary.simpleMessage("您已用尽每个 ID 可观看的广告数量。"),
+        "label_ads_get_star_candy":
+            MessageLookupByLibrary.simpleMessage("通过观看广告获得星星糖"),
+        "label_ads_load_fail":
+            MessageLookupByLibrary.simpleMessage("广告加载失败。请重试。"),
+        "label_ads_load_timeout":
+            MessageLookupByLibrary.simpleMessage("广告加载超时。请重试。"),
         "label_ads_next_available_time":
             MessageLookupByLibrary.simpleMessage("下一则广告何时发布。"),
+        "label_ads_reward_fail":
+            MessageLookupByLibrary.simpleMessage("获取奖励失败。请重试。"),
+        "label_ads_sdk_init_fail":
+            MessageLookupByLibrary.simpleMessage("SDK初始化失败。请重试。"),
+        "label_ads_show_fail":
+            MessageLookupByLibrary.simpleMessage("广告显示失败。请重试。"),
         "label_agreement_privacy":
             MessageLookupByLibrary.simpleMessage("同意收集和使用个人信息"),
         "label_agreement_terms": MessageLookupByLibrary.simpleMessage("接受使用条款"),
         "label_album_add": MessageLookupByLibrary.simpleMessage("添加新相册"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("成为第一个发表评论的人！"),
+        "label_asia_recommendation":
+            MessageLookupByLibrary.simpleMessage("亚洲推荐"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("奖金"),
         "label_button_agreement": MessageLookupByLibrary.simpleMessage("接受"),
         "label_button_close": MessageLookupByLibrary.simpleMessage("關閉"),
@@ -348,6 +362,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_find_celeb": MessageLookupByLibrary.simpleMessage("寻找更多艺术家"),
         "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("文章"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("聊天"),
+        "label_global_recommendation":
+            MessageLookupByLibrary.simpleMessage("全球推荐"),
         "label_hint_comment": MessageLookupByLibrary.simpleMessage("发表评论。"),
         "label_input_input": MessageLookupByLibrary.simpleMessage("输入"),
         "label_last_provider": MessageLookupByLibrary.simpleMessage("最近"),
@@ -361,6 +377,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_loading_ads_fail":
             MessageLookupByLibrary.simpleMessage("广告无法加载"),
         "label_mission": MessageLookupByLibrary.simpleMessage("使命"),
+        "label_mission_get_star_candy":
+            MessageLookupByLibrary.simpleMessage("通过任务获得星星糖"),
+        "label_mission_short": MessageLookupByLibrary.simpleMessage("任务"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("前往艺术家画廊"),
         "label_mypage_charge_history":
@@ -455,6 +474,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_upcoming": MessageLookupByLibrary.simpleMessage("直到投票开始"),
         "label_vote_vote_gather": MessageLookupByLibrary.simpleMessage("收集选票"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("查看广告"),
+        "label_watch_ads_short": MessageLookupByLibrary.simpleMessage("广告"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("我的艺术家"),
         "message_agreement_success":
             MessageLookupByLibrary.simpleMessage("你已经接受了条款。"),

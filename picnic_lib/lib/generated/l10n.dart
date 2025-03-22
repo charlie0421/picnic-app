@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -2381,10 +2380,10 @@ class S {
     );
   }
 
-  /// `My Artist’s Fortune teller`
+  /// `My Artist's Fortune teller`
   String get fortune_button_title {
     return Intl.message(
-      'My Artist’s Fortune teller',
+      'My Artist\'s Fortune teller',
       name: 'fortune_button_title',
       desc: '',
       args: [],
@@ -4301,10 +4300,10 @@ class S {
     );
   }
 
-  /// `Curious about #{artist_name}’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!`
+  /// `Curious about #{artist_name}'s 2025 fortune? Come to #피크닠 now! Let's discover that shining destiny together!`
   String fortune_share_message(Object artist_name) {
     return Intl.message(
-      'Curious about #$artist_name’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!',
+      'Curious about #$artist_name\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!',
       name: 'fortune_share_message',
       desc: '',
       args: [artist_name],
@@ -4366,6 +4365,116 @@ class S {
     return Intl.message(
       'Only up to 10,000 is allowed.',
       name: 'voting_limit_warning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Global Pick`
+  String get label_global_recommendation {
+    return Intl.message(
+      'Global Pick',
+      name: 'label_global_recommendation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Asia Pick`
+  String get label_asia_recommendation {
+    return Intl.message(
+      'Asia Pick',
+      name: 'label_asia_recommendation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Get Star Candy from Missions`
+  String get label_mission_get_star_candy {
+    return Intl.message(
+      'Get Star Candy from Missions',
+      name: 'label_mission_get_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Get Star Candy from Ads`
+  String get label_ads_get_star_candy {
+    return Intl.message(
+      'Get Star Candy from Ads',
+      name: 'label_ads_get_star_candy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mission`
+  String get label_mission_short {
+    return Intl.message(
+      'Mission',
+      name: 'label_mission_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Watch`
+  String get label_watch_ads_short {
+    return Intl.message(
+      'Watch',
+      name: 'label_watch_ads_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to get reward. Please try again.`
+  String get label_ads_reward_fail {
+    return Intl.message(
+      'Failed to get reward. Please try again.',
+      name: 'label_ads_reward_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `SDK initialization failed. Please try again.`
+  String get label_ads_sdk_init_fail {
+    return Intl.message(
+      'SDK initialization failed. Please try again.',
+      name: 'label_ads_sdk_init_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ad loading timed out. Please try again.`
+  String get label_ads_load_timeout {
+    return Intl.message(
+      'Ad loading timed out. Please try again.',
+      name: 'label_ads_load_timeout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to load ad. Please try again.`
+  String get label_ads_load_fail {
+    return Intl.message(
+      'Failed to load ad. Please try again.',
+      name: 'label_ads_load_fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to show ad. Please try again.`
+  String get label_ads_show_fail {
+    return Intl.message(
+      'Failed to show ad. Please try again.',
+      name: 'label_ads_show_fail',
       desc: '',
       args: [],
     );

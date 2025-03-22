@@ -131,4 +131,10 @@ class Environment {
 
   static String get pangleAndroidRewardedVideoId =>
       _config['PANGLE_ANDROID_REWARDED_VIDEO_ID'] as String;
+
+  static String get admobIosRewardedVideoId =>
+      _config['ADMOB_IOS_REWARDED_VIDEO_ID'] as String;
+
+  static String get admobAndroidRewardedVideoId =>
+      _config['ADMOB_ANDROID_REWARDED_VIDEO_ID'] as String;
 }

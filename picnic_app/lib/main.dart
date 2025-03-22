@@ -30,7 +30,6 @@ void main() async {
       if (!kIsWeb) {
         await AppInitializer.initializeWebP();
         await AppInitializer.initializeTapjoy();
-        await AppInitializer.initializeUnityAds();
       }
 
       await Firebase.initializeApp(

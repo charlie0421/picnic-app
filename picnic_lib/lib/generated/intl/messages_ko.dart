@@ -333,8 +333,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("이미지가 저장되었습니다."),
         "label_ads_exceeded":
             MessageLookupByLibrary.simpleMessage("아이디당 시청 가능한 광고를 모두 소진했습니다."),
+        "label_ads_get_star_candy":
+            MessageLookupByLibrary.simpleMessage("광고 보고 별사탕 받기"),
+        "label_ads_load_fail":
+            MessageLookupByLibrary.simpleMessage("광고 로드에 실패했습니다. 다시 시도해주세요."),
+        "label_ads_load_timeout": MessageLookupByLibrary.simpleMessage(
+            "광고 로드 시간이 초과되었습니다. 다시 시도해주세요."),
         "label_ads_next_available_time":
             MessageLookupByLibrary.simpleMessage("다음 광고 시청 가능시간."),
+        "label_ads_reward_fail":
+            MessageLookupByLibrary.simpleMessage("보상 획득에 실패했습니다. 다시 시도해주세요."),
+        "label_ads_sdk_init_fail":
+            MessageLookupByLibrary.simpleMessage("SDK 초기화에 실패했습니다. 다시 시도해주세요."),
+        "label_ads_show_fail":
+            MessageLookupByLibrary.simpleMessage("광고 표시에 실패했습니다. 다시 시도해주세요."),
         "label_agreement_privacy":
             MessageLookupByLibrary.simpleMessage("개인정보 수집 및 이용 동의"),
         "label_agreement_terms":
@@ -342,6 +354,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_album_add": MessageLookupByLibrary.simpleMessage("새로운 앨범 추가"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("첫 댓글의 주인공이 되세요!"),
+        "label_asia_recommendation":
+            MessageLookupByLibrary.simpleMessage("아시아 추천"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("보너스"),
         "label_button_agreement": MessageLookupByLibrary.simpleMessage("동의"),
         "label_button_close": MessageLookupByLibrary.simpleMessage("닫기"),
@@ -373,6 +387,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_article":
             MessageLookupByLibrary.simpleMessage("아티클"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("채팅"),
+        "label_global_recommendation":
+            MessageLookupByLibrary.simpleMessage("글로벌 추천"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("댓글을 남겨주세요."),
         "label_input_input": MessageLookupByLibrary.simpleMessage("입력"),
@@ -387,6 +403,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_loading_ads_fail":
             MessageLookupByLibrary.simpleMessage("광고 로딩 실패"),
         "label_mission": MessageLookupByLibrary.simpleMessage("미션하기"),
+        "label_mission_get_star_candy":
+            MessageLookupByLibrary.simpleMessage("미션으로 별사탕 받기"),
+        "label_mission_short": MessageLookupByLibrary.simpleMessage("미션"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("아티스트 갤러리로 이동"),
         "label_mypage_charge_history":
@@ -489,6 +508,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("투표 모아보기"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("광고보기"),
+        "label_watch_ads_short": MessageLookupByLibrary.simpleMessage("광고"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("나의 아티스트"),
         "message_agreement_success":
             MessageLookupByLibrary.simpleMessage("약관 동의가 완료되었습니다."),

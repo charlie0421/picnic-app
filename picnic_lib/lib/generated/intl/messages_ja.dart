@@ -328,8 +328,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("画像が保存されました。"),
         "label_ads_exceeded":
             MessageLookupByLibrary.simpleMessage("IDごとに視聴可能な広告を使い切りました。"),
+        "label_ads_get_star_candy":
+            MessageLookupByLibrary.simpleMessage("広告を見て星飴をもらう"),
+        "label_ads_load_fail":
+            MessageLookupByLibrary.simpleMessage("広告の読み込みに失敗しました。もう一度お試しください。"),
+        "label_ads_load_timeout": MessageLookupByLibrary.simpleMessage(
+            "広告の読み込みがタイムアウトしました。もう一度お試しください。"),
         "label_ads_next_available_time":
             MessageLookupByLibrary.simpleMessage("次の広告視聴可能時間。"),
+        "label_ads_reward_fail":
+            MessageLookupByLibrary.simpleMessage("報酬の獲得に失敗しました。もう一度お試しください。"),
+        "label_ads_sdk_init_fail":
+            MessageLookupByLibrary.simpleMessage("SDK初期化に失敗しました。もう一度お試しください。"),
+        "label_ads_show_fail":
+            MessageLookupByLibrary.simpleMessage("広告の表示に失敗しました。もう一度お試しください。"),
         "label_agreement_privacy":
             MessageLookupByLibrary.simpleMessage("個人情報収集及び利用同意"),
         "label_agreement_terms":
@@ -337,6 +349,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_album_add": MessageLookupByLibrary.simpleMessage("新しいアルバムを追加"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("最初のコメントの主人公になりましょう！"),
+        "label_asia_recommendation":
+            MessageLookupByLibrary.simpleMessage("アジアおすすめ"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
         "label_button_agreement": MessageLookupByLibrary.simpleMessage("同意する"),
         "label_button_close": MessageLookupByLibrary.simpleMessage("閉じる"),
@@ -368,6 +382,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("その他のアーティストを探す"),
         "label_gallery_tab_article": MessageLookupByLibrary.simpleMessage("記事"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("チャット"),
+        "label_global_recommendation":
+            MessageLookupByLibrary.simpleMessage("グローバルおすすめ"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("コメントを残してください。"),
         "label_input_input": MessageLookupByLibrary.simpleMessage("入力"),
@@ -382,6 +398,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_loading_ads_fail":
             MessageLookupByLibrary.simpleMessage("広告の読み込みに失敗"),
         "label_mission": MessageLookupByLibrary.simpleMessage("ミッションをする"),
+        "label_mission_get_star_candy":
+            MessageLookupByLibrary.simpleMessage("ミッションで星飴をもらう"),
+        "label_mission_short": MessageLookupByLibrary.simpleMessage("ミッション"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("アーティストギャラリーへ"),
         "label_mypage_charge_history":
@@ -483,6 +502,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("投票集を見る"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("広告を見る"),
+        "label_watch_ads_short": MessageLookupByLibrary.simpleMessage("広告"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("私のアーティスト"),
         "message_agreement_success":
             MessageLookupByLibrary.simpleMessage("規約の同意が完了しました。"),
