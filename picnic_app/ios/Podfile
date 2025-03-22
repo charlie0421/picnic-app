@@ -4,6 +4,11 @@ platform :ios, '15.0'
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
+# 소스 저장소
+source 'https://github.com/CocoaPods/Specs.git'
+source 'https://github.com/bytedance/cocoapods_sdk_source_repo.git'
+source 'https://github.com/getsentry/sentry-cocoa.git' # Sentry 저장소 추가
+
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
@@ -24,33 +29,17 @@ def flutter_root
 end
 
 require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
-
 flutter_ios_podfile_setup
-
-# Pangle SDK 소스 저장소 추가
-source 'https://github.com/CocoaPods/Specs.git'
-source 'https://github.com/bytedance/cocoapods_sdk_source_repo.git'
 
 # 정적 라이브러리 검증 비활성화
 pre_install do |installer|
-  # 정적 프레임워크 종속성 검증 비활성화
   Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
-  
-  # 디버그 로그 활성화
-  installer.pod_targets.each do |pod|
-    if pod.name.include?('Ads-Global')
-      puts "설치 중인 pod 타겟: #{pod.name}"
-    end
-  end
 end
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
-
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  
-  # Pangle SDK 명시적으로 추가
   pod 'Ads-Global', '6.5.0.9'
 end
 
@@ -59,55 +48,16 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
-      # Flutter 모듈 경로 명시적으로 설정
-      config.build_settings['HEADER_SEARCH_PATHS'] ||= [
-        '$(inherited)',
-        "${PODS_ROOT}/Headers/Public",
-        "${PODS_ROOT}/Headers/Public/Flutter",
-        "${PODS_CONFIGURATION_BUILD_DIR}/Flutter-framework.framework/Headers",
-        "${PODS_ROOT}/../Flutter"
-      ]
-      
-      config.build_settings['FRAMEWORK_SEARCH_PATHS'] ||= [
-        '$(inherited)',
-        "${PODS_CONFIGURATION_BUILD_DIR}",
-        "${PODS_ROOT}/../Flutter",
-        "${PODS_XCFRAMEWORKS_BUILD_DIR}/Flutter"
-      ]
-      
-      # Flutter 3.0.0 이상에서는 이 설정이 필요합니다
-      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
-        '$(inherited)',
-        'PERMISSION_PHOTOS=1',
-        'PERMISSION_CAMERA=1',
-      ]
-      
-      # 빌드 설정에 정적 라이브러리 지원 추가
       config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-      
-      # Pangle SDK에 필요한 시스템 라이브러리 지원 - 개별 플래그로 설정
-      if target.name == 'Ads-Global' || target.name.include?('Runner')
-        # 기존 배열 방식 대신 각 플래그를 별도로 추가
-        config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -lz -lsqlite3 -lbz2 -lresolv -lc++ -lxml2 -ObjC'
-        
-        # 디버그 로깅 활성화
-        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] += ['DEBUG=1', 'DEBUG_PANGLE=1']
-        
-        puts "#{target.name} 타겟의 빌드 설정 구성: #{config.name}"
-        puts "OTHER_LDFLAGS: #{config.build_settings['OTHER_LDFLAGS']}"
-      end
-      
-      # 모든 타겟의 Bitcode 비활성화 (Pangle SDK와 호환성을 위해)
       config.build_settings['ENABLE_BITCODE'] = 'NO'
       config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
       
-      # 의존성 프레임워크 검색 경로 설정
-      config.build_settings['LD_RUNPATH_SEARCH_PATHS'] = [
-        '$(inherited)',
-        '/usr/lib/swift',
-        '@executable_path/Frameworks'
-      ]
+      if target.name == 'Ads-Global' || target.name.include?('Runner')
+        config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -lz -lsqlite3 -lbz2 -lresolv -lc++ -lxml2 -ObjC'
+      end
+      
+      config.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '/usr/lib/swift', '@executable_path/Frameworks']
     end
   end
 end
