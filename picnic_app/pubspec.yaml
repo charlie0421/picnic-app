@@ -25,7 +25,7 @@ dependencies:
     another_flutter_splash_screen: ^1.2.1
     device_info_plus: ^11.2.0
     firebase_core: ^3.9.0
-    sentry_flutter: ^8.13.2
+    sentry_flutter: 8.14.0
     reflectable: ^4.0.10
     firebase_analytics: ^11.3.6
     flutter_secure_storage: ^9.2.3
@@ -65,3 +65,4 @@ flutter:
         - assets/login/
         - assets/splash.webp
         - assets/app_icon_128.png
+        - shorebird.yaml

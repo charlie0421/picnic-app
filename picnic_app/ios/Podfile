@@ -41,6 +41,9 @@ target 'Runner' do
   use_modular_headers!
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   pod 'Ads-Global', '6.5.0.9'
+  pod 'Sentry', '8.46.0' # 명시적으로 버전 지정
+  pod 'Sentry/HybridSDK', '8.46.0' # 명시적으로 버전 지정
+
 end
 
 post_install do |installer|
