@@ -184,7 +184,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       child: ListView(
         children: [
           if (supabase.isLogged) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
@@ -202,22 +202,23 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
                   child: SvgPicture.asset(
                     package: 'picnic_lib',
                     'assets/icons/reset_style=line.svg',
-                    width: 30,
-                    height: 30,
+                    width: 24,
+                    height: 24,
                     colorFilter:
                         ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 8),
             StorePointInfo(
               title: Intl.message('label_star_candy_pouch'),
               width: double.infinity,
-              height: 90,
+              height: 80,
             ),
           ],
-          const SizedBox(height: 36),
+          const SizedBox(height: 12),
+          const Divider(color: AppColors.grey200, height: 32),
           _buildProductsList(),
           const Divider(color: AppColors.grey200, height: 32),
           Text(Intl.message('text_purchase_vat_included'),
@@ -309,7 +310,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       itemBuilder: (BuildContext context, int index) =>
           _buildProductItem(serverProducts[index], storeProducts),
       separatorBuilder: (BuildContext context, int index) =>
-          const Divider(color: AppColors.grey200, height: 32),
+          const Divider(color: AppColors.grey200, height: 24),
       itemCount: storeProducts.length,
     );
   }

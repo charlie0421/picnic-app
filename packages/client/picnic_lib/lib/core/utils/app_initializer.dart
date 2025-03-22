@@ -41,7 +41,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class AppInitializer {
@@ -126,20 +125,6 @@ class AppInitializer {
     } catch (e, s) {
       logger.e('Error initializing Pangle Ads', error: e, stackTrace: s);
     }
-  }
-
-  static Future<void> initializeUnityAds() async {
-    if (!isMobile()) return;
-    logger.i('Initializing Unity Ads...');
-    await UnityAds.init(
-      gameId: isIOS()
-          ? Environment.unityAppleGameId
-          : Environment.unityAndroidGameId,
-      testMode: true,
-      onComplete: () => logger.i('Unity Ads initialized'),
-      onFailed: (error, message) =>
-          logger.e('Unity Ads initialization failed: $error, $message'),
-    );
   }
 
   // static Future<void> initializeMetaAudienceNetwork() async {

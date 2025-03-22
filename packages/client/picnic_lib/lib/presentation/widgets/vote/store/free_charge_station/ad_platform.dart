@@ -1,0 +1,169 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/style.dart';
+
+/// 광고 플랫폼 추상 클래스
+abstract class AdPlatform {
+  final WidgetRef ref;
+  final BuildContext context;
+  final String id;
+  final AnimationController? animationController;
+
+  AdPlatform(this.ref, this.context, this.id, [this.animationController]);
+
+  Future<void> initialize();
+  Future<void> showAd();
+  Future<void> handleError(dynamic error, StackTrace? stackTrace);
+
+  // 공통 로직: 로딩 상태 설정
+  void setLoading(bool isLoading) {
+    if (!context.mounted) return;
+    ref.read(adLoadingStateProvider.notifier).setLoading(id, isLoading);
+  }
+
+  // 공통 로직: 로딩 UI 시작
+  void startLoading() {
+    if (!context.mounted) return;
+    setLoading(true);
+    OverlayLoadingProgress.start(context);
+  }
+
+  // 공통 로직: 로딩 UI 종료
+  void stopLoading() {
+    if (!context.mounted) return;
+    setLoading(false);
+    OverlayLoadingProgress.stop();
+  }
+
+  // 공통 로직: 버튼 애니메이션 시작
+  void startButtonAnimation() {
+    if (animationController == null) return;
+    animationController!.reset();
+    animationController!.forward(from: 0.0);
+  }
+
+  // 공통 로직: 버튼 애니메이션 중지
+  void stopButtonAnimation() {
+    logger.i('stopButtonAnimation');
+    if (animationController == null) return;
+    if (animationController!.isAnimating) {
+      animationController!.stop();
+    }
+  }
+
+  void stopAllAnimations() {
+    stopButtonAnimation();
+    stopLoading();
+  }
+
+  // 공통 로직: 로그인 확인
+  Future<bool> checkLogin() async {
+    final userState = ref.read(userInfoProvider);
+    if (userState.value == null) {
+      if (context.mounted) showRequireLoginDialog();
+      return false;
+    }
+    return true;
+  }
+
+  // 공통 로직: 광고 시청 제한 확인
+  Future<bool> checkAdsLimit() async {
+    try {
+      final response = await supabase.functions.invoke('check-ads-count');
+      if (!context.mounted) return false;
+
+      final allowed = response.data['allowed'] as bool?;
+      if (allowed != true) {
+        _handleExceededAdsLimit(response.data['nextAvailableTime']);
+        return false;
+      }
+      return true;
+    } catch (e, s) {
+      logger.e('Error in checkAdsLimit', error: e, stackTrace: s);
+      return false;
+    }
+  }
+
+  // 공통 로직: 광고 제한 초과 처리
+  void _handleExceededAdsLimit(String? nextAvailableTimeStr) {
+    if (nextAvailableTimeStr == null || !context.mounted) return;
+
+    final nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
+    final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+
+    showSimpleDialog(
+      contentWidget: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(S.of(context).label_ads_exceeded,
+              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 8),
+          Text(S.of(context).ads_available_time,
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+              textAlign: TextAlign.center),
+          Text(formatter.format(nextAvailableTime),
+              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+              textAlign: TextAlign.center),
+        ],
+      ),
+    );
+  }
+
+  // 공통 로직: 에러 다이얼로그 표시
+  void showErrorDialog(String message, {dynamic error}) {
+    if (!context.mounted) return;
+
+    String displayMessage = message;
+
+    // 예외 메시지가 있는 경우 함께 표시
+    if (error != null) {
+      final errorMsg = error.toString();
+      // 너무 길면 잘라서 표시
+      final truncatedError =
+          errorMsg.length > 150 ? '${errorMsg.substring(0, 150)}...' : errorMsg;
+      displayMessage = '$message\n\n$truncatedError';
+    }
+
+    showSimpleDialog(
+      contentWidget: Text(displayMessage,
+          style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
+    );
+  }
+
+  // 공통 로직: 프로필 새로고침
+  void refreshUserProfile() {
+    if (!context.mounted) return;
+    ref.read(userInfoProvider.notifier).getUserProfiles();
+  }
+
+  // 공통 로직: 전체 오류 처리 흐름
+  Future<void> safelyExecute(Future<void> Function() action) async {
+    if (!await checkLogin()) return;
+
+    try {
+      startLoading();
+
+      if (!await checkAdsLimit()) {
+        stopLoading();
+        stopButtonAnimation();
+        return;
+      }
+
+      await action();
+    } catch (e, s) {
+      stopButtonAnimation();
+      stopLoading();
+      await handleError(e, s);
+    } finally {}
+  }
+}

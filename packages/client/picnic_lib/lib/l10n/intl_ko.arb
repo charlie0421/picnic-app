@@ -604,10 +604,10 @@
   "@label_mypage_withdrawal": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-    "withdrawal_success": "탈퇴가 성공적으로 처리 되었습니다.",
-    "@withdrawal_success": {
-      "translationTimestamp": "2024-07-21T11:18:53.669108"
-    },
+  "withdrawal_success": "탈퇴가 성공적으로 처리 되었습니다.",
+  "@withdrawal_success": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
   "label_no_ads": "광고 없음",
   "@label_no_ads": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
@@ -818,11 +818,11 @@
   "@label_vote_vote_gather": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-    "label_watch_ads": "광고보기",
-    "@label_watch_ads": {
-        "translationTimestamp": "2024-07-21T11:18:53.669108"
-    },
-    "label_mission": "미션하기",
+  "label_watch_ads": "광고보기",
+  "@label_watch_ads": {
+    "translationTimestamp": "2024-07-21T11:18:53.669108"
+  },
+  "label_mission": "미션하기",
   "@label_mission": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
@@ -1303,5 +1303,49 @@
   "voting_share_benefit_text": "100개 이상 투표 후 공유하면 100개당 1개 보너스 별사탕 지급!",
   "@voting_share_benefit_text": {},
   "voting_limit_text": "급격한 트래픽 증가 방지를 위해 전체 사용은 한 번에 1만개 까지 가능합니다.",
-  "voting_limit_warning" : "최대 1만개 까지만 가능해요."
+  "voting_limit_warning": "최대 1만개 까지만 가능해요.",
+  "label_global_recommendation": "글로벌 추천",
+  "@label_global_recommendation": {
+    "manualTranslation": false
+  },
+  "label_asia_recommendation": "아시아 추천",
+  "@label_asia_recommendation": {
+    "manualTranslation": false
+  },
+  "label_mission_get_star_candy": "미션으로 별사탕 받기",
+  "@label_mission_get_star_candy": {
+    "manualTranslation": false
+  },
+  "label_ads_get_star_candy": "광고 보고 별사탕 받기",
+  "@label_ads_get_star_candy": {
+    "manualTranslation": false
+  },
+  "label_mission_short": "미션",
+  "@label_mission_short": {
+    "manualTranslation": false
+  },
+  "label_watch_ads_short": "광고",
+  "@label_watch_ads_short": {
+    "manualTranslation": false
+  },
+  "label_ads_reward_fail": "보상 획득에 실패했습니다. 다시 시도해주세요.",
+  "@label_ads_reward_fail": {
+    "manualTranslation": false
+  },
+  "label_ads_sdk_init_fail": "SDK 초기화에 실패했습니다. 다시 시도해주세요.",
+  "@label_ads_sdk_init_fail": {
+    "manualTranslation": false
+  },
+  "label_ads_load_timeout": "광고 로드 시간이 초과되었습니다. 다시 시도해주세요.",
+  "@label_ads_load_timeout": {
+    "manualTranslation": false
+  },
+  "label_ads_load_fail": "광고 로드에 실패했습니다. 다시 시도해주세요.",
+  "@label_ads_load_fail": {
+    "manualTranslation": false
+  },
+  "label_ads_show_fail": "광고 표시에 실패했습니다. 다시 시도해주세요.",
+  "@label_ads_show_fail": {
+    "manualTranslation": false
+  }
 }

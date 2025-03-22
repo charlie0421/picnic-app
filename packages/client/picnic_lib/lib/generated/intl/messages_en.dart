@@ -27,7 +27,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "What percentage is my shining chemistry compatibility with #${artist_name}} ? My heart is racing!";
 
   static String m2(artist_name) =>
-      "Curious about #${artist_name}’s 2025 fortune? Come to #피크닠 now! Let’s discover that shining destiny together!";
+      "Curious about #${artist_name}\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!";
 
   static String m3(year) => "Fortune of ${year}";
 
@@ -302,7 +302,7 @@ class MessageLookup extends MessageLookupByLibrary {
                 "I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account."),
         "fortune_advice": MessageLookupByLibrary.simpleMessage("Advice"),
         "fortune_button_title":
-            MessageLookupByLibrary.simpleMessage("My Artist’s Fortune teller"),
+            MessageLookupByLibrary.simpleMessage("My Artist\'s Fortune teller"),
         "fortune_career":
             MessageLookupByLibrary.simpleMessage("Business fortunes"),
         "fortune_health": MessageLookupByLibrary.simpleMessage("Health clouds"),
@@ -371,8 +371,20 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("The image has been saved."),
         "label_ads_exceeded": MessageLookupByLibrary.simpleMessage(
             "You have exhausted the ads available per ID."),
+        "label_ads_get_star_candy":
+            MessageLookupByLibrary.simpleMessage("Get Star Candy from Ads"),
+        "label_ads_load_fail": MessageLookupByLibrary.simpleMessage(
+            "Failed to load ad. Please try again."),
+        "label_ads_load_timeout": MessageLookupByLibrary.simpleMessage(
+            "Ad loading timed out. Please try again."),
         "label_ads_next_available_time": MessageLookupByLibrary.simpleMessage(
             "When the next ad will be available."),
+        "label_ads_reward_fail": MessageLookupByLibrary.simpleMessage(
+            "Failed to get reward. Please try again."),
+        "label_ads_sdk_init_fail": MessageLookupByLibrary.simpleMessage(
+            "SDK initialization failed. Please try again."),
+        "label_ads_show_fail": MessageLookupByLibrary.simpleMessage(
+            "Failed to show ad. Please try again."),
         "label_agreement_privacy": MessageLookupByLibrary.simpleMessage(
             "Consent to the collection and use of personal information"),
         "label_agreement_terms":
@@ -381,6 +393,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Add a new album"),
         "label_article_comment_empty":
             MessageLookupByLibrary.simpleMessage("Be the first to comment!"),
+        "label_asia_recommendation":
+            MessageLookupByLibrary.simpleMessage("Asia Pick"),
         "label_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
         "label_button_agreement":
             MessageLookupByLibrary.simpleMessage("Accept"),
@@ -416,6 +430,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_gallery_tab_article":
             MessageLookupByLibrary.simpleMessage("Articles"),
         "label_gallery_tab_chat": MessageLookupByLibrary.simpleMessage("Chat"),
+        "label_global_recommendation":
+            MessageLookupByLibrary.simpleMessage("Global Pick"),
         "label_hint_comment":
             MessageLookupByLibrary.simpleMessage("Leave a comment."),
         "label_input_input": MessageLookupByLibrary.simpleMessage("Input"),
@@ -431,6 +447,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_loading_ads_fail":
             MessageLookupByLibrary.simpleMessage("Ads fail to load"),
         "label_mission": MessageLookupByLibrary.simpleMessage("Mission"),
+        "label_mission_get_star_candy": MessageLookupByLibrary.simpleMessage(
+            "Get Star Candy from Missions"),
+        "label_mission_short": MessageLookupByLibrary.simpleMessage("Mission"),
         "label_moveto_celeb_gallery":
             MessageLookupByLibrary.simpleMessage("Go to the Artist Gallery"),
         "label_mypage_charge_history":
@@ -545,6 +564,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_vote_vote_gather":
             MessageLookupByLibrary.simpleMessage("Collecting votes"),
         "label_watch_ads": MessageLookupByLibrary.simpleMessage("View ads"),
+        "label_watch_ads_short": MessageLookupByLibrary.simpleMessage("Watch"),
         "lable_my_celeb": MessageLookupByLibrary.simpleMessage("My Artists"),
         "message_agreement_success": MessageLookupByLibrary.simpleMessage(
             "Acceptance of the terms is complete."),

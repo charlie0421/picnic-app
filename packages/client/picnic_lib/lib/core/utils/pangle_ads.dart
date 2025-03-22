@@ -4,7 +4,6 @@ import 'package:picnic_lib/core/utils/logger.dart';
 
 class PangleAds {
   static const _channel = MethodChannel('pangle_native_channel');
-  static String? _appId;
 
   // 이벤트 스트림 컨트롤러
   static final _adShownController = StreamController<void>.broadcast();
@@ -41,7 +40,6 @@ class PangleAds {
       );
 
       if (result ?? false) {
-        _appId = appId;
         logger.i('Pangle SDK initialized successfully');
 
         // 이벤트 수신 처리 설정
@@ -173,6 +171,7 @@ class PangleAds {
         logger.i('Rewarded ad loaded successfully');
       } else {
         logger.e('Failed to load rewarded ad');
+        throw Exception('Pangle 광고 로드 실패');
       }
 
       return result ?? false;

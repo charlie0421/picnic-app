@@ -21,7 +21,6 @@ import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/presentation/providers/ad_providers.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
@@ -31,11 +30,14 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:universal_io/io.dart';
-import 'package:flutter/services.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_types.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_content.dart';
 
-// pangleAdLoadingProvider 추가
-final pangleAdLoadingProvider = StateProvider<bool>((ref) => false);
-
+// 광고 플랫폼 추상 클래스
 class FreeChargeStation extends ConsumerStatefulWidget {
   const FreeChargeStation({super.key});
 
@@ -48,6 +50,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   late AnimationController _animationController;
   late Animation<double> _buttonScaleAnimation;
   late final AnimationController _rotationController;
+  late AdService _adService;
+  bool _isInitializing = false;
 
   @override
   void initState() {
@@ -57,6 +61,32 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _adService = AdService(
+      ref: ref,
+      context: context,
+      animationController: _animationController,
+    );
+
+    // 컨텍스트가 유효할 때 광고 플랫폼 초기화
+    if (!_isInitializing) {
+      _isInitializing = true;
+      _initializeAdPlatforms();
+    }
+  }
+
+  // 광고 플랫폼 초기화 메서드
+  Future<void> _initializeAdPlatforms() async {
+    try {
+      // 모든 광고 플랫폼 초기화
+      await _adService.initializeAllPlatforms();
+    } catch (e, s) {
+      logger.e('Error initializing ad platforms', error: e, stackTrace: s);
+    }
   }
 
   void _setupAnimation() {
@@ -71,127 +101,18 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
   @override
   void dispose() {
+    _adService.dispose();
     _animationController.dispose();
     super.dispose();
   }
 
-  void _showErrorDialog(String message) {
-    showSimpleDialog(
-      contentWidget: Text(message,
-          style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
-    );
-  }
-
-  Future<void> _showRewardedAdmob(int index) async {
-    final userState = ref.read(userInfoProvider);
-    if (userState.value == null) {
-      if (mounted) showRequireLoginDialog();
-      return;
-    }
-
-    try {
-      if (mounted) OverlayLoadingProgress.start(context);
-
-      final response = await supabase.functions.invoke('check-ads-count');
-      if (!mounted) return;
-      OverlayLoadingProgress.stop();
-
-      final allowed = response.data['allowed'] as bool?;
-      if (allowed != true) {
-        _handleExceededAdsLimit(response.data['nextAvailableTime']);
-        return;
-      }
-
-      if (!mounted) return;
-      ref
-          .read(rewardedAdsProvider.notifier)
-          .loadAd(index, showWhenLoaded: true, context: context);
-      _animateButton();
-    } catch (e, s) {
-      logger.e('Error in _showRewardedAdmob', error: e, stackTrace: s);
-      if (mounted) _showErrorDialog(Intl.message('label_loading_ads_fail'));
-    } finally {
-      if (mounted) OverlayLoadingProgress.stop();
-    }
-  }
-
-  void _handleExceededAdsLimit(String? nextAvailableTimeStr) {
-    if (nextAvailableTimeStr == null) return;
-
-    final nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
-    final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
-
-    showSimpleDialog(
-      contentWidget: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(S.of(context).label_ads_exceeded,
-              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 8),
-          Text(S.of(context).ads_available_time,
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-              textAlign: TextAlign.center),
-          Text(formatter.format(nextAvailableTime),
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-              textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
-
-  void _animateButton() {
-    _animationController.forward(from: 0.0);
-  }
-
-  Future<void> _showTapjoyMission() async {
-    final userState = ref.read(userInfoProvider);
-    if (userState.value == null) {
-      if (mounted) showRequireLoginDialog();
-      return;
-    }
-
-    try {
-      if (mounted) OverlayLoadingProgress.start(context);
-
-      Tapjoy.setUserID(
-          userId: supabase.auth.currentUser!.id,
-          onSetUserIDSuccess: () =>
-              logger.i('setUserID onSuccess: ${supabase.auth.currentUser!.id}'),
-          onSetUserIDFailure: (error) =>
-              logger.e('setUserID onFailure', error: error));
-
-      TJPlacement placement = await TJPlacement.getPlacement(
-        placementName: 'mission',
-        onRequestSuccess: (placement) async {
-          logger.i('onRequestSuccess');
-        },
-        onRequestFailure: (placement, error) {
-          logger.e('onRequestFailure', error: error);
-          if (mounted) OverlayLoadingProgress.stop();
-        },
-        onContentReady: (placement) {
-          logger.i('onContentReady');
-          placement.showContent();
-        },
-        onContentShow: (placement) {
-          logger.i('onContentShow');
-        },
-        onContentDismiss: (placement) {
-          logger.i('onContentDismiss');
-          if (mounted) OverlayLoadingProgress.stop();
-        },
-      );
-      placement.setEntryPoint(TJEntryPoint.entryPointStore);
-
-      await placement.requestContent();
-    } catch (e, s) {
-      logger.e('Error in _showTapjoyMission', error: e, stackTrace: s);
-      if (mounted) _showErrorDialog(Intl.message('label_loading_mission_fail'));
-    } finally {}
-  }
-
   Future<void> _showPincruxOfferwall() async {
+    final userState = ref.read(userInfoProvider);
+    if (userState.value == null) {
+      if (mounted) showRequireLoginDialog();
+      return;
+    }
+
     logger.i('showPincruxOfferwall');
     try {
       PincruxOfferwallPlugin.init(
@@ -206,134 +127,47 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     }
   }
 
-  Future<void> _showPangleMission() async {
-    final userState = ref.read(userInfoProvider);
-    if (userState.value == null) {
-      if (mounted) showRequireLoginDialog();
-      return;
-    }
+  // 미션 아이템 목록 생성
+  List<ChargeStationItem> _buildMissionItems(BuildContext context) {
+    return [
+      ChargeStationItem(
+        id: 'tapjoy',
+        title: '${S.of(context).label_global_recommendation} #1',
+        isMission: true,
+        platformType: AdPlatformType.tapjoy,
+        onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
+      ),
+      // 여기에 새로운 미션을 추가할 수 있습니다
+    ];
+  }
 
-    const channel = MethodChannel('pangle_native_channel');
-
-    if (mounted) {
-      ref.read(pangleAdLoadingProvider.notifier).state = true;
-      OverlayLoadingProgress.start(context);
-    }
-
-    // 이벤트 핸들러 설정
-    channel.setMethodCallHandler((call) async {
-      logger.i('Pangle 이벤트 수신: ${call.method}');
-      switch (call.method) {
-        case 'onAdShowed':
-          logger.i('Pangle 광고가 표시됨');
-          break;
-        case 'onAdClicked':
-          logger.i('Pangle 광고가 클릭됨');
-          break;
-        case 'onAdClosed':
-          logger.i('Pangle 광고가 닫힘');
-          if (mounted) {
-            ref.read(userInfoProvider.notifier).getUserProfiles();
-          }
-          break;
-        case 'onUserEarnedReward':
-          final rewardData = call.arguments as Map<String, dynamic>;
-          logger.i(
-              'Pangle 광고 보상 획득: ${rewardData['amount']} ${rewardData['name']}');
-          break;
-        case 'onUserEarnedRewardFail':
-          final errorData = call.arguments as Map<String, dynamic>;
-          logger.e('Pangle 광고 보상 획득 실패',
-              error:
-                  'code: ${errorData['code']}, message: ${errorData['message']}');
-          if (mounted) {
-            _showErrorDialog('보상 획득에 실패했습니다. 다시 시도해주세요.');
-          }
-          break;
-      }
-    });
-
-    PangleAds.setOnProfileRefreshNeeded(() {
-      // 여기서 프로필 갱신 API 호출
-      ref.read(userInfoProvider.notifier).getUserProfiles();
-    });
-
-    // 1단계: SDK 초기화
-    try {
-      final initResult = await PangleAds.initPangle(
-        isIOS() ? Environment.pangleIosAppId : Environment.pangleAndroidAppId,
-      );
-
-      if (initResult != true) {
-        throw Exception('Pangle SDK 초기화 실패');
-      }
-    } catch (e, s) {
-      logger.e('Error in Pangle SDK initialization', error: e, stackTrace: s);
-      if (mounted) {
-        OverlayLoadingProgress.stop();
-        ref.read(pangleAdLoadingProvider.notifier).state = false;
-        _showErrorDialog('SDK 초기화에 실패했습니다. 다시 시도해주세요.');
-      }
-      return;
-    }
-
-    Future.delayed(const Duration(seconds: 1));
-    // 2단계: 광고 로드
-    bool adLoadSuccess = false;
-    try {
-      final result = await Future.any([
-        PangleAds.loadRewardedAd(
-          isIOS()
-              ? Environment.pangleIosRewardedVideoId
-              : Environment.pangleAndroidRewardedVideoId,
-          supabase.auth.currentUser!.id,
-        ),
-        Future.delayed(
-          const Duration(seconds: 5),
-          () => throw TimeoutException('광고 로드 시간이 초과되었습니다.'),
-        ),
-      ]);
-
-      adLoadSuccess = result == true;
-    } catch (e, s) {
-      logger.e('Error in loading rewarded ad', error: e, stackTrace: s);
-      if (mounted) {
-        OverlayLoadingProgress.stop();
-        ref.read(pangleAdLoadingProvider.notifier).state = false;
-        _showErrorDialog(e is TimeoutException
-            ? '광고 로드 시간이 초과되었습니다. 다시 시도해주세요.'
-            : '광고 로드에 실패했습니다. 다시 시도해주세요.');
-      }
-      return;
-    }
-
-    if (!mounted) return;
-
-    // 3단계: 광고 표시
-    if (adLoadSuccess) {
-      try {
-        await PangleAds.showRewardedAd();
-      } catch (e, s) {
-        logger.e('Error in showing rewarded ad', error: e, stackTrace: s);
-        if (mounted) {
-          _showErrorDialog('광고 표시에 실패했습니다. 다시 시도해주세요.');
-        }
-      }
-    } else {
-      showSimpleDialog(
-        type: DialogType.error,
-        contentWidget: Text(
-          '광고 로드에 실패했습니다. 다시 시도해주세요.',
-          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-        ),
-      );
-    }
-
-    // 최종 상태 정리
-    if (mounted) {
-      OverlayLoadingProgress.stop();
-      ref.read(pangleAdLoadingProvider.notifier).state = false;
-    }
+  // 광고 아이템 목록 생성
+  List<ChargeStationItem> _buildAdItems(BuildContext context) {
+    return [
+      ChargeStationItem(
+        id: 'admob',
+        title: '${S.of(context).label_global_recommendation} #1',
+        isMission: false,
+        platformType: AdPlatformType.admob,
+        index: 0,
+        onPressed: () => _adService.getPlatform('admob')?.showAd(),
+      ),
+      ChargeStationItem(
+        id: 'unity_ads',
+        title: '${S.of(context).label_global_recommendation} #2',
+        isMission: false,
+        platformType: AdPlatformType.unityAds,
+        onPressed: () => _adService.getPlatform('unity_ads')?.showAd(),
+      ),
+      ChargeStationItem(
+        id: 'pangle',
+        title: '${S.of(context).label_asia_recommendation} #1',
+        isMission: false,
+        platformType: AdPlatformType.pangle,
+        onPressed: () => _adService.getPlatform('pangle')?.showAd(),
+      ),
+      // 여기에 새로운 광고를 추가할 수 있습니다
+    ];
   }
 
   @override
@@ -341,231 +175,10 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     return FreeChargeContent(
       buttonScaleAnimation: _buttonScaleAnimation,
       onPolicyTap: () => showUsagePolicyDialog(context, ref),
-      onAdButtonPressed: _showRewardedAdmob,
-      onTajoyPressed: _showTapjoyMission,
-      onPanglePressed: _showPangleMission,
+      missionItemBuilder: _buildMissionItems,
+      adItemBuilder: _buildAdItems,
       onPincruxOfferwallPressed: _showPincruxOfferwall,
       rotationController: _rotationController,
-    );
-  }
-}
-
-class FreeChargeContent extends ConsumerWidget {
-  final Animation<double> buttonScaleAnimation;
-  final VoidCallback onPolicyTap;
-  final Function(int) onAdButtonPressed;
-  final VoidCallback onTajoyPressed;
-  final VoidCallback onPanglePressed;
-  final VoidCallback onPincruxOfferwallPressed;
-  final VoidCallback? onRetryBannerAd;
-  final AnimationController rotationController;
-
-  const FreeChargeContent({
-    super.key,
-    required this.buttonScaleAnimation,
-    required this.onPolicyTap,
-    required this.onAdButtonPressed,
-    required this.onTajoyPressed,
-    required this.onPanglePressed,
-    required this.onPincruxOfferwallPressed,
-    required this.rotationController,
-    this.onRetryBannerAd,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final adState = ref.watch(rewardedAdsProvider);
-    final isLogged = supabase.isLogged;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: ListView(
-        children: [
-          if (isLogged) ...[
-            const SizedBox(height: 24),
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () {
-                  rotationController.forward(from: 0);
-                  ref.read(userInfoProvider.notifier).getUserProfiles();
-                },
-                child: RotationTransition(
-                  turns: Tween(begin: 0.0, end: 1.0).animate(
-                    CurvedAnimation(
-                      parent: rotationController,
-                      curve: Curves.easeInOut,
-                    ),
-                  ),
-                  child: SvgPicture.asset(
-                    package: 'picnic_lib',
-                    'assets/icons/reset_style=line.svg',
-                    width: 30,
-                    height: 30,
-                    colorFilter:
-                        ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            StorePointInfo(
-              title: S.of(context).label_star_candy_pouch,
-              width: double.infinity,
-              height: 90,
-            ),
-          ],
-          const SizedBox(height: 18),
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: BannerAdWidget(
-              configKey: 'FREE_CHARGE_STATION',
-              adSize: AdSize.fullBanner,
-            ),
-          ),
-          const SizedBox(height: 18),
-          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildMissionTapjoy(ref, context),
-          // const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          // _buildMissionPincrux(ref, context),
-          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildStoreListTileAdmob(context, 0, adState),
-          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildStoreListTileAdmob(context, 1, adState),
-          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildMissionPangle(ref, context),
-          const Divider(height: 32, thickness: 1, color: AppColors.grey200),
-          _buildPolicyGuide(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMissionTapjoy(ref, BuildContext context) {
-    return StoreListTile(
-      title: Text(
-        '${S.of(context).label_button_mission_and_charge} #1',
-        style: getTextStyle(AppTypo.body14B, AppColors.grey900)
-            .copyWith(height: 1),
-      ),
-      buttonOnPressed: onTajoyPressed,
-      icon: Image.asset(
-        package: 'picnic_lib',
-        'assets/icons/store/star_100.png',
-        width: 48.w,
-        height: 48.w,
-      ),
-      buttonText: S.of(context).label_mission,
-    );
-  }
-
-  Widget _buildMissionPangle(ref, BuildContext context) {
-    final pangleAdLoading = ref.watch(pangleAdLoadingProvider);
-
-    return StoreListTile(
-      title: Text(
-        '${S.of(context).label_button_watch_and_charge} #3',
-      ),
-      buttonText: pangleAdLoading
-          ? S.of(context).label_loading_ads
-          : S.of(context).label_mission,
-      buttonOnPressed: pangleAdLoading ? null : onPanglePressed,
-      isLoading: pangleAdLoading,
-      icon: Image.asset(
-        package: 'picnic_lib',
-        'assets/icons/store/star_100.png',
-      ),
-      subtitle: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: '+${S.of(context).label_bonus} 1',
-              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMissionPincrux(ref, BuildContext context) {
-    return StoreListTile(
-      title: Text(
-        '${S.of(context).label_button_mission_and_charge} #2',
-        style: getTextStyle(AppTypo.body14B, AppColors.grey900)
-            .copyWith(height: 1),
-      ),
-      buttonOnPressed: onPincruxOfferwallPressed,
-      icon: Image.asset(
-        package: 'picnic_lib',
-        'assets/icons/store/star_100.png',
-        width: 48.w,
-        height: 48.w,
-      ),
-      buttonText: S.of(context).label_mission,
-    );
-  }
-
-  Widget _buildStoreListTileAdmob(
-    BuildContext context,
-    int index,
-    AdState adState,
-  ) {
-    final adInfo = adState.ads[index];
-    final isLoading = adInfo.isLoading || adInfo.isShowing;
-    final adType = index == 0 ? '(AdMob)' : '(Unity Ads)';
-
-    return StoreListTile(
-      index: index,
-      icon: Image.asset(
-        package: 'picnic_lib',
-        'assets/icons/store/star_100.png',
-        width: 48.w,
-        height: 48.w,
-      ),
-      title: Text(
-        '${S.of(context).label_button_watch_and_charge} $adType',
-        style: getTextStyle(AppTypo.body14B, AppColors.grey900)
-            .copyWith(height: 1),
-      ),
-      subtitle: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: '+${S.of(context).label_bonus} 1',
-              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
-            ),
-          ],
-        ),
-      ),
-      buttonText: isLoading
-          ? S.of(context).label_loading_ads
-          : S.of(context).label_watch_ads,
-      buttonOnPressed: isLoading ? null : () => onAdButtonPressed(index),
-      isLoading: isLoading,
-      buttonScale: buttonScaleAnimation.value,
-    );
-  }
-
-  Widget _buildPolicyGuide() {
-    return GestureDetector(
-      onTap: onPolicyTap,
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: Intl.message('candy_usage_policy_guide'),
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-            ),
-            const TextSpan(text: ' '),
-            TextSpan(
-              text: Intl.message('candy_usage_policy_guide_button'),
-              style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
-                  .copyWith(decoration: TextDecoration.underline),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
