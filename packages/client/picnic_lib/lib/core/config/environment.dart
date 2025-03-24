@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 
 class Environment {
   static late Map<String, dynamic> _config;
@@ -14,127 +15,202 @@ class Environment {
 
   static String get currentEnvironment => _currentEnvironment;
 
-  static String get supabaseUrl => _config['SUPABASE_URL'] as String;
+  // 중첩된 설정값을 가져오는 헬퍼 메서드
+  static dynamic _getValue(List<String> path) {
+    dynamic current = _config;
+    for (final key in path) {
+      if (current is! Map<String, dynamic> || !current.containsKey(key)) {
+        throw Exception('설정 경로를 찾을 수 없습니다: ${path.join(".")}');
+      }
+      current = current[key];
+    }
+    return current;
+  }
 
-  static String get supabaseAnonKey => _config['SUPABASE_ANON_KEY'] as String;
-
+  // Supabase 관련 설정
+  static String get supabaseUrl => _getValue(['supabase', 'url']) as String;
+  static String get supabaseAnonKey =>
+      _getValue(['supabase', 'anon_key']) as String;
   static String get supabaseStorageUrl =>
-      _config['SUPABASE_STORAGE_URL'] as String;
-
+      _getValue(['supabase', 'storage', 'url']) as String;
   static String get supabaseStorageAnonKey =>
-      _config['SUPABASE_STORAGE_ANON_KEY'] as String;
+      _getValue(['supabase', 'storage', 'anon_key']) as String;
 
-  static String get appleClientId => _config['APPLE_CLIENT_ID'] as String;
-
-  static String get appleRedirectUri => _config['APPLE_REDIRECT_URI'] as String;
-
-  static String get googleClientId => _config['GOOGLE_CLIENT_ID'] as String;
-
+  // Auth 관련 설정
+  static String get appleClientId =>
+      _getValue(['auth', 'apple', 'client_id']) as String;
+  static String get appleRedirectUri =>
+      _getValue(['auth', 'apple', 'redirect_uri']) as String;
+  static String get googleClientId =>
+      _getValue(['auth', 'google', 'client_id']) as String;
   static String get googleServerClientId =>
-      _config['GOOGLE_SERVER_CLIENT_ID'] as String;
-
+      _getValue(['auth', 'google', 'server_client_id']) as String;
   static String get kakaoNativeAppKey =>
-      _config['KAKAO_NATIVE_APP_KEY'] as String;
-
+      _getValue(['auth', 'kakao', 'native_app_key']) as String;
   static String get kakaoJavascriptKey =>
-      _config['KAKAO_JAVASCRIPT_KEY'] as String;
+      _getValue(['auth', 'kakao', 'javascript_key']) as String;
 
-  static bool get enableSentry => _config['ENABLE_SENTRY'] as bool;
+  // Sentry 관련 설정
+  static bool get enableSentry => _getValue(['sentry', 'enable']) as bool;
+  static String get sentryAppDsn => _getValue(['sentry', 'app_dsn']) as String;
+  static String get sentryWebDsn => _getValue(['sentry', 'web_dsn']) as String;
+  static double get sentryTraceSampleRate =>
+      _getValue(['sentry', 'sample_rates', 'trace']) as double;
+  static double get sentryProfileSampleRate =>
+      _getValue(['sentry', 'sample_rates', 'profile']) as double;
+  static double get sentrySessionSampleRate =>
+      _getValue(['sentry', 'sample_rates', 'session']) as double;
+  static double get sentryErrorSampleRate =>
+      _getValue(['sentry', 'sample_rates', 'error']) as double;
 
-  static String get sentryAppDsn => _config['SENTRY_APP_DSN'] as String;
+  // Storage 관련 설정
+  static String get cdnUrl => _getValue(['storage', 'cdn_url']) as String;
+  static String get awsAccessKey =>
+      _getValue(['storage', 'aws', 'access_key_id']) as String;
+  static String get awsSecretKey =>
+      _getValue(['storage', 'aws', 'secret_access_key']) as String;
+  static String get awsRegion =>
+      _getValue(['storage', 'aws', 'region']) as String;
+  static String get awsBucket =>
+      _getValue(['storage', 'aws', 's3_bucket']) as String;
+  static String get awsS3Url =>
+      _getValue(['storage', 'aws', 's3_bucket_url']) as String;
 
-  static String get sentryWebDsn => _config['SENTRY_WEB_DSN'] as String;
+  // API 키 관련 설정
+  static String get youtubeApiKey =>
+      _getValue(['api_keys', 'youtube']) as String;
+  static String get deepLApiKey => _getValue(['api_keys', 'deepl']) as String;
+  static String get branchKey => _getValue(['api_keys', 'branch']) as String;
 
-  static String get cdnUrl => _config['CDN_URL'] as String;
+  // 앱 관련 설정
+  static String get webDomain => _getValue(['app', 'web_domain']) as String;
+  static String get downloadLink =>
+      _getValue(['app', 'download_link']) as String;
+  static String get appLinkPrefix =>
+      _getValue(['app', 'app_link_prefix']) as String;
+  static String get inappAppNamePrefix =>
+      _getValue(['app', 'inapp_appname_prefix']) as String;
 
-  static String get youtubeApiKey => _config['YOUTUBE_API_KEY'] as String;
+  // 테마 관련 설정
+  static Color get primaryColor =>
+      Color(int.parse(_getValue(['theme', 'colors', 'primary']) as String));
+  static Color get secondaryColor =>
+      Color(int.parse(_getValue(['theme', 'colors', 'secondary']) as String));
+  static Color get subColor =>
+      Color(int.parse(_getValue(['theme', 'colors', 'sub']) as String));
+  static Color get pointColor =>
+      Color(int.parse(_getValue(['theme', 'colors', 'point']) as String));
+  static Color get point900Color =>
+      Color(int.parse(_getValue(['theme', 'colors', 'point_900']) as String));
 
-  static String get awsAccessKey => _config['AWS_ACCESS_KEY_ID'] as String;
-
-  static String get awsSecretKey => _config['AWS_SECRET_ACCESS_KEY'] as String;
-
-  static String get awsRegion => _config['AWS_REGION'] as String;
-
-  static String get awsBucket => _config['AWS_S3_BUCKET'] as String;
-
-  static String get awsS3Url => _config['AWS_S3_BUCKET_URL'] as String;
+  // 광고 관련 설정
+  static String get tapjoyAndroidSdkKey =>
+      _getValue(['ads', 'tapjoy', 'android_sdk_key']) as String;
+  static String get tapjoyIosSdkKey =>
+      _getValue(['ads', 'tapjoy', 'ios_sdk_key']) as String;
 
   static String get unityAppleGameId =>
-      _config['UNITY_APPLE_GAME_ID'] as String;
-
+      _getValue(['ads', 'unity', 'apple_game_id']) as String;
   static String get unityAndroidGameId =>
-      _config['UNITY_GOOGLE_GAME_ID'] as String;
+      _getValue(['ads', 'unity', 'google_game_id']) as String;
 
-  static String get unityIosPlacementId =>
-      _config['UNITY_IOS_PLACEMENT_ID'] as String;
+  // Pincrux 관련 설정
+  static String? get pincruxAndroidAppKey {
+    try {
+      return _getValue(['ads', 'pincrux', 'android_app_key']) as String;
+    } catch (e) {
+      return null;
+    }
+  }
 
-  static String get unityAndroidPlacementId =>
-      _config['UNITY_ANDROID_PLACEMENT_ID'] as String;
+  static String? get pincruxIosAppKey {
+    try {
+      return _getValue(['ads', 'pincrux', 'ios_app_key']) as String;
+    } catch (e) {
+      return null;
+    }
+  }
 
-  static String get webDomain => _config['WEB_DOMAIN'] as String;
+  // 다음 값들은 prod 환경에만 있고 나머지 환경에는 없을 수 있으므로 예외 처리 추가
+  static String? get unityIosPlacementId {
+    try {
+      return _getValue(['ads', 'unity', 'ios_placement_id']) as String;
+    } catch (e) {
+      return null;
+    }
+  }
 
-  static String get deepLApiKey => _config['DEEPL_API_KEY'] as String;
+  static String? get unityAndroidPlacementId {
+    try {
+      return _getValue(['ads', 'unity', 'android_placement_id']) as String;
+    } catch (e) {
+      return null;
+    }
+  }
 
-  static double get sentryTraceSampleRate =>
-      _config['SENTRY_TRACE_SAMPLE_RATE'] as double;
+  // Pangle 관련 설정
+  static String? get pangleIosAppId {
+    try {
+      return _getValue(['ads', 'pangle', 'ios_app_id']) as String;
+    } catch (e) {
+      try {
+        return _getValue(['ads', 'pangle', 'app_id']) as String;
+      } catch (e) {
+        return null;
+      }
+    }
+  }
 
-  static double get sentryProfileSampleRate =>
-      _config['SENTRY_PROFILE_SAMPLE_RATE'] as double;
+  static String? get pangleAndroidAppId {
+    try {
+      return _getValue(['ads', 'pangle', 'android_app_id']) as String;
+    } catch (e) {
+      try {
+        return _getValue(['ads', 'pangle', 'app_id']) as String;
+      } catch (e) {
+        return null;
+      }
+    }
+  }
 
-  static double get sentrySessionSampleRate =>
-      _config['SENTRY_SESSION_SAMPLE_RATE'] as double;
+  static String? get pangleIosRewardedVideoId {
+    try {
+      return _getValue(['ads', 'pangle', 'ios_rewarded_video_id']) as String;
+    } catch (e) {
+      try {
+        return _getValue(['ads', 'pangle', 'rewarded_video_id']) as String;
+      } catch (e) {
+        return null;
+      }
+    }
+  }
 
-  static double get sentryErrorSampleRate =>
-      _config['SENTRY_ERROR_SAMPLE_RATE'] as double;
+  static String? get pangleAndroidRewardedVideoId {
+    try {
+      return _getValue(['ads', 'pangle', 'android_rewarded_video_id'])
+          as String;
+    } catch (e) {
+      try {
+        return _getValue(['ads', 'pangle', 'rewarded_video_id']) as String;
+      } catch (e) {
+        return null;
+      }
+    }
+  }
 
-  static Color get primaryColor =>
-      Color(int.parse(_config['PRIMARY_COLOR'] as String));
+  static String? get admobIosRewardedVideoId {
+    try {
+      return _getValue(['ads', 'admob', 'ios_rewarded_video_id']) as String;
+    } catch (e) {
+      return null;
+    }
+  }
 
-  static Color get secondaryColor =>
-      Color(int.parse(_config['SECONDARY_COLOR'] as String));
-
-  static Color get subColor => Color(int.parse(_config['SUB_COLOR'] as String));
-
-  static Color get pointColor =>
-      Color(int.parse(_config['POINT_COLOR'] as String));
-
-  static Color get point900Color =>
-      Color(int.parse(_config['POINT_900_COLOR'] as String));
-
-  static String get tapjoyAndroidSdkKey =>
-      _config['TAPJOY_ANDROID_SDK_KEY'] as String;
-
-  static String get tapjoyIosSdkKey => _config['TAPJOY_IOS_SDK_KEY'] as String;
-
-  static String get inappAppNamePrefix =>
-      _config['INAPP_APPNAME_PREFIX'] as String;
-
-  static String get downloadLink => _config['DOWNLOAD_LINK'] as String;
-
-  static String get branchKey => _config['BRANCH_KEY'] as String;
-
-  static String get appLinkPrefix => _config['APP_LINK_PREFIX'] as String;
-
-  static String get pincruxAndroidAppKey =>
-      _config['PINCRUX_ANDROID_APP_KEY'] as String;
-
-  static String get pincruxIosAppKey =>
-      _config['PINCRUX_IOS_APP_KEY'] as String;
-
-  static String get pangleIosAppId => _config['PANGLE_IOS_APP_ID'] as String;
-
-  static String get pangleAndroidAppId =>
-      _config['PANGLE_ANDROID_APP_ID'] as String;
-
-  static String get pangleIosRewardedVideoId =>
-      _config['PANGLE_IOS_REWARDED_VIDEO_ID'] as String;
-
-  static String get pangleAndroidRewardedVideoId =>
-      _config['PANGLE_ANDROID_REWARDED_VIDEO_ID'] as String;
-
-  static String get admobIosRewardedVideoId =>
-      _config['ADMOB_IOS_REWARDED_VIDEO_ID'] as String;
-
-  static String get admobAndroidRewardedVideoId =>
-      _config['ADMOB_ANDROID_REWARDED_VIDEO_ID'] as String;
+  static String? get admobAndroidRewardedVideoId {
+    try {
+      return _getValue(['ads', 'admob', 'android_rewarded_video_id']) as String;
+    } catch (e) {
+      return null;
+    }
+  }
 }

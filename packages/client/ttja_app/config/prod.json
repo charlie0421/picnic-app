@@ -1,44 +1,87 @@
 {
-  "SUPABASE_URL": "https://rocqgevonvtqxlwqbamm.supabase.co",
-  "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvY3FnZXZvbnZ0cXhsd3FiYW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwODA2MjMsImV4cCI6MjA1MTY1NjYyM30.edyOhw_NZUDqSSt3z8z60aX8gg28jbScRL2INiuvgjE",
-  "SUPABASE_STORAGE_URL": "https://api.picnic.fan",
-  "SUPABASE_STORAGE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVnenJ6YmRlZ3N3YWF5aGJuc3VzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNTkxOTc0NSwiZXhwIjoyMDUxNDk1NzQ1fQ.RpQrFYyWPYpnWoOjuf7ouXMmTV22yBeZmcuMi6Yol1c",
-  "APPLE_CLIENT_ID": "com.fasoo.TTJA",
-  "APPLE_REDIRECT_URI": "https://rocqgevonvtqxlwqbamm.supabase.co/auth/v1/callback",
-  "GOOGLE_CLIENT_ID": "922874925395-t3anf1iksojil5fc7lss9h4ahr1kgbkm.apps.googleusercontent.com",
-  "GOOGLE_SERVER_CLIENT_ID": "922874925395-4i0a0pb0t2g7i21jjfauro9ofgc00img.apps.googleusercontent.com",
-  "KAKAO_NATIVE_APP_KEY": "3193f86672e3d14b5603d422b32c93f2",
-  "KAKAO_JAVASCRIPT_KEY": "d16ff7e7206df8e234d9b81c8f450cc1",
-  "ENABLE_SENTRY": true,
-  "SENTRY_APP_DSN": "https://6f60c3c4856195131f497118679f9ab6@o4507695222685696.ingest.us.sentry.io/4508580846764032",
-  "SENTRY_WEB_DSN": "https://2a9000d01c4bdf373f83044c325539ff@o4507695222685696.ingest.us.sentry.io/4508580849319936",
-  "CDN_URL": "https://cdn.picnic.fan/ttja",
-  "YOUTUBE_API_KEY": "",
-  "AWS_ACCESS_KEY_ID": "AKIA4MTWN2EOHQLM2CVX",
-  "AWS_SECRET_ACCESS_KEY": "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",
-  "AWS_REGION": "ap-northeast-2",
-  "AWS_S3_BUCKET": "",
-  "AWS_S3_BUCKET_URL": "",
-  "UNITY_APPLE_GAME_ID": "",
-  "UNITY_GOOGLE_GAME_ID": "",
-  "WEB_DOMAIN": "",
-  "DEEPL_API_KEY": "ef2715c3-89d7-4b1b-a95b-e1fd3b7d734e:fx",
-  "SENTRY_TRACE_SAMPLE_RATE": 1.0,
-  "SENTRY_PROFILE_SAMPLE_RATE": 1.0,
-  "SENTRY_SESSION_SAMPLE_RATE": 1.0,
-  "SENTRY_ERROR_SAMPLE_RATE": 1.0,
-  "PRIMARY_COLOR": "0xFFFDAA63",
-  "SECONDARY_COLOR": "0xFFFF6666",
-  "SUB_COLOR": "0xFFCDFB5D",
-  "POINT_COLOR": "0xFFFFA9BD",
-  "POINT_900_COLOR": "0xFFEB4A71",
-  "TAPJOY_IOS_SDK_KEY": "f4ZszbYUT8emHG8iLlIeaQEBiDh28PpLhK0hoxBLuc5pE7-yOU45R3yf0muL",
-  "TAPJOY_ANDROID_SDK_KEY": "fsQBJ3MgTCiy7tvirTnPCQEC6ndkVbxkSpWzq0Koqyv7rMYC9qfa43NIdTlE",
-  "INAPP_APPNAME_PREFIX": "TTJA_",
-  "DOWNLOAD_LINK": "https://www.ttja.net/download.html",
-  "BRANCH_KEY": "key_live_cveOHIXaGzRcWLguNfY3LjgbxFoTfuE6",
-  "APP_LINK_PREFIX": "https://applink.ttja.net",
-  "PINCRUX_ANDROID_APP_KEY": "911884",
-  "PANGLE_APP_ID": "8615125",
-  "PANGLE_REWARDED_VIDEO_ID": "981881216"
+  "supabase": {
+    "url": "https://rocqgevonvtqxlwqbamm.supabase.co",
+    "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvY3FnZXZvbnZ0cXhsd3FiYW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwODA2MjMsImV4cCI6MjA1MTY1NjYyM30.edyOhw_NZUDqSSt3z8z60aX8gg28jbScRL2INiuvgjE",
+    "storage": {
+      "url": "https://api.picnic.fan",
+      "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVnenJ6YmRlZ3N3YWF5aGJuc3VzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNTkxOTc0NSwiZXhwIjoyMDUxNDk1NzQ1fQ.RpQrFYyWPYpnWoOjuf7ouXMmTV22yBeZmcuMi6Yol1c"
+    }
+  },
+  "auth": {
+    "apple": {
+      "client_id": "com.fasoo.TTJA",
+      "redirect_uri": "https://rocqgevonvtqxlwqbamm.supabase.co/auth/v1/callback"
+    },
+    "google": {
+      "client_id": "922874925395-t3anf1iksojil5fc7lss9h4ahr1kgbkm.apps.googleusercontent.com",
+      "server_client_id": "922874925395-4i0a0pb0t2g7i21jjfauro9ofgc00img.apps.googleusercontent.com"
+    },
+    "kakao": {
+      "native_app_key": "3193f86672e3d14b5603d422b32c93f2",
+      "javascript_key": "d16ff7e7206df8e234d9b81c8f450cc1"
+    }
+  },
+  "sentry": {
+    "enable": true,
+    "app_dsn": "https://6f60c3c4856195131f497118679f9ab6@o4507695222685696.ingest.us.sentry.io/4508580846764032",
+    "web_dsn": "https://2a9000d01c4bdf373f83044c325539ff@o4507695222685696.ingest.us.sentry.io/4508580849319936",
+    "sample_rates": {
+      "trace": 1.0,
+      "profile": 1.0,
+      "session": 1.0,
+      "error": 1.0
+    }
+  },
+  "storage": {
+    "cdn_url": "https://cdn.picnic.fan/ttja",
+    "aws": {
+      "access_key_id": "AKIA4MTWN2EOHQLM2CVX",
+      "secret_access_key": "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",
+      "region": "ap-northeast-2",
+      "s3_bucket": "",
+      "s3_bucket_url": ""
+    }
+  },
+  "api_keys": {
+    "youtube": "",
+    "deepl": "ef2715c3-89d7-4b1b-a95b-e1fd3b7d734e:fx",
+    "branch": "key_live_cveOHIXaGzRcWLguNfY3LjgbxFoTfuE6"
+  },
+  "app": {
+    "web_domain": "",
+    "download_link": "https://www.ttja.net/download.html",
+    "app_link_prefix": "https://applink.ttja.net",
+    "inapp_appname_prefix": "TTJA_"
+  },
+  "theme": {
+    "colors": {
+      "primary": "0xFFFDAA63",
+      "secondary": "0xFFFF6666",
+      "sub": "0xFFCDFB5D",
+      "point": "0xFFFFA9BD",
+      "point_900": "0xFFEB4A71"
+    }
+  },
+  "ads": {
+    "tapjoy": {
+      "ios_sdk_key": "f4ZszbYUT8emHG8iLlIeaQEBiDh28PpLhK0hoxBLuc5pE7-yOU45R3yf0muL",
+      "android_sdk_key": "fsQBJ3MgTCiy7tvirTnPCQEC6ndkVbxkSpWzq0Koqyv7rMYC9qfa43NIdTlE"
+    },
+    "unity": {
+      "apple_game_id": "",
+      "google_game_id": ""
+    },
+    "pincrux": {
+      "android_app_key": "911919",
+      "ios_app_key": "911920"
+    },
+    "pangle": {
+      "app_id": "8615125",
+      "rewarded_video_id": "981881216"
+    },
+    "admob": {
+      "ios_rewarded_video_id": "ca-app-pub-1539304887624918/4755709675",
+      "android_rewarded_video_id": "ca-app-pub-1539304887624918/7636453061"
+    }
+  }
 }
