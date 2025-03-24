@@ -502,7 +502,14 @@
   },
   "label_bonus": "Bonuses",
   "@label_bonus": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108",
+    "manualTranslation": false
+  },
+  "label_unlimited_rewards": "Unlimited rewards",
+  "@label_unlimited_rewards": {
+    "manualTranslation": false
+  },
+  "label_various_rewards": "Various rewards",
+  "@label_various_rewards": {
     "manualTranslation": false
   },
   "label_button_agreement": "Accept",

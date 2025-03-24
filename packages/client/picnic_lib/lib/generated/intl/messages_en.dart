@@ -549,6 +549,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_title_comment": MessageLookupByLibrary.simpleMessage("Comments"),
         "label_title_report":
             MessageLookupByLibrary.simpleMessage("Make a report"),
+        "label_unlimited_rewards":
+            MessageLookupByLibrary.simpleMessage("Unlimited rewards"),
+        "label_various_rewards":
+            MessageLookupByLibrary.simpleMessage("Various rewards"),
         "label_vote_end":
             MessageLookupByLibrary.simpleMessage("Close the poll"),
         "label_vote_reward_list":

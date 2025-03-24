@@ -491,6 +491,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_time_ago_right_now": MessageLookupByLibrary.simpleMessage("先ほど"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("コメント"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("報告する"),
+        "label_unlimited_rewards":
+            MessageLookupByLibrary.simpleMessage("無制限の報酬"),
+        "label_various_rewards": MessageLookupByLibrary.simpleMessage("様々な報酬"),
         "label_vote_end": MessageLookupByLibrary.simpleMessage("投票終了"),
         "label_vote_reward_list":
             MessageLookupByLibrary.simpleMessage("リワードリスト"),
