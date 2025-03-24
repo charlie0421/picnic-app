@@ -508,6 +508,10 @@
   "@label_unlimited_rewards": {
     "manualTranslation": false
   },
+  "label_korean_recommendation": "Korean Pick",
+  "@label_korean_recommendation": {
+    "manualTranslation": false
+  },
   "label_various_rewards": "Various rewards",
   "@label_various_rewards": {
     "manualTranslation": false

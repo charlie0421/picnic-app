@@ -1765,5 +1765,9 @@
   "label_ads_show_fail": "広告の表示に失敗しました。もう一度お試しください。",
   "@label_ads_show_fail": {
     "manualTranslation": false
+  },
+  "label_korean_recommendation": "韓国のおすすめ",
+  "@label_korean_recommendation": {
+    "manualTranslation": false
   }
 }

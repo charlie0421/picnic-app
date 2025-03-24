@@ -1240,6 +1240,16 @@ class S {
     );
   }
 
+  /// `Korean Pick`
+  String get label_korean_recommendation {
+    return Intl.message(
+      'Korean Pick',
+      name: 'label_korean_recommendation',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Various rewards`
   String get label_various_rewards {
     return Intl.message(

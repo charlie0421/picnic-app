@@ -1762,6 +1762,10 @@
   "@label_unlimited_rewards": {
     "manualTranslation": false
   },
+  "label_korean_recommendation": "韩国推荐",
+  "@label_korean_recommendation": {
+    "manualTranslation": false
+  },
   "label_various_rewards": "多样奖励",
   "@label_various_rewards": {
     "manualTranslation": false
