@@ -130,43 +130,53 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   // 미션 아이템 목록 생성
   List<ChargeStationItem> _buildMissionItems(BuildContext context) {
     return [
-      ChargeStationItem(
-        id: 'tapjoy',
-        title: '${S.of(context).label_global_recommendation} #1',
-        isMission: true,
-        platformType: AdPlatformType.tapjoy,
-        onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
-      ),
-      // 여기에 새로운 미션을 추가할 수 있습니다
+      if (_adService.isPlatformAvailable('tapjoy'))
+        ChargeStationItem(
+          id: 'tapjoy',
+          title: '${S.of(context).label_global_recommendation} #1',
+          isMission: true,
+          platformType: AdPlatformType.tapjoy,
+          onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
+        ),
+      if (_adService.isPlatformAvailable('pincrux'))
+        ChargeStationItem(
+          id: 'pincrux',
+          title: '${S.of(context).label_global_recommendation} #2',
+          isMission: true,
+          platformType: AdPlatformType.pincrux,
+          onPressed: () => _adService.getPlatform('pincrux')?.showAd(),
+        ),
     ];
   }
 
   // 광고 아이템 목록 생성
   List<ChargeStationItem> _buildAdItems(BuildContext context) {
     return [
-      ChargeStationItem(
-        id: 'admob',
-        title: '${S.of(context).label_global_recommendation} #1',
-        isMission: false,
-        platformType: AdPlatformType.admob,
-        index: 0,
-        onPressed: () => _adService.getPlatform('admob')?.showAd(),
-      ),
-      ChargeStationItem(
-        id: 'unity_ads',
-        title: '${S.of(context).label_global_recommendation} #2',
-        isMission: false,
-        platformType: AdPlatformType.unityAds,
-        onPressed: () => _adService.getPlatform('unity_ads')?.showAd(),
-      ),
-      ChargeStationItem(
-        id: 'pangle',
-        title: '${S.of(context).label_asia_recommendation} #1',
-        isMission: false,
-        platformType: AdPlatformType.pangle,
-        onPressed: () => _adService.getPlatform('pangle')?.showAd(),
-      ),
-      // 여기에 새로운 광고를 추가할 수 있습니다
+      if (_adService.isPlatformAvailable('admob'))
+        ChargeStationItem(
+          id: 'admob',
+          title: '${S.of(context).label_global_recommendation} #1',
+          isMission: false,
+          platformType: AdPlatformType.admob,
+          index: 0,
+          onPressed: () => _adService.getPlatform('admob')?.showAd(),
+        ),
+      if (_adService.isPlatformAvailable('unity_ads'))
+        ChargeStationItem(
+          id: 'unity_ads',
+          title: '${S.of(context).label_global_recommendation} #2',
+          isMission: false,
+          platformType: AdPlatformType.unityAds,
+          onPressed: () => _adService.getPlatform('unity_ads')?.showAd(),
+        ),
+      if (_adService.isPlatformAvailable('pangle'))
+        ChargeStationItem(
+          id: 'pangle',
+          title: '${S.of(context).label_asia_recommendation} #1',
+          isMission: false,
+          platformType: AdPlatformType.pangle,
+          onPressed: () => _adService.getPlatform('pangle')?.showAd(),
+        ),
     ];
   }
 
