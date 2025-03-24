@@ -516,6 +516,14 @@
   "@label_bonus": {
     "manualTranslation": false
   },
+  "label_unlimited_rewards": "無制限の報酬",
+  "@label_unlimited_rewards": {
+    "manualTranslation": false
+  },
+  "label_various_rewards": "様々な報酬",
+  "@label_various_rewards": {
+    "manualTranslation": false
+  },
   "label_button_agreement": "同意する",
   "@label_button_agreement": {
     "manualTranslation": false

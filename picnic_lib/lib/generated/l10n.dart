@@ -1230,6 +1230,26 @@ class S {
     );
   }
 
+  /// `Unlimited rewards`
+  String get label_unlimited_rewards {
+    return Intl.message(
+      'Unlimited rewards',
+      name: 'label_unlimited_rewards',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Various rewards`
+  String get label_various_rewards {
+    return Intl.message(
+      'Various rewards',
+      name: 'label_various_rewards',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Accept`
   String get label_button_agreement {
     return Intl.message(

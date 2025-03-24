@@ -438,7 +438,15 @@
   },
   "label_bonus": "보너스",
   "@label_bonus": {
-    "translationTimestamp": "2024-07-21T11:18:53.669108"
+    "manualTranslation": false
+  },
+  "label_unlimited_rewards": "무제한 보상",
+  "@label_unlimited_rewards": {
+    "manualTranslation": false
+  },
+  "label_various_rewards": "다양한 보상",
+  "@label_various_rewards": {
+    "manualTranslation": false
   },
   "label_button_agreement": "동의",
   "@label_button_agreement": {

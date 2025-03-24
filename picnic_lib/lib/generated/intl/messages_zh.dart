@@ -466,6 +466,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("就在刚才"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("评论"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("提交报告"),
+        "label_unlimited_rewards": MessageLookupByLibrary.simpleMessage("无限奖励"),
+        "label_various_rewards": MessageLookupByLibrary.simpleMessage("多样奖励"),
         "label_vote_end": MessageLookupByLibrary.simpleMessage("投票结束"),
         "label_vote_reward_list": MessageLookupByLibrary.simpleMessage("奖励清单"),
         "label_vote_screen_title": MessageLookupByLibrary.simpleMessage("投票"),

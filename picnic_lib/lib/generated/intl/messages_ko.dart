@@ -497,6 +497,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("방금 전"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("댓글"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("신고하기"),
+        "label_unlimited_rewards":
+            MessageLookupByLibrary.simpleMessage("무제한 보상"),
+        "label_various_rewards": MessageLookupByLibrary.simpleMessage("다양한 보상"),
         "label_vote_end": MessageLookupByLibrary.simpleMessage("투표 종료"),
         "label_vote_reward_list":
             MessageLookupByLibrary.simpleMessage("리워드 리스트"),

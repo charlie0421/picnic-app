@@ -129,55 +129,84 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
   // 미션 아이템 목록 생성
   List<ChargeStationItem> _buildMissionItems(BuildContext context) {
-    return [
-      if (_adService.isPlatformAvailable('tapjoy'))
-        ChargeStationItem(
-          id: 'tapjoy',
-          title: '${S.of(context).label_global_recommendation} #1',
-          isMission: true,
-          platformType: AdPlatformType.tapjoy,
-          onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
-        ),
-      if (_adService.isPlatformAvailable('pincrux'))
-        ChargeStationItem(
-          id: 'pincrux',
-          title: '${S.of(context).label_global_recommendation} #2',
-          isMission: true,
-          platformType: AdPlatformType.pincrux,
-          onPressed: () => _adService.getPlatform('pincrux')?.showAd(),
-        ),
-    ];
+    var globalIndex = 0;
+    final items = <ChargeStationItem>[];
+
+    if (_adService.isPlatformAvailable('tapjoy')) {
+      items.add(ChargeStationItem(
+        id: 'tapjoy',
+        title:
+            '${S.of(context).label_global_recommendation} #${globalIndex + 1}',
+        isMission: true,
+        platformType: AdPlatformType.tapjoy,
+        onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
+        bonusText: S.of(context).label_unlimited_rewards,
+      ));
+      globalIndex++;
+    }
+
+    if (_adService.isPlatformAvailable('pincrux')) {
+      items.add(ChargeStationItem(
+        id: 'pincrux',
+        title:
+            '${S.of(context).label_global_recommendation} #${globalIndex + 1}',
+        isMission: true,
+        platformType: AdPlatformType.pincrux,
+        onPressed: () => _adService.getPlatform('pincrux')?.showAd(),
+        bonusText: S.of(context).label_unlimited_rewards,
+      ));
+      globalIndex++;
+    }
+
+    return items;
   }
 
   // 광고 아이템 목록 생성
   List<ChargeStationItem> _buildAdItems(BuildContext context) {
-    return [
-      if (_adService.isPlatformAvailable('admob'))
-        ChargeStationItem(
-          id: 'admob',
-          title: '${S.of(context).label_global_recommendation} #1',
-          isMission: false,
-          platformType: AdPlatformType.admob,
-          index: 0,
-          onPressed: () => _adService.getPlatform('admob')?.showAd(),
-        ),
-      if (_adService.isPlatformAvailable('unity_ads'))
-        ChargeStationItem(
-          id: 'unity_ads',
-          title: '${S.of(context).label_global_recommendation} #2',
-          isMission: false,
-          platformType: AdPlatformType.unityAds,
-          onPressed: () => _adService.getPlatform('unity_ads')?.showAd(),
-        ),
-      if (_adService.isPlatformAvailable('pangle'))
-        ChargeStationItem(
-          id: 'pangle',
-          title: '${S.of(context).label_asia_recommendation} #1',
-          isMission: false,
-          platformType: AdPlatformType.pangle,
-          onPressed: () => _adService.getPlatform('pangle')?.showAd(),
-        ),
-    ];
+    var globalIndex = 0;
+    var asiaIndex = 0;
+    final items = <ChargeStationItem>[];
+
+    if (_adService.isPlatformAvailable('admob')) {
+      items.add(ChargeStationItem(
+        id: 'admob',
+        title:
+            '${S.of(context).label_global_recommendation} #${globalIndex + 1}',
+        isMission: false,
+        platformType: AdPlatformType.admob,
+        index: 0,
+        onPressed: () => _adService.getPlatform('admob')?.showAd(),
+        bonusText: '1',
+      ));
+      globalIndex++;
+    }
+
+    if (_adService.isPlatformAvailable('unity_ads')) {
+      items.add(ChargeStationItem(
+        id: 'unity_ads',
+        title:
+            '${S.of(context).label_global_recommendation} #${globalIndex + 1}',
+        isMission: false,
+        platformType: AdPlatformType.unityAds,
+        onPressed: () => _adService.getPlatform('unity_ads')?.showAd(),
+        bonusText: '1',
+      ));
+      globalIndex++;
+    }
+
+    if (_adService.isPlatformAvailable('pangle')) {
+      items.add(ChargeStationItem(
+        id: 'pangle',
+        title: '${S.of(context).label_asia_recommendation} #${asiaIndex + 1}',
+        isMission: false,
+        platformType: AdPlatformType.pangle,
+        onPressed: () => _adService.getPlatform('pangle')?.showAd(),
+        bonusText: '1',
+      ));
+      asiaIndex++;
+    }
+
+    return items;
   }
 
   @override

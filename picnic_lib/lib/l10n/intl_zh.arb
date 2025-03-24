@@ -1757,5 +1757,13 @@
   "label_ads_show_fail": "广告显示失败。请重试。",
   "@label_ads_show_fail": {
     "manualTranslation": false
+  },
+  "label_unlimited_rewards": "无限奖励",
+  "@label_unlimited_rewards": {
+    "manualTranslation": false
+  },
+  "label_various_rewards": "多样奖励",
+  "@label_various_rewards": {
+    "manualTranslation": false
   }
 }
