@@ -7,18 +7,38 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 console.log('Callback Tapjoy 함수가 시작되었습니다.');
-
 function getNextMonth15thAt9AM() {
-    const now = new Date();
-    const nextMonth = now.getMonth() + 1;
-    const nextMonth15th = new Date(now.getFullYear(), nextMonth, 15, 9, 0, 0);
-    const year = nextMonth15th.getFullYear();
-    const month = String(nextMonth15th.getMonth() + 1).padStart(2, '0');
-    const day = String(nextMonth15th.getDate()).padStart(2, '0');
-    const hours = String(nextMonth15th.getHours()).padStart(2, '0');
-    const minutes = String(nextMonth15th.getMinutes()).padStart(2, '0');
-    const seconds = String(nextMonth15th.getSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  const now = new Date();
+  const nextMonth = now.getMonth() + 1;
+  const nextMonth15th = new Date(now.getFullYear(), nextMonth, 15, 9, 0, 0);
+  const year = nextMonth15th.getFullYear();
+  const month = String(nextMonth15th.getMonth() + 1).padStart(2, '0');
+  const day = String(nextMonth15th.getDate()).padStart(2, '0');
+  const hours = String(nextMonth15th.getHours()).padStart(2, '0');
+  const minutes = String(nextMonth15th.getMinutes()).padStart(2, '0');
+  const seconds = String(nextMonth15th.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+async function insertTransaction(id, snuid, currency, verifier, platform) {
+  console.log('Tapjoy 거래 정보 저장');
+
+  // transaction_tapjoy 테이블에 거래 정보 저장
+  const { data, error } = await supabase.from('transaction_tapjoy').insert({
+    transaction_id: id,
+    user_id: snuid,
+    reward_amount: currency,
+    verifier: verifier,
+    platform: platform,
+    created_at: new Date().toISOString(),
+  });
+
+  if (error) {
+    console.error('Tapjoy 거래 정보 저장 실패:', error);
+    throw error;
+  }
+
+  return data;
 }
 
 Deno.serve(async (req) => {
@@ -95,56 +115,62 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { data, error } = await supabase
-      .from('star_candy_bonus_history')
-      .insert({
-        user_id: snuid,
-        amount: currency,
-        type: 'MISSION',
+    // 트랜잭션 시작
+    const { data: userData, error: userError } = await supabase.rpc(
+      'begin_transaction',
+    );
+
+    try {
+      // Star Candy 보너스 히스토리 추가
+      const { data, error } = await supabase
+        .from('star_candy_bonus_history')
+        .insert({
+          user_id: snuid,
+          amount: currency,
+          type: 'MISSION',
           remain_amount: currency,
           expired_dt: getNextMonth15thAt9AM(),
-      })
-      .eq('user_id', snuid);
+          transaction_id: id,
+        });
 
-    const { data: currentUser, error: fetchError } = await supabase
-      .from('user_profiles')
-      .select('star_candy_bonus')
-      .eq('id', snuid)
-      .single();
+      if (error) throw error;
 
-    console.log(currentUser);
+      // 사용자 프로필 정보 조회
+      const { data: currentUser, error: fetchError } = await supabase
+        .from('user_profiles')
+        .select('star_candy_bonus')
+        .eq('id', snuid)
+        .single();
 
-    if (fetchError) throw fetchError;
+      console.log(currentUser);
 
-    const { data: userData, error: userError } = await supabase
-      .from('user_profiles')
-      .update({
-        star_candy_bonus: (currentUser?.star_candy_bonus || 0) + currency,
-      })
-      .eq('id', snuid)
-      .select();
+      if (fetchError) throw fetchError;
 
-    console.log(userData);
+      // 사용자 스타 캔디 보너스 업데이트
+      const { data: updatedUser, error: userError } = await supabase
+        .from('user_profiles')
+        .update({
+          star_candy_bonus: (currentUser?.star_candy_bonus || 0) + currency,
+        })
+        .eq('id', snuid)
+        .select();
 
-    if (userError) {
-      console.error('Error:', userError);
-      return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      if (userError) throw userError;
+
+      // Tapjoy 거래 정보 저장
+      await insertTransaction(id, snuid, currency, verifier, platform);
+
+      // 트랜잭션 커밋
+      await supabase.rpc('commit_transaction');
+
+      return new Response(JSON.stringify({ success: true }), {
         headers: { 'Content-Type': 'application/json' },
-        status: 500,
       });
+    } catch (error) {
+      // 오류 발생 시 롤백
+      await supabase.rpc('rollback_transaction');
+      throw error;
     }
-
-    if (error) {
-      console.error('Error:', error);
-      return new Response(JSON.stringify({ error: 'Internal server error' }), {
-        headers: { 'Content-Type': 'application/json' },
-        status: 500,
-      });
-    }
-
-    return new Response(JSON.stringify(data), {
-      headers: { 'Content-Type': 'application/json' },
-    });
   } catch (error) {
     console.error('Error:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
