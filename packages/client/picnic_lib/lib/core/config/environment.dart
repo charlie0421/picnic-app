@@ -104,14 +104,14 @@ class Environment {
       Color(int.parse(_getValue(['theme', 'colors', 'point_900']) as String));
 
   // 광고 관련 설정
-  static String get tapjoyAndroidSdkKey =>
+  static String? get tapjoyAndroidSdkKey =>
       _getValue(['ads', 'tapjoy', 'android_sdk_key']) as String;
-  static String get tapjoyIosSdkKey =>
+  static String? get tapjoyIosSdkKey =>
       _getValue(['ads', 'tapjoy', 'ios_sdk_key']) as String;
 
-  static String get unityAppleGameId =>
+  static String? get unityAppleGameId =>
       _getValue(['ads', 'unity', 'apple_game_id']) as String;
-  static String get unityAndroidGameId =>
+  static String? get unityAndroidGameId =>
       _getValue(['ads', 'unity', 'google_game_id']) as String;
 
   // Pincrux 관련 설정

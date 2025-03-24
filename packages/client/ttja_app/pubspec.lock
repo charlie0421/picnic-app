@@ -1961,6 +1961,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  shorebird_code_push:
+    dependency: transitive
+    description:
+      name: shorebird_code_push
+      sha256: "2a5667265c400e6e842b840b45fc2dd6eb8820d4429030f734b859108818d65f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   sign_in_with_apple:
     dependency: transitive
     description:
@@ -2206,6 +2214,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  unity_ads_plugin:
+    dependency: transitive
+    description:
+      name: unity_ads_plugin
+      sha256: "85621dbec3202d472f1bd762fee68605d31596890606ff9b29f96975666e403a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.23"
   universal_html:
     dependency: transitive
     description:

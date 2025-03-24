@@ -21,7 +21,6 @@ class UnityAdsPlatform extends AdPlatform {
 
   @override
   Future<void> initialize() async {
-    // 이미 초기화 중이거나 완료된 경우
     if (_isInitializing || _isInitialized) {
       if (_isInitialized) {
         logger.i('Unity Ads 이미 초기화됨');
@@ -39,6 +38,10 @@ class UnityAdsPlatform extends AdPlatform {
     final placementId = isIOS()
         ? Environment.unityIosPlacementId
         : Environment.unityAndroidPlacementId;
+
+    if (gameId == null || placementId == null) {
+      return;
+    }
 
     logger.i('Unity Ads 초기화 시작');
     logger.i('Unity Ads 게임 ID: $gameId (${isIOS() ? "iOS" : "Android"})');

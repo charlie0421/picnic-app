@@ -116,6 +116,9 @@ class AppInitializer {
   // }
 
   static Future<void> initializeTapjoy() async {
+    if (isIOS() && Environment.tapjoyIosSdkKey == null) return;
+    if (isAndroid() && Environment.tapjoyAndroidSdkKey == null) return;
+
     if (!isMobile()) return;
 
     logger.i('Initializing Tapjoy...');
@@ -123,8 +126,8 @@ class AppInitializer {
     await Tapjoy.setDebugEnabled(true);
     await Tapjoy.connect(
       sdkKey: isIOS()
-          ? Environment.tapjoyIosSdkKey
-          : Environment.tapjoyAndroidSdkKey,
+          ? Environment.tapjoyIosSdkKey!
+          : Environment.tapjoyAndroidSdkKey!,
       options: optionFlags,
       onConnectSuccess: _onTapjoyConnectSuccess,
       onConnectFailure: _onTapjoyConnectFailure,
