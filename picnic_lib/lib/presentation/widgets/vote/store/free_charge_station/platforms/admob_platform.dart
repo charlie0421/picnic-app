@@ -36,11 +36,16 @@ class AdmobPlatform extends AdPlatform {
   }
 
   Future<void> _initAdUnitId() async {
+    if (Environment.admobIosRewardedVideoId == null ||
+        Environment.admobAndroidRewardedVideoId == null) {
+      return;
+    }
+
     try {
       // ConfigService를 사용할 수 없는 경우 테스트 ID를 사용
       _adUnitId = isIOS()
-          ? Environment.admobIosRewardedVideoId
-          : Environment.admobAndroidRewardedVideoId;
+          ? Environment.admobIosRewardedVideoId!
+          : Environment.admobAndroidRewardedVideoId!;
 
       logger.i('AdMob ID 초기화: $_adUnitId');
     } catch (e, s) {

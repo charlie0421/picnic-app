@@ -117,7 +117,7 @@ class UnityAdsPlatform extends AdPlatform {
       }
 
       // 배치 ID 확인
-      if (placementId.isEmpty) {
+      if (placementId!.isEmpty) {
         logger.e('Unity Ads 배치 ID가 비어 있습니다');
         if (context.mounted) {
           showErrorDialog(

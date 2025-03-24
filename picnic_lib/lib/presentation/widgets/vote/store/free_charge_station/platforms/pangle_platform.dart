@@ -19,8 +19,13 @@ class PanglePlatform extends AdPlatform {
   @override
   Future<void> initialize() async {
     try {
+      if (Environment.pangleIosAppId == null ||
+          Environment.pangleAndroidAppId == null) {
+        return;
+      }
+
       final initResult = await PangleAds.initPangle(
-        isIOS() ? Environment.pangleIosAppId : Environment.pangleAndroidAppId,
+        isIOS() ? Environment.pangleIosAppId! : Environment.pangleAndroidAppId!,
       );
 
       if (initResult != true) {
@@ -83,11 +88,16 @@ class PanglePlatform extends AdPlatform {
 
   Future<bool> _loadPangleAd() async {
     try {
+      if (Environment.pangleIosRewardedVideoId == null ||
+          Environment.pangleAndroidRewardedVideoId == null) {
+        return false;
+      }
+
       final result = await Future.any([
         PangleAds.loadRewardedAd(
           isIOS()
-              ? Environment.pangleIosRewardedVideoId
-              : Environment.pangleAndroidRewardedVideoId,
+              ? Environment.pangleIosRewardedVideoId!
+              : Environment.pangleAndroidRewardedVideoId!,
           supabase.auth.currentUser!.id,
         ),
         Future.delayed(

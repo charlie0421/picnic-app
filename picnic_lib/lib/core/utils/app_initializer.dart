@@ -109,24 +109,6 @@ class AppInitializer {
     });
   }
 
-  static Future<void> initializePangle() async {
-    if (!isMobile()) return;
-
-    try {
-      logger.i('Initializing Pangle Ads...');
-      final appId =
-          isIOS() ? Environment.pangleIosAppId : Environment.pangleAndroidAppId;
-      final success = await PangleAds.initPangle(appId);
-      if (success) {
-        logger.i('Pangle Ads initialized successfully');
-      } else {
-        logger.e('Pangle Ads initialization failed');
-      }
-    } catch (e, s) {
-      logger.e('Error initializing Pangle Ads', error: e, stackTrace: s);
-    }
-  }
-
   // static Future<void> initializeMetaAudienceNetwork() async {
   //   if (!isMobile()) return;
   //   logger.i('Initializing Meta Audience Network...');
