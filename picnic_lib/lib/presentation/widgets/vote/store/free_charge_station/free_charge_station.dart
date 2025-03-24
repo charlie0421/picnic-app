@@ -130,6 +130,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   // 미션 아이템 목록 생성
   List<ChargeStationItem> _buildMissionItems(BuildContext context) {
     var globalIndex = 0;
+    var koreaIndex = 0;
     final items = <ChargeStationItem>[];
 
     if (_adService.isPlatformAvailable('tapjoy')) {
@@ -149,7 +150,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       items.add(ChargeStationItem(
         id: 'pincrux',
         title:
-            '${S.of(context).label_global_recommendation} #${globalIndex + 1}',
+            '${S.of(context).label_korean_recommendation} #${koreaIndex + 1}',
         isMission: true,
         platformType: AdPlatformType.pincrux,
         onPressed: () => _adService.getPlatform('pincrux')?.showAd(),
@@ -165,6 +166,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   List<ChargeStationItem> _buildAdItems(BuildContext context) {
     var globalIndex = 0;
     var asiaIndex = 0;
+    var koreaIndex = 0;
     final items = <ChargeStationItem>[];
 
     if (_adService.isPlatformAvailable('admob')) {
