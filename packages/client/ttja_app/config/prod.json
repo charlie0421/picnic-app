@@ -68,8 +68,10 @@
       "android_sdk_key": "fsQBJ3MgTCiy7tvirTnPCQEC6ndkVbxkSpWzq0Koqyv7rMYC9qfa43NIdTlE"
     },
     "unity": {
-      "apple_game_id": "",
-      "google_game_id": ""
+      "apple_game_id": "5820627",
+      "google_game_id": "5820626",
+      "ios_placement_id": "Rewarded_iOS",
+      "android_placement_id": "Rewarded_Android"
     },
     "pincrux": {
       "android_app_key": "911919",
