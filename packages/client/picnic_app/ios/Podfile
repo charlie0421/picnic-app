@@ -34,12 +34,8 @@ flutter_ios_podfile_setup
 
 target 'Runner' do
   use_frameworks!
-  use_modular_headers!
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   pod 'Ads-Global', '6.5.0.9'
-  pod 'Sentry', '8.46.0' # 명시적으로 버전 지정
-  pod 'Sentry/HybridSDK', '8.46.0' # 명시적으로 버전 지정
-
 end
 
 post_install do |installer|
@@ -47,11 +43,13 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
-      if target.name == 'Ads-Global' || target.name.include?('Runner')
-        config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -lz -lsqlite3 -lbz2 -lresolv -lc++ -lxml2 -ObjC'
-      end
+      config.build_settings['FRAMEWORK_SEARCH_PATHS'] = ['$(inherited)', '$(PROJECT_DIR)/Frameworks']
+      config.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks']
+      config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -ObjC'
       
-      config.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '/usr/lib/swift', '@executable_path/Frameworks']
+      # if target.name == 'Ads-Global' || target.name.include?('Runner')
+      #   config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -lz -lsqlite3 -lbz2 -lresolv -lc++ -lxml2 -ObjC'
+      # end
     end
   end
 end
