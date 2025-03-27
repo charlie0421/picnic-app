@@ -112,9 +112,13 @@ repositories {
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'com.tapjoy:tapjoy-android-sdk:14.2.1'
-    
+
+    // Pincrux Offerwall
+    implementation files('libs/pincrux_offerwall.aar')
+
     // Pangle SDK
     implementation 'com.pangle.global:ads-sdk:6.5.0.5'
     implementation 'com.pangle.global:crash_monitor:1.3.8-rc.1'
