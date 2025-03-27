@@ -18,10 +18,11 @@
 		C8328E1195361F730B70AEC9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2A6D182D2D57ED5035F0D45E /* GoogleService-Info.plist */; };
 		E103A5D52D9521CC00AF5F40 /* PincruxOfferwallManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E103A5D42D9521CC00AF5F40 /* PincruxOfferwallManager.swift */; };
 		E185CAB52D94F3730026357C /* PangleAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E185CAB42D94F3730026357C /* PangleAdManager.swift */; };
-		E18C19272D95238500E26359 /* PincruxOfferwall.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */; };
 		E1B64F6F2C2CA13F009CE725 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F6A2C2CA13F009CE725 /* LaunchScreen.storyboard */; };
 		E1B64F702C2CA13F009CE725 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F6C2C2CA13F009CE725 /* Main.storyboard */; };
 		E1B64F7B2C2CAA51009CE725 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F792C2CAA51009CE725 /* InfoPlist.strings */; };
+		E1F5FA1F2D958EA0006749C8 /* PincruxOfferwall.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */; };
+		E1F5FA202D958EA0006749C8 /* PincruxOfferwall.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,20 @@
 			remoteInfo = Runner;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E1F5FA212D958EA0006749C8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E1F5FA202D958EA0006749C8 /* PincruxOfferwall.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
@@ -79,7 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E18C19272D95238500E26359 /* PincruxOfferwall.xcframework in Frameworks */,
+				E1F5FA1F2D958EA0006749C8 /* PincruxOfferwall.xcframework in Frameworks */,
 				3E62992CA49F38054F978E1E /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -207,6 +222,7 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
+				E1F5FA212D958EA0006749C8 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				83BE1EB125134082C7361F6A /* FlutterFire: "flutterfire upload-crashlytics-symbols" */,
 				DF28890A0DD6ABE88602CF25 /* [CP] Embed Pods Frameworks */,
@@ -302,7 +318,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\n";
 		};
 		698078DA15F6A879CE72342A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
