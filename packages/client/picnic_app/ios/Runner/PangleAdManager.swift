@@ -8,6 +8,14 @@ class PangleAdManager: NSObject {
     private var channel: FlutterMethodChannel?
 
     init(channel: FlutterMethodChannel) {
+        // Pangle SDK 환경 진단 정보
+        print("==== Pangle SDK 진단 정보 ====")
+        print("iOS 버전: \(UIDevice.current.systemVersion)")
+        print("앱 번들 ID: \(Bundle.main.bundleIdentifier ?? "알 수 없음")")
+        print("기기 모델: \(UIDevice.current.model)")
+        print("화면 크기: \(UIScreen.main.bounds)")
+        print("============================")
+
         super.init()
         self.channel = channel
     }

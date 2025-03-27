@@ -16,7 +16,9 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		C8328E1195361F730B70AEC9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2A6D182D2D57ED5035F0D45E /* GoogleService-Info.plist */; };
+		E103A5D52D9521CC00AF5F40 /* PincruxOfferwallManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E103A5D42D9521CC00AF5F40 /* PincruxOfferwallManager.swift */; };
 		E185CAB52D94F3730026357C /* PangleAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E185CAB42D94F3730026357C /* PangleAdManager.swift */; };
+		E18C19272D95238500E26359 /* PincruxOfferwall.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */; };
 		E1B64F6F2C2CA13F009CE725 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F6A2C2CA13F009CE725 /* LaunchScreen.storyboard */; };
 		E1B64F702C2CA13F009CE725 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F6C2C2CA13F009CE725 /* Main.storyboard */; };
 		E1B64F7B2C2CAA51009CE725 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F792C2CAA51009CE725 /* InfoPlist.strings */; };
@@ -31,19 +33,6 @@
 			remoteInfo = Runner;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		E185CAAC2D94E5850026357C /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
@@ -64,7 +53,8 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E185CAAD2D94E5AB0026357C /* PincruxOfferwall.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = PincruxOfferwall.xcframework; sourceTree = "<group>"; };
+		E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = PincruxOfferwall.xcframework; sourceTree = "<group>"; };
+		E103A5D42D9521CC00AF5F40 /* PincruxOfferwallManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PincruxOfferwallManager.swift; sourceTree = "<group>"; };
 		E185CAB42D94F3730026357C /* PangleAdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PangleAdManager.swift; sourceTree = "<group>"; };
 		E1B64F692C2CA13F009CE725 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E1B64F6B2C2CA13F009CE725 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
@@ -89,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E18C19272D95238500E26359 /* PincruxOfferwall.xcframework in Frameworks */,
 				3E62992CA49F38054F978E1E /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,6 +142,7 @@
 			isa = PBXGroup;
 			children = (
 				E185CAB42D94F3730026357C /* PangleAdManager.swift */,
+				E103A5D42D9521CC00AF5F40 /* PincruxOfferwallManager.swift */,
 				E1B64F7E2C2E5321009CE725 /* Runner.entitlements */,
 				E1B64F6D2C2CA13F009CE725 /* Base.lproj */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
@@ -169,7 +161,7 @@
 		E185CAAE2D94E5AB0026357C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E185CAAD2D94E5AB0026357C /* PincruxOfferwall.xcframework */,
+				E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */,
 				EE2DF617533ACC54C5717DDC /* Pods_Runner.framework */,
 			);
 			path = Frameworks;
@@ -217,7 +209,6 @@
 				97C146EC1CF9000F007C117D /* Resources */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				83BE1EB125134082C7361F6A /* FlutterFire: "flutterfire upload-crashlytics-symbols" */,
-				E185CAAC2D94E5850026357C /* Embed Frameworks */,
 				DF28890A0DD6ABE88602CF25 /* [CP] Embed Pods Frameworks */,
 				9EB199B2FAD83CC96FF9A5F7 /* [CP] Copy Pods Resources */,
 			);
@@ -419,6 +410,7 @@
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				E103A5D52D9521CC00AF5F40 /* PincruxOfferwallManager.swift in Sources */,
 				E185CAB52D94F3730026357C /* PangleAdManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -743,6 +735,90 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 24SL34R9HR;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/AppAuth\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/BranchSDK\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/DKImagePickerController\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/DKPhotoGallery\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCore\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCoreExtension\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCoreInternal\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCrashlytics\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInstallations\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseRemoteConfigInterop\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseSessions\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GTMAppAuth\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GTMSessionFetcher\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Google-Mobile-Ads-SDK\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleDataTransport\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleSignIn\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/GoogleUtilities\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/OrderedSet\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/PromisesObjC\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/PromisesSwift\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/SDWebImage\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ScreenProtectorKit\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Sentry\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/SwiftyGif\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/TOCropViewController\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/app_links\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/app_tracking_transparency\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/camera_avfoundation\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/connectivity_plus\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/device_info_plus\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/file_picker\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/firebase_analytics\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/firebase_core\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/firebase_crashlytics\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/flutter_branch_sdk\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/flutter_inappwebview_ios\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/flutter_keyboard_visibility\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/flutter_keyboard_visibility_temp_fork\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/flutter_native_splash\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/flutter_secure_storage\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/google_mobile_ads\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/google_sign_in_ios\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/image_cropper\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/image_gallery_saver_plus\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/image_picker_ios\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/in_app_purchase_storekit\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/kakao_flutter_sdk_common\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/keyboard_height_plugin\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/nanopb\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/network_info_plus\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/package_info_plus\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/path_provider_foundation\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/permission_handler_apple\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/photo_manager\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/quill_native_bridge_ios\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/screen_protector\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/sentry_flutter\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/share_plus\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/shared_preferences_foundation\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/sign_in_with_apple\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/sqflite_darwin\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/tapjoy_offerwall\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/unity_ads_plugin\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/url_launcher_ios\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/webview_flutter_wkwebview\"",
+					"\"${PODS_ROOT}/Ads-Global/SDK\"",
+					"\"${PODS_ROOT}/FirebaseAnalytics/Frameworks\"",
+					"\"${PODS_ROOT}/Google-Mobile-Ads-SDK/Frameworks/GoogleMobileAdsFramework\"",
+					"\"${PODS_ROOT}/GoogleAppMeasurement/Frameworks\"",
+					"\"${PODS_ROOT}/GoogleUserMessagingPlatform/Frameworks/Release\"",
+					"\"${PODS_ROOT}/TapjoySDK/TapjoySDK_iOS_v14.2.1/Libraries/Static\"",
+					"\"${PODS_ROOT}/UnityAds\"",
+					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/Ads-Global/BUAdSDK\"",
+					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/FirebaseAnalytics/AdIdSupport\"",
+					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/Google-Mobile-Ads-SDK\"",
+					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleAppMeasurement/AdIdSupport\"",
+					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleAppMeasurement/WithoutAdIdSupport\"",
+					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleUserMessagingPlatform\"",
+					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/TapjoySDK/Static\"",
+					"\"${PODS_XCFRAMEWORKS_BUILD_DIR}/UnityAds\"",
+					"$(PROJECT_DIR)/Frameworks",
+				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
