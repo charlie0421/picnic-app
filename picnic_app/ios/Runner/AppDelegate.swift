@@ -1,22 +1,17 @@
 import Flutter
 import PAGAdSDK
+import PincruxOfferwall
 import UIKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
     private var pangleAdManager: PangleAdManager?
+    private var pincruxOfferwallManager: PincruxOfferwallManager?
 
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        // Pangle SDK 환경 진단 정보
-        print("==== Pangle SDK 진단 정보 ====")
-        print("iOS 버전: \(UIDevice.current.systemVersion)")
-        print("앱 번들 ID: \(Bundle.main.bundleIdentifier ?? "알 수 없음")")
-        print("기기 모델: \(UIDevice.current.model)")
-        print("화면 크기: \(UIScreen.main.bounds)")
-        print("============================")
 
         let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
 
@@ -31,6 +26,19 @@ import UIKit
         // Pangle 채널 메소드 핸들러 설정
         pangleChannel.setMethodCallHandler { [weak self] call, result in
             self?.pangleAdManager?.handleMethodCall(call, result: result)
+        }
+
+        // Pincrux 채널 생성 및 저장
+        let pincruxChannel = FlutterMethodChannel(
+            name: "com.pincrux.offerwall.flutter",
+            binaryMessenger: controller.binaryMessenger)
+
+        // Pincrux 오퍼월 매니저 초기화
+        pincruxOfferwallManager = PincruxOfferwallManager(channel: pincruxChannel)
+
+        // Pincrux 채널 메소드 핸들러 설정
+        pincruxChannel.setMethodCallHandler { [weak self] call, result in
+            self?.pincruxOfferwallManager?.handleMethodCall(call, result: result)
         }
 
         GeneratedPluginRegistrant.register(with: self)
