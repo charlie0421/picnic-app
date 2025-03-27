@@ -16,6 +16,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		C8328E1195361F730B70AEC9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2A6D182D2D57ED5035F0D45E /* GoogleService-Info.plist */; };
+		E185CAB52D94F3730026357C /* PangleAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E185CAB42D94F3730026357C /* PangleAdManager.swift */; };
 		E1B64F6F2C2CA13F009CE725 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F6A2C2CA13F009CE725 /* LaunchScreen.storyboard */; };
 		E1B64F702C2CA13F009CE725 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F6C2C2CA13F009CE725 /* Main.storyboard */; };
 		E1B64F7B2C2CAA51009CE725 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F792C2CAA51009CE725 /* InfoPlist.strings */; };
@@ -64,6 +65,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E185CAAD2D94E5AB0026357C /* PincruxOfferwall.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = PincruxOfferwall.xcframework; sourceTree = "<group>"; };
+		E185CAB42D94F3730026357C /* PangleAdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PangleAdManager.swift; sourceTree = "<group>"; };
 		E1B64F692C2CA13F009CE725 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E1B64F6B2C2CA13F009CE725 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
 		E1B64F772C2CA38A009CE725 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				E185CAB42D94F3730026357C /* PangleAdManager.swift */,
 				E1B64F7E2C2E5321009CE725 /* Runner.entitlements */,
 				E1B64F6D2C2CA13F009CE725 /* Base.lproj */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
@@ -416,6 +419,7 @@
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				E185CAB52D94F3730026357C /* PangleAdManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
