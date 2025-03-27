@@ -39,8 +39,12 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         GeneratedPluginRegistrant.registerWith(flutterEngine)
+        
         // Pangle 네이티브 핸들러 등록
         flutterEngine.plugins.add(PangleNativeHandler())
+        
+        // Pincrux 플러그인 등록
+        flutterEngine.plugins.add(PincruxPlugin())
     }
 
     // 문제가 있는 MediaTek 기기 감지
