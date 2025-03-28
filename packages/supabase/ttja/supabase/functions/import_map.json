@@ -1,7 +1,0 @@
-{
-  "imports": {
-    "http/server": "https://deno.land/std@0.140.0/http/server.ts",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
-    "jsonwebtoken": "https://esm.sh/jsonwebtoken@8.5.1"
-  }
-}

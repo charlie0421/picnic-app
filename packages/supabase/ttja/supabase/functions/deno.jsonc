@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "allowJs": true,
-    "strict": true
-  },
-  "importMap": "import_map.json"
-}
