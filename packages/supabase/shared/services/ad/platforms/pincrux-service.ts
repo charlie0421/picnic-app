@@ -2,38 +2,19 @@ import {
   BaseAdService,
   PincruxAdCallbackResponse,
 } from '../base-ad-service.ts';
-import { AdParameters } from '../interfaces/ad-parameters.ts';
-import { createHmac } from 'node:crypto';
+import { PincruxParameters } from '../interfaces/ad-parameters.ts';
 
 export class PincruxService extends BaseAdService {
   constructor(secretKey: string) {
     super(secretKey);
   }
 
-  validateParameters(params: AdParameters): boolean {
-    const {
-      user_id,
-      reward_amount,
-      reward_type,
-      transaction_id,
-      app_key,
-      pub_key,
-      app_title,
-      menu_category,
-    } = params;
-    return !!(
-      user_id &&
-      reward_amount &&
-      reward_type &&
-      transaction_id &&
-      app_key &&
-      pub_key &&
-      app_title &&
-      menu_category
-    );
+  validateParameters(params: PincruxParameters): boolean {
+    const { usrKey, coin, transid, appkey, pubkey, app_title } = params;
+    return !!(usrKey && coin && transid && appkey && pubkey && app_title);
   }
 
-  extractParameters(url: URL): AdParameters {
+  extractParameters(url: URL): PincruxParameters {
     const params = url.searchParams;
     const appkey = params.get('appkey') || '';
     const pubkey = parseInt(params.get('pubkey') || '0', 10);
@@ -41,62 +22,54 @@ export class PincruxService extends BaseAdService {
     const app_title = params.get('app_title') || '';
     const coin = params.get('coin') || '0';
     const transid = params.get('transid') || '';
-    const signature = params.get('signature') || '';
+    const resign_flag = params.get('resign_flag') || '';
+    const commission = params.get('commission') || '';
+    const menu_category1 = params.get('menu_category1') || '';
 
     return {
-      user_id: usrkey,
-      reward_amount: parseInt(coin, 10),
-      reward_type: 'free_charge_station',
-      transaction_id: transid,
-      signature,
-      platform: 'pincrux',
-      ad_network: 'pincrux',
-      app_key: appkey,
-      pub_key: pubkey,
+      usrKey: usrkey,
+      coin: coin,
+      transid,
+      appkey: appkey,
+      pubkey: pubkey,
       app_title,
-      menu_category: params.get('menu_category1') || '',
+      menu_category1,
+      resign_flag,
+      commission,
     };
   }
 
-  async verify(
-    params: AdParameters,
-  ): Promise<{ isValid: boolean; error?: string }> {
+  async verify(params: PincruxParameters): Promise<any> {
     try {
       // 1. 기본 파라미터 검증
       if (!this.validateParameters(params)) {
         return {
           isValid: false,
+          code: '01',
           error: '필수 파라미터가 누락되었습니다.',
         };
       }
 
       // 2. 사용자 존재 여부 확인
-      const userExists = await this.checkUserExists(params.user_id);
+      const userExists = await this.checkUserExists(params.usrKey);
       if (!userExists) {
         return {
           isValid: false,
+          code: '05',
           error: '존재하지 않는 사용자입니다.',
         };
       }
 
       // 3. 중복 트랜잭션 확인
       const isDuplicate = await this.checkExistingTransaction(
-        params.transaction_id,
+        params.transid,
         'transaction_pincrux',
       );
       if (isDuplicate) {
         return {
           isValid: false,
+          code: '11',
           error: '이미 처리된 트랜잭션입니다.',
-        };
-      }
-
-      // 4. 서명 검증
-      const isValidSignature = this.verifySignature(params);
-      if (!isValidSignature) {
-        return {
-          isValid: false,
-          error: '서명이 유효하지 않습니다.',
         };
       }
 
@@ -105,6 +78,7 @@ export class PincruxService extends BaseAdService {
       console.error('Error verifying Pincrux parameters:', error);
       return {
         isValid: false,
+        code: '99',
         error:
           error instanceof Error
             ? error.message
@@ -113,83 +87,75 @@ export class PincruxService extends BaseAdService {
     }
   }
 
-  async processTransaction(params: AdParameters): Promise<void> {
-    await this.updateUserReward(params.user_id, params.reward_amount);
+  async processTransaction(params: PincruxParameters): Promise<void> {
+    await this.updateUserReward(params.usrKey, parseInt(params.coin, 10));
     await this.addRewardHistory(
-      params.user_id,
-      params.reward_amount,
-      params.transaction_id,
+      params.usrKey,
+      parseInt(params.coin, 10),
+      params.transid,
     );
 
     const { error } = await this.supabase.from('transaction_pincrux').insert({
-      transaction_id: params.transaction_id,
-      reward_type: params.reward_type,
-      reward_amount: params.reward_amount,
-      app_key: params.app_key,
-      pub_key: params.pub_key,
+      transaction_id: params.transid,
+      app_key: params.appkey,
+      pub_key: params.pubkey,
       app_title: params.app_title,
-      menu_category: params.menu_category,
-      user_id: params.user_id,
+      menu_category1: params.menu_category1,
+      usr_key: params.usrKey,
+      reward_amount: parseInt(params.coin, 10),
+      reward_type: 'pincrux',
+      commission: parseInt(params.commission, 10),
     });
 
     if (error) throw error;
   }
 
-  private verifySignature(params: AdParameters): boolean {
-    const signatureData = [
-      params.app_key,
-      params.pub_key,
-      params.user_id,
-      params.transaction_id,
-      params.reward_amount.toString(),
-      this.secretKey,
-    ].join('|');
-
-    const hmac = createHmac('sha256', this.secretKey);
-    hmac.update(signatureData);
-    const calculatedSignature = hmac.digest('hex');
-
-    return calculatedSignature === params.signature;
-  }
-
-  getPincruxResponseCode(error?: Error): string {
-    if (!error) return '00';
-
-    const errorMessage = error.message.toLowerCase();
-    if (errorMessage.includes('파라미터')) return '01';
-    if (errorMessage.includes('서명')) return '02';
-    if (errorMessage.includes('사용자')) return '05';
-    if (errorMessage.includes('이미 처리된')) return '11';
-    return '99';
-  }
-
   getResponseCode(error?: Error): string {
-    return this.getPincruxResponseCode(error);
+    if (!error) return '200';
+    return '500';
   }
 
   async handleCallback(
-    params: AdParameters,
+    params: PincruxParameters,
   ): Promise<PincruxAdCallbackResponse> {
     try {
+      console.log('Pincrux 콜백 처리 시작');
       // 1. 파라미터 검증
       const verificationResult = await this.verify(params);
       if (!verificationResult.isValid) {
+        console.log('Pincrux 콜백 파라미터 검증 실패', verificationResult);
         return {
           status: 400,
           body: {
-            code: this.getResponseCode(new Error(verificationResult.error)),
+            code: verificationResult.code,
             error: verificationResult.error,
           },
         };
       }
 
       // 2. 트랜잭션 처리
-      await this.processTransaction(params);
+      try {
+        await this.processTransaction(params);
+      } catch (error) {
+        console.error('Error processing transaction:', error);
+        return {
+          status: 500,
+          body: {
+            code: this.getResponseCode(error),
+            error:
+              error instanceof Error
+                ? error.message
+                : '트랜잭션 처리 중 오류가 발생했습니다.',
+          },
+        };
+      }
+
+      console.log('Pincrux 콜백 처리 완료', params);
 
       return {
         status: 200,
         body: {
-          code: this.getResponseCode(),
+          code: '00',
         },
       };
     } catch (error) {

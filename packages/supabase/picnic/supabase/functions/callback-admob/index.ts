@@ -1,6 +1,7 @@
 import { serve } from 'http/server';
 import { AdServiceFactory } from '@shared/services/ad/index.ts';
 import { AdMobAdCallbackResponse } from '@shared/services/ad/base-ad-service.ts';
+import { AdMobParameters } from '@shared/services/ad/interfaces/ad-parameters.ts';
 
 const secretKey = Deno.env.get('ADMOB_SECRET_KEY') || '';
 const adService = AdServiceFactory.createService('admob', secretKey);
@@ -24,7 +25,7 @@ async function handleRequest(req: Request) {
 
   try {
     const url = new URL(req.url);
-    const params = adService.extractParameters(url);
+    const params = adService.extractParameters(url) as AdMobParameters;
 
     // 디버그 모드 체크
     if (params.user_id === 'fakeForAdDebugLog') {

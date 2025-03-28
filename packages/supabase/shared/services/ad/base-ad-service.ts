@@ -50,9 +50,7 @@ export abstract class BaseAdService {
 
   abstract validateParameters(params: AdParameters): boolean;
   abstract extractParameters(url: URL): AdParameters;
-  abstract verify(
-    params: AdParameters,
-  ): Promise<{ isValid: boolean; error?: string }>;
+  abstract verify(params: AdParameters): Promise<any>;
   abstract processTransaction(params: AdParameters): Promise<void>;
   abstract getResponseCode(error?: Error): string;
   abstract handleCallback(
@@ -140,60 +138,5 @@ export abstract class BaseAdService {
       await this.supabase.rpc('rollback_transaction');
       throw error;
     }
-  }
-
-  protected async processAdTransaction(
-    params: AdParameters,
-    platform: string,
-  ): Promise<void> {
-    await this.executeTransaction(async () => {
-      // 사용자 보너스 업데이트
-      const { data: currentUser, error: userError } = await this.supabase
-        .from('user_profiles')
-        .select('star_candy_bonus')
-        .eq('id', params.user_id)
-        .single();
-
-      if (userError) throw userError;
-      if (!currentUser) throw new Error('User not found');
-
-      const { error: updateError } = await this.supabase
-        .from('user_profiles')
-        .update({
-          star_candy_bonus: currentUser.star_candy_bonus + params.reward_amount,
-        })
-        .eq('id', params.user_id);
-
-      if (updateError) throw updateError;
-
-      // 보너스 히스토리 추가
-      const { error: historyError } = await this.supabase
-        .from('star_candy_bonus_history')
-        .insert({
-          type: 'AD',
-          amount: params.reward_amount,
-          remain_amount: params.reward_amount,
-          user_id: params.user_id,
-          transaction_id: params.transaction_id,
-          expired_dt: getNextMonth15thAt9AM(),
-        });
-
-      if (historyError) throw historyError;
-
-      // 플랫폼별 트랜잭션 기록 추가
-      const { error: transactionError } = await this.supabase
-        .from(`transaction_${platform}`)
-        .insert({
-          transaction_id: params.transaction_id,
-          reward_type: params.reward_type,
-          reward_amount: params.reward_amount,
-          signature: params.signature,
-          ad_network: params.ad_network,
-          key_id: params.transaction_id,
-          user_id: params.user_id,
-        });
-
-      if (transactionError) throw transactionError;
-    });
   }
 }

@@ -1,3 +1,12 @@
+export type AdParameters =
+  | AdMobParameters
+  | PangleParameters
+  | PincruxParameters
+  | TapjoyParameters
+  | UnityAdsParameters
+  | AppLovinParameters
+  | IronSourceParameters;
+
 export interface AdMobParameters {
   key_id: string;
   user_id: string;
@@ -23,29 +32,15 @@ export interface PangleParameters {
 }
 
 export interface PincruxParameters {
-  user_id: string;
-  reward_amount: number;
-  reward_type: string;
-  transaction_id: string;
-  signature: string;
-  platform: string;
-  ad_network: string;
   appkey: string;
   pubkey: number;
-  usrkey: string;
+  usrKey: string;
   app_title: string;
   coin: string;
   transid: string;
   resign_flag: string;
   commission: string;
   menu_category1: string;
-  menu_category2?: string;
-  menu_category3?: string;
-  menu_category4?: string;
-  menu_category5?: string;
-  ad_type?: string;
-  ad_unit_id?: string;
-  ad_unit_name?: string;
 }
 
 export interface TapjoyParameters {

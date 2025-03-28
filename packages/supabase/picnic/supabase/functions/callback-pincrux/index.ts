@@ -4,8 +4,6 @@ import { PincruxAdCallbackResponse } from '@shared/services/ad/base-ad-service.t
 const secretKey = Deno.env.get('PINCRUX_SECRET_KEY') || '';
 const adService = AdServiceFactory.createService('pincrux', secretKey);
 
-console.log('Callback Pincrux 함수가 시작되었습니다.');
-
 Deno.serve(async (req) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -30,8 +28,9 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        code: '00',
-        msg: '성공',
+        status: result.status,
+        code: result.body.code,
+        msg: result.body.error,
       }),
       {
         headers: {

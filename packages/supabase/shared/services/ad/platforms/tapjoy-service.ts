@@ -1,4 +1,4 @@
-import CryptoJS from 'https://esm.sh/crypto-js';
+import CryptoJS from 'https://esm.sh/crypto-js@4.2.0';
 import {
   BaseAdService,
   DefaultAdCallbackResponse,
@@ -70,9 +70,7 @@ export class TapjoyService extends BaseAdService {
     };
   }
 
-  async verify(
-    params: TapjoyParameters,
-  ): Promise<{ isValid: boolean; error?: string }> {
+  async verify(params: TapjoyParameters): Promise<any> {
     try {
       // 1. 기본 파라미터 검증
       if (!this.validateParameters(params)) {

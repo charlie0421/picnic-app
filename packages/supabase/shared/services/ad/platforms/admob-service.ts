@@ -36,9 +36,7 @@ export class AdMobService extends BaseAdService {
     };
   }
 
-  async verify(
-    params: AdMobParameters,
-  ): Promise<{ isValid: boolean; error?: string }> {
+  async verify(params: AdMobParameters): Promise<any> {
     try {
       // 1. 기본 파라미터 검증
       if (!this.validateParameters(params)) {
@@ -88,12 +86,22 @@ export class AdMobService extends BaseAdService {
   }
 
   async processTransaction(params: AdMobParameters): Promise<void> {
-    if (params.user_id === 'fakeForAdDebugLog') {
-      console.log('디버깅 모드: 데이터베이스 업데이트를 건너뜁니다.');
-      return;
-    }
+    await this.updateUserReward(params.user_id, params.reward_amount);
+    await this.addRewardHistory(
+      params.user_id,
+      params.reward_amount,
+      params.transaction_id,
+    );
 
-    await this.processAdTransaction(params, 'admob');
+    const { error } = await this.supabase.from('transaction_admob').insert({
+      transaction_id: params.transaction_id,
+      user_id: params.user_id,
+      reward_amount: params.reward_amount,
+      reward_type: params.reward_type,
+      key_id: params.key_id,
+    });
+
+    if (error) throw error;
   }
 
   getResponseCode(error?: Error): string {
