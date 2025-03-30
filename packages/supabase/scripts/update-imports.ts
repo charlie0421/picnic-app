@@ -6,6 +6,7 @@ const commonImports = {
   'crypto-js': 'https://esm.sh/crypto-js',
   postgres: 'https://deno.land/x/postgres@v0.19.3/mod.ts',
   'http/server': 'https://deno.land/std@0.224.0/http/server.ts',
+  decode: 'https://deno.land/x/djwt@v3.0.2/mod.ts',
 };
 
 // 공통 compiler options 정의
