@@ -2,8 +2,8 @@ name: Build & Deploy TTJA App
 
 on:
   push:
-    paths:
-      - "packages/client/ttja_app/**"
+    # paths:
+      # - "packages/client/ttja_app/**"
     branches: [ "production" ]
   workflow_dispatch:
 
