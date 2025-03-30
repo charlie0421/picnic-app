@@ -4,7 +4,7 @@
   "@achieve": {
     "manualTranslation": false
   },
-  "ads_available_time": "Ad availability",
+  "ads_available_time": "Next available time to watch ads",
   "@ads_available_time": {
     "manualTranslation": false
   },
@@ -472,7 +472,7 @@
     "translationTimestamp": "2024-07-21T11:18:53.669108",
     "manualTranslation": false
   },
-  "label_ads_exceeded": "You have exhausted the ads available per ID.",
+  "label_ads_exceeded": "You have exceeded the number of times you can watch ads for this button.",
   "@label_ads_exceeded": {
     "manualTranslation": false
   },
@@ -1954,5 +1954,16 @@
   "label_ads_show_fail": "Failed to show ad. Please try again.",
   "@label_ads_show_fail": {
     "manualTranslation": false
+  },
+  "label_ads_limits": "{hourly} per hour, {daily} per day",
+  "@label_ads_limits": {
+    "placeholders": {
+      "hourly": {
+        "type": "int"
+      },
+      "daily": {
+        "type": "int"
+      }
+    }
   }
 }

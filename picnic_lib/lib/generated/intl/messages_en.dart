@@ -31,30 +31,32 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(year) => "Fortune of ${year}";
 
-  static String m4(day) => "${day} days ago";
+  static String m4(hourly, daily) => "${hourly} per hour, ${daily} per day";
 
-  static String m5(hour) => "${hour} hours ago";
+  static String m5(day) => "${day} days ago";
 
-  static String m6(minute) => "${minute} minutes ago";
+  static String m6(hour) => "${hour} hours ago";
 
-  static String m7(nickname) => "Replying to ${nickname}...";
+  static String m7(minute) => "${minute} minutes ago";
 
-  static String m8(count) => "🎉 You\'ve reached \$${count} goals so far! 🎉";
+  static String m8(nickname) => "Replying to ${nickname}...";
 
-  static String m9(num1) => "${num1} + ${num1} Bonuses";
+  static String m9(count) => "🎉 You\'ve reached \$${count} goals so far! 🎉";
 
-  static String m10(rank) => "Rank ${rank}";
+  static String m10(num1) => "${num1} + ${num1} Bonuses";
 
-  static String m11(version) => "A new version (${version}) is available.";
+  static String m11(rank) => "Rank ${rank}";
 
-  static String m12(version) =>
+  static String m12(version) => "A new version (${version}) is available.";
+
+  static String m13(version) =>
       "You need to update to a new version (${version}).";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "achieve": MessageLookupByLibrary.simpleMessage("Achievement"),
-        "ads_available_time":
-            MessageLookupByLibrary.simpleMessage("Ad availability"),
+        "ads_available_time": MessageLookupByLibrary.simpleMessage(
+            "Next available time to watch ads"),
         "anonymous": MessageLookupByLibrary.simpleMessage("Anonymous"),
         "anonymous_mode":
             MessageLookupByLibrary.simpleMessage("Anonymous Mode"),
@@ -370,9 +372,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "image_save_success":
             MessageLookupByLibrary.simpleMessage("The image has been saved."),
         "label_ads_exceeded": MessageLookupByLibrary.simpleMessage(
-            "You have exhausted the ads available per ID."),
+            "You have exceeded the number of times you can watch ads for this button."),
         "label_ads_get_star_candy":
             MessageLookupByLibrary.simpleMessage("Get Star Candy from Ads"),
+        "label_ads_limits": m4,
         "label_ads_load_fail": MessageLookupByLibrary.simpleMessage(
             "Failed to load ad. Please try again."),
         "label_ads_load_timeout": MessageLookupByLibrary.simpleMessage(
@@ -543,9 +546,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("Exit"),
         "label_tabbar_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("Upcoming"),
-        "label_time_ago_day": m4,
-        "label_time_ago_hour": m5,
-        "label_time_ago_minute": m6,
+        "label_time_ago_day": m5,
+        "label_time_ago_hour": m6,
+        "label_time_ago_minute": m7,
         "label_time_ago_right_now":
             MessageLookupByLibrary.simpleMessage("Just a moment ago"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("Comments"),
@@ -748,7 +751,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "post_no_comment": MessageLookupByLibrary.simpleMessage("No comments."),
         "post_not_found":
             MessageLookupByLibrary.simpleMessage("No posts were found."),
-        "post_replying_comment": m7,
+        "post_replying_comment": m8,
         "post_report_fail":
             MessageLookupByLibrary.simpleMessage("The report failed."),
         "post_report_label":
@@ -795,7 +798,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("X app is missing."),
         "share_twitter":
             MessageLookupByLibrary.simpleMessage("Share on Twitter"),
-        "text_achievement": m8,
+        "text_achievement": m9,
         "text_ads_random": MessageLookupByLibrary.simpleMessage(
             "Viewing ads and collecting random images."),
         "text_bonus": MessageLookupByLibrary.simpleMessage("Bonuses"),
@@ -840,12 +843,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*Price includes VAT."),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("Star Candy"),
-        "text_star_candy_with_bonus": m9,
+        "text_star_candy_with_bonus": m10,
         "text_this_time_vote":
             MessageLookupByLibrary.simpleMessage("This Vote"),
         "text_vote_complete":
             MessageLookupByLibrary.simpleMessage("Voting complete"),
-        "text_vote_rank": m10,
+        "text_vote_rank": m11,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("Rank in Rewards"),
         "text_vote_where_is_my_bias":
@@ -860,8 +863,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("Update"),
         "update_cannot_open_appstore": MessageLookupByLibrary.simpleMessage(
             "I can\'t open the app store."),
-        "update_recommend_text": m11,
-        "update_required_text": m12,
+        "update_recommend_text": m12,
+        "update_required_text": m13,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("An update is required."),
         "views": MessageLookupByLibrary.simpleMessage("Views"),

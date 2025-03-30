@@ -2,8 +2,10 @@
   "@@locale": "ko",
   "achieve": "달성",
   "@achieve": {},
-  "ads_available_time": "광고 시청 가능 시간",
-  "@ads_available_time": {},
+  "ads_available_time": "다음 광고 시청 가능 시간",
+  "@ads_available_time": {
+    "manualTranslation": false
+  },
   "anonymous": "익명",
   "@anonymous": {},
   "anonymous_mode": "익명모드",
@@ -416,8 +418,10 @@
   "@image_save_success": {
     "translationTimestamp": "2024-07-21T11:18:53.669108"
   },
-  "label_ads_exceeded": "아이디당 시청 가능한 광고를 모두 소진했습니다.",
-  "@label_ads_exceeded": {},
+  "label_ads_exceeded": "해당 광고 버튼에서 시청 가능한 횟수를 초과했습니다.",
+  "@label_ads_exceeded": {
+    "manualTranslation": false
+  },
   "label_ads_next_available_time": "다음 광고 시청 가능시간.",
   "@label_ads_next_available_time": {},
   "label_agreement_privacy": "개인정보 수집 및 이용 동의",
@@ -1359,5 +1363,16 @@
   "label_korean_recommendation": "한국 추천",
   "@label_korean_recommendation": {
     "manualTranslation": false
+  },
+  "label_ads_limits": "시간당 {hourly}개, 하루 {daily}개",
+  "@label_ads_limits": {
+    "placeholders": {
+      "hourly": {
+        "type": "int"
+      },
+      "daily": {
+        "type": "int"
+      }
+    }
   }
 }

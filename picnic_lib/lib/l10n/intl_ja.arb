@@ -4,7 +4,7 @@
   "@achieve": {
     "manualTranslation": false
   },
-  "ads_available_time": "広告視聴可能時間",
+  "ads_available_time": "次の広告視聴可能時間",
   "@ads_available_time": {
     "manualTranslation": false
   },
@@ -488,7 +488,7 @@
   "@image_save_success": {
     "manualTranslation": false
   },
-  "label_ads_exceeded": "IDごとに視聴可能な広告を使い切りました。",
+  "label_ads_exceeded": "この広告ボタンの視聴可能回数を超えました。",
   "@label_ads_exceeded": {
     "manualTranslation": false
   },
@@ -1769,5 +1769,16 @@
   "label_korean_recommendation": "韓国のおすすめ",
   "@label_korean_recommendation": {
     "manualTranslation": false
+  },
+  "label_ads_limits": "1時間あたり{hourly}回、1日{daily}回",
+  "@label_ads_limits": {
+    "placeholders": {
+      "hourly": {
+        "type": "int"
+      },
+      "daily": {
+        "type": "int"
+      }
+    }
   }
 }

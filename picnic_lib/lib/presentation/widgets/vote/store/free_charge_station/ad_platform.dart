@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -76,14 +77,28 @@ abstract class AdPlatform {
   }
 
   // 공통 로직: 광고 시청 제한 확인
-  Future<bool> checkAdsLimit() async {
+  Future<bool> checkAdsLimit(String platform) async {
     try {
-      final response = await supabase.functions.invoke('check-ads-count');
+      final response = await supabase.functions.invoke(
+        'check-ads-count?platform=$platform',
+      );
       if (!context.mounted) return false;
+
+      logger.i('checkAdsLimit response: ${response.data}');
 
       final allowed = response.data['allowed'] as bool?;
       if (allowed != true) {
-        _handleExceededAdsLimit(response.data['nextAvailableTime']);
+        final limits = (response.data['limits']
+            as Map<String, dynamic>)[platform] as Map<String, dynamic>;
+        final counts = (response.data['counts']
+            as Map<String, dynamic>)[platform] as Map<String, dynamic>;
+        _handleExceededAdsLimit(
+          response.data['nextAvailableTime'],
+          {
+            'hourly': limits['hourly'] as int,
+            'daily': limits['daily'] as int,
+          },
+        );
         return false;
       }
       return true;
@@ -94,7 +109,8 @@ abstract class AdPlatform {
   }
 
   // 공통 로직: 광고 제한 초과 처리
-  void _handleExceededAdsLimit(String? nextAvailableTimeStr) {
+  void _handleExceededAdsLimit(
+      String? nextAvailableTimeStr, Map<String, int>? limits) {
     if (nextAvailableTimeStr == null || !context.mounted) return;
 
     final nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
@@ -107,12 +123,20 @@ abstract class AdPlatform {
           Text(S.of(context).label_ads_exceeded,
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               textAlign: TextAlign.center),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
+          UnderlinedText(
+            text: S.of(context).label_ads_limits(
+                  limits?['hourly'] ?? 0,
+                  limits?['daily'] ?? 0,
+                ),
+            textStyle: getTextStyle(AppTypo.body14M, AppColors.grey600),
+          ),
+          const SizedBox(height: 16),
           Text(S.of(context).ads_available_time,
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+              style: getTextStyle(AppTypo.body14M, AppColors.grey900),
               textAlign: TextAlign.center),
           Text(formatter.format(nextAvailableTime),
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+              style: getTextStyle(AppTypo.caption12B, AppColors.grey600),
               textAlign: TextAlign.center),
         ],
       ),
@@ -147,13 +171,14 @@ abstract class AdPlatform {
   }
 
   // 공통 로직: 전체 오류 처리 흐름
-  Future<void> safelyExecute(Future<void> Function() action) async {
+  Future<void> safelyExecute(Future<void> Function() action,
+      {bool isMission = false}) async {
     if (!await checkLogin()) return;
 
     try {
       startLoading();
 
-      if (!await checkAdsLimit()) {
+      if (!isMission && !await checkAdsLimit(id)) {
         stopLoading();
         stopButtonAnimation();
         return;

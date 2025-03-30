@@ -29,28 +29,31 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m3(year) => "${year}年の運勢";
 
-  static String m4(day) => "${day}日前";
+  static String m4(hourly, daily) => "1時間あたり${hourly}回、1日${daily}回";
 
-  static String m5(hour) => "${hour}時間前";
+  static String m5(day) => "${day}日前";
 
-  static String m6(minute) => "${minute}分前";
+  static String m6(hour) => "${hour}時間前";
 
-  static String m7(nickname) => "${nickname}さんへの返信中...";
+  static String m7(minute) => "${minute}分前";
 
-  static String m8(count) => "🎉 これまでに\$${count}個の目標達成！ 🎉";
+  static String m8(nickname) => "${nickname}さんへの返信中...";
 
-  static String m9(num1) => "${num1}個  +${num1}個のボーナス";
+  static String m9(count) => "🎉 これまでに\$${count}個の目標達成！ 🎉";
 
-  static String m10(rank) => "${rank}位";
+  static String m10(num1) => "${num1}個  +${num1}個のボーナス";
 
-  static String m11(version) => "新しいバージョン(${version})が利用可能です。";
+  static String m11(rank) => "${rank}位";
 
-  static String m12(version) => "新しいバージョン(${version})へのアップデートが必要です。";
+  static String m12(version) => "新しいバージョン(${version})が利用可能です。";
+
+  static String m13(version) => "新しいバージョン(${version})へのアップデートが必要です。";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "achieve": MessageLookupByLibrary.simpleMessage("達成"),
-        "ads_available_time": MessageLookupByLibrary.simpleMessage("広告視聴可能時間"),
+        "ads_available_time":
+            MessageLookupByLibrary.simpleMessage("次の広告視聴可能時間"),
         "anonymous": MessageLookupByLibrary.simpleMessage("匿名"),
         "anonymous_mode": MessageLookupByLibrary.simpleMessage("匿名モード"),
         "app_name": MessageLookupByLibrary.simpleMessage("ピクニック"),
@@ -327,9 +330,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "image_save_success":
             MessageLookupByLibrary.simpleMessage("画像が保存されました。"),
         "label_ads_exceeded":
-            MessageLookupByLibrary.simpleMessage("IDごとに視聴可能な広告を使い切りました。"),
+            MessageLookupByLibrary.simpleMessage("この広告ボタンの視聴可能回数を超えました。"),
         "label_ads_get_star_candy":
             MessageLookupByLibrary.simpleMessage("広告を見て星飴をもらう"),
+        "label_ads_limits": m4,
         "label_ads_load_fail":
             MessageLookupByLibrary.simpleMessage("広告の読み込みに失敗しました。もう一度お試しください。"),
         "label_ads_load_timeout": MessageLookupByLibrary.simpleMessage(
@@ -487,9 +491,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "label_tabbar_vote_end": MessageLookupByLibrary.simpleMessage("終了"),
         "label_tabbar_vote_upcoming":
             MessageLookupByLibrary.simpleMessage("予定"),
-        "label_time_ago_day": m4,
-        "label_time_ago_hour": m5,
-        "label_time_ago_minute": m6,
+        "label_time_ago_day": m5,
+        "label_time_ago_hour": m6,
+        "label_time_ago_minute": m7,
         "label_time_ago_right_now": MessageLookupByLibrary.simpleMessage("先ほど"),
         "label_title_comment": MessageLookupByLibrary.simpleMessage("コメント"),
         "label_title_report": MessageLookupByLibrary.simpleMessage("報告する"),
@@ -660,7 +664,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("私のスクラップ"),
         "post_no_comment": MessageLookupByLibrary.simpleMessage("コメントはありません。"),
         "post_not_found": MessageLookupByLibrary.simpleMessage("投稿が見つかりません。"),
-        "post_replying_comment": m7,
+        "post_replying_comment": m8,
         "post_report_fail": MessageLookupByLibrary.simpleMessage("申告に失敗しました。"),
         "post_report_label": MessageLookupByLibrary.simpleMessage("報告する"),
         "post_report_other_input":
@@ -699,7 +703,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "share_image_success": MessageLookupByLibrary.simpleMessage("画像共有成功"),
         "share_no_twitter": MessageLookupByLibrary.simpleMessage("Xアプリがありません。"),
         "share_twitter": MessageLookupByLibrary.simpleMessage("Twitter共有"),
-        "text_achievement": m8,
+        "text_achievement": m9,
         "text_ads_random":
             MessageLookupByLibrary.simpleMessage("広告表示とランダム画像収集。"),
         "text_bonus": MessageLookupByLibrary.simpleMessage("ボーナス"),
@@ -741,10 +745,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "text_purchase_vat_included":
             MessageLookupByLibrary.simpleMessage("*価格はVAT込みの価格です。"),
         "text_star_candy": MessageLookupByLibrary.simpleMessage("スターキャンディー"),
-        "text_star_candy_with_bonus": m9,
+        "text_star_candy_with_bonus": m10,
         "text_this_time_vote": MessageLookupByLibrary.simpleMessage("今回の投票"),
         "text_vote_complete": MessageLookupByLibrary.simpleMessage("投票完了"),
-        "text_vote_rank": m10,
+        "text_vote_rank": m11,
         "text_vote_rank_in_reward":
             MessageLookupByLibrary.simpleMessage("ランクインリワード"),
         "text_vote_where_is_my_bias":
@@ -758,8 +762,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_button": MessageLookupByLibrary.simpleMessage("最新情報"),
         "update_cannot_open_appstore":
             MessageLookupByLibrary.simpleMessage("アプリストアを開くことができません。"),
-        "update_recommend_text": m11,
-        "update_required_text": m12,
+        "update_recommend_text": m12,
+        "update_required_text": m13,
         "update_required_title":
             MessageLookupByLibrary.simpleMessage("アップデートが必要です。"),
         "views": MessageLookupByLibrary.simpleMessage("再生回数"),
