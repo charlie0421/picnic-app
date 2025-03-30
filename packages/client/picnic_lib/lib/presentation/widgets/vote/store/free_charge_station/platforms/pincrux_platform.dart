@@ -36,7 +36,7 @@ class PincruxPlatform extends AdPlatform {
       await _showPincruxOfferwall();
       // 애니메이션 중지
       stopAllAnimations();
-    });
+    }, isMission: true);
   }
 
   Future<void> _showPincruxOfferwall() async {

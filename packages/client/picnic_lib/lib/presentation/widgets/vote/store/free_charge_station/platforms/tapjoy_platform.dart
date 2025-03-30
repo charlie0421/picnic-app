@@ -34,7 +34,7 @@ class TapjoyPlatform extends AdPlatform {
       await _setupTapjoyUser();
       await _requestTapjoyPlacement();
       // 애니메이션은 콜백에서 중지됨
-    });
+    }, isMission: true);
   }
 
   Future<void> _setupTapjoyUser() async {

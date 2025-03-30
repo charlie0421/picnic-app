@@ -4,7 +4,7 @@
   "@achieve": {
     "manualTranslation": false
   },
-  "ads_available_time": "广告可用性",
+  "ads_available_time": "下次可观看广告时间",
   "@ads_available_time": {
     "manualTranslation": false
   },
@@ -488,7 +488,7 @@
   "@image_save_success": {
     "manualTranslation": false
   },
-  "label_ads_exceeded": "您已用尽每个 ID 可观看的广告数量。",
+  "label_ads_exceeded": "您已超过此广告按钮的可观看次数。",
   "@label_ads_exceeded": {
     "manualTranslation": false
   },
@@ -1769,5 +1769,16 @@
   "label_various_rewards": "多样奖励",
   "@label_various_rewards": {
     "manualTranslation": false
+  },
+  "label_ads_limits": "每小时{hourly}次，每天{daily}次",
+  "@label_ads_limits": {
+    "placeholders": {
+      "hourly": {
+        "type": "int"
+      },
+      "daily": {
+        "type": "int"
+      }
+    }
   }
 }

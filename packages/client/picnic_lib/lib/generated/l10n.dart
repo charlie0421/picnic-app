@@ -60,10 +60,10 @@ class S {
     );
   }
 
-  /// `Ad availability`
+  /// `Next available time to watch ads`
   String get ads_available_time {
     return Intl.message(
-      'Ad availability',
+      'Next available time to watch ads',
       name: 'ads_available_time',
       desc: '',
       args: [],
@@ -1160,10 +1160,10 @@ class S {
     );
   }
 
-  /// `You have exhausted the ads available per ID.`
+  /// `You have exceeded the number of times you can watch ads for this button.`
   String get label_ads_exceeded {
     return Intl.message(
-      'You have exhausted the ads available per ID.',
+      'You have exceeded the number of times you can watch ads for this button.',
       name: 'label_ads_exceeded',
       desc: '',
       args: [],
@@ -4507,6 +4507,16 @@ class S {
       name: 'label_ads_show_fail',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `{hourly} per hour, {daily} per day`
+  String label_ads_limits(int hourly, int daily) {
+    return Intl.message(
+      '$hourly per hour, $daily per day',
+      name: 'label_ads_limits',
+      desc: '',
+      args: [hourly, daily],
     );
   }
 }

@@ -30,8 +30,7 @@ class AdService {
   void _initPlatforms() {
     _platforms = {
       'admob': AdmobPlatform(ref, context, 'admob', animationController),
-      'unity_ads':
-          UnityAdsPlatform(ref, context, 'unity_ads', animationController),
+      'unity': UnityAdsPlatform(ref, context, 'unity_ads', animationController),
       'pangle': PanglePlatform(ref, context, 'pangle', animationController),
       'tapjoy': TapjoyPlatform(ref, context, 'tapjoy', animationController),
       'pincrux': PincruxPlatform(ref, context, 'pincrux', animationController),
@@ -82,11 +81,12 @@ class AdService {
             Environment.admobIosRewardedVideoId!.isNotEmpty &&
             Environment.admobAndroidRewardedVideoId != null &&
             Environment.admobAndroidRewardedVideoId!.isNotEmpty;
-      case 'unity_ads':
-        return Environment.unityAppleGameId != null &&
-            Environment.unityAppleGameId!.isNotEmpty &&
-            Environment.unityAndroidGameId != null &&
-            Environment.unityAndroidGameId!.isNotEmpty;
+      case 'unity':
+        return false;
+      // return Environment.unityAppleGameId != null &&
+      //     Environment.unityAppleGameId!.isNotEmpty &&
+      //     Environment.unityAndroidGameId != null &&
+      //     Environment.unityAndroidGameId!.isNotEmpty;
       case 'pangle':
         return Environment.pangleIosAppId != null &&
             Environment.pangleIosAppId!.isNotEmpty &&
@@ -98,10 +98,11 @@ class AdService {
             Environment.tapjoyAndroidSdkKey != null &&
             Environment.tapjoyAndroidSdkKey!.isNotEmpty;
       case 'pincrux':
-        return Environment.pincruxIosAppKey != null &&
-            Environment.pincruxIosAppKey!.isNotEmpty &&
-            Environment.pincruxAndroidAppKey != null &&
-            Environment.pincruxAndroidAppKey!.isNotEmpty;
+        return false;
+      // return Environment.pincruxIosAppKey != null &&
+      //     Environment.pincruxIosAppKey!.isNotEmpty &&
+      //     Environment.pincruxAndroidAppKey != null &&
+      //     Environment.pincruxAndroidAppKey!.isNotEmpty;
       default:
         return false;
     }

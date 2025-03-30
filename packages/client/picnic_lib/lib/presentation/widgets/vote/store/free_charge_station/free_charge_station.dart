@@ -185,7 +185,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
     if (_adService.isPlatformAvailable('unity_ads')) {
       items.add(ChargeStationItem(
-        id: 'unity_ads',
+        id: 'unity',
         title:
             '${S.of(context).label_global_recommendation} #${globalIndex + 1}',
         isMission: false,
