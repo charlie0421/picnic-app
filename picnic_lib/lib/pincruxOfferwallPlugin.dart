@@ -8,8 +8,7 @@ class PincruxOfferwallPlugin {
       MethodChannel("com.pincrux.offerwall.flutter");
 
   static void init(String? pubkey, String? usrkey) async {
-    await _channel
-        .invokeListMethod("init", {'pubkey': pubkey, 'usrkey': usrkey});
+    await _channel.invokeMethod("init", {'pubkey': pubkey, 'usrkey': usrkey});
   }
 
   static void setOfferwallViewControllerType(int type) async {

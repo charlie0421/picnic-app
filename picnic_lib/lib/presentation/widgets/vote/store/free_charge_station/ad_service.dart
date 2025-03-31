@@ -98,11 +98,10 @@ class AdService {
             Environment.tapjoyAndroidSdkKey != null &&
             Environment.tapjoyAndroidSdkKey!.isNotEmpty;
       case 'pincrux':
-        return false;
-      // return Environment.pincruxIosAppKey != null &&
-      //     Environment.pincruxIosAppKey!.isNotEmpty &&
-      //     Environment.pincruxAndroidAppKey != null &&
-      //     Environment.pincruxAndroidAppKey!.isNotEmpty;
+        return Environment.pincruxIosAppKey != null &&
+            Environment.pincruxIosAppKey!.isNotEmpty &&
+            Environment.pincruxAndroidAppKey != null &&
+            Environment.pincruxAndroidAppKey!.isNotEmpty;
       default:
         return false;
     }
