@@ -77,6 +77,12 @@
       "android_app_key": "911919",
       "ios_app_key": "911920"
     },
+    "pangle": {
+      "ios_app_id": "8615125",
+      "ios_rewarded_video_id": "981881216",
+      "android_app_id": "8622596",
+      "android_rewarded_video_id": "981907445"
+    },
     "admob": {
       "ios_rewarded_video_id": "ca-app-pub-1539304887624918/4755709675",
       "android_rewarded_video_id": "ca-app-pub-1539304887624918/7636453061"

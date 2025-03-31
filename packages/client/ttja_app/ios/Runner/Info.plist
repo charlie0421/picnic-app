@@ -234,7 +234,7 @@
 				<key>SKAdNetworkIdentifier</key>
 				<string>4w7y6s5ca2.skadnetwork</string>
 			</dict>
-			<dict><!-- Opera Software Ireland Ltd. (“Opera”) -->
+			<dict><!-- Opera Software Ireland Ltd. ("Opera") -->
 				<key>SKAdNetworkIdentifier</key>
 				<string>a2p9lx4jpn.skadnetwork</string>
 			</dict>
@@ -388,7 +388,7 @@
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>프로필 이미지 등록을 위한 갤러리 사용에 동의하시겠습니까?</string>
 		<key>NSUserTrackingUsageDescription</key>
-		<string>추적 권한을 허용하면 맞춤형 광고와 동영상이 제공되며, 거부하면 이러한 기능들이 제한됩니다.</string>
+		<string>광고 식별을 위해 앱 추적 권한이 필요합니다.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true />
 		<key>UILaunchStoryboardName</key>
