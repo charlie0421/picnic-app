@@ -1,4 +1,7 @@
 PODS:
+  - Ads-Global (6.5.0.9):
+    - Ads-Global/BUAdSDK (= 6.5.0.9)
+  - Ads-Global/BUAdSDK (6.5.0.9)
   - app_links (0.0.2):
     - Flutter
   - app_tracking_transparency (0.0.1):
@@ -258,6 +261,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - Ads-Global (= 6.5.0.9)
   - app_links (from `.symlinks/plugins/app_links/ios`)
   - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
@@ -299,6 +303,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Ads-Global
     - AppAuth
     - BranchSDK
     - DKImagePickerController
@@ -405,6 +410,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  Ads-Global: 4ae64395eb89220f3a257c1aaff9c83f900c2155
   app_links: f3e17e4ee5e357b39d8b95290a9b2c299fca71c6
   app_tracking_transparency: e169b653478da7bb15a6c61209015378ca73e375
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
@@ -470,6 +476,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
 
-PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
+PODFILE CHECKSUM: 62a69f14b591dc5dd32aa83daa06878930ce8172
 
 COCOAPODS: 1.16.2
