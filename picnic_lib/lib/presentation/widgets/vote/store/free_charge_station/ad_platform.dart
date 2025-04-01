@@ -104,6 +104,7 @@ abstract class AdPlatform {
       return true;
     } catch (e, s) {
       logger.e('Error in checkAdsLimit', error: e, stackTrace: s);
+      showErrorDialog(S.of(context).label_ads_load_fail);
       return false;
     }
   }
