@@ -146,22 +146,7 @@ abstract class AdPlatform {
   // 공통 로직: 에러 다이얼로그 표시
   void showErrorDialog(String message, {dynamic error}) {
     if (!context.mounted) return;
-
-    String displayMessage = message;
-
-    // 예외 메시지가 있는 경우 함께 표시
-    if (error != null) {
-      final errorMsg = error.toString();
-      // 너무 길면 잘라서 표시
-      final truncatedError =
-          errorMsg.length > 150 ? '${errorMsg.substring(0, 150)}...' : errorMsg;
-      displayMessage = '$message\n\n$truncatedError';
-    }
-
-    showSimpleDialog(
-      contentWidget: Text(displayMessage,
-          style: getTextStyle(AppTypo.body14M, AppColors.grey900)),
-    );
+    showSimpleErrorDialog(context, message, error: error);
   }
 
   // 공통 로직: 프로필 새로고침
@@ -178,7 +163,9 @@ abstract class AdPlatform {
     try {
       startLoading();
 
-      if (!isMission && !await checkAdsLimit(id)) {
+      final checkAdsLimitResult = await checkAdsLimit(id);
+
+      if (!isMission && !checkAdsLimitResult) {
         stopLoading();
         stopButtonAnimation();
         return;

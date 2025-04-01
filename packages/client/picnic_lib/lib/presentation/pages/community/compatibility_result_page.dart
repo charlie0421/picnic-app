@@ -195,7 +195,7 @@ class _CompatibilityResultPageState
   }
 
   Future<void> _showErrorDialog(String message) async {
-    showSimpleDialog(content: message);
+    showSimpleErrorDialog(context, message);
   }
 
   @override
