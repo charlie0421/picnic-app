@@ -1,12 +1,11 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { AdServiceFactory } from '@shared/services/ad/index.ts';
+import { TapjoyAdCallbackResponse } from '@shared/services/ad/base-ad-service.ts';
 
 const secretKey = Deno.env.get('TAPJOY_SECRET_KEY') || '';
 const adService = AdServiceFactory.createService('tapjoy', secretKey);
 
-console.log('Callback Tapjoy 함수가 시작되었습니다.');
-
-async function handleRequest(req: Request) {
+Deno.serve(async (req) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -24,35 +23,12 @@ async function handleRequest(req: Request) {
     const url = new URL(req.url);
     const params = adService.extractParameters(url);
 
-    if (!adService.validateParameters(params)) {
-      return new Response(
-        JSON.stringify({ error: '필수 파라미터가 누락되었습니다.' }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-    }
+    const result = (await adService.handleCallback(
+      params,
+    )) as TapjoyAdCallbackResponse;
 
-    const result = await adService.verifyAdCallback(params);
-
-    if (!result.isValid) {
-      return new Response(
-        JSON.stringify({ error: result.error || '유효하지 않은 요청입니다.' }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-    }
-
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify(result.body), {
+      status: result.status,
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/json',
@@ -68,9 +44,7 @@ async function handleRequest(req: Request) {
       },
     });
   }
-}
-
-Deno.serve(handleRequest);
+});
 
 /* To invoke locally:
 

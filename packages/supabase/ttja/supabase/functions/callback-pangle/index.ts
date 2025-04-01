@@ -1,14 +1,10 @@
 import { serve } from 'http/server';
 import { AdServiceFactory } from '@shared/services/ad/index.ts';
-import { AdMobAdCallbackResponse } from '@shared/services/ad/base-ad-service.ts';
-import { AdMobParameters } from '@shared/services/ad/interfaces/ad-parameters.ts';
+import { PangleAdCallbackResponse } from '@shared/services/ad/base-ad-service.ts';
 
-const secretKey = Deno.env.get('ADMOB_SECRET_KEY') || '';
-const adService = AdServiceFactory.createService('admob', secretKey);
+const secretKey = Deno.env.get('PANGLE_SECRET_KEY') || '';
+const adService = AdServiceFactory.createService('pangle', secretKey);
 
-// admob 추가시 테스트 데이터
-// 7ae352a2-74af-4d4d-90a5-cdd9d8c8310d
-// {"reward_amount":1, "reward_type":"free_charge_station"}
 async function handleRequest(req: Request) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -25,22 +21,11 @@ async function handleRequest(req: Request) {
 
   try {
     const url = new URL(req.url);
-    const params = adService.extractParameters(url) as AdMobParameters;
-
-    // 디버그 모드 체크
-    if (params.user_id === 'fakeForAdDebugLog') {
-      console.log('디버깅 모드: 데이터베이스 업데이트를 건너뜁니다.');
-      return new Response(JSON.stringify({ success: true }), {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-      });
-    }
+    const params = adService.extractParameters(url);
 
     const result = (await adService.handleCallback(
       params,
-    )) as AdMobAdCallbackResponse;
+    )) as PangleAdCallbackResponse;
 
     return new Response(JSON.stringify(result.body), {
       status: result.status,

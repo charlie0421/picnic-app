@@ -7,14 +7,21 @@
     "crypto-js": "https://esm.sh/crypto-js",
     "postgres": "https://deno.land/x/postgres@v0.19.3/mod.ts",
     "http/server": "https://deno.land/std@0.224.0/http/server.ts",
-    "decode": "https://deno.land/x/djwt@v3.0.2/mod.ts",
     "@shared/": "../../../../shared/"
   },
   "compilerOptions": {
     "allowJs": true,
-    "lib": ["deno.window", "deno.ns", "deno.unstable", "dom", "esnext"],
+    "lib": [
+      "deno.window",
+      "deno.ns",
+      "deno.unstable",
+      "dom",
+      "esnext"
+    ],
     "strict": true,
     "checkJs": false,
-    "types": ["../../../../shared/types.d.ts"]
+    "types": [
+      "../../../../shared/types.d.ts"
+    ]
   }
 }
