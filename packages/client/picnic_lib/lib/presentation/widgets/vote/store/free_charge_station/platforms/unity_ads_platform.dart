@@ -8,6 +8,7 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
+import 'package:picnic_lib/core/utils/common_utils.dart';
 
 /// Unity Ads 플랫폼 구현
 class UnityAdsPlatform extends AdPlatform {
@@ -92,7 +93,7 @@ class UnityAdsPlatform extends AdPlatform {
         if (_lastInitError.isNotEmpty) {
           logger.e('Unity Ads showAd 실패: 초기화 오류 - $_lastInitError');
           if (context.mounted) {
-            showErrorDialog(
+            commonUtils.showErrorDialog(
               S.of(context).label_ads_sdk_init_fail,
               error: _lastInitError,
             );
@@ -109,7 +110,7 @@ class UnityAdsPlatform extends AdPlatform {
         if (!_isInitialized) {
           logger.e('Unity Ads 초기화 재시도 실패');
           if (context.mounted) {
-            showErrorDialog(
+            commonUtils.showErrorDialog(
               S.of(context).label_ads_sdk_init_fail,
               error: _lastInitError.isEmpty ? '알 수 없는 오류' : _lastInitError,
             );
@@ -123,7 +124,7 @@ class UnityAdsPlatform extends AdPlatform {
       if (placementId!.isEmpty) {
         logger.e('Unity Ads 배치 ID가 비어 있습니다');
         if (context.mounted) {
-          showErrorDialog(
+          commonUtils.showErrorDialog(
             S.of(context).label_ads_load_fail,
             error: 'Unity Ads 배치 ID가 비어 있습니다',
           );
@@ -168,7 +169,7 @@ class UnityAdsPlatform extends AdPlatform {
               logger.i('Unity Ads 비디오 완료됨 - 보상 지급');
               if (context.mounted) {
                 stopAllAnimations();
-                refreshUserProfile();
+                commonUtils.refreshUserProfile();
               }
             },
             onFailed: (placementId, error, message) {
@@ -176,7 +177,7 @@ class UnityAdsPlatform extends AdPlatform {
               if (context.mounted) {
                 stopAllAnimations();
 
-                showErrorDialog(S.of(context).label_ads_show_fail,
+                commonUtils.showErrorDialog(S.of(context).label_ads_show_fail,
                     error: message);
               }
             },
@@ -187,7 +188,8 @@ class UnityAdsPlatform extends AdPlatform {
           if (context.mounted) {
             stopAllAnimations();
 
-            showErrorDialog(S.of(context).label_ads_load_fail, error: message);
+            commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+                error: message);
           }
         },
       );

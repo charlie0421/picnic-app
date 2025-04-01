@@ -1,20 +1,23 @@
 // pangle_platform.dart
 
 import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:picnic_lib/core/config/environment.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/pangle_ads.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/core/utils/pangle_ads.dart';
+import 'package:picnic_lib/core/config/environment.dart';
+import 'package:universal_io/io.dart';
+import 'package:picnic_lib/core/utils/common_utils.dart';
 
 /// Pangle 광고 플랫폼 구현
 class PanglePlatform extends AdPlatform {
-  PanglePlatform(super.ref, super.context, super.id,
-      [super.animationController]);
+  PanglePlatform(WidgetRef ref, BuildContext context, String id,
+      [AnimationController? animationController])
+      : super(ref, context, id, animationController);
 
   @override
   Future<void> initialize() async {
@@ -25,7 +28,9 @@ class PanglePlatform extends AdPlatform {
       }
 
       final initResult = await PangleAds.initPangle(
-        isIOS() ? Environment.pangleIosAppId! : Environment.pangleAndroidAppId!,
+        Platform.isIOS
+            ? Environment.pangleIosAppId!
+            : Environment.pangleAndroidAppId!,
       );
 
       if (initResult != true) {
@@ -34,7 +39,8 @@ class PanglePlatform extends AdPlatform {
     } catch (e, s) {
       logger.e('Error in Pangle SDK initialization', error: e, stackTrace: s);
       if (context.mounted) {
-        showErrorDialog(S.of(context).label_ads_sdk_init_fail, error: e);
+        commonUtils.showErrorDialog(S.of(context).label_ads_sdk_init_fail,
+            error: e);
       }
       rethrow;
     }
@@ -48,19 +54,11 @@ class PanglePlatform extends AdPlatform {
       // 애니메이션 시작
       startButtonAnimation();
 
-      // 최대 30초 후에는 무조건 애니메이션 중지 (안전장치)
-      Future.delayed(const Duration(seconds: 30), () {
-        if (context.mounted) {
-          logger.i('Pangle 안전장치: 애니메이션 중지');
-          stopAllAnimations();
-        }
-      });
-
       // 이벤트 핸들러 설정
       channel.setMethodCallHandler(_handlePangleEvents);
 
       PangleAds.setOnProfileRefreshNeeded(() {
-        refreshUserProfile();
+        commonUtils.refreshUserProfile();
       });
 
       await initialize();
@@ -79,7 +77,7 @@ class PanglePlatform extends AdPlatform {
         }
       } else {
         if (context.mounted) {
-          showErrorDialog(S.of(context).label_ads_load_fail);
+          commonUtils.showErrorDialog(S.of(context).label_ads_load_fail);
         }
         stopAllAnimations();
       }
@@ -95,7 +93,7 @@ class PanglePlatform extends AdPlatform {
 
       final result = await Future.any([
         PangleAds.loadRewardedAd(
-          isIOS()
+          Platform.isIOS
               ? Environment.pangleIosRewardedVideoId!
               : Environment.pangleAndroidRewardedVideoId!,
           supabase.auth.currentUser!.id,
@@ -133,7 +131,7 @@ class PanglePlatform extends AdPlatform {
       case 'onAdClosed':
         logger.i('Pangle 광고가 닫힘');
         stopAllAnimations();
-        refreshUserProfile();
+        commonUtils.refreshUserProfile();
         break;
       case 'onUserEarnedReward':
         final rewardData = call.arguments as Map<String, dynamic>;
@@ -146,7 +144,7 @@ class PanglePlatform extends AdPlatform {
             'code: ${errorData['code']}, message: ${errorData['message']}';
         logger.e('Pangle 광고 보상 획득 실패', error: errorDetail);
         stopAllAnimations();
-        showErrorDialog(S.of(context).label_ads_reward_fail,
+        commonUtils.showErrorDialog(S.of(context).label_ads_reward_fail,
             error: errorDetail);
         break;
     }
@@ -157,6 +155,9 @@ class PanglePlatform extends AdPlatform {
     logger.e('Error in Pangle ads', error: error, stackTrace: stackTrace);
     if (context.mounted) {
       stopAllAnimations();
+
+      commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+          error: error);
     }
   }
 }

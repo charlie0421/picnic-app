@@ -6,6 +6,7 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/core/utils/common_utils.dart';
 
 /// AdMob 광고 플랫폼 구현
 class AdmobPlatform extends AdPlatform {
@@ -92,7 +93,7 @@ class AdmobPlatform extends AdPlatform {
             logger.e('AdMob 광고 로드 실패', error: error);
             stopAllAnimations();
             if (context.mounted) {
-              showErrorDialog(S.of(context).label_ads_load_fail,
+              commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
                   error: error.toString());
             }
           },
@@ -102,7 +103,8 @@ class AdmobPlatform extends AdPlatform {
       logger.e('AdMob 광고 로드 중 예외 발생', error: e, stackTrace: s);
       stopAllAnimations();
       if (context.mounted) {
-        showErrorDialog(S.of(context).label_ads_load_fail, error: e);
+        commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+            error: e);
       }
       rethrow;
     }
@@ -117,7 +119,7 @@ class AdmobPlatform extends AdPlatform {
       onAdDismissedFullScreenContent: (RewardedAd ad) {
         logger.i('AdMob 광고가 닫힘');
         stopAllAnimations();
-        refreshUserProfile();
+        commonUtils.refreshUserProfile();
         ad.dispose();
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
@@ -125,7 +127,7 @@ class AdmobPlatform extends AdPlatform {
         stopAllAnimations();
         ad.dispose();
         if (context.mounted) {
-          showErrorDialog(S.of(context).label_ads_show_fail,
+          commonUtils.showErrorDialog(S.of(context).label_ads_show_fail,
               error: error.toString());
         }
       },
@@ -147,7 +149,7 @@ class AdmobPlatform extends AdPlatform {
     ad.show(
       onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
         logger.i('AdMob 보상 지급: ${reward.amount} ${reward.type}');
-        refreshUserProfile();
+        commonUtils.refreshUserProfile();
       },
     );
   }
@@ -158,7 +160,8 @@ class AdmobPlatform extends AdPlatform {
     setLoading(false);
     stopAllAnimations();
     if (context.mounted) {
-      showErrorDialog(S.of(context).label_ads_load_fail, error: error);
+      commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+          error: error);
     }
   }
 }

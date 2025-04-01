@@ -7,6 +7,7 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/pincruxOfferwallPlugin.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:universal_io/io.dart';
+import 'package:picnic_lib/core/utils/common_utils.dart';
 
 /// Pincrux 미션 플랫폼 구현
 class PincruxPlatform extends AdPlatform {
@@ -61,7 +62,7 @@ class PincruxPlatform extends AdPlatform {
       PincruxOfferwallPlugin.startPincruxOfferwall();
 
       // 사용자 프로필 새로고침
-      refreshUserProfile();
+      commonUtils.refreshUserProfile();
     } catch (e, s) {
       logger.e('Error in _showPincruxOfferwall', error: e, stackTrace: s);
       throw e;
@@ -74,7 +75,8 @@ class PincruxPlatform extends AdPlatform {
     if (context.mounted) {
       stopAllAnimations();
 
-      showErrorDialog(S.of(context).label_ads_load_fail, error: error);
+      commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+          error: error);
     }
   }
 }

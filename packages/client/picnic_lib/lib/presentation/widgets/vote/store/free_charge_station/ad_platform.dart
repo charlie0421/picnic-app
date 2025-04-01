@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+import 'package:picnic_lib/core/utils/common_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
@@ -18,8 +19,13 @@ abstract class AdPlatform {
   final BuildContext context;
   final String id;
   final AnimationController? animationController;
+  late final CommonUtils _commonUtils;
 
-  AdPlatform(this.ref, this.context, this.id, [this.animationController]);
+  CommonUtils get commonUtils => _commonUtils;
+
+  AdPlatform(this.ref, this.context, this.id, [this.animationController]) {
+    _commonUtils = CommonUtils(ref, context);
+  }
 
   Future<void> initialize();
   Future<void> showAd();
@@ -104,7 +110,7 @@ abstract class AdPlatform {
       return true;
     } catch (e, s) {
       logger.e('Error in checkAdsLimit', error: e, stackTrace: s);
-      showErrorDialog(S.of(context).label_ads_load_fail);
+      _commonUtils.showErrorDialog(S.of(context).label_ads_load_fail);
       return false;
     }
   }
@@ -142,18 +148,6 @@ abstract class AdPlatform {
         ],
       ),
     );
-  }
-
-  // 공통 로직: 에러 다이얼로그 표시
-  void showErrorDialog(String message, {dynamic error}) {
-    if (!context.mounted) return;
-    showSimpleErrorDialog(context, message, error: error);
-  }
-
-  // 공통 로직: 프로필 새로고침
-  void refreshUserProfile() {
-    if (!context.mounted) return;
-    ref.read(userInfoProvider.notifier).getUserProfiles();
   }
 
   // 공통 로직: 전체 오류 처리 흐름
