@@ -1511,7 +1511,7 @@
   "@text_achievement": {
     "manualTranslation": true
   },
-  "compatibility_purchase_message": "If I want to know the Goong-hap score between me and the {artist_name}?",
+  "compatibility_purchase_message": "If I want to know the Goong-hap score between me and the {artistName}?",
   "@compatibility_purchase_message": {},
   "text_ads_random": "Viewing ads and collecting random images.",
   "@text_ads_random": {
@@ -1889,7 +1889,7 @@
   "@compatibility_remain_star_candy": {
     "manualTranslation": true
   },
-  "fortune_share_message": "Curious about #{artist_name}'s 2025 fortune? Come to #피크닠 now! Let's discover that shining destiny together!",
+  "fortune_share_message": "Curious about #{artistName}'s 2025 fortune? Come to #피크닠 now! Let's discover that shining destiny together!",
   "@fortune_share_message": {
     "manualTranslation": true
   },
@@ -1897,7 +1897,7 @@
   "@fortune_share_hashtag": {
     "manualTranslation": true
   },
-  "compatibility_share_message": "What percentage is my shining chemistry compatibility with #{artist_name}} ? My heart is racing!",
+  "compatibility_share_message": "What percentage is my shining chemistry compatibility with #{artistName}} ? My heart is racing!",
   "@compatibility_share_message": {
     "manualTranslation": true
   },

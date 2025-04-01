@@ -3440,13 +3440,13 @@ class S {
     );
   }
 
-  /// `If I want to know the Goong-hap score between me and the {artist_name}?`
-  String compatibility_purchase_message(Object artist_name) {
+  /// `If I want to know the Goong-hap score between me and the {artistName}?`
+  String compatibility_purchase_message(Object artistName) {
     return Intl.message(
-      'If I want to know the Goong-hap score between me and the $artist_name?',
+      'If I want to know the Goong-hap score between me and the $artistName?',
       name: 'compatibility_purchase_message',
       desc: '',
-      args: [artist_name],
+      args: [artistName],
     );
   }
 
@@ -4330,13 +4330,13 @@ class S {
     );
   }
 
-  /// `Curious about #{artist_name}'s 2025 fortune? Come to #피크닠 now! Let's discover that shining destiny together!`
-  String fortune_share_message(Object artist_name) {
+  /// `Curious about #{artistName}'s 2025 fortune? Come to #피크닠 now! Let's discover that shining destiny together!`
+  String fortune_share_message(Object artistName) {
     return Intl.message(
-      'Curious about #$artist_name\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!',
+      'Curious about #$artistName\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!',
       name: 'fortune_share_message',
       desc: '',
-      args: [artist_name],
+      args: [artistName],
     );
   }
 
@@ -4350,13 +4350,13 @@ class S {
     );
   }
 
-  /// `What percentage is my shining chemistry compatibility with #{artist_name}} ? My heart is racing!`
-  String compatibility_share_message(Object artist_name) {
+  /// `What percentage is my shining chemistry compatibility with #{artistName}} ? My heart is racing!`
+  String compatibility_share_message(Object artistName) {
     return Intl.message(
-      'What percentage is my shining chemistry compatibility with #$artist_name} ? My heart is racing!',
+      'What percentage is my shining chemistry compatibility with #$artistName} ? My heart is racing!',
       name: 'compatibility_share_message',
       desc: '',
-      args: [artist_name],
+      args: [artistName],
     );
   }
 

@@ -1380,7 +1380,7 @@
   "@text_achievement": {
     "manualTranslation": true
   },
-  "compatibility_purchase_message": "如果我想知道我和{artist_name}的契合度评分呢？",
+  "compatibility_purchase_message": "如果我想知道我和{artistName}的契合度评分呢？",
   "@compatibility_purchase_message": {},
   "text_ads_random": "查看广告并收集随机图片。",
   "@text_ads_random": {
@@ -1692,7 +1692,7 @@
   "@compatibility_remain_star_candy": {
     "manualTranslation": true
   },
-  "fortune_share_message": "想知道#{artist_name}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！",
+  "fortune_share_message": "想知道#{artistName}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！",
   "@fortune_share_message": {
     "manualTranslation": true
   },
@@ -1700,7 +1700,7 @@
   "@fortune_share_hashtag": {
     "manualTranslation": true
   },
-  "compatibility_share_message": "我与 #{artist_name} 的闪耀默契度是多少％呢？我的心已经怦怦直跳！",
+  "compatibility_share_message": "我与 #{artistName} 的闪耀默契度是多少％呢？我的心已经怦怦直跳！",
   "@compatibility_share_message": {
     "manualTranslation": true
   },

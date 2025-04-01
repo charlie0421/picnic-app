@@ -762,7 +762,7 @@
   "@fortune_button_title": {
     "manualTranslation": true
   },
-  "fortune_share_message": "#{artist_name} 의 2025년 운세가 궁금하다면? 지금 바로 #피크닠 으로 오세요! 우리 같이 빛나는 운세 확인해요!",
+  "fortune_share_message": "#{artistName} 의 2025년 운세가 궁금하다면? 지금 바로 #피크닠 으로 오세요! 우리 같이 빛나는 운세 확인해요!",
   "@fortune_share_message": {
     "manualTranslation": true
   },
@@ -770,7 +770,7 @@
   "@fortune_share_hashtag": {
     "manualTranslation": true
   },
-  "compatibility_share_message": "나와 #{artist_name} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!",
+  "compatibility_share_message": "나와 #{artistName} 의 빛나는 케미 궁합은 몇 %일까? 심장이 두근두근!",
   "@compatibility_share_message": {
     "manualTranslation": true
   },
@@ -1172,7 +1172,7 @@
   },
   "text_achievement": "🎉 지금까지 ${count}개 목표 달성! 🎉",
   "@text_achievement": {},
-  "compatibility_purchase_message": "나와 {artist_name}의 궁합 점수가 궁금하다면?🎉",
+  "compatibility_purchase_message": "나와 {artistName}의 궁합 점수가 궁금하다면?🎉",
   "@compatibility_purchase_message": {},
   "text_ads_random": "광고 보기 및 무작위 이미지 수집.",
   "@text_ads_random": {
