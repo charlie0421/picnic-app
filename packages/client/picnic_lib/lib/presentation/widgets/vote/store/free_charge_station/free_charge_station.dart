@@ -166,7 +166,6 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
   List<ChargeStationItem> _buildAdItems(BuildContext context) {
     var globalIndex = 0;
     var asiaIndex = 0;
-    var koreaIndex = 0;
     final items = <ChargeStationItem>[];
 
     if (_adService.isPlatformAvailable('admob')) {

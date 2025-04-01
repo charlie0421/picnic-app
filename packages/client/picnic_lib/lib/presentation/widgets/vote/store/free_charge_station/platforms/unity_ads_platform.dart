@@ -1,14 +1,11 @@
 // unity_ads_platform.dart
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
-import 'package:picnic_lib/core/utils/common_utils.dart';
 
 /// Unity Ads 플랫폼 구현
 class UnityAdsPlatform extends AdPlatform {
@@ -16,9 +13,8 @@ class UnityAdsPlatform extends AdPlatform {
   static bool _isInitializing = false;
   static String _lastInitError = '';
 
-  UnityAdsPlatform(WidgetRef ref, BuildContext context, String id,
-      [AnimationController? animationController])
-      : super(ref, context, id, animationController);
+  UnityAdsPlatform(super.ref, super.context, super.id,
+      [super.animationController]);
 
   @override
   Future<void> initialize() async {

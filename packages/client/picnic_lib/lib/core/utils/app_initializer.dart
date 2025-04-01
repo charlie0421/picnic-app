@@ -13,7 +13,6 @@ import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/core/services/update_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/pangle_ads.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
@@ -253,12 +252,18 @@ class AppInitializer {
     try {
       logger.i('앱 초기화 시작');
 
+      // MediaQuery 데이터를 미리 캐시
+      final mediaQueryData = MediaQuery.of(context);
+      if (!context.mounted) return;
+
       // 기본 초기화
       await precacheImage(const AssetImage("assets/splash.webp"), context);
+      if (!context.mounted) return;
+
       ref.read(appSettingProvider.notifier);
       ref
           .read(globalMediaQueryProvider.notifier)
-          .updateMediaQueryData(MediaQuery.of(context));
+          .updateMediaQueryData(mediaQueryData);
 
       if (isMobile()) {
         await _initializeMobileApp(ref);

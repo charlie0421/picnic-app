@@ -6,7 +6,6 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/core/utils/common_utils.dart';
 
 /// AdMob 광고 플랫폼 구현
 class AdmobPlatform extends AdPlatform {

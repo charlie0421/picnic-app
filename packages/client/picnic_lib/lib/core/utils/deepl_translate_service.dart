@@ -2,7 +2,7 @@ import 'package:deepl_dart/deepl_dart.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 class DeepLTranslationService {
-  final Translator _translator;
+  final DeepL _deepl;
   final bool debugMode;
   static const int _maxAttempts = 3;
   static const Duration _retryDelay = Duration(seconds: 1);
@@ -20,7 +20,7 @@ class DeepLTranslationService {
   DeepLTranslationService({
     required String apiKey,
     this.debugMode = true,
-  }) : _translator = Translator(authKey: apiKey);
+  }) : _deepl = DeepL(authKey: apiKey);
 
   /// Translates text to target language
   Future<String> translateText(
@@ -30,8 +30,11 @@ class DeepLTranslationService {
 
     while (attempts < _maxAttempts) {
       try {
-        final translation = await _translator
-            .translateTextSingular(text, targetLang, sourceLang: sourceLang);
+        final translation = await _deepl.translate.translateText(
+          text,
+          targetLang,
+          sourceLang: sourceLang,
+        );
         logger.i('Translated: "$text" -> "${translation.text}"');
 
         return translation.text;

@@ -46,12 +46,3 @@ Future<String> _getCurrentPatchInfo() async {
     return "패치 정보 확인 실패";
   }
 }
-
-Future<String> _fetchPatchInfo() async {
-  try {
-    final patchNumber = await shorebird.ShorebirdUpdater().readCurrentPatch();
-    return patchNumber != null ? "Current Patch: $patchNumber" : "No patch";
-  } catch (e) {
-    return "Failed to load patch info";
-  }
-}
