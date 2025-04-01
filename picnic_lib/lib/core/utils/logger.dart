@@ -44,6 +44,21 @@ class LongMessagePrinter extends PrettyPrinter {
     return '';
   }
 
+  String _getClassName() {
+    final frames = Trace.current().frames;
+    if (frames.length > _skipFrames) {
+      final frame = frames[_skipFrames];
+      final member = frame.member;
+      if (member != null) {
+        if (member.contains('.')) {
+          return member.split('.')[0];
+        }
+        return member;
+      }
+    }
+    return '';
+  }
+
   String _getTimestamp() {
     final now = DateTime.now();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} '
@@ -116,14 +131,16 @@ class LongMessagePrinter extends PrettyPrinter {
     final emoji = _emojiMap[event.level] ?? '📝';
     final callerInfo = _getCallerInfo();
     final timestamp = _getTimestamp();
+    final className = _getClassName();
 
     messages.add(_createBorder('┌'));
     messages.add('│ 🕒 $timestamp');
     messages.add('│ 📍 $callerInfo');
 
     final formattedMessage = _formatMessage(event.message);
-    messages
-        .addAll(formattedMessage.split('\n').map((line) => '│ $emoji $line'));
+    final tag = className.isNotEmpty ? '[$className] ' : '';
+    messages.addAll(
+        formattedMessage.split('\n').map((line) => '│ $emoji $tag$line'));
 
     if (event.error != null) {
       messages.add('│');
