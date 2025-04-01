@@ -169,7 +169,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
   Future<void> _showErrorDialog(String message) async {
     if (!mounted) return;
-    showSimpleDialog(type: DialogType.error, content: message);
+    showSimpleErrorDialog(context, message, type: DialogType.error);
   }
 
   Future<void> _showSuccessDialog() async {

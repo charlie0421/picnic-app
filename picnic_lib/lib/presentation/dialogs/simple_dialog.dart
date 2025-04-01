@@ -171,3 +171,27 @@ void showSimpleDialog({
     duration: const Duration(seconds: 3),
   );
 }
+
+void showSimpleErrorDialog(
+  BuildContext context,
+  String message, {
+  dynamic error,
+  bool truncateError = true,
+  String type = DialogType.error,
+}) {
+  if (!context.mounted) return;
+
+  String displayMessage = message;
+  if (error != null) {
+    final errorMsg = error.toString();
+    final truncatedError = truncateError && errorMsg.length > 150
+        ? '${errorMsg.substring(0, 150)}...'
+        : errorMsg;
+    displayMessage = '$message\n\n$truncatedError';
+  }
+
+  showSimpleDialog(
+    type: type,
+    content: displayMessage,
+  );
+}
