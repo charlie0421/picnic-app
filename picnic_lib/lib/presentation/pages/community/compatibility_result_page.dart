@@ -519,7 +519,8 @@ class _CompatibilityResultPageState
     return ShareUtils.shareToSocial(
       _shareKey,
       message: _shareMessage,
-      hashtag: S.of(context).compatibility_share_hashtag,
+      hashtag: Intl.message('compatibility_share_hashtag',
+          args: [getLocaleTextFromJson(compatibility.artist.name)]),
       downloadLink: await createBranchLink(
           getLocaleTextFromJson(compatibility.artist.name),
           '${Environment.appLinkPrefix}/community/compatibility/${compatibility.artist.id}'),

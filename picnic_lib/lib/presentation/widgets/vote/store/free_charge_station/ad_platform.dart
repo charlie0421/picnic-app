@@ -96,6 +96,7 @@ abstract class AdPlatform {
       if (allowed != true) {
         final limits = (response.data['limits']
             as Map<String, dynamic>)[platform] as Map<String, dynamic>;
+        // ignore: unused_local_variable
         final counts = (response.data['counts']
             as Map<String, dynamic>)[platform] as Map<String, dynamic>;
         _handleExceededAdsLimit(

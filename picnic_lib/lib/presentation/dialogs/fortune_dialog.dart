@@ -214,7 +214,11 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                                   args: [
                                     getLocaleTextFromJson(fortune.artist.name)
                                   ]),
-                              hashtag: S.of(context).fortune_share_hashtag,
+                              hashtag: Intl.message(
+                                  'compatibility_share_hashtag',
+                                  args: [
+                                    getLocaleTextFromJson(fortune.artist.name)
+                                  ]),
                               downloadLink: await createBranchLink(
                                   getLocaleTextFromJson(fortune.artist.name),
                                   '${Environment.appLinkPrefix}/community/fortune/${widget.artistId}'),

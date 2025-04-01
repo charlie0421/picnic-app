@@ -102,6 +102,12 @@ class _AppState extends ConsumerState<App> {
       await AppInitializer.initializeSystemUI();
     }
 
+    if (!mounted) {
+      logger.e('앱 초기화 중 위젯이 dispose됨');
+      _isAppInitialized = false;
+      return;
+    }
+
     // AppInitializer 클래스 내부에 스크린 정보 설정 로직이 있는지 확인을 위한 로그
     logger.i('AppInitializer 클래스 메서드 호출 전 - 스크린 정보 확인');
 
@@ -113,6 +119,12 @@ class _AppState extends ConsumerState<App> {
       await AppInitializer.initializeAppWithSplash(context, ref);
     } else {
       await AppInitializer.initializeWebApp(context, ref);
+    }
+
+    if (!mounted) {
+      logger.e('앱 초기화 완료 후 위젯이 dispose됨');
+      _isAppInitialized = false;
+      return;
     }
 
     // 앱 초기화 로직 실행 후 스크린 정보 설정

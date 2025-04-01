@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
@@ -7,13 +5,11 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/pincruxOfferwallPlugin.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:universal_io/io.dart';
-import 'package:picnic_lib/core/utils/common_utils.dart';
 
 /// Pincrux 미션 플랫폼 구현
 class PincruxPlatform extends AdPlatform {
-  PincruxPlatform(WidgetRef ref, BuildContext context, String id,
-      [AnimationController? animationController])
-      : super(ref, context, id, animationController);
+  PincruxPlatform(super.ref, super.context, super.id,
+      [super.animationController]);
 
   @override
   Future<void> initialize() async {
@@ -65,7 +61,7 @@ class PincruxPlatform extends AdPlatform {
       commonUtils.refreshUserProfile();
     } catch (e, s) {
       logger.e('Error in _showPincruxOfferwall', error: e, stackTrace: s);
-      throw e;
+      rethrow;
     }
   }
 

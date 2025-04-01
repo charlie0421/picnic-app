@@ -134,6 +134,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       // 이전 구매 상태 초기화
       await _purchaseService.inAppPurchaseService.clearTransactions();
 
+      if (!context.mounted) return;
       OverlayLoadingProgress.start(
         context,
         barrierDismissible: false,

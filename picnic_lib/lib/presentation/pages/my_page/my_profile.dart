@@ -218,8 +218,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ),
         builder: (context) => StatefulBuilder(
               builder: (context, setState) => Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(
                     S.of(context).dialog_withdraw_title,
@@ -326,10 +325,12 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ref.read(navigationInfoProvider.notifier).setBottomNavigationIndex(0);
         ref.read(userInfoProvider.notifier).logout();
         ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
+
+        if (!mounted) return;
         Navigator.of(context).pop();
 
-        showSimpleDialog(
-            content: Intl.message('withdrawal_success'));
+        if (!mounted) return;
+        showSimpleDialog(content: Intl.message('withdrawal_success'));
       } else {
         throw Exception('Failed to delete user: ${response.body}');
       }

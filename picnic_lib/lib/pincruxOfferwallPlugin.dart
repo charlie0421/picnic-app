@@ -1,4 +1,5 @@
-import 'dart:io';
+// ignore: file_names
+import 'package:universal_platform/universal_platform.dart';
 
 import 'package:flutter/services.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -12,7 +13,7 @@ class PincruxOfferwallPlugin {
   }
 
   static void setOfferwallViewControllerType(int type) async {
-    if (Platform.isIOS) {
+    if (UniversalPlatform.isIOS) {
       await _channel
           .invokeListMethod("setOfferwallViewControllerType", {'type': type});
     }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:animated_digit/animated_digit.dart';
 import 'package:bubble_box/bubble_box.dart';

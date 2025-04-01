@@ -10,6 +10,7 @@
 analyzer:
     errors:
         invalid_annotation_target: ignore
+        file_names: ignore
 include: package:flutter_lints/flutter.yaml
 exclude:
     - "**/*.g.dart"
