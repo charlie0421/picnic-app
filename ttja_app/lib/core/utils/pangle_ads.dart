@@ -27,40 +27,40 @@ class PangleAds {
   // 광고 닫힘 후 프로필 갱신 콜백 설정
   static void setOnProfileRefreshNeeded(Function callback) {
     _onProfileRefreshNeeded = callback;
-    logger.i('광고 닫힘 후 프로필 갱신 콜백이 설정되었습니다');
+    Logger.i('광고 닫힘 후 프로필 갱신 콜백이 설정되었습니다');
   }
 
   // Pangle SDK 초기화
   static Future<bool> initPangle(String appId) async {
     try {
-      logger.i('Initializing Pangle SDK with appId: $appId');
+      Logger.i('Initializing Pangle SDK with appId: $appId');
       final result = await _channel.invokeMethod<bool>(
         'initPangle',
         {'appId': appId},
       );
 
       if (result ?? false) {
-        logger.i('Pangle SDK initialized successfully');
+        Logger.i('Pangle SDK initialized successfully');
 
         // 이벤트 수신 처리 설정
         _setupEventHandlers();
       } else {
-        logger.e('Pangle SDK initialization failed');
+        Logger.e('Pangle SDK initialization failed');
       }
 
       return result ?? false;
     } on PlatformException catch (e) {
-      logger.e('Pangle SDK initialization error: ${e.message}');
+      Logger.e('Pangle SDK initialization error: ${e.message}');
       return false;
     } catch (e) {
-      logger.e('Unexpected error initializing Pangle SDK: $e');
+      Logger.e('Unexpected error initializing Pangle SDK: $e');
       return false;
     }
   }
 
   // 이벤트 핸들러 설정
   static void _setupEventHandlers() {
-    logger.i('Pangle 이벤트 핸들러 설정 시작');
+    Logger.i('Pangle 이벤트 핸들러 설정 시작');
 
     _channel.setMethodCallHandler((call) async {
       try {
@@ -68,59 +68,59 @@ class PangleAds {
 
         switch (call.method) {
           case 'onAdShowed':
-            logger.i('광고 표시 이벤트 수신');
+            Logger.i('광고 표시 이벤트 수신');
             _adShownController.add(null);
             break;
 
           case 'onAdClicked':
-            logger.i('광고 클릭 이벤트 수신');
+            Logger.i('광고 클릭 이벤트 수신');
             _adClickedController.add(null);
             break;
 
           case 'onAdClosed':
-            logger.i('광고 닫힘 이벤트 수신');
+            Logger.i('광고 닫힘 이벤트 수신');
             _adDismissedController.add(null);
             _performProfileRefresh(timestamp);
             break;
 
           case 'onUserEarnedReward':
-            logger.i('보상 획득 이벤트 수신: ${call.arguments}');
+            Logger.i('보상 획득 이벤트 수신: ${call.arguments}');
             try {
               final args = Map<String, dynamic>.from(call.arguments as Map);
               _rewardEarnedController.add(args);
               _performProfileRefresh(timestamp);
-              logger.i('보상 획득 이벤트 전파 완료');
+              Logger.i('보상 획득 이벤트 전파 완료');
             } catch (e) {
-              logger.e('보상 획득 이벤트 처리 중 오류: $e');
+              Logger.e('보상 획득 이벤트 처리 중 오류: $e');
             }
             break;
 
           case 'onRewardFailed':
-            logger.e('리워드 실패: ${call.arguments}');
+            Logger.e('리워드 실패: ${call.arguments}');
             try {
               final args = Map<String, dynamic>.from(call.arguments as Map);
               final String errorMessage = args['errorMessage'] ?? '알 수 없는 오류';
-              logger.e('보상 지급 실패 이벤트 처리: $errorMessage');
+              Logger.e('보상 지급 실패 이벤트 처리: $errorMessage');
               _rewardFailedController.add(errorMessage);
               _performProfileRefresh(timestamp);
-              logger.i('보상 실패 이벤트 전파 완료');
+              Logger.i('보상 실패 이벤트 전파 완료');
             } catch (e) {
-              logger.e('보상 실패 이벤트 처리 중 오류: $e');
+              Logger.e('보상 실패 이벤트 처리 중 오류: $e');
             }
             break;
 
           default:
             // 알 수 없는 이벤트이지만 'ad'가 포함된 경우 광고 닫힘으로 처리
             if (call.method.toLowerCase().contains('ad')) {
-              logger.w('알 수 없는 광고 이벤트를 광고 닫힘으로 처리: ${call.method}');
+              Logger.w('알 수 없는 광고 이벤트를 광고 닫힘으로 처리: ${call.method}');
               _performProfileRefresh(timestamp);
             } else {
-              logger.w('처리되지 않은 이벤트: ${call.method}');
+              Logger.w('처리되지 않은 이벤트: ${call.method}');
             }
             break;
         }
       } catch (e, stackTrace) {
-        logger.e('이벤트 처리 중 오류 발생: $e', stackTrace: stackTrace);
+        Logger.e('이벤트 처리 중 오류 발생: $e', stackTrace: stackTrace);
       }
 
       return null;
@@ -128,33 +128,33 @@ class PangleAds {
 
     // 이벤트 핸들러가 설정되었는지 확인
     Future.delayed(Duration(milliseconds: 100), () {
-      logger.i(
+      Logger.i(
           '이벤트 Stream 상태 확인: adDismissed=${!_adDismissedController.isClosed}, 구독자=${_adDismissedController.hasListener}');
     });
 
-    logger.i('Pangle 이벤트 핸들러 설정 완료');
+    Logger.i('Pangle 이벤트 핸들러 설정 완료');
   }
 
   /// 프로필 새로고침 수행
   static void _performProfileRefresh(dynamic timestamp) {
     try {
       if (_onProfileRefreshNeeded != null) {
-        logger.i('프로필 새로고침 콜백 실행 중...');
+        Logger.i('프로필 새로고침 콜백 실행 중...');
         Future.delayed(Duration(seconds: 1), () {
           _onProfileRefreshNeeded!();
         });
       } else {
-        logger.w('프로필 새로고침 콜백이 등록되지 않았습니다.');
+        Logger.w('프로필 새로고침 콜백이 등록되지 않았습니다.');
       }
     } catch (e, stackTrace) {
-      logger.e('프로필 새로고침 중 오류 발생: $e', stackTrace: stackTrace);
+      Logger.e('프로필 새로고침 중 오류 발생: $e', stackTrace: stackTrace);
     }
   }
 
   // 리워드 광고 로드
   static Future<bool> loadRewardedAd(String placementId, String userId) async {
     try {
-      logger.i(
+      Logger.i(
           'Loading rewarded ad with placementId: $placementId, userId: $userId');
       final result = await _channel.invokeMethod<bool>(
         'loadRewardedAd',
@@ -162,18 +162,18 @@ class PangleAds {
       );
 
       if (result ?? false) {
-        logger.i('Rewarded ad loaded successfully');
+        Logger.i('Rewarded ad loaded successfully');
       } else {
-        logger.e('Failed to load rewarded ad');
+        Logger.e('Failed to load rewarded ad');
         throw Exception('Pangle 광고 로드 실패');
       }
 
       return result ?? false;
     } on PlatformException catch (e) {
-      logger.e('Error loading rewarded ad: ${e.message}');
+      Logger.e('Error loading rewarded ad: ${e.message}');
       return false;
     } catch (e) {
-      logger.e('Unexpected error loading rewarded ad: $e');
+      Logger.e('Unexpected error loading rewarded ad: $e');
       return false;
     }
   }
@@ -181,21 +181,21 @@ class PangleAds {
   // 리워드 광고 표시
   static Future<bool> showRewardedAd() async {
     try {
-      logger.i('Showing rewarded ad');
+      Logger.i('Showing rewarded ad');
       final result = await _channel.invokeMethod<bool>('showRewardedAd');
 
       if (result ?? false) {
-        logger.i('Rewarded ad shown successfully');
+        Logger.i('Rewarded ad shown successfully');
       } else {
-        logger.e('Failed to show rewarded ad');
+        Logger.e('Failed to show rewarded ad');
       }
 
       return result ?? false;
     } on PlatformException catch (e) {
-      logger.e('Error showing rewarded ad: ${e.message}');
+      Logger.e('Error showing rewarded ad: ${e.message}');
       return false;
     } catch (e) {
-      logger.e('Unexpected error showing rewarded ad: $e');
+      Logger.e('Unexpected error showing rewarded ad: $e');
       return false;
     }
   }
