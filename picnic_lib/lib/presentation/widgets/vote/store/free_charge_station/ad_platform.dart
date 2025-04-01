@@ -159,12 +159,13 @@ abstract class AdPlatform {
     try {
       startLoading();
 
-      final checkAdsLimitResult = await checkAdsLimit(id);
-
-      if (!isMission && !checkAdsLimitResult) {
-        stopLoading();
-        stopButtonAnimation();
-        return;
+      if (!isMission) {
+        final checkAdsLimitResult = await checkAdsLimit(id);
+        if (!checkAdsLimitResult) {
+          stopLoading();
+          stopButtonAnimation();
+          return;
+        }
       }
 
       await action();
