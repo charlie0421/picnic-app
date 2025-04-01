@@ -1,4 +1,4 @@
-package net.ttja.app
+package com.ttja
 
 import android.os.Build
 import android.os.Bundle
@@ -7,7 +7,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.util.Locale
-import net.ttja.app.pangle.PangleNativeHandler
+import pangle.custom.PangleNativeHandler
 
 class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

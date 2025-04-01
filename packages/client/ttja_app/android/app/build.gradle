@@ -102,6 +102,15 @@ flutter {
     source = "../.."
 }
 
+repositories {
+    maven { url "https://artifact.bytedance.com/repository/pangle" }
+    maven { url "https://artifact.bytedance.com/repository/pangle-global" }
+    google()
+    mavenCentral()
+    jcenter()
+}
+
+
 dependencies {
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "androidx.appcompat:appcompat:1.6.1"
