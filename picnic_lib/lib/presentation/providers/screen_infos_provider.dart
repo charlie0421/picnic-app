@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part '../../generated/providers/screen_infos_provider.g.dart';
 
 @Riverpod(keepAlive: true)
-class ScreenInfos extends AsyncNotifier<Map<String, ScreenInfo>> {
+class ScreenInfos extends _$ScreenInfos {
   @override
   FutureOr<Map<String, ScreenInfo>> build() async {
     return Future.value({});

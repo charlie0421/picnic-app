@@ -1388,7 +1388,7 @@
   "@text_achievement": {
     "manualTranslation": true
   },
-  "compatibility_purchase_message": "私と「{artist_name}」の相性スコアが気になる方は？",
+  "compatibility_purchase_message": "私と「{artistName}」の相性スコアが気になる方は？",
   "@compatibility_purchase_message": {},
   "text_ads_random": "広告表示とランダム画像収集。",
   "@text_ads_random": {
@@ -1700,7 +1700,7 @@
   "@compatibility_remain_star_candy": {
     "manualTranslation": true
   },
-  "fortune_share_message": "想知道#{artist_name}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！\n#picnic #新年运势 #Fourtuneteller\n",
+  "fortune_share_message": "想知道#{artistName}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！\n#picnic #新年运势 #Fourtuneteller\n",
   "@fortune_share_message": {
     "manualTranslation": true
   },
@@ -1708,7 +1708,7 @@
   "@fortune_share_hashtag": {
     "manualTranslation": true
   },
-  "compatibility_share_message": "私と#{artist_name} の輝くケミは何％かな？ドキドキが止まらない！",
+  "compatibility_share_message": "私と#{artistName} の輝くケミは何％かな？ドキドキが止まらない！",
   "@compatibility_share_message": {
     "manualTranslation": true
   },

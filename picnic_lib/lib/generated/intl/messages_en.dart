@@ -20,14 +20,14 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(artist_name) =>
-      "If I want to know the Goong-hap score between me and the ${artist_name}?";
+  static String m0(artistName) =>
+      "If I want to know the Goong-hap score between me and the ${artistName}?";
 
-  static String m1(artist_name) =>
-      "What percentage is my shining chemistry compatibility with #${artist_name}} ? My heart is racing!";
+  static String m1(artistName) =>
+      "What percentage is my shining chemistry compatibility with #${artistName}} ? My heart is racing!";
 
-  static String m2(artist_name) =>
-      "Curious about #${artist_name}\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!";
+  static String m2(artistName) =>
+      "Curious about #${artistName}\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!";
 
   static String m3(year) => "Fortune of ${year}";
 
