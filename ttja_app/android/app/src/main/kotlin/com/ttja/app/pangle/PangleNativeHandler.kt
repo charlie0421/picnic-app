@@ -1,4 +1,4 @@
-package net.ttja.app.pangle
+package pangle.custom
 
 import android.app.Activity
 import android.content.Context
@@ -122,70 +122,85 @@ class PangleNativeHandler : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun loadRewardedAd(placementId: String, userId: String, result: Result) {
+        println("리워드 광고 로드 시작 - placementId: $placementId, userId: $userId")
+
+        rewardedAd = null
         val request = PAGRewardedRequest()
-        request.setAdString("{\"user_id\":\"$userId\"}")
+        val extraInfo = hashMapOf<String, Any>()
+        extraInfo["media_extra"] = "$userId,android"
+        request.extraInfo = extraInfo
 
-        PAGRewardedAd.load(placementId, request, object : PAGRewardedAdLoadListener {
-            override fun onError(code: Int, message: String) {
-                println("리워드 광고 로드 실패: $message (코드: $code)")
-                result.error("LoadFailed", message, null)
-            }
+        Handler(Looper.getMainLooper()).postDelayed({
+            PAGRewardedAd.loadAd(placementId, request, object : PAGRewardedAdLoadListener {
+                override fun onError(code: Int, msg: String) {
+                    println("리워드 광고 로드 실패: $msg (코드: $code)")
+                    result.error("LoadFailed", msg, null)
+                }
 
-            override fun onAdLoaded(ad: PAGRewardedAd) {
-                println("리워드 광고 로드 성공")
-                rewardedAd = ad
-                result.success(true)
-            }
-        })
+                override fun onAdLoaded(ad: PAGRewardedAd) {
+                    println("리워드 광고 로드 성공")
+                    rewardedAd = ad
+                    result.success(true)
+                }
+            })
+        }, 500)
     }
 
     private fun showRewardedAd(result: Result) {
-        val ad = rewardedAd
-        if (ad == null) {
-            result.error("NoAd", "광고가 로드되지 않았습니다", null)
-            return
+        if (rewardedAd != null) {
+            println("리워드 광고 표시 시작")
+
+            val currentActivity = activity
+            if (currentActivity == null) {
+                result.error("ShowFailed", "Activity가 없습니다", null)
+                return
+            }
+
+            rewardedAd?.setAdInteractionListener(object : PAGRewardedAdInteractionListener {
+                override fun onAdShowed() {
+                    println("리워드 광고가 표시됨")
+                    channel.invokeMethod("onAdShowed", null)
+                }
+
+                override fun onAdClicked() {
+                    println("리워드 광고가 클릭됨")
+                    channel.invokeMethod("onAdClicked", null)
+                }
+
+                override fun onAdDismissed() {
+                    println("리워드 광고가 닫힘")
+                    rewardedAd = null
+                    channel.invokeMethod("onAdClosed", null)
+                }
+
+                override fun onUserEarnedReward(item: PAGRewardItem) {
+                    println("사용자가 보상을 받음: ${item.rewardAmount} ${item.rewardName}")
+                    val rewardData = mapOf(
+                        "amount" to item.rewardAmount,
+                        "name" to item.rewardName
+                    )
+                    channel.invokeMethod("onUserEarnedReward", rewardData)
+                }
+
+                override fun onUserEarnedRewardFail(code: Int, msg: String) {
+                    println("사용자 보상 획득 실패: $msg (코드: $code)")
+                    val errorData = mapOf(
+                        "code" to code,
+                        "message" to msg
+                    )
+                    channel.invokeMethod("onUserEarnedRewardFail", errorData)
+                }
+            })
+
+            try {
+                rewardedAd?.show(currentActivity)
+                result.success(true)
+            } catch (e: Exception) {
+                println("광고 표시 중 예외 발생: ${e.message}")
+                result.error("ShowFailed", "광고 표시 중 오류 발생: ${e.message}", null)
+            }
+        } else {
+            result.error("ShowFailed", "리워드 광고가 준비되지 않았습니다", null)
         }
-
-        val activity = activity
-        if (activity == null) {
-            result.error("NoActivity", "Activity가 없습니다", null)
-            return
-        }
-
-        ad.setAdInteractionListener(object : PAGRewardedAdInteractionListener {
-            override fun onAdShowed() {
-                println("리워드 광고 표시됨")
-                channel.invokeMethod("onAdShowed", null)
-            }
-
-            override fun onAdClicked() {
-                println("리워드 광고 클릭됨")
-                channel.invokeMethod("onAdClicked", null)
-            }
-
-            override fun onAdDismissed() {
-                println("리워드 광고 닫힘")
-                channel.invokeMethod("onAdClosed", null)
-            }
-
-            override fun onUserEarnedReward(rewardItem: PAGRewardItem) {
-                println("리워드 획득: ${rewardItem.rewardAmount} ${rewardItem.rewardName}")
-                channel.invokeMethod("onUserEarnedReward", mapOf(
-                    "amount" to rewardItem.rewardAmount,
-                    "name" to rewardItem.rewardName
-                ))
-            }
-
-            override fun onUserEarnedRewardFail(error: com.bytedance.sdk.openadsdk.api.model.PAGError) {
-                println("리워드 획득 실패: ${error.errorMsg}")
-                channel.invokeMethod("onUserEarnedRewardFail", mapOf(
-                    "code" to error.code,
-                    "message" to error.errorMsg
-                ))
-            }
-        })
-
-        ad.show(activity)
-        result.success(true)
     }
-} 
+}
