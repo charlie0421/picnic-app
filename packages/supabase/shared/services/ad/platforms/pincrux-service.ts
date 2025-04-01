@@ -119,7 +119,7 @@ export class PincruxService extends BaseAdService {
     params: PincruxParameters,
   ): Promise<PincruxAdCallbackResponse> {
     try {
-      console.log('Pincrux 콜백 처리 시작');
+      console.log('Pincrux 콜백 처리 시작', params);
       // 1. 파라미터 검증
       const verificationResult = await this.verify(params);
       if (!verificationResult.isValid) {

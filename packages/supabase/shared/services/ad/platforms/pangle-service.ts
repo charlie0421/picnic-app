@@ -4,7 +4,6 @@ import { PangleParameters } from '../interfaces/ad-parameters.ts';
 export class PangleService extends BaseAdService {
   constructor(secretKey: string) {
     super(secretKey);
-    console.log('PangleService 초기화 완료');
   }
 
   validateParameters(params: PangleParameters): boolean {

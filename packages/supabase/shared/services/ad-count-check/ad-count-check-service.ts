@@ -54,7 +54,7 @@ export class AdCountCheckService {
 
     if (error) {
       console.error(`Error fetching ${platform} transactions:`, error);
-      return 0;
+      throw error;
     }
 
     return data.length;
