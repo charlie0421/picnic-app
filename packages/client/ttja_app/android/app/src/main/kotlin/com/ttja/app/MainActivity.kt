@@ -8,6 +8,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.util.Locale
 import pangle.custom.PangleNativeHandler
+import com.ttja.PincruxPlugin
 
 class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +43,10 @@ class MainActivity : FlutterActivity() {
         
         // Pangle 네이티브 핸들러 등록
         flutterEngine.plugins.add(PangleNativeHandler())
+
+        // Pincrux 플러그인 등록
+        flutterEngine.plugins.add(PincruxPlugin())
+
     }
 
     // 문제가 있는 MediaTek 기기 감지
