@@ -234,34 +234,14 @@ export default function VoteList() {
         <Table.Column
           dataIndex='vote_category'
           title='카테고리'
-          responsive={['md']}
           render={(value: VoteCategory) => {
             const category = VOTE_CATEGORIES?.find((c) => c.value === value);
             return category?.label || value;
           }}
         />
         <Table.Column
-          dataIndex='visible_at'
-          title='공개일'
-          responsive={['md']}
-          render={(value: string | undefined) => formatDate(value, 'datetime')}
-        />
-        <Table.Column
-          dataIndex='start_at'
-          title='시작일'
-          responsive={['md']}
-          render={(value: string | undefined) => formatDate(value, 'datetime')}
-        />
-        <Table.Column
-          dataIndex='stop_at'
-          title='종료일'
-          responsive={['lg']}
-          render={(value: string | undefined) => formatDate(value, 'datetime')}
-        />
-        <Table.Column
           dataIndex='main_image'
           title='메인 이미지'
-          responsive={['lg']}
           render={(value: string | undefined) => {
             if (!value) return '-';
             return (
@@ -281,6 +261,21 @@ export default function VoteList() {
               />
             );
           }}
+        />
+        <Table.Column
+          dataIndex='visible_at'
+          title='공개일'
+          render={(value: string | undefined) => formatDate(value, 'datetime')}
+        />
+        <Table.Column
+          dataIndex='start_at'
+          title='시작일'
+          render={(value: string | undefined) => formatDate(value, 'datetime')}
+        />
+        <Table.Column
+          dataIndex='stop_at'
+          title='종료일'
+          render={(value: string | undefined) => formatDate(value, 'datetime')}
         />
         <Table.Column
           title='상태'

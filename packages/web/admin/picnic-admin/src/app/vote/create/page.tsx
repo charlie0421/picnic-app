@@ -491,7 +491,7 @@ export default function VoteCreate() {
           />
         </Form.Item>
         <Form.Item label='메인 이미지' name='main_image'>
-          <ImageUpload bucket='images' folder='vote/main' />
+          <ImageUpload bucket={process.env.NEXT_PUBLIC_AWS_S3_BUCKET} folder='vote' />
         </Form.Item>
 
         <div style={{ marginBottom: 16 }}>

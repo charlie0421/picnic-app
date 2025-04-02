@@ -18,6 +18,5 @@ export const getImageUrl = (path: string): string => {
   }
 
   const fullUrl = `${cdnUrl}/${path}`;
-  console.log('생성된 이미지 URL:', fullUrl);
   return fullUrl;
 };

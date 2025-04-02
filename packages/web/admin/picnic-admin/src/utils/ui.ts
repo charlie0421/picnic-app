@@ -7,9 +7,7 @@ import { COLORS } from './theme';
  */
 
 // 카드 스타일 생성 함수
-export const getCardStyle = (isMobile = false, extraStyles = {}) => {
-  const { token } = theme.useToken();
-
+export const getCardStyle = (token: any, isMobile = false, extraStyles = {}) => {
   const shadowColor = `rgba(0, 0, 0, ${
     token.colorBgMask === '#000000' ? 0.15 : 0.08
   })`;
@@ -27,9 +25,7 @@ export const getCardStyle = (isMobile = false, extraStyles = {}) => {
 };
 
 // 섹션 스타일 생성 함수
-export const getSectionStyle = (extraStyles = {}) => {
-  const { token } = theme.useToken();
-
+export const getSectionStyle = (token: any, extraStyles = {}) => {
   return {
     marginBottom: '16px',
     background: token.colorBgElevated,
@@ -41,21 +37,15 @@ export const getSectionStyle = (extraStyles = {}) => {
 };
 
 // 섹션 헤더 스타일 생성 함수
-export const getSectionHeaderStyle = (extraStyles = {}) => {
-  const { token } = theme.useToken();
-
+export const getSectionHeaderStyle = (token: any, extraStyles = {}) => {
   return {
     marginBottom: '20px',
-    borderBottom: `2px solid ${COLORS.primary}`,
-    paddingBottom: '10px',
     ...extraStyles,
   };
 };
 
 // 제목 스타일 생성 함수
-export const getTitleStyle = (extraStyles = {}) => {
-  const { token } = theme.useToken();
-
+export const getTitleStyle = (token: any, extraStyles = {}) => {
   return {
     margin: '0 0 8px 0',
     color: COLORS.primary,
@@ -64,8 +54,7 @@ export const getTitleStyle = (extraStyles = {}) => {
 };
 
 // 이미지 스타일 생성 함수
-export const getImageStyle = (extraStyles = {}): CSSProperties => {
-  const { token } = theme.useToken();
+export const getImageStyle = (token: any, extraStyles = {}): CSSProperties => {
   const shadowColor = `rgba(0, 0, 0, ${
     token.colorBgMask === '#000000' ? 0.15 : 0.08
   })`;
@@ -81,9 +70,7 @@ export const getImageStyle = (extraStyles = {}): CSSProperties => {
 };
 
 // 날짜 섹션 스타일
-export const getDateSectionStyle = (extraStyles = {}) => {
-  const { token } = theme.useToken();
-
+export const getDateSectionStyle = (token: any, extraStyles = {}) => {
   return {
     marginTop: '32px',
     marginBottom: '16px',

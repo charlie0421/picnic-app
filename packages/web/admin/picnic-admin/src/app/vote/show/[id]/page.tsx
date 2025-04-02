@@ -1,7 +1,7 @@
 'use client';
 
 import { DateField, MarkdownField, Show, TextField } from '@refinedev/antd';
-import { useOne, useShow } from '@refinedev/core';
+import { useShow } from '@refinedev/core';
 import { Typography, Grid, theme, Tag } from 'antd';
 import {
   UserOutlined,
@@ -51,14 +51,6 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
   const record = data?.data;
 
-  const { data: voteData, isLoading: voteIsLoading } = useOne({
-    resource: 'vote',
-    id: record?.id || '',
-    queryOptions: {
-      enabled: !!record,
-    },
-  });
-
   return (
     <Show isLoading={isLoading} title='투표조회'>
       <div
@@ -72,19 +64,19 @@ export default function VoteShow({ params }: { params: { id: string } }) {
         <div
           style={{
             flex: 1,
-            ...getCardStyle(isMobile, {
+            ...getCardStyle(token, isMobile, {
               paddingRight: isMobile ? '24px' : '44px',
             }),
           }}
         >
-          <div style={getSectionHeaderStyle()}>
+          <div style={getSectionHeaderStyle(token)}>
             <Title level={4} style={headerTitleStyle}>
               기본 정보
             </Title>
           </div>
 
-          <div className='info-section' style={getSectionStyle()}>
-            <Title level={5} style={getTitleStyle()}>
+          <div className='info-section' style={getSectionStyle(token)}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'아이디'}
             </Title>
             <TextField value={record?.id} />
@@ -92,9 +84,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'제목  (한국어)'}
             </Title>
             <TextField value={record?.title?.ko} />
@@ -102,9 +94,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'제목 (English)'}
             </Title>
             <TextField value={record?.title?.en} />
@@ -112,9 +104,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'제목 (日本語)'}
             </Title>
             <TextField value={record?.title?.ja} />
@@ -122,9 +114,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'제목 (中文)'}
             </Title>
             <TextField value={record?.title?.zh} />
@@ -132,9 +124,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'카테고리'}
             </Title>
             <TextField value={record?.vote_category} />
@@ -142,17 +134,17 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'메인 이미지'}
             </Title>
             {record?.main_image ? (
               <div style={{ marginBottom: '10px', textAlign: 'center' }}>
                 <img
-                  src={getImageUrl(record.main_image)}
+                  src={`${getImageUrl(record.main_image)}?w=300`}
                   alt='메인 이미지'
-                  style={getImageStyle({ maxHeight: '300px' })}
+                  style={getImageStyle(token, { maxHeight: '300px' })}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.parentElement!.innerText = '-';
@@ -164,7 +156,7 @@ export default function VoteShow({ params }: { params: { id: string } }) {
             )}
           </div>
 
-          <div style={getSectionHeaderStyle()}>
+          <div style={getSectionHeaderStyle(token)}>
             <Title level={4} style={headerTitleStyle}>
               시간 정보
             </Title>
@@ -172,9 +164,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'공개일'}
             </Title>
             <TextField value={formatDate(record?.visible_at)} />
@@ -182,9 +174,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'시작일'}
             </Title>
             <TextField value={formatDate(record?.start_at)} />
@@ -192,9 +184,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'종료일'}
             </Title>
             <TextField value={formatDate(record?.stop_at)} />
@@ -202,9 +194,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'생성일'}
             </Title>
             <TextField value={formatDate(record?.created_at)} />
@@ -212,9 +204,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'수정일'}
             </Title>
             <TextField value={formatDate(record?.updated_at)} />
@@ -222,9 +214,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
           <div
             className='info-section'
-            style={{ ...getSectionStyle(), marginTop: '16px' }}
+            style={{ ...getSectionStyle(token), marginTop: '16px' }}
           >
-            <Title level={5} style={getTitleStyle()}>
+            <Title level={5} style={getTitleStyle(token)}>
               {'삭제일'}
             </Title>
             <TextField value={formatDate(record?.deleted_at)} />
@@ -238,12 +230,12 @@ export default function VoteShow({ params }: { params: { id: string } }) {
             borderTop: `1px solid ${token.colorBorderSecondary}`,
             paddingTop: '20px',
             marginTop: isMobile ? '16px' : '0px',
-            ...getCardStyle(isMobile, {
+            ...getCardStyle(token, isMobile, {
               paddingLeft: isMobile ? '24px' : '44px',
             }),
           }}
         >
-          <div style={getSectionHeaderStyle()}>
+          <div style={getSectionHeaderStyle(token)}>
             <Title level={4} style={headerTitleStyle}>
               투표 아이템
             </Title>
@@ -310,7 +302,7 @@ export default function VoteShow({ params }: { params: { id: string } }) {
                       <div style={{ textAlign: 'center' }}>
                         {item.artist?.image ? (
                           <img
-                            src={getImageUrl(item.artist.image)}
+                            src={`${getImageUrl(item.artist.image)}?w=100`}
                             alt='아티스트 이미지'
                             style={{
                               width: '100px',
@@ -430,9 +422,9 @@ export default function VoteShow({ params }: { params: { id: string } }) {
                           >
                             {item.artist.artist_group.image ? (
                               <img
-                                src={getImageUrl(
+                                src={`${getImageUrl(
                                   item.artist.artist_group.image,
-                                )}
+                                )}?w=30`}
                                 alt='그룹 이미지'
                                 style={{
                                   width: '30px',
