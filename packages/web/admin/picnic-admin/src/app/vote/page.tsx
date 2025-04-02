@@ -17,7 +17,7 @@ import {
   CrudFilter,
   useNavigation,
 } from '@refinedev/core';
-import { Space, Table, Select, Tag } from 'antd';
+import { Space, Table, Select, Tag, Row, Col } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -129,32 +129,37 @@ export default function VoteList() {
 
   return (
     <List headerButtons={<CreateButton />}>
-      <Space style={{ marginBottom: 16 }}>
-        <Select
-          style={{ width: 120 }}
-          placeholder='카테고리 선택'
-          allowClear
-          options={VOTE_CATEGORIES}
-          value={categoryFilter}
-          onChange={handleCategoryChange}
-        />
-        <Select
-          style={{ width: 120 }}
-          placeholder='투표 상태'
-          allowClear
-          options={[
-            { label: '투표 예정', value: VOTE_STATUS.UPCOMING },
-            { label: '투표 중', value: VOTE_STATUS.ONGOING },
-            { label: '투표 완료', value: VOTE_STATUS.COMPLETED },
-          ]}
-          value={statusFilter}
-          onChange={handleStatusChange}
-        />
-      </Space>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={24} md={24}>
+          <Space wrap style={{ marginBottom: 16 }}>
+            <Select
+              style={{ width: '100%', minWidth: 120 }}
+              placeholder='카테고리 선택'
+              allowClear
+              options={VOTE_CATEGORIES}
+              value={categoryFilter}
+              onChange={handleCategoryChange}
+            />
+            <Select
+              style={{ width: '100%', minWidth: 120 }}
+              placeholder='투표 상태'
+              allowClear
+              options={[
+                { label: '투표 예정', value: VOTE_STATUS.UPCOMING },
+                { label: '투표 중', value: VOTE_STATUS.ONGOING },
+                { label: '투표 완료', value: VOTE_STATUS.COMPLETED },
+              ]}
+              value={statusFilter}
+              onChange={handleStatusChange}
+            />
+          </Space>
+        </Col>
+      </Row>
 
       <Table
         {...tableProps}
         rowKey='id'
+        scroll={{ x: 'max-content' }}
         onRow={(record: VoteRecord) => {
           if (!record) return {};
           const status = getVoteStatus(record.start_at, record.stop_at);
@@ -173,9 +178,16 @@ export default function VoteList() {
         }}
         style={{
           color: 'inherit',
+          width: '100%',
+          overflowX: 'auto',
         }}
       >
-        <Table.Column dataIndex='id' title='ID' className='text-inherit' />
+        <Table.Column
+          dataIndex='id'
+          title='ID'
+          className='text-inherit'
+          width={60}
+        />
         <Table.Column
           dataIndex='title'
           title={'제목'}
@@ -188,30 +200,31 @@ export default function VoteList() {
                   flexDirection: 'column',
                   gap: '8px',
                   color: 'inherit', // 시스템 텍스트 색상 사용
+                  wordBreak: 'break-word',
                 }}
               >
                 <div
                   style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <span style={{ fontWeight: 'bold' }}>🇰🇷</span>
+                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇰🇷</span>
                   <span>{value.ko || '-'}</span>
                 </div>
                 <div
                   style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <span style={{ fontWeight: 'bold' }}>🇺🇸</span>
+                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇺🇸</span>
                   <span>{value.en || '-'}</span>
                 </div>
                 <div
                   style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <span style={{ fontWeight: 'bold' }}>🇯🇵</span>
+                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇯🇵</span>
                   <span>{value.ja || '-'}</span>
                 </div>
                 <div
                   style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <span style={{ fontWeight: 'bold' }}>🇨🇳</span>
+                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇨🇳</span>
                   <span>{value.zh || '-'}</span>
                 </div>
               </div>
@@ -221,6 +234,7 @@ export default function VoteList() {
         <Table.Column
           dataIndex='vote_category'
           title='카테고리'
+          responsive={['md']}
           render={(value: VoteCategory) => {
             const category = VOTE_CATEGORIES?.find((c) => c.value === value);
             return category?.label || value;
@@ -229,16 +243,19 @@ export default function VoteList() {
         <Table.Column
           dataIndex='start_at'
           title='시작일'
+          responsive={['md']}
           render={(value: string | undefined) => formatDate(value, 'datetime')}
         />
         <Table.Column
           dataIndex='stop_at'
           title='종료일'
+          responsive={['lg']}
           render={(value: string | undefined) => formatDate(value, 'datetime')}
         />
         <Table.Column
           dataIndex='main_image'
           title='메인 이미지'
+          responsive={['lg']}
           render={(value: string | undefined) => {
             if (!value) return '-';
             return (
