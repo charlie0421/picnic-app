@@ -38,6 +38,7 @@ import dayjs from 'dayjs';
 import { COLORS } from '@/utils/theme';
 import { theme } from 'antd';
 import ArtistSelector from '@/components/artist-selector';
+import ImageUpload from '@/components/upload';
 
 export default function VoteEdit({ params }: { params: { id: string } }) {
   const { push } = useNavigation();
@@ -580,7 +581,7 @@ export default function VoteEdit({ params }: { params: { id: string } }) {
           />
         </Form.Item>
         <Form.Item label='메인 이미지' name='main_image'>
-          <Input placeholder='이미지 경로' />
+          <ImageUpload bucket='images' folder='vote/main' />
         </Form.Item>
 
         <div style={{ marginBottom: 16 }}>

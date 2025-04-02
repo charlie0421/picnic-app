@@ -22,6 +22,7 @@ import { Artist, VoteItem } from '@/types/vote';
 import dayjs from 'dayjs';
 import { COLORS } from '@/utils/theme';
 import ArtistSelector from '@/components/artist-selector';
+import ImageUpload from '@/components/upload';
 
 export default function VoteCreate() {
   const { push } = useNavigation();
@@ -490,7 +491,7 @@ export default function VoteCreate() {
           />
         </Form.Item>
         <Form.Item label='메인 이미지' name='main_image'>
-          <Input placeholder='이미지 경로' />
+          <ImageUpload bucket='images' folder='vote/main' />
         </Form.Item>
 
         <div style={{ marginBottom: 16 }}>
