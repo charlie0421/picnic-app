@@ -523,6 +523,7 @@ export default function VoteEdit() {
 
   return (
     <Edit
+      isLoading={queryResult?.isFetching}
       saveButtonProps={{
         ...saveButtonProps,
         onClick: () => {
@@ -533,7 +534,7 @@ export default function VoteEdit() {
           borderColor: COLORS.primary,
         },
       }}
-      headerButtons={[]}
+      title='투표정보 수정'
     >
       {contextHolder}
       <Form {...formProps} layout='vertical' onFinish={handleFormSubmit}>

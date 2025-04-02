@@ -52,6 +52,19 @@ export default function RootLayout({
                         show: '/vote/show/:id',
                         meta: {
                           canDelete: true,
+                          label: '투표관리',
+                          list: {
+                            label: '투표관리',
+                          },
+                          create: {
+                            label: '투표생성',
+                          },
+                          edit: {
+                            label: '투표수정',
+                          },
+                          show: {
+                            label: '투표조회',
+                          },
                         },
                       },
                     ]}
@@ -60,6 +73,16 @@ export default function RootLayout({
                       warnWhenUnsavedChanges: true,
                       useNewQueryKeys: true,
                       projectId: 'eFoHzB-2HcEeI-OFQDmB',
+                      title: {
+                        icon: (
+                          <img
+                            src='/icons/app_icon.png'
+                            alt='Picnic Admin'
+                            style={{ width: 28, height: 28 }}
+                          />
+                        ),
+                        text: 'Picnic Admin',
+                      },
                     }}
                   >
                     {children}

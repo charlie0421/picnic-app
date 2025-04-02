@@ -58,7 +58,7 @@ export default function VoteShow() {
   });
 
   return (
-    <Show isLoading={isLoading}>
+    <Show isLoading={isLoading} title='투표조회'>
       <div
         style={{
           display: 'flex',

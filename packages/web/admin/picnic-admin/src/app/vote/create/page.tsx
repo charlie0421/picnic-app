@@ -438,6 +438,7 @@ export default function VoteCreate() {
         },
       }}
       headerButtons={[]}
+      title='투표생성'
     >
       {contextHolder}
       <Form {...formProps} layout='vertical' onFinish={handleFormSubmit}>
