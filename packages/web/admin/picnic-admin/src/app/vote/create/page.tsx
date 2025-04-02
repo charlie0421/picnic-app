@@ -370,7 +370,7 @@ export default function VoteCreate() {
         ),
     },
     {
-      title: '생일',
+      title: '생일 🎂',
       dataIndex: ['artist'],
       key: 'birth_date',
       align: 'center' as const,
@@ -391,7 +391,7 @@ export default function VoteCreate() {
       },
     },
     {
-      title: '데뷔일',
+      title: '데뷔일 🎤',
       dataIndex: ['artist', 'artist_group'],
       key: 'debut_date',
       align: 'center' as const,

@@ -1,7 +1,7 @@
-import type { AuthProvider } from "@refinedev/core";
-import { createSupabaseServerClient } from "@utils/supabase/server";
+import type { AuthProvider } from '@refinedev/core';
+import { createSupabaseServerClient } from '@utils/supabase/server';
 
-export const authProviderServer: Pick<AuthProvider, "check"> = {
+export const authProviderServer: Pick<AuthProvider, 'check'> = {
   check: async () => {
     const { data, error } = await createSupabaseServerClient().auth.getUser();
     const { user } = data;
@@ -10,7 +10,7 @@ export const authProviderServer: Pick<AuthProvider, "check"> = {
       return {
         authenticated: false,
         logout: true,
-        redirectTo: "/login",
+        redirectTo: '/login',
       };
     }
 
@@ -23,7 +23,7 @@ export const authProviderServer: Pick<AuthProvider, "check"> = {
     return {
       authenticated: false,
       logout: true,
-      redirectTo: "/login",
+      redirectTo: '/login',
     };
   },
 };

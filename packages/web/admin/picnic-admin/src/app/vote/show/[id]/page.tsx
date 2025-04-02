@@ -3,7 +3,11 @@
 import { DateField, MarkdownField, Show, TextField } from '@refinedev/antd';
 import { useOne, useShow } from '@refinedev/core';
 import { Typography, Grid, theme, Tag } from 'antd';
-import { UserOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  TeamOutlined,
+  UsergroupAddOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 // 공통 유틸리티 가져오기
@@ -66,8 +70,9 @@ export default function VoteShow() {
         <div
           style={{
             flex: 1,
-            paddingRight: isMobile ? '0' : '20px',
-            ...getCardStyle(isMobile),
+            ...getCardStyle(isMobile, {
+              paddingRight: isMobile ? '24px' : '44px',
+            }),
           }}
         >
           <div style={getSectionHeaderStyle()}>
@@ -198,11 +203,12 @@ export default function VoteShow() {
         <div
           style={{
             flex: 2,
-            paddingLeft: isMobile ? '0' : '20px',
             borderTop: `1px solid ${token.colorBorderSecondary}`,
             paddingTop: '20px',
             marginTop: isMobile ? '16px' : '0px',
-            ...getCardStyle(isMobile),
+            ...getCardStyle(isMobile, {
+              paddingLeft: isMobile ? '24px' : '44px',
+            }),
           }}
         >
           <div style={getSectionHeaderStyle()}>
@@ -343,8 +349,9 @@ export default function VoteShow() {
                             style={{
                               margin: '8px 0',
                               padding: '8px',
-                              backgroundColor: token.colorBgContainer,
+                              backgroundColor: token.colorFillTertiary,
                               borderRadius: '4px',
+                              border: `1px solid ${token.colorBorderSecondary}`,
                             }}
                           >
                             <div
@@ -353,7 +360,7 @@ export default function VoteShow() {
                                 color: token.colorTextSecondary,
                               }}
                             >
-                              생일:{' '}
+                              생일 🎂:{' '}
                               {item.artist.birth_date
                                 ? dayjs(item.artist.birth_date).format(
                                     'YYYY-MM-DD',
@@ -384,8 +391,9 @@ export default function VoteShow() {
                               gap: '8px',
                               margin: '8px 0 4px 0',
                               padding: '8px',
-                              backgroundColor: token.colorBgContainer,
+                              backgroundColor: token.colorFillTertiary,
                               borderRadius: '4px',
+                              border: `1px solid ${token.colorBorderSecondary}`,
                             }}
                           >
                             {item.artist.artist_group.image ? (
@@ -416,17 +424,22 @@ export default function VoteShow() {
                               style={{
                                 width: '30px',
                                 height: '30px',
-                                backgroundColor: '#f5f5f5',
+                                backgroundColor: '#f0f0f0',
                                 borderRadius: '4px',
                                 display: item.artist.artist_group.image
                                   ? 'none'
                                   : 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                border: `1px solid ${token.colorBorderSecondary}`,
+                                boxShadow: `0 2px 4px rgba(0, 0, 0, 0.05)`,
                               }}
                             >
-                              <TeamOutlined
-                                style={{ fontSize: '18px', color: '#bfbfbf' }}
+                              <UsergroupAddOutlined
+                                style={{
+                                  fontSize: '18px',
+                                  color: token.colorPrimary,
+                                }}
                               />
                             </div>
                             <div>
