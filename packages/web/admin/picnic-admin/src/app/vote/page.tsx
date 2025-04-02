@@ -8,6 +8,7 @@ import {
   MarkdownField,
   ShowButton,
   useTable,
+  CreateButton,
 } from '@refinedev/antd';
 import {
   type BaseRecord,
@@ -32,6 +33,7 @@ import {
   type VoteCategory,
   type VoteRecord,
 } from '@/utils/vote';
+import { formatDate, DATE_FORMATS } from '@/utils/date';
 
 type FilterValue = VoteCategory | null;
 
@@ -126,7 +128,7 @@ export default function VoteList() {
   };
 
   return (
-    <List>
+    <List headerButtons={<CreateButton />}>
       <Space style={{ marginBottom: 16 }}>
         <Select
           style={{ width: 120 }}
@@ -227,16 +229,12 @@ export default function VoteList() {
         <Table.Column
           dataIndex='start_at'
           title='시작일'
-          render={(value: string | undefined) =>
-            value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '-'
-          }
+          render={(value: string | undefined) => formatDate(value, 'datetime')}
         />
         <Table.Column
           dataIndex='stop_at'
           title='종료일'
-          render={(value: string | undefined) =>
-            value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '-'
-          }
+          render={(value: string | undefined) => formatDate(value, 'datetime')}
         />
         <Table.Column
           dataIndex='main_image'

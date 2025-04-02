@@ -7,6 +7,7 @@ import { Typography, Grid, theme } from 'antd';
 // 공통 유틸리티 가져오기
 import { getImageUrl } from '@/utils/image';
 import { type VoteRecord } from '@/utils/vote';
+import { formatDate } from '@/utils/date';
 import {
   getCardStyle,
   getSectionStyle,
@@ -139,75 +140,21 @@ export default function VoteShow() {
             <Title level={5} style={getTitleStyle()}>
               {'생성일'}
             </Title>
-            {record?.created_at ? (
-              <TextField
-                value={new Date(record.created_at)
-                  .toLocaleString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false,
-                  })
-                  .replace(/\. /g, '-')
-                  .replace(/:/g, ':')
-                  .replace('.', '')}
-              />
-            ) : (
-              <TextField value='-' />
-            )}
+            <TextField value={formatDate(record?.created_at)} />
           </div>
 
           <div className='info-section' style={getSectionStyle()}>
             <Title level={5} style={getTitleStyle()}>
               {'수정일'}
             </Title>
-            {record?.updated_at ? (
-              <TextField
-                value={new Date(record.updated_at)
-                  .toLocaleString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false,
-                  })
-                  .replace(/\. /g, '-')
-                  .replace(/:/g, ':')
-                  .replace('.', '')}
-              />
-            ) : (
-              <TextField value='-' />
-            )}
+            <TextField value={formatDate(record?.updated_at)} />
           </div>
 
           <div className='info-section' style={getSectionStyle()}>
             <Title level={5} style={getTitleStyle()}>
               {'삭제일'}
             </Title>
-            {record?.deleted_at ? (
-              <TextField
-                value={new Date(record.deleted_at)
-                  .toLocaleString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false,
-                  })
-                  .replace(/\. /g, '-')
-                  .replace(/:/g, ':')
-                  .replace('.', '')}
-              />
-            ) : (
-              <TextField value='-' />
-            )}
+            <TextField value={formatDate(record?.deleted_at)} />
           </div>
         </div>
 
@@ -335,22 +282,13 @@ export default function VoteShow() {
                       }}
                     >
                       <div>
-                        생성일:{' '}
-                        {item.created_at
-                          ? new Date(item.created_at).toLocaleString('ko-KR')
-                          : '-'}
+                        생성일: {formatDate(item.created_at, 'datetime')}
                       </div>
                       <div>
-                        수정일:{' '}
-                        {item.updated_at
-                          ? new Date(item.updated_at).toLocaleString('ko-KR')
-                          : '-'}
+                        수정일: {formatDate(item.updated_at, 'datetime')}
                       </div>
                       <div>
-                        삭제일:{' '}
-                        {item.deleted_at
-                          ? new Date(item.deleted_at).toLocaleString('ko-KR')
-                          : '-'}
+                        삭제일: {formatDate(item.deleted_at, 'datetime')}
                       </div>
                       <div
                         style={{
