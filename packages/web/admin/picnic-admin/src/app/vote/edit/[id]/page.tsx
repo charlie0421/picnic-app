@@ -1,6 +1,12 @@
 'use client';
 
-import { Edit, useForm, useSelect, useTable } from '@refinedev/antd';
+import {
+  Edit,
+  useForm,
+  useSelect,
+  useTable,
+  getValueFromEvent,
+} from '@refinedev/antd';
 import {
   Form,
   Input,
@@ -15,189 +21,72 @@ import {
   Input as AntdInput,
   Empty,
 } from 'antd';
+import { DeleteOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
 import {
-  DeleteOutlined,
-  PlusOutlined,
-  UserOutlined,
-  TeamOutlined,
-} from '@ant-design/icons';
-import { useEffect, useState, useMemo } from 'react';
-import { useList, useNavigation, BaseRecord } from '@refinedev/core';
+  useNavigation,
+  useOne,
+  useList,
+  useUpdate,
+  useCreate,
+  useDelete,
+} from '@refinedev/core';
 import { getImageUrl } from '@/utils/image';
 import { VOTE_CATEGORIES, type VoteRecord } from '@/utils/vote';
+import { Artist, VoteItem } from '@/types/vote';
 import dayjs from 'dayjs';
 import { COLORS } from '@/utils/theme';
 import { theme } from 'antd';
+import ArtistSelector from '@/components/artist-selector';
 
-// 아티스트와 투표 항목 인터페이스 정의
-interface Artist {
-  id: string;
-  name?: {
-    ko?: string;
-    en?: string;
-    ja?: string;
-    zh?: string;
-  };
-  image?: string;
-  birth_date?: string;
-  yy?: number;
-  mm?: number;
-  dd?: number;
-  artist_group?: {
-    id: number;
-    name?: {
-      ko?: string;
-      en?: string;
-      ja?: string;
-      zh?: string;
-    };
-    image?: string;
-    debut_yy?: number;
-    debut_mm?: number;
-    debut_dd?: number;
-  };
-}
-
-interface VoteItem {
-  id?: string;
-  artist_id: string;
-  vote_total?: number;
-  artist?: Artist;
-  temp_id?: number;
-  deleted?: boolean;
-}
-
-export default function VoteEdit() {
+export default function VoteEdit({ params }: { params: { id: string } }) {
   const { push } = useNavigation();
-  const [artists, setArtists] = useState<Artist[]>([]);
-  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isSearching, setIsSearching] = useState<boolean>(false);
   const { token } = theme.useToken();
-
-  // 투표 폼 데이터 가져오기
-  const { formProps, saveButtonProps, queryResult, id } = useForm<VoteRecord>({
-    meta: {
-      select:
-        'id, title, main_image, vote_category, start_at, stop_at, vote_item(id, artist_id, vote_total, artist(id, name, image, birth_date, yy, mm, dd, artist_group(id, name, image, debut_yy, debut_mm, debut_dd)))',
-    },
-    redirect: 'show',
-    warnWhenUnsavedChanges: true,
-  });
-
-  const voteData = queryResult?.data?.data;
 
   // 선택된 투표 항목들 관리
   const [voteItems, setVoteItems] = useState<VoteItem[]>([]);
 
-  // 초기 vote_item 데이터 설정
-  useEffect(() => {
-    if (voteData?.vote_item) {
-      setVoteItems(voteData.vote_item as VoteItem[]);
-    }
-  }, [voteData]);
-
-  // 아티스트 목록 가져오기
-  const { data: artistsData, isLoading: artistsLoading } = useList({
-    resource: 'artist',
+  // 데이터 불러오기
+  const {
+    data: voteData,
+    isLoading,
+    isError,
+  } = useOne({
+    resource: 'vote',
+    id: params.id,
     meta: {
       select:
-        'id,name,image,birth_date,yy,mm,dd,artist_group(id,name,image,debut_yy,debut_mm,debut_dd)',
-    },
-    pagination: {
-      pageSize: 10000,
+        'id, title, main_image, vote_category, start_at, stop_at, visible_at, vote_item!vote_id(id, artist_id, vote_total, artist(id, name, image, birth_date, yy, mm, dd, artist_group(id, name, image, debut_yy, debut_mm, debut_dd)))',
     },
   });
 
-  // 디버깅용: 데이터 로딩 확인
+  // 폼 정의
+  const { formProps, saveButtonProps, id } = useForm<VoteRecord>({
+    redirect: false, // 리디렉션 비활성화 - 투표 항목 저장 후 직접 처리
+    warnWhenUnsavedChanges: true,
+  });
+
+  // vote_item 생성/수정/삭제 훅
+  const { mutate: createVoteItem } = useCreate();
+  const { mutate: updateVoteItem } = useUpdate();
+  const { mutate: deleteVoteItem } = useDelete();
+
+  // 초기 투표 항목 설정
   useEffect(() => {
-    if (artistsData) {
-      console.log('아티스트 데이터 로드됨:', artistsData.data?.length);
+    if (voteData?.data?.vote_item) {
+      const initialVoteItems = voteData.data.vote_item.map((item: any) => ({
+        ...item,
+        temp_id: item.id, // 기존 항목은 DB ID를 임시 ID로 사용
+        is_existing: true, // 기존 항목 표시
+      }));
+      setVoteItems(initialVoteItems);
     }
-  }, [artistsData]);
-
-  // 클라이언트 측 필터링된 아티스트
-  const filteredArtists = useMemo(() => {
-    if (!artistsData?.data) {
-      return [];
-    }
-
-    if (!searchQuery) {
-      return [];
-    }
-
-    const lowerCaseQuery = searchQuery.toLowerCase();
-    const filtered = (artistsData.data as Artist[]).filter((artist) => {
-      const koName = artist.name?.ko?.toLowerCase() || '';
-      const enName = artist.name?.en?.toLowerCase() || '';
-      return koName.includes(lowerCaseQuery) || enName.includes(lowerCaseQuery);
-    });
-
-    console.log('필터링 결과:', filtered.length, '결과 찾음');
-    return filtered;
-  }, [artistsData, searchQuery]);
-
-  // 아티스트 데이터 설정
-  useEffect(() => {
-    if (searchQuery && filteredArtists.length >= 0) {
-      setArtists(filteredArtists);
-    } else if (!searchQuery) {
-      setArtists([]);
-    }
-  }, [artistsData, filteredArtists, searchQuery]);
-
-  // 아티스트 선택 변경 핸들러
-  const handleArtistSelect = (value: string) => {
-    setSelectedArtist(value);
-  };
-
-  // 아티스트 추가 모달 표시
-  const showAddArtistModal = () => {
-    setIsModalVisible(true);
-  };
-
-  // 모달 취소 핸들러
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setSelectedArtist(null);
-  };
+  }, [voteData]);
 
   // 아티스트 추가 핸들러
-  const handleAddArtist = () => {
-    if (!selectedArtist) {
-      messageApi.error('아티스트를 선택해주세요');
-      return;
-    }
-
-    // 이미 추가된 아티스트인지 확인
-    const isAlreadyAdded = voteItems.some(
-      (item) => item.artist_id === selectedArtist,
-    );
-
-    if (isAlreadyAdded) {
-      messageApi.error('이미 추가된 아티스트입니다');
-      return;
-    }
-
-    // 선택된 아티스트 정보 가져오기
-    const selectedArtistData = artists.find(
-      (artist) => artist.id === selectedArtist,
-    );
-
-    // 새 투표 항목 추가
-    const newVoteItem: VoteItem = {
-      artist_id: selectedArtist,
-      vote_total: 0,
-      artist: selectedArtistData,
-      temp_id: Date.now(), // 임시 ID (추가 전용)
-    };
-
+  const handleAddArtist = (newVoteItem: VoteItem) => {
     setVoteItems([...voteItems, newVoteItem]);
-    setIsModalVisible(false);
-    setSelectedArtist(null);
-    messageApi.success('아티스트가 추가되었습니다');
   };
 
   // 아티스트 삭제 핸들러
@@ -210,12 +99,14 @@ export default function VoteEdit() {
       content: '이 투표 항목을 삭제하시겠습니까?',
       onOk: () => {
         if (isNewItem) {
-          // 새로 추가된 항목은 단순히 로컬 상태에서만 제거
+          // 새로 추가된 항목은 로컬 상태에서만 제거
           setVoteItems(voteItems.filter((item) => item.temp_id !== voteItemId));
         } else {
           // 기존 항목은 삭제 플래그 설정 (soft delete)
           const updatedItems = voteItems.map((item) =>
-            item.id === voteItemId ? { ...item, deleted: true } : item,
+            item.id === voteItemId || item.temp_id === voteItemId
+              ? { ...item, deleted: true }
+              : item,
           );
           setVoteItems(updatedItems);
         }
@@ -226,31 +117,68 @@ export default function VoteEdit() {
 
   // 폼 제출 핸들러 오버라이드
   const handleFormSubmit = async (values: any) => {
-    // 원본 formProps.onFinish 호출 전에 vote_item 데이터 추가
-    const updatedValues = {
-      ...values,
-      vote_item: voteItems.map((item) => {
-        // 새로 추가된 항목인 경우
-        if (item.temp_id) {
-          return {
-            artist_id: item.artist_id,
-          };
-        }
-        // 기존 항목 중 삭제된 경우
-        if (item.deleted) {
-          return {
-            id: item.id,
-            deleted_at: new Date().toISOString(),
-          };
-        }
-        // 변경 없는 기존 항목
-        return {
-          id: item.id,
-        };
-      }),
-    };
+    try {
+      console.log('Form values before modification:', values);
 
-    await formProps.onFinish?.(updatedValues);
+      // 원본 값에서 vote_item 제거 (중첩 데이터 방지)
+      const { vote_item, ...restValues } = values;
+
+      // 기본 정보만 먼저 업데이트
+      const result: { data?: { id?: string } } =
+        (await formProps.onFinish?.(restValues)) || {};
+      console.log('Basic vote data updated successfully, result:', result);
+
+      // vote_id
+      const voteId = params.id;
+
+      // 삭제된 항목 처리 - soft delete
+      const itemsToSoftDelete = voteItems.filter(
+        (item) => item.is_existing && item.deleted,
+      );
+      for (const item of itemsToSoftDelete) {
+        await updateVoteItem({
+          resource: 'vote_item',
+          id: item.id as string,
+          values: {
+            deleted_at: new Date().toISOString(),
+          },
+        });
+      }
+
+      // 2. 신규 항목 추가 및 기존 항목 업데이트 (삭제되지 않은 것만)
+      const activeItems = voteItems.filter((item) => !item.deleted);
+      for (const item of activeItems) {
+        if (item.is_existing) {
+          // 기졸 항목 업데이트 (필요한 경우)
+          await updateVoteItem({
+            resource: 'vote_item',
+            id: item.id as string,
+            values: {
+              artist_id: item.artist_id,
+              vote_id: voteId,
+            },
+          });
+        } else {
+          // 신규 항목 생성
+          await createVoteItem({
+            resource: 'vote_item',
+            values: {
+              artist_id: item.artist_id,
+              vote_id: voteId,
+            },
+          });
+        }
+      }
+
+      console.log('Vote items processed successfully');
+      messageApi.success('투표가 성공적으로 업데이트되었습니다');
+
+      // 수정 후 상세 페이지로 이동
+      push(`/vote/show/${voteId}`);
+    } catch (error) {
+      console.error('Form submission error:', error);
+      messageApi.error('투표 업데이트 중 오류가 발생했습니다');
+    }
   };
 
   // 투표 항목 테이블 컬럼 설정
@@ -514,16 +442,9 @@ export default function VoteEdit() {
     },
   ];
 
-  // 검색어 변경 핸들러
-  const handleSearch = (value: string) => {
-    console.log('검색어:', value); // 디버깅용
-    setSearchQuery(value);
-    setIsSearching(!!value);
-  };
-
   return (
     <Edit
-      isLoading={queryResult?.isFetching}
+      isLoading={isLoading}
       saveButtonProps={{
         ...saveButtonProps,
         onClick: () => {
@@ -672,17 +593,13 @@ export default function VoteEdit() {
               }}
             >
               <h3>투표 항목</h3>
-              <Button
-                type='primary'
-                icon={<PlusOutlined />}
-                onClick={showAddArtistModal}
-                style={{
-                  backgroundColor: COLORS.primary,
-                  borderColor: COLORS.primary,
-                }}
-              >
-                아티스트 추가
-              </Button>
+              <ArtistSelector
+                onArtistAdd={handleAddArtist}
+                existingArtistIds={voteItems
+                  .filter((item) => !item.deleted)
+                  .map((item) => item.artist_id)}
+                buttonText='아티스트 추가'
+              />
             </div>
             <Table
               dataSource={voteItems.filter((item) => !item.deleted)}
@@ -697,46 +614,6 @@ export default function VoteEdit() {
           </Space>
         </div>
       </Form>
-
-      <Modal
-        title='아티스트 추가'
-        open={isModalVisible}
-        onOk={handleAddArtist}
-        onCancel={handleCancel}
-      >
-        <div>
-          <div style={{ marginBottom: '10px' }}>아티스트 선택:</div>
-          <Select
-            showSearch
-            placeholder='아티스트 이름 검색...'
-            onChange={handleArtistSelect}
-            onSearch={handleSearch}
-            value={selectedArtist}
-            style={{ width: '100%' }}
-            listHeight={300}
-            loading={artistsLoading}
-            notFoundContent={
-              searchQuery
-                ? artistsLoading
-                  ? '검색 중...'
-                  : '검색 결과가 없습니다'
-                : '검색하려면 아티스트 이름을 입력해주세요'
-            }
-            options={artists.map((artist) => ({
-              value: artist.id,
-              label:
-                `${artist.name?.ko || ''} ${
-                  artist.name?.en ? `(${artist.name.en})` : ''
-                }${
-                  artist.artist_group?.name?.ko
-                    ? ` - ${artist.artist_group.name.ko}`
-                    : ''
-                }`.trim() || '이름 없음',
-            }))}
-            filterOption={false}
-          />
-        </div>
-      </Modal>
     </Edit>
   );
 }

@@ -13,62 +13,18 @@ import {
   DatePicker,
   theme,
 } from 'antd';
-import {
-  DeleteOutlined,
-  PlusOutlined,
-  UserOutlined,
-  TeamOutlined,
-} from '@ant-design/icons';
+import { DeleteOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { useNavigation, useList, useSelect } from '@refinedev/core';
+import { useNavigation, useList, useCreate } from '@refinedev/core';
 import { getImageUrl } from '@/utils/image';
 import { VOTE_CATEGORIES, type VoteRecord } from '@/utils/vote';
+import { Artist, VoteItem } from '@/types/vote';
 import dayjs from 'dayjs';
 import { COLORS } from '@/utils/theme';
-
-// 아티스트와 투표 항목 인터페이스 정의
-interface Artist {
-  id: string;
-  name?: {
-    ko?: string;
-    en?: string;
-    ja?: string;
-    zh?: string;
-  };
-  image?: string;
-  birth_date?: string;
-  yy?: number;
-  mm?: number;
-  dd?: number;
-  artist_group?: {
-    id: number;
-    name?: {
-      ko?: string;
-      en?: string;
-      ja?: string;
-      zh?: string;
-    };
-    image?: string;
-    debut_yy?: number;
-    debut_mm?: number;
-    debut_dd?: number;
-  };
-}
-
-interface VoteItem {
-  id?: string;
-  artist_id: string;
-  vote_total?: number;
-  artist?: Artist;
-  temp_id?: number;
-  deleted?: boolean;
-}
+import ArtistSelector from '@/components/artist-selector';
 
 export default function VoteCreate() {
   const { push } = useNavigation();
-  const [artists, setArtists] = useState<Artist[]>([]);
-  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const { token } = theme.useToken();
 
@@ -77,77 +33,12 @@ export default function VoteCreate() {
 
   // 폼 정의
   const { formProps, saveButtonProps } = useForm<VoteRecord>({
-    redirect: 'show',
+    redirect: false, // 리디렉션 비활성화 - 투표 항목 저장 후 직접 처리
     warnWhenUnsavedChanges: true,
   });
 
-  // 아티스트 목록 가져오기
-  const { data: artistsData, isLoading: artistsLoading } = useList({
-    resource: 'artist',
-    meta: {
-      select:
-        'id,name,image,birth_date,yy,mm,dd,artist_group(id,name,image,debut_yy,debut_mm,debut_dd)',
-    },
-  });
-
-  // 아티스트 데이터 설정
-  useEffect(() => {
-    if (artistsData?.data) {
-      setArtists(artistsData.data as Artist[]);
-    }
-  }, [artistsData]);
-
-  // 아티스트 선택 변경 핸들러
-  const handleArtistSelect = (value: string) => {
-    setSelectedArtist(value);
-  };
-
-  // 아티스트 추가 모달 표시
-  const showAddArtistModal = () => {
-    setIsModalVisible(true);
-  };
-
-  // 모달 취소 핸들러
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setSelectedArtist(null);
-  };
-
-  // 아티스트 추가 핸들러
-  const handleAddArtist = () => {
-    if (!selectedArtist) {
-      messageApi.error('아티스트를 선택해주세요');
-      return;
-    }
-
-    // 이미 추가된 아티스트인지 확인
-    const isAlreadyAdded = voteItems.some(
-      (item) => item.artist_id === selectedArtist,
-    );
-
-    if (isAlreadyAdded) {
-      messageApi.error('이미 추가된 아티스트입니다');
-      return;
-    }
-
-    // 선택된 아티스트 정보 가져오기
-    const selectedArtistData = artists.find(
-      (artist) => artist.id === selectedArtist,
-    );
-
-    // 새 투표 항목 추가
-    const newVoteItem: VoteItem = {
-      artist_id: selectedArtist,
-      vote_total: 0,
-      artist: selectedArtistData,
-      temp_id: Date.now(), // 임시 ID (추가 전용)
-    };
-
-    setVoteItems([...voteItems, newVoteItem]);
-    setIsModalVisible(false);
-    setSelectedArtist(null);
-    messageApi.success('아티스트가 추가되었습니다');
-  };
+  // vote_item 생성 훅
+  const { mutate: createVoteItem } = useCreate();
 
   // 아티스트 삭제 핸들러
   const handleRemoveArtist = (
@@ -166,15 +57,51 @@ export default function VoteCreate() {
 
   // 폼 제출 핸들러 오버라이드
   const handleFormSubmit = async (values: any) => {
-    // 원본 formProps.onFinish 호출 전에 vote_item 데이터 추가
-    const updatedValues = {
-      ...values,
-      vote_item: voteItems.map((item) => ({
-        artist_id: item.artist_id,
-      })),
-    };
+    try {
+      console.log('Form values before modification:', values);
 
-    await formProps.onFinish?.(updatedValues);
+      // 원본 값에서 vote_item 제거 (중첩 데이터 방지)
+      const { vote_item, ...restValues } = values;
+
+      // 기본 정보만 먼저 업데이트
+      const result: { data?: { id?: string } } =
+        (await formProps.onFinish?.(restValues)) || {};
+      console.log('Basic vote data created successfully, result:', result);
+
+      // vote_id 가져오기
+      const voteId = result?.data?.id;
+
+      if (voteId) {
+        console.log('Creating vote items for vote ID:', voteId);
+
+        // 각 투표 항목에 대해 개별적으로 vote_item 레코드 생성
+        for (const item of voteItems) {
+          await createVoteItem({
+            resource: 'vote_item',
+            values: {
+              vote_id: voteId,
+              artist_id: item.artist_id,
+            },
+          });
+        }
+
+        console.log('Vote items created successfully');
+        messageApi.success('투표가 성공적으로 생성되었습니다');
+
+        // 생성 후 상세 페이지로 이동
+        push(`/vote/show/${voteId}`);
+      } else {
+        throw new Error('Vote ID not found in the response');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      messageApi.error('투표 생성 중 오류가 발생했습니다');
+    }
+  };
+
+  // 아티스트 추가 핸들러
+  const handleAddArtist = (newVoteItem: VoteItem) => {
+    setVoteItems([...voteItems, newVoteItem]);
   };
 
   // 투표 항목 테이블 컬럼 설정
@@ -576,17 +503,11 @@ export default function VoteCreate() {
               }}
             >
               <h3>투표 항목</h3>
-              <Button
-                type='primary'
-                icon={<PlusOutlined />}
-                onClick={showAddArtistModal}
-                style={{
-                  backgroundColor: COLORS.primary,
-                  borderColor: COLORS.primary,
-                }}
-              >
-                아티스트 추가
-              </Button>
+              <ArtistSelector
+                onArtistAdd={handleAddArtist}
+                existingArtistIds={voteItems.map((item) => item.artist_id)}
+                buttonText='아티스트 추가'
+              />
             </div>
             <Table
               dataSource={voteItems}
@@ -601,69 +522,6 @@ export default function VoteCreate() {
           </Space>
         </div>
       </Form>
-
-      <Modal
-        title='아티스트 추가'
-        open={isModalVisible}
-        onOk={handleAddArtist}
-        onCancel={handleCancel}
-      >
-        <Form layout='vertical'>
-          <Form.Item label='아티스트 선택' required>
-            <Select
-              showSearch
-              placeholder='아티스트 이름 검색...'
-              optionFilterProp='children'
-              onChange={handleArtistSelect}
-              value={selectedArtist}
-              filterOption={(input, option) =>
-                (option?.label?.ko?.toLowerCase() || '').includes(
-                  input.toLowerCase(),
-                ) ||
-                (option?.label?.en?.toLowerCase() || '').includes(
-                  input.toLowerCase(),
-                )
-              }
-              options={artists.map((artist) => ({
-                value: artist.id,
-                label: {
-                  ko: artist.name?.ko || '',
-                  en: artist.name?.en || '',
-                },
-                data: artist,
-              }))}
-              optionRender={(option: any) => (
-                <Space>
-                  {option.data.image && (
-                    <img
-                      src={getImageUrl(option.data.image)}
-                      alt='아티스트 이미지'
-                      style={{
-                        width: '30px',
-                        height: '30px',
-                        objectFit: 'cover',
-                        borderRadius: '50%',
-                      }}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  )}
-                  <span>{option.data.name?.ko || ''}</span>
-                  <span>
-                    {option.data.name?.en ? `(${option.data.name.en})` : ''}
-                  </span>
-                  {option.data.artist_group?.name?.ko && (
-                    <span style={{ color: '#8c8c8c' }}>
-                      - {option.data.artist_group.name.ko}
-                    </span>
-                  )}
-                </Space>
-              )}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
     </Create>
   );
 }
