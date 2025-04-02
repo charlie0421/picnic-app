@@ -13,7 +13,7 @@ import {
   DatePicker,
 } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useList, useNavigation, BaseRecord } from '@refinedev/core';
 import { getImageUrl } from '@/utils/image';
 import { VOTE_CATEGORIES, type VoteRecord } from '@/utils/vote';
@@ -46,6 +46,8 @@ export default function VoteEdit() {
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   // 투표 폼 데이터 가져오기
   const { formProps, saveButtonProps, queryResult, id } = useForm<VoteRecord>({
@@ -75,14 +77,47 @@ export default function VoteEdit() {
     meta: {
       select: 'id,name,image',
     },
+    pagination: {
+      pageSize: 10000,
+    },
   });
+
+  // 디버깅용: 데이터 로딩 확인
+  useEffect(() => {
+    if (artistsData) {
+      console.log('아티스트 데이터 로드됨:', artistsData.data?.length);
+    }
+  }, [artistsData]);
+
+  // 클라이언트 측 필터링된 아티스트
+  const filteredArtists = useMemo(() => {
+    if (!artistsData?.data) {
+      return [];
+    }
+
+    if (!searchQuery) {
+      return [];
+    }
+
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    const filtered = (artistsData.data as Artist[]).filter((artist) => {
+      const koName = artist.name?.ko?.toLowerCase() || '';
+      const enName = artist.name?.en?.toLowerCase() || '';
+      return koName.includes(lowerCaseQuery) || enName.includes(lowerCaseQuery);
+    });
+
+    console.log('필터링 결과:', filtered.length, '결과 찾음');
+    return filtered;
+  }, [artistsData, searchQuery]);
 
   // 아티스트 데이터 설정
   useEffect(() => {
-    if (artistsData?.data) {
-      setArtists(artistsData.data as Artist[]);
+    if (searchQuery && filteredArtists.length >= 0) {
+      setArtists(filteredArtists);
+    } else if (!searchQuery) {
+      setArtists([]);
     }
-  }, [artistsData]);
+  }, [artistsData, filteredArtists, searchQuery]);
 
   // 아티스트 선택 변경 핸들러
   const handleArtistSelect = (value: string) => {
@@ -150,11 +185,10 @@ export default function VoteEdit() {
           setVoteItems(voteItems.filter((item) => item.temp_id !== voteItemId));
         } else {
           // 기존 항목은 삭제 플래그 설정 (soft delete)
-          setVoteItems(
-            voteItems.map((item) =>
-              item.id === voteItemId ? { ...item, deleted: true } : item,
-            ),
+          const updatedItems = voteItems.map((item) =>
+            item.id === voteItemId ? { ...item, deleted: true } : item,
           );
+          setVoteItems(updatedItems);
         }
         messageApi.success('투표 항목이 삭제되었습니다');
       },
@@ -255,6 +289,13 @@ export default function VoteEdit() {
       ),
     },
   ];
+
+  // 검색어 변경 핸들러
+  const handleSearch = (value: string) => {
+    console.log('검색어:', value); // 디버깅용
+    setSearchQuery(value);
+    setIsSearching(!!value);
+  };
 
   return (
     <Edit
@@ -387,53 +428,34 @@ export default function VoteEdit() {
         onOk={handleAddArtist}
         onCancel={handleCancel}
       >
-        <Form layout='vertical'>
-          <Form.Item label='아티스트 선택' required>
-            <Select
-              showSearch
-              placeholder='아티스트 선택'
-              optionFilterProp='children'
-              onChange={handleArtistSelect}
-              value={selectedArtist}
-              filterOption={(input, option) =>
-                (option?.label?.ko?.toLowerCase() || '').includes(
-                  input.toLowerCase(),
-                ) ||
-                (option?.label?.en?.toLowerCase() || '').includes(
-                  input.toLowerCase(),
-                )
-              }
-              options={artists.map((artist) => ({
-                value: artist.id,
-                label: {
-                  ko: artist.name?.ko || '',
-                  en: artist.name?.en || '',
-                },
-                data: artist,
-              }))}
-              optionRender={(option: any) => (
-                <Space>
-                  {option.data.image && (
-                    <img
-                      src={getImageUrl(option.data.image)}
-                      alt='아티스트 이미지'
-                      style={{
-                        width: '30px',
-                        height: '30px',
-                        objectFit: 'cover',
-                        borderRadius: '50%',
-                      }}
-                    />
-                  )}
-                  <span>{option.data.name?.ko || ''}</span>
-                  <span>
-                    {option.data.name?.en ? `(${option.data.name.en})` : ''}
-                  </span>
-                </Space>
-              )}
-            />
-          </Form.Item>
-        </Form>
+        <div>
+          <div style={{ marginBottom: '10px' }}>아티스트 선택:</div>
+          <Select
+            showSearch
+            placeholder='아티스트 이름 검색...'
+            onChange={handleArtistSelect}
+            onSearch={handleSearch}
+            value={selectedArtist}
+            style={{ width: '100%' }}
+            listHeight={300}
+            loading={artistsLoading}
+            notFoundContent={
+              searchQuery
+                ? artistsLoading
+                  ? '검색 중...'
+                  : '검색 결과가 없습니다'
+                : '검색하려면 아티스트 이름을 입력해주세요'
+            }
+            options={artists.map((artist) => ({
+              value: artist.id,
+              label:
+                `${artist.name?.ko || ''} ${
+                  artist.name?.en ? `(${artist.name.en})` : ''
+                }`.trim() || '이름 없음',
+            }))}
+            filterOption={false}
+          />
+        </div>
       </Modal>
     </Edit>
   );
