@@ -1,6 +1,6 @@
 'use client';
 
-import { Create, useForm } from '@refinedev/antd';
+import { Create, useForm, getValueFromEvent } from '@refinedev/antd';
 import {
   Form,
   Input,
@@ -11,13 +11,20 @@ import {
   Modal,
   message,
   DatePicker,
+  theme,
 } from 'antd';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  UserOutlined,
+  TeamOutlined,
+} from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { useNavigation, useList } from '@refinedev/core';
+import { useNavigation, useList, useSelect } from '@refinedev/core';
 import { getImageUrl } from '@/utils/image';
 import { VOTE_CATEGORIES, type VoteRecord } from '@/utils/vote';
 import dayjs from 'dayjs';
+import { COLORS } from '@/utils/theme';
 
 // 아티스트와 투표 항목 인터페이스 정의
 interface Artist {
@@ -29,6 +36,23 @@ interface Artist {
     zh?: string;
   };
   image?: string;
+  birth_date?: string;
+  yy?: number;
+  mm?: number;
+  dd?: number;
+  artist_group?: {
+    id: number;
+    name?: {
+      ko?: string;
+      en?: string;
+      ja?: string;
+      zh?: string;
+    };
+    image?: string;
+    debut_yy?: number;
+    debut_mm?: number;
+    debut_dd?: number;
+  };
 }
 
 interface VoteItem {
@@ -46,6 +70,7 @@ export default function VoteCreate() {
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const { token } = theme.useToken();
 
   // 선택된 투표 항목들 관리
   const [voteItems, setVoteItems] = useState<VoteItem[]>([]);
@@ -60,7 +85,8 @@ export default function VoteCreate() {
   const { data: artistsData, isLoading: artistsLoading } = useList({
     resource: 'artist',
     meta: {
-      select: 'id,name,image',
+      select:
+        'id,name,image,birth_date,yy,mm,dd,artist_group(id,name,image,debut_yy,debut_mm,debut_dd)',
     },
   });
 
@@ -154,45 +180,239 @@ export default function VoteCreate() {
   // 투표 항목 테이블 컬럼 설정
   const columns = [
     {
-      title: '아티스트 ID',
+      title: '아이디',
       dataIndex: ['artist', 'id'],
       key: 'artist_id',
+      align: 'center' as const,
     },
     {
       title: '이미지',
       dataIndex: ['artist', 'image'],
       key: 'image',
+      align: 'center' as const,
       render: (image: string | undefined) =>
         image ? (
-          <img
-            src={getImageUrl(image)}
-            alt='아티스트 이미지'
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <img
+              src={getImageUrl(image)}
+              alt='아티스트 이미지'
+              style={{
+                width: '40px',
+                height: '40px',
+                objectFit: 'cover',
+                borderRadius: '50%',
+              }}
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  const placeholder = document.createElement('div');
+                  placeholder.style.width = '40px';
+                  placeholder.style.height = '40px';
+                  placeholder.style.backgroundColor = '#f5f5f5';
+                  placeholder.style.borderRadius = '50%';
+                  placeholder.style.display = 'flex';
+                  placeholder.style.alignItems = 'center';
+                  placeholder.style.justifyContent = 'center';
+                  placeholder.innerHTML =
+                    '<span class="anticon"><svg viewBox="64 64 896 896" focusable="false" data-icon="user" width="24px" height="24px" fill="#bfbfbf" aria-hidden="true"><path d="M858.5 763.6a374 374 0 00-80.6-119.5 375.63 375.63 0 00-119.5-80.6c-.4-.2-.8-.3-1.2-.5C719.5 518 760 444.7 760 362c0-137-111-248-248-248S264 225 264 362c0 82.7 40.5 156 102.8 201.1-.4.2-.8.3-1.2.5-44.8 18.9-85 46-119.5 80.6a375.63 375.63 0 00-80.6 119.5A371.7 371.7 0 00136 901.8a8 8 0 008 8.2h60c4.4 0 7.9-3.5 8-7.8 2-77.2 33-149.5 87.8-204.3 56.7-56.7 132-87.9 212.2-87.9s155.5 31.2 212.2 87.9C779 752.7 810 825 812 902.2c.1 4.4 3.6 7.8 8 7.8h60a8 8 0 008-8.2c-1-47.8-10.9-94.3-29.5-138.2zM512 534c-45.9 0-89.1-17.9-121.6-50.4S340 407.9 340 362c0-45.9 17.9-89.1 50.4-121.6S466.1 190 512 190s89.1 17.9 121.6 50.4S684 316.1 684 362c0 45.9-17.9 89.1-50.4 121.6S557.9 534 512 534z"></path></svg></span>';
+                  parent.appendChild(placeholder);
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                backgroundColor: '#f5f5f5',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <UserOutlined style={{ fontSize: '24px', color: '#bfbfbf' }} />
+            </div>
+          </div>
+        ),
+    },
+    {
+      title: '이름',
+      dataIndex: ['artist', 'name'],
+      key: 'name',
+      align: 'center' as const,
+      render: (name: Artist['name']) => {
+        const koName = name?.ko || '';
+        const enName = name?.en || '';
+
+        return (
+          <div
             style={{
-              width: '40px',
-              height: '40px',
-              objectFit: 'cover',
-              borderRadius: '50%',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              color: COLORS.primary,
             }}
-          />
+          >
+            {koName && <div>{koName}</div>}
+            {enName && (
+              <div
+                style={{ fontSize: '0.9em', color: token.colorTextSecondary }}
+              >
+                {enName}
+              </div>
+            )}
+            {!koName && !enName && '-'}
+          </div>
+        );
+      },
+    },
+    {
+      title: '그룹',
+      dataIndex: ['artist', 'artist_group'],
+      key: 'artist_group',
+      align: 'center' as const,
+      render: (artistGroup: Artist['artist_group']) =>
+        artistGroup ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {artistGroup.image ? (
+              <div
+                style={{ position: 'relative', width: '30px', height: '30px' }}
+              >
+                <img
+                  src={getImageUrl(artistGroup.image)}
+                  alt='그룹 이미지'
+                  style={{
+                    width: '30px',
+                    height: '30px',
+                    objectFit: 'cover',
+                    borderRadius: '4px',
+                  }}
+                  onError={(e) => {
+                    // 이미지 요소 숨기기
+                    e.currentTarget.style.display = 'none';
+
+                    // 이미지 요소의 부모 요소에 있는 백업 플레이스홀더 표시
+                    const parent = e.currentTarget.parentElement;
+                    if (parent && parent.querySelector('.placeholder-backup')) {
+                      const backup = parent.querySelector(
+                        '.placeholder-backup',
+                      ) as HTMLElement;
+                      if (backup) {
+                        backup.style.display = 'flex';
+                      }
+                    }
+                  }}
+                />
+                <div
+                  className='placeholder-backup'
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '30px',
+                    height: '30px',
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: '4px',
+                    display: 'none',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <TeamOutlined
+                    style={{ fontSize: '18px', color: '#bfbfbf' }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <TeamOutlined style={{ fontSize: '18px', color: '#bfbfbf' }} />
+              </div>
+            )}
+            <span style={{ textAlign: 'left' }}>
+              {artistGroup.name?.ko || '-'}
+              {artistGroup.name?.en && (
+                <span
+                  style={{
+                    marginLeft: '4px',
+                    color: '#8c8c8c',
+                    fontWeight: 'normal',
+                  }}
+                >
+                  ({artistGroup.name.en})
+                </span>
+              )}
+            </span>
+          </div>
         ) : (
           '-'
         ),
     },
     {
-      title: '이름 (한국어)',
-      dataIndex: ['artist', 'name', 'ko'],
-      key: 'name_ko',
-      render: (text: string | undefined) => text || '-',
+      title: '생일',
+      dataIndex: ['artist'],
+      key: 'birth_date',
+      align: 'center' as const,
+      render: (artist: Artist) => {
+        if (artist.birth_date) {
+          return dayjs(artist.birth_date).format('YYYY-MM-DD');
+        } else if (artist.yy) {
+          let birthDate = `${artist.yy}`;
+          if (artist.mm) {
+            birthDate += `.${artist.mm.toString().padStart(2, '0')}`;
+            if (artist.dd) {
+              birthDate += `.${artist.dd.toString().padStart(2, '0')}`;
+            }
+          }
+          return birthDate;
+        }
+        return '-';
+      },
     },
     {
-      title: '이름 (영어)',
-      dataIndex: ['artist', 'name', 'en'],
-      key: 'name_en',
-      render: (text: string | undefined) => text || '-',
+      title: '데뷔일',
+      dataIndex: ['artist', 'artist_group'],
+      key: 'debut_date',
+      align: 'center' as const,
+      render: (artistGroup: Artist['artist_group']) => {
+        if (!artistGroup?.debut_yy) return '-';
+
+        let debutDate = `${artistGroup.debut_yy}`;
+        if (artistGroup.debut_mm) {
+          debutDate += `.${artistGroup.debut_mm.toString().padStart(2, '0')}`;
+          if (artistGroup.debut_dd) {
+            debutDate += `.${artistGroup.debut_dd.toString().padStart(2, '0')}`;
+          }
+        }
+
+        return debutDate;
+      },
     },
     {
       title: '액션',
       key: 'action',
+      align: 'center' as const,
       render: (_: any, record: VoteItem) => (
         <Button
           danger
@@ -212,7 +432,12 @@ export default function VoteCreate() {
         onClick: () => {
           formProps.form?.submit();
         },
+        style: {
+          backgroundColor: COLORS.primary,
+          borderColor: COLORS.primary,
+        },
       }}
+      headerButtons={[]}
     >
       {contextHolder}
       <Form {...formProps} layout='vertical' onFinish={handleFormSubmit}>
@@ -240,10 +465,28 @@ export default function VoteCreate() {
         >
           <Input />
         </Form.Item>
-        <Form.Item label='제목 (일본어)' name={['title', 'ja']}>
+        <Form.Item
+          label='제목 (일본어)'
+          name={['title', 'ja']}
+          rules={[
+            {
+              required: true,
+              message: '일본어 제목을 입력해주세요',
+            },
+          ]}
+        >
           <Input />
         </Form.Item>
-        <Form.Item label='제목 (중국어)' name={['title', 'zh']}>
+        <Form.Item
+          label='제목 (중국어)'
+          name={['title', 'zh']}
+          rules={[
+            {
+              required: true,
+              message: '중국어 제목을 입력해주세요',
+            },
+          ]}
+        >
           <Input />
         </Form.Item>
         <Form.Item
@@ -316,6 +559,10 @@ export default function VoteCreate() {
                 type='primary'
                 icon={<PlusOutlined />}
                 onClick={showAddArtistModal}
+                style={{
+                  backgroundColor: COLORS.primary,
+                  borderColor: COLORS.primary,
+                }}
               >
                 아티스트 추가
               </Button>
@@ -325,6 +572,10 @@ export default function VoteCreate() {
               columns={columns}
               rowKey={(record) => record.temp_id?.toString() || ''}
               pagination={false}
+              size='small'
+              bordered
+              style={{ maxWidth: '100%', overflowX: 'auto' }}
+              scroll={{ x: 1000 }}
             />
           </Space>
         </div>
@@ -340,7 +591,7 @@ export default function VoteCreate() {
           <Form.Item label='아티스트 선택' required>
             <Select
               showSearch
-              placeholder='아티스트 선택'
+              placeholder='아티스트 이름 검색...'
               optionFilterProp='children'
               onChange={handleArtistSelect}
               value={selectedArtist}
@@ -372,12 +623,20 @@ export default function VoteCreate() {
                         objectFit: 'cover',
                         borderRadius: '50%',
                       }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   )}
                   <span>{option.data.name?.ko || ''}</span>
                   <span>
                     {option.data.name?.en ? `(${option.data.name.en})` : ''}
                   </span>
+                  {option.data.artist_group?.name?.ko && (
+                    <span style={{ color: '#8c8c8c' }}>
+                      - {option.data.artist_group.name.ko}
+                    </span>
+                  )}
                 </Space>
               )}
             />

@@ -1,5 +1,6 @@
 import { theme } from 'antd';
 import { CSSProperties } from 'react';
+import { COLORS } from './theme';
 
 /**
  * 테마에 기반한 UI 스타일링을 위한 유틸리티 함수들
@@ -45,7 +46,7 @@ export const getSectionHeaderStyle = (extraStyles = {}) => {
 
   return {
     marginBottom: '20px',
-    borderBottom: `2px solid ${token.colorPrimary}`,
+    borderBottom: `2px solid ${COLORS.primary}`,
     paddingBottom: '10px',
     ...extraStyles,
   };
@@ -57,7 +58,7 @@ export const getTitleStyle = (extraStyles = {}) => {
 
   return {
     margin: '0 0 8px 0',
-    color: token.colorPrimary,
+    color: COLORS.primary,
     ...extraStyles,
   };
 };
@@ -86,7 +87,7 @@ export const getDateSectionStyle = (extraStyles = {}) => {
   return {
     marginTop: '32px',
     marginBottom: '16px',
-    borderBottom: `2px solid ${token.colorPrimary}`,
+    borderBottom: `2px solid ${COLORS.primary}`,
     paddingBottom: '10px',
     ...extraStyles,
   };
