@@ -599,6 +599,26 @@ export default function VoteEdit() {
           <Select options={VOTE_CATEGORIES} />
         </Form.Item>
         <Form.Item
+          label='공개일'
+          name='visible_at'
+          rules={[
+            {
+              required: true,
+              message: '공개일을 입력해주세요',
+            },
+          ]}
+          getValueProps={(value) => ({
+            value: value ? dayjs(value) : undefined,
+          })}
+        >
+          <DatePicker
+            showTime
+            format='YYYY-MM-DD HH:mm:ss'
+            placeholder='공개일을 선택해주세요'
+            style={{ width: '100%' }}
+          />
+        </Form.Item>
+        <Form.Item
           label='시작일'
           name='start_at'
           rules={[

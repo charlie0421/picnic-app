@@ -62,6 +62,7 @@ export interface VoteRecord {
   vote_category?: VoteCategory;
   category?: VoteCategory;
   title?: MultilingualTitle;
+  visible_at?: string;
   start_at?: string;
   stop_at?: string;
   main_image?: string;

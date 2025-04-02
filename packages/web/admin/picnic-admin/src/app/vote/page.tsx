@@ -241,6 +241,12 @@ export default function VoteList() {
           }}
         />
         <Table.Column
+          dataIndex='visible_at'
+          title='공개일'
+          responsive={['md']}
+          render={(value: string | undefined) => formatDate(value, 'datetime')}
+        />
+        <Table.Column
           dataIndex='start_at'
           title='시작일'
           responsive={['md']}

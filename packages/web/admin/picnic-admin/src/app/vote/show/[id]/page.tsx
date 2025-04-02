@@ -33,11 +33,13 @@ const headerTitleStyle = {
   fontWeight: 'bold',
 };
 
-export default function VoteShow() {
+export default function VoteShow({ params }: { params: { id: string } }) {
   const { queryResult } = useShow<VoteRecord>({
+    resource: 'vote',
+    id: params.id,
     meta: {
       select:
-        'id, title, main_image, vote_category, start_at, stop_at, created_at, updated_at, deleted_at, vote_item(id, artist_id, vote_total, artist(id, name, image, birth_date, yy, mm, dd, artist_group(id, name, image, debut_yy, debut_mm, debut_dd)), created_at, updated_at, deleted_at)',
+        'id, title, main_image, vote_category, visible_at, start_at, stop_at, created_at, updated_at, deleted_at, vote_item(id, artist_id, vote_total, artist(id, name, image, birth_date, yy, mm, dd, artist_group(id, name, image, debut_yy, debut_mm, debut_dd)), created_at, updated_at, deleted_at)',
     },
   });
   const { data, isLoading } = queryResult;
@@ -166,6 +168,36 @@ export default function VoteShow() {
             <Title level={4} style={headerTitleStyle}>
               시간 정보
             </Title>
+          </div>
+
+          <div
+            className='info-section'
+            style={{ ...getSectionStyle(), marginTop: '16px' }}
+          >
+            <Title level={5} style={getTitleStyle()}>
+              {'공개일'}
+            </Title>
+            <TextField value={formatDate(record?.visible_at)} />
+          </div>
+
+          <div
+            className='info-section'
+            style={{ ...getSectionStyle(), marginTop: '16px' }}
+          >
+            <Title level={5} style={getTitleStyle()}>
+              {'시작일'}
+            </Title>
+            <TextField value={formatDate(record?.start_at)} />
+          </div>
+
+          <div
+            className='info-section'
+            style={{ ...getSectionStyle(), marginTop: '16px' }}
+          >
+            <Title level={5} style={getTitleStyle()}>
+              {'종료일'}
+            </Title>
+            <TextField value={formatDate(record?.stop_at)} />
           </div>
 
           <div
