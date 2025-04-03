@@ -8,7 +8,6 @@ export const getImageUrl = (path: string): string => {
 
   // path가 이미 전체 URL인 경우
   if (path.startsWith('http')) {
-    console.log('이미지 URL 사용:', path);
     return path;
   }
 

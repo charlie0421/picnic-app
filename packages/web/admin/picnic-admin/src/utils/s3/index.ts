@@ -1,4 +1,8 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 
 // AWS S3 클라이언트 설정
 export const getS3Client = () => {
@@ -45,26 +49,12 @@ export const uploadToS3 = async (
 
     // 전체 경로 생성 (기본 폴더 아래에 전달된 folder와 key를 붙임)
     const fullKey = `${baseFolder}/${folder}/${key}`;
-    console.log('S3 업로드 시작:', { bucket, fullKey, fileType: file.type });
-
-    // 환경 변수 확인 로그
-    console.log('S3 환경 변수 확인:', {
-      region: process.env.NEXT_PUBLIC_AWS_REGION ? 'Ok' : 'Missing',
-      accessKey: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID ? 'Ok' : 'Missing',
-      secretKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY
-        ? 'Ok'
-        : 'Missing',
-      bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET ? 'Ok' : 'Missing',
-      baseFolder: process.env.NEXT_PUBLIC_AWS_S3_BASE_FOLDER ? 'Ok' : 'Missing',
-      s3Url: process.env.NEXT_PUBLIC_AWS_S3_URL,
-    });
 
     const s3Client = getS3Client();
 
     // 파일을 바이너리 데이터로 변환
     const fileArrayBuffer = await file.arrayBuffer();
     const fileBuffer = Buffer.from(fileArrayBuffer);
-    console.log('파일 변환 완료, 크기:', fileBuffer.length, 'bytes');
 
     // S3에 업로드
     const command = new PutObjectCommand({
@@ -74,9 +64,7 @@ export const uploadToS3 = async (
       ContentType: file.type,
     });
 
-    console.log('S3 명령 생성, 업로드 시작');
     const result = await s3Client.send(command);
-    console.log('S3 업로드 응답:', result);
 
     // 업로드된 파일의 URL 생성
     const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL;
@@ -133,7 +121,6 @@ export const deleteFromS3 = async (
 
     // 전체 경로 생성 (기본 폴더 아래에 key를 붙임)
     const fullKey = `${baseFolder}/${key}`;
-    console.log('S3 이미지 삭제 시작:', { bucket, fullKey });
 
     const s3Client = getS3Client();
     const command = new DeleteObjectCommand({
@@ -142,7 +129,6 @@ export const deleteFromS3 = async (
     });
 
     await s3Client.send(command);
-    console.log('S3 이미지 삭제 완료:', fullKey);
   } catch (error) {
     console.error('S3 이미지 삭제 오류:', error);
     throw error;

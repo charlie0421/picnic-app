@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { Upload, Button, message } from 'antd';
-import { UploadOutlined, LoadingOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+  UploadOutlined,
+  LoadingOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadToS3, deleteFromS3 } from '@/utils/s3';
 import { getImageUrl } from '@/utils/image';
@@ -78,28 +82,21 @@ export default function ImageUpload({
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${folder}/${fileName}`;
-
-      console.log('업로드할 파일 정보:', {
-        fileName,
-        filePath,
-        fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
-        fileType: file.type,
-        bucket,
-      });
-
       // AWS S3에 파일 업로드
       await uploadToS3(file, bucket, folder, fileName);
-      console.log('S3 업로드 완료:', filePath);
 
       // 업로드 성공 핸들링 - filePath만 저장하여 전달
       setImageUrl(filePath);
       if (onChange) {
-        onChange(filePath);
-        console.log('onChange 호출됨, 전달된 경로:', filePath);
+        try {
+          onChange(filePath);
+        } catch (changeError) {
+          console.error('onChange 호출 중 오류 발생:', changeError);
+        }
       }
 
       message.success('이미지가 성공적으로 업로드되었습니다!');
-      onSuccess(null, file);
+      onSuccess(filePath, file);
     } catch (error) {
       console.error('업로드 오류 상세 정보:', error);
       message.error('이미지 업로드 중 오류가 발생했습니다.');
@@ -130,25 +127,25 @@ export default function ImageUpload({
   };
 
   return (
-    <div className="image-upload-container">
+    <div className='image-upload-container'>
       <Upload
         customRequest={customUpload}
         showUploadList={false}
         beforeUpload={beforeUpload}
         disabled={loading || isDeleting}
       >
-        <div className="image-upload-wrapper">
+        <div className='image-upload-wrapper'>
           {imageUrl ? (
-            <div className="image-preview">
+            <div className='image-preview'>
               {imageLoading && (
-                <div className="image-loading">
+                <div className='image-loading'>
                   <LoadingOutlined style={{ fontSize: '32px' }} />
-                  <div className="loading-text">이미지 로딩 중...</div>
+                  <div className='loading-text'>이미지 로딩 중...</div>
                 </div>
               )}
               <img
                 src={getImageUrl(imageUrl)}
-                alt="Preview"
+                alt='Preview'
                 style={{ width, height, objectFit: 'cover' }}
                 onLoad={handleImageLoad}
                 onLoadStart={handleImageLoadStart}
@@ -156,16 +153,16 @@ export default function ImageUpload({
               />
             </div>
           ) : (
-            <div className="upload-placeholder">
+            <div className='upload-placeholder'>
               {loading ? (
-                <div className="upload-loading">
+                <div className='upload-loading'>
                   <LoadingOutlined style={{ fontSize: '32px' }} />
-                  <div className="loading-text">이미지 업로드 중...</div>
+                  <div className='loading-text'>이미지 업로드 중...</div>
                 </div>
               ) : (
                 <>
                   <UploadOutlined style={{ fontSize: '32px' }} />
-                  <div className="upload-text">이미지 업로드</div>
+                  <div className='upload-text'>이미지 업로드</div>
                 </>
               )}
             </div>
@@ -173,14 +170,14 @@ export default function ImageUpload({
         </div>
       </Upload>
       {imageUrl && (
-        <div className="image-actions">
+        <div className='image-actions'>
           <Button
-            type="text"
+            type='text'
             icon={<DeleteOutlined style={{ fontSize: '18px' }} />}
             onClick={handleRemove}
             disabled={loading || isDeleting}
             loading={isDeleting}
-            size="large"
+            size='large'
           >
             삭제
           </Button>

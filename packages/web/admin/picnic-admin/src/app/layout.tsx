@@ -8,6 +8,7 @@ import { cookies } from 'next/headers';
 import React, { Suspense } from 'react';
 
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { App, ConfigProvider } from 'antd';
 import { ColorModeContextProvider } from '@contexts/color-mode';
 import { authProviderClient } from '@providers/auth-provider/auth-provider.client';
 import { dataProvider } from '@providers/data-provider';
@@ -37,58 +38,62 @@ export default function RootLayout({
           <RefineKbarProvider>
             <AntdRegistry>
               <ColorModeContextProvider defaultMode={defaultMode}>
-                <DevtoolsProvider>
-                  <Refine
-                    routerProvider={routerProvider}
-                    authProvider={authProviderClient}
-                    dataProvider={dataProvider}
-                    notificationProvider={useNotificationProvider}
-                    resources={[
-                      {
-                        name: 'vote',
-                        list: '/vote',
-                        create: '/vote/create',
-                        edit: '/vote/edit/:id',
-                        show: '/vote/show/:id',
-                        meta: {
-                          canDelete: true,
-                          label: '투표관리',
-                          list: {
-                            label: '투표관리',
+                <ConfigProvider>
+                  <App>
+                    <DevtoolsProvider>
+                      <Refine
+                        routerProvider={routerProvider}
+                        authProvider={authProviderClient}
+                        dataProvider={dataProvider}
+                        notificationProvider={useNotificationProvider}
+                        resources={[
+                          {
+                            name: 'vote',
+                            list: '/vote',
+                            create: '/vote/create',
+                            edit: '/vote/edit/:id',
+                            show: '/vote/show/:id',
+                            meta: {
+                              canDelete: true,
+                              label: '투표관리',
+                              list: {
+                                label: '투표관리',
+                              },
+                              create: {
+                                label: '투표생성',
+                              },
+                              edit: {
+                                label: '투표수정',
+                              },
+                              show: {
+                                label: '투표조회',
+                              },
+                            },
                           },
-                          create: {
-                            label: '투표생성',
+                        ]}
+                        options={{
+                          syncWithLocation: true,
+                          warnWhenUnsavedChanges: true,
+                          useNewQueryKeys: true,
+                          projectId: 'eFoHzB-2HcEeI-OFQDmB',
+                          title: {
+                            icon: (
+                              <img
+                                src='/icons/app_icon.png'
+                                alt='Picnic Admin'
+                                style={{ width: 28, height: 28 }}
+                              />
+                            ),
+                            text: 'Picnic Admin',
                           },
-                          edit: {
-                            label: '투표수정',
-                          },
-                          show: {
-                            label: '투표조회',
-                          },
-                        },
-                      },
-                    ]}
-                    options={{
-                      syncWithLocation: true,
-                      warnWhenUnsavedChanges: true,
-                      useNewQueryKeys: true,
-                      projectId: 'eFoHzB-2HcEeI-OFQDmB',
-                      title: {
-                        icon: (
-                          <img
-                            src='/icons/app_icon.png'
-                            alt='Picnic Admin'
-                            style={{ width: 28, height: 28 }}
-                          />
-                        ),
-                        text: 'Picnic Admin',
-                      },
-                    }}
-                  >
-                    {children}
-                    <RefineKbar />
-                  </Refine>
-                </DevtoolsProvider>
+                        }}
+                      >
+                        {children}
+                        <RefineKbar />
+                      </Refine>
+                    </DevtoolsProvider>
+                  </App>
+                </ConfigProvider>
               </ColorModeContextProvider>
             </AntdRegistry>
           </RefineKbarProvider>

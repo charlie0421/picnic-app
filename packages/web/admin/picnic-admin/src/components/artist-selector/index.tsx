@@ -42,7 +42,6 @@ const ArtistSelector: React.FC<ArtistSelectorProps> = ({
   useEffect(() => {
     if (artistsData?.data) {
       setAllArtists(artistsData.data as Artist[]);
-      console.log('아티스트 데이터 로드됨:', artistsData.data.length);
     }
   }, [artistsData]);
 
@@ -76,7 +75,6 @@ const ArtistSelector: React.FC<ArtistSelectorProps> = ({
 
   // 검색어 변경 핸들러
   const handleSearch = (value: string) => {
-    console.log('검색어:', value); // 디버깅용
     setSearchQuery(value);
     setIsSearching(!!value);
   };
