@@ -119,8 +119,8 @@ export const deleteFromS3 = async (
     // 기본 폴더 가져오기
     const baseFolder = process.env.NEXT_PUBLIC_AWS_S3_BASE_FOLDER || 'picnic';
 
-    // 전체 경로 생성 (기본 폴더 아래에 key를 붙임)
-    const fullKey = `${baseFolder}/${key}`;
+    // key가 이미 baseFolder를 포함하고 있는지 확인하고 전체 경로 생성
+    const fullKey = key.startsWith(baseFolder) ? key : `${baseFolder}/${key}`;
 
     const s3Client = getS3Client();
     const command = new DeleteObjectCommand({

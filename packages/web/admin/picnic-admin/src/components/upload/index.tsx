@@ -111,6 +111,7 @@ export default function ImageUpload({
     try {
       if (imageUrl) {
         setIsDeleting(true);
+        // 이미지 URL에서 경로 정보만 추출 (folder/file.ext 형식)
         await deleteFromS3(imageUrl, bucket);
         message.success('이미지가 성공적으로 삭제되었습니다.');
         setImageUrl(undefined);

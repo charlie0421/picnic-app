@@ -70,6 +70,29 @@ export default function RootLayout({
                               },
                             },
                           },
+                          {
+                            name: 'media',
+                            list: '/media',
+                            create: '/media/create',
+                            edit: '/media/edit/:id',
+                            show: '/media/show/:id',
+                            meta: {
+                              canDelete: true,
+                              label: '미디어 관리',
+                              list: {
+                                label: '미디어 목록',
+                              },
+                              create: {
+                                label: '미디어 추가',
+                              },
+                              edit: {
+                                label: '미디어 수정',
+                              },
+                              show: {
+                                label: '미디어 상세',
+                              },
+                            },
+                          },
                         ]}
                         options={{
                           syncWithLocation: true,
