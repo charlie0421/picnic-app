@@ -43,6 +43,7 @@ export interface Artist {
   dd?: number | null;
   gender?: string | null;
   artist_group_id?: number;
+  group_id?: number;
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;

@@ -1,14 +1,26 @@
 'use client';
 
-import { DateField, Show, TextField } from '@refinedev/antd';
+import {
+  DateField,
+  Show,
+  TextField,
+  EditButton,
+  DeleteButton,
+} from '@refinedev/antd';
 import { useShow, useMany, useNavigation } from '@refinedev/core';
-import { Typography, Image, Divider, theme, Grid } from 'antd';
+import { Typography, Image, Divider, theme, Grid, Space, Button } from 'antd';
 import { ArtistGroup, Artist } from '@/types/artist';
 import { getImageUrl } from '@/utils/image';
 import { useParams } from 'next/navigation';
 import { dataProvider } from '@/providers/data-provider';
 import { useState, useEffect } from 'react';
-import { UserOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  TeamOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ArrowLeftOutlined,
+} from '@ant-design/icons';
 import { COLORS } from '@/utils/theme';
 import dayjs from 'dayjs';
 import { Skeleton, Tooltip, Tag, Descriptions } from 'antd';
@@ -136,10 +148,48 @@ export default function ArtistGroupShow() {
     }
   }, [artistsData]);
 
-  const { show } = useNavigation();
+  const { show, edit, list } = useNavigation();
+
+  if (isLoading) {
+    return <Skeleton active paragraph={{ rows: 10 }} />;
+  }
 
   return (
-    <Show isLoading={isLoading}>
+    <div>
+      <div
+        style={{
+          marginBottom: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Space>
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => list('artist_group')}
+          >
+            목록으로
+          </Button>
+          <Title level={5} style={{ margin: 0 }}>
+            아티스트 그룹 정보
+          </Title>
+        </Space>
+        <Space>
+          <Button
+            type='primary'
+            icon={<EditOutlined />}
+            onClick={() => edit('artist_group', id!)}
+          >
+            편집
+          </Button>
+          <DeleteButton
+            resource='artist_group'
+            recordItemId={id}
+            onSuccess={() => list('artist_group')}
+          />
+        </Space>
+      </div>
       <div
         style={{
           display: 'flex',
@@ -326,6 +376,6 @@ export default function ArtistGroupShow() {
           )}
         </div>
       </div>
-    </Show>
+    </div>
   );
 }

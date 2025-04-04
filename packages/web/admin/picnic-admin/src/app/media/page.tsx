@@ -85,7 +85,7 @@ export default function MediaList() {
                   <Card
                     size='small'
                     title='유튜브 썸네일'
-                    bordered
+                    variant='outlined'
                     style={{ width: 200 }}
                   >
                     <img
@@ -102,7 +102,7 @@ export default function MediaList() {
                   <Card
                     size='small'
                     title='DB 썸네일'
-                    bordered
+                    variant='outlined'
                     style={{ width: 200 }}
                   >
                     <TableImage

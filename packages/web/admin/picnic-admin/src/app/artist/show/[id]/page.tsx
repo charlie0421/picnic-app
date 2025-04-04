@@ -1,8 +1,17 @@
 'use client';
 
-import { DateField, Show, TextField } from '@refinedev/antd';
-import { useShow, useOne } from '@refinedev/core';
-import { Typography, Image, Divider, theme, Grid } from 'antd';
+import { DateField, Show, TextField, DeleteButton } from '@refinedev/antd';
+import { useShow, useNavigation } from '@refinedev/core';
+import {
+  Typography,
+  Image,
+  Divider,
+  theme,
+  Grid,
+  Skeleton,
+  Space,
+  Button,
+} from 'antd';
 import { Artist, ArtistGroup } from '@/types/artist';
 import { getImageUrl } from '@/utils/image';
 import { useParams } from 'next/navigation';
@@ -12,8 +21,13 @@ import {
   CalendarOutlined,
   IdcardOutlined,
   TeamOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { COLORS } from '@/utils/theme';
+import { useEffect, useState } from 'react';
+import { dataProvider } from '@/providers/data-provider';
 
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -94,26 +108,116 @@ export default function ArtistShow() {
   const { token } = theme.useToken();
   const screens = useBreakpoint();
   const isMobile = !screens.md;
+  const [artistGroup, setArtistGroup] = useState<ArtistGroup | null>(null);
+  const [groupLoading, setGroupLoading] = useState(false);
 
   const { queryResult } = useShow<Artist>({
     resource: 'artist',
     id: id,
+    meta: {
+      select:
+        'id, name, image, yy, mm, dd, gender, group_id, birth_date, debut_yy, debut_mm, debut_dd, created_at, updated_at',
+    },
   });
 
   const { data, isLoading } = queryResult;
   const record = data?.data;
 
   // 아티스트 그룹 정보 가져오기
-  const { data: groupData, isLoading: groupIsLoading } = useOne<ArtistGroup>({
-    resource: 'artist_group',
-    id: record?.artist_group_id || '',
-    queryOptions: {
-      enabled: !!record?.artist_group_id,
-    },
-  });
+  useEffect(() => {
+    console.log('Artist record:', record);
+
+    // group_id 또는 artist_group_id 필드 확인
+    const groupId = record?.group_id || record?.artist_group_id;
+
+    if (groupId) {
+      setGroupLoading(true);
+
+      console.log('Fetching artist group with ID:', groupId);
+
+      // 데이터 가져오기
+      dataProvider
+        .getOne({
+          resource: 'artist_group',
+          id: groupId,
+          meta: {
+            select:
+              'id, name, image, debut_yy, debut_mm, debut_dd, created_at, updated_at',
+          },
+        })
+        .then((result) => {
+          console.log('Artist group data received:', result);
+
+          if (result && result.data) {
+            // name이 문자열인 경우 객체로 변환 (API 응답 형식 변환)
+            const groupData = result.data;
+            if (groupData.name && typeof groupData.name === 'string') {
+              try {
+                groupData.name = JSON.parse(groupData.name);
+              } catch (e) {
+                console.error('Failed to parse name string as JSON:', e);
+                groupData.name = { ko: groupData.name };
+              }
+            }
+
+            setArtistGroup(groupData as ArtistGroup);
+          } else {
+            console.error('No data in result:', result);
+            setArtistGroup(null);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching artist group:', error);
+          setArtistGroup(null);
+        })
+        .finally(() => {
+          setGroupLoading(false);
+        });
+    } else {
+      console.log('No group_id available');
+      setArtistGroup(null);
+    }
+  }, [record]);
+
+  const { edit, list } = useNavigation();
+
+  if (isLoading) {
+    return <Skeleton active paragraph={{ rows: 10 }} />;
+  }
 
   return (
-    <Show isLoading={isLoading}>
+    <div>
+      <div
+        style={{
+          marginBottom: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Space>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => list('artist')}>
+            목록으로
+          </Button>
+          <Title level={5} style={{ margin: 0 }}>
+            아티스트 정보
+          </Title>
+        </Space>
+        <Space>
+          <Button
+            type='primary'
+            icon={<EditOutlined />}
+            onClick={() => edit('artist', id!)}
+          >
+            편집
+          </Button>
+          <DeleteButton
+            resource='artist'
+            recordItemId={id}
+            onSuccess={() => list('artist')}
+          />
+        </Space>
+      </div>
       <div
         style={{
           display: 'flex',
@@ -317,10 +421,10 @@ export default function ArtistShow() {
               className='info-section'
               style={{ ...getSectionStyle(token), marginTop: '16px' }}
             >
-              {groupIsLoading ? (
+              {groupLoading ? (
                 <TextField value='로딩 중...' />
-              ) : groupData?.data ? (
-                <ArtistGroupDisplay group={groupData.data} />
+              ) : artistGroup ? (
+                <ArtistGroupDisplay group={artistGroup} />
               ) : (
                 <TextField value='-' />
               )}
@@ -328,6 +432,6 @@ export default function ArtistShow() {
           </div>
         </div>
       </div>
-    </Show>
+    </div>
   );
 }

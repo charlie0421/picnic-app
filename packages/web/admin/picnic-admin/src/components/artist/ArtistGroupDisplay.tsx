@@ -24,8 +24,16 @@ const ArtistGroupDisplay: React.FC<ArtistGroupDisplayProps> = ({
   group,
   showImage = true,
 }) => {
+  console.log('ArtistGroupDisplay received group:', group);
+
   if (!group) {
-    return <Text type='secondary'>-</Text>;
+    return <Text type='secondary'>그룹 정보 없음</Text>;
+  }
+
+  // name 객체가 없는 경우 처리
+  if (!group.name) {
+    console.warn('Group name object is missing:', group);
+    return <Text type='secondary'>그룹 이름 정보 없음</Text>;
   }
 
   // 데뷔일 포맷팅
@@ -44,14 +52,25 @@ const ArtistGroupDisplay: React.FC<ArtistGroupDisplayProps> = ({
 
   const debutDate = getDebutDateDisplay();
 
+  // 이름 필드가 객체가 아닌 경우를 처리
+  const nameKo =
+    typeof group.name === 'object' ? group.name.ko : String(group.name);
+  const nameEn = typeof group.name === 'object' ? group.name.en : '';
+  const nameJa = typeof group.name === 'object' ? group.name.ja : '';
+  const nameZh = typeof group.name === 'object' ? group.name.zh : '';
+
   return (
-    <Card size='small' style={{ width: '100%', marginBottom: 16 }}>
+    <Card
+      size='small'
+      variant='outlined'
+      style={{ width: '100%', marginBottom: 16 }}
+    >
       <Row gutter={16} align='middle'>
         {showImage && group.image && (
           <Col xs={24} sm={6} md={5} lg={4}>
             <Image
               src={getImageUrl(group.image)}
-              alt={group.name?.ko || '그룹 이미지'}
+              alt={nameKo || '그룹 이미지'}
               style={{
                 width: '100%',
                 maxWidth: 120,
@@ -71,13 +90,13 @@ const ArtistGroupDisplay: React.FC<ArtistGroupDisplayProps> = ({
           <div style={{ marginBottom: 8 }}>
             <Title level={5} style={{ margin: 0 }}>
               <TeamOutlined style={{ marginRight: 8 }} />
-              {group.name?.ko || ''}
-              {group.name?.en && (
+              {nameKo || '이름 없음'}
+              {nameEn && (
                 <Text
                   type='secondary'
                   style={{ marginLeft: 8, fontWeight: 'normal', fontSize: 14 }}
                 >
-                  ({group.name.en})
+                  ({nameEn})
                 </Text>
               )}
             </Title>
@@ -93,25 +112,25 @@ const ArtistGroupDisplay: React.FC<ArtistGroupDisplayProps> = ({
             <Col xs={24} md={12}>
               <Space>
                 <Text strong>🇰🇷</Text>
-                <Text>{group.name?.ko || ''}</Text>
+                <Text>{nameKo || '-'}</Text>
               </Space>
             </Col>
             <Col xs={24} md={12}>
               <Space>
                 <Text strong>🇺🇸</Text>
-                <Text>{group.name?.en || '-'}</Text>
+                <Text>{nameEn || '-'}</Text>
               </Space>
             </Col>
             <Col xs={24} md={12}>
               <Space>
                 <Text strong>🇯🇵</Text>
-                <Text>{group.name?.ja || '-'}</Text>
+                <Text>{nameJa || '-'}</Text>
               </Space>
             </Col>
             <Col xs={24} md={12}>
               <Space>
                 <Text strong>🇨🇳</Text>
-                <Text>{group.name?.zh || '-'}</Text>
+                <Text>{nameZh || '-'}</Text>
               </Space>
             </Col>
           </Row>

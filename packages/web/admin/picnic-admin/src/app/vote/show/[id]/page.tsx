@@ -1,9 +1,17 @@
 'use client';
 
-import { Show } from '@refinedev/antd';
-import { useShow } from '@refinedev/core';
+import { useShow, useNavigation } from '@refinedev/core';
 import { type VoteRecord } from '@/utils/vote';
 import VoteDetail from '@/components/vote/VoteDetail';
+import { Typography, Skeleton, Space, Button } from 'antd';
+import { DeleteButton } from '@refinedev/antd';
+import {
+  EditOutlined,
+  DeleteOutlined,
+  ArrowLeftOutlined,
+} from '@ant-design/icons';
+
+const { Title } = Typography;
 
 export default function VoteShow({ params }: { params: { id: string } }) {
   const { queryResult } = useShow<VoteRecord>({
@@ -15,10 +23,47 @@ export default function VoteShow({ params }: { params: { id: string } }) {
     },
   });
   const { data, isLoading } = queryResult;
+  const { edit, list } = useNavigation();
+  const id = params.id;
+
+  if (isLoading) {
+    return <Skeleton active paragraph={{ rows: 10 }} />;
+  }
 
   return (
-    <Show isLoading={isLoading} title='투표 상세'>
+    <div>
+      <div
+        style={{
+          marginBottom: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Space>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => list('vote')}>
+            목록으로
+          </Button>
+          <Title level={5} style={{ margin: 0 }}>
+            투표 상세
+          </Title>
+        </Space>
+        <Space>
+          <Button
+            type='primary'
+            icon={<EditOutlined />}
+            onClick={() => edit('vote', id)}
+          >
+            편집
+          </Button>
+          <DeleteButton
+            resource='vote'
+            recordItemId={id}
+            onSuccess={() => list('vote')}
+          />
+        </Space>
+      </div>
       <VoteDetail record={data?.data} loading={isLoading} />
-    </Show>
+    </div>
   );
 }

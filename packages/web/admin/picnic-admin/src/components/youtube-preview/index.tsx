@@ -75,6 +75,7 @@ export const YoutubePreview: React.FC<YoutubePreviewProps> = ({
   return (
     <Card
       size='small'
+      variant='outlined'
       title='YouTube 미리보기'
       style={{ width: '100%', marginBottom: 16 }}
     >

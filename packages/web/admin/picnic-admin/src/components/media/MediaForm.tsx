@@ -173,6 +173,7 @@ export default function MediaForm({
       {youtubeData.videoId && (
         <Card
           title='유튜브 비디오 미리보기'
+          variant='outlined'
           size='small'
           style={{ marginBottom: 16, maxWidth: 640 }}
         >
@@ -203,6 +204,7 @@ export default function MediaForm({
       <Card
         title='커스텀 썸네일'
         size='small'
+        variant='outlined'
         style={{ marginBottom: 16, maxWidth: 640 }}
       >
         <Space direction='vertical' style={{ width: '100%' }}>

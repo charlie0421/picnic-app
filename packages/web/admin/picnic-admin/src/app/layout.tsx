@@ -13,6 +13,8 @@ import { ColorModeContextProvider } from '@contexts/color-mode';
 import { authProviderClient } from '@providers/auth-provider/auth-provider.client';
 import { dataProvider } from '@providers/data-provider';
 import '@refinedev/antd/dist/reset.css';
+import { ThemedLayoutV2 } from '@refinedev/antd';
+import { Header } from '@/components/header';
 
 export const metadata: Metadata = {
   title: 'Picnic Admin',
@@ -157,7 +159,9 @@ export default function RootLayout({
                           },
                         }}
                       >
-                        {children}
+                        <ThemedLayoutV2 Header={Header}>
+                          {children}
+                        </ThemedLayoutV2>
                         <RefineKbar />
                       </Refine>
                     </DevtoolsProvider>
