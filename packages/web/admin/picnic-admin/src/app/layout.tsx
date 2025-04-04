@@ -93,6 +93,52 @@ export default function RootLayout({
                               },
                             },
                           },
+                          {
+                            name: 'artist-group',
+                            list: '/artist-group',
+                            create: '/artist-group/create',
+                            edit: '/artist-group/edit/:id',
+                            show: '/artist-group/show/:id',
+                            meta: {
+                              canDelete: true,
+                              label: '아티스트 그룹 관리',
+                              list: {
+                                label: '아티스트 그룹 목록',
+                              },
+                              create: {
+                                label: '아티스트 그룹 추가',
+                              },
+                              edit: {
+                                label: '아티스트 그룹 수정',
+                              },
+                              show: {
+                                label: '아티스트 그룹 상세',
+                              },
+                            },
+                          },
+                          {
+                            name: 'artist',
+                            list: '/artist',
+                            create: '/artist/create',
+                            edit: '/artist/edit/:id',
+                            show: '/artist/show/:id',
+                            meta: {
+                              canDelete: true,
+                              label: '아티스트 관리',
+                              list: {
+                                label: '아티스트 목록',
+                              },
+                              create: {
+                                label: '아티스트 추가',
+                              },
+                              edit: {
+                                label: '아티스트 수정',
+                              },
+                              show: {
+                                label: '아티스트 상세',
+                              },
+                            },
+                          },
                         ]}
                         options={{
                           syncWithLocation: true,

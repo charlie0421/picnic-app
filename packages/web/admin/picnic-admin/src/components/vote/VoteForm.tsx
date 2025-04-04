@@ -19,11 +19,12 @@ import { useEffect, useState } from 'react';
 import { useNavigation, useCreate, useUpdate } from '@refinedev/core';
 import { getImageUrl } from '@/utils/image';
 import { VOTE_CATEGORIES, type VoteRecord } from '@/utils/vote';
-import { Artist, VoteItem } from '@/types/vote';
+import { VoteItem } from '@/types/vote';
 import dayjs from 'dayjs';
 import { COLORS } from '@/utils/theme';
 import ArtistSelector from '@/components/artist-selector';
 import ImageUpload from '@/components/upload';
+import ArtistCard from '@/components/artist/ArtistCard';
 import React from 'react';
 
 type VoteFormProps = {
@@ -198,160 +199,73 @@ export default function VoteForm({
                 borderRadius: '50%',
               }}
               onError={(e) => {
-                const target = e.currentTarget;
-                target.onerror = null;
-                target.style.display = 'none';
-                const parent = target.parentElement;
-                if (parent) {
-                  const placeholder = document.createElement('div');
-                  placeholder.style.width = '40px';
-                  placeholder.style.height = '40px';
-                  placeholder.style.backgroundColor = '#f5f5f5';
-                  placeholder.style.borderRadius = '50%';
-                  placeholder.style.display = 'flex';
-                  placeholder.style.alignItems = 'center';
-                  placeholder.style.justifyContent = 'center';
-                  placeholder.innerHTML =
-                    '<span class="anticon"><svg viewBox="64 64 896 896" focusable="false" data-icon="user" width="24px" height="24px" fill="#bfbfbf" aria-hidden="true"><path d="M858.5 763.6a374 374 0 00-80.6-119.5 375.63 375.63 0 00-119.5-80.6c-.4-.2-.8-.3-1.2-.5C719.5 518 760 444.7 760 362c0-137-111-248-248-248S264 225 264 362c0 82.7 40.5 156 102.8 201.1-.4.2-.8.3-1.2.5-44.8 18.9-85 46-119.5 80.6a375.63 375.63 0 00-80.6 119.5A371.7 371.7 0 00136 901.8a8 8 0 008 8.2h60c4.4 0 7.9-3.5 8-7.8 2-77.2 33-149.5 87.8-204.3 56.7-56.7 132-87.9 212.2-87.9s155.5 31.2 212.2 87.9C779 752.7 810 825 812 902.2c.1 4.4 3.6 7.8 8 7.8h60a8 8 0 008-8.2c-1-47.8-10.9-94.3-29.5-138.2zM512 534c-45.9 0-89.1-17.9-121.6-50.4S340 407.9 340 362c0-45.9 17.9-89.1 50.4-121.6S466.1 190 512 190s89.1 17.9 121.6 50.4S684 316.1 684 362c0 45.9-17.9 89.1-50.4 121.6S557.9 534 512 534z"></path></svg></span>';
-                  parent.appendChild(placeholder);
+                e.currentTarget.style.display = 'none';
+                if (e.currentTarget.nextElementSibling instanceof HTMLElement) {
+                  e.currentTarget.nextElementSibling.style.display = 'block';
                 }
               }}
             />
           </div>
         ) : (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                backgroundColor: '#f5f5f5',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <UserOutlined style={{ fontSize: '24px', color: '#bfbfbf' }} />
-            </div>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              backgroundColor: '#f5f5f5',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto',
+            }}
+          >
+            <UserOutlined
+              style={{ fontSize: '18px', color: token.colorTextSecondary }}
+            />
           </div>
         ),
     },
     {
-      title: '이름',
-      dataIndex: ['artist', 'name'],
+      title: '아티스트',
+      dataIndex: ['artist', 'name', 'ko'],
       key: 'name',
-      align: 'center' as const,
-      render: (name: Artist['name']) => {
-        const koName = name?.ko || '';
-        const enName = name?.en || '';
-
-        return (
-          <div
-            style={{
-              textAlign: 'center',
-              fontWeight: 'bold',
-              color: COLORS.primary,
-            }}
-          >
-            {koName && <div>{koName}</div>}
-            {enName && (
-              <div
-                style={{ fontSize: '0.9em', color: token.colorTextSecondary }}
-              >
-                {enName}
-              </div>
-            )}
-            {!koName && !enName && '-'}
+      render: (text: string, record: VoteItem) => (
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 'bold' }}>
+            {record.artist?.name?.ko || '-'}
           </div>
-        );
-      },
+          {record.artist?.name?.en && (
+            <div style={{ fontSize: '12px', color: token.colorTextSecondary }}>
+              {record.artist.name.en}
+            </div>
+          )}
+        </div>
+      ),
     },
     {
       title: '그룹',
-      dataIndex: ['artist', 'artist_group'],
-      key: 'artist_group',
-      align: 'center' as const,
-      render: (artistGroup: Artist['artist_group']) =>
-        artistGroup ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              justifyContent: 'flex-start',
-            }}
-          >
-            {artistGroup.image ? (
-              <div
-                style={{ position: 'relative', width: '30px', height: '30px' }}
-              >
-                <img
-                  src={getImageUrl(artistGroup.image)}
-                  alt='그룹 이미지'
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    objectFit: 'cover',
-                    borderRadius: '4px',
-                  }}
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    const parent = e.currentTarget.parentElement;
-                    if (parent && parent.querySelector('.placeholder-backup')) {
-                      const backup = parent.querySelector(
-                        '.placeholder-backup',
-                      ) as HTMLElement;
-                      if (backup) {
-                        backup.style.display = 'flex';
-                      }
-                    }
-                  }}
-                />
-                <div
-                  className='placeholder-backup'
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    display: 'none',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '4px',
-                  }}
-                >
-                  <TeamOutlined
-                    style={{ fontSize: '18px', color: '#bfbfbf' }}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div
-                style={{
-                  width: '30px',
-                  height: '30px',
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <TeamOutlined style={{ fontSize: '18px', color: '#bfbfbf' }} />
-              </div>
-            )}
-
+      dataIndex: ['artist', 'artist_group', 'name', 'ko'],
+      key: 'group',
+      render: (text: string, record: VoteItem) => (
+        <div style={{ textAlign: 'center' }}>
+          {record.artist?.artist_group ? (
             <div>
-              <div style={{ fontWeight: 'normal' }}>
-                {artistGroup.name?.ko || artistGroup.name?.en || '-'}
+              <div style={{ fontWeight: 'bold' }}>
+                {record.artist.artist_group.name?.ko || ''}
               </div>
+              {record.artist.artist_group.name?.en && (
+                <div
+                  style={{ fontSize: '12px', color: token.colorTextSecondary }}
+                >
+                  {record.artist.artist_group.name.en}
+                </div>
+              )}
             </div>
-          </div>
-        ) : (
-          '-'
-        ),
+          ) : (
+            '-'
+          )}
+        </div>
+      ),
     },
     {
       title: '액션',
@@ -501,19 +415,35 @@ export default function VoteForm({
           />
         </div>
 
-        <Table
-          rowKey='temp_id'
-          dataSource={voteItems.filter((item) => !item.deleted)}
-          columns={columns}
-          pagination={false}
-          size='small'
-          style={{ marginBottom: '16px' }}
-          locale={{
-            emptyText: (
-              <Empty description='투표 항목이 없습니다. 아티스트를 추가해주세요.' />
-            ),
-          }}
-        />
+        {voteItems.filter((item) => !item.deleted).length === 0 ? (
+          <Empty description='투표 항목이 없습니다. 아티스트를 추가해주세요.' />
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+              gap: '16px',
+              marginBottom: '16px',
+            }}
+          >
+            {voteItems
+              .filter((item) => !item.deleted)
+              .map((item, index) => (
+                <div key={item.temp_id} style={{ position: 'relative' }}>
+                  <ArtistCard
+                    artist={item.artist!}
+                    showDeleteButton
+                    onDelete={() =>
+                      handleRemoveArtist(
+                        item.temp_id!,
+                        item.is_existing ? false : true,
+                      )
+                    }
+                  />
+                </div>
+              ))}
+          </div>
+        )}
       </div>
 
       <div
