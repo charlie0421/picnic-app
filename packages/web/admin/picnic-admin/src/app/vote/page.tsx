@@ -223,17 +223,6 @@ export default function VoteList() {
             <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
           )}
         />
-        <Table.Column
-          title='액션'
-          dataIndex='actions'
-          render={(_, record: VoteRecord) => (
-            <Space>
-              <ShowButton hideText size='small' recordItemId={record.id} />
-              <EditButton hideText size='small' recordItemId={record.id} />
-              <DeleteButton hideText size='small' recordItemId={record.id} />
-            </Space>
-          )}
-        />
       </Table>
     </List>
   );
