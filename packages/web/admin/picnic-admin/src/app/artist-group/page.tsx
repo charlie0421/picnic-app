@@ -1,84 +1,54 @@
 'use client';
 
-import { DateField, List, useTable } from '@refinedev/antd';
-import { useNavigation } from '@refinedev/core';
-import { Table } from 'antd';
+import { List, useTable } from '@refinedev/antd';
+import { Table, Space, Input } from 'antd';
+import { useState } from 'react';
 import dayjs from 'dayjs';
-import { useState, useEffect } from 'react';
-import { supabaseBrowserClient } from '@utils/supabase/client';
-import SearchBar from '@/components/common/SearchBar';
 import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
 import TableImage from '@/components/common/TableImage';
+import { useNavigation } from '@refinedev/core';
 
 export default function ArtistGroupList() {
-  // 페이지 이동을 위한 hook 추가
-  const { show } = useNavigation();
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [artistGroups, setArtistGroups] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { show } = useNavigation();
 
-  // 아티스트 그룹 데이터 가져오기
-  useEffect(() => {
-    const fetchArtistGroups = async () => {
-      setLoading(true);
-
-      try {
-        let query = supabaseBrowserClient
-          .from('artist_group')
-          .select('*')
-          .order('id', { ascending: false });
-
-        // 검색어가 있는 경우에만 필터 적용
-        if (searchTerm) {
-          query = query.or(
-            `name->>ko.ilike.%${searchTerm}%,` +
-              `name->>en.ilike.%${searchTerm}%,` +
-              `name->>ja.ilike.%${searchTerm}%,` +
-              `name->>zh.ilike.%${searchTerm}%`,
-          );
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          console.error('Error fetching artist groups:', error);
-          setArtistGroups([]);
-        } else {
-          setArtistGroups(data || []);
-        }
-      } catch (error) {
-        console.error('Error fetching artist groups:', error);
-        setArtistGroups([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArtistGroups();
-  }, [searchTerm]);
+  const { tableProps } = useTable({
+    syncWithLocation: true,
+    sorters: {
+      initial: [
+        {
+          field: 'id',
+          order: 'desc',
+        },
+      ],
+    },
+    meta: {
+      // Refine의 meta를 통해 검색어를 백엔드로 전달
+      search: searchTerm
+        ? {
+            query: searchTerm,
+            fields: ['name.ko', 'name.en', 'name.ja', 'name.zh'],
+          }
+        : undefined,
+    },
+  });
 
   // 검색 핸들러
   const handleSearch = (value: string) => {
     setSearchTerm(value);
   };
 
-  // 테이블 속성 생성
-  const tableProps = {
-    dataSource: artistGroups,
-    loading,
-    pagination: {
-      showSizeChanger: true,
-      showTotal: (total: number) => `${total} 아이템`,
-    },
-  };
-
   return (
     <List>
-      <SearchBar
-        placeholder='아티스트 그룹 이름 검색 (모든 언어)'
-        onSearch={handleSearch}
-        width={300}
-      />
+      <Space style={{ marginBottom: 16 }}>
+        <Input.Search
+          placeholder='아티스트 그룹 이름 검색'
+          onSearch={handleSearch}
+          style={{ width: 300 }}
+          allowClear
+        />
+      </Space>
+
       <Table
         {...tableProps}
         rowKey='id'
@@ -90,13 +60,19 @@ export default function ArtistGroupList() {
             },
             onClick: () => {
               if (record.id) {
-                show('artist-group', record.id);
+                show('artist_group', record.id);
               }
             },
           };
         }}
+        pagination={{
+          ...tableProps.pagination,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50'],
+          showTotal: (total) => `총 ${total}개 항목`,
+        }}
       >
-        <Table.Column dataIndex='id' title={'ID'} />
+        <Table.Column dataIndex='id' title={'ID'} sorter />
         <Table.Column
           dataIndex={['name']}
           title={'이름'}
@@ -123,13 +99,13 @@ export default function ArtistGroupList() {
             if (!record.debut_date) return '-';
             return dayjs(record.debut_date).format('YYYY년 MM월 DD일');
           }}
+          sorter
         />
         <Table.Column
           dataIndex={['created_at']}
           title={'생성일'}
-          render={(value: any) => (
-            <DateField value={value} format='YYYY-MM-DD' />
-          )}
+          render={(value: any) => value && new Date(value).toLocaleDateString()}
+          sorter
         />
       </Table>
     </List>

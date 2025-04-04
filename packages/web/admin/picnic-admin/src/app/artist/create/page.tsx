@@ -1,28 +1,18 @@
 'use client';
 
 import { Create, useForm } from '@refinedev/antd';
-import { Form, InputNumber, Select, DatePicker } from 'antd';
+import { Form, Select, DatePicker, Input, message } from 'antd';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import { useCreate, useMany, useNavigation } from '@refinedev/core';
 import ImageUpload from '@/components/upload';
 import { supabaseBrowserClient } from '@utils/supabase/client';
 import { getImageUrl } from '@utils/image';
 import MultiLanguageInput from '@/components/common/MultiLanguageInput';
 
-dayjs.extend(utc);
-
 export default function ArtistCreate() {
-  const [formData, setFormData] = useState<any>({});
   const [groups, setGroups] = useState<any[]>([]);
   const [loadingGroups, setLoadingGroups] = useState<boolean>(true);
-  const { mutate: createArtist } = useCreate();
-  const { list } = useNavigation();
-
-  const { formProps, saveButtonProps } = useForm({
-    resource: 'artist',
-  });
+  const [messageApi, contextHolder] = message.useMessage();
 
   // 아티스트 그룹 정보 직접 Supabase에서 가져오기
   useEffect(() => {
@@ -38,7 +28,6 @@ export default function ArtistCreate() {
           console.error('Error fetching artist groups:', error);
           setGroups([]);
         } else {
-          console.log('Loaded groups:', data);
           setGroups(data || []);
         }
       } catch (error) {
@@ -52,90 +41,13 @@ export default function ArtistCreate() {
     fetchGroups();
   }, []);
 
-  // 폼 데이터 변경 핸들러
-  const handleFormChange = (changedValues: any, allValues: any) => {
-    setFormData(allValues);
-  };
-
-  // 저장 핸들러
-  const handleSave = async () => {
-    try {
-      // 날짜 변환 처리
-      let dataToSave = { ...formData };
-
-      // 생년월일 처리
-      if (formData.birth_date) {
-        // 날짜를 직접 파싱
-        const dateStr =
-          typeof formData.birth_date === 'string'
-            ? formData.birth_date
-            : formData.birth_date.format('YYYY-MM-DD');
-        const date = dayjs(dateStr);
-
-        // 명시적으로 numeric 타입으로 변환
-        const year = Number(date.format('YYYY'));
-        const month = Number(date.format('MM'));
-        const day = Number(date.format('DD'));
-
-        console.log('Parsed birth date values:', { year, month, day, dateStr });
-
-        dataToSave = {
-          ...dataToSave,
-          birth_date: dateStr,
-          yy: year,
-          mm: month,
-          dd: day,
-        };
-      }
-
-      // 데뷔일 처리
-      if (formData.debut_date) {
-        // 날짜를 직접 파싱
-        const dateStr =
-          typeof formData.debut_date === 'string'
-            ? formData.debut_date
-            : formData.debut_date.format('YYYY-MM-DD');
-        const date = dayjs(dateStr);
-
-        // 명시적으로 numeric 타입으로 변환
-        const year = Number(date.format('YYYY'));
-        const month = Number(date.format('MM'));
-        const day = Number(date.format('DD'));
-
-        console.log('Parsed debut date values:', { year, month, day, dateStr });
-
-        dataToSave = {
-          ...dataToSave,
-          debut_date: dateStr,
-          debut_yy: year,
-          debut_mm: month,
-          debut_dd: day,
-        };
-      }
-
-      console.log('Creating artist with data:', dataToSave);
-
-      // 직접 API 호출
-      createArtist(
-        {
-          resource: 'artist',
-          values: dataToSave,
-        },
-        {
-          onSuccess: (data) => {
-            console.log('Create success:', data);
-            // window.history.back() 대신 RefineJS의 list 함수 사용
-            list('artist');
-          },
-          onError: (error) => {
-            console.error('Create error:', error);
-          },
-        },
-      );
-    } catch (error) {
-      console.error('Error creating artist:', error);
-    }
-  };
+  const { formProps, saveButtonProps } = useForm({
+    warnWhenUnsavedChanges: true,
+    redirect: 'list',
+    onMutationSuccess: (data) => {
+      messageApi.success('아티스트가 성공적으로 생성되었습니다');
+    },
+  });
 
   // 그룹명 필터링 함수
   const filterGroupOption = (input: string, option: any) => {
@@ -152,59 +64,89 @@ export default function ArtistCreate() {
     );
   };
 
+  // 저장 버튼 클릭 핸들러
+  const handleSave = async (values: any) => {
+    // 날짜 변환 처리 로직
+    let updatedValues = { ...values };
+
+    // 생년월일 처리
+    if (values.birth_date) {
+      const dateStr =
+        typeof values.birth_date === 'string'
+          ? values.birth_date
+          : values.birth_date.format('YYYY-MM-DD');
+      const date = dayjs(dateStr);
+
+      const year = Number(date.format('YYYY'));
+      const month = Number(date.format('MM'));
+      const day = Number(date.format('DD'));
+
+      updatedValues = {
+        ...updatedValues,
+        birth_date: dateStr,
+        yy: year,
+        mm: month,
+        dd: day,
+      };
+    }
+
+    // 데뷔일 처리
+    if (values.debut_date) {
+      const dateStr =
+        typeof values.debut_date === 'string'
+          ? values.debut_date
+          : values.debut_date.format('YYYY-MM-DD');
+      const date = dayjs(dateStr);
+
+      const year = Number(date.format('YYYY'));
+      const month = Number(date.format('MM'));
+      const day = Number(date.format('DD'));
+
+      updatedValues = {
+        ...updatedValues,
+        debut_date: dateStr,
+        debut_yy: year,
+        debut_mm: month,
+        debut_dd: day,
+      };
+    }
+
+    return updatedValues;
+  };
+
   return (
     <Create
       saveButtonProps={{
         ...saveButtonProps,
-        onClick: handleSave,
+        onClick: async () => {
+          const values = await formProps.form?.validateFields();
+          if (values) {
+            const transformedValues = await handleSave(values);
+            formProps.onFinish?.(transformedValues);
+          }
+        },
       }}
     >
-      <Form {...formProps} layout='vertical' onValuesChange={handleFormChange}>
+      {contextHolder}
+      <Form {...formProps} layout='vertical'>
         <MultiLanguageInput name='name' label='이름' required={true} />
 
         <Form.Item
-          label={'그룹'}
-          name={'group_id'}
+          label={'아티스트 그룹'}
+          name={'artist_group_id'}
           rules={[
             {
               required: true,
-              message: '그룹을 선택해주세요',
+              message: '아티스트 그룹을 선택해주세요',
             },
           ]}
         >
           <Select
             loading={loadingGroups}
             showSearch
-            placeholder='그룹을 검색하세요'
+            placeholder='아티스트 그룹 선택'
             options={groups.map((group) => ({
-              label: (
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-                >
-                  {group.image ? (
-                    <img
-                      src={getImageUrl(group.image)}
-                      alt='그룹 이미지'
-                      style={{
-                        width: '24px',
-                        height: '24px',
-                        objectFit: 'cover',
-                        borderRadius: '4px',
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: '24px',
-                        height: '24px',
-                        backgroundColor: '#f0f0f0',
-                        borderRadius: '4px',
-                      }}
-                    />
-                  )}
-                  <span>{group.name?.ko || '이름 없음'}</span>
-                </div>
-              ),
+              label: group.name?.ko || group.name?.en || 'N/A',
               value: group.id,
               name: group.name,
             }))}
@@ -245,34 +187,21 @@ export default function ArtistCreate() {
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
 
-        <Form.Item
-          label='데뷔일'
-          name='debut_date'
-          rules={[
-            {
-              required: true,
-              message: '데뷔일을 선택해주세요',
-            },
-          ]}
-        >
+        <Form.Item label='데뷔일' name='debut_date'>
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
 
         <Form.Item
-          label='아티스트 이미지'
+          label='이미지'
           name='image'
-          valuePropName='value'
-          getValueFromEvent={(e) => {
-            if (typeof e === 'string') {
-              return e;
-            }
-            if (e && e.file && e.file.response) {
-              return e.file.response;
-            }
-            return e;
-          }}
+          rules={[
+            {
+              required: true,
+              message: '아티스트 이미지를 업로드해주세요',
+            },
+          ]}
         >
-          <ImageUpload folder='artist' />
+          <ImageUpload />
         </Form.Item>
       </Form>
     </Create>

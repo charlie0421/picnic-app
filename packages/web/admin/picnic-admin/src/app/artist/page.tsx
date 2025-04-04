@@ -1,86 +1,56 @@
 'use client';
 
-import { DateField, List, useTable } from '@refinedev/antd';
+import { List, useTable } from '@refinedev/antd';
+import { Table, Button, Input, Space } from 'antd';
 import { useMany, useNavigation } from '@refinedev/core';
-import { Space, Table, Row, Col } from 'antd';
-import { Artist } from '@/types/artist';
-import { useState, useEffect } from 'react';
-import { supabaseBrowserClient } from '@utils/supabase/client';
-import SearchBar from '@/components/common/SearchBar';
+import { useState } from 'react';
+import { getImageUrl } from '@/utils/image';
 import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
 import TableImage from '@/components/common/TableImage';
+import { SearchOutlined } from '@ant-design/icons';
 
 export default function ArtistList() {
-  // 페이지 이동을 위한 hook 추가
-  const { show } = useNavigation();
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [artists, setArtists] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { show } = useNavigation();
 
-  // 아티스트 데이터 가져오기
-  useEffect(() => {
-    const fetchArtists = async () => {
-      setLoading(true);
-
-      try {
-        let query = supabaseBrowserClient
-          .from('artist')
-          .select('*')
-          .order('id', { ascending: false });
-
-        // 검색어가 있는 경우에만 필터 적용
-        if (searchTerm) {
-          query = query.or(
-            `name->>ko.ilike.%${searchTerm}%,` +
-              `name->>en.ilike.%${searchTerm}%,` +
-              `name->>ja.ilike.%${searchTerm}%,` +
-              `name->>zh.ilike.%${searchTerm}%`,
-          );
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          console.error('Error fetching artists:', error);
-          setArtists([]);
-        } else {
-          setArtists(data || []);
-        }
-      } catch (error) {
-        console.error('Error fetching artists:', error);
-        setArtists([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArtists();
-  }, [searchTerm]);
+  const { tableProps, filters } = useTable({
+    syncWithLocation: true,
+    sorters: {
+      initial: [
+        {
+          field: 'id',
+          order: 'desc',
+        },
+      ],
+    },
+    filters: {
+      initial: [],
+    },
+    meta: {
+      // Refine의 meta를 통해 검색어를 백엔드로 전달
+      search: searchTerm
+        ? {
+            query: searchTerm,
+            fields: ['name.ko', 'name.en', 'name.ja', 'name.zh'],
+          }
+        : undefined,
+    },
+  });
 
   // 아티스트 그룹 정보 가져오기
   const { data: groupsData, isLoading: groupsIsLoading } = useMany({
     resource: 'artist_group',
     ids:
-      (artists
+      (tableProps?.dataSource
         ?.map((item: any) => {
-          const groupId = item?.group_id;
+          const groupId = item?.artist_group_id;
           return groupId ? String(groupId) : undefined;
         })
         .filter(Boolean) as string[]) ?? [],
     queryOptions: {
-      enabled: !!artists.length,
+      enabled: !!tableProps?.dataSource?.length,
     },
   });
-
-  // 테이블 속성 생성
-  const tableProps = {
-    dataSource: artists,
-    loading,
-    pagination: {
-      showSizeChanger: true,
-      showTotal: (total: number) => `${total} 아이템`,
-    },
-  };
 
   // 검색 핸들러
   const handleSearch = (value: string) => {
@@ -89,11 +59,15 @@ export default function ArtistList() {
 
   return (
     <List>
-      <SearchBar
-        placeholder='아티스트 이름 검색 (모든 언어)'
-        onSearch={handleSearch}
-        width={300}
-      />
+      <Space style={{ marginBottom: 16 }}>
+        <Input.Search
+          placeholder='아티스트 이름 검색'
+          onSearch={handleSearch}
+          style={{ width: 300 }}
+          allowClear
+        />
+      </Space>
+
       <Table
         {...tableProps}
         rowKey='id'
@@ -110,8 +84,14 @@ export default function ArtistList() {
             },
           };
         }}
+        pagination={{
+          ...tableProps.pagination,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50'],
+          showTotal: (total) => `총 ${total}개 항목`,
+        }}
       >
-        <Table.Column dataIndex='id' title={'ID'} />
+        <Table.Column dataIndex='id' title={'ID'} sorter />
         <Table.Column
           dataIndex={['name']}
           title={'이름'}
@@ -134,7 +114,7 @@ export default function ArtistList() {
         />
         <Table.Column dataIndex='gender' title={'성별'} />
         <Table.Column
-          dataIndex={'group_id'}
+          dataIndex={'artist_group_id'}
           title={'그룹'}
           render={(value) =>
             groupsIsLoading ? (
@@ -150,13 +130,13 @@ export default function ArtistList() {
           dataIndex='birth_date'
           title={'생년월일'}
           render={(value: string) => value || '-'}
+          sorter
         />
         <Table.Column
           dataIndex={['created_at']}
           title={'생성일'}
-          render={(value: any) => (
-            <DateField value={value} format='YYYY-MM-DD' />
-          )}
+          render={(value: any) => value && new Date(value).toLocaleDateString()}
+          sorter
         />
       </Table>
     </List>

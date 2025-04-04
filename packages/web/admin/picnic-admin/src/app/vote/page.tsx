@@ -1,80 +1,61 @@
 'use client';
 
 import {
-  DateField,
-  DeleteButton,
-  EditButton,
   List,
-  MarkdownField,
-  ShowButton,
   useTable,
+  DateField,
+  ShowButton,
+  EditButton,
+  DeleteButton,
   CreateButton,
 } from '@refinedev/antd';
-import {
-  type BaseRecord,
-  useMany,
-  CrudFilters,
-  CrudFilter,
-  useNavigation,
-} from '@refinedev/core';
-import { Space, Table, Select, Tag, Row, Col } from 'antd';
-import dayjs from 'dayjs';
+import { CrudFilters, useNavigation } from '@refinedev/core';
+import { Space, Table, Select, Tag } from 'antd';
 import React from 'react';
 
-// 공통 유틸리티 가져오기
-import { getImageUrl } from '@/utils/image';
 import {
   VOTE_CATEGORIES,
   VOTE_STATUS,
-  STATUS_COLORS,
   STATUS_TAG_COLORS,
+  STATUS_COLORS,
   getVoteStatus,
   type VoteStatus,
   type VoteCategory,
   type VoteRecord,
 } from '@/utils/vote';
-import { formatDate, DATE_FORMATS } from '@/utils/date';
+import { formatDate } from '@/utils/date';
 import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
 import TableImage from '@/components/common/TableImage';
 
-type FilterValue = VoteCategory | null;
-
 export default function VoteList() {
-  // 로컬 상태로 필터 관리
   const [categoryFilter, setCategoryFilter] =
     React.useState<VoteCategory | null>(null);
   const [statusFilter, setStatusFilter] = React.useState<VoteStatus | null>(
     null,
   );
 
-  // 페이지 이동을 위한 hook 추가
   const { show } = useNavigation();
 
-  // 실제 필터 적용
-  const { tableProps } = useTable<VoteRecord>({
-    syncWithLocation: false, // URL 동기화 비활성화
-    resource: 'vote',
-    meta: {
-      select: '*',
-    },
-    sorters: {
-      initial: [
-        {
-          field: 'id',
-          order: 'desc',
-        },
-      ],
-    },
-    filters: {
-      permanent: React.useMemo(() => {
-        const filters: CrudFilters = [];
+  // 필터 체인지 핸들러
+  const handleCategoryChange = (value: VoteCategory | null) => {
+    setCategoryFilter(value);
+  };
 
-        // 삭제된 항목 제외 (삭제일이 null인 항목만 포함)
-        filters.push({
+  const handleStatusChange = (value: VoteStatus | null) => {
+    setStatusFilter(value);
+  };
+
+  const { tableProps } = useTable<VoteRecord>({
+    filters: {
+      permanent: [
+        {
           field: 'deleted_at',
           operator: 'null',
           value: true,
-        });
+        },
+      ],
+      initial: React.useMemo(() => {
+        const filters: CrudFilters = [];
 
         // 카테고리 필터 추가
         if (categoryFilter) {
@@ -86,30 +67,30 @@ export default function VoteList() {
         }
 
         // 상태 필터 추가
-        const now = dayjs();
+        const now = new Date().toISOString();
         if (statusFilter) {
           if (statusFilter === VOTE_STATUS.UPCOMING) {
             filters.push({
               operator: 'gt',
               field: 'start_at',
-              value: now.toISOString(),
+              value: now,
             });
           } else if (statusFilter === VOTE_STATUS.ONGOING) {
             filters.push({
               operator: 'lte',
               field: 'start_at',
-              value: now.toISOString(),
+              value: now,
             });
             filters.push({
               operator: 'gte',
               field: 'stop_at',
-              value: now.toISOString(),
+              value: now,
             });
           } else if (statusFilter === VOTE_STATUS.COMPLETED) {
             filters.push({
               operator: 'lt',
               field: 'stop_at',
-              value: now.toISOString(),
+              value: now,
             });
           }
         }
@@ -117,46 +98,43 @@ export default function VoteList() {
         return filters;
       }, [categoryFilter, statusFilter]),
     },
+    sorters: {
+      initial: [
+        {
+          field: 'id',
+          order: 'desc',
+        },
+      ],
+    },
+    queryOptions: {
+      refetchOnWindowFocus: false,
+    },
   });
-
-  // 카테고리 필터 변경 핸들러
-  const handleCategoryChange = (value: VoteCategory | null) => {
-    setCategoryFilter(value);
-  };
-
-  // 상태 필터 변경 핸들러
-  const handleStatusChange = (value: VoteStatus | null) => {
-    setStatusFilter(value);
-  };
 
   return (
     <List headerButtons={<CreateButton />}>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={24} md={24}>
-          <Space wrap style={{ marginBottom: 16 }}>
-            <Select
-              style={{ width: '100%', minWidth: 120 }}
-              placeholder='카테고리 선택'
-              allowClear
-              options={VOTE_CATEGORIES}
-              value={categoryFilter}
-              onChange={handleCategoryChange}
-            />
-            <Select
-              style={{ width: '100%', minWidth: 120 }}
-              placeholder='투표 상태'
-              allowClear
-              options={[
-                { label: '투표 예정', value: VOTE_STATUS.UPCOMING },
-                { label: '투표 중', value: VOTE_STATUS.ONGOING },
-                { label: '투표 완료', value: VOTE_STATUS.COMPLETED },
-              ]}
-              value={statusFilter}
-              onChange={handleStatusChange}
-            />
-          </Space>
-        </Col>
-      </Row>
+      <Space wrap style={{ marginBottom: 16 }}>
+        <Select
+          style={{ width: 160 }}
+          placeholder='카테고리 선택'
+          allowClear
+          options={VOTE_CATEGORIES}
+          value={categoryFilter}
+          onChange={handleCategoryChange}
+        />
+        <Select
+          style={{ width: 120 }}
+          placeholder='투표 상태'
+          allowClear
+          options={[
+            { label: '투표 예정', value: VOTE_STATUS.UPCOMING },
+            { label: '투표 중', value: VOTE_STATUS.ONGOING },
+            { label: '투표 완료', value: VOTE_STATUS.COMPLETED },
+          ]}
+          value={statusFilter}
+          onChange={handleStatusChange}
+        />
+      </Space>
 
       <Table
         {...tableProps}
@@ -178,18 +156,14 @@ export default function VoteList() {
             },
           };
         }}
-        style={{
-          color: 'inherit',
-          width: '100%',
-          overflowX: 'auto',
+        pagination={{
+          ...tableProps.pagination,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50'],
+          showTotal: (total) => `총 ${total}개 항목`,
         }}
       >
-        <Table.Column
-          dataIndex='id'
-          title='ID'
-          className='text-inherit'
-          width={60}
-        />
+        <Table.Column dataIndex='id' title='ID' width={60} />
         <Table.Column
           dataIndex='title'
           title={'제목'}
@@ -247,6 +221,17 @@ export default function VoteList() {
           title={'생성일'}
           render={(value: any) => (
             <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
+          )}
+        />
+        <Table.Column
+          title='액션'
+          dataIndex='actions'
+          render={(_, record: VoteRecord) => (
+            <Space>
+              <ShowButton hideText size='small' recordItemId={record.id} />
+              <EditButton hideText size='small' recordItemId={record.id} />
+              <DeleteButton hideText size='small' recordItemId={record.id} />
+            </Space>
           )}
         />
       </Table>

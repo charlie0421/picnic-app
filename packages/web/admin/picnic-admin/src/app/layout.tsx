@@ -94,7 +94,7 @@ export default function RootLayout({
                             },
                           },
                           {
-                            name: 'artist-group',
+                            name: 'artist_group',
                             list: '/artist-group',
                             create: '/artist-group/create',
                             edit: '/artist-group/edit/:id',

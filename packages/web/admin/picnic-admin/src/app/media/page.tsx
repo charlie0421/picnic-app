@@ -1,7 +1,14 @@
 'use client';
 
-import { DateField, List, useTable } from '@refinedev/antd';
-import { useNavigation, BaseRecord } from '@refinedev/core';
+import {
+  List,
+  useTable,
+  DateField,
+  ShowButton,
+  EditButton,
+  DeleteButton,
+} from '@refinedev/antd';
+import { useNavigation } from '@refinedev/core';
 import { Table, Typography, Card, Space } from 'antd';
 import { getImageUrl } from '@/utils/image';
 import TableImage from '@/components/common/TableImage';
@@ -24,6 +31,7 @@ export default function MediaList() {
       select: '*, created_at',
     },
   });
+
   const { show } = useNavigation();
 
   return (
@@ -31,7 +39,7 @@ export default function MediaList() {
       <Table
         {...tableProps}
         rowKey='id'
-        onRow={(record: BaseRecord) => ({
+        onRow={(record: any) => ({
           onClick: () => {
             if (record.id) {
               show('media', record.id);
@@ -39,6 +47,12 @@ export default function MediaList() {
           },
           style: { cursor: 'pointer' },
         })}
+        pagination={{
+          ...tableProps.pagination,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50'],
+          showTotal: (total) => `총 ${total}개 항목`,
+        }}
       >
         <Table.Column dataIndex='id' title={'ID'} />
         <Table.Column
@@ -144,6 +158,17 @@ export default function MediaList() {
           sorter={true}
           render={(value: any) => (
             <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
+          )}
+        />
+        <Table.Column
+          title='액션'
+          dataIndex='actions'
+          render={(_, record: any) => (
+            <Space>
+              <ShowButton hideText size='small' recordItemId={record.id} />
+              <EditButton hideText size='small' recordItemId={record.id} />
+              <DeleteButton hideText size='small' recordItemId={record.id} />
+            </Space>
           )}
         />
       </Table>

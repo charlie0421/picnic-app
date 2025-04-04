@@ -106,9 +106,9 @@ export default function ArtistShow() {
   // 아티스트 그룹 정보 가져오기
   const { data: groupData, isLoading: groupIsLoading } = useOne<ArtistGroup>({
     resource: 'artist_group',
-    id: record?.group_id || '',
+    id: record?.artist_group_id || '',
     queryOptions: {
-      enabled: !!record?.group_id,
+      enabled: !!record?.artist_group_id,
     },
   });
 

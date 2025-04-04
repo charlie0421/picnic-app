@@ -9,7 +9,7 @@ export interface ArtistSchema {
   mm: number | null;
   dd: number | null;
   gender: string | null;
-  group_id: number;
+  artist_group_id: number;
   image: string | null;
   birth_date: string | null;
   debut_yy: number | null;
@@ -42,7 +42,7 @@ export interface Artist {
   mm?: number | null;
   dd?: number | null;
   gender?: string | null;
-  group_id?: number;
+  artist_group_id?: number;
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;
