@@ -47,13 +47,6 @@ export default function ArtistGroupCreate() {
         const month = Number(date.format('MM'));
         const day = Number(date.format('DD'));
 
-        console.log('Parsed date values (create):', {
-          year,
-          month,
-          day,
-          dateStr,
-        });
-
         dataToSave = {
           ...dataToSave,
           debut_date: dateStr,
@@ -63,8 +56,6 @@ export default function ArtistGroupCreate() {
         };
       }
 
-      console.log('Creating artist group with data:', dataToSave);
-
       // 직접 API 호출
       createArtistGroup(
         {
@@ -73,18 +64,15 @@ export default function ArtistGroupCreate() {
         },
         {
           onSuccess: (data) => {
-            console.log('Create success:', data);
             messageApi.success('아티스트 그룹이 성공적으로 생성되었습니다');
             list('artist-group');
           },
           onError: (error) => {
-            console.error('Create error:', error);
             messageApi.error(`생성 실패: ${error}`);
           },
         },
       );
     } catch (error) {
-      console.error('Error creating artist group:', error);
       messageApi.error(`오류 발생: ${error}`);
     }
   };

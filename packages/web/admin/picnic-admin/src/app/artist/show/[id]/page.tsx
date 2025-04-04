@@ -125,15 +125,11 @@ export default function ArtistShow() {
 
   // 아티스트 그룹 정보 가져오기
   useEffect(() => {
-    console.log('Artist record:', record);
-
     // group_id 또는 artist_group_id 필드 확인
     const groupId = record?.group_id || record?.artist_group_id;
 
     if (groupId) {
       setGroupLoading(true);
-
-      console.log('Fetching artist group with ID:', groupId);
 
       // 데이터 가져오기
       dataProvider
@@ -146,8 +142,6 @@ export default function ArtistShow() {
           },
         })
         .then((result) => {
-          console.log('Artist group data received:', result);
-
           if (result && result.data) {
             // name이 문자열인 경우 객체로 변환 (API 응답 형식 변환)
             const groupData = result.data;
@@ -155,26 +149,22 @@ export default function ArtistShow() {
               try {
                 groupData.name = JSON.parse(groupData.name);
               } catch (e) {
-                console.error('Failed to parse name string as JSON:', e);
                 groupData.name = { ko: groupData.name };
               }
             }
 
             setArtistGroup(groupData as ArtistGroup);
           } else {
-            console.error('No data in result:', result);
             setArtistGroup(null);
           }
         })
         .catch((error) => {
-          console.error('Error fetching artist group:', error);
           setArtistGroup(null);
         })
         .finally(() => {
           setGroupLoading(false);
         });
     } else {
-      console.log('No group_id available');
       setArtistGroup(null);
     }
   }, [record]);

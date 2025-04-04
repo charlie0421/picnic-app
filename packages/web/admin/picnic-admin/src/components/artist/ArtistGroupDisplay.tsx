@@ -24,8 +24,6 @@ const ArtistGroupDisplay: React.FC<ArtistGroupDisplayProps> = ({
   group,
   showImage = true,
 }) => {
-  console.log('ArtistGroupDisplay received group:', group);
-
   if (!group) {
     return <Text type='secondary'>그룹 정보 없음</Text>;
   }

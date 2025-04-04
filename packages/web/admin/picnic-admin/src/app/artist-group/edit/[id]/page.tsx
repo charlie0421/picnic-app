@@ -37,10 +37,6 @@ export default function ArtistGroupEdit() {
   // 폼 초기 데이터 설정
   useEffect(() => {
     if (queryResult?.data?.data) {
-      console.log(
-        'Artist Group Edit - Initial Data Loaded:',
-        queryResult.data.data,
-      );
       setFormData(queryResult.data.data);
     }
   }, [queryResult?.data?.data]);
@@ -66,13 +62,6 @@ export default function ArtistGroupEdit() {
         const month = Number(date.format('MM'));
         const day = Number(date.format('DD'));
 
-        console.log('Parsed date values (edit):', {
-          year,
-          month,
-          day,
-          dateStr,
-        });
-
         dataToSave = {
           ...dataToSave,
           debut_date: dateStr,
@@ -81,8 +70,6 @@ export default function ArtistGroupEdit() {
           debut_dd: day,
         };
       }
-
-      console.log('Updating artist group with data:', dataToSave);
 
       // 직접 API 호출
       updateArtistGroup(
@@ -93,18 +80,15 @@ export default function ArtistGroupEdit() {
         },
         {
           onSuccess: (data) => {
-            console.log('Update success:', data);
             messageApi.success('아티스트 그룹이 성공적으로 수정되었습니다');
             list('artist-group');
           },
           onError: (error) => {
-            console.error('Update error:', error);
             messageApi.error(`수정 실패: ${error}`);
           },
         },
       );
     } catch (error) {
-      console.error('Error updating artist group:', error);
       messageApi.error(`오류 발생: ${error}`);
     }
   };

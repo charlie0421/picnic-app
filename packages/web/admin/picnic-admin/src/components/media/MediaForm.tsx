@@ -45,7 +45,6 @@ export default function MediaForm({
   // 편집 모드에서 초기 데이터 설정
   useEffect(() => {
     if (mode === 'edit' && formProps.form && formProps.initialValues) {
-      console.log('MediaForm: 편집 모드 초기값 설정', formProps.initialValues);
       // form 필드에 초기값 설정
       formProps.form.setFieldsValue(formProps.initialValues);
 

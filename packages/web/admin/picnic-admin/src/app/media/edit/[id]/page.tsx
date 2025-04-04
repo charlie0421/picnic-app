@@ -27,7 +27,6 @@ export default function MediaEdit() {
   // 초기 데이터 설정
   useEffect(() => {
     if (mediaData && !initialDataLoaded) {
-      console.log('Media Edit - Initial Data Loaded:', mediaData);
       setInitialDataLoaded(true);
     }
   }, [mediaData, initialDataLoaded]);
