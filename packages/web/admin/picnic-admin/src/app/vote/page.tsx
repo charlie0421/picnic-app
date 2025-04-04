@@ -34,6 +34,8 @@ import {
   type VoteRecord,
 } from '@/utils/vote';
 import { formatDate, DATE_FORMATS } from '@/utils/date';
+import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
+import TableImage from '@/components/common/TableImage';
 
 type FilterValue = VoteCategory | null;
 
@@ -191,45 +193,7 @@ export default function VoteList() {
         <Table.Column
           dataIndex='title'
           title={'제목'}
-          render={(value: any) => {
-            if (!value) return '-';
-            return (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px',
-                  color: 'inherit', // 시스템 텍스트 색상 사용
-                  wordBreak: 'break-word',
-                }}
-              >
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇰🇷</span>
-                  <span>{value.ko || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇺🇸</span>
-                  <span>{value.en || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇯🇵</span>
-                  <span>{value.ja || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇨🇳</span>
-                  <span>{value.zh || '-'}</span>
-                </div>
-              </div>
-            );
-          }}
+          render={(value: any) => <MultiLanguageDisplay value={value} />}
         />
         <Table.Column
           dataIndex='vote_category'
@@ -242,53 +206,48 @@ export default function VoteList() {
         <Table.Column
           dataIndex='main_image'
           title='메인 이미지'
-          render={(value: string | undefined) => {
-            if (!value) return '-';
-            return (
-              <img
-                src={getImageUrl(value)}
-                alt='메인 이미지'
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  objectFit: 'cover',
-                  borderRadius: '4px',
-                }}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement!.innerText = '-';
-                }}
-              />
-            );
-          }}
-        />
-        <Table.Column
-          dataIndex='visible_at'
-          title='공개일'
-          render={(value: string | undefined) => formatDate(value, 'datetime')}
-        />
-        <Table.Column
-          dataIndex='start_at'
-          title='시작일'
-          render={(value: string | undefined) => formatDate(value, 'datetime')}
-        />
-        <Table.Column
-          dataIndex='stop_at'
-          title='종료일'
-          render={(value: string | undefined) => formatDate(value, 'datetime')}
+          render={(value: string | undefined) => (
+            <TableImage
+              src={value}
+              alt='메인 이미지'
+              width={120}
+              height={80}
+              objectFit='contain'
+            />
+          )}
         />
         <Table.Column
           title='상태'
           render={(_, record: VoteRecord) => {
             const status = getVoteStatus(record.start_at, record.stop_at);
-            const statusText = {
-              [VOTE_STATUS.UPCOMING]: '투표 예정',
-              [VOTE_STATUS.ONGOING]: '투표 중',
-              [VOTE_STATUS.COMPLETED]: '투표 완료',
-            }[status];
+            let label = '';
+            if (status === VOTE_STATUS.UPCOMING) label = '투표 예정';
+            else if (status === VOTE_STATUS.ONGOING) label = '투표 중';
+            else if (status === VOTE_STATUS.COMPLETED) label = '투표 완료';
 
-            return <Tag color={STATUS_TAG_COLORS[status]}>{statusText}</Tag>;
+            return (
+              <Tag color={STATUS_TAG_COLORS[status]} key={status}>
+                {label}
+              </Tag>
+            );
           }}
+        />
+        <Table.Column
+          title='투표 기간'
+          render={(_, record: VoteRecord) => {
+            if (!record.start_at || !record.stop_at) return '-';
+            return `${formatDate(record.start_at, 'datetime')} ~ ${formatDate(
+              record.stop_at,
+              'datetime',
+            )}`;
+          }}
+        />
+        <Table.Column
+          dataIndex={['created_at']}
+          title={'생성일'}
+          render={(value: any) => (
+            <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
+          )}
         />
       </Table>
     </List>

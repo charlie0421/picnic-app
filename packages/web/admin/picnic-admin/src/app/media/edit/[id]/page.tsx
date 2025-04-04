@@ -1,21 +1,65 @@
 'use client';
 
 import { Edit, useForm } from '@refinedev/antd';
-import { message } from 'antd';
+import { message, Spin } from 'antd';
+import { useState, useEffect } from 'react';
 import { MediaForm } from '@/components/media';
+import { useParams } from 'next/navigation';
 
 export default function MediaEdit() {
-  const { formProps, saveButtonProps, queryResult } = useForm({});
+  const params = useParams();
+  const id = params.id as string;
   const [messageApi, contextHolder] = message.useMessage();
+  const [initialDataLoaded, setInitialDataLoaded] = useState<boolean>(false);
 
+  const { formProps, saveButtonProps, queryResult } = useForm({
+    resource: 'media',
+    id,
+    meta: {
+      select: '*',
+    },
+  });
+
+  const isLoading = queryResult?.isLoading;
+  const isError = queryResult?.isError;
   const mediaData = queryResult?.data?.data;
 
+  // 초기 데이터 설정
+  useEffect(() => {
+    if (mediaData && !initialDataLoaded) {
+      console.log('Media Edit - Initial Data Loaded:', mediaData);
+      setInitialDataLoaded(true);
+    }
+  }, [mediaData, initialDataLoaded]);
+
+  // 데이터 로딩 중이면 로딩 표시
+  if (isLoading) {
+    return (
+      <Edit title='미디어 수정'>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin tip='데이터를 불러오는 중...' />
+        </div>
+      </Edit>
+    );
+  }
+
+  // 데이터 로드 실패 시 에러 메시지
+  if (isError) {
+    return (
+      <Edit title='미디어 수정'>
+        <div style={{ textAlign: 'center', padding: '50px', color: 'red' }}>
+          데이터를 불러오는 중 오류가 발생했습니다.
+        </div>
+      </Edit>
+    );
+  }
+
   return (
-    <Edit saveButtonProps={saveButtonProps}>
+    <Edit saveButtonProps={saveButtonProps} title='미디어 수정'>
       {contextHolder}
       <MediaForm
         mode='edit'
-        id={mediaData?.id?.toString()}
+        id={id}
         formProps={formProps}
         saveButtonProps={saveButtonProps}
       />

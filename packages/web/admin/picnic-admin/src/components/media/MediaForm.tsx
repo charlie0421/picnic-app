@@ -42,6 +42,21 @@ export default function MediaForm({
     }
   }, [formProps.form]);
 
+  // 편집 모드에서 초기 데이터 설정
+  useEffect(() => {
+    if (mode === 'edit' && formProps.form && formProps.initialValues) {
+      console.log('MediaForm: 편집 모드 초기값 설정', formProps.initialValues);
+      // form 필드에 초기값 설정
+      formProps.form.setFieldsValue(formProps.initialValues);
+
+      // 유튜브 미리보기 업데이트
+      const videoId = formProps.initialValues.video_id;
+      if (videoId) {
+        handleUpdatePreview(videoId);
+      }
+    }
+  }, [mode, formProps.form, formProps.initialValues]);
+
   // 비디오 ID로 미리보기 업데이트하는 함수
   const handleUpdatePreview = (videoId: string) => {
     const result = updatePreview(videoId, formProps.form);
@@ -52,9 +67,11 @@ export default function MediaForm({
     <Form
       {...formProps}
       layout='vertical'
-      initialValues={{
-        title: { ko: '', en: '', ja: '', zh: '' },
-      }}
+      initialValues={
+        mode === 'edit'
+          ? formProps.initialValues || {}
+          : { title: { ko: '', en: '', ja: '', zh: '' } }
+      }
     >
       <Divider orientation='left'>제목 정보</Divider>
 

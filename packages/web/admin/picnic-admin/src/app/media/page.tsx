@@ -2,8 +2,10 @@
 
 import { DateField, List, useTable } from '@refinedev/antd';
 import { useNavigation, BaseRecord } from '@refinedev/core';
-import { Space, Table, Image, Typography, Card, Divider } from 'antd';
+import { Table, Typography, Card, Space } from 'antd';
 import { getImageUrl } from '@/utils/image';
+import TableImage from '@/components/common/TableImage';
+import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
 
 const { Link } = Typography;
 
@@ -72,7 +74,7 @@ export default function MediaList() {
                     bordered
                     style={{ width: 200 }}
                   >
-                    <Image
+                    <img
                       src={youtubeThumbnailUrl}
                       alt='유튜브 썸네일'
                       width={160}
@@ -89,12 +91,11 @@ export default function MediaList() {
                     bordered
                     style={{ width: 200 }}
                   >
-                    <Image
-                      src={getImageUrl(dbThumbnailUrl)}
+                    <TableImage
+                      src={dbThumbnailUrl}
                       alt='DB 썸네일'
                       width={160}
                       height={90}
-                      style={{ objectFit: 'cover' }}
                     />
                   </Card>
                 )}

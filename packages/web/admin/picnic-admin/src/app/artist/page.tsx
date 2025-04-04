@@ -2,11 +2,13 @@
 
 import { DateField, List, useTable } from '@refinedev/antd';
 import { useMany, useNavigation } from '@refinedev/core';
-import { Space, Table, Image, Row, Col, Input } from 'antd';
+import { Space, Table, Row, Col } from 'antd';
 import { Artist } from '@/types/artist';
-import { getImageUrl } from '@/utils/image';
 import { useState, useEffect } from 'react';
 import { supabaseBrowserClient } from '@utils/supabase/client';
+import SearchBar from '@/components/common/SearchBar';
+import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
+import TableImage from '@/components/common/TableImage';
 
 export default function ArtistList() {
   // 페이지 이동을 위한 hook 추가
@@ -14,7 +16,6 @@ export default function ArtistList() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [artists, setArtists] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>('');
 
   // 아티스트 데이터 가져오기
   useEffect(() => {
@@ -56,25 +57,6 @@ export default function ArtistList() {
     fetchArtists();
   }, [searchTerm]);
 
-  // 검색 핸들러
-  const handleSearch = (value: string) => {
-    setSearchTerm(value.trim());
-  };
-
-  // 검색어 초기화 핸들러
-  const handleClear = () => {
-    setInputValue('');
-    setSearchTerm('');
-  };
-
-  // 입력 핸들러
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    if (!e.target.value) {
-      handleClear();
-    }
-  };
-
   // 아티스트 그룹 정보 가져오기
   const { data: groupsData, isLoading: groupsIsLoading } = useMany({
     resource: 'artist_group',
@@ -100,20 +82,18 @@ export default function ArtistList() {
     },
   };
 
+  // 검색 핸들러
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+  };
+
   return (
     <List>
-      <Row gutter={[16, 16]} style={{ marginBottom: '16px' }} align='middle'>
-        <Col>
-          <Input.Search
-            placeholder='아티스트 이름 검색 (모든 언어)'
-            value={inputValue}
-            onChange={handleInputChange}
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            allowClear
-          />
-        </Col>
-      </Row>
+      <SearchBar
+        placeholder='아티스트 이름 검색 (모든 언어)'
+        onSearch={handleSearch}
+        width={300}
+      />
       <Table
         {...tableProps}
         rowKey='id'
@@ -135,65 +115,22 @@ export default function ArtistList() {
         <Table.Column
           dataIndex={['name']}
           title={'이름'}
-          render={(value: Record<string, string>) => {
-            if (!value) return '-';
-            return (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px',
-                  wordBreak: 'break-word',
-                }}
-              >
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇰🇷</span>
-                  <span>{value.ko || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇺🇸</span>
-                  <span>{value.en || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇯🇵</span>
-                  <span>{value.ja || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇨🇳</span>
-                  <span>{value.zh || '-'}</span>
-                </div>
-              </div>
-            );
-          }}
+          render={(value: Record<string, string>) => (
+            <MultiLanguageDisplay value={value} />
+          )}
         />
         <Table.Column
           dataIndex='image'
           title={'이미지'}
           width={130}
-          render={(value: string) =>
-            value ? (
-              <Image
-                src={getImageUrl(value)}
-                alt='아티스트 이미지'
-                width={100}
-                height={100}
-                style={{ objectFit: 'cover', borderRadius: '4px' }}
-                preview={{
-                  mask: '확대',
-                }}
-              />
-            ) : (
-              '-'
-            )
-          }
+          render={(value: string) => (
+            <TableImage
+              src={value}
+              alt='아티스트 이미지'
+              width={100}
+              height={100}
+            />
+          )}
         />
         <Table.Column dataIndex='gender' title={'성별'} />
         <Table.Column

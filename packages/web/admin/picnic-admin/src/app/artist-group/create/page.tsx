@@ -1,12 +1,13 @@
 'use client';
 
 import { Create, useForm } from '@refinedev/antd';
-import { Form, Input, DatePicker, message } from 'antd';
+import { Form, DatePicker, message } from 'antd';
 import { useState } from 'react';
 import { useCreate, useNavigation } from '@refinedev/core';
 import ImageUpload from '@/components/upload';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import MultiLanguageInput from '@/components/common/MultiLanguageInput';
 
 dayjs.extend(utc);
 
@@ -98,57 +99,7 @@ export default function ArtistGroupCreate() {
     >
       {contextHolder}
       <Form {...formProps} layout='vertical' onValuesChange={handleFormChange}>
-        <Form.Item
-          label='이름 (한국어) 🇰🇷'
-          name={['name', 'ko']}
-          rules={[
-            {
-              required: true,
-              message: '한국어 이름을 입력해주세요.',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label='이름 (영어) 🇺🇸'
-          name={['name', 'en']}
-          rules={[
-            {
-              required: true,
-              message: '영어 이름을 입력해주세요.',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label='이름 (일본어) 🇯🇵'
-          name={['name', 'ja']}
-          rules={[
-            {
-              required: true,
-              message: '일본어 이름을 입력해주세요.',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label='이름 (중국어) 🇨🇳'
-          name={['name', 'zh']}
-          rules={[
-            {
-              required: true,
-              message: '중국어 이름을 입력해주세요.',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
+        <MultiLanguageInput name='name' label='이름' required={true} />
 
         <Form.Item
           label='데뷔일'

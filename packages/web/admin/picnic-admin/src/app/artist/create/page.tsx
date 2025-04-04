@@ -1,7 +1,7 @@
 'use client';
 
 import { Create, useForm } from '@refinedev/antd';
-import { Form, Input, InputNumber, Select, DatePicker } from 'antd';
+import { Form, InputNumber, Select, DatePicker } from 'antd';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -9,6 +9,7 @@ import { useCreate, useMany, useNavigation } from '@refinedev/core';
 import ImageUpload from '@/components/upload';
 import { supabaseBrowserClient } from '@utils/supabase/client';
 import { getImageUrl } from '@utils/image';
+import MultiLanguageInput from '@/components/common/MultiLanguageInput';
 
 dayjs.extend(utc);
 
@@ -159,57 +160,7 @@ export default function ArtistCreate() {
       }}
     >
       <Form {...formProps} layout='vertical' onValuesChange={handleFormChange}>
-        <Form.Item
-          label={'이름 (한국어)'}
-          name={['name', 'ko']}
-          rules={[
-            {
-              required: true,
-              message: '이름을 입력해주세요',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label={'이름 (영어)'}
-          name={['name', 'en']}
-          rules={[
-            {
-              required: true,
-              message: '영어 이름을 입력해주세요',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label={'이름 (일본어)'}
-          name={['name', 'ja']}
-          rules={[
-            {
-              required: true,
-              message: '일본어 이름을 입력해주세요',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label={'이름 (중국어)'}
-          name={['name', 'zh']}
-          rules={[
-            {
-              required: true,
-              message: '중국어 이름을 입력해주세요',
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
+        <MultiLanguageInput name='name' label='이름' required={true} />
 
         <Form.Item
           label={'그룹'}
@@ -248,28 +199,22 @@ export default function ArtistCreate() {
                         height: '24px',
                         backgroundColor: '#f0f0f0',
                         borderRadius: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                       }}
                     />
                   )}
-                  <span>{`${group.name?.ko || '이름 없음'} / ${
-                    group.name?.en || ''
-                  } / ${group.name?.ja || ''} / ${group.name?.zh || ''}`}</span>
+                  <span>{group.name?.ko || '이름 없음'}</span>
                 </div>
               ),
               value: group.id,
               name: group.name,
             }))}
-            filterOption={(input, option) => filterGroupOption(input, option)}
-            optionFilterProp='children'
+            filterOption={filterGroupOption}
           />
         </Form.Item>
 
         <Form.Item
-          label={'성별'}
-          name={'gender'}
+          label='성별'
+          name='gender'
           rules={[
             {
               required: true,
@@ -278,16 +223,44 @@ export default function ArtistCreate() {
           ]}
         >
           <Select
+            placeholder='성별을 선택하세요'
             options={[
-              { value: 'MALE', label: '남성' },
-              { value: 'FEMALE', label: '여성' },
+              { label: '남성', value: 'male' },
+              { label: '여성', value: 'female' },
+              { label: '기타', value: 'other' },
             ]}
           />
         </Form.Item>
 
         <Form.Item
-          label={'이미지'}
-          name={'image'}
+          label='생년월일'
+          name='birth_date'
+          rules={[
+            {
+              required: true,
+              message: '생년월일을 선택해주세요',
+            },
+          ]}
+        >
+          <DatePicker style={{ width: '100%' }} />
+        </Form.Item>
+
+        <Form.Item
+          label='데뷔일'
+          name='debut_date'
+          rules={[
+            {
+              required: true,
+              message: '데뷔일을 선택해주세요',
+            },
+          ]}
+        >
+          <DatePicker style={{ width: '100%' }} />
+        </Form.Item>
+
+        <Form.Item
+          label='아티스트 이미지'
+          name='image'
           valuePropName='value'
           getValueFromEvent={(e) => {
             if (typeof e === 'string') {
@@ -300,32 +273,6 @@ export default function ArtistCreate() {
           }}
         >
           <ImageUpload folder='artist' />
-        </Form.Item>
-
-        <Form.Item
-          label={'생년월일'}
-          name={'birth_date'}
-          getValueFromEvent={(date) => {
-            if (date) {
-              return date.utc(true);
-            }
-            return undefined;
-          }}
-        >
-          <DatePicker style={{ width: '100%' }} />
-        </Form.Item>
-
-        <Form.Item
-          label={'데뷔일'}
-          name={'debut_date'}
-          getValueFromEvent={(date) => {
-            if (date) {
-              return date.utc(true);
-            }
-            return undefined;
-          }}
-        >
-          <DatePicker style={{ width: '100%' }} />
         </Form.Item>
       </Form>
     </Create>

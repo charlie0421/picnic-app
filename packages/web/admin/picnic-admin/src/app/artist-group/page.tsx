@@ -2,11 +2,13 @@
 
 import { DateField, List, useTable } from '@refinedev/antd';
 import { useNavigation } from '@refinedev/core';
-import { Table, Image, Row, Col, Input } from 'antd';
-import { getImageUrl } from '@/utils/image';
+import { Table } from 'antd';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 import { supabaseBrowserClient } from '@utils/supabase/client';
+import SearchBar from '@/components/common/SearchBar';
+import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
+import TableImage from '@/components/common/TableImage';
 
 export default function ArtistGroupList() {
   // 페이지 이동을 위한 hook 추가
@@ -14,7 +16,6 @@ export default function ArtistGroupList() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [artistGroups, setArtistGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>('');
 
   // 아티스트 그룹 데이터 가져오기
   useEffect(() => {
@@ -58,21 +59,7 @@ export default function ArtistGroupList() {
 
   // 검색 핸들러
   const handleSearch = (value: string) => {
-    setSearchTerm(value.trim());
-  };
-
-  // 검색어 초기화 핸들러
-  const handleClear = () => {
-    setInputValue('');
-    setSearchTerm('');
-  };
-
-  // 입력 핸들러
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    if (!e.target.value) {
-      handleClear();
-    }
+    setSearchTerm(value);
   };
 
   // 테이블 속성 생성
@@ -87,18 +74,11 @@ export default function ArtistGroupList() {
 
   return (
     <List>
-      <Row gutter={[16, 16]} style={{ marginBottom: '16px' }} align='middle'>
-        <Col>
-          <Input.Search
-            placeholder='아티스트 그룹 이름 검색 (모든 언어)'
-            value={inputValue}
-            onChange={handleInputChange}
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            allowClear
-          />
-        </Col>
-      </Row>
+      <SearchBar
+        placeholder='아티스트 그룹 이름 검색 (모든 언어)'
+        onSearch={handleSearch}
+        width={300}
+      />
       <Table
         {...tableProps}
         rowKey='id'
@@ -120,65 +100,22 @@ export default function ArtistGroupList() {
         <Table.Column
           dataIndex={['name']}
           title={'이름'}
-          render={(value: Record<string, string>) => {
-            if (!value) return '-';
-            return (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px',
-                  wordBreak: 'break-word',
-                }}
-              >
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇰🇷</span>
-                  <span>{value.ko || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇺🇸</span>
-                  <span>{value.en || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇯🇵</span>
-                  <span>{value.ja || '-'}</span>
-                </div>
-                <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontWeight: 'bold', flexShrink: 0 }}>🇨🇳</span>
-                  <span>{value.zh || '-'}</span>
-                </div>
-              </div>
-            );
-          }}
+          render={(value: Record<string, string>) => (
+            <MultiLanguageDisplay value={value} />
+          )}
         />
         <Table.Column
           dataIndex='image'
           title={'이미지'}
           width={130}
-          render={(value: string) =>
-            value ? (
-              <Image
-                src={getImageUrl(value)}
-                alt='아티스트 그룹 이미지'
-                width={100}
-                height={100}
-                style={{ objectFit: 'cover', borderRadius: '4px' }}
-                preview={{
-                  mask: '확대',
-                }}
-              />
-            ) : (
-              '-'
-            )
-          }
+          render={(value: string) => (
+            <TableImage
+              src={value}
+              alt='아티스트 그룹 이미지'
+              width={100}
+              height={100}
+            />
+          )}
         />
         <Table.Column
           title={'데뷔일'}
