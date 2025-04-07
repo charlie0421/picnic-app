@@ -18,7 +18,7 @@ export const resources: ResourceProps[] = [
     name: 'admin',
     meta: {
       label: '관리자 설정',
-      icon: (<SettingOutlined />) as React.ReactNode,
+      icon: 'SettingOutlined',
     },
   },
   // 권한 관리 리소스들 (경로 수정)
@@ -31,7 +31,7 @@ export const resources: ResourceProps[] = [
       canDelete: true,
       parent: 'admin',
       label: '역할 관리',
-      icon: (<TeamOutlined />) as React.ReactNode,
+      icon: 'TeamOutlined',
       list: {
         label: '역할 목록',
       },
@@ -52,7 +52,7 @@ export const resources: ResourceProps[] = [
       canDelete: true,
       parent: 'admin',
       label: '권한 관리',
-      icon: (<KeyOutlined />) as React.ReactNode,
+      icon: 'KeyOutlined',
       list: {
         label: '권한 목록',
       },
@@ -73,7 +73,7 @@ export const resources: ResourceProps[] = [
       canDelete: true,
       parent: 'admin',
       label: '역할-권한 매핑',
-      icon: (<LinkOutlined />) as React.ReactNode,
+      icon: 'LinkOutlined',
       list: {
         label: '역할-권한 목록',
       },
@@ -94,7 +94,7 @@ export const resources: ResourceProps[] = [
       canDelete: true,
       parent: 'admin',
       label: '사용자 역할 관리',
-      icon: (<UserSwitchOutlined />) as React.ReactNode,
+      icon: 'UserSwitchOutlined',
       list: {
         label: '사용자 역할 목록',
       },
@@ -124,7 +124,7 @@ export const resources: ResourceProps[] = [
     meta: {
       canDelete: true,
       label: '투표관리',
-      icon: (<CheckCircleOutlined />) as React.ReactNode,
+      icon: 'CheckCircleOutlined',
       list: {
         label: '투표관리',
       },
@@ -148,7 +148,7 @@ export const resources: ResourceProps[] = [
     meta: {
       canDelete: true,
       label: '미디어 관리',
-      icon: (<VideoCameraOutlined />) as React.ReactNode,
+      icon: 'VideoCameraOutlined',
       list: {
         label: '미디어 목록',
       },
@@ -172,7 +172,7 @@ export const resources: ResourceProps[] = [
     meta: {
       canDelete: true,
       label: '아티스트 그룹 관리',
-      icon: (<GroupOutlined />) as React.ReactNode,
+      icon: 'GroupOutlined',
       list: {
         label: '아티스트 그룹 목록',
       },
@@ -196,7 +196,7 @@ export const resources: ResourceProps[] = [
     meta: {
       canDelete: true,
       label: '아티스트 관리',
-      icon: (<UserOutlined />) as React.ReactNode,
+      icon: 'UserOutlined',
       list: {
         label: '아티스트 목록',
       },
