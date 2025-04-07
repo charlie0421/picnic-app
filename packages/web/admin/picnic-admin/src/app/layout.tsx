@@ -33,10 +33,10 @@ import {
 } from '@ant-design/icons';
 
 export const metadata: Metadata = {
-  title: 'Picnic Admin',
-  description: 'Picnic Admin',
+  title: 'Picnic Admin Panel',
+  description: 'Picnic Admin Panel',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/public/app_icon.png',
   },
 };
 
