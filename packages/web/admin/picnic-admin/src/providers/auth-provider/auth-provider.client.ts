@@ -35,24 +35,6 @@ export const authProviderClient: AuthProvider = {
         role: data.user?.role,
       });
 
-      // 권한 정보 가져와서 로깅
-      try {
-        const permissions = await getPermissionsWithLogging(data.user?.id);
-
-        // 권한 정보 로깅
-        logPermission('사용자 권한 로드', {
-          userId: data.user?.id,
-          permissions,
-        });
-      } catch (permError) {
-        // 권한 정보 로드 실패 로깅
-        logPermission(
-          '권한 정보 로드 실패',
-          { userId: data.user?.id, error: permError },
-          LogLevel.ERROR,
-        );
-      }
-
       return {
         success: true,
         redirectTo: '/',
@@ -92,6 +74,13 @@ export const authProviderClient: AuthProvider = {
       };
     }
 
+    // 로컬 스토리지의 사용자 관련 정보 정리
+    localStorage.removeItem('user-info');
+    localStorage.removeItem('user-roles');
+    localStorage.removeItem('role-permissions');
+    localStorage.removeItem('permissions');
+    localStorage.removeItem('permissions-map');
+
     // 로그아웃 성공 로깅
     logAuth('로그아웃 성공', { userId: userData?.user?.id });
 
@@ -130,18 +119,127 @@ export const authProviderClient: AuthProvider = {
 
     if (!user) return null;
 
-    return getPermissionsWithLogging(user.id);
+    const permissions = await getPermissionsWithLogging(user.id);
+
+    // 권한 정보를 로컬 스토리지에 저장 (제거)
+    // if (permissions) {
+    //   localStorage.setItem('permissions-map', JSON.stringify(permissions));
+    // }
+
+    return permissions;
   },
   getIdentity: async () => {
+    logAuth('*** getIdentity 함수 호출됨 ***');
     const { data } = await supabaseBrowserClient.auth.getUser();
 
     if (data?.user) {
+      logAuth('getIdentity: 사용자 정보 가져오기 시작', {
+        userId: data.user.id,
+      });
+      // 사용자의 추가 정보 조회 (슈퍼관리자 여부 등)
+      const { data: userData, error } = await supabaseBrowserClient
+        .from('user_profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
+
+      if (error) {
+        logAuth(
+          'getIdentity: 사용자 프로필 조회 실패',
+          { userId: data.user.id, error: error.message },
+          LogLevel.ERROR,
+        );
+        console.error('사용자 정보 조회 실패:', error);
+        // 기본 정보라도 반환
+        return {
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.email, // 이름 정보가 없을 경우 이메일 사용
+        };
+      }
+      logAuth('getIdentity: 사용자 프로필 조회 성공', {
+        userId: data.user.id,
+        userData,
+      });
+
+      // 사용자 정보 구성 (isSuperAdmin 제거)
+      const userInfo = {
+        id: data.user.id,
+        email: data.user.email,
+        name:
+          userData?.nickname ||
+          userData?.display_name ||
+          userData?.name ||
+          data.user.email,
+        // isSuperAdmin: userData?.is_admin || false, // is_admin 정보 제거
+      };
+
+      // userInfo 객체 로그 추가
+      logAuth('getIdentity: 구성된 userInfo 객체', { userInfo });
+
+      // 로컬 스토리지 저장 로직 제거 (user-info 제외)
+      // localStorage.setItem('user-info', JSON.stringify(userInfo));
+      // logAuth('getIdentity: user-info 저장 완료', { userInfo });
+
+      // 사용자 역할 정보 조회 (제거)
+      // const { data: userRoles } = await supabaseBrowserClient
+      //   .from('admin_user_roles')
+      //   .select('*')
+      //   .eq('user_id', data.user.id);
+
+      // if (userRoles) {
+      //   localStorage.setItem('user-roles', JSON.stringify(userRoles));
+      //   logAuth('getIdentity: user-roles 저장 완료', { userRoles });
+      // } else {
+      //   logAuth(
+      //     'getIdentity: user-roles 정보 없음',
+      //     { userId: data.user.id },
+      //     LogLevel.WARN,
+      //   );
+      // }
+
+      // 역할-권한 관계 정보 조회 (제거)
+      // const { data: rolePermissions } = await supabaseBrowserClient
+      //   .from('admin_role_permissions')
+      //   .select('*');
+
+      // if (rolePermissions) {
+      //   localStorage.setItem(
+      //     'role-permissions',
+      //     JSON.stringify(rolePermissions),
+      //   );
+      //   logAuth('getIdentity: role-permissions 저장 완료', {
+      //     rolePermissionsCount: rolePermissions.length,
+      //   });
+      // } else {
+      //   logAuth('getIdentity: role-permissions 정보 없음', {}, LogLevel.WARN);
+      // }
+
+      // 권한 정보 조회 (제거)
+      // const { data: permissions } = await supabaseBrowserClient
+      //   .from('admin_permissions')
+      //   .select('*');
+
+      // if (permissions) {
+      //   localStorage.setItem('permissions', JSON.stringify(permissions));
+      //   logAuth('getIdentity: permissions 저장 완료', {
+      //     permissionsCount: permissions.length,
+      //   });
+      // } else {
+      //   logAuth('getIdentity: permissions 정보 없음', {}, LogLevel.WARN);
+      // }
+
+      logAuth('getIdentity: 사용자 식별 정보 반환', {
+        userId: data.user.id,
+        userInfo,
+      });
       return {
-        ...data.user,
-        name: data.user.email,
+        ...data.user, // Supabase 기본 user 정보 포함
+        ...userInfo, // user_profiles 정보 포함 (name, isSuperAdmin 등)
       };
     }
 
+    logAuth('getIdentity: 사용자 정보 없음', {}, LogLevel.WARN);
     return null;
   },
   onError: async (error) => {
@@ -168,7 +266,7 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
 
   // 사용자의 역할과 권한을 가져옵니다
   const { data: userRoles, error: roleError } = await supabaseBrowserClient
-    .from('user_roles')
+    .from('admin_user_roles')
     .select('role_id')
     .eq('user_id', userId);
 
@@ -194,8 +292,8 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
   logPermission('사용자 역할 조회 성공', { userId, roleIds });
 
   const { data: permissions, error: permError } = await supabaseBrowserClient
-    .from('role_permissions')
-    .select('permissions!inner(*)')
+    .from('admin_role_permissions')
+    .select('admin_permissions!inner(*)')
     .in('role_id', roleIds);
 
   if (permError) {
@@ -223,7 +321,7 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
   // 권한을 { resource: [actions] } 형태로 변환
   const permissionsMap = permissions.reduce(
     (acc: Record<string, string[]>, curr: any) => {
-      const { resource, action } = curr.permissions;
+      const { resource, action } = curr.admin_permissions;
       if (!acc[resource]) {
         acc[resource] = [];
       }

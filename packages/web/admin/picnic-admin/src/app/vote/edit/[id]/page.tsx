@@ -7,6 +7,7 @@ import { useNavigation, useOne } from '@refinedev/core';
 import { VoteItem } from '@/types/vote';
 import { VoteRecord } from '@/utils/vote';
 import VoteForm from '@/components/vote/VoteForm';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function VoteEdit({ params }: { params: { id: string } }) {
   const { push } = useNavigation();
@@ -49,35 +50,41 @@ export default function VoteEdit({ params }: { params: { id: string } }) {
   // 데이터 로딩 중이면 로딩 표시
   if (isLoading) {
     return (
-      <Edit title='투표 수정'>
-        <div style={{ textAlign: 'center', padding: '50px' }}>
-          <Spin tip='데이터를 불러오는 중...' />
-        </div>
-      </Edit>
+      <AuthorizePage resource='vote' action='edit'>
+        <Edit title='투표 수정'>
+          <div style={{ textAlign: 'center', padding: '50px' }}>
+            <Spin tip='데이터를 불러오는 중...' />
+          </div>
+        </Edit>
+      </AuthorizePage>
     );
   }
 
   // 데이터 로드 실패 시 에러 메시지
   if (isError) {
     return (
-      <Edit title='투표 수정'>
-        <div style={{ textAlign: 'center', padding: '50px', color: 'red' }}>
-          데이터를 불러오는 중 오류가 발생했습니다.
-        </div>
-      </Edit>
+      <AuthorizePage resource='vote' action='edit'>
+        <Edit title='투표 수정'>
+          <div style={{ textAlign: 'center', padding: '50px', color: 'red' }}>
+            데이터를 불러오는 중 오류가 발생했습니다.
+          </div>
+        </Edit>
+      </AuthorizePage>
     );
   }
 
   return (
-    <Edit title='투표 수정'>
-      {contextHolder}
-      <VoteForm
-        mode='edit'
-        id={params.id}
-        initialVoteItems={initialVoteItems}
-        formProps={formProps}
-        saveButtonProps={saveButtonProps}
-      />
-    </Edit>
+    <AuthorizePage resource='vote' action='edit'>
+      <Edit title='투표 수정'>
+        {contextHolder}
+        <VoteForm
+          mode='edit'
+          id={params.id}
+          initialVoteItems={initialVoteItems}
+          formProps={formProps}
+          saveButtonProps={saveButtonProps}
+        />
+      </Edit>
+    </AuthorizePage>
   );
 }

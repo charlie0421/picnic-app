@@ -26,6 +26,7 @@ import {
   DeleteOutlined,
   ArrowLeftOutlined,
 } from '@ant-design/icons';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 const { Title, Link } = Typography;
 
@@ -217,48 +218,49 @@ export default function MediaShow() {
   const id = record?.id;
 
   if (isLoading) {
-    return <Skeleton active paragraph={{ rows: 10 }} />;
+    return (
+      <AuthorizePage resource='media' action='show'>
+        <Skeleton active paragraph={{ rows: 10 }} />
+      </AuthorizePage>
+    );
   }
 
   return (
-    <div>
-      <div
-        style={{
-          marginBottom: '16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
+    <AuthorizePage resource='media' action='show'>
+      <Show
+        title={
+          <Space>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => list('media')}>
+              목록으로
+            </Button>
+            <Title level={5} style={{ margin: 0 }}>
+              미디어 상세
+            </Title>
+          </Space>
+        }
+        headerButtons={
+          <Space>
+            <EditButton
+              icon={<EditOutlined />}
+              resource='media'
+              recordItemId={record?.id}
+            />
+            <DeleteButton
+              icon={<DeleteOutlined />}
+              resource='media'
+              recordItemId={record?.id}
+              onSuccess={() => list('media')}
+            />
+          </Space>
+        }
       >
-        <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => list('media')}>
-            목록으로
-          </Button>
-          <Title level={5} style={{ margin: 0 }}>
-            미디어 정보
-          </Title>
-        </Space>
-        <Space>
-          <Button
-            type='primary'
-            icon={<EditOutlined />}
-            onClick={() => edit('media', id!)}
-          >
-            편집
-          </Button>
-          <DeleteButton
-            resource='media'
-            recordItemId={id}
-            onSuccess={() => list('media')}
-          />
-        </Space>
-      </div>
-      <Descriptions
-        bordered
-        column={1}
-        layout='vertical'
-        items={descriptionsItems}
-      />
-    </div>
+        <Descriptions
+          bordered
+          column={1}
+          layout='vertical'
+          items={descriptionsItems}
+        />
+      </Show>
+    </AuthorizePage>
   );
 }

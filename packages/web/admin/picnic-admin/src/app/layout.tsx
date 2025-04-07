@@ -14,8 +14,23 @@ import { authProviderClient } from '@providers/auth-provider/auth-provider.clien
 import { dataProvider } from '@providers/data-provider';
 import { accessControlProvider } from '@providers/access-control-provider';
 import '@refinedev/antd/dist/reset.css';
-import { ThemedLayoutV2 } from '@refinedev/antd';
 import { Header } from '@/components/header';
+import { PermissionLoader } from '@/components/auth/PermissionLoader';
+import { PermissionLoadingProvider } from '@/contexts/PermissionLoadingContext';
+import MainLayout from '@/components/layout/MainLayout';
+
+// antd 아이콘 불러오기
+import {
+  SettingOutlined,
+  TeamOutlined,
+  KeyOutlined,
+  UserSwitchOutlined,
+  LinkOutlined,
+  VideoCameraOutlined,
+  UserOutlined,
+  GroupOutlined,
+  CheckCircleOutlined,
+} from '@ant-design/icons';
 
 export const metadata: Metadata = {
   title: 'Picnic Admin',
@@ -51,6 +66,7 @@ export default function RootLayout({
                         notificationProvider={useNotificationProvider}
                         accessControlProvider={accessControlProvider}
                         resources={[
+                          // 기존 메뉴들
                           {
                             name: 'vote',
                             list: '/vote',
@@ -60,6 +76,7 @@ export default function RootLayout({
                             meta: {
                               canDelete: true,
                               label: '투표관리',
+                              icon: <CheckCircleOutlined />,
                               list: {
                                 label: '투표관리',
                               },
@@ -83,6 +100,7 @@ export default function RootLayout({
                             meta: {
                               canDelete: true,
                               label: '미디어 관리',
+                              icon: <VideoCameraOutlined />,
                               list: {
                                 label: '미디어 목록',
                               },
@@ -106,6 +124,7 @@ export default function RootLayout({
                             meta: {
                               canDelete: true,
                               label: '아티스트 그룹 관리',
+                              icon: <GroupOutlined />,
                               list: {
                                 label: '아티스트 그룹 목록',
                               },
@@ -129,6 +148,7 @@ export default function RootLayout({
                             meta: {
                               canDelete: true,
                               label: '아티스트 관리',
+                              icon: <UserOutlined />,
                               list: {
                                 label: '아티스트 목록',
                               },
@@ -143,27 +163,120 @@ export default function RootLayout({
                               },
                             },
                           },
+                          // 관리 메뉴 (권한 관리 상위 메뉴) - 가장 아래로 이동
+                          {
+                            name: 'admin',
+                            meta: {
+                              label: '관리자 설정',
+                              icon: <SettingOutlined />,
+                            },
+                          },
+                          // 권한 관리 리소스들 (경로 수정)
+                          {
+                            name: 'admin_roles',
+                            list: '/admin_roles', // 경로 수정
+                            create: '/admin_roles/create', // 경로 수정
+                            edit: '/admin_roles/edit/:id', // 경로 수정
+                            meta: {
+                              canDelete: true,
+                              parent: 'admin',
+                              label: '역할 관리',
+                              icon: <TeamOutlined />,
+                              list: {
+                                label: '역할 목록',
+                              },
+                              create: {
+                                label: '역할 추가',
+                              },
+                              edit: {
+                                label: '역할 수정',
+                              },
+                            },
+                          },
+                          {
+                            name: 'admin_permissions',
+                            list: '/admin_permissions', // 경로 수정
+                            create: '/admin_permissions/create', // 경로 수정
+                            edit: '/admin_permissions/edit/:id', // 경로 수정
+                            meta: {
+                              canDelete: true,
+                              parent: 'admin',
+                              label: '권한 관리',
+                              icon: <KeyOutlined />,
+                              list: {
+                                label: '권한 목록',
+                              },
+                              create: {
+                                label: '권한 추가',
+                              },
+                              edit: {
+                                label: '권한 수정',
+                              },
+                            },
+                          },
+                          {
+                            name: 'admin_role_permissions',
+                            list: '/admin_role_permissions', // 경로 수정
+                            create: '/admin_role_permissions/create', // 경로 수정
+                            edit: '/admin_role_permissions/edit/:id', // 경로 수정
+                            meta: {
+                              canDelete: true,
+                              parent: 'admin',
+                              label: '역할-권한 매핑',
+                              icon: <LinkOutlined />,
+                              list: {
+                                label: '역할-권한 목록',
+                              },
+                              create: {
+                                label: '역할-권한 연결',
+                              },
+                              edit: {
+                                label: '역할-권한 수정',
+                              },
+                            },
+                          },
+                          {
+                            name: 'admin_user_roles',
+                            list: '/admin_user_roles', // 경로 수정
+                            create: '/admin_user_roles/create', // 경로 수정
+                            edit: '/admin_user_roles/edit/:id', // 경로 수정
+                            meta: {
+                              canDelete: true,
+                              parent: 'admin',
+                              label: '사용자-역할 매핑',
+                              icon: <UserSwitchOutlined />,
+                              list: {
+                                label: '사용자-역할 매핑 목록',
+                              },
+                              create: {
+                                label: '사용자-역할 매핑 추가',
+                              },
+                              edit: {
+                                label: '사용자-역할 매핑 수정',
+                              },
+                            },
+                          },
+                          // 권한 없는 사용자를 위한 리소스 (메뉴 숨김)
+                          {
+                            name: 'admin_no_access',
+                            list: '/admin/no-access',
+                            meta: {
+                              hide: true, // 메뉴에서 숨김
+                            },
+                          },
                         ]}
                         options={{
                           syncWithLocation: true,
                           warnWhenUnsavedChanges: true,
                           useNewQueryKeys: true,
-                          projectId: 'eFoHzB-2HcEeI-OFQDmB',
-                          title: {
-                            icon: (
-                              <img
-                                src='/icons/app_icon.png'
-                                alt='Picnic Admin'
-                                style={{ width: 28, height: 28 }}
-                              />
-                            ),
-                            text: 'Picnic Admin',
-                          },
+                          projectId: 'Uu8KtH-kZkC5Q-8t8wTz',
                         }}
                       >
-                        <ThemedLayoutV2 Header={Header}>
-                          {children}
-                        </ThemedLayoutV2>
+                        <PermissionLoadingProvider>
+                          <PermissionLoader>
+                            <MainLayout>{children}</MainLayout>
+                          </PermissionLoader>
+                        </PermissionLoadingProvider>
                         <RefineKbar />
                       </Refine>
                     </DevtoolsProvider>

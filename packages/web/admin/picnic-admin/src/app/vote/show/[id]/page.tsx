@@ -10,6 +10,7 @@ import {
   DeleteOutlined,
   ArrowLeftOutlined,
 } from '@ant-design/icons';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 const { Title } = Typography;
 
@@ -27,43 +28,49 @@ export default function VoteShow({ params }: { params: { id: string } }) {
   const id = params.id;
 
   if (isLoading) {
-    return <Skeleton active paragraph={{ rows: 10 }} />;
+    return (
+      <AuthorizePage resource='vote' action='show'>
+        <Skeleton active paragraph={{ rows: 10 }} />
+      </AuthorizePage>
+    );
   }
 
   return (
-    <div>
-      <div
-        style={{
-          marginBottom: '16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => list('vote')}>
-            목록으로
-          </Button>
-          <Title level={5} style={{ margin: 0 }}>
-            투표 상세
-          </Title>
-        </Space>
-        <Space>
-          <Button
-            type='primary'
-            icon={<EditOutlined />}
-            onClick={() => edit('vote', id)}
-          >
-            편집
-          </Button>
-          <DeleteButton
-            resource='vote'
-            recordItemId={id}
-            onSuccess={() => list('vote')}
-          />
-        </Space>
+    <AuthorizePage resource='vote' action='show'>
+      <div>
+        <div
+          style={{
+            marginBottom: '16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Space>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => list('vote')}>
+              목록으로
+            </Button>
+            <Title level={5} style={{ margin: 0 }}>
+              투표 상세
+            </Title>
+          </Space>
+          <Space>
+            <Button
+              type='primary'
+              icon={<EditOutlined />}
+              onClick={() => edit('vote', id)}
+            >
+              편집
+            </Button>
+            <DeleteButton
+              resource='vote'
+              recordItemId={id}
+              onSuccess={() => list('vote')}
+            />
+          </Space>
+        </div>
+        <VoteDetail record={data?.data} loading={isLoading} />
       </div>
-      <VoteDetail record={data?.data} loading={isLoading} />
-    </div>
+    </AuthorizePage>
   );
 }

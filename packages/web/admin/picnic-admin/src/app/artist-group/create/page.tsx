@@ -8,6 +8,7 @@ import ImageUpload from '@/components/upload';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import MultiLanguageInput from '@/components/common/MultiLanguageInput';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 dayjs.extend(utc);
 
@@ -78,53 +79,59 @@ export default function ArtistGroupCreate() {
   };
 
   return (
-    <Create
-      title='아티스트 그룹 생성'
-      saveButtonProps={{
-        ...saveButtonProps,
-        onClick: handleSave,
-      }}
-    >
-      {contextHolder}
-      <Form {...formProps} layout='vertical' onValuesChange={handleFormChange}>
-        <MultiLanguageInput name='name' label='이름' required={true} />
-
-        <Form.Item
-          label='데뷔일'
-          name='debut_date'
-          rules={[
-            {
-              required: true,
-              message: '데뷔일을 선택해주세요.',
-            },
-          ]}
-          getValueFromEvent={(date) => {
-            if (date) {
-              return date.utc(true);
-            }
-            return undefined;
-          }}
+    <AuthorizePage resource='artist_group' action='create'>
+      <Create
+        title='아티스트 그룹 생성'
+        saveButtonProps={{
+          ...saveButtonProps,
+          onClick: handleSave,
+        }}
+      >
+        {contextHolder}
+        <Form
+          {...formProps}
+          layout='vertical'
+          onValuesChange={handleFormChange}
         >
-          <DatePicker style={{ width: '100%' }} />
-        </Form.Item>
+          <MultiLanguageInput name='name' label='이름' required={true} />
 
-        <Form.Item
-          label='그룹 이미지'
-          name='image'
-          valuePropName='value'
-          getValueFromEvent={(e) => {
-            if (typeof e === 'string') {
+          <Form.Item
+            label='데뷔일'
+            name='debut_date'
+            rules={[
+              {
+                required: true,
+                message: '데뷔일을 선택해주세요.',
+              },
+            ]}
+            getValueFromEvent={(date) => {
+              if (date) {
+                return date.utc(true);
+              }
+              return undefined;
+            }}
+          >
+            <DatePicker style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item
+            label='그룹 이미지'
+            name='image'
+            valuePropName='value'
+            getValueFromEvent={(e) => {
+              if (typeof e === 'string') {
+                return e;
+              }
+              if (e && e.file && e.file.response) {
+                return e.file.response;
+              }
               return e;
-            }
-            if (e && e.file && e.file.response) {
-              return e.file.response;
-            }
-            return e;
-          }}
-        >
-          <ImageUpload folder='artist-group' />
-        </Form.Item>
-      </Form>
-    </Create>
+            }}
+          >
+            <ImageUpload folder='artist-group' />
+          </Form.Item>
+        </Form>
+      </Create>
+    </AuthorizePage>
   );
 }

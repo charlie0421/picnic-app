@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
 import TableImage from '@/components/common/TableImage';
 import { useNavigation } from '@refinedev/core';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function ArtistGroupList() {
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -39,75 +40,79 @@ export default function ArtistGroupList() {
   };
 
   return (
-    <List>
-      <Space style={{ marginBottom: 16 }}>
-        <Input.Search
-          placeholder='아티스트 그룹 이름 검색'
-          onSearch={handleSearch}
-          style={{ width: 300 }}
-          allowClear
-        />
-      </Space>
+    <AuthorizePage resource='artist_group' action='list'>
+      <List>
+        <Space style={{ marginBottom: 16 }}>
+          <Input.Search
+            placeholder='아티스트 그룹 이름 검색'
+            onSearch={handleSearch}
+            style={{ width: 300 }}
+            allowClear
+          />
+        </Space>
 
-      <Table
-        {...tableProps}
-        rowKey='id'
-        scroll={{ x: 'max-content' }}
-        onRow={(record: any) => {
-          return {
-            style: {
-              cursor: 'pointer',
-            },
-            onClick: () => {
-              if (record.id) {
-                show('artist_group', record.id);
-              }
-            },
-          };
-        }}
-        pagination={{
-          ...tableProps.pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50'],
-          showTotal: (total) => `총 ${total}개 항목`,
-        }}
-      >
-        <Table.Column dataIndex='id' title={'ID'} sorter />
-        <Table.Column
-          dataIndex={['name']}
-          title={'이름'}
-          render={(value: Record<string, string>) => (
-            <MultiLanguageDisplay value={value} />
-          )}
-        />
-        <Table.Column
-          dataIndex='image'
-          title={'이미지'}
-          width={130}
-          render={(value: string) => (
-            <TableImage
-              src={value}
-              alt='아티스트 그룹 이미지'
-              width={100}
-              height={100}
-            />
-          )}
-        />
-        <Table.Column
-          title={'데뷔일'}
-          render={(_, record: any) => {
-            if (!record.debut_date) return '-';
-            return dayjs(record.debut_date).format('YYYY년 MM월 DD일');
+        <Table
+          {...tableProps}
+          rowKey='id'
+          scroll={{ x: 'max-content' }}
+          onRow={(record: any) => {
+            return {
+              style: {
+                cursor: 'pointer',
+              },
+              onClick: () => {
+                if (record.id) {
+                  show('artist_group', record.id);
+                }
+              },
+            };
           }}
-          sorter
-        />
-        <Table.Column
-          dataIndex={['created_at']}
-          title={'생성일'}
-          render={(value: any) => value && new Date(value).toLocaleDateString()}
-          sorter
-        />
-      </Table>
-    </List>
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
+          }}
+        >
+          <Table.Column dataIndex='id' title={'ID'} sorter />
+          <Table.Column
+            dataIndex={['name']}
+            title={'이름'}
+            render={(value: Record<string, string>) => (
+              <MultiLanguageDisplay value={value} />
+            )}
+          />
+          <Table.Column
+            dataIndex='image'
+            title={'이미지'}
+            width={130}
+            render={(value: string) => (
+              <TableImage
+                src={value}
+                alt='아티스트 그룹 이미지'
+                width={100}
+                height={100}
+              />
+            )}
+          />
+          <Table.Column
+            title={'데뷔일'}
+            render={(_, record: any) => {
+              if (!record.debut_date) return '-';
+              return dayjs(record.debut_date).format('YYYY년 MM월 DD일');
+            }}
+            sorter
+          />
+          <Table.Column
+            dataIndex={['created_at']}
+            title={'생성일'}
+            render={(value: any) =>
+              value && new Date(value).toLocaleDateString()
+            }
+            sorter
+          />
+        </Table>
+      </List>
+    </AuthorizePage>
   );
 }

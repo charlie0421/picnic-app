@@ -80,11 +80,7 @@ export const writeLog = (logMessage: ReturnType<typeof createLogMessage>) => {
         );
         break;
       default:
-        console.log(
-          logPrefix,
-          message,
-          data ? JSON.stringify(data, null, 2) : '',
-        );
+      // console.log 제거
     }
   }
 

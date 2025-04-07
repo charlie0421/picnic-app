@@ -26,6 +26,7 @@ import {
 import { formatDate } from '@/utils/date';
 import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
 import TableImage from '@/components/common/TableImage';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function VoteList() {
   const [categoryFilter, setCategoryFilter] =
@@ -112,118 +113,120 @@ export default function VoteList() {
   });
 
   return (
-    <List headerButtons={<CreateButton />}>
-      <Space wrap style={{ marginBottom: 16 }}>
-        <Select
-          style={{ width: 160 }}
-          placeholder='카테고리 선택'
-          allowClear
-          options={VOTE_CATEGORIES}
-          value={categoryFilter}
-          onChange={handleCategoryChange}
-        />
-        <Select
-          style={{ width: 120 }}
-          placeholder='투표 상태'
-          allowClear
-          options={[
-            { label: '투표 예정', value: VOTE_STATUS.UPCOMING },
-            { label: '투표 중', value: VOTE_STATUS.ONGOING },
-            { label: '투표 완료', value: VOTE_STATUS.COMPLETED },
-          ]}
-          value={statusFilter}
-          onChange={handleStatusChange}
-        />
-      </Space>
+    <AuthorizePage resource='vote' action='list'>
+      <List headerButtons={<CreateButton />}>
+        <Space wrap style={{ marginBottom: 16 }}>
+          <Select
+            style={{ width: 160 }}
+            placeholder='카테고리 선택'
+            allowClear
+            options={VOTE_CATEGORIES}
+            value={categoryFilter}
+            onChange={handleCategoryChange}
+          />
+          <Select
+            style={{ width: 120 }}
+            placeholder='투표 상태'
+            allowClear
+            options={[
+              { label: '투표 예정', value: VOTE_STATUS.UPCOMING },
+              { label: '투표 중', value: VOTE_STATUS.ONGOING },
+              { label: '투표 완료', value: VOTE_STATUS.COMPLETED },
+            ]}
+            value={statusFilter}
+            onChange={handleStatusChange}
+          />
+        </Space>
 
-      <Table
-        {...tableProps}
-        rowKey='id'
-        scroll={{ x: 'max-content' }}
-        onRow={(record: VoteRecord) => {
-          if (!record) return {};
-          const status = getVoteStatus(record.start_at, record.stop_at);
-          return {
-            style: {
-              backgroundColor: STATUS_COLORS[status],
-              color: 'inherit',
-              cursor: 'pointer',
-            },
-            onClick: () => {
-              if (record.id) {
-                show('vote', record.id);
-              }
-            },
-          };
-        }}
-        pagination={{
-          ...tableProps.pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50'],
-          showTotal: (total) => `총 ${total}개 항목`,
-        }}
-      >
-        <Table.Column dataIndex='id' title='ID' width={60} />
-        <Table.Column
-          dataIndex='title'
-          title={'제목'}
-          render={(value: any) => <MultiLanguageDisplay value={value} />}
-        />
-        <Table.Column
-          dataIndex='vote_category'
-          title='카테고리'
-          render={(value: VoteCategory) => {
-            const category = VOTE_CATEGORIES?.find((c) => c.value === value);
-            return category?.label || value;
-          }}
-        />
-        <Table.Column
-          dataIndex='main_image'
-          title='메인 이미지'
-          render={(value: string | undefined) => (
-            <TableImage
-              src={value}
-              alt='메인 이미지'
-              width={120}
-              height={80}
-              objectFit='contain'
-            />
-          )}
-        />
-        <Table.Column
-          title='상태'
-          render={(_, record: VoteRecord) => {
+        <Table
+          {...tableProps}
+          rowKey='id'
+          scroll={{ x: 'max-content' }}
+          onRow={(record: VoteRecord) => {
+            if (!record) return {};
             const status = getVoteStatus(record.start_at, record.stop_at);
-            let label = '';
-            if (status === VOTE_STATUS.UPCOMING) label = '투표 예정';
-            else if (status === VOTE_STATUS.ONGOING) label = '투표 중';
-            else if (status === VOTE_STATUS.COMPLETED) label = '투표 완료';
+            return {
+              style: {
+                backgroundColor: STATUS_COLORS[status],
+                color: 'inherit',
+                cursor: 'pointer',
+              },
+              onClick: () => {
+                if (record.id) {
+                  show('vote', record.id);
+                }
+              },
+            };
+          }}
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
+          }}
+        >
+          <Table.Column dataIndex='id' title='ID' width={60} />
+          <Table.Column
+            dataIndex='title'
+            title={'제목'}
+            render={(value: any) => <MultiLanguageDisplay value={value} />}
+          />
+          <Table.Column
+            dataIndex='vote_category'
+            title='카테고리'
+            render={(value: VoteCategory) => {
+              const category = VOTE_CATEGORIES?.find((c) => c.value === value);
+              return category?.label || value;
+            }}
+          />
+          <Table.Column
+            dataIndex='main_image'
+            title='메인 이미지'
+            render={(value: string | undefined) => (
+              <TableImage
+                src={value}
+                alt='메인 이미지'
+                width={120}
+                height={80}
+                objectFit='contain'
+              />
+            )}
+          />
+          <Table.Column
+            title='상태'
+            render={(_, record: VoteRecord) => {
+              const status = getVoteStatus(record.start_at, record.stop_at);
+              let label = '';
+              if (status === VOTE_STATUS.UPCOMING) label = '투표 예정';
+              else if (status === VOTE_STATUS.ONGOING) label = '투표 중';
+              else if (status === VOTE_STATUS.COMPLETED) label = '투표 완료';
 
-            return (
-              <Tag color={STATUS_TAG_COLORS[status]} key={status}>
-                {label}
-              </Tag>
-            );
-          }}
-        />
-        <Table.Column
-          title='투표 기간'
-          render={(_, record: VoteRecord) => {
-            if (!record.start_at || !record.stop_at) return '-';
-            return `${formatDate(record.start_at, 'datetime')} ~ ${formatDate(
-              record.stop_at,
-              'datetime',
-            )}`;
-          }}
-        />
-        <Table.Column
-          dataIndex={['created_at']}
-          title={'생성일'}
-          render={(value: any) => (
-            <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
-          )}
-        />
-      </Table>
-    </List>
+              return (
+                <Tag color={STATUS_TAG_COLORS[status]} key={status}>
+                  {label}
+                </Tag>
+              );
+            }}
+          />
+          <Table.Column
+            title='투표 기간'
+            render={(_, record: VoteRecord) => {
+              if (!record.start_at || !record.stop_at) return '-';
+              return `${formatDate(record.start_at, 'datetime')} ~ ${formatDate(
+                record.stop_at,
+                'datetime',
+              )}`;
+            }}
+          />
+          <Table.Column
+            dataIndex={['created_at']}
+            title={'생성일'}
+            render={(value: any) => (
+              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
+            )}
+          />
+        </Table>
+      </List>
+    </AuthorizePage>
   );
 }

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { message } from 'antd';
 import VoteForm from '@/components/vote/VoteForm';
 import { VoteRecord } from '@/utils/vote';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function VoteCreate() {
   const { push } = useNavigation();
@@ -18,13 +19,15 @@ export default function VoteCreate() {
   });
 
   return (
-    <Create title='투표 생성'>
-      {contextHolder}
-      <VoteForm
-        mode='create'
-        formProps={formProps}
-        saveButtonProps={saveButtonProps}
-      />
-    </Create>
+    <AuthorizePage resource='vote' action='create'>
+      <Create title='투표 생성'>
+        {contextHolder}
+        <VoteForm
+          mode='create'
+          formProps={formProps}
+          saveButtonProps={saveButtonProps}
+        />
+      </Create>
+    </AuthorizePage>
   );
 }

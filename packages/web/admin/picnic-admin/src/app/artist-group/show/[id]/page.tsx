@@ -25,6 +25,7 @@ import { COLORS } from '@/utils/theme';
 import dayjs from 'dayjs';
 import { Skeleton, Tooltip, Tag, Descriptions } from 'antd';
 import ArtistCard from '@/components/artist/ArtistCard';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -151,231 +152,232 @@ export default function ArtistGroupShow() {
   const { show, edit, list } = useNavigation();
 
   if (isLoading) {
-    return <Skeleton active paragraph={{ rows: 10 }} />;
+    return (
+      <AuthorizePage resource='artist_group' action='show'>
+        <Skeleton active paragraph={{ rows: 10 }} />
+      </AuthorizePage>
+    );
   }
 
   return (
-    <div>
-      <div
-        style={{
-          marginBottom: '16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
+    <AuthorizePage resource='artist_group' action='show'>
+      <Show
+        title={
+          <Space>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => list('artist-group')}
+            >
+              목록으로
+            </Button>
+            <Title level={5} style={{ margin: 0 }}>
+              아티스트 그룹 상세
+            </Title>
+          </Space>
+        }
+        headerButtons={
+          <Space>
+            <EditButton
+              icon={<EditOutlined />}
+              resource='artist_group'
+              recordItemId={record?.id}
+            />
+            <DeleteButton
+              icon={<DeleteOutlined />}
+              resource='artist_group'
+              recordItemId={record?.id}
+              onSuccess={() => list('artist-group')}
+            />
+          </Space>
+        }
       >
-        <Space>
-          <Button
-            icon={<ArrowLeftOutlined />}
-            onClick={() => list('artist_group')}
-          >
-            목록으로
-          </Button>
-          <Title level={5} style={{ margin: 0 }}>
-            아티스트 그룹 정보
-          </Title>
-        </Space>
-        <Space>
-          <Button
-            type='primary'
-            icon={<EditOutlined />}
-            onClick={() => edit('artist_group', id!)}
-          >
-            편집
-          </Button>
-          <DeleteButton
-            resource='artist_group'
-            recordItemId={id}
-            onSuccess={() => list('artist_group')}
-          />
-        </Space>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: '16px',
-        }}
-      >
-        {/* 그룹 기본 정보 */}
         <div
           style={{
-            flex: 1,
-            ...getCardStyle(token, isMobile, {
-              paddingRight: isMobile ? '24px' : '44px',
-            }),
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '16px',
           }}
         >
-          <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={headerTitleStyle}>
-              기본 정보
-            </Title>
-          </div>
-
-          <div className='info-section' style={getSectionStyle(token)}>
-            <Title level={5} style={getTitleStyle(token)}>
-              {'아이디'}
-            </Title>
-            <TextField value={record?.id} />
-          </div>
-
-          <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={headerTitleStyle}>
-              이름
-            </Title>
-          </div>
-
+          {/* 그룹 기본 정보 */}
           <div
-            className='info-section'
-            style={{ ...getSectionStyle(token), marginTop: '16px' }}
-          >
-            <Title level={5} style={getTitleStyle(token)}>
-              {'한국어 (🇰🇷)'}
-            </Title>
-            <TextField value={record?.name?.ko || '-'} />
-          </div>
-
-          <div
-            className='info-section'
-            style={{ ...getSectionStyle(token), marginTop: '16px' }}
-          >
-            <Title level={5} style={getTitleStyle(token)}>
-              {'영어 (🇺🇸)'}
-            </Title>
-            <TextField value={record?.name?.en || '-'} />
-          </div>
-
-          <div
-            className='info-section'
-            style={{ ...getSectionStyle(token), marginTop: '16px' }}
-          >
-            <Title level={5} style={getTitleStyle(token)}>
-              {'일본어 (🇯🇵)'}
-            </Title>
-            <TextField value={record?.name?.ja || '-'} />
-          </div>
-
-          <div
-            className='info-section'
-            style={{ ...getSectionStyle(token), marginTop: '16px' }}
-          >
-            <Title level={5} style={getTitleStyle(token)}>
-              {'중국어 (🇨🇳)'}
-            </Title>
-            <TextField value={record?.name?.zh || '-'} />
-          </div>
-
-          <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={headerTitleStyle}>
-              이미지
-            </Title>
-          </div>
-
-          <div
-            className='info-section'
             style={{
-              ...getSectionStyle(token),
-              marginTop: '16px',
-              textAlign: 'center',
+              flex: 1,
+              ...getCardStyle(token, isMobile, {
+                paddingRight: isMobile ? '24px' : '44px',
+              }),
             }}
           >
-            {record?.image ? (
-              <img
-                src={getImageUrl(record.image)}
-                alt={record?.name?.ko}
-                style={getImageStyle(token, { maxHeight: '300px' })}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  if (e.currentTarget.parentElement) {
-                    e.currentTarget.parentElement.innerText = '-';
-                  }
-                }}
-              />
-            ) : (
-              <TextField value='-' />
-            )}
-          </div>
+            <div style={getSectionHeaderStyle(token)}>
+              <Title level={4} style={headerTitleStyle}>
+                기본 정보
+              </Title>
+            </div>
 
-          <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={headerTitleStyle}>
-              데뷔일
-            </Title>
-          </div>
+            <div className='info-section' style={getSectionStyle(token)}>
+              <Title level={5} style={getTitleStyle(token)}>
+                {'아이디'}
+              </Title>
+              <TextField value={record?.id} />
+            </div>
 
-          <div
-            className='info-section'
-            style={{ ...getSectionStyle(token), marginTop: '16px' }}
-          >
-            {record?.debut_date ? (
-              <TextField
-                value={dayjs(record.debut_date).format('YYYY년 MM월 DD일')}
-              />
-            ) : (
-              <TextField value='-' />
-            )}
-          </div>
+            <div style={getSectionHeaderStyle(token)}>
+              <Title level={4} style={headerTitleStyle}>
+                이름
+              </Title>
+            </div>
 
-          <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={headerTitleStyle}>
-              등록일
-            </Title>
-          </div>
-
-          <div
-            className='info-section'
-            style={{ ...getSectionStyle(token), marginTop: '16px' }}
-          >
-            {record?.created_at ? (
-              <DateField
-                value={record.created_at}
-                format='YYYY-MM-DD HH:mm:ss'
-              />
-            ) : (
-              <TextField value='-' />
-            )}
-          </div>
-        </div>
-
-        {/* 멤버 정보 */}
-        <div
-          style={{
-            flex: 1,
-            ...getCardStyle(token, isMobile),
-          }}
-        >
-          <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={headerTitleStyle}>
-              멤버 정보
-            </Title>
-          </div>
-
-          {artistsIsLoading ? (
-            <Skeleton active paragraph={{ rows: 5 }} />
-          ) : artists && artists.length > 0 ? (
             <div
+              className='info-section'
+              style={{ ...getSectionStyle(token), marginTop: '16px' }}
+            >
+              <Title level={5} style={getTitleStyle(token)}>
+                {'한국어 (🇰🇷)'}
+              </Title>
+              <TextField value={record?.name?.ko || '-'} />
+            </div>
+
+            <div
+              className='info-section'
+              style={{ ...getSectionStyle(token), marginTop: '16px' }}
+            >
+              <Title level={5} style={getTitleStyle(token)}>
+                {'영어 (🇺🇸)'}
+              </Title>
+              <TextField value={record?.name?.en || '-'} />
+            </div>
+
+            <div
+              className='info-section'
+              style={{ ...getSectionStyle(token), marginTop: '16px' }}
+            >
+              <Title level={5} style={getTitleStyle(token)}>
+                {'일본어 (🇯🇵)'}
+              </Title>
+              <TextField value={record?.name?.ja || '-'} />
+            </div>
+
+            <div
+              className='info-section'
+              style={{ ...getSectionStyle(token), marginTop: '16px' }}
+            >
+              <Title level={5} style={getTitleStyle(token)}>
+                {'중국어 (🇨🇳)'}
+              </Title>
+              <TextField value={record?.name?.zh || '-'} />
+            </div>
+
+            <div style={getSectionHeaderStyle(token)}>
+              <Title level={4} style={headerTitleStyle}>
+                이미지
+              </Title>
+            </div>
+
+            <div
+              className='info-section'
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '16px',
+                ...getSectionStyle(token),
+                marginTop: '16px',
+                textAlign: 'center',
               }}
             >
-              {artists.map((artist: Artist) => (
-                <ArtistCard
-                  key={artist.id}
-                  artist={artist}
-                  onClick={() => {
-                    show('artist', artist.id);
+              {record?.image ? (
+                <img
+                  src={getImageUrl(record.image)}
+                  alt={record?.name?.ko}
+                  style={getImageStyle(token, { maxHeight: '300px' })}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.innerText = '-';
+                    }
                   }}
                 />
-              ))}
+              ) : (
+                <TextField value='-' />
+              )}
             </div>
-          ) : (
-            <div style={getSectionStyle(token)}>
-              <p style={{ textAlign: 'center' }}>등록된 멤버가 없습니다.</p>
+
+            <div style={getSectionHeaderStyle(token)}>
+              <Title level={4} style={headerTitleStyle}>
+                데뷔일
+              </Title>
             </div>
-          )}
+
+            <div
+              className='info-section'
+              style={{ ...getSectionStyle(token), marginTop: '16px' }}
+            >
+              {record?.debut_date ? (
+                <TextField
+                  value={dayjs(record.debut_date).format('YYYY년 MM월 DD일')}
+                />
+              ) : (
+                <TextField value='-' />
+              )}
+            </div>
+
+            <div style={getSectionHeaderStyle(token)}>
+              <Title level={4} style={headerTitleStyle}>
+                등록일
+              </Title>
+            </div>
+
+            <div
+              className='info-section'
+              style={{ ...getSectionStyle(token), marginTop: '16px' }}
+            >
+              {record?.created_at ? (
+                <DateField
+                  value={record.created_at}
+                  format='YYYY-MM-DD HH:mm:ss'
+                />
+              ) : (
+                <TextField value='-' />
+              )}
+            </div>
+          </div>
+
+          {/* 멤버 정보 */}
+          <div
+            style={{
+              flex: 1,
+              ...getCardStyle(token, isMobile),
+            }}
+          >
+            <div style={getSectionHeaderStyle(token)}>
+              <Title level={4} style={headerTitleStyle}>
+                멤버 정보
+              </Title>
+            </div>
+
+            {artistsIsLoading ? (
+              <Skeleton active paragraph={{ rows: 5 }} />
+            ) : artists && artists.length > 0 ? (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                  gap: '16px',
+                }}
+              >
+                {artists.map((artist: Artist) => (
+                  <ArtistCard
+                    key={artist.id}
+                    artist={artist}
+                    onClick={() => {
+                      show('artist', artist.id);
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div style={getSectionStyle(token)}>
+                <p style={{ textAlign: 'center' }}>등록된 멤버가 없습니다.</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </Show>
+    </AuthorizePage>
   );
 }
