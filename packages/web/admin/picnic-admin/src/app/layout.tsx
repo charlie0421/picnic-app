@@ -12,6 +12,7 @@ import { App, ConfigProvider } from 'antd';
 import { ColorModeContextProvider } from '@contexts/color-mode';
 import { authProviderClient } from '@providers/auth-provider/auth-provider.client';
 import { dataProvider } from '@providers/data-provider';
+import { accessControlProvider } from '@providers/access-control-provider';
 import '@refinedev/antd/dist/reset.css';
 import { ThemedLayoutV2 } from '@refinedev/antd';
 import { Header } from '@/components/header';
@@ -48,6 +49,7 @@ export default function RootLayout({
                         authProvider={authProviderClient}
                         dataProvider={dataProvider}
                         notificationProvider={useNotificationProvider}
+                        accessControlProvider={accessControlProvider}
                         resources={[
                           {
                             name: 'vote',

@@ -76,13 +76,38 @@ export const authProviderClient: AuthProvider = {
     };
   },
   getPermissions: async () => {
-    const user = await supabaseBrowserClient.auth.getUser();
+    const { data: { user } } = await supabaseBrowserClient.auth.getUser();
+    
+    if (!user) return null;
 
-    if (user) {
-      return user.data.user?.role;
-    }
+    // 사용자의 역할과 권한을 가져옵니다
+    const { data: userRoles } = await supabaseBrowserClient
+      .from('user_roles')
+      .select('role_id')
+      .eq('user_id', user.id);
 
-    return null;
+    if (!userRoles?.length) return null;
+
+    const roleIds = userRoles.map(ur => ur.role_id);
+    
+    const { data: permissions } = await supabaseBrowserClient
+      .from('role_permissions')
+      .select('permissions!inner(*)')
+      .in('role_id', roleIds);
+
+    if (!permissions?.length) return null;
+
+    // 권한을 { resource: [actions] } 형태로 변환
+    return permissions.reduce((acc: Record<string, string[]>, curr: any) => {
+      const { resource, action } = curr.permissions;
+      if (!acc[resource]) {
+        acc[resource] = [];
+      }
+      if (!acc[resource].includes(action)) {
+        acc[resource].push(action);
+      }
+      return acc;
+    }, {});
   },
   getIdentity: async () => {
     const { data } = await supabaseBrowserClient.auth.getUser();
