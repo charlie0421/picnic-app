@@ -14,6 +14,22 @@
       }
     },
     {
+      "name": "컴포넌트 구조",
+      "description": "컴포넌트 폴더 구조 가이드",
+      "pattern": "**/*.tsx",
+      "template": {
+        "structure": {
+          "components/": {
+            "ui/": "기본 UI 컴포넌트 (버튼, 입력창 등)",
+            "layout/": "레이아웃 관련 컴포넌트 (헤더, 사이드바 등)",
+            "shared/": "여러 리소스에서 공통으로 사용되는 컴포넌트",
+            "auth/": "인증 관련 컴포넌트"
+          },
+          "app/{resource}/components/": "리소스별 컴포넌트"
+        }
+      }
+    },
+    {
       "name": "컴포넌트 네이밍",
       "description": "React 컴포넌트 네이밍 규칙",
       "pattern": "**/*.tsx",
