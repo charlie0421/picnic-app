@@ -15,7 +15,7 @@ import {
 import { Artist, ArtistGroup } from '@/types/artist';
 import { getImageUrl } from '@/lib/image';
 import { useParams } from 'next/navigation';
-import ArtistGroupDisplay from '@/components/artist/ArtistGroupDisplay';
+import ArtistGroupDisplay from '@/app/artist/components/ArtistGroupDisplay';
 import {
   UserOutlined,
   CalendarOutlined,

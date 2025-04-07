@@ -1,26 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { FC, ReactNode } from 'react';
 import { useCan } from '@refinedev/core';
 import { Spin, Result } from 'antd';
 
 interface AuthorizePageProps {
+  children: ReactNode;
   resource: string;
   action: string;
-  children: React.ReactNode;
   // 필요하다면 로딩 컴포넌트나 접근 거부 컴포넌트를 커스텀할 수 있도록 props 추가 가능
   // loadingComponent?: React.ReactNode;
   // accessDeniedComponent?: React.ReactNode;
 }
 
-export const AuthorizePage: React.FC<AuthorizePageProps> = ({
+export const AuthorizePage: FC<AuthorizePageProps> = ({
+  children,
   resource,
   action,
-  children,
   // loadingComponent = <DefaultLoading />,
   // accessDeniedComponent = <DefaultAccessDenied />,
 }) => {
-  const { data: canAccessData, isLoading: isLoadingAccess } = useCan({
+  const { data: canAccess, isLoading: isLoadingAccess } = useCan({
     resource,
     action,
   });
@@ -53,7 +53,7 @@ export const AuthorizePage: React.FC<AuthorizePageProps> = ({
     return <DefaultLoading />;
   }
 
-  if (!canAccessData?.can) {
+  if (!canAccess?.can) {
     // return accessDeniedComponent;
     return <DefaultAccessDenied />;
   }

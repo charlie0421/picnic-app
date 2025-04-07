@@ -3,7 +3,7 @@
 import { Edit, useForm } from '@refinedev/antd';
 import { message } from 'antd';
 import { useParams } from 'next/navigation';
-import { PermissionForm } from '@/components/permission';
+import PermissionForm from '@/app/admin_permissions/components/PermissionForm';
 import { AdminPermission } from '@/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 

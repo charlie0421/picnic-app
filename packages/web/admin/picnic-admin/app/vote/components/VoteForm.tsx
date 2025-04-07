@@ -24,7 +24,7 @@ import dayjs from 'dayjs';
 import { COLORS } from '@/lib/theme';
 import ArtistSelector from '@/components/artist-selector';
 import ImageUpload from '@/components/upload';
-import ArtistCard from '@/components/artist/ArtistCard';
+import ArtistCard from '@/app/artist/components/ArtistCard';
 import React from 'react';
 
 type VoteFormProps = {

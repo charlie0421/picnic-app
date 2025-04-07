@@ -2,7 +2,7 @@
 
 import { Create, useForm } from '@refinedev/antd';
 import { message } from 'antd';
-import { MediaForm } from '@/components/media';
+import MediaForm from '../components/MediaForm';
 
 export default function MediaCreate() {
   const { formProps, saveButtonProps } = useForm({});

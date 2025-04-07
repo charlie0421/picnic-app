@@ -3,7 +3,7 @@
 import { Edit, useForm } from '@refinedev/antd';
 import { message, Spin } from 'antd';
 import { useState, useEffect } from 'react';
-import { MediaForm } from '@/components/media';
+import MediaForm from '../../components/MediaForm';
 import { useParams } from 'next/navigation';
 
 export default function MediaEdit() {

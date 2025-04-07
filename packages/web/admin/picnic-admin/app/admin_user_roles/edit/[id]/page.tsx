@@ -3,7 +3,7 @@
 import { Edit, useForm } from '@refinedev/antd';
 import { message } from 'antd';
 import { useParams } from 'next/navigation';
-import { RoleUserForm } from '@/components/permission';
+import RoleUserForm from '@/app/admin_user_roles/components/RoleUserForm';
 import { AdminUserRole } from '@/types/permission';
 
 export default function RoleUserEdit() {

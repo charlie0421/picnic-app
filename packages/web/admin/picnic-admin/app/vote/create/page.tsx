@@ -4,7 +4,7 @@ import { Create, useForm } from '@refinedev/antd';
 import { useNavigation, useCreate } from '@refinedev/core';
 import { useState } from 'react';
 import { message } from 'antd';
-import VoteForm from '@/components/vote/VoteForm';
+import VoteForm from '@/app/vote/components/VoteForm';
 import { VoteRecord } from '@/lib/vote';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 

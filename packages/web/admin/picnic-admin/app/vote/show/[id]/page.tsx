@@ -2,7 +2,7 @@
 
 import { useShow, useNavigation } from '@refinedev/core';
 import { type VoteRecord } from '@/lib/vote';
-import VoteDetail from '@/components/vote/VoteDetail';
+import VoteDetail from '@/app/vote/components/VoteDetail';
 import { Typography, Skeleton, Space, Button } from 'antd';
 import { DeleteButton } from '@refinedev/antd';
 import {

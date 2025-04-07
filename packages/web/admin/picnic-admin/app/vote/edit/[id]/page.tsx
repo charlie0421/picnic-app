@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useNavigation, useOne } from '@refinedev/core';
 import { VoteItem } from '@/types/vote';
 import { VoteRecord } from '@/lib/vote';
-import VoteForm from '@/components/vote/VoteForm';
+import VoteForm from '@/app/vote/components/VoteForm';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function VoteEdit({ params }: { params: { id: string } }) {

@@ -24,7 +24,7 @@ import {
 import { COLORS } from '@/lib/theme';
 import dayjs from 'dayjs';
 import { Skeleton, Tooltip, Tag, Descriptions } from 'antd';
-import ArtistCard from '@/components/artist/ArtistCard';
+import ArtistCard from '@/app/artist/components/ArtistCard';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 const { Title } = Typography;

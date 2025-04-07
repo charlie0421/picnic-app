@@ -2,7 +2,7 @@
 
 import { Create, useForm } from '@refinedev/antd';
 import { message } from 'antd';
-import { RoleForm } from '@/components/permission';
+import RoleForm from '@/app/admin_roles/components/RoleForm';
 import { AdminRole } from '@/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 

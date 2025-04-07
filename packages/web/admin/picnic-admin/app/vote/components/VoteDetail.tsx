@@ -22,7 +22,7 @@ import {
   getDateSectionStyle,
 } from '@/lib/ui';
 import { COLORS } from '@/lib/theme';
-import ArtistCard from '@/components/artist/ArtistCard';
+import ArtistCard from '@/app/artist/components/ArtistCard';
 
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
