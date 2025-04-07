@@ -17,7 +17,72 @@
 
 ---
 
-## 2. 아키텍처 다이어그램
+## 2. 기능 구현 방식
+
+### 2.1 YouTube API 기반 기능
+YouTube Data API를 사용하여 구현된 기능들입니다. OAuth 2.0 인증이 필요하며, 공식 API를 통해 안정적으로 동작합니다.
+
+#### 주요 기능
+1. **채널 관리**
+   - 채널 정보 조회 (제목, 구독자 수 등)
+   - 채널 구독/구독 취소
+   - 구독 상태 확인
+
+2. **동영상 상호작용**
+   - 동영상 좋아요/싫어요
+   - 댓글 작성
+   - 동영상 설명 가져오기
+
+3. **채널 콘텐츠 조회**
+   - 채널의 최근 동영상 목록 조회
+   - 동영상 통계 정보 조회
+
+#### 장점
+- 공식 API를 사용하므로 안정적
+- YouTube 정책 준수
+- 높은 신뢰성과 안정성
+- 상세한 에러 메시지 제공
+
+#### 단점
+- API 사용량 제한 (쿼터)
+- OAuth 2.0 설정 필요
+- 일부 기능 제한 (예: 시청 시간 추적 불가)
+
+### 2.2 Puppeteer(크롬) 기반 기능
+Puppeteer를 사용하여 웹 브라우저를 자동화하는 방식으로 구현된 기능들입니다.
+
+#### 주요 기능
+1. **시청 이력 관리**
+   - 동영상 시청 시간 추적
+   - 시청 기록 자동 생성
+   - 시청 중인 동영상 정보 수집
+
+2. **자동화된 상호작용**
+   - 자동 로그인
+   - 동영상 시청 자동화
+   - 댓글 자동 작성
+   - 좋아요 자동 클릭
+
+3. **데이터 수집**
+   - 동영상 메타데이터 수집
+   - 댓글 내용 수집
+   - 추천 동영상 수집
+
+#### 장점
+- API 제한 없음
+- 웹 브라우저의 모든 기능 활용 가능
+- 시청 시간 추적 가능
+- 유연한 데이터 수집
+
+#### 단점
+- YouTube UI 변경에 취약
+- 브라우저 리소스 사용
+- 자동화 감지 위험
+- 안정성 문제 가능성
+
+---
+
+## 3. 아키텍처 다이어그램
 
 ```ascii
 ┌─────────────────────────────┐
@@ -33,6 +98,7 @@
 │        Supabase (PostgreSQL DB)       │
 │ - accounts 테이블 (email, pw, in_use..)│
 │ - watch_logs 테이블 (실행 결과 등)     │
+│ - youtube_tokens 테이블 (OAuth 토큰)   │
 └─────────────┬──────────────────────────┘
               │ (SQL/REST)
               ▼
@@ -41,136 +107,207 @@
 │ - 매 분/매 시간/특정 cron에 따라       │
 │   Lambda 혹은 RunTask 직접 호출       │
 └─────────────┬──────────────────────────┘
-              │ (run-task, or Lambda -> run-task)
-              ▼
-┌──────────────────────────────────────────────────┐
-│ AWS ECS (Fargate)                               │
-│ - Docker 컨테이너: Node.js + Puppeteer          │
-│ - 실행 시: 계정 ID 받아 Supabase에서 pw 조회    │
-│ - 유튜브 로그인/시청 후 watch_logs 기록         │
-│ - 종료 시 Slack 알림 (또는 EventBridge 이벤트)  │
-└──────────────────────────────────────────────────┘
+              │
+              ├─────────────────────────────┐
+              │                             │
+              ▼                             ▼
+┌─────────────────────────┐    ┌──────────────────────────────────┐
+│     YouTube API         │    │ AWS ECS (Fargate)               │
+│ - 채널 정보 조회        │    │ - Docker 컨테이너: Node.js      │
+│ - 구독 상태 확인        │    │ - 실행 시: 계정 ID 받아        │
+│ - 동영상 상호작용       │    │   Supabase에서 pw 조회         │
+│ (좋아요, 구독, 댓글)    │    │ - 유튜브 시청 후 watch_logs 기록│
+└─────────────┬───────────┘    └─────────────┬──────────────────┘
+              │                               │
+              ▼                               ▼
+┌─────────────────────────┐    ┌──────────────────────────────────┐
+│     YouTube 서비스      │    │           Chrome (Puppeteer)     │
+│ - 공식 API 엔드포인트    │    │ - 자동 로그인                   │
+│ - OAuth 2.0 인증        │    │ - 동영상 시청                   │
+└─────────────┬───────────┘    │ - 시청 기록 수집                │
+              │                 │ - 동영상 설명/스크립트 수집      │
+              │                 └─────────────┬──────────────────┘
+              │                               │
+              │                               ▼
+              │                 ┌─────────────────────────┐
+              │                 │         SQS            │
+              │                 │ - 시청 완료 이벤트      │
+              │                 │ - 동영상 정보 저장      │
+              │                 └─────────────┬──────────┘
+              │                               │
+              │                               ▼
+              │                 ┌─────────────────────────┐
+              │                 │     AWS Lambda         │
+              │                 │ - OpenAI API 호출      │
+              │                 │ - 댓글 생성            │
+              │                 │ - 좋아요 처리          │
+              │                 └─────────────┬──────────┘
+              │                               │
+              └───────────────────────────────┘
 ```
 
 ### 주요 컴포넌트 설명
 1. **Admin UI(Refine)**: 계정과 예약 정보를 편리하게 수정·조회
-2. **Supabase**: 유튜브 계정, 예약 스케줄, 실행 로그 등 저장
+2. **Supabase**: 유튜브 계정, 예약 스케줄, 실행 로그, OAuth 토큰 등 저장
 3. **EventBridge**: 스케줄을 관리. 특정 시간마다(또는 매 분/매 시) 이벤트를 발생
-4. **Fargate**: Puppeteer 컨테이너를 서버리스로 실행. 시청 로직 후 종료
+4. **YouTube API**: 공식 API를 통한 유튜브 서비스 접근 (구독, 좋아요, 댓글)
+5. **Fargate**: 시청 전용 컨테이너를 서버리스로 실행
+6. **Chrome (Puppeteer)**: Fargate 컨테이너 내에서 실행되는 웹 브라우저 자동화 도구
+7. **SQS**: 시청 완료 이벤트와 동영상 정보를 임시 저장하고 Lambda로 전달
+8. **Lambda**: OpenAI API를 활용한 댓글 생성 및 좋아요 처리
 
----
+### 기능 분리
+1. **YouTube API 기반 기능**
+   - 채널 구독/구독 취소
+   - 동영상 좋아요/싫어요
+   - 댓글 게시
+   - 채널 정보 조회
+   - 구독 상태 확인
 
-## 3. 아키텍처 주요 흐름
+2. **Puppeteer 기반 기능**
+   - 동영상 시청
+   - 시청 기록 수집
+   - 동영상 설명/스크립트 수집
+   - 자동 로그인
 
-1. 관리자가 Admin UI(Refine)에서 계정 정보(email, password)와 "예약 시간(start_time), 시청 지속 시간(duration)" 등을 입력 (Supabase DB에 저장)
-2. EventBridge에 Schedule Rule을 생성 (예: 매 분/매 시각 등), 규칙이 트리거되면 Lambda를 호출 (또는 직접 RunTask)
-3. Lambda(선택) 내 로직:
-   - Supabase에서 "현재 시점에 실행해야 할 계정"을 조회 (예: scheduled_time <= now AND in_use=false)
-   - 해당 계정에 대해 in_use=true로 업데이트(이중 실행 방지)
-   - RunTask API로 Fargate 태스크 실행, ACCOUNT_ID를 오버라이드 env로 전달
-4. Fargate 컨테이너(Docker: Node.js + Puppeteer) 시작
-   - watch.js 실행 시:
-     1. ACCOUNT_ID로 DB에서 email/password/keyword 등을 가져옴
-     2. 유튜브 로그인 → 일정 시간 시청 → 완료
-     3. Supabase에 watch_logs 업데이트, in_use=false로 계정 플래그 해제
-     4. 종료 직전 Slack Webhook 호출(또는 EventBridge ECS Task State Change → Lambda → Slack)
-5. Admin UI에서 실행 로그와 상태(in_use, 로그 메시지, 시청 이력)를 실시간 모니터링
+3. **Lambda 기반 기능**
+   - 동영상 설명 분석
+   - OpenAI API를 통한 댓글 생성
+   - 생성된 댓글을 YouTube API로 전달
+
+### 시청 후 상호작용 프로세스 상세
+1. **시점**
+   - 동영상 시청 중: Chrome(Puppeteer)이 설명/스크립트 수집
+   - 시청 완료 후: 
+     1. Chrome(Puppeteer)이 시청 완료 이벤트를 SQS로 전송
+     2. SQS 메시지 수신 후 Lambda 실행
+     3. Lambda에서 좋아요와 댓글 처리
+
+2. **주체별 역할**
+   - **Fargate**
+     - Chrome(Puppeteer) 컨테이너 실행 환경 제공
+     - 컨테이너 리소스 관리
+     - 실행 상태 모니터링
+
+   - **Chrome (Puppeteer)**
+     - 동영상 시청
+     - 설명/스크립트 수집
+     - 시청 완료 시 SQS로 이벤트 전송
+     - 시청 완료 후 watch_logs 기록
+
+   - **SQS (Amazon Simple Queue Service)**
+     - 시청 완료 이벤트 저장
+     - 동영상 정보 저장
+     - Lambda 트리거 역할
+     - 메시지 지연 전송 가능 (예: 시청 완료 후 5분)
+
+   - **Lambda**
+     - SQS 메시지 수신
+     - OpenAI API 호출하여 댓글 생성
+     - YouTube API를 통해 좋아요 처리
+     - 생성된 댓글을 YouTube API로 전달
+
+   - **YouTube API**
+     - Lambda로부터 받은 댓글을 게시
+     - 좋아요 처리
+     - 구독 처리
+
+3. **장점**
+   - 시청 완료 후 자연스러운 상호작용
+   - 봇 감지 위험 감소
+   - 실패 시 재시도 가능
+   - 시청과 상호작용의 독립적 스케일링
+   - 상호작용 지연 가능 (시청 완료 후 일정 시간 후)
 
 ---
 
 ## 4. 구현 단계별 실행 아이템
 
-### 4.1 Supabase DB 스키마 구성
-1. **accounts 테이블**
-   - 예: id (PK), email, password, keyword, scheduled_time, duration, in_use (bool), updated_at 등
-   - email/password는 민감정보이므로 암호화 또는 Secrets 저장 고려
-2. **watch_logs 테이블**
-   - 예: id (PK), account_id, start_time, end_time, status, error_message, etc.
+### 4.1 YouTube API 구현
+1. **OAuth 2.0 설정**
+   - Google Cloud Console에서 프로젝트 생성
+   - OAuth 2.0 클라이언트 ID 발급
+   - 필요한 스코프 설정 (youtube, youtube.force-ssl)
 
-### 4.2 Docker + Puppeteer 환경
-1. **Node.js + Puppeteer 의존성**
-   - npm install puppeteer
-   - Linux 환경에서 apt-get install chromium (또는 Puppeteer 내장 Chromium)
-2. **Dockerfile 작성**
-   ```dockerfile
-   FROM node:16
-   WORKDIR /app
-   COPY package*.json ./
-   RUN npm install
-   COPY . .
-   RUN npm run build  # (TS -> JS 컴파일)
-   CMD ["node", "dist/watch.js"]
-   ```
-3. **코드(watch.js)**
-   - process.env.ACCOUNT_ID를 통해 DB에서 계정 정보 조회
-   - Puppeteer로 유튜브 로그인, 시청 로직, 완료 후 Supabase watch_logs 업데이트
+2. **토큰 관리**
+   - Supabase에 토큰 저장
+   - 토큰 갱신 로직 구현
+   - 토큰 만료 처리
 
-### 4.3 ECR (Docker 이미지) 업로드
-1. AWS ECR 리포지토리 생성
-2. docker build -t my-yt-watcher .
-3. docker push <ECR-URL>/my-yt-watcher:latest
+3. **API 서비스 구현**
+   - 채널 관리 기능
+   - 동영상 상호작용 기능
+   - 콘텐츠 조회 기능
 
-### 4.4 ECS Fargate 설정
-1. 클러스터 생성 (Network only)
-2. Task Definition
-   - Launch type: Fargate
-   - CPU/Memory (예: 0.25 vCPU, 0.5GB)
-   - 컨테이너: 이미지 <ECR-URL>/my-yt-watcher:latest
-   - Log configuration(awslogs) → CloudWatch Logs 그룹
-3. (선택) IAM Task Role → DB/S3/Secrets 등 접근 권한 설정
+### 4.2 Puppeteer 구현
+1. **브라우저 설정**
+   - Puppeteer 설치 및 설정
+   - 헤드리스 모드 설정
+   - 사용자 에이전트 설정
 
-### 4.5 EventBridge 스케줄 + Lambda
-1. **Lambda 함수(Node.js or Python)**
-   - DB에서 "지금 실행해야 할 계정" 쿼리
-   - 각 계정에 대해 "in_use 상태 업데이트 + RunTask" 호출
-2. **EventBridge Rule**
-   - cron 식(예: cron(0/1 * * * ? *) → 매 분마다)
-   - Target = 위 Lambda
-   - Lambda가 runTask 여러 번 호출 or 0번(조건 없으면 스킵)
+2. **자동화 로직**
+   - 로그인 자동화
+   - 동영상 시청 자동화
+   - 상호작용 자동화
 
-### 4.6 Slack 알림
-1. **ECS Task State Change 이벤트 → EventBridge → Lambda**
-   - 상세: CloudWatch Events (EventBridge)에서 "ECS Task State Change" rule 생성
-   - Task가 STOPPED 상태 → Lambda → Slack Webhook 호출
-   - 메시지: "Task {taskArn} finished with status {stopCode}"
-2. (대안) Puppeteer 내부에서 종료 시 Slack Webhook 호출
+3. **데이터 수집**
+   - 시청 기록 수집
+   - 메타데이터 수집
+   - 로그 저장
 
-### 4.7 Admin UI(Refine) 통합
-1. Refine에서 Supabase 연결 (REST, GraphQL, or Direct Postgres)
-2. 테이블 목록
-   - accounts(CRUD)
-   - watch_logs(조회)
-3. 예약 시간(scheduled_time), in_use, 시청 로그 등을 UI로 표시
+### 4.3 공통 구현
+1. **데이터베이스 스키마**
+   - accounts 테이블
+   - youtube_tokens 테이블
+   - watch_logs 테이블
 
-### 4.8 YouTube 시청 이력 (API)
-1. YouTube Data API로 개인 계정 시청 기록을 가져오려면 OAuth 2.0 인증 필요
-2. 각 계정별로 OAuth 토큰 발급 → DB 저장
-3. Refine UI에서 API 호출 or Puppeteer로 대체 스크래핑(공식적이지 않음)
-4. 구현 난이도와 정책을 고려하여 선택
+2. **환경 설정**
+   - 환경 변수 관리
+   - API 키 관리
+   - 로깅 설정
+
+3. **에러 처리**
+   - API 에러 처리
+   - 브라우저 에러 처리
+   - 재시도 로직
 
 ---
 
-## 5. 최종 아키텍처 요약
-1. Supabase DB: 계정/예약/로그 저장
-2. AWS EventBridge: 스케줄 엔진 (cron)
-3. AWS Lambda: 매 분/시간마다 DB 조회해 "실행할 계정"을 판단, RunTask 호출
-4. Fargate: Puppeteer 컨테이너가 떠서 시청 → 종료 (DB에 로그 기록, Slack 알림)
-5. Admin UI(Refine): 계정/예약 설정, 실행 현황, 로그 모니터링, (유튜브 API 연동 시) 시청 이력 확인
+## 5. 보안 및 정책 고려사항
+
+### 5.1 YouTube API 사용 시
+- API 사용량 제한 준수
+- OAuth 토큰 보안 관리
+- 민감 정보 암호화
+
+### 5.2 Puppeteer 사용 시
+- YouTube 서비스 약관 준수
+- 자동화 감지 방지
+- IP 차단 방지
+
+### 5.3 공통
+- 계정 정보 보안
+- 로그 보안
+- 에러 모니터링
 
 ---
 
-## 6. 다운로드/배포 가이드
+## 6. 비용 및 리소스 관리
 
-이 문서는 Markdown 형식이므로, 다음 방법 중 하나로 다운로드할 수 있습니다:
+### 6.1 API 사용 비용
+- YouTube API 쿼터 관리
+- API 호출 최적화
+- 캐싱 전략
 
-1. **복사 & 붙여넣기**
-   - 현재 문서 내용을 전부 복사하여, VSCode / Notion / Obsidian / Google Docs 등 원하는 에디터에 붙여 넣은 뒤, "PDF로 내보내기"
-2. **Markdown 파일로 저장**
-   - 새로운 .md 파일을 만든 뒤, 이 내용을 저장 → 마크다운 뷰어(예: Typora)에서 PDF나 HTML로 변환
-3. **GitHub Gist**
-   - 새 Gist를 만들고 이 내용을 넣으면 웹에서 Markdown으로도 볼 수 있고, "Download ZIP" 등으로 받을 수 있음
+### 6.2 Puppeteer 리소스
+- 브라우저 리소스 관리
+- 메모리 사용량 최적화
+- 병렬 실행 제한
 
-이 과정을 통해 PDF나 docx 형태로도 자유롭게 배포 가능합니다.
+### 6.3 AWS 리소스
+- Fargate 비용 최적화
+- Lambda 실행 비용
+- 데이터베이스 비용
 
 ---
 
@@ -178,7 +315,8 @@
 
 ### 7.1 보안
 - 이메일/비번 평문 → 가능하면 Secrets Manager 또는 암호화 저장
-- Fargate 태스크 Role → 최소 권한 (DynamoDB/SecretsManager 접근 등)
+- **OpenAI API 키** → 환경 변수(Secrets Manager 연동 권장)를 통해 안전하게 관리
+- Fargate 태스크 Role → 최소 권한 (DB/SecretsManager 접근 등)
 
 ### 7.2 확장성
 - 계정이 수백, 수천 개로 늘어난다면 스케줄 호출 횟수 증가. EventBridge + Lambda 성능 주의
@@ -190,5 +328,21 @@
 - Supabase는 플랜/사용량에 따라 비용 검토
 
 ### 7.4 YouTube 정책
-- 부정 시청(조회수 조작) 가능성이 크다면 계정 차단, IP 차단 리스크
-- 테스트/연구 목적이라면 문제 없지만, 실제 운영 시 주의
+- 부정 시청(조회수 조작), **자동 구독, 자동 댓글 생성/게시** 등은 YouTube 서비스 약관 위반으로 간주될 가능성이 매우 높습니다.
+- 이로 인해 계정 정지, IP 차단 등의 제재를 받을 수 있습니다.
+- 테스트/연구 목적 외 상업적 또는 대규모 운영 시에는 심각한 위험을 초래할 수 있으므로 각별한 주의가 필요합니다.
+
+---
+
+## 8. 다운로드/배포 가이드
+
+이 문서는 Markdown 형식이므로, 다음 방법 중 하나로 다운로드할 수 있습니다:
+
+1. **복사 & 붙여넣기**
+   - 현재 문서 내용을 전부 복사하여, VSCode / Notion / Obsidian / Google Docs 등 원하는 에디터에 붙여 넣은 뒤, "PDF로 내보내기"
+2. **Markdown 파일로 저장**
+   - 새로운 .md 파일을 만든 뒤, 이 내용을 저장 → 마크다운 뷰어(예: Typora)에서 PDF나 HTML로 변환
+3. **GitHub Gist**
+   - 새 Gist를 만들고 이 내용을 넣으면 웹에서 Markdown으로도 볼 수 있고, "Download ZIP" 등으로 받을 수 있음
+
+이 과정을 통해 PDF나 docx 형태로도 자유롭게 배포 가능합니다.
