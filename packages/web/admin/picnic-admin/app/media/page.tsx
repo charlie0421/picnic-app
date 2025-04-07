@@ -1,0 +1,169 @@
+'use client';
+
+import {
+  List,
+  useTable,
+  DateField,
+  ShowButton,
+  EditButton,
+  DeleteButton,
+} from '@refinedev/antd';
+import { useNavigation } from '@refinedev/core';
+import { Table, Typography, Card, Space } from 'antd';
+import { getImageUrl } from '@/lib/image';
+import TableImage from '@/components/common/TableImage';
+import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
+
+const { Link } = Typography;
+
+export default function MediaList() {
+  const { tableProps } = useTable({
+    syncWithLocation: true,
+    sorters: {
+      initial: [
+        {
+          field: 'created_at',
+          order: 'desc',
+        },
+      ],
+    },
+    meta: {
+      select: '*, created_at',
+    },
+  });
+
+  const { show } = useNavigation();
+
+  return (
+    <AuthorizePage resource='media' action='list'>
+      <List>
+        <Table
+          {...tableProps}
+          rowKey='id'
+          onRow={(record: any) => ({
+            onClick: () => {
+              if (record.id) {
+                show('media', record.id);
+              }
+            },
+            style: { cursor: 'pointer' },
+          })}
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
+          }}
+        >
+          <Table.Column dataIndex='id' title={'ID'} />
+          <Table.Column
+            dataIndex='title'
+            title={'제목'}
+            render={(value: Record<string, string>) => {
+              if (!value) return '-';
+              return value.ko || Object.values(value)[0] || '-';
+            }}
+          />
+          <Table.Column
+            dataIndex={['video_id', 'thumbnail_url']}
+            title={'썸네일'}
+            render={(_, record: any) => {
+              const videoId = record.video_id;
+              const dbThumbnailUrl = record.thumbnail_url;
+
+              // 유튜브 썸네일 URL 생성
+              const youtubeThumbnailUrl = videoId
+                ? `https://img.youtube.com/vi/${videoId}/0.jpg`
+                : null;
+
+              return (
+                <Space
+                  direction='vertical'
+                  size='small'
+                  style={{ width: '100%' }}
+                >
+                  {youtubeThumbnailUrl && (
+                    <Card
+                      size='small'
+                      title='유튜브 썸네일'
+                      variant='outlined'
+                      style={{ width: 200 }}
+                    >
+                      <img
+                        src={youtubeThumbnailUrl}
+                        alt='유튜브 썸네일'
+                        width={160}
+                        height={90}
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </Card>
+                  )}
+
+                  {dbThumbnailUrl && dbThumbnailUrl !== youtubeThumbnailUrl && (
+                    <Card
+                      size='small'
+                      title='DB 썸네일'
+                      variant='outlined'
+                      style={{ width: 200 }}
+                    >
+                      <TableImage
+                        src={dbThumbnailUrl}
+                        alt='DB 썸네일'
+                        width={160}
+                        height={90}
+                      />
+                    </Card>
+                  )}
+
+                  {!youtubeThumbnailUrl && !dbThumbnailUrl && '-'}
+                </Space>
+              );
+            }}
+          />
+          <Table.Column
+            dataIndex='video_id'
+            title={'비디오 ID'}
+            render={(value: string) => {
+              if (!value) return '-';
+              return (
+                <Link
+                  href={`https://www.youtube.com/watch?v=${value}`}
+                  target='_blank'
+                >
+                  {value}
+                </Link>
+              );
+            }}
+          />
+          <Table.Column
+            dataIndex='video_url'
+            title={'유튜브 링크'}
+            render={(value: string, record: any) => {
+              const videoId = record.video_id;
+              if (!videoId) return '-';
+
+              // 비디오 ID로 유튜브 링크 생성
+              const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+              return (
+                <Link href={videoUrl} target='_blank'>
+                  <Typography.Text ellipsis style={{ maxWidth: 250 }}>
+                    {videoUrl}
+                  </Typography.Text>
+                </Link>
+              );
+            }}
+          />
+          <Table.Column
+            dataIndex={['created_at']}
+            title={'생성일'}
+            sorter={true}
+            render={(value: any) => (
+              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
+            )}
+          />
+        </Table>
+      </List>
+    </AuthorizePage>
+  );
+}
