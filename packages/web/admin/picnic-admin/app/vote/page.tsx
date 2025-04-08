@@ -209,6 +209,14 @@ export default function VoteList() {
             }}
           />
           <Table.Column
+            title='투표 노출'
+            render={(_, record: VoteRecord) => {
+              if (!record.visible_at) return '-';
+              return `${formatDate(record.visible_at, 'datetime')}`;  
+            }}
+          />
+
+          <Table.Column
             title='투표 기간'
             render={(_, record: VoteRecord) => {
               if (!record.start_at || !record.stop_at) return '-';
