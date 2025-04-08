@@ -11,7 +11,10 @@ class VideoInfo with _$VideoInfo {
     @JsonKey(name: 'video_url') required String videoUrl,
     @JsonKey(name: 'title') required Map<String, String> title,
     @JsonKey(name: 'thumbnail_url') required String thumbnailUrl,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'channel_title') required String channelTitle,
+    @JsonKey(name: 'channel_id') required String channelId,
+    @JsonKey(name: 'channel_thumbnail') required String channelThumbnail,
   }) = _VideoInfo;
 
   factory VideoInfo.fromJson(Map<String, dynamic> json) =>
