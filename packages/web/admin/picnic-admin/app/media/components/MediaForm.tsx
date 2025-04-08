@@ -31,26 +31,28 @@ const MediaForm: React.FC<MediaFormProps> = ({
   record,
 }: MediaFormProps) => {
   const { push } = useNavigation();
-  const [preview, setPreview] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [isUpdatingPreview, setIsUpdatingPreview] = useState(false);
 
-  // 비디오 ID로 미리보기 업데이트하는 함수
-  const handleUpdatePreview = useCallback(async (videoId: string) => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/youtube/${videoId}`);
-      const data = await response.json();
-      if (data.thumbnail) {
-        setPreview(data.thumbnail);
+  // 미리보기 업데이트 핸들러
+  const handleUpdatePreview = useCallback(
+    async (videoId: string) => {
+      if (!videoId) return;
+
+      try {
+        setIsUpdatingPreview(true);
+        const data = await updatePreview(videoId);
+        setPreviewData(data);
+      } catch (error) {
+        console.error('미리보기 업데이트 오류:', error);
+      } finally {
+        setIsUpdatingPreview(false);
       }
-    } catch (error) {
-      console.error('미리보기 업데이트 실패:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [setPreviewData],
+  );
 
-  // video_id가 변경되면 유튜브 미리보기 업데이트
+  // 비디오 ID 변경 시 미리보기 업데이트
   useEffect(() => {
     const videoId = formProps.form?.getFieldValue('video_id');
     if (videoId) {
@@ -191,7 +193,7 @@ const MediaForm: React.FC<MediaFormProps> = ({
       </Form.Item>
 
       {/* 유튜브 미리보기 표시 */}
-      {preview && (
+      {previewData && (
         <Card
           title='유튜브 비디오 미리보기'
           variant='outlined'
@@ -201,16 +203,13 @@ const MediaForm: React.FC<MediaFormProps> = ({
           <Space direction='vertical' style={{ width: '100%' }}>
             {/* 비디오 미리보기 - YoutubePreview 컴포넌트 사용 */}
             <YoutubePreview
-              videoUrl={`https://www.youtube.com/watch?v=${preview}`}
-              onChange={(data) => {
-                setPreview(data.videoId);
-              }}
+              videoUrl={`https://www.youtube.com/watch?v=${previewData.videoId}`}
             />
 
             {/* 썸네일 미리보기 */}
             <Card title='유튜브 썸네일 미리보기' size='small'>
               <Image
-                src={preview}
+                src={previewData.thumbnail}
                 alt='유튜브 썸네일'
                 style={{ maxWidth: 300, maxHeight: 200 }}
               />
@@ -239,6 +238,7 @@ const MediaForm: React.FC<MediaFormProps> = ({
                 src={getImageUrl(formProps.form.getFieldValue('thumbnail_url'))}
                 alt='커스텀 썸네일'
                 style={{ maxWidth: 300, maxHeight: 200 }}
+                preview={true}
               />
             </div>
           )}

@@ -163,6 +163,29 @@ export default function RootLayout({
                               },
                             },
                           },
+                          {
+                            name: 'config',
+                            list: '/config',
+                            create: '/config/create',
+                            edit: '/config/edit/:id',
+                            show: '/config/show/:id',
+                            meta: {
+                              label: '설정 관리',
+                              icon: <SettingOutlined />,
+                              list: {
+                                label: '설정 목록',
+                              },
+                              create: {
+                                label: '설정 추가',
+                              },
+                              edit: {
+                                label: '설정 수정',
+                              },
+                              show: {
+                                label: '설정 상세',
+                              },
+                            },
+                          },
                           // 관리 메뉴 (권한 관리 상위 메뉴) - 가장 아래로 이동
                           {
                             name: 'admin',

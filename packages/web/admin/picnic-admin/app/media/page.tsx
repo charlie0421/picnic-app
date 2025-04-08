@@ -9,16 +9,17 @@ import {
   DeleteButton,
 } from '@refinedev/antd';
 import { useNavigation } from '@refinedev/core';
-import { Table, Typography, Card, Space } from 'antd';
+import { Table, Typography, Card, Space, Button } from 'antd';
 import { getImageUrl } from '@/lib/image';
 import TableImage from '@/components/ui/TableImage';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-import Image from 'next/image';
 
 const { Link } = Typography;
 
 export default function MediaList() {
+  const { show, edit } = useNavigation();
+
   const { tableProps } = useTable({
     syncWithLocation: true,
     sorters: {
@@ -34,22 +35,12 @@ export default function MediaList() {
     },
   });
 
-  const { show } = useNavigation();
-
   return (
     <AuthorizePage resource='media' action='list'>
       <List>
         <Table
           {...tableProps}
           rowKey='id'
-          onRow={(record: any) => ({
-            onClick: () => {
-              if (record.id) {
-                show('media', record.id);
-              }
-            },
-            style: { cursor: 'pointer' },
-          })}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,
@@ -91,12 +82,11 @@ export default function MediaList() {
                       variant='outlined'
                       style={{ width: 200 }}
                     >
-                      <Image
+                      <TableImage
                         src={youtubeThumbnailUrl}
                         alt='유튜브 썸네일'
                         width={160}
                         height={90}
-                        style={{ objectFit: 'cover' }}
                       />
                     </Card>
                   )}
@@ -169,18 +159,48 @@ export default function MediaList() {
             render={(value: string) => {
               if (!value) return '-';
               return (
-                <Image
-                  src={getImageUrl(value)}
+                <TableImage
+                  src={value}
                   alt='미디어 이미지'
                   width={40}
                   height={40}
-                  style={{
-                    objectFit: 'cover',
-                    borderRadius: '4px',
-                  }}
+                  borderRadius='4px'
+                  objectFit='cover'
                 />
               );
             }}
+          />
+          <Table.Column
+            title='작업'
+            dataIndex='actions'
+            render={(_, record: any) => (
+              <Space size='middle'>
+                <ShowButton
+                  size='small'
+                  hideText={false}
+                  recordItemId={record.id}
+                  resource='media'
+                >
+                  보기
+                </ShowButton>
+                <EditButton
+                  size='small'
+                  hideText={false}
+                  recordItemId={record.id}
+                  resource='media'
+                >
+                  수정
+                </EditButton>
+                <DeleteButton
+                  size='small'
+                  hideText={false}
+                  recordItemId={record.id}
+                  resource='media'
+                >
+                  삭제
+                </DeleteButton>
+              </Space>
+            )}
           />
         </Table>
       </List>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Button, message } from 'antd';
+import { Upload, Button, message, Image } from 'antd';
 import {
   UploadOutlined,
   LoadingOutlined,
@@ -10,7 +10,6 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { uploadToS3, deleteFromS3 } from '@/lib/s3';
 import { getImageUrl } from '@/lib/image';
-import Image from 'next/image';
 
 interface ImageUploadProps {
   value?: string;
@@ -51,8 +50,7 @@ export default function ImageUpload({
     setImageLoading(true);
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    console.error('이미지 로드 오류:', e);
+  const handleImageError = () => {
     setImageLoading(false);
     message.error('이미지 로드에 실패했습니다.');
   };
@@ -155,8 +153,8 @@ export default function ImageUpload({
                   objectFit: 'contain',
                 }}
                 onLoad={handleImageLoad}
-                onLoadStart={handleImageLoadStart}
                 onError={handleImageError}
+                preview={true}
               />
             </div>
           ) : (

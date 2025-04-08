@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Form, Select, Table, Button, Space, Tag } from 'antd';
 import { useForm, useSelect } from '@refinedev/antd';
-import { useApiUrl } from '@refinedev/core';
 import {
   AdminRolePermission,
   AdminRole,
@@ -27,7 +26,6 @@ export default function RolePermissionForm({
   saveButtonProps,
 }: RolePermissionFormProps) {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-  const apiUrl = useApiUrl();
 
   // 역할 목록 가져오기
   const { selectProps: roleSelectProps } = useSelect<AdminRole>({

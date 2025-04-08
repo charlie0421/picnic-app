@@ -13,7 +13,6 @@ import {
   Descriptions,
   Space,
   Typography,
-  Image,
   Tabs,
   Divider,
   Skeleton,
@@ -27,6 +26,7 @@ import {
   ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import TableImage from '@/components/ui/TableImage';
 
 const { Title, Link } = Typography;
 
@@ -55,10 +55,12 @@ export default function MediaShow() {
             style={{ maxWidth: 600 }}
           >
             <div style={{ textAlign: 'left' }}>
-              <Image
+              <TableImage
                 src={youtubeThumbnailUrl}
                 alt='유튜브 썸네일'
-                style={{ maxWidth: '100%', maxHeight: 400 }}
+                width={600}
+                height={400}
+                objectFit='contain'
               />
             </div>
             <Divider />
@@ -88,10 +90,12 @@ export default function MediaShow() {
             style={{ maxWidth: 600 }}
           >
             <div style={{ textAlign: 'left' }}>
-              <Image
-                src={getImageUrl(record.thumbnail_url)}
+              <TableImage
+                src={record.thumbnail_url}
                 alt='데이터베이스 썸네일'
-                style={{ maxWidth: '100%', maxHeight: 400 }}
+                width={600}
+                height={400}
+                objectFit='contain'
               />
             </div>
             <Divider />
@@ -121,23 +125,23 @@ export default function MediaShow() {
       children: <TextField value={record?.id} />,
     },
     {
-      key: 'title-ko',
-      label: '제목 (한국어)',
+      key: 'title',
+      label: '제목',
       children: <TextField value={record?.title?.ko} />,
     },
     {
       key: 'title-en',
-      label: '제목 (영어)',
+      label: '제목 (English)',
       children: <TextField value={record?.title?.en} />,
     },
     {
       key: 'title-ja',
-      label: '제목 (일본어)',
+      label: '제목 (日本語)',
       children: <TextField value={record?.title?.ja} />,
     },
     {
       key: 'title-zh',
-      label: '제목 (중국어)',
+      label: '제목 (中文)',
       children: <TextField value={record?.title?.zh} />,
     },
     {

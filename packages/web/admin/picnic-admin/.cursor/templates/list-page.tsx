@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Table, Button, Space, message, Popconfirm } from 'antd';
 import { createSupabaseClient } from '../../lib/supabase';
-
 interface Props {
   tableName: string;
   columns: {
@@ -17,6 +16,18 @@ interface Props {
 
 export default function ListPage() {
   const tableName = '${dirname}';
+  const { tableProps } = useTable<Config>({
+    resource: 'config',
+    syncWithLocation: true,
+    sorters: {
+      initial: [
+        {
+          field: 'created_at',
+          order: 'desc',
+        },
+      ],
+    },
+  });
   const columns = [
     {
       title: '이름',
@@ -93,22 +104,24 @@ export default function ListPage() {
   const allColumns = [...columns, actionColumn];
 
   return (
-    <div className='container mx-auto py-10'>
-      <div className='flex justify-between items-center mb-6'>
-        <h1 className='text-3xl font-bold'>목록</h1>
-        <Button
-          type='primary'
-          onClick={() => router.push(`/${tableName}/create`)}
-        >
-          새로 만들기
-        </Button>
-      </div>
-      <Table
-        columns={allColumns}
-        dataSource={data}
-        rowKey='id'
-        loading={loading}
-      />
-    </div>
+    <AuthorizePage resource='${tableName}' action='list'>
+      <List
+        createButtonProps={{
+          children: '설정 추가',
+        }}
+      >
+        <Table
+          {...tableProps}
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
+          }}
+          columns={columns}
+          rowKey='id'
+        />
+      </List>
+    </AuthorizePage>
   );
 }
