@@ -8,7 +8,7 @@ import {
   AdminRolePermission,
   AdminRole,
   AdminPermission,
-} from '@/types/permission';
+} from '@/lib/types/permission';
 
 type RolePermissionFormProps = {
   mode: 'create' | 'edit';

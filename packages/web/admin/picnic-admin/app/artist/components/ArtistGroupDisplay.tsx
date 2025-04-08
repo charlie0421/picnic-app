@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Image, Card, Space, Tag, Row, Col } from 'antd';
-import { ArtistGroup } from '@/types/artist';
+import { ArtistGroup } from '@/lib/types/artist';
 import { getImageUrl } from '@/lib/image';
 import {
   CalendarOutlined,

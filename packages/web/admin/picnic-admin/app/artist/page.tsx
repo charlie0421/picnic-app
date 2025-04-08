@@ -5,8 +5,8 @@ import { Table, Button, Input, Space } from 'antd';
 import { useMany, useNavigation } from '@refinedev/core';
 import { useState } from 'react';
 import { getImageUrl } from '@/lib/image';
-import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
-import TableImage from '@/components/common/TableImage';
+import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
+import TableImage from '@/components/ui/TableImage';
 import { SearchOutlined } from '@ant-design/icons';
 
 export default function ArtistList() {

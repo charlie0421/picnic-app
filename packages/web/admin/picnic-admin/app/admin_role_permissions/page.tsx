@@ -13,7 +13,7 @@ import {
   AdminRolePermission,
   AdminRole,
   AdminPermission,
-} from '@/types/permission';
+} from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function RolePermissionList() {

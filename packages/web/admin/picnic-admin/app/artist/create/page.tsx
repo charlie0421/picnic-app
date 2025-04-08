@@ -4,10 +4,10 @@ import { Create, useForm } from '@refinedev/antd';
 import { Form, Select, DatePicker, Input, message } from 'antd';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import ImageUpload from '@/components/upload';
+import ImageUpload from '@/components/features/upload';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
 import { getImageUrl } from '@/lib/image';
-import MultiLanguageInput from '@/components/common/MultiLanguageInput';
+import MultiLanguageInput from '@/components/ui/MultiLanguageInput';
 
 export default function ArtistCreate() {
   const [groups, setGroups] = useState<any[]>([]);

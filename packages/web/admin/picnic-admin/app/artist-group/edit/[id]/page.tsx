@@ -5,7 +5,7 @@ import { Form, Input, Select, message, DatePicker } from 'antd';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useUpdate, useNavigation } from '@refinedev/core';
-import ImageUpload from '@/components/upload';
+import ImageUpload from '@/components/features/upload';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 

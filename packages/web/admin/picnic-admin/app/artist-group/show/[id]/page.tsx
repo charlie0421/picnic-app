@@ -8,8 +8,8 @@ import {
   DeleteButton,
 } from '@refinedev/antd';
 import { useShow, useMany, useNavigation } from '@refinedev/core';
-import { Typography, Image, Divider, theme, Grid, Space, Button } from 'antd';
-import { ArtistGroup, Artist } from '@/types/artist';
+import { Typography, Divider, theme, Grid, Space, Button } from 'antd';
+import { ArtistGroup, Artist } from '@/lib/types/artist';
 import { getImageUrl } from '@/lib/image';
 import { useParams } from 'next/navigation';
 import { dataProvider } from '@/providers/data-provider';
@@ -26,6 +26,7 @@ import dayjs from 'dayjs';
 import { Skeleton, Tooltip, Tag, Descriptions } from 'antd';
 import ArtistCard from '@/app/artist/components/ArtistCard';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import Image from 'next/image';
 
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -281,15 +282,14 @@ export default function ArtistGroupShow() {
               }}
             >
               {record?.image ? (
-                <img
+                <Image
                   src={getImageUrl(record.image)}
                   alt={record?.name?.ko}
-                  style={getImageStyle(token, { maxHeight: '300px' })}
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    if (e.currentTarget.parentElement) {
-                      e.currentTarget.parentElement.innerText = '-';
-                    }
+                  width={200}
+                  height={200}
+                  style={{
+                    objectFit: 'cover',
+                    borderRadius: '8px',
                   }}
                 />
               ) : (

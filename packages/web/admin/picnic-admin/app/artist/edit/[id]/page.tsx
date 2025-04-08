@@ -5,9 +5,10 @@ import { Form, Input, DatePicker, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useOne } from '@refinedev/core';
-import ImageUpload from '@/components/upload';
+import ImageUpload from '@/components/features/upload';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
 import { getImageUrl } from '@/lib/image';
+import MultiLanguageInput from '@/components/ui/MultiLanguageInput';
 
 export default function ArtistEdit() {
   const [groups, setGroups] = useState<any[]>([]);

@@ -2,7 +2,7 @@
 
 import { Form, Input } from 'antd';
 import { useForm } from '@refinedev/antd';
-import { AdminRole } from '@/types/permission';
+import { AdminRole } from '@/lib/types/permission';
 
 type RoleFormProps = {
   mode: 'create' | 'edit';

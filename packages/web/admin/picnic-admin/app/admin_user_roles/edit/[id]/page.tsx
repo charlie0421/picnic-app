@@ -4,7 +4,7 @@ import { Edit, useForm } from '@refinedev/antd';
 import { message } from 'antd';
 import { useParams } from 'next/navigation';
 import RoleUserForm from '@/app/admin_user_roles/components/RoleUserForm';
-import { AdminUserRole } from '@/types/permission';
+import { AdminUserRole } from '@/lib/types/permission';
 
 export default function RoleUserEdit() {
   const params = useParams();

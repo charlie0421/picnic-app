@@ -4,7 +4,7 @@ import { Edit, useForm } from '@refinedev/antd';
 import { message } from 'antd';
 import { useParams } from 'next/navigation';
 import PermissionForm from '@/app/admin_permissions/components/PermissionForm';
-import { AdminPermission } from '@/types/permission';
+import { AdminPermission } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function PermissionEdit() {

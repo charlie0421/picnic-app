@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useNavigation } from '@refinedev/core';
+import Image from 'next/image';
 
 import { getImageUrl } from '@/lib/image';
 import { type VoteRecord } from '@/lib/vote';
@@ -139,9 +140,11 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           </Title>
           {record?.main_image ? (
             <div style={{ marginBottom: '10px', textAlign: 'center' }}>
-              <img
+              <Image
                 src={`${getImageUrl(record.main_image)}?w=300`}
                 alt='메인 이미지'
+                width={300}
+                height={300}
                 style={getImageStyle(token, { maxHeight: '300px' })}
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';

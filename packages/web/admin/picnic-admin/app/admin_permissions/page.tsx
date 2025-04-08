@@ -10,7 +10,7 @@ import {
 } from '@refinedev/antd';
 import { useNavigation } from '@refinedev/core';
 import { Table, Space, Tag } from 'antd';
-import { AdminPermission } from '@/types/permission';
+import { AdminPermission } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function PermissionList() {

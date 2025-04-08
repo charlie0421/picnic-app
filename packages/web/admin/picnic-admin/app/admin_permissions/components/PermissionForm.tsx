@@ -2,7 +2,7 @@
 
 import { Form, Input, Select } from 'antd';
 import { useForm } from '@refinedev/antd';
-import { AdminPermission } from '@/types/permission';
+import { AdminPermission } from '@/lib/types/permission';
 
 // 액션 타입 옵션
 const ACTION_OPTIONS = [

@@ -4,7 +4,6 @@ import { DateField, Show, TextField, DeleteButton } from '@refinedev/antd';
 import { useShow, useNavigation } from '@refinedev/core';
 import {
   Typography,
-  Image,
   Divider,
   theme,
   Grid,
@@ -12,7 +11,7 @@ import {
   Space,
   Button,
 } from 'antd';
-import { Artist, ArtistGroup } from '@/types/artist';
+import { Artist, ArtistGroup } from '@/lib/types/artist';
 import { getImageUrl } from '@/lib/image';
 import { useParams } from 'next/navigation';
 import ArtistGroupDisplay from '@/app/artist/components/ArtistGroupDisplay';
@@ -28,6 +27,7 @@ import {
 import { COLORS } from '@/lib/theme';
 import { useEffect, useState } from 'react';
 import { dataProvider } from '@/providers/data-provider';
+import Image from 'next/image';
 
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -310,15 +310,14 @@ export default function ArtistShow() {
             }}
           >
             {record?.image ? (
-              <img
+              <Image
                 src={getImageUrl(record.image)}
-                alt={record?.name?.ko}
-                style={getImageStyle(token, { maxHeight: '300px' })}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  if (e.currentTarget.parentElement) {
-                    e.currentTarget.parentElement.innerText = '-';
-                  }
+                alt={record?.name?.ko || '아티스트 이미지'}
+                width={200}
+                height={200}
+                style={{
+                  objectFit: 'cover',
+                  borderRadius: '8px',
                 }}
               />
             ) : (

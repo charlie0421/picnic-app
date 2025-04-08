@@ -1,4 +1,4 @@
-import { AuthPage } from '@/components/auth-page';
+import { AuthPage } from '@/components/auth';
 import { authProviderServer } from '@/providers/auth-provider/auth-provider.server';
 import { redirect } from 'next/navigation';
 

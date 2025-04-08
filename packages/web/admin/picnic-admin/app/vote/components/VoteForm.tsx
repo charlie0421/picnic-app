@@ -19,13 +19,14 @@ import { useEffect, useState } from 'react';
 import { useNavigation, useCreate, useUpdate } from '@refinedev/core';
 import { getImageUrl } from '@/lib/image';
 import { VOTE_CATEGORIES, type VoteRecord } from '@/lib/vote';
-import { VoteItem } from '@/types/vote';
+import { VoteItem } from '@/lib/types/vote';
 import dayjs from 'dayjs';
 import { COLORS } from '@/lib/theme';
-import ArtistSelector from '@/components/artist-selector';
-import ImageUpload from '@/components/upload';
+import ArtistSelector from '@/components/features/artist-selector';
+import ImageUpload from '@/components/features/upload';
 import ArtistCard from '@/app/artist/components/ArtistCard';
 import React from 'react';
+import Image from 'next/image';
 
 type VoteFormProps = {
   mode: 'create' | 'edit';
@@ -189,12 +190,12 @@ export default function VoteForm({
       render: (image: string | undefined) =>
         image ? (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <img
+            <Image
               src={getImageUrl(image)}
               alt='아티스트 이미지'
+              width={40}
+              height={40}
               style={{
-                width: '40px',
-                height: '40px',
                 objectFit: 'cover',
                 borderRadius: '50%',
               }}

@@ -11,9 +11,10 @@ import {
 import { useNavigation } from '@refinedev/core';
 import { Table, Typography, Card, Space } from 'antd';
 import { getImageUrl } from '@/lib/image';
-import TableImage from '@/components/common/TableImage';
-import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
+import TableImage from '@/components/ui/TableImage';
+import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import Image from 'next/image';
 
 const { Link } = Typography;
 
@@ -90,7 +91,7 @@ export default function MediaList() {
                       variant='outlined'
                       style={{ width: 200 }}
                     >
-                      <img
+                      <Image
                         src={youtubeThumbnailUrl}
                         alt='유튜브 썸네일'
                         width={160}
@@ -161,6 +162,25 @@ export default function MediaList() {
             render={(value: any) => (
               <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
             )}
+          />
+          <Table.Column
+            dataIndex='main_image'
+            title='이미지'
+            render={(value: string) => {
+              if (!value) return '-';
+              return (
+                <Image
+                  src={getImageUrl(value)}
+                  alt='미디어 이미지'
+                  width={40}
+                  height={40}
+                  style={{
+                    objectFit: 'cover',
+                    borderRadius: '4px',
+                  }}
+                />
+              );
+            }}
           />
         </Table>
       </List>

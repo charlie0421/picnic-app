@@ -4,7 +4,7 @@ import { Create, useForm } from '@refinedev/antd';
 // import { useCan } from '@refinedev/core'; // 제거
 import { message /* Spin, Result 제거 */ } from 'antd';
 import RoleUserForm from '@/app/admin_user_roles/components/RoleUserForm';
-import { AdminUserRole } from '@/types/permission';
+import { AdminUserRole } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage'; // 임포트
 
 export default function RoleUserCreate() {

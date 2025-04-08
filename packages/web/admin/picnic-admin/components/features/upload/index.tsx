@@ -10,6 +10,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { uploadToS3, deleteFromS3 } from '@/lib/s3';
 import { getImageUrl } from '@/lib/image';
+import Image from 'next/image';
 
 interface ImageUploadProps {
   value?: string;
@@ -144,10 +145,15 @@ export default function ImageUpload({
                   <div className='loading-text'>이미지 로딩 중...</div>
                 </div>
               )}
-              <img
+              <Image
                 src={getImageUrl(imageUrl)}
                 alt='Preview'
-                style={{ width, height, objectFit: 'cover' }}
+                width={200}
+                height={200}
+                style={{
+                  maxWidth: '100%',
+                  objectFit: 'contain',
+                }}
                 onLoad={handleImageLoad}
                 onLoadStart={handleImageLoadStart}
                 onError={handleImageError}

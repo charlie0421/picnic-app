@@ -4,10 +4,10 @@ import { Create, useForm } from '@refinedev/antd';
 import { Form, DatePicker, message } from 'antd';
 import { useState } from 'react';
 import { useCreate, useNavigation } from '@refinedev/core';
-import ImageUpload from '@/components/upload';
+import ImageUpload from '@/components/features/upload';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import MultiLanguageInput from '@/components/common/MultiLanguageInput';
+import MultiLanguageInput from '@/components/ui/MultiLanguageInput';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 dayjs.extend(utc);

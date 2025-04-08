@@ -4,8 +4,8 @@ import { List, useTable } from '@refinedev/antd';
 import { Table, Space, Input } from 'antd';
 import { useState } from 'react';
 import dayjs from 'dayjs';
-import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
-import TableImage from '@/components/common/TableImage';
+import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
+import TableImage from '@/components/ui/TableImage';
 import { useNavigation } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 

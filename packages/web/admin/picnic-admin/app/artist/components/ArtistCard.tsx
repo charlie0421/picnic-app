@@ -7,9 +7,10 @@ import {
 } from '@ant-design/icons';
 import { theme, Button, Tag } from 'antd';
 import dayjs from 'dayjs';
-import { Artist } from '@/types/artist';
+import { Artist } from '@/lib/types/artist';
 import { getImageUrl } from '@/lib/image';
 import { COLORS } from '@/lib/theme';
+import Image from 'next/image';
 
 interface ArtistCardProps {
   artist: Artist;
@@ -103,24 +104,15 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
       >
         <div style={{ textAlign: 'center' }}>
           {artist?.image ? (
-            <img
-              src={`${getImageUrl(artist.image)}?w=100`}
+            <Image
+              src={getImageUrl(artist.image)}
               alt='아티스트 이미지'
+              width={200}
+              height={200}
               style={{
-                width: '100px',
-                height: '100px',
+                width: '100%',
                 objectFit: 'cover',
-                borderRadius: '50%',
-                border: `2px solid ${COLORS.primary}`,
-                boxShadow: `0 2px 8px rgba(0, 0, 0, ${
-                  token.colorBgMask === '#000000' ? 0.15 : 0.08
-                })`,
-              }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                if (e.currentTarget.nextElementSibling instanceof HTMLElement) {
-                  e.currentTarget.nextElementSibling.style.display = 'block';
-                }
+                borderRadius: '8px',
               }}
             />
           ) : (
@@ -239,9 +231,11 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
               }}
             >
               {artist.artist_group.image ? (
-                <img
+                <Image
                   src={`${getImageUrl(artist.artist_group.image)}?w=30`}
                   alt='그룹 이미지'
+                  width={30}
+                  height={30}
                   style={{
                     width: '30px',
                     height: '30px',

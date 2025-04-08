@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Form, Input, Card, Space, Image, Divider, Typography } from 'antd';
 import { useForm } from '@refinedev/antd';
 import { useNavigation } from '@refinedev/core';
-import { YoutubePreview } from '@/components/youtube-preview';
-import ImageUpload from '@/components/upload';
+import { YoutubePreview } from '@/components/features/youtube-preview';
+import ImageUpload from '@/components/features/upload';
 import { getImageUrl } from '@/lib/image';
 import { updatePreview } from '@/lib/media';
 
@@ -18,21 +18,37 @@ type MediaFormProps = {
   saveButtonProps: ReturnType<typeof useForm<any>>['saveButtonProps'];
   onFinish?: (values: any) => Promise<any>;
   redirectPath?: string;
+  record?: any;
 };
 
-export default function MediaForm({
+const MediaForm: React.FC<MediaFormProps> = ({
   mode,
   id,
   formProps,
   saveButtonProps,
   onFinish,
   redirectPath,
-}: MediaFormProps) {
+  record,
+}: MediaFormProps) => {
   const { push } = useNavigation();
-  const [youtubeData, setYoutubeData] = useState<{
-    videoId: string;
-    thumbnailUrl: string;
-  }>({ videoId: '', thumbnailUrl: '' });
+  const [preview, setPreview] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 비디오 ID로 미리보기 업데이트하는 함수
+  const handleUpdatePreview = useCallback(async (videoId: string) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/youtube/${videoId}`);
+      const data = await response.json();
+      if (data.thumbnail) {
+        setPreview(data.thumbnail);
+      }
+    } catch (error) {
+      console.error('미리보기 업데이트 실패:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   // video_id가 변경되면 유튜브 미리보기 업데이트
   useEffect(() => {
@@ -40,7 +56,7 @@ export default function MediaForm({
     if (videoId) {
       handleUpdatePreview(videoId);
     }
-  }, [formProps.form]);
+  }, [formProps.form, handleUpdatePreview]);
 
   // 편집 모드에서 초기 데이터 설정
   useEffect(() => {
@@ -54,13 +70,19 @@ export default function MediaForm({
         handleUpdatePreview(videoId);
       }
     }
-  }, [mode, formProps.form, formProps.initialValues]);
+  }, [mode, formProps.form, formProps.initialValues, handleUpdatePreview]);
 
-  // 비디오 ID로 미리보기 업데이트하는 함수
-  const handleUpdatePreview = (videoId: string) => {
-    const result = updatePreview(videoId, formProps.form);
-    setYoutubeData(result);
-  };
+  useEffect(() => {
+    if (record?.image) {
+      handleUpdatePreview(record.image);
+    }
+  }, [record?.image, handleUpdatePreview]);
+
+  useEffect(() => {
+    if (record?.video) {
+      handleUpdatePreview(record.video);
+    }
+  }, [record?.video, handleUpdatePreview]);
 
   return (
     <Form
@@ -169,7 +191,7 @@ export default function MediaForm({
       </Form.Item>
 
       {/* 유튜브 미리보기 표시 */}
-      {youtubeData.videoId && (
+      {preview && (
         <Card
           title='유튜브 비디오 미리보기'
           variant='outlined'
@@ -179,16 +201,16 @@ export default function MediaForm({
           <Space direction='vertical' style={{ width: '100%' }}>
             {/* 비디오 미리보기 - YoutubePreview 컴포넌트 사용 */}
             <YoutubePreview
-              videoUrl={`https://www.youtube.com/watch?v=${youtubeData.videoId}`}
+              videoUrl={`https://www.youtube.com/watch?v=${preview}`}
               onChange={(data) => {
-                setYoutubeData(data);
+                setPreview(data.videoId);
               }}
             />
 
             {/* 썸네일 미리보기 */}
             <Card title='유튜브 썸네일 미리보기' size='small'>
               <Image
-                src={youtubeData.thumbnailUrl}
+                src={preview}
                 alt='유튜브 썸네일'
                 style={{ maxWidth: 300, maxHeight: 200 }}
               />
@@ -246,4 +268,6 @@ export default function MediaForm({
       </Card>
     </Form>
   );
-}
+};
+
+export default MediaForm;

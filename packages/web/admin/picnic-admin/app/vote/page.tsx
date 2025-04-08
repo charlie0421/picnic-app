@@ -24,8 +24,8 @@ import {
   type VoteRecord,
 } from '@/lib/vote';
 import { formatDate } from '@/lib/date';
-import MultiLanguageDisplay from '@/components/common/MultiLanguageDisplay';
-import TableImage from '@/components/common/TableImage';
+import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
+import TableImage from '@/components/ui/TableImage';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function VoteList() {

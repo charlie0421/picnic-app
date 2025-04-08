@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Form, Select, Input } from 'antd';
 import { useForm, useSelect } from '@refinedev/antd';
-import { AdminUserRole, AdminRole } from '@/types/permission';
+import { AdminUserRole, AdminRole } from '@/lib/types/permission';
 
 type RoleUserFormProps = {
   mode: 'create' | 'edit';

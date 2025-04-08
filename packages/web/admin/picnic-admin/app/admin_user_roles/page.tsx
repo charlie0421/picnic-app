@@ -9,7 +9,7 @@ import {
 } from '@refinedev/antd';
 import { useNavigation, useMany } from '@refinedev/core';
 import { Table, Space, Tag } from 'antd';
-import { AdminUserRole, AdminRole } from '@/types/permission';
+import { AdminUserRole, AdminRole } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function RoleUserList() {
