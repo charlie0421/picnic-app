@@ -6,7 +6,7 @@ import { useForm } from '@refinedev/antd';
 import { useNavigation } from '@refinedev/core';
 import { YoutubePreview } from '@/components/features/youtube-preview';
 import ImageUpload from '@/components/features/upload';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import { updatePreview } from '@/lib/media';
 
 const { Text } = Typography;
@@ -235,7 +235,7 @@ const MediaForm: React.FC<MediaFormProps> = ({
                 현재 커스텀 썸네일:
               </Text>
               <Image
-                src={getImageUrl(formProps.form.getFieldValue('thumbnail_url'))}
+                src={getCdnImageUrl(formProps.form.getFieldValue('thumbnail_url'))}
                 alt='커스텀 썸네일'
                 style={{ maxWidth: 300, maxHeight: 200 }}
                 preview={true}

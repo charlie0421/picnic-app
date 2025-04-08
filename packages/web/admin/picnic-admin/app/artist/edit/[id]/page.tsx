@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useOne } from '@refinedev/core';
 import ImageUpload from '@/components/features/upload';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import MultiLanguageInput from '@/components/ui/MultiLanguageInput';
 
 export default function ArtistEdit() {
@@ -234,7 +234,7 @@ export default function ArtistEdit() {
             },
           ]}
           getValueProps={(value) => ({
-            value: value ? getImageUrl(value) : undefined,
+            value: value ? getCdnImageUrl(value) : undefined,
           })}
         >
           <ImageUpload />

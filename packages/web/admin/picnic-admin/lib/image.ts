@@ -1,4 +1,4 @@
-export const getImageUrl = (path: string): string => {
+export const getCdnImageUrl = (path: string, width?: number): string => {
   const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL;
 
   if (!path) {
@@ -16,6 +16,6 @@ export const getImageUrl = (path: string): string => {
     return path;
   }
 
-  const fullUrl = `${cdnUrl}/${path}`;
+  const fullUrl = `${cdnUrl}/${path}?${width ? `w=${width}` : ''}`;
   return fullUrl;
 };

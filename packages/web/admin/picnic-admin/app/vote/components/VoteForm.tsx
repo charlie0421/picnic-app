@@ -17,7 +17,7 @@ import {
 import { DeleteOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigation, useCreate, useUpdate } from '@refinedev/core';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import { VOTE_CATEGORIES, type VoteRecord } from '@/lib/vote';
 import { VoteItem } from '@/lib/types/vote';
 import dayjs from 'dayjs';
@@ -191,7 +191,7 @@ export default function VoteForm({
         image ? (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Image
-              src={getImageUrl(image)}
+              src={getCdnImageUrl(image)}
               alt='아티스트 이미지'
               width={40}
               height={40}

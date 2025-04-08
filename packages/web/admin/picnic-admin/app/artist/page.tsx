@@ -4,7 +4,7 @@ import { List, useTable } from '@refinedev/antd';
 import { Table, Button, Input, Space } from 'antd';
 import { useMany, useNavigation } from '@refinedev/core';
 import { useState } from 'react';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import TableImage from '@/components/ui/TableImage';
 import { SearchOutlined } from '@ant-design/icons';

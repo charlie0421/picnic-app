@@ -18,7 +18,7 @@ import {
   Skeleton,
   Button,
 } from 'antd';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import React from 'react';
 import {
   EditOutlined,

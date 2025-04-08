@@ -10,7 +10,7 @@ import {
 import { useShow, useMany, useNavigation } from '@refinedev/core';
 import { Typography, Divider, theme, Grid, Space, Button } from 'antd';
 import { ArtistGroup, Artist } from '@/lib/types/artist';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import { useParams } from 'next/navigation';
 import { dataProvider } from '@/providers/data-provider';
 import { useState, useEffect } from 'react';
@@ -283,7 +283,7 @@ export default function ArtistGroupShow() {
             >
               {record?.image ? (
                 <Image
-                  src={getImageUrl(record.image)}
+                  src={getCdnImageUrl(record.image)}
                   alt={record?.name?.ko}
                   width={200}
                   height={200}

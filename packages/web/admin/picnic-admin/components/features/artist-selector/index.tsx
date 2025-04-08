@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Select, Space, Modal, Button, message } from 'antd';
 import { useList } from '@refinedev/core';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import { VoteItem } from '@/lib/types/vote';
 import { Artist, ArtistGroup } from '@/lib/types/artist';
 import { PlusOutlined } from '@ant-design/icons';

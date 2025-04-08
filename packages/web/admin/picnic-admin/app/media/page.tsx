@@ -10,7 +10,7 @@ import {
 } from '@refinedev/antd';
 import { useNavigation } from '@refinedev/core';
 import { Table, Typography, Card, Space, Button } from 'antd';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import TableImage from '@/components/ui/TableImage';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';

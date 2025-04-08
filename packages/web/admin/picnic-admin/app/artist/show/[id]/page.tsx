@@ -12,7 +12,7 @@ import {
   Button,
 } from 'antd';
 import { Artist, ArtistGroup } from '@/lib/types/artist';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import { useParams } from 'next/navigation';
 import ArtistGroupDisplay from '@/app/artist/components/ArtistGroupDisplay';
 import {
@@ -311,7 +311,7 @@ export default function ArtistShow() {
           >
             {record?.image ? (
               <Image
-                src={getImageUrl(record.image)}
+                src={getCdnImageUrl(record.image)}
                 alt={record?.name?.ko || '아티스트 이미지'}
                 width={200}
                 height={200}

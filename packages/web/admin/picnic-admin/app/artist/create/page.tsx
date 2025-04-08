@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import ImageUpload from '@/components/features/upload';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import MultiLanguageInput from '@/components/ui/MultiLanguageInput';
 
 export default function ArtistCreate() {

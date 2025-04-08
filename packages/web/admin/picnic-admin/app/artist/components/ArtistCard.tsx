@@ -8,7 +8,7 @@ import {
 import { theme, Button, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { Artist } from '@/lib/types/artist';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import { COLORS } from '@/lib/theme';
 import Image from 'next/image';
 
@@ -105,7 +105,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
         <div style={{ textAlign: 'center' }}>
           {artist?.image ? (
             <Image
-              src={getImageUrl(artist.image)}
+              src={getCdnImageUrl(artist.image)}
               alt='아티스트 이미지'
               width={200}
               height={200}
@@ -232,7 +232,7 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
             >
               {artist.artist_group.image ? (
                 <Image
-                  src={`${getImageUrl(artist.artist_group.image)}?w=30`}
+                  src={`${getCdnImageUrl(artist.artist_group.image)}?w=30`}
                   alt='그룹 이미지'
                   width={30}
                   height={30}

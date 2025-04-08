@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { useNavigation } from '@refinedev/core';
 import Image from 'next/image';
 
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import { type VoteRecord } from '@/lib/vote';
 import { formatDate } from '@/lib/date';
 import {
@@ -141,7 +141,7 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           {record?.main_image ? (
             <div style={{ marginBottom: '10px', textAlign: 'center' }}>
               <Image
-                src={`${getImageUrl(record.main_image)}?w=300`}
+                src={`${getCdnImageUrl(record.main_image)}?w=300`}
                 alt='메인 이미지'
                 width={300}
                 height={300}

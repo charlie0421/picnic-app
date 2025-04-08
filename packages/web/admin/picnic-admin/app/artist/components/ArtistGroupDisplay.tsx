@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Image, Card, Space, Tag, Row, Col } from 'antd';
 import { ArtistGroup } from '@/lib/types/artist';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 import {
   CalendarOutlined,
   TeamOutlined,
@@ -67,7 +67,7 @@ const ArtistGroupDisplay: React.FC<ArtistGroupDisplayProps> = ({
         {showImage && group.image && (
           <Col xs={24} sm={6} md={5} lg={4}>
             <Image
-              src={getImageUrl(group.image)}
+              src={getCdnImageUrl(group.image)}
               alt={nameKo || '그룹 이미지'}
               style={{
                 width: '100%',

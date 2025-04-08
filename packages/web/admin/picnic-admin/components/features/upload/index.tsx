@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadToS3, deleteFromS3 } from '@/lib/s3';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 
 interface ImageUploadProps {
   value?: string;
@@ -144,7 +144,7 @@ export default function ImageUpload({
                 </div>
               )}
               <Image
-                src={getImageUrl(imageUrl)}
+                src={getCdnImageUrl(imageUrl)}
                 alt='Preview'
                 width={200}
                 height={200}

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Image } from 'antd';
-import { getImageUrl } from '@/lib/image';
+import { getCdnImageUrl } from '@/lib/image';
 
 interface TableImageProps {
   src?: string;
@@ -29,7 +29,7 @@ export const TableImage: React.FC<TableImageProps> = ({
 
   return (
     <Image
-      src={getImageUrl(src)}
+      src={getCdnImageUrl(src)}
       alt={alt}
       width={width}
       height={height}
