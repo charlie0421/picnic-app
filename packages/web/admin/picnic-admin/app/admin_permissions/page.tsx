@@ -4,12 +4,9 @@ import {
   List,
   useTable,
   DateField,
-  ShowButton,
-  EditButton,
-  DeleteButton,
   CreateButton,
 } from '@refinedev/antd';
-import { useNavigation } from '@refinedev/core';
+import { useNavigation, } from '@refinedev/core';
 import { Table, Space, Tag } from 'antd';
 import { AdminPermission } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
@@ -79,26 +76,6 @@ export default function PermissionList() {
             sorter={true}
             render={(value) => (
               <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
-            )}
-          />
-          <Table.Column
-            title='작업'
-            dataIndex='actions'
-            render={(_, record: AdminPermission) => (
-              <Space size='middle'>
-                <EditButton
-                  resource='admin_permissions'
-                  hideText
-                  size='small'
-                  recordItemId={record.id}
-                />
-                <DeleteButton
-                  resource='admin_permissions'
-                  hideText
-                  size='small'
-                  recordItemId={record.id}
-                />
-              </Space>
             )}
           />
         </Table>

@@ -1,7 +1,8 @@
 'use client';
 
-import { Form, Input, Select } from 'antd';
+import { Form, Input, Select, message } from 'antd';
 import { useForm } from '@refinedev/antd';
+import { useList } from '@refinedev/core';
 import { AdminPermission } from '@/lib/types/permission';
 
 // 액션 타입 옵션
@@ -11,16 +12,6 @@ const ACTION_OPTIONS = [
   { label: '수정', value: 'update' },
   { label: '삭제', value: 'delete' },
   { label: '모든 권한', value: '*' },
-];
-
-// 리소스 옵션
-const RESOURCE_OPTIONS = [
-  { label: '아티스트', value: 'artists' },
-  { label: '미디어', value: 'media' },
-  { label: '투표', value: 'votes' },
-  { label: '권한', value: 'permissions' },
-  { label: '역할', value: 'roles' },
-  { label: '사용자', value: 'users' },
 ];
 
 type PermissionFormProps = {
@@ -39,11 +30,38 @@ export default function PermissionForm({
   formProps,
   saveButtonProps,
 }: PermissionFormProps) {
+  // 기존 권한 목록 조회
+  const { data: existingPermissions } = useList<AdminPermission>({
+    resource: 'admin_permissions',
+  });
+
+  // Form 제출 전 중복 체크
+  const handleFinish = async (values: any) => {
+    // 현재 수정 중인 권한 ID (수정 모드일 경우)
+    const currentId = formProps.initialValues?.id;
+
+    // 동일한 리소스-액션 조합이 있는지 확인
+    const isDuplicate = existingPermissions?.data?.some(
+      (permission) =>
+        permission.resource === values.resource &&
+        permission.action === values.action &&
+        permission.id !== currentId // 수정 시 자기 자신은 제외
+    );
+
+    if (isDuplicate) {
+      message.error('이미 존재하는 리소스-액션 조합입니다.');
+      return false;
+    }
+
+    return formProps.onFinish?.(values);
+  };
+
   return (
     <Form
       {...formProps}
       layout='vertical'
       initialValues={formProps.initialValues || {}}
+      onFinish={handleFinish}
     >
       <Form.Item
         label='리소스'
@@ -51,16 +69,11 @@ export default function PermissionForm({
         rules={[
           {
             required: true,
-            message: '리소스를 선택해 주세요',
+            message: '리소스를 입력해 주세요',
           },
         ]}
       >
-        <Select
-          placeholder='리소스를 선택하세요'
-          options={RESOURCE_OPTIONS}
-          showSearch
-          allowClear
-        />
+        <Input placeholder='리소스를 입력하세요' />
       </Form.Item>
 
       <Form.Item

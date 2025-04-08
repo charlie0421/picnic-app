@@ -25,7 +25,7 @@ export default function RolePermissionForm({
   formProps,
   saveButtonProps,
 }: RolePermissionFormProps) {
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [selectedPermission, setSelectedPermission] = useState<string | null>(null);
 
   // 역할 목록 가져오기
   const { selectProps: roleSelectProps } = useSelect<AdminRole>({
@@ -46,9 +46,7 @@ export default function RolePermissionForm({
     if (mode === 'edit' && formProps.initialValues) {
       const { role_id, permission_id } = formProps.initialValues;
       formProps.form?.setFieldsValue({ role_id, permission_id });
-      setSelectedPermissions(
-        Array.isArray(permission_id) ? permission_id : [permission_id],
-      );
+      setSelectedPermission(permission_id);
     }
   }, [mode, formProps.initialValues, formProps.form]);
 
@@ -91,64 +89,11 @@ export default function RolePermissionForm({
           {...permissionSelectProps}
           showSearch
           allowClear
-          mode='multiple'
-          onChange={(values) => {
-            setSelectedPermissions(values as unknown as string[]);
+          onChange={(value) => {
+            setSelectedPermission(value ? value.toString() : null);
           }}
         />
       </Form.Item>
-
-      {selectedPermissions.length > 0 && (
-        <Table
-          dataSource={selectedPermissions.map((id) => {
-            const perm = permissionSelectProps.options?.find(
-              (option) => option.value === id,
-            );
-            return {
-              id,
-              label: perm?.label,
-              option: perm,
-            };
-          })}
-          rowKey='id'
-          size='small'
-          pagination={false}
-          style={{ marginBottom: 16 }}
-        >
-          <Table.Column title='ID' dataIndex='id' />
-          <Table.Column
-            title='권한 정보'
-            dataIndex='option'
-            render={(option: any) => (
-              <Space>
-                <Tag color='blue'>{option?.resource}</Tag>
-                <Tag color='green'>{option?.action}</Tag>
-                <span>{option?.description}</span>
-              </Space>
-            )}
-          />
-          <Table.Column
-            title='작업'
-            render={(_, record: any) => (
-              <Button
-                danger
-                size='small'
-                onClick={() => {
-                  const newPermissions = selectedPermissions.filter(
-                    (id) => id !== record.id,
-                  );
-                  setSelectedPermissions(newPermissions);
-                  formProps.form?.setFieldsValue({
-                    permission_id: newPermissions,
-                  });
-                }}
-              >
-                삭제
-              </Button>
-            )}
-          />
-        </Table>
-      )}
     </Form>
   );
 }
