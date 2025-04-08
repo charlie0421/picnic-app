@@ -61,9 +61,6 @@ export const Header: React.FC<RefineThemedLayoutV2HeaderProps> = ({
           <Space style={{ marginLeft: '8px' }} size='middle'>
             {user.email && <Text strong>{user.email}</Text>}
             {user.avatar && <Avatar src={user.avatar} alt={user.name} />}
-            <Button type='text' onClick={() => logout()}>
-              로그아웃
-            </Button>
           </Space>
         )}
       </Space>
