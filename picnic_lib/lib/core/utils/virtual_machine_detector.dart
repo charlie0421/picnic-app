@@ -90,6 +90,7 @@ class VirtualMachineDetector {
         final ttl = await _getTTL();
         final macAddress = await _getMacAddress();
         final hasSensors = await _checkSensors();
+        final processorCount = await _getCpuCores();
 
         // 체크 수행
         final buildInfo =
@@ -452,7 +453,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
         'has_vm_keywords': vmMatches.isNotEmpty,
         'has_bluestacks_keywords': bluestacksMatches.isNotEmpty,
         'suspicious_hardware': hardwareMatches.isNotEmpty || suspiciousHardware,
-        'suspicious_manufacturer': manufacturerMatches.isNotEmpty 
+        'suspicious_manufacturer': manufacturerMatches.isNotEmpty
       },
     );
   }
@@ -472,19 +473,29 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
         cpuInfo.toLowerCase().contains('virtual') ||
         cpuInfo.toLowerCase().contains('qemu');
 
-    // CPU 코어 수 체크 (보통 가상머신은 1-2개 코어 사용)
-    final cpuCores = _getCpuCores(cpuInfo);
-    final suspiciousCores = cpuCores != null && cpuCores <= 2;
-
-    return suspiciousCpu || !hasSensors || suspiciousCores;
+    return suspiciousCpu || !hasSensors;
   }
 
-  static int? _getCpuCores(String cpuInfo) {
+  static Future<int?> _getCpuCores() async {
     try {
-      final processorCount =
-          RegExp(r'processor\s+:\s+\d+').allMatches(cpuInfo).length;
-      return processorCount > 0 ? processorCount : null;
+      final file = File('/proc/cpuinfo');
+      final cpuInfo = await file.readAsString();
+
+      // processor 라인을 찾아서 개수를 세는 방식
+      final processorCount = cpuInfo
+          .split('\n')
+          .where((line) => line.trim().toLowerCase().startsWith('processor'))
+          .length;
+
+      if (processorCount == 0) {
+        // processor 라인이 없는 경우, CPU 코어 수를 직접 가져오기
+        final androidInfo = await _deviceInfo.androidInfo;
+        return androidInfo.supportedAbis.length;
+      }
+
+      return processorCount;
     } catch (e) {
+      logger.e('CPU 코어 수 가져오기 실패:', error: e);
       return null;
     }
   }
@@ -574,6 +585,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
     try {
       final buildCheckResults =
           await _getBuildCheckResults(androidInfo, configs);
+      final processorCount = await _getCpuCores();
 
       logger.i('Sentry 리포트 전송 시작...');
 
@@ -597,6 +609,7 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
                 'fingerprint': androidInfo.fingerprint,
                 'host': androidInfo.host,
                 'is_physical_device': androidInfo.isPhysicalDevice,
+                'processor_count': processorCount,
               },
             },
             'detection_details': {
