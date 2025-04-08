@@ -1,7 +1,7 @@
 {
   "name": "youtube-watching-history",
   "version": "1.0.0",
-  "main": "index.ts",
+  "private": true,
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
@@ -12,18 +12,17 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "dependencies": {
+    "@googleapis/youtube": "^24.0.0",
+    "@supabase/supabase-js": "^2.39.3",
+    "dotenv": "^16.4.7",
+    "google-auth-library": "^9.15.1",
+    "openai": "^4.0.0"
+  },
   "devDependencies": {
     "@types/node": "^22.13.5",
-    "@types/puppeteer": "^5.4.7",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
-  },
-  "dependencies": {
-    "@googleapis/youtube": "^24.0.0",
-    "@tensorflow/tfjs-node": "^4.22.0",
-    "dotenv": "^16.4.7",
-    "google-auth-library": "^9.15.1",
-    "puppeteer": "^24.3.0"
   }
 }

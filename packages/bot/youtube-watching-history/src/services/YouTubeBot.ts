@@ -6,8 +6,8 @@ import * as path from 'path';
 const canvas = require("canvas");
 
 export class YouTubeBot {
-  private browser: Browser | null = null;
-  private page: Page | null = null;
+  protected browser: Browser | null = null;
+  protected page: Page | null = null;
   private credentials: { email: string; password: string } | null = null;
   private watchedVideos: Map<string, { title: string; timestamp: number }> = new Map();
 
@@ -479,7 +479,7 @@ export class YouTubeBot {
     this.page = null;
   }
 
-  private async sleep(ms: number) {
+  protected async sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
