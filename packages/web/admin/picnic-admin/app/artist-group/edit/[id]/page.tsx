@@ -4,7 +4,7 @@ import { Edit, useForm } from '@refinedev/antd';
 import { Form, Input, Select, message, DatePicker } from 'antd';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useUpdate, useNavigation } from '@refinedev/core';
+import { useUpdate, useNavigation, useResource } from '@refinedev/core';
 import ImageUpload from '@/components/features/upload';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -93,9 +93,12 @@ export default function ArtistGroupEdit() {
     }
   };
 
+  const { resource } = useResource();
   return (
     <Edit
-      title='아티스트 그룹 수정'
+      breadcrumb={false}
+      goBack={false}
+      title={resource?.meta?.edit?.label}
       saveButtonProps={{
         ...saveButtonProps,
         onClick: handleSave,

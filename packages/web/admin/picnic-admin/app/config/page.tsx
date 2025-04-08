@@ -7,6 +7,7 @@ import {
   ShowButton,
   EditButton,
   DeleteButton,
+  CreateButton,
 } from '@refinedev/antd';
 import { useNavigation } from '@refinedev/core';
 import { Table, Space } from 'antd';
@@ -34,15 +35,21 @@ export default function ConfigList() {
 
   return (
     <AuthorizePage resource='config' action='list'>
-      <List
-        createButtonProps={{
-          onClick: () => create('config'),
-          children: '설정 추가',
-        }}
+      <List 
+        breadcrumb={false}
+        headerButtons={<CreateButton />}
       >
         <Table
           {...tableProps}
           rowKey='id'
+          onRow={(record) => {
+            return {
+              style: {
+                cursor: 'pointer',
+              },
+              onClick: () => show('config', record.id),
+            };
+          }}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,
@@ -53,48 +60,16 @@ export default function ConfigList() {
           <Table.Column
             dataIndex='id'
             title='ID'
-            render={(value) => value?.substring(0, 8)}
           />
-          <Table.Column dataIndex='key' title='키' />
+          <Table.Column dataIndex='key' title='키' width={200} />
           <Table.Column dataIndex='value' title='값' />
           <Table.Column
-            dataIndex='created_at'
-            title='생성일'
-            sorter={true}
-            render={(value) => (
-              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
-            )}
-          />
-          <Table.Column
-            dataIndex='updated_at'
-            title='수정일'
-            render={(value) => (
-              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
-            )}
-          />
-          <Table.Column
-            title='작업'
-            dataIndex='actions'
-            render={(_, record: Config) => (
-              <Space size='middle'>
-                <ShowButton
-                  hideText
-                  size='small'
-                  recordItemId={record.id}
-                  resource='config'
-                />
-                <EditButton
-                  hideText
-                  size='small'
-                  recordItemId={record.id}
-                  resource='config'
-                />
-                <DeleteButton
-                  hideText
-                  size='small'
-                  recordItemId={record.id}
-                  resource='config'
-                />
+            dataIndex={['created_at', 'updated_at']}
+            title='생성일/수정일'
+            render={(_, record: any) => (
+              <Space direction="vertical">
+                <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
+                <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
               </Space>
             )}
           />

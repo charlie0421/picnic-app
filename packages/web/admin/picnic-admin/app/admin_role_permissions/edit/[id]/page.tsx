@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import RolePermissionForm from '@/app/admin_role_permissions/components/RolePermissionForm';
 import { AdminRolePermission } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-
+import { useResource } from '@refinedev/core';
 export default function RolePermissionEdit() {
   const params = useParams();
   const id = params.id as string;
@@ -24,10 +24,16 @@ export default function RolePermissionEdit() {
   });
 
   const [messageApi, contextHolder] = message.useMessage();
+  const { resource } = useResource();
 
   return (
     <AuthorizePage resource='admin_role_permissions' action='edit'>
-      <Edit saveButtonProps={saveButtonProps}>
+      <Edit
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.edit?.label}
+        saveButtonProps={saveButtonProps}
+      >
         {contextHolder}
         <RolePermissionForm
           mode='edit'

@@ -5,6 +5,7 @@ import { message } from 'antd';
 import { useParams } from 'next/navigation';
 import RoleUserForm from '@/app/admin_user_roles/components/RoleUserForm';
 import { AdminUserRole } from '@/lib/types/permission';
+import { useResource } from '@refinedev/core';
 
 export default function RoleUserEdit() {
   const params = useParams();
@@ -23,10 +24,15 @@ export default function RoleUserEdit() {
   });
 
   const [messageApi, contextHolder] = message.useMessage();
-
+  const { resource } = useResource();
   return (
-    <Edit saveButtonProps={saveButtonProps}>
-      {contextHolder}
+    <Edit
+    breadcrumb={false}
+    goBack={false}
+    title={resource?.meta?.edit?.label}
+    saveButtonProps={saveButtonProps}
+  >
+  {contextHolder}
       <RoleUserForm
         mode='edit'
         id={id}

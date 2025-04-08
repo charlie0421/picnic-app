@@ -6,12 +6,12 @@ import {
   DateField,
   EditButton,
   DeleteButton,
+  CreateButton,
 } from '@refinedev/antd';
-import { useNavigation } from '@refinedev/core';
 import { Table, Space } from 'antd';
 import { AdminRole } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-
+import { useNavigation } from '@refinedev/core';
 export default function RoleList() {
   const { tableProps } = useTable<AdminRole>({
     resource: 'admin_roles',
@@ -26,18 +26,25 @@ export default function RoleList() {
     },
   });
 
-  const { create } = useNavigation();
+  const { show } = useNavigation();
 
   return (
     <AuthorizePage resource='admin_roles' action='list'>
-      <List
-        createButtonProps={{
-          onClick: () => create('admin_roles'),
-        }}
+      <List 
+        breadcrumb={false}
+        headerButtons={<CreateButton />}
       >
         <Table
           {...tableProps}
           rowKey='id'
+          onRow={(record) => {
+            return {
+              style: {
+                cursor: 'pointer',
+              },
+              onClick: () => show('admin_roles', record.id),
+            };
+          }}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,
@@ -45,15 +52,18 @@ export default function RoleList() {
             showTotal: (total) => `총 ${total}개 항목`,
           }}
         >
-          <Table.Column dataIndex='id' title='ID' />
-          <Table.Column dataIndex='name' title='역할 이름' />
-          <Table.Column dataIndex='description' title='설명' />
+          <Table.Column dataIndex='id' title='ID' align='center' />
+          <Table.Column dataIndex='name' title='역할 이름' align='center' />
+          <Table.Column dataIndex='description' title='설명' align='center' />
           <Table.Column
-            dataIndex='created_at'
-            title='생성일'
-            sorter={true}
-            render={(value) => (
-              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
+            dataIndex={['created_at', 'updated_at']}
+            title='생성일/수정일'
+            align='center'
+            render={(_, record: any) => (
+              <Space direction="vertical">
+                <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
+                <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
+              </Space>
             )}
           />
           <Table.Column

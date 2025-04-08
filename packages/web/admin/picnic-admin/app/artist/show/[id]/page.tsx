@@ -1,7 +1,7 @@
 'use client';
 
 import { DateField, Show, TextField, DeleteButton } from '@refinedev/antd';
-import { useShow, useNavigation } from '@refinedev/core';
+import { useShow, useNavigation, useResource } from '@refinedev/core';
 import {
   Typography,
   Divider,
@@ -171,12 +171,19 @@ export default function ArtistShow() {
 
   const { edit, list } = useNavigation();
 
+  const { resource } = useResource();
+
   if (isLoading) {
     return <Skeleton active paragraph={{ rows: 10 }} />;
   }
 
   return (
-    <div>
+    <Show
+      isLoading={isLoading}
+      breadcrumb={false}
+      goBack={false}
+      title={resource?.meta?.label}
+    >
       <div
         style={{
           marginBottom: '16px',
@@ -421,6 +428,6 @@ export default function ArtistShow() {
           </div>
         </div>
       </div>
-    </div>
+    </Show>
   );
 }

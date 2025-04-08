@@ -12,6 +12,7 @@ import {
 import { CrudFilters, useNavigation } from '@refinedev/core';
 import { Space, Table, Select, Tag } from 'antd';
 import React from 'react';
+import { Image } from 'antd';
 
 import {
   VOTE_CATEGORIES,
@@ -25,8 +26,8 @@ import {
 } from '@/lib/vote';
 import { formatDate } from '@/lib/date';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
-import TableImage from '@/components/ui/TableImage';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { getCdnImageUrl } from '@/lib/image';
 
 export default function VoteList() {
   const [categoryFilter, setCategoryFilter] =
@@ -114,7 +115,10 @@ export default function VoteList() {
 
   return (
     <AuthorizePage resource='vote' action='list'>
-      <List headerButtons={<CreateButton />}>
+      <List 
+        breadcrumb={false}
+        headerButtons={<CreateButton />}
+      >
         <Space wrap style={{ marginBottom: 16 }}>
           <Select
             style={{ width: 160 }}
@@ -169,11 +173,13 @@ export default function VoteList() {
           <Table.Column
             dataIndex='title'
             title={'제목'}
+            align='center'
             render={(value: any) => <MultiLanguageDisplay value={value} />}
           />
           <Table.Column
             dataIndex='vote_category'
             title='카테고리'
+            align='center'
             render={(value: VoteCategory) => {
               const category = VOTE_CATEGORIES?.find((c) => c.value === value);
               return category?.label || value;
@@ -182,18 +188,23 @@ export default function VoteList() {
           <Table.Column
             dataIndex='main_image'
             title='메인 이미지'
-            render={(value: string | undefined) => (
-              <TableImage
-                src={value}
+            align='center'
+            render={(value: string | undefined) => {
+              if (!value) return '-';
+              return (
+              <Image
+                src={getCdnImageUrl(value, 100)}
                 alt='메인 이미지'
                 width={120}
                 height={80}
-                objectFit='contain'
-              />
-            )}
+                preview={false}
+                />
+              );
+            }}
           />
           <Table.Column
             title='상태'
+            align='center'
             render={(_, record: VoteRecord) => {
               const status = getVoteStatus(record.start_at, record.stop_at);
               let label = '';
@@ -210,6 +221,7 @@ export default function VoteList() {
           />
           <Table.Column
             title='투표 노출'
+            align='center'
             render={(_, record: VoteRecord) => {
               if (!record.visible_at) return '-';
               return `${formatDate(record.visible_at, 'datetime')}`;  
@@ -218,19 +230,27 @@ export default function VoteList() {
 
           <Table.Column
             title='투표 기간'
+            align='center'
             render={(_, record: VoteRecord) => {
               if (!record.start_at || !record.stop_at) return '-';
-              return `${formatDate(record.start_at, 'datetime')} ~ ${formatDate(
-                record.stop_at,
-                'datetime',
-              )}`;
+              return (
+                <Space direction="vertical">
+                  <DateField value={record.start_at} format='YYYY-MM-DD HH:mm:ss' />
+                  |
+                  <DateField value={record.stop_at} format='YYYY-MM-DD HH:mm:ss' />
+                </Space>
+              )
             }}
           />
           <Table.Column
-            dataIndex={['created_at']}
-            title={'생성일'}
-            render={(value: any) => (
-              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
+            dataIndex={['created_at', 'updated_at']}
+            title={'생성일/수정일'}
+            align='center'
+            render={(_, record: any) => (
+              <Space direction="vertical">
+                <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
+                <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
+              </Space>
             )}
           />
         </Table>

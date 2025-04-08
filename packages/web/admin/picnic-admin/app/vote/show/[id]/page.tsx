@@ -1,10 +1,10 @@
 'use client';
 
-import { useShow, useNavigation } from '@refinedev/core';
+import { useShow, useNavigation, useResource } from '@refinedev/core';
 import { type VoteRecord } from '@/lib/vote';
 import VoteDetail from '@/app/vote/components/VoteDetail';
 import { Typography, Skeleton, Space, Button } from 'antd';
-import { DeleteButton } from '@refinedev/antd';
+import { DeleteButton, EditButton, Show } from '@refinedev/antd';
 import {
   EditOutlined,
   DeleteOutlined,
@@ -26,6 +26,7 @@ export default function VoteShow({ params }: { params: { id: string } }) {
   const { data, isLoading } = queryResult;
   const { edit, list } = useNavigation();
   const id = params.id;
+  const { resource } = useResource();
 
   if (isLoading) {
     return (
@@ -37,40 +38,22 @@ export default function VoteShow({ params }: { params: { id: string } }) {
 
   return (
     <AuthorizePage resource='vote' action='show'>
-      <div>
+      <Show
+        isLoading={isLoading}
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.label}
+      >
         <div
           style={{
-            marginBottom: '16px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
           }}
         >
-          <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => list('vote')}>
-              목록으로
-            </Button>
-            <Title level={5} style={{ margin: 0 }}>
-              투표 상세
-            </Title>
-          </Space>
-          <Space>
-            <Button
-              type='primary'
-              icon={<EditOutlined />}
-              onClick={() => edit('vote', id)}
-            >
-              편집
-            </Button>
-            <DeleteButton
-              resource='vote'
-              recordItemId={id}
-              onSuccess={() => list('vote')}
-            />
-          </Space>
         </div>
         <VoteDetail record={data?.data} loading={isLoading} />
-      </div>
+      </Show>
     </AuthorizePage>
   );
 }

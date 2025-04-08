@@ -3,7 +3,7 @@
 import { Create, useForm } from '@refinedev/antd';
 import { Form, DatePicker, message } from 'antd';
 import { useState } from 'react';
-import { useCreate, useNavigation } from '@refinedev/core';
+import { useCreate, useNavigation, useResource } from '@refinedev/core';
 import ImageUpload from '@/components/features/upload';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -78,10 +78,14 @@ export default function ArtistGroupCreate() {
     }
   };
 
+  const { resource } = useResource();
+
   return (
     <AuthorizePage resource='artist_group' action='create'>
       <Create
-        title='아티스트 그룹 생성'
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.create?.label}
         saveButtonProps={{
           ...saveButtonProps,
           onClick: handleSave,

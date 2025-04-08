@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import ConfigForm from '@/app/config/components/ConfigForm';
 import { Config } from '@/lib/types/config';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { useResource } from '@refinedev/core';
 
 export default function ConfigEdit() {
   const params = useParams();
@@ -24,10 +25,15 @@ export default function ConfigEdit() {
   });
 
   const [messageApi, contextHolder] = message.useMessage();
-
+  const { resource } = useResource();
   return (
     <AuthorizePage resource='config' action='edit'>
-      <Edit saveButtonProps={saveButtonProps}>
+      <Edit
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.edit?.label}
+        saveButtonProps={saveButtonProps}
+      >
         {contextHolder}
         <ConfigForm
           mode='edit'

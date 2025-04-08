@@ -11,9 +11,9 @@ import {
 import { useNavigation } from '@refinedev/core';
 import { Table, Typography, Card, Space, Button } from 'antd';
 import { getCdnImageUrl } from '@/lib/image';
-import TableImage from '@/components/ui/TableImage';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { Image } from 'antd';
 
 const { Link } = Typography;
 
@@ -41,6 +41,18 @@ export default function MediaList() {
         <Table
           {...tableProps}
           rowKey='id'
+          onRow={(record) => {
+            return {
+              style: {
+                cursor: 'pointer'
+              },
+              onClick: () => {
+                if (record.id) {
+                  show('media', record.id);
+                }
+              },
+            };
+          }}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,
@@ -52,6 +64,8 @@ export default function MediaList() {
           <Table.Column
             dataIndex='title'
             title={'제목'}
+            align='center'
+            width={200}
             render={(value: Record<string, string>) => {
               if (!value) return '-';
               return value.ko || Object.values(value)[0] || '-';
@@ -60,6 +74,7 @@ export default function MediaList() {
           <Table.Column
             dataIndex={['video_id', 'thumbnail_url']}
             title={'썸네일'}
+            align='center'
             render={(_, record: any) => {
               const videoId = record.video_id;
               const dbThumbnailUrl = record.thumbnail_url;
@@ -82,7 +97,7 @@ export default function MediaList() {
                       variant='outlined'
                       style={{ width: 200 }}
                     >
-                      <TableImage
+                      <Image
                         src={youtubeThumbnailUrl}
                         alt='유튜브 썸네일'
                         width={160}
@@ -98,7 +113,7 @@ export default function MediaList() {
                       variant='outlined'
                       style={{ width: 200 }}
                     >
-                      <TableImage
+                      <Image
                         src={dbThumbnailUrl}
                         alt='DB 썸네일'
                         width={160}
@@ -115,6 +130,7 @@ export default function MediaList() {
           <Table.Column
             dataIndex='video_id'
             title={'비디오 ID'}
+            align='center'
             render={(value: string) => {
               if (!value) return '-';
               return (
@@ -130,6 +146,7 @@ export default function MediaList() {
           <Table.Column
             dataIndex='video_url'
             title={'유튜브 링크'}
+            align='center'
             render={(value: string, record: any) => {
               const videoId = record.video_id;
               if (!videoId) return '-';
@@ -138,7 +155,7 @@ export default function MediaList() {
               const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
               return (
                 <Link href={videoUrl} target='_blank'>
-                  <Typography.Text ellipsis style={{ maxWidth: 250 }}>
+                  <Typography.Text style={{ maxWidth: 250 }}>
                     {videoUrl}
                   </Typography.Text>
                 </Link>
@@ -146,59 +163,14 @@ export default function MediaList() {
             }}
           />
           <Table.Column
-            dataIndex={['created_at']}
-            title={'생성일'}
-            sorter={true}
-            render={(value: any) => (
-              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
-            )}
-          />
-          <Table.Column
-            dataIndex='main_image'
-            title='이미지'
-            render={(value: string) => {
-              if (!value) return '-';
-              return (
-                <TableImage
-                  src={value}
-                  alt='미디어 이미지'
-                  width={40}
-                  height={40}
-                  borderRadius='4px'
-                  objectFit='cover'
-                />
-              );
-            }}
-          />
-          <Table.Column
-            title='작업'
-            dataIndex='actions'
+            dataIndex={['created_at', 'updated_at']}
+            title={'생성일/수정일'}
+            sorter={true} 
+            align='center'
             render={(_, record: any) => (
-              <Space size='middle'>
-                <ShowButton
-                  size='small'
-                  hideText={false}
-                  recordItemId={record.id}
-                  resource='media'
-                >
-                  보기
-                </ShowButton>
-                <EditButton
-                  size='small'
-                  hideText={false}
-                  recordItemId={record.id}
-                  resource='media'
-                >
-                  수정
-                </EditButton>
-                <DeleteButton
-                  size='small'
-                  hideText={false}
-                  recordItemId={record.id}
-                  resource='media'
-                >
-                  삭제
-                </DeleteButton>
+              <Space direction="vertical">
+                <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
+                <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
               </Space>
             )}
           />

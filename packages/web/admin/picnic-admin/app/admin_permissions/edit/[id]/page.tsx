@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import PermissionForm from '@/app/admin_permissions/components/PermissionForm';
 import { AdminPermission } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { useResource } from '@refinedev/core';
 
 export default function PermissionEdit() {
   const params = useParams();
@@ -24,10 +25,15 @@ export default function PermissionEdit() {
   });
 
   const [messageApi, contextHolder] = message.useMessage();
-
+  const { resource } = useResource();
   return (
     <AuthorizePage resource='admin_permissions' action='edit'>
-      <Edit saveButtonProps={saveButtonProps}>
+      <Edit
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.edit?.label}
+        saveButtonProps={saveButtonProps}
+      >
         {contextHolder}
         <PermissionForm
           mode='edit'

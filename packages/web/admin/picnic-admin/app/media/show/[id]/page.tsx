@@ -7,7 +7,7 @@ import {
   DeleteButton,
   EditButton,
 } from '@refinedev/antd';
-import { useShow, useNavigation } from '@refinedev/core';
+import { useShow, useNavigation, useResource } from '@refinedev/core';
 import {
   Card,
   Descriptions,
@@ -17,6 +17,7 @@ import {
   Divider,
   Skeleton,
   Button,
+  Image,
 } from 'antd';
 import { getCdnImageUrl } from '@/lib/image';
 import React from 'react';
@@ -26,7 +27,6 @@ import {
   ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-import TableImage from '@/components/ui/TableImage';
 
 const { Title, Link } = Typography;
 
@@ -55,12 +55,12 @@ export default function MediaShow() {
             style={{ maxWidth: 600 }}
           >
             <div style={{ textAlign: 'left' }}>
-              <TableImage
+              <Image
                 src={youtubeThumbnailUrl}
                 alt='유튜브 썸네일'
                 width={600}
                 height={400}
-                objectFit='contain'
+                style={{ objectFit: 'contain' }}
               />
             </div>
             <Divider />
@@ -90,12 +90,12 @@ export default function MediaShow() {
             style={{ maxWidth: 600 }}
           >
             <div style={{ textAlign: 'left' }}>
-              <TableImage
+              <Image
                 src={record.thumbnail_url}
                 alt='데이터베이스 썸네일'
                 width={600}
                 height={400}
-                objectFit='contain'
+                style={{ objectFit: 'contain' }}
               />
             </div>
             <Divider />
@@ -221,6 +221,8 @@ export default function MediaShow() {
   const { edit, list } = useNavigation();
   const id = record?.id;
 
+  const { resource } = useResource();
+
   if (isLoading) {
     return (
       <AuthorizePage resource='media' action='show'>
@@ -229,34 +231,14 @@ export default function MediaShow() {
     );
   }
 
+
   return (
     <AuthorizePage resource='media' action='show'>
       <Show
-        title={
-          <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => list('media')}>
-              목록으로
-            </Button>
-            <Title level={5} style={{ margin: 0 }}>
-              미디어 상세
-            </Title>
-          </Space>
-        }
-        headerButtons={
-          <Space>
-            <EditButton
-              icon={<EditOutlined />}
-              resource='media'
-              recordItemId={record?.id}
-            />
-            <DeleteButton
-              icon={<DeleteOutlined />}
-              resource='media'
-              recordItemId={record?.id}
-              onSuccess={() => list('media')}
-            />
-          </Space>
-        }
+        isLoading={isLoading}
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.label}
       >
         <Descriptions
           bordered

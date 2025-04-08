@@ -6,6 +6,7 @@ import { message /* Spin, Result 제거 */ } from 'antd';
 import RoleUserForm from '@/app/admin_user_roles/components/RoleUserForm';
 import { AdminUserRole } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage'; // 임포트
+import { useResource } from '@refinedev/core';
 
 export default function RoleUserCreate() {
   // 권한 확인 로직 제거
@@ -24,9 +25,16 @@ export default function RoleUserCreate() {
   // if (!canAccessData?.can) { ... }
 
   // AuthorizePage 로 감싸기
+
+  const { resource } = useResource();
   return (
     <AuthorizePage resource='admin_user_roles' action='create'>
-      <Create saveButtonProps={saveButtonProps}>
+      <Create
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.create?.label}
+        saveButtonProps={saveButtonProps}
+      >
         {contextHolder}
         <RoleUserForm
           mode='create'

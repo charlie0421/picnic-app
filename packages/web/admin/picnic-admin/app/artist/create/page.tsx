@@ -8,7 +8,7 @@ import ImageUpload from '@/components/features/upload';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
 import { getCdnImageUrl } from '@/lib/image';
 import MultiLanguageInput from '@/components/ui/MultiLanguageInput';
-
+import { useResource } from '@refinedev/core';
 export default function ArtistCreate() {
   const [groups, setGroups] = useState<any[]>([]);
   const [loadingGroups, setLoadingGroups] = useState<boolean>(true);
@@ -114,8 +114,13 @@ export default function ArtistCreate() {
     return updatedValues;
   };
 
+  const { resource } = useResource();
+
   return (
     <Create
+      breadcrumb={false}
+      goBack={false}
+      title={resource?.meta?.create?.label}
       saveButtonProps={{
         ...saveButtonProps,
         onClick: async () => {

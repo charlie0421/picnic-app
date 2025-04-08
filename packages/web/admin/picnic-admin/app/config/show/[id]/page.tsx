@@ -1,6 +1,6 @@
 'use client';
 
-import { useOne } from '@refinedev/core';
+import { useOne, useResource } from '@refinedev/core';
 import { Show } from '@refinedev/antd';
 import { Typography, Card } from 'antd';
 import { useParams } from 'next/navigation';
@@ -19,11 +19,16 @@ export default function ConfigShow() {
   });
 
   const record = data?.data;
-
+  const { resource } = useResource();
   return (
     <AuthorizePage resource='config' action='show'>
-      <Show isLoading={isLoading}>
-        <Card>
+      <Show
+        isLoading={isLoading}
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.label}
+      >
+      <Card>
           <Title level={5}>키</Title>
           <Text>{record?.key}</Text>
 

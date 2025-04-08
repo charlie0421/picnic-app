@@ -67,11 +67,11 @@ const ArtistGroupDisplay: React.FC<ArtistGroupDisplayProps> = ({
         {showImage && group.image && (
           <Col xs={24} sm={6} md={5} lg={4}>
             <Image
-              src={getCdnImageUrl(group.image)}
+              src={getCdnImageUrl(group.image, 100)}
               alt={nameKo || '그룹 이미지'}
               style={{
                 width: '100%',
-                maxWidth: 120,
+                maxWidth: 100,
                 objectFit: 'cover',
                 borderRadius: 4,
               }}

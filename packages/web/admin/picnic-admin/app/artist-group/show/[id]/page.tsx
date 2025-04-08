@@ -7,7 +7,7 @@ import {
   EditButton,
   DeleteButton,
 } from '@refinedev/antd';
-import { useShow, useMany, useNavigation } from '@refinedev/core';
+import { useShow, useMany, useNavigation, useResource } from '@refinedev/core';
 import { Typography, Divider, theme, Grid, Space, Button } from 'antd';
 import { ArtistGroup, Artist } from '@/lib/types/artist';
 import { getCdnImageUrl } from '@/lib/image';
@@ -151,6 +151,7 @@ export default function ArtistGroupShow() {
   }, [artistsData]);
 
   const { show, edit, list } = useNavigation();
+  const { resource } = useResource();
 
   if (isLoading) {
     return (
@@ -160,37 +161,14 @@ export default function ArtistGroupShow() {
     );
   }
 
+
   return (
     <AuthorizePage resource='artist_group' action='show'>
       <Show
-        title={
-          <Space>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => list('artist-group')}
-            >
-              목록으로
-            </Button>
-            <Title level={5} style={{ margin: 0 }}>
-              아티스트 그룹 상세
-            </Title>
-          </Space>
-        }
-        headerButtons={
-          <Space>
-            <EditButton
-              icon={<EditOutlined />}
-              resource='artist_group'
-              recordItemId={record?.id}
-            />
-            <DeleteButton
-              icon={<DeleteOutlined />}
-              resource='artist_group'
-              recordItemId={record?.id}
-              onSuccess={() => list('artist-group')}
-            />
-          </Space>
-        }
+        isLoading={isLoading}
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.label}
       >
         <div
           style={{

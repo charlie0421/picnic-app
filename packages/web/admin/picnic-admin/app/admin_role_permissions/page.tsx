@@ -6,6 +6,7 @@ import {
   DateField,
   EditButton,
   DeleteButton,
+  CreateButton,
 } from '@refinedev/antd';
 import { useNavigation, useMany } from '@refinedev/core';
 import { Table, Space, Tag } from 'antd';
@@ -51,18 +52,25 @@ export default function RolePermissionList() {
     },
   });
 
-  const { create } = useNavigation();
+  const { create, show } = useNavigation();
 
   return (
     <AuthorizePage resource='admin_role_permissions' action='list'>
-      <List
-        createButtonProps={{
-          onClick: () => create('admin_role_permissions'),
-        }}
+      <List 
+        breadcrumb={false}
+        headerButtons={<CreateButton />}
       >
         <Table
           {...tableProps}
           rowKey='id'
+          onRow={(record) => {
+            return {
+              style: {
+                cursor: 'pointer',
+              },
+              onClick: () => show('admin_role_permissions', record.id),
+            };
+          }}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,

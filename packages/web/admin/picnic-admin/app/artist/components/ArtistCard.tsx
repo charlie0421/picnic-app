@@ -105,12 +105,11 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
         <div style={{ textAlign: 'center' }}>
           {artist?.image ? (
             <Image
-              src={getCdnImageUrl(artist.image)}
+              src={getCdnImageUrl(artist.image, 100)}
               alt='아티스트 이미지'
-              width={200}
-              height={200}
+              width={100}
+              height={100}
               style={{
-                width: '100%',
                 objectFit: 'cover',
                 borderRadius: '8px',
               }}

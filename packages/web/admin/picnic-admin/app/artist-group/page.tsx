@@ -1,14 +1,14 @@
 'use client';
 
-import { List, useTable } from '@refinedev/antd';
+import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
 import { Table, Space, Input } from 'antd';
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
-import TableImage from '@/components/ui/TableImage';
 import { useNavigation } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-
+import { getCdnImageUrl } from '@/lib/image';
+import { Image } from 'antd';
 export default function ArtistGroupList() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { show } = useNavigation();
@@ -41,7 +41,10 @@ export default function ArtistGroupList() {
 
   return (
     <AuthorizePage resource='artist_group' action='list'>
-      <List>
+      <List 
+        breadcrumb={false}
+        headerButtons={<CreateButton />}
+      >
         <Space style={{ marginBottom: 16 }}>
           <Input.Search
             placeholder='아티스트 그룹 이름 검색'
@@ -78,6 +81,7 @@ export default function ArtistGroupList() {
           <Table.Column
             dataIndex={['name']}
             title={'이름'}
+            align='center'
             render={(value: Record<string, string>) => (
               <MultiLanguageDisplay value={value} />
             )}
@@ -85,18 +89,24 @@ export default function ArtistGroupList() {
           <Table.Column
             dataIndex='image'
             title={'이미지'}
+            align='center'
             width={130}
-            render={(value: string) => (
-              <TableImage
-                src={value}
-                alt='아티스트 그룹 이미지'
-                width={100}
-                height={100}
-              />
-            )}
+            render={(value: string | undefined) => {
+              if (!value) return '-';
+              return (
+                <Image
+                  src={getCdnImageUrl(value, 100)}
+                  alt='아티스트 그룹 이미지'
+                  width={100}
+                  height={100}
+                  preview={false}
+                />
+              );
+            }}
           />
           <Table.Column
             title={'데뷔일'}
+            align='center'
             render={(_, record: any) => {
               if (!record.debut_date) return '-';
               return dayjs(record.debut_date).format('YYYY년 MM월 DD일');
@@ -104,12 +114,15 @@ export default function ArtistGroupList() {
             sorter
           />
           <Table.Column
-            dataIndex={['created_at']}
-            title={'생성일'}
-            render={(value: any) =>
-              value && new Date(value).toLocaleDateString()
-            }
-            sorter
+            dataIndex={['created_at', 'updated_at']}
+            title={'생성일/수정일'}
+            align='center'
+            render={(_, record: any) => (
+              <Space direction="vertical">
+                <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
+                <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
+              </Space>
+            )}
           />
         </Table>
       </List>

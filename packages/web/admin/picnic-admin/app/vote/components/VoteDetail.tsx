@@ -141,7 +141,7 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           {record?.main_image ? (
             <div style={{ marginBottom: '10px', textAlign: 'center' }}>
               <Image
-                src={`${getCdnImageUrl(record.main_image)}?w=300`}
+                src={getCdnImageUrl(record.main_image, 300)}
                 alt='메인 이미지'
                 width={300}
                 height={300}

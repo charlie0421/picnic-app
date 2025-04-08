@@ -4,7 +4,7 @@ import { Edit, useForm } from '@refinedev/antd';
 import { Form, Input, DatePicker, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import { useOne } from '@refinedev/core';
+import { useOne, useResource } from '@refinedev/core';
 import ImageUpload from '@/components/features/upload';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
 import { getCdnImageUrl } from '@/lib/image';
@@ -111,8 +111,13 @@ export default function ArtistEdit() {
     return updatedValues;
   };
 
+  const { resource } = useResource();
+
   return (
     <Edit
+      breadcrumb={false}
+      goBack={false}
+      title={resource?.meta?.edit?.label}
       saveButtonProps={{
         ...saveButtonProps,
         onClick: async () => {

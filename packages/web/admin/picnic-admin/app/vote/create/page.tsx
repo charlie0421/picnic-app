@@ -1,7 +1,7 @@
 'use client';
 
 import { Create, useForm } from '@refinedev/antd';
-import { useNavigation, useCreate } from '@refinedev/core';
+import { useNavigation, useCreate, useResource } from '@refinedev/core';
 import { useState } from 'react';
 import { message } from 'antd';
 import VoteForm from '@/app/vote/components/VoteForm';
@@ -17,10 +17,15 @@ export default function VoteCreate() {
     redirect: false, // 리디렉션 비활성화 - 투표 항목 저장 후 직접 처리
     warnWhenUnsavedChanges: true,
   });
-
+  const { resource } = useResource();
   return (
     <AuthorizePage resource='vote' action='create'>
-      <Create title='투표 생성'>
+      <Create
+        breadcrumb={false}
+        goBack={false}
+        title={resource?.meta?.create?.label}
+        saveButtonProps={saveButtonProps}
+      >
         {contextHolder}
         <VoteForm
           mode='create'

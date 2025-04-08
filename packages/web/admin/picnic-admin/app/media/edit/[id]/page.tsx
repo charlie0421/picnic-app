@@ -5,6 +5,7 @@ import { message, Spin } from 'antd';
 import { useState, useEffect } from 'react';
 import MediaForm from '../../components/MediaForm';
 import { useParams } from 'next/navigation';
+import { useResource } from '@refinedev/core';
 
 export default function MediaEdit() {
   const params = useParams();
@@ -31,6 +32,8 @@ export default function MediaEdit() {
     }
   }, [mediaData, initialDataLoaded]);
 
+  const { resource } = useResource();
+
   // 데이터 로딩 중이면 로딩 표시
   if (isLoading) {
     return (
@@ -53,8 +56,14 @@ export default function MediaEdit() {
     );
   }
 
+
   return (
-    <Edit saveButtonProps={saveButtonProps} title='미디어 수정'>
+    <Edit
+      breadcrumb={false}
+      goBack={false}
+      title={resource?.meta?.edit?.label}
+      saveButtonProps={saveButtonProps}
+    >
       {contextHolder}
       <MediaForm
         mode='edit'

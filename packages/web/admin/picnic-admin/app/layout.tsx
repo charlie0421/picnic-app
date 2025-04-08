@@ -74,20 +74,19 @@ export default function RootLayout({
                             edit: '/vote/edit/:id',
                             show: '/vote/show/:id',
                             meta: {
-                              canDelete: true,
-                              label: '투표관리',
+                              label: '투표 관리',
                               icon: <CheckCircleOutlined />,
                               list: {
-                                label: '투표관리',
+                                label: '투표 목록',
                               },
                               create: {
-                                label: '투표생성',
+                                label: '투표 생성',
                               },
                               edit: {
-                                label: '투표수정',
+                                label: '투표 수정',
                               },
                               show: {
-                                label: '투표조회',
+                                label: '투표 조회',
                               },
                             },
                           },
@@ -98,7 +97,6 @@ export default function RootLayout({
                             edit: '/media/edit/:id',
                             show: '/media/show/:id',
                             meta: {
-                              canDelete: true,
                               label: '미디어 관리',
                               icon: <VideoCameraOutlined />,
                               list: {
@@ -122,7 +120,6 @@ export default function RootLayout({
                             edit: '/artist-group/edit/:id',
                             show: '/artist-group/show/:id',
                             meta: {
-                              canDelete: true,
                               label: '아티스트 그룹 관리',
                               icon: <GroupOutlined />,
                               list: {
@@ -146,7 +143,6 @@ export default function RootLayout({
                             edit: '/artist/edit/:id',
                             show: '/artist/show/:id',
                             meta: {
-                              canDelete: true,
                               label: '아티스트 관리',
                               icon: <UserOutlined />,
                               list: {
@@ -200,8 +196,8 @@ export default function RootLayout({
                             list: '/admin_roles', // 경로 수정
                             create: '/admin_roles/create', // 경로 수정
                             edit: '/admin_roles/edit/:id', // 경로 수정
+                            show: '/admin_roles/show/:id', // 경로 수정
                             meta: {
-                              canDelete: true,
                               parent: 'admin',
                               label: '역할 관리',
                               icon: <TeamOutlined />,
@@ -214,6 +210,9 @@ export default function RootLayout({
                               edit: {
                                 label: '역할 수정',
                               },
+                              show: {
+                                label: '역할 상세',
+                              },
                             },
                           },
                           {
@@ -221,8 +220,8 @@ export default function RootLayout({
                             list: '/admin_permissions', // 경로 수정
                             create: '/admin_permissions/create', // 경로 수정
                             edit: '/admin_permissions/edit/:id', // 경로 수정
+                            show: '/admin_permissions/show/:id', // 경로 수정
                             meta: {
-                              canDelete: true,
                               parent: 'admin',
                               label: '권한 관리',
                               icon: <KeyOutlined />,
@@ -235,6 +234,9 @@ export default function RootLayout({
                               edit: {
                                 label: '권한 수정',
                               },
+                              show: {
+                                label: '권한 상세',
+                              },
                             },
                           },
                           {
@@ -242,8 +244,8 @@ export default function RootLayout({
                             list: '/admin_role_permissions', // 경로 수정
                             create: '/admin_role_permissions/create', // 경로 수정
                             edit: '/admin_role_permissions/edit/:id', // 경로 수정
+                            show: '/admin_role_permissions/show/:id', // 경로 수정
                             meta: {
-                              canDelete: true,
                               parent: 'admin',
                               label: '역할-권한 매핑',
                               icon: <LinkOutlined />,
@@ -256,6 +258,9 @@ export default function RootLayout({
                               edit: {
                                 label: '역할-권한 수정',
                               },
+                              show: {
+                                label: '역할-권한 상세',
+                              },
                             },
                           },
                           {
@@ -263,8 +268,8 @@ export default function RootLayout({
                             list: '/admin_user_roles', // 경로 수정
                             create: '/admin_user_roles/create', // 경로 수정
                             edit: '/admin_user_roles/edit/:id', // 경로 수정
+                            show: '/admin_user_roles/show/:id', // 경로 수정
                             meta: {
-                              canDelete: true,
                               parent: 'admin',
                               label: '사용자-역할 매핑',
                               icon: <UserSwitchOutlined />,
@@ -276,6 +281,9 @@ export default function RootLayout({
                               },
                               edit: {
                                 label: '사용자-역할 매핑 수정',
+                              },
+                              show: {
+                                label: '사용자-역할 매핑 상세',
                               },
                             },
                           },
