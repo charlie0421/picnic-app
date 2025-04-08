@@ -1,33 +1,73 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Form, Input, Button, message } from 'antd';
+import { createSupabaseClient } from '../../lib/supabase';
 
-export default function EditPage() {
-  const { id } = useParams();
-  const [formData, setFormData] = useState<any>({});
+export default function EditPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const tableName = '${dirname}';
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const supabase = createSupabaseClient(tableName);
 
   useEffect(() => {
-    // TODO: API 요청 처리
-    setFormData({ title: '기존 제목', description: '기존 설명' });
-  }, [id]);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const result = await supabase.getById(params.id);
+        form.setFieldsValue(result);
+      } catch (error) {
+        message.error('데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    fetchData();
+  }, [params.id, form]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: 수정 요청 처리
-    console.log('수정 데이터:', formData);
+  const onFinish = async (values: any) => {
+    setLoading(true);
+    try {
+      await supabase.update(params.id, values);
+      message.success('수정되었습니다.');
+      router.push(`/${tableName}`);
+    } catch (error) {
+      message.error('수정에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="title" value={formData.title} onChange={handleChange} />
-      <input name="description" value={formData.description} onChange={handleChange} />
-      <button type="submit">수정</button>
-    </form>
+    <div className='container mx-auto py-10'>
+      <div className='flex justify-between items-center mb-6'>
+        <h1 className='text-3xl font-bold'>수정</h1>
+        <Button onClick={() => router.push(`/${tableName}`)}>목록으로</Button>
+      </div>
+      <Form form={form} layout='vertical' onFinish={onFinish}>
+        <Form.Item
+          label='이름'
+          name='name'
+          rules={[{ required: true, message: '이름을 입력해주세요.' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label='설명'
+          name='description'
+          rules={[{ required: true, message: '설명을 입력해주세요.' }]}
+        >
+          <Input.TextArea rows={4} />
+        </Form.Item>
+        <Form.Item>
+          <Button type='primary' htmlType='submit' loading={loading}>
+            저장
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
   );
 }

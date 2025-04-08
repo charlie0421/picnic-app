@@ -1,0 +1,79 @@
+{
+  "templates": [
+    {
+      "pattern": "app/**/page.tsx",
+      "template": "list-page.tsx",
+      "props": {
+        "tableName": "${dirname}",
+        "columns": [
+          {
+            "title": "이름",
+            "dataIndex": "name",
+            "key": "name"
+          },
+          {
+            "title": "생성일",
+            "dataIndex": "created_at",
+            "key": "created_at",
+            "render": "text => new Date(text).toLocaleString()"
+          },
+          {
+            "title": "수정일",
+            "dataIndex": "updated_at",
+            "key": "updated_at",
+            "render": "text => new Date(text).toLocaleString()"
+          }
+        ]
+      }
+    },
+    {
+      "pattern": "app/**/create/page.tsx",
+      "template": "create-page.tsx",
+      "props": {
+        "tableName": "${dirname}",
+        "formFields": [
+          {
+            "name": "name",
+            "label": "이름",
+            "rules": [{ "required": true }]
+          }
+        ]
+      }
+    },
+    {
+      "pattern": "app/**/show/[id]/page.tsx",
+      "template": "show-id-page.tsx",
+      "props": {
+        "tableName": "${dirname}",
+        "fields": [
+          {
+            "name": "name",
+            "label": "이름"
+          }
+        ]
+      }
+    },
+    {
+      "pattern": "app/**/edit/[id]/page.tsx",
+      "template": "edit-id-page.tsx",
+      "props": {
+        "tableName": "${dirname}",
+        "formFields": [
+          {
+            "name": "name",
+            "label": "이름",
+            "rules": [{ "required": true }]
+          }
+        ]
+      }
+    },
+    {
+      "pattern": "app/**/components/**/*.tsx",
+      "template": "component.tsx"
+    },
+    {
+      "pattern": "app/**/layout.tsx",
+      "template": "layout.tsx"
+    }
+  ]
+}

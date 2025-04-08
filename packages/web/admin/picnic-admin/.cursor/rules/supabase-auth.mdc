@@ -1,0 +1,44 @@
+---
+description: Supabase 인증 관련 구조 정의
+globs: 
+alwaysApply: false
+---
+---
+name: Supabase 인증 구조
+description: Supabase 인증 관련 구조 정의
+pattern: lib/auth/**/*
+---
+
+```json
+{
+  "structure": {
+    "types.ts": {
+      "description": "인증 관련 타입",
+      "content": {
+        "User": "사용자 타입",
+        "AuthState": "인증 상태 타입",
+        "LoginCredentials": "로그인 인증 정보 타입",
+        "RegisterData": "회원가입 데이터 타입"
+      }
+    },
+    "utils.ts": {
+      "description": "인증 유틸 함수",
+      "content": {
+        "getSession": "세션 조회 함수",
+        "setSession": "세션 설정 함수",
+        "clearSession": "세션 초기화 함수",
+        "isAuthenticated": "인증 상태 확인 함수"
+      }
+    },
+    "hooks.ts": {
+      "description": "인증 훅",
+      "content": {
+        "useAuth": "인증 상태 관리 훅",
+        "useLogin": "로그인 처리 훅",
+        "useLogout": "로그아웃 처리 훅",
+        "useRegister": "회원가입 처리 훅"
+      }
+    }
+  }
+}
+```
