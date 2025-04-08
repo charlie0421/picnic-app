@@ -30,6 +30,7 @@ import {
   UserOutlined,
   GroupOutlined,
   CheckCircleOutlined,
+  PictureOutlined,
 } from '@ant-design/icons';
 
 export const metadata: Metadata = {
@@ -87,6 +88,29 @@ export default function RootLayout({
                               },
                               show: {
                                 label: '투표 조회',
+                              },
+                            },
+                          },
+                          {
+                            name: 'banner',
+                            list: '/banner',
+                            create: '/banner/create',
+                            edit: '/banner/edit/:id',
+                            show: '/banner/show/:id',
+                            meta: {
+                              label: '배너 관리',
+                              icon: <PictureOutlined />,
+                              list: {
+                                label: '배너 목록',
+                              },
+                              create: {
+                                label: '배너 추가',
+                              },
+                              edit: {
+                                label: '배너 수정',
+                              },
+                              show: {
+                                label: '배너 상세',
                               },
                             },
                           },
@@ -253,7 +277,7 @@ export default function RootLayout({
                                 label: '역할-권한 목록',
                               },
                               create: {
-                                label: '역할-권한 연결',
+                                label: '역할-권한 추가',
                               },
                               edit: {
                                 label: '역할-권한 수정',
