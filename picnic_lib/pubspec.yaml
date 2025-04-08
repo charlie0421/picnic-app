@@ -93,6 +93,8 @@ dependencies:
   unity_ads_plugin: ^0.3.23
   shorebird_code_push: ^2.0.3
   web: ^1.1.1
+  googleapis: ^14.0.0
+  googleapis_auth: ^2.0.0
 
 dev_dependencies:
   flutter_test:

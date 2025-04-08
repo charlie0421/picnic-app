@@ -6,7 +6,7 @@ part of '../../presentation/providers/screen_infos_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$screenInfosHash() => r'55028b089fc48ae32c413c2ea825b9b6814f5651';
+String _$screenInfosHash() => r'97e60d0275c8d2207680c344b0d3202e63560245';
 
 /// See also [ScreenInfos].
 @ProviderFor(ScreenInfos)
