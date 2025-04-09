@@ -1,49 +1,105 @@
 'use client';
 
-import { Typography, Image } from 'antd';
+import { Image, Descriptions, Space } from 'antd';
 import { Banner } from '@/lib/types/banner';
 import { getCdnImageUrl } from '@/lib/image';
-
-const { Title, Text } = Typography;
+import { DateField, TextField } from '@refinedev/antd';
 
 type BannerDetailProps = {
-    record?: Banner;
-    loading?: boolean;
+  record?: Banner;
+  loading?: boolean;
 };
 
 export default function BannerDetail({ record, loading }: BannerDetailProps) {
-    console.log(record);
-    return (
-        <>
-            <Title level={5}>이미지 (한국어)</Title>
-            <Image src={getCdnImageUrl(record?.image?.ko)} alt='배너 이미지 (한국어)' width={300} preview={false} />
+  const descriptionItems = [
+    {
+      key: 'id',
+      label: 'ID',
+      children: <TextField value={record?.id} />,
+    },
+    {
+      key: 'image',
+      label: '이미지',
+      children: [
+        <Space key='image' direction='vertical' size={16}>
+          <Image
+            src={getCdnImageUrl(record?.image?.ko)}
+            alt='배너 이미지 (한국어)'
+            width={300}
+            preview={false}
+          />
+          <Image
+            src={getCdnImageUrl(record?.image?.en)}
+            alt='배너 이미지 (영어)'
+            width={300}
+            preview={false}
+          />
+          <Image
+            src={getCdnImageUrl(record?.image?.ja)}
+            alt='배너 이미지 (일본어)'
+            width={300}
+            preview={false}
+          />
+          <Image
+            src={getCdnImageUrl(record?.image?.zh)}
+            alt='배너 이미지 (중국어)'
+            width={300}
+            preview={false}
+          />
+        </Space>,
+      ],
+    },
+    {
+      key: 'link',
+      label: '링크',
+      children: <TextField value={record?.link} />,
+    },
+    {
+      key: 'start_at',
+      label: '시작일',
+      children: (
+        <DateField value={record?.start_at} format='YYYY-MM-DD HH:mm:ss' />
+      ),
+    },
+    {
+      key: 'end_at',
+      label: '종료일',
+      children: (
+        <DateField value={record?.end_at} format='YYYY-MM-DD HH:mm:ss' />
+      ),
+    },
+    {
+      key: 'location',
+      label: '위치',
+      children: <TextField value={record?.location} />,
+    },
+    {
+      key: 'created_at',
+      label: '생성일',
+      children: (
+        <DateField value={record?.created_at} format='YYYY-MM-DD HH:mm:ss' />
+      ),
+    },
+    {
+      key: 'updated_at',
+      label: '수정일',
+      children: (
+        <DateField value={record?.updated_at} format='YYYY-MM-DD HH:mm:ss' />
+      ),
+    },
+    {
+      key: 'order',
+      label: '순서',
+      children: <TextField value={record?.order} />,
+    },
+  ];
 
-            <Title level={5}>이미지 (영어)</Title>
-            <Image src={getCdnImageUrl(record?.image?.en)} alt='배너 이미지 (영어)' width={300} preview={false} />
-
-            <Title level={5}>제목 (일본어)</Title>
-            <Image src={getCdnImageUrl(record?.image?.ja)} alt='배너 이미지 (일본어)' width={300} preview={false} />
-
-            <Title level={5}>제목 (중국어)</Title>
-            <Image src={getCdnImageUrl(record?.image?.zh)} alt='배너 이미지 (중국어)' width={300} preview={false} />
-
-            <Title level={5}>시작일</Title>
-            <Text>{record?.start_at?.toLocaleString()}</Text>
-
-            <Title level={5}>종료일</Title>
-            <Text>{record?.end_at?.toLocaleString()}</Text>
-
-            <Title level={5}>순서</Title>
-            <Text>{record?.order}</Text>
-
-            <Title level={5}>위치</Title>
-            <Text>{record?.location}</Text>
-
-            <Title level={5}>지속시간</Title>
-            <Text>{record?.duration}</Text>
-
-            <Title level={5}>링크</Title>
-            <Text>{record?.link}</Text>
-        </>
-    );
+  return (
+    <Descriptions
+      bordered
+      column={1}
+      layout='vertical'
+      items={descriptionItems}
+    />
+  );
 }

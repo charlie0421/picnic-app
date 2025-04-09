@@ -20,7 +20,7 @@ import { useNavigation, useCreate, useUpdate } from '@refinedev/core';
 import { getCdnImageUrl } from '@/lib/image';
 import { VOTE_CATEGORIES, type VoteRecord } from '@/lib/vote';
 import { VoteItem } from '@/lib/types/vote';
-import dayjs from 'dayjs';
+import dayjs from '@/lib/dayjs';
 import { COLORS } from '@/lib/theme';
 import ArtistSelector from '@/components/features/artist-selector';
 import ImageUpload from '@/components/features/upload';
