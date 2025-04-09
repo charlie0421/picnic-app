@@ -2,15 +2,21 @@
 
 import React from 'react';
 import { ThemedLayoutV2, ThemedSiderV2 } from '@refinedev/antd';
-import { Spin } from 'antd';
+import { Spin, Grid, theme } from 'antd';
 import { usePermissionLoading } from '@/contexts/PermissionLoadingContext';
 import { Header } from '@/components/header';
 import Image from 'next/image';
 import { useIsAuthenticated } from '@refinedev/core';
 
+const { useBreakpoint } = Grid;
+const { useToken } = theme;
+
 const MainLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { isLoadingPermissions } = usePermissionLoading();
   const { data: isAuthenticated } = useIsAuthenticated();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+  const { token } = useToken();
 
   if (isLoadingPermissions) {
     // 로딩 중일 때 전체 화면 스피너 표시
@@ -47,7 +53,13 @@ const MainLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
       Title={Title}
       Sider={isAuthenticated ? ThemedSiderV2 : () => null}
     >
-      {children}
+      <div style={{
+        paddingTop: isMobile ? '32px' : '16px',
+        minHeight: '100vh',
+        backgroundColor: token.colorBgLayout
+      }}>
+        {children}
+      </div>
     </ThemedLayoutV2>
   );
 };
