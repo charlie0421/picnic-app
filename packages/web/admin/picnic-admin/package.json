@@ -10,7 +10,9 @@
     "build": "refine build",
     "start": "refine start",
     "lint": "next lint",
-    "refine": "refine"
+    "refine": "refine",
+    "generate-resource": "echo '리소스 생성을 시작합니다. \n\nCursor AI에 다음 프롬프트를 입력하세요: \n\n다음 요구사항에 맞는 Refine 리소스 CRUD 컴포넌트를 생성해주세요:\\n\\n리소스 이름: [리소스명]\\n표시 이름: [표시명]\\n주요 필드:\\n- title (다국어)\\n- [추가 필드]\\n\\n표준 코드 스타일을 적용하고, Refine 기본 컴포넌트를 최대한 활용해주세요.'",
+    "generate-resource-from-ddl": "echo 'DDL 기반 리소스 생성을 시작합니다. \n\nCursor AI에 다음 프롬프트를 입력하세요: \n\n다음 DDL을 기반으로 Refine 리소스 CRUD 컴포넌트를 생성해주세요:\\n\\nCREATE TABLE [테이블명] (\\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\\n  [필드1] [타입] [제약조건],\\n  [필드2] [타입] [제약조건],\\n  ...\\n  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\\n  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\\n);\\n\\n리소스 이름: [리소스명]\\n표시 이름: [표시명]\\n다국어 필드: [필드1, 필드2, ...] (해당되는 경우)\\n\\napp/[리소스명] 폴더에 표준 CRUD 구조(리스트/생성/수정/상세)를 생성하고, Refine 기본 컴포넌트를 최대한 활용해주세요.'"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",

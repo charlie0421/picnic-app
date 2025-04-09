@@ -15,6 +15,18 @@
       }
     },
     {
+      "name": "Refine 리소스 템플릿",
+      "description": "Refine 기반 CRUD 컴포넌트 생성 템플릿",
+      "pattern": "app/**/*.tsx",
+      "file": "refine-resource-templates.mdc"
+    },
+    {
+      "name": "DDL 기반 리소스 템플릿",
+      "description": "데이터베이스 DDL을 이용한 Refine 리소스 생성 템플릿",
+      "pattern": "app/**/*.tsx",
+      "file": "ddl-based-resource-templates.mdc"
+    },
+    {
       "name": "컴포넌트 구조",
       "description": "컴포넌트 폴더 구조 가이드",
       "pattern": "components/**/*",

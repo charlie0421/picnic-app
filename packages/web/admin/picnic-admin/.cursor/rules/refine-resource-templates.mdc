@@ -1,0 +1,351 @@
+---
+name: Refine 리소스 템플릿
+description: Refine 기반 CRUD 컴포넌트 생성 템플릿
+pattern: app/**/*.tsx
+---
+
+# Refine 리소스 CRUD 템플릿
+
+Refine 기반 리소스 CRUD 컴포넌트를 생성할 때 사용하는 표준 템플릿입니다.
+
+## 리소스 생성 방법
+
+새 리소스를 생성하려면 Cursor AI에 다음과 같은 프롬프트를 입력하세요:
+
+```
+다음 요구사항에 맞는 Refine 리소스 CRUD 컴포넌트를 생성해주세요:
+
+리소스 이름: [리소스명]
+표시 이름: [표시명]
+주요 필드: 
+- title (다국어)
+- [추가 필드]
+
+폴더 구조:
+1. app/[리소스명]/page.tsx - 리스트 페이지
+2. app/[리소스명]/create/page.tsx - 생성 페이지
+3. app/[리소스명]/edit/[id]/page.tsx - 수정 페이지
+4. app/[리소스명]/show/[id]/page.tsx - 상세 페이지
+
+표준 코드 스타일을 적용하고, Refine 기본 컴포넌트를 최대한 활용해주세요.
+```
+
+## 리스트 페이지 템플릿
+
+```tsx
+'use client';
+
+import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
+import { Table, Space, Input } from 'antd';
+import { useNavigation } from '@refinedev/core';
+import { useState } from 'react';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { MultiLanguageDisplay } from '@/components/ui';
+import { useResource } from '@refinedev/core';
+
+export default function ResourceList() {
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const { show } = useNavigation();
+  const { resource } = useResource();
+
+  // Refine useTable 훅 사용
+  const { tableProps } = useTable({
+    resource: 'resource_name',
+    syncWithLocation: true,
+    sorters: {
+      initial: [
+        {
+          field: 'id',
+          order: 'desc',
+        },
+      ],
+    },
+    // 검색 기능 활용
+    meta: {
+      search: searchTerm
+        ? {
+            query: searchTerm,
+            fields: ['title.ko', 'title.en'],
+          }
+        : undefined,
+    },
+  });
+
+  // 검색 핸들러
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  return (
+    <AuthorizePage resource="resource_name" action="list">
+      <List 
+        breadcrumb={false}
+        headerButtons={<CreateButton />}
+        title={resource?.meta?.list?.label}
+      >
+        <Space style={{ marginBottom: 16 }}>
+          <Input.Search
+            placeholder="검색어를 입력하세요"
+            onSearch={handleSearch}
+            style={{ width: 300 }}
+            allowClear
+          />
+        </Space>
+
+        <Table
+          {...tableProps}
+          rowKey="id"
+          scroll={{ x: 'max-content' }}
+          onRow={(record: any) => ({
+            style: { cursor: 'pointer' },
+            onClick: () => show('resource_name', record.id),
+          })}
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
+          }}
+        >
+          {/* 공통 컬럼 */}
+          <Table.Column dataIndex="id" title="ID" sorter />
+          
+          {/* 다국어 컬럼 표시 예시 */}
+          <Table.Column
+            dataIndex={['title']}
+            title="이름"
+            render={(value: Record<string, string>) => (
+              <MultiLanguageDisplay value={value} />
+            )}
+          />
+          
+          {/* 날짜 표시 공통 포맷 */}
+          <Table.Column
+            dataIndex={['created_at', 'updated_at']}
+            title="생성일/수정일"
+            align="center"
+            render={(_, record: any) => (
+              <Space direction="vertical">
+                <DateField value={record.created_at} format="YYYY-MM-DD HH:mm:ss" />
+                <DateField value={record.updated_at} format="YYYY-MM-DD HH:mm:ss" />
+              </Space>
+            )}
+          />
+        </Table>
+      </List>
+    </AuthorizePage>
+  );
+}
+```
+
+## 생성 페이지 템플릿
+
+```tsx
+'use client';
+
+import { Create, useForm } from '@refinedev/antd';
+import { Form, message } from 'antd';
+import { MultiLanguageInput } from '@/components/ui';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { useResource } from '@refinedev/core';
+
+export default function ResourceCreate() {
+  const [messageApi, contextHolder] = message.useMessage();
+  const { resource } = useResource();
+
+  const { formProps, saveButtonProps } = useForm({
+    resource: 'resource_name',
+    warnWhenUnsavedChanges: true,
+    redirect: 'list',
+    onMutationSuccess: () => {
+      messageApi.success('리소스가 성공적으로 생성되었습니다');
+    },
+  });
+
+  // 저장 전 데이터 변환 필요 시 사용
+  const handleSave = async (values: any) => {
+    // 필요한 데이터 변환 로직
+    return values;
+  };
+
+  return (
+    <AuthorizePage resource="resource_name" action="create">
+      <Create
+        breadcrumb={false}
+        title={resource?.meta?.create?.label}
+        saveButtonProps={{
+          ...saveButtonProps,
+          onClick: async () => {
+            const values = await formProps.form?.validateFields();
+            if (values) {
+              const transformedValues = await handleSave(values);
+              formProps.onFinish?.(transformedValues);
+            }
+          },
+        }}
+      >
+        {contextHolder}
+        <Form {...formProps} layout="vertical">
+          <MultiLanguageInput 
+            name="title" 
+            label="제목" 
+            required={true} 
+          />
+          
+          {/* 추가 필드는 각 리소스에 맞게 구현 */}
+        </Form>
+      </Create>
+    </AuthorizePage>
+  );
+}
+```
+
+## 수정 페이지 템플릿
+
+```tsx
+'use client';
+
+import { Edit, useForm } from '@refinedev/antd';
+import { Form, message } from 'antd';
+import { useParams } from 'next/navigation';
+import { MultiLanguageInput } from '@/components/ui';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { useResource } from '@refinedev/core';
+
+export default function ResourceEdit() {
+  const params = useParams();
+  const id = params.id as string;
+  const [messageApi, contextHolder] = message.useMessage();
+  const { resource } = useResource();
+
+  const { formProps, saveButtonProps } = useForm({
+    resource: 'resource_name',
+    id,
+    warnWhenUnsavedChanges: true,
+    redirect: 'list',
+    errorNotification: (error) => ({
+      message: '오류가 발생했습니다.',
+      description: error?.message || '알 수 없는 오류가 발생했습니다.',
+      type: 'error',
+    }),
+    onMutationSuccess: () => {
+      messageApi.success('리소스가 성공적으로 수정되었습니다');
+    },
+  });
+
+  // 저장 전 데이터 변환 필요 시 사용
+  const handleSave = async (values: any) => {
+    // 필요한 데이터 변환 로직
+    return values;
+  };
+
+  return (
+    <AuthorizePage resource="resource_name" action="edit">
+      <Edit
+        breadcrumb={false}
+        title={resource?.meta?.edit?.label}
+        saveButtonProps={{
+          ...saveButtonProps,
+          onClick: async () => {
+            const values = await formProps.form?.validateFields();
+            if (values) {
+              const transformedValues = await handleSave(values);
+              formProps.onFinish?.(transformedValues);
+            }
+          },
+        }}
+      >
+        {contextHolder}
+        <Form {...formProps} layout="vertical">
+          <MultiLanguageInput 
+            name="title" 
+            label="제목" 
+            required={true} 
+          />
+          
+          {/* 추가 필드는 각 리소스에 맞게 구현 */}
+        </Form>
+      </Edit>
+    </AuthorizePage>
+  );
+}
+```
+
+## 상세 페이지 템플릿
+
+```tsx
+'use client';
+
+import { useShow, useResource } from '@refinedev/core';
+import { Show, TextField, DateField } from '@refinedev/antd';
+import { theme, Typography, Space } from 'antd';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { MultiLanguageDisplay } from '@/components/ui';
+import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
+
+const { Title } = Typography;
+
+export default function ResourceShow() {
+  const { queryResult } = useShow();
+  const { data, isLoading } = queryResult;
+  const record = data?.data;
+  const { resource } = useResource();
+  
+  // Ant Design의 테마 토큰 사용
+  const { token } = theme.useToken();
+
+  return (
+    <AuthorizePage resource="resource_name" action="show">
+      <Show
+        breadcrumb={false}
+        title={resource?.meta?.show?.label}
+        isLoading={isLoading}
+      >
+        <div style={getCardStyle(token)}>
+          <Title level={4} style={getTitleStyle(token)}>
+            기본 정보
+          </Title>
+          
+          <div style={getSectionStyle(token)}>
+            <Title level={5}>ID</Title>
+            <TextField value={record?.id} />
+          </div>
+          
+          <div style={{...getSectionStyle(token), marginTop: '16px'}}>
+            <Title level={5}>제목</Title>
+            <MultiLanguageDisplay value={record?.title} />
+          </div>
+          
+          <div style={{...getSectionStyle(token), marginTop: '16px'}}>
+            <Title level={5}>생성일/수정일</Title>
+            <Space direction="vertical">
+              <DateField value={record?.created_at} format="YYYY-MM-DD HH:mm:ss" />
+              <DateField value={record?.updated_at} format="YYYY-MM-DD HH:mm:ss" />
+            </Space>
+          </div>
+          
+          {/* 추가 필드는 각 리소스에 맞게 구현 */}
+        </div>
+      </Show>
+    </AuthorizePage>
+  );
+}
+```
+
+## 공통 스타일 가이드라인
+
+1. **일관된 Refine 컴포넌트 사용:**
+   - `List`, `Create`, `Edit`, `Show` 컴포넌트를 모든 리소스에서 동일한 방식으로 활용
+   - `useTable`, `useForm`, `useShow` 등의 Refine 훅 활용
+
+2. **권한 관리:**
+   - 모든 페이지에 `AuthorizePage` 컴포넌트로 권한 체크 적용
+
+3. **다국어 지원:**
+   - 입력 폼에는 `MultiLanguageInput` 컴포넌트 사용
+   - 데이터 표시에는 `MultiLanguageDisplay` 컴포넌트 사용
+
+4. **테이블 표시:**
+   - 모든 리스트 페이지의 테이블에 동일한 페이지네이션 옵션 적용
+   - 검색 기능 표준화 (`Input.Search`)
+   - 행 클릭 시 상세 페이지로 이동 동작 일관성 유지 

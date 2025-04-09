@@ -1,0 +1,82 @@
+---
+name: DDL 기반 리소스 템플릿
+description: 데이터베이스 DDL을 이용한 Refine 리소스 생성 템플릿
+pattern: app/**/*.tsx
+---
+
+# DDL 기반 리소스 생성 템플릿
+
+데이터베이스 DDL을 기반으로 Refine 리소스 CRUD 컴포넌트를 생성하는 방법을 제공합니다.
+
+## 사용 방법
+
+다음과 같은 프롬프트를 Cursor AI에 입력하세요:
+
+```
+다음 DDL을 기반으로 Refine 리소스 CRUD 컴포넌트를 생성해주세요:
+
+CREATE TABLE [테이블명] (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  [필드1] [타입] [제약조건],
+  [필드2] [타입] [제약조건],
+  ...
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+리소스 이름: [리소스명]
+표시 이름: [표시명]
+다국어 필드: [필드1, 필드2, ...] (해당되는 경우)
+
+app/[리소스명] 폴더에 표준 CRUD 구조(리스트/생성/수정/상세)를 생성하고, 
+Refine 기본 컴포넌트를 최대한 활용해주세요.
+```
+
+## 필드 타입 매핑 가이드
+
+DDL의 데이터 타입과 Refine 컴포넌트의 매핑 가이드입니다:
+
+| 데이터베이스 타입 | 폼 컴포넌트 | 테이블 컴포넌트 | 상세 페이지 컴포넌트 |
+|--------------|----------|-----------|--------------|
+| VARCHAR, TEXT, CHAR | `<Input />` | `<Table.Column />` | `<TextField />` |
+| JSONB (다국어) | `<MultiLanguageInput />` | `<MultiLanguageDisplay />` | `<MultiLanguageDisplay />` |
+| INTEGER, BIGINT | `<InputNumber />` | `<Table.Column />` | `<TextField />` |
+| DECIMAL, NUMERIC | `<InputNumber precision={2} />` | `<Table.Column />` | `<TextField />` |
+| BOOLEAN | `<Switch />` | `<Table.Column render={...} />` | `<BooleanField />` |
+| DATE | `<DatePicker />` | `<DateField format="YYYY-MM-DD" />` | `<DateField format="YYYY-MM-DD" />` |
+| TIMESTAMP | `<DatePicker showTime />` | `<DateField format="YYYY-MM-DD HH:mm:ss" />` | `<DateField format="YYYY-MM-DD HH:mm:ss" />` |
+| UUID (외래 키) | `<Select options={...} />` | `<Table.Column render={...} />` | `<TextField />` |
+| ENUM | `<Select options={...} />` | `<Table.Column render={...} />` | `<TextField />` |
+
+## 예제: 제품 테이블 DDL
+
+```sql
+CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title JSONB NOT NULL,
+  description JSONB,
+  price DECIMAL(10, 2) NOT NULL,
+  stock INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  category_id UUID REFERENCES categories(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+## 생성될 컴포넌트 예시
+
+DDL을 기반으로 다음과 같은 CRUD 컴포넌트가 생성됩니다:
+
+1. **리스트 페이지**: 테이블 형태로 데이터를 표시하며 페이지네이션, 정렬, 필터링 기능 포함
+2. **생성 페이지**: 모든 필드에 대한 입력 폼 제공
+3. **수정 페이지**: 기존 데이터를 불러와 수정할 수 있는 폼 제공
+4. **상세 페이지**: 데이터의 모든 필드를 상세하게 표시
+
+## 권한 처리
+
+생성된 모든 페이지는 `<AuthorizePage>` 컴포넌트로 감싸져 권한 체크를 자동으로 수행합니다.
+
+## 다국어 처리
+
+다국어 필드로 지정된 JSONB 타입 필드는 자동으로 `<MultiLanguageInput>` 및 `<MultiLanguageDisplay>` 컴포넌트를 이용하여 처리됩니다. 
