@@ -1,17 +1,23 @@
 'use client';
 
-import { Show, DateField } from '@refinedev/antd';
+import { Show } from '@refinedev/antd';
 import { useResource, useShow } from '@refinedev/core';
-import { Typography, Space } from 'antd';
+import { Skeleton } from 'antd';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-
-const { Title, Text } = Typography;
+import AdminUserRolesDetail from '@/app/admin_user_roles/components/AdminUserRolesDetail';
 
 export default function UserRoleShow() {
   const { queryResult } = useShow();
   const { data, isLoading } = queryResult;
-  const record = data?.data;
   const { resource } = useResource();
+
+  if (isLoading) {
+    return (
+      <AuthorizePage resource='admin_user_roles' action='show'>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </AuthorizePage>
+    );
+  }
 
   return (
     <AuthorizePage resource='admin_user_roles' action='show'>
@@ -21,20 +27,7 @@ export default function UserRoleShow() {
         
         title={resource?.meta?.label}
       >
-      <Title level={5}>사용자 역할 ID</Title>
-        <Text>{record?.id}</Text>
-
-        <Title level={5}>사용자 ID</Title>
-        <Text>{record?.user_id}</Text>
-
-        <Title level={5}>역할 ID</Title>
-        <Text>{record?.role_id}</Text>
-
-        <Title level={5}>생성일/수정일</Title>
-        <Space direction="vertical">
-          <DateField value={record?.created_at} format='YYYY-MM-DD HH:mm:ss' />
-          <DateField value={record?.updated_at} format='YYYY-MM-DD HH:mm:ss' />
-        </Space>
+        <AdminUserRolesDetail record={data?.data} loading={isLoading} />
       </Show>
     </AuthorizePage>
   );

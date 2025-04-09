@@ -1,12 +1,11 @@
 'use client';
 
-import { Show, DateField, EditButton } from '@refinedev/antd';
-import { Typography } from 'antd';
+import { Show } from '@refinedev/antd';
+import { Skeleton } from 'antd';
 import { AdminRole } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import { useResource, useShow } from '@refinedev/core';
-
-const { Title, Text } = Typography;
+import AdminRolesDetail from '@/app/admin_roles/components/AdminRolesDetail';
 
 export default function RoleShow(params: { params: { id: string } }) {
   const { queryResult } = useShow<AdminRole>({
@@ -15,10 +14,15 @@ export default function RoleShow(params: { params: { id: string } }) {
   });
 
   const { data, isLoading } = queryResult;
-  const record = data?.data;
   const { resource } = useResource();
 
-  console.log(resource);
+  if (isLoading) {
+    return (
+      <AuthorizePage resource='admin_roles' action='show'>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </AuthorizePage>
+    );
+  }
 
   return (
     <AuthorizePage resource='admin_roles' action='show'>
@@ -28,20 +32,7 @@ export default function RoleShow(params: { params: { id: string } }) {
         
         title={resource?.meta?.label}
       >
-        <Title level={5}>ID</Title>
-        <Text>{record?.id}</Text>
-
-        <Title level={5}>역할 이름</Title>
-        <Text>{record?.name}</Text>
-
-        <Title level={5}>설명</Title>
-        <Text>{record?.description}</Text>
-
-        <Title level={5}>생성일</Title>
-        <DateField value={record?.created_at} format='YYYY-MM-DD HH:mm:ss' />
-          
-        <Title level={5}>수정일</Title>
-        <DateField value={record?.updated_at} format='YYYY-MM-DD HH:mm:ss' />
+        <AdminRolesDetail record={data?.data} loading={isLoading} />
       </Show>
     </AuthorizePage>
   );

@@ -2,12 +2,11 @@
 
 import { useOne, useResource } from '@refinedev/core';
 import { Show } from '@refinedev/antd';
-import { Typography, Card } from 'antd';
+import { Skeleton } from 'antd';
 import { useParams } from 'next/navigation';
 import { Config } from '@/lib/types/config';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-
-const { Title, Text } = Typography;
+import ConfigDetail from '@/app/config/components/ConfigDetail';
 
 export default function ConfigShow() {
   const params = useParams();
@@ -18,8 +17,16 @@ export default function ConfigShow() {
     id,
   });
 
-  const record = data?.data;
   const { resource } = useResource();
+  
+  if (isLoading) {
+    return (
+      <AuthorizePage resource='config' action='show'>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </AuthorizePage>
+    );
+  }
+
   return (
     <AuthorizePage resource='config' action='show'>
       <Show
@@ -28,23 +35,7 @@ export default function ConfigShow() {
         
         title={resource?.meta?.label}
       >
-      <Card>
-          <Title level={5}>키</Title>
-          <Text>{record?.key}</Text>
-
-          <Title level={5}>값</Title>
-          <Text>{record?.value}</Text>
-
-          <Title level={5}>생성일</Title>
-          <Text>
-            {record?.created_at && new Date(record.created_at).toLocaleString()}
-          </Text>
-
-          <Title level={5}>수정일</Title>
-          <Text>
-            {record?.updated_at && new Date(record.updated_at).toLocaleString()}
-          </Text>
-        </Card>
+        <ConfigDetail record={data?.data} loading={isLoading} />
       </Show>
     </AuthorizePage>
   );

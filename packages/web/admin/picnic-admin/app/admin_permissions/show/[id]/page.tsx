@@ -1,17 +1,24 @@
 'use client';
 
-import { Show, DateField } from '@refinedev/antd';
-import { useNavigation, useResource, useShow } from '@refinedev/core';
-import { Typography, Space } from 'antd';
+import { Show } from '@refinedev/antd';
+import { useResource, useShow } from '@refinedev/core';
+import { Skeleton } from 'antd';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-
-const { Title, Text } = Typography;
+import AdminPermissionsDetail from '@/app/admin_permissions/components/AdminPermissionsDetail';
 
 export default function PermissionShow() {
   const { queryResult } = useShow();
   const { data, isLoading } = queryResult;
-  const record = data?.data;
   const { resource } = useResource();
+
+  if (isLoading) {
+    return (
+      <AuthorizePage resource='admin_permissions' action='show'>
+        <Skeleton active paragraph={{ rows: 5 }} />
+      </AuthorizePage>
+    );
+  }
+
   return (
     <AuthorizePage resource='admin_permissions' action='show'>
       <Show
@@ -20,20 +27,7 @@ export default function PermissionShow() {
         
         title={resource?.meta?.label}
       >
-        <Title level={5}>권한 ID</Title>
-        <Text>{record?.id}</Text>
-
-        <Title level={5}>권한 이름</Title>
-        <Text>{record?.name}</Text>
-
-        <Title level={5}>설명</Title>
-        <Text>{record?.description}</Text>
-
-        <Title level={5}>생성일/수정일</Title>
-        <Space direction="vertical">
-          <DateField value={record?.created_at} format='YYYY-MM-DD HH:mm:ss' />
-          <DateField value={record?.updated_at} format='YYYY-MM-DD HH:mm:ss' />
-        </Space>
+        <AdminPermissionsDetail record={data?.data} loading={isLoading} />
       </Show>
     </AuthorizePage>
   );
