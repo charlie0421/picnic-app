@@ -27,6 +27,12 @@
       "file": "ddl-based-resource-templates.mdc"
     },
     {
+      "name": "리소스 컴포넌트 표준화",
+      "description": "기존 리소스 컴포넌트의 코드 스타일을 표준화하는 가이드",
+      "pattern": "app/**/*.tsx",
+      "file": "standardize-resource-components.mdc"
+    },
+    {
       "name": "컴포넌트 구조",
       "description": "컴포넌트 폴더 구조 가이드",
       "pattern": "components/**/*",
