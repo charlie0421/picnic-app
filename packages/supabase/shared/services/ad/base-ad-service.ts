@@ -34,6 +34,10 @@ export interface AdMobAdCallbackResponse extends BaseAdCallbackResponse {
   };
 }
 
+export interface UnityAdCallbackResponse extends BaseAdCallbackResponse {
+  body: string;
+}
+
 export interface DefaultAdCallbackResponse extends BaseAdCallbackResponse {}
 
 export abstract class BaseAdService {
@@ -60,6 +64,7 @@ export abstract class BaseAdService {
     | PincruxAdCallbackResponse
     | TapjoyAdCallbackResponse
     | AdMobAdCallbackResponse
+    | UnityAdCallbackResponse
   >;
 
   protected async updateUserReward(
@@ -107,12 +112,30 @@ export abstract class BaseAdService {
     transactionId: string,
     tableName: string,
   ): Promise<boolean> {
-    const { data } = await this.supabase
-      .from(tableName)
-      .select('transaction_id')
-      .eq('transaction_id', transactionId)
-      .single();
-    return !!data;
+    try {
+      const { data, error } = await this.supabase
+        .from(tableName)
+        .select('transaction_id')
+        .eq('transaction_id', transactionId);
+
+      if (error) {
+        console.error('중복 트랜잭션 체크 중 오류:', {
+          transactionId,
+          tableName,
+          error,
+        });
+        return true; // 에러 발생 시 보수적으로 중복 처리
+      }
+
+      return (data?.length ?? 0) > 0;
+    } catch (error) {
+      console.error('중복 트랜잭션 체크 중 예상치 못한 오류:', {
+        transactionId,
+        tableName,
+        error,
+      });
+      return true; // 예상치 못한 오류 발생 시 보수적으로 중복 처리
+    }
   }
 
   async checkUserExists(userId: string): Promise<boolean> {

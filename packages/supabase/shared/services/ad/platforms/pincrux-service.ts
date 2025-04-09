@@ -123,7 +123,7 @@ export class PincruxService extends BaseAdService {
       // 1. 파라미터 검증
       const verificationResult = await this.verify(params);
       if (!verificationResult.isValid) {
-        console.log('Pincrux 콜백 파라미터 검증 실패', verificationResult);
+        console.error('Pincrux 콜백 파라미터 검증 실패', verificationResult);
         return {
           status: 400,
           body: {

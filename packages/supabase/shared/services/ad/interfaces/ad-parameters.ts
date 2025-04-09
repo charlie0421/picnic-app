@@ -54,26 +54,10 @@ export interface TapjoyParameters {
   ad_network: string;
 }
 
-export interface UnityAdsParameters {
-  user_id: string;
-  reward_amount: number;
-  reward_type: string;
-  transaction_id: string;
-  signature: string;
-  platform: string;
-  ad_network: string;
-  placement_id: string;
-  placement_name: string;
-  placement_type: string;
-  placement_state: string;
-  placement_reward_amount: number;
-  placement_reward_item_key: string;
-  placement_reward_item_name: string;
-  placement_reward_item_picture: string;
-  placement_reward_item_multiplier: number;
-  placement_reward_item_extra_data?: Record<string, unknown>;
-  placement_reward_item_decision_point?: string;
-  placement_reward_item_decision_point_data?: Record<string, unknown>;
+export interface UnityAdsParameters extends AdCallbackParams {
+  sid: string;
+  oid: string;
+  hmac: string;
 }
 
 export interface AppLovinParameters {

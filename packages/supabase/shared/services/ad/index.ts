@@ -4,6 +4,7 @@ import { AdMobService } from '@shared/services/ad/platforms/admob-service.ts';
 import { PangleService } from '@shared/services/ad/platforms/pangle-service.ts';
 import { PincruxService } from '@shared/services/ad/platforms/pincrux-service.ts';
 import { TapjoyService } from '@shared/services/ad/platforms/tapjoy-service.ts';
+import { UnityService } from '@shared/services/ad/platforms/unity-service.ts';
 import { BaseAdService } from '@shared/services/ad/base-ad-service.ts';
 
 export type { AdParameters, AdVerificationResult };
@@ -26,8 +27,10 @@ export class AdServiceFactory {
         return new PincruxService(secretKey);
       case 'tapjoy':
         return new TapjoyService(secretKey);
+      case 'unity':
+        return new UnityService(secretKey);
       default:
-        throw new Error(`지원하지 않는 광고 플랫폼입니다: ${platform}`);
+        throw new Error(`Unsupported ad platform: ${platform}`);
     }
   }
 }
