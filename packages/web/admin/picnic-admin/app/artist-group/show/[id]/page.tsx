@@ -167,7 +167,7 @@ export default function ArtistGroupShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.label}
       >
         <div

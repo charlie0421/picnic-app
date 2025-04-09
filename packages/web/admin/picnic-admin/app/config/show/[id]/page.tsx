@@ -25,7 +25,7 @@ export default function ConfigShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.label}
       >
       <Card>

@@ -18,7 +18,7 @@ export default function UserRoleShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.label}
       >
       <Title level={5}>사용자 역할 ID</Title>

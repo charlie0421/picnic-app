@@ -17,7 +17,7 @@ export default function PermissionCreate() {
     <AuthorizePage resource='admin_permissions' action='create'>
       <Create
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.create?.label}
         saveButtonProps={saveButtonProps}
       >

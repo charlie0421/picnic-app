@@ -16,7 +16,7 @@ export default function ConfigCreate() {
     <AuthorizePage resource='config' action='create'>
       <Create
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.create?.label}
         saveButtonProps={saveButtonProps}
       >

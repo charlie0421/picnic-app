@@ -17,7 +17,7 @@ export default function PermissionShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.label}
       >
         <Title level={5}>권한 ID</Title>

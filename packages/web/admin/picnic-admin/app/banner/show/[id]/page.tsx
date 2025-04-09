@@ -33,7 +33,7 @@ export default function BannerShow({ params }: { params: { id: string } }) {
     <AuthorizePage resource='banner' action='show'>
       <Show
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.show?.label}
         isLoading={queryResult?.isLoading}
         canDelete={true}

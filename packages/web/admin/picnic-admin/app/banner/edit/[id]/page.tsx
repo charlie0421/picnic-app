@@ -57,7 +57,7 @@ export default function BannerEdit() {
       {contextHolder}
       <Edit
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.edit?.label}
         resource='banner'
         saveButtonProps={{

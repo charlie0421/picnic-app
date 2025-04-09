@@ -22,7 +22,7 @@ export default function VoteCreate() {
     <AuthorizePage resource='vote' action='create'>
       <Create
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.create?.label}
         saveButtonProps={saveButtonProps}
       >

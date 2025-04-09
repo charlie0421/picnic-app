@@ -31,7 +31,7 @@ export default function RoleUserCreate() {
     <AuthorizePage resource='admin_user_roles' action='create'>
       <Create
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.create?.label}
         saveButtonProps={saveButtonProps}
       >

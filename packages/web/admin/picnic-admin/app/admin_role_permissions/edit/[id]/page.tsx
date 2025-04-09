@@ -30,7 +30,7 @@ export default function RolePermissionEdit() {
     <AuthorizePage resource='admin_role_permissions' action='edit'>
       <Edit
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.edit?.label}
         saveButtonProps={saveButtonProps}
       >

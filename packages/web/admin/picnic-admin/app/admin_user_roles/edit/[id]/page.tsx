@@ -28,7 +28,7 @@ export default function RoleUserEdit() {
   return (
     <Edit
     breadcrumb={false}
-    goBack={false}
+    
     title={resource?.meta?.edit?.label}
     saveButtonProps={saveButtonProps}
   >

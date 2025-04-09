@@ -25,7 +25,7 @@ export default function RoleShow(params: { params: { id: string } }) {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.label}
       >
         <Title level={5}>ID</Title>

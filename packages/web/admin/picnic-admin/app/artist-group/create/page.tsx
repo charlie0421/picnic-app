@@ -84,7 +84,7 @@ export default function ArtistGroupCreate() {
     <AuthorizePage resource='artist_group' action='create'>
       <Create
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.create?.label}
         saveButtonProps={{
           ...saveButtonProps,

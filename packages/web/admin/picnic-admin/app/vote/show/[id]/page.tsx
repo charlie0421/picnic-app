@@ -41,7 +41,7 @@ export default function VoteShow({ params }: { params: { id: string } }) {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.label}
       >
         <div

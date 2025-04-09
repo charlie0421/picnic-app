@@ -30,7 +30,7 @@ export default function ConfigEdit() {
     <AuthorizePage resource='config' action='edit'>
       <Edit
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.edit?.label}
         saveButtonProps={saveButtonProps}
       >

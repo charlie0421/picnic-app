@@ -17,7 +17,7 @@ export default function RolePermissionShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        goBack={false}
+        
         title={resource?.meta?.label}
       >
       <Title level={5}>역할 권한 ID</Title>
