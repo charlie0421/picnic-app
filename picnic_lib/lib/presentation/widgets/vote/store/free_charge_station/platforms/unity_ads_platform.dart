@@ -1,10 +1,12 @@
 // unity_ads_platform.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 /// Unity Ads 플랫폼 구현
@@ -53,11 +55,13 @@ class UnityAdsPlatform extends AdPlatform {
 
     try {
       // 테스트 모드로 초기화 (개발 환경에서는 true로 설정)
-      final testMode = true;
-
+      final testMode = kDebugMode;
+      logger.i('Unity Ads 초기화 시작 (testMode: $testMode)');
+      logger.i('Unity Ads 게임 ID: $gameId');
+      logger.i('Unity Ads 배치 ID: $placementId');
+      logger.i('Unity Ads 서버 ID: ${supabase.auth.currentUser!.id}');
       await UnityAds.init(
         gameId: gameId,
-        testMode: testMode,
         onComplete: () {
           logger.i('Unity Ads 초기화 완료 (testMode: $testMode)');
           _isInitialized = true;
@@ -79,6 +83,7 @@ class UnityAdsPlatform extends AdPlatform {
 
   @override
   Future<void> showAd() async {
+    logger.i('Unity Ads showAd 시작');
     await safelyExecute(() async {
       final placementId = isIOS()
           ? Environment.unityIosPlacementId
@@ -150,6 +155,7 @@ class UnityAdsPlatform extends AdPlatform {
           logger.i('Unity Ads 표시 시작');
           await UnityAds.showVideoAd(
             placementId: placementId,
+            serverId: supabase.auth.currentUser!.id,
             onStart: (placementId) {
               logger.i('Unity Ads 비디오 시작됨');
               // 광고가 실제로 시작될 때 애니메이션 중지

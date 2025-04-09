@@ -182,14 +182,14 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       globalIndex++;
     }
 
-    if (_adService.isPlatformAvailable('unity_ads')) {
+    if (_adService.isPlatformAvailable('unity')) {
       items.add(ChargeStationItem(
         id: 'unity',
         title:
             '${S.of(context).label_global_recommendation} #${globalIndex + 1}',
         isMission: false,
-        platformType: AdPlatformType.unityAds,
-        onPressed: () => _adService.getPlatform('unity_ads')?.showAd(),
+        platformType: AdPlatformType.unity,
+        onPressed: () => _adService.getPlatform('unity')?.showAd(),
         bonusText: '1',
       ));
       globalIndex++;
