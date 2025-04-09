@@ -1,6 +1,6 @@
 enum AdPlatformType {
   admob,
-  unityAds,
+  unity,
   pangle,
   tapjoy,
   pincrux,

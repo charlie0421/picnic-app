@@ -30,7 +30,7 @@ class AdService {
   void _initPlatforms() {
     _platforms = {
       'admob': AdmobPlatform(ref, context, 'admob', animationController),
-      'unity': UnityAdsPlatform(ref, context, 'unity_ads', animationController),
+      'unity': UnityAdsPlatform(ref, context, 'unity', animationController),
       'pangle': PanglePlatform(ref, context, 'pangle', animationController),
       'tapjoy': TapjoyPlatform(ref, context, 'tapjoy', animationController),
       'pincrux': PincruxPlatform(ref, context, 'pincrux', animationController),
@@ -82,11 +82,10 @@ class AdService {
             Environment.admobAndroidRewardedVideoId != null &&
             Environment.admobAndroidRewardedVideoId!.isNotEmpty;
       case 'unity':
-        return false;
-      // return Environment.unityAppleGameId != null &&
-      //     Environment.unityAppleGameId!.isNotEmpty &&
-      //     Environment.unityAndroidGameId != null &&
-      //     Environment.unityAndroidGameId!.isNotEmpty;
+        return Environment.unityAppleGameId != null &&
+            Environment.unityAppleGameId!.isNotEmpty &&
+            Environment.unityAndroidGameId != null &&
+            Environment.unityAndroidGameId!.isNotEmpty;
       case 'pangle':
         return Environment.pangleIosAppId != null &&
             Environment.pangleIosAppId!.isNotEmpty &&
