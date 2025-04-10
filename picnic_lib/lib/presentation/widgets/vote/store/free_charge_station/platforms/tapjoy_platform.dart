@@ -1,4 +1,4 @@
-import 'package:picnic_lib/core/utils/logger.dart';
+import 'dart:async';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -6,81 +6,120 @@ import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 
 /// Tapjoy 미션 플랫폼 구현
 class TapjoyPlatform extends AdPlatform {
+  Timer? _safetyTimer;
+  bool _isInitialized = false;
+  TJPlacement? _currentPlacement;
+
   TapjoyPlatform(super.ref, super.context, super.id,
       [super.animationController]);
 
   @override
   Future<void> initialize() async {
-    // Tapjoy는 showAd에서 초기화
+    if (_isInitialized || isDisposed) return;
+    _isInitialized = true;
+    logInfo('초기화 완료');
   }
 
   @override
   Future<void> showAd() async {
     await safelyExecute(() async {
-      // 애니메이션 시작
-      startButtonAnimation();
+      if (!context.mounted || isDisposed) return;
 
+      startButtonAnimation();
+      _setupSafetyTimer();
       await _setupTapjoyUser();
       await _requestTapjoyPlacement();
-      // 애니메이션은 콜백에서 중지됨
     }, isMission: true);
   }
 
+  void _setupSafetyTimer() {
+    _safetyTimer?.cancel();
+    _safetyTimer = Timer(const Duration(seconds: 30), () {
+      if (context.mounted && !isDisposed) {
+        logWarning('안전장치: 애니메이션 중지');
+        stopAllAnimations();
+      }
+    });
+  }
+
   Future<void> _setupTapjoyUser() async {
+    startPerformanceLog('사용자 설정');
     await Tapjoy.setUserID(
       userId: supabase.auth.currentUser!.id,
-      onSetUserIDSuccess: () =>
-          logger.i('setUserID onSuccess: ${supabase.auth.currentUser!.id}'),
-      onSetUserIDFailure: (error) =>
-          {logger.e('setUserID onFailure', error: error), stopAllAnimations()},
+      onSetUserIDSuccess: () {
+        logInfo('사용자 ID 설정 성공: ${supabase.auth.currentUser!.id}');
+        endPerformanceLog('사용자 설정');
+      },
+      onSetUserIDFailure: (error) {
+        logAdLoadFailure('Tapjoy', error, 'mission', error.toString(), null);
+        if (!isDisposed) {
+          stopAllAnimations();
+        }
+      },
     );
   }
 
   Future<void> _requestTapjoyPlacement() async {
-    TJPlacement placement = await TJPlacement.getPlacement(
+    startPerformanceLog('플레이스먼트 요청');
+    _currentPlacement = await TJPlacement.getPlacement(
       placementName: 'mission',
-      onRequestSuccess: (placement) async {
-        logger.i('Tapjoy onRequestSuccess');
+      onRequestSuccess: (placement) {
+        logInfo('플레이스먼트 요청 성공');
       },
       onRequestFailure: (placement, error) {
-        logger.e('Tapjoy onRequestFailure', error: error);
-        if (context.mounted) {
-          stopAllAnimations();
-
-          commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
-              error: error);
-        }
+        logAdLoadFailure('Tapjoy', error, 'mission', error.toString(), null);
+        _handleAdFailure(error);
       },
       onContentReady: (placement) {
-        logger.i('Tapjoy onContentReady');
+        logInfo('콘텐츠 준비 완료');
         placement.showContent();
-        // 콘텐츠가 준비되어 표시될 때 애니메이션 중지
         stopAllAnimations();
       },
       onContentShow: (placement) {
-        logger.i('Tapjoy onContentShow');
+        logInfo('콘텐츠 표시 시작');
       },
       onContentDismiss: (placement) {
-        logger.i('Tapjoy onContentDismiss');
-        if (context.mounted) {
+        logInfo('콘텐츠 닫힘');
+        if (context.mounted && !isDisposed) {
           stopAllAnimations();
           commonUtils.refreshUserProfile();
         }
+        endPerformanceLog('플레이스먼트 요청');
       },
     );
-    placement.setEntryPoint(TJEntryPoint.entryPointStore);
 
-    await placement.requestContent();
+    if (_currentPlacement != null) {
+      _currentPlacement!.setEntryPoint(TJEntryPoint.entryPointStore);
+      await _currentPlacement!.requestContent();
+    } else {
+      logAdLoadFailure(
+          'Tapjoy', '플레이스먼트 생성 실패', 'mission', '플레이스먼트 생성 실패', null);
+    }
+  }
+
+  void _handleAdFailure(String? error) {
+    if (context.mounted && !isDisposed) {
+      stopAllAnimations();
+      commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+          error: error ?? 'Unknown error');
+    }
   }
 
   @override
   Future<void> handleError(error, StackTrace? stackTrace) async {
-    logger.e('Error in Tapjoy mission', error: error, stackTrace: stackTrace);
-    if (context.mounted) {
+    logError('오류 발생', error: error, stackTrace: stackTrace);
+    if (context.mounted && !isDisposed) {
       stopAllAnimations();
-
       commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
           error: error);
     }
+  }
+
+  @override
+  void dispose() {
+    _safetyTimer?.cancel();
+    _safetyTimer = null;
+    _currentPlacement = null;
+    super.dispose();
   }
 }

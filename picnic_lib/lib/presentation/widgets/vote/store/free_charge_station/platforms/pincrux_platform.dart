@@ -1,4 +1,4 @@
-import 'package:picnic_lib/core/utils/logger.dart';
+import 'dart:async';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -8,71 +8,86 @@ import 'package:universal_io/io.dart';
 
 /// Pincrux 미션 플랫폼 구현
 class PincruxPlatform extends AdPlatform {
+  Timer? _safetyTimer;
+  bool _isInitialized = false;
+
   PincruxPlatform(super.ref, super.context, super.id,
       [super.animationController]);
 
   @override
   Future<void> initialize() async {
-    // Pincrux는 showAd에서 초기화
+    if (_isInitialized || isDisposed) return;
+    _isInitialized = true;
+    logInfo('초기화 완료');
   }
 
   @override
   Future<void> showAd() async {
     await safelyExecute(() async {
-      // 애니메이션 시작
+      if (!context.mounted || isDisposed) return;
+
       startButtonAnimation();
-
-      // 최대 30초 후에는 무조건 애니메이션 중지 (안전장치)
-      Future.delayed(const Duration(seconds: 30), () {
-        if (context.mounted) {
-          logger.i('Pincrux 안전장치: 애니메이션 중지');
-          stopAllAnimations();
-        }
-      });
-
+      _setupSafetyTimer();
       await _showPincruxOfferwall();
-      // 애니메이션 중지
       stopAllAnimations();
     }, isMission: true);
   }
 
+  void _setupSafetyTimer() {
+    _safetyTimer?.cancel();
+    _safetyTimer = Timer(const Duration(seconds: 30), () {
+      if (context.mounted && !isDisposed) {
+        logWarning('안전장치: 애니메이션 중지');
+        stopAllAnimations();
+      }
+    });
+  }
+
   Future<void> _showPincruxOfferwall() async {
     try {
-      logger.i('showPincruxOfferwall');
-      // Pincrux SDK 초기화
+      startPerformanceLog('오퍼월 표시');
+      logInfo('오퍼월 시작');
+
       String userId = supabase.auth.currentUser!.id;
       String? appKey = Platform.isIOS
           ? Environment.pincruxIosAppKey
           : Environment.pincruxAndroidAppKey;
 
       if (appKey == null || appKey.isEmpty) {
+        logAdLoadFailure(
+            'Pincrux', '앱 키가 설정되지 않음', 'offerwall', '앱 키가 설정되지 않음', null);
         throw Exception('Pincrux app key not available');
       }
 
       PincruxOfferwallPlugin.init(appKey, userId);
-
-      // 오퍼월 타입 설정 (타입 1: 통합형)
       PincruxOfferwallPlugin.setOfferwallType(1);
-
-      // 오퍼월 시작
       PincruxOfferwallPlugin.startPincruxOfferwall();
 
-      // 사용자 프로필 새로고침
-      commonUtils.refreshUserProfile();
+      if (!isDisposed) {
+        logInfo('사용자 프로필 새로고침');
+        commonUtils.refreshUserProfile();
+      }
+      endPerformanceLog('오퍼월 표시');
     } catch (e, s) {
-      logger.e('Error in _showPincruxOfferwall', error: e, stackTrace: s);
+      logAdLoadFailure('Pincrux', e, 'offerwall', 'Pincrux 오퍼월 표시 실패', s);
       rethrow;
     }
   }
 
   @override
   Future<void> handleError(error, StackTrace? stackTrace) async {
-    logger.e('Error in Pincrux mission', error: error, stackTrace: stackTrace);
-    if (context.mounted) {
+    logError('오류 발생', error: error, stackTrace: stackTrace);
+    if (context.mounted && !isDisposed) {
       stopAllAnimations();
-
       commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
           error: error);
     }
+  }
+
+  @override
+  void dispose() {
+    _safetyTimer?.cancel();
+    _safetyTimer = null;
+    super.dispose();
   }
 }

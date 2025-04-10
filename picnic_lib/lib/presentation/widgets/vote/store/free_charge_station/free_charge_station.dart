@@ -75,17 +75,24 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     // 컨텍스트가 유효할 때 광고 플랫폼 초기화
     if (!_isInitializing) {
       _isInitializing = true;
-      _initializeAdPlatforms();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _initializeAdPlatforms();
+      });
     }
   }
 
   // 광고 플랫폼 초기화 메서드
   Future<void> _initializeAdPlatforms() async {
     try {
+      OverlayLoadingProgress.start(context);
       // 모든 광고 플랫폼 초기화
       await _adService.initializeAllPlatforms();
     } catch (e, s) {
       logger.e('Error initializing ad platforms', error: e, stackTrace: s);
+    } finally {
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+      }
     }
   }
 
