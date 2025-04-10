@@ -72,7 +72,7 @@ class UnityAdsPlatform extends AdPlatform {
 
     try {
       await UnityAds.load(
-        placementId: placementId + '_rewarded',
+        placementId: placementId,
         onComplete: (placementId) async {
           logger.i('[$id] 광고 로드 완료');
           await _showLoadedAd(placementId);
@@ -145,6 +145,7 @@ class UnityAdsPlatform extends AdPlatform {
     }
   }
 
+  @override
   void dispose() {
     _safetyTimer?.cancel();
     _safetyTimer = null;
