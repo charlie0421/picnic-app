@@ -1,12 +1,8 @@
 'use client';
 
-import {
-  Show,
-  EditButton,
-  DeleteButton,
-} from '@refinedev/antd';
+import { Show, EditButton, DeleteButton } from '@refinedev/antd';
 import { useShow, useNavigation, useResource } from '@refinedev/core';
-import { Typography, Skeleton, Space, Button } from 'antd';
+import { Typography, Skeleton, Space, Button, theme } from 'antd';
 import { ArtistGroup } from '@/lib/types/artist';
 import { useParams } from 'next/navigation';
 import {
@@ -34,6 +30,7 @@ export default function ArtistGroupShow() {
 
   const { show, edit, list } = useNavigation();
   const { resource } = useResource();
+  const { token } = theme.useToken();
 
   if (isLoading) {
     return (
@@ -48,8 +45,7 @@ export default function ArtistGroupShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        
-        title={resource?.meta?.label}
+        title={resource?.meta?.show?.label}
       >
         <div
           style={{
@@ -60,7 +56,10 @@ export default function ArtistGroupShow() {
           }}
         >
           <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => list('artist_group')}>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => list('artist_group')}
+            >
               목록으로
             </Button>
             <Title level={5} style={{ margin: 0 }}>
@@ -76,13 +75,12 @@ export default function ArtistGroupShow() {
               편집
             </Button>
             <DeleteButton
-              resource='artist_group'
               recordItemId={id}
               onSuccess={() => list('artist_group')}
             />
           </Space>
         </div>
-        
+
         <ArtistGroupDetail record={record} loading={isLoading} />
       </Show>
     </AuthorizePage>

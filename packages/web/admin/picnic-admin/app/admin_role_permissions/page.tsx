@@ -8,8 +8,9 @@ import {
   DeleteButton,
   CreateButton,
 } from '@refinedev/antd';
-import { useNavigation, useMany } from '@refinedev/core';
-import { Table, Space, Tag } from 'antd';
+import { useNavigation, useMany, useResource } from '@refinedev/core';
+import { Table, Space, Tag, Input } from 'antd';
+import { useState } from 'react';
 import {
   AdminRolePermission,
   AdminRole,
@@ -18,6 +19,10 @@ import {
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function RolePermissionList() {
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const { show } = useNavigation();
+  const { resource } = useResource();
+
   const { tableProps } = useTable<AdminRolePermission>({
     resource: 'admin_role_permissions',
     syncWithLocation: true,
@@ -31,6 +36,9 @@ export default function RolePermissionList() {
     },
     meta: {
       select: '*, role_id, permission_id',
+      search: searchTerm
+        ? { query: searchTerm, fields: ['role_id', 'permission_id'] }
+        : undefined,
     },
   });
 
@@ -52,13 +60,27 @@ export default function RolePermissionList() {
     },
   });
 
-  const { create, show } = useNavigation();
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+  };
 
   return (
     <AuthorizePage resource='admin_role_permissions' action='list'>
-      <List 
+      <List
         breadcrumb={false}
-        headerButtons={<CreateButton />}
+        headerButtons={
+          <>
+            <Space>
+              <Input.Search
+                placeholder='검색...'
+                onSearch={handleSearch}
+                style={{ width: 200 }}
+              />
+              <CreateButton />
+            </Space>
+          </>
+        }
+        title={resource?.meta?.list?.label}
       >
         <Table
           {...tableProps}
@@ -78,10 +100,12 @@ export default function RolePermissionList() {
             showTotal: (total) => `총 ${total}개 항목`,
           }}
         >
-          <Table.Column dataIndex='id' title='ID' />
+          <Table.Column dataIndex='id' title='ID' sorter />
           <Table.Column
             dataIndex='role_id'
             title='역할'
+            align='center'
+            sorter
             render={(value) => {
               const role = rolesData?.data?.find((item) => item.id === value);
               return role ? <Tag color='blue'>{role.name}</Tag> : value;
@@ -90,6 +114,8 @@ export default function RolePermissionList() {
           <Table.Column
             dataIndex='permission_id'
             title='권한'
+            align='center'
+            sorter
             render={(value) => {
               const permission = permissionsData?.data?.find(
                 (item) => item.id === value,
@@ -104,7 +130,8 @@ export default function RolePermissionList() {
           <Table.Column
             dataIndex='created_at'
             title='생성일'
-            sorter={true}
+            align='center'
+            sorter
             render={(value) => (
               <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
             )}
@@ -112,20 +139,11 @@ export default function RolePermissionList() {
           <Table.Column
             title='작업'
             dataIndex='actions'
+            align='center'
             render={(_, record: AdminRolePermission) => (
               <Space size='middle'>
-                <EditButton
-                  resource='admin_role_permissions'
-                  hideText
-                  size='small'
-                  recordItemId={record.id}
-                />
-                <DeleteButton
-                  resource='admin_role_permissions'
-                  hideText
-                  size='small'
-                  recordItemId={record.id}
-                />
+                <EditButton hideText size='small' recordItemId={record.id} />
+                <DeleteButton hideText size='small' recordItemId={record.id} />
               </Space>
             )}
           />

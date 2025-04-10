@@ -1,26 +1,26 @@
 'use client';
 
 import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
-import { Table, Input, Space } from 'antd';
 import { useMany, useNavigation, useResource } from '@refinedev/core';
+import { Table, Input, Space, Image } from 'antd';
 import { useState } from 'react';
 import { getCdnImageUrl } from '@/lib/image';
 import { MultiLanguageDisplay } from '@/components/ui';
-import { Image } from 'antd';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { Artist } from '@/lib/types/artist';
 
 export default function ArtistList() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { show } = useNavigation();
   const { resource } = useResource();
 
-  const { tableProps } = useTable({
+  const { tableProps } = useTable<Artist>({
     resource: 'artist',
     syncWithLocation: true,
     sorters: {
       initial: [
         {
-          field: 'id',
+          field: 'created_at',
           order: 'desc',
         },
       ],
@@ -40,7 +40,7 @@ export default function ArtistList() {
     resource: 'artist_group',
     ids:
       (tableProps?.dataSource
-        ?.map((item: any) => {
+        ?.map((item) => {
           const groupId = item?.artist_group_id;
           return groupId ? String(groupId) : undefined;
         })
@@ -50,38 +50,36 @@ export default function ArtistList() {
     },
   });
 
-  // 검색 핸들러
   const handleSearch = (value: string) => {
     setSearchTerm(value);
   };
 
   return (
-    <AuthorizePage resource="artist" action="list">
-      <List 
+    <AuthorizePage resource='artist' action='list'>
+      <List
         breadcrumb={false}
-        headerButtons={<CreateButton />}
+        headerButtons={
+          <>
+            <Space>
+              <Input.Search
+                placeholder='아티스트 이름 검색'
+                onSearch={handleSearch}
+                style={{ width: 300 }}
+                allowClear
+              />
+              <CreateButton />
+            </Space>
+          </>
+        }
         title={resource?.meta?.list?.label}
       >
-        <Space style={{ marginBottom: 16 }}>
-          <Input.Search
-            placeholder="아티스트 이름 검색"
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            allowClear
-          />
-        </Space>
-
         <Table
           {...tableProps}
-          rowKey="id"
+          rowKey='id'
           scroll={{ x: 'max-content' }}
-          onRow={(record: any) => ({
+          onRow={(record) => ({
             style: { cursor: 'pointer' },
-            onClick: () => {
-              if (record.id) {
-                show('artist', record.id);
-              }
-            },
+            onClick: () => show('artist', record.id),
           })}
           pagination={{
             ...tableProps.pagination,
@@ -90,39 +88,41 @@ export default function ArtistList() {
             showTotal: (total) => `총 ${total}개 항목`,
           }}
         >
-          <Table.Column dataIndex="id" title="ID" sorter />
-          
+          <Table.Column dataIndex='id' title='ID' align='center' sorter />
+
           <Table.Column
             dataIndex={['name']}
-            title="이름"
-            align="center"
+            title='이름'
+            align='center'
+            sorter
             render={(value: Record<string, string>) => (
               <MultiLanguageDisplay value={value} />
             )}
           />
-          
+
           <Table.Column
-            dataIndex="image"
-            title="이미지"
-            align="center"
+            dataIndex='image'
+            title='이미지'
+            align='center'
             width={130}
             render={(value: string) => (
               <Image
                 src={getCdnImageUrl(value, 100)}
-                alt="아티스트 이미지"
+                alt='아티스트 이미지'
                 width={100}
                 height={100}
                 preview={false}
               />
             )}
           />
-          
-          <Table.Column dataIndex="gender" title="성별" align="center" />
-          
+
+          <Table.Column dataIndex='gender' title='성별' align='center' sorter />
+
           <Table.Column
-            dataIndex="artist_group_id"
-            title="그룹"
-            align="center"
+            dataIndex='artist_group_id'
+            title='그룹'
+            align='center'
+            sorter
             render={(value) =>
               groupsIsLoading ? (
                 <>로딩 중...</>
@@ -136,9 +136,9 @@ export default function ArtistList() {
                         groupsData?.data?.find(
                           (item) => Number(item.id) === Number(value),
                         )?.image,
-                        50
+                        50,
                       )}
-                      alt="그룹 이미지"
+                      alt='그룹 이미지'
                       width={50}
                       height={50}
                       preview={false}
@@ -153,23 +153,30 @@ export default function ArtistList() {
               )
             }
           />
-          
+
           <Table.Column
-            dataIndex="birth_date"
-            title="생년월일"
-            align="center"
-            render={(value: string) => value || '-'}
+            dataIndex='birth_date'
+            title='생년월일'
+            align='center'
             sorter
+            render={(value: string) => value || '-'}
           />
-          
+
           <Table.Column
             dataIndex={['created_at', 'updated_at']}
-            title="생성일/수정일"
-            align="center"
-            render={(_, record: any) => (
-              <Space direction="vertical">
-                <DateField value={record.created_at} format="YYYY-MM-DD HH:mm:ss" />
-                <DateField value={record.updated_at} format="YYYY-MM-DD HH:mm:ss" />
+            title='생성일/수정일'
+            align='center'
+            sorter
+            render={(_, record: Artist) => (
+              <Space direction='vertical'>
+                <DateField
+                  value={record.created_at}
+                  format='YYYY-MM-DD HH:mm:ss'
+                />
+                <DateField
+                  value={record.updated_at}
+                  format='YYYY-MM-DD HH:mm:ss'
+                />
               </Space>
             )}
           />

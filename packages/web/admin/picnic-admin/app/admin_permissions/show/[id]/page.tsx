@@ -2,14 +2,17 @@
 
 import { Show } from '@refinedev/antd';
 import { useResource, useShow } from '@refinedev/core';
-import { Skeleton } from 'antd';
+import { Skeleton, theme } from 'antd';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import AdminPermissionsDetail from '@/app/admin_permissions/components/AdminPermissionsDetail';
 
 export default function PermissionShow() {
-  const { queryResult } = useShow();
+  const { queryResult } = useShow({
+    resource: 'admin_permissions',
+  });
   const { data, isLoading } = queryResult;
   const { resource } = useResource();
+  const { token } = theme.useToken();
 
   if (isLoading) {
     return (
@@ -24,8 +27,7 @@ export default function PermissionShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        
-        title={resource?.meta?.label}
+        title={resource?.meta?.show?.label}
       >
         <AdminPermissionsDetail record={data?.data} loading={isLoading} />
       </Show>

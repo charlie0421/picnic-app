@@ -115,7 +115,7 @@ export default function ArtistEdit() {
   };
 
   return (
-    <AuthorizePage resource="artist" action="edit">
+    <AuthorizePage resource='artist' action='edit'>
       <Edit
         breadcrumb={false}
         title={resource?.meta?.edit?.label}
@@ -132,11 +132,11 @@ export default function ArtistEdit() {
       >
         {contextHolder}
         <Form {...formProps} layout='vertical'>
-          <Form.Item label={'ID'} name='id'>
+          <Form.Item label='ID' name='id'>
             <Input disabled />
           </Form.Item>
 
-          <MultiLanguageInput name="name" label="이름" required={true} />
+          <MultiLanguageInput name='name' label='이름' required={true} />
 
           <Form.Item
             label='아티스트 그룹'
@@ -186,7 +186,7 @@ export default function ArtistEdit() {
             rules={[
               {
                 required: true,
-                message: '아티스트 이미지를 업로드해주세요',
+                message: '이미지를 업로드해주세요',
               },
             ]}
             getValueProps={(value) => ({

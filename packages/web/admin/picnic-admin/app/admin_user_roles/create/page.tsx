@@ -1,37 +1,29 @@
 'use client';
 
 import { Create, useForm } from '@refinedev/antd';
-// import { useCan } from '@refinedev/core'; // 제거
-import { message /* Spin, Result 제거 */ } from 'antd';
-import RoleUserForm from '@/app/admin_user_roles/components/RoleUserForm';
-import { AdminUserRole } from '@/lib/types/permission';
-import { AuthorizePage } from '@/components/auth/AuthorizePage'; // 임포트
 import { useResource } from '@refinedev/core';
+import { message } from 'antd';
+import { AdminUserRole } from '@/lib/types/permission';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import RoleUserForm from '@/app/admin_user_roles/components/RoleUserForm';
 
 export default function RoleUserCreate() {
-  // 권한 확인 로직 제거
-  // const { data: canAccessData, isLoading: isLoadingAccess } = useCan({
-  //   resource: 'admin_user_roles',
-  //   action: 'create',
-  // });
+  const [messageApi, contextHolder] = message.useMessage();
+  const { resource } = useResource();
 
   const { formProps, saveButtonProps } = useForm<AdminUserRole>({
     resource: 'admin_user_roles',
+    warnWhenUnsavedChanges: true,
+    redirect: 'list',
+    onMutationSuccess: () => {
+      messageApi.success('사용자 역할이 성공적으로 생성되었습니다');
+    },
   });
-  const [messageApi, contextHolder] = message.useMessage();
 
-  // 로딩 및 권한 확인 로직 제거
-  // if (isLoadingAccess) { ... }
-  // if (!canAccessData?.can) { ... }
-
-  // AuthorizePage 로 감싸기
-
-  const { resource } = useResource();
   return (
     <AuthorizePage resource='admin_user_roles' action='create'>
       <Create
         breadcrumb={false}
-        
         title={resource?.meta?.create?.label}
         saveButtonProps={saveButtonProps}
       >

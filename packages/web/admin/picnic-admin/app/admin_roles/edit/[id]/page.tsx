@@ -11,10 +11,17 @@ import { useResource } from '@refinedev/core';
 export default function RoleEdit() {
   const params = useParams();
   const id = params.id as string;
+  const [messageApi, contextHolder] = message.useMessage();
+  const { resource } = useResource();
 
   const { formProps, saveButtonProps } = useForm<AdminRole>({
     resource: 'admin_roles',
     id,
+    warnWhenUnsavedChanges: true,
+    redirect: 'list',
+    onMutationSuccess: () => {
+      messageApi.success('역할이 성공적으로 수정되었습니다');
+    },
     errorNotification: (error) => {
       return {
         message: '오류가 발생했습니다.',
@@ -24,14 +31,10 @@ export default function RoleEdit() {
     },
   });
 
-  const [messageApi, contextHolder] = message.useMessage();
-
-  const { resource } = useResource();
   return (
     <AuthorizePage resource='admin_roles' action='edit'>
       <Edit
         breadcrumb={false}
-        
         title={resource?.meta?.edit?.label}
         saveButtonProps={saveButtonProps}
       >

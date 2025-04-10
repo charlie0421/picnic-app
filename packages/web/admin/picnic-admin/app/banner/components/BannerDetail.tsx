@@ -1,9 +1,11 @@
 'use client';
 
-import { Image, Descriptions, Space } from 'antd';
+import { Image, Descriptions, Space, Typography } from 'antd';
 import { Banner } from '@/lib/types/banner';
 import { getCdnImageUrl } from '@/lib/image';
 import { DateField, TextField } from '@refinedev/antd';
+
+const { Text } = Typography;
 
 type BannerDetailProps = {
   record?: Banner;
@@ -20,34 +22,32 @@ export default function BannerDetail({ record, loading }: BannerDetailProps) {
     {
       key: 'image',
       label: '이미지',
-      children: [
-        <Space key='image' direction='vertical' size={16}>
-          <Image
-            src={getCdnImageUrl(record?.image?.ko)}
-            alt='배너 이미지 (한국어)'
-            width={300}
-            preview={false}
-          />
-          <Image
-            src={getCdnImageUrl(record?.image?.en)}
-            alt='배너 이미지 (영어)'
-            width={300}
-            preview={false}
-          />
-          <Image
-            src={getCdnImageUrl(record?.image?.ja)}
-            alt='배너 이미지 (일본어)'
-            width={300}
-            preview={false}
-          />
-          <Image
-            src={getCdnImageUrl(record?.image?.zh)}
-            alt='배너 이미지 (중국어)'
-            width={300}
-            preview={false}
-          />
-        </Space>,
-      ],
+      span: 3,
+      children: (
+        <Space direction='vertical' size={16}>
+          {['ko', 'en', 'ja', 'zh'].map((lang) => (
+            <div key={lang}>
+              <Text
+                type='secondary'
+                style={{ marginBottom: '8px', display: 'block' }}
+              >
+                {lang === 'ko' && '한국어'}
+                {lang === 'en' && '영어'}
+                {lang === 'ja' && '일본어'}
+                {lang === 'zh' && '중국어'}
+              </Text>
+              <Image
+                src={getCdnImageUrl(
+                  record?.image?.[lang as keyof typeof record.image],
+                )}
+                alt={`배너 이미지 (${lang})`}
+                width={300}
+                style={{ borderRadius: '8px' }}
+              />
+            </div>
+          ))}
+        </Space>
+      ),
     },
     {
       key: 'link',
@@ -74,6 +74,11 @@ export default function BannerDetail({ record, loading }: BannerDetailProps) {
       children: <TextField value={record?.location} />,
     },
     {
+      key: 'order',
+      label: '순서',
+      children: <TextField value={record?.order} />,
+    },
+    {
       key: 'created_at',
       label: '생성일',
       children: (
@@ -87,11 +92,6 @@ export default function BannerDetail({ record, loading }: BannerDetailProps) {
         <DateField value={record?.updated_at} format='YYYY-MM-DD HH:mm:ss' />
       ),
     },
-    {
-      key: 'order',
-      label: '순서',
-      children: <TextField value={record?.order} />,
-    },
   ];
 
   return (
@@ -100,6 +100,7 @@ export default function BannerDetail({ record, loading }: BannerDetailProps) {
       column={1}
       layout='vertical'
       items={descriptionItems}
+      size='small'
     />
   );
 }

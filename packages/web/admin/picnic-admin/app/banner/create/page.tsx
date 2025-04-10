@@ -25,7 +25,6 @@ export default function CreateBannerPage() {
   return (
     <Create
       breadcrumb={false}
-      
       title={resource?.meta?.create?.label}
       saveButtonProps={{
         ...saveButtonProps,

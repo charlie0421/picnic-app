@@ -2,12 +2,7 @@
 
 import { Show, DeleteButton } from '@refinedev/antd';
 import { useShow, useNavigation, useResource } from '@refinedev/core';
-import {
-  Typography,
-  Skeleton,
-  Space,
-  Button,
-} from 'antd';
+import { Typography, Skeleton, Space, Button, theme } from 'antd';
 import {
   EditOutlined,
   DeleteOutlined,
@@ -20,32 +15,32 @@ import { AuthorizePage } from '@/components/auth/AuthorizePage';
 const { Title } = Typography;
 
 export default function ArtistShow() {
-  // URL에서 id 파라미터 가져오기
   const { queryResult } = useShow<Artist>({
     resource: 'artist',
     meta: {
-      select:
-        'id, name, image, yy, mm, dd, gender, group_id, birth_date, debut_yy, debut_mm, debut_dd, created_at, updated_at',
+      select: '*',
     },
   });
 
   const { data, isLoading } = queryResult;
-  const record = data?.data;
-  const id = record?.id;
-
   const { edit, list } = useNavigation();
+  const id = data?.data?.id;
   const { resource } = useResource();
+  const { token } = theme.useToken();
 
   if (isLoading) {
-    return <Skeleton active paragraph={{ rows: 10 }} />;
+    return (
+      <AuthorizePage resource='artist' action='show'>
+        <Skeleton active paragraph={{ rows: 10 }} />
+      </AuthorizePage>
+    );
   }
 
   return (
-    <AuthorizePage resource="artist" action="show">
+    <AuthorizePage resource='artist' action='show'>
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        
         title={resource?.meta?.show?.label}
       >
         <div
@@ -72,15 +67,11 @@ export default function ArtistShow() {
             >
               편집
             </Button>
-            <DeleteButton
-              resource='artist'
-              recordItemId={id}
-              onSuccess={() => list('artist')}
-            />
+            <DeleteButton recordItemId={id} onSuccess={() => list('artist')} />
           </Space>
         </div>
-        
-        <ArtistDetail record={record} loading={isLoading} />
+
+        <ArtistDetail record={data?.data} loading={isLoading} />
       </Show>
     </AuthorizePage>
   );

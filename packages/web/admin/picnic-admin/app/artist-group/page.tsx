@@ -1,30 +1,32 @@
 'use client';
 
 import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
-import { Table, Space, Input } from 'antd';
+import { useNavigation, useResource } from '@refinedev/core';
+import { Table, Space, Input, Image } from 'antd';
 import { useState } from 'react';
 import dayjs from 'dayjs';
-import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
-import { useNavigation } from '@refinedev/core';
-import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import { getCdnImageUrl } from '@/lib/image';
-import { Image } from 'antd';
+import { MultiLanguageDisplay } from '@/components/ui';
+import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import { ArtistGroup } from '@/lib/types/artist';
+
 export default function ArtistGroupList() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { show } = useNavigation();
+  const { resource } = useResource();
 
-  const { tableProps } = useTable({
+  const { tableProps } = useTable<ArtistGroup>({
+    resource: 'artist_group',
     syncWithLocation: true,
     sorters: {
       initial: [
         {
-          field: 'id',
+          field: 'created_at',
           order: 'desc',
         },
       ],
     },
     meta: {
-      // Refine의 meta를 통해 검색어를 백엔드로 전달
       search: searchTerm
         ? {
             query: searchTerm,
@@ -34,42 +36,37 @@ export default function ArtistGroupList() {
     },
   });
 
-  // 검색 핸들러
   const handleSearch = (value: string) => {
     setSearchTerm(value);
   };
 
   return (
     <AuthorizePage resource='artist_group' action='list'>
-      <List 
+      <List
         breadcrumb={false}
-        headerButtons={<CreateButton />}
+        headerButtons={
+          <>
+            <Space>
+              <Input.Search
+                placeholder='아티스트 그룹 이름 검색'
+                onSearch={handleSearch}
+                style={{ width: 300 }}
+                allowClear
+              />
+              <CreateButton />
+            </Space>
+          </>
+        }
+        title={resource?.meta?.list?.label}
       >
-        <Space style={{ marginBottom: 16 }}>
-          <Input.Search
-            placeholder='아티스트 그룹 이름 검색'
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            allowClear
-          />
-        </Space>
-
         <Table
           {...tableProps}
           rowKey='id'
           scroll={{ x: 'max-content' }}
-          onRow={(record: any) => {
-            return {
-              style: {
-                cursor: 'pointer',
-              },
-              onClick: () => {
-                if (record.id) {
-                  show('artist_group', record.id);
-                }
-              },
-            };
-          }}
+          onRow={(record) => ({
+            style: { cursor: 'pointer' },
+            onClick: () => show('artist_group', record.id),
+          })}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,
@@ -77,18 +74,19 @@ export default function ArtistGroupList() {
             showTotal: (total) => `총 ${total}개 항목`,
           }}
         >
-          <Table.Column dataIndex='id' title={'ID'} sorter />
+          <Table.Column dataIndex='id' title='ID' align='center' sorter />
           <Table.Column
             dataIndex={['name']}
-            title={'이름'}
+            title='이름'
             align='center'
+            sorter
             render={(value: Record<string, string>) => (
               <MultiLanguageDisplay value={value} />
             )}
           />
           <Table.Column
             dataIndex='image'
-            title={'이미지'}
+            title='이미지'
             align='center'
             width={130}
             render={(value: string | undefined) => {
@@ -105,22 +103,30 @@ export default function ArtistGroupList() {
             }}
           />
           <Table.Column
-            title={'데뷔일'}
+            dataIndex='debut_date'
+            title='데뷔일'
             align='center'
-            render={(_, record: any) => {
-              if (!record.debut_date) return '-';
-              return dayjs(record.debut_date).format('YYYY년 MM월 DD일');
-            }}
             sorter
+            render={(value) => {
+              if (!value) return '-';
+              return dayjs(value).format('YYYY년 MM월 DD일');
+            }}
           />
           <Table.Column
             dataIndex={['created_at', 'updated_at']}
-            title={'생성일/수정일'}
+            title='생성일/수정일'
             align='center'
-            render={(_, record: any) => (
-              <Space direction="vertical">
-                <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
-                <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
+            sorter
+            render={(_, record: ArtistGroup) => (
+              <Space direction='vertical'>
+                <DateField
+                  value={record.created_at}
+                  format='YYYY-MM-DD HH:mm:ss'
+                />
+                <DateField
+                  value={record.updated_at}
+                  format='YYYY-MM-DD HH:mm:ss'
+                />
               </Space>
             )}
           />

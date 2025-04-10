@@ -118,7 +118,7 @@ export default function ArtistCreate() {
   };
 
   return (
-    <AuthorizePage resource="artist" action="create">
+    <AuthorizePage resource='artist' action='create'>
       <Create
         breadcrumb={false}
         title={resource?.meta?.create?.label}
@@ -134,12 +134,12 @@ export default function ArtistCreate() {
         }}
       >
         {contextHolder}
-        <Form {...formProps} layout="vertical">
-          <MultiLanguageInput name="name" label="이름" required={true} />
+        <Form {...formProps} layout='vertical'>
+          <MultiLanguageInput name='name' label='이름' required={true} />
 
           <Form.Item
-            label="아티스트 그룹"
-            name="artist_group_id"
+            label='아티스트 그룹'
+            name='artist_group_id'
             rules={[
               {
                 required: true,
@@ -150,7 +150,7 @@ export default function ArtistCreate() {
             <Select
               loading={loadingGroups}
               showSearch
-              placeholder="아티스트 그룹 선택"
+              placeholder='아티스트 그룹 선택'
               options={groups.map((group) => ({
                 label: group.name?.ko || group.name?.en || 'N/A',
                 value: group.id,
@@ -161,8 +161,8 @@ export default function ArtistCreate() {
           </Form.Item>
 
           <Form.Item
-            label="성별"
-            name="gender"
+            label='성별'
+            name='gender'
             rules={[
               {
                 required: true,
@@ -171,7 +171,7 @@ export default function ArtistCreate() {
             ]}
           >
             <Select
-              placeholder="성별을 선택하세요"
+              placeholder='성별을 선택하세요'
               options={[
                 { label: '남성', value: 'male' },
                 { label: '여성', value: 'female' },
@@ -181,8 +181,8 @@ export default function ArtistCreate() {
           </Form.Item>
 
           <Form.Item
-            label="생년월일"
-            name="birth_date"
+            label='생년월일'
+            name='birth_date'
             rules={[
               {
                 required: true,
@@ -193,17 +193,17 @@ export default function ArtistCreate() {
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
 
-          <Form.Item label="데뷔일" name="debut_date">
+          <Form.Item label='데뷔일' name='debut_date'>
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
 
           <Form.Item
-            label="이미지"
-            name="image"
+            label='이미지'
+            name='image'
             rules={[
               {
                 required: true,
-                message: '아티스트 이미지를 업로드해주세요',
+                message: '이미지를 업로드해주세요',
               },
             ]}
           >

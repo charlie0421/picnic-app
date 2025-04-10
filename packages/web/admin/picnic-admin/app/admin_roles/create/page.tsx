@@ -8,16 +8,22 @@ import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import { useResource } from '@refinedev/core';
 
 export default function RoleCreate() {
-  const { formProps, saveButtonProps } = useForm<AdminRole>({
-    resource: 'admin_roles',
-  });
   const [messageApi, contextHolder] = message.useMessage();
   const { resource } = useResource();
+
+  const { formProps, saveButtonProps } = useForm<AdminRole>({
+    resource: 'admin_roles',
+    warnWhenUnsavedChanges: true,
+    redirect: 'list',
+    onMutationSuccess: () => {
+      messageApi.success('역할이 성공적으로 생성되었습니다');
+    },
+  });
+
   return (
     <AuthorizePage resource='admin_roles' action='create'>
       <Create
         breadcrumb={false}
-        
         title={resource?.meta?.create?.label}
         saveButtonProps={saveButtonProps}
       >

@@ -1,17 +1,17 @@
 'use client';
 
-import {
-  List,
-  useTable,
-  DateField,
-  CreateButton,
-} from '@refinedev/antd';
-import { useNavigation, } from '@refinedev/core';
-import { Table, Space, Tag } from 'antd';
+import { List, useTable, DateField, CreateButton } from '@refinedev/antd';
+import { useNavigation, useResource } from '@refinedev/core';
+import { Table, Space, Tag, Input } from 'antd';
+import { useState } from 'react';
 import { AdminPermission } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function PermissionList() {
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const { show } = useNavigation();
+  const { resource } = useResource();
+
   const { tableProps } = useTable<AdminPermission>({
     resource: 'admin_permissions',
     syncWithLocation: true,
@@ -23,27 +23,42 @@ export default function PermissionList() {
         },
       ],
     },
+    meta: {
+      search: searchTerm
+        ? { query: searchTerm, fields: ['resource', 'action', 'description'] }
+        : undefined,
+    },
   });
 
-  const { create, show } = useNavigation();
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+  };
 
   return (
     <AuthorizePage resource='admin_permissions' action='list'>
-      <List 
+      <List
         breadcrumb={false}
-        headerButtons={<CreateButton />}
+        headerButtons={
+          <>
+            <Space>
+              <Input.Search
+                placeholder='검색...'
+                onSearch={handleSearch}
+                style={{ width: 200 }}
+              />
+              <CreateButton />
+            </Space>
+          </>
+        }
+        title={resource?.meta?.list?.label}
       >
         <Table
           {...tableProps}
           rowKey='id'
-          onRow={(record) => {
-            return {
-              style: {
-                cursor: 'pointer',
-              },
-              onClick: () => show('admin_permissions', record.id),
-            };
-          }}
+          onRow={(record) => ({
+            style: { cursor: 'pointer' },
+            onClick: () => show('admin_permissions', record.id),
+          })}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,
@@ -51,15 +66,19 @@ export default function PermissionList() {
             showTotal: (total) => `총 ${total}개 항목`,
           }}
         >
-          <Table.Column dataIndex='id' title='ID' />
+          <Table.Column dataIndex='id' title='ID' sorter />
           <Table.Column
             dataIndex='resource'
             title='리소스'
+            align='center'
+            sorter
             render={(value) => <Tag color='blue'>{value}</Tag>}
           />
           <Table.Column
             dataIndex='action'
             title='액션'
+            align='center'
+            sorter
             render={(value) => {
               let color = 'green';
               if (value === 'delete') color = 'red';
@@ -69,13 +88,27 @@ export default function PermissionList() {
               return <Tag color={color}>{value}</Tag>;
             }}
           />
-          <Table.Column dataIndex='description' title='설명' />
           <Table.Column
-            dataIndex='created_at'
-            title='생성일'
-            sorter={true}
-            render={(value) => (
-              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
+            dataIndex='description'
+            title='설명'
+            align='center'
+            sorter
+          />
+          <Table.Column
+            dataIndex={['created_at', 'updated_at']}
+            title='생성일/수정일'
+            align='center'
+            render={(_, record: AdminPermission) => (
+              <Space direction='vertical'>
+                <DateField
+                  value={record.created_at}
+                  format='YYYY-MM-DD HH:mm:ss'
+                />
+                <DateField
+                  value={record.updated_at}
+                  format='YYYY-MM-DD HH:mm:ss'
+                />
+              </Space>
             )}
           />
         </Table>
