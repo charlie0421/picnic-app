@@ -15,19 +15,6 @@ import { getPermissions as getPermissionsFromStore } from '@/stores/permissionSt
 //   [key: string]: any;
 // }
 
-// Refine 리소스 이름을 DB 리소스 이름으로 매핑
-const resourceNameMapping: Record<string, string> = {
-  admin_roles: 'admin_roles',
-  admin_permissions: 'admin_permissions',
-  admin_user_roles: 'admin_user_roles', // 'users' 리소스에 대한 권한으로 매핑 (확인 필요)
-  admin_role_permissions: 'admin_role_permissions', // 역할 또는 권한 리소스에 대한 권한으로 매핑 (확인 필요, 임시로 roles)
-  artist: 'artists',
-  artist_group: 'artists', // 그룹도 artists 리소스 권한 사용 가정 (확인 필요)
-  vote: 'votes',
-  media: 'media',
-  // DB에 있는 다른 리소스 이름도 필요시 추가
-};
-
 // Refine 액션을 DB 액션으로 매핑 (list->read, edit->update, show->read)
 const actionMapping: Record<string, string> = {
   list: 'read',
@@ -39,6 +26,44 @@ const actionMapping: Record<string, string> = {
 // 내부 캐시 변수 제거
 // let userPermissionsCache: Record<string, string[]> | null = null;
 // let cacheUserId: string | null = null;
+
+// 리소스 이름을 DB 리소스 이름으로 자동 변환하는 함수
+const convertToDatabaseResource = (resource: string): string => {
+  // 특수 케이스만 매핑
+  const specialCaseMapping: Record<string, string> = {
+    artist_group: 'artists', // 예외 케이스
+  };
+
+  if (specialCaseMapping[resource]) {
+    return specialCaseMapping[resource];
+  }
+
+  // 1. Group 접미사 제거
+  if (resource.endsWith('Group')) {
+    return resource.replace('Group', '');
+  }
+
+  // 2. 복합 리소스 이름에서 기본 부분 추출
+  if (resource.includes('/') || resource.includes('_')) {
+    const baseName = resource.split('/')[0].split('_')[0];
+    // 단수형을 복수형으로 변환 (일반적인 규칙)
+    return baseName.endsWith('y')
+      ? baseName.slice(0, -1) + 'ies' // category -> categories
+      : baseName.endsWith('s')
+      ? baseName // statistics -> statistics (이미 복수형)
+      : baseName + 's'; // vote -> votes
+  }
+
+  // 3. 기본 변환 (단수형을 복수형으로)
+  if (!resource.endsWith('s') && !resource.includes('admin_')) {
+    return resource.endsWith('y')
+      ? resource.slice(0, -1) + 'ies' // category -> categories
+      : resource + 's'; // vote -> votes
+  }
+
+  // 4. 기타 경우 그대로 반환 (admin_ 접두사 리소스 등)
+  return resource;
+};
 
 export const accessControlProvider: AccessControlProvider = {
   can: async ({ resource, action, params }) => {
@@ -64,9 +89,51 @@ export const accessControlProvider: AccessControlProvider = {
       return Promise.resolve({ can: true });
     }
 
-    // 3. getIdentity 호출 제거 및 permissionStore 직접 확인
+    // 권한 스토어 접근
     const userPermissionsFromStore = getPermissionsFromStore();
 
+    // 3. 메뉴 표시를 위한 권한 처리 (메뉴 표시 여부만 결정)
+    // action이 'menu'인 경우 메뉴 표시 여부만 결정하므로 거의 모든 경우 허용
+    if (action === 'menu') {
+      // admin 메뉴는 별도 확인 (하위 권한 중 하나라도 있으면 표시)
+      if (resource === 'admin') {
+        if (userPermissionsFromStore === null)
+          return Promise.resolve({ can: false });
+
+        // 관리자 메뉴는 항상 표시 (권한은 하위 메뉴에서 체크)
+        logPermission('can: 관리자 메뉴("admin") 표시 허용', {
+          resource,
+          action,
+        });
+        return Promise.resolve({ can: true });
+      }
+
+      // 다른 모든 메뉴는 표시 허용
+      logPermission('can: 메뉴 표시 허용', { resource });
+      return Promise.resolve({ can: true });
+    }
+
+    // 4. 특정 패턴의 리소스는 항상 페이지 접근 허용 (메뉴 표시뿐만 아니라 실제 페이지 접근도 허용)
+    if (
+      resource.includes('Group') ||
+      resource.includes('/') ||
+      resource.includes('_') ||
+      resource === 'admin' || // admin 리소스도 허용
+      (!resource.startsWith('admin_') && resource !== 'admin_no_access') // admin_ 접두사가 아닌 일반 리소스만 허용
+    ) {
+      // 리소스가 특정 포맷이거나 일반 리소스인 경우 허용
+      logPermission('can: 리소스 페이지 접근 허용', {
+        resource,
+        action,
+        reason:
+          resource === 'admin'
+            ? '관리자 페이지 접근 허용'
+            : '일반/그룹 리소스 접근',
+      });
+      return Promise.resolve({ can: true });
+    }
+
+    // 5. 권한 확인 전 스토어 체크
     if (userPermissionsFromStore === null) {
       // 스토어가 null이면 비로그인 또는 로딩 전 상태로 간주
       logPermission(
@@ -87,16 +154,17 @@ export const accessControlProvider: AccessControlProvider = {
       storeKeys: Object.keys(userPermissionsFromStore),
     });
 
-    // 4. 슈퍼관리자 즉시 허용 로직 제거 (역할 기반으로 통합됨)
+    // 6. 슈퍼관리자 즉시 허용 로직 제거 (역할 기반으로 통합됨)
 
     // --- 모든 사용자의 권한 확인은 메모리 스토어를 통해 진행 ---
 
     try {
-      // 5. 스토어 권한과 매핑을 이용한 확인
-      const dbResourceName = resourceNameMapping[resource] || resource;
+      // 리소스 이름 변환 (매핑 테이블 대신 함수 사용)
+      const dbResourceName = convertToDatabaseResource(resource);
+      // 매핑에 사용했던 모든 로직을 함수로 이동했으므로 simplifiedResourceName 불필요
       const dbActionName = actionMapping[action] || action;
 
-      logPermission('can: 매핑된 리소스/액션 확인', {
+      logPermission('can: 변환된 리소스/액션 확인', {
         requestedResource: resource,
         requestedAction: action,
         dbResourceName,
@@ -114,7 +182,7 @@ export const accessControlProvider: AccessControlProvider = {
         }
       }
 
-      logPermission('can: 특정 리소스 최종 접근 확인 (스토어 + 매핑 적용)', {
+      logPermission('can: 특정 리소스 최종 접근 확인 (스토어 + 변환 적용)', {
         resource,
         action,
         dbResourceName,
@@ -122,24 +190,16 @@ export const accessControlProvider: AccessControlProvider = {
         hasPermission,
       });
 
-      // 6. admin 메뉴 자체 및 no-access 페이지 처리 (스토어 기반)
-      if (resource === 'admin') {
-        const adminResources = [
-          'roles',
-          'permissions',
-          'users',
-          'admin_roles',
-          'admin_permissions',
-          'admin_user_roles',
-          'admin_role_permissions',
-        ];
-        const hasAdminMenuAccess = adminResources.some(
-          (res) => userPermissionsFromStore[res]?.length > 0,
-        );
-        logPermission('can: 관리자 메뉴("admin") 접근 확인 (스토어+매핑)', {
-          hasAdminMenuAccess,
+      // 7. admin 메뉴 및 하위 메뉴에 대한 추가 처리
+      // admin 메뉴 자체 처리는 이미 위에서 처리됨
+
+      // admin_ 접두사 하위 리소스(admin_roles 등)에 대한 페이지 접근 허용
+      if (resource.startsWith('admin_')) {
+        logPermission('can: 관리자 하위 리소스 페이지 접근 허용', {
+          resource,
+          action,
         });
-        return Promise.resolve({ can: hasAdminMenuAccess });
+        return Promise.resolve({ can: true });
       }
 
       // 권한 없는 사용자 처리 (스토어 기준)
@@ -157,7 +217,7 @@ export const accessControlProvider: AccessControlProvider = {
         hasPermission = false;
       }
 
-      // 7. 최종 결과 반환
+      // 8. 최종 결과 반환
       return Promise.resolve({
         can: hasPermission,
         reason: hasPermission ? undefined : 'Access Denied by Store/Mapping',

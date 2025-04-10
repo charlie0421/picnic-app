@@ -19,6 +19,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
     "@ant-design/nextjs-registry": "^1.0.0",
+    "@ant-design/plots": "^2.3.3",
     "@aws-sdk/client-s3": "^3.779.0",
     "@refinedev/antd": "^5.46.1",
     "@refinedev/cli": "^2.16.46",

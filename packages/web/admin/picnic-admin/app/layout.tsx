@@ -31,6 +31,7 @@ import {
   GroupOutlined,
   CheckCircleOutlined,
   PictureOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons';
 
 export const metadata: Metadata = {
@@ -206,6 +207,32 @@ export default function RootLayout({
                               },
                             },
                           },
+                          // 통계
+                          {
+                            name: 'statisticsGroup',
+                            meta: {
+                              label: '통계 관리',
+                              icon: <BarChartOutlined />,
+                              canCreate: true,
+                              canEdit: true,
+                              canDelete: true,
+                              canShow: true,
+                            },
+                          },
+                          {
+                            name: 'statistics_ads',
+                            list: '/statistics/ads',
+                            meta: {
+                              parent: 'statisticsGroup',
+                              label: '광고 통계',
+                              icon: <BarChartOutlined />,
+                              canCreate: true,
+                              canEdit: true,
+                              canDelete: true,
+                              canShow: true,
+                            },
+                          },
+
                           // 관리 메뉴 (권한 관리 상위 메뉴) - 가장 아래로 이동
                           {
                             name: 'admin',
