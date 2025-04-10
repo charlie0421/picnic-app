@@ -42,35 +42,9 @@ export default function ArtistShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
+        canEdit
+        canDelete
       >
-        <div
-          style={{
-            marginBottom: '16px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => list('artist')}>
-              목록으로
-            </Button>
-            <Title level={5} style={{ margin: 0 }}>
-              아티스트 정보
-            </Title>
-          </Space>
-          <Space>
-            <Button
-              type='primary'
-              icon={<EditOutlined />}
-              onClick={() => edit('artist', id!)}
-            >
-              편집
-            </Button>
-            <DeleteButton recordItemId={id} onSuccess={() => list('artist')} />
-          </Space>
-        </div>
-
         <ArtistDetail record={data?.data} loading={isLoading} />
       </Show>
     </AuthorizePage>

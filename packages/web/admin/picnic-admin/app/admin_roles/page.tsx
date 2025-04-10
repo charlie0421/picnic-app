@@ -104,17 +104,6 @@ export default function RoleList() {
               </Space>
             )}
           />
-          <Table.Column
-            title='작업'
-            dataIndex='actions'
-            align='center'
-            render={(_, record: AdminRole) => (
-              <Space size='middle'>
-                <EditButton hideText size='small' recordItemId={record.id} />
-                <DeleteButton hideText size='small' recordItemId={record.id} />
-              </Space>
-            )}
-          />
         </Table>
       </List>
     </AuthorizePage>

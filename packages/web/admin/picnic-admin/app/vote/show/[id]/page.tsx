@@ -41,17 +41,10 @@ export default function VoteShow({ params }: { params: { id: string } }) {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        
         title={resource?.meta?.label}
+        canEdit
+        canDelete
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-        </div>
         <VoteDetail record={data?.data} loading={isLoading} />
       </Show>
     </AuthorizePage>

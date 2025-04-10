@@ -272,6 +272,8 @@ export default function ResourceShow() {
         breadcrumb={false}
         title={resource?.meta?.show?.label}
         isLoading={isLoading}
+        canEdit
+        canDelete
       >
         {/* 상세 정보 컴포넌트 내용 */}
       </Show>

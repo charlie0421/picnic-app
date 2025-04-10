@@ -40,42 +40,9 @@ export default function BannerShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
+        canEdit
+        canDelete
       >
-        <div
-          style={{
-            marginBottom: '16px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => list('banner')}>
-              목록으로
-            </Button>
-            <Title level={5} style={{ margin: 0 }}>
-              배너 정보
-            </Title>
-          </Space>
-          <Space>
-            <Button
-              type='primary'
-              icon={<EditOutlined />}
-              onClick={() => edit('banner', id!)}
-            >
-              편집
-            </Button>
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => {
-                // TODO: 삭제 기능 구현
-              }}
-            >
-              삭제
-            </Button>
-          </Space>
-        </div>
         <BannerDetail record={data?.data} loading={isLoading} />
       </Show>
     </AuthorizePage>

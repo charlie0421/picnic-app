@@ -30,6 +30,8 @@ export default function RoleShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
+        canEdit
+        canDelete
       >
         <AdminRolesDetail record={data?.data} loading={isLoading} />
       </Show>

@@ -18,7 +18,7 @@ export default function ConfigShow() {
   });
 
   const { resource } = useResource();
-  
+
   if (isLoading) {
     return (
       <AuthorizePage resource='config' action='show'>
@@ -32,8 +32,9 @@ export default function ConfigShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        
         title={resource?.meta?.label}
+        canEdit
+        canDelete
       >
         <ConfigDetail record={data?.data} loading={isLoading} />
       </Show>

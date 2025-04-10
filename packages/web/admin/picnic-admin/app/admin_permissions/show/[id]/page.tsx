@@ -28,6 +28,8 @@ export default function PermissionShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
+        canEdit
+        canDelete
       >
         <AdminPermissionsDetail record={data?.data} loading={isLoading} />
       </Show>

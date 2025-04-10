@@ -136,17 +136,6 @@ export default function RolePermissionList() {
               <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
             )}
           />
-          <Table.Column
-            title='작업'
-            dataIndex='actions'
-            align='center'
-            render={(_, record: AdminRolePermission) => (
-              <Space size='middle'>
-                <EditButton hideText size='small' recordItemId={record.id} />
-                <DeleteButton hideText size='small' recordItemId={record.id} />
-              </Space>
-            )}
-          />
         </Table>
       </List>
     </AuthorizePage>

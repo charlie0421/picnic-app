@@ -28,6 +28,8 @@ export default function UserRoleShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
+        canEdit
+        canDelete
       >
         <AdminUserRolesDetail record={data?.data} loading={isLoading} />
       </Show>

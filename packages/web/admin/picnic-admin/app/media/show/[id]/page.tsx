@@ -1,15 +1,8 @@
 'use client';
 
-import {
-  Show,
-  DeleteButton,
-  EditButton,
-} from '@refinedev/antd';
+import { Show, DeleteButton, EditButton } from '@refinedev/antd';
 import { useShow, useNavigation, useResource } from '@refinedev/core';
-import {
-  Skeleton,
-  Button,
-} from 'antd';
+import { Skeleton, Button } from 'antd';
 import React from 'react';
 import {
   EditOutlined,
@@ -41,8 +34,9 @@ export default function MediaShow() {
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        
         title={resource?.meta?.label}
+        canEdit
+        canDelete
       >
         <MediaDetail record={data?.data} loading={isLoading} />
       </Show>
