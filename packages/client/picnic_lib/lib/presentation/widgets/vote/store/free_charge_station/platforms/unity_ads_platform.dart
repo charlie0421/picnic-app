@@ -1,208 +1,153 @@
 // unity_ads_platform.dart
 
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/generated/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 /// Unity Ads 플랫폼 구현
 class UnityAdsPlatform extends AdPlatform {
   static bool _isInitialized = false;
-  static bool _isInitializing = false;
-  static String _lastInitError = '';
+  static String? gameId;
+  static String? placementId;
+  Timer? _safetyTimer;
 
   UnityAdsPlatform(super.ref, super.context, super.id,
       [super.animationController]);
 
   @override
   Future<void> initialize() async {
-    if (_isInitializing || _isInitialized) {
-      if (_isInitialized) {
-        logger.i('Unity Ads 이미 초기화됨');
-      } else {
-        logger.i('Unity Ads 초기화 중...');
-      }
-      return;
-    }
-
-    _isInitializing = true;
-
-    // 로그를 통해 사용하는 환경 변수 값 확인
-    final gameId =
-        isIOS() ? Environment.unityAppleGameId : Environment.unityAndroidGameId;
-    final placementId = isIOS()
-        ? Environment.unityIosPlacementId
-        : Environment.unityAndroidPlacementId;
-
-    if (gameId == null || placementId == null) {
-      return;
-    }
-
-    logger.i('Unity Ads 초기화 시작');
-    logger.i('Unity Ads 게임 ID: $gameId (${isIOS() ? "iOS" : "Android"})');
-    logger.i('Unity Ads 배치 ID: $placementId');
-
-    if (gameId.isEmpty) {
-      _lastInitError = 'Unity Ads 게임 ID가 비어 있습니다';
-      logger.e(_lastInitError);
-      _isInitializing = false;
-      return;
-    }
+    if (_isInitialized || isDisposed) return;
 
     try {
-      // 테스트 모드로 초기화 (개발 환경에서는 true로 설정)
-      final testMode = kDebugMode;
-      logger.i('Unity Ads 초기화 시작 (testMode: $testMode)');
-      logger.i('Unity Ads 게임 ID: $gameId');
-      logger.i('Unity Ads 배치 ID: $placementId');
-      logger.i('Unity Ads 서버 ID: ${supabase.auth.currentUser!.id}');
+      logger.i('[$id] Unity Ads 초기화 시작');
       await UnityAds.init(
-        gameId: gameId,
-        onComplete: () {
-          logger.i('Unity Ads 초기화 완료 (testMode: $testMode)');
-          _isInitialized = true;
-          _isInitializing = false;
-          _lastInitError = '';
-        },
-        onFailed: (error, message) {
-          _lastInitError = 'Unity Ads 초기화 실패: $message (오류 코드: $error)';
-          logger.e(_lastInitError);
-          _isInitializing = false;
-        },
+        gameId: isIOS()
+            ? Environment.unityAppleGameId!
+            : Environment.unityAndroidGameId!,
+        testMode: kDebugMode,
       );
+      _isInitialized = true;
+      logger.i('[$id] Unity Ads 초기화 완료');
     } catch (e, s) {
-      _lastInitError = 'Unity Ads 초기화 중 예외 발생: $e';
-      logger.e(_lastInitError, error: e, stackTrace: s);
-      _isInitializing = false;
+      logger.e('[$id] Unity Ads 초기화 실패', error: e, stackTrace: s);
+      logInitFailure('Unity', e, s);
     }
   }
 
   @override
   Future<void> showAd() async {
-    logger.i('Unity Ads showAd 시작');
     await safelyExecute(() async {
-      final placementId = isIOS()
-          ? Environment.unityIosPlacementId
-          : Environment.unityAndroidPlacementId;
+      if (!context.mounted || isDisposed) return;
 
-      // Unity Ads 초기화 상태 확인
-      if (!_isInitialized) {
-        if (_lastInitError.isNotEmpty) {
-          logger.e('Unity Ads showAd 실패: 초기화 오류 - $_lastInitError');
-          if (context.mounted) {
-            commonUtils.showErrorDialog(
-              S.of(context).label_ads_sdk_init_fail,
-              error: _lastInitError,
-            );
-            throw Exception(_lastInitError);
-          }
-          return;
-        }
-
-        // 초기화 재시도
-        logger.i('Unity Ads 초기화되지 않음 - 초기화 시도');
-        await initialize();
-
-        // 초기화가 여전히 실패한 경우
-        if (!_isInitialized) {
-          logger.e('Unity Ads 초기화 재시도 실패');
-          if (context.mounted) {
-            commonUtils.showErrorDialog(
-              S.of(context).label_ads_sdk_init_fail,
-              error: _lastInitError.isEmpty ? '알 수 없는 오류' : _lastInitError,
-            );
-            throw Exception(_lastInitError);
-          }
-          return;
-        }
-      }
-
-      // 배치 ID 확인
-      if (placementId!.isEmpty) {
-        logger.e('Unity Ads 배치 ID가 비어 있습니다');
-        if (context.mounted) {
-          commonUtils.showErrorDialog(
-            S.of(context).label_ads_load_fail,
-            error: 'Unity Ads 배치 ID가 비어 있습니다',
-          );
-          throw Exception('Unity Ads 배치 ID가 비어 있습니다');
-        }
-        return;
-      }
-
-      // 애니메이션 시작
       startButtonAnimation();
+      await _showUnityAd();
+    });
+  }
 
-      // 최대 30초 후에는 무조건 애니메이션 중지 (안전장치)
-      Future.delayed(const Duration(seconds: 30), () {
-        if (context.mounted) {
-          logger.i('Unity Ads 안전장치: 애니메이션 중지');
-          stopAllAnimations();
-        }
-      });
+  Future<void> _showUnityAd() async {
+    if (!_isInitialized) {
+      await initialize();
+    }
 
-      logger.i('Unity Ads 로드 시작: $placementId');
-      UnityAds.load(
-        placementId: placementId,
+    final placementId = isIOS()
+        ? Environment.unityIosPlacementId
+        : Environment.unityAndroidPlacementId;
+
+    if (placementId == null) {
+      logger.e('[$id] placementId가 설정되지 않음');
+      stopAllAnimations();
+      if (context.mounted && !isDisposed) {
+        commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+            error: 'placementId가 설정되지 않음');
+      }
+      return;
+    }
+
+    logger.i('[$id] Unity 광고 로드 시작: $placementId');
+
+    try {
+      await UnityAds.load(
+        placementId: placementId + '_rewarded',
         onComplete: (placementId) async {
-          logger.i('Unity Ads 로드 완료: $placementId');
-          if (!context.mounted) return;
-
-          logger.i('Unity Ads 표시 시작');
-          await UnityAds.showVideoAd(
-            placementId: placementId,
-            serverId: supabase.auth.currentUser!.id,
-            onStart: (placementId) {
-              logger.i('Unity Ads 비디오 시작됨');
-              // 광고가 실제로 시작될 때 애니메이션 중지
-              stopAllAnimations();
-            },
-            onSkipped: (placementId) {
-              logger.i('Unity Ads 비디오 건너뜀');
-              if (context.mounted) {
-                stopAllAnimations();
-              }
-            },
-            onComplete: (placementId) {
-              logger.i('Unity Ads 비디오 완료됨 - 보상 지급');
-              if (context.mounted) {
-                stopAllAnimations();
-                commonUtils.refreshUserProfile();
-              }
-            },
-            onFailed: (placementId, error, message) {
-              logger.e('Unity Ads 비디오 실패: $message (오류 코드: $error)');
-              if (context.mounted) {
-                stopAllAnimations();
-
-                commonUtils.showErrorDialog(S.of(context).label_ads_show_fail,
-                    error: message);
-              }
-            },
-          );
+          logger.i('[$id] 광고 로드 완료');
+          await _showLoadedAd(placementId);
         },
         onFailed: (placementId, error, message) {
-          logger.e('Unity Ads 로드 실패: $message (오류 코드: $error)');
-          if (context.mounted) {
-            stopAllAnimations();
-
+          logAdLoadFailure('Unity', error, placementId, message, null);
+          stopAllAnimations();
+          if (context.mounted && !isDisposed) {
             commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
                 error: message);
           }
         },
       );
-    });
+    } catch (e, s) {
+      logAdLoadFailure('Unity', e, placementId, 'Unity 광고 로드 실패', s);
+      stopAllAnimations();
+      if (context.mounted && !isDisposed) {
+        commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+            error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _showLoadedAd(String placementId) async {
+    logger.i('[$id] Unity 광고 표시 시작: $placementId');
+
+    try {
+      await UnityAds.showVideoAd(
+        placementId: placementId,
+        onStart: (placementId) {
+          logger.i('[$id] 광고 시작');
+          stopAllAnimations();
+        },
+        onSkipped: (placementId) {
+          logger.i('[$id] 광고 스킵됨');
+        },
+        onComplete: (placementId) {
+          logger.i('[$id] 광고 완료');
+          commonUtils.refreshUserProfile();
+        },
+        onFailed: (placementId, error, message) {
+          logAdShowFailure('Unity', error, placementId, message, null);
+          stopAllAnimations();
+          if (context.mounted && !isDisposed) {
+            commonUtils.showErrorDialog(S.of(context).label_ads_show_fail,
+                error: message);
+          }
+        },
+      );
+    } catch (e, s) {
+      logAdShowFailure('Unity', e, placementId, 'Unity 광고 표시 실패', s);
+      stopAllAnimations();
+      if (context.mounted && !isDisposed) {
+        commonUtils.showErrorDialog(S.of(context).label_ads_show_fail,
+            error: e);
+      }
+      rethrow;
+    }
   }
 
   @override
   Future<void> handleError(error, StackTrace? stackTrace) async {
-    logger.e('Unity Ads 오류', error: error, stackTrace: stackTrace);
-    if (context.mounted) {
-      stopAllAnimations();
+    logger.e('[$id] Unity 광고 오류 발생', error: error, stackTrace: stackTrace);
+    setLoading(false);
+    stopAllAnimations();
+    if (context.mounted && !isDisposed) {
+      commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
+          error: error);
     }
+  }
+
+  void dispose() {
+    _safetyTimer?.cancel();
+    _safetyTimer = null;
+    super.dispose();
   }
 }

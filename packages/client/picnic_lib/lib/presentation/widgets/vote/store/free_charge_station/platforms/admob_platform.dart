@@ -11,63 +11,51 @@ import 'package:picnic_lib/supabase_options.dart';
 class AdmobPlatform extends AdPlatform {
   static bool _isInitialized = false;
   String _adUnitId = '';
+  RewardedAd? _currentAd;
 
   AdmobPlatform(super.ref, super.context, super.id,
       AnimationController super.animationController);
 
   @override
   Future<void> initialize() async {
-    // AdMob 초기화가 이미 완료된 경우 스킵
-    if (_isInitialized) return;
+    if (_isInitialized || isDisposed) return;
 
     try {
-      logger.i('AdMob 초기화 시작');
-      // AdMob 초기화
+      logger.i('[$id] AdMob 초기화 시작');
       await MobileAds.instance.initialize();
-      // 광고 ID 초기화
       await _initAdUnitId();
       _isInitialized = true;
-      logger.i('AdMob 초기화 완료');
+      logger.i('[$id] AdMob 초기화 완료');
     } catch (e, s) {
-      logger.e('AdMob 초기화 실패', error: e, stackTrace: s);
-      // 초기화 실패 시에도 플래그 설정 (재시도 방지)
-      _isInitialized = true;
+      logger.e('[$id] AdMob 초기화 실패', error: e, stackTrace: s);
     }
   }
 
   Future<void> _initAdUnitId() async {
     if (Environment.admobIosRewardedVideoId == null ||
         Environment.admobAndroidRewardedVideoId == null) {
+      logger.w('[$id] 광고 ID가 설정되지 않음');
       return;
     }
 
     try {
-      // ConfigService를 사용할 수 없는 경우 테스트 ID를 사용
       _adUnitId = isIOS()
           ? Environment.admobIosRewardedVideoId!
           : Environment.admobAndroidRewardedVideoId!;
 
-      logger.i('AdMob ID 초기화: $_adUnitId');
+      logger.i('[$id] 광고 ID 초기화: $_adUnitId');
     } catch (e, s) {
-      logger.e('AdMob ID 초기화 실패', error: e, stackTrace: s);
+      logger.e('[$id] 광고 ID 초기화 실패', error: e, stackTrace: s);
     }
   }
 
   @override
   Future<void> showAd() async {
     await safelyExecute(() async {
-      if (!context.mounted) return;
+      if (!context.mounted || isDisposed) return;
 
-      // 애니메이션 시작
       startButtonAnimation();
-
-      // 광고 로드
-      try {
-        await _loadRewardedAd();
-      } catch (e) {
-        logger.e('AdMob 광고 로드 실패', error: e);
-        stopButtonAnimation();
-      }
+      await _loadRewardedAd();
     });
   }
 
@@ -76,7 +64,7 @@ class AdmobPlatform extends AdPlatform {
       await _initAdUnitId();
     }
 
-    logger.i('AdMob 광고 로드 시작: $_adUnitId');
+    logger.i('[$id] 광고 로드 시작: $_adUnitId');
 
     try {
       await RewardedAd.load(
@@ -84,14 +72,18 @@ class AdmobPlatform extends AdPlatform {
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (RewardedAd ad) {
-            logger.i('AdMob 광고 로드 완료');
+            if (isDisposed) {
+              ad.dispose();
+              return;
+            }
+            logger.i('[$id] 광고 로드 완료');
             _setupAdCallbacks(ad);
             _showRewardedAd(ad);
           },
           onAdFailedToLoad: (LoadAdError error) {
-            logger.e('AdMob 광고 로드 실패', error: error);
+            logAdLoadFailure('AdMob', error, _adUnitId, error.toString(), null);
             stopAllAnimations();
-            if (context.mounted) {
+            if (context.mounted && !isDisposed) {
               commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
                   error: error.toString());
             }
@@ -99,9 +91,9 @@ class AdmobPlatform extends AdPlatform {
         ),
       );
     } catch (e, s) {
-      logger.e('AdMob 광고 로드 중 예외 발생', error: e, stackTrace: s);
+      logAdLoadFailure('AdMob', e, _adUnitId, 'AdMob 광고 로드 실패', s);
       stopAllAnimations();
-      if (context.mounted) {
+      if (context.mounted && !isDisposed) {
         commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
             error: e);
       }
@@ -110,34 +102,45 @@ class AdmobPlatform extends AdPlatform {
   }
 
   void _setupAdCallbacks(RewardedAd ad) {
+    _currentAd = ad;
+
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) {
-        logger.i('AdMob 광고가 전체 화면으로 표시됨');
+        logger.i('[$id] 광고가 전체 화면으로 표시됨');
         stopAllAnimations();
       },
       onAdDismissedFullScreenContent: (RewardedAd ad) {
-        logger.i('AdMob 광고가 닫힘');
+        logger.i('[$id] 광고가 닫힘');
         stopAllAnimations();
         commonUtils.refreshUserProfile();
-        ad.dispose();
+        _disposeCurrentAd();
       },
       onAdFailedToShowFullScreenContent: (RewardedAd ad, AdError error) {
-        logger.e('AdMob 광고 표시 실패', error: error);
+        logAdShowFailure('AdMob', error, _adUnitId, error.toString(), null);
         stopAllAnimations();
-        ad.dispose();
-        if (context.mounted) {
+        _disposeCurrentAd();
+        if (context.mounted && !isDisposed) {
           commonUtils.showErrorDialog(S.of(context).label_ads_show_fail,
               error: error.toString());
         }
       },
       onAdImpression: (RewardedAd ad) {
-        logger.i('AdMob 광고 노출 기록됨');
+        logger.i('[$id] 광고 노출 기록됨');
       },
     );
   }
 
+  void _disposeCurrentAd() {
+    _currentAd?.dispose();
+    _currentAd = null;
+    logger.d('[$id] 현재 광고 정리됨');
+  }
+
   void _showRewardedAd(RewardedAd ad) {
-    if (!context.mounted) return;
+    if (!context.mounted || isDisposed) {
+      _disposeCurrentAd();
+      return;
+    }
 
     ad.setServerSideOptions(
       ServerSideVerificationOptions(
@@ -147,7 +150,7 @@ class AdmobPlatform extends AdPlatform {
 
     ad.show(
       onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-        logger.i('AdMob 보상 지급: ${reward.amount} ${reward.type}');
+        logger.i('[$id] 보상 지급: ${reward.amount} ${reward.type}');
         commonUtils.refreshUserProfile();
       },
     );
@@ -155,12 +158,18 @@ class AdmobPlatform extends AdPlatform {
 
   @override
   Future<void> handleError(error, StackTrace? stackTrace) async {
-    logger.e('Error in AdMob ads', error: error, stackTrace: stackTrace);
+    logger.e('[$id] 광고 오류 발생', error: error, stackTrace: stackTrace);
     setLoading(false);
     stopAllAnimations();
-    if (context.mounted) {
+    if (context.mounted && !isDisposed) {
       commonUtils.showErrorDialog(S.of(context).label_ads_load_fail,
           error: error);
     }
+  }
+
+  @override
+  void dispose() {
+    _disposeCurrentAd();
+    super.dispose();
   }
 }

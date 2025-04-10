@@ -9,7 +9,6 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:http/http.dart' as http;
 import 'package:googleapis/youtube/v3.dart' as youtube;
 import 'package:googleapis_auth/auth_io.dart';
 
