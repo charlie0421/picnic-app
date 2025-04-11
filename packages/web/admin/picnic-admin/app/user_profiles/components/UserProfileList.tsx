@@ -7,6 +7,10 @@ import { useState } from 'react';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import { useResource } from '@refinedev/core';
 import { UserProfile } from './types';
+import { message } from 'antd';
+
+// UUID 유효성 검사 정규식
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface UserProfileListProps {
   resource?: string;
@@ -54,24 +58,37 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
         }
         
         if (searchField === 'all' || searchField === 'id') {
-          filters.push({
-            field: 'id',
-            operator: 'contains',
-            value: searchTerm,
-          });
+          // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
+          // 유효한 UUID 형식인 경우만 검색 필터에 포함
+          if (UUID_REGEX.test(searchTerm)) {
+            filters.push({
+              field: 'id',
+              operator: 'eq',
+              value: searchTerm,
+            });
+          }
         }
       }
       
       return filters;
     },
     meta: {
-      // Supabase에서 ilike 연산자를 사용하도록 설정 (대소문자 구분 없이)
-      fields: searchField === 'all' ? ['nickname', 'email', 'id'] : [searchField],
+      // Supabase에서 필드별로 다른 검색 연산자 사용
+      fields: (() => {
+        if (searchField === 'all') return ['nickname', 'email'];
+        if (searchField === 'id') return ['id'];
+        return [searchField];
+      })(),
       operators: [
         {
           kind: 'contains',
           operator: 'ilike',
           value: `%:value%`,
+        },
+        {
+          kind: 'eq',
+          operator: 'eq',
+          value: `:value`,
         },
       ],
     },
@@ -101,11 +118,19 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
       }
       
       if (searchField === 'all' || searchField === 'id') {
-        filters.push({
-          field: 'id',
-          operator: 'contains',
-          value,
-        });
+        // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
+        // 유효한 UUID 형식인 경우만 검색 필터에 포함
+        if (UUID_REGEX.test(value)) {
+          filters.push({
+            field: 'id',
+            operator: 'eq',
+            value,
+          });
+        } else if (searchField === 'id' && value) {
+          // ID 필드만 선택된 경우 유효하지 않은 UUID 형식이면 경고 메시지 표시
+          message.warning('UUID 형식이 올바르지 않습니다. 예: 123e4567-e89b-12d3-a456-426614174000');
+          return; // 검색 중단
+        }
       }
     }
     
