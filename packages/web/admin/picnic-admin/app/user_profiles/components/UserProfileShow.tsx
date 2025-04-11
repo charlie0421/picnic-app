@@ -1,7 +1,7 @@
 'use client';
 
 import { useShow, useResource } from '@refinedev/core';
-import { Show, TextField, DateField } from '@refinedev/antd';
+import { Show, DateField } from '@refinedev/antd';
 import { theme, Typography, Space, Avatar, Tag, Descriptions, Divider, Card, Statistic, Switch } from 'antd';
 import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
 import { UserProfile, genderOptions } from './types';

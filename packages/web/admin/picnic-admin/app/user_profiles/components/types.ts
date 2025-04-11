@@ -9,7 +9,7 @@ export interface UserProfile {
   email?: string;
   star_candy_bonus: number;
   birth_date?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: 'male' | 'female';
   open_ages: boolean;
   open_gender: boolean;
   is_admin: boolean;
@@ -19,11 +19,9 @@ export interface UserProfile {
 export enum UserGender {
   MALE = 'male',
   FEMALE = 'female',
-  OTHER = 'other',
 }
 
 export const genderOptions = [
   { label: '남성', value: UserGender.MALE },
   { label: '여성', value: UserGender.FEMALE },
-  { label: '기타', value: UserGender.OTHER },
 ]; 

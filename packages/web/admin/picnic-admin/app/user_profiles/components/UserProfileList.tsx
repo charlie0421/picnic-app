@@ -4,8 +4,6 @@ import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
 import { Table, Space, Input, Tag, Avatar, Switch, Select } from 'antd';
 import { useNavigation, CrudFilters } from '@refinedev/core';
 import { useState } from 'react';
-import { AuthorizePage } from '@/components/auth/AuthorizePage';
-import { useResource } from '@refinedev/core';
 import { UserProfile } from './types';
 import { message } from 'antd';
 
@@ -20,7 +18,6 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchField, setSearchField] = useState<string>('all');
   const { show } = useNavigation();
-  const { resource: resourceInfo } = useResource();
 
   // Refine useTable 훅 사용
   const { tableProps, setFilters } = useTable<UserProfile>({
@@ -41,7 +38,28 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
       const filters: CrudFilters = [];
       
       if (searchTerm) {
-        if (searchField === 'all' || searchField === 'nickname') {
+        if (searchField === 'all') {
+          // 전체 검색의 경우 nickname, email 필드를 각각 검색
+          return [
+            {
+              operator: 'or',
+              value: [
+                {
+                  field: 'nickname',
+                  operator: 'contains',
+                  value: searchTerm,
+                },
+                {
+                  field: 'email',
+                  operator: 'contains',
+                  value: searchTerm,
+                },
+              ],
+            },
+          ];
+        }
+        
+        if (searchField === 'nickname') {
           filters.push({
             field: 'nickname',
             operator: 'contains',
@@ -49,7 +67,7 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
           });
         }
         
-        if (searchField === 'all' || searchField === 'email') {
+        if (searchField === 'email') {
           filters.push({
             field: 'email',
             operator: 'contains',
@@ -57,7 +75,7 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
           });
         }
         
-        if (searchField === 'all' || searchField === 'id') {
+        if (searchField === 'id') {
           // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
           // 유효한 UUID 형식인 경우만 검색 필터에 포함
           if (UUID_REGEX.test(searchTerm)) {
@@ -90,6 +108,10 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
           operator: 'eq',
           value: `:value`,
         },
+        {
+          kind: 'or',
+          operator: 'or',
+        },
       ],
     },
   });
@@ -101,7 +123,29 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
     const filters: CrudFilters = [];
     
     if (value) {
-      if (searchField === 'all' || searchField === 'nickname') {
+      if (searchField === 'all') {
+        // 전체 검색의 경우 nickname, email 필드를 각각 검색
+        setFilters([
+          {
+            operator: 'or',
+            value: [
+              {
+                field: 'nickname',
+                operator: 'contains',
+                value,
+              },
+              {
+                field: 'email',
+                operator: 'contains',
+                value,
+              },
+            ],
+          },
+        ], 'replace');
+        return;
+      }
+      
+      if (searchField === 'nickname') {
         filters.push({
           field: 'nickname',
           operator: 'contains',
@@ -109,7 +153,7 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
         });
       }
       
-      if (searchField === 'all' || searchField === 'email') {
+      if (searchField === 'email') {
         filters.push({
           field: 'email',
           operator: 'contains',
@@ -117,7 +161,7 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
         });
       }
       
-      if (searchField === 'all' || searchField === 'id') {
+      if (searchField === 'id') {
         // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
         // 유효한 UUID 형식인 경우만 검색 필터에 포함
         if (UUID_REGEX.test(value)) {
