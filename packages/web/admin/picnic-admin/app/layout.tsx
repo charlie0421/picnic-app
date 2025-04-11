@@ -139,6 +139,29 @@ export default function RootLayout({
                             },
                           },
                           {
+                            name: 'user_profiles',
+                            list: '/user_profiles',
+                            create: '/user_profiles/create',
+                            edit: '/user_profiles/edit/:id',
+                            show: '/user_profiles/show/:id',
+                            meta: {
+                              label: '유저 프로필 관리',
+                              icon: <UserOutlined />,
+                              list: {
+                                label: '유저 프로필 목록',
+                              },
+                              create: {
+                                label: '유저 프로필 추가',
+                              },
+                              edit: {
+                                label: '유저 프로필 수정',
+                              },
+                              show: {
+                                label: '유저 프로필 상세',
+                              },
+                            },
+                          },
+                          {
                             name: 'artist_group',
                             list: '/artist-group',
                             create: '/artist-group/create',
