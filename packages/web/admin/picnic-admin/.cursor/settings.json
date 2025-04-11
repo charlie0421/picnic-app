@@ -72,8 +72,11 @@
         }
       },
       {
-        "pattern": "app/**/components/**/*.tsx",
-        "template": "component.tsx"
+        "pattern": "app/**/components/*.tsx",
+        "template": "components/${basename}.tsx",
+        "props": {
+          "resource": "${dirname}"
+        }
       },
       {
         "pattern": "app/**/layout.tsx",
