@@ -10,7 +10,7 @@ export default function StatisticsDashboard() {
       <Title level={2}>통계 대시보드</Title>
       <div style={{ width: '100%', height: 'calc(100vh - 150px)' }}>
         <iframe
-          src='http://bi.picnic.fan/public/dashboard/fef8f30c-34c9-4942-a196-fd3118fd4a4d'
+          src='https://bi.picnic.fan/public/dashboard/fef8f30c-34c9-4942-a196-fd3118fd4a4d'
           width='100%'
           height='100%'
           style={{ border: 'none' }}
