@@ -32,6 +32,7 @@ import {
   CheckCircleOutlined,
   PictureOutlined,
   BarChartOutlined,
+  GiftOutlined,
 } from '@ant-design/icons';
 
 export const metadata: Metadata = {
@@ -158,6 +159,29 @@ export default function RootLayout({
                               },
                               show: {
                                 label: '유저 프로필 상세',
+                              },
+                            },
+                          },
+                          {
+                            name: 'reward',
+                            list: '/reward',
+                            create: '/reward/create',
+                            edit: '/reward/edit/:id',
+                            show: '/reward/show/:id',
+                            meta: {
+                              label: '리워드 관리',
+                              icon: <GiftOutlined />,
+                              list: {
+                                label: '리워드 목록',
+                              },
+                              create: {
+                                label: '리워드 추가',
+                              },
+                              edit: {
+                                label: '리워드 수정',
+                              },
+                              show: {
+                                label: '리워드 상세',
                               },
                             },
                           },
