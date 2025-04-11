@@ -139,7 +139,7 @@ export default function ArtistCreate() {
 
           <Form.Item
             label='아티스트 그룹'
-            name='artist_group_id'
+            name='group_id'
             rules={[
               {
                 required: true,

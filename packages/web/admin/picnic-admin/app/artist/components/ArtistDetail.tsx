@@ -18,9 +18,9 @@ export default function ArtistDetail({ record, loading }: ArtistDetailProps) {
   // 아티스트 그룹 정보 가져오기
   const { data: groupData } = useMany({
     resource: 'artist_group',
-    ids: record?.artist_group_id ? [record.artist_group_id] : [],
+    ids: record?.group_id ? [record.group_id] : [],
     queryOptions: {
-      enabled: !!record?.artist_group_id,
+      enabled: !!record?.group_id,
     },
   });
 
