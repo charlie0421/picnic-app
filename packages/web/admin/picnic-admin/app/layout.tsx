@@ -279,6 +279,19 @@ export default function RootLayout({
                               canShow: true,
                             },
                           },
+                          {
+                            name: 'receipts',
+                            list: '/statistics/receipts',
+                            meta: {
+                              parent: 'statisticsGroup',
+                              label: '영수증 통계',
+                              icon: <BarChartOutlined />,
+                              canCreate: true,
+                              canEdit: true,
+                              canDelete: true,
+                              canShow: true,
+                            },
+                          },
 
                           // 관리 메뉴 (권한 관리 상위 메뉴) - 가장 아래로 이동
                           {
