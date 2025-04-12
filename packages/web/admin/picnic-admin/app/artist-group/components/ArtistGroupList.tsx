@@ -79,7 +79,7 @@ export default function ArtistGroupList() {
           align='center'
           sorter
           render={(value: Record<string, string>) => (
-            <MultiLanguageDisplay value={value} />
+            <MultiLanguageDisplay languages={['ko']} value={value} />
           )}
         />
         <Table.Column

@@ -172,7 +172,7 @@ export default function VoteList() {
             title={'제목'}
             align='center'
             ellipsis={{ showTitle: true }}
-            render={(value: any) => <MultiLanguageDisplay value={value} />}
+            render={(value: any) => <MultiLanguageDisplay languages={['ko']} value={value} />}
           />
           <Table.Column
             dataIndex='vote_category'

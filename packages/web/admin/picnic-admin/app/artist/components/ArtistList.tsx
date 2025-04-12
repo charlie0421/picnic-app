@@ -97,7 +97,7 @@ export default function ArtistList() {
             sorter
             ellipsis={{ showTitle: true }}
             render={(value: Record<string, string>) => (
-              <MultiLanguageDisplay value={value} />
+              <MultiLanguageDisplay languages={['ko']} value={value} />
             )}
           />
 
