@@ -1,3 +1,5 @@
+import { VotePick } from './vote';
+
 export interface UserProfile {
   id: string;
   avatar_url?: string;
@@ -14,6 +16,7 @@ export interface UserProfile {
   open_gender: boolean;
   is_admin: boolean;
   birth_time?: string;
+  vote_picks?: VotePick[];
 }
 
 export enum UserGender {

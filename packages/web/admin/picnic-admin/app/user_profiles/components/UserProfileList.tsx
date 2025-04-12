@@ -4,7 +4,7 @@ import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
 import { Table, Space, Input, Tag, Avatar, Switch, Select } from 'antd';
 import { useNavigation, CrudFilters } from '@refinedev/core';
 import { useState } from 'react';
-import { UserProfile } from './types';
+import { UserProfile } from '../../../lib/types/user_profiles';
 import { message } from 'antd';
 
 // UUID 유효성 검사 정규식

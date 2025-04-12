@@ -2,7 +2,7 @@
 
 import { Create, useForm } from '@refinedev/antd';
 import { Form, Input, InputNumber, Switch, Select, DatePicker, message } from 'antd';
-import { genderOptions } from './types';
+import { genderOptions } from '../../../lib/types/user_profiles';
 import { useResource } from '@refinedev/core';
 
 interface UserProfileCreateProps {
