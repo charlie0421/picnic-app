@@ -40,8 +40,9 @@ export const YoutubePreview: React.FC<YoutubePreviewProps> = ({
 
       // URL에서 비디오 ID 추출
       if (videoUrl.includes('youtube.com/watch')) {
-        const url = new URL(videoUrl);
-        id = url.searchParams.get('v') || '';
+        // 정규식을 사용하여 v 파라미터 추출
+        const vParam = videoUrl.match(/[?&]v=([^&]+)/);
+        id = vParam ? vParam[1] : '';
       } else if (videoUrl.includes('youtu.be/')) {
         const parts = videoUrl.split('youtu.be/');
         id = parts[1]?.split('?')[0] || '';

@@ -6,7 +6,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS=--max_old_space_size=4096 refine dev",
+    "dev": "cross-env NODE_OPTIONS=\"--max_old_space_size=4096 --no-deprecation\" refine dev",
+    "dev:warnings": "cross-env NODE_OPTIONS=\"--max_old_space_size=4096\" refine dev",
     "build": "refine build",
     "start": "refine start",
     "lint": "next lint",
@@ -33,7 +34,6 @@
     "@types/styled-components": "^5.1.34",
     "@types/uuid": "^10.0.0",
     "antd": "^5.24.6",
-    "aws-sdk": "^2.1692.0",
     "dayjs": "^1.11.10",
     "js-cookie": "^3.0.5",
     "next": "^14.1.0",
@@ -48,12 +48,17 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "ajv": "^8.17.1",
     "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "^14.1.0",
+    "tr46": "^5.0.0",
     "typescript": "^5.4.2"
   },
   "refine": {
     "projectId": "eFoHzB-2HcEeI-OFQDmB"
+  },
+  "overrides": {
+    "punycode": "2.3.1"
   }
 }
