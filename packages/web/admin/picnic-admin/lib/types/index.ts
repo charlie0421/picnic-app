@@ -48,3 +48,10 @@ export interface UserIdentity {
 }
 
 export * from './permission';
+export * from './vote';
+export * from './user_profiles';
+export * from './artist';
+export * from './banner';
+export * from './config';
+export * from './media';
+export * from './receipt';

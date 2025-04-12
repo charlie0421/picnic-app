@@ -6,6 +6,7 @@ import { theme, Typography, Space, Avatar, Tag, Descriptions, Divider, Card, Sta
 import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
 import { UserProfile, genderOptions } from '../../../lib/types/user_profiles';
 import { VotePick } from '@/lib/types/vote';
+import { Receipt, RECEIPT_STATUS, RECEIPT_PLATFORM, RECEIPT_ENVIRONMENT } from '@/lib/types/receipt';
 import { useEffect, useState } from 'react';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 
@@ -30,6 +31,10 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
   // 현재 페이지와 페이지 크기 상태 관리
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  
+  // 구매내역 페이지네이션 상태 관리
+  const [receiptCurrentPage, setReceiptCurrentPage] = useState(1);
+  const [receiptPageSize, setReceiptPageSize] = useState(10);
   
   // vote_pick 데이터 조회 - 데이터베이스 관계 사용
   const { data: votePicksData, isLoading: isLoadingVotePicks } = useList<VotePick>({
@@ -71,10 +76,38 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
     }
   });
   
-  // 페이지 변경 핸들러
+  // receipts 데이터 조회
+  const { data: receiptsData, isLoading: isLoadingReceipts } = useList<Receipt>({
+    resource: 'receipts',
+    filters: [
+      {
+        field: 'user_id',
+        operator: 'eq',
+        value: id,
+      },
+    ],
+    pagination: {
+      current: receiptCurrentPage,
+      pageSize: receiptPageSize,
+    },
+    sorters: [
+      {
+        field: 'created_at',
+        order: 'desc'
+      }
+    ],
+  });
+  
+  // 투표 내역 페이지 변경 핸들러
   const handlePageChange = (page: number, newPageSize?: number) => {
     setCurrentPage(page);
     if (newPageSize) setPageSize(newPageSize);
+  };
+  
+  // 구매내역 페이지 변경 핸들러
+  const handleReceiptPageChange = (page: number, newPageSize?: number) => {
+    setReceiptCurrentPage(page);
+    if (newPageSize) setReceiptPageSize(newPageSize);
   };
   
   // 콘솔에 데이터 기록
@@ -83,6 +116,12 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
       console.log('Vote Picks with Relations:', votePicksData.data);
     }
   }, [votePicksData]);
+  
+  useEffect(() => {
+    if (receiptsData) {
+      console.log('Receipts Data:', receiptsData.data);
+    }
+  }, [receiptsData]);
   
   // Ant Design의 테마 토큰 사용
   const { token } = theme.useToken();
@@ -135,6 +174,90 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
     },
     {
       title: '투표 일시',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (date: string) => <DateField value={date} format="YYYY-MM-DD HH:mm:ss" />,
+    }
+  ];
+
+  // Receipt 플랫폼 표시 포맷팅
+  const getPlatformLabel = (platform?: string) => {
+    if (!platform) return '미설정';
+    switch (platform) {
+      case RECEIPT_PLATFORM.IOS:
+        return 'iOS';
+      case RECEIPT_PLATFORM.ANDROID:
+        return 'Android';
+      default:
+        return platform;
+    }
+  };
+  
+  // Receipt 환경 표시 포맷팅
+  const getEnvironmentLabel = (environment?: string) => {
+    if (!environment) return '미설정';
+    switch (environment) {
+      case RECEIPT_ENVIRONMENT.PRODUCTION:
+        return '프로덕션';
+      case RECEIPT_ENVIRONMENT.SANDBOX:
+        return '샌드박스';
+      default:
+        return environment;
+    }
+  };
+  
+  // Receipt 상태 표시 포맷팅
+  const getStatusColor = (status?: string) => {
+    if (!status) return 'default';
+    switch (status) {
+      case RECEIPT_STATUS.VALID:
+        return 'success';
+      case RECEIPT_STATUS.INVALID:
+        return 'error';
+      case RECEIPT_STATUS.PENDING:
+        return 'warning';
+      default:
+        return 'default';
+    }
+  };
+
+  // Receipt 테이블 컬럼 설정
+  const receiptColumns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      title: '상품 ID',
+      dataIndex: 'product_id',
+      key: 'product_id',
+      render: (product_id: string) => product_id || '-',
+    },
+    {
+      title: '상태',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)}>
+          {status || '-'}
+        </Tag>
+      ),
+    },
+    {
+      title: '플랫폼',
+      dataIndex: 'platform',
+      key: 'platform',
+      render: (platform: string) => getPlatformLabel(platform),
+    },
+    {
+      title: '환경',
+      dataIndex: 'environment',
+      key: 'environment',
+      render: (environment: string) => getEnvironmentLabel(environment),
+    },
+    {
+      title: '구매 일시',
       dataIndex: 'created_at',
       key: 'created_at',
       render: (date: string) => <DateField value={date} format="YYYY-MM-DD HH:mm:ss" />,
@@ -246,6 +369,34 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
     </div>
   );
 
+  // 구매내역 탭 렌더링
+  const renderReceiptHistoryTab = () => (
+    <div style={getCardStyle(token)}>
+      <div style={getSectionStyle(token)}>
+        <Table 
+          dataSource={receiptsData?.data || []}
+          columns={receiptColumns}
+          rowKey="id"
+          loading={isLoadingReceipts}
+          pagination={{ 
+            current: receiptCurrentPage,
+            pageSize: receiptPageSize,
+            total: receiptsData?.total || 0,
+            onChange: handleReceiptPageChange,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            showTotal: (total) => `총 ${total}개 구매 내역`
+          }}
+          onRow={() => ({
+            style: {
+              cursor: 'pointer'
+            }
+          })}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <Show
       breadcrumb={false}
@@ -292,6 +443,9 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
             </Tabs.TabPane>
             <Tabs.TabPane tab="투표 내역" key="votes">
               {renderVoteHistoryTab()}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="구매 내역" key="receipts">
+              {renderReceiptHistoryTab()}
             </Tabs.TabPane>
           </Tabs>
         </>
