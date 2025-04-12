@@ -35,14 +35,14 @@ export default function AdminRolePermissionsDetail({ record, loading }: AdminRol
       key: 'created-at',
       label: '생성일',
       children: (
-        <DateField value={record?.created_at} format='YYYY-MM-DD HH:mm:ss' />
+        <DateField value={record?.created_at} format='YYYY-MM-DD' />
       ),
     },
     {
       key: 'updated-at',
       label: '수정일',
       children: (
-        <DateField value={record?.updated_at} format='YYYY-MM-DD HH:mm:ss' />
+        <DateField value={record?.updated_at} format='YYYY-MM-DD' />
       ),
     },
   ];

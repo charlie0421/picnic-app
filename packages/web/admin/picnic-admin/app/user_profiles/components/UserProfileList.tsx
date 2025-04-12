@@ -198,7 +198,7 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
       <Space style={{ marginBottom: 16 }}>
         <Select
           defaultValue="all"
-          style={{ width: 120 }}
+          style={{ width: 120, maxWidth: '100%' }}
           onChange={handleFieldChange}
           options={[
             { value: 'all', label: '전체' },
@@ -210,108 +210,120 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
         <Input.Search
           placeholder="검색어를 입력하세요"
           onSearch={handleSearch}
-          style={{ width: 300 }}
+          style={{ width: 300, maxWidth: '100%' }}
           allowClear
           defaultValue={searchTerm}
         />
       </Space>
 
-      <Table
-        {...tableProps}
-        rowKey="id"
-        scroll={{ x: 'max-content' }}
-        onRow={(record: UserProfile) => ({
-          style: { cursor: 'pointer' },
-          onClick: () => show(resource, record.id),
-        })}
-        pagination={{
-          ...tableProps.pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50'],
-          showTotal: (total) => `총 ${total}개 항목`,
-        }}
-      >
-        <Table.Column 
-          dataIndex="id" 
-          title="ID" 
-          width={80}
-          ellipsis={true}
-          render={(value) => value && value.substring(0, 8) + '...'}
-        />
-        
-        <Table.Column
-          dataIndex="avatar_url"
-          title="프로필"
-          render={(avatar_url, record: UserProfile) => (
-            <Space>
-              <Avatar src={avatar_url} size="large" />
-              <div>
-                <div>{record.nickname || '-'}</div>
-                <div style={{ fontSize: '12px', color: '#666' }}>{record.email || '-'}</div>
-              </div>
-            </Space>
-          )}
-        />
-        
-        <Table.Column
-          dataIndex="star_candy"
-          title="스타캔디"
-          sorter
-          render={(star_candy, record: UserProfile) => (
-            <Space>
-              <span>{star_candy}</span>
-              {record.star_candy_bonus > 0 && (
-                <Tag color="green">+{record.star_candy_bonus}</Tag>
-              )}
-            </Space>
-          )}
-        />
-        
-        <Table.Column
-          dataIndex="gender"
-          title="성별/나이 공개"
-          render={(gender, record: UserProfile) => (
-            <Space>
-              <Tag color={gender ? 'blue' : 'default'}>
-                {gender || '미설정'}
-              </Tag>
-              <Space direction="vertical" size={2}>
-                <span>성별 공개: <Switch size="small" disabled checked={record.open_gender} /></span>
-                <span>나이 공개: <Switch size="small" disabled checked={record.open_ages} /></span>
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <Table
+          {...tableProps}
+          rowKey="id"
+          scroll={{ x: 'max-content' }}
+          onRow={(record: UserProfile) => ({
+            style: { cursor: 'pointer' },
+            onClick: () => show(resource, record.id),
+          })}
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
+          }}
+          size="small"
+        >
+          <Table.Column 
+            dataIndex="id" 
+            title="ID" 
+            width={80}
+            ellipsis={true}
+            render={(value) => value && value.substring(0, 8) + '...'}
+          />
+          
+          <Table.Column
+            dataIndex="avatar_url"
+            title="프로필"
+            width={160}
+            render={(avatar_url, record: UserProfile) => (
+              <Space>
+                <Avatar src={avatar_url} size="small" />
+                <div>
+                  <div>{record.nickname || '-'}</div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>{record.email || '-'}</div>
+                </div>
               </Space>
-            </Space>
-          )}
-        />
-        
-        <Table.Column
-          dataIndex="is_admin"
-          title="관리자"
-          render={(is_admin) => (
-            <Tag color={is_admin ? 'red' : 'default'}>
-              {is_admin ? '관리자' : '일반'}
-            </Tag>
-          )}
-        />
-        
-        <Table.Column
-          dataIndex="created_at"
-          title="가입일"
-          sorter
-          render={(created_at) => (
-            <DateField value={created_at} format="YYYY-MM-DD HH:mm:ss" />
-          )}
-        />
-        
-        <Table.Column
-          dataIndex="deleted_at"
-          title="상태"
-          render={(deleted_at) => (
-            <Tag color={deleted_at ? 'error' : 'success'}>
-              {deleted_at ? '탈퇴' : '활성'}
-            </Tag>
-          )}
-        />
-      </Table>
+            )}
+          />
+          
+          <Table.Column
+            dataIndex="star_candy"
+            title="스타캔디"
+            sorter
+            width={120}
+            responsive={['sm']}
+            render={(star_candy, record: UserProfile) => (
+              <Space>
+                <span>{star_candy}</span>
+                {record.star_candy_bonus > 0 && (
+                  <Tag color="green">+{record.star_candy_bonus}</Tag>
+                )}
+              </Space>
+            )}
+          />
+          
+          <Table.Column
+            dataIndex="gender"
+            title="성별/나이 공개"
+            responsive={['md']}
+            render={(gender, record: UserProfile) => (
+              <Space>
+                <Tag color={gender ? 'blue' : 'default'}>
+                  {gender || '미설정'}
+                </Tag>
+                <Space direction="vertical" size={2}>
+                  <span>성별 공개: <Switch size="small" disabled checked={record.open_gender} /></span>
+                  <span>나이 공개: <Switch size="small" disabled checked={record.open_ages} /></span>
+                </Space>
+              </Space>
+            )}
+          />
+          
+          <Table.Column
+            dataIndex="is_admin"
+            title="관리자"
+            width={80}
+            responsive={['lg']}
+            render={(is_admin) => (
+              <Tag color={is_admin ? 'red' : 'default'}>
+                {is_admin ? '관리자' : '일반'}
+              </Tag>
+            )}
+          />
+          
+          <Table.Column
+            dataIndex="created_at"
+            title="가입일"
+            sorter
+            width={120}
+            responsive={['lg']}
+            render={(created_at) => (
+              <DateField value={created_at} format="YYYY-MM-DD" />
+            )}
+          />
+          
+          <Table.Column
+            dataIndex="deleted_at"
+            title="상태"
+            width={80}
+            render={(deleted_at) => (
+              <Tag color={deleted_at ? 'error' : 'success'}>
+                {deleted_at ? '탈퇴' : '활성'}
+              </Tag>
+            )}
+          />
+        </Table>
+      </div>
     </List>
   );
 } 

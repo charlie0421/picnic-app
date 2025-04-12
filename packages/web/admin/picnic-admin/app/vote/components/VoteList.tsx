@@ -116,7 +116,7 @@ export default function VoteList() {
     >
       <Space wrap style={{ marginBottom: 16 }}>
         <Select
-          style={{ width: 160 }}
+          style={{ width: 160, maxWidth: '100%' }}
           placeholder='카테고리 선택'
           allowClear
           options={VOTE_CATEGORIES}
@@ -124,7 +124,7 @@ export default function VoteList() {
           onChange={handleCategoryChange}
         />
         <Select
-          style={{ width: 120 }}
+          style={{ width: 120, maxWidth: '100%' }}
           placeholder='투표 상태'
           allowClear
           options={[
@@ -137,118 +137,133 @@ export default function VoteList() {
         />
       </Space>
 
-      <Table
-        {...tableProps}
-        rowKey='id'
-        scroll={{ x: 'max-content' }}
-        onRow={(record: VoteRecord) => {
-          if (!record) return {};
-          const status = getVoteStatus(record.start_at, record.stop_at);
-          return {
-            style: {
-              backgroundColor: STATUS_COLORS[status],
-              color: 'inherit',
-              cursor: 'pointer',
-            },
-            onClick: () => {
-              if (record.id) {
-                show('vote', record.id);
-              }
-            },
-          };
-        }}
-        pagination={{
-          ...tableProps.pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50'],
-          showTotal: (total) => `총 ${total}개 항목`,
-        }}
-      >
-        <Table.Column dataIndex='id' title='ID' width={60} />
-        <Table.Column
-          dataIndex='title'
-          title={'제목'}
-          align='center'
-          render={(value: any) => <MultiLanguageDisplay value={value} />}
-        />
-        <Table.Column
-          dataIndex='vote_category'
-          title='카테고리'
-          align='center'
-          render={(value: VoteCategory) => {
-            const category = VOTE_CATEGORIES?.find((c) => c.value === value);
-            return category?.label || value;
-          }}
-        />
-        <Table.Column
-          dataIndex='main_image'
-          title='메인 이미지'
-          align='center'
-          render={(value: string | undefined) => {
-            if (!value) return '-';
-            return (
-            <Image
-              src={getCdnImageUrl(value, 100)}
-              alt='메인 이미지'
-              width={120}
-              height={80}
-              preview={false}
-              />
-            );
-          }}
-        />
-        <Table.Column
-          title='상태'
-          align='center'
-          render={(_, record: VoteRecord) => {
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <Table
+          {...tableProps}
+          rowKey='id'
+          scroll={{ x: 'max-content' }}
+          size="small"
+          onRow={(record: VoteRecord) => {
+            if (!record) return {};
             const status = getVoteStatus(record.start_at, record.stop_at);
-            let label = '';
-            if (status === VOTE_STATUS.UPCOMING) label = '투표 예정';
-            else if (status === VOTE_STATUS.ONGOING) label = '투표 중';
-            else if (status === VOTE_STATUS.COMPLETED) label = '투표 완료';
-
-            return (
-              <Tag color={STATUS_TAG_COLORS[status]} key={status}>
-                {label}
-              </Tag>
-            );
+            return {
+              style: {
+                backgroundColor: STATUS_COLORS[status],
+                color: 'inherit',
+                cursor: 'pointer',
+              },
+              onClick: () => {
+                if (record.id) {
+                  show('vote', record.id);
+                }
+              },
+            };
           }}
-        />
-        <Table.Column
-          title='투표 노출'
-          align='center'
-          render={(_, record: VoteRecord) => {
-            if (!record.visible_at) return '-';
-            return `${formatDate(record.visible_at, 'datetime')}`;  
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
           }}
-        />
+        >
+          <Table.Column dataIndex='id' title='ID' width={60} />
+          <Table.Column
+            dataIndex='title'
+            title={'제목'}
+            align='center'
+            ellipsis={{ showTitle: true }}
+            render={(value: any) => <MultiLanguageDisplay value={value} />}
+          />
+          <Table.Column
+            dataIndex='vote_category'
+            title='카테고리'
+            align='center'
+            width={100}
+            responsive={['sm']}
+            render={(value: VoteCategory) => {
+              const category = VOTE_CATEGORIES?.find((c) => c.value === value);
+              return category?.label || value;
+            }}
+          />
+          <Table.Column
+            dataIndex='main_image'
+            title='메인 이미지'
+            align='center'
+            width={130}
+            responsive={['md']}
+            render={(value: string | undefined) => {
+              if (!value) return '-';
+              return (
+              <Image
+                src={getCdnImageUrl(value, 100)}
+                alt='메인 이미지'
+                width={100}
+                height={60}
+                preview={false}
+                />
+              );
+            }}
+          />
+          <Table.Column
+            title='상태'
+            align='center'
+            width={100}
+            render={(_, record: VoteRecord) => {
+              const status = getVoteStatus(record.start_at, record.stop_at);
+              let label = '';
+              if (status === VOTE_STATUS.UPCOMING) label = '투표 예정';
+              else if (status === VOTE_STATUS.ONGOING) label = '투표 중';
+              else if (status === VOTE_STATUS.COMPLETED) label = '투표 완료';
 
-        <Table.Column
-          title='투표 기간'
-          align='center'
-          render={(_, record: VoteRecord) => {
-            if (!record.start_at || !record.stop_at) return '-';
-            return (
-              <Space direction="vertical">
-                <DateField value={record.start_at} format='YYYY-MM-DD HH:mm:ss' />
-                |
-                <DateField value={record.stop_at} format='YYYY-MM-DD HH:mm:ss' />
+              return (
+                <Tag color={STATUS_TAG_COLORS[status]} key={status}>
+                  {label}
+                </Tag>
+              );
+            }}
+          />
+          <Table.Column
+            title='투표 노출'
+            align='center'
+            width={160}
+            responsive={['md']}
+            render={(_, record: VoteRecord) => {
+              if (!record.visible_at) return '-';
+              return `${formatDate(record.visible_at, 'date')}`;  
+            }}
+          />
+
+          <Table.Column
+            title='투표 기간'
+            align='center'
+            width={180}
+            responsive={['lg']}
+            render={(_, record: VoteRecord) => {
+              if (!record.start_at || !record.stop_at) return '-';
+              return (
+                <Space direction="vertical" size="small">
+                  <DateField value={record.start_at} format='YYYY-MM-DD' />
+                  |
+                  <DateField value={record.stop_at} format='YYYY-MM-DD' />
+                </Space>
+              )
+            }}
+          />
+          <Table.Column
+            dataIndex={['created_at', 'updated_at']}
+            title={'생성일/수정일'}
+            align='center'
+            width={140}
+            responsive={['xl']}
+            render={(_, record: any) => (
+              <Space direction="vertical" size="small">
+                <DateField value={record.created_at} format='YYYY-MM-DD' />
+                <DateField value={record.updated_at} format='YYYY-MM-DD' />
               </Space>
-            )
-          }}
-        />
-        <Table.Column
-          dataIndex={['created_at', 'updated_at']}
-          title={'생성일/수정일'}
-          align='center'
-          render={(_, record: any) => (
-            <Space direction="vertical">
-              <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
-              <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
-            </Space>
-          )}
-        />
-      </Table>
+            )}
+          />
+        </Table>
+      </div>
     </List>
   );
 } 

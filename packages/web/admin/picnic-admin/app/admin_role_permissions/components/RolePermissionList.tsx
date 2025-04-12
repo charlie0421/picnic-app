@@ -70,7 +70,8 @@ export default function RolePermissionList() {
             <Input.Search
               placeholder='검색...'
               onSearch={handleSearch}
-              style={{ width: 200 }}
+              style={{ width: 200, maxWidth: '100%' }}
+              allowClear
             />
             <CreateButton />
           </Space>
@@ -78,61 +79,71 @@ export default function RolePermissionList() {
       }
       title={resource?.meta?.list?.label}
     >
-      <Table
-        {...tableProps}
-        rowKey='id'
-        onRow={(record) => {
-          return {
-            style: {
-              cursor: 'pointer',
-            },
-            onClick: () => show('admin_role_permissions', record.id),
-          };
-        }}
-        pagination={{
-          ...tableProps.pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50'],
-          showTotal: (total) => `총 ${total}개 항목`,
-        }}
-      >
-        <Table.Column dataIndex='id' title='ID' sorter />
-        <Table.Column
-          dataIndex='role_id'
-          title='역할'
-          align='center'
-          sorter
-          render={(value) => {
-            const role = rolesData?.data?.find((item) => item.id === value);
-            return role ? <Tag color='blue'>{role.name}</Tag> : value;
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <Table
+          {...tableProps}
+          rowKey='id'
+          onRow={(record) => {
+            return {
+              style: {
+                cursor: 'pointer',
+              },
+              onClick: () => show('admin_role_permissions', record.id),
+            };
           }}
-        />
-        <Table.Column
-          dataIndex='permission_id'
-          title='권한'
-          align='center'
-          sorter
-          render={(value) => {
-            const permission = permissionsData?.data?.find(
-              (item) => item.id === value,
-            );
-            return permission ? (
-              <Tag color='green'>{`${permission.resource} - ${permission.action}`}</Tag>
-            ) : (
-              value
-            );
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
           }}
-        />
-        <Table.Column
-          dataIndex='created_at'
-          title='생성일'
-          align='center'
-          sorter
-          render={(value) => (
-            <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
-          )}
-        />
-      </Table>
+          scroll={{ x: 'max-content' }}
+          size="small"
+        >
+          <Table.Column dataIndex='id' title='ID' sorter width={80} />
+          <Table.Column
+            dataIndex='role_id'
+            title='역할'
+            align='center'
+            sorter
+            width={140}
+            ellipsis={{ showTitle: true }}
+            render={(value) => {
+              const role = rolesData?.data?.find((item) => item.id === value);
+              return role ? <Tag color='blue'>{role.name}</Tag> : value;
+            }}
+          />
+          <Table.Column
+            dataIndex='permission_id'
+            title='권한'
+            align='center'
+            sorter
+            ellipsis={{ showTitle: true }}
+            width={180}
+            render={(value) => {
+              const permission = permissionsData?.data?.find(
+                (item) => item.id === value,
+              );
+              return permission ? (
+                <Tag color='green'>{`${permission.resource} - ${permission.action}`}</Tag>
+              ) : (
+                value
+              );
+            }}
+          />
+          <Table.Column
+            dataIndex='created_at'
+            title='생성일'
+            align='center'
+            sorter
+            width={120}
+            responsive={['md']}
+            render={(value) => (
+              <DateField value={value} format='YYYY-MM-DD' />
+            )}
+          />
+        </Table>
+      </div>
     </List>
   );
 } 

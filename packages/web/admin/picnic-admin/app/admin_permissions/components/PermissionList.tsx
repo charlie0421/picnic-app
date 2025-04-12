@@ -42,7 +42,8 @@ export default function PermissionList() {
             <Input.Search
               placeholder='검색...'
               onSearch={handleSearch}
-              style={{ width: 200 }}
+              style={{ width: 200, maxWidth: '100%' }}
+              allowClear
             />
             <CreateButton />
           </Space>
@@ -50,66 +51,76 @@ export default function PermissionList() {
       }
       title={resource?.meta?.list?.label}
     >
-      <Table
-        {...tableProps}
-        rowKey='id'
-        onRow={(record) => ({
-          style: { cursor: 'pointer' },
-          onClick: () => show('admin_permissions', record.id),
-        })}
-        pagination={{
-          ...tableProps.pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50'],
-          showTotal: (total) => `총 ${total}개 항목`,
-        }}
-      >
-        <Table.Column dataIndex='id' title='ID' sorter />
-        <Table.Column
-          dataIndex='resource'
-          title='리소스'
-          align='center'
-          sorter
-          render={(value) => <Tag color='blue'>{value}</Tag>}
-        />
-        <Table.Column
-          dataIndex='action'
-          title='액션'
-          align='center'
-          sorter
-          render={(value) => {
-            let color = 'green';
-            if (value === 'delete') color = 'red';
-            else if (value === 'update') color = 'orange';
-            else if (value === 'create') color = 'blue';
-            else if (value === '*') color = 'magenta';
-            return <Tag color={color}>{value}</Tag>;
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <Table
+          {...tableProps}
+          rowKey='id'
+          onRow={(record) => ({
+            style: { cursor: 'pointer' },
+            onClick: () => show('admin_permissions', record.id),
+          })}
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
           }}
-        />
-        <Table.Column
-          dataIndex='description'
-          title='설명'
-          align='center'
-          sorter
-        />
-        <Table.Column
-          dataIndex={['created_at', 'updated_at']}
-          title='생성일/수정일'
-          align='center'
-          render={(_, record: AdminPermission) => (
-            <Space direction='vertical'>
-              <DateField
-                value={record.created_at}
-                format='YYYY-MM-DD HH:mm:ss'
-              />
-              <DateField
-                value={record.updated_at}
-                format='YYYY-MM-DD HH:mm:ss'
-              />
-            </Space>
-          )}
-        />
-      </Table>
+          scroll={{ x: 'max-content' }}
+          size="small"
+        >
+          <Table.Column dataIndex='id' title='ID' sorter width={80} />
+          <Table.Column
+            dataIndex='resource'
+            title='리소스'
+            align='center'
+            sorter
+            width={120}
+            render={(value) => <Tag color='blue'>{value}</Tag>}
+          />
+          <Table.Column
+            dataIndex='action'
+            title='액션'
+            align='center'
+            sorter
+            width={100}
+            render={(value) => {
+              let color = 'green';
+              if (value === 'delete') color = 'red';
+              else if (value === 'update') color = 'orange';
+              else if (value === 'create') color = 'blue';
+              else if (value === '*') color = 'magenta';
+              return <Tag color={color}>{value}</Tag>;
+            }}
+          />
+          <Table.Column
+            dataIndex='description'
+            title='설명'
+            align='center'
+            sorter
+            ellipsis={{ showTitle: true }}
+            responsive={['md']}
+          />
+          <Table.Column
+            dataIndex={['created_at', 'updated_at']}
+            title='생성일/수정일'
+            align='center'
+            width={140}
+            responsive={['lg']}
+            render={(_, record: AdminPermission) => (
+              <Space direction='vertical' size="small">
+                <DateField
+                  value={record.created_at}
+                  format='YYYY-MM-DD'
+                />
+                <DateField
+                  value={record.updated_at}
+                  format='YYYY-MM-DD'
+                />
+              </Space>
+            )}
+          />
+        </Table>
+      </div>
     </List>
   );
 } 

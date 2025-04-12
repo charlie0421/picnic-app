@@ -72,61 +72,81 @@ export default function RewardList() {
         <Input.Search
           placeholder="리워드 검색"
           onSearch={handleSearch}
-          style={{ width: 300 }}
+          style={{ width: 300, maxWidth: '100%' }}
           allowClear
         />
       </div>
-      <Table
-        {...tableProps}
-        rowKey="id"
-        onRow={(record) => ({
-          style: {
-            cursor: 'pointer',
-          },
-          onClick: () => show('reward', record.id),
-        })}
-      >
-        <Table.Column
-          title="ID"
-          dataIndex="id"
-          key="id"
-          sorter
-        />
-        <Table.Column
-          title="썸네일"
-          dataIndex="thumbnail"
-          key="thumbnail"
-          render={(value) => value ? <Image src={getCdnImageUrl(value, 80)} alt="thumbnail" width={80} height={80} /> : '-'}
-        />
-        <Table.Column
-          title="제목"
-          dataIndex={['title', 'ko']}
-          key="title"
-          sorter
-          render={(_, record: Reward) => renderTitle(record)}
-        />
-        <Table.Column
-          title="순서"
-          dataIndex="order"
-          key="order"
-          sorter
-          render={(value) => value ?? '-'}
-        />
-        <Table.Column
-          title="생성일"
-          dataIndex="created_at"
-          key="created_at"
-          sorter
-          render={(value) => <DateField value={value} format="YYYY-MM-DD HH:mm:ss" />}
-        />
-        <Table.Column
-          title="수정일"
-          dataIndex="updated_at"
-          key="updated_at"
-          sorter
-          render={(value) => <DateField value={value} format="YYYY-MM-DD HH:mm:ss" />}
-        />
-      </Table>
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <Table
+          {...tableProps}
+          rowKey="id"
+          onRow={(record) => ({
+            style: {
+              cursor: 'pointer',
+            },
+            onClick: () => show('reward', record.id),
+          })}
+          scroll={{ x: 'max-content' }}
+          size="small"
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
+          }}
+        >
+          <Table.Column
+            title="ID"
+            dataIndex="id"
+            key="id"
+            sorter
+            width={80}
+          />
+          <Table.Column
+            title="썸네일"
+            dataIndex="thumbnail"
+            key="thumbnail"
+            width={100}
+            render={(value) => value ? <Image src={getCdnImageUrl(value, 60)} alt="thumbnail" width={60} height={60} /> : '-'}
+          />
+          <Table.Column
+            title="제목"
+            dataIndex={['title', 'ko']}
+            key="title"
+            sorter
+            ellipsis={{
+              showTitle: false,
+            }}
+            render={(_, record: Reward) => renderTitle(record)}
+          />
+          <Table.Column
+            title="순서"
+            dataIndex="order"
+            key="order"
+            sorter
+            width={80}
+            render={(value) => value ?? '-'}
+          />
+          <Table.Column
+            title="생성일"
+            dataIndex="created_at"
+            key="created_at"
+            sorter
+            width={160}
+            render={(value) => <DateField value={value} format="YYYY-MM-DD" />}
+            responsive={['md']}
+          />
+          <Table.Column
+            title="수정일"
+            dataIndex="updated_at"
+            key="updated_at"
+            sorter
+            width={160}
+            render={(value) => <DateField value={value} format="YYYY-MM-DD" />}
+            responsive={['lg']}
+          />
+        </Table>
+      </div>
     </List>
   );
 } 

@@ -34,41 +34,57 @@ export default function ConfigList() {
       breadcrumb={false}
       headerButtons={<CreateButton />}
     >
-      <Table
-        {...tableProps}
-        rowKey='id'
-        onRow={(record) => {
-          return {
-            style: {
-              cursor: 'pointer',
-            },
-            onClick: () => show('config', record.id),
-          };
-        }}
-        pagination={{
-          ...tableProps.pagination,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '50'],
-          showTotal: (total) => `총 ${total}개 항목`,
-        }}
-      >
-        <Table.Column
-          dataIndex='id'
-          title='ID'
-        />
-        <Table.Column dataIndex='key' title='키' width={200} />
-        <Table.Column dataIndex='value' title='값' />
-        <Table.Column
-          dataIndex={['created_at', 'updated_at']}
-          title='생성일/수정일'
-          render={(_, record: any) => (
-            <Space direction="vertical">
-              <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
-              <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
-            </Space>
-          )}
-        />
-      </Table>
+      <div style={{ width: '100%', overflowX: 'auto' }}>
+        <Table
+          {...tableProps}
+          rowKey='id'
+          onRow={(record) => {
+            return {
+              style: {
+                cursor: 'pointer',
+              },
+              onClick: () => show('config', record.id),
+            };
+          }}
+          pagination={{
+            ...tableProps.pagination,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50'],
+            showTotal: (total) => `총 ${total}개 항목`,
+          }}
+          scroll={{ x: 'max-content' }}
+          size="small"
+        >
+          <Table.Column
+            dataIndex='id'
+            title='ID'
+            width={80}
+          />
+          <Table.Column 
+            dataIndex='key' 
+            title='키' 
+            width={150} 
+          />
+          <Table.Column 
+            dataIndex='value' 
+            title='값' 
+            ellipsis={{
+              showTitle: true,
+            }}
+          />
+          <Table.Column
+            dataIndex={['created_at', 'updated_at']}
+            title='생성일/수정일'
+            width={200}
+            render={(_, record: any) => (
+              <Space direction="vertical" size="small">
+                <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
+                <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
+              </Space>
+            )}
+          />
+        </Table>
+      </div>
     </List>
   );
 } 
