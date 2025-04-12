@@ -8,7 +8,8 @@ import {
 } from '@refinedev/antd';
 import { CrudFilters, useNavigation } from '@refinedev/core';
 import { Space, Table, Select, Tag } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { Image } from 'antd';
 
 import {
@@ -25,77 +26,88 @@ import { formatDate } from '@/lib/date';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import { getCdnImageUrl } from '@/lib/image';
 
+// 상수 확장
+const FILTER_STATUS = {
+  ALL: 'all',
+  ...VOTE_STATUS,
+};
+
+type FilterStatusType = typeof FILTER_STATUS[keyof typeof FILTER_STATUS];
+
+// 상수 확장
+const FILTER_CATEGORY = {
+  ALL: 'all',
+  // 기존 카테고리는 VOTE_CATEGORIES 배열에서 사용
+};
+
+type FilterCategoryType = typeof FILTER_CATEGORY['ALL'] | VoteCategory;
+
 export default function VoteList() {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  
+  // URL에서 파라미터 가져오기
+  const urlCategory = searchParams.get('category') as FilterCategoryType || FILTER_CATEGORY.ALL;
+  const urlStatus = searchParams.get('status') as FilterStatusType || FILTER_STATUS.ALL;
+  
   const [categoryFilter, setCategoryFilter] =
-    React.useState<VoteCategory | null>(null);
-  const [statusFilter, setStatusFilter] = React.useState<VoteStatus | null>(
-    null,
-  );
+    React.useState<FilterCategoryType>(urlCategory);
+  const [statusFilter, setStatusFilter] =
+    React.useState<FilterStatusType>(urlStatus);
+  const [filteredData, setFilteredData] = useState<VoteRecord[]>([]);
 
   const { show } = useNavigation();
 
-  // 필터 체인지 핸들러
-  const handleCategoryChange = (value: VoteCategory | null) => {
-    setCategoryFilter(value);
+  // URL 파라미터 업데이트
+  const updateUrlParams = (params: { category?: FilterCategoryType; status?: FilterStatusType }) => {
+    const urlParams = new URLSearchParams(searchParams.toString());
+    
+    // 카테고리 필터 업데이트
+    if (params.category !== undefined) {
+      if (params.category === FILTER_CATEGORY.ALL) {
+        urlParams.delete('category');
+      } else {
+        urlParams.set('category', params.category);
+      }
+    }
+    
+    // 상태 필터 업데이트
+    if (params.status !== undefined) {
+      if (params.status === FILTER_STATUS.ALL) {
+        urlParams.delete('status');
+      } else {
+        urlParams.set('status', params.status);
+      }
+    }
+    
+    router.push(`${pathname}?${urlParams.toString()}`);
   };
 
-  const handleStatusChange = (value: VoteStatus | null) => {
+  // 컴포넌트 마운트 시 URL에서 파라미터 복원
+  useEffect(() => {
+    if (urlCategory !== categoryFilter) {
+      setCategoryFilter(urlCategory);
+    }
+    if (urlStatus !== statusFilter) {
+      setStatusFilter(urlStatus);
+    }
+  }, [urlCategory, urlStatus, categoryFilter, statusFilter]);
+
+  // 필터 체인지 핸들러
+  const handleCategoryChange = (value: FilterCategoryType) => {
+    setCategoryFilter(value);
+    updateUrlParams({ category: value });
+  };
+
+  const handleStatusChange = (value: FilterStatusType) => {
     setStatusFilter(value);
+    updateUrlParams({ status: value });
   };
 
   const { tableProps } = useTable<VoteRecord>({
-    filters: {
-      permanent: [
-        {
-          field: 'deleted_at',
-          operator: 'null',
-          value: true,
-        },
-      ],
-      initial: React.useMemo(() => {
-        const filters: CrudFilters = [];
-
-        // 카테고리 필터 추가
-        if (categoryFilter) {
-          filters.push({
-            field: 'vote_category',
-            operator: 'eq',
-            value: categoryFilter,
-          });
-        }
-
-        // 상태 필터 추가
-        const now = new Date().toISOString();
-        if (statusFilter) {
-          if (statusFilter === VOTE_STATUS.UPCOMING) {
-            filters.push({
-              operator: 'gt',
-              field: 'start_at',
-              value: now,
-            });
-          } else if (statusFilter === VOTE_STATUS.ONGOING) {
-            filters.push({
-              operator: 'lte',
-              field: 'start_at',
-              value: now,
-            });
-            filters.push({
-              operator: 'gte',
-              field: 'stop_at',
-              value: now,
-            });
-          } else if (statusFilter === VOTE_STATUS.COMPLETED) {
-            filters.push({
-              operator: 'lt',
-              field: 'stop_at',
-              value: now,
-            });
-          }
-        }
-
-        return filters;
-      }, [categoryFilter, statusFilter]),
-    },
+    resource: 'vote',
+    syncWithLocation: false, // 동기화를 끄고 수동으로 처리
     sorters: {
       initial: [
         {
@@ -104,10 +116,75 @@ export default function VoteList() {
         },
       ],
     },
+    filters: {
+      permanent: [
+        {
+          field: 'deleted_at',
+          operator: 'null',
+          value: true,
+        },
+      ],
+    },
     queryOptions: {
       refetchOnWindowFocus: false,
     },
   });
+
+  // 클라이언트 측 필터링
+  useEffect(() => {
+    if (tableProps.dataSource && tableProps.dataSource.length > 0) {
+      let filtered = [...tableProps.dataSource];
+      
+      // 카테고리 필터 적용
+      if (categoryFilter && categoryFilter !== FILTER_CATEGORY.ALL) {
+        filtered = filtered.filter(item => 
+          item.vote_category === categoryFilter
+        );
+      }
+      
+      // 상태 필터 적용
+      if (statusFilter && statusFilter !== FILTER_STATUS.ALL) {
+        const now = new Date();
+        
+        if (statusFilter === VOTE_STATUS.UPCOMING) {
+          filtered = filtered.filter(item => {
+            if (!item.start_at) return false;
+            const startAt = new Date(item.start_at);
+            return now < startAt;
+          });
+        } else if (statusFilter === VOTE_STATUS.ONGOING) {
+          filtered = filtered.filter(item => {
+            if (!item.start_at || !item.stop_at) return false;
+            const startAt = new Date(item.start_at);
+            const stopAt = new Date(item.stop_at);
+            return now >= startAt && now <= stopAt;
+          });
+        } else if (statusFilter === VOTE_STATUS.COMPLETED) {
+          filtered = filtered.filter(item => {
+            if (!item.stop_at) return false;
+            const stopAt = new Date(item.stop_at);
+            return now > stopAt;
+          });
+        }
+      }
+      
+      setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
+    }
+  }, [tableProps.dataSource, categoryFilter, statusFilter]);
+  
+  // 필터링된 데이터로 tableProps 수정
+  const modifiedTableProps = {
+    ...tableProps,
+    dataSource: filteredData,
+  };
+
+  // 카테고리 옵션 생성
+  const categoryOptions = [
+    { label: '전체', value: FILTER_CATEGORY.ALL },
+    ...(VOTE_CATEGORIES || []),
+  ];
 
   return (
     <List 
@@ -118,16 +195,15 @@ export default function VoteList() {
         <Select
           style={{ width: 160, maxWidth: '100%' }}
           placeholder='카테고리 선택'
-          allowClear
-          options={VOTE_CATEGORIES}
+          options={categoryOptions}
           value={categoryFilter}
           onChange={handleCategoryChange}
         />
         <Select
           style={{ width: 120, maxWidth: '100%' }}
           placeholder='투표 상태'
-          allowClear
           options={[
+            { label: '전체', value: FILTER_STATUS.ALL },
             { label: '투표 예정', value: VOTE_STATUS.UPCOMING },
             { label: '투표 중', value: VOTE_STATUS.ONGOING },
             { label: '투표 완료', value: VOTE_STATUS.COMPLETED },
@@ -139,7 +215,7 @@ export default function VoteList() {
 
       <div style={{ width: '100%', overflowX: 'auto' }}>
         <Table
-          {...tableProps}
+          {...modifiedTableProps}
           rowKey='id'
           scroll={{ x: 'max-content' }}
           size="small"
@@ -243,7 +319,6 @@ export default function VoteList() {
               return (
                 <Space direction="vertical" size="small">
                   <DateField value={record.start_at} format='YYYY-MM-DD' />
-                  |
                   <DateField value={record.stop_at} format='YYYY-MM-DD' />
                 </Space>
               )

@@ -7,14 +7,12 @@ import {
   CreateButton,
 } from '@refinedev/antd';
 import { useNavigation, useResource } from '@refinedev/core';
-import { Table, Space, Input, Image, Tooltip } from 'antd';
-import { useState } from 'react';
+import { Table, Image, Tooltip } from 'antd';
 import { Reward, defaultLocalizations } from './types';
 import { getCdnImageUrl } from '@/lib/image';
 
 export default function RewardList() {
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const { show, edit } = useNavigation();
+  const { show } = useNavigation();
   const { resource } = useResource();
 
   const { tableProps } = useTable<Reward>({
@@ -28,16 +26,7 @@ export default function RewardList() {
         },
       ],
     },
-    meta: {
-      search: searchTerm
-        ? { query: searchTerm, fields: ['title'] }
-        : undefined,
-    },
   });
-
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-  };
 
   // 다국어 제목 표시 함수
   const renderTitle = (record: Reward) => {
@@ -68,14 +57,6 @@ export default function RewardList() {
       headerButtons={<CreateButton />}
       title={resource?.meta?.list?.label}
     >
-      <div style={{ marginBottom: 16 }}>
-        <Input.Search
-          placeholder="리워드 검색"
-          onSearch={handleSearch}
-          style={{ width: 300, maxWidth: '100%' }}
-          allowClear
-        />
-      </div>
       <div style={{ width: '100%', overflowX: 'auto' }}>
         <Table
           {...tableProps}

@@ -2,21 +2,43 @@
 
 import { List, CreateButton, useTable, DateField } from '@refinedev/antd';
 import { useNavigation, useResource } from '@refinedev/core';
-import { Space, Table, Tag, Image } from 'antd';
+import { Space, Table, Tag, Image, Select } from 'antd';
+import { useState, useEffect } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { Banner } from '@/lib/types/banner';
 import { MultiLanguageDisplay } from '@/components/ui';
 import { getCdnImageUrl } from '@/lib/image';
+import { BANNER_LOCATIONS } from '@/lib/banner';
+
+// 배너 상태 상수 정의
+const BANNER_STATUS = {
+  ALL: 'all',
+  UPCOMING: 'upcoming',
+  ONGOING: 'ongoing',
+  ENDED: 'ended',
+};
+
+type BannerStatus = typeof BANNER_STATUS[keyof typeof BANNER_STATUS];
 
 export default function BannerList() {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  
+  // URL에서 status 파라미터 가져오기
+  const urlStatus = searchParams.get('status') as BannerStatus | null;
+  const initialStatus = Object.values(BANNER_STATUS).includes(urlStatus as BannerStatus) 
+    ? urlStatus as BannerStatus 
+    : BANNER_STATUS.ALL;
+  
+  const [statusFilter, setStatusFilter] = useState<BannerStatus>(initialStatus);
+  const [filteredData, setFilteredData] = useState<Banner[]>([]);
   const { show } = useNavigation();
   const { resource } = useResource();
 
   const { tableProps } = useTable<Banner>({
     resource: 'banner',
     syncWithLocation: true,
-    filters: {
-      mode: 'off',
-    },
     sorters: {
       initial: [
         {
@@ -26,6 +48,60 @@ export default function BannerList() {
       ],
     },
   });
+
+  // URL 파라미터 업데이트
+  const updateUrlParams = (status: BannerStatus) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (status === BANNER_STATUS.ALL) {
+      params.delete('status');
+    } else {
+      params.set('status', status);
+    }
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // 데이터가 로드된 후 필터링 적용
+  useEffect(() => {
+    if (tableProps.dataSource && tableProps.dataSource.length > 0) {
+      const now = new Date();
+      
+      if (statusFilter === BANNER_STATUS.ALL) {
+        setFilteredData([...tableProps.dataSource]);
+        return;
+      }
+
+      const filtered = tableProps.dataSource.filter(banner => {
+        const startAt = banner.start_at ? new Date(banner.start_at) : null;
+        const endAt = banner.end_at ? new Date(banner.end_at) : null;
+        
+        if (statusFilter === BANNER_STATUS.UPCOMING) {
+          return startAt && now < startAt;
+        } else if (statusFilter === BANNER_STATUS.ONGOING) {
+          return startAt && (!endAt || now >= startAt && now <= endAt);
+        } else if (statusFilter === BANNER_STATUS.ENDED) {
+          return endAt && now > endAt;
+        }
+        return false;
+      });
+
+      setFilteredData([...filtered]);
+    }
+  }, [tableProps.dataSource, statusFilter]);
+
+  // 컴포넌트 마운트 시 URL에서 상태 복원
+  useEffect(() => {
+    if (urlStatus && Object.values(BANNER_STATUS).includes(urlStatus as BannerStatus)) {
+      setStatusFilter(urlStatus as BannerStatus);
+    }
+  }, [urlStatus]);
+
+  const handleStatusChange = (value: BannerStatus) => {
+    const newStatus = value || BANNER_STATUS.ALL;
+    setStatusFilter(newStatus);
+    updateUrlParams(newStatus);
+  };
 
   const getBannerStatus = (startAt: string, endAt: string | null) => {
     const now = new Date();
@@ -40,19 +116,35 @@ export default function BannerList() {
     }
   };
 
+  // 필터링된 데이터로 tableProps 수정
+  const modifiedTableProps = {
+    ...tableProps,
+    dataSource: filteredData,
+  };
+
   return (
     <List
       breadcrumb={false}
-      headerButtons={
-        <Space>
-          <CreateButton resource='banner' />
-        </Space>
-      }
+      headerButtons={<CreateButton resource='banner' />}
       title={resource?.meta?.list?.label || ''}
     >
+      <Space style={{ marginBottom: 16 }}>
+        <Select
+          style={{ width: 160, maxWidth: '100%' }}
+          placeholder='노출 상태'
+          value={statusFilter}
+          onChange={handleStatusChange}
+          options={[
+            { label: '전체', value: BANNER_STATUS.ALL },
+            { label: '노출중', value: BANNER_STATUS.ONGOING },
+            { label: '노출예정', value: BANNER_STATUS.UPCOMING },
+            { label: '노출종료', value: BANNER_STATUS.ENDED },
+          ]}
+        />
+      </Space>
       <div style={{ width: '100%', overflowX: 'auto' }}>
         <Table
-          {...tableProps}
+          {...modifiedTableProps}
           rowKey='id'
           onRow={(record) => ({
             style: { cursor: 'pointer' },
@@ -68,13 +160,6 @@ export default function BannerList() {
           size="small"
         >
           <Table.Column dataIndex='id' title='ID' width={80} />
-          <Table.Column
-            dataIndex='title'
-            title={'제목'}
-            align='center'
-            ellipsis={{ showTitle: true }}
-            render={(value: any) => <MultiLanguageDisplay languages={['ko']} value={value} />}
-          />
           <Table.Column
             dataIndex='image'
             title='이미지'
@@ -137,7 +222,16 @@ export default function BannerList() {
               </Space>
             )}
           />
-          <Table.Column dataIndex='location' title='위치' align='center' width={100} />
+          <Table.Column
+            dataIndex='location'
+            title='위치'
+            align='center'
+            width={100}
+            render={(value: string) => {
+              const locationObj = BANNER_LOCATIONS?.find(loc => loc.value === value);
+              return locationObj ? locationObj.label : value || '-';
+            }}
+          />
           <Table.Column dataIndex='order' title='순서' align='center' width={80} />
           <Table.Column
             dataIndex={['created_at', 'updated_at']}

@@ -3,13 +3,21 @@
 import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
 import { useMany, useNavigation, useResource } from '@refinedev/core';
 import { Table, Input, Space, Image } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { getCdnImageUrl } from '@/lib/image';
 import { MultiLanguageDisplay } from '@/components/ui';
 import { Artist } from '@/lib/types/artist';
 
 export default function ArtistList() {
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  
+  // URL에서 search 파라미터 가져오기
+  const urlSearch = searchParams.get('search') || '';
+  
+  const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
   const { show } = useNavigation();
   const { resource } = useResource();
 
@@ -34,6 +42,26 @@ export default function ArtistList() {
     },
   });
 
+  // URL 파라미터 업데이트
+  const updateUrlParams = (search: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (!search) {
+      params.delete('search');
+    } else {
+      params.set('search', search);
+    }
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // 컴포넌트 마운트 시 URL에서 검색어 복원
+  useEffect(() => {
+    if (urlSearch) {
+      setSearchTerm(urlSearch);
+    }
+  }, [urlSearch]);
+
   // 아티스트 그룹 정보 가져오기
   const { data: groupsData, isLoading: groupsIsLoading } = useMany({
     resource: 'artist_group',
@@ -51,26 +79,24 @@ export default function ArtistList() {
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
+    updateUrlParams(value);
   };
 
   return (
     <List
       breadcrumb={false}
-      headerButtons={
-        <>
-          <Space>
-            <Input.Search
-              placeholder='아티스트 이름 검색'
-              onSearch={handleSearch}
-              style={{ width: 300, maxWidth: '100%' }}
-              allowClear
-            />
-            <CreateButton />
-          </Space>
-        </>
-      }
+      headerButtons={<CreateButton />}
       title={resource?.meta?.list?.label}
     >
+      <Space style={{ marginBottom: 16 }}>
+        <Input.Search
+          placeholder='아티스트 이름 검색'
+          onSearch={handleSearch}
+          defaultValue={searchTerm}
+          style={{ width: 300, maxWidth: '100%' }}
+          allowClear
+        />
+      </Space>
       <div style={{ width: '100%', overflowX: 'auto' }}>
         <Table
           {...tableProps}

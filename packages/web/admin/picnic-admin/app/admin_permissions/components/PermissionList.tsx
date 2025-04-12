@@ -3,11 +3,19 @@
 import { List, useTable, DateField, CreateButton } from '@refinedev/antd';
 import { useNavigation, useResource } from '@refinedev/core';
 import { Table, Space, Tag, Input } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { AdminPermission } from '@/lib/types/permission';
 
 export default function PermissionList() {
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  
+  // URL에서 search 파라미터 가져오기
+  const urlSearch = searchParams.get('search') || '';
+  
+  const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
   const { show } = useNavigation();
   const { resource } = useResource();
 
@@ -29,28 +37,46 @@ export default function PermissionList() {
     },
   });
 
+  // URL 파라미터 업데이트
+  const updateUrlParams = (search: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (!search) {
+      params.delete('search');
+    } else {
+      params.set('search', search);
+    }
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // 컴포넌트 마운트 시 URL에서 검색어 복원
+  useEffect(() => {
+    if (urlSearch) {
+      setSearchTerm(urlSearch);
+    }
+  }, [urlSearch]);
+
   const handleSearch = (value: string) => {
     setSearchTerm(value);
+    updateUrlParams(value);
   };
 
   return (
     <List
       breadcrumb={false}
-      headerButtons={
-        <>
-          <Space>
-            <Input.Search
-              placeholder='검색...'
-              onSearch={handleSearch}
-              style={{ width: 200, maxWidth: '100%' }}
-              allowClear
-            />
-            <CreateButton />
-          </Space>
-        </>
-      }
+      headerButtons={<CreateButton />}
       title={resource?.meta?.list?.label}
     >
+      <Space style={{ marginBottom: 16 }}>
+        <Input.Search
+          placeholder='검색...'
+          onSearch={handleSearch}
+          defaultValue={searchTerm}
+          style={{ width: 200, maxWidth: '100%' }}
+          allowClear
+        />
+      </Space>
       <div style={{ width: '100%', overflowX: 'auto' }}>
         <Table
           {...tableProps}

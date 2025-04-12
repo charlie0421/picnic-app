@@ -1,11 +1,11 @@
 'use client';
 
 import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
-import { Table, Space, Input, Tag, Avatar, Switch, Select } from 'antd';
+import { Table, Space, Input, Tag, Avatar, Switch, Select, message } from 'antd';
 import { useNavigation, CrudFilters } from '@refinedev/core';
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { UserProfile } from '../../../lib/types/user_profiles';
-import { message } from 'antd';
 
 // UUID 유효성 검사 정규식
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -15,14 +15,115 @@ interface UserProfileListProps {
 }
 
 export function UserProfileList({ resource = 'user_profiles' }: UserProfileListProps) {
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchField, setSearchField] = useState<string>('all');
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const { show } = useNavigation();
+  
+  // URL에서 파라미터 가져오기
+  const urlSearch = searchParams.get('search') || '';
+  const urlField = searchParams.get('field') || 'all';
+  
+  // 초기 마운트 여부를 추적하는 ref
+  const initialMountRef = useRef(true);
+  
+  const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
+  const [localSearchTerm, setLocalSearchTerm] = useState<string>(urlSearch);
+  const [searchField, setSearchField] = useState<string>(urlField);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+
+  // URL 파라미터 업데이트 (검색 상태를 초기화하지 않도록 개선)
+  const updateUrlParams = useCallback((params: { search?: string; field?: string }) => {
+    const urlParams = new URLSearchParams(searchParams.toString());
+    
+    // 검색어 업데이트
+    if (params.search !== undefined) {
+      if (!params.search) {
+        urlParams.delete('search');
+      } else {
+        urlParams.set('search', params.search);
+      }
+    }
+    
+    // 검색 필드 업데이트
+    if (params.field !== undefined) {
+      if (params.field === 'all') {
+        urlParams.delete('field');
+      } else {
+        urlParams.set('field', params.field);
+      }
+    }
+    
+    router.push(`${pathname}?${urlParams.toString()}`, { 
+      scroll: false,
+    });
+  }, [searchParams, pathname, router]);
+
+  // 검색 필터 생성 함수
+  const createSearchFilters = useCallback((value: string, field: string): CrudFilters => {
+    const filters: CrudFilters = [];
+    
+    if (!value) return [];
+    
+    if (field === 'all') {
+      return [
+        {
+          operator: 'or',
+          value: [
+            {
+              field: 'nickname',
+              operator: 'contains',
+              value,
+            },
+            {
+              field: 'email',
+              operator: 'contains',
+              value,
+            },
+          ],
+        },
+      ];
+    }
+    
+    if (field === 'nickname') {
+      filters.push({
+        field: 'nickname',
+        operator: 'contains',
+        value,
+      });
+    }
+    
+    if (field === 'email') {
+      filters.push({
+        field: 'email',
+        operator: 'contains',
+        value,
+      });
+    }
+    
+    if (field === 'id') {
+      // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
+      if (UUID_REGEX.test(value)) {
+        filters.push({
+          field: 'id',
+          operator: 'eq',
+          value,
+        });
+      } else if (value) {
+        // 유효하지 않은 UUID 형식이면 메시지만 표시하고 빈 필터 반환
+        message.warning('UUID 형식이 올바르지 않습니다. 예: 123e4567-e89b-12d3-a456-426614174000');
+        return [];
+      }
+    }
+    
+    return filters;
+  }, []);
 
   // Refine useTable 훅 사용
   const { tableProps, setFilters } = useTable<UserProfile>({
     resource,
-    syncWithLocation: true,
+    // syncWithLocation으로 인한 검색 상태 초기화 방지
+    syncWithLocation: false,
     sorters: {
       initial: [
         {
@@ -33,62 +134,10 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
     },
     filters: {
       mode: 'server',
+      initial: createSearchFilters(urlSearch, urlField),
     },
     onSearch: (values) => {
-      const filters: CrudFilters = [];
-      
-      if (searchTerm) {
-        if (searchField === 'all') {
-          // 전체 검색의 경우 nickname, email 필드를 각각 검색
-          return [
-            {
-              operator: 'or',
-              value: [
-                {
-                  field: 'nickname',
-                  operator: 'contains',
-                  value: searchTerm,
-                },
-                {
-                  field: 'email',
-                  operator: 'contains',
-                  value: searchTerm,
-                },
-              ],
-            },
-          ];
-        }
-        
-        if (searchField === 'nickname') {
-          filters.push({
-            field: 'nickname',
-            operator: 'contains',
-            value: searchTerm,
-          });
-        }
-        
-        if (searchField === 'email') {
-          filters.push({
-            field: 'email',
-            operator: 'contains',
-            value: searchTerm,
-          });
-        }
-        
-        if (searchField === 'id') {
-          // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
-          // 유효한 UUID 형식인 경우만 검색 필터에 포함
-          if (UUID_REGEX.test(searchTerm)) {
-            filters.push({
-              field: 'id',
-              operator: 'eq',
-              value: searchTerm,
-            });
-          }
-        }
-      }
-      
-      return filters;
+      return createSearchFilters(searchTerm, searchField);
     },
     meta: {
       // Supabase에서 필드별로 다른 검색 연산자 사용
@@ -116,78 +165,89 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
     },
   });
 
-  // 검색 핸들러
-  const handleSearch = (value: string) => {
+  // 검색어 입력 핸들러 - 로컬 상태만 업데이트
+  const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalSearchTerm(value);
+  }, []);
+
+  // 검색 실행 함수
+  const executeSearch = useCallback((value: string) => {
+    setIsSearching(true);
     setSearchTerm(value);
+    updateUrlParams({ search: value });
     
-    const filters: CrudFilters = [];
+    const filters = createSearchFilters(value, searchField);
+    if (filters.length > 0) {
+      setFilters(filters, 'replace');
+    } else if (!value) {
+      // 검색어가 비어있으면 필터 초기화
+      setFilters([], 'replace');
+    }
     
-    if (value) {
-      if (searchField === 'all') {
-        // 전체 검색의 경우 nickname, email 필드를 각각 검색
-        setFilters([
-          {
-            operator: 'or',
-            value: [
-              {
-                field: 'nickname',
-                operator: 'contains',
-                value,
-              },
-              {
-                field: 'email',
-                operator: 'contains',
-                value,
-              },
-            ],
-          },
-        ], 'replace');
-        return;
-      }
+    setIsSearching(false);
+  }, [searchField, setFilters, updateUrlParams, createSearchFilters]);
+
+  // 검색 버튼 클릭 핸들러
+  const handleSearch = useCallback((value: string) => {
+    executeSearch(value);
+  }, [executeSearch]);
+
+  const handleFieldChange = useCallback((value: string) => {
+    setSearchField(value);
+    updateUrlParams({ field: value });
+    
+    if (searchTerm) {
+      // 검색 필드가 변경되면 현재 검색어로 검색 다시 실행
+      executeSearch(searchTerm);
+    }
+  }, [searchTerm, updateUrlParams, executeSearch]);
+
+  // 컴포넌트 마운트 시와 URL 파라미터 변경 시 상태 초기화
+  useEffect(() => {
+    if (initialMountRef.current) {
+      // 첫 마운트 시에만 실행
+      initialMountRef.current = false;
       
-      if (searchField === 'nickname') {
-        filters.push({
-          field: 'nickname',
-          operator: 'contains',
-          value,
-        });
-      }
-      
-      if (searchField === 'email') {
-        filters.push({
-          field: 'email',
-          operator: 'contains',
-          value,
-        });
-      }
-      
-      if (searchField === 'id') {
-        // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
-        // 유효한 UUID 형식인 경우만 검색 필터에 포함
-        if (UUID_REGEX.test(value)) {
-          filters.push({
-            field: 'id',
-            operator: 'eq',
-            value,
-          });
-        } else if (searchField === 'id' && value) {
-          // ID 필드만 선택된 경우 유효하지 않은 UUID 형식이면 경고 메시지 표시
-          message.warning('UUID 형식이 올바르지 않습니다. 예: 123e4567-e89b-12d3-a456-426614174000');
-          return; // 검색 중단
+      // URL 파라미터에서 값을 가져와 초기 필터 설정
+      if (urlSearch) {
+        const initialFilters = createSearchFilters(urlSearch, urlField);
+        if (initialFilters.length > 0) {
+          setFilters(initialFilters, 'replace');
         }
       }
+      
+      return;
     }
     
-    setFilters(filters, 'replace');
-  };
-
-  const handleFieldChange = (value: string) => {
-    setSearchField(value);
-    if (searchTerm) {
-      // 검색 필드가 변경되면 검색 다시 실행
-      handleSearch(searchTerm);
+    // URL 파라미터에서 값을 가져와 컴포넌트 상태 설정
+    // 검색중이 아닐 때만 URL 변경에 따라 상태 업데이트
+    if (!isSearching) {
+      const currentUrlSearch = searchParams.get('search') || '';
+      const currentUrlField = searchParams.get('field') || 'all';
+      
+      // 상태가 실제로 변경될 때만 업데이트
+      if (currentUrlSearch !== searchTerm) {
+        setSearchTerm(currentUrlSearch);
+        setLocalSearchTerm(currentUrlSearch);
+      }
+      
+      if (currentUrlField !== searchField) {
+        setSearchField(currentUrlField);
+      }
+      
+      // URL 파라미터에 검색어가 있을 때만 필터 적용
+      if (currentUrlSearch && (currentUrlSearch !== searchTerm || currentUrlField !== searchField)) {
+        const filters = createSearchFilters(currentUrlSearch, currentUrlField);
+        if (filters.length > 0) {
+          setFilters(filters, 'replace');
+        }
+      } else if (!currentUrlSearch && searchTerm) {
+        // URL 파라미터에서 검색어가 제거되었으면 필터도 초기화
+        setFilters([], 'replace');
+      }
     }
-  };
+  }, [searchParams, setFilters, createSearchFilters, urlSearch, urlField, searchTerm, searchField, isSearching]);
 
   return (
     <List 
@@ -197,7 +257,7 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
     >
       <Space style={{ marginBottom: 16 }}>
         <Select
-          defaultValue="all"
+          value={searchField}
           style={{ width: 120, maxWidth: '100%' }}
           onChange={handleFieldChange}
           options={[
@@ -212,7 +272,8 @@ export function UserProfileList({ resource = 'user_profiles' }: UserProfileListP
           onSearch={handleSearch}
           style={{ width: 300, maxWidth: '100%' }}
           allowClear
-          defaultValue={searchTerm}
+          value={localSearchTerm}
+          onChange={handleSearchInputChange}
         />
       </Space>
 
