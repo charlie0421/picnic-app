@@ -167,7 +167,7 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
       }
     },
     {
-      title: '투표 캔디 수량',
+      title: '수량',
       dataIndex: 'amount',
       key: 'amount',
       render: (amount: number) => amount?.toLocaleString() || 0,
@@ -229,6 +229,12 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
       key: 'id',
     },
     {
+      title: '플랫폼',
+      dataIndex: 'platform',
+      key: 'platform',
+      render: (platform: string) => getPlatformLabel(platform),
+    },
+    {
       title: '상품 ID',
       dataIndex: 'product_id',
       key: 'product_id',
@@ -243,12 +249,6 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
           {status || '-'}
         </Tag>
       ),
-    },
-    {
-      title: '플랫폼',
-      dataIndex: 'platform',
-      key: 'platform',
-      render: (platform: string) => getPlatformLabel(platform),
     },
     {
       title: '환경',
@@ -345,26 +345,30 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
   const renderVoteHistoryTab = () => (
     <div style={getCardStyle(token)}>
       <div style={getSectionStyle(token)}>
-        <Table 
-          dataSource={votePicksData?.data || []}
-          columns={votePickColumns}
-          rowKey="id"
-          loading={isLoadingVotePicks}
-          pagination={{ 
-            current: currentPage,
-            pageSize: pageSize,
-            total: votePicksData?.total || 0,
-            onChange: handlePageChange,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            showTotal: (total) => `총 ${total}개 투표 내역`
-          }}
-          onRow={() => ({
-            style: {
-              cursor: 'pointer'
-            }
-          })}
-        />
+        <div style={{ width: '100%', overflowX: 'auto' }}>
+          <Table 
+            dataSource={votePicksData?.data || []}
+            columns={votePickColumns}
+            rowKey="id"
+            loading={isLoadingVotePicks}
+            pagination={{ 
+              current: currentPage,
+              pageSize: pageSize,
+              total: votePicksData?.total || 0,
+              onChange: handlePageChange,
+              showSizeChanger: true,
+              pageSizeOptions: ['10', '20', '50', '100'],
+              showTotal: (total) => `총 ${total}개 투표 내역`
+            }}
+            onRow={() => ({
+              style: {
+                cursor: 'pointer'
+              }
+            })}
+            scroll={{ x: 'max-content' }}
+            size="small"
+          />
+        </div>
       </div>
     </div>
   );
@@ -373,26 +377,30 @@ export function UserProfileShow({ id, resource = 'user_profiles' }: UserProfileS
   const renderReceiptHistoryTab = () => (
     <div style={getCardStyle(token)}>
       <div style={getSectionStyle(token)}>
-        <Table 
-          dataSource={receiptsData?.data || []}
-          columns={receiptColumns}
-          rowKey="id"
-          loading={isLoadingReceipts}
-          pagination={{ 
-            current: receiptCurrentPage,
-            pageSize: receiptPageSize,
-            total: receiptsData?.total || 0,
-            onChange: handleReceiptPageChange,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            showTotal: (total) => `총 ${total}개 구매 내역`
-          }}
-          onRow={() => ({
-            style: {
-              cursor: 'pointer'
-            }
-          })}
-        />
+        <div style={{ width: '100%', overflowX: 'auto' }}>
+          <Table 
+            dataSource={receiptsData?.data || []}
+            columns={receiptColumns}
+            rowKey="id"
+            loading={isLoadingReceipts}
+            pagination={{ 
+              current: receiptCurrentPage,
+              pageSize: receiptPageSize,
+              total: receiptsData?.total || 0,
+              onChange: handleReceiptPageChange,
+              showSizeChanger: true,
+              pageSizeOptions: ['10', '20', '50', '100'],
+              showTotal: (total) => `총 ${total}개 구매 내역`
+            }}
+            onRow={() => ({
+              style: {
+                cursor: 'pointer'
+              }
+            })}
+            scroll={{ x: 'max-content' }}
+            size="small"
+          />
+        </div>
       </div>
     </div>
   );
