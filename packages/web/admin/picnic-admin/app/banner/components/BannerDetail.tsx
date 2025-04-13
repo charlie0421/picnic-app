@@ -4,7 +4,7 @@ import { Image, Descriptions, Space, Typography } from 'antd';
 import { Banner } from '@/lib/types/banner';
 import { getCdnImageUrl } from '@/lib/image';
 import { DateField, TextField } from '@refinedev/antd';
-
+import { BANNER_LOCATIONS } from '@/lib/banner';
 const { Text } = Typography;
 
 type BannerDetailProps = {
@@ -71,7 +71,7 @@ export default function BannerDetail({ record, loading }: BannerDetailProps) {
     {
       key: 'location',
       label: '위치',
-      children: <TextField value={record?.location} />,
+      children: <TextField value={BANNER_LOCATIONS?.find(loc => loc.value === record?.location)?.label} />,
     },
     {
       key: 'order',

@@ -14,7 +14,6 @@ import { authProviderClient } from '@/providers/auth-provider/auth-provider.clie
 import { dataProvider } from '@/providers/data-provider';
 import { accessControlProvider } from '@/providers/access-control-provider';
 import '@refinedev/antd/dist/reset.css';
-import { Header } from '@/components/header';
 import { PermissionLoader } from '@/components/auth/PermissionLoader';
 import { PermissionLoadingProvider } from '@/contexts/PermissionLoadingContext';
 import MainLayout from '@/components/layout/MainLayout';
@@ -33,6 +32,9 @@ import {
   PictureOutlined,
   BarChartOutlined,
   GiftOutlined,
+  AppstoreOutlined,
+  UsergroupAddOutlined,
+  StarOutlined,
 } from '@ant-design/icons';
 
 export const metadata: Metadata = {
@@ -146,19 +148,19 @@ export default function RootLayout({
                             edit: '/user_profiles/edit/:id',
                             show: '/user_profiles/show/:id',
                             meta: {
-                              label: '유저 프로필 관리',
+                              label: '유저 관리',
                               icon: <UserOutlined />,
                               list: {
-                                label: '유저 프로필 목록',
+                                label: '유저 목록',
                               },
                               create: {
-                                label: '유저 프로필 추가',
+                                label: '유저 추가',
                               },
                               edit: {
-                                label: '유저 프로필 수정',
+                                label: '유저 수정',
                               },
                               show: {
-                                label: '유저 프로필 상세',
+                                label: '유저 상세',
                               },
                             },
                           },
@@ -185,27 +187,12 @@ export default function RootLayout({
                               },
                             },
                           },
+                          // 아티스트 관련 메뉴 그룹 추가
                           {
-                            name: 'artist_group',
-                            list: '/artist-group',
-                            create: '/artist-group/create',
-                            edit: '/artist-group/edit/:id',
-                            show: '/artist-group/show/:id',
+                            name: 'artistGroup',
                             meta: {
-                              label: '아티스트 그룹 관리',
-                              icon: <GroupOutlined />,
-                              list: {
-                                label: '아티스트 그룹 목록',
-                              },
-                              create: {
-                                label: '아티스트 그룹 추가',
-                              },
-                              edit: {
-                                label: '아티스트 그룹 수정',
-                              },
-                              show: {
-                                label: '아티스트 그룹 상세',
-                              },
+                              label: '아티스트 관리',
+                              icon: <StarOutlined />,
                             },
                           },
                           {
@@ -215,8 +202,9 @@ export default function RootLayout({
                             edit: '/artist/edit/:id',
                             show: '/artist/show/:id',
                             meta: {
-                              label: '아티스트 관리',
-                              icon: <UserOutlined />,
+                              parent: 'artistGroup',
+                              label: '아티스트',
+                              icon: <StarOutlined />,
                               list: {
                                 label: '아티스트 목록',
                               },
@@ -228,6 +216,30 @@ export default function RootLayout({
                               },
                               show: {
                                 label: '아티스트 상세',
+                              },
+                            },
+                          },
+                          {
+                            name: 'artist_group',
+                            list: '/artist-group',
+                            create: '/artist-group/create',
+                            edit: '/artist-group/edit/:id',
+                            show: '/artist-group/show/:id',
+                            meta: {
+                              parent: 'artistGroup',
+                              label: '아티스트 그룹',
+                              icon: <UsergroupAddOutlined />,
+                              list: {
+                                label: '아티스트 그룹 목록',
+                              },
+                              create: {
+                                label: '아티스트 그룹 추가',
+                              },
+                              edit: {
+                                label: '아티스트 그룹 수정',
+                              },
+                              show: {
+                                label: '아티스트 그룹 상세',
                               },
                             },
                           },
@@ -278,7 +290,7 @@ export default function RootLayout({
                             show: '/config/show/:id',
                             meta: {
                               label: '앱 설정 관리',
-                              icon: <SettingOutlined />,
+                              icon: <AppstoreOutlined />,
                               list: {
                                 label: '앱 설정 목록',
                               },

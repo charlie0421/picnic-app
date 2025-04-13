@@ -183,7 +183,7 @@ export default function MediaList() {
             title={'제목'}
             align='center'
             ellipsis={{ showTitle: true }}
-            render={(value) => <MultiLanguageDisplay languages={['ko', 'en', 'ja', 'zh']} value={value} />}
+            render={(value) => <MultiLanguageDisplay languages={['ko']} showFlags={false} value={value} />}
           />
           <Table.Column
             dataIndex='video_id'

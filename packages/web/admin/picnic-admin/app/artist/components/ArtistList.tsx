@@ -8,6 +8,7 @@ import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { getCdnImageUrl } from '@/lib/image';
 import { MultiLanguageDisplay } from '@/components/ui';
 import { Artist } from '@/lib/types/artist';
+import { genderOptions, UserGender } from '@/lib/types/user_profiles';
 
 export default function ArtistList() {
   const searchParams = useSearchParams();
@@ -120,8 +121,7 @@ export default function ArtistList() {
             dataIndex={['name']}
             title='이름'
             align='center'
-            sorter
-            ellipsis={{ showTitle: true }}
+            width={200}
             render={(value: Record<string, string>) => (
               <MultiLanguageDisplay languages={['ko']} value={value} />
             )}
@@ -151,6 +151,10 @@ export default function ArtistList() {
             sorter 
             width={100}
             responsive={['sm']}
+            render={(value: string) => {
+              const option = genderOptions.find(opt => opt.value === value);
+              return option ? option.label : value || '-';
+            }}
           />
 
           <Table.Column
@@ -163,29 +167,39 @@ export default function ArtistList() {
               groupsIsLoading ? (
                 <>로딩 중...</>
               ) : (
-                <Space>
-                  {groupsData?.data?.find(
-                    (item) => Number(item.id) === Number(value),
-                  )?.image && (
-                    <Image
-                      src={getCdnImageUrl(
-                        groupsData?.data?.find(
-                          (item) => Number(item.id) === Number(value),
-                        )?.image,
-                        40
-                      )}
-                      alt='그룹 이미지'
-                      width={40}
-                      height={40}
-                      preview={false}
-                    />
-                  )}
-                  <span>
+                value ? (
+                  <Space
+                    style={{ cursor: 'pointer' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      show('artist_group', value);
+                    }}
+                  >
                     {groupsData?.data?.find(
                       (item) => Number(item.id) === Number(value),
-                    )?.name?.ko || '-'}
-                  </span>
-                </Space>
+                    )?.image && (
+                      <Image
+                        src={getCdnImageUrl(
+                          groupsData?.data?.find(
+                            (item) => Number(item.id) === Number(value),
+                          )?.image,
+                          40
+                        )}
+                        alt='그룹 이미지'
+                        width={40}
+                        height={40}
+                        preview={false}
+                      />
+                    )}
+                    <span>
+                      {groupsData?.data?.find(
+                        (item) => Number(item.id) === Number(value),
+                      )?.name?.ko || '-'}
+                    </span>
+                  </Space>
+                ) : (
+                  <span>-</span>
+                )
               )
             }
           />
