@@ -37,18 +37,12 @@ export default function VoteRewardSelector({
 
   // Transfer targetKeys 초기화
   useEffect(() => {
-    console.log(
-      'VoteRewardSelector - selectedRewardIds 변경:',
-      selectedRewardIds,
-    );
     const stringIds = selectedRewardIds.map((id) => id.toString());
     setTransferTargetKeys(stringIds);
-    console.log('Transfer targetKeys 설정됨:', stringIds);
   }, [selectedRewardIds]);
 
   // 리워드 목록 설정
   useEffect(() => {
-    console.log('VoteRewardSelector - rewardsData 변경:', rewardsData);
     if (rewardsData?.data) {
       const items = rewardsData.data.map((item: any) => ({
         id: item.id,
@@ -56,18 +50,20 @@ export default function VoteRewardSelector({
         order: item.order,
         thumbnail: item.thumbnail,
       }));
-      console.log('리워드 아이템 설정:', items);
       setRewardItems(items);
+    } else {
+      setRewardItems([]);
     }
-  }, [rewardsData]);
+  }, [rewardsData, isRewardsLoading]);
+
+  // 데이터 로딩 상태 확인
+  const isDataLoaded = !isRewardsLoading;
 
   // 리워드 선택 변경 핸들러
   const handleRewardSelectChange = (nextTargetKeys: string[] | React.Key[]) => {
-    console.log('Transfer 선택 변경 이벤트:', nextTargetKeys);
 
     // 문자열 키로 변환
     const stringKeys = nextTargetKeys.map((key) => key.toString());
-    console.log('문자열 키로 변환:', stringKeys);
 
     // Transfer 컴포넌트 상태 업데이트
     setTransferTargetKeys(stringKeys);
@@ -77,7 +73,6 @@ export default function VoteRewardSelector({
       .map((key) => Number(key))
       .filter((id) => !isNaN(id) && id > 0);
 
-    console.log('숫자 ID로 변환된 결과:', numericIds);
     onRewardChange(numericIds);
   };
 
@@ -102,9 +97,9 @@ export default function VoteRewardSelector({
 
       {isRewardsLoading ? (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          리워드 목록을 불러오는 중...
+          리워드 정보를 불러오는 중...
         </div>
-      ) : rewardItems.length === 0 ? (
+      ) : isDataLoaded && rewardItems.length === 0 ? (
         <Empty description='연결할 수 있는 리워드가 없습니다.' />
       ) : (
         <>

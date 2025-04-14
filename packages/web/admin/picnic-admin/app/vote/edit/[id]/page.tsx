@@ -32,17 +32,11 @@ export default function VoteEditPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (queryResult?.data?.data) {
       const voteData = queryResult.data.data;
-      console.log('투표 데이터 로드됨:', voteData);
-      console.log('투표 아이템 데이터:', voteData.vote_item);
     }
   }, [queryResult?.data]);
 
   const handleSubmit = async (values: VoteRecord) => {
-    console.log('handleSubmit 실행');
     try {
-      // 현재 폼 데이터 로깅
-      console.log('현재 폼 데이터 (제출 전):', values);
-
       // vote_item과 vote_reward 데이터 분리
       const { vote_item, vote_reward, ...voteData } = values;
 
@@ -85,13 +79,12 @@ export default function VoteEditPage({ params }: { params: { id: string } }) {
       <Edit
         isLoading={queryResult?.isLoading}
         title='투표 수정'
+        breadcrumb={false}
         saveButtonProps={{
           onClick: () => {
-            console.log('saveButtonProps 클릭됨');
             formProps.form
               ?.validateFields()
               .then((values) => {
-                console.log('폼 검증 성공:', values);
                 handleSubmit(values);
               })
               .catch((error) => {

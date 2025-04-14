@@ -5,13 +5,17 @@ import {
   useTable,
   DateField,
   CreateButton,
+  TagField,
+  ShowButton,
+  EditButton,
+  DeleteButton,
 } from '@refinedev/antd';
 import { CrudFilters, useNavigation, useMany, useList } from '@refinedev/core';
-import { Space, Table, Select, Tag, Tooltip, Badge, Avatar } from 'antd';
+import { Space, Table, Select, Tag, Tooltip, Badge, Avatar, Card, Typography, theme as antdTheme, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { Image } from 'antd';
-import { GiftOutlined } from '@ant-design/icons';
+import { GiftOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons';
 
 import {
   VOTE_CATEGORIES,
@@ -43,10 +47,46 @@ const FILTER_CATEGORY = {
 
 type FilterCategoryType = typeof FILTER_CATEGORY['ALL'] | VoteCategory;
 
+// 카테고리에 맞는 한글 이름 반환 
+const getCategoryName = (category: string) => {
+  switch (category) {
+    case 'birthday':
+      return '생일';
+    case 'debut':
+      return '데뷔';
+    case 'achieve':
+      return '누적';
+    default:
+      return category || '카테고리 없음';
+  }
+};
+
+/**
+ * 투표 카테고리에 따른 컬러 정의
+ */
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'birthday':
+    case 'DAILY':
+      return '#4CAF50';
+    case 'debut':
+    case 'WEEKLY':
+      return '#2196F3';
+    case 'achieve':
+    case 'MONTHLY':
+      return '#9C27B0';
+    case 'EVENT':
+      return '#FF9800';
+    default:
+      return '#757575';
+  }
+};
+
 export default function VoteList() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const { token } = antdTheme.useToken();
   
   // URL에서 파라미터 가져오기
   const urlCategory = searchParams.get('category') as FilterCategoryType || FILTER_CATEGORY.ALL;
@@ -58,7 +98,7 @@ export default function VoteList() {
     React.useState<FilterStatusType>(urlStatus);
   const [filteredData, setFilteredData] = useState<VoteRecord[]>([]);
 
-  const { show } = useNavigation();
+  const { show, edit } = useNavigation();
 
   // 추가: vote_id 목록을 저장할 state
   const [voteIds, setVoteIds] = useState<number[]>([]);
@@ -203,9 +243,6 @@ export default function VoteList() {
   
   // vote_reward 데이터 정리
   useEffect(() => {
-    console.log('voteRewardData:', voteRewardData);
-    console.log('rewardData:', rewardData);
-    
     if (voteRewardData?.data && rewardData?.data) {
       // vote_id를 키로 하는 맵 생성
       const rewardMap: Record<number, any[]> = {};
@@ -220,7 +257,6 @@ export default function VoteList() {
       
       // vote_reward 데이터 처리
       voteRewardData.data.forEach(item => {
-        console.log('Processing vote_reward item:', item);
         const voteId = item.vote_id;
         const rewardId = item.reward_id;
         
@@ -237,7 +273,6 @@ export default function VoteList() {
         }
       });
       
-      console.log('Final rewardMap:', rewardMap);
       setVoteRewardMap(rewardMap);
     }
   }, [voteRewardData, rewardData]);
@@ -248,36 +283,19 @@ export default function VoteList() {
       let filtered = [...tableProps.dataSource];
       
       // 카테고리 필터 적용
-      if (categoryFilter && categoryFilter !== FILTER_CATEGORY.ALL) {
-        filtered = filtered.filter(item => 
-          item.vote_category === categoryFilter
+      if (categoryFilter !== FILTER_CATEGORY.ALL) {
+        const categoryField = 'vote_category';
+        filtered = filtered.filter(
+          (item) => item[categoryField] === categoryFilter || item.category === categoryFilter
         );
       }
       
       // 상태 필터 적용
-      if (statusFilter && statusFilter !== FILTER_STATUS.ALL) {
-        const now = new Date();
-        
-        if (statusFilter === VOTE_STATUS.UPCOMING) {
-          filtered = filtered.filter(item => {
-            if (!item.start_at) return false;
-            const startAt = new Date(item.start_at);
-            return now < startAt;
-          });
-        } else if (statusFilter === VOTE_STATUS.ONGOING) {
-          filtered = filtered.filter(item => {
-            if (!item.start_at || !item.stop_at) return false;
-            const startAt = new Date(item.start_at);
-            const stopAt = new Date(item.stop_at);
-            return now >= startAt && now <= stopAt;
-          });
-        } else if (statusFilter === VOTE_STATUS.COMPLETED) {
-          filtered = filtered.filter(item => {
-            if (!item.stop_at) return false;
-            const stopAt = new Date(item.stop_at);
-            return now > stopAt;
-          });
-        }
+      if (statusFilter !== FILTER_STATUS.ALL) {
+        filtered = filtered.filter((item) => {
+          const status = getVoteStatus(item.start_at, item.stop_at);
+          return status === statusFilter;
+        });
       }
       
       setFilteredData(filtered);
@@ -286,184 +304,317 @@ export default function VoteList() {
     }
   }, [tableProps.dataSource, categoryFilter, statusFilter]);
   
-  // 필터링된 데이터로 tableProps 수정
-  const modifiedTableProps = {
-    ...tableProps,
-    dataSource: filteredData,
-  };
+  // 테이블 데이터 설정
+  const dataSource = React.useMemo(() => {
+    return filteredData.map((item: VoteRecord) => {
+      // 투표 상태 계산
+      const status = getVoteStatus(item.start_at, item.stop_at);
+      
+      // vote_reward 데이터가 있는지 확인
+      const id = item.id ? Number(item.id) : 0;
+      const hasRewards = id > 0 && voteRewardMap[id]?.length > 0;
+      
+      return {
+        ...item,
+        status,
+        hasRewards,
+      };
+    });
+  }, [filteredData, voteRewardMap]);
 
-  // 카테고리 옵션 생성
-  const categoryOptions = [
-    { label: '전체', value: FILTER_CATEGORY.ALL },
-    ...(VOTE_CATEGORIES || []),
-  ];
+  // Empty State 함수
+  const renderEmptyState = () => (
+    <Card 
+      style={{ 
+        textAlign: 'center', 
+        padding: '40px 0',
+        background: token.colorBgContainer,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        borderRadius: token.borderRadiusLG,
+        boxShadow: `0 2px 8px ${token.colorBgContainerDisabled}`
+      }}
+    >
+      <Typography.Title level={4} style={{ color: token.colorTextSecondary }}>
+        필터 조건에 맞는 투표가 없습니다
+      </Typography.Title>
+      <Typography.Paragraph style={{ color: token.colorTextSecondary }}>
+        다른 필터 조건을 선택하거나 새 투표를 생성해보세요
+      </Typography.Paragraph>
+      <CreateButton type="primary" size="large">
+        투표 생성하기
+      </CreateButton>
+    </Card>
+  );
 
   return (
-    <List 
-      breadcrumb={false}
-      headerButtons={<CreateButton />}
+    <List
+      headerButtons={[
+        <CreateButton key="create" type="primary">
+          투표 생성
+        </CreateButton>,
+      ]}
     >
-      <Space wrap style={{ marginBottom: 16 }}>
-        <Select
-          style={{ width: 160, maxWidth: '100%' }}
-          placeholder='카테고리 선택'
-          options={categoryOptions}
-          value={categoryFilter}
-          onChange={handleCategoryChange}
-        />
-        <Select
-          style={{ width: 120, maxWidth: '100%' }}
-          placeholder='투표 상태'
-          options={[
-            { label: '전체', value: FILTER_STATUS.ALL },
-            { label: '투표 예정', value: VOTE_STATUS.UPCOMING },
-            { label: '투표 중', value: VOTE_STATUS.ONGOING },
-            { label: '투표 완료', value: VOTE_STATUS.COMPLETED },
-          ]}
-          value={statusFilter}
-          onChange={handleStatusChange}
-        />
-      </Space>
+      {/* 필터 컴포넌트 */}
+      <Card 
+        size="small" 
+        style={{ 
+          marginBottom: '16px',
+          background: token.colorBgContainer,
+          borderRadius: token.borderRadiusLG
+        }}
+      >
+        <Space wrap style={{ padding: '8px' }}>
+          <Space>
+            <Typography.Text strong style={{ color: token.colorTextSecondary }}>카테고리:</Typography.Text>
+            <Select
+              value={categoryFilter}
+              onChange={handleCategoryChange}
+              style={{ width: 120 }}
+              options={[
+                { label: '전체', value: FILTER_CATEGORY.ALL },
+                ...(VOTE_CATEGORIES || []),
+              ]}
+            />
+          </Space>
+          <Space>
+            <Typography.Text strong style={{ color: token.colorTextSecondary }}>상태:</Typography.Text>
+            <Select
+              value={statusFilter}
+              onChange={handleStatusChange}
+              style={{ width: 120 }}
+              options={[
+                { label: '전체', value: FILTER_STATUS.ALL },
+                { label: '예정됨', value: VOTE_STATUS.UPCOMING },
+                { label: '진행 중', value: VOTE_STATUS.ONGOING },
+                { label: '종료됨', value: VOTE_STATUS.COMPLETED },
+              ]}
+            />
+          </Space>
+        </Space>
+      </Card>
 
-      <div style={{ width: '100%', overflowX: 'auto' }}>
-        <Table
-          {...modifiedTableProps}
-          rowKey='id'
-          scroll={{ x: 'max-content' }}
-          size="small"
-          onRow={(record: VoteRecord) => {
-            if (!record) return {};
-            const status = getVoteStatus(record.start_at, record.stop_at);
-            return {
-              style: {
-                backgroundColor: STATUS_COLORS[status],
-                color: 'inherit',
-                cursor: 'pointer',
-              },
-              onClick: () => {
-                if (record.id) {
-                  show('vote', record.id);
-                }
-              },
-            };
+      {filteredData.length === 0 ? (
+        renderEmptyState()
+      ) : (
+        <Table 
+          {...tableProps}
+          dataSource={dataSource}
+          rowKey="id"
+          style={{ 
+            background: token.colorBgContainer,
+            borderRadius: token.borderRadiusLG,
+            overflow: 'hidden'
           }}
-          pagination={{
-            ...tableProps.pagination,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50'],
-            showTotal: (total) => `총 ${total}개 항목`,
-          }}
-        >
-          <Table.Column dataIndex='id' title='ID' width={60} />
-          <Table.Column
-            dataIndex='title'
-            title={'제목'}
-            align='center'
-            width={150}
-            render={(value: any) => <MultiLanguageDisplay languages={['ko']} value={value} />}
-          />
-          <Table.Column
-            dataIndex='vote_category'
-            title='카테고리'
-            align='center'
-            width={100}
-            responsive={['sm']}
-            render={(value: VoteCategory) => {
-              const category = VOTE_CATEGORIES?.find((c) => c.value === value);
-              return category?.label || value;
-            }}
-          />
-          {/* 연결된 리워드 칼럼 추가 */}
-          <Table.Column
-            title='리워드'
-            align='center'
-            width={200}
-            render={(_, record: any) => {
-              const voteId = record.id;
-              const rewards = voteRewardMap[voteId] || [];
-              
-              // 리워드가 없는 경우
-              if (rewards.length === 0) {
-                return '-';
+          onRow={(record) => ({
+            onClick: () => {
+              if (record.id) {
+                show('vote', record.id);
               }
-              
-              // 첫 번째 리워드의 이름 표시
-              const firstReward = rewards[0].reward;
-              
-              return (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  {rewards.length > 1 && (
-                    <Tag color="#1890ff" style={{ marginBottom: '4px' }}>
-                      +{rewards.length - 1}
-                    </Tag>
-                  )}
-                  <span style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    <MultiLanguageDisplay languages={['ko']} value={firstReward.title} />
-                  </span>
-                </div>
-              );
-            }}
-          />
+            },
+            style: { cursor: 'pointer' },
+          })}
+        >
           <Table.Column
-            title='상태'
-            align='center'
-            width={100}
-            render={(_, record: VoteRecord) => {
-              const status = getVoteStatus(record.start_at, record.stop_at);
-              let label = '';
-              if (status === VOTE_STATUS.UPCOMING) label = '투표 예정';
-              else if (status === VOTE_STATUS.ONGOING) label = '투표 중';
-              else if (status === VOTE_STATUS.COMPLETED) label = '투표 완료';
-
-              return (
-                <Tag color={STATUS_TAG_COLORS[status]} key={status}>
-                  {label}
-                </Tag>
-              );
-            }}
-          />
-          <Table.Column
-            title='투표 노출'
-            align='center'
-            width={160}
-            responsive={['md']}
-            render={(_, record: VoteRecord) => {
-              if (!record.visible_at) return '-';
-              return `${formatDate(record.visible_at, 'date')}`;  
-            }}
-          />
-
-          <Table.Column
-            title='투표 기간'
-            align='center'
-            width={180}
-            responsive={['lg']}
-            render={(_, record: VoteRecord) => {
-              if (!record.start_at || !record.stop_at) return '-';
-              return (
-                <Space direction="vertical" size="small">
-                  <DateField value={record.start_at} format='YYYY-MM-DD' />
-                  <DateField value={record.stop_at} format='YYYY-MM-DD' />
-                </Space>
-              )
-            }}
-          />
-          <Table.Column
-            dataIndex={['created_at', 'updated_at']}
-            title={'생성일/수정일'}
-            align='center'
-            width={140}
-            responsive={['xl']}
-            render={(_, record: any) => (
-              <Space direction="vertical" size="small">
-                <DateField value={record.created_at} format='YYYY-MM-DD' />
-                <DateField value={record.updated_at} format='YYYY-MM-DD' />
-              </Space>
-            )}
+            title="ID"
+            dataIndex="id"
+            key="id"
+            sorter={(a, b) => a.id - b.id}
+            render={(value) => <Typography.Text strong style={{ color: token.colorPrimary }}>{value}</Typography.Text>}
           />
           
+          <Table.Column
+            title="썸네일"
+            dataIndex="main_image"
+            key="main_image"
+            render={(value) => 
+              value ? (
+                <Avatar 
+                  src={getCdnImageUrl(value)} 
+                  shape="square" 
+                  size={48}
+                  style={{ 
+                    borderRadius: token.borderRadiusSM,
+                    border: `1px solid ${token.colorBorderSecondary}`
+                  }}
+                />
+              ) : (
+                <Avatar 
+                  shape="square" 
+                  size={48} 
+                  style={{ 
+                    background: token.colorFillTertiary,
+                    color: token.colorTextSecondary,
+                    borderRadius: token.borderRadiusSM
+                  }}
+                >
+                  이미지 없음
+                </Avatar>
+              )
+            }
+          />
+          
+          <Table.Column
+            title="제목"
+            dataIndex="title"
+            key="title"
+            render={(value) => 
+              <MultiLanguageDisplay 
+                value={value} 
+                languages={['ko']}
+                style={{ fontWeight: 'bold' }}
+              />
+            }
+            sorter={(a, b) => {
+              const titleA = a.title?.ko || '';
+              const titleB = b.title?.ko || '';
+              return titleA.localeCompare(titleB);
+            }}
+          />
+          
+          <Table.Column
+            title="카테고리"
+            dataIndex="vote_category"
+            key="vote_category"
+            render={(value, record: any) => {
+              const category = value || record.category;
+              return (
+                <TagField 
+                  value={getCategoryName(category)} 
+                  color={getCategoryColor(category)}
+                />
+              );
+            }}
+          />
+          
+          <Table.Column
+            title="상태"
+            dataIndex="status"
+            key="status"
+            render={(value: VoteStatus) => (
+              <TagField 
+                value={
+                  value === VOTE_STATUS.UPCOMING
+                    ? '예정됨'
+                    : value === VOTE_STATUS.ONGOING
+                    ? '진행 중'
+                    : '종료됨'
+                } 
+                color={STATUS_TAG_COLORS[value]} 
+              />
+            )}
+            sorter={(a, b) => {
+              const statusOrder: Record<string, number> = {
+                [VOTE_STATUS.UPCOMING]: 1,
+                [VOTE_STATUS.ONGOING]: 2,
+                [VOTE_STATUS.COMPLETED]: 3,
+              };
+              return statusOrder[a.status] - statusOrder[b.status];
+            }}
+          />
+          
+          <Table.Column
+            title="리워드"
+            dataIndex="hasRewards"
+            key="hasRewards"
+            render={(value, record: any) => {
+              const rewardRecords = voteRewardMap[record.id as number] || [];
+              
+              if (rewardRecords.length === 0) {
+                return <Tag color="default">없음</Tag>;
+              }
+              
+              return (
+                <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                  <Badge 
+                    count={rewardRecords.length} 
+                    color={token.colorPrimary}
+                    overflowCount={99}
+                  >
+                    <Tag 
+                      icon={<GiftOutlined />} 
+                      color="processing"
+                      style={{ padding: '0 8px' }}
+                    >
+                      리워드 {rewardRecords.length}개
+                    </Tag>
+                  </Badge>
+                  {/* 리워드 이름 노출 - 처음 2개만 */}
+                  <div style={{ maxWidth: 150, maxHeight: 48, overflow: 'hidden' }}>
+                    {rewardRecords.slice(0, 2).map((item, index) => (
+                      <Typography.Text
+                        key={index}
+                        ellipsis={{ tooltip: item.reward?.title?.ko || `리워드 #${item.reward_id}` }}
+                        style={{ 
+                          display: 'block', 
+                          fontSize: '12px',
+                          color: token.colorTextSecondary,
+                          cursor: 'pointer'
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (item.reward?.id) {
+                            show('reward', item.reward.id);
+                          }
+                        }}
+                      >
+                        {item.reward?.title?.ko || `리워드 #${item.reward_id}`}
+                      </Typography.Text>
+                    ))}
+                    {rewardRecords.length > 2 && (
+                      <Typography.Text
+                        style={{ 
+                          display: 'block', 
+                          fontSize: '12px',
+                          color: token.colorTextSecondary,
+                          fontStyle: 'italic'
+                        }}
+                      >
+                        외 {rewardRecords.length - 2}개...
+                      </Typography.Text>
+                    )}
+                  </div>
+                </Space>
+              );
+            }}
+          />
+          
+          <Table.Column
+            title="투표 시작일"
+            dataIndex="start_at"
+            key="start_at"
+            render={(value) => (
+              <DateField 
+                value={value} 
+                format="YYYY-MM-DD HH:mm" 
+                style={{ color: token.colorTextSecondary }}
+              />
+            )}
+            sorter={(a, b) => {
+              const dateA = a.start_at ? new Date(a.start_at).getTime() : 0;
+              const dateB = b.start_at ? new Date(b.start_at).getTime() : 0;
+              return dateA - dateB;
+            }}
+          />
+          
+          <Table.Column
+            title="투표 종료일"
+            dataIndex="stop_at"
+            key="stop_at"
+            render={(value) => (
+              <DateField 
+                value={value} 
+                format="YYYY-MM-DD HH:mm" 
+                style={{ color: token.colorTextSecondary }}
+              />
+            )}
+            sorter={(a, b) => {
+              const dateA = a.stop_at ? new Date(a.stop_at).getTime() : 0;
+              const dateB = b.stop_at ? new Date(b.stop_at).getTime() : 0;
+              return dateA - dateB;
+            }}
+          />
         </Table>
-      </div>
+      )}
     </List>
   );
 } 

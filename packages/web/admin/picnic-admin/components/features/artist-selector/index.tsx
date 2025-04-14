@@ -9,7 +9,7 @@ import { COLORS } from '@/lib/theme';
 
 interface ArtistSelectorProps {
   onArtistAdd: (newVoteItem: VoteItem) => void;
-  existingArtistIds?: string[]; // 이미 선택된 아티스트 ID 목록
+  existingArtistIds?: (string | number)[]; // 이미 선택된 아티스트 ID 목록
   buttonText?: string;
   modalTitle?: string;
 }
@@ -101,7 +101,7 @@ const ArtistSelector: React.FC<ArtistSelectorProps> = ({
     }
 
     // 이미 추가된 아티스트인지 확인
-    if (existingArtistIds.includes(selectedArtist)) {
+    if (existingArtistIds.some(id => id.toString() === selectedArtist.toString())) {
       messageApi.error('이미 추가된 아티스트입니다');
       return;
     }

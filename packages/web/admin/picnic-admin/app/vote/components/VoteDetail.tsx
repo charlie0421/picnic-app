@@ -1,61 +1,65 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import {
-  useNavigation,
-  useShow,
-  useOne,
-  useList,
-  useMany,
-} from '@refinedev/core';
+import { useNavigation, useList, useMany } from '@refinedev/core';
 import { getCdnImageUrl } from '@/lib/image';
-import { VoteRecord, VOTE_STATUS, getVoteStatus } from '@/lib/vote';
-import {
-  TableProps,
-  Alert,
-  Space,
-  Tag,
-  theme,
-  Typography,
+import { VoteRecord, VOTE_STATUS, getVoteStatus, STATUS_TAG_COLORS } from '@/lib/vote';
+import { 
+  Space, 
+  Tag, 
+  Typography, 
+  Card, 
+  Descriptions,
   Divider,
-  Card,
-  Button,
-  Tooltip,
+  theme as antdTheme,
+  Empty
 } from 'antd';
-import {
-  getCardStyle,
-  getSectionStyle,
-  getSectionHeaderStyle,
-  getTitleStyle,
-} from '@/lib/ui';
 import {
   CalendarOutlined,
   ClockCircleOutlined,
   UserOutlined,
-  PlusOutlined,
-  EditOutlined,
+  GiftOutlined,
 } from '@ant-design/icons';
-import { TextField, DateField } from '@refinedev/antd';
-import dayjs from '@/lib/dayjs';
-import { formatDate } from '@/lib/date';
-import Image from 'next/image';
+import { 
+  DateField, 
+  ImageField,
+  TagField,
+  NumberField,
+} from '@refinedev/antd';
+import Link from 'next/link';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import type { ComponentProps } from 'react';
 import ArtistCard from '@/app/artist/components/ArtistCard';
-import Link from 'next/link';
 
 const { Title, Text } = Typography;
+
+// 카테고리에 맞는 한글 이름 반환 
+const getCategoryName = (category: string) => {
+  switch (category) {
+    case 'birthday':
+      return '생일';
+    case 'debut':
+      return '데뷔';
+    case 'achieve':
+      return '누적';
+    default:
+      return category || '카테고리 없음';
+  }
+};
 
 /**
  * 투표 카테고리에 따른 컬러 정의
  */
 const getCategoryColor = (category: string) => {
   switch (category) {
+    case 'birthday':
     case 'DAILY':
       return '#4CAF50';
+    case 'debut':
     case 'WEEKLY':
       return '#2196F3';
+    case 'achieve':
     case 'MONTHLY':
       return '#9C27B0';
     case 'EVENT':
@@ -70,15 +74,99 @@ interface VoteDetailProps {
   loading?: boolean;
 }
 
+// 투표 항목 카드 컴포넌트 분리 - 렌더링 최적화
+const VoteItemCard = React.memo(({ 
+  item, 
+  index, 
+  token, 
+  onArtistClick 
+}: { 
+  item: any; 
+  index: number; 
+  token: any;
+  onArtistClick: (artistId: string | number) => void;
+}) => {
+  return (
+    <Card
+      key={item.id || index}
+      hoverable
+      style={{ 
+        height: '100%',
+        background: index === 0 
+          ? `linear-gradient(to bottom, ${token.colorPrimaryBg}, ${token.colorBgContainer})` 
+          : token.colorBgContainer,
+        border: `1px solid ${index === 0 ? token.colorPrimaryBorder : token.colorBorderSecondary}`,
+        borderRadius: token.borderRadiusLG,
+      }}
+      onClick={() => {
+        if (item.artist_id) {
+          onArtistClick(item.artist_id);
+        }
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          alignItems: 'center',
+        }}
+      >
+        {/* 순위 표시 */}
+        {index === 0 && (
+          <Tag
+            color="gold"
+            style={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              zIndex: 1,
+            }}
+          >
+            1위
+          </Tag>
+        )}
+
+        {/* 아티스트 정보 */}
+        {item.artist && (
+          <ArtistCard
+            artist={item.artist}
+            voteInfo={{ voteTotal: item.vote_total }}
+            onClick={() => item.artist_id && onArtistClick(item.artist_id)}
+          />
+        )}
+
+        {/* 투표 수 */}
+        <div style={{ width: '100%', textAlign: 'center' }}>
+          <Divider plain style={{ margin: '8px 0' }}>
+            <Text strong style={{ color: token.colorTextSecondary }}>
+              <UserOutlined /> 투표 수
+            </Text>
+          </Divider>
+          <Title level={4} style={{ margin: 0, color: token.colorPrimary }}>
+            <NumberField
+              value={item.vote_total || 0}
+              options={{ notation: 'compact' }}
+              strong
+            />
+          </Title>
+        </div>
+      </div>
+    </Card>
+  );
+});
+
+VoteItemCard.displayName = 'VoteItemCard';
+
 const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
-  const { token } = theme.useToken();
   const { show } = useNavigation();
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const { token } = antdTheme.useToken();
 
   // 연결된 리워드 목록 상태 관리
   const [linkedRewards, setLinkedRewards] = useState<any[]>([]);
 
-  // vote_reward 데이터 조회 - ID 기반 필터링 사용
+  // vote_reward 데이터 조회
   const { data: voteRewardData, isLoading: isVoteRewardLoading } = useList({
     resource: 'vote_reward',
     filters: [
@@ -97,16 +185,15 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
   });
 
   // 고유한 reward_id 추출
-  const rewardIds = React.useMemo(() => {
-    if (!voteRewardData?.data || !record?.id) return [];
+  const rewardIds = useMemo(() => {
+    if (!voteRewardData?.data || !record?.id) {
+      return [];
+    }
 
-    // 디버깅을 위한 로그
-    console.log('vote_id:', record.id, '타입:', typeof record.id);
-    console.log('vote_reward 원본 데이터:', voteRewardData.data);
-
-    // 타입 안전하게 변환하여 필터링
-    const numericVoteId =
-      typeof record.id === 'string' ? parseInt(record.id, 10) : record.id;
+    // 만약 데이터가 빈 배열이면 여기서 종료
+    if (voteRewardData.data.length === 0) {
+      return [];
+    }
 
     // vote_id로 필터링
     const filteredData = voteRewardData.data.filter((item) => {
@@ -114,10 +201,10 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
         typeof item.vote_id === 'string'
           ? parseInt(item.vote_id, 10)
           : item.vote_id;
-      return itemVoteId === numericVoteId;
+      const recordId =
+        typeof record.id === 'string' ? parseInt(record.id, 10) : record.id;
+      return itemVoteId === recordId;
     });
-
-    console.log('vote_id로 필터링된 데이터:', filteredData);
 
     // 유효한 reward_id만 추출하고 중복 제거
     const uniqueRewardIds: number[] = [];
@@ -136,11 +223,10 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
       }
     });
 
-    console.log('추출된 유효한 리워드 IDs:', uniqueRewardIds);
     return uniqueRewardIds;
   }, [voteRewardData?.data, record?.id]);
 
-  // 리워드 상세 정보 조회 (useMany 사용)
+  // 리워드 상세 정보 조회
   const { data: rewardsData, isLoading: isRewardsLoading } = useMany({
     resource: 'reward',
     ids: rewardIds,
@@ -152,293 +238,248 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
   // 리워드 데이터 처리
   useEffect(() => {
     if (rewardsData?.data) {
-      console.log('조회된 리워드 데이터:', rewardsData.data);
+      // 리워드 데이터 포맷팅 및 정렬
+      const formattedRewards = rewardsData.data
+        .map((reward) => ({
+          id: reward.id,
+          title: reward.title,
+          order: reward.order,
+          thumbnail: reward.thumbnail,
+        }))
+        .sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          return 0;
+        });
 
-      // 리워드 데이터 포맷팅
-      const formattedRewards = rewardsData.data.map((reward) => ({
-        id: reward.id,
-        title: reward.title,
-        order: reward.order,
-        thumbnail: reward.thumbnail,
-      }));
-
-      // 순서 값이 있으면 순서대로 정렬
-      const sortedRewards = formattedRewards.sort((a, b) => {
-        if (a.order !== undefined && b.order !== undefined) {
-          return a.order - b.order;
-        }
-        return 0;
-      });
-
-      console.log('최종 연결된 리워드 목록:', sortedRewards);
-      setLinkedRewards(sortedRewards);
+      setLinkedRewards(formattedRewards);
     } else {
       setLinkedRewards([]);
     }
   }, [rewardsData]);
 
-  // 투표 항목 정보 조회
-  const { data: voteItemsData, isLoading: isVoteItemsLoading } = useList({
-    resource: 'vote_item',
-    filters: [
-      {
-        field: 'vote_id',
-        operator: 'eq',
-        value: record?.id,
-      },
-    ],
-    pagination: {
-      pageSize: 100,
-    },
-    queryOptions: {
-      enabled: !!record?.id,
-    },
-  });
+  // 리워드 데이터 로딩 상태 및 데이터 여부 확인
+  const isRewardLoading = isVoteRewardLoading || (isRewardsLoading && rewardIds.length > 0);
+  const hasRewardData = !isVoteRewardLoading && rewardIds.length > 0;
 
-  // 로딩 중이거나 데이터가 없는 경우 처리
-  if (loading || !record) {
-    return (
-      <div style={{ padding: 24 }}>
-        <Alert message='투표 정보를 불러오는 중입니다...' type='info' />
-      </div>
-    );
-  }
+  // 투표 항목 필터링 및 정렬
+  const filteredVoteItems = useMemo(() => {
+    return record?.vote_item
+      ?.filter((item: any) => !item.deleted_at)
+      ?.sort((a: any, b: any) => b.vote_total - a.vote_total) || [];
+  }, [record?.vote_item]);
 
   // 투표 상태 확인
-  const voteStatus = getVoteStatus(record.start_at, record.stop_at);
+  const voteStatus = useMemo(() => {
+    return record ? getVoteStatus(record.start_at, record.stop_at) : null;
+  }, [record?.start_at, record?.stop_at]);
+
+  // 카테고리 관련 값 추출
+  const category = record?.vote_category || record?.category || '';
+
+  // 아티스트 클릭 핸들러
+  const handleArtistClick = (artistId: string | number) => {
+    if (artistId) {
+      show('artist', artistId);
+    }
+  };
+
+  if (loading || !record) {
+    return null; // 로딩은 상위 컴포넌트에서 처리
+  }
 
   return (
-    <div style={{ padding: isMobile ? 16 : 24 }}>
+    <div className="vote-detail" style={{ color: token.colorText }}>
       {/* 메인 이미지 */}
-      <div
-        style={{
+      {record.main_image && (
+        <div style={{ marginBottom: 24 }}>
+          <ImageField
+            value={getCdnImageUrl(record.main_image) || '/images/placeholder.jpg'}
+            title={record.title?.ko || '투표 이미지'}
+            width={isMobile ? 300 : 500}
+            height={isMobile ? 180 : 250}
+            style={{ 
+              objectFit: 'cover', 
+              borderRadius: 8,
+              boxShadow: `0 4px 12px ${token.colorBgContainerDisabled}`
+            }}
+          />
+        </div>
+      )}
+
+      {/* 기본 정보 */}
+      <Descriptions 
+        title={<Title level={4} style={{ color: token.colorText }}>기본 정보</Title>}
+        bordered 
+        column={1} 
+        layout={isMobile ? "vertical" : "horizontal"}
+        style={{ 
           marginBottom: 24,
-          position: 'relative',
-          width: '100%',
-          height: isMobile ? 200 : 300,
+          background: token.colorBgContainer,
+          borderRadius: token.borderRadiusLG,
+          overflow: 'hidden'
         }}
       >
-        {record.main_image ? (
-          <Image
-            src={getCdnImageUrl(record.main_image) || '/images/placeholder.jpg'}
-            alt={record.title?.ko || '투표 이미지'}
-            fill
-            style={{ objectFit: 'cover', borderRadius: 8 }}
+        <Descriptions.Item 
+          label={<Text style={{ color: token.colorTextSecondary }}>제목</Text>}
+          labelStyle={{ background: token.colorBgLayout }}
+        >
+          <MultiLanguageDisplay
+            value={
+              record.title as ComponentProps<
+                typeof MultiLanguageDisplay
+              >['value']
+            }
+          />
+        </Descriptions.Item>
+
+        <Descriptions.Item 
+          label={<Text style={{ color: token.colorTextSecondary }}>카테고리</Text>}
+          labelStyle={{ background: token.colorBgLayout }}
+        >
+          <TagField value={getCategoryName(category)} color={getCategoryColor(category)} />
+        </Descriptions.Item>
+
+        <Descriptions.Item 
+          label={<Text style={{ color: token.colorTextSecondary }}>연결된 리워드</Text>}
+          labelStyle={{ background: token.colorBgLayout }}
+        >
+          {isRewardLoading ? (
+            <Text type='secondary'>리워드 정보를 불러오는 중...</Text>
+          ) : !hasRewardData ? (
+            <Text type='secondary'>연결된 리워드가 없습니다</Text>
+          ) : linkedRewards.length > 0 ? (
+            <Space wrap>
+              {linkedRewards.map((reward) => (
+                <Link key={reward.id} href={`/reward/show/${reward.id}`}>
+                  <Tag 
+                    color='blue' 
+                    style={{ 
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4
+                    }}
+                  >
+                    <GiftOutlined /> {reward.title?.ko || `리워드 #${reward.id}`}
+                  </Tag>
+                </Link>
+              ))}
+            </Space>
+          ) : (
+            <Text type='secondary'>연결된 리워드를 불러올 수 없습니다</Text>
+          )}
+        </Descriptions.Item>
+
+        <Descriptions.Item 
+          label={<Text style={{ color: token.colorTextSecondary }}>노출 시작일</Text>}
+          labelStyle={{ background: token.colorBgLayout }}
+        >
+          {record.visible_at && (
+            <DateField
+              value={record.visible_at}
+              format='YYYY-MM-DD HH:mm'
+              locales='ko'
+            />
+          )}
+        </Descriptions.Item>
+
+        <Descriptions.Item 
+          label={<Text style={{ color: token.colorTextSecondary }}>투표 시작일</Text>}
+          labelStyle={{ background: token.colorBgLayout }}
+        >
+          <Space>
+            <CalendarOutlined style={{ color: token.colorPrimary }} />
+            {record.start_at ? (
+              <DateField
+                value={record.start_at}
+                format='YYYY-MM-DD HH:mm'
+                locales='ko'
+              />
+            ) : (
+              <Text type='secondary'>설정되지 않음</Text>
+            )}
+          </Space>
+        </Descriptions.Item>
+
+        <Descriptions.Item 
+          label={<Text style={{ color: token.colorTextSecondary }}>투표 종료일</Text>}
+          labelStyle={{ background: token.colorBgLayout }}
+        >
+          <Space>
+            <ClockCircleOutlined style={{ color: token.colorError }} />
+            {record.stop_at ? (
+              <DateField
+                value={record.stop_at}
+                format='YYYY-MM-DD HH:mm'
+                locales='ko'
+              />
+            ) : (
+              <Text type='secondary'>설정되지 않음</Text>
+            )}
+          </Space>
+        </Descriptions.Item>
+
+        <Descriptions.Item 
+          label={<Text style={{ color: token.colorTextSecondary }}>투표 상태</Text>}
+          labelStyle={{ background: token.colorBgLayout }}
+        >
+          {voteStatus && (
+            <TagField 
+              value={
+                voteStatus === VOTE_STATUS.UPCOMING
+                  ? '예정됨'
+                  : voteStatus === VOTE_STATUS.ONGOING
+                  ? '진행 중'
+                  : '종료됨'
+              } 
+              color={STATUS_TAG_COLORS[voteStatus]} 
+            />
+          )}
+        </Descriptions.Item>
+      </Descriptions>
+
+      {/* 투표 항목 */}
+      <Card 
+        title={<Title level={4} style={{ margin: 0, color: token.colorText }}>투표 항목</Title>}
+        variant="borderless"
+        style={{ 
+          marginBottom: 24,
+          background: token.colorBgContainer,
+          borderRadius: token.borderRadiusLG,
+          boxShadow: `0 2px 8px ${token.colorBgContainerDisabled}`
+        }}
+      >
+        {filteredVoteItems.length === 0 ? (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="등록된 투표 항목이 없습니다"
+            style={{ color: token.colorTextSecondary }}
           />
         ) : (
           <div
             style={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: '#f5f5f5',
-              borderRadius: 8,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              color: '#999',
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: 16,
+              padding: 8,
             }}
           >
-            이미지가 없습니다
+            {filteredVoteItems.map((item: any, index: number) => (
+              <VoteItemCard 
+                key={item.id || index}
+                item={item}
+                index={index}
+                token={token}
+                onArtistClick={handleArtistClick}
+              />
+            ))}
           </div>
         )}
-      </div>
-
-      <Card style={getCardStyle(token)}>
-        {/* 기본 정보 */}
-        <div style={getSectionStyle(token)}>
-          <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={getTitleStyle(token)}>
-              기본 정보
-            </Title>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* 제목 */}
-            <div>
-              <Text type='secondary'>제목</Text>
-              <div style={{ marginTop: 4 }}>
-                <MultiLanguageDisplay
-                  value={
-                    record.title as ComponentProps<
-                      typeof MultiLanguageDisplay
-                    >['value']
-                  }
-                />
-              </div>
-            </div>
-
-            {/* 카테고리 */}
-            <div>
-              <Text type='secondary'>카테고리</Text>
-              <div style={{ marginTop: 4 }}>
-                <Tag color={getCategoryColor(record.category || '')}>
-                  {record.category || '카테고리 없음'}
-                </Tag>
-              </div>
-            </div>
-
-            {/* 리워드 연결 */}
-            <div>
-              <Text type='secondary'>연결된 리워드</Text>
-              <div style={{ marginTop: 4 }}>
-                {isVoteRewardLoading || isRewardsLoading ? (
-                  <Text type='secondary'>리워드 정보를 불러오는 중...</Text>
-                ) : linkedRewards.length > 0 ? (
-                  <Space wrap>
-                    {linkedRewards.map((reward) => (
-                      <Tooltip
-                        key={reward.id}
-                        title={reward.title?.ko || '리워드'}
-                      >
-                        <Link href={`/reward/show/${reward.id}`}>
-                          <Tag color='blue' style={{ cursor: 'pointer' }}>
-                            {reward.title?.ko || `리워드 #${reward.id}`}
-                          </Tag>
-                        </Link>
-                      </Tooltip>
-                    ))}
-                  </Space>
-                ) : (
-                  <Text type='secondary'>연결된 리워드가 없습니다</Text>
-                )}
-              </div>
-            </div>
-
-            {/* 노출 날짜 */}
-            <div>
-              <Text type='secondary'>노출 날짜</Text>
-              <div style={{ marginTop: 4 }}>
-                <Space>
-                  {record.visible_at && (
-                    <Tag icon={<CalendarOutlined />} color='success'>
-                      시작: {formatDate(record.visible_at)}
-                    </Tag>
-                  )}
-                </Space>
-              </div>
-            </div>
-
-            {/* 투표 기간 */}
-            <div>
-              <Text type='secondary'>투표 기간</Text>
-              <div style={{ marginTop: 4 }}>
-                <Space>
-                  {record.start_at && (
-                    <Tag icon={<ClockCircleOutlined />} color='success'>
-                      {formatDate(record.start_at)}
-                    </Tag>
-                  )}
-                  {record.stop_at && (
-                    <Tag icon={<ClockCircleOutlined />} color='error'>
-                      {formatDate(record.stop_at)}
-                    </Tag>
-                  )}
-                </Space>
-              </div>
-            </div>
-
-            {/* 투표 상태 */}
-            <div>
-              <Text type='secondary'>투표 상태</Text>
-              <div style={{ marginTop: 4 }}>
-                <Tag
-                  color={
-                    voteStatus === VOTE_STATUS.UPCOMING
-                      ? 'blue'
-                      : voteStatus === VOTE_STATUS.ONGOING
-                      ? 'green'
-                      : voteStatus === VOTE_STATUS.COMPLETED
-                      ? 'default'
-                      : 'default'
-                  }
-                >
-                  {voteStatus === VOTE_STATUS.UPCOMING
-                    ? '예정됨'
-                    : voteStatus === VOTE_STATUS.ONGOING
-                    ? '진행 중'
-                    : voteStatus === VOTE_STATUS.COMPLETED
-                    ? '종료됨'
-                    : '알 수 없음'}
-                </Tag>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <Divider />
-
-        {/* 투표 아이템 정보 */}
-        <div
-          style={{
-            ...getCardStyle(token, isMobile, {
-              paddingLeft: isMobile ? '24px' : '44px',
-            }),
-          }}
-        >
-          <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={getTitleStyle(token)}>
-              투표 아이템
-            </Title>
-          </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: isMobile
-                ? 'repeat(auto-fill, minmax(250px, 1fr))'
-                : 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '20px',
-              marginTop: '16px',
-            }}
-          >
-            {record?.vote_item
-              ?.filter((item: any) => !item.deleted_at)
-              ?.sort((a: any, b: any) => b.vote_total - a.vote_total)
-              .map((item: any, index: number) => (
-                <div
-                  key={item.id}
-                  style={{
-                    position: 'relative',
-                  }}
-                >
-                  {/* 아티스트 카드 컴포넌트 사용 */}
-                  <ArtistCard
-                    artist={item.artist}
-                    onClick={() => show('artists', item.artist?.id)}
-                    voteInfo={{
-                      rank: index + 1,
-                      voteTotal: item.vote_total,
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      marginTop: '16px',
-                      fontSize: '0.9em',
-                      color: token.colorTextSecondary,
-                      padding: '10px',
-                      background: token.colorBgContainer,
-                      borderRadius: '4px',
-                      border: `1px solid ${token.colorBorderSecondary}`,
-                    }}
-                  >
-                    <div>생성일: {formatDate(item.created_at, 'datetime')}</div>
-                    <div>수정일: {formatDate(item.updated_at, 'datetime')}</div>
-                    <div>삭제일: {formatDate(item.deleted_at, 'datetime')}</div>
-                    <div
-                      style={{
-                        marginTop: '10px',
-                        color: token.colorTextTertiary,
-                      }}
-                    >
-                      아티스트 ID: {item.artist_id}
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
       </Card>
     </div>
   );
 };
 
-export default VoteDetail;
+export default React.memo(VoteDetail);
