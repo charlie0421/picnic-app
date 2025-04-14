@@ -2,17 +2,46 @@
 
 import React, { useEffect, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import { useNavigation, useShow, useOne, useList, useMany } from '@refinedev/core';
+import {
+  useNavigation,
+  useShow,
+  useOne,
+  useList,
+  useMany,
+} from '@refinedev/core';
 import { getCdnImageUrl } from '@/lib/image';
 import { VoteRecord, VOTE_STATUS, getVoteStatus } from '@/lib/vote';
-import { TableProps, Alert, Space, Tag, theme, Typography, Divider, Card, Button, Tooltip } from 'antd';
-import { getCardStyle, getSectionStyle, getSectionHeaderStyle, getTitleStyle } from '@/lib/ui';
-import { CalendarOutlined, ClockCircleOutlined, UserOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  TableProps,
+  Alert,
+  Space,
+  Tag,
+  theme,
+  Typography,
+  Divider,
+  Card,
+  Button,
+  Tooltip,
+} from 'antd';
+import {
+  getCardStyle,
+  getSectionStyle,
+  getSectionHeaderStyle,
+  getTitleStyle,
+} from '@/lib/ui';
+import {
+  CalendarOutlined,
+  ClockCircleOutlined,
+  UserOutlined,
+  PlusOutlined,
+  EditOutlined,
+} from '@ant-design/icons';
 import { TextField, DateField } from '@refinedev/antd';
 import dayjs from '@/lib/dayjs';
 import { formatDate } from '@/lib/date';
 import Image from 'next/image';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
+import type { ComponentProps } from 'react';
 import ArtistCard from '@/app/artist/components/ArtistCard';
 import Link from 'next/link';
 
@@ -45,83 +74,94 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
   const { token } = theme.useToken();
   const { show } = useNavigation();
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  
+
   // 연결된 리워드 목록 상태 관리
   const [linkedRewards, setLinkedRewards] = useState<any[]>([]);
-  
+
   // vote_reward 데이터 조회 - ID 기반 필터링 사용
   const { data: voteRewardData, isLoading: isVoteRewardLoading } = useList({
-    resource: "vote_reward",
+    resource: 'vote_reward',
     filters: [
       {
         field: 'vote_id',
         operator: 'eq',
-        value: record?.id
-      }
+        value: record?.id,
+      },
     ],
     pagination: {
       pageSize: 100,
     },
     queryOptions: {
       enabled: !!record?.id,
-    }
+    },
   });
-  
+
   // 고유한 reward_id 추출
   const rewardIds = React.useMemo(() => {
     if (!voteRewardData?.data || !record?.id) return [];
-    
+
     // 디버깅을 위한 로그
     console.log('vote_id:', record.id, '타입:', typeof record.id);
     console.log('vote_reward 원본 데이터:', voteRewardData.data);
-    
+
     // 타입 안전하게 변환하여 필터링
-    const numericVoteId = typeof record.id === 'string' ? parseInt(record.id, 10) : record.id;
-    
+    const numericVoteId =
+      typeof record.id === 'string' ? parseInt(record.id, 10) : record.id;
+
     // vote_id로 필터링
-    const filteredData = voteRewardData.data.filter(item => {
-      const itemVoteId = typeof item.vote_id === 'string' ? parseInt(item.vote_id, 10) : item.vote_id;
+    const filteredData = voteRewardData.data.filter((item) => {
+      const itemVoteId =
+        typeof item.vote_id === 'string'
+          ? parseInt(item.vote_id, 10)
+          : item.vote_id;
       return itemVoteId === numericVoteId;
     });
-    
+
     console.log('vote_id로 필터링된 데이터:', filteredData);
-    
+
     // 유효한 reward_id만 추출하고 중복 제거
     const uniqueRewardIds: number[] = [];
-    
-    filteredData.forEach(item => {
-      const rewardId = typeof item.reward_id === 'string' ? parseInt(item.reward_id, 10) : item.reward_id;
-      if (!isNaN(rewardId) && rewardId > 0 && !uniqueRewardIds.includes(rewardId)) {
+
+    filteredData.forEach((item) => {
+      const rewardId =
+        typeof item.reward_id === 'string'
+          ? parseInt(item.reward_id, 10)
+          : item.reward_id;
+      if (
+        !isNaN(rewardId) &&
+        rewardId > 0 &&
+        !uniqueRewardIds.includes(rewardId)
+      ) {
         uniqueRewardIds.push(rewardId);
       }
     });
-    
+
     console.log('추출된 유효한 리워드 IDs:', uniqueRewardIds);
     return uniqueRewardIds;
   }, [voteRewardData?.data, record?.id]);
-  
+
   // 리워드 상세 정보 조회 (useMany 사용)
   const { data: rewardsData, isLoading: isRewardsLoading } = useMany({
-    resource: "reward",
+    resource: 'reward',
     ids: rewardIds,
     queryOptions: {
       enabled: rewardIds.length > 0,
-    }
+    },
   });
-  
+
   // 리워드 데이터 처리
   useEffect(() => {
     if (rewardsData?.data) {
       console.log('조회된 리워드 데이터:', rewardsData.data);
-      
+
       // 리워드 데이터 포맷팅
-      const formattedRewards = rewardsData.data.map(reward => ({
+      const formattedRewards = rewardsData.data.map((reward) => ({
         id: reward.id,
         title: reward.title,
         order: reward.order,
-        thumbnail: reward.thumbnail
+        thumbnail: reward.thumbnail,
       }));
-      
+
       // 순서 값이 있으면 순서대로 정렬
       const sortedRewards = formattedRewards.sort((a, b) => {
         if (a.order !== undefined && b.order !== undefined) {
@@ -129,7 +169,7 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
         }
         return 0;
       });
-      
+
       console.log('최종 연결된 리워드 목록:', sortedRewards);
       setLinkedRewards(sortedRewards);
     } else {
@@ -139,77 +179,65 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
 
   // 투표 항목 정보 조회
   const { data: voteItemsData, isLoading: isVoteItemsLoading } = useList({
-    resource: "vote_item",
+    resource: 'vote_item',
     filters: [
       {
         field: 'vote_id',
         operator: 'eq',
-        value: record?.id
-      }
+        value: record?.id,
+      },
     ],
     pagination: {
       pageSize: 100,
     },
     queryOptions: {
       enabled: !!record?.id,
-    }
-  });
-
-  // 아티스트 정보 조회
-  const { data: artistData, isLoading: isArtistLoading } = useOne({
-    resource: "artist",
-    id: record?.artist_id || "",
-    queryOptions: {
-      enabled: !!record?.artist_id,
-    }
+    },
   });
 
   // 로딩 중이거나 데이터가 없는 경우 처리
   if (loading || !record) {
     return (
       <div style={{ padding: 24 }}>
-        <Alert message="투표 정보를 불러오는 중입니다..." type="info" />
+        <Alert message='투표 정보를 불러오는 중입니다...' type='info' />
       </div>
     );
   }
 
   // 투표 상태 확인
-  const voteStatus = getVoteStatus(record);
+  const voteStatus = getVoteStatus(record.start_at, record.stop_at);
 
   return (
     <div style={{ padding: isMobile ? 16 : 24 }}>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-        <Button 
-          icon={<EditOutlined />} 
-          type="primary"
-          onClick={() => {
-            show('vote', record.id, 'edit');
-          }}
-        >
-          수정
-        </Button>
-      </div>
-
       {/* 메인 이미지 */}
-      <div style={{ marginBottom: 24, position: 'relative', width: '100%', height: isMobile ? 200 : 300 }}>
-        {record.image ? (
+      <div
+        style={{
+          marginBottom: 24,
+          position: 'relative',
+          width: '100%',
+          height: isMobile ? 200 : 300,
+        }}
+      >
+        {record.main_image ? (
           <Image
-            src={getCdnImageUrl(record.image) || '/images/placeholder.jpg'}
+            src={getCdnImageUrl(record.main_image) || '/images/placeholder.jpg'}
             alt={record.title?.ko || '투표 이미지'}
             fill
             style={{ objectFit: 'cover', borderRadius: 8 }}
           />
         ) : (
-          <div style={{ 
-            width: '100%', 
-            height: '100%', 
-            backgroundColor: '#f5f5f5', 
-            borderRadius: 8, 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center',
-            color: '#999'
-          }}>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#f5f5f5',
+              borderRadius: 8,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              color: '#999',
+            }}
+          >
             이미지가 없습니다
           </div>
         )}
@@ -217,22 +245,30 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
 
       <Card style={getCardStyle(token)}>
         {/* 기본 정보 */}
-        <div style={getSectionStyle()}>
+        <div style={getSectionStyle(token)}>
           <div style={getSectionHeaderStyle(token)}>
-            <Title level={4} style={getTitleStyle()}>기본 정보</Title>
+            <Title level={4} style={getTitleStyle(token)}>
+              기본 정보
+            </Title>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* 제목 */}
             <div>
-              <Text type="secondary">제목</Text>
+              <Text type='secondary'>제목</Text>
               <div style={{ marginTop: 4 }}>
-                <MultiLanguageDisplay value={record.title} />
+                <MultiLanguageDisplay
+                  value={
+                    record.title as ComponentProps<
+                      typeof MultiLanguageDisplay
+                    >['value']
+                  }
+                />
               </div>
             </div>
 
             {/* 카테고리 */}
             <div>
-              <Text type="secondary">카테고리</Text>
+              <Text type='secondary'>카테고리</Text>
               <div style={{ marginTop: 4 }}>
                 <Tag color={getCategoryColor(record.category || '')}>
                   {record.category || '카테고리 없음'}
@@ -242,16 +278,19 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
 
             {/* 리워드 연결 */}
             <div>
-              <Text type="secondary">연결된 리워드</Text>
+              <Text type='secondary'>연결된 리워드</Text>
               <div style={{ marginTop: 4 }}>
                 {isVoteRewardLoading || isRewardsLoading ? (
-                  <Text type="secondary">리워드 정보를 불러오는 중...</Text>
+                  <Text type='secondary'>리워드 정보를 불러오는 중...</Text>
                 ) : linkedRewards.length > 0 ? (
                   <Space wrap>
-                    {linkedRewards.map(reward => (
-                      <Tooltip key={reward.id} title={reward.title?.ko || '리워드'}>
+                    {linkedRewards.map((reward) => (
+                      <Tooltip
+                        key={reward.id}
+                        title={reward.title?.ko || '리워드'}
+                      >
                         <Link href={`/reward/show/${reward.id}`}>
-                          <Tag color="blue" style={{ cursor: 'pointer' }}>
+                          <Tag color='blue' style={{ cursor: 'pointer' }}>
                             {reward.title?.ko || `리워드 #${reward.id}`}
                           </Tag>
                         </Link>
@@ -259,24 +298,19 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
                     ))}
                   </Space>
                 ) : (
-                  <Text type="secondary">연결된 리워드가 없습니다</Text>
+                  <Text type='secondary'>연결된 리워드가 없습니다</Text>
                 )}
               </div>
             </div>
 
-            {/* 표시 날짜 */}
+            {/* 노출 날짜 */}
             <div>
-              <Text type="secondary">표시 날짜</Text>
+              <Text type='secondary'>노출 날짜</Text>
               <div style={{ marginTop: 4 }}>
                 <Space>
-                  {record.visibility_started_at && (
-                    <Tag icon={<CalendarOutlined />} color="success">
-                      시작: {formatDate(record.visibility_started_at)}
-                    </Tag>
-                  )}
-                  {record.visibility_ended_at && (
-                    <Tag icon={<CalendarOutlined />} color="error">
-                      종료: {formatDate(record.visibility_ended_at)}
+                  {record.visible_at && (
+                    <Tag icon={<CalendarOutlined />} color='success'>
+                      시작: {formatDate(record.visible_at)}
                     </Tag>
                   )}
                 </Space>
@@ -285,17 +319,17 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
 
             {/* 투표 기간 */}
             <div>
-              <Text type="secondary">투표 기간</Text>
+              <Text type='secondary'>투표 기간</Text>
               <div style={{ marginTop: 4 }}>
                 <Space>
-                  {record.voting_started_at && (
-                    <Tag icon={<ClockCircleOutlined />} color="success">
-                      시작: {formatDate(record.voting_started_at)}
+                  {record.start_at && (
+                    <Tag icon={<ClockCircleOutlined />} color='success'>
+                      {formatDate(record.start_at)}
                     </Tag>
                   )}
-                  {record.voting_ended_at && (
-                    <Tag icon={<ClockCircleOutlined />} color="error">
-                      종료: {formatDate(record.voting_ended_at)}
+                  {record.stop_at && (
+                    <Tag icon={<ClockCircleOutlined />} color='error'>
+                      {formatDate(record.stop_at)}
                     </Tag>
                   )}
                 </Space>
@@ -304,47 +338,29 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
 
             {/* 투표 상태 */}
             <div>
-              <Text type="secondary">투표 상태</Text>
+              <Text type='secondary'>투표 상태</Text>
               <div style={{ marginTop: 4 }}>
-                <Tag color={
-                  voteStatus === VOTE_STATUS.UPCOMING ? 'blue' : 
-                  voteStatus === VOTE_STATUS.ACTIVE ? 'green' : 
-                  voteStatus === VOTE_STATUS.ENDED ? 'red' : 'default'
-                }>
-                  {
-                    voteStatus === VOTE_STATUS.UPCOMING ? '예정됨' : 
-                    voteStatus === VOTE_STATUS.ACTIVE ? '진행 중' : 
-                    voteStatus === VOTE_STATUS.ENDED ? '종료됨' : '알 수 없음'
+                <Tag
+                  color={
+                    voteStatus === VOTE_STATUS.UPCOMING
+                      ? 'blue'
+                      : voteStatus === VOTE_STATUS.ONGOING
+                      ? 'green'
+                      : voteStatus === VOTE_STATUS.COMPLETED
+                      ? 'default'
+                      : 'default'
                   }
+                >
+                  {voteStatus === VOTE_STATUS.UPCOMING
+                    ? '예정됨'
+                    : voteStatus === VOTE_STATUS.ONGOING
+                    ? '진행 중'
+                    : voteStatus === VOTE_STATUS.COMPLETED
+                    ? '종료됨'
+                    : '알 수 없음'}
                 </Tag>
               </div>
             </div>
-
-            {/* 설명 */}
-            {record.description && (
-              <div>
-                <Text type="secondary">설명</Text>
-                <div style={{ marginTop: 4 }}>
-                  <MultiLanguageDisplay value={record.description} />
-                </div>
-              </div>
-            )}
-
-            {/* 아티스트 정보 */}
-            {record.artist_id && (
-              <div>
-                <Text type="secondary">관련 아티스트</Text>
-                <div style={{ marginTop: 4 }}>
-                  {isArtistLoading ? (
-                    <Text type="secondary">아티스트 정보를 불러오는 중...</Text>
-                  ) : artistData?.data ? (
-                    <ArtistCard record={artistData.data} />
-                  ) : (
-                    <Text type="secondary">아티스트 정보를 찾을 수 없습니다</Text>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
