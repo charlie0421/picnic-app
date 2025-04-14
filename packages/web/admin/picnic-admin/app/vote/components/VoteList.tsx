@@ -6,11 +6,12 @@ import {
   DateField,
   CreateButton,
 } from '@refinedev/antd';
-import { CrudFilters, useNavigation } from '@refinedev/core';
-import { Space, Table, Select, Tag } from 'antd';
+import { CrudFilters, useNavigation, useMany, useList } from '@refinedev/core';
+import { Space, Table, Select, Tag, Tooltip, Badge, Avatar } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { Image } from 'antd';
+import { GiftOutlined } from '@ant-design/icons';
 
 import {
   VOTE_CATEGORIES,
@@ -58,6 +59,12 @@ export default function VoteList() {
   const [filteredData, setFilteredData] = useState<VoteRecord[]>([]);
 
   const { show } = useNavigation();
+
+  // 추가: vote_id 목록을 저장할 state
+  const [voteIds, setVoteIds] = useState<number[]>([]);
+  
+  // 추가: vote_reward 데이터를 저장할 state
+  const [voteRewardMap, setVoteRewardMap] = useState<Record<number, any[]>>({});
 
   // URL 파라미터 업데이트
   const updateUrlParams = (params: { category?: FilterCategoryType; status?: FilterStatusType }) => {
@@ -125,10 +132,115 @@ export default function VoteList() {
         },
       ],
     },
+    meta: {
+      select: '*', // vote_reward 관계 제거
+    },
     queryOptions: {
       refetchOnWindowFocus: false,
     },
   });
+
+  // 투표 데이터가 로드되면 ID 목록 추출
+  useEffect(() => {
+    if (tableProps.dataSource && tableProps.dataSource.length > 0) {
+      const ids: number[] = [];
+      
+      // ID가 유효한 숫자인 경우만 추가
+      tableProps.dataSource.forEach(vote => {
+        if (vote.id !== undefined && typeof vote.id === 'number') {
+          ids.push(vote.id);
+        }
+      });
+      
+      setVoteIds(ids);
+    }
+  }, [tableProps.dataSource]);
+  
+  // vote_reward 데이터 조회
+  const { data: voteRewardData } = useList({
+    resource: 'vote_reward',
+    filters: [
+      {
+        field: 'vote_id',
+        operator: 'in', 
+        value: voteIds,
+      }
+    ],
+    meta: {
+      select: '*',
+    },
+    queryOptions: {
+      enabled: voteIds.length > 0,
+    },
+  });
+
+  // reward_id 목록 추출
+  const [rewardIds, setRewardIds] = useState<number[]>([]);
+  
+  useEffect(() => {
+    if (voteRewardData && voteRewardData.data) {
+      const ids: number[] = [];
+      voteRewardData.data.forEach(item => {
+        if (item.reward_id && typeof item.reward_id === 'number') {
+          // 중복 확인 후 추가
+          if (!ids.includes(item.reward_id)) {
+            ids.push(item.reward_id);
+          }
+        }
+      });
+      setRewardIds(ids);
+    }
+  }, [voteRewardData]);
+  
+  // reward 데이터 조회
+  const { data: rewardData } = useMany({
+    resource: 'reward',
+    ids: rewardIds,
+    queryOptions: {
+      enabled: rewardIds.length > 0,
+    },
+  });
+  
+  // vote_reward 데이터 정리
+  useEffect(() => {
+    console.log('voteRewardData:', voteRewardData);
+    console.log('rewardData:', rewardData);
+    
+    if (voteRewardData?.data && rewardData?.data) {
+      // vote_id를 키로 하는 맵 생성
+      const rewardMap: Record<number, any[]> = {};
+      
+      // reward 데이터를 id로 맵핑
+      const rewardById: Record<number, any> = {};
+      rewardData.data.forEach(reward => {
+        if (reward.id && typeof reward.id === 'number') {
+          rewardById[reward.id] = reward;
+        }
+      });
+      
+      // vote_reward 데이터 처리
+      voteRewardData.data.forEach(item => {
+        console.log('Processing vote_reward item:', item);
+        const voteId = item.vote_id;
+        const rewardId = item.reward_id;
+        
+        if (!rewardMap[voteId]) {
+          rewardMap[voteId] = [];
+        }
+        
+        // reward 정보가 있는 경우만 추가
+        if (rewardId && rewardById[rewardId]) {
+          rewardMap[voteId].push({
+            ...item,
+            reward: rewardById[rewardId]
+          });
+        }
+      });
+      
+      console.log('Final rewardMap:', rewardMap);
+      setVoteRewardMap(rewardMap);
+    }
+  }, [voteRewardData, rewardData]);
 
   // 클라이언트 측 필터링
   useEffect(() => {
@@ -247,7 +359,7 @@ export default function VoteList() {
             dataIndex='title'
             title={'제목'}
             align='center'
-            ellipsis={{ showTitle: true }}
+            width={150}
             render={(value: any) => <MultiLanguageDisplay languages={['ko']} value={value} />}
           />
           <Table.Column
@@ -261,22 +373,34 @@ export default function VoteList() {
               return category?.label || value;
             }}
           />
+          {/* 연결된 리워드 칼럼 추가 */}
           <Table.Column
-            dataIndex='main_image'
-            title='메인 이미지'
+            title='리워드'
             align='center'
-            width={130}
-            responsive={['md']}
-            render={(value: string | undefined) => {
-              if (!value) return '-';
+            width={200}
+            render={(_, record: any) => {
+              const voteId = record.id;
+              const rewards = voteRewardMap[voteId] || [];
+              
+              // 리워드가 없는 경우
+              if (rewards.length === 0) {
+                return '-';
+              }
+              
+              // 첫 번째 리워드의 이름 표시
+              const firstReward = rewards[0].reward;
+              
               return (
-              <Image
-                src={getCdnImageUrl(value, 100)}
-                alt='메인 이미지'
-                width={100}
-                height={60}
-                preview={false}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  {rewards.length > 1 && (
+                    <Tag color="#1890ff" style={{ marginBottom: '4px' }}>
+                      +{rewards.length - 1}
+                    </Tag>
+                  )}
+                  <span style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <MultiLanguageDisplay languages={['ko']} value={firstReward.title} />
+                  </span>
+                </div>
               );
             }}
           />
@@ -337,6 +461,7 @@ export default function VoteList() {
               </Space>
             )}
           />
+          
         </Table>
       </div>
     </List>

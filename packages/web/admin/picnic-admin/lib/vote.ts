@@ -70,8 +70,24 @@ export interface VoteRecord {
   updated_at?: string;
   deleted_at?: string;
   vote_item?: any[];
+  vote_reward?: any[];
   vote?: {
     id: string;
     [key: string]: any;
   };
+}
+
+export interface RewardItem {
+  id: number;
+  title: Record<string, string>;
+  order?: number;
+  thumbnail?: string;
+}
+
+
+// API 응답 타입 정의
+export interface ApiResponse<T> {
+  data: T;
+  isLoading: boolean;
+  isError: boolean;
 }
