@@ -15,6 +15,16 @@ import {
   Empty,
   Transfer,
   Divider,
+  Card,
+  Row,
+  Col,
+  List,
+  Typography,
+  Badge,
+  Tag,
+  InputNumber,
+  Checkbox,
+  ButtonProps,
 } from 'antd';
 import { DeleteOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
@@ -29,43 +39,125 @@ import ImageUpload from '@/components/features/upload';
 import ArtistCard from '@/app/artist/components/ArtistCard';
 import React from 'react';
 import Image from 'next/image';
+import { supabaseBrowserClient } from '@/lib/supabase/client';
 
-type VoteFormProps = {
+export type VoteFormProps = {
   mode: 'create' | 'edit';
   id?: string;
-  initialVoteItems?: VoteItem[];
   formProps: ReturnType<typeof useForm<VoteRecord>>['formProps'];
-  saveButtonProps: ReturnType<typeof useForm<VoteRecord>>['saveButtonProps'];
   onFinish?: (values: any) => Promise<any>;
   redirectPath?: string;
+  saveButtonProps?: ButtonProps;
 };
 
 export default function VoteForm({
   mode,
   id,
-  initialVoteItems = [],
   formProps,
-  saveButtonProps,
   onFinish,
   redirectPath,
+  saveButtonProps,
 }: VoteFormProps) {
   const { push } = useNavigation();
   const { token } = theme.useToken();
   
-  console.log('VoteForm 컴포넌트 마운트', formProps);
-
   // onFinish 핸들러 설정 여부를 추적하는 ref
   const onFinishHandlerSet = React.useRef(false);
 
-  // 선택된 투표 항목들 관리
-  const [voteItems, setVoteItems] = useState<VoteItem[]>(initialVoteItems);
+  // 선택된 투표 항목들 관리 - formProps에서 가져오기
+  const [voteItems, setVoteItems] = useState<VoteItem[]>([]);
   
-  // formProps에서 initialRewardIds 추출
-  const initialRewardIds = formProps.initialValues?.reward_ids || [];
+  // vote_item 초기 데이터 설정
+  useEffect(() => {
+    if (formProps.initialValues && formProps.initialValues.vote_item?.length > 0) {
+      setVoteItems(formProps.initialValues.vote_item);
+    }
+  }, [formProps.initialValues?.vote_item]);
+  
+  // formProps에서 vote_reward 데이터 추출하여 리워드 ID 초기화
+  const [initialRewardIds, setInitialRewardIds] = useState<number[]>([]);
+  
+  // 초기 리워드 ID 설정 (formProps에서 vote_reward 데이터 추출)
+  useEffect(() => {
+    const rewardData = formProps.initialValues?.vote_reward || [];
+    if (rewardData.length > 0) {
+      console.log('formProps에서 추출한 vote_reward 데이터:', rewardData);
+      
+      // 고유한 리워드 ID만 추출
+      const uniqueIds = Array.from(new Set(
+        rewardData
+          .filter((item: any) => item.reward_id)
+          .map((item: any) => Number(item.reward_id))
+          .filter((id: number) => !isNaN(id) && id > 0)
+      )) as number[];
+      
+      console.log('formProps에서 추출한 고유 리워드 ID 목록:', uniqueIds);
+      setInitialRewardIds(uniqueIds);
+    }
+  }, [formProps.initialValues?.vote_reward]);
   
   // 리워드 목록 및 선택된 리워드 관리
   const [rewardItems, setRewardItems] = useState<RewardItem[]>([]);
-  const [selectedRewardIds, setSelectedRewardIds] = useState<number[]>(initialRewardIds);
+  const [selectedRewardIds, setSelectedRewardIds] = useState<number[]>([]);
+  
+  // initialRewardIds가 변경되면 selectedRewardIds 업데이트
+  useEffect(() => {
+    if (initialRewardIds.length > 0) {
+      console.log('초기 리워드 ID 목록을 선택된 리워드로 설정:', initialRewardIds);
+      setSelectedRewardIds(initialRewardIds);
+      
+      // 폼 필드에도 설정
+      if (formProps.form) {
+        formProps.form.setFieldValue('_rewardIds', initialRewardIds);
+        formProps.form.setFieldValue('_targetKeys', initialRewardIds.map(id => id.toString()));
+      }
+    }
+  }, [initialRewardIds, formProps.form]);
+  
+  // vote_reward 데이터에서 현재 vote_id와 일치하는 항목 필터링 (편집 모드에서)
+  useEffect(() => {
+    if (mode === 'edit' && id) {
+      // voteRewardData와 id가 있는 경우만 실행
+      console.log('=== VoteForm: 편집 모드에서 vote_reward 데이터 확인 ===');
+      console.log('현재 vote_id:', id, typeof id);
+      
+      // 리워드 연결 정보 가져오기
+      const fetchVoteRewards = async () => {
+        const { data } = await supabaseBrowserClient
+          .from('vote_reward')
+          .select('*')
+          .eq('vote_id', Number(id))
+          .limit(100);
+          
+        if (data && data.length > 0) {
+          console.log('조회된 vote_reward 데이터:', data);
+          
+          // 중복 제거된 reward_id 배열 생성
+          const uniqueRewardIds = Array.from(
+            new Set(
+              data
+                .map(item => item.reward_id)
+                .filter((rewardId): rewardId is number => 
+                  rewardId !== null && rewardId !== undefined
+                )
+            )
+          );
+          
+          console.log('고유한 reward_id 목록:', uniqueRewardIds);
+          
+          // 상태 및 폼 업데이트
+          setSelectedRewardIds(uniqueRewardIds);
+          
+          if (formProps.form) {
+            formProps.form.setFieldValue('_rewardIds', uniqueRewardIds);
+            formProps.form.setFieldValue('_targetKeys', uniqueRewardIds.map(rewardId => rewardId.toString()));
+          }
+        }
+      };
+      
+      fetchVoteRewards();
+    }
+  }, [mode, id, formProps.form, supabaseBrowserClient]);
   
   // vote_item 생성/수정/삭제 훅
   const { mutate: createVoteItem } = useCreate();
@@ -107,22 +199,6 @@ export default function VoteForm({
     }
   }, [selectedRewardIds]);
 
-  // 컴포넌트 마운트 시 formProps의 reward_ids를 selectedRewardIds로 설정
-  useEffect(() => {
-    const rewardIds = formProps.initialValues?.vote_reward || [];
-    console.log('rewardIds:', rewardIds);
-    if (rewardIds.length > 0) {
-      console.log('formProps에서 추출한 리워드 IDs를 선택된 리워드로 설정합니다:', rewardIds);
-      setSelectedRewardIds(rewardIds.map((item: any) => item.reward_id));
-      
-      // 폼 필드에도 설정
-      if (formProps.form) {
-        formProps.form.setFieldValue('_rewardIds', rewardIds);
-        formProps.form.setFieldValue('_targetKeys', rewardIds.map((id: number) => id.toString()));
-      }
-    }
-  }, [formProps.initialValues?.vote_reward, formProps.form]);
-  
   // 폼 필드 디버깅 함수 추가
   const logFormValues = (form: any) => {
     if (!form) return;
@@ -137,16 +213,6 @@ export default function VoteForm({
     } catch (error) {
       console.error('폼 필드 로깅 오류:', error);
     }
-  };
-
-  // 리워드 ID 처리 함수 추가 (타입 안전성 강화)
-  const processRewardIds = (ids: number[] | string[] | any[] | undefined): number[] => {
-    if (!ids || !Array.isArray(ids) || ids.length === 0) return [];
-    
-    // 모든 요소를 숫자로 변환하고 유효한 ID만 필터링
-    return ids
-      .map(id => typeof id === 'string' ? Number(id) : id)
-      .filter(id => typeof id === 'number' && !isNaN(id) && id > 0);
   };
 
   // 리워드 선택 변경 핸들러 개선 - 타입 오류 수정
@@ -207,12 +273,9 @@ export default function VoteForm({
           delete finalValues.vote_range;
         }
         
-        // 전역 저장소에서 리워드 ID 목록 가져오기
-        const rewardIds: number[] = selectedRewardIds.length > 0 
-          ? selectedRewardIds
-          // @ts-ignore
-          : window.__rewardIds || [];
-          
+        // 로컬 상태에서 리워드 ID 목록 가져오기
+        const rewardIds: number[] = selectedRewardIds;
+        
         console.log('최종 폼 데이터:', finalValues);
         console.log('최종 리워드 ID 목록:', rewardIds);
         
@@ -386,13 +449,6 @@ export default function VoteForm({
     }
   };
 
-  // initialVoteItems가 변경될 때마다 voteItems 업데이트
-  useEffect(() => {
-    if (initialVoteItems.length > 0) {
-      setVoteItems(initialVoteItems);
-    }
-  }, [initialVoteItems]);
-  
   // 리워드 목록 설정 - title 필드 처리 수정
   useEffect(() => {
     console.log('rewardsData 변경됨:', rewardsData);
