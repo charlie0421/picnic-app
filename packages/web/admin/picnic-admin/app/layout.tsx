@@ -38,6 +38,10 @@ import {
   FileTextOutlined,
   ReadOutlined,
   CommentOutlined,
+  CustomerServiceOutlined,
+  SolutionOutlined,
+  QuestionCircleOutlined,
+  NotificationOutlined,
 } from '@ant-design/icons';
 
 export const metadata: Metadata = {
@@ -188,6 +192,89 @@ export default function RootLayout({
                               show: {
                                 label: '리워드 상세',
                               },
+                            },
+                          },
+                          // 고객 관리 메뉴 그룹 추가
+                          {
+                            name: 'customerGroup',
+                            meta: {
+                              label: 'CS 관리',
+                              icon: <CustomerServiceOutlined />,
+                            },
+                          },
+                          {
+                            name: 'notices',
+                            list: '/notices',
+                            create: '/notices/create',
+                            edit: '/notices/edit/:id',
+                            show: '/notices/show/:id',
+                            meta: {
+                              parent: 'customerGroup',
+                              label: '공지사항',
+                              icon: <NotificationOutlined />,
+                              list: {
+                                label: '공지사항 목록',
+                              },
+                              create: {
+                                label: '공지사항 작성',
+                              },
+                              edit: {
+                                label: '공지사항 수정',
+                              },
+                              show: {
+                                label: '공지사항 상세',
+                              },
+                              idField: 'notice_id',
+                            },
+                          },
+                          {
+                            name: 'faqs',
+                            list: '/faqs',
+                            create: '/faqs/create',
+                            edit: '/faqs/edit/:id',
+                            show: '/faqs/show/:id',
+                            meta: {
+                              parent: 'customerGroup',
+                              label: 'FAQ',
+                              icon: <SolutionOutlined />,
+                              list: {
+                                label: 'FAQ 목록',
+                              },
+                              create: {
+                                label: 'FAQ 작성',
+                              },
+                              edit: {
+                                label: 'FAQ 수정',
+                              },
+                              show: {
+                                label: 'FAQ 상세',
+                              },
+                              idField: 'faq_id',
+                            },
+                          },
+                          {
+                            name: 'qnas',
+                            list: '/qnas',
+                            create: '/qnas/create',
+                            edit: '/qnas/edit/:id',
+                            show: '/qnas/show/:id',
+                            meta: {
+                              parent: 'customerGroup',
+                              label: 'Q&A',
+                              icon: <QuestionCircleOutlined />,
+                              list: {
+                                label: 'Q&A 목록',
+                              },
+                              create: {
+                                label: '질문 작성',
+                              },
+                              edit: {
+                                label: '질문 수정/답변',
+                              },
+                              show: {
+                                label: '질문 상세',
+                              },
+                              idField: 'qna_id',
                             },
                           },
                           // 커뮤니티 관리 메뉴 그룹 추가
