@@ -46,8 +46,10 @@ export default function ArtistGroupShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
-        canEdit
-        canDelete
+        headerButtons={[
+          <EditButton key='edit' />,
+          <DeleteButton key='delete' />,
+        ]}
       >
         <ArtistGroupDetail record={record} loading={isLoading} />
       </Show>

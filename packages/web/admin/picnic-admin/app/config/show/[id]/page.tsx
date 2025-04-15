@@ -1,7 +1,7 @@
 'use client';
 
 import { useOne, useResource } from '@refinedev/core';
-import { Show } from '@refinedev/antd';
+import { DeleteButton, EditButton, Show } from '@refinedev/antd';
 import { Skeleton } from 'antd';
 import { useParams } from 'next/navigation';
 import { Config } from '@/lib/types/config';
@@ -33,8 +33,10 @@ export default function ConfigShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.label}
-        canEdit
-        canDelete
+        headerButtons={[
+          <EditButton key='edit' />,
+          <DeleteButton key='delete' />,
+        ]}
       >
         <ConfigDetail record={data?.data} loading={isLoading} />
       </Show>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Show, DeleteButton } from '@refinedev/antd';
+import { Show, DeleteButton, EditButton } from '@refinedev/antd';
 import { useShow, useNavigation, useResource } from '@refinedev/core';
 import { Typography, Skeleton, Space, Button, theme } from 'antd';
 import {
@@ -42,8 +42,10 @@ export default function ArtistShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
-        canEdit
-        canDelete
+        headerButtons={[
+          <EditButton key='edit' />,
+          <DeleteButton key='delete' />,
+        ]}
       >
         <ArtistDetail record={data?.data} loading={isLoading} />
       </Show>

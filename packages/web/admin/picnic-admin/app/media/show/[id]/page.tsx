@@ -35,8 +35,10 @@ export default function MediaShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.label}
-        canEdit
-        canDelete
+        headerButtons={[
+          <EditButton key='edit' />,
+          <DeleteButton key='delete' />,
+        ]}
       >
         <MediaDetail record={data?.data} loading={isLoading} />
       </Show>

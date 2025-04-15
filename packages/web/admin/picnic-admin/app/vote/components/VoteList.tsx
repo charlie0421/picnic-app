@@ -6,28 +6,21 @@ import {
   DateField,
   CreateButton,
   TagField,
-  ShowButton,
-  EditButton,
-  DeleteButton,
 } from '@refinedev/antd';
-import { CrudFilters, useNavigation, useMany, useList } from '@refinedev/core';
+import { useNavigation, useMany, useList } from '@refinedev/core';
 import {
   Space,
   Table,
   Select,
   Tag,
-  Tooltip,
-  Badge,
   Avatar,
   Card,
   Typography,
   theme as antdTheme,
-  Button,
+  Skeleton,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import { Image } from 'antd';
-import { GiftOutlined, EyeOutlined, EditOutlined } from '@ant-design/icons';
 
 import {
   VOTE_CATEGORIES,
@@ -39,7 +32,6 @@ import {
   type VoteCategory,
   type VoteRecord,
 } from '@/lib/vote';
-import { formatDate } from '@/lib/date';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import { getCdnImageUrl } from '@/lib/image';
 
@@ -196,6 +188,8 @@ export default function VoteList() {
       refetchOnWindowFocus: false,
     },
   });
+
+  const isLoading = !!tableProps.loading;
 
   // 투표 데이터가 로드되면 ID 목록 추출
   useEffect(() => {
@@ -395,6 +389,7 @@ export default function VoteList() {
                 { label: '전체', value: FILTER_CATEGORY.ALL },
                 ...(VOTE_CATEGORIES || []),
               ]}
+              disabled={isLoading}
             />
           </Space>
           <Space>
@@ -411,12 +406,17 @@ export default function VoteList() {
                 { label: '진행 중', value: VOTE_STATUS.ONGOING },
                 { label: '종료됨', value: VOTE_STATUS.COMPLETED },
               ]}
+              disabled={isLoading}
             />
           </Space>
         </Space>
       </Card>
 
-      {filteredData.length === 0 ? (
+      {isLoading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : filteredData.length === 0 ? (
         renderEmptyState()
       ) : (
         <Table
@@ -572,12 +572,6 @@ export default function VoteList() {
                           fontSize: '12px',
                           color: token.colorTextSecondary,
                           cursor: 'pointer',
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (item.reward?.id) {
-                            show('reward', item.reward.id);
-                          }
                         }}
                       >
                         {item.reward?.title?.ko || `리워드 #${item.reward_id}`}

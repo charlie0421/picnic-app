@@ -1,6 +1,6 @@
 'use client';
 
-import { Show } from '@refinedev/antd';
+import { DeleteButton, EditButton, Show } from '@refinedev/antd';
 import { useOne, useResource } from '@refinedev/core';
 import { Typography, Card, Image, Space, Row, Col, Divider } from 'antd';
 import { Reward, defaultLocalizations } from './types';
@@ -68,12 +68,11 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
   return (
     <Show
       isLoading={isLoading}
-      title={resourceInfo?.meta?.show?.label}
       breadcrumb={false}
-      canDelete
-      canEdit
+      title={resourceInfo?.meta?.show?.label}
+      headerButtons={[<EditButton key='edit' />, <DeleteButton key='delete' />]}
     >
-      <Card title="기본 정보" style={{ marginBottom: 20 }}>
+      <Card title='기본 정보' style={{ marginBottom: 20 }}>
         <div style={{ marginBottom: 20 }}>
           <Title level={5}>ID</Title>
           <Text>{safeToString(record?.id)}</Text>
@@ -81,30 +80,44 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
 
         <div style={{ marginBottom: 20 }}>
           <Title level={5}>제목</Title>
-          <MultiLanguageDisplay value={record?.title as Record<'ko' | 'en' | 'ja' | 'zh', string>} />
+          <MultiLanguageDisplay
+            value={record?.title as Record<'ko' | 'en' | 'ja' | 'zh', string>}
+          />
         </div>
 
         <div style={{ marginBottom: 20 }}>
           <Title level={5}>순서</Title>
           <Text>{safeToString(record?.order)}</Text>
         </div>
-        
+
         <div style={{ marginBottom: 20 }}>
           <Title level={5}>생성일</Title>
-          <Text>{record?.created_at ? new Date(record.created_at).toLocaleString() : '-'}</Text>
+          <Text>
+            {record?.created_at
+              ? new Date(record.created_at).toLocaleString()
+              : '-'}
+          </Text>
         </div>
-        
+
         <div style={{ marginBottom: 20 }}>
           <Title level={5}>수정일</Title>
-          <Text>{record?.updated_at ? new Date(record.updated_at).toLocaleString() : '-'}</Text>
+          <Text>
+            {record?.updated_at
+              ? new Date(record.updated_at).toLocaleString()
+              : '-'}
+          </Text>
         </div>
       </Card>
 
-      <Card title="이미지 정보" style={{ marginBottom: 20 }}>
+      <Card title='이미지 정보' style={{ marginBottom: 20 }}>
         <div style={{ marginBottom: 20 }}>
           <Title level={5}>썸네일</Title>
           {record?.thumbnail ? (
-            <Image src={getCdnImageUrl(record.thumbnail,100)} alt="썸네일" style={{ maxWidth: '100%', maxHeight: 200 }} />
+            <Image
+              src={getCdnImageUrl(record.thumbnail, 100)}
+              alt='썸네일'
+              style={{ maxWidth: '100%', maxHeight: 200 }}
+            />
           ) : (
             <Text>이미지 없음</Text>
           )}
@@ -115,10 +128,10 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
           {record?.overview_images && record.overview_images.length > 0 ? (
             <Space wrap>
               {record.overview_images.map((img: string, index: number) => (
-                <Image 
-                  key={`overview-${index}`} 
-                  src={getCdnImageUrl(img,100)} 
-                  alt={`개요 이미지 ${index + 1}`} 
+                <Image
+                  key={`overview-${index}`}
+                  src={getCdnImageUrl(img, 100)}
+                  alt={`개요 이미지 ${index + 1}`}
                   style={{ maxWidth: 200, maxHeight: 200 }}
                 />
               ))}
@@ -129,7 +142,7 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
         </div>
       </Card>
 
-      <Card title="위치 정보" style={{ marginBottom: 20 }}>
+      <Card title='위치 정보' style={{ marginBottom: 20 }}>
         <Row gutter={[24, 24]}>
           <Col span={12}>
             <Title level={5}>위치 설명</Title>
@@ -137,10 +150,15 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
               let locationValue = '-';
               try {
                 if (record?.location && typeof record.location === 'object') {
-                  const locationObj = JSON.parse(safeToString(record.location[locale]));
+                  const locationObj = JSON.parse(
+                    safeToString(record.location[locale]),
+                  );
                   if (locationObj) {
                     return (
-                      <div key={`location-${locale}`} style={{ marginBottom: 16 }}>
+                      <div
+                        key={`location-${locale}`}
+                        style={{ marginBottom: 16 }}
+                      >
                         <Text strong>{getLanguageLabel(locale)}: </Text>
                         <div>
                           <Text strong>주소: </Text>
@@ -148,7 +166,9 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
                         </div>
                         <div style={{ marginTop: 8 }}>
                           <Text strong>설명: </Text>
-                          <Paragraph style={{ whiteSpace: 'pre-wrap', marginTop: 4 }}>
+                          <Paragraph
+                            style={{ whiteSpace: 'pre-wrap', marginTop: 4 }}
+                          >
                             {locationObj.desc || '-'}
                           </Paragraph>
                         </div>
@@ -157,7 +177,7 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
                     );
                   }
                 }
-                
+
                 // 객체가 아닌 경우 그냥 텍스트로 표시
                 return (
                   <div key={`location-${locale}`} style={{ marginBottom: 16 }}>
@@ -172,9 +192,7 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
                 return (
                   <div key={`location-${locale}`} style={{ marginBottom: 16 }}>
                     <Text strong>{getLanguageLabel(locale)}: </Text>
-                    <Paragraph>
-                      {locationValue}
-                    </Paragraph>
+                    <Paragraph>{locationValue}</Paragraph>
                     <Divider />
                   </div>
                 );
@@ -185,12 +203,12 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
             {record?.location_images && record.location_images.length > 0 ? (
               <>
                 <Title level={5}>위치 이미지</Title>
-                <Space direction="vertical">
+                <Space direction='vertical'>
                   {record.location_images.map((img: string, index: number) => (
-                    <Image 
-                      key={`location-${index}`} 
-                      src={getCdnImageUrl(img,100)} 
-                      alt={`위치 이미지 ${index + 1}`} 
+                    <Image
+                      key={`location-${index}`}
+                      src={getCdnImageUrl(img, 100)}
+                      alt={`위치 이미지 ${index + 1}`}
                       style={{ maxWidth: '100%' }}
                     />
                   ))}
@@ -205,56 +223,75 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
         </Row>
       </Card>
 
-      <Card title="사이즈 가이드" style={{ marginBottom: 20 }}>
+      <Card title='사이즈 가이드' style={{ marginBottom: 20 }}>
         <Row gutter={[24, 24]}>
           <Col span={12}>
             <Title level={5}>사이즈 정보</Title>
             {defaultLocalizations.map((locale) => {
-              if (!record?.size_guide || !record.size_guide[locale] || !Array.isArray(record.size_guide[locale])) {
+              if (
+                !record?.size_guide ||
+                !record.size_guide[locale] ||
+                !Array.isArray(record.size_guide[locale])
+              ) {
                 return (
-                  <div key={`size-guide-${locale}`} style={{ marginBottom: 16 }}>
+                  <div
+                    key={`size-guide-${locale}`}
+                    style={{ marginBottom: 16 }}
+                  >
                     <Text strong>{getLanguageLabel(locale)}: </Text>
                     <Paragraph>-</Paragraph>
                     <Divider />
                   </div>
                 );
               }
-              
+
               return (
                 <div key={`size-guide-${locale}`} style={{ marginBottom: 16 }}>
                   <Text strong>{getLanguageLabel(locale)}: </Text>
-                  {record.size_guide[locale].map((guide: any, index: number) => (
-                    <div key={`guide-${locale}-${index}`} style={{ marginBottom: 8 }}>
-                      <Text strong>항목 {index + 1}</Text>
-                      {Array.isArray(guide.desc) ? (
-                        <Paragraph style={{ whiteSpace: 'pre-wrap', marginTop: 4 }}>
-                          {guide.desc.join('\n')}
-                        </Paragraph>
-                      ) : (
-                        <Paragraph style={{ whiteSpace: 'pre-wrap', marginTop: 4 }}>
-                          {guide.desc || '-'}
-                        </Paragraph>
-                      )}
-                    </div>
-                  ))}
+                  {record.size_guide[locale].map(
+                    (guide: any, index: number) => (
+                      <div
+                        key={`guide-${locale}-${index}`}
+                        style={{ marginBottom: 8 }}
+                      >
+                        <Text strong>항목 {index + 1}</Text>
+                        {Array.isArray(guide.desc) ? (
+                          <Paragraph
+                            style={{ whiteSpace: 'pre-wrap', marginTop: 4 }}
+                          >
+                            {guide.desc.join('\n')}
+                          </Paragraph>
+                        ) : (
+                          <Paragraph
+                            style={{ whiteSpace: 'pre-wrap', marginTop: 4 }}
+                          >
+                            {guide.desc || '-'}
+                          </Paragraph>
+                        )}
+                      </div>
+                    ),
+                  )}
                   <Divider />
                 </div>
               );
             })}
           </Col>
           <Col span={12}>
-            {record?.size_guide_images && record.size_guide_images.length > 0 ? (
+            {record?.size_guide_images &&
+            record.size_guide_images.length > 0 ? (
               <>
                 <Title level={5}>사이즈 가이드 이미지</Title>
-                <Space direction="vertical">
-                  {record.size_guide_images.map((img: string, index: number) => (
-                    <Image 
-                      key={`size-guide-${index}`} 
-                      src={getCdnImageUrl(img,100)} 
-                      alt={`사이즈 가이드 이미지 ${index + 1}`} 
-                      style={{ maxWidth: '100%' }}
-                    />
-                  ))}
+                <Space direction='vertical'>
+                  {record.size_guide_images.map(
+                    (img: string, index: number) => (
+                      <Image
+                        key={`size-guide-${index}`}
+                        src={getCdnImageUrl(img, 100)}
+                        alt={`사이즈 가이드 이미지 ${index + 1}`}
+                        style={{ maxWidth: '100%' }}
+                      />
+                    ),
+                  )}
                 </Space>
               </>
             ) : (
@@ -267,4 +304,4 @@ export default function RewardShow({ id, resource }: RewardShowProps) {
       </Card>
     </Show>
   );
-} 
+}

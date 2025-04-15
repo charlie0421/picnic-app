@@ -1,6 +1,6 @@
 'use client';
 
-import { Show } from '@refinedev/antd';
+import { DeleteButton, EditButton, Show } from '@refinedev/antd';
 import { useShow, useNavigation, useResource } from '@refinedev/core';
 import { Skeleton, Space, Button, Typography } from 'antd';
 import {
@@ -40,8 +40,10 @@ export default function BannerShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
-        canEdit
-        canDelete
+        headerButtons={[
+          <EditButton key='edit' />,
+          <DeleteButton key='delete' />,
+        ]}
       >
         <BannerDetail record={data?.data} loading={isLoading} />
       </Show>

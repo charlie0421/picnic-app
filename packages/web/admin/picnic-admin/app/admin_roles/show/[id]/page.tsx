@@ -1,6 +1,6 @@
 'use client';
 
-import { Show } from '@refinedev/antd';
+import { DeleteButton, EditButton, Show } from '@refinedev/antd';
 import { Skeleton, theme } from 'antd';
 import { AdminRole } from '@/lib/types/permission';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
@@ -30,8 +30,10 @@ export default function RoleShow() {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.show?.label}
-        canEdit
-        canDelete
+        headerButtons={[
+          <EditButton key='edit' />,
+          <DeleteButton key='delete' />,
+        ]}
       >
         <AdminRolesDetail record={data?.data} loading={isLoading} />
       </Show>

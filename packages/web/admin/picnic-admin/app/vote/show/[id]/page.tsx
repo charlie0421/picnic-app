@@ -42,8 +42,10 @@ export default function VoteShow({ params }: { params: { id: string } }) {
         isLoading={isLoading}
         breadcrumb={false}
         title={resource?.meta?.label}
-        canEdit
-        canDelete
+        headerButtons={[
+          <EditButton key='edit' />,
+          <DeleteButton key='delete' />,
+        ]}
       >
         <VoteDetail record={data?.data} loading={isLoading} />
       </Show>
