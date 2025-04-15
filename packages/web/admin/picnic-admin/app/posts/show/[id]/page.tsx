@@ -81,7 +81,9 @@ export default function PostShow() {
               <Text strong>
                 {record?.is_anonymous
                   ? '익명'
-                  : userData?.data?.nickname || record?.user_id}
+                  : userData?.data?.nickname ||
+                    userData?.data?.email ||
+                    record?.user_id}
               </Text>
 
               {record?.is_anonymous && <Tag color='blue'>익명</Tag>}
