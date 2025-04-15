@@ -1,28 +1,29 @@
 'use client';
 
+import React from 'react';
 import { Show, EditButton, DeleteButton } from '@refinedev/antd';
-import { useResource, useShow } from '@refinedev/core';
-import { ArtistGroup } from '@/lib/types/artist';
+import { useShow, useResource } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-import ArtistGroupDetail from '@/app/artist-group/components/ArtistGroupDetail';
 
-export default function ArtistGroupShow() {
-  const { queryResult } = useShow<ArtistGroup>({});
+export default function ShowPage() {
+  const { queryResult } = useShow({
+    resource: '${dirname}',
+  });
   const { data, isLoading } = queryResult;
   const { resource } = useResource();
 
   return (
-    <AuthorizePage action='show'>
+    <AuthorizePage resource='${dirname}' action='show'>
       <Show
         isLoading={isLoading}
         breadcrumb={false}
-        title={resource?.meta?.show?.label}
         headerButtons={[
           <EditButton key='edit' />,
           <DeleteButton key='delete' />,
         ]}
+        title={resource?.meta?.show?.label}
       >
-        <ArtistGroupDetail record={data?.data} loading={isLoading} />
+        {/* 상세 컴포넌트 내용 */}
       </Show>
     </AuthorizePage>
   );

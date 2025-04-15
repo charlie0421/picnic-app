@@ -1,6 +1,6 @@
 'use client';
 
-import { useShow, useResource, useList } from '@refinedev/core';
+import { useShow, useList } from '@refinedev/core';
 import { Show, DateField, EditButton, DeleteButton } from '@refinedev/antd';
 import {
   theme,
@@ -17,7 +17,7 @@ import {
   Tabs,
 } from 'antd';
 import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
-import { UserProfile, genderOptions } from '../../../lib/types/user_profiles';
+import { UserProfile, genderOptions } from '@/lib/types/user_profiles';
 import { VotePick } from '@/lib/types/vote';
 import {
   Receipt,
@@ -29,21 +29,16 @@ import { useEffect, useState } from 'react';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 
 const { Title } = Typography;
-const { TabPane } = Tabs;
 
-interface UserProfileShowProps {
-  id: string;
-  resource?: string;
+interface UserProfileDetailProps {
+  record?: UserProfile;
+  loading?: boolean;
 }
 
-export function UserProfileShow({ id }: UserProfileShowProps) {
-  const { queryResult } = useShow<UserProfile>({
-    id,
-  });
+export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
+  const { queryResult } = useShow<UserProfile>({});
 
   const { data, isLoading } = queryResult;
-  const record = data?.data;
-  const { resource } = useResource();
 
   // 현재 페이지와 페이지 크기 상태 관리
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,7 +56,7 @@ export function UserProfileShow({ id }: UserProfileShowProps) {
         {
           field: 'user_id',
           operator: 'eq',
-          value: id,
+          value: record?.id,
         },
       ],
       pagination: {
@@ -102,7 +97,7 @@ export function UserProfileShow({ id }: UserProfileShowProps) {
         {
           field: 'user_id',
           operator: 'eq',
-          value: id,
+          value: record?.id,
         },
       ],
       pagination: {
@@ -446,12 +441,7 @@ export function UserProfileShow({ id }: UserProfileShowProps) {
   );
 
   return (
-    <Show
-      isLoading={isLoading}
-      breadcrumb={false}
-      title={resource?.meta?.label}
-      headerButtons={[<EditButton key='edit' />, <DeleteButton key='delete' />]}
-    >
+    <>
       {record && (
         <>
           <div
@@ -514,6 +504,6 @@ export function UserProfileShow({ id }: UserProfileShowProps) {
           </Tabs>
         </>
       )}
-    </Show>
+    </>
   );
 }

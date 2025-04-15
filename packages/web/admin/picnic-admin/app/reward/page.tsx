@@ -5,8 +5,8 @@ import { AuthorizePage } from '@/components/auth/AuthorizePage';
 
 export default function RewardPage() {
   return (
-    <AuthorizePage resource="reward" action="list">
+    <AuthorizePage action='list'>
       <RewardList />
     </AuthorizePage>
   );
-} 
+}

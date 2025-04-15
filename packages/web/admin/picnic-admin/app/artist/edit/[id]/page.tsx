@@ -115,7 +115,7 @@ export default function ArtistEdit() {
   };
 
   return (
-    <AuthorizePage resource='artist' action='edit'>
+    <AuthorizePage action='edit'>
       <Edit
         breadcrumb={false}
         title={resource?.meta?.edit?.label}

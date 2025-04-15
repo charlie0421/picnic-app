@@ -5,7 +5,7 @@ import RolePermissionList from './components/RolePermissionList';
 
 export default function RolePermissionListPage() {
   return (
-    <AuthorizePage resource='admin_role_permissions' action='list'>
+    <AuthorizePage action='list'>
       <RolePermissionList />
     </AuthorizePage>
   );

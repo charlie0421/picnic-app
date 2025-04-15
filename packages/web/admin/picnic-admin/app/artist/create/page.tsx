@@ -118,7 +118,7 @@ export default function ArtistCreate() {
   };
 
   return (
-    <AuthorizePage resource='artist' action='create'>
+    <AuthorizePage action='create'>
       <Create
         breadcrumb={false}
         title={resource?.meta?.create?.label}

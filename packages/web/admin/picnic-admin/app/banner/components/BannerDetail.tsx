@@ -5,6 +5,7 @@ import { Banner } from '@/lib/types/banner';
 import { getCdnImageUrl } from '@/lib/image';
 import { DateField, TextField } from '@refinedev/antd';
 import { BANNER_LOCATIONS } from '@/lib/banner';
+import { getLanguageLabel } from '@/lib/utils/language';
 const { Text } = Typography;
 
 type BannerDetailProps = {
@@ -31,16 +32,13 @@ export default function BannerDetail({ record, loading }: BannerDetailProps) {
                 type='secondary'
                 style={{ marginBottom: '8px', display: 'block' }}
               >
-                {lang === 'ko' && '한국어'}
-                {lang === 'en' && '영어'}
-                {lang === 'ja' && '일본어'}
-                {lang === 'zh' && '중국어'}
+                {getLanguageLabel(lang)}
               </Text>
               <Image
                 src={getCdnImageUrl(
                   record?.image?.[lang as keyof typeof record.image],
                 )}
-                alt={`배너 이미지 (${lang})`}
+                alt={`배너 이미지 (${getLanguageLabel(lang)})`}
                 width={300}
                 style={{ borderRadius: '8px' }}
               />
@@ -71,7 +69,14 @@ export default function BannerDetail({ record, loading }: BannerDetailProps) {
     {
       key: 'location',
       label: '위치',
-      children: <TextField value={BANNER_LOCATIONS?.find(loc => loc.value === record?.location)?.label} />,
+      children: (
+        <TextField
+          value={
+            BANNER_LOCATIONS?.find((loc) => loc.value === record?.location)
+              ?.label
+          }
+        />
+      ),
     },
     {
       key: 'order',

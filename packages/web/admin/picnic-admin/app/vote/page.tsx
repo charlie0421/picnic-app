@@ -5,7 +5,7 @@ import VoteList from './components/VoteList';
 
 export default function VoteListPage() {
   return (
-    <AuthorizePage resource='vote' action='list'>
+    <AuthorizePage action='list'>
       <VoteList />
     </AuthorizePage>
   );

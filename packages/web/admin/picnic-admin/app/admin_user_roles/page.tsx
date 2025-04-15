@@ -5,7 +5,7 @@ import RoleUserList from './components/RoleUserList';
 
 export default function RoleUserListPage() {
   return (
-    <AuthorizePage resource='admin_user_roles' action='list'>
+    <AuthorizePage action='list'>
       <RoleUserList />
     </AuthorizePage>
   );

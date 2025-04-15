@@ -2,28 +2,17 @@
 
 import { DeleteButton, EditButton, Show } from '@refinedev/antd';
 import { useResource, useShow } from '@refinedev/core';
-import { Skeleton, theme } from 'antd';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import AdminUserRolesDetail from '@/app/admin_user_roles/components/AdminUserRolesDetail';
+import { AdminUserRole } from '@/lib/types/permission';
 
 export default function UserRoleShow() {
-  const { queryResult } = useShow({
-    resource: 'admin_user_roles',
-  });
+  const { queryResult } = useShow<AdminUserRole>({});
   const { data, isLoading } = queryResult;
   const { resource } = useResource();
-  const { token } = theme.useToken();
-
-  if (isLoading) {
-    return (
-      <AuthorizePage resource='admin_user_roles' action='show'>
-        <Skeleton active paragraph={{ rows: 5 }} />
-      </AuthorizePage>
-    );
-  }
 
   return (
-    <AuthorizePage resource='admin_user_roles' action='show'>
+    <AuthorizePage action='show'>
       <Show
         isLoading={isLoading}
         breadcrumb={false}

@@ -38,7 +38,7 @@ export default function MediaEdit() {
   // 데이터 로딩 중이면 로딩 표시
   if (isLoading) {
     return (
-      <AuthorizePage resource='media' action='edit'>
+      <AuthorizePage action='edit'>
         <Edit title='미디어 수정'>
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <Spin tip='데이터를 불러오는 중...' />
@@ -51,7 +51,7 @@ export default function MediaEdit() {
   // 데이터 로드 실패 시 에러 메시지
   if (isError) {
     return (
-      <AuthorizePage resource='media' action='edit'>
+      <AuthorizePage action='edit'>
         <Edit title='미디어 수정'>
           <div style={{ textAlign: 'center', padding: '50px', color: 'red' }}>
             데이터를 불러오는 중 오류가 발생했습니다.
@@ -63,7 +63,7 @@ export default function MediaEdit() {
 
 
   return (
-    <AuthorizePage resource='media' action='edit'>
+    <AuthorizePage action='edit'>
       <Edit
         breadcrumb={false}
         title={resource?.meta?.edit?.label}

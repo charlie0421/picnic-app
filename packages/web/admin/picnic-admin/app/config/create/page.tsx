@@ -13,7 +13,7 @@ export default function ConfigCreate() {
   const [messageApi, contextHolder] = message.useMessage();
   const { resource } = useResource();
   return (
-    <AuthorizePage resource='config' action='create'>
+    <AuthorizePage action='create'>
       <Create
         breadcrumb={false}
         

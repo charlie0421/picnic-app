@@ -5,8 +5,8 @@ import { UserProfileCreate } from '../components';
 
 export default function UserProfileCreatePage() {
   return (
-    <AuthorizePage resource="user_profiles" action="create">
+    <AuthorizePage action='create'>
       <UserProfileCreate />
     </AuthorizePage>
   );
-} 
+}

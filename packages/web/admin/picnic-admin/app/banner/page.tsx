@@ -5,7 +5,7 @@ import BannerList from './components/BannerList';
 
 export default function BannerListPage() {
   return (
-    <AuthorizePage resource='banner' action='list'>
+    <AuthorizePage action='list'>
       <BannerList />
     </AuthorizePage>
   );

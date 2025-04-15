@@ -5,10 +5,7 @@ import { Typography, theme, Grid, Space, Tag, Divider } from 'antd';
 import { ArtistGroup, Artist } from '@/lib/types/artist';
 import { getCdnImageUrl } from '@/lib/image';
 import { useState, useEffect } from 'react';
-import {
-  UserOutlined,
-  TeamOutlined,
-} from '@ant-design/icons';
+import { UserOutlined, TeamOutlined } from '@ant-design/icons';
 import { COLORS } from '@/lib/theme';
 import dayjs from 'dayjs';
 import ArtistCard from '@/app/artist/components/ArtistCard';
@@ -93,7 +90,10 @@ interface ArtistGroupDetailProps {
   loading?: boolean;
 }
 
-const ArtistGroupDetail: React.FC<ArtistGroupDetailProps> = ({ record, loading }) => {
+const ArtistGroupDetail: React.FC<ArtistGroupDetailProps> = ({
+  record,
+  loading,
+}) => {
   const { token } = theme.useToken();
   const [artists, setArtists] = useState<Artist[]>([]);
   const screens = useBreakpoint();
@@ -333,4 +333,4 @@ const ArtistGroupDetail: React.FC<ArtistGroupDetailProps> = ({ record, loading }
   );
 };
 
-export default ArtistGroupDetail; 
+export default ArtistGroupDetail;

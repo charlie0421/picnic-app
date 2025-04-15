@@ -5,7 +5,7 @@ import ArtistList from './components/ArtistList';
 
 export default function ArtistListPage() {
   return (
-    <AuthorizePage resource='artist' action='list'>
+    <AuthorizePage action='list'>
       <ArtistList />
     </AuthorizePage>
   );

@@ -5,7 +5,7 @@ import PermissionList from './components/PermissionList';
 
 export default function PermissionListPage() {
   return (
-    <AuthorizePage resource='admin_permissions' action='list'>
+    <AuthorizePage action='list'>
       <PermissionList />
     </AuthorizePage>
   );

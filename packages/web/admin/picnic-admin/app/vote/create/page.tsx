@@ -59,7 +59,7 @@ export default function VoteCreatePage() {
   };
 
   return (
-    <AuthorizePage resource='vote' action='create'>
+    <AuthorizePage action='create'>
       <Create
         title='투표 생성'
         breadcrumb={false}

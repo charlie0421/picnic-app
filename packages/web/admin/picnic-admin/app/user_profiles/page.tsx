@@ -5,8 +5,8 @@ import { UserProfileList } from './components';
 
 export default function UserProfileListPage() {
   return (
-    <AuthorizePage resource="user_profiles" action="list">
+    <AuthorizePage action='list'>
       <UserProfileList />
     </AuthorizePage>
   );
-} 
+}

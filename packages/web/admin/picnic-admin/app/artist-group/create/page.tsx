@@ -20,7 +20,7 @@ export default function ArtistGroupCreate() {
   });
 
   return (
-    <AuthorizePage resource='artist_group' action='create'>
+    <AuthorizePage action='create'>
       <Create
         breadcrumb={false}
         title={resource?.meta?.create?.label}

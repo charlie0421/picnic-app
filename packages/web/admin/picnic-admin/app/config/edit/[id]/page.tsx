@@ -27,7 +27,7 @@ export default function ConfigEdit() {
   const [messageApi, contextHolder] = message.useMessage();
   const { resource } = useResource();
   return (
-    <AuthorizePage resource='config' action='edit'>
+    <AuthorizePage action='edit'>
       <Edit
         breadcrumb={false}
         

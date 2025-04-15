@@ -270,8 +270,8 @@ export default function ResourceShow() {
     <AuthorizePage resource="resource_name" action="show">
       <Show
         breadcrumb={false}
-        title={resource?.meta?.show?.label}
         isLoading={isLoading}
+        title={resource?.meta?.show?.label}
         headerButtons={[
           <EditButton key='edit' />,
           <DeleteButton key='delete' />,

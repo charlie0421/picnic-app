@@ -8,6 +8,7 @@ import { YoutubePreview } from '@/components/features/youtube-preview';
 import ImageUpload from '@/components/features/upload';
 import { getCdnImageUrl } from '@/lib/image';
 import { updatePreview } from '@/lib/media';
+import { getLanguageLabel } from '@/lib/utils/language';
 
 const { Text } = Typography;
 
@@ -99,55 +100,55 @@ const MediaForm: React.FC<MediaFormProps> = ({
       <Divider orientation='left'>제목 정보</Divider>
 
       <Form.Item
-        label={'제목 (한국어)'}
+        label={`제목 (${getLanguageLabel('ko')})`}
         name={['title', 'ko']}
         rules={[
           {
             required: true,
-            message: '한국어 제목을 입력해주세요.',
+            message: `${getLanguageLabel('ko')} 제목을 입력해주세요.`,
           },
         ]}
       >
-        <Input placeholder='한국어 제목을 입력하세요' />
+        <Input placeholder={`${getLanguageLabel('ko')} 제목을 입력하세요`} />
       </Form.Item>
 
       <Form.Item
-        label={'제목 (영어)'}
+        label={`제목 (${getLanguageLabel('en')})`}
         name={['title', 'en']}
         rules={[
           {
             required: true,
-            message: '영어 제목을 입력해주세요.',
+            message: `${getLanguageLabel('en')} 제목을 입력해주세요.`,
           },
         ]}
       >
-        <Input placeholder='영어 제목을 입력하세요' />
+        <Input placeholder={`${getLanguageLabel('en')} 제목을 입력하세요`} />
       </Form.Item>
 
       <Form.Item
-        label={'제목 (일본어)'}
+        label={`제목 (${getLanguageLabel('ja')})`}
         name={['title', 'ja']}
         rules={[
           {
             required: true,
-            message: '일본어 제목을 입력해주세요.',
+            message: `${getLanguageLabel('ja')} 제목을 입력해주세요.`,
           },
         ]}
       >
-        <Input placeholder='일본어 제목을 입력하세요' />
+        <Input placeholder={`${getLanguageLabel('ja')} 제목을 입력하세요`} />
       </Form.Item>
 
       <Form.Item
-        label={'제목 (중국어)'}
+        label={`제목 (${getLanguageLabel('zh')})`}
         name={['title', 'zh']}
         rules={[
           {
             required: true,
-            message: '중국어 제목을 입력해주세요.',
+            message: `${getLanguageLabel('zh')} 제목을 입력해주세요.`,
           },
         ]}
       >
-        <Input placeholder='중국어 제목을 입력하세요' />
+        <Input placeholder={`${getLanguageLabel('zh')} 제목을 입력하세요`} />
       </Form.Item>
 
       <Divider orientation='left'>유튜브 비디오 정보</Divider>
@@ -235,7 +236,9 @@ const MediaForm: React.FC<MediaFormProps> = ({
                 현재 커스텀 썸네일:
               </Text>
               <Image
-                src={getCdnImageUrl(formProps.form.getFieldValue('thumbnail_url'))}
+                src={getCdnImageUrl(
+                  formProps.form.getFieldValue('thumbnail_url'),
+                )}
                 alt='커스텀 썸네일'
                 style={{ maxWidth: 300, maxHeight: 200 }}
                 preview={true}

@@ -21,7 +21,7 @@ export default function RoleUserCreate() {
   });
 
   return (
-    <AuthorizePage resource='admin_user_roles' action='create'>
+    <AuthorizePage action='create'>
       <Create
         breadcrumb={false}
         title={resource?.meta?.create?.label}

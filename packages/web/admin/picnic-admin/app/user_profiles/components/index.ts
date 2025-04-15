@@ -2,4 +2,4 @@ export * from '../../../lib/types/user_profiles';
 export * from './UserProfileList';
 export * from './UserProfileCreate';
 export * from './UserProfileEdit';
-export * from './UserProfileShow'; 
+export * from './UserProfileDetail';

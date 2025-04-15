@@ -9,8 +9,8 @@ export default function RewardEditPage() {
   const id = params.id as string;
 
   return (
-    <AuthorizePage resource="reward" action="edit">
+    <AuthorizePage action='edit'>
       <RewardEdit id={id} />
     </AuthorizePage>
   );
-} 
+}

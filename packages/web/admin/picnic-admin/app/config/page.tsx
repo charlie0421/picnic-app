@@ -5,7 +5,7 @@ import ConfigList from './components/ConfigList';
 
 export default function ConfigListPage() {
   return (
-    <AuthorizePage resource='config' action='list'>
+    <AuthorizePage action='list'>
       <ConfigList />
     </AuthorizePage>
   );

@@ -9,8 +9,8 @@ export default function UserProfileEditPage() {
   const id = params.id as string;
 
   return (
-    <AuthorizePage resource="user_profiles" action="edit">
+    <AuthorizePage action='edit'>
       <UserProfileEdit id={id} />
     </AuthorizePage>
   );
-} 
+}

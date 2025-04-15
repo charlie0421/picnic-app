@@ -32,7 +32,7 @@ export default function RoleEdit() {
   });
 
   return (
-    <AuthorizePage resource='admin_roles' action='edit'>
+    <AuthorizePage action='edit'>
       <Edit
         breadcrumb={false}
         title={resource?.meta?.edit?.label}

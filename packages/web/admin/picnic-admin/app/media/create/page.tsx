@@ -14,7 +14,7 @@ export default function MediaCreate() {
   const { resource } = useResource();
   
   return (
-    <AuthorizePage resource='media' action='create'>
+    <AuthorizePage action='create'>
       <Create
         breadcrumb={false}
         title={resource?.meta?.create?.label}

@@ -5,7 +5,7 @@ import MediaList from './components/MediaList';
 
 export default function MediaListPage() {
   return (
-    <AuthorizePage resource='media' action='list'>
+    <AuthorizePage action='list'>
       <MediaList />
     </AuthorizePage>
   );

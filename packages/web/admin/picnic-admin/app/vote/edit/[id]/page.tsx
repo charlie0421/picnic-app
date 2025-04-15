@@ -75,7 +75,7 @@ export default function VoteEditPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <AuthorizePage resource='vote' action='edit'>
+    <AuthorizePage action='edit'>
       <Edit
         isLoading={queryResult?.isLoading}
         title='투표 수정'

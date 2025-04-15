@@ -3,10 +3,11 @@
 import React, { FC, ReactNode } from 'react';
 import { useCan } from '@refinedev/core';
 import { Spin, Result } from 'antd';
+import { usePathname } from 'next/navigation';
 
 interface AuthorizePageProps {
   children: ReactNode;
-  resource: string;
+  resource?: string;
   action: string;
   // 필요하다면 로딩 컴포넌트나 접근 거부 컴포넌트를 커스텀할 수 있도록 props 추가 가능
   // loadingComponent?: React.ReactNode;
@@ -15,11 +16,22 @@ interface AuthorizePageProps {
 
 export const AuthorizePage: FC<AuthorizePageProps> = ({
   children,
-  resource,
+  resource: propResource,
   action,
   // loadingComponent = <DefaultLoading />,
   // accessDeniedComponent = <DefaultAccessDenied />,
 }) => {
+  const pathname = usePathname();
+
+  // URL 경로에서 리소스 이름 추출
+  const getResourceFromPath = () => {
+    const pathParts = pathname.split('/');
+    // app 폴더 이후의 첫 번째 세그먼트가 리소스 이름
+    return pathParts[1] || '';
+  };
+
+  const resource = propResource || getResourceFromPath();
+
   const { data: canAccess, isLoading: isLoadingAccess } = useCan({
     resource,
     action,
