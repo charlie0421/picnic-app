@@ -35,6 +35,9 @@ import {
   AppstoreOutlined,
   UsergroupAddOutlined,
   StarOutlined,
+  FileTextOutlined,
+  ReadOutlined,
+  CommentOutlined,
 } from '@ant-design/icons';
 
 export const metadata: Metadata = {
@@ -185,6 +188,64 @@ export default function RootLayout({
                               show: {
                                 label: '리워드 상세',
                               },
+                            },
+                          },
+                          // 커뮤니티 관리 메뉴 그룹 추가
+                          {
+                            name: 'communityGroup',
+                            meta: {
+                              label: '커뮤니티 관리',
+                              icon: <CommentOutlined />,
+                            },
+                          },
+                          {
+                            name: 'boards',
+                            list: '/boards',
+                            create: '/boards/create',
+                            edit: '/boards/edit/:id',
+                            show: '/boards/show/:id',
+                            meta: {
+                              parent: 'communityGroup',
+                              label: '게시판 관리',
+                              icon: <ReadOutlined />,
+                              list: {
+                                label: '게시판 목록',
+                              },
+                              create: {
+                                label: '게시판 생성',
+                              },
+                              edit: {
+                                label: '게시판 수정',
+                              },
+                              show: {
+                                label: '게시판 상세',
+                              },
+                              idField: 'board_id',
+                            },
+                          },
+                          {
+                            name: 'posts',
+                            list: '/posts',
+                            create: '/posts/create',
+                            edit: '/posts/edit/:id',
+                            show: '/posts/show/:id',
+                            meta: {
+                              parent: 'communityGroup',
+                              label: '게시글 관리',
+                              icon: <FileTextOutlined />,
+                              list: {
+                                label: '게시글 목록',
+                              },
+                              create: {
+                                label: '게시글 생성',
+                              },
+                              edit: {
+                                label: '게시글 수정',
+                              },
+                              show: {
+                                label: '게시글 상세',
+                              },
+                              idField: 'post_id',
                             },
                           },
                           // 아티스트 관련 메뉴 그룹 추가
