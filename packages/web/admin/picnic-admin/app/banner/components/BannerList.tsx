@@ -49,8 +49,12 @@ export default function BannerList() {
         },
       ],
     },
+    meta: {
+      select: '*,boards!banners_board_id_fkey(*, artist(*))',
+    },
   });
 
+  console.log('tableProps', tableProps);
   // URL 파라미터 업데이트
   const updateUrlParams = (status: BannerStatus) => {
     const params = new URLSearchParams(searchParams.toString());

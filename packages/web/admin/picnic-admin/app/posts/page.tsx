@@ -1,15 +1,14 @@
 'use client';
 
-import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
-import { Table, Space, Input, Tag, Tooltip } from 'antd';
-import { useNavigation, BaseRecord, useMany } from '@refinedev/core';
+import { CreateButton, List, useTable } from '@refinedev/antd';
+import { Space, Input } from 'antd';
 import { useState, useEffect } from 'react';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import { useResource } from '@refinedev/core';
-import { Post } from './components/types';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { PostList } from './components';
 
-export default function PostList() {
+export default function PostListPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -26,11 +25,10 @@ export default function PostList() {
       ? [{ field: initialSortField, order: initialSortOrder }]
       : [{ field: 'created_at', order: 'desc' as const }];
 
-  const { show } = useNavigation();
   const { resource } = useResource();
 
   // Refine useTable 훅 사용
-  const { tableProps, sorters, setSorters, current, pageSize, setFilters } =
+  const { tableProps, sorters, setSorters, current, pageSize } =
     useTable({
       resource: 'posts',
       syncWithLocation: true,
@@ -52,6 +50,7 @@ export default function PostList() {
             }
           : undefined,
         idField: 'post_id',
+        select: '*,user_profiles!posts_user_id_fkey(*)',
       },
     });
 
@@ -106,18 +105,6 @@ export default function PostList() {
     }
   }, [searchParams, setSorters]);
 
-  // 작성자 정보 가져오기
-  const { data: userProfilesData } = useMany({
-    resource: 'user_profiles',
-    ids: tableProps?.dataSource?.map((item: any) => item.user_id) || [],
-    queryOptions: {
-      enabled: tableProps?.dataSource && tableProps.dataSource.length > 0,
-    },
-    meta: {
-      idField: 'user_id',
-    },
-  });
-
   // 검색 핸들러
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -140,96 +127,7 @@ export default function PostList() {
           />
         </Space>
 
-        <Table
-          {...tableProps}
-          rowKey='post_id'
-          scroll={{ x: 'max-content' }}
-          onRow={(record) => ({
-            style: { cursor: 'pointer' },
-            onClick: () => show('posts', record.post_id),
-          })}
-          pagination={{
-            ...tableProps.pagination,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50'],
-            showTotal: (total) => `총 ${total}개 항목`,
-          }}
-        >
-          <Table.Column
-            dataIndex='post_id'
-            title='ID'
-            width={100}
-            ellipsis={true}
-          />
-          <Table.Column dataIndex='title' title='제목' sorter />
-          <Table.Column
-            dataIndex='user_id'
-            title='작성자'
-            width={150}
-            render={(user_id: string, record: any) => {
-              // 익명 게시글인 경우
-              if (record.is_anonymous) {
-                return <Tag color='blue'>익명</Tag>;
-              }
-
-              // user_profiles 데이터에서 해당 사용자 찾기
-              const userProfile = userProfilesData?.data?.find(
-                (item) => item.user_id === user_id,
-              );
-
-              if (userProfile) {
-                return (
-                  <Tooltip title={`ID: ${user_id}`}>
-                    {userProfile.nickname || userProfile.name || user_id}
-                  </Tooltip>
-                );
-              }
-
-              return user_id;
-            }}
-          />
-          <Table.Column
-            dataIndex='view_count'
-            title='조회수'
-            width={100}
-            sorter
-          />
-          <Table.Column
-            dataIndex='reply_count'
-            title='댓글수'
-            width={100}
-            sorter
-          />
-          <Table.Column
-            dataIndex='is_anonymous'
-            title='익명 여부'
-            width={120}
-            render={(value: boolean) => (
-              <Tag color={value ? 'blue' : 'default'}>
-                {value ? '익명' : '실명'}
-              </Tag>
-            )}
-          />
-          <Table.Column
-            dataIndex='is_hidden'
-            title='숨김 여부'
-            width={120}
-            render={(value: boolean) => (
-              <Tag color={value ? 'red' : 'green'}>
-                {value ? '숨김' : '표시'}
-              </Tag>
-            )}
-          />
-          <Table.Column
-            dataIndex='created_at'
-            title='생성일'
-            width={200}
-            sorter
-            render={(value) => (
-              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
-            )}
-          />
-        </Table>
+        <PostList tableProps={tableProps} />
       </List>
     </AuthorizePage>
   );

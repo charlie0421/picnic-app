@@ -1,16 +1,15 @@
 'use client';
 
-import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
-import { Table, Space, Input, Tag, Tooltip } from 'antd';
-import { useNavigation } from '@refinedev/core';
+import { CreateButton, List, useTable } from '@refinedev/antd';
+import { Space, Input, Alert, Form } from 'antd';
 import { useState, useEffect } from 'react';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import { useResource } from '@refinedev/core';
-import { Board } from './components/types';
-import { MultiLanguageDisplay } from '@/components/ui';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { BoardList } from './components';
+import { Board } from '../../lib/types/board';
 
-export default function BoardList() {
+export default function BoardListPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -27,16 +26,29 @@ export default function BoardList() {
       ? [{ field: initialSortField, order: initialSortOrder }]
       : [{ field: 'created_at', order: 'desc' as const }];
 
-  const { show } = useNavigation();
   const { resource } = useResource();
+  const [form] = Form.useForm();
 
   // Refine useTable 훅 사용
-  const { tableProps, sorters, setSorters } = useTable({
+  const { tableProps, tableQueryResult, sorters, setSorters, filters, setFilters } = useTable<Board>({
     resource: 'boards',
     syncWithLocation: true,
     sorters: {
       initial: initialSorters,
       mode: 'server',
+    },
+    filters: {
+      mode: 'server',
+      initial: searchTerm ? [
+        {
+          field: 'search',
+          operator: 'contains',
+          value: searchTerm
+        }
+      ] : undefined,
+    },
+    pagination: {
+      pageSize: 10,
     },
     meta: {
       search: searchTerm
@@ -46,7 +58,22 @@ export default function BoardList() {
           }
         : undefined,
       idField: 'board_id',
+      select: '*,artist(*)',
     },
+    queryOptions: {
+      refetchOnWindowFocus: false,
+    },
+    onSearch: (values: any) => {
+      const searchValue = values.search || '';
+      setSearchTerm(searchValue);
+      return [
+        {
+          field: 'search',
+          operator: 'contains',
+          value: searchValue,
+        }
+      ];
+    }
   });
 
   // URL 파라미터 업데이트
@@ -72,20 +99,29 @@ export default function BoardList() {
     router.replace(newUrl, { scroll: false });
   }, [searchTerm, sorters, pathname, router, searchParams]);
 
-  // URL에서 정렬 정보 가져오기
-  useEffect(() => {
-    const sortField = searchParams.get('sort');
-    const sortOrder = searchParams.get('order');
-
-    if (sortField && sortOrder) {
-      setSorters([{ field: sortField, order: sortOrder as 'asc' | 'desc' }]);
-    }
-  }, [searchParams, setSorters]);
-
   // 검색 핸들러
   const handleSearch = (value: string) => {
     setSearchTerm(value);
+    setFilters([
+      {
+        field: 'search',
+        operator: 'contains',
+        value,
+      },
+    ]);
   };
+
+  // 에러 처리
+  if (tableQueryResult.error) {
+    return (
+      <Alert
+        message="데이터 로딩 오류"
+        description={tableQueryResult.error.message}
+        type="error"
+        showIcon
+      />
+    );
+  }
 
   return (
     <AuthorizePage resource='boards' action='list'>
@@ -100,84 +136,11 @@ export default function BoardList() {
             onSearch={handleSearch}
             style={{ width: 300 }}
             allowClear
+            defaultValue={initialSearchTerm}
           />
         </Space>
 
-        <Table
-          {...tableProps}
-          rowKey='board_id'
-          scroll={{ x: 'max-content' }}
-          onRow={(record) => ({
-            style: { cursor: 'pointer' },
-            onClick: () => show('boards', record.board_id),
-          })}
-          pagination={{
-            ...tableProps.pagination,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50'],
-            showTotal: (total) => `총 ${total}개 항목`,
-          }}
-        >
-          <Table.Column
-            dataIndex='board_id'
-            title='ID'
-            width={100}
-            ellipsis={true}
-          />
-          <Table.Column
-            dataIndex='name'
-            title='이름'
-            sorter
-            render={(value) => <MultiLanguageDisplay value={value} />}
-          />
-          <Table.Column
-            dataIndex='description'
-            title='설명'
-            ellipsis={{
-              showTitle: true,
-            }}
-          />
-          <Table.Column
-            dataIndex='status'
-            title='상태'
-            width={120}
-            render={(value: string) => (
-              <Tag
-                color={
-                  value === 'ACTIVE'
-                    ? 'green'
-                    : value === 'PENDING'
-                    ? 'orange'
-                    : value === 'REJECTED'
-                    ? 'red'
-                    : 'default'
-                }
-              >
-                {value}
-              </Tag>
-            )}
-          />
-          <Table.Column
-            dataIndex='is_official'
-            title='공식 게시판'
-            width={120}
-            render={(value: boolean) => (
-              <Tag color={value ? 'blue' : 'default'}>
-                {value ? '공식' : '비공식'}
-              </Tag>
-            )}
-          />
-          <Table.Column dataIndex='artist_id' title='아티스트 ID' width={120} />
-          <Table.Column
-            dataIndex='created_at'
-            title='생성일'
-            width={180}
-            sorter
-            render={(value) => (
-              <DateField value={value} format='YYYY-MM-DD HH:mm:ss' />
-            )}
-          />
-        </Table>
+        <BoardList tableProps={tableProps} />
       </List>
     </AuthorizePage>
   );

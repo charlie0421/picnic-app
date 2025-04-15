@@ -1,3 +1,6 @@
+import { Board } from "./board";
+import { UserProfile } from "./user_profiles";
+
 export interface Post {
   post_id: string;
   user_id: string;
@@ -13,6 +16,8 @@ export interface Post {
   reply_count: number;
   deleted_at: string | null;
   is_temporary: boolean;
+  boards: Board;
+  user_profiles: UserProfile;
 }
 
 export type PostCreateInput = Omit<

@@ -1,3 +1,5 @@
+import { Artist } from "./artist";
+
 export interface Board {
   board_id: string;
   name: Record<string, string>;
@@ -6,13 +8,13 @@ export interface Board {
   parent_board_id: string | null;
   is_official: boolean;
   creator_id: string | null;
-  artist_id: number;
   updated_at: string;
   status: string;
   request_message: string;
   order: number;
   features: string[];
   deleted_at: string | null;
+  artist: Artist;
 }
 
 export type BoardCreateInput = Omit<

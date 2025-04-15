@@ -6,7 +6,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { useParams } from 'next/navigation';
 import { useResource, useOne } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
-import { PostUpdateInput, Post } from '../../components/types';
+import { PostUpdateInput, Post } from '../../../../lib/types/post';
 import React, { useState, useEffect } from 'react';
 
 export default function PostEdit() {
