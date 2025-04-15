@@ -11,7 +11,19 @@ import {
   DeleteButton,
 } from '@refinedev/antd';
 import { CrudFilters, useNavigation, useMany, useList } from '@refinedev/core';
-import { Space, Table, Select, Tag, Tooltip, Badge, Avatar, Card, Typography, theme as antdTheme, Button } from 'antd';
+import {
+  Space,
+  Table,
+  Select,
+  Tag,
+  Tooltip,
+  Badge,
+  Avatar,
+  Card,
+  Typography,
+  theme as antdTheme,
+  Button,
+} from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { Image } from 'antd';
@@ -37,7 +49,7 @@ const FILTER_STATUS = {
   ...VOTE_STATUS,
 };
 
-type FilterStatusType = typeof FILTER_STATUS[keyof typeof FILTER_STATUS];
+type FilterStatusType = (typeof FILTER_STATUS)[keyof typeof FILTER_STATUS];
 
 // 상수 확장
 const FILTER_CATEGORY = {
@@ -45,9 +57,9 @@ const FILTER_CATEGORY = {
   // 기존 카테고리는 VOTE_CATEGORIES 배열에서 사용
 };
 
-type FilterCategoryType = typeof FILTER_CATEGORY['ALL'] | VoteCategory;
+type FilterCategoryType = (typeof FILTER_CATEGORY)['ALL'] | VoteCategory;
 
-// 카테고리에 맞는 한글 이름 반환 
+// 카테고리에 맞는 한글 이름 반환
 const getCategoryName = (category: string) => {
   switch (category) {
     case 'birthday':
@@ -87,11 +99,13 @@ export default function VoteList() {
   const pathname = usePathname();
   const router = useRouter();
   const { token } = antdTheme.useToken();
-  
+
   // URL에서 파라미터 가져오기
-  const urlCategory = searchParams.get('category') as FilterCategoryType || FILTER_CATEGORY.ALL;
-  const urlStatus = searchParams.get('status') as FilterStatusType || FILTER_STATUS.ALL;
-  
+  const urlCategory =
+    (searchParams.get('category') as FilterCategoryType) || FILTER_CATEGORY.ALL;
+  const urlStatus =
+    (searchParams.get('status') as FilterStatusType) || FILTER_STATUS.ALL;
+
   const [categoryFilter, setCategoryFilter] =
     React.useState<FilterCategoryType>(urlCategory);
   const [statusFilter, setStatusFilter] =
@@ -102,14 +116,17 @@ export default function VoteList() {
 
   // 추가: vote_id 목록을 저장할 state
   const [voteIds, setVoteIds] = useState<number[]>([]);
-  
+
   // 추가: vote_reward 데이터를 저장할 state
   const [voteRewardMap, setVoteRewardMap] = useState<Record<number, any[]>>({});
 
   // URL 파라미터 업데이트
-  const updateUrlParams = (params: { category?: FilterCategoryType; status?: FilterStatusType }) => {
+  const updateUrlParams = (params: {
+    category?: FilterCategoryType;
+    status?: FilterStatusType;
+  }) => {
     const urlParams = new URLSearchParams(searchParams.toString());
-    
+
     // 카테고리 필터 업데이트
     if (params.category !== undefined) {
       if (params.category === FILTER_CATEGORY.ALL) {
@@ -118,7 +135,7 @@ export default function VoteList() {
         urlParams.set('category', params.category);
       }
     }
-    
+
     // 상태 필터 업데이트
     if (params.status !== undefined) {
       if (params.status === FILTER_STATUS.ALL) {
@@ -127,7 +144,7 @@ export default function VoteList() {
         urlParams.set('status', params.status);
       }
     }
-    
+
     router.push(`${pathname}?${urlParams.toString()}`);
   };
 
@@ -184,27 +201,27 @@ export default function VoteList() {
   useEffect(() => {
     if (tableProps.dataSource && tableProps.dataSource.length > 0) {
       const ids: number[] = [];
-      
+
       // ID가 유효한 숫자인 경우만 추가
-      tableProps.dataSource.forEach(vote => {
+      tableProps.dataSource.forEach((vote) => {
         if (vote.id !== undefined && typeof vote.id === 'number') {
           ids.push(vote.id);
         }
       });
-      
+
       setVoteIds(ids);
     }
   }, [tableProps.dataSource]);
-  
+
   // vote_reward 데이터 조회
   const { data: voteRewardData } = useList({
     resource: 'vote_reward',
     filters: [
       {
         field: 'vote_id',
-        operator: 'in', 
+        operator: 'in',
         value: voteIds,
-      }
+      },
     ],
     meta: {
       select: '*',
@@ -216,11 +233,11 @@ export default function VoteList() {
 
   // reward_id 목록 추출
   const [rewardIds, setRewardIds] = useState<number[]>([]);
-  
+
   useEffect(() => {
     if (voteRewardData && voteRewardData.data) {
       const ids: number[] = [];
-      voteRewardData.data.forEach(item => {
+      voteRewardData.data.forEach((item) => {
         if (item.reward_id && typeof item.reward_id === 'number') {
           // 중복 확인 후 추가
           if (!ids.includes(item.reward_id)) {
@@ -231,7 +248,7 @@ export default function VoteList() {
       setRewardIds(ids);
     }
   }, [voteRewardData]);
-  
+
   // reward 데이터 조회
   const { data: rewardData } = useMany({
     resource: 'reward',
@@ -240,39 +257,39 @@ export default function VoteList() {
       enabled: rewardIds.length > 0,
     },
   });
-  
+
   // vote_reward 데이터 정리
   useEffect(() => {
     if (voteRewardData?.data && rewardData?.data) {
       // vote_id를 키로 하는 맵 생성
       const rewardMap: Record<number, any[]> = {};
-      
+
       // reward 데이터를 id로 맵핑
       const rewardById: Record<number, any> = {};
-      rewardData.data.forEach(reward => {
+      rewardData.data.forEach((reward) => {
         if (reward.id && typeof reward.id === 'number') {
           rewardById[reward.id] = reward;
         }
       });
-      
+
       // vote_reward 데이터 처리
-      voteRewardData.data.forEach(item => {
+      voteRewardData.data.forEach((item) => {
         const voteId = item.vote_id;
         const rewardId = item.reward_id;
-        
+
         if (!rewardMap[voteId]) {
           rewardMap[voteId] = [];
         }
-        
+
         // reward 정보가 있는 경우만 추가
         if (rewardId && rewardById[rewardId]) {
           rewardMap[voteId].push({
             ...item,
-            reward: rewardById[rewardId]
+            reward: rewardById[rewardId],
           });
         }
       });
-      
+
       setVoteRewardMap(rewardMap);
     }
   }, [voteRewardData, rewardData]);
@@ -281,15 +298,17 @@ export default function VoteList() {
   useEffect(() => {
     if (tableProps.dataSource && tableProps.dataSource.length > 0) {
       let filtered = [...tableProps.dataSource];
-      
+
       // 카테고리 필터 적용
       if (categoryFilter !== FILTER_CATEGORY.ALL) {
         const categoryField = 'vote_category';
         filtered = filtered.filter(
-          (item) => item[categoryField] === categoryFilter || item.category === categoryFilter
+          (item) =>
+            item[categoryField] === categoryFilter ||
+            item.category === categoryFilter,
         );
       }
-      
+
       // 상태 필터 적용
       if (statusFilter !== FILTER_STATUS.ALL) {
         filtered = filtered.filter((item) => {
@@ -297,23 +316,23 @@ export default function VoteList() {
           return status === statusFilter;
         });
       }
-      
+
       setFilteredData(filtered);
     } else {
       setFilteredData([]);
     }
   }, [tableProps.dataSource, categoryFilter, statusFilter]);
-  
+
   // 테이블 데이터 설정
   const dataSource = React.useMemo(() => {
     return filteredData.map((item: VoteRecord) => {
       // 투표 상태 계산
       const status = getVoteStatus(item.start_at, item.stop_at);
-      
+
       // vote_reward 데이터가 있는지 확인
       const id = item.id ? Number(item.id) : 0;
       const hasRewards = id > 0 && voteRewardMap[id]?.length > 0;
-      
+
       return {
         ...item,
         status,
@@ -324,14 +343,14 @@ export default function VoteList() {
 
   // Empty State 함수
   const renderEmptyState = () => (
-    <Card 
-      style={{ 
-        textAlign: 'center', 
+    <Card
+      style={{
+        textAlign: 'center',
         padding: '40px 0',
         background: token.colorBgContainer,
         border: `1px solid ${token.colorBorderSecondary}`,
         borderRadius: token.borderRadiusLG,
-        boxShadow: `0 2px 8px ${token.colorBgContainerDisabled}`
+        boxShadow: `0 2px 8px ${token.colorBgContainerDisabled}`,
       }}
     >
       <Typography.Title level={4} style={{ color: token.colorTextSecondary }}>
@@ -340,7 +359,7 @@ export default function VoteList() {
       <Typography.Paragraph style={{ color: token.colorTextSecondary }}>
         다른 필터 조건을 선택하거나 새 투표를 생성해보세요
       </Typography.Paragraph>
-      <CreateButton type="primary" size="large">
+      <CreateButton type='primary' size='large'>
         투표 생성하기
       </CreateButton>
     </Card>
@@ -349,23 +368,25 @@ export default function VoteList() {
   return (
     <List
       headerButtons={[
-        <CreateButton key="create" type="primary">
+        <CreateButton key='create' type='primary'>
           투표 생성
         </CreateButton>,
       ]}
     >
       {/* 필터 컴포넌트 */}
-      <Card 
-        size="small" 
-        style={{ 
+      <Card
+        size='small'
+        style={{
           marginBottom: '16px',
           background: token.colorBgContainer,
-          borderRadius: token.borderRadiusLG
+          borderRadius: token.borderRadiusLG,
         }}
       >
         <Space wrap style={{ padding: '8px' }}>
           <Space>
-            <Typography.Text strong style={{ color: token.colorTextSecondary }}>카테고리:</Typography.Text>
+            <Typography.Text strong style={{ color: token.colorTextSecondary }}>
+              카테고리:
+            </Typography.Text>
             <Select
               value={categoryFilter}
               onChange={handleCategoryChange}
@@ -377,7 +398,9 @@ export default function VoteList() {
             />
           </Space>
           <Space>
-            <Typography.Text strong style={{ color: token.colorTextSecondary }}>상태:</Typography.Text>
+            <Typography.Text strong style={{ color: token.colorTextSecondary }}>
+              상태:
+            </Typography.Text>
             <Select
               value={statusFilter}
               onChange={handleStatusChange}
@@ -396,14 +419,14 @@ export default function VoteList() {
       {filteredData.length === 0 ? (
         renderEmptyState()
       ) : (
-        <Table 
+        <Table
           {...tableProps}
           dataSource={dataSource}
-          rowKey="id"
-          style={{ 
+          rowKey='id'
+          style={{
             background: token.colorBgContainer,
             borderRadius: token.borderRadiusLG,
-            overflow: 'hidden'
+            overflow: 'hidden',
           }}
           onRow={(record) => ({
             onClick: () => {
@@ -415,36 +438,40 @@ export default function VoteList() {
           })}
         >
           <Table.Column
-            title="ID"
-            dataIndex="id"
-            key="id"
+            title='ID'
+            dataIndex='id'
+            key='id'
             sorter={(a, b) => a.id - b.id}
-            render={(value) => <Typography.Text strong style={{ color: token.colorPrimary }}>{value}</Typography.Text>}
+            render={(value) => (
+              <Typography.Text strong style={{ color: token.colorPrimary }}>
+                {value}
+              </Typography.Text>
+            )}
           />
-          
+
           <Table.Column
-            title="썸네일"
-            dataIndex="main_image"
-            key="main_image"
-            render={(value) => 
+            title='썸네일'
+            dataIndex='main_image'
+            key='main_image'
+            render={(value) =>
               value ? (
-                <Avatar 
-                  src={getCdnImageUrl(value)} 
-                  shape="square" 
+                <Avatar
+                  src={getCdnImageUrl(value)}
+                  shape='square'
                   size={48}
-                  style={{ 
+                  style={{
                     borderRadius: token.borderRadiusSM,
-                    border: `1px solid ${token.colorBorderSecondary}`
+                    border: `1px solid ${token.colorBorderSecondary}`,
                   }}
                 />
               ) : (
-                <Avatar 
-                  shape="square" 
-                  size={48} 
-                  style={{ 
+                <Avatar
+                  shape='square'
+                  size={48}
+                  style={{
                     background: token.colorFillTertiary,
                     color: token.colorTextSecondary,
-                    borderRadius: token.borderRadiusSM
+                    borderRadius: token.borderRadiusSM,
                   }}
                 >
                   이미지 없음
@@ -452,54 +479,54 @@ export default function VoteList() {
               )
             }
           />
-          
+
           <Table.Column
-            title="제목"
-            dataIndex="title"
-            key="title"
-            render={(value) => 
-              <MultiLanguageDisplay 
-                value={value} 
+            title='제목'
+            dataIndex='title'
+            key='title'
+            render={(value) => (
+              <MultiLanguageDisplay
+                value={value}
                 languages={['ko']}
                 style={{ fontWeight: 'bold' }}
               />
-            }
+            )}
             sorter={(a, b) => {
               const titleA = a.title?.ko || '';
               const titleB = b.title?.ko || '';
               return titleA.localeCompare(titleB);
             }}
           />
-          
+
           <Table.Column
-            title="카테고리"
-            dataIndex="vote_category"
-            key="vote_category"
+            title='카테고리'
+            dataIndex='vote_category'
+            key='vote_category'
             render={(value, record: any) => {
               const category = value || record.category;
               return (
-                <TagField 
-                  value={getCategoryName(category)} 
+                <TagField
+                  value={getCategoryName(category)}
                   color={getCategoryColor(category)}
                 />
               );
             }}
           />
-          
+
           <Table.Column
-            title="상태"
-            dataIndex="status"
-            key="status"
+            title='상태'
+            dataIndex='status'
+            key='status'
             render={(value: VoteStatus) => (
-              <TagField 
+              <TagField
                 value={
                   value === VOTE_STATUS.UPCOMING
                     ? '예정됨'
                     : value === VOTE_STATUS.ONGOING
                     ? '진행 중'
                     : '종료됨'
-                } 
-                color={STATUS_TAG_COLORS[value]} 
+                }
+                color={STATUS_TAG_COLORS[value]}
               />
             )}
             sorter={(a, b) => {
@@ -511,44 +538,40 @@ export default function VoteList() {
               return statusOrder[a.status] - statusOrder[b.status];
             }}
           />
-          
+
           <Table.Column
-            title="리워드"
-            dataIndex="hasRewards"
-            key="hasRewards"
+            title='리워드'
+            dataIndex='hasRewards'
+            key='hasRewards'
             render={(value, record: any) => {
               const rewardRecords = voteRewardMap[record.id as number] || [];
-              
+
               if (rewardRecords.length === 0) {
-                return <Tag color="default">없음</Tag>;
+                return <Tag color='default'>없음</Tag>;
               }
-              
+
               return (
-                <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                  <Badge 
-                    count={rewardRecords.length} 
-                    color={token.colorPrimary}
-                    overflowCount={99}
+                <Space
+                  direction='vertical'
+                  size='small'
+                  style={{ width: '100%' }}
+                >
+                  <div
+                    style={{ maxWidth: 150, maxHeight: 48, overflow: 'hidden' }}
                   >
-                    <Tag 
-                      icon={<GiftOutlined />} 
-                      color="processing"
-                      style={{ padding: '0 8px' }}
-                    >
-                      리워드 {rewardRecords.length}개
-                    </Tag>
-                  </Badge>
-                  {/* 리워드 이름 노출 - 처음 2개만 */}
-                  <div style={{ maxWidth: 150, maxHeight: 48, overflow: 'hidden' }}>
-                    {rewardRecords.slice(0, 2).map((item, index) => (
+                    {rewardRecords.slice(0, 1).map((item, index) => (
                       <Typography.Text
                         key={index}
-                        ellipsis={{ tooltip: item.reward?.title?.ko || `리워드 #${item.reward_id}` }}
-                        style={{ 
-                          display: 'block', 
+                        ellipsis={{
+                          tooltip:
+                            item.reward?.title?.ko ||
+                            `리워드 #${item.reward_id}`,
+                        }}
+                        style={{
+                          display: 'block',
                           fontSize: '12px',
                           color: token.colorTextSecondary,
-                          cursor: 'pointer'
+                          cursor: 'pointer',
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -560,16 +583,16 @@ export default function VoteList() {
                         {item.reward?.title?.ko || `리워드 #${item.reward_id}`}
                       </Typography.Text>
                     ))}
-                    {rewardRecords.length > 2 && (
+                    {rewardRecords.length > 1 && (
                       <Typography.Text
-                        style={{ 
-                          display: 'block', 
+                        style={{
+                          display: 'block',
                           fontSize: '12px',
                           color: token.colorTextSecondary,
-                          fontStyle: 'italic'
+                          fontStyle: 'italic',
                         }}
                       >
-                        외 {rewardRecords.length - 2}개...
+                        외 {rewardRecords.length - 1}개...
                       </Typography.Text>
                     )}
                   </div>
@@ -577,15 +600,15 @@ export default function VoteList() {
               );
             }}
           />
-          
+
           <Table.Column
-            title="투표 시작일"
-            dataIndex="start_at"
-            key="start_at"
+            title='투표 시작일'
+            dataIndex='start_at'
+            key='start_at'
             render={(value) => (
-              <DateField 
-                value={value} 
-                format="YYYY-MM-DD HH:mm" 
+              <DateField
+                value={value}
+                format='YYYY-MM-DD HH:mm'
                 style={{ color: token.colorTextSecondary }}
               />
             )}
@@ -595,15 +618,15 @@ export default function VoteList() {
               return dateA - dateB;
             }}
           />
-          
+
           <Table.Column
-            title="투표 종료일"
-            dataIndex="stop_at"
-            key="stop_at"
+            title='투표 종료일'
+            dataIndex='stop_at'
+            key='stop_at'
             render={(value) => (
-              <DateField 
-                value={value} 
-                format="YYYY-MM-DD HH:mm" 
+              <DateField
+                value={value}
+                format='YYYY-MM-DD HH:mm'
                 style={{ color: token.colorTextSecondary }}
               />
             )}
@@ -617,4 +640,4 @@ export default function VoteList() {
       )}
     </List>
   );
-} 
+}
