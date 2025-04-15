@@ -1,19 +1,12 @@
 'use client';
 
-import {
-  List,
-  CreateButton,
-  DateField,
-} from '@refinedev/antd';
-import { useNavigation } from '@refinedev/core';
-import { Table, Typography, Space, Input, message } from 'antd';
+import { List, CreateButton, DateField } from '@refinedev/antd';
+import { useNavigation, useResource } from '@refinedev/core';
+import { Table, Space, Input, message } from 'antd';
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
-import { Image } from 'antd';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
-
-const { Link } = Typography;
 
 // 미디어 타입 정의
 interface Media {
@@ -29,10 +22,10 @@ export default function MediaList() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  
+
   // URL에서 search 파라미터 가져오기
   const urlSearch = searchParams.get('search') || '';
-  
+
   const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
   const [loading, setLoading] = useState<boolean>(false);
   const [dataSource, setDataSource] = useState<Media[]>([]);
@@ -41,47 +34,48 @@ export default function MediaList() {
     current: 1,
     pageSize: 10,
   });
-  
+
+  const { resource } = useResource();
   const { show } = useNavigation();
 
   // 데이터 로드 함수
   const loadData = useCallback(async () => {
     setLoading(true);
-    
+
     try {
       // Supabase 쿼리 작성
       let query = supabaseBrowserClient
         .from('media')
         .select('*', { count: 'exact' });
-      
+
       // 검색어가 있으면 필터 추가
       if (searchTerm) {
         // JSONB 필드 및 텍스트 필드 검색을 위한 필터 (다국어 지원)
         query = query.or(
           `title->>ko.ilike.%${searchTerm}%,` +
-          `title->>en.ilike.%${searchTerm}%,` +
-          `title->>ja.ilike.%${searchTerm}%,` +
-          `title->>zh.ilike.%${searchTerm}%,` +
-          `video_id.ilike.%${searchTerm}%,` +
-          `video_url.ilike.%${searchTerm}%`
+            `title->>en.ilike.%${searchTerm}%,` +
+            `title->>ja.ilike.%${searchTerm}%,` +
+            `title->>zh.ilike.%${searchTerm}%,` +
+            `video_id.ilike.%${searchTerm}%,` +
+            `video_url.ilike.%${searchTerm}%`,
         );
       }
-      
+
       // 정렬 추가
       query = query.order('created_at', { ascending: false });
-      
+
       // 페이지네이션 추가
       const from = (pagination.current - 1) * pagination.pageSize;
       const to = from + pagination.pageSize - 1;
       query = query.range(from, to);
-      
+
       // 쿼리 실행
       const { data, error, count } = await query;
-      
+
       if (error) {
         throw error;
       }
-      
+
       // 데이터 설정
       setDataSource(data || []);
       if (count !== null) {
@@ -94,7 +88,7 @@ export default function MediaList() {
       setLoading(false);
     }
   }, [searchTerm, pagination]);
-  
+
   // 페이지 변경 핸들러
   const handleTableChange = useCallback((pagination: any) => {
     setPagination({
@@ -104,31 +98,37 @@ export default function MediaList() {
   }, []);
 
   // URL 파라미터 업데이트
-  const updateUrlParams = useCallback((search: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    
-    if (!search) {
-      params.delete('search');
-    } else {
-      params.set('search', search);
-    }
-    
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [searchParams, pathname, router]);
+  const updateUrlParams = useCallback(
+    (search: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (!search) {
+        params.delete('search');
+      } else {
+        params.set('search', search);
+      }
+
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, pathname, router],
+  );
 
   // 검색 실행 함수
-  const handleSearch = useCallback((value: string) => {
-    console.log("검색 실행:", value);
-    setSearchTerm(value);
-    setPagination({ ...pagination, current: 1 }); // 검색시 첫 페이지로 이동
-    updateUrlParams(value);
-  }, [updateUrlParams, pagination]);
+  const handleSearch = useCallback(
+    (value: string) => {
+      console.log('검색 실행:', value);
+      setSearchTerm(value);
+      setPagination({ ...pagination, current: 1 }); // 검색시 첫 페이지로 이동
+      updateUrlParams(value);
+    },
+    [updateUrlParams, pagination],
+  );
 
   // URL 파라미터 변경 시 검색 상태 업데이트
   useEffect(() => {
     const currentUrlSearch = searchParams.get('search') || '';
     if (currentUrlSearch !== searchTerm) {
-      console.log("URL 검색어 변경:", currentUrlSearch);
+      console.log('URL 검색어 변경:', currentUrlSearch);
       setSearchTerm(currentUrlSearch);
     }
   }, [searchParams, searchTerm]);
@@ -142,10 +142,11 @@ export default function MediaList() {
     <List
       breadcrumb={false}
       headerButtons={<CreateButton />}
+      title={resource?.meta?.list?.label || ''}
     >
       <Space style={{ marginBottom: 16 }}>
         <Input.Search
-          placeholder="미디어 검색 (다국어 지원)"
+          placeholder='미디어 검색 (다국어 지원)'
           onSearch={handleSearch}
           defaultValue={searchTerm}
           style={{ width: 350, maxWidth: '100%' }}
@@ -175,7 +176,7 @@ export default function MediaList() {
             showTotal: (total) => `총 ${total}개 항목`,
           }}
           scroll={{ x: 'max-content' }}
-          size="small"
+          size='small'
         >
           <Table.Column dataIndex='id' title={'ID'} width={80} />
           <Table.Column
@@ -183,7 +184,13 @@ export default function MediaList() {
             title={'제목'}
             align='center'
             ellipsis={{ showTitle: true }}
-            render={(value) => <MultiLanguageDisplay languages={['ko']} showFlags={false} value={value} />}
+            render={(value) => (
+              <MultiLanguageDisplay
+                languages={['ko']}
+                showFlags={false}
+                value={value}
+              />
+            )}
           />
           <Table.Column
             dataIndex='video_id'
@@ -211,4 +218,4 @@ export default function MediaList() {
       </div>
     </List>
   );
-} 
+}

@@ -18,19 +18,21 @@ const BANNER_STATUS = {
   ENDED: 'ended',
 };
 
-type BannerStatus = typeof BANNER_STATUS[keyof typeof BANNER_STATUS];
+type BannerStatus = (typeof BANNER_STATUS)[keyof typeof BANNER_STATUS];
 
 export default function BannerList() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  
+
   // URL에서 status 파라미터 가져오기
   const urlStatus = searchParams.get('status') as BannerStatus | null;
-  const initialStatus = Object.values(BANNER_STATUS).includes(urlStatus as BannerStatus) 
-    ? urlStatus as BannerStatus 
+  const initialStatus = Object.values(BANNER_STATUS).includes(
+    urlStatus as BannerStatus,
+  )
+    ? (urlStatus as BannerStatus)
     : BANNER_STATUS.ALL;
-  
+
   const [statusFilter, setStatusFilter] = useState<BannerStatus>(initialStatus);
   const [filteredData, setFilteredData] = useState<Banner[]>([]);
   const { show } = useNavigation();
@@ -52,13 +54,13 @@ export default function BannerList() {
   // URL 파라미터 업데이트
   const updateUrlParams = (status: BannerStatus) => {
     const params = new URLSearchParams(searchParams.toString());
-    
+
     if (status === BANNER_STATUS.ALL) {
       params.delete('status');
     } else {
       params.set('status', status);
     }
-    
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -66,20 +68,20 @@ export default function BannerList() {
   useEffect(() => {
     if (tableProps.dataSource && tableProps.dataSource.length > 0) {
       const now = new Date();
-      
+
       if (statusFilter === BANNER_STATUS.ALL) {
         setFilteredData([...tableProps.dataSource]);
         return;
       }
 
-      const filtered = tableProps.dataSource.filter(banner => {
+      const filtered = tableProps.dataSource.filter((banner) => {
         const startAt = banner.start_at ? new Date(banner.start_at) : null;
         const endAt = banner.end_at ? new Date(banner.end_at) : null;
-        
+
         if (statusFilter === BANNER_STATUS.UPCOMING) {
           return startAt && now < startAt;
         } else if (statusFilter === BANNER_STATUS.ONGOING) {
-          return startAt && (!endAt || now >= startAt && now <= endAt);
+          return startAt && (!endAt || (now >= startAt && now <= endAt));
         } else if (statusFilter === BANNER_STATUS.ENDED) {
           return endAt && now > endAt;
         }
@@ -92,7 +94,10 @@ export default function BannerList() {
 
   // 컴포넌트 마운트 시 URL에서 상태 복원
   useEffect(() => {
-    if (urlStatus && Object.values(BANNER_STATUS).includes(urlStatus as BannerStatus)) {
+    if (
+      urlStatus &&
+      Object.values(BANNER_STATUS).includes(urlStatus as BannerStatus)
+    ) {
       setStatusFilter(urlStatus as BannerStatus);
     }
   }, [urlStatus]);
@@ -125,7 +130,7 @@ export default function BannerList() {
   return (
     <List
       breadcrumb={false}
-      headerButtons={<CreateButton resource='banner' />}
+      headerButtons={<CreateButton />}
       title={resource?.meta?.list?.label || ''}
     >
       <Space style={{ marginBottom: 16 }}>
@@ -157,7 +162,7 @@ export default function BannerList() {
             showTotal: (total) => `총 ${total}개 항목`,
           }}
           scroll={{ x: 'max-content' }}
-          size="small"
+          size='small'
         >
           <Table.Column dataIndex='id' title='ID' width={80} />
           <Table.Column
@@ -166,8 +171,8 @@ export default function BannerList() {
             align='center'
             responsive={['md']}
             render={(value: any) => (
-              <Space direction='vertical' size="small">
-                <Space size="small">
+              <Space direction='vertical' size='small'>
+                <Space size='small'>
                   <Image
                     src={getCdnImageUrl(value.ko, 80)}
                     alt='배너 이미지 (한국어)'
@@ -181,7 +186,7 @@ export default function BannerList() {
                     preview={false}
                   />
                 </Space>
-                <Space size="small">
+                <Space size='small'>
                   <Image
                     src={getCdnImageUrl(value.ja, 80)}
                     alt='배너 이미지 (일본어)'
@@ -204,7 +209,7 @@ export default function BannerList() {
             align='center'
             width={160}
             render={(value: any, record: Banner) => (
-              <Space direction='vertical' size="small">
+              <Space direction='vertical' size='small'>
                 {record?.start_at &&
                   record?.end_at &&
                   getBannerStatus(
@@ -228,11 +233,18 @@ export default function BannerList() {
             align='center'
             width={100}
             render={(value: string) => {
-              const locationObj = BANNER_LOCATIONS?.find(loc => loc.value === value);
+              const locationObj = BANNER_LOCATIONS?.find(
+                (loc) => loc.value === value,
+              );
               return locationObj ? locationObj.label : value || '-';
             }}
           />
-          <Table.Column dataIndex='order' title='순서' align='center' width={80} />
+          <Table.Column
+            dataIndex='order'
+            title='순서'
+            align='center'
+            width={80}
+          />
           <Table.Column
             dataIndex={['created_at', 'updated_at']}
             title='생성일/수정일'
@@ -240,7 +252,7 @@ export default function BannerList() {
             width={140}
             responsive={['lg']}
             render={(value: any, record: Banner) => (
-              <Space direction='vertical' size="small">
+              <Space direction='vertical' size='small'>
                 <DateField
                   value={record?.created_at?.toString()}
                   format='YYYY-MM-DD'
@@ -256,4 +268,4 @@ export default function BannerList() {
       </div>
     </List>
   );
-} 
+}

@@ -1,7 +1,6 @@
 'use client';
 
 import { Edit } from '@refinedev/antd';
-import { useOne } from '@refinedev/core';
 import { message } from 'antd';
 import { useEffect } from 'react';
 import { useNavigation, BaseKey } from '@refinedev/core';
@@ -9,8 +8,7 @@ import { useForm } from '@refinedev/antd';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import VoteForm from '@/app/vote/components/VoteForm';
 import { VoteRecord } from '@/lib/vote';
-import { handleVoteData } from '../../lib/voteDataHandler';
-import { HttpError } from '@refinedev/core';
+import { handleVoteData } from '@/app/vote/lib/voteDataHandler';
 
 export default function VoteEditPage({ params }: { params: { id: string } }) {
   const [messageApi, contextHolder] = message.useMessage();
