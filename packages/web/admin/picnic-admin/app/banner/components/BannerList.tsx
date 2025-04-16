@@ -50,7 +50,7 @@ export default function BannerList() {
       ],
     },
     meta: {
-      select: '*,boards!banners_board_id_fkey(*, artist(*))',
+      select: '*',
     },
   });
 
