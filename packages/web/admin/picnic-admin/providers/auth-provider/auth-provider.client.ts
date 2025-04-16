@@ -291,6 +291,18 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
   const roleIds = userRoles.map((ur) => ur.role_id);
   logPermission('사용자 역할 조회 성공', { userId, roleIds });
 
+  // 디버깅을 위한 역할 정보 쿼리
+  const { data: roleDetails, error: roleDetailError } = await supabaseBrowserClient
+    .from('admin_roles')
+    .select('*')
+    .in('id', roleIds);
+    
+  if (roleDetailError) {
+    console.warn('역할 상세 정보 조회 실패:', roleDetailError);
+  } else {
+    console.log('사용자 역할 상세 정보:', roleDetails);
+  }
+
   const { data: permissions, error: permError } = await supabaseBrowserClient
     .from('admin_role_permissions')
     .select('admin_permissions!inner(*)')
@@ -318,6 +330,9 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
     return null;
   }
 
+  // 원시 권한 데이터 디버깅
+  console.log('원시 권한 데이터:', permissions);
+
   // 권한을 { resource: [actions] } 형태로 변환
   const permissionsMap = permissions.reduce(
     (acc: Record<string, string[]>, curr: any) => {
@@ -332,6 +347,21 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
     },
     {},
   );
+
+  // 생성된 권한 맵이 비어있으면 null 반환
+  if (Object.keys(permissionsMap).length === 0) {
+    logPermission('권한 맵이 비어있음 (권한 없음)', { userId }, LogLevel.WARN);
+    return null;
+  }
+
+  // 디버깅을 위한 상세 로그 추가
+  console.log('권한 맵 생성 완료 (상세):', {
+    userId,
+    roleIds,
+    permissionsCount: permissions.length,
+    rawPermissions: permissions,
+    permissionsMap,
+  });
 
   // 최종 권한 맵 로깅
   logPermission('사용자 권한 맵 생성 완료', {

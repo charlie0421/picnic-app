@@ -51,17 +51,19 @@ export const PermissionLoader: React.FC<React.PropsWithChildren> = ({
                   permissionKeys: Object.keys(fetchedPermissions),
                 });
               } else {
-                setPermissions({}); // 권한이 없는 경우 빈 객체 저장
+                // 권한이 없는 경우 null로 설정 (빈 객체 -> null로 변경)
+                setPermissions(null);
                 logPermission(
-                  'PermissionLoader: 사용자에게 권한 없음',
+                  'PermissionLoader: 사용자에게 권한 없음, null로 설정',
                   { userId: identity.id },
                   LogLevel.WARN,
                 );
               }
             } catch (error) {
-              setPermissions({}); // 오류 발생 시 안전하게 빈 객체 저장
+              // 오류 발생 시에도 null로 설정
+              setPermissions(null);
               logPermission(
-                'PermissionLoader: 권한 로드 중 오류 발생',
+                'PermissionLoader: 권한 로드 중 오류 발생, null로 설정',
                 { userId: identity.id, error },
                 LogLevel.ERROR,
               );
