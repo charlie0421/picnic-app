@@ -1,10 +1,4 @@
-import {
-  Typography,
-  Space,
-  Tag,
-  Descriptions,
-  theme,
-} from 'antd';
+import { Typography, Space, Tag, Descriptions, theme } from 'antd';
 import { DateField } from '@refinedev/antd';
 import { Notice } from '../../../lib/types/notice';
 import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
@@ -15,9 +9,7 @@ interface NoticeDetailProps {
   record?: Notice;
 }
 
-export const NoticeDetail: React.FC<NoticeDetailProps> = ({
-  record,
-}) => {
+export const NoticeDetail: React.FC<NoticeDetailProps> = ({ record }) => {
   // Ant Design의 테마 토큰 사용
   const { token } = theme.useToken();
 
@@ -32,20 +24,20 @@ export const NoticeDetail: React.FC<NoticeDetailProps> = ({
       </Title>
 
       <Descriptions bordered column={1}>
-        <Descriptions.Item label="ID">{record.notice_id}</Descriptions.Item>
+        <Descriptions.Item label='ID'>{record.id}</Descriptions.Item>
 
-        <Descriptions.Item label="제목">
+        <Descriptions.Item label='제목'>
           <Space>
-            {record.is_pinned && <Tag color="red">공지</Tag>}
+            {record.is_pinned && <Tag color='red'>공지</Tag>}
             {record.title}
           </Space>
         </Descriptions.Item>
 
-        <Descriptions.Item label="내용">
+        <Descriptions.Item label='내용'>
           <div dangerouslySetInnerHTML={{ __html: record.content }} />
         </Descriptions.Item>
 
-        <Descriptions.Item label="상태">
+        <Descriptions.Item label='상태'>
           <Tag
             color={
               record.status === 'PUBLISHED'
@@ -59,23 +51,19 @@ export const NoticeDetail: React.FC<NoticeDetailProps> = ({
           </Tag>
         </Descriptions.Item>
 
-        <Descriptions.Item label="작성자">
-          {record.created_by_user?.user_metadata?.name || record.created_by_user?.email || '-'}
+        <Descriptions.Item label='작성자'>
+          {record.created_by_user?.user_metadata?.name ||
+            record.created_by_user?.email ||
+            '-'}
         </Descriptions.Item>
 
-        <Descriptions.Item label="생성일/수정일">
-          <Space direction="vertical">
-            <DateField
-              value={record.created_at}
-              format="YYYY-MM-DD HH:mm:ss"
-            />
-            <DateField
-              value={record.updated_at}
-              format="YYYY-MM-DD HH:mm:ss"
-            />
+        <Descriptions.Item label='생성일/수정일'>
+          <Space direction='vertical'>
+            <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
+            <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
           </Space>
         </Descriptions.Item>
       </Descriptions>
     </div>
   );
-}; 
+};

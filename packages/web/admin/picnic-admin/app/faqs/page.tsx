@@ -36,7 +36,14 @@ export default function FAQListPage() {
   const [form] = Form.useForm();
 
   // Refine useTable 훅 사용
-  const { tableProps, tableQueryResult, sorters, setSorters, filters, setFilters } = useTable<FAQ>({
+  const {
+    tableProps,
+    tableQueryResult,
+    sorters,
+    setSorters,
+    filters,
+    setFilters,
+  } = useTable<FAQ>({
     resource: 'faqs',
     syncWithLocation: true,
     sorters: {
@@ -46,20 +53,24 @@ export default function FAQListPage() {
     filters: {
       mode: 'server',
       initial: [
-        ...(searchTerm ? [
-          {
-            field: 'search',
-            operator: 'contains',
-            value: searchTerm
-          }
-        ] : []),
-        ...(category ? [
-          {
-            field: 'category',
-            operator: 'eq',
-            value: category
-          }
-        ] : [])
+        ...(searchTerm
+          ? [
+              {
+                field: 'search',
+                operator: 'contains' as const,
+                value: searchTerm,
+              },
+            ]
+          : []),
+        ...(category
+          ? [
+              {
+                field: 'category',
+                operator: 'eq' as const,
+                value: category,
+              },
+            ]
+          : []),
       ],
     },
     pagination: {
@@ -72,7 +83,7 @@ export default function FAQListPage() {
             fields: ['question', 'answer'],
           }
         : undefined,
-      select: '*,faqs_created_by_fkey(*)'
+      select: '*,faqs_created_by_fkey(*)',
     },
     queryOptions: {
       refetchOnWindowFocus: false,
@@ -83,18 +94,20 @@ export default function FAQListPage() {
       return [
         {
           field: 'search',
-          operator: 'contains',
+          operator: 'contains' as const,
           value: searchValue,
         },
-        ...(category ? [
-          {
-            field: 'category',
-            operator: 'eq',
-            value: category
-          }
-        ] : [])
+        ...(category
+          ? [
+              {
+                field: 'category',
+                operator: 'eq' as const,
+                value: category,
+              },
+            ]
+          : []),
       ];
-    }
+    },
   });
 
   // URL 파라미터 업데이트
@@ -142,23 +155,23 @@ export default function FAQListPage() {
   // 필터 적용 함수
   const applyFilters = (search: string, cat: string) => {
     const filterItems = [];
-    
+
     if (search) {
       filterItems.push({
         field: 'search',
-        operator: 'contains',
+        operator: 'contains' as const,
         value: search,
       });
     }
-    
+
     if (cat) {
       filterItems.push({
         field: 'category',
-        operator: 'eq',
+        operator: 'eq' as const,
         value: cat,
       });
     }
-    
+
     setFilters(filterItems);
   };
 
@@ -166,9 +179,9 @@ export default function FAQListPage() {
   if (tableQueryResult.error) {
     return (
       <Alert
-        message="데이터 로딩 오류"
+        message='데이터 로딩 오류'
         description={tableQueryResult.error.message}
-        type="error"
+        type='error'
         showIcon
       />
     );
@@ -199,16 +212,18 @@ export default function FAQListPage() {
             allowClear
             defaultValue={initialSearchTerm}
           />
-          
+
           <Select
-            placeholder="카테고리 선택"
+            placeholder='카테고리 선택'
             style={{ width: 150 }}
             value={category}
             onChange={handleCategoryChange}
             allowClear
           >
-            {categoryOptions.map(option => (
-              <Option key={option.value} value={option.value}>{option.label}</Option>
+            {categoryOptions.map((option) => (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
             ))}
           </Select>
         </Space>
@@ -217,4 +232,4 @@ export default function FAQListPage() {
       </List>
     </AuthorizePage>
   );
-} 
+}

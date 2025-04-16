@@ -1,7 +1,12 @@
 import React from 'react';
 import { Table, Space, Button, Tag } from 'antd';
 import { useNavigation, useDelete } from '@refinedev/core';
-import { EditButton, ShowButton, DeleteButton, DateField } from '@refinedev/antd';
+import {
+  EditButton,
+  ShowButton,
+  DeleteButton,
+  DateField,
+} from '@refinedev/antd';
 import { TableProps } from 'antd/es/table';
 import { QnA } from '@/lib/types/qna';
 
@@ -26,8 +31,11 @@ export const QnAList: React.FC<QnAListProps> = ({ tableProps }) => {
       key: 'title',
       render: (value: string, record: QnA) => (
         <Space>
-          {record.is_private && <Tag color="blue">비공개</Tag>}
-          <span style={{ cursor: 'pointer' }} onClick={() => show('qnas', record.qna_id)}>
+          {record.is_private && <Tag color='blue'>비공개</Tag>}
+          <span
+            style={{ cursor: 'pointer' }}
+            onClick={() => show('qnas', record.id)}
+          >
             {value}
           </span>
         </Space>
@@ -43,7 +51,7 @@ export const QnAList: React.FC<QnAListProps> = ({ tableProps }) => {
         if (value === 'PENDING') color = 'gold';
         if (value === 'ANSWERED') color = 'green';
         if (value === 'ARCHIVED') color = 'gray';
-        
+
         return <Tag color={color}>{value}</Tag>;
       },
     },
@@ -52,7 +60,10 @@ export const QnAList: React.FC<QnAListProps> = ({ tableProps }) => {
       key: 'created_by',
       width: 120,
       render: (_: any, record: QnA) => {
-        const userName = record.created_by_user?.user_metadata?.name || record.created_by_user?.email || '시스템';
+        const userName =
+          record.created_by_user?.user_metadata?.name ||
+          record.created_by_user?.email ||
+          '시스템';
         return userName;
       },
     },
@@ -61,14 +72,17 @@ export const QnAList: React.FC<QnAListProps> = ({ tableProps }) => {
       dataIndex: 'created_at',
       key: 'created_at',
       width: 160,
-      render: (value: string) => <DateField value={value} format="YYYY-MM-DD HH:mm" />,
+      render: (value: string) => (
+        <DateField value={value} format='YYYY-MM-DD HH:mm' />
+      ),
     },
     {
       title: '답변일',
       dataIndex: 'answered_at',
       key: 'answered_at',
       width: 160,
-      render: (value: string) => value ? <DateField value={value} format="YYYY-MM-DD HH:mm" /> : '-',
+      render: (value: string) =>
+        value ? <DateField value={value} format='YYYY-MM-DD HH:mm' /> : '-',
     },
     {
       title: '액션',
@@ -76,23 +90,13 @@ export const QnAList: React.FC<QnAListProps> = ({ tableProps }) => {
       width: 120,
       render: (_: any, record: QnA) => (
         <Space>
-          <ShowButton size="small" recordItemId={record.qna_id} />
-          <EditButton size="small" recordItemId={record.qna_id} />
-          <DeleteButton
-            size="small"
-            recordItemId={record.qna_id}
-            resource="qnas"
-          />
+          <ShowButton size='small' recordItemId={record.id} />
+          <EditButton size='small' recordItemId={record.id} />
+          <DeleteButton size='small' recordItemId={record.id} resource='qnas' />
         </Space>
       ),
     },
   ];
 
-  return (
-    <Table
-      {...tableProps}
-      rowKey="qna_id"
-      columns={columns}
-    />
-  );
-}; 
+  return <Table {...tableProps} rowKey='qna_id' columns={columns} />;
+};
