@@ -78,6 +78,15 @@ export default function RootLayout({
                         notificationProvider={useNotificationProvider}
                         accessControlProvider={accessControlProvider}
                         resources={[
+                          // 대시보드 추가
+                          {
+                            name: 'dashboard',
+                            list: '/dashboard',
+                            meta: {
+                              label: '대시보드',
+                              icon: <AppstoreOutlined />,
+                            },
+                          },
                           // 기존 메뉴들
                           {
                             name: 'vote',
