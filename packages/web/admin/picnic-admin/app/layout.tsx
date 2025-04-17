@@ -17,6 +17,8 @@ import '@refinedev/antd/dist/reset.css';
 import { PermissionLoader } from '@/components/auth/PermissionLoader';
 import { PermissionLoadingProvider } from '@/contexts/PermissionLoadingContext';
 import MainLayout from '@/components/layout/MainLayout';
+import ActivityLogger from './components/logger/ActivityLogger';
+import { ResourceType } from '@/lib/services/activityLogger';
 
 // antd 아이콘 불러오기
 import {
@@ -85,6 +87,7 @@ export default function RootLayout({
                             meta: {
                               label: '대시보드',
                               icon: <AppstoreOutlined />,
+                              resourceType: ResourceType.DASHBOARD,
                             },
                           },
                           // 기존 메뉴들
@@ -97,6 +100,7 @@ export default function RootLayout({
                             meta: {
                               label: '투표 관리',
                               icon: <CheckCircleOutlined />,
+                              resourceType: ResourceType.VOTE,
                               list: {
                                 label: '투표 목록',
                               },
@@ -120,6 +124,7 @@ export default function RootLayout({
                             meta: {
                               label: '배너 관리',
                               icon: <PictureOutlined />,
+                              resourceType: ResourceType.BANNER,
                               list: {
                                 label: '배너 목록',
                               },
@@ -143,6 +148,7 @@ export default function RootLayout({
                             meta: {
                               label: '미디어 관리',
                               icon: <VideoCameraOutlined />,
+                              resourceType: ResourceType.MEDIA,
                               list: {
                                 label: '미디어 목록',
                               },
@@ -166,6 +172,7 @@ export default function RootLayout({
                             meta: {
                               label: '유저 관리',
                               icon: <UserOutlined />,
+                              resourceType: ResourceType.USER,
                               list: {
                                 label: '유저 목록',
                               },
@@ -189,6 +196,7 @@ export default function RootLayout({
                             meta: {
                               label: '리워드 관리',
                               icon: <GiftOutlined />,
+                              resourceType: ResourceType.REWARD,
                               list: {
                                 label: '리워드 목록',
                               },
@@ -209,6 +217,7 @@ export default function RootLayout({
                             meta: {
                               label: 'CS 관리',
                               icon: <CustomerServiceOutlined />,
+                              resourceType: ResourceType.CUSTOMER_GROUP,
                             },
                           },
                           {
@@ -221,6 +230,7 @@ export default function RootLayout({
                               parent: 'customerGroup',
                               label: '공지사항',
                               icon: <NotificationOutlined />,
+                              resourceType: ResourceType.NOTICE,
                               list: {
                                 label: '공지사항 목록',
                               },
@@ -246,6 +256,7 @@ export default function RootLayout({
                               parent: 'customerGroup',
                               label: 'FAQ',
                               icon: <SolutionOutlined />,
+                              resourceType: ResourceType.FAQ,
                               list: {
                                 label: 'FAQ 목록',
                               },
@@ -271,6 +282,7 @@ export default function RootLayout({
                               parent: 'customerGroup',
                               label: 'Q&A',
                               icon: <QuestionCircleOutlined />,
+                              resourceType: ResourceType.QNA,
                               list: {
                                 label: 'Q&A 목록',
                               },
@@ -292,6 +304,7 @@ export default function RootLayout({
                             meta: {
                               label: '커뮤니티 관리',
                               icon: <CommentOutlined />,
+                              resourceType: ResourceType.COMMUNITY_GROUP,
                             },
                           },
                           {
@@ -304,6 +317,7 @@ export default function RootLayout({
                               parent: 'communityGroup',
                               label: '게시판 관리',
                               icon: <ReadOutlined />,
+                              resourceType: ResourceType.BOARD,
                               list: {
                                 label: '게시판 목록',
                               },
@@ -329,6 +343,7 @@ export default function RootLayout({
                               parent: 'communityGroup',
                               label: '게시글 관리',
                               icon: <FileTextOutlined />,
+                              resourceType: ResourceType.POST,
                               list: {
                                 label: '게시글 목록',
                               },
@@ -350,6 +365,7 @@ export default function RootLayout({
                             meta: {
                               label: '아티스트 관리',
                               icon: <StarOutlined />,
+                              resourceType: ResourceType.ARTIST_GROUP,
                             },
                           },
                           {
@@ -362,6 +378,7 @@ export default function RootLayout({
                               parent: 'artistGroup',
                               label: '아티스트',
                               icon: <StarOutlined />,
+                              resourceType: ResourceType.ARTIST,
                               list: {
                                 label: '아티스트 목록',
                               },
@@ -386,6 +403,7 @@ export default function RootLayout({
                               parent: 'artistGroup',
                               label: '아티스트 그룹',
                               icon: <UsergroupAddOutlined />,
+                              resourceType: ResourceType.ARTIST_GROUP,
                               list: {
                                 label: '아티스트 그룹 목록',
                               },
@@ -410,6 +428,7 @@ export default function RootLayout({
                               canEdit: true,
                               canDelete: true,
                               canShow: true,
+                              resourceType: ResourceType.STATISTICS_GROUP,
                             },
                           },
                           {
@@ -423,6 +442,7 @@ export default function RootLayout({
                               canEdit: true,
                               canDelete: true,
                               canShow: true,
+                              resourceType: ResourceType.STATISTICS_ADS,
                             },
                           },
                           {
@@ -436,6 +456,7 @@ export default function RootLayout({
                               canEdit: true,
                               canDelete: true,
                               canShow: true,
+                              resourceType: ResourceType.RECEIPTS,
                             },
                           },
                           // 앱 설정
@@ -448,6 +469,7 @@ export default function RootLayout({
                             meta: {
                               label: '앱 설정 관리',
                               icon: <AppstoreOutlined />,
+                              resourceType: ResourceType.CONFIG,
                               list: {
                                 label: '앱 설정 목록',
                               },
@@ -468,6 +490,7 @@ export default function RootLayout({
                             meta: {
                               label: '관리자 설정',
                               icon: <SettingOutlined />,
+                              resourceType: ResourceType.ADMIN,
                             },
                           },
                           // 권한 관리 리소스들 (경로 수정)
@@ -481,6 +504,7 @@ export default function RootLayout({
                               parent: 'admin',
                               label: '역할 관리',
                               icon: <TeamOutlined />,
+                              resourceType: ResourceType.ADMIN_ROLES,
                               list: {
                                 label: '역할 목록',
                               },
@@ -505,6 +529,7 @@ export default function RootLayout({
                               parent: 'admin',
                               label: '권한 관리',
                               icon: <KeyOutlined />,
+                              resourceType: ResourceType.ADMIN_PERMISSIONS,
                               list: {
                                 label: '권한 목록',
                               },
@@ -529,6 +554,7 @@ export default function RootLayout({
                               parent: 'admin',
                               label: '역할-권한 매핑',
                               icon: <LinkOutlined />,
+                              resourceType: ResourceType.ADMIN_ROLE_PERMISSIONS,
                               list: {
                                 label: '역할-권한 목록',
                               },
@@ -553,6 +579,7 @@ export default function RootLayout({
                               parent: 'admin',
                               label: '사용자-역할 매핑',
                               icon: <UserSwitchOutlined />,
+                              resourceType: ResourceType.ADMIN_USER_ROLES,
                               list: {
                                 label: '사용자-역할 매핑 목록',
                               },
@@ -573,6 +600,18 @@ export default function RootLayout({
                             list: '/admin/no-access',
                             meta: {
                               hide: true, // 메뉴에서 숨김
+                              resourceType: ResourceType.ADMIN_NO_ACCESS,
+                            },
+                          },
+                          // 활동 로그 메뉴 추가
+                          {
+                            name: 'activities',
+                            list: '/activities',
+                            meta: {
+                              label: '활동 로그',
+                              icon: <FileTextOutlined />,
+                              parent: 'admin', // 관리자 설정 아래에 포함
+                              resourceType: ResourceType.ACTIVITIES,
                             },
                           },
                         ]}
@@ -585,7 +624,10 @@ export default function RootLayout({
                       >
                         <PermissionLoadingProvider>
                           <PermissionLoader>
-                            <MainLayout>{children}</MainLayout>
+                            <MainLayout>
+                              <ActivityLogger />
+                              {children}
+                            </MainLayout>
                           </PermissionLoader>
                         </PermissionLoadingProvider>
                         <RefineKbar />

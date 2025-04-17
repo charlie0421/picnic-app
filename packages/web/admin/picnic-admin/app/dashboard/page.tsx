@@ -108,7 +108,14 @@ export default function Dashboard() {
       }
     };
 
-    fetchData();
+    let isMounted = true;
+    if (isMounted) {
+      fetchData();
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
