@@ -5,11 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
@@ -94,7 +93,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
-            Text(S.of(context).label_vote_vote_gather,
+            Text(t('label_vote_vote_gather'),
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
             SvgPicture.asset(
               package: 'picnic_lib',
@@ -146,7 +145,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         Container(
           padding: EdgeInsets.only(left: 16.w),
           alignment: Alignment.centerLeft,
-          child: Text(S.of(context).label_vote_reward_list,
+          child: Text(t('label_vote_reward_list'),
               style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
         ),
         const SizedBox(height: 16),
@@ -222,8 +221,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                 itemBuilder: (context, index) => Container(
                   width: 120,
                   height: 100,
-                  margin: EdgeInsets.only(
-                      left: 16.w, right: index == 4 ? 16.w : 0),
+                  margin:
+                      EdgeInsets.only(left: 16.w, right: index == 4 ? 16.w : 0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.r),
                       color: Colors.white),

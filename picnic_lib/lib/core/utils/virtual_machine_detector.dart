@@ -90,7 +90,7 @@ class VirtualMachineDetector {
         final ttl = await _getTTL();
         final macAddress = await _getMacAddress();
         final hasSensors = await _checkSensors();
-        final processorCount = await _getCpuCores();
+        // final processorCount = await _getCpuCores();
 
         // 체크 수행
         final buildInfo =

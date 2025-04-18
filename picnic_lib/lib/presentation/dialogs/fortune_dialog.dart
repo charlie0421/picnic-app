@@ -6,11 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/community/fortune.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
@@ -129,6 +128,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   Future<void> _handleSave() async {
     try {
       await ShareUtils.saveImage(
+        context: context,
         _saveKey,
         onStart: () {
           setState(() => _isSaving = true);
@@ -193,8 +193,8 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                         onTap: (index) =>
                             setState(() => _showMonthly = index == 1),
                         tabs: [
-                          Tab(text: S.of(context).fortune_total_title),
-                          Tab(text: S.of(context).fortune_monthly),
+                          Tab(text: t('fortune_total_title')),
+                          Tab(text: t('fortune_monthly')),
                         ],
                       ),
                       _showMonthly
@@ -202,23 +202,17 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                           : _buildOverallFortune(fortune),
                       if (!_isSaving)
                         ShareSection(
-                          saveButtonText: S.of(context).save,
-                          shareButtonText: S.of(context).share,
+                          saveButtonText: t('save'),
+                          shareButtonText: t('share'),
                           onSave: _handleSave,
                           onShare: () async {
                             if (_isSaving) return;
                             ShareUtils.shareToSocial(
                               _shareKey,
-                              message: Intl.message(
-                                  'compatibility_share_message',
-                                  args: [
-                                    getLocaleTextFromJson(fortune.artist.name)
-                                  ]),
-                              hashtag: Intl.message(
-                                  'compatibility_share_hashtag',
-                                  args: [
-                                    getLocaleTextFromJson(fortune.artist.name)
-                                  ]),
+                              message: t('compatibility_share_message',
+                                  [getLocaleTextFromJson(fortune.artist.name)]),
+                              hashtag: t('compatibility_share_hashtag',
+                                  [getLocaleTextFromJson(fortune.artist.name)]),
                               downloadLink: await createBranchLink(
                                   getLocaleTextFromJson(fortune.artist.name),
                                   '${Environment.appLinkPrefix}/community/fortune/${widget.artistId}'),
@@ -260,7 +254,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               shape: const Border(),
               collapsedShape: const Border(),
               title: Text(
-                '🔮 ${S.of(context).fortune_total_title}',
+                '🔮 ${t('fortune_total_title')}',
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               children: [
@@ -271,18 +265,15 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildAspectSection('💝 ${S.of(context).fortune_honor}',
-                            fortune.aspects.honor),
                         _buildAspectSection(
-                            '💼 ${S.of(context).fortune_career}',
+                            '💝 ${t('fortune_honor')}', fortune.aspects.honor),
+                        _buildAspectSection('💼 ${t('fortune_career')}',
                             fortune.aspects.career),
-                        _buildAspectSection(
-                            '💪 ${S.of(context).fortune_health}',
+                        _buildAspectSection('💪 ${t('fortune_health')}',
                             fortune.aspects.health),
-                        _buildAspectSection('💰 ${S.of(context).fortune_money}',
+                        _buildAspectSection('💰 ${t('fortune_money')}',
                             fortune.aspects.finances),
-                        _buildAspectSection(
-                            '👥 ${S.of(context).fortune_relationship}',
+                        _buildAspectSection('👥 ${t('fortune_relationship')}',
                             fortune.aspects.relationships),
                       ],
                     ),
@@ -300,7 +291,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               shape: const Border(),
               collapsedShape: const Border(),
               title: Text(
-                '✨ ${S.of(context).fortune_lucky_keyword}',
+                '✨ ${t('fortune_lucky_keyword')}',
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               children: [
@@ -310,16 +301,16 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        _buildLuckyRow(S.of(context).fortune_lucky_days,
+                        _buildLuckyRow(t('fortune_lucky_days'),
                             fortune.lucky.days.join(', ')),
-                        _buildLuckyRow(S.of(context).fortune_lucky_color,
+                        _buildLuckyRow(t('fortune_lucky_color'),
                             fortune.lucky.colors.join(', ')),
                         _buildLuckyRow(
-                            S.of(context).fortune_lucky_number,
+                            t('fortune_lucky_number'),
                             fortune.lucky.numbers
                                 .map((e) => e.toString())
                                 .join(', ')),
-                        _buildLuckyRow(S.of(context).fortune_lucky_direction,
+                        _buildLuckyRow(t('fortune_lucky_direction'),
                             fortune.lucky.directions.join(', ')),
                       ],
                     ),
@@ -337,7 +328,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               shape: const Border(),
               collapsedShape: const Border(),
               title: Text(
-                '💡 ${S.of(context).fortune_advice}',
+                '💡 ${t('fortune_advice')}',
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               children: [
@@ -549,7 +540,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
         const Icon(Icons.error_outline, color: Colors.red, size: 60),
         const SizedBox(height: 16),
         Text(
-          S.of(context).message_error_occurred,
+          t('message_error_occurred'),
           textAlign: TextAlign.center,
           style: const TextStyle(color: Colors.red, fontSize: 16),
         ),
@@ -623,29 +614,29 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   String getMonthName(int month) {
     switch (month) {
       case 1:
-        return S.of(context).fortune_month1;
+        return t('fortune_month1');
       case 2:
-        return S.of(context).fortune_month2;
+        return t('fortune_month2');
       case 3:
-        return S.of(context).fortune_month3;
+        return t('fortune_month3');
       case 4:
-        return S.of(context).fortune_month4;
+        return t('fortune_month4');
       case 5:
-        return S.of(context).fortune_month5;
+        return t('fortune_month5');
       case 6:
-        return S.of(context).fortune_month6;
+        return t('fortune_month6');
       case 7:
-        return S.of(context).fortune_month7;
+        return t('fortune_month7');
       case 8:
-        return S.of(context).fortune_month8;
+        return t('fortune_month8');
       case 9:
-        return S.of(context).fortune_month9;
+        return t('fortune_month9');
       case 10:
-        return S.of(context).fortune_month10;
+        return t('fortune_month10');
       case 11:
-        return S.of(context).fortune_month11;
+        return t('fortune_month11');
       case 12:
-        return S.of(context).fortune_month12;
+        return t('fortune_month12');
       default:
         return '';
     }

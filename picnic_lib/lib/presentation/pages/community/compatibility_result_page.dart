@@ -8,12 +8,11 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_content.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
@@ -60,8 +59,8 @@ class _CompatibilityResultPageState
       ScrollController(); // Add ScrollController
   static const _animationDuration = Duration(milliseconds: 300);
   static const _scrollCurve = Curves.easeOut;
-  late final _shareMessage = Intl.message('compatibility_share_message',
-      args: [getLocaleTextFromJson(widget.compatibility.artist.name)]);
+  late final _shareMessage = t('compatibility_share_message',
+      [getLocaleTextFromJson(widget.compatibility.artist.name)]);
 
   @override
   void initState() {
@@ -109,8 +108,7 @@ class _CompatibilityResultPageState
             (error) async {
               if (mounted) {
                 OverlayLoadingProgress.stop();
-                await _showErrorDialog(
-                    Intl.message('dialog_message_purchase_failed'));
+                await _showErrorDialog(t('dialog_message_purchase_failed'));
               }
             },
           );
@@ -123,7 +121,7 @@ class _CompatibilityResultPageState
                     .contains('canceled') !=
                 true) {
               await _showErrorDialog(purchaseDetails.error?.message ??
-                  Intl.message('dialog_message_purchase_failed'));
+                  t('dialog_message_purchase_failed'));
             }
           }
         } else if (purchaseDetails.status == PurchaseStatus.canceled) {
@@ -145,7 +143,7 @@ class _CompatibilityResultPageState
       logger.e('Error handling purchase update', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
+        await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
       rethrow;
     }
@@ -180,7 +178,7 @@ class _CompatibilityResultPageState
       // 구매 시도 자체가 실패한 경우에만 여기서 로딩바 숨김
       if (!purchaseInitiated && mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
+        await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
 
       return purchaseInitiated;
@@ -188,7 +186,7 @@ class _CompatibilityResultPageState
       logger.e('Error buying product', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(Intl.message('message_error_occurred'));
+        await _showErrorDialog(t('message_error_occurred'));
       }
       return false;
     }
@@ -244,7 +242,7 @@ class _CompatibilityResultPageState
             showTopMenu: true,
             topRightMenu: TopRightType.board,
             showBottomNavigation: false,
-            pageTitle: Intl.message('compatibility_page_title'),
+            pageTitle: t('compatibility_page_title'),
           );
     });
   }
@@ -280,7 +278,7 @@ class _CompatibilityResultPageState
         if (mounted) {
           OverlayLoadingProgress.stop();
           showSimpleDialog(
-            content: Intl.message('message_error_occurred'),
+            content: t('message_error_occurred'),
             onOk: () {
               ref
                   .read(navigationInfoProvider.notifier)
@@ -296,8 +294,8 @@ class _CompatibilityResultPageState
         if (mounted) {
           OverlayLoadingProgress.stop();
           showSimpleDialog(
-            title: Intl.message('fortune_lack_of_star_candy_title'),
-            content: Intl.message('fortune_lack_of_star_candy_message'),
+            title: t('fortune_lack_of_star_candy_title'),
+            content: t('fortune_lack_of_star_candy_message'),
             onOk: () {
               ref
                   .read(navigationInfoProvider.notifier)
@@ -327,7 +325,7 @@ class _CompatibilityResultPageState
         showSimpleDialog(
           contentWidget: Column(
             children: [
-              Text(Intl.message('compatibility_remain_star_candy')),
+              Text(t('compatibility_remain_star_candy')),
               SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -350,7 +348,7 @@ class _CompatibilityResultPageState
       logger.e('Error opening compatibility', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(Intl.message('message_error_occurred'));
+        await _showErrorDialog(t('message_error_occurred'));
       }
       rethrow;
     }
@@ -443,7 +441,7 @@ class _CompatibilityResultPageState
                               if (compatibility.hasError)
                                 CompatibilityErrorView(
                                   error: compatibility.errorMessage ??
-                                      S.of(context).error_unknown,
+                                      t('error_unknown'),
                                 )
                               else if (compatibility.isCompleted)
                                 _buildResultContent()
@@ -489,6 +487,7 @@ class _CompatibilityResultPageState
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
     return ShareUtils.saveImage(
       _saveKey,
+      context: context,
       onStart: () {
         setState(() {
           _isSaving = true;
@@ -519,8 +518,8 @@ class _CompatibilityResultPageState
     return ShareUtils.shareToSocial(
       _shareKey,
       message: _shareMessage,
-      hashtag: Intl.message('compatibility_share_hashtag',
-          args: [getLocaleTextFromJson(compatibility.artist.name)]),
+      hashtag: t('compatibility_share_hashtag',
+          [getLocaleTextFromJson(compatibility.artist.name)]),
       downloadLink: await createBranchLink(
           getLocaleTextFromJson(compatibility.artist.name),
           '${Environment.appLinkPrefix}/community/compatibility/${compatibility.artist.id}'),

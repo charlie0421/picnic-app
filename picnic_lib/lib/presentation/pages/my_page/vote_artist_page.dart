@@ -4,10 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -49,7 +48,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: S.of(context).label_mypage_my_artist);
+          .setMyPageTitle(pageTitle: t('label_mypage_my_artist'));
     });
   }
 
@@ -110,7 +109,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
           child: CommonSearchBox(
             focusNode: _focusNode,
             textEditingController: _textEditingController,
-            hintText: S.of(context).text_hint_search,
+            hintText: t('text_hint_search'),
           ),
         ),
         Expanded(child: _buildArtistList()),
@@ -162,8 +161,8 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
         if (mounted) {
           showSimpleDialog(
             content: isBookmarked
-                ? S.of(context).text_bookmark_failed
-                : S.of(context).text_bookmark_over_5,
+                ? t('text_bookmark_failed')
+                : t('text_bookmark_over_5'),
           );
         }
       }
@@ -215,8 +214,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
                             SizedBox(
                                 height: 200, child: _buildShimmerLoading()),
                         noItemsFoundIndicatorBuilder: (context) =>
-                            NoItemContainer(
-                                message: S.of(context).text_no_artist),
+                            NoItemContainer(message: t('text_no_artist')),
                       ),
                     ),
                   ),

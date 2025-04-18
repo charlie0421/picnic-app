@@ -5,12 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deepl_translate_service.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_actions.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_contents.dart';
@@ -153,7 +152,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
     } catch (e, s) {
       logger.e('exception:', error: e, stackTrace: s);
       if (mounted) {
-        SnackbarUtil().showSnackbar(S.of(context).post_comment_delete_fail);
+        SnackbarUtil().showSnackbar(t('post_comment_delete_fail'));
       }
       rethrow;
     } finally {
@@ -205,7 +204,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
       if (!mounted) return;
 
       SnackbarUtil().showSnackbar(
-        S.of(context).post_comment_translate_fail,
+        t('post_comment_translate_fail'),
         backgroundColor: Colors.red,
       );
     } finally {

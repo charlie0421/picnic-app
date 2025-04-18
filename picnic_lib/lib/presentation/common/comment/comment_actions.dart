@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/like_button.dart';
 import 'package:picnic_lib/presentation/common/comment/reply_button.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -44,7 +44,7 @@ class CommentActions extends StatelessWidget {
     );
   }
 
-  Widget _buildReplyCounter() {
+  Widget _buildReplyCounter(BuildContext context) {
     if (item.parentCommentId != null) return const SizedBox.shrink();
 
     return Container(
@@ -58,7 +58,7 @@ class CommentActions extends StatelessWidget {
     );
   }
 
-  Widget _buildReplyButton() {
+  Widget _buildReplyButton(BuildContext context) {
     if (!showReplyButton) return const SizedBox.shrink();
 
     return InkWell(
@@ -68,7 +68,7 @@ class CommentActions extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         child: Text(
-          S.current.label_reply,
+          t('label_reply'),
           style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
         ),
       ),
@@ -107,8 +107,8 @@ class CommentActions extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             showOriginal
-                ? S.of(context).post_comment_action_show_translation
-                : S.of(context).post_comment_action_show_original,
+                ? t('post_comment_action_show_translation')
+                : t('post_comment_action_show_original'),
             style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
           ),
         ),
@@ -123,7 +123,7 @@ class CommentActions extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         child: Text(
-          S.of(context).post_comment_action_translate,
+          t('post_comment_action_translate'),
           style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
         ),
       ),
@@ -144,8 +144,8 @@ class CommentActions extends StatelessWidget {
         children: [
           _buildLikeButton(),
           SizedBox(width: 16.w),
-          _buildReplyCounter(),
-          _buildReplyButton(),
+          _buildReplyCounter(context),
+          _buildReplyButton(context),
           if (isDifferentLanguage) ...[
             SizedBox(width: 16.w),
             _buildTranslateButton(context),

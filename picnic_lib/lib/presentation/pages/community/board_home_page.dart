@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/board_request.dart';
 import 'package:picnic_lib/presentation/providers/artist_provider.dart';
@@ -127,11 +126,11 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(S.of(context).message_error_occurred),
+                  Text(t('message_error_occurred')),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => _boardsNotifier.refresh(),
-                    child: Text(S.of(context).label_retry),
+                    child: Text(t('label_retry')),
                   ),
                 ],
               ),
@@ -153,7 +152,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
         itemCount: totalPages,
         itemBuilder: (context, index) {
           if (index == 0) {
-            return _buildMenuItem(S.of(context).common_all, index);
+            return _buildMenuItem(t('common_all'), index);
           } else if (index <= boards.length) {
             return _buildMenuItem(
                 getLocaleTextFromJson(boards[index - 1].name), index);
@@ -241,7 +240,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
             : null,
         child: Row(
           children: [
-            Text(S.of(context).post_board_request_label,
+            Text(t('post_board_request_label'),
                 style: getTextStyle(AppTypo.caption12B, AppColors.grey700)),
             const SizedBox(width: 4),
             SvgPicture.asset(

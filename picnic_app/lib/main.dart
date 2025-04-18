@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +9,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/main.reflectable.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
+import 'package:picnic_lib/generated/crowdin_localizations.dart';
+import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n_setup.dart';
+import 'package:picnic_lib/presentation/providers/locale_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
+
+// Crowdin 배포 해시
+const String crowdinDistributionHash = 'your_distribution_hash_here';
 
 void main() async {
   await runZonedGuarded(() async {
@@ -50,12 +59,6 @@ void main() async {
         await AppInitializer.initializePrivacyConsent();
       }
 
-      // URL 전략 설정 (웹에만 적용)
-      // 웹에서 URL 전략 설정 부분 제거 - 에러가 나고 있어서 주석 처리
-      // if (kIsWeb) {
-      //   setPathUrlStrategy();
-      // }
-
       // Branch SDK는 모바일에서만 초기화
       if (!kIsWeb && UniversalPlatform.isMobile) {
         await FlutterBranchSdk.init(
@@ -64,8 +67,47 @@ void main() async {
         );
       }
 
+      // Crowdin OTA 초기화
+      await Crowdin.init(
+        distributionHash: Environment.crowdinDistributionHash ?? '',
+        connectionType: InternetConnectionType.any,
+        updatesInterval: const Duration(minutes: 15),
+      );
+
+      // 기본 언어(한국어) 번역 로드
+      for (final locale in CrowdinLocalization.supportedLocales) {
+        await Crowdin.loadTranslations(locale);
+      }
+
       logger.i('Starting app...');
-      runApp(ProviderScope(observers: [LoggingObserver()], child: const App()));
+
+      // ProviderScope 생성
+      final container = ProviderContainer(
+        observers: [LoggingObserver()],
+      );
+
+      // l10n에 컨테이너 설정 (전역 접근용)
+      setProviderContainer(container);
+
+      // 로케일 초기화 및 모든 번역 미리 로드
+      await PicnicLibL10n.preloadTranslations(container);
+
+      runApp(
+        UncontrolledProviderScope(
+          container: container,
+          child: Consumer(builder: (context, ref, _) {
+            final currentLocale = ref.watch(localeStateProvider);
+
+            return MaterialApp(
+              localizationsDelegates:
+                  CrowdinLocalization.localizationsDelegates,
+              supportedLocales: CrowdinLocalization.supportedLocales,
+              locale: currentLocale,
+              home: const App(),
+            );
+          }),
+        ),
+      );
       logger.i('App started successfully');
     } catch (e, s) {
       logger.e('Error during initialization', error: e, stackTrace: s);
@@ -76,3 +118,28 @@ void main() async {
     await Sentry.captureException(error, stackTrace: s);
   });
 }
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(builder: (context, ref, _) {
+      final currentLocale = ref.watch(localeStateProvider);
+      logger.i('currentLocale: $currentLocale');
+      return MaterialApp(
+        title: 'Picnic App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        locale: currentLocale,
+        localizationsDelegates: CrowdinLocalization.localizationsDelegates,
+        supportedLocales: CrowdinLocalization.supportedLocales,
+        home: const Placeholder(), // 실제 홈 위젯으로 교체
+      );
+    });
+  }
+}
+
+// 언어 변경 사용 예시:
+// ref.read(localeHelperProvider).changeLocale(Locale('en', 'US'));

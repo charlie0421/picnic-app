@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -75,7 +75,7 @@ class LargePopupWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(S.of(context).label_button_close,
+                            Text(t('label_button_close'),
                                 style: getTextStyle(
                                     AppTypo.body14B, AppColors.grey00)),
                             SizedBox(width: 4.w),

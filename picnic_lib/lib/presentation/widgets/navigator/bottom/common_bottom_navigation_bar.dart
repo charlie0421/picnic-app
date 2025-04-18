@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/presentation/providers/locale_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -15,6 +16,7 @@ class CommonBottomNavigationBar extends ConsumerWidget {
     final screenInfoMap = ref.watch(screenInfosProvider).value ?? {};
 
     final screenInfo = screenInfoMap[navigationInfo.portalType.name.toString()];
+    final locale = ref.watch(localeStateProvider);
 
     if (screenInfo == null) {
       return const SizedBox();

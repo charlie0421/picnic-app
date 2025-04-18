@@ -20,6 +20,7 @@ Map<String, String> countryMap = {
   'ko': 'KR',
   'ja': 'JP',
   'zh': 'CN',
+  'id': 'ID',
 };
 
 Map<String, String> languageMap = {
@@ -27,6 +28,7 @@ Map<String, String> languageMap = {
   'en': 'English',
   'ja': '日本語',
   'zh': '中文',
+  'id': 'Indonesia',
 };
 
 const Size webDesignSize = Size(600, 800);

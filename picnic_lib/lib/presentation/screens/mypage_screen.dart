@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_common.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -66,7 +67,7 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
               ),
             ),
           ),
-          title: Text(Intl.message(pageName),
+          title: Text(t(pageName),
               style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
           centerTitle: true,
           leadingWidth: 40.w,

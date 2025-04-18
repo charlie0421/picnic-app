@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -44,8 +44,8 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
 
     try {
       showSimpleDialog(
-        title: S.of(context).popup_label_delete,
-        content: S.of(context).post_comment_delete_confirm,
+        title: t('popup_label_delete'),
+        content: t('post_comment_delete_confirm'),
         onOk: () async {
           try {
             final commentsNotifier = ref.read(
@@ -66,8 +66,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
             logger.e('exception:', error: e, stackTrace: s);
 
             if (mounted) {
-              SnackbarUtil()
-                  .showSnackbar(S.of(context).post_comment_delete_fail);
+              SnackbarUtil().showSnackbar(t('post_comment_delete_fail'));
             }
             rethrow;
           }
@@ -95,7 +94,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
     try {
       if (widget.openReportModal != null) {
         widget.openReportModal!(
-          S.of(context).label_title_report,
+          t('label_title_report'),
           widget.comment,
         );
       }
@@ -146,12 +145,12 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
           if (_canDeleteComment())
             PopupMenuItem<String>(
               value: 'Delete',
-              child: Text(S.of(context).popup_label_delete),
+              child: Text(t('popup_label_delete')),
             ),
           if (_canReportComment())
             PopupMenuItem<String>(
               value: 'Report',
-              child: Text(S.of(context).label_title_report),
+              child: Text(t('label_title_report')),
             ),
         ],
         child: SvgPicture.asset(

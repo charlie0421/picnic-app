@@ -4,12 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/openai.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
@@ -100,8 +100,8 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
     if (isFlagged) {
       OverlayLoadingProgress.stop();
       showSimpleDialog(
-        title: Intl.message('dialog_caution'),
-        content: Intl.message('post_flagged'),
+        title: t('dialog_caution'),
+        content: t('post_flagged'),
       );
       return;
     }
@@ -151,8 +151,8 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
 
       if (isTemporary) {
         showSimpleDialog(
-          title: Intl.message('post_temporary_save_complete'),
-          content: Intl.message('post_ask_go_to_temporary_save_list'),
+          title: t('post_temporary_save_complete'),
+          content: t('post_ask_go_to_temporary_save_list'),
           onOk: () {},
           onCancel: () {
             Navigator.of(context).pop();

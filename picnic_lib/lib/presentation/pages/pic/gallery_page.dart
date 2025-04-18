@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/pic/gallery.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/gallery_list_provider.dart';
@@ -49,7 +49,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              S.of(context).label_celeb_gallery,
+              t('label_celeb_gallery'),
               style: getTextStyle(
                 AppTypo.title18B,
                 AppColors.grey900,

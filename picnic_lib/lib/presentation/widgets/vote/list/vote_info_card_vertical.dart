@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
@@ -73,7 +73,7 @@ class VoteCardColumnVertical extends StatelessWidget {
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Text(
-              Intl.message('text_vote_rank', args: [rank]).toString(),
+              t('text_vote_rank', [rank.toString()]),
               style: getTextStyle(AppTypo.caption12B, AppColors.point900),
               textAlign: TextAlign.center,
             ),

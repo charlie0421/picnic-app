@@ -9,11 +9,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -274,7 +273,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 showCursor: true,
                 keyboardAppearance: Brightness.light,
                 decoration: InputDecoration(
-                  hintText: S.of(context).label_input_input,
+                  hintText: t('label_input_input'),
                   hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
                   border: InputBorder.none,
                   focusColor: AppColors.primary500,
@@ -341,14 +340,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       child: Column(
         children: [
           Text(
-            '· ${S.of(context).voting_share_benefit_text}',
+            '· ${t('voting_share_benefit_text')}',
             style: getTextStyle(
               AppTypo.caption10SB,
               AppColors.primary500,
             ),
           ),
           Text(
-            '· ${S.of(context).voting_limit_text}',
+            '· ${t('voting_limit_text')}',
             style: getTextStyle(
               AppTypo.caption10SB,
               AppColors.primary500,
@@ -475,7 +474,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              S.of(context).label_button_recharge,
+              t('label_button_recharge'),
               style: getTextStyle(AppTypo.body14B, AppColors.primary500),
             ),
             SizedBox(width: 4.w),
@@ -531,7 +530,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             ),
             SizedBox(width: 4.w),
             Text(
-              S.of(context).label_checkbox_entire_use,
+              t('label_checkbox_entire_use'),
               style: getTextStyle(
                 AppTypo.body14M,
                 _checkAll ? AppColors.primary500 : AppColors.grey300,
@@ -577,7 +576,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           padding: EdgeInsets.only(left: 22.w),
           width: double.infinity,
           child: Text(
-            S.of(context).voting_limit_warning,
+            t('voting_limit_warning'),
             style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
             textAlign: TextAlign.left,
           ),
@@ -587,7 +586,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         padding: EdgeInsets.only(left: 22.w),
         width: double.infinity,
         child: Text(
-          S.of(context).text_need_recharge,
+          t('text_need_recharge'),
           style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
           textAlign: TextAlign.left,
         ),
@@ -609,7 +608,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ),
         alignment: Alignment.center,
         child: Text(
-          S.of(context).label_button_vote,
+          t('label_button_vote'),
           style: getTextStyle(
             AppTypo.title18SB,
             AppColors.grey00,
@@ -625,12 +624,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         myStarCandy < voteAmount ||
         voteAmount > maxVoteAmount) {
       showSimpleDialog(
-        title: S.of(context).dialog_title_vote_fail,
+        title: t('dialog_title_vote_fail'),
         content: voteAmount == 0
-            ? S.of(context).text_dialog_vote_amount_should_not_zero
+            ? t('text_dialog_vote_amount_should_not_zero')
             : voteAmount > maxVoteAmount
-                ? S.of(context).voting_limit_text
-                : S.of(context).text_need_recharge,
+                ? t('voting_limit_text')
+                : t('text_need_recharge'),
         onOk: () {},
       );
       return;
@@ -699,8 +698,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   void _showVotingFailDialog() {
     showSimpleDialog(
-        type: DialogType.error,
-        content: S.of(context).dialog_title_vote_fail,
-        onOk: () => Navigator.of(navigatorKey.currentContext!).pop());
+      type: DialogType.error,
+      content: t('dialog_title_vote_fail'),
+      onOk: () => Navigator.of(navigatorKey.currentContext!).pop(),
+    );
   }
 }

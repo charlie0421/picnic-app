@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityScoreWidget extends StatelessWidget {
@@ -41,7 +41,7 @@ class CompatibilityScoreWidget extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        Intl.message('compatibility_purchase_message', args: [
+                        t('compatibility_purchase_message', [
                           getLocaleTextFromJson(
                               compatibility?.artist.name ?? {})
                         ]),

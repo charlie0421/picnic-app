@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
@@ -46,7 +45,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
           showTopMenu: true,
           topRightMenu: TopRightType.board,
           showBottomNavigation: false,
-          pageTitle: S.of(context).compatibility_page_title);
+          pageTitle: t('compatibility_page_title'));
     });
   }
 
@@ -222,7 +221,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
                             const Icon(Icons.add_circle_outline, size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              S.of(context).compatibility_new_compatibility,
+                              t('compatibility_new_compatibility'),
                               style:
                                   getTextStyle(AppTypo.body16B, Colors.white),
                             ),
@@ -248,7 +247,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            S.of(context).compatibility_new_compatibility,
+            t('compatibility_new_compatibility'),
             style: getTextStyle(AppTypo.body16B, Colors.white),
           ),
         ],
