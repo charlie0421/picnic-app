@@ -1,0 +1,11 @@
+# 이 설정 파일은 완전히 OTA 방식으로 전환하기 위해 ARB 파일 생성을 비활성화합니다.
+# 대신 Crowdin SDK를 통해 직접 번역을 가져옵니다.
+arb-dir: lib/l10n
+template-arb-file: intl_ko.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/generated
+
+# ARB 파일을 비활성화하고 OTA 방식 사용
+synthetic-package: false
+generate-localization-file: false 
