@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
@@ -78,8 +77,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             (error) async {
               if (mounted) {
                 OverlayLoadingProgress.stop();
-                await _showErrorDialog(
-                    Intl.message('dialog_message_purchase_failed'));
+                await _showErrorDialog(t('dialog_message_purchase_failed'));
               }
             },
           );
@@ -91,8 +89,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
                     .toLowerCase()
                     .contains('canceled') !=
                 true) {
-              await _showErrorDialog(
-                  Intl.message('dialog_message_purchase_failed'));
+              await _showErrorDialog(t('dialog_message_purchase_failed'));
             }
           }
         } else if (purchaseDetails.status == PurchaseStatus.canceled) {
@@ -114,7 +111,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       logger.e('Error handling purchase update', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
+        await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
       rethrow;
     }
@@ -154,15 +151,14 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       if (!purchaseInitiated) {
         if (mounted) {
           OverlayLoadingProgress.stop();
-          await _showErrorDialog(
-              Intl.message('dialog_message_purchase_failed'));
+          await _showErrorDialog(t('dialog_message_purchase_failed'));
         }
       }
     } catch (e, s) {
       logger.e('Error starting purchase', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(Intl.message('dialog_message_purchase_failed'));
+        await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
       rethrow;
     }
@@ -175,7 +171,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
   Future<void> _showSuccessDialog() async {
     if (!mounted) return;
-    showSimpleDialog(content: Intl.message('dialog_message_purchase_success'));
+    showSimpleDialog(content: t('dialog_message_purchase_success'));
   }
 
   @override
@@ -213,7 +209,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             ),
             const SizedBox(height: 8),
             StorePointInfo(
-              title: Intl.message('label_star_candy_pouch'),
+              title: t('label_star_candy_pouch'),
               width: double.infinity,
               height: 80,
             ),
@@ -222,7 +218,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           const Divider(color: AppColors.grey200, height: 32),
           _buildProductsList(),
           const Divider(color: AppColors.grey200, height: 32),
-          Text(Intl.message('text_purchase_vat_included'),
+          Text(t('text_purchase_vat_included'),
               style: getTextStyle(AppTypo.caption12M, AppColors.grey600)),
           const SizedBox(height: 2),
           GestureDetector(
@@ -231,12 +227,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
               TextSpan(
                 children: [
                   TextSpan(
-                    text: Intl.message('candy_usage_policy_guide'),
+                    text: t('candy_usage_policy_guide'),
                     style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
                   ),
                   const TextSpan(text: ' '),
                   TextSpan(
-                    text: Intl.message('candy_usage_policy_guide_button'),
+                    text: t('candy_usage_policy_guide_button'),
                     style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
                         .copyWith(decoration: TextDecoration.underline),
                   ),

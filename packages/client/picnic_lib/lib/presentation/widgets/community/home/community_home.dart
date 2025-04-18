@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
 import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
@@ -51,7 +51,7 @@ class _PostHomeListState extends ConsumerState<CommunityHome> {
                   Container(
                     height: 160,
                     alignment: Alignment.center,
-                    child: Text(S.of(context).post_write_post_recommend_write,
+                    child: Text(t('post_write_post_recommend_write'),
                         style: getTextStyle(
                             AppTypo.caption12B, AppColors.grey500)),
                   )
@@ -118,7 +118,7 @@ class _PostHomeListState extends ConsumerState<CommunityHome> {
                         .setCommunityCurrentPage(
                             BoardHomePage(currentArtist.id));
                   },
-                  child: Text(S.of(context).post_go_to_boards,
+                  child: Text(t('post_go_to_boards'),
                       style:
                           getTextStyle(AppTypo.body14B, AppColors.primary500)),
                 ),

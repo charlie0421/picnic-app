@@ -6,16 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -243,7 +241,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               },
             );
           },
-          child: Text(S.of(context).button_login),
+          child: Text(t('button_login')),
         ),
       ),
     );
@@ -257,12 +255,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (isIOS()) _buildAppleLogin(context),
-          _buildGoogleLogin(
-            context,
-          ),
-          _buildKakaoLogin(
-            context,
-          ),
+          _buildGoogleLogin(context),
+          _buildKakaoLogin(context),
         ],
       ),
     );
@@ -290,7 +284,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         Navigator.of(navigatorKey.currentContext!).pop();
       } else if (userProfile.deletedAt != null) {
         showSimpleDialog(
-            content: Intl.message('error_message_withdrawal'),
+            content: t('error_message_withdrawal'),
             onOk: () {
               ref.read(userInfoProvider.notifier).logout();
               Navigator.of(navigatorKey.currentContext!).pop();
@@ -309,8 +303,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       OverlayLoadingProgress.stop();
       logger.e('error', error: e, stackTrace: s);
       showSimpleDialog(
-          title: Intl.message('error_title'),
-          content: Intl.message('error_message_login_failed'),
+          title: t('error_title'),
+          content: t('error_message_login_failed'),
           onOk: () {
             Navigator.of(navigatorKey.currentContext!).pop();
           });
@@ -349,7 +343,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
                 showSimpleDialog(
                     type: DialogType.error,
-                    title: Intl.message('error_title'),
+                    title: t('error_title'),
                     content: e.message,
                     onOk: () {
                       Navigator.of(navigatorKey.currentContext!).pop();
@@ -360,8 +354,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
                 showSimpleDialog(
                     type: DialogType.error,
-                    title: Intl.message('error_title'),
-                    content: Intl.message('error_message_login_failed'),
+                    title: t('error_title'),
+                    content: t('error_message_login_failed'),
                     onOk: () {
                       Navigator.of(navigatorKey.currentContext!).pop();
                     });
@@ -410,8 +404,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               }
               showSimpleDialog(
                   type: DialogType.error,
-                  title: Intl.message('error_title'),
-                  content: Intl.message('error_message_login_failed'),
+                  title: t('error_title'),
+                  content: t('error_message_login_failed'),
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
@@ -479,7 +473,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
               showSimpleDialog(
                   type: DialogType.error,
-                  title: Intl.message('error_title'),
+                  title: t('error_title'),
                   content: e.message,
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
@@ -490,8 +484,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
               showSimpleDialog(
                   type: DialogType.error,
-                  title: Intl.message('error_title'),
-                  content: Intl.message('error_message_login_failed'),
+                  title: t('error_title'),
+                  content: t('error_message_login_failed'),
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
@@ -555,7 +549,7 @@ class LastProvider extends StatelessWidget {
         backgroundColor: AppColors.secondary500,
         child: Center(
           child: Text(
-            S.of(context).label_last_provider,
+            t('label_last_provider'),
             style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
           ),
         ),

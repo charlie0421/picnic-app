@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/pages/my_page/my_profile.dart';
 import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
+import 'package:picnic_lib/presentation/providers/locale_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -41,7 +42,7 @@ class _MyPageState extends ConsumerState<MyPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: S.of(context).page_title_mypage);
+          .setMyPageTitle(pageTitle: t('page_title_mypage'));
     });
   }
 
@@ -55,6 +56,8 @@ class _MyPageState extends ConsumerState<MyPage> {
             .refreshBookmarkedArtists();
       }
     });
+
+    ref.watch(localeStateProvider);
 
     return userInfoState.when(
         data: (data) {
@@ -76,24 +79,24 @@ class _MyPageState extends ConsumerState<MyPage> {
                   // 공지사항
                   if (data != null && (data.isAdmin ?? false))
                     PicnicListItem(
-                        leading: S.of(context).label_mypage_notice,
+                        leading: t('label_mypage_notice'),
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
                   // 충전내역
                   if (data != null && (data.isAdmin ?? false))
                     PicnicListItem(
-                        leading: S.of(context).label_mypage_charge_history,
+                        leading: t('label_mypage_charge_history'),
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
                   // 고객센터
                   PicnicListItem(
-                      leading: S.of(context).label_mypage_customer_center,
+                      leading: t('label_mypage_customer_center'),
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () {
                         _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
                       }),
                   PicnicListItem(
-                      leading: S.of(context).label_mypage_setting,
+                      leading: t('label_mypage_setting'),
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
@@ -103,7 +106,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   const Divider(color: AppColors.grey200),
                   // 투표내역
                   PicnicListItem(
-                      leading: S.of(context).label_mypage_vote_history,
+                      leading: t('label_mypage_vote_history'),
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => data != null
                           ? ref
@@ -113,7 +116,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   // _buildMyStar('PIC'),
                   // const Divider(color: AppColors.Grey200),
                   // ListItem(
-                  //     leading: S.of(context).label_mypage_membership_history,
+                  //     leading: t('label_mypage_membership_history,
                   //     assetPath: 'assets/icons/arrow_right_style=line.svg',
                   //     onTap: () {}),
                 ],
@@ -151,7 +154,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             ),
           ),
           SizedBox(width: 16.w),
-          Text(S.of(context).label_mypage_should_login,
+          Text(t('label_mypage_should_login'),
               style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
           SizedBox(width: 16.w),
           SvgPicture.asset(
@@ -241,7 +244,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(categoryText, style: getTextStyle(AppTypo.body14B)),
-                    Text(S.of(context).label_mypage_my_artist,
+                    Text(t('label_mypage_my_artist'),
                         style: getTextStyle(AppTypo.body16M)),
                   ],
                 ),
@@ -266,7 +269,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                       if (artists.isEmpty) {
                         return Container(
                           alignment: Alignment.center,
-                          child: Text(S.of(context).label_mypage_no_artist,
+                          child: Text(t('label_mypage_no_artist'),
                               style: getTextStyle(
                                   AppTypo.title18B, AppColors.primary500)),
                         );
@@ -296,7 +299,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                 )
               : Container(
                   alignment: Alignment.center,
-                  child: Text(S.of(context).label_mypage_should_login,
+                  child: Text(t('label_mypage_should_login'),
                       style:
                           getTextStyle(AppTypo.title18B, AppColors.primary500)),
                 ),

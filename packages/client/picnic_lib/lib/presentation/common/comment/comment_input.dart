@@ -3,15 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/openai.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -93,7 +91,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       textInputAction: TextInputAction.done,
       style: getTextStyle(AppTypo.body16R, AppColors.grey900),
       decoration: InputDecoration(
-        hintText: S.of(context).label_hint_comment,
+        hintText: t('label_hint_comment'),
         hintStyle: TextStyle(
           fontSize: 16.sp,
           color: AppColors.grey400,
@@ -183,8 +181,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       if (isFlagged) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
-          title: Intl.message('dialog_caution'),
-          content: Intl.message('post_flagged'),
+          title: t('dialog_caution'),
+          content: t('post_flagged'),
         );
         return;
       }
@@ -206,13 +204,12 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       _onTextChanged();
       _focusNode.unfocus();
 
-      SnackbarUtil()
-          .showSnackbar(S.of(context).post_comment_registered_comment);
+      SnackbarUtil().showSnackbar(t('post_comment_registered_comment'));
     } catch (e, s) {
       if (!mounted) return;
 
       SnackbarUtil().showSnackbar(
-        S.of(context).post_comment_register_fail,
+        t('post_comment_register_fail'),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 2),
       );

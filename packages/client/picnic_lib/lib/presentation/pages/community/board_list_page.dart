@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -109,7 +108,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
               child: CommonSearchBox(
                 focusNode: focusNode,
                 textEditingController: _textEditingController,
-                hintText: S.of(context).text_community_board_search,
+                hintText: t('text_community_board_search'),
               ),
             ),
             Expanded(
@@ -123,17 +122,17 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
                       return _buildArtistBoardGroup(artistBoards);
                     },
                     noItemsFoundIndicatorBuilder: (context) => NoItemContainer(
-                      message: S.of(context).common_text_no_search_result,
+                      message: t('common_text_no_search_result'),
                     ),
                     firstPageErrorIndicatorBuilder: (context) => Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(S.of(context).message_error_occurred),
+                          Text(t('message_error_occurred')),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () => _pagingController.refresh(),
-                            child: Text(S.of(context).label_retry),
+                            child: Text(t('label_retry')),
                           ),
                         ],
                       ),

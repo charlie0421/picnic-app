@@ -6,7 +6,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
@@ -63,7 +63,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
           showTopMenu: true,
           showBottomNavigation: true,
           topRightMenu: TopRightType.none,
-          pageTitle: S.of(context).text_community_post_search,
+          pageTitle: t('text_community_post_search'),
         );
   }
 
@@ -163,7 +163,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
       child: CommonSearchBox(
         focusNode: focusNode,
         textEditingController: _textController,
-        hintText: S.of(context).text_community_board_search,
+        hintText: t('text_community_board_search'),
         onSubmitted: _executeSearch,
       ),
     );
@@ -219,12 +219,12 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(S.of(context).common_text_search_error,
+                    Text(t('common_text_search_error'),
                         style:
                             getTextStyle(AppTypo.body16M, AppColors.grey400)),
                     ElevatedButton(
                       onPressed: () => _pagingController.refresh(),
-                      child: Text(S.of(context).common_retry_label),
+                      child: Text(t('common_retry_label')),
                     ),
                   ],
                 ),
@@ -247,7 +247,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             color: AppColors.primary500, width: 1.w, style: BorderStyle.solid),
         borderRadius: BorderRadius.all(Radius.circular(16.r)),
       ),
-      child: Text(S.of(context).common_text_search_result_label,
+      child: Text(t('common_text_search_result_label'),
           style: getTextStyle(AppTypo.body14B, AppColors.grey00)),
     );
   }
@@ -264,7 +264,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             border: Border.all(color: AppColors.primary500, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(20.r)),
           ),
-          child: Text(S.of(context).common_text_search_recent_label,
+          child: Text(t('common_text_search_recent_label'),
               style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
         ),
         Padding(
@@ -309,7 +309,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
   Widget _buildNoResultsWidget() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 56),
-      child: Text(S.of(context).text_no_search_result,
+      child: Text(t('text_no_search_result'),
           style: getTextStyle(AppTypo.body16M, AppColors.grey400)),
     );
   }

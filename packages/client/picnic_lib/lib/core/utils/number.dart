@@ -1,10 +1,10 @@
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/l10n.dart';
 
 String formatCount(int number, String labelName) {
   final String viewString = getLocaleLanguage() == 'ko'
-      ? '${formatViewCountNumberKo(number)} ${Intl.message(labelName)}'
-      : '${formatViewCountNumberEn(number)} ${Intl.message(labelName)}';
+      ? '${formatViewCountNumberKo(number)} ${t(labelName)}'
+      : '${formatViewCountNumberEn(number)} ${t(labelName)}';
   return viewString;
 }
 

@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote_pick.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
@@ -37,7 +36,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: S.of(context).label_mypage_vote_history);
+          .setMyPageTitle(pageTitle: t('label_mypage_vote_history'));
     });
   }
 
@@ -94,11 +93,11 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
             items: [
               CustomDropdownMenuItem(
                 value: 'DESC',
-                text: S.of(context).label_dropdown_recent,
+                text: t('label_dropdown_recent'),
               ),
               CustomDropdownMenuItem(
                 value: 'ASC',
-                text: S.of(context).label_dropdown_oldest,
+                text: t('label_dropdown_oldest'),
               ),
             ],
           ),
@@ -107,7 +106,8 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
           child: PagedListView<int, VotePickModel>(
             pagingController: _pagingController,
             builderDelegate: PagedChildBuilderDelegate<VotePickModel>(
-              noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
+              noItemsFoundIndicatorBuilder: (context) =>
+                  const NoItemContainer(),
               itemBuilder: (context, item, index) => Container(
                 height: 107,
                 padding: EdgeInsets.all(16.w),
@@ -132,7 +132,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                           ),
                         ),
                         Text(
-                          S.of(context).text_vote_complete,
+                          t('text_vote_complete'),
                           style: getTextStyle(
                             AppTypo.caption12M,
                             AppColors.grey900,
@@ -141,7 +141,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                       ],
                     ),
                     Text(
-                      '${formatNumberWithComma(item.amount)} ${S.of(context).text_star_candy}',
+                      '${formatNumberWithComma(item.amount)} ${t('text_star_candy')}',
                       style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                     ),
                     RichText(

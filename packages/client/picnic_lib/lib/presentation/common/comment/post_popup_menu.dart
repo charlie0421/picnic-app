@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -58,15 +58,15 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
 
             if (widget.openReportModal != null) {
               await widget.openReportModal!
-                      (S.of(context).label_title_report, widget.post)
+                      (t('label_title_report'), widget.post)
                   .then((value) {
                 if (widget.refreshFunction != null) widget.refreshFunction!();
               });
             }
           } else if (result == 'Delete') {
             showSimpleDialog(
-              title: S.of(context).popup_label_delete,
-              content: S.of(context).post_comment_delete_confirm,
+              title: t('popup_label_delete'),
+              content: t('post_comment_delete_confirm'),
               onOk: () async {
                 if (widget.deletePost != null) widget.deletePost!(widget.post);
                 if (navigatorKey.currentContext != null) {
@@ -82,13 +82,13 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
               value: 'Delete',
               enabled: _canDeletePost(),
               child: Row(
-                children: [Text(S.of(context).popup_label_delete)],
+                children: [Text(t('popup_label_delete'))],
               )),
           PopupMenuItem<String>(
               value: 'Report',
               enabled: _canReportPost(),
               child: Row(
-                children: [Text(S.of(context).label_title_report)],
+                children: [Text(t('label_title_report'))],
               )),
         ],
       ),

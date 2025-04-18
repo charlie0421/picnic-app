@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
@@ -138,7 +137,7 @@ class _CompatibilityLoadingPageState
             showTopMenu: true,
             topRightMenu: TopRightType.board,
             showBottomNavigation: false,
-            pageTitle: Intl.message('compatibility_page_title'),
+            pageTitle: t('compatibility_page_title'),
           );
     });
   }
@@ -193,7 +192,7 @@ class _CompatibilityLoadingPageState
   Widget _buildProgressText() {
     return Center(
       child: Text(
-        '${_isLoadingStarted ? S.of(context).compatibility_analyzing : S.of(context).compatibility_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${S.of(context).seconds})' : ''}',
+        '${_isLoadingStarted ? t('compatibility_analyzing') : t('compatibility_analyzing_prepare')} ${_isLoadingStarted ? '($_seconds${t('seconds')})' : ''}',
         style: getTextStyle(
           AppTypo.body14B,
           AppColors.grey00,
@@ -218,7 +217,7 @@ class _CompatibilityLoadingPageState
         ),
         const SizedBox(height: 16),
         Text(
-          S.of(context).compatibility_waiting_message,
+          t('compatibility_waiting_message'),
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -227,7 +226,7 @@ class _CompatibilityLoadingPageState
         ),
         const SizedBox(height: 8),
         Text(
-          S.of(context).compatibility_warning_exit,
+          t('compatibility_warning_exit'),
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -276,7 +275,7 @@ class _CompatibilityLoadingPageState
                   else if (widget.compatibility.hasError)
                     CompatibilityErrorView(
                       error: widget.compatibility.errorMessage ??
-                          S.of(context).error_unknown,
+                          t('error_unknown'),
                     )
                 ],
               ),

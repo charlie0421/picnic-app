@@ -11,10 +11,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/date.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
@@ -66,7 +65,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           showPortal: false,
           showTopMenu: true,
           showBottomNavigation: false,
-          pageTitle: S.of(context).page_title_vote_detail);
+          pageTitle: t('page_title_vote_detail'));
     });
   }
 
@@ -217,8 +216,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
-                              Intl.message('text_achievement',
-                                  args: [achievements.length]),
+                              t('text_achievement',
+                                  [achievements.length.toString()]),
                               style: getTextStyle(
                                   AppTypo.title18B, AppColors.grey00),
                             ),
@@ -736,9 +735,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     final voteDetail =
         ref.read(asyncVoteDetailProvider(voteId: widget.voteId)).value!;
     if (voteDetail.isEnded!) {
-      showSimpleDialog(content: S.of(context).message_vote_is_ended);
+      showSimpleDialog(content: t('message_vote_is_ended'));
     } else if (voteDetail.isUpcoming!) {
-      showSimpleDialog(content: S.of(context).message_vote_is_upcoming);
+      showSimpleDialog(content: t('message_vote_is_upcoming'));
     } else {
       supabase.isLogged
           ? showVotingDialog(
@@ -768,7 +767,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${S.of(context).reward}${rewardIndex + 1}',
+                    '${t('reward')}${rewardIndex + 1}',
                     style: getTextStyle(AppTypo.caption12B,
                         isAchieved ? AppColors.primary500 : AppColors.grey400),
                   ),

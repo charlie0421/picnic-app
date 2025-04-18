@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
 import 'package:picnic_lib/presentation/dialogs/fortune_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
@@ -80,7 +80,7 @@ class _PostListState extends ConsumerState<PostList> {
               height: 40,
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               alignment: Alignment.centerLeft,
-              child: Text(S.of(context).fortune_button_title,
+              child: Text(t('fortune_button_title'),
                   style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
             ),
           ),
@@ -102,7 +102,7 @@ class _PostListState extends ConsumerState<PostList> {
               height: 40,
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               alignment: Alignment.centerLeft,
-              child: Text(S.of(context).fortune_with_me,
+              child: Text(t('fortune_with_me'),
                   style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
             ),
           ),
@@ -122,7 +122,7 @@ class _PostListState extends ConsumerState<PostList> {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             const SizedBox(height: 80),
-                            Text(S.of(context).post_write_post_recommend_write,
+                            Text(t('post_write_post_recommend_write'),
                                 style: getTextStyle(
                                     AppTypo.caption12B, AppColors.grey500)),
                             const SizedBox(height: 54),
@@ -152,7 +152,7 @@ class _PostListState extends ConsumerState<PostList> {
                                         const PostWritePage(),
                                       );
                                 },
-                                child: Text(S.of(context).post_write_board_post,
+                                child: Text(t('post_write_board_post'),
                                     style: getTextStyle(
                                         AppTypo.body14B, AppColors.primary500)))
                           ],

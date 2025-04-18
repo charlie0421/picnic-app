@@ -11,11 +11,10 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -77,7 +76,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           showPortal: false,
           showTopMenu: true,
           showBottomNavigation: false,
-          pageTitle: S.of(context).page_title_vote_detail);
+          pageTitle: t('page_title_vote_detail'));
     });
   }
 
@@ -177,6 +176,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   void _handleSave() {
     if (_isSaving) return;
     ShareUtils.saveImage(
+      context: context,
       _captureKey,
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
@@ -294,7 +294,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           Column(
             children: [
               Text(
-                S.of(context).text_vote_rank_in_reward,
+                t('text_vote_rank_in_reward'),
                 style: getTextStyle(AppTypo.body14B, AppColors.primary500),
               ),
               ...voteModel.reward!.map((rewardModel) => GestureDetector(
@@ -315,8 +315,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
           Column(
             children: [
               ShareSection(
-                saveButtonText: S.of(context).save,
-                shareButtonText: S.of(context).share,
+                saveButtonText: t('save'),
+                shareButtonText: t('share'),
                 onSave: _handleSave,
                 onShare: _handleShare,
               ),
@@ -357,16 +357,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                           ),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.only(
-                                  top: 56, left: 16.w, right: 16.w)
-                              .r,
+                          padding:
+                              EdgeInsets.only(top: 56, left: 16.w, right: 16.w)
+                                  .r,
                           child: filteredIndices.isEmpty &&
                                   searchQuery.isNotEmpty
                               ? SizedBox(
                                   height: 200,
                                   child: Center(
-                                    child: Text(
-                                        S.of(context).text_no_search_result),
+                                    child: Text(t('text_no_search_result')),
                                   ),
                                 )
                               : ListView.separated(
@@ -566,9 +565,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         .isNotEmpty;
 
     if (hasSameVotes) {
-      return S.of(context).text_vote_rank(rank);
+      return t('text_vote_rank(rank)');
     }
-    return S.of(context).text_vote_rank(rank);
+    return t('text_vote_rank(rank)');
   }
 
   Widget _buildArtistImage(VoteItemModel item, int index) {
@@ -662,9 +661,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   void _handleVoteItemTap(BuildContext context, VoteItemModel item, int index) {
     if (isEnded) {
-      showSimpleDialog(content: S.of(context).message_vote_is_ended);
+      showSimpleDialog(content: t('message_vote_is_ended'));
     } else if (isUpcoming) {
-      showSimpleDialog(content: S.of(context).message_vote_is_upcoming);
+      showSimpleDialog(content: t('message_vote_is_upcoming'));
     } else {
       supabase.isLogged
           ? showVotingDialog(
@@ -690,7 +689,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         child: CommonSearchBox(
           focusNode: _focusNode,
           textEditingController: _textEditingController,
-          hintText: S.of(context).text_vote_where_is_my_bias,
+          hintText: t('text_vote_where_is_my_bias'),
         ),
       ),
     );

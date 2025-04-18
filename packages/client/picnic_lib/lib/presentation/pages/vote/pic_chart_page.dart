@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -47,7 +47,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
             child: Material(
               color: Colors.transparent,
               child: LargePopupWidget(
-                title: S.of(context).text_comming_soon_pic_chart_title,
+                title: t('text_comming_soon_pic_chart_title'),
                 content: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,
@@ -88,7 +88,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        S.of(context).text_comming_soon_pic_chart2,
+                        t('text_comming_soon_pic_chart2'),
                         style: getTextStyle(
                           AppTypo.body14M,
                           AppColors.grey900,
@@ -97,7 +97,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage>
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        S.of(context).text_comming_soon_pic_chart3,
+                        t('text_comming_soon_pic_chart3'),
                         style: getTextStyle(
                           AppTypo.caption10SB,
                           AppColors.grey400,

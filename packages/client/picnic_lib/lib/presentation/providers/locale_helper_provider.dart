@@ -1,8 +1,7 @@
-import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/locale_provider.dart';
 
 // 로케일 변경 헬퍼 클래스
 class LocaleHelper {
@@ -12,14 +11,22 @@ class LocaleHelper {
 
   Future<void> changeLocale(Locale newLocale) async {
     try {
-      // 번역 로드
-      await Crowdin.loadTranslations(newLocale);
-      // 상태 업데이트
-      ref.read(appSettingProvider.notifier).setLocale(newLocale);
+      // 로케일 변경 (모든 처리 위임)
+      await ref.read(localeStateProvider.notifier).setLocale(newLocale);
 
       logger.i('Locale changed to: ${newLocale.toString()}');
     } catch (e, s) {
       logger.e('Error changing locale', error: e, stackTrace: s);
+    }
+  }
+
+  // 앱 시작 시 저장된 로케일 복원
+  Future<void> initializeLocale() async {
+    try {
+      // 초기화 메서드 호출
+      await ref.read(localeStateProvider.notifier).initialize();
+    } catch (e, s) {
+      logger.e('Error initializing locale', error: e, stackTrace: s);
     }
   }
 }

@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_input.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_reply_layer.dart';
@@ -149,7 +148,7 @@ class _CommentListState extends ConsumerState<CommentList> {
       logger.e('Error handling comment action: $e', stackTrace: s);
       if (!_isDisposed) {
         if (!context.mounted) return;
-        SnackbarUtil().showSnackbar(Intl.message('error_action_failed'));
+        SnackbarUtil().showSnackbar(t('error_action_failed'));
       }
     } finally {
       _debounceTimer?.cancel();
@@ -249,7 +248,7 @@ class _CommentListState extends ConsumerState<CommentList> {
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<CommentModel>(
         noItemsFoundIndicatorBuilder: (_) => NoItemContainer(
-          message: S.of(context).label_article_comment_empty,
+          message: t('label_article_comment_empty'),
         ),
         firstPageProgressIndicatorBuilder: (_) => const Center(
           child: Padding(
@@ -274,13 +273,13 @@ class _CommentListState extends ConsumerState<CommentList> {
           child: Column(
             children: [
               Text(
-                S.of(context).error_loading_more_comments,
+                t('error_loading_more_comments'),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: _refreshComments,
-                child: Text(S.of(context).label_retry),
+                child: Text(t('label_retry')),
               ),
             ],
           ),

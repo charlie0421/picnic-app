@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic.dart';
 import 'package:picnic_lib/presentation/providers/pic_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -49,15 +49,15 @@ class _LibraryPageState extends ConsumerState<LibraryPage>
             ),
             controller: _tabController,
             tabs: [
-              Text(S.of(context).label_library_tab_library,
+              Text(t('label_library_tab_library'),
                   style: const TextStyle(
                     fontSize: 16,
                   )),
-              Text(S.of(context).label_library_tab_pic,
+              Text(t('label_library_tab_pic'),
                   style: const TextStyle(
                     fontSize: 16,
                   )),
-              Text(S.of(context).label_library_tab_ai_photo,
+              Text(t('label_library_tab_ai_photo'),
                   style: const TextStyle(
                     fontSize: 16,
                   )),

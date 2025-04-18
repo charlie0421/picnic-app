@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
@@ -13,7 +13,7 @@ void showRequireLoginDialog() {
 
   try {
     showSimpleDialog(
-      content: S.of(navigatorKey.currentContext!).dialog_content_login_required,
+      content: t('dialog_content_login_required'),
       onOk: () async {
         if (navigatorKey.currentContext!.mounted) {
           Navigator.of(navigatorKey.currentContext!).pop();

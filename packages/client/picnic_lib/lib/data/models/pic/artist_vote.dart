@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/l10n.dart';
 
 part '../../../generated/models/pic/artist_vote.freezed.dart';
 part '../../../generated/models/pic/artist_vote.g.dart';

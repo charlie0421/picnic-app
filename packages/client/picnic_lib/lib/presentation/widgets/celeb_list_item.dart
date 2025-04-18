@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/pic/celeb.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/celeb_search_provider.dart';
@@ -72,7 +72,7 @@ class CelebListItem extends ConsumerWidget {
                           if (await getBookmarkCount(asyncCelebListState) >=
                               5) {
                             SnackbarUtil().showSnackbar(
-                              Intl.message('toast_max_five_celeb'),
+                              t('toast_max_five_celeb'),
                             );
                             return;
                           }

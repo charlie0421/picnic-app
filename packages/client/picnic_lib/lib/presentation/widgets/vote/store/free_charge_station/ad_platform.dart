@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/common_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -153,7 +153,7 @@ abstract class AdPlatform {
     } catch (e, s) {
       logger.e('Error in checkAdsLimit', error: e, stackTrace: s);
       if (context.mounted && !isDisposed) {
-        _commonUtils.showErrorDialog(S.of(context).label_ads_load_fail);
+        _commonUtils.showErrorDialog(t('label_ads_load_fail'));
       }
       return false;
     }
@@ -171,19 +171,19 @@ abstract class AdPlatform {
       contentWidget: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(S.of(context).label_ads_exceeded,
+          Text(t('label_ads_exceeded'),
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               textAlign: TextAlign.center),
           const SizedBox(height: 16),
           UnderlinedText(
-            text: S.of(context).label_ads_limits(
-                  limits?['hourly'] ?? 0,
-                  limits?['daily'] ?? 0,
-                ),
+            text: t('label_ads_limits', [
+              limits?['hourly'].toString() ?? '0',
+              limits?['daily'].toString() ?? '0'
+            ]),
             textStyle: getTextStyle(AppTypo.body14M, AppColors.grey600),
           ),
           const SizedBox(height: 16),
-          Text(S.of(context).ads_available_time,
+          Text(t('ads_available_time'),
               style: getTextStyle(AppTypo.body14M, AppColors.grey900),
               textAlign: TextAlign.center),
           Text(formatter.format(nextAvailableTime),
@@ -225,8 +225,8 @@ abstract class AdPlatform {
       stackTrace: stackTrace,
       withScope: (scope) {
         scope.setTag('platform', platform);
-        scope.setExtra('error_type', error.runtimeType.toString());
-        scope.setExtra('error_string', error.toString());
+        scope.setTag('error_type', error.runtimeType.toString());
+        scope.setTag('error_string', error.toString());
       },
     );
   }
@@ -243,9 +243,9 @@ abstract class AdPlatform {
         scope.setTag('platform', platform);
         scope.setTag('ad_type', 'load');
         scope.setTag('ad_id', adId);
-        scope.setExtra('error_message', message);
-        scope.setExtra('error_type', error.runtimeType.toString());
-        scope.setExtra('error_string', error.toString());
+        scope.setTag('error_message', message);
+        scope.setTag('error_type', error.runtimeType.toString());
+        scope.setTag('error_string', error.toString());
       },
     );
   }
@@ -262,9 +262,9 @@ abstract class AdPlatform {
         scope.setTag('platform', platform);
         scope.setTag('ad_type', 'show');
         scope.setTag('ad_id', adId);
-        scope.setExtra('error_message', message);
-        scope.setExtra('error_type', error.runtimeType.toString());
-        scope.setExtra('error_string', error.toString());
+        scope.setTag('error_message', message);
+        scope.setTag('error_type', error.runtimeType.toString());
+        scope.setTag('error_string', error.toString());
       },
     );
   }

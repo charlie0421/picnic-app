@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/update_checker.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -21,16 +22,15 @@ class ForceUpdateOverlay extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(Intl.message('update_required_title')),
+                Text(t('update_required_title')),
                 const SizedBox(height: 16),
-                // Text(S.of(context).update_required_text(forceVersion)),
-                Text(
-                    Intl.message('update_required_text', args: [forceVersion])),
+                // Text(t('update_required_text(forceVersion)),
+                Text(t('update_required_text', [forceVersion])),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  child: Text(Intl.message(('update_button'))),
+                  child: Text(t('update_button')),
                   onPressed: () => _launchAppStore(
-                      url ?? '', Intl.message(('update_cannot_open_appstore'))),
+                      url ?? '', t('update_cannot_open_appstore')),
                 ),
               ],
             ),

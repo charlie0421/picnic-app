@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -38,7 +38,7 @@ class _NoBookmarkCelebState extends ConsumerState<NoBookmarkCeleb> {
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             alignment: Alignment.center,
             child: Text(
-              S.of(context).label_no_celeb,
+              t('label_no_celeb'),
               textAlign: TextAlign.center,
               style: getTextStyle(AppTypo.title18M, AppColors.grey300),
             ),

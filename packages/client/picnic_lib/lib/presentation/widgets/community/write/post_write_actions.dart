@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -23,11 +23,11 @@ class PostWriteActions extends StatelessWidget {
           onTap: () => isTitleValid
               ? onSave(true)
               : showSimpleDialog(
-                  content: S.of(context).post_hint_title,
+                  content: t('post_hint_title'),
                   onOk: () => Navigator.of(context).pop(),
                 ),
           child: Text(
-            S.of(context).post_header_temporary_save,
+            t('post_header_temporary_save'),
             style: getTextStyle(AppTypo.body14B, AppColors.primary500),
           ),
         ),
@@ -35,24 +35,25 @@ class PostWriteActions extends StatelessWidget {
         SizedBox(
           height: 32,
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: AppColors.primary500,
-              backgroundColor: AppColors.grey00,
-              textStyle: getTextStyle(AppTypo.body14B),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: AppColors.primary500, width: 1),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: AppColors.primary500,
+                backgroundColor: AppColors.grey00,
+                textStyle: getTextStyle(AppTypo.body14B),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: AppColors.primary500, width: 1),
+                ),
               ),
-            ),
-            onPressed: isTitleValid
-                ? () => onSave(false)
-                : () => showSimpleDialog(
-                      content: S.of(context).post_hint_title,
-                      onOk: () => Navigator.of(context).pop(),
-                    ),
-            child: Text(S.of(context).post_header_publish),
-          ),
+              onPressed: isTitleValid
+                  ? () => onSave(false)
+                  : () => showSimpleDialog(
+                        content: t('post_hint_title'),
+                        onOk: () => Navigator.of(context).pop(),
+                      ),
+              child: Text(
+                t('post_header_publish'),
+              )),
         ),
       ],
     );

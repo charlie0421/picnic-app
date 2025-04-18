@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/celeb_search_provider.dart';
 import 'package:picnic_lib/presentation/widgets/celeb_list_item.dart';
@@ -48,7 +48,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(S.of(context).lable_my_celeb,
+          Text(t('lable_my_celeb'),
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium
@@ -65,7 +65,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
               );
             }),
           const SizedBox(height: 16),
-          Text(S.of(context).label_celeb_recommend,
+          Text(t('label_celeb_recommend'),
               style: Theme.of(context)
                   .textTheme
                   .headlineMedium

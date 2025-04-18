@@ -7,13 +7,12 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/artist_group.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -120,11 +119,14 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                             height: 24,
                           ),
                           Expanded(
-                            child: Text(S.of(context).text_vote_complete,
-                                style: getTextStyle(
-                                        AppTypo.title18B, AppColors.point900)
-                                    .copyWith(height: 1),
-                                textAlign: TextAlign.center),
+                            child: Text(
+                              t('text_vote_complete'),
+                              style: getTextStyle(
+                                AppTypo.title18B,
+                                AppColors.point900,
+                              ).copyWith(height: 1),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                           Image.asset(
                             package: 'picnic_lib',
@@ -205,9 +207,13 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text(S.of(context).text_this_time_vote,
-                                  style: getTextStyle(AppTypo.caption12M,
-                                      AppColors.primary500)),
+                              Text(
+                                t('text_this_time_vote'),
+                                style: getTextStyle(
+                                  AppTypo.caption12M,
+                                  AppColors.primary500,
+                                ),
+                              ),
                               Text(
                                 getLocaleTextFromJson(widget.voteModel.title),
                                 style: getTextStyle(
@@ -307,12 +313,13 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                   ),
                   if (!_isSaving)
                     ShareSection(
-                      saveButtonText: S.of(context).save,
-                      shareButtonText: S.of(context).share,
+                      saveButtonText: t('save'),
+                      shareButtonText: t('share'),
                       onSave: () {
                         if (_isSaving) return;
                         ShareUtils.saveImage(
                           _globalKey,
+                          context: context,
                           onStart: () {
                             OverlayLoadingProgress.start(context,
                                 color: AppColors.primary500);
@@ -340,7 +347,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                         ShareUtils.shareToSocial(
                           _globalKey,
                           message:
-                              '$artist - $voteTitle ${Intl.message('vote_share_message')} 🎉',
+                              '$artist - $voteTitle ${t('vote_share_message')} 🎉',
                           hashtag:
                               '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
                           downloadLink: await createBranchLink(

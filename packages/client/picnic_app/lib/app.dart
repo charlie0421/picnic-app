@@ -19,6 +19,7 @@ import 'package:picnic_lib/presentation/pages/oauth_callback_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
+import 'package:picnic_lib/presentation/providers/locale_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
@@ -265,7 +266,7 @@ class _AppState extends ConsumerState<App> {
               title: 'Picnic',
               theme: _getCurrentTheme(ref),
               themeMode: appSettingState.themeMode,
-              locale: appSettingState.locale,
+              locale: ref.watch(localeStateProvider),
               localizationsDelegates: PicnicLibL10n.localizationsDelegates,
               supportedLocales: PicnicLibL10n.supportedLocales,
               routes: _buildRoutes(),

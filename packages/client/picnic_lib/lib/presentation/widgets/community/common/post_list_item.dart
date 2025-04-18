@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/date.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/pages/community/post_view_page.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
@@ -72,7 +71,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                           ),
                     SizedBox(width: 4.w),
                     widget.post.isAnonymous ?? false
-                        ? Text(S.of(context).anonymous,
+                        ? Text(t('anonymous'),
                             style: getTextStyle(
                                 AppTypo.caption12B, AppColors.grey900))
                         : Text(widget.post.userProfiles?.nickname ?? '',
@@ -90,7 +89,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: S.of(context).views,
+                        text: t('views'),
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey600),
                       ),
@@ -110,7 +109,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                             AppTypo.caption10SB, AppColors.grey600),
                       ),
                       TextSpan(
-                        text: S.of(context).replies,
+                        text: t('replies'),
                         style: getTextStyle(
                             AppTypo.caption10SB, AppColors.grey600),
                       ),

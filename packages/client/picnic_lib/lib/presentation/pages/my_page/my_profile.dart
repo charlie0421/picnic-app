@@ -15,7 +15,7 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/util.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -79,7 +79,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             const SizedBox(height: 26),
             if (supabase.isLogged)
               PicnicListItem(
-                leading: S.of(context).label_mypage_picnic_id,
+                leading: t('label_mypage_picnic_id'),
                 title: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -94,7 +94,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     context, supabase.auth.currentUser?.id ?? ''),
               ),
             PicnicListItem(
-                leading: S.of(context).label_mypage_terms_of_use,
+                leading: t('label_mypage_terms_of_use'),
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
                   ref
@@ -102,7 +102,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .setCurrentMyPage(const TermsPage());
                 }),
             PicnicListItem(
-                leading: S.of(context).label_mypage_privacy_policy,
+                leading: t('label_mypage_privacy_policy'),
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
                   ref
@@ -110,7 +110,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .setCurrentMyPage(const PrivacyPage());
                 }),
             PicnicListItem(
-                leading: S.of(context).label_mypage_logout,
+                leading: t('label_mypage_logout'),
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
                   ref.read(userInfoProvider.notifier).logout();
@@ -120,7 +120,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   Navigator.of(context).pop();
                 }),
             PicnicListItem(
-                leading: S.of(context).label_mypage_withdrawal,
+                leading: t('label_mypage_withdrawal'),
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => _showWithdrawalModal()),
           ],
@@ -177,14 +177,14 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             // 사용자 프로필 업데이트
             await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
 
-            SnackbarUtil().showSnackbar(Intl.message('common_success'));
+            SnackbarUtil().showSnackbar(t('common_success'));
           } else {
             throw Exception('Failed to upload image');
           }
         } catch (e, s) {
           logger.e('error', error: e, stackTrace: s);
 
-          SnackbarUtil().showSnackbar(Intl.message('common_fail'));
+          SnackbarUtil().showSnackbar(t('common_fail'));
           rethrow;
         } finally {
           if (mounted) {
@@ -221,22 +221,22 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(
-                    S.of(context).dialog_withdraw_title,
+                    t('dialog_withdraw_title'),
                     style: getTextStyle(AppTypo.title18SB, AppColors.grey900),
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    S.of(context).dialog_will_delete_star_candy,
+                    t('dialog_will_delete_star_candy'),
                     style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                   ),
                   const StarCandyInfoText(),
                   const SizedBox(height: 24),
-                  Text(S.of(context).dialog_withdraw_message,
+                  Text(t('dialog_withdraw_message'),
                       style:
                           getTextStyle(AppTypo.caption12R, AppColors.grey700),
                       textAlign: TextAlign.center),
                   const SizedBox(height: 24),
-                  Text(S.of(context).dialog_message_can_resignup,
+                  Text(t('dialog_message_can_resignup'),
                       style:
                           getTextStyle(AppTypo.caption12R, AppColors.grey700),
                       textAlign: TextAlign.center),
@@ -262,8 +262,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   color: AppColors.grey300,
                                   borderRadius: BorderRadius.circular(30.w),
                                 ),
-                                child: Text(
-                                    S.of(context).dialog_withdraw_button_ok,
+                                child: Text(t('dialog_withdraw_button_ok'),
                                     style: getTextStyle(
                                         AppTypo.title18SB, AppColors.grey00)))),
                       ),
@@ -284,7 +283,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                       color: AppColors.primary500,
                                       width: 1.5.w),
                                 ),
-                                child: Text(S.of(context).dialog_button_cancel,
+                                child: Text(t('dialog_button_cancel'),
                                     style: getTextStyle(AppTypo.title18SB,
                                         AppColors.primary500)))),
                       ),
@@ -330,7 +329,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         Navigator.of(context).pop();
 
         if (!mounted) return;
-        showSimpleDialog(content: Intl.message('withdrawal_success'));
+        showSimpleDialog(content: t('withdrawal_success'));
       } else {
         throw Exception('Failed to delete user: ${response.body}');
       }
@@ -348,7 +347,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       margin: EdgeInsets.symmetric(horizontal: 57.w),
       child: isValid == false
           ? Text(
-              S.of(context).nickname_validation_error,
+              t('nickname_validation_error'),
               style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
             )
           : null,
@@ -389,7 +388,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 keyboardType: TextInputType.text,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 decoration: InputDecoration(
-                  hintText: S.of(context).hint_nickname_input,
+                  hintText: t('hint_nickname_input'),
                   hintStyle: getTextStyle(AppTypo.body14B, AppColors.grey300),
                   border: InputBorder.none,
                   fillColor: AppColors.grey900,
@@ -462,11 +461,10 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 if (success) {
                   // 닉네임 변경 성공
                   showSimpleDialog(
-                      content: Intl.message('message_update_nickname_success'));
+                      content: t('message_update_nickname_success'));
                 } else {
                   // 닉네임 변경 실패 (중복 또는 오류)
-                  showSimpleDialog(
-                      content: Intl.message('message_update_nickname_fail'));
+                  showSimpleDialog(content: t('message_update_nickname_fail'));
                 }
                 OverlayLoadingProgress.stop();
               });
@@ -559,7 +557,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         value.isEmpty ||
         value.length > 20 ||
         !regExp.hasMatch(value)) {
-      return S.of(context).nickname_validation_error;
+      return t('nickname_validation_error');
     }
     return null;
   }

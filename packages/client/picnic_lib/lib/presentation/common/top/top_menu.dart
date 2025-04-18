@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_my_point_info.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_common.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_community.dart';
@@ -45,7 +46,7 @@ class _TopState extends ConsumerState<TopMenu> {
             alignment: Alignment.center,
             child: Center(
               child: Text(
-                Intl.message(pageName),
+                t(pageName),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ),

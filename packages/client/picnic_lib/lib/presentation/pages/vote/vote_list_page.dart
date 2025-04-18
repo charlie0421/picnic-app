@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
@@ -49,7 +49,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
           showPortal: false,
           showTopMenu: true,
           showBottomNavigation: true,
-          pageTitle: S.of(context).page_title_vote_gather);
+          pageTitle: t('page_title_vote_gather'));
     });
   }
 
@@ -65,9 +65,9 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
               controller: _tabController,
               indicatorWeight: 3,
               tabs: [
-                Tab(text: S.of(context).label_tabbar_vote_active),
-                Tab(text: S.of(context).label_tabbar_vote_end),
-                Tab(text: S.of(context).label_tabbar_vote_upcoming),
+                Tab(text: t('label_tabbar_vote_active')),
+                Tab(text: t('label_tabbar_vote_end')),
+                Tab(text: t('label_tabbar_vote_upcoming')),
               ],
             ),
           ),

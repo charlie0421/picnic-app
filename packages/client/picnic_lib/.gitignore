@@ -33,3 +33,7 @@ build/
 # generated 폴더 포함
 !lib/generated/
 !lib/generated/**
+
+# Crowdin 설정
+.env
+.dart_tool/flutter_gen/

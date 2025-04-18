@@ -87,5 +87,8 @@
       "ios_rewarded_video_id": "ca-app-pub-1539304887624918/9821126370",
       "android_rewarded_video_id": "ca-app-pub-1539304887624918/3864525446"
     }
+  },
+  "crowdin": {
+    "distribution_hash": "4f367e651047a646d2214ba5954"
   }
 }

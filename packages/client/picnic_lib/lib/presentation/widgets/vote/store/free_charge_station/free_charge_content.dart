@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
@@ -74,7 +73,7 @@ class FreeChargeContent extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             StorePointInfo(
-              title: S.of(context).label_star_candy_pouch,
+              title: t('label_star_candy_pouch'),
               width: double.infinity,
               height: 80,
             ),
@@ -82,21 +81,20 @@ class FreeChargeContent extends ConsumerWidget {
           const SizedBox(height: 12),
 
           // 미션 섹션
-          _buildSectionHeader(
-              context, S.of(context).label_mission_get_star_candy),
+          _buildSectionHeader(context, t('label_mission_get_star_candy')),
           const SizedBox(height: 4),
           _buildItemsList(missions, context, loadingState),
 
           const SizedBox(height: 16),
 
           // 광고 섹션
-          _buildSectionHeader(context, S.of(context).label_ads_get_star_candy),
+          _buildSectionHeader(context, t('label_ads_get_star_candy')),
           const SizedBox(height: 4),
           _buildItemsList(ads, context, loadingState),
 
           const SizedBox(height: 12),
           const Divider(height: 12, thickness: 1, color: AppColors.grey200),
-          _buildPolicyGuide(),
+          _buildPolicyGuide(context),
           const SizedBox(height: 8),
         ],
       ),
@@ -173,7 +171,7 @@ class FreeChargeContent extends ConsumerWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: '+${S.of(context).label_bonus} ${item.bonusText}',
+                      text: '+${t('label_bonus')} ${item.bonusText}',
                       style:
                           getTextStyle(AppTypo.caption12B, AppColors.point900),
                     ),
@@ -188,29 +186,29 @@ class FreeChargeContent extends ConsumerWidget {
   String _getButtonText(
       ChargeStationItem item, bool isLoading, BuildContext context) {
     if (isLoading) {
-      return S.of(context).label_loading_ads;
+      return t('label_loading_ads');
     }
 
     if (item.isMission) {
-      return S.of(context).label_mission_short;
+      return t('label_mission_short');
     }
 
-    return S.of(context).label_watch_ads_short;
+    return t('label_watch_ads_short');
   }
 
-  Widget _buildPolicyGuide() {
+  Widget _buildPolicyGuide(BuildContext context) {
     return GestureDetector(
       onTap: onPolicyTap,
       child: Text.rich(
         TextSpan(
           children: [
             TextSpan(
-              text: Intl.message('candy_usage_policy_guide'),
+              text: t('candy_usage_policy_guide'),
               style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
             ),
             const TextSpan(text: ' '),
             TextSpan(
-              text: Intl.message('candy_usage_policy_guide_button'),
+              text: t('candy_usage_policy_guide_button'),
               style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
                   .copyWith(decoration: TextDecoration.underline),
             ),

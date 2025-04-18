@@ -6,11 +6,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
@@ -102,6 +101,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   void _handleSaveImage() async {
     await ShareUtils.saveImage(
       _globalKey,
+      context: context,
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() => _isSaving = true);
@@ -220,8 +220,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
               ),
               if (!_isSaving)
                 ShareSection(
-                  saveButtonText: S.of(context).save,
-                  shareButtonText: S.of(context).share,
+                  saveButtonText: t('save'),
+                  shareButtonText: t('share'),
                   onSave: _handleSaveImage,
                   onShare: _handleShareToTwitter,
                 ),

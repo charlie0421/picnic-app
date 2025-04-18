@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/date.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
@@ -38,7 +37,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
             showTopMenu: true,
             topRightMenu: TopRightType.none,
             showBottomNavigation: false,
-            pageTitle: S.of(context).post_my_written_reply,
+            pageTitle: t('post_my_written_reply'),
           );
     });
 
@@ -89,7 +88,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
       if (!mounted) return;
 
       SnackbarUtil().showSnackbar(
-        S.of(context).post_comment_delete_fail,
+        t('post_comment_delete_fail'),
         backgroundColor: Colors.red,
       );
       rethrow;
@@ -119,10 +118,10 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(S.of(context).post_comment_loading_fail),
+                Text(t('post_comment_loading_fail')),
                 ElevatedButton(
                   onPressed: _handleRefresh,
-                  child: Text(S.of(context).common_retry_label),
+                  child: Text(t('common_retry_label')),
                 ),
               ],
             ),
@@ -277,7 +276,7 @@ class CommentContentsState extends State<CommentContents> {
                 ),
                 if (exceedsMaxLines && !_expanded)
                   Text(
-                    S.of(context).post_comment_content_more,
+                    t('post_comment_content_more'),
                     style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                   ),
               ],

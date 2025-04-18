@@ -11,6 +11,7 @@ import 'package:ttja_app/main.reflectable.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
+import 'package:picnic_lib/services/localization_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
@@ -18,6 +19,16 @@ import 'package:flutter/foundation.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Crowdin 초기화 (실제 해시로 변경 필요)
+  await LocalizationService.initialize(
+    distributionHash: 'your_distribution_hash_here',
+  );
+
+  // 기본 언어(한국어) 번역 로드
+  await LocalizationService.loadTranslations(const Locale('ko'));
+
   await runZonedGuarded(() async {
     try {
       logger.i('Starting app initialization...');
@@ -27,27 +38,27 @@ void main() async {
       await AppInitializer.initializeSentry();
 
       await initializeSupabase();
-      
+
       // 웹에서 불필요한 기능들은 조건부로 초기화
       if (!kIsWeb) {
         await AppInitializer.initializeWebP();
         await AppInitializer.initializeTapjoy();
       }
-      
+
       // Firebase는 웹과 모바일 모두 필요할 수 있지만, 웹 환경에서 다른 설정이 필요한 경우 처리
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
       await AppInitializer.initializeAuth();
-      
+
       // 타임존 초기화는 모바일에서만 필요할 수 있음
       if (!kIsWeb) {
         await AppInitializer.initializeTimezone();
       }
-      
+
       initializeReflectable();
-      
+
       // 프라이버시 동의 관련 기능은 모바일에서만 필요할 수 있음
       if (!kIsWeb) {
         await AppInitializer.initializePrivacyConsent();
@@ -96,5 +107,22 @@ Future<void> requestAppTrackingTransparency() async {
   // 앱 추적 투명성은 iOS에서만 필요하므로 웹에서는 실행하지 않음
   if (!kIsWeb) {
     await PrivacyConsentManager.initialize();
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'TTJA App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      localizationsDelegates: LocalizationService.localizationDelegates,
+      supportedLocales: LocalizationService.supportedLocales,
+      home: const Placeholder(), // 실제 홈 위젯으로 교체
+    );
   }
 }

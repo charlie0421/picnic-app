@@ -3,7 +3,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/enums.dart';
-import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/locale_provider.dart';
 import 'package:picnic_lib/presentation/providers/policy_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 
@@ -30,7 +30,7 @@ class _TermsPageState extends ConsumerState<TermsPage>
   @override
   Widget build(BuildContext context) {
     final PolicyLanguage language =
-        ref.watch(appSettingProvider).locale.languageCode == 'ko'
+        ref.watch(localeStateProvider).languageCode == 'ko'
             ? PolicyLanguage.ko
             : PolicyLanguage.en;
     final policyModelState = ref.watch(asyncPolicyProvider);

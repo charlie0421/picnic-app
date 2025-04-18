@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/generated/l10n.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -48,7 +48,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Text(
-              isAchieve ? '{$S.of(context).achieve}!' : '',
+              isAchieve ? '${t('achieve')}!' : '',
               style: getTextStyle(AppTypo.caption12B, AppColors.point900),
               textAlign: TextAlign.center,
             ),
@@ -109,7 +109,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
               width: width,
               child: Column(children: [
                 Text(
-                  '${S.of(context).reward}${rank.order}',
+                  '${t('reward')} ${rank.order}',
                   style: getTextStyle(
                     AppTypo.caption10SB,
                     AppColors.grey00,

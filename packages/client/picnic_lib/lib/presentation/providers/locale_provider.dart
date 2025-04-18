@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 
-// 로케일 상태 제공자 (Locale 객체 직접 사용)
-final localeStateProvider = StateProvider<Locale>((ref) {
-  // 기본값은 한국어
-  return const Locale('ko', 'KR');
-});
+part '../../generated/providers/locale_provider.g.dart';
 
-// 로케일 액션 제공자
-final localeActionsProvider = Provider<LocaleActions>((ref) {
-  return LocaleActions(ref);
-});
-
-/// 로케일 관련 기능을 제공하는 클래스
-class LocaleActions {
-  final Ref ref;
-
-  LocaleActions(this.ref);
+/// 로케일 상태 제공자 (자동 생성됨)
+@Riverpod(keepAlive: true)
+class LocaleState extends _$LocaleState {
+  @override
+  Locale build() {
+    // 기본값은 한국어
+    return const Locale('ko', 'KR');
+  }
 
   /// 로케일 변경 메서드
   Future<void> setLocale(Locale locale) async {
@@ -39,8 +33,8 @@ class LocaleActions {
         logger.e('Crowdin 번역 로드 실패', error: e);
       }
 
-      // 3. 상태 직접 업데이트
-      ref.read(localeStateProvider.notifier).state = locale;
+      // 3. 상태 업데이트
+      state = locale;
 
       logger.i('Locale changed to: ${locale.toString()}');
     } catch (e, s) {
@@ -62,8 +56,8 @@ class LocaleActions {
         // Crowdin 번역 로드
         await Crowdin.loadTranslations(locale);
 
-        // 상태 직접 업데이트
-        ref.read(localeStateProvider.notifier).state = locale;
+        // 상태 업데이트
+        state = locale;
 
         logger.i('Locale initialized to: ${locale.toString()}');
       }

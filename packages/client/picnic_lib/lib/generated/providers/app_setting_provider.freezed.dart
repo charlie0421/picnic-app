@@ -17,7 +17,6 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$Setting {
   ThemeMode get themeMode => throw _privateConstructorUsedError;
-  Locale get locale => throw _privateConstructorUsedError;
   bool get postAnonymousMode => throw _privateConstructorUsedError;
 
   /// Create a copy of Setting
@@ -31,7 +30,7 @@ abstract class $SettingCopyWith<$Res> {
   factory $SettingCopyWith(Setting value, $Res Function(Setting) then) =
       _$SettingCopyWithImpl<$Res, Setting>;
   @useResult
-  $Res call({ThemeMode themeMode, Locale locale, bool postAnonymousMode});
+  $Res call({ThemeMode themeMode, bool postAnonymousMode});
 }
 
 /// @nodoc
@@ -50,7 +49,6 @@ class _$SettingCopyWithImpl<$Res, $Val extends Setting>
   @override
   $Res call({
     Object? themeMode = null,
-    Object? locale = null,
     Object? postAnonymousMode = null,
   }) {
     return _then(_value.copyWith(
@@ -58,10 +56,6 @@ class _$SettingCopyWithImpl<$Res, $Val extends Setting>
           ? _value.themeMode
           : themeMode // ignore: cast_nullable_to_non_nullable
               as ThemeMode,
-      locale: null == locale
-          ? _value.locale
-          : locale // ignore: cast_nullable_to_non_nullable
-              as Locale,
       postAnonymousMode: null == postAnonymousMode
           ? _value.postAnonymousMode
           : postAnonymousMode // ignore: cast_nullable_to_non_nullable
@@ -77,7 +71,7 @@ abstract class _$$SettingImplCopyWith<$Res> implements $SettingCopyWith<$Res> {
       __$$SettingImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({ThemeMode themeMode, Locale locale, bool postAnonymousMode});
+  $Res call({ThemeMode themeMode, bool postAnonymousMode});
 }
 
 /// @nodoc
@@ -94,7 +88,6 @@ class __$$SettingImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? themeMode = null,
-    Object? locale = null,
     Object? postAnonymousMode = null,
   }) {
     return _then(_$SettingImpl(
@@ -102,10 +95,6 @@ class __$$SettingImplCopyWithImpl<$Res>
           ? _value.themeMode
           : themeMode // ignore: cast_nullable_to_non_nullable
               as ThemeMode,
-      locale: null == locale
-          ? _value.locale
-          : locale // ignore: cast_nullable_to_non_nullable
-              as Locale,
       postAnonymousMode: null == postAnonymousMode
           ? _value.postAnonymousMode
           : postAnonymousMode // ignore: cast_nullable_to_non_nullable
@@ -118,9 +107,7 @@ class __$$SettingImplCopyWithImpl<$Res>
 
 class _$SettingImpl extends _Setting {
   const _$SettingImpl(
-      {this.themeMode = ThemeMode.system,
-      this.locale = const Locale("ko", "KR"),
-      this.postAnonymousMode = false})
+      {this.themeMode = ThemeMode.system, this.postAnonymousMode = false})
       : super._();
 
   @override
@@ -128,14 +115,11 @@ class _$SettingImpl extends _Setting {
   final ThemeMode themeMode;
   @override
   @JsonKey()
-  final Locale locale;
-  @override
-  @JsonKey()
   final bool postAnonymousMode;
 
   @override
   String toString() {
-    return 'Setting(themeMode: $themeMode, locale: $locale, postAnonymousMode: $postAnonymousMode)';
+    return 'Setting(themeMode: $themeMode, postAnonymousMode: $postAnonymousMode)';
   }
 
   @override
@@ -145,14 +129,12 @@ class _$SettingImpl extends _Setting {
             other is _$SettingImpl &&
             (identical(other.themeMode, themeMode) ||
                 other.themeMode == themeMode) &&
-            (identical(other.locale, locale) || other.locale == locale) &&
             (identical(other.postAnonymousMode, postAnonymousMode) ||
                 other.postAnonymousMode == postAnonymousMode));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, themeMode, locale, postAnonymousMode);
+  int get hashCode => Object.hash(runtimeType, themeMode, postAnonymousMode);
 
   /// Create a copy of Setting
   /// with the given fields replaced by the non-null parameter values.
@@ -166,14 +148,11 @@ class _$SettingImpl extends _Setting {
 abstract class _Setting extends Setting {
   const factory _Setting(
       {final ThemeMode themeMode,
-      final Locale locale,
       final bool postAnonymousMode}) = _$SettingImpl;
   const _Setting._() : super._();
 
   @override
   ThemeMode get themeMode;
-  @override
-  Locale get locale;
   @override
   bool get postAnonymousMode;
 

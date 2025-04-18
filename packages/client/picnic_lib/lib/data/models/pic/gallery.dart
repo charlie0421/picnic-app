@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_lib/core/utils/i18n.dart';
 import 'package:picnic_lib/data/models/pic/celeb.dart';
+import 'package:picnic_lib/l10n.dart';
 
 part '../../../generated/models/pic/gallery.freezed.dart';
 part '../../../generated/models/pic/gallery.g.dart';
