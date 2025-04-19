@@ -1,0 +1,53 @@
+declare namespace NodeJS {
+  interface ProcessEnv {
+    // Supabase
+    NEXT_PUBLIC_SUPABASE_URL: string;
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
+    NEXT_PUBLIC_SUPABASE_STORAGE_URL: string;
+    NEXT_PUBLIC_SUPABASE_STORAGE_ANON_KEY: string;
+
+    // Auth
+    NEXT_PUBLIC_APPLE_CLIENT_ID?: string;
+    NEXT_PUBLIC_APPLE_REDIRECT_URI?: string;
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID?: string;
+    NEXT_PUBLIC_GOOGLE_SERVER_CLIENT_ID?: string;
+    NEXT_PUBLIC_KAKAO_NATIVE_APP_KEY?: string;
+    NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY?: string;
+
+    // Sentry
+    NEXT_PUBLIC_SENTRY_ENABLE?: string;
+    NEXT_PUBLIC_SENTRY_WEB_DSN?: string;
+    NEXT_PUBLIC_SENTRY_TRACE_SAMPLE_RATE?: string;
+    NEXT_PUBLIC_SENTRY_PROFILE_SAMPLE_RATE?: string;
+    NEXT_PUBLIC_SENTRY_SESSION_SAMPLE_RATE?: string;
+    NEXT_PUBLIC_SENTRY_ERROR_SAMPLE_RATE?: string;
+
+    // Storage
+    NEXT_PUBLIC_CDN_URL?: string;
+    AWS_ACCESS_KEY_ID?: string;
+    AWS_SECRET_ACCESS_KEY?: string;
+    AWS_REGION?: string;
+    AWS_S3_BUCKET?: string;
+    AWS_S3_BUCKET_URL?: string;
+
+    // API Keys
+    NEXT_PUBLIC_YOUTUBE_API_KEY?: string;
+    NEXT_PUBLIC_DEEPL_API_KEY?: string;
+    NEXT_PUBLIC_BRANCH_API_KEY?: string;
+
+    // App
+    NEXT_PUBLIC_WEB_DOMAIN?: string;
+    NEXT_PUBLIC_DOWNLOAD_LINK?: string;
+    NEXT_PUBLIC_APP_LINK_PREFIX?: string;
+
+    // Theme
+    NEXT_PUBLIC_THEME_PRIMARY_COLOR?: string;
+    NEXT_PUBLIC_THEME_SECONDARY_COLOR?: string;
+    NEXT_PUBLIC_THEME_SUB_COLOR?: string;
+    NEXT_PUBLIC_THEME_POINT_COLOR?: string;
+    NEXT_PUBLIC_THEME_POINT_900_COLOR?: string;
+
+    // Google AdSense
+    NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT?: string;
+  }
+} 
