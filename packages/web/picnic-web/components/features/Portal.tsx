@@ -70,26 +70,28 @@ const Portal: React.FC<PortalProps> = ({ children }) => {
                   )}
                 </div>
 
-                {authState.isAuthenticated ? (
-                  <Link href="/mypage">
-                    {authState.user?.avatarUrl ? (
-                      <ProfileImageContainer
-                        avatarUrl={authState.user.avatarUrl}
-                        width={36}
-                        height={36}
-                        borderRadius={8}
-                      />
-                    ) : (
-                      <DefaultAvatar width={36} height={36} />
-                    )}
-                  </Link>
-                ) : (
-                  <Link href="/auth/login">
-                    <div className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
-                      로그인
-                    </div>
-                  </Link>
-                )}
+                <div className="flex items-center space-x-4">
+                  {authState.isAuthenticated ? (
+                    <Link href="/mypage">
+                      {authState.user?.avatarUrl ? (
+                        <ProfileImageContainer
+                          avatarUrl={authState.user.avatarUrl}
+                          width={36}
+                          height={36}
+                          borderRadius={8}
+                        />
+                      ) : (
+                        <DefaultAvatar width={36} height={36} />
+                      )}
+                    </Link>
+                  ) : (
+                    <Link href="/auth/login">
+                      <div className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">
+                        로그인
+                      </div>
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -98,9 +100,7 @@ const Portal: React.FC<PortalProps> = ({ children }) => {
           <div className="flex flex-col">
             <div className="w-full">
               {/* 메인 콘텐츠 */}
-              <div className="mt-4">
-                {children}
-              </div>
+              {children}
             </div>
           </div>
         </main>

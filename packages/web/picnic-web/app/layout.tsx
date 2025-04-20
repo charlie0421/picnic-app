@@ -5,7 +5,6 @@ import { AuthProvider } from '../contexts/AuthContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
 import Portal from '@/components/features/Portal'
 import { redirect } from 'next/navigation'
-import { PortalType } from '@/utils/enums'
 
 const inter = Inter({ subsets: ['latin'] })
 

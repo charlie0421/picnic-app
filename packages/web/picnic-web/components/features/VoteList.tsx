@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Vote, VoteItem } from '@/types/interfaces';
 import { getCdnImageUrl } from '@/utils/api/image';
 import { format, differenceInDays } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { getVotes } from '@/utils/api/queries';
 
 interface VoteListProps {
   votes: Vote[];
@@ -32,7 +33,21 @@ const RANK_BADGE_COLORS = [
   'bg-gradient-to-br from-amber-500 to-amber-700 shadow-sm',
 ];
 
-const VoteList: React.FC<VoteListProps> = ({ votes }) => {
+const VoteList: React.FC<VoteListProps> = () => {
+  const [mounted, setMounted] = useState(false);
+  const [votes, setVotes] = useState<Vote[]>([]);
+  useEffect(() => {
+    setMounted(true);
+    const updateVoteData = async () => {
+      const votesData = await getVotes('votes');
+      setVotes(votesData);
+    };
+
+    updateVoteData();
+    const timer = setInterval(updateVoteData, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const getVoteStatus = (vote: Vote): VoteStatus => {
     if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
     

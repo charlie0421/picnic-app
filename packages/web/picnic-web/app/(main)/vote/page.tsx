@@ -17,60 +17,38 @@ const VotePage: React.FC = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentDateTime, setCurrentDateTime] = useState<string>('');
 
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const formattedDate = format(now, 'MM/dd (EEE) HH:mm:ss', { locale: ko });
-      setCurrentDateTime(formattedDate);
+    const fetchData = async () => {
+      try {
+        const bannersData = await getBanners();
+        console.log(bannersData);
+        setBanners(bannersData);
+
+        const rewardsData = await getRewards();
+        console.log(rewardsData);
+        setRewards(rewardsData);
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error('데이터를 가져오는 중 오류가 발생했습니다:', error);
+        setError('데이터를 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
     };
-    
-    updateTime();
-    const intervalId = setInterval(updateTime, 1000);
 
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      
-      const [votesData, rewardsData, bannersData] = await Promise.all([
-        getVotes('votes', 3),
-        getRewards(),
-        getBanners(),
-      ]);
-      
-      setVotes(votesData);
-      setRewards(rewardsData);
-      setBanners(bannersData);
-      
-    } catch (error) {
-      console.error('데이터를 가져오는 중 오류가 발생했습니다:', error);
-      setError('데이터를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
     fetchData();
-    const intervalId = setInterval(() => {
-      fetchData();
-    }, 60000);
-    
-    return () => clearInterval(intervalId);
-  }, [fetchData]);
+  }, []);
 
   return (
     <div className="min-h-screen">
       <div className="bg-gray-50 border-b">
         <div className="container mx-auto px-0">
-          <Menu currentDateTime={currentDateTime} />
+          <Menu />
         </div>
       </div>
-      
+
       {isLoading ? (
         <div className="flex justify-center items-center min-h-[300px]">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -83,10 +61,10 @@ const VotePage: React.FC = () => {
         <div className="container mx-auto px-4 py-6 space-y-10">
           <BannerList banners={banners} />
           <RewardList rewards={rewards} />
-          <VoteList votes={votes} />
+          <VoteList/>
         </div>
       )}
-      
+
       <Footer />
     </div>
   );

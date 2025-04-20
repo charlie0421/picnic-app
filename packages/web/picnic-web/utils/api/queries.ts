@@ -2,7 +2,7 @@ import { supabase } from './supabase';
 import { Banner, Reward, Vote } from '@/types/interfaces';
 
 // 투표 데이터 가져오기
-export const getVotes = async (sortBy: 'votes' | 'recent' = 'votes', limit: number = 0): Promise<Vote[]> => {
+export const getVotes = async (sortBy: 'votes' | 'recent' = 'votes'): Promise<Vote[]> => {
   try {
     const now = new Date();
     const currentTime = now.toISOString();
