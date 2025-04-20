@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { PortalType } from '../utils/enums';
+import { PortalType } from '@/utils/enums';
 
 interface PortalMenuItemProps {
   portalType: PortalType;

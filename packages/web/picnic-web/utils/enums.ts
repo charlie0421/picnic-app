@@ -1,25 +1,12 @@
-export enum PolicyLanguage {
-  EN = 'en',
-  KO = 'ko'
-}
-
-export enum PolicyType {
-  PRIVACY = 'privacy',
-  TERMS = 'terms',
-  WITHDRAW = 'withdraw'
-}
-
 export enum PortalType {
+  PUBLIC = 'public',
+  AUTH = 'auth',
+  PROTECTED = 'protected',
   VOTE = 'vote',
-  PIC = 'pic',
   COMMUNITY = 'community',
+  PIC = 'pic',
   NOVEL = 'novel',
   MYPAGE = 'mypage',
   MEDIA = 'media',
   SHOP = 'shop'
-}
-
-export enum Gender {
-  MALE = 'male',
-  FEMALE = 'female'
 } 

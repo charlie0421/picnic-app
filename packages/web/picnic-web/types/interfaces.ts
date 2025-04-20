@@ -24,1035 +24,1039 @@ export type SupportedLanguage = "ko" | "en" | "ja" | "zh";
 
 export type UserGenderEnum = "male" | "female" | "other";
 
-export interface activities {
-  activity_type: string
+export interface Activities {
+  activityType: string
   description: string
   details: Json | null
   id: number
-  ip_address: string | null
-  resource_id: string | null
-  resource_type: string
+  ipAddress: string | null
+  resourceId: string | null
+  resourceType: string
   timestamp: string
-  user_agent: string | null
-  user_id: string | null
+  userAgent: string | null
+  userId: string | null
 }
 
-export interface admin_permissions {
+export interface AdminPermissions {
   action: string
-  created_at: string | null
+  createdAt: string | null
   description: string | null
   id: string
   resource: string
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface admin_role_permissions {
-  created_at: string | null
+export interface AdminRolePermissions {
+  createdAt: string | null
   id: string
-  permission_id: string
-  role_id: string
-  updated_at: string | null
+  permissionId: string
+  roleId: string
+  updatedAt: string | null
 }
 
-export interface admin_roles {
-  created_at: string | null
+export interface AdminRoles {
+  createdAt: string | null
   description: string | null
   id: string
   name: string
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface admin_user_roles {
-  created_at: string | null
+export interface AdminUserRoles {
+  createdAt: string | null
   id: string
-  role_id: string
-  updated_at: string | null
-  user_id: string
+  roleId: string
+  updatedAt: string | null
+  userId: string
 }
 
-export interface album {
-  created_at: string | null
-  deleted_at: string | null
+export interface Album {
+  createdAt: string | null
+  deletedAt: string | null
   id: number | null
   title: string | null
-  updated_at: string | null
-  user_id: number | null
+  updatedAt: string | null
+  userId: number | null
 }
 
-export interface album_image {
-  album_id: number | null
-  image_id: number | null
+export interface AlbumImage {
+  albumId: number | null
+  imageId: number | null
 }
 
-export interface album_image_user {
-  image_id: number | null
-  user_id: number | null
+export interface AlbumImageUser {
+  imageId: number | null
+  userId: number | null
 }
 
-export interface app_splash {
-  created_at: string | null
-  deleted_at: string | null
+export interface AppSplash {
+  createdAt: string | null
+  deletedAt: string | null
   duration: number | null
-  end_at: string | null
+  endAt: string | null
   id: number
   image: Json | null
-  start_at: string | null
-  updated_at: string | null
+  startAt: string | null
+  updatedAt: string | null
 }
 
-export interface article {
-  comment_count: number | null
+export interface Article {
+  commentCount: number | null
   content: string | null
-  created_at: string | null
-  deleted_at: string | null
-  gallery_id: number
+  createdAt: string | null
+  deletedAt: string | null
+  galleryId: number
   id: number
-  title_en: string | null
-  title_ko: string | null
-  updated_at: string | null
+  titleEn: string | null
+  titleKo: string | null
+  updatedAt: string | null
 }
 
-export interface article_comment {
-  article_id: number | null
+export interface ArticleComment {
+  articleId: number | null
   childrencount: number | null
   content: string | null
-  created_at: string | null
-  deleted_at: string | null
+  createdAt: string | null
+  deletedAt: string | null
   id: number | null
   likes: number | null
-  parent_id: number | null
-  updated_at: string | null
-  user_id: number | null
+  parentId: number | null
+  updatedAt: string | null
+  userId: number | null
 }
 
-export interface article_comment_like {
-  comment_id: number | null
-  user_id: number | null
+export interface ArticleCommentLike {
+  commentId: number | null
+  userId: number | null
 }
 
-export interface article_comment_report {
-  comment_id: number | null
-  user_id: number | null
+export interface ArticleCommentReport {
+  commentId: number | null
+  userId: number | null
 }
 
-export interface article_image {
-  article_id: number
-  created_at: string | null
-  deleted_at: string | null
+export interface ArticleImage {
+  articleId: number
+  createdAt: string | null
+  deletedAt: string | null
   id: number
   image: string | null
   order: number | null
-  title_en: string | null
-  title_ko: string | null
-  updated_at: string | null
+  titleEn: string | null
+  titleKo: string | null
+  updatedAt: string | null
 }
 
-export interface article_image_user {
-  image_id: number
-  user_id: string
+export interface ArticleImageUser {
+  imageId: number
+  userId: string
 }
 
-export interface artist {
-  birth_date: string | null
-  created_at: string
+export interface Artist {
+  birthDate: string | null
+  createdAt: string
   dd: number | null
-  debut_date: string | null
-  debut_dd: number | null
-  debut_mm: number | null
-  debut_yy: number | null
-  deleted_at: string | null
+  debutDate: string | null
+  debutDd: number | null
+  debutMm: number | null
+  debutYy: number | null
+  deletedAt: string | null
   gender: string | null
-  group_id: number
+  groupId: number
   id: number
   image: string | null
   mm: number | null
   name: Json | null
-  updated_at: string
+  updatedAt: string
   yy: number | null
 }
 
-export interface artist_group {
-  created_at: string
-  debut_date: string | null
-  debut_dd: number | null
-  debut_mm: number | null
-  debut_yy: number | null
-  deleted_at: string | null
+export interface ArtistGroup {
+  createdAt: string
+  debutDate: string | null
+  debutDd: number | null
+  debutMm: number | null
+  debutYy: number | null
+  deletedAt: string | null
   id: number
   image: string | null
   name: Json | null
-  updated_at: string
+  updatedAt: string
 }
 
-export interface artist_user_bookmark {
-  artist_id: number | null
-  created_at: string
-  deleted_at: string | null
+export interface ArtistUserBookmark {
+  artistId: number | null
+  createdAt: string
+  deletedAt: string | null
   id: number
-  updated_at: string | null
-  user_id: string | null
+  updatedAt: string | null
+  userId: string | null
 }
 
-export interface artist_vote {
+export interface ArtistVote {
   category: string | null
   content: Json | null
-  created_at: string | null
-  deleted_at: string | null
+  createdAt: string | null
+  deletedAt: string | null
   id: number
-  start_at: string | null
-  stop_at: string | null
+  startAt: string | null
+  stopAt: string | null
   title: Json | null
-  updated_at: string | null
-  visible_at: string | null
+  updatedAt: string | null
+  visibleAt: string | null
 }
 
-export interface artist_vote_item {
-  artist_vote_id: number | null
-  created_at: string | null
-  deleted_at: string | null
+export interface ArtistVoteItem {
+  artistVoteId: number | null
+  createdAt: string | null
+  deletedAt: string | null
   description: Json | null
   id: number
   title: Json | null
-  updated_at: string | null
-  vote_total: number | null
+  updatedAt: string | null
+  voteTotal: number | null
 }
 
-export interface awsdms_ddl_audit {
-  c_ddlqry: string | null
-  c_key: number
-  c_name: string | null
-  c_oid: number | null
-  c_schema: string | null
-  c_tag: string | null
-  c_time: string | null
-  c_txn: string | null
-  c_user: string | null
+export interface AwsdmsDdlAudit {
+  cDdlqry: string | null
+  cKey: number
+  cName: string | null
+  cOid: number | null
+  cSchema: string | null
+  cTag: string | null
+  cTime: string | null
+  cTxn: string | null
+  cUser: string | null
 }
 
-export interface banner {
-  celeb_id: number | null
-  created_at: string | null
-  deleted_at: string | null
+export interface Banner {
+  celebId: number | null
+  createdAt: string | null
+  deletedAt: string | null
   duration: number | null
-  end_at: string | null
+  endAt: string | null
   id: number
   image: Json | null
   link: string | null
   location: string | null
   order: number | null
-  start_at: string | null
+  startAt: string | null
   thumbnail: string | null
   title: Json
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface batch_log {
-  batch_name: string | null
+export interface BatchLog {
+  batchName: string | null
   details: Json | null
-  end_time: string | null
+  endTime: string | null
   id: number
-  start_time: string | null
+  startTime: string | null
   status: string | null
 }
 
-export interface blocked_ips {
-  blocked_at: string | null
-  ip_address: string
+export interface BlockedIps {
+  blockedAt: string | null
+  ipAddress: string
   reason: string | null
 }
 
-export interface boards {
-  artist_id: number
-  board_id: string
-  created_at: string
-  creator_id: string | null
-  deleted_at: string | null
+export interface Boards {
+  artistId: number
+  boardId: string
+  createdAt: string
+  creatorId: string | null
+  deletedAt: string | null
   description: string | null
   features: string[] | null
   id: string
-  is_official: boolean | null
+  isOfficial: boolean | null
   name: Json
   order: number | null
-  parent_board_id: string | null
-  request_message: string | null
+  parentBoardId: string | null
+  requestMessage: string | null
   status: BoardStatusEnum
-  updated_at: string
+  updatedAt: string
 }
 
-export interface bonus_expiry_log {
-  created_at: string | null
+export interface BonusExpiryLog {
+  createdAt: string | null
   details: Json | null
   id: number
   operation: string | null
 }
 
-export interface celeb {
-  created_at: string | null
-  deleted_at: string | null
+export interface Celeb {
+  createdAt: string | null
+  deletedAt: string | null
   id: number
-  name_en: string | null
-  name_ko: string | null
+  nameEn: string | null
+  nameKo: string | null
   thumbnail: string | null
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface celeb_bookmark_user {
-  celeb_id: number
-  user_id: string | null
+export interface CelebBookmarkUser {
+  celebId: number
+  userId: string | null
 }
 
-export interface comment_likes {
-  comment_id: string
-  comment_like_id: string
-  created_at: string
-  deleted_at: string | null
-  updated_at: string
-  user_id: string
+export interface CommentLikes {
+  commentId: string
+  commentLikeId: string
+  createdAt: string
+  deletedAt: string | null
+  updatedAt: string
+  userId: string
 }
 
-export interface comment_reports {
-  comment_id: string | null
-  comment_report_id: string
-  created_at: string | null
-  deleted_at: string | null
+export interface CommentReports {
+  commentId: string | null
+  commentReportId: string
+  createdAt: string | null
+  deletedAt: string | null
   reason: string | null
-  updated_at: string
-  user_id: string | null
+  updatedAt: string
+  userId: string | null
 }
 
-export interface comments {
-  comment_id: string
+export interface Comments {
+  commentId: string
   content: Json | null
-  created_at: string
-  deleted_at: string | null
-  is_hidden: boolean | null
+  createdAt: string
+  deletedAt: string | null
+  isHidden: boolean | null
   likes: number
   locale: string | null
-  parent_comment_id: string | null
-  post_id: string
+  parentCommentId: string | null
+  postId: string
   replies: number
-  updated_at: string
-  user_id: string | null
+  updatedAt: string
+  userId: string | null
 }
 
-export interface compatibility_results {
-  artist_id: number
-  completed_at: string | null
-  created_at: string
+export interface CompatibilityResults {
+  artistId: number
+  completedAt: string | null
+  createdAt: string
   details: Json | null
-  error_message: string | null
+  errorMessage: string | null
   gender: UserGenderEnum | null
   id: string
-  idol_birth_date: string
-  is_ads: boolean | null
-  is_paid: boolean
-  paid_at: string | null
+  idolBirthDate: string
+  isAds: boolean | null
+  isPaid: boolean
+  paidAt: string | null
   score: number | null
   status: CompatibilityStatus
   tips: Json | null
-  user_birth_date: string
-  user_birth_time: string | null
-  user_id: string
+  userBirthDate: string
+  userBirthTime: string | null
+  userId: string
 }
 
-export interface compatibility_results_i18n {
-  compatibility_id: string
-  compatibility_summary: string | null
-  created_at: string
+export interface CompatibilityResultsI18n {
+  compatibilityId: string
+  compatibilitySummary: string | null
+  createdAt: string
   details: Json | null
   id: string
   language: SupportedLanguage
   score: number | null
-  score_title: string | null
+  scoreTitle: string | null
   tips: Json | null
-  updated_at: string
+  updatedAt: string
 }
 
-export interface compatibility_score_descriptions {
+export interface CompatibilityScoreDescriptions {
   score: number | null
-  summary_en: string
-  summary_ja: string
-  summary_ko: string
-  summary_zh: string
-  title_en: string | null
-  title_ja: string | null
-  title_ko: string | null
-  title_zh: string | null
+  summaryEn: string
+  summaryJa: string
+  summaryKo: string
+  summaryZh: string
+  titleEn: string | null
+  titleJa: string | null
+  titleKo: string | null
+  titleZh: string | null
 }
 
-export interface config {
-  created_at: string | null
+export interface Config {
+  createdAt: string | null
   id: string | null
   key: string
-  updated_at: string
+  updatedAt: string
   value: string | null
 }
 
-export interface country_info {
-  country_code: string
-  country_name: string
+export interface CountryInfo {
+  countryCode: string
+  countryName: string
   gdp: number | null
-  last_updated: string | null
+  lastUpdated: string | null
   population: number | null
 }
 
-export interface cron_logs {
-  created_at: string
-  ended_at: string | null
+export interface CronLogs {
+  createdAt: string
+  endedAt: string | null
   id: number
-  job_name: string
-  log_message: string | null
-  started_at: string
+  jobName: string
+  logMessage: string | null
+  startedAt: string
   status: string | null
 }
 
-export interface custom_logs {
+export interface CustomLogs {
   details: Json | null
-  log_id: number
-  log_time: string | null
+  logId: number
+  logTime: string | null
   operation: string | null
 }
 
-export interface debug_db_logs {
+export interface DebugDbLogs {
   detail: Json | null
-  function_name: string
+  functionName: string
   id: number
-  log_time: string | null
+  logTime: string | null
   step: string | null
 }
 
-export interface debug_logs {
-  created_at: string | null
+export interface DebugLogs {
+  createdAt: string | null
   id: number
-  log_message: string | null
+  logMessage: string | null
 }
 
-export interface device_bans {
-  banned_at: string | null
-  banned_by: string | null
-  created_at: string | null
-  device_id: string | null
+export interface DeviceBans {
+  bannedAt: string | null
+  bannedBy: string | null
+  createdAt: string | null
+  deviceId: string | null
   id: string
   reason: string | null
-  unbanned_at: string | null
+  unbannedAt: string | null
 }
 
-export interface devices {
-  app_build_number: string | null
-  app_version: string | null
-  ban_reason: string | null
-  banned_at: string | null
-  created_at: string | null
-  device_id: string
-  device_info: Json | null
-  is_banned: boolean | null
-  last_ip: string | null
-  last_seen: string | null
-  last_updated: string | null
-  user_id: string | null
+export interface Devices {
+  appBuildNumber: string | null
+  appVersion: string | null
+  banReason: string | null
+  bannedAt: string | null
+  createdAt: string | null
+  deviceId: string
+  deviceInfo: Json | null
+  isBanned: boolean | null
+  lastIp: string | null
+  lastSeen: string | null
+  lastUpdated: string | null
+  userId: string | null
 }
 
-export interface faqs {
+export interface Faqs {
   answer: string
   category: string | null
-  created_at: string | null
-  created_by: string | null
+  createdAt: string | null
+  createdBy: string | null
   id: number
-  order_number: number | null
+  orderNumber: number | null
   question: string
   status: string | null
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface fortune_batch_log {
-  completed_at: string | null
-  created_at: string | null
-  failed_count: number | null
+export interface FortuneBatchLog {
+  completedAt: string | null
+  createdAt: string | null
+  failedCount: number | null
   id: number
-  processed_count: number | null
+  processedCount: number | null
   status: string | null
-  total_artists: number | null
+  totalArtists: number | null
   year: number | null
 }
 
-export interface fortune_generation_log {
-  artist_id: number | null
-  created_at: string | null
-  error_message: string | null
+export interface FortuneGenerationLog {
+  artistId: number | null
+  createdAt: string | null
+  errorMessage: string | null
   id: number
   status: string | null
   year: number | null
 }
 
-export interface fortune_telling {
+export interface FortuneTelling {
   advice: string[]
-  artist_id: number
+  artistId: number
   aspects: Json
-  created_at: string | null
+  createdAt: string | null
   id: string
   lucky: Json
-  monthly_fortunes: Json
-  overall_luck: string
-  updated_at: string | null
+  monthlyFortunes: Json
+  overallLuck: string
+  updatedAt: string | null
   year: number
 }
 
-export interface fortune_telling_i18n {
+export interface FortuneTellingI18n {
   advice: string[]
-  artist_id: number
+  artistId: number
   aspects: Json
-  created_at: string | null
-  fortune_id: string
+  createdAt: string | null
+  fortuneId: string
   id: string
   language: string
   lucky: Json
-  monthly_fortunes: Json
-  overall_luck: string
-  updated_at: string | null
+  monthlyFortunes: Json
+  overallLuck: string
+  updatedAt: string | null
   year: number
 }
 
-export interface gallery {
-  celeb_id: number
+export interface Gallery {
+  celebId: number
   cover: string | null
-  created_at: string
-  deleted_at: string | null
+  createdAt: string
+  deletedAt: string | null
   id: number
   title: Json | null
-  title_en: string | null
-  title_ko: string | null
-  updated_at: string
+  titleEn: string | null
+  titleKo: string | null
+  updatedAt: string
 }
 
-export interface gallery_user {
-  gallery_id: number | null
-  user_id: number | null
+export interface GalleryUser {
+  galleryId: number | null
+  userId: number | null
 }
 
-export interface ip_country_mapping {
-  country_code: string
+export interface IpCountryMapping {
+  countryCode: string
   id: number
-  ip_range_end: number
-  ip_range_start: number
-  last_updated: string | null
+  ipRangeEnd: number
+  ipRangeStart: number
+  lastUpdated: string | null
 }
 
-export interface library {
-  created_at: string | null
-  deleted_at: string | null
+export interface Library {
+  createdAt: string | null
+  deletedAt: string | null
   id: number | null
   title: string | null
-  updated_at: string | null
-  user_id: number | null
+  updatedAt: string | null
+  userId: number | null
 }
 
-export interface library_image {
-  image_id: number | null
-  library_id: number | null
+export interface LibraryImage {
+  imageId: number | null
+  libraryId: number | null
 }
 
-export interface media {
-  created_at: string
-  deleted_at: string | null
+export interface Media {
+  createdAt: string
+  deletedAt: string | null
   id: number
-  thumbnail_url: string | null
+  thumbnailUrl: string | null
   title: Json | null
-  updated_at: string
-  video_id: string | null
-  video_url: string | null
+  updatedAt: string
+  videoId: string | null
+  videoUrl: string | null
 }
 
-export interface notices {
+export interface Notices {
   content: string
-  created_at: string | null
-  created_by: string | null
+  createdAt: string | null
+  createdBy: string | null
   id: number
-  is_pinned: boolean | null
+  isPinned: boolean | null
   status: string | null
   title: string
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface partition_creation_log {
-  created_at: string | null
+export interface PartitionCreationLog {
+  createdAt: string | null
   id: number
   message: string | null
 }
 
-export interface permissions {
+export interface Permissions {
   action: string
-  created_at: string | null
+  createdAt: string | null
   description: string | null
   id: string
   resource: string
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface pic_vote {
-  created_at: string
-  deleted_at: string | null
+export interface PicVote {
+  createdAt: string
+  deletedAt: string | null
   id: number
-  main_image: string | null
+  mainImage: string | null
   order: number | null
-  result_image: string | null
-  start_at: string | null
-  stop_at: string | null
+  resultImage: string | null
+  startAt: string | null
+  stopAt: string | null
   title: Json | null
-  updated_at: string
-  visible_at: string | null
-  vote_category: string | null
-  vote_content: string | null
-  wait_image: string | null
+  updatedAt: string
+  visibleAt: string | null
+  voteCategory: string | null
+  voteContent: string | null
+  waitImage: string | null
 }
 
-export interface pic_vote_item {
-  artist_id: number | null
-  created_at: string | null
-  deleted_at: string | null
-  group_id: number | null
+export interface PicVoteItem {
+  artistId: number | null
+  createdAt: string | null
+  deletedAt: string | null
+  groupId: number | null
   id: number
-  updated_at: string | null
-  vote_id: number | null
-  vote_total: number | null
+  updatedAt: string | null
+  voteId: number | null
+  voteTotal: number | null
 }
 
-export interface pic_vote_pick {
+export interface PicVotePick {
   amount: number | null
-  created_at: string | null
-  deleted_at: string | null
+  createdAt: string | null
+  deletedAt: string | null
   id: number
-  updated_at: string | null
-  user_id: string | null
-  vote_id: number | null
-  vote_item_id: number
+  updatedAt: string | null
+  userId: string | null
+  voteId: number | null
+  voteItemId: number
 }
 
-export interface pic_vote_reward {
-  reward_id: number
-  vote_id: number
+export interface PicVoteReward {
+  rewardId: number
+  voteId: number
 }
 
-export interface policy {
+export interface Policy {
   content: string
-  created_at: string
-  deleted_at: string | null
+  createdAt: string
+  deletedAt: string | null
   id: number
   language: PolicyLanguageEnum | null
   type: string | null
-  updated_at: string
+  updatedAt: string
   version: string
 }
 
-export interface post_attachments {
-  attachment_id: string
-  file_name: string
-  file_path: string
-  file_size: number
-  file_type: string
-  post_id: string | null
+export interface PostAttachments {
+  attachmentId: string
+  fileName: string
+  filePath: string
+  fileSize: number
+  fileType: string
+  postId: string | null
 }
 
-export interface post_reports {
-  created_at: string | null
-  deleted_at: string | null
-  post_id: string | null
-  post_report_id: string
+export interface PostReports {
+  createdAt: string | null
+  deletedAt: string | null
+  postId: string | null
+  postReportId: string
   reason: string | null
-  updated_at: string
-  user_id: string | null
+  updatedAt: string
+  userId: string | null
 }
 
-export interface post_scraps {
-  created_at: string | null
-  deleted_at: string | null
-  post_id: string | null
-  post_scrap_id: string
-  updated_at: string
-  user_id: string
+export interface PostScraps {
+  createdAt: string | null
+  deletedAt: string | null
+  postId: string | null
+  postScrapId: string
+  updatedAt: string
+  userId: string
 }
 
-export interface post_views {
-  post_id: string
-  user_id: string
-  viewed_at: string | null
+export interface PostViews {
+  postId: string
+  userId: string
+  viewedAt: string | null
 }
 
-export interface posts {
+export interface Posts {
   attachments: string[] | null
-  board_id: string | null
+  boardId: string | null
   content: Json[] | null
-  created_at: string
-  deleted_at: string | null
+  createdAt: string
+  deletedAt: string | null
   id: string
-  is_anonymous: boolean
-  is_hidden: boolean | null
-  is_temporary: boolean
-  post_id: string
-  reply_count: number
+  isAnonymous: boolean
+  isHidden: boolean | null
+  isTemporary: boolean
+  postId: string
+  replyCount: number
   title: string
-  updated_at: string | null
-  user_id: string
-  view_count: number
+  updatedAt: string | null
+  userId: string
+  viewCount: number
 }
 
-export interface products {
-  created_at: string | null
+export interface Products {
+  createdAt: string | null
   description: Json | null
-  end_at: string | null
+  endAt: string | null
   id: string
-  paypal_link: string | null
+  paypalLink: string | null
   platform: PlatformEnum
   price: number | null
-  product_name: string
-  product_type: ProductTypeEnum
-  star_candy: number | null
-  star_candy_bonus: number | null
-  start_at: string | null
+  productName: string
+  productType: ProductTypeEnum
+  starCandy: number | null
+  starCandyBonus: number | null
+  startAt: string | null
 }
 
-export interface prompt_usage_logs {
-  created_at: string | null
+export interface PromptUsageLogs {
+  createdAt: string | null
   error: string | null
-  execution_time_ms: number | null
+  executionTimeMs: number | null
   id: string
-  prompt_id: string | null
+  promptId: string | null
   response: Json
-  token_count: number | null
+  tokenCount: number | null
   variables: Json
 }
 
-export interface prompts {
+export interface Prompts {
   category: string
-  created_at: string | null
-  created_by: string
+  createdAt: string | null
+  createdBy: string
   description: string | null
   id: string
-  is_active: boolean | null
-  model_config: Json
+  isActive: boolean | null
+  modelConfig: Json
   name: string
   tags: string[] | null
   template: string
-  updated_at: string | null
+  updatedAt: string | null
   variables: string[]
   version: number
 }
 
-export interface qnas {
+export interface Qnas {
   answer: string | null
-  answered_at: string | null
-  answered_by: string | null
-  created_at: string | null
-  created_by: string | null
-  is_private: boolean | null
-  qna_id: number
+  answeredAt: string | null
+  answeredBy: string | null
+  createdAt: string | null
+  createdBy: string | null
+  isPrivate: boolean | null
+  qnaId: number
   question: string
   status: string | null
   title: string
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface receipts {
-  created_at: string | null
+export interface Receipts {
+  createdAt: string | null
   environment: string | null
   id: number
   platform: string
-  product_id: string | null
-  receipt_data: string
-  receipt_hash: string | null
+  productId: string | null
+  receiptData: string
+  receiptHash: string | null
   status: string
-  user_id: string | null
-  verification_data: Json | null
+  userId: string | null
+  verificationData: Json | null
 }
 
-export interface reward {
-  created_at: string
-  deleted_at: string | null
+export interface Reward {
+  createdAt: string
+  deletedAt: string | null
   id: number
   location: Json | null
-  location_images: string[] | null
+  locationImages: string[] | null
   order: number | null
-  overview_images: string[] | null
-  size_guide: Json | null
-  size_guide_images: string[] | null
+  overviewImages: string[] | null
+  sizeGuide: Json | null
+  sizeGuideImages: string[] | null
   thumbnail: string | null
   title: Json | null
-  updated_at: string
+  updatedAt: string
 }
 
-export interface role_permissions {
-  created_at: string | null
+export interface RolePermissions {
+  createdAt: string | null
   id: string
-  permission_id: string
-  role_id: string
-  updated_at: string | null
+  permissionId: string
+  roleId: string
+  updatedAt: string | null
 }
 
-export interface role_users {
-  created_at: string | null
+export interface RoleUsers {
+  createdAt: string | null
   id: string
-  role_id: string
-  updated_at: string | null
-  user_id: string
+  roleId: string
+  updatedAt: string | null
+  userId: string
 }
 
-export interface roles {
-  created_at: string | null
+export interface Roles {
+  createdAt: string | null
   description: string | null
   id: string
   name: string
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface star_candy_bonus_history {
+export interface StarCandyBonusHistory {
   amount: number | null
-  created_at: string
-  deleted_at: string | null
-  expired_dt: string | null
+  createdAt: string
+  deletedAt: string | null
+  expiredDt: string | null
   id: number
-  parent_id: number | null
-  remain_amount: number
-  transaction_id: string | null
+  parentId: number | null
+  remainAmount: number
+  transactionId: string | null
   type: CandyHistoryType | null
-  updated_at: string
-  user_id: string
-  vote_pick_id: number | null
+  updatedAt: string
+  userId: string
+  votePickId: number | null
 }
 
-export interface star_candy_history {
+export interface StarCandyHistory {
   amount: number | null
-  created_at: string
-  deleted_at: string | null
+  createdAt: string
+  deletedAt: string | null
   id: number
-  parent_id: number | null
-  transaction_id: string | null
+  parentId: number | null
+  transactionId: string | null
   type: CandyHistoryType | null
-  updated_at: string
-  user_id: string
-  vote_pick_id: number | null
+  updatedAt: string
+  userId: string
+  votePickId: number | null
 }
 
-export interface transaction_admob {
-  ad_network: string | null
-  created_at: string
-  deleted_at: string | null
-  key_id: string | null
-  reward_amount: number | null
-  reward_type: string | null
+export interface TransactionAdmob {
+  adNetwork: string | null
+  createdAt: string
+  deletedAt: string | null
+  keyId: string | null
+  rewardAmount: number | null
+  rewardType: string | null
   signature: string | null
-  transaction_id: string
-  updated_at: string
-  user_id: string | null
+  transactionId: string
+  updatedAt: string
+  userId: string | null
 }
 
-export interface transaction_pangle {
-  ad_network: string | null
-  created_at: string
-  deleted_at: string | null
-  key_id: string | null
+export interface TransactionPangle {
+  adNetwork: string | null
+  createdAt: string
+  deletedAt: string | null
+  keyId: string | null
   platform: string | null
-  reward_amount: number | null
-  reward_name: string | null
-  reward_type: string | null
+  rewardAmount: number | null
+  rewardName: string | null
+  rewardType: string | null
   signature: string | null
-  transaction_id: string
-  updated_at: string
-  user_id: string | null
+  transactionId: string
+  updatedAt: string
+  userId: string | null
 }
 
-export interface transaction_pincrux {
-  ad_network: string | null
-  app_key: string | null
-  app_title: string | null
+export interface TransactionPincrux {
+  adNetwork: string | null
+  appKey: string | null
+  appTitle: string | null
   commission: number | null
-  created_at: string
-  deleted_at: string | null
-  menu_category1: string | null
-  pub_key: number | null
-  reward_amount: number | null
-  reward_type: string | null
+  createdAt: string
+  deletedAt: string | null
+  menuCategory1: string | null
+  pubKey: number | null
+  rewardAmount: number | null
+  rewardType: string | null
   signature: string | null
-  transaction_id: string
-  updated_at: string
-  usr_key: string | null
+  transactionId: string
+  updatedAt: string
+  usrKey: string | null
 }
 
-export interface transaction_tapjoy {
-  created_at: string
+export interface TransactionTapjoy {
+  createdAt: string
   id: number
   platform: string | null
-  reward_amount: number
-  reward_type: string | null
-  transaction_id: string
-  user_id: string
+  rewardAmount: number
+  rewardType: string | null
+  transactionId: string
+  userId: string
   verifier: string | null
 }
 
-export interface transaction_unity {
-  ad_network: string | null
-  created_at: string
-  deleted_at: string | null
+export interface TransactionUnity {
+  adNetwork: string | null
+  createdAt: string
+  deletedAt: string | null
   hmac: string
-  reward_amount: number | null
-  reward_type: string | null
-  transaction_id: string
-  updated_at: string
-  user_id: string
+  rewardAmount: number | null
+  rewardType: string | null
+  transactionId: string
+  updatedAt: string
+  userId: string
 }
 
-export interface user_agreement {
-  created_at: string | null
-  deleted_at: string | null
+export interface UserAgreement {
+  createdAt: string | null
+  deletedAt: string | null
   id: string
   privacy: string | null
   terms: string | null
-  updated_at: string | null
+  updatedAt: string | null
 }
 
-export interface user_blocks {
-  blocked_user_id: string
-  created_at: string
-  deleted_at: string | null
+export interface UserBlocks {
+  blockedUserId: string
+  createdAt: string
+  deletedAt: string | null
   id: string
-  user_id: string
+  userId: string
 }
 
-export interface user_comment_like {
-  comment_id: number | null
-  created_at: string | null
-  deleted_at: string | null
+export interface UserCommentLike {
+  commentId: number | null
+  createdAt: string | null
+  deletedAt: string | null
   id: number | null
-  updated_at: string | null
-  user_id: number | null
+  updatedAt: string | null
+  userId: number | null
 }
 
-export interface user_comment_report {
-  comment_id: number | null
-  created_at: string | null
-  deleted_at: string | null
+export interface UserCommentReport {
+  commentId: number | null
+  createdAt: string | null
+  deletedAt: string | null
   id: number | null
-  updated_at: string | null
-  user_id: number | null
+  updatedAt: string | null
+  userId: number | null
 }
 
-export interface user_profiles {
-  avatar_url: string | null
-  birth_date: string | null
-  birth_time: string | null
-  created_at: string
-  deleted_at: string | null
-  email: string | null
-  gender: UserGenderEnum | null
+export interface UserProfiles {
+  id: string;
+  email: string | null;
+  nickname: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  isAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  birthDate: string | null;
+  birthTime: string | null;
+  gender: string | null;
+  openAges: boolean;
+  openBirthDate: boolean;
+  openBirthTime: boolean;
+  openGender: boolean;
+  starCandy: number;
+  starCandyBonus: number;
+}
+
+export interface UserRoles {
+  createdAt: string | null
   id: string
-  is_admin: boolean
-  nickname: string | null
-  open_ages: boolean
-  open_gender: boolean
-  star_candy: number
-  star_candy_bonus: number
-  updated_at: string
+  roleId: string
+  updatedAt: string | null
+  userId: string
 }
 
-export interface user_roles {
-  created_at: string | null
-  id: string
-  role_id: string
-  updated_at: string | null
-  user_id: string
-}
-
-export interface version {
+export interface Version {
   android: Json | null
-  created_at: string
-  deleted_at: string | null
+  createdAt: string
+  deletedAt: string | null
   id: number
   ios: Json | null
   linux: Json | null
   macos: Json | null
-  updated_at: string
+  updatedAt: string
   windows: Json | null
 }
 
-export interface vote {
-  created_at: string
-  deleted_at: string | null
-  id: number
-  main_image: string | null
-  order: number | null
-  result_image: string | null
-  start_at: string | null
-  stop_at: string | null
-  title: Json | null
-  updated_at: string
-  visible_at: string | null
-  vote_category: string | null
-  vote_content: string | null
-  vote_sub_category: string | null
-  wait_image: string | null
+export interface Vote {
+  id: number;
+  title: string;
+  createdAt: string;
+  deletedAt: string | null;
+  mainImage: string | null;
+  order: number | null;
+  resultImage: string | null;
+  startAt: string | null;
+  stopAt: string | null;
+  updatedAt: string;
+  visibleAt: string | null;
+  voteCategory: string | null;
+  voteContent: string | null;
+  voteSubCategory: string | null;
+  waitImage: string | null;
+  voteItems?: Array<VoteItem & { artist?: any }>;
 }
 
-export interface vote_achieve {
+export interface VoteAchieve {
   amount: number | null
   id: number | null
   order: number | null
-  reward_id: number | null
-  vote_id: number | null
+  rewardId: number | null
+  voteId: number | null
 }
 
-export interface vote_comment {
+export interface VoteComment {
   childrencount: number | null
   content: string | null
-  created_at: string | null
-  deleted_at: string | null
+  createdAt: string | null
+  deletedAt: string | null
   id: number | null
   likes: number | null
-  parent_id: number | null
-  updated_at: string | null
-  user_id: number | null
-  vote_id: number | null
+  parentId: number | null
+  updatedAt: string | null
+  userId: number | null
+  voteId: number | null
 }
 
-export interface vote_comment_like {
-  comment_id: number | null
-  user_id: number | null
+export interface VoteCommentLike {
+  commentId: number | null
+  userId: number | null
 }
 
-export interface vote_comment_report {
-  comment_id: number | null
-  user_id: number | null
+export interface VoteCommentReport {
+  commentId: number | null
+  userId: number | null
 }
 
-export interface vote_item {
-  artist_id: number | null
-  created_at: string | null
-  deleted_at: string | null
-  group_id: number | null
+export interface VoteItem {
+  artistId: number | null
+  createdAt: string | null
+  deletedAt: string | null
+  groupId: number | null
   id: number
-  updated_at: string | null
-  vote_id: number | null
-  vote_total: number | null
+  updatedAt: string | null
+  voteId: number | null
+  voteTotal: number | null
 }
 
-export interface vote_pick {
+export interface VotePick {
   amount: number | null
-  created_at: string | null
-  deleted_at: string | null
+  createdAt: string | null
+  deletedAt: string | null
   id: number
-  updated_at: string | null
-  user_id: string | null
-  vote_id: number | null
-  vote_item_id: number
+  updatedAt: string | null
+  userId: string | null
+  voteId: number | null
+  voteItemId: number
 }
 
-export interface vote_reward {
-  reward_id: number
-  vote_id: number
+export interface VoteReward {
+  rewardId: number
+  voteId: number
 }
 
-export interface vote_share_bonus {
+export interface VoteShareBonus {
   amount: number
-  created_at: string
+  createdAt: string
   id: number
-  updated_at: string
-  user_id: string
-  vote_id: number
+  updatedAt: string
+  userId: string
+  voteId: number
 }

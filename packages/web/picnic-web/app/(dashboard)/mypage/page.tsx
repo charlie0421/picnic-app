@@ -2,9 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '../../contexts/AuthContext';
-import { ProfileImageContainer, DefaultAvatar } from '../../components/ProfileImageContainer';
-import BannerAd from '../../components/BannerAd';
+import { useAuth } from '@/contexts/AuthContext';
+import { ProfileImageContainer, DefaultAvatar } from '@/components/ui/ProfileImageContainer';
 
 const MyPage = () => {
   const { authState, signOut } = useAuth();

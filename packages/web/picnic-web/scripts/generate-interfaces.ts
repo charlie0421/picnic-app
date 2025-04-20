@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const { fileURLToPath } = require('url');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Define Json type
 export type Json =
@@ -38,6 +38,23 @@ export type UserGenderEnum = "male" | "female" | "other";
 
 function log(message: string) {
   process.stdout.write(message + '\n');
+}
+
+function toCamelCase(str: string): string {
+  return str
+    .split('_')
+    .map((word, index) => {
+      if (index === 0) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join('');
+}
+
+function toPascalCase(str: string): string {
+  return str
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('');
 }
 
 function generateInterfaces() {
@@ -92,10 +109,11 @@ function generateInterfaces() {
 
   while ((match = tableRegex.exec(fileContent)) !== null) {
     const tableName = match[1];
+    const pascalCaseTableName = toPascalCase(tableName);
     const rowContent = match[2];
     tableCount++;
     
-    log(`📦 ${tableName} 테이블 인터페이스 생성 중 (${tableCount}번째)...`);
+    log(`📦 ${pascalCaseTableName} 테이블 인터페이스 생성 중 (${tableCount}번째)...`);
     
     // Parse fields
     const fields = rowContent
@@ -104,6 +122,7 @@ function generateInterfaces() {
       .filter(line => line.length > 0)
       .map(line => {
         const [name, type] = line.split(':').map(s => s.trim());
+        const camelCaseName = toCamelCase(name);
         // Replace Database enum references with our local type definitions
         const processedType = type
           .replace(/Database\["public"\]\["Enums"\]\["board_status_enum"\]/g, 'BoardStatusEnum')
@@ -115,19 +134,20 @@ function generateInterfaces() {
           .replace(/Database\["public"\]\["Enums"\]\["supported_language"\]/g, 'SupportedLanguage')
           .replace(/Database\["public"\]\["Enums"\]\["user_gender_enum"\]/g, 'UserGenderEnum')
           .replace(/\s*$/g, '');
-        return `  ${name}: ${processedType}`;
+        return `  ${camelCaseName}: ${processedType}`;
       });
 
     // 외래키 관계 추가
     if (foreignKeyRelations[tableName]) {
       foreignKeyRelations[tableName].forEach(relatedTable => {
-        const fieldName = relatedTable.charAt(0).toLowerCase() + relatedTable.slice(1);
-        fields.push(`  ${fieldName}?: ${relatedTable};`);
+        const pascalCaseRelatedTable = toPascalCase(relatedTable);
+        const fieldName = pascalCaseRelatedTable.charAt(0).toLowerCase() + pascalCaseRelatedTable.slice(1);
+        fields.push(`  ${fieldName}?: ${pascalCaseRelatedTable};`);
       });
     }
 
     // Generate interface
-    const interfaceContent = `export interface ${tableName} {\n${fields.join('\n')}\n}`;
+    const interfaceContent = `export interface ${pascalCaseTableName} {\n${fields.join('\n')}\n}`;
     interfaces.push(interfaceContent);
   }
 

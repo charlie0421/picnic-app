@@ -3,8 +3,9 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '../contexts/AuthContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
-import Portal from '../components/Portal'
+import Portal from '@/components/features/Portal'
 import { redirect } from 'next/navigation'
+import { PortalType } from '@/utils/enums'
 
 const inter = Inter({ subsets: ['latin'] })
 

@@ -10,7 +10,7 @@
     "gen:types": "echo '🚀 Supabase 타입 생성 중...' && supabase gen types typescript --project-id xtijtefcycoeqludlngc > types/supabase.ts && echo '✅ Supabase 타입 생성 완료' && echo '🚀 인터페이스 생성 중...' && tsx scripts/generate-interfaces.ts"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.26.0",
+    "@supabase/supabase-js": "^2.49.4",
     "date-fns": "^4.1.0",
     "next": "13.4.12",
     "react": "18.2.0",

@@ -1,0 +1,95 @@
+'use client';
+
+import React, { useEffect, useState, useCallback } from 'react';
+import { Banner, Reward, Vote } from '@/types/interfaces';
+import Menu from '@/components/features/Menu';
+import Footer from '@/components/layouts/Footer';
+import BannerList from '@/components/features/BannerList';
+import RewardList from '@/components/features/RewardList';
+import VoteList from '@/components/features/VoteList';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { getBanners, getRewards, getVotes } from '@/utils/api/queries';
+
+const VotePage: React.FC = () => {
+  const [votes, setVotes] = useState<Vote[]>([]);
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentDateTime, setCurrentDateTime] = useState<string>('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const formattedDate = format(now, 'MM/dd (EEE) HH:mm:ss', { locale: ko });
+      setCurrentDateTime(formattedDate);
+    };
+    
+    updateTime();
+    const intervalId = setInterval(updateTime, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      
+      const [votesData, rewardsData, bannersData] = await Promise.all([
+        getVotes('votes', 3),
+        getRewards(),
+        getBanners(),
+      ]);
+      
+      setVotes(votesData);
+      setRewards(rewardsData);
+      setBanners(bannersData);
+      
+    } catch (error) {
+      console.error('데이터를 가져오는 중 오류가 발생했습니다:', error);
+      setError('데이터를 불러오는 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 60000);
+    
+    return () => clearInterval(intervalId);
+  }, [fetchData]);
+
+  return (
+    <div className="min-h-screen">
+      <div className="bg-gray-50 border-b">
+        <div className="container mx-auto px-0">
+          <Menu currentDateTime={currentDateTime} />
+        </div>
+      </div>
+      
+      {isLoading ? (
+        <div className="flex justify-center items-center min-h-[300px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : error ? (
+        <div className="bg-red-100 text-red-700 p-4 rounded-md">
+          {error}
+        </div>
+      ) : (
+        <div className="container mx-auto px-4 py-6 space-y-10">
+          <BannerList banners={banners} />
+          <RewardList rewards={rewards} />
+          <VoteList votes={votes} />
+        </div>
+      )}
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default VotePage; 

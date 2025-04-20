@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '../../utils/supabase';
-import React from 'react';
+import { supabase } from '@/utils/supabase';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
