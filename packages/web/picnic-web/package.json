@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:types": "supabase gen types typescript --project-id xtijtefcycoeqludlngc > types/supabase.ts"
+    "gen:types": "echo '🚀 Supabase 타입 생성 중...' && supabase gen types typescript --project-id xtijtefcycoeqludlngc > types/supabase.ts && echo '✅ Supabase 타입 생성 완료' && echo '🚀 인터페이스 생성 중...' && ts-node types/generate-interfaces.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.26.0",
@@ -26,6 +26,7 @@
     "eslint-config-next": "13.4.12",
     "postcss": "8.4.27",
     "supabase": "^1.226.4",
-    "tailwindcss": "3.3.3"
+    "tailwindcss": "3.3.3",
+    "ts-node": "^10.9.2"
   }
 }
