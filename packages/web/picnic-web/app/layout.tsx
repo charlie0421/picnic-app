@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '../contexts/AuthContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
+import { LanguageProvider } from '../contexts/LanguageContext'
 import Portal from '@/components/features/Portal'
 import { redirect } from 'next/navigation'
 
@@ -15,8 +16,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  params: { lang = 'ko' }
 }: {
   children: React.ReactNode
+  params: { lang?: string }
 }) {
   // 홈 경로로 접근할 경우 투표 홈으로 리디렉션
   if (typeof window !== 'undefined' && window.location.pathname === '/') {
@@ -24,13 +27,15 @@ export default function RootLayout({
   }
 
   return (
-    <html lang="ko">
+    <html lang={lang}>
       <body className={inter.className}>
-        <AuthProvider>
-          <NavigationProvider>
-            <Portal>{children}</Portal>
-          </NavigationProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <NavigationProvider>
+              <Portal>{children}</Portal>
+            </NavigationProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   )

@@ -32,7 +32,7 @@ const VoteItem: React.FC<VoteItemProps> = ({ vote }) => {
         </div>
         <div className="p-4">
           <h3 className="text-lg font-semibold text-gray-800 truncate">
-            {vote.title}
+            {getLocalizedString(vote.title)}
           </h3>
         </div>
       </div>

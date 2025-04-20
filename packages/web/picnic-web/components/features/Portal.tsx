@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { ProfileImageContainer, DefaultAvatar } from '@/components/ui/ProfileImageContainer';
 import PortalMenuItem from '@/components/features/PortalMenuItem';
+import LanguageSelector from '@/components/features/LanguageSelector';
 import { PortalType } from '@/utils/enums';
 
 // 환경 설정 확인 (개발 환경인지)
@@ -71,6 +72,9 @@ const Portal: React.FC<PortalProps> = ({ children }) => {
                 </div>
 
                 <div className="flex items-center space-x-4">
+                  {/* 언어 선택기 추가 */}
+                  <LanguageSelector />
+                  
                   {authState.isAuthenticated ? (
                     <Link href="/mypage">
                       {authState.user?.avatarUrl ? (

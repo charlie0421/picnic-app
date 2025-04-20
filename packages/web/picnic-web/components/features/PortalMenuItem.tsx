@@ -12,12 +12,12 @@ const getPortalTypeInfo = (type: PortalType) => {
   switch (type) {
     case PortalType.VOTE:
       return {
-        name: '투표',
+        name: 'VOTE',
         path: '/vote',
       };
     case PortalType.COMMUNITY:
       return {
-        name: '커뮤니티',
+        name: 'COMMUNITY',
         path: '/community',
       };
     case PortalType.PIC:
@@ -27,22 +27,22 @@ const getPortalTypeInfo = (type: PortalType) => {
       };
     case PortalType.NOVEL:
       return {
-        name: '소설',
+        name: 'NOVEL',
         path: '/novel',
       };
     case PortalType.MYPAGE:
       return {
-        name: '마이페이지',
+        name: 'MYPAGE',
         path: '/mypage',
       };
     case PortalType.MEDIA:
       return {
-        name: '미디어',
+        name: 'MEDIA',
         path: '/media',
       };
     case PortalType.SHOP:
       return {
-        name: '상점',
+        name: 'SHOP',
         path: '/shop',
       };
     default:

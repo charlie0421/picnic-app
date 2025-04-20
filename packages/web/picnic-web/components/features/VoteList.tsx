@@ -33,7 +33,7 @@ const RANK_BADGE_COLORS = [
   'bg-gradient-to-br from-amber-500 to-amber-700 shadow-sm',
 ];
 
-const VoteList: React.FC<VoteListProps> = () => {
+const VoteList: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const [votes, setVotes] = useState<Vote[]>([]);
   useEffect(() => {
