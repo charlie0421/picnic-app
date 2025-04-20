@@ -1,5 +1,6 @@
-import fs from 'fs';
-import { Database } from './supabase';
+const fs = require('fs');
+const path = require('path');
+const { fileURLToPath } = require('url');
 
 // Define Json type
 export type Json =
@@ -40,8 +41,11 @@ function log(message: string) {
 }
 
 function generateInterfaces() {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
   log('🔍 Supabase 타입 파일을 읽는 중...');
-  const fileContent = fs.readFileSync('types/supabase.ts', 'utf-8');
+  const fileContent = fs.readFileSync(path.join(__dirname, '../types/supabase.ts'), 'utf-8');
   const interfaces: string[] = [];
 
   log('📝 Json 타입 정의 추가 중...');
@@ -71,6 +75,21 @@ function generateInterfaces() {
   let match;
   let tableCount = 0;
 
+  // 외래키 관계 정의
+  const foreignKeyRelations: Record<string, string[]> = {
+    'VoteItem': ['Vote', 'Artist', 'ArtistGroup'],
+    'Vote': ['VoteItem'],
+    'Artist': ['ArtistGroup'],
+    'ArtistGroup': ['Artist'],
+    'VotePick': ['Vote', 'VoteItem', 'User'],
+    'VoteComment': ['Vote', 'User'],
+    'VoteCommentLike': ['VoteComment', 'User'],
+    'VoteCommentReport': ['VoteComment', 'User'],
+    'VoteReward': ['Vote', 'Reward'],
+    'VoteShareBonus': ['Vote', 'User'],
+    'VoteAchieve': ['Vote', 'Reward']
+  };
+
   while ((match = tableRegex.exec(fileContent)) !== null) {
     const tableName = match[1];
     const rowContent = match[2];
@@ -99,6 +118,14 @@ function generateInterfaces() {
         return `  ${name}: ${processedType}`;
       });
 
+    // 외래키 관계 추가
+    if (foreignKeyRelations[tableName]) {
+      foreignKeyRelations[tableName].forEach(relatedTable => {
+        const fieldName = relatedTable.charAt(0).toLowerCase() + relatedTable.slice(1);
+        fields.push(`  ${fieldName}?: ${relatedTable};`);
+      });
+    }
+
     // Generate interface
     const interfaceContent = `export interface ${tableName} {\n${fields.join('\n')}\n}`;
     interfaces.push(interfaceContent);
@@ -109,7 +136,7 @@ function generateInterfaces() {
 
   // Write to file
   const output = '// Auto-generated interfaces from Supabase types\n\n' + interfaces.join('\n\n');
-  fs.writeFileSync('types/interfaces.ts', output);
+  fs.writeFileSync(path.join(__dirname, '../types/interfaces.ts'), output);
   log('✨ 인터페이스 파일 작성 완료');
 }
 

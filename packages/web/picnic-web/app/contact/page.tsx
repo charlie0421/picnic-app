@@ -28,12 +28,12 @@ export default function Contact() {
     try {
       // Supabase를 사용하여 문의 데이터 저장
       const { error } = await supabase
-        .from('contacts')
+        .from('qnas')
         .insert([
           {
-            name: formData.name,
-            email: formData.email,
-            message: formData.message,
+            question: formData.message,
+            title: formData.name,
+            created_by: formData.email,
             created_at: new Date().toISOString()
           }
         ]);

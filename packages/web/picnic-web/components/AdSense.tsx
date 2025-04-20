@@ -30,7 +30,8 @@ const AdSense: React.FC<AdSenseProps> = ({
 
     // 광고 로드
     try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      (window as any).adsbygoogle = (window as any).adsbygoogle || [];
+      (window as any).adsbygoogle.push({});
     } catch (error) {
       console.error('AdSense 오류:', error);
     }

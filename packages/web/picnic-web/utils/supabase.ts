@@ -1,5 +1,5 @@
+import { Database } from '@/scripts/supabase'
 import { createClient } from '@supabase/supabase-js'
-import { Database } from '../types/supabase'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -27,7 +27,7 @@ export const getCurrentUser = async () => {
 // 사용자 프로필 정보 가져오기
 export const getUserProfile = async (userId: string) => {
   const { data, error } = await supabase
-    .from('users')
+    .from('user_profiles')
     .select('*')
     .eq('id', userId)
     .single()

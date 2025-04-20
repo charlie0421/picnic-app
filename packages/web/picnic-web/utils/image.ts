@@ -112,4 +112,11 @@ export const getRewardImageUrl = (imagePath: string | null | undefined): string 
   
   // 단순 파일명만 있는 경우 완전한 경로 생성
   return getCdnImageUrl(`reward/${imagePath}`);
+};
+
+export const getLocalizedImage = (image: any): string => {
+  if (typeof image === 'object' && !Array.isArray(image) && 'ko' in image) {
+    return image.ko as string;
+  }
+  return String(image);
 }; 

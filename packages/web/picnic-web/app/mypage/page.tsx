@@ -54,9 +54,9 @@ const MyPage = () => {
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-bold mb-2">{user.displayName || user.username || '사용자'}</h1>
+            <h1 className="text-2xl font-bold mb-2">{user.nickname || '사용자'}</h1>
             <p className="text-gray-600 mb-1">{user.email}</p>
-            {user.bio && <p className="text-gray-700 mt-2">{user.bio}</p>}
+            {user.birthDate && <p className="text-gray-700 mt-2">{user.birthDate}</p>}
             {user.isAdmin && (
               <div className="mt-2 bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">
                 관리자

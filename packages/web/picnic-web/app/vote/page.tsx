@@ -4,12 +4,12 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { supabase } from '../../utils/supabase';
 import BannerAd from '../../components/BannerAd';
-import { getBannerImageUrl, getRewardImageUrl, getVoteImageUrl } from '../../utils/image';
+import { getBannerImageUrl, getRewardImageUrl, getVoteImageUrl, getLocalizedImage } from '../../utils/image';
 import { format, differenceInDays } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import Menu from '../../components/Menu';
 import Footer from '../../components/Footer';
-import { Database } from '../../types/supabase';
+import { Banner, Reward, Vote, VoteItem } from '@/types/interfaces';
 
 const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL as string;
 
@@ -30,19 +30,15 @@ const STATUS_TAG_COLORS: Record<VoteStatus, string> = {
 };
 
 // 투표 상태 계산 함수
-const getVoteStatus = (
-  startDate?: string,
-  endDate?: string,
-  now?: Date,
-): VoteStatus => {
-  if (!startDate || !endDate) return VOTE_STATUS.UPCOMING;
-
-  const currentDate = now || new Date();
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-
-  if (currentDate < start) return VOTE_STATUS.UPCOMING;
-  if (currentDate > end) return VOTE_STATUS.COMPLETED;
+const getVoteStatus = (vote: Vote): VoteStatus => {
+  if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
+  
+  const now = new Date();
+  const start = new Date(vote.startAt);
+  const end = new Date(vote.stopAt);
+  
+  if (now < start) return VOTE_STATUS.UPCOMING;
+  if (now > end) return VOTE_STATUS.COMPLETED;
   return VOTE_STATUS.ONGOING;
 };
 
@@ -54,66 +50,16 @@ const RANK_BADGE_COLORS = [
   'bg-gray-200',   // 그 외
 ];
 
-// 데이터베이스 테이블 타입 정의
-type VoteItem = {
-  id: string;
-  title: string;
-  description?: string;
-  created_at: string;
-  image_path?: string;
-  vote_count: number;
-  comment_count: number;
-  start_at?: string;
-  stop_at?: string;
-  status?: VoteStatus;
-  vote_sub_category?: string;
-  rank?: number;
-  displayRank?: number;
-  vote_items?: VoteItemDetail[];
-  total_vote_items_count: number;
-};
-
-type RewardItem = {
-  id: string;
-  title: string;
-  thumbnail?: string;
-};
-
-type BannerItem = {
-  id: string;
-  title: string;
-  image_path: string;
-  link_url: string;
-  start_at?: string;
-  end_at?: string;
-};
-
-// Supabase 테이블 타입
-type Vote = Database['public']['Tables']['vote']['Row'];
-type VoteItem2 = Database['public']['Tables']['vote_item']['Row'];
-type Artist = Database['public']['Tables']['artist']['Row'];
-
-type VoteItemDetail = {
-  id: string | number;
-  name?: string | { [key: string]: string };
-  title?: string | { [key: string]: string };
-  image_path?: string;
-  vote_total?: number;
-  artist?: {
-    id: string | number;
-    name?: string | { [key: string]: string };
-    image?: string;
-  };
-  vote_id?: string | number;
-  artist_id?: string | number;
-  group_id?: string | number;
+// 순위 계산 함수
+const getVoteRank = (vote: Vote, index: number): number => {
+  return vote.order || index + 1;
 };
 
 const VotePage: React.FC = () => {
   // 데이터 상태
-  const [votes, setVotes] = useState<VoteItem[]>([]);
-  const [rewards, setRewards] = useState<RewardItem[]>([]);
-  const [banners, setBanners] = useState<BannerItem[]>([]);
+  const [votes, setVotes] = useState<Vote[]>([]);
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -202,7 +148,7 @@ const VotePage: React.FC = () => {
       
       // 모든 데이터를 병렬로 가져옵니다
       const [votesData, rewardsData, bannersData] = await Promise.all([
-        getVotes('votes', 3),  // 상위 3개 투표를 투표수 기준으로 정렬
+        getVotes('votes', 3),
         getRewards(),
         getBanners(),
       ]);
@@ -224,7 +170,7 @@ const VotePage: React.FC = () => {
    * @param sortBy - 정렬 기준 ('votes': 투표수 기준, 'recent': 최신순)
    * @param limit - 가져올 투표 수 (0이면 제한 없음)
    */
-  const getVotes = async (sortBy: 'votes' | 'recent' = 'votes', limit: number = 0): Promise<VoteItem[]> => {
+  const getVotes = async (sortBy: 'votes' | 'recent' = 'votes', limit: number = 0): Promise<Vote[]> => {
     try {
       const now = new Date();
       const currentTime = now.toISOString();
@@ -284,7 +230,7 @@ const VotePage: React.FC = () => {
         }
 
         // 투표 상태 계산
-        const status = getVoteStatus(vote.start_at, vote.stop_at, now);
+        const status = getVoteStatus(vote);
         
         return {
           id: vote.id?.toString() || '',
@@ -292,16 +238,29 @@ const VotePage: React.FC = () => {
                 typeof vote.title_ko === 'string' ? vote.title_ko : 
                 (vote.title && typeof vote.title === 'object' && vote.title.ko) ? vote.title.ko : '제목 없음',
           description: typeof vote.vote_content === 'string' ? vote.vote_content : '',
-          created_at: vote.created_at || '',
-          image_path: vote.main_image || '',
-          vote_count: maxVoteTotal,
-          comment_count: 0,
-          start_at: vote.start_at,
-          stop_at: vote.stop_at,
-          status,
-          vote_sub_category: vote.vote_sub_category,
-          vote_items: topVoteItems,
-          total_vote_items_count: allVoteItems.length
+          createdAt: vote.created_at || '',
+          deletedAt: vote.deleted_at || null,
+          mainImage: vote.main_image || '',
+          order: vote.order || 0,
+          startAt: vote.start_at || '',
+          stopAt: vote.stop_at || '',
+          updatedAt: vote.updated_at || '',
+          voteCategory: vote.vote_category || '',
+          voteSubCategory: vote.vote_sub_category || '',
+          voteTotal: maxVoteTotal,
+          voteItems: topVoteItems,
+          totalVoteItemsCount: allVoteItems.length,
+          resultImage: vote.result_image || '',
+          visibleAt: vote.visible_at || '',
+          voteContent: vote.vote_content || '',
+          waitImage: vote.wait_image || '',
+          rank: vote.order || 0,
+          displayRank: vote.order || 0,
+          status: vote.vote_category || '',
+          vote_items: true,
+          artistId: null,
+          groupId: null,
+          voteId: vote.id?.toString() || ''
         };
       });
 
@@ -310,7 +269,7 @@ const VotePage: React.FC = () => {
       
       if (sortBy === 'votes') {
         // 투표 수 기준 내림차순 정렬
-        sortedVotes.sort((a, b) => b.vote_count - a.vote_count);
+        sortedVotes.sort((a, b) => b.voteTotal - a.voteTotal);
       }
       // recent는 이미 created_at으로 정렬되어 있으므로 추가 정렬 불필요
 
@@ -337,7 +296,7 @@ const VotePage: React.FC = () => {
   /**
    * 리워드 데이터를 가져옵니다.
    */
-  const getRewards = async (): Promise<RewardItem[]> => {
+  const getRewards = async (): Promise<Reward[]> => {
     try {
       // 리워드 데이터 가져오기 (deleted_at이 null인 것만)
       const { data: rewardData, error: rewardError } = await supabase
@@ -350,26 +309,20 @@ const VotePage: React.FC = () => {
       if (rewardError) throw rewardError;
 
       // 리워드 데이터 형식 맞추기
-      const formattedRewards = rewardData?.map((reward: any) => {
-        // 타이틀 처리
-        let title = '리워드';
-        if (typeof reward.title_ko === 'string') {
-          title = reward.title_ko;
-        } else if (reward.title_ko && typeof reward.title_ko === 'object') {
-          title = reward.title_ko.ko || '리워드';
-        } else if (reward.title && typeof reward.title === 'object' && reward.title.ko) {
-          title = reward.title.ko;
-        }
-
-        // 이미지 경로 처리
-        const thumbnail = reward.thumbnail || '';
-
-        return {
-          id: reward.id,
-          title,
-          thumbnail
-        };
-      }) || [];
+      const formattedRewards = rewardData?.map((reward: any) => ({
+        id: reward.id,
+        title: reward.title,
+        thumbnail: reward.thumbnail,
+        createdAt: reward.created_at,
+        deletedAt: reward.deleted_at,
+        location: reward.location,
+        locationImages: reward.location_images,
+        order: reward.order,
+        overviewImages: reward.overview_images,
+        sizeGuide: reward.size_guide,
+        sizeGuideImages: reward.size_guide_images,
+        updatedAt: reward.updated_at
+      })) || [];
 
       return formattedRewards;
     } catch (error) {
@@ -381,7 +334,7 @@ const VotePage: React.FC = () => {
   /**
    * 배너 데이터를 가져옵니다.
    */
-  const getBanners = async (): Promise<BannerItem[]> => {
+  const getBanners = async (): Promise<Banner[]> => {
     try {
       const currentTime = new Date().toISOString();
 
@@ -417,44 +370,22 @@ const VotePage: React.FC = () => {
       ].slice(0, 2); // 최대 2개만 사용
 
       // 배너 데이터 형식 맞추기
-      const formattedBanners = mergedBannerData?.map((banner: any) => {
-        // 타이틀 처리
-        let title = '배너';
-        if (typeof banner.title === 'string') {
-          title = banner.title;
-        } else if (typeof banner.title === 'object' && banner.title && banner.title.ko) {
-          title = banner.title.ko;
-        }
-
-        // 이미지 경로 처리 - image는 JSON 형식 (다국어 지원)
-        let imagePath = '';
-        if (banner.image) {
-          if (typeof banner.image === 'string') {
-            imagePath = banner.image;
-          } else if (typeof banner.image === 'object' && banner.image.ko) {
-            imagePath = banner.image.ko;
-          } else if (typeof banner.image === 'object') {
-            // 첫 번째 값 사용
-            const firstKey = Object.keys(banner.image)[0];
-            if (firstKey) {
-              imagePath = banner.image[firstKey];
-            }
-          }
-        }
-        
-        if (!imagePath && banner.thumbnail) {
-          imagePath = banner.thumbnail;
-        }
-
-        return {
-          id: banner.id,
-          title,
-          image_path: imagePath,
-          link_url: banner.link || banner.link_url || '#',
-          start_at: banner.start_at,
-          end_at: banner.end_at
-        };
-      }) || [];
+      const formattedBanners = mergedBannerData?.map((banner: any) => ({
+        id: banner.id,
+        title: banner.title,
+        image: banner.image,
+        link: banner.link,
+        startAt: banner.start_at,
+        endAt: banner.end_at,
+        celebId: banner.celeb_id,
+        createdAt: banner.created_at,
+        deletedAt: banner.deleted_at,
+        duration: banner.duration,
+        location: banner.location,
+        order: banner.order,
+        thumbnail: banner.thumbnail,
+        updatedAt: banner.updated_at
+      })) || [];
 
       return formattedBanners;
     } catch (error) {
@@ -550,16 +481,16 @@ const VotePage: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-4">
-                  {banners.map((banner) => (
-                    <Link key={banner.id} href={banner.link_url}>
+                  {banners.map((banner: Banner) => (
+                    <Link key={banner.id} href={banner.link || '#'}>
                       <div className="w-full h-[180px] rounded-lg bg-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-                        {banner.image_path ? (
+                        {banner.image ? (
                           <img 
-                            src={getCachedBannerImageUrl(banner.image_path)} 
+                            src={getCachedBannerImageUrl(getLocalizedImage(banner.image))} 
                             alt={typeof banner.title === 'string' ? banner.title : '배너'} 
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              console.error(`배너 이미지 로드 실패: ${banner.image_path}`);
+                              console.error(`배너 이미지 로드 실패: ${banner.image}`);
                               // 이미지 로드 실패 시 기본 이미지 표시
                               e.currentTarget.src = '/images/banner-placeholder.jpg';
                             }}
@@ -639,14 +570,14 @@ const VotePage: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
-                {votes.slice(0, 6).map((vote, index) => (
+                {votes.slice(0, 6).map((vote: Vote, index: number) => (
                 <Link href={`/vote/${vote.id}`} key={vote.id}>
                     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                       <div className="relative">
-                        {vote.image_path && (
+                        {vote.mainImage && (
                           <div className="h-40 bg-gray-200 relative">
                             <img 
-                              src={getCachedVoteImageUrl(vote.id, vote.image_path)} 
+                              src={getCachedVoteImageUrl(vote.id.toString(), vote.mainImage)} 
                               alt={typeof vote.title === 'string' ? vote.title : '투표'} 
                               className="w-full h-full object-cover"
                               onError={(e) => {
@@ -657,13 +588,13 @@ const VotePage: React.FC = () => {
                             
                             {/* 순위 뱃지 */}
                             <div className={`absolute top-3 left-3 w-10 h-10 rounded-full ${RANK_BADGE_COLORS[index < 3 ? index : 3]} flex items-center justify-center text-white font-bold text-xl shadow-md`}>
-                              {vote.displayRank || vote.rank || (index + 1)}
+                              {getVoteRank(vote, index)}
                             </div>
                             
                             {/* 상태 태그 */}
-                            {vote.status && (
-                              <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-medium ${STATUS_TAG_COLORS[vote.status]} shadow`}>
-                                {getStatusText(vote.status)}
+                            {vote.voteCategory && (
+                              <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-medium ${STATUS_TAG_COLORS[getVoteStatus(vote)]} shadow`}>
+                                {getStatusText(getVoteStatus(vote))}
                               </div>
                             )}
                         </div>
@@ -678,9 +609,9 @@ const VotePage: React.FC = () => {
                         {/* 투표 아이템 디버그 정보 */}
                         <div className="text-xs text-gray-500 mb-2 bg-gray-50 p-2 rounded">
                           {/* 상위 투표 아이템 리스트 */}
-                          {vote.vote_items && vote.vote_items.length > 0 && (
+                          {vote.voteItems && vote.voteItems.length > 0 && (
                             <div className="mt-2 space-y-2">
-                              {vote.vote_items.map((item, idx) => (
+                              {vote.voteItems.map((item: any, idx: number) => (
                                 <div key={item.id} className="flex items-start p-2 bg-white rounded shadow-sm">
                                   <div className="w-12 h-12 mr-2 bg-gray-200 rounded overflow-hidden flex-shrink-0">
                                     {item.artist && item.artist.image ? (
@@ -728,17 +659,17 @@ const VotePage: React.FC = () => {
                         </div>
                         
                         <div className="flex justify-between items-center text-xs text-gray-500">
-                          {vote.start_at && vote.stop_at && (
+                          {vote.startAt && vote.stopAt && (
                             <span className="text-gray-400">
-                              {getPeriodText(vote.start_at, vote.stop_at)}
-                          </span>
+                              {getPeriodText(vote.startAt, vote.stopAt)}
+                            </span>
                           )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
             )}
           </section>
         </div>
