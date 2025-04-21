@@ -39,20 +39,7 @@ const MediaPage: React.FC = () => {
   const getTitleString = (title: any) => {
     if (!title) return '제목 없음';
     if (typeof title === 'string') return title;
-
-    try {
-      const currentLang = useLanguageStore.getState().currentLang;
-      return (
-        title[currentLang] ||
-        title.ko ||
-        title.en ||
-        Object.values(title)[0] ||
-        '제목 없음'
-      );
-    } catch (e) {
-      console.error('제목 처리 중 오류 발생:', e);
-      return '제목 없음';
-    }
+    return getLocalizedString(title) || '제목 없음';
   };
 
   const renderThumbnail = (media: Media) => {

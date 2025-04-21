@@ -154,7 +154,7 @@ const VoteDetailPage: React.FC = () => {
     // 투표 처리 로직 구현
     alert(
       `${
-        selectedArtist.artist?.name?.ko || '아티스트'
+        getLocalizedString(selectedArtist.artist?.name) || '아티스트'
       }에게 ${votes}표 투표 완료!`,
     );
   };
@@ -404,7 +404,7 @@ const VoteDetailPage: React.FC = () => {
                           {item.artist && item.artist.image ? (
                             <Image
                               src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                              alt={item.artist.name?.ko || '아티스트'}
+                              alt={getLocalizedString(item.artist.name) || '아티스트'}
                               width={64}
                               height={64}
                               className='w-full h-full object-cover'
@@ -430,10 +430,10 @@ const VoteDetailPage: React.FC = () => {
                                   : ''
                               }`}
                             >
-                              {item.artist?.name?.ko || '아티스트'}
+                              {getLocalizedString(item.artist?.name) || '아티스트'}
                             </p>
                             <p className='text-sm text-gray-500 ml-2'>
-                              {item.artist?.artist_group?.name?.ko || ''}
+                              {getLocalizedString(item.artist?.artist_group?.name) || ''}
                             </p>
                           </div>
                           <div className='flex items-center'>
@@ -601,7 +601,7 @@ const VoteDetailPage: React.FC = () => {
                 {selectedArtist.artist && selectedArtist.artist.image ? (
                   <Image
                     src={`${process.env.NEXT_PUBLIC_CDN_URL}/${selectedArtist.artist.image}`}
-                    alt={selectedArtist.artist.name?.ko || '아티스트'}
+                    alt={getLocalizedString(selectedArtist.artist.name) || '아티스트'}
                     width={96}
                     height={96}
                     className='w-full h-full object-cover'
@@ -614,10 +614,10 @@ const VoteDetailPage: React.FC = () => {
               </div>
 
               <h3 className='text-xl font-bold mb-1'>
-                {selectedArtist.artist?.name?.ko || '아티스트'}
+                {getLocalizedString(selectedArtist.artist?.name) || '아티스트'}
               </h3>
               <p className='text-gray-500 mb-6'>
-                {selectedArtist.artist?.artist_group?.name?.ko || ''}
+                {getLocalizedString(selectedArtist.artist?.artist_group?.name) || ''}
               </p>
 
               <div className='flex items-center mb-2 w-full'>

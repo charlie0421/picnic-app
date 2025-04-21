@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { VoteItem } from '@/types/interfaces';
-import { getCdnImageUrl } from '@/utils/api/image';
+import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
 
 const UpcomingVoteItems: React.FC<{
   voteItems?: Array<VoteItem & { artist?: any }>;
@@ -39,7 +39,7 @@ const UpcomingVoteItems: React.FC<{
                 {item.artist?.image && (
                   <Image
                     src={getCdnImageUrl(item.artist.image)}
-                    alt={item.artist.name?.ko || ''}
+                    alt={getLocalizedString(item.artist.name) || ''}
                     fill
                     className="object-cover"
                   />
@@ -47,7 +47,7 @@ const UpcomingVoteItems: React.FC<{
               </div>
               <div className="mt-2 text-center">
                 <div className="text-xs font-medium text-gray-700 truncate max-w-[80px]">
-                  {item.artist?.name?.ko || '알 수 없는 아티스트'}
+                  {getLocalizedString(item.artist?.name) || '알 수 없는 아티스트'}
                 </div>
               </div>
             </div>

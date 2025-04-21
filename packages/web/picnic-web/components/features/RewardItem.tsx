@@ -12,7 +12,7 @@ interface RewardItemProps {
 
 const RewardItem: React.FC<RewardItemProps> = ({ reward }) => {
   const title = reward.title as { [key: string]: string } | null;
-  const displayTitle = title?.ko || title?.en || '제목 없음';
+  const displayTitle = getLocalizedString(title) || '제목 없음';
 
   return (
     <Link href={`/reward/${reward.id}`}>

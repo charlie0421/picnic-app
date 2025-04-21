@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Vote, VoteItem } from '@/types/interfaces';
+import { getLocalizedString } from '@/utils/api/image';
 
 const RANK_BADGE_COLORS = [
   'bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg',
@@ -227,7 +228,7 @@ const OngoingVoteItems: React.FC<{
                     {item.artist && item.artist.image ? (
                       <Image
                         src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                        alt={item.artist.name?.ko || '아티스트'}
+                        alt={getLocalizedString(item.artist.name) || '아티스트'}
                         width={index === 0 ? 80 : 64}
                         height={index === 0 ? 80 : 64}
                         className='w-full h-full object-cover'
@@ -254,14 +255,13 @@ const OngoingVoteItems: React.FC<{
                       } truncate max-w-[150px]`}
                     >
                       {item.artist
-                        ? item.artist.name?.ko ||
-                          item.artist.name ||
+                        ? getLocalizedString(item.artist.name) ||
                           '알 수 없는 아티스트'
                         : '알 수 없는 아티스트'}
                     </div>
                     {item.artist?.artist_group && (
                       <div className='text-xs text-gray-500 mt-1'>
-                        {item.artist.artist_group.name?.ko || ''}
+                        {getLocalizedString(item.artist.artist_group.name) || ''}
                       </div>
                     )}
                     <div
