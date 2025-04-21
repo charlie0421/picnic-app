@@ -44,15 +44,15 @@ export const useLanguageStore = create<LanguageState>()(
       t: (key: string, params?: Record<string, string>) => {
         const state = get();
         if (!key) return '';
-        if (state.isLoading) return key;
+        if (state.isLoading || Object.keys(state.translations).length === 0) return '';
         if (state.error) {
           console.error('Translation error:', state.error);
-          return key;
+          return '';
         }
         let translation = state.translations[key];
         if (!translation) {
           console.warn(`Missing translation for key: ${key} in language: ${state.currentLang}`);
-          return key;
+          return '';
         }
         if (params) {
           Object.entries(params).forEach(([key, value]) => {
