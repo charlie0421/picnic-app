@@ -8,6 +8,9 @@ import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
 import { format, differenceInDays, differenceInSeconds } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { getVotes } from '@/utils/api/queries';
+import UpcomingVoteItems from './vote/UpcomingVoteItems';
+import OngoingVoteItems from './vote/OngoingVoteItems';
+import CompletedVoteItems from './vote/CompletedVoteItems';
 
 interface VoteListProps {
   votes: Vote[];
@@ -22,9 +25,9 @@ const VOTE_STATUS = {
 type VoteStatus = (typeof VOTE_STATUS)[keyof typeof VOTE_STATUS];
 
 const STATUS_TAG_COLORS: Record<VoteStatus, string> = {
-  [VOTE_STATUS.UPCOMING]: 'bg-blue-100 text-blue-800',
-  [VOTE_STATUS.ONGOING]: 'bg-green-100 text-green-800',
-  [VOTE_STATUS.COMPLETED]: 'bg-gray-100 text-gray-800',
+  [VOTE_STATUS.UPCOMING]: 'bg-blue-500 text-white border border-blue-600',
+  [VOTE_STATUS.ONGOING]: 'bg-green-500 text-white border border-green-600',
+  [VOTE_STATUS.COMPLETED]: 'bg-gray-500 text-white border border-gray-600',
 };
 
 const RANK_BADGE_COLORS = [
@@ -651,9 +654,14 @@ const VoteList: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const [votes, setVotes] = useState<Vote[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
-    'all',
-  );
+  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+  const prevItemsRef = useRef<Map<number, { rank: number; voteTotal: number }>>(new Map());
+  const [animations, setAnimations] = useState<Map<number, {
+    rankChanged: boolean;
+    voteChanged: boolean;
+    increased: boolean;
+    prevRank: number;
+  }>>(new Map());
 
   useEffect(() => {
     setMounted(true);
@@ -680,7 +688,7 @@ const VoteList: React.FC = () => {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [selectedStatus]); // selectedStatus 변경 시 타이머 재설정
+  }, [selectedStatus]);
 
   const getVoteStatus = (vote: Vote): VoteStatus => {
     if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
@@ -727,11 +735,21 @@ const VoteList: React.FC = () => {
     return `${daysLeft}일 남음`;
   };
 
-  // renderVoteItems 함수 삭제하고 이 코드로 수정
   const renderVoteItems = (
     vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> },
   ) => {
-    return <VoteItemList vote={vote} />;
+    const status = getVoteStatus(vote);
+    
+    switch (status) {
+      case VOTE_STATUS.UPCOMING:
+        return <UpcomingVoteItems voteItems={vote.voteItems} />;
+      case VOTE_STATUS.ONGOING:
+        return <OngoingVoteItems vote={vote} />;
+      case VOTE_STATUS.COMPLETED:
+        return <CompletedVoteItems vote={vote} />;
+      default:
+        return null;
+    }
   };
 
   // 선택된 상태에 따라 투표 목록 필터링
@@ -837,14 +855,9 @@ const VoteList: React.FC = () => {
               <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100'>
                 {/* 상태 및 카테고리 태그 모음 - 상단에 배치 */}
                 <div className='absolute top-3 right-3 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
-                  {/* 투표 상태 */}
                   <span
-                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm shadow-sm ${
-                      getVoteStatus(vote) === VOTE_STATUS.ONGOING
-                        ? 'bg-green-500/90 text-white border border-green-600'
-                        : getVoteStatus(vote) === VOTE_STATUS.UPCOMING
-                        ? 'bg-blue-500/90 text-white border border-blue-600'
-                        : 'bg-gray-500/90 text-white border border-gray-600'
+                    className={`flex items-center px-3 py-1.5 rounded-full text-sm font-bold ${
+                      STATUS_TAG_COLORS[getVoteStatus(vote)]
                     }`}
                   >
                     {STATUS_ICONS[getVoteStatus(vote)]}
@@ -995,16 +1008,19 @@ const VoteList: React.FC = () => {
                                 </svg>
                               </div>
                             )}
-                            <span className='text-xs truncate flex-1'>
-                              {getLocalizedString(reward.title) ||
-                                '리워드 정보'}
-                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-gray-900 truncate">
+                                {getLocalizedString(reward.title) || '리워드 정보'}
+                              </div>
+                            </div>
                           </div>
                         ))}
                         {vote.rewards.length > 2 && (
-                          <span className='text-xs text-gray-500 w-full text-center'>
-                            +{vote.rewards.length - 2}개 더보기
-                          </span>
+                          <div className="w-full text-center">
+                            <span className='text-xs text-gray-500'>
+                              +{vote.rewards.length - 2}개 더보기
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
