@@ -150,4 +150,10 @@ export const getTranslation = async (key: string, locale: string = 'ko') => {
     console.error('Translation error:', error);
     return key;
   }
+};
+
+let translationsCache: Record<string, Record<string, string>> = {};
+
+export const clearTranslationsCache = () => {
+  translationsCache = {};
 }; 
