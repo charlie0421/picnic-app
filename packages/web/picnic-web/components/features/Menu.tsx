@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import CurrentTime from '@/components/features/CurrentTime';
 import { useLanguageStore } from '@/stores/languageStore';
 import { MAIN_MENU } from '@/config/navigation';
+import menuConfig from '@/config/menu.json';
 
 /**
  * 투표 페이지 메뉴 컴포넌트
@@ -20,10 +21,14 @@ const Menu: React.FC = () => {
     return pathname.startsWith(path);
   };
 
+  // 투표 포탈의 서브메뉴 가져오기
+  const votePortal = menuConfig.portals.find(portal => portal.type === 'vote');
+  const subMenus = votePortal?.subMenus || [];
+
   return (
     <div className='flex justify-between items-center py-0'>
       <div className='flex overflow-x-auto'>
-        {MAIN_MENU.map((menuItem) => (
+        {subMenus.map((menuItem) => (
           <Link
             key={menuItem.key}
             href={menuItem.path}
@@ -36,13 +41,11 @@ const Menu: React.FC = () => {
                 : 'text-gray-500 hover:text-primary hover:border-b-2 hover:border-primary'
             }`}
           >
-            {menuItem.i18nKey ? t(menuItem.i18nKey) : menuItem.label}
+            {menuItem.i18nKey ? t(menuItem.i18nKey) : menuItem.name}
           </Link>
         ))}
       </div>
-      <div className='px-4 text-gray-500 text-sm font-mono'>
-        <CurrentTime />
-      </div>
+      <CurrentTime />
     </div>
   );
 };

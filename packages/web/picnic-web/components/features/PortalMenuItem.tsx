@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PortalType } from '@/utils/enums';
 import { PORTAL_MENU, isVoteRelatedPath } from '@/config/navigation';
+import menuConfig from '@/config/menu.json';
 
 interface PortalMenuItemProps {
   portalType: PortalType;
@@ -14,8 +15,9 @@ const PortalMenuItem: React.FC<PortalMenuItemProps> = ({ portalType }) => {
 
   // 설정에서 메뉴 정보 가져오기
   const menuItem = PORTAL_MENU.find((item) => item.type === portalType);
+  const portalConfig = menuConfig.portals.find(portal => portal.type === portalType);
 
-  if (!menuItem) return null;
+  if (!menuItem || !portalConfig) return null;
 
   // 특수 케이스: 리워드 페이지 방문 시 VOTE 메뉴 활성화
   const isActive =
