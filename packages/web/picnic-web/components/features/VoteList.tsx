@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Vote, VoteItem, Reward } from '@/types/interfaces';
@@ -236,8 +236,8 @@ const SUB_CATEGORY_COLORS = {
   all: 'bg-gray-50 text-gray-600 border border-gray-100',
 } as const;
 
-// 타이머 컴포넌트 추가
-const CountdownTimer: React.FC<{ vote: Vote }> = ({ vote }) => {
+// CountdownTimer 컴포넌트 분리
+const CountdownTimer = React.memo(({ vote }: { vote: Vote }) => {
   const [remainingTime, setRemainingTime] = useState<{
     days: number;
     hours: number;
@@ -246,7 +246,6 @@ const CountdownTimer: React.FC<{ vote: Vote }> = ({ vote }) => {
   } | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // 투표 상태에 따라 카운트다운 대상(시작 또는 종료)과 레이블 결정
   const { targetDate, label } = useMemo(() => {
     const now = new Date();
     const startDate = vote.startAt ? new Date(vote.startAt) : null;
@@ -260,7 +259,6 @@ const CountdownTimer: React.FC<{ vote: Vote }> = ({ vote }) => {
     return { targetDate: null, label: '' };
   }, [vote.startAt, vote.stopAt]);
 
-  // 남은 시간 계산 및 업데이트
   useEffect(() => {
     if (!targetDate) return;
 
@@ -281,38 +279,15 @@ const CountdownTimer: React.FC<{ vote: Vote }> = ({ vote }) => {
       setRemainingTime({ days, hours, minutes, seconds });
     };
 
-    // 초기 계산
     calculateRemainingTime();
-
-    // 업데이트 애니메이션 설정
-    const animationInterval = setInterval(() => {
-      setIsUpdating((prev) => !prev);
-    }, 500);
+    const timer = setInterval(calculateRemainingTime, 1000);
+    const animationInterval = setInterval(() => setIsUpdating(prev => !prev), 500);
 
     return () => {
+      clearInterval(timer);
       clearInterval(animationInterval);
     };
-  }, [targetDate, vote.id]); // vote.id를 종속성에 추가하여 투표 데이터가 변경될 때 업데이트되도록 함
-
-  // 매 렌더링마다 실행하여 최신 시간 계산
-  useEffect(() => {
-    if (!targetDate) return;
-
-    const now = new Date();
-    const diffInSeconds = differenceInSeconds(targetDate, now);
-
-    if (diffInSeconds <= 0) {
-      setRemainingTime(null);
-      return;
-    }
-
-    const days = Math.floor(diffInSeconds / 86400);
-    const hours = Math.floor((diffInSeconds % 86400) / 3600);
-    const minutes = Math.floor((diffInSeconds % 3600) / 60);
-    const seconds = diffInSeconds % 60;
-
-    setRemainingTime({ days, hours, minutes, seconds });
-  }, [targetDate, vote]);
+  }, [targetDate]);
 
   if (!remainingTime) return null;
 
@@ -320,404 +295,107 @@ const CountdownTimer: React.FC<{ vote: Vote }> = ({ vote }) => {
     <div className='flex flex-col items-center'>
       <div className='text-xs text-gray-500 mb-1'>{label}</div>
       <div className='flex space-x-1'>
-        <div className='flex flex-col items-center'>
-          <div
-            className={`bg-primary/10 w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-primary ${
-              isUpdating ? 'text-opacity-80' : 'text-opacity-100'
-            } transition-all`}
-          >
-            {remainingTime.days.toString().padStart(2, '0')}
+        {Object.entries(remainingTime).map(([unit, value]) => (
+          <div key={unit} className='flex flex-col items-center'>
+            <div
+              className={`bg-primary/10 w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-primary ${
+                isUpdating ? 'text-opacity-80' : 'text-opacity-100'
+              } transition-all`}
+            >
+              {value.toString().padStart(2, '0')}
+            </div>
+            <div className='text-[10px] text-gray-500 mt-1'>
+              {unit === 'days' ? '일' : unit === 'hours' ? '시' : unit === 'minutes' ? '분' : '초'}
+            </div>
           </div>
-          <div className='text-[10px] text-gray-500 mt-1'>일</div>
-        </div>
-        <div className='flex flex-col items-center'>
-          <div
-            className={`bg-primary/10 w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-primary ${
-              isUpdating ? 'text-opacity-80' : 'text-opacity-100'
-            } transition-all`}
-          >
-            {remainingTime.hours.toString().padStart(2, '0')}
-          </div>
-          <div className='text-[10px] text-gray-500 mt-1'>시</div>
-        </div>
-        <div className='flex flex-col items-center'>
-          <div
-            className={`bg-primary/10 w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-primary ${
-              isUpdating ? 'text-opacity-80' : 'text-opacity-100'
-            } transition-all`}
-          >
-            {remainingTime.minutes.toString().padStart(2, '0')}
-          </div>
-          <div className='text-[10px] text-gray-500 mt-1'>분</div>
-        </div>
-        <div className='flex flex-col items-center'>
-          <div
-            className={`bg-primary/10 w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-primary ${
-              isUpdating ? 'text-opacity-80' : 'text-opacity-100'
-            } transition-all`}
-          >
-            {remainingTime.seconds.toString().padStart(2, '0')}
-          </div>
-          <div className='text-[10px] text-gray-500 mt-1'>초</div>
-        </div>
+        ))}
       </div>
     </div>
   );
-};
+});
 
-// VoteItemList 컴포넌트로 분리
-const VoteItemList: React.FC<{
-  vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> };
-}> = ({ vote }) => {
-  if (!vote.voteItems || vote.voteItems.length === 0) {
-    return null;
-  }
+CountdownTimer.displayName = 'CountdownTimer';
 
-  const topThreeItems = [...vote.voteItems]
-    .sort((a, b) => (b.voteTotal || 0) - (a.voteTotal || 0))
-    .slice(0, 3);
-
-  if (topThreeItems.length === 0) {
-    return null;
-  }
-
-  // 이전 아이템 데이터를 저장하는 ref
-  const prevItemsRef = useRef<Map<number, { rank: number; voteTotal: number }>>(
-    new Map(),
-  );
-
-  // 변경사항 감지 및 애니메이션 상태
-  const [animations, setAnimations] = useState<
-    Map<
-      number,
-      {
-        rankChanged: boolean;
-        voteChanged: boolean;
-        increased: boolean;
-        prevRank: number;
-      }
-    >
-  >(new Map());
-
-  // 변경 감지 효과
-  useEffect(() => {
-    const newAnimations = new Map();
-
-    topThreeItems.forEach((item, index) => {
-      const itemId = item.id;
-      const currentRank = index + 1;
-      const currentVotes = item.voteTotal || 0;
-
-      // 이전 데이터가 있는지 확인
-      if (prevItemsRef.current.has(itemId)) {
-        const prevData = prevItemsRef.current.get(itemId)!;
-
-        // 순위나 투표 수 변경 감지
-        const rankChanged = prevData.rank !== currentRank;
-        const voteChanged = prevData.voteTotal !== currentVotes;
-        const increased = currentVotes > prevData.voteTotal;
-
-        if (rankChanged || voteChanged) {
-          newAnimations.set(itemId, {
-            rankChanged,
-            voteChanged,
-            increased,
-            prevRank: prevData.rank,
-          });
-
-          // 1.5초 후 애니메이션 상태 제거
-          setTimeout(() => {
-            setAnimations((prev) => {
-              const updated = new Map(prev);
-              updated.delete(itemId);
-              return updated;
-            });
-          }, 1500);
-        }
-      }
-
-      // 현재 데이터 저장
-      prevItemsRef.current.set(itemId, {
-        rank: currentRank,
-        voteTotal: currentVotes,
-      });
-    });
-
-    if (newAnimations.size > 0) {
-      setAnimations(newAnimations);
-    }
-  }, [topThreeItems]);
-
-  return (
-    <div className='mt-4'>
-      <div className='relative'>
-        {/* 배경 디자인 요소 */}
-        <div className='absolute inset-0 bg-gradient-to-br from-white to-gray-100 rounded-xl'></div>
-
-        <div className='relative flex flex-col md:flex-row items-center justify-around gap-2 py-3'>
-          {topThreeItems.map((item, index) => {
-            // 1위는 중앙, 2위는 왼쪽, 3위는 오른쪽에 배치
-            const order =
-              index === 0
-                ? 'md:order-2 z-10'
-                : index === 1
-                ? 'md:order-1 z-5'
-                : 'md:order-3 z-5';
-            const scale =
-              index === 0 ? 'md:scale-110 -mt-2 md:mt-0' : 'md:scale-100';
-
-            // 애니메이션 상태 가져오기
-            const animation = animations.get(item.id);
-            const hasAnimation = !!animation;
-
-            // 순위 변경 애니메이션 클래스
-            let rankChangeClass = '';
-            if (animation?.rankChanged) {
-              if (animation.prevRank > index + 1) {
-                // 순위 상승
-                rankChangeClass = 'animate-bounce-up text-green-600';
-              } else {
-                // 순위 하락
-                rankChangeClass = 'animate-bounce-down text-red-600';
-              }
-            }
-
-            // 투표수 변경 애니메이션 클래스
-            let voteChangeClass = '';
-            if (animation?.voteChanged) {
-              voteChangeClass = animation.increased
-                ? 'animate-pulse text-green-600 font-extrabold scale-110'
-                : 'animate-pulse text-red-600 font-extrabold';
-            }
-
-            return (
-              <div
-                key={item.id}
-                className={`w-full ${order} ${scale} transform transition-all duration-300 hover:scale-105 ${
-                  hasAnimation ? 'ring-2 ring-primary ring-opacity-50' : ''
-                }`}
-              >
-                <div
-                  className={`relative flex flex-col items-center p-3 rounded-xl backdrop-blur-sm 
-                  ${
-                    index === 0
-                      ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-300 shadow-xl'
-                      : index === 1
-                      ? 'bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-300 shadow-md'
-                      : 'bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-300 shadow-md'
-                  }`}
-                >
-                  {/* 순위 뱃지 - 더 확실히 표시 */}
-                  <div
-                    className={`absolute -top-4 ${
-                      index === 0
-                        ? 'left-1/2 transform -translate-x-1/2'
-                        : index === 1
-                        ? 'left-0'
-                        : 'right-0'
-                    } py-1 px-3 rounded-full ${
-                      RANK_BADGE_COLORS[index]
-                    } text-white font-bold shadow-lg flex items-center justify-center space-x-1 ${rankChangeClass}`}
-                  >
-                    <span className='text-xl'>{RANK_BADGE_ICONS[index]}</span>
-                    <span className='text-sm'>{index + 1}위</span>
-
-                    {/* 순위 변동 표시 */}
-                    {animation?.rankChanged && (
-                      <span
-                        className={`ml-1 text-xs ${
-                          animation.prevRank > index + 1
-                            ? 'text-green-100'
-                            : 'text-red-100'
-                        }`}
-                      >
-                        {animation.prevRank > index + 1 ? (
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            className='h-3 w-3 inline'
-                            viewBox='0 0 20 20'
-                            fill='currentColor'
-                          >
-                            <path
-                              fillRule='evenodd'
-                              d='M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z'
-                              clipRule='evenodd'
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            className='h-3 w-3 inline'
-                            viewBox='0 0 20 20'
-                            fill='currentColor'
-                          >
-                            <path
-                              fillRule='evenodd'
-                              d='M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z'
-                              clipRule='evenodd'
-                            />
-                          </svg>
-                        )}
-                        {Math.abs(animation.prevRank - (index + 1))}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* 아티스트 이미지 */}
-                  <div
-                    className={`w-16 h-16 rounded-full overflow-hidden border-4 ${
-                      index === 0
-                        ? 'border-yellow-300 w-20 h-20'
-                        : index === 1
-                        ? 'border-gray-300'
-                        : 'border-amber-300'
-                    } shadow-lg mt-4 ${
-                      hasAnimation ? 'animate-pulse-light' : ''
-                    }`}
-                  >
-                    {item.artist && item.artist.image ? (
-                      <Image
-                        src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                        alt={item.artist.name?.ko || '아티스트'}
-                        width={index === 0 ? 80 : 64}
-                        height={index === 0 ? 80 : 64}
-                        className='w-full h-full object-cover'
-                        priority
-                      />
-                    ) : (
-                      <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                        <span className='text-gray-400 text-xs'>
-                          이미지 없음
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 아티스트 정보 */}
-                  <div className='mt-3 text-center'>
-                    <div
-                      className={`font-bold ${
-                        index === 0
-                          ? 'text-lg text-yellow-700'
-                          : index === 1
-                          ? 'text-base text-gray-700'
-                          : 'text-base text-amber-700'
-                      } truncate max-w-[150px]`}
-                    >
-                      {item.artist
-                        ? item.artist.name?.ko ||
-                          item.artist.name ||
-                          '알 수 없는 아티스트'
-                        : '알 수 없는 아티스트'}
-                    </div>
-                    {item.artist?.artist_group && (
-                      <div className='text-xs text-gray-500 mt-1'>
-                        {item.artist.artist_group.name?.ko || ''}
-                      </div>
-                    )}
-                    <div
-                      className={`mt-2 font-bold ${
-                        index === 0
-                          ? 'text-lg text-yellow-600'
-                          : index === 1
-                          ? 'text-base text-gray-600'
-                          : 'text-base text-amber-600'
-                      } ${voteChangeClass}`}
-                    >
-                      {item.voteTotal?.toLocaleString() || 0}{' '}
-                      <span className='text-sm font-normal'>표</span>
-                      {/* 투표수 변동 표시 */}
-                      {animation?.voteChanged && (
-                        <span
-                          className={`ml-1 text-xs ${
-                            animation.increased
-                              ? 'text-green-600'
-                              : 'text-red-600'
-                          }`}
-                        >
-                          {animation.increased ? '+' : '-'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+// RewardItem 컴포넌트 분리
+const RewardItem = React.memo(({ reward }: { reward: Reward }) => (
+  <div className='flex items-center bg-white rounded-lg p-2 shadow-sm border border-yellow-200 w-full'>
+    {reward.thumbnail ? (
+      <div className='w-10 h-10 rounded overflow-hidden mr-2'>
+        <Image
+          src={getCdnImageUrl(reward.thumbnail)}
+          alt={getLocalizedString(reward.title) || '리워드'}
+          width={40}
+          height={40}
+          className='w-full h-full object-cover'
+        />
+      </div>
+    ) : (
+      <div className='w-10 h-10 rounded overflow-hidden mr-2 bg-yellow-100 flex items-center justify-center'>
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          className='h-5 w-5 text-yellow-400'
+          viewBox='0 0 20 20'
+          fill='currentColor'
+        >
+          <path
+            fillRule='evenodd'
+            d='M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z'
+            clipRule='evenodd'
+          />
+          <path d='M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z' />
+        </svg>
+      </div>
+    )}
+    <div className="flex-1 min-w-0">
+      <div className="text-sm font-medium text-gray-900 truncate">
+        {getLocalizedString(reward.title) || '리워드 정보'}
       </div>
     </div>
-  );
-};
+  </div>
+));
 
-const VoteList: React.FC = () => {
-  const [mounted, setMounted] = useState(false);
-  const [votes, setVotes] = useState<Vote[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
-  const prevItemsRef = useRef<Map<number, { rank: number; voteTotal: number }>>(new Map());
-  const [animations, setAnimations] = useState<Map<number, {
-    rankChanged: boolean;
-    voteChanged: boolean;
-    increased: boolean;
-    prevRank: number;
-  }>>(new Map());
+RewardItem.displayName = 'RewardItem';
 
-  useEffect(() => {
-    setMounted(true);
-    const updateVoteData = async () => {
-      try {
-        setLoading(true);
-        const votesData = await getVotes('votes');
-        setVotes(votesData);
-      } catch (error) {
-        console.error('투표 데이터를 가져오는 중 오류가 발생했습니다:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    updateVoteData();
-
-    // 진행 중인 투표일 때만 주기적 업데이트
-    let timer: NodeJS.Timeout | null = null;
-    if (selectedStatus === VOTE_STATUS.ONGOING || selectedStatus === 'all') {
-      timer = setInterval(updateVoteData, 1000); // 진행 중인 투표는 1초마다 업데이트
-    }
-
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [selectedStatus]);
-
-  const getVoteStatus = (vote: Vote): VoteStatus => {
+// VoteItems 컴포넌트 분리
+const VoteItems = React.memo(({ vote }: { vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> } }) => {
+  const status = useMemo(() => {
     if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
-
     const now = new Date();
     const start = new Date(vote.startAt);
     const end = new Date(vote.stopAt);
-
     if (now < start) return VOTE_STATUS.UPCOMING;
     if (now > end) return VOTE_STATUS.COMPLETED;
     return VOTE_STATUS.ONGOING;
-  };
+  }, [vote.startAt, vote.stopAt]);
 
-  const getStatusText = (status: VoteStatus): string => {
-    switch (status) {
-      case VOTE_STATUS.UPCOMING:
-        return '예정됨';
-      case VOTE_STATUS.ONGOING:
-        return '진행 중';
-      case VOTE_STATUS.COMPLETED:
-        return '종료됨';
-      default:
-        return '';
-    }
-  };
+  switch (status) {
+    case VOTE_STATUS.UPCOMING:
+      return <UpcomingVoteItems voteItems={vote.voteItems} />;
+    case VOTE_STATUS.ONGOING:
+      return <OngoingVoteItems vote={vote} />;
+    case VOTE_STATUS.COMPLETED:
+      return <CompletedVoteItems vote={vote} />;
+    default:
+      return null;
+  }
+});
 
-  const getPeriodText = (vote: Vote): string => {
+VoteItems.displayName = 'VoteItems';
+
+// VoteCard 컴포넌트 분리
+const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
+  const status = useMemo(() => {
+    if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
+    const now = new Date();
+    const start = new Date(vote.startAt);
+    const end = new Date(vote.stopAt);
+    if (now < start) return VOTE_STATUS.UPCOMING;
+    if (now > end) return VOTE_STATUS.COMPLETED;
+    return VOTE_STATUS.ONGOING;
+  }, [vote.startAt, vote.stopAt]);
+
+  const periodText = useMemo(() => {
     if (!vote.startAt || !vote.stopAt) return '기간 미정';
-
     const start = new Date(vote.startAt);
     const end = new Date(vote.stopAt);
     const now = new Date();
@@ -726,39 +404,187 @@ const VoteList: React.FC = () => {
       const daysUntilStart = differenceInDays(start, now);
       return `${daysUntilStart}일 후 시작`;
     }
-
-    if (now > end) {
-      return '투표 종료';
-    }
-
+    if (now > end) return '투표 종료';
     const daysLeft = differenceInDays(end, now);
     return `${daysLeft}일 남음`;
-  };
+  }, [vote.startAt, vote.stopAt]);
 
-  const renderVoteItems = (
-    vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> },
-  ) => {
-    const status = getVoteStatus(vote);
-    
-    switch (status) {
-      case VOTE_STATUS.UPCOMING:
-        return <UpcomingVoteItems voteItems={vote.voteItems} />;
-      case VOTE_STATUS.ONGOING:
-        return <OngoingVoteItems vote={vote} />;
-      case VOTE_STATUS.COMPLETED:
-        return <CompletedVoteItems vote={vote} />;
-      default:
-        return null;
+  return (
+    <Link href={`/vote/${vote.id}`}>
+      <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100'>
+        <div className='absolute top-3 right-3 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
+          <span
+            className={`flex items-center px-3 py-1.5 rounded-full text-sm font-bold ${
+              STATUS_TAG_COLORS[status]
+            }`}
+          >
+            {getStatusText(status)}
+          </span>
+        </div>
+
+        <div className='relative'>
+          {vote.mainImage && (
+            <div className='h-48 bg-gray-200 relative'>
+              <Image
+                src={getCdnImageUrl(vote.mainImage)}
+                alt={vote.title}
+                width={320}
+                height={192}
+                className='w-full h-full object-cover'
+                priority
+              />
+              <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+            </div>
+          )}
+        </div>
+
+        <div className='p-5'>
+          <div className='flex flex-wrap gap-1 mb-3'>
+            {vote.voteCategory && (
+              <span
+                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm ${
+                  CATEGORY_COLORS[vote.voteCategory as keyof typeof CATEGORY_COLORS] ||
+                  'bg-gray-100 text-gray-800 border border-gray-200'
+                }`}
+              >
+                {VOTE_CATEGORIES[vote.voteCategory as keyof typeof VOTE_CATEGORIES] || vote.voteCategory}
+              </span>
+            )}
+            {vote.voteSubCategory && (
+              <span
+                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm ${
+                  SUB_CATEGORY_COLORS[vote.voteSubCategory as keyof typeof SUB_CATEGORY_COLORS] ||
+                  'bg-gray-50 text-gray-600 border border-gray-100'
+                }`}
+              >
+                {VOTE_SUB_CATEGORIES[vote.voteSubCategory as keyof typeof VOTE_SUB_CATEGORIES] || vote.voteSubCategory}
+              </span>
+            )}
+          </div>
+
+          <h3 className='font-bold text-lg mb-3 text-gray-800 line-clamp-2'>
+            {getLocalizedString(vote.title)}
+          </h3>
+
+          <div className='flex justify-center mb-4'>
+            <CountdownTimer vote={vote} />
+          </div>
+
+          <VoteItems vote={vote} />
+
+          {vote.rewards && vote.rewards.length > 0 && (
+            <div className='mt-4 bg-yellow-50 rounded-lg p-3 border border-yellow-100'>
+              <div className='flex items-center text-yellow-700 font-medium mb-2'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-5 w-5 mr-1'
+                  viewBox='0 0 20 20'
+                  fill='currentColor'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z'
+                    clipRule='evenodd'
+                  />
+                  <path d='M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z' />
+                </svg>
+                리워드 {vote.rewards.length}개
+              </div>
+              <div className='flex flex-wrap gap-2'>
+                {vote.rewards.slice(0, 2).map((reward) => (
+                  <RewardItem key={reward.id} reward={reward} />
+                ))}
+                {vote.rewards.length > 2 && (
+                  <div className="w-full text-center">
+                    <span className='text-xs text-gray-500'>
+                      +{vote.rewards.length - 2}개 더보기
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className='mt-4 pt-4 border-t border-gray-100'>
+            {vote.startAt && vote.stopAt && (
+              <div className='flex items-center justify-between text-sm'>
+                <span className='text-gray-500 font-medium'>
+                  {periodText}
+                </span>
+                <span className='text-primary/70'>
+                  {format(new Date(vote.startAt), 'MM.dd', { locale: ko })} ~{' '}
+                  {format(new Date(vote.stopAt), 'MM.dd', { locale: ko })}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+});
+
+VoteCard.displayName = 'VoteCard';
+
+const getStatusText = (status: VoteStatus): string => {
+  switch (status) {
+    case VOTE_STATUS.UPCOMING:
+      return '예정됨';
+    case VOTE_STATUS.ONGOING:
+      return '진행 중';
+    case VOTE_STATUS.COMPLETED:
+      return '종료됨';
+    default:
+      return '';
+  }
+};
+
+const VoteList: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
+  const [votes, setVotes] = useState<Vote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+
+  const updateVoteData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const votesData = await getVotes('votes');
+      setVotes(votesData);
+    } catch (error) {
+      console.error('투표 데이터를 가져오는 중 오류가 발생했습니다:', error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  // 선택된 상태에 따라 투표 목록 필터링
+  useEffect(() => {
+    setMounted(true);
+    updateVoteData();
+
+    let timer: NodeJS.Timeout | null = null;
+    if (selectedStatus === VOTE_STATUS.ONGOING || selectedStatus === 'all') {
+      timer = setInterval(updateVoteData, 1000);
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [selectedStatus, updateVoteData]);
+
   const filteredVotes = useMemo(() => {
-    if (selectedStatus === 'all') {
-      return votes;
-    }
-    return votes.filter((vote) => getVoteStatus(vote) === selectedStatus);
+    if (selectedStatus === 'all') return votes;
+    return votes.filter((vote) => {
+      if (!vote.startAt || !vote.stopAt) return selectedStatus === VOTE_STATUS.UPCOMING;
+      const now = new Date();
+      const start = new Date(vote.startAt);
+      const end = new Date(vote.stopAt);
+      if (selectedStatus === VOTE_STATUS.UPCOMING) return now < start;
+      if (selectedStatus === VOTE_STATUS.ONGOING) return now >= start && now <= end;
+      return now > end;
+    });
   }, [votes, selectedStatus]);
+
+  if (!mounted) return null;
 
   return (
     <section>
@@ -782,7 +608,6 @@ const VoteList: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
             }`}
           >
-            {STATUS_ICONS[VOTE_STATUS.ONGOING]}
             진행 중
           </button>
           <button
@@ -793,7 +618,6 @@ const VoteList: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
             }`}
           >
-            {STATUS_ICONS[VOTE_STATUS.UPCOMING]}
             예정됨
           </button>
           <button
@@ -804,7 +628,6 @@ const VoteList: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
             }`}
           >
-            {STATUS_ICONS[VOTE_STATUS.COMPLETED]}
             종료됨
           </button>
         </div>
@@ -850,203 +673,8 @@ const VoteList: React.FC = () => {
         </div>
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          {filteredVotes.slice(0, 6).map((vote: Vote) => (
-            <Link href={`/vote/${vote.id}`} key={vote.id}>
-              <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100'>
-                {/* 상태 및 카테고리 태그 모음 - 상단에 배치 */}
-                <div className='absolute top-3 right-3 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
-                  <span
-                    className={`flex items-center px-3 py-1.5 rounded-full text-sm font-bold ${
-                      STATUS_TAG_COLORS[getVoteStatus(vote)]
-                    }`}
-                  >
-                    {STATUS_ICONS[getVoteStatus(vote)]}
-                    {getStatusText(getVoteStatus(vote))}
-                  </span>
-                </div>
-
-                <div className='relative'>
-                  {vote.mainImage && (
-                    <div className='h-48 bg-gray-200 relative'>
-                      <Image
-                        src={getCdnImageUrl(vote.mainImage)}
-                        alt={vote.title}
-                        width={320}
-                        height={192}
-                        className='w-full h-full object-cover'
-                        priority
-                      />
-                      <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
-                    </div>
-                  )}
-                </div>
-
-                <div className='p-5'>
-                  <div className='flex flex-wrap gap-1 mb-3'>
-                    {/* 카테고리 */}
-                    {vote.voteCategory && (
-                      <span
-                        className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm ${
-                          CATEGORY_COLORS[
-                            vote.voteCategory as keyof typeof CATEGORY_COLORS
-                          ] ||
-                          'bg-gray-100 text-gray-800 border border-gray-200'
-                        }`}
-                      >
-                        {CATEGORY_ICONS[
-                          vote.voteCategory as keyof typeof CATEGORY_ICONS
-                        ] || (
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            className='h-3 w-3 mr-1'
-                            viewBox='0 0 20 20'
-                            fill='currentColor'
-                          >
-                            <path
-                              fillRule='evenodd'
-                              d='M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z'
-                              clipRule='evenodd'
-                            />
-                          </svg>
-                        )}
-                        {VOTE_CATEGORIES[
-                          vote.voteCategory as keyof typeof VOTE_CATEGORIES
-                        ] || vote.voteCategory}
-                      </span>
-                    )}
-
-                    {/* 서브카테고리 */}
-                    {vote.voteSubCategory && (
-                      <span
-                        className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm ${
-                          SUB_CATEGORY_COLORS[
-                            vote.voteSubCategory as keyof typeof SUB_CATEGORY_COLORS
-                          ] || 'bg-gray-50 text-gray-600 border border-gray-100'
-                        }`}
-                      >
-                        {SUB_CATEGORY_ICONS[
-                          vote.voteSubCategory as keyof typeof SUB_CATEGORY_ICONS
-                        ] || (
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            className='h-3 w-3 mr-1'
-                            viewBox='0 0 20 20'
-                            fill='currentColor'
-                          >
-                            <path d='M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z' />
-                          </svg>
-                        )}
-                        {VOTE_SUB_CATEGORIES[
-                          vote.voteSubCategory as keyof typeof VOTE_SUB_CATEGORIES
-                        ] || vote.voteSubCategory}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className='font-bold text-lg mb-3 text-gray-800 line-clamp-2'>
-                    {getLocalizedString(vote.title)}
-                  </h3>
-
-                  {/* 카운트다운 타이머 추가 */}
-                  <div className='flex justify-center mb-4'>
-                    <CountdownTimer vote={vote} />
-                  </div>
-
-                  {renderVoteItems(vote)}
-
-                  {/* 리워드 정보 */}
-                  {vote.rewards && vote.rewards.length > 0 && (
-                    <div className='mt-4 bg-yellow-50 rounded-lg p-3 border border-yellow-100'>
-                      <div className='flex items-center text-yellow-700 font-medium mb-2'>
-                        <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          className='h-5 w-5 mr-1'
-                          viewBox='0 0 20 20'
-                          fill='currentColor'
-                        >
-                          <path
-                            fillRule='evenodd'
-                            d='M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z'
-                            clipRule='evenodd'
-                          />
-                          <path d='M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z' />
-                        </svg>
-                        리워드 {vote.rewards.length}개
-                      </div>
-                      <div className='flex flex-wrap gap-2'>
-                        {vote.rewards.slice(0, 2).map((reward: Reward) => (
-                          <div
-                            key={reward.id}
-                            className='flex items-center bg-white rounded-lg p-2 shadow-sm border border-yellow-200 w-full'
-                          >
-                            {reward.thumbnail ? (
-                              <div className='w-10 h-10 rounded overflow-hidden mr-2'>
-                                <Image
-                                  src={getCdnImageUrl(reward.thumbnail)}
-                                  alt={
-                                    getLocalizedString(reward.title) || '리워드'
-                                  }
-                                  width={40}
-                                  height={40}
-                                  className='w-full h-full object-cover'
-                                />
-                              </div>
-                            ) : (
-                              <div className='w-10 h-10 rounded overflow-hidden mr-2 bg-yellow-100 flex items-center justify-center'>
-                                <svg
-                                  xmlns='http://www.w3.org/2000/svg'
-                                  className='h-5 w-5 text-yellow-400'
-                                  viewBox='0 0 20 20'
-                                  fill='currentColor'
-                                >
-                                  <path
-                                    fillRule='evenodd'
-                                    d='M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z'
-                                    clipRule='evenodd'
-                                  />
-                                  <path d='M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z' />
-                                </svg>
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-gray-900 truncate">
-                                {getLocalizedString(reward.title) || '리워드 정보'}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                        {vote.rewards.length > 2 && (
-                          <div className="w-full text-center">
-                            <span className='text-xs text-gray-500'>
-                              +{vote.rewards.length - 2}개 더보기
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className='mt-4 pt-4 border-t border-gray-100'>
-                    {vote.startAt && vote.stopAt && (
-                      <div className='flex items-center justify-between text-sm'>
-                        <span className='text-gray-500 font-medium'>
-                          {getPeriodText(vote)}
-                        </span>
-                        <span className='text-primary/70'>
-                          {vote.startAt && vote.stopAt
-                            ? `${format(new Date(vote.startAt), 'MM.dd', {
-                                locale: ko,
-                              })} ~ ${format(new Date(vote.stopAt), 'MM.dd', {
-                                locale: ko,
-                              })}`
-                            : '날짜 미정'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Link>
+          {filteredVotes.slice(0, 6).map((vote) => (
+            <VoteCard key={vote.id} vote={vote} />
           ))}
         </div>
       )}
