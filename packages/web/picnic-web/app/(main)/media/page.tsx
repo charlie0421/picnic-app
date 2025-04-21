@@ -14,7 +14,12 @@ const MediaPage: React.FC = () => {
   const [medias, setMedias] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const { currentLang } = useLanguageStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,39 +134,41 @@ const MediaPage: React.FC = () => {
           </div>
         )}
 
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {medias.map((media) => (
-            <Link
-              href={
-                media.videoUrl ||
-                `https://www.youtube.com/watch?v=${media.videoId}`
-              }
-              key={media.id}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='block'
-            >
-              <div className='bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300'>
-                {renderThumbnail(media)}
-                <div className='p-4 bg-white/90'>
-                  <h2 className='text-lg font-semibold text-gray-800 line-clamp-2 mb-2'>
-                    {getTitleString(media.title)}
-                  </h2>
-                  <p className='text-sm text-gray-700'>
-                    {new Date(media.createdAt).toLocaleDateString(
-                      currentLang === 'ko' ? 'ko-KR' : 'en-US',
-                      {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      },
-                    )}
-                  </p>
+        {mounted && (
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {medias.map((media) => (
+              <Link
+                href={
+                  media.videoUrl ||
+                  `https://www.youtube.com/watch?v=${media.videoId}`
+                }
+                key={media.id}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='block'
+              >
+                <div className='bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300'>
+                  {renderThumbnail(media)}
+                  <div className='p-4 bg-white/90'>
+                    <h2 className='text-lg font-semibold text-gray-800 line-clamp-2 mb-2'>
+                      {getTitleString(media.title)}
+                    </h2>
+                    <p className='text-sm text-gray-700'>
+                      {new Date(media.createdAt).toLocaleDateString(
+                        currentLang === 'ko' ? 'ko-KR' : 'en-US',
+                        {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        },
+                      )}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {medias.length === 0 && !isLoading && !error && (
           <div className='text-center py-12'>

@@ -39,7 +39,7 @@ const UpcomingVoteItems: React.FC<{
                 {item.artist?.image && (
                   <Image
                     src={getCdnImageUrl(item.artist.image)}
-                    alt={getLocalizedString(item.artist.name) || ''}
+                    alt={getLocalizedString(item.artist.name)}
                     fill
                     className="object-cover"
                   />

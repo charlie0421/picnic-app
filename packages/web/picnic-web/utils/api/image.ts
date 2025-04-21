@@ -67,27 +67,31 @@ export const getCdnImageUrl = (
 
 export const getLocalizedString = (
   value: { [key: string]: string } | string | null | any,
-): string | undefined => {
-  if (!value) return undefined;
+): string => {
+  if (!value) return '';
   if (typeof value === "string") return value;
   if (typeof value === "number") return value.toString();
 
   let currentLang = "en";
 
   try {
-    // 클라이언트 사이드에서만 store 접근
+    // 서버 사이드에서도 동작하도록 수정
     if (typeof window !== "undefined") {
       currentLang = useLanguageStore.getState().currentLang;
+    } else {
+      // 서버 사이드에서는 기본값 사용
+      currentLang = "en";
     }
   } catch (e) {
     console.error("언어 스토어 접근 오류:", e);
+    currentLang = "en";
   }
 
   // 객체인 경우 현재 언어 키에 해당하는 값 반환
   if (typeof value === "object" && value !== null) {
     return value[currentLang] || value.en || value.ko ||
-      Object.values(value)[0] || undefined;
+      Object.values(value)[0] || '';
   }
 
-  return undefined;
+  return '';
 };

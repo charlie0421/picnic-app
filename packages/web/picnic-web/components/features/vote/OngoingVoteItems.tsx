@@ -254,14 +254,11 @@ const OngoingVoteItems: React.FC<{
                           : 'text-base text-amber-700'
                       } truncate max-w-[150px]`}
                     >
-                      {item.artist
-                        ? getLocalizedString(item.artist.name) ||
-                          '알 수 없는 아티스트'
-                        : '알 수 없는 아티스트'}
+                      {item.artist ? getLocalizedString(item.artist.name) || '알 수 없는 아티스트' : '알 수 없는 아티스트'}
                     </div>
                     {item.artist?.artist_group && (
                       <div className='text-xs text-gray-600 mt-1'>
-                        {getLocalizedString(item.artist.artist_group.name) || ''}
+                        {getLocalizedString(item.artist.artist_group.name)}
                       </div>
                     )}
                     <div

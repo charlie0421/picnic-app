@@ -153,9 +153,7 @@ const VoteDetailPage: React.FC = () => {
 
     // 투표 처리 로직 구현
     alert(
-      `${
-        getLocalizedString(selectedArtist.artist?.name) || '아티스트'
-      }에게 ${votes}표 투표 완료!`,
+      `${getLocalizedString(selectedArtist.artist?.name) || '아티스트'}에게 ${votes}표 투표 완료!`,
     );
   };
 
@@ -404,7 +402,7 @@ const VoteDetailPage: React.FC = () => {
                           {item.artist && item.artist.image ? (
                             <Image
                               src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                              alt={getLocalizedString(item.artist.name) || '아티스트'}
+                              alt={getLocalizedString(item.artist.name)}
                               width={64}
                               height={64}
                               className='w-full h-full object-cover'
@@ -601,7 +599,7 @@ const VoteDetailPage: React.FC = () => {
                 {selectedArtist.artist && selectedArtist.artist.image ? (
                   <Image
                     src={`${process.env.NEXT_PUBLIC_CDN_URL}/${selectedArtist.artist.image}`}
-                    alt={getLocalizedString(selectedArtist.artist.name) || '아티스트'}
+                    alt={getLocalizedString(selectedArtist.artist.name)}
                     width={96}
                     height={96}
                     className='w-full h-full object-cover'
