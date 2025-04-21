@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getTranslation } from '@/utils/i18n';
 import { useLanguageStore } from '@/stores/languageStore';
@@ -15,13 +21,15 @@ interface LanguageContextType {
 }
 
 const getSystemLanguage = () => {
-  if (typeof window === 'undefined') return 'ko';
+  if (typeof window === 'undefined') return 'en';
   const systemLang = navigator.language.split('-')[0];
-  return ['ko', 'en', 'ja', 'zh', 'id'].includes(systemLang) ? systemLang : 'ko';
+  return ['ko', 'en', 'ja', 'zh', 'id'].includes(systemLang)
+    ? systemLang
+    : 'en';
 };
 
 const LanguageContext = createContext<LanguageContextType>({
-  currentLang: 'ko',
+  currentLang: 'en',
   t: (key: string) => key,
   translations: {},
   isLoading: false,
@@ -31,12 +39,14 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export const useLanguage = () => useContext(LanguageContext);
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const systemLang = getSystemLanguage();
-  
+
   const getLanguageFromParams = useCallback(() => {
     const lang = searchParams.get('lang');
     if (lang && ['ko', 'en', 'ja', 'zh', 'id'].includes(lang)) {
@@ -51,35 +61,41 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [error, setError] = useState<string | null>(null);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
-  const changeLanguage = useCallback((lang: string) => {
-    if (!['ko', 'en', 'ja', 'zh', 'id'].includes(lang) || isChangingLanguage) return;
-    
-    setIsChangingLanguage(true);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('lang', lang);
-    
-    const newPath = `${pathname}?${params.toString()}`;
-    setCurrentLang(lang);
-    useLanguageStore.getState().setCurrentLang(lang);
-    router.push(newPath);
-    setIsChangingLanguage(false);
-  }, [pathname, router, searchParams, isChangingLanguage]);
+  const changeLanguage = useCallback(
+    (lang: string) => {
+      if (!['ko', 'en', 'ja', 'zh', 'id'].includes(lang) || isChangingLanguage)
+        return;
+
+      setIsChangingLanguage(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('lang', lang);
+
+      const newPath = `${pathname}?${params.toString()}`;
+      setCurrentLang(lang);
+      useLanguageStore.getState().setCurrentLang(lang);
+      router.push(newPath);
+      setIsChangingLanguage(false);
+    },
+    [pathname, router, searchParams, isChangingLanguage],
+  );
 
   const loadTranslations = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const strings = await getTranslation('*', currentLang);
-      
+
       if (!strings || Object.keys(strings).length === 0) {
         setTranslations({});
         return;
       }
-      
+
       setTranslations(strings);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to load translations');
+      setError(
+        error instanceof Error ? error.message : 'Failed to load translations',
+      );
       setTranslations({});
     } finally {
       setIsLoading(false);
@@ -97,19 +113,24 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [searchParams, currentLang, getLanguageFromParams]);
 
-  const t = useCallback((key: string) => {
-    if (isLoading) {
-      return '';
-    }
-    if (error) {
-      return key;
-    }
-    return translations[key] || key;
-  }, [error, isLoading, translations]);
+  const t = useCallback(
+    (key: string) => {
+      if (isLoading) {
+        return '';
+      }
+      if (error) {
+        return key;
+      }
+      return translations[key] || key;
+    },
+    [error, isLoading, translations],
+  );
 
   return (
-    <LanguageContext.Provider value={{ currentLang, t, translations, isLoading, error, changeLanguage }}>
+    <LanguageContext.Provider
+      value={{ currentLang, t, translations, isLoading, error, changeLanguage }}
+    >
       {children}
     </LanguageContext.Provider>
   );
-}; 
+};

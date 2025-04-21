@@ -8,20 +8,22 @@ const languages = [
   { code: 'en', name: 'English' },
   { code: 'ja', name: '日本語' },
   { code: 'zh', name: '中文' },
-  { code: 'id', name: 'Bahasa Indonesia' }
+  { code: 'id', name: 'Bahasa Indonesia' },
 ];
 
 const LanguageSelector: React.FC = () => {
   const { currentLang, changeLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
-  const currentLanguage = languages.find(lang => lang.code === currentLang);
-  const otherLanguages = languages.filter(lang => lang.code !== currentLang);
+
+  const currentLanguage = languages.find((lang) => lang.code === currentLang);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -37,16 +39,16 @@ const LanguageSelector: React.FC = () => {
   };
 
   return (
-    <div 
+    <div
       ref={dropdownRef}
-      style={{ 
-        position: 'relative', 
+      style={{
+        position: 'relative',
         display: 'inline-block',
-        width: '170px'
+        width: '170px',
       }}
     >
       <button
-        type="button"
+        type='button'
         onClick={toggleDropdown}
         style={{
           padding: '8px 12px',
@@ -61,15 +63,17 @@ const LanguageSelector: React.FC = () => {
           justifyContent: 'space-between',
           color: '#374151',
           position: 'relative',
-          fontSize: '13px'
+          fontSize: '13px',
         }}
       >
         <span>{currentLanguage?.name || 'Language'}</span>
-        <span style={{ 
-          transform: isOpen ? 'rotate(180deg)' : 'none', 
-          transition: 'transform 0.2s',
-          fontSize: '12px'
-        }}>
+        <span
+          style={{
+            transform: isOpen ? 'rotate(180deg)' : 'none',
+            transition: 'transform 0.2s',
+            fontSize: '12px',
+          }}
+        >
           ▼
         </span>
       </button>
@@ -79,8 +83,12 @@ const LanguageSelector: React.FC = () => {
           visibility: isOpen ? 'visible' : 'hidden',
           opacity: isOpen ? 1 : 0,
           position: 'fixed',
-          top: dropdownRef.current ? dropdownRef.current.getBoundingClientRect().bottom + 4 : 0,
-          left: dropdownRef.current ? dropdownRef.current.getBoundingClientRect().left : 0,
+          top: dropdownRef.current
+            ? dropdownRef.current.getBoundingClientRect().bottom + 4
+            : 0,
+          left: dropdownRef.current
+            ? dropdownRef.current.getBoundingClientRect().left
+            : 0,
           backgroundColor: 'white',
           border: '1px solid #e5e7eb',
           borderRadius: '6px',
@@ -90,42 +98,53 @@ const LanguageSelector: React.FC = () => {
           overflowY: 'auto',
           transition: 'opacity 0.2s ease-in-out',
           zIndex: 9999,
-          fontSize: '14px'
+          fontSize: '14px',
         }}
       >
-        {otherLanguages.map((language) => (
-          <button
-            key={language.code}
-            type="button"
-            onClick={() => {
-              changeLanguage(language.code);
-              setIsOpen(false);
-            }}
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '8px 12px',
-              textAlign: 'left',
-              border: 'none',
-              backgroundColor: 'white',
-              color: '#374151',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-              borderBottom: '1px solid #f3f4f6'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f6';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'white';
-            }}
-          >
-            {language.name}
-          </button>
-        ))}
+        {languages.map((language) => {
+          const isCurrentLanguage = language.code === currentLang;
+          return (
+            <button
+              key={language.code}
+              type='button'
+              onClick={() => {
+                if (!isCurrentLanguage) {
+                  changeLanguage(language.code);
+                  setIsOpen(false);
+                }
+              }}
+              disabled={isCurrentLanguage}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '8px 12px',
+                textAlign: 'left',
+                border: 'none',
+                backgroundColor: isCurrentLanguage ? '#f0f0f0' : 'white',
+                color: isCurrentLanguage ? '#9ca3af' : '#374151',
+                cursor: isCurrentLanguage ? 'default' : 'pointer',
+                transition: 'background-color 0.2s',
+                borderBottom: '1px solid #f3f4f6',
+                fontWeight: isCurrentLanguage ? 'bold' : 'normal',
+              }}
+              onMouseEnter={(e) => {
+                if (!isCurrentLanguage) {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = isCurrentLanguage
+                  ? '#f0f0f0'
+                  : 'white';
+              }}
+            >
+              {language.name}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 };
 
-export default LanguageSelector; 
+export default LanguageSelector;
