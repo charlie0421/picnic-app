@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import SocialLogin from '../../../components/SocialLogin';
+import { useLanguageStore } from '@/stores/languageStore';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const { authState, signIn } = useAuth();
   const router = useRouter();
+  const { t } = useLanguageStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,75 +38,84 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">로그인</h1>
-        
-        {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
-            {error}
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
-              이메일
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-            />
-          </div>
-          
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
-              비밀번호
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              required
-            />
-          </div>
-          
-          <button
-            type="submit"
-            className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-            disabled={authState.loading}
-          >
-            {authState.loading ? '로그인 중...' : '로그인'}
-          </button>
-        </form>
-        
-        <div className="mt-6 flex items-center justify-between">
-          <span className="border-b w-1/4 md:w-1/3"></span>
-          <span className="text-xs text-gray-500 uppercase">또는</span>
-          <span className="border-b w-1/4 md:w-1/3"></span>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold text-center mb-6">{t('auth_login_title')}</h1>
         </div>
-        
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                {t('auth_login_email')}
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                placeholder={t('auth_login_email_placeholder')}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
+                {t('auth_login_password')}
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                placeholder={t('auth_login_password_placeholder')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              disabled={authState.loading}
+            >
+              {authState.loading ? '로그인 중...' : t('auth_login_submit')}
+            </button>
+          </div>
+        </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-gray-50 text-gray-500 uppercase">
+              {t('auth_login_or')}
+            </span>
+          </div>
+        </div>
+
         <SocialLogin className="mt-6" />
         
         <div className="text-center mt-4">
           <Link href="/auth/forgot-password" className="text-primary text-sm hover:underline">
-            비밀번호를 잊으셨나요?
+            {t('auth_login_forgot_password')}
           </Link>
         </div>
         
         <div className="text-center mt-6 border-t border-gray-200 pt-4">
-          <p className="text-gray-600 mb-4">계정이 없으신가요?</p>
+          <p className="text-gray-600 mb-4">{t('auth_login_no_account')}</p>
           <Link
             href="/auth/signup"
             className="text-primary font-medium hover:underline"
           >
-            회원가입
+            {t('auth_signup_title')}
           </Link>
         </div>
       </div>

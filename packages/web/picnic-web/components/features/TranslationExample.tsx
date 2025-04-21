@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguageStore } from '@/stores/languageStore';
-import { TRANSLATION_KEYS } from '@/constants/translations';
 
 const TranslationExample: React.FC = () => {
   const { t } = useLanguageStore();
@@ -10,8 +9,8 @@ const TranslationExample: React.FC = () => {
   const [welcome, setWelcome] = useState('');
 
   useEffect(() => {
-    setGreeting(t(TRANSLATION_KEYS.COMMON.GREETING));
-    setWelcome(t(TRANSLATION_KEYS.COMMON.WELCOME));
+    setGreeting(t('common_greeting'));
+    setWelcome(t('common_welcome'));
   }, [t]);
 
   return (
