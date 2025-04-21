@@ -16,13 +16,16 @@ export const getVotes = async (
         vote_item (
           *,
           artist (
-            *
+            *,
+            artist_group (*)
           )
+        ),
+        vote_reward (
+          reward_id,
+          reward:reward_id (*)
         )
       `)
       .is("deleted_at", null)
-      .lte("start_at", currentTime)
-      .gte("stop_at", currentTime)
       .order("created_at", { ascending: false });
 
     if (voteError) throw voteError;
@@ -42,7 +45,22 @@ export const getVotes = async (
       voteContent: vote.vote_content,
       voteSubCategory: vote.vote_sub_category,
       visibleAt: vote.visible_at,
-      voteItems: vote.vote_item,
+      voteItems: vote.vote_item
+        ? vote.vote_item.map((item: any) => ({
+          ...item,
+          deletedAt: item.deleted_at,
+          createdAt: item.created_at,
+          updatedAt: item.updated_at,
+          voteId: item.vote_id,
+          artistId: item.artist_id,
+          groupId: item.group_id,
+          voteTotal: item.vote_total,
+          artist: item.artist,
+        }))
+        : [],
+      rewards: vote.vote_reward
+        ? vote.vote_reward.map((vr: any) => vr.reward).filter(Boolean)
+        : [],
       title: vote.title || "제목 없음",
     }));
   } catch (error) {
@@ -97,7 +115,8 @@ export const getBanners = async (): Promise<Banner[]> => {
       .is("deleted_at", null)
       .order("order", { ascending: true })
       .lte("start_at", currentTime)
-      .limit(2);
+      .gt("end_at", currentTime)
+      .limit(10);
 
     if (bannerError) throw bannerError;
     if (!bannerData || bannerData.length === 0) return [];

@@ -1,34 +1,28 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { Banner, Reward, Vote } from '@/types/interfaces';
+import React, { useEffect, useState } from 'react';
+import { Banner, Reward } from '@/types/interfaces';
 import Menu from '@/components/features/Menu';
 import Footer from '@/components/layouts/Footer';
 import BannerList from '@/components/features/BannerList';
 import VoteList from '@/components/features/VoteList';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { getBanners, getRewards, getVotes } from '@/utils/api/queries';
+import { getBanners, getRewards } from '@/utils/api/queries';
 
 const VotePage: React.FC = () => {
-  const [votes, setVotes] = useState<Vote[]>([]);
-  const [rewards, setRewards] = useState<Reward[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [rewards, setRewards] = useState<Reward[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const bannersData = await getBanners();
-        console.log(bannersData);
         setBanners(bannersData);
 
         const rewardsData = await getRewards(4);
-        console.log(rewardsData);
         setRewards(rewardsData);
-
-        setIsLoading(false);
       } catch (error) {
         console.error('데이터를 가져오는 중 오류가 발생했습니다:', error);
         setError('데이터를 불러오는 중 오류가 발생했습니다.');

@@ -18,39 +18,42 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
 }
 
-/* 순위 변경 애니메이션 */
+/* 순위 변동 및 투표수 변경 애니메이션 */
 @keyframes bounce-up {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
 @keyframes bounce-down {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(10px); }
+  50% { transform: translateY(8px); }
 }
 
-/* 투표수 변경 애니메이션 */
 @keyframes pulse-light {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  50% { opacity: 0.7; }
 }
 
 .animate-bounce-up {
-  animation: bounce-up 1s ease-in-out;
+  animation: bounce-up 1.5s ease-in-out;
 }
 
 .animate-bounce-down {
-  animation: bounce-down 1s ease-in-out;
+  animation: bounce-down 1.5s ease-in-out;
 }
 
 .animate-pulse-light {
-  animation: pulse-light 1.5s ease-in-out infinite;
+  animation: pulse-light 1.5s ease-in-out;
+}
+
+/* 투표수 커지고 작아지는 애니메이션 */
+@keyframes number-scale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.animate-number-scale {
+  animation: number-scale 1.5s ease-in-out;
 } 

@@ -1000,6 +1000,7 @@ export interface Vote {
   voteSubCategory: string | null;
   waitImage: string | null;
   voteItems?: Array<VoteItem & { artist?: any }>;
+  rewards?: Reward[];
 }
 
 export interface VoteAchieve {
