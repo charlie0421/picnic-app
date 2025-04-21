@@ -400,7 +400,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
       <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100'>
         <div className='absolute top-3 right-3 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
           <span
-            className={`flex items-center px-3 py-1.5 rounded-full text-sm font-bold ${
+            className={`flex items-center px-3 py-1.5 rounded-full text-sm font-bold whitespace-nowrap ${
               STATUS_TAG_COLORS[status]
             }`}
           >
@@ -424,11 +424,11 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
           )}
         </div>
 
-        <div className='p-5'>
+        <div className='p-4 sm:p-5'>
           <div className='flex flex-wrap gap-1 mb-3'>
             {vote.voteCategory && (
               <span
-                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm ${
+                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
                   CATEGORY_COLORS[vote.voteCategory as keyof typeof CATEGORY_COLORS] ||
                   'bg-gray-100 text-gray-800 border border-gray-200'
                 }`}
@@ -438,7 +438,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
             )}
             {vote.voteSubCategory && (
               <span
-                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm ${
+                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
                   SUB_CATEGORY_COLORS[vote.voteSubCategory as keyof typeof SUB_CATEGORY_COLORS] ||
                   'bg-gray-50 text-gray-600 border border-gray-100'
                 }`}
@@ -448,7 +448,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
             )}
           </div>
 
-          <h3 className='font-bold text-lg mb-3 text-gray-800 line-clamp-2'>
+          <h3 className='font-bold text-base sm:text-lg mb-3 text-gray-800 line-clamp-2'>
             {getLocalizedString(vote.title)}
           </h3>
 
@@ -474,7 +474,9 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
                   />
                   <path d='M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z' />
                 </svg>
-                {t('text_vote_reward', {'count': vote.rewards.length.toString()})}
+                <span className='text-sm sm:text-base'>
+                  {t('text_vote_reward', {'count': vote.rewards.length.toString()})}
+                </span>
               </div>
               <div className='flex flex-wrap gap-2'>
                 {vote.rewards.slice(0, 2).map((reward) => (
@@ -493,7 +495,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
 
           <div className='mt-4 pt-4 border-t border-gray-100'>
             {vote.startAt && vote.stopAt && (
-              <div className='flex items-center justify-between text-sm'>
+              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm gap-1 sm:gap-0'>
                 <span className='text-gray-500 font-medium'>
                   {periodText}
                 </span>

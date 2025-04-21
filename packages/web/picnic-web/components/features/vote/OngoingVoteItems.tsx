@@ -161,18 +161,14 @@ const OngoingVoteItems: React.FC<{
                 >
                   {/* 순위 뱃지 */}
                   <div
-                    className={`absolute -top-4 ${
-                      index === 0
-                        ? 'left-1/2 transform -translate-x-1/2'
-                        : index === 1
-                        ? 'left-0'
-                        : 'right-0'
-                    } py-1 px-3 rounded-full ${
+                    className={`absolute -top-4 left-1/2 transform -translate-x-1/2 py-1 ${
+                      t('text_vote_rank', {'rank': '1'}).length > 3 ? 'px-3' : 'px-2'
+                    } rounded-full ${
                       RANK_BADGE_COLORS[index]
-                    } text-white font-bold shadow-lg flex items-center justify-center space-x-1 ${rankChangeClass}`}
+                    } text-white font-bold shadow-lg flex items-center justify-center space-x-1 whitespace-nowrap ${rankChangeClass}`}
                   >
-                    <span className='text-xl'>{RANK_BADGE_ICONS[index]}</span>
-                    <span className='text-sm'>{t('text_vote_rank', {'rank': (index + 1).toString()} )}</span>
+                    <span className='text-lg'>{RANK_BADGE_ICONS[index]}</span>
+                    <span className='text-[10px]'>{t('text_vote_rank', {'rank': (index + 1).toString()} )}</span>
 
                     {/* 순위 변동 표시 */}
                     {animation?.rankChanged && (

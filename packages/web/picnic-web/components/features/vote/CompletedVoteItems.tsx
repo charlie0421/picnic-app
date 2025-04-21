@@ -64,18 +64,12 @@ const CompletedVoteItems: React.FC<{
                 >
                   {/* 순위 뱃지 */}
                   <div
-                    className={`absolute -top-4 ${
-                      index === 0
-                        ? 'left-1/2 transform -translate-x-1/2'
-                        : index === 1
-                        ? 'left-0'
-                        : 'right-0'
-                    } py-1 px-3 rounded-full ${
+                    className={`absolute -top-4 left-1/2 transform -translate-x-1/2 py-1 px-3 rounded-full ${
                       RANK_BADGE_COLORS[index]
-                    } text-white/90 font-bold shadow-lg flex items-center justify-center space-x-1`}
+                    } text-white/90 font-bold shadow-lg flex items-center justify-center space-x-1 whitespace-nowrap`}
                   >
                     <span className='text-xl'>{RANK_BADGE_ICONS[index]}</span>
-                    <span className='text-sm'>{t('text_vote_rank', {'rank': (index + 1).toString()}  )}</span>
+                    <span className='text-xs'>{t('text_vote_rank', {'rank': (index + 1).toString()}  )}</span>
                   </div>
 
                   {/* 아티스트 이미지 */}
@@ -111,10 +105,10 @@ const CompletedVoteItems: React.FC<{
                     <div
                       className={`font-bold ${
                         index === 0
-                          ? 'text-lg text-yellow-700/70'
+                          ? 'text-sm text-yellow-700/70'
                           : index === 1
-                          ? 'text-base text-gray-700/70'
-                          : 'text-base text-amber-700/70'
+                          ? 'text-xs text-gray-700/70'
+                          : 'text-xs text-amber-700/70'
                       } truncate max-w-[150px]`}
                     >
                       {item.artist ? getLocalizedString(item.artist.name) || '알 수 없는 아티스트' : '알 수 없는 아티스트'}
@@ -127,10 +121,10 @@ const CompletedVoteItems: React.FC<{
                     <div
                       className={`mt-2 font-bold ${
                         index === 0
-                          ? 'text-lg text-yellow-600/70'
+                          ? 'text-sm text-yellow-600/70'
                           : index === 1
-                          ? 'text-base text-gray-600/70'
-                          : 'text-base text-amber-600/70'
+                          ? 'text-xs text-gray-600/70'
+                          : 'text-xs text-amber-600/70'
                       }`}
                     >
                       {item.voteTotal?.toLocaleString() || 0}{' '}
