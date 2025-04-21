@@ -230,18 +230,19 @@ const CountdownTimer = React.memo(({ vote }: { vote: Vote }) => {
     seconds: number;
   } | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { t } = useLanguageStore();
 
-  const { targetDate, label } = useMemo(() => {
+  const { targetDate, status } = useMemo(() => {
     const now = new Date();
     const startDate = vote.startAt ? new Date(vote.startAt) : null;
     const endDate = vote.stopAt ? new Date(vote.stopAt) : null;
 
     if (startDate && now < startDate) {
-      return { targetDate: startDate, label: '시작까지' };
+      return { targetDate: startDate, status: 'start' };
     } else if (endDate && now < endDate) {
-      return { targetDate: endDate, label: '종료까지' };
+      return { targetDate: endDate, status: 'end' };
     }
-    return { targetDate: null, label: '' };
+    return { targetDate: null, status: '' };
   }, [vote.startAt, vote.stopAt]);
 
   useEffect(() => {
@@ -278,7 +279,9 @@ const CountdownTimer = React.memo(({ vote }: { vote: Vote }) => {
 
   return (
     <div className='flex flex-col items-center'>
-      <div className='text-xs text-gray-500 mb-1'>{label}</div>
+      <div className='text-xs text-gray-500 mb-2'>
+        {status === 'start' ? t('text_vote_countdown_start') : t('text_vote_countdown_end')}
+      </div>
       <div className='flex items-center'>
         {Object.entries(remainingTime).map(([unit, value], index, array) => (
           <React.Fragment key={unit}>

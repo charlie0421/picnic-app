@@ -106,17 +106,17 @@ const OngoingVoteItems: React.FC<{
         {/* 배경 디자인 요소 */}
         <div className='absolute inset-0 bg-gradient-to-br from-white to-gray-100 rounded-xl'></div>
 
-        <div className='relative flex flex-col md:flex-row items-center justify-around gap-2 py-3'>
+        <div className='relative grid grid-cols-1 sm:grid-cols-3 items-center gap-4 py-3'>
           {topThreeItems.map((item, index) => {
             // 1위는 중앙, 2위는 왼쪽, 3위는 오른쪽에 배치
             const order =
               index === 0
-                ? 'md:order-2 z-10'
+                ? 'sm:order-2'
                 : index === 1
-                ? 'md:order-1 z-5'
-                : 'md:order-3 z-5';
+                ? 'sm:order-1'
+                : 'sm:order-3';
             const scale =
-              index === 0 ? 'md:scale-110 -mt-2 md:mt-0' : 'md:scale-100';
+              index === 0 ? 'sm:scale-110 -mt-2 sm:mt-0' : 'sm:scale-100';
 
             // 애니메이션 상태 가져오기
             const animation = animations.get(item.id);
@@ -242,7 +242,7 @@ const OngoingVoteItems: React.FC<{
                   </div>
 
                   {/* 아티스트 정보 */}
-                  <div className='mt-3 text-center'>
+                  <div className='mt-3 text-center w-full px-2'>
                     <div
                       className={`font-bold ${
                         index === 0
@@ -250,12 +250,15 @@ const OngoingVoteItems: React.FC<{
                           : index === 1
                           ? 'text-base text-gray-700'
                           : 'text-base text-amber-700'
-                      } truncate max-w-[150px]`}
+                      } truncate max-w-full`}
+                      title={item.artist ? getLocalizedString(item.artist.name) || '알 수 없는 아티스트' : '알 수 없는 아티스트'}
                     >
                       {item.artist ? getLocalizedString(item.artist.name) || '알 수 없는 아티스트' : '알 수 없는 아티스트'}
                     </div>
                     {item.artist?.artist_group && (
-                      <div className='text-xs text-gray-600 mt-1'>
+                      <div className='text-xs text-gray-600 mt-1 truncate max-w-full'
+                        title={getLocalizedString(item.artist.artist_group.name)}
+                      >
                         {getLocalizedString(item.artist.artist_group.name)}
                       </div>
                     )}
