@@ -25,7 +25,7 @@ const PortalMenuItem: React.FC<PortalMenuItemProps> = ({ portalType }) => {
   return (
     <Link href={menuItem.path}>
       <div
-        className={`px-4 py-2 mx-1 cursor-pointer rounded-lg transition-colors ${
+        className={`px-3 py-1.5 mx-1 cursor-pointer rounded-lg transition-colors ${
           isActive ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-500'
         }`}
       >
