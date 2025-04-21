@@ -15,8 +15,7 @@ import LanguageSelector from '@/components/features/LanguageSelector';
 import { PortalType } from '@/utils/enums';
 import {
   PORTAL_MENU,
-  ADMIN_PORTAL_MENU,
-  getPortalTypeFromPath,
+  getPortalTypeFromPath
 } from '@/config/navigation';
 
 // 환경 설정 확인 (개발 환경인지)
@@ -65,17 +64,6 @@ const Portal: React.FC<PortalProps> = ({ children }) => {
                     />
                   ))}
 
-                  {/* 관리자만 볼 수 있는 메뉴 */}
-                  {authState.isAuthenticated && authState.user?.isAdmin && (
-                    <>
-                      {ADMIN_PORTAL_MENU.map((menuItem) => (
-                        <PortalMenuItem
-                          key={menuItem.path}
-                          portalType={menuItem.type}
-                        />
-                      ))}
-                    </>
-                  )}
                 </div>
 
                 <div className='flex items-center space-x-4'>

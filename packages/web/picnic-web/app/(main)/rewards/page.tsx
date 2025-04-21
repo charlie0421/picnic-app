@@ -17,7 +17,7 @@ const RewardsPage: React.FC = () => {
 
   // 현재 포털 타입을 REWARDS로 설정
   useEffect(() => {
-    setCurrentPortalType(PortalType.REWARDS);
+    setCurrentPortalType(PortalType.VOTE);
   }, [setCurrentPortalType]);
 
   useEffect(() => {

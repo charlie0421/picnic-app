@@ -113,9 +113,10 @@ export const getBanners = async (): Promise<Banner[]> => {
       .from("banner")
       .select("*")
       .is("deleted_at", null)
+      .eq("location", "vote_home")
       .order("order", { ascending: true })
       .lte("start_at", currentTime)
-      .gt("end_at", currentTime)
+      .or(`end_at.gt.${currentTime},end_at.is.null`)
       .limit(10);
 
     if (bannerError) throw bannerError;
