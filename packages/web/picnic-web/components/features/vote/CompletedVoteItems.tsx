@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Vote, VoteItem } from '@/types/interfaces';
 import { getLocalizedString } from '@/utils/api/image';
-
+import { useLanguageStore } from '@/stores/languageStore';
 const RANK_BADGE_COLORS = [
   'bg-gradient-to-br from-yellow-400/70 to-yellow-600/70 shadow-lg',
   'bg-gradient-to-br from-gray-300/70 to-gray-400/70 shadow-md',
@@ -16,6 +16,7 @@ const RANK_BADGE_ICONS = ['👑', '🥈', '🥉'];
 const CompletedVoteItems: React.FC<{
   vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> };
 }> = ({ vote }) => {
+  const { t } = useLanguageStore();
   if (!vote.voteItems || vote.voteItems.length === 0) {
     return null;
   }
@@ -74,7 +75,7 @@ const CompletedVoteItems: React.FC<{
                     } text-white/90 font-bold shadow-lg flex items-center justify-center space-x-1`}
                   >
                     <span className='text-xl'>{RANK_BADGE_ICONS[index]}</span>
-                    <span className='text-sm'>{index + 1}위</span>
+                    <span className='text-sm'>{t('text_vote_rank', {'rank': (index + 1).toString()}  )}</span>
                   </div>
 
                   {/* 아티스트 이미지 */}
@@ -90,7 +91,7 @@ const CompletedVoteItems: React.FC<{
                     {item.artist && item.artist.image ? (
                       <Image
                         src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                        alt={getLocalizedString(item.artist.name) || '아티스트'}
+                        alt={getLocalizedString(item.artist.name)}
                         width={index === 0 ? 80 : 64}
                         height={index === 0 ? 80 : 64}
                         className='w-full h-full object-cover grayscale opacity-80'
@@ -133,7 +134,6 @@ const CompletedVoteItems: React.FC<{
                       }`}
                     >
                       {item.voteTotal?.toLocaleString() || 0}{' '}
-                      <span className='text-sm font-normal'>표</span>
                     </div>
                   </div>
                 </div>

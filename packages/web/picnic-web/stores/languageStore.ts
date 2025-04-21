@@ -8,7 +8,7 @@ interface LanguageState {
   isLoading: boolean;
   error: string | null;
   setCurrentLang: (lang: string) => Promise<void>;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string>) => string;
   loadTranslations: () => Promise<void>;
 }
 
@@ -41,7 +41,7 @@ export const useLanguageStore = create<LanguageState>()(
         clearTranslationCache();
         await get().loadTranslations();
       },
-      t: (key: string) => {
+      t: (key: string, params?: Record<string, string>) => {
         const state = get();
         if (!key) return '';
         if (state.isLoading) return key;
@@ -49,10 +49,15 @@ export const useLanguageStore = create<LanguageState>()(
           console.error('Translation error:', state.error);
           return key;
         }
-        const translation = state.translations[key];
+        let translation = state.translations[key];
         if (!translation) {
           console.warn(`Missing translation for key: ${key} in language: ${state.currentLang}`);
           return key;
+        }
+        if (params) {
+          Object.entries(params).forEach(([key, value]) => {
+            translation = translation.replace(`{${key}}`, value);
+          });
         }
         return translation;
       },

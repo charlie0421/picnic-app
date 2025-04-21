@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Vote, VoteItem } from '@/types/interfaces';
 import { getLocalizedString } from '@/utils/api/image';
+import { useLanguageStore } from '@/stores/languageStore';
 
 const RANK_BADGE_COLORS = [
   'bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg',
@@ -16,6 +17,7 @@ const RANK_BADGE_ICONS = ['👑', '🥈', '🥉'];
 const OngoingVoteItems: React.FC<{
   vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> };
 }> = ({ vote }) => {
+  const { t } = useLanguageStore();
   // 이전 아이템 데이터를 저장하는 ref
   const prevItemsRef = useRef<Map<number, { rank: number; voteTotal: number }>>(
     new Map(),
@@ -170,7 +172,7 @@ const OngoingVoteItems: React.FC<{
                     } text-white font-bold shadow-lg flex items-center justify-center space-x-1 ${rankChangeClass}`}
                   >
                     <span className='text-xl'>{RANK_BADGE_ICONS[index]}</span>
-                    <span className='text-sm'>{index + 1}위</span>
+                    <span className='text-sm'>{t('text_vote_rank', {'rank': (index + 1).toString()} )}</span>
 
                     {/* 순위 변동 표시 */}
                     {animation?.rankChanged && (
@@ -228,7 +230,7 @@ const OngoingVoteItems: React.FC<{
                     {item.artist && item.artist.image ? (
                       <Image
                         src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                        alt={getLocalizedString(item.artist.name) || '아티스트'}
+                        alt={getLocalizedString(item.artist.name)}
                         width={index === 0 ? 80 : 64}
                         height={index === 0 ? 80 : 64}
                         className='w-full h-full object-cover'
@@ -271,7 +273,6 @@ const OngoingVoteItems: React.FC<{
                       } ${voteChangeClass}`}
                     >
                       {item.voteTotal?.toLocaleString() || 0}{' '}
-                      <span className='text-sm font-normal'>표</span>
                       {/* 투표수 변동 표시 */}
                       {animation?.voteChanged && (
                         <span

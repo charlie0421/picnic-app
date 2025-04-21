@@ -428,10 +428,10 @@ const VoteDetailPage: React.FC = () => {
                                   : ''
                               }`}
                             >
-                              {getLocalizedString(item.artist?.name) || '아티스트'}
+                              {getLocalizedString(item.artist?.name)}
                             </p>
                             <p className='text-sm text-gray-600 ml-2'>
-                              {getLocalizedString(item.artist?.artist_group?.name) || ''}
+                              {getLocalizedString(item.artist?.artist_group?.name)}
                             </p>
                           </div>
                           <div className='flex items-center'>
@@ -612,10 +612,10 @@ const VoteDetailPage: React.FC = () => {
               </div>
 
               <h3 className='text-xl font-bold mb-1'>
-                {getLocalizedString(selectedArtist.artist?.name) || '아티스트'}
+                {getLocalizedString(selectedArtist.artist?.name)}
               </h3>
               <p className='text-gray-600 mb-6'>
-                {getLocalizedString(selectedArtist.artist?.artist_group?.name) || ''}
+                {getLocalizedString(selectedArtist.artist?.artist_group?.name)}
               </p>
 
               <div className='flex items-center mb-2 w-full'>

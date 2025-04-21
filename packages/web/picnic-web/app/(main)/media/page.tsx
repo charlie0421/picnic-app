@@ -44,7 +44,7 @@ const MediaPage: React.FC = () => {
   const getTitleString = (title: any) => {
     if (!title) return '제목 없음';
     if (typeof title === 'string') return title;
-    return getLocalizedString(title) || '제목 없음';
+    return getLocalizedString(title);
   };
 
   const renderThumbnail = (media: Media) => {

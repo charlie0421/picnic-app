@@ -8,6 +8,7 @@ import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
 import { format, differenceInDays, differenceInSeconds } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { getVotes } from '@/utils/api/queries';
+import { useLanguageStore } from '@/stores/languageStore';
 import UpcomingVoteItems from './vote/UpcomingVoteItems';
 import OngoingVoteItems from './vote/OngoingVoteItems';
 import CompletedVoteItems from './vote/CompletedVoteItems';
@@ -38,22 +39,6 @@ const RANK_BADGE_COLORS = [
 
 const RANK_BADGE_ICONS = ['👑', '🥈', '🥉'];
 
-// 카테고리 매핑
-const VOTE_CATEGORIES = {
-  birthday: '생일투표',
-  debut: '데뷔투표',
-  accumulated: '누적투표',
-  special: '스페셜투표',
-  event: '이벤트투표',
-} as const;
-
-// 서브카테고리 매핑
-const VOTE_SUB_CATEGORIES = {
-  male: '남자',
-  female: '여자',
-  group: '그룹',
-  all: '전체',
-} as const;
 
 // 카테고리별 아이콘 (SVG 경로)
 const CATEGORY_ICONS = {
@@ -323,7 +308,7 @@ const RewardItem = React.memo(({ reward }: { reward: Reward }) => (
       <div className='w-10 h-10 rounded overflow-hidden mr-2'>
         <Image
           src={getCdnImageUrl(reward.thumbnail)}
-          alt={getLocalizedString(reward.title) || '리워드'}
+          alt={getLocalizedString(reward.title)}
           width={40}
           height={40}
           className='w-full h-full object-cover'
@@ -384,6 +369,7 @@ VoteItems.displayName = 'VoteItems';
 
 // VoteCard 컴포넌트 분리
 const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
+  const { t } = useLanguageStore();
   const status = useMemo(() => {
     if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
     const now = new Date();
@@ -418,7 +404,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
               STATUS_TAG_COLORS[status]
             }`}
           >
-            {getStatusText(status)}
+            {getStatusText(status, t)}
           </span>
         </div>
 
@@ -447,7 +433,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
                   'bg-gray-100 text-gray-800 border border-gray-200'
                 }`}
               >
-                {VOTE_CATEGORIES[vote.voteCategory as keyof typeof VOTE_CATEGORIES] || vote.voteCategory}
+                {t(`label_vote_${vote.voteCategory}`)}
               </span>
             )}
             {vote.voteSubCategory && (
@@ -457,7 +443,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
                   'bg-gray-50 text-gray-600 border border-gray-100'
                 }`}
               >
-                {VOTE_SUB_CATEGORIES[vote.voteSubCategory as keyof typeof VOTE_SUB_CATEGORIES] || vote.voteSubCategory}
+                {t(`compatibility_gender_${vote.voteSubCategory}`)}
               </span>
             )}
           </div>
@@ -488,7 +474,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
                   />
                   <path d='M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z' />
                 </svg>
-                리워드 {vote.rewards.length}개
+                {t('text_vote_reward', {'count': vote.rewards.length.toString()})}
               </div>
               <div className='flex flex-wrap gap-2'>
                 {vote.rewards.slice(0, 2).map((reward) => (
@@ -526,14 +512,14 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
 
 VoteCard.displayName = 'VoteCard';
 
-const getStatusText = (status: VoteStatus): string => {
+const getStatusText = (status: VoteStatus, t: (key: string) => string): string => {
   switch (status) {
     case VOTE_STATUS.UPCOMING:
-      return '예정됨';
+      return t('label_tabbar_vote_upcoming');
     case VOTE_STATUS.ONGOING:
-      return '진행 중';
+      return t('label_tabbar_vote_active');
     case VOTE_STATUS.COMPLETED:
-      return '종료됨';
+      return t('label_tabbar_vote_end');
     default:
       return '';
   }
@@ -544,6 +530,7 @@ const VoteList: React.FC = () => {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+  const { t } = useLanguageStore();
 
   const updateVoteData = useCallback(async () => {
     try {
@@ -598,7 +585,7 @@ const VoteList: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
             }`}
           >
-            전체
+            {t('label_tabbar_vote_all')}
           </button>
           <button
             onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
@@ -608,7 +595,7 @@ const VoteList: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
             }`}
           >
-            진행 중
+            {t('label_tabbar_vote_active')}
           </button>
           <button
             onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
@@ -618,7 +605,7 @@ const VoteList: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
             }`}
           >
-            예정됨
+            {t('label_tabbar_vote_upcoming')}   
           </button>
           <button
             onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
@@ -628,7 +615,7 @@ const VoteList: React.FC = () => {
                 : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
             }`}
           >
-            종료됨
+            {t('label_tabbar_vote_end')}
           </button>
         </div>
       </div>

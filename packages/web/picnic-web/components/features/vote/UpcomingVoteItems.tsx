@@ -47,7 +47,7 @@ const UpcomingVoteItems: React.FC<{
               </div>
               <div className="mt-2 text-center">
                 <div className="text-xs font-medium text-gray-700 truncate max-w-[80px]">
-                  {getLocalizedString(item.artist?.name) || '알 수 없는 아티스트'}
+                  {getLocalizedString(item.artist?.name)}
                 </div>
               </div>
             </div>

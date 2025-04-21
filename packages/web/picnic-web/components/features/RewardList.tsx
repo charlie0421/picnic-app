@@ -62,7 +62,7 @@ const RewardList: React.FC<RewardListProps> = ({
                 <h3 className='font-medium mb-1 truncate text-gray-800'>
                   {getLocalizedString(
                     reward.title as { [key: string]: string } | null,
-                  ) || '제목 없음'}
+                  )}
                 </h3>
               </div>
             </Link>

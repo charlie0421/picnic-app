@@ -5,6 +5,11 @@ const nextConfig = {
   images: {
     domains: ['cdn.picnic.fan', 'img.youtube.com'],
   },
+  logging: {
+    fetches: {
+      fullUrl: true
+    }
+  }
 };
 
 module.exports = nextConfig;
