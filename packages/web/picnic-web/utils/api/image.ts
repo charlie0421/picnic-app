@@ -66,10 +66,11 @@ export const getCdnImageUrl = (
 };
 
 export const getLocalizedString = (
-  value: { [key: string]: string } | string | null,
+  value: { [key: string]: string } | string | null | any,
 ): string | undefined => {
   if (!value) return undefined;
   if (typeof value === "string") return value;
+  if (typeof value === "number") return value.toString();
 
   let currentLang = "en";
 
@@ -82,5 +83,11 @@ export const getLocalizedString = (
     console.error("언어 스토어 접근 오류:", e);
   }
 
-  return value[currentLang] || value.en || undefined;
+  // 객체인 경우 현재 언어 키에 해당하는 값 반환
+  if (typeof value === "object" && value !== null) {
+    return value[currentLang] || value.en || value.ko ||
+      Object.values(value)[0] || undefined;
+  }
+
+  return undefined;
 };

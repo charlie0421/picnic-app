@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { Banner, Reward, Vote } from "@/types/interfaces";
+import { Banner, Media, Reward, Vote, VoteItem } from "@/types/interfaces";
 
 // 투표 데이터 가져오기
 export const getVotes = async (
@@ -52,14 +52,19 @@ export const getVotes = async (
 };
 
 // 리워드 데이터 가져오기
-export const getRewards = async (): Promise<Reward[]> => {
+export const getRewards = async (limit?: number): Promise<Reward[]> => {
   try {
-    const { data: rewardData, error: rewardError } = await supabase
+    let query = supabase
       .from("reward")
       .select("*")
       .is("deleted_at", null)
-      .order("order", { ascending: true })
-      .limit(4);
+      .order("order", { ascending: true });
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    const { data: rewardData, error: rewardError } = await query;
 
     if (rewardError) throw rewardError;
     if (!rewardData || rewardData.length === 0) return [];
@@ -108,6 +113,178 @@ export const getBanners = async (): Promise<Banner[]> => {
     }));
   } catch (error) {
     console.error("배너 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    return [];
+  }
+};
+
+// 리워드 상세 정보 가져오기
+export const getRewardById = async (id: string): Promise<Reward | null> => {
+  try {
+    const { data: rewardData, error: rewardError } = await supabase
+      .from("reward")
+      .select("*")
+      .eq("id", id)
+      .is("deleted_at", null)
+      .single();
+
+    if (rewardError) throw rewardError;
+    if (!rewardData) return null;
+
+    return {
+      ...rewardData,
+      deletedAt: rewardData.deleted_at,
+      createdAt: rewardData.created_at,
+      updatedAt: rewardData.updated_at,
+      locationImages: rewardData.location_images,
+      overviewImages: rewardData.overview_images,
+      sizeGuide: rewardData.size_guide,
+      sizeGuideImages: rewardData.size_guide_images,
+    };
+  } catch (error) {
+    console.error("리워드 상세 정보를 가져오는 중 오류가 발생했습니다:", error);
+    return null;
+  }
+};
+
+// 미디어 데이터 가져오기
+export const getMedias = async (): Promise<Media[]> => {
+  try {
+    const { data: mediaData, error: mediaError } = await supabase
+      .from("media")
+      .select("*")
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false });
+
+    if (mediaError) throw mediaError;
+    if (!mediaData || mediaData.length === 0) return [];
+
+    // 스네이크 케이스에서 캐멀 케이스로 필드 변환
+    return mediaData.map((media) => ({
+      id: media.id,
+      createdAt: media.created_at,
+      updatedAt: media.updated_at,
+      deletedAt: media.deleted_at,
+      thumbnailUrl: media.thumbnail_url,
+      videoUrl: media.video_url,
+      videoId: media.video_id,
+      title: media.title,
+    }));
+  } catch (error) {
+    console.error("미디어 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    return [];
+  }
+};
+
+// 투표 상세 정보 가져오기
+export const getVoteById = async (id: number): Promise<Vote | null> => {
+  try {
+    const { data: voteData, error: voteError } = await supabase
+      .from("vote")
+      .select(`
+        *
+      `)
+      .eq("id", id)
+      .is("deleted_at", null)
+      .single();
+
+    if (voteError) throw voteError;
+    if (!voteData) return null;
+
+    return {
+      ...voteData,
+      deletedAt: voteData.deleted_at,
+      startAt: voteData.start_at,
+      stopAt: voteData.stop_at,
+      createdAt: voteData.created_at,
+      updatedAt: voteData.updated_at,
+      mainImage: voteData.main_image,
+      resultImage: voteData.result_image,
+      waitImage: voteData.wait_image,
+      voteCategory: voteData.vote_category,
+      voteContent: voteData.vote_content,
+      voteSubCategory: voteData.vote_sub_category,
+      visibleAt: voteData.visible_at,
+      title: voteData.title || "제목 없음",
+    };
+  } catch (error) {
+    console.error("투표 상세 정보를 가져오는 중 오류가 발생했습니다:", error);
+    return null;
+  }
+};
+
+// 투표 항목 데이터 가져오기
+export const getVoteItems = async (voteId: number): Promise<VoteItem[]> => {
+  try {
+    const { data: voteItemsData, error: voteItemsError } = await supabase
+      .from("vote_item")
+      .select(`
+        *,
+        artist (
+          *,
+          artist_group (
+            *
+          )
+        )
+      `)
+      .eq("vote_id", voteId)
+      .is("deleted_at", null);
+
+    if (voteItemsError) throw voteItemsError;
+    if (!voteItemsData || voteItemsData.length === 0) return [];
+
+    return voteItemsData.map((item) => ({
+      ...item,
+      deletedAt: item.deleted_at,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+      voteId: item.vote_id,
+      artistId: item.artist_id,
+      groupId: item.group_id,
+      voteTotal: item.vote_total,
+      artist: item.artist,
+    }));
+  } catch (error) {
+    console.error("투표 항목 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    return [];
+  }
+};
+
+// 투표 보상 데이터 가져오기
+export const getVoteRewards = async (voteId: number): Promise<Reward[]> => {
+  try {
+    const { data: voteRewardData, error: voteRewardError } = await supabase
+      .from("vote_reward")
+      .select(`
+        reward_id
+      `)
+      .eq("vote_id", voteId);
+
+    if (voteRewardError) throw voteRewardError;
+    if (!voteRewardData || voteRewardData.length === 0) return [];
+
+    const rewardIds = voteRewardData.map((vr) => vr.reward_id);
+
+    const { data: rewardData, error: rewardError } = await supabase
+      .from("reward")
+      .select("*")
+      .in("id", rewardIds)
+      .is("deleted_at", null);
+
+    if (rewardError) throw rewardError;
+    if (!rewardData || rewardData.length === 0) return [];
+
+    return rewardData.map((reward) => ({
+      ...reward,
+      deletedAt: reward.deleted_at,
+      createdAt: reward.created_at,
+      updatedAt: reward.updated_at,
+      locationImages: reward.location_images,
+      overviewImages: reward.overview_images,
+      sizeGuide: reward.size_guide,
+      sizeGuideImages: reward.size_guide_images,
+    }));
+  } catch (error) {
+    console.error("투표 보상 데이터를 가져오는 중 오류가 발생했습니다:", error);
     return [];
   }
 };

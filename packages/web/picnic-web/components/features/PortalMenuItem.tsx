@@ -3,72 +3,36 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PortalType } from '@/utils/enums';
+import { PORTAL_MENU, isVoteRelatedPath } from '@/config/navigation';
 
 interface PortalMenuItemProps {
   portalType: PortalType;
 }
 
-const getPortalTypeInfo = (type: PortalType) => {
-  switch (type) {
-    case PortalType.VOTE:
-      return {
-        name: 'VOTE',
-        path: '/vote',
-      };
-    case PortalType.COMMUNITY:
-      return {
-        name: 'COMMUNITY',
-        path: '/community',
-      };
-    case PortalType.PIC:
-      return {
-        name: 'PIC',
-        path: '/pic',
-      };
-    case PortalType.NOVEL:
-      return {
-        name: 'NOVEL',
-        path: '/novel',
-      };
-    case PortalType.MYPAGE:
-      return {
-        name: 'MYPAGE',
-        path: '/mypage',
-      };
-    case PortalType.MEDIA:
-      return {
-        name: 'MEDIA',
-        path: '/media',
-      };
-    case PortalType.SHOP:
-      return {
-        name: 'SHOP',
-        path: '/shop',
-      };
-    default:
-      return {
-        name: '',
-        path: '/',
-      };
-  }
-};
-
 const PortalMenuItem: React.FC<PortalMenuItemProps> = ({ portalType }) => {
   const pathName = usePathname();
-  const { name, path } = getPortalTypeInfo(portalType);
-  const isActive = pathName.startsWith(path);
+
+  // 설정에서 메뉴 정보 가져오기
+  const menuItem = PORTAL_MENU.find((item) => item.type === portalType);
+
+  if (!menuItem) return null;
+
+  // 특수 케이스: 리워드 페이지 방문 시 VOTE 메뉴 활성화
+  const isActive =
+    pathName.startsWith(menuItem.path) ||
+    (portalType === PortalType.VOTE && isVoteRelatedPath(pathName));
 
   return (
-    <Link href={path}>
+    <Link href={menuItem.path}>
       <div
         className={`px-4 py-2 mx-1 cursor-pointer rounded-lg transition-colors ${
           isActive ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-500'
         }`}
       >
-        {name}
+        {menuItem.name}
       </div>
     </Link>
   );
 };
 
-export default PortalMenuItem; 
+export default PortalMenuItem;
