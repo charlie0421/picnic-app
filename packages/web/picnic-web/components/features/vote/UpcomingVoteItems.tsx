@@ -68,7 +68,7 @@ const UpcomingVoteItems: React.FC<{
             disabled={currentPage === 0}
             className={`p-2 rounded-full bg-white shadow-md ${
               currentPage === 0
-                ? 'text-gray-300 cursor-not-allowed'
+                ? 'text-gray-500 cursor-not-allowed'
                 : 'text-blue-500 hover:bg-blue-50'
             }`}
           >
@@ -85,7 +85,7 @@ const UpcomingVoteItems: React.FC<{
               />
             </svg>
           </button>
-          <span className="text-xs text-gray-500 bg-white px-3 py-2 rounded-full shadow-md">
+          <span className="text-xs text-gray-600 bg-white px-3 py-2 rounded-full shadow-md">
             {currentPage + 1} / {totalPages}
           </span>
           <button
@@ -93,7 +93,7 @@ const UpcomingVoteItems: React.FC<{
             disabled={currentPage === totalPages - 1}
             className={`p-2 rounded-full bg-white shadow-md ${
               currentPage === totalPages - 1
-                ? 'text-gray-300 cursor-not-allowed'
+                ? 'text-gray-500 cursor-not-allowed'
                 : 'text-blue-500 hover:bg-blue-50'
             }`}
           >

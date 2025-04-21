@@ -260,7 +260,7 @@ const OngoingVoteItems: React.FC<{
                         : '알 수 없는 아티스트'}
                     </div>
                     {item.artist?.artist_group && (
-                      <div className='text-xs text-gray-500 mt-1'>
+                      <div className='text-xs text-gray-600 mt-1'>
                         {getLocalizedString(item.artist.artist_group.name) || ''}
                       </div>
                     )}

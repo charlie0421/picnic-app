@@ -80,27 +80,29 @@ const MediaPage: React.FC = () => {
             target.src = '/images/logo.png';
           }}
         />
-        <div className='absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            className='h-12 w-12 text-white'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z'
-            />
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-            />
-          </svg>
+        <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300'>
+          <div className='bg-white/20 backdrop-blur-sm rounded-full p-4'>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              className='h-12 w-12 text-white drop-shadow-lg'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z'
+              />
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+              />
+            </svg>
+          </div>
         </div>
       </div>
     );
@@ -141,11 +143,11 @@ const MediaPage: React.FC = () => {
             >
               <div className='bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300'>
                 {renderThumbnail(media)}
-                <div className='p-4'>
-                  <h2 className='text-lg font-semibold line-clamp-2 mb-2'>
+                <div className='p-4 bg-white/90'>
+                  <h2 className='text-lg font-semibold text-gray-800 line-clamp-2 mb-2'>
                     {getTitleString(media.title)}
                   </h2>
-                  <p className='text-sm text-gray-500'>
+                  <p className='text-sm text-gray-700'>
                     {new Date(media.createdAt).toLocaleDateString(
                       currentLang === 'ko' ? 'ko-KR' : 'en-US',
                       {
@@ -163,7 +165,7 @@ const MediaPage: React.FC = () => {
 
         {medias.length === 0 && !isLoading && !error && (
           <div className='text-center py-12'>
-            <p className='text-xl text-gray-500'>표시할 미디어가 없습니다.</p>
+            <p className='text-xl text-gray-800 font-medium'>표시할 미디어가 없습니다.</p>
           </div>
         )}
       </main>

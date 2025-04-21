@@ -304,7 +304,7 @@ const VoteDetailPage: React.FC = () => {
                   <div className='absolute left-4 top-1/2 transform -translate-y-1/2'>
                     <svg
                       xmlns='http://www.w3.org/2000/svg'
-                      className='h-5 w-5 text-gray-400'
+                      className='h-5 w-5 text-gray-600'
                       fill='none'
                       viewBox='0 0 24 24'
                       stroke='currentColor'
@@ -318,7 +318,7 @@ const VoteDetailPage: React.FC = () => {
                     </svg>
                   </div>
                   {/* 검색어 지우기 버튼 */}
-                  <button className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400'>
+                  <button className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600'>
                     <svg
                       xmlns='http://www.w3.org/2000/svg'
                       className='h-5 w-5'
@@ -380,7 +380,7 @@ const VoteDetailPage: React.FC = () => {
                     } else {
                       // 11등 이후 스타일
                       rankStyle = 'border border-gray-200';
-                      rankBadge = 'text-gray-500 text-lg font-semibold';
+                      rankBadge = 'text-gray-600 text-lg font-semibold';
                     }
 
                     return (
@@ -411,7 +411,7 @@ const VoteDetailPage: React.FC = () => {
                             />
                           ) : (
                             <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                              <span className='text-gray-400 text-xs'>No</span>
+                              <span className='text-gray-600 text-xs'>No</span>
                             </div>
                           )}
                         </div>
@@ -432,7 +432,7 @@ const VoteDetailPage: React.FC = () => {
                             >
                               {getLocalizedString(item.artist?.name) || '아티스트'}
                             </p>
-                            <p className='text-sm text-gray-500 ml-2'>
+                            <p className='text-sm text-gray-600 ml-2'>
                               {getLocalizedString(item.artist?.artist_group?.name) || ''}
                             </p>
                           </div>
@@ -452,7 +452,7 @@ const VoteDetailPage: React.FC = () => {
                             >
                               {item.voteTotal?.toLocaleString() || 0}
                             </p>
-                            <span className='text-gray-400 text-sm ml-1'>
+                            <span className='text-gray-600 text-sm ml-1'>
                               표
                             </span>
                           </div>
@@ -575,7 +575,7 @@ const VoteDetailPage: React.FC = () => {
         <div className='bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden relative'>
           {/* 닫기 버튼 */}
           <button
-            className='absolute right-4 top-4 text-gray-500 hover:text-gray-700'
+            className='absolute right-4 top-4 text-gray-600 hover:text-gray-700'
             onClick={closeModal}
           >
             <svg
@@ -608,7 +608,7 @@ const VoteDetailPage: React.FC = () => {
                   />
                 ) : (
                   <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                    <span className='text-gray-400 text-sm'>No Image</span>
+                    <span className='text-gray-600 text-sm'>No Image</span>
                   </div>
                 )}
               </div>
@@ -616,7 +616,7 @@ const VoteDetailPage: React.FC = () => {
               <h3 className='text-xl font-bold mb-1'>
                 {getLocalizedString(selectedArtist.artist?.name) || '아티스트'}
               </h3>
-              <p className='text-gray-500 mb-6'>
+              <p className='text-gray-600 mb-6'>
                 {getLocalizedString(selectedArtist.artist?.artist_group?.name) || ''}
               </p>
 
@@ -673,7 +673,7 @@ const VoteDetailPage: React.FC = () => {
                     onChange={(e) => setVotes(Number(e.target.value))}
                     min={1}
                   />
-                  <button className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400'>
+                  <button className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600'>
                     <svg
                       xmlns='http://www.w3.org/2000/svg'
                       className='h-5 w-5'
