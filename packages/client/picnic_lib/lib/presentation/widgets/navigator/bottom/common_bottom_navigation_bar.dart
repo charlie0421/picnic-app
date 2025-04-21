@@ -16,7 +16,7 @@ class CommonBottomNavigationBar extends ConsumerWidget {
     final screenInfoMap = ref.watch(screenInfosProvider).value ?? {};
 
     final screenInfo = screenInfoMap[navigationInfo.portalType.name.toString()];
-    final locale = ref.watch(localeStateProvider);
+    ref.watch(localeStateProvider);
 
     if (screenInfo == null) {
       return const SizedBox();
