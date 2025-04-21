@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguageStore } from '@/stores/languageStore';
 import { TRANSLATION_KEYS } from '@/constants/translations';
 
 const TranslationExample: React.FC = () => {
-  const { t } = useLanguage();
+  const { t } = useLanguageStore();
   const [greeting, setGreeting] = useState('');
   const [welcome, setWelcome] = useState('');
 

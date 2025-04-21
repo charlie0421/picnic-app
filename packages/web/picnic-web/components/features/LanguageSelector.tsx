@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguageStore } from '@/stores/languageStore';
 
 const languages = [
   { code: 'ko', name: '한국어' },
@@ -12,7 +12,7 @@ const languages = [
 ];
 
 const LanguageSelector: React.FC = () => {
-  const { currentLang, changeLanguage } = useLanguage();
+  const { currentLang, setCurrentLang } = useLanguageStore();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -109,7 +109,7 @@ const LanguageSelector: React.FC = () => {
               type='button'
               onClick={() => {
                 if (!isCurrentLanguage) {
-                  changeLanguage(language.code);
+                  setCurrentLang(language.code);
                   setIsOpen(false);
                 }
               }}

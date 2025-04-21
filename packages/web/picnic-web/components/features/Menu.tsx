@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import CurrentTime from '@/components/features/CurrentTime';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguageStore } from '@/stores/languageStore';
 import { MAIN_MENU } from '@/config/navigation';
 
 /**
@@ -12,7 +12,7 @@ import { MAIN_MENU } from '@/config/navigation';
  * 투표홈, 픽차트, 미디어, 상점 등의 메뉴 항목과 현재 시간을 표시합니다.
  */
 const Menu: React.FC = () => {
-  const { t } = useLanguage();
+  const { t } = useLanguageStore();
   const pathname = usePathname();
 
   // 현재 경로에 따라 메뉴 항목의 활성 상태 결정

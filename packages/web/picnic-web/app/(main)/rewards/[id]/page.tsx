@@ -8,12 +8,12 @@ import Footer from '@/components/layouts/Footer';
 import { Reward } from '@/types/interfaces';
 import { getRewardById } from '@/utils/api/queries';
 import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguageStore } from '@/stores/languageStore';
 
 const RewardDetailPage = () => {
   const params = useParams();
   const { id } = params;
-  const { currentLang } = useLanguage();
+  const { currentLang } = useLanguageStore();
   const [reward, setReward] = useState<Reward | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

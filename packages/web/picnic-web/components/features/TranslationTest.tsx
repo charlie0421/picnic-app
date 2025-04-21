@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguageStore } from '@/stores/languageStore';
 
 const TranslationTest: React.FC = () => {
-  const { t, currentLang, translations } = useLanguage();
+  const { t, currentLang, translations } = useLanguageStore();
   const [testResults, setTestResults] = useState<Record<string, string>>({});
   const [systemLang, setSystemLang] = useState<string>('');
 
