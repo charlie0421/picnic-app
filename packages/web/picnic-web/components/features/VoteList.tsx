@@ -279,20 +279,25 @@ const CountdownTimer = React.memo(({ vote }: { vote: Vote }) => {
   return (
     <div className='flex flex-col items-center'>
       <div className='text-xs text-gray-500 mb-1'>{label}</div>
-      <div className='flex space-x-1'>
-        {Object.entries(remainingTime).map(([unit, value]) => (
-          <div key={unit} className='flex flex-col items-center'>
-            <div
-              className={`bg-primary/10 w-10 h-10 rounded-md flex items-center justify-center font-mono font-bold text-primary ${
-                isUpdating ? 'text-opacity-80' : 'text-opacity-100'
-              } transition-all`}
-            >
-              {value.toString().padStart(2, '0')}
+      <div className='flex items-center'>
+        {Object.entries(remainingTime).map(([unit, value], index, array) => (
+          <React.Fragment key={unit}>
+            <div className='flex flex-col items-center'>
+              <div
+                className={`bg-violet-50 w-12 h-12 rounded-lg flex items-center justify-center font-mono text-lg font-bold text-violet-500 ${
+                  isUpdating ? 'text-opacity-80' : 'text-opacity-100'
+                } transition-all relative`}
+              >
+                {value.toString().padStart(2, '0')}
+                <span className='absolute -bottom-4 text-[10px] font-medium text-violet-400'>
+                  {unit === 'days' ? 'D' : unit === 'hours' ? 'H' : unit === 'minutes' ? 'M' : 'S'}
+                </span>
+              </div>
             </div>
-            <div className='text-[10px] text-gray-500 mt-1'>
-              {unit === 'days' ? '일' : unit === 'hours' ? '시' : unit === 'minutes' ? '분' : '초'}
-            </div>
-          </div>
+            {index < array.length - 1 && (
+              <span className='mx-1 text-violet-500 font-bold'>:</span>
+            )}
+          </React.Fragment>
         ))}
       </div>
     </div>
@@ -397,7 +402,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
 
   return (
     <Link href={`/vote/${vote.id}`}>
-      <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100'>
+      <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col'>
         <div className='absolute top-3 right-3 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
           <span
             className={`flex items-center px-3 py-1.5 rounded-full text-sm font-bold whitespace-nowrap ${
@@ -424,7 +429,7 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
           )}
         </div>
 
-        <div className='p-4 sm:p-5'>
+        <div className='p-4 sm:p-5 flex-1 flex flex-col'>
           <div className='flex flex-wrap gap-1 mb-3'>
             {vote.voteCategory && (
               <span
@@ -448,15 +453,18 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
             )}
           </div>
 
-          <h3 className='font-bold text-base sm:text-lg mb-3 text-gray-800 line-clamp-2'>
+          <h3 className='font-extrabold text-base sm:text-lg mb-4 text-gray-900 line-clamp-2 min-h-[2.5rem] p-2 relative group'>
             {getLocalizedString(vote.title)}
+            <span className='absolute bottom-0 left-2 right-2 h-[2px] bg-primary/30 group-hover:bg-primary/50 transition-colors duration-300'></span>
           </h3>
 
           <div className='flex justify-center mb-4'>
             <CountdownTimer vote={vote} />
           </div>
 
-          <VoteItems vote={vote} />
+          <div className='flex-1'>
+            <VoteItems vote={vote} />
+          </div>
 
           {vote.rewards && vote.rewards.length > 0 && (
             <div className='mt-4 bg-yellow-50 rounded-lg p-3 border border-yellow-100'>
@@ -496,13 +504,15 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
           <div className='mt-4 pt-4 border-t border-gray-100'>
             {vote.startAt && vote.stopAt && (
               <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm gap-1 sm:gap-0'>
-                <span className='text-gray-500 font-medium'>
-                  {periodText}
-                </span>
-                <span className='text-primary/70'>
-                  {format(new Date(vote.startAt), 'MM.dd', { locale: ko })} ~{' '}
-                  {format(new Date(vote.stopAt), 'MM.dd', { locale: ko })}
-                </span>
+                <div className='flex items-center space-x-2 bg-primary/5 rounded-lg px-3 py-2'>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                  </svg>
+                  <span className='text-primary font-medium'>
+                    {format(new Date(vote.startAt), 'MM.dd HH:mm', { locale: ko })} ~{' '}
+                    {format(new Date(vote.stopAt), 'MM.dd HH:mm', { locale: ko })}
+                  </span>
+                </div>
               </div>
             )}
           </div>
