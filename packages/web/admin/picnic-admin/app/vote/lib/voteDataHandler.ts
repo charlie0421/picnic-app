@@ -1,5 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-const supabaseClient = createClient('SUPABASE_URL', 'SUPABASE_KEY');
+import { supabaseBrowserClient } from '@/lib/supabase/client';
 
 interface VoteItem {
   id?: number;
@@ -138,7 +137,7 @@ export const handleVoteItems = async ({
     // 삭제된 아이템 처리 - 직접 데이터베이스에 삭제 명령 전송
     if (deletedItems.length > 0) {
       for (const item of deletedItems) {
-        const { error: deleteError } = await supabaseClient
+        const { error: deleteError } = await supabaseBrowserClient
           .from('vote_item')
           .update({
             deleted_at: new Date().toISOString(),
@@ -159,7 +158,7 @@ export const handleVoteItems = async ({
         deleted_at: null,
       }));
 
-      const { error: insertError } = await supabaseClient
+      const { error: insertError } = await supabaseBrowserClient
         .from('vote_item')
         .insert(insertData);
 
@@ -171,7 +170,7 @@ export const handleVoteItems = async ({
     // 수정된 아이템 업데이트
     if (updatedItems.length > 0) {
       for (const item of updatedItems) {
-        const { error: updateError } = await supabaseClient
+        const { error: updateError } = await supabaseBrowserClient
           .from('vote_item')
           .update({ artist_id: item.artist_id })
           .eq('id', item.id);
@@ -200,10 +199,11 @@ export const handleVoteRewards = async ({
     const processedRewards = voteRewards || [];
 
     // 1. 기존 데이터 불러오기
-    const { data: existingRewards, error: fetchError } = await supabaseClient
-      .from('vote_reward')
-      .select('vote_id, reward_id')
-      .eq('vote_id', voteId);
+    const { data: existingRewards, error: fetchError } =
+      await supabaseBrowserClient
+        .from('vote_reward')
+        .select('vote_id, reward_id')
+        .eq('vote_id', voteId);
 
     if (fetchError) {
       throw fetchError;
@@ -214,10 +214,11 @@ export const handleVoteRewards = async ({
       // 각 리워드 ID에 대해 vote_achieve 테이블에 연관된 데이터가 있는지 확인
       for (const reward of existingRewards) {
         // vote_achieve 테이블에서 해당 리워드를 참조하는 레코드 조회
-        const { data: achieveData, error: achieveError } = await supabaseClient
-          .from('vote_achieve')
-          .select('id')
-          .eq('reward_id', reward.reward_id);
+        const { data: achieveData, error: achieveError } =
+          await supabaseBrowserClient
+            .from('vote_achieve')
+            .select('id')
+            .eq('reward_id', reward.reward_id);
 
         if (achieveError) {
           throw achieveError;
@@ -228,7 +229,7 @@ export const handleVoteRewards = async ({
           const achieveIds = achieveData.map((item) => item.id);
 
           // vote_achieve 레코드 삭제 또는 null로 업데이트
-          const { error: achieveUpdateError } = await supabaseClient
+          const { error: achieveUpdateError } = await supabaseBrowserClient
             .from('vote_achieve')
             .update({ reward_id: null }) // null로 설정하거나 삭제, 스키마에 따라 결정
             .in('id', achieveIds);
@@ -240,7 +241,7 @@ export const handleVoteRewards = async ({
       }
 
       // 3. 기존 vote_reward 데이터 삭제
-      const { error: deleteError } = await supabaseClient
+      const { error: deleteError } = await supabaseBrowserClient
         .from('vote_reward')
         .delete()
         .eq('vote_id', voteId);
@@ -260,7 +261,7 @@ export const handleVoteRewards = async ({
             : reward.reward_id,
       }));
 
-      const { error: insertError } = await supabaseClient
+      const { error: insertError } = await supabaseBrowserClient
         .from('vote_reward')
         .insert(rewardInsertData);
 
