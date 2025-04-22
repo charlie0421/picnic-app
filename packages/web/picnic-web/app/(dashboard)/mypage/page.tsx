@@ -4,13 +4,16 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileImageContainer, DefaultAvatar } from '@/components/ui/ProfileImageContainer';
+import { useRouter } from 'next/navigation';
 
 const MyPage = () => {
   const { authState, signOut } = useAuth();
   const { user, loading } = authState;
+  const router = useRouter();
 
   const handleSignOut = async () => {
     await signOut();
+    router.push('/');
   };
 
   if (loading) {

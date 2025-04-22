@@ -181,8 +181,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = useCallback(async () => {
     try {
       setAuthState((prev: AuthState) => ({ ...prev, loading: true, error: null }));
-      const { error } = await supabase.auth.signOut();
+      
+      // 모든 세션 제거
+      const { error } = await supabase.auth.signOut({
+        scope: 'global'
+      });
+      
       if (error) throw error;
+      
+      // 로컬 스토리지의 세션 데이터도 제거
+      localStorage.removeItem('supabase.auth.token');
+      
+      // 상태 초기화
+      setAuthState({
+        isAuthenticated: false,
+        user: null,
+        loading: false,
+        error: null,
+      });
+      
     } catch (error: any) {
       setAuthState((prev: AuthState) => ({
         ...prev,
