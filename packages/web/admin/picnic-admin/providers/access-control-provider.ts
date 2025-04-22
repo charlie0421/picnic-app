@@ -37,7 +37,7 @@ const convertToDatabaseResource = (resource: string): string => {
     banner: 'banner',
     media: 'media',
     user_profiles: 'user_profiles',
-    reward: 'reward', 
+    reward: 'reward',
     posts: 'posts',
     boards: 'boards',
     notices: 'notices',
@@ -52,7 +52,7 @@ const convertToDatabaseResource = (resource: string): string => {
     // 통계 관련
     statisticsGroup: 'statistics',
     // 커뮤니티 관련
-    communityGroup: 'posts', 
+    communityGroup: 'posts',
     // CS 관련
     customerGroup: 'notices',
     // 대시 표기법 변환
@@ -95,7 +95,7 @@ const convertToDatabaseResource = (resource: string): string => {
       : baseName.endsWith('s')
       ? baseName // statistics -> statistics (이미 복수형)
       : baseName + 's'; // vote -> votes
-    
+
     console.log(`복합 리소스 변환: ${resource} -> ${result}`);
     return result;
   }
@@ -105,7 +105,7 @@ const convertToDatabaseResource = (resource: string): string => {
     const result = resource.endsWith('y')
       ? resource.slice(0, -1) + 'ies' // category -> categories
       : resource + 's'; // vote -> votes
-    
+
     console.log(`단수형->복수형 변환: ${resource} -> ${result}`);
     return result;
   }
@@ -140,7 +140,13 @@ export const accessControlProvider: AccessControlProvider = {
     }
 
     // 로그인 관련 및 공개 리소스 목록
-    const publicResources = ['login', 'logout', 'reset-password', 'forgot-password', 'register'];
+    const publicResources = [
+      'login',
+      'logout',
+      'reset-password',
+      'forgot-password',
+      'register',
+    ];
     if (publicResources.includes(resource)) {
       logPermission('can: 공개 리소스 접근 허용', { resource });
       return Promise.resolve({ can: true });
@@ -159,24 +165,27 @@ export const accessControlProvider: AccessControlProvider = {
 
         // 관리자 기능 관련 권한 확인
         const adminResources = Object.keys(userPermissionsFromStore).filter(
-          name => name.startsWith('admin_')
+          (name) => name.startsWith('admin_'),
         );
-        
+
         console.log('관리자 메뉴 권한 체크:', {
           resource,
           adminResources,
           allPermissions: userPermissionsFromStore,
         });
-        
+
         const hasAdminPermission = adminResources.length > 0;
-        
+
         // 관리자 메뉴는 admin_ 관련 권한이 하나라도 있으면 표시
-        logPermission(`can: 관리자 메뉴 표시 ${hasAdminPermission ? '허용' : '거부'}`, {
-          resource,
-          hasAdminPermission,
-          adminResources
-        });
-        
+        logPermission(
+          `can: 관리자 메뉴 표시 ${hasAdminPermission ? '허용' : '거부'}`,
+          {
+            resource,
+            hasAdminPermission,
+            adminResources,
+          },
+        );
+
         return Promise.resolve({ can: hasAdminPermission });
       }
 
@@ -189,14 +198,13 @@ export const accessControlProvider: AccessControlProvider = {
       // 인증된 사용자에게 권한 체크 후 메뉴 표시 허용
       // 리소스 이름 변환
       const dbResourceName = convertToDatabaseResource(resource);
-      
+
       // 권한이 있는지 확인
-      const hasMenuPermission = (
-        userPermissionsFromStore[dbResourceName] && 
-        (userPermissionsFromStore[dbResourceName].includes('read') || 
-         userPermissionsFromStore[dbResourceName].includes('*'))
-      );
-      
+      const hasMenuPermission =
+        userPermissionsFromStore[dbResourceName] &&
+        (userPermissionsFromStore[dbResourceName].includes('read') ||
+          userPermissionsFromStore[dbResourceName].includes('*'));
+
       // 디버깅용 상세 로그 추가
       console.log('메뉴 권한 체크 (상세):', {
         resource,
@@ -206,50 +214,55 @@ export const accessControlProvider: AccessControlProvider = {
         allPermissions: userPermissionsFromStore,
         hasMenuPermission,
       });
-      
+
       // 그룹 메뉴는 하위 메뉴 중 하나라도 접근 가능하면 표시
       const isGroupMenu = resource.endsWith('Group');
       if (isGroupMenu) {
         // 모든 권한에서 이 그룹에 속하는 리소스가 있는지 확인
         const baseGroupName = resource.replace('Group', '');
-        
+
         // 특수 그룹 매핑 (API 권한과 메뉴 그룹 간의 매핑)
         const groupMappings: Record<string, string[]> = {
-          'artistGroup': ['artists'],
-          'statisticsGroup': ['statistics'],
-          'communityGroup': ['posts', 'boards'],
-          'customerGroup': ['notices', 'faqs', 'qnas'],
+          artistGroup: ['artists'],
+          statisticsGroup: ['statistics'],
+          communityGroup: ['posts', 'boards'],
+          customerGroup: ['notices', 'faqs', 'qnas'],
         };
-        
+
         // 그룹에 대한 특별 매핑이 있으면 사용
         const targetResources = groupMappings[resource] || [baseGroupName];
-        
+
         // 그룹의 하위 메뉴 이름을 가져오기
         const childMenus: Record<string, string[]> = {
-          'customerGroup': ['notices', 'faqs', 'qnas'],
-          'communityGroup': ['boards', 'posts'],
-          'artistGroup': ['artist', 'artist_group'],
-          'statisticsGroup': ['statistics_ads', 'receipts']
+          customerGroup: ['notices', 'faqs', 'qnas'],
+          communityGroup: ['boards', 'posts'],
+          artistGroup: ['artist', 'artist_group'],
+          statisticsGroup: ['statistics_ads', 'receipts'],
         };
-        
+
         const childResources = childMenus[resource] || [];
-        
+
         // 1. 권한 목록에서 해당 리소스가 직접 있는지 확인
-        const directPermissionResources = Object.keys(userPermissionsFromStore).filter(
-          resName => targetResources.some(target => 
-            resName === target || resName.startsWith(target)
-          )
+        const directPermissionResources = Object.keys(
+          userPermissionsFromStore,
+        ).filter((resName) =>
+          targetResources.some(
+            (target) => resName === target || resName.startsWith(target),
+          ),
         );
-        
+
         // 2. 하위 메뉴의 권한이 있는지 확인
-        const childPermissionResources = childResources.filter(childResource => {
-          const dbChildResource = convertToDatabaseResource(childResource);
-          return userPermissionsFromStore[dbChildResource] && (
-            userPermissionsFromStore[dbChildResource].includes('read') || 
-            userPermissionsFromStore[dbChildResource].includes('*')
-          );
-        });
-        
+        const childPermissionResources = childResources.filter(
+          (childResource) => {
+            const dbChildResource = convertToDatabaseResource(childResource);
+            return (
+              userPermissionsFromStore[dbChildResource] &&
+              (userPermissionsFromStore[dbChildResource].includes('read') ||
+                userPermissionsFromStore[dbChildResource].includes('*'))
+            );
+          },
+        );
+
         console.log('그룹 메뉴 권한 체크 (확장):', {
           resource,
           baseGroupName,
@@ -257,40 +270,45 @@ export const accessControlProvider: AccessControlProvider = {
           childResources,
           directPermissionResources,
           childPermissionResources,
-          userPermissions: userPermissionsFromStore
+          userPermissions: userPermissionsFromStore,
         });
-        
+
         // 직접 권한이 있거나, 하위 메뉴 중 권한이 있는 항목이 있으면 그룹 메뉴 표시
         const hasDirectPermission = directPermissionResources.length > 0;
         const hasChildPermission = childPermissionResources.length > 0;
-        
+
         if (hasDirectPermission || hasChildPermission) {
-          logPermission('can: 그룹 메뉴 표시 허용 (하위 리소스 접근 가능)', { 
-            resource, 
+          logPermission('can: 그룹 메뉴 표시 허용 (하위 리소스 접근 가능)', {
+            resource,
             directPermissionResources,
-            childPermissionResources
+            childPermissionResources,
           });
           return Promise.resolve({ can: true });
         }
-        
+
         // 그룹 메뉴이면서 권한이 없으면 차단
-        logPermission('can: 그룹 메뉴 접근 거부 (하위 리소스 권한 없음)', { resource });
+        logPermission('can: 그룹 메뉴 접근 거부 (하위 리소스 권한 없음)', {
+          resource,
+        });
         return Promise.resolve({ can: false });
       }
-      
+
       // dashboard는 모든 사용자에게 표시 (예외)
       if (resource === 'dashboard') {
         logPermission('can: 대시보드 메뉴 표시 허용', { resource });
         return Promise.resolve({ can: true });
       }
-      
+
       // 권한 있는 메뉴만 표시 허용
-      logPermission(`can: 메뉴 ${hasMenuPermission ? '표시 허용' : '접근 거부'}`, { 
-        resource,
-        dbResourceName,
-        hasPermission: hasMenuPermission
-      });
-      
+      logPermission(
+        `can: 메뉴 ${hasMenuPermission ? '표시 허용' : '접근 거부'}`,
+        {
+          resource,
+          dbResourceName,
+          hasPermission: hasMenuPermission,
+        },
+      );
+
       return Promise.resolve({ can: hasMenuPermission });
     }
 
@@ -311,66 +329,73 @@ export const accessControlProvider: AccessControlProvider = {
       // 리소스 이름 변환을 통해 권한 체크
       const dbResourceName = convertToDatabaseResource(resource);
       // 읽기 권한이 있는지 확인
-      const hasReadPermission = (
-        userPermissionsFromStore[dbResourceName] && 
-        (userPermissionsFromStore[dbResourceName].includes('read') || 
-         userPermissionsFromStore[dbResourceName].includes('*'))
-      );
+      const hasReadPermission =
+        userPermissionsFromStore[dbResourceName] &&
+        (userPermissionsFromStore[dbResourceName].includes('read') ||
+          userPermissionsFromStore[dbResourceName].includes('*'));
 
       // 그룹 메뉴인 경우 하위 권한 확인
       const isGroupResource = resource.includes('Group');
       if (isGroupResource) {
         // 그룹 메뉴의 하위 리소스 접근 권한 확인
         const baseGroupName = resource.replace('Group', '');
-        
+
         // 그룹의 하위 메뉴 이름을 가져오기
         const childMenus: Record<string, string[]> = {
-          'customerGroup': ['notices', 'faqs', 'qnas'],
-          'communityGroup': ['boards', 'posts'],
-          'artistGroup': ['artist', 'artist_group'],
-          'statisticsGroup': ['statistics_ads', 'receipts']
+          customerGroup: ['notices', 'faqs', 'qnas'],
+          communityGroup: ['boards', 'posts'],
+          artistGroup: ['artist', 'artist_group'],
+          statisticsGroup: ['statistics_ads', 'receipts'],
         };
-        
+
         const childResources = childMenus[resource] || [];
-        
+
         // 1. 직접적인 리소스 권한 체크
-        const directPermissionResources = Object.keys(userPermissionsFromStore).filter(
-          resName => resName === baseGroupName || resName.startsWith(baseGroupName)
+        const directPermissionResources = Object.keys(
+          userPermissionsFromStore,
+        ).filter(
+          (resName) =>
+            resName === baseGroupName || resName.startsWith(baseGroupName),
         );
-        
+
         // 2. 하위 메뉴의 권한이 있는지 확인
-        const childPermissionResources = childResources.filter(childResource => {
-          const dbChildResource = convertToDatabaseResource(childResource);
-          return userPermissionsFromStore[dbChildResource] && (
-            userPermissionsFromStore[dbChildResource].includes('read') || 
-            userPermissionsFromStore[dbChildResource].includes('*')
-          );
-        });
-        
+        const childPermissionResources = childResources.filter(
+          (childResource) => {
+            const dbChildResource = convertToDatabaseResource(childResource);
+            return (
+              userPermissionsFromStore[dbChildResource] &&
+              (userPermissionsFromStore[dbChildResource].includes('read') ||
+                userPermissionsFromStore[dbChildResource].includes('*'))
+            );
+          },
+        );
+
         console.log('그룹 리소스 권한 체크:', {
           resource,
           baseGroupName,
           childResources,
           directPermissionResources,
           childPermissionResources,
-          userPermissions: userPermissionsFromStore
+          userPermissions: userPermissionsFromStore,
         });
-        
+
         // 직접 권한이 있거나, 하위 메뉴 중 권한이 있는 항목이 있으면 그룹 접근 허용
         const hasDirectPermission = directPermissionResources.length > 0;
         const hasChildPermission = childPermissionResources.length > 0;
-        
+
         if (hasDirectPermission || hasChildPermission) {
-          logPermission('can: 그룹 리소스 접근 허용 (하위 리소스 권한 있음)', { 
-            resource, 
+          logPermission('can: 그룹 리소스 접근 허용 (하위 리소스 권한 있음)', {
+            resource,
             directPermissionResources,
-            childPermissionResources
+            childPermissionResources,
           });
           return Promise.resolve({ can: true });
         }
-        
+
         // 그룹 리소스이면서 하위 리소스에 권한 없으면 접근 차단
-        logPermission('can: 그룹 리소스 접근 거부 (하위 리소스 권한 없음)', { resource });
+        logPermission('can: 그룹 리소스 접근 거부 (하위 리소스 권한 없음)', {
+          resource,
+        });
         return Promise.resolve({ can: false });
       }
 
@@ -378,39 +403,50 @@ export const accessControlProvider: AccessControlProvider = {
       if (resource === 'admin') {
         // 권한 관리 메뉴에 대한 접근
         const adminResources = Object.keys(userPermissionsFromStore).filter(
-          name => name.startsWith('admin_')
+          (name) => name.startsWith('admin_'),
         );
-        
+
         const hasAdminPermission = adminResources.length > 0;
-        
-        logPermission(`can: 관리자 페이지 접근 ${hasAdminPermission ? '허용' : '거부'}`, {
-          resource,
-          hasAdminPermission,
-          adminResources
-        });
-        
+
+        logPermission(
+          `can: 관리자 페이지 접근 ${hasAdminPermission ? '허용' : '거부'}`,
+          {
+            resource,
+            hasAdminPermission,
+            adminResources,
+          },
+        );
+
         return Promise.resolve({ can: hasAdminPermission });
       }
 
       // admin_ 접두사 리소스는 항상 DB에서 체크
       if (resource.startsWith('admin_')) {
-        logPermission(`can: 관리자 하위 리소스 페이지 접근 ${hasReadPermission ? '허용' : '거부'}`, {
-          resource,
-          dbResourceName,
-          action,
-          hasReadPermission
-        });
+        logPermission(
+          `can: 관리자 하위 리소스 페이지 접근 ${
+            hasReadPermission ? '허용' : '거부'
+          }`,
+          {
+            resource,
+            dbResourceName,
+            action,
+            hasReadPermission,
+          },
+        );
         return Promise.resolve({ can: hasReadPermission });
       }
 
       // 일반 리소스는 권한 체크
-      logPermission(`can: 리소스 페이지 접근 ${hasReadPermission ? '허용' : '거부'}`, {
-        resource,
-        action,
-        dbResourceName,
-        hasReadPermission
-      });
-      
+      logPermission(
+        `can: 리소스 페이지 접근 ${hasReadPermission ? '허용' : '거부'}`,
+        {
+          resource,
+          action,
+          dbResourceName,
+          hasReadPermission,
+        },
+      );
+
       return Promise.resolve({ can: hasReadPermission });
     }
 
@@ -477,20 +513,24 @@ export const accessControlProvider: AccessControlProvider = {
       // admin_ 접두사 하위 리소스(admin_roles 등)는 실제 권한 체크
       if (resource.startsWith('admin_')) {
         // admin_ 리소스에 대한 권한 확인
-        const hasAdminPermission = (
-          userPermissionsFromStore[dbResourceName] && 
-          (userPermissionsFromStore[dbResourceName].includes(dbActionName) || 
-           userPermissionsFromStore[dbResourceName].includes('*'))
+        const hasAdminPermission =
+          userPermissionsFromStore[dbResourceName] &&
+          (userPermissionsFromStore[dbResourceName].includes(dbActionName) ||
+            userPermissionsFromStore[dbResourceName].includes('*'));
+
+        logPermission(
+          `can: 관리자 하위 리소스 페이지 접근 ${
+            hasAdminPermission ? '허용' : '거부'
+          }`,
+          {
+            resource,
+            action,
+            dbResourceName,
+            dbActionName,
+            hasAdminPermission,
+          },
         );
-        
-        logPermission(`can: 관리자 하위 리소스 페이지 접근 ${hasAdminPermission ? '허용' : '거부'}`, {
-          resource,
-          action,
-          dbResourceName,
-          dbActionName,
-          hasAdminPermission
-        });
-        
+
         return Promise.resolve({ can: hasAdminPermission });
       }
 

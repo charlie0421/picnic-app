@@ -1,10 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-
-// Supabase 클라이언트 생성
-const supabaseClient = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
+const supabaseClient = createClient('SUPABASE_URL', 'SUPABASE_KEY');
 
 interface VoteItem {
   id?: number;
@@ -35,7 +30,10 @@ export const handleVoteItems = async ({
 }: VoteDataHandlerParams) => {
   try {
     // 기존 항목이 없고 현재 항목도 없으면 바로 종료
-    if (existingVoteItems.length === 0 && (!currentVoteItems || currentVoteItems.length === 0)) {
+    if (
+      existingVoteItems.length === 0 &&
+      (!currentVoteItems || currentVoteItems.length === 0)
+    ) {
       return true;
     }
 
@@ -51,7 +49,7 @@ export const handleVoteItems = async ({
           artistId = 0; // 기본값 설정
         }
       }
-      
+
       return {
         ...item,
         artist_id: artistId,
@@ -59,76 +57,81 @@ export const handleVoteItems = async ({
     });
 
     // 1. 삭제된 아이템 처리 - 모든 기존 항목 중에서 현재 항목 목록에 없거나 deleted_at이 설정된 항목
-    const deletedItems = existingVoteItems.filter(
-      (existingItem: any) => {
-        // 기존 아이템이 삭제된 경우(deleted_at이 이미 있는 경우)는 건너뜀
-        if (existingItem.deleted_at) {
-          return false;
-        }
-        
-        // 현재 목록에 해당 ID를 가진 항목이 없거나, 있어도 deleted_at이 설정된 경우 삭제로 처리
-        const currentItem = normalizedCurrentItems.find(
-          (item: any) => item.id && existingItem.id && 
-          item.id.toString() === existingItem.id.toString()
-        );
-        
-        // 현재 목록에 없으면 삭제된 것으로 간주
-        if (!currentItem) {
-          return true;
-        }
-        
-        // 현재 목록에 있지만 deleted_at이 설정된 경우 삭제된 것으로 간주
-        if (currentItem.deleted_at) {
-          return true;
-        }
-        
+    const deletedItems = existingVoteItems.filter((existingItem: any) => {
+      // 기존 아이템이 삭제된 경우(deleted_at이 이미 있는 경우)는 건너뜀
+      if (existingItem.deleted_at) {
         return false;
       }
-    );
+
+      // 현재 목록에 해당 ID를 가진 항목이 없거나, 있어도 deleted_at이 설정된 경우 삭제로 처리
+      const currentItem = normalizedCurrentItems.find(
+        (item: any) =>
+          item.id &&
+          existingItem.id &&
+          item.id.toString() === existingItem.id.toString(),
+      );
+
+      // 현재 목록에 없으면 삭제된 것으로 간주
+      if (!currentItem) {
+        return true;
+      }
+
+      // 현재 목록에 있지만 deleted_at이 설정된 경우 삭제된 것으로 간주
+      if (currentItem.deleted_at) {
+        return true;
+      }
+
+      return false;
+    });
 
     // 2. 새로 추가된 아이템 처리 - temp_id가 있거나 id가 없거나, 기존 목록에 없는 ID를 가진 항목
-    const newItems = normalizedCurrentItems.filter(
-      (currentItem: any) => {
-        // 이미 deleted_at이 설정된 아이템은 추가하지 않음
-        if (currentItem.deleted_at) {
-          return false;
-        }
-        
-        // temp_id만 있거나 id가 없는 경우 (새 아이템)
-        if (!currentItem.id || (currentItem.temp_id && !existingVoteItems.some(
-          (existingItem: any) => existingItem.id && existingItem.id.toString() === currentItem.id?.toString()
-        ))) {
-          return true;
-        }
-        
+    const newItems = normalizedCurrentItems.filter((currentItem: any) => {
+      // 이미 deleted_at이 설정된 아이템은 추가하지 않음
+      if (currentItem.deleted_at) {
         return false;
       }
-    );
+
+      // temp_id만 있거나 id가 없는 경우 (새 아이템)
+      if (
+        !currentItem.id ||
+        (currentItem.temp_id &&
+          !existingVoteItems.some(
+            (existingItem: any) =>
+              existingItem.id &&
+              existingItem.id.toString() === currentItem.id?.toString(),
+          ))
+      ) {
+        return true;
+      }
+
+      return false;
+    });
 
     // 3. 수정된 아이템 처리 - 기존 목록과 현재 목록에 모두 있으면서 artist_id가 변경된 항목
     const updatedItems = normalizedCurrentItems.filter((currentItem: any) => {
       // id가 없는 경우 (새 항목) 업데이트 대상 아님
       if (!currentItem.id) return false;
-      
+
       // deleted_at이 설정된 아이템은 업데이트 목록에서 제외 (삭제 대상)
       if (currentItem.deleted_at) return false;
-      
+
       // 기존 항목 중에서 같은 id를 가진 항목 찾기
       const matchingItem = existingVoteItems.find(
         (existingItem: any) =>
-          existingItem.id && currentItem.id &&
+          existingItem.id &&
+          currentItem.id &&
           existingItem.id.toString() === currentItem.id.toString() &&
-          !existingItem.deleted_at
+          !existingItem.deleted_at,
       );
-      
+
       // 매칭되는 항목이 없으면 업데이트 대상 아님 (새 항목)
       if (!matchingItem) return false;
-      
+
       // artist_id가 변경된 경우만 업데이트 대상
       if (matchingItem.artist_id !== currentItem.artist_id) {
         return true;
       }
-      
+
       return false;
     });
 
@@ -137,8 +140,8 @@ export const handleVoteItems = async ({
       for (const item of deletedItems) {
         const { error: deleteError } = await supabaseClient
           .from('vote_item')
-          .update({ 
-            deleted_at: new Date().toISOString() 
+          .update({
+            deleted_at: new Date().toISOString(),
           })
           .eq('id', item.id);
 
@@ -155,7 +158,7 @@ export const handleVoteItems = async ({
         artist_id: item.artist_id,
         deleted_at: null,
       }));
-      
+
       const { error: insertError } = await supabaseClient
         .from('vote_item')
         .insert(insertData);
@@ -222,8 +225,8 @@ export const handleVoteRewards = async ({
 
         // 연관된 vote_achieve 레코드가 있으면 먼저 삭제 또는 업데이트
         if (achieveData && achieveData.length > 0) {
-          const achieveIds = achieveData.map(item => item.id);
-          
+          const achieveIds = achieveData.map((item) => item.id);
+
           // vote_achieve 레코드 삭제 또는 null로 업데이트
           const { error: achieveUpdateError } = await supabaseClient
             .from('vote_achieve')
@@ -251,9 +254,10 @@ export const handleVoteRewards = async ({
     if (processedRewards.length > 0) {
       const rewardInsertData = processedRewards.map((reward: any) => ({
         vote_id: voteId,
-        reward_id: typeof reward.reward_id === 'string' 
-          ? parseInt(reward.reward_id, 10) 
-          : reward.reward_id,
+        reward_id:
+          typeof reward.reward_id === 'string'
+            ? parseInt(reward.reward_id, 10)
+            : reward.reward_id,
       }));
 
       const { error: insertError } = await supabaseClient

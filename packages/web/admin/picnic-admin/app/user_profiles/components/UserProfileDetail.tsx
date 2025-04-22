@@ -27,12 +27,97 @@ import {
 } from '@/lib/types/receipt';
 import { useEffect, useState } from 'react';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
+import { HttpError } from '@refinedev/core';
+import { supabaseBrowserClient } from '@/lib/supabase/client';
+import { SUPABASE_KEY, SUPABASE_URL } from '@/lib/supabase/constants';
 
 const { Title } = Typography;
+
+// 스타캔디 내역 데이터 조회 - 직접 쿼리 사용
+const fetchStarCandyHistory = async (userId: string) => {
+  console.log(`스타캔디 내역 조회 시도: ${userId}`);
+  try {
+    // 직접 필터 사용 - 문제 해결을 위한 접근법
+    const { data, error } = await supabaseBrowserClient
+      .from('star_candy_history')
+      .select('*')
+      .filter('user_id', 'eq', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('스타캔디 내역 조회 오류:', error);
+      console.log('오류 코드:', error.code);
+      console.log('오류 메시지:', error.message);
+      return [];
+    }
+
+    console.log(`스타캔디 내역 조회 결과: ${data?.length || 0}개 항목`);
+    return data || [];
+  } catch (error) {
+    console.error('스타캔디 내역 조회 실패:', error);
+    return [];
+  }
+};
+
+// 스타캔디 보너스 내역 데이터 조회 - 직접 쿼리 사용
+const fetchStarCandyBonusHistory = async (userId: string) => {
+  console.log(`스타캔디 보너스 내역 조회 시도: ${userId}`);
+
+  try {
+    const { data, error } = await supabaseBrowserClient
+      .from('star_candy_bonus_history')
+      .select('*')
+      .filter('user_id', 'eq', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('스타캔디 보너스 내역 조회 오류:', error);
+      console.log('오류 코드:', error.code);
+      console.log('오류 메시지:', error.message);
+      return [];
+    }
+
+    console.log(`스타캔디 보너스 내역 조회 결과: ${data?.length || 0}개 항목`);
+    return data || [];
+  } catch (error) {
+    console.error('스타캔디 보너스 내역 조회 실패:', error);
+    return [];
+  }
+};
 
 interface UserProfileDetailProps {
   record?: UserProfile;
   loading?: boolean;
+}
+
+// 스타캔디 내역 타입 정의
+interface StarCandyHistory {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  user_id: string;
+  amount: number;
+  type: string;
+  vote_pick_id: number | null;
+  transaction_id: string | null;
+  parent_id: number | null;
+}
+
+// 스타캔디 보너스 내역 타입 정의
+interface StarCandyBonusHistory {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  user_id: string;
+  amount: number;
+  type: string;
+  expired_dt: string | null;
+  transaction_id: string | null;
+  parent_id: number | null;
+  vote_pick_id: number | null;
+  remain_amount: number;
 }
 
 export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
@@ -48,17 +133,64 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
   const [receiptCurrentPage, setReceiptCurrentPage] = useState(1);
   const [receiptPageSize, setReceiptPageSize] = useState(10);
 
+  // 스타캔디 내역 페이지네이션 상태 관리
+  const [candyCurrentPage, setCandyCurrentPage] = useState(1);
+  const [candyPageSize, setCandyPageSize] = useState(10);
+
+  // 스타캔디 보너스 내역 페이지네이션 상태 관리
+  const [bonusCurrentPage, setBonusCurrentPage] = useState(1);
+  const [bonusPageSize, setBonusPageSize] = useState(10);
+
+  // 수동으로 가져온 스타캔디 내역 상태 관리
+  const [starCandyHistory, setStarCandyHistory] = useState<StarCandyHistory[]>(
+    [],
+  );
+  const [starCandyBonusHistory, setStarCandyBonusHistory] = useState<
+    StarCandyBonusHistory[]
+  >([]);
+  const [loadingStarCandyHistory, setLoadingStarCandyHistory] = useState(false);
+  const [loadingStarCandyBonusHistory, setLoadingStarCandyBonusHistory] =
+    useState(false);
+
+  // 컴포넌트가 마운트되거나 userId가 변경될 때 스타캔디 내역 데이터 가져오기
+  useEffect(() => {
+    if (record?.id) {
+      setLoadingStarCandyHistory(true);
+
+      console.log('사용자 ID 형식:', record.id, typeof record.id);
+
+      fetchStarCandyHistory(record.id)
+        .then((data) => {
+          setStarCandyHistory(data);
+        })
+        .finally(() => {
+          setLoadingStarCandyHistory(false);
+        });
+
+      setLoadingStarCandyBonusHistory(true);
+      fetchStarCandyBonusHistory(record.id)
+        .then((data) => {
+          setStarCandyBonusHistory(data);
+        })
+        .finally(() => {
+          setLoadingStarCandyBonusHistory(false);
+        });
+    }
+  }, [record?.id]);
+
   // vote_pick 데이터 조회 - 데이터베이스 관계 사용
   const { data: votePicksData, isLoading: isLoadingVotePicks } =
     useList<VotePick>({
       resource: 'vote_pick',
-      filters: [
-        {
-          field: 'user_id',
-          operator: 'eq',
-          value: record?.id,
-        },
-      ],
+      filters: record?.id
+        ? [
+            {
+              field: 'user_id',
+              operator: 'eq',
+              value: record.id,
+            },
+          ]
+        : [],
       pagination: {
         current: currentPage,
         pageSize: pageSize,
@@ -93,13 +225,15 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
   const { data: receiptsData, isLoading: isLoadingReceipts } = useList<Receipt>(
     {
       resource: 'receipts',
-      filters: [
-        {
-          field: 'user_id',
-          operator: 'eq',
-          value: record?.id,
-        },
-      ],
+      filters: record?.id
+        ? [
+            {
+              field: 'user_id',
+              operator: 'eq',
+              value: record.id,
+            },
+          ]
+        : [],
       pagination: {
         current: receiptCurrentPage,
         pageSize: receiptPageSize,
@@ -125,6 +259,18 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
     if (newPageSize) setReceiptPageSize(newPageSize);
   };
 
+  // 스타캔디 내역 페이지 변경 핸들러
+  const handleCandyPageChange = (page: number, newPageSize?: number) => {
+    setCandyCurrentPage(page);
+    if (newPageSize) setCandyPageSize(newPageSize);
+  };
+
+  // 스타캔디 보너스 내역 페이지 변경 핸들러
+  const handleBonusPageChange = (page: number, newPageSize?: number) => {
+    setBonusCurrentPage(page);
+    if (newPageSize) setBonusPageSize(newPageSize);
+  };
+
   // 콘솔에 데이터 기록
   useEffect(() => {
     if (votePicksData) {
@@ -137,6 +283,16 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
       console.log('Receipts Data:', receiptsData.data);
     }
   }, [receiptsData]);
+
+  // 스타캔디 내역 데이터 로그
+  useEffect(() => {
+    console.log('Star Candy History State:', starCandyHistory);
+  }, [starCandyHistory]);
+
+  // 스타캔디 보너스 내역 데이터 로그
+  useEffect(() => {
+    console.log('Star Candy Bonus History State:', starCandyBonusHistory);
+  }, [starCandyBonusHistory]);
 
   // Ant Design의 테마 토큰 사용
   const { token } = theme.useToken();
@@ -271,6 +427,93 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
     },
     {
       title: '구매 일시',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (date: string) => (
+        <DateField value={date} format='YYYY-MM-DD HH:mm:ss' />
+      ),
+    },
+  ];
+
+  // 스타캔디 내역 테이블 컬럼 설정
+  const starCandyColumns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      title: '금액',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (amount: number) => amount?.toLocaleString() || 0,
+    },
+    {
+      title: '유형',
+      dataIndex: 'type',
+      key: 'type',
+    },
+    {
+      title: '트랜잭션 ID',
+      dataIndex: 'transaction_id',
+      key: 'transaction_id',
+      render: (transaction_id: string) => transaction_id || '-',
+    },
+    {
+      title: '투표 ID',
+      dataIndex: 'vote_pick_id',
+      key: 'vote_pick_id',
+      render: (vote_pick_id: number) => vote_pick_id || '-',
+    },
+    {
+      title: '생성 일시',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (date: string) => (
+        <DateField value={date} format='YYYY-MM-DD HH:mm:ss' />
+      ),
+    },
+  ];
+
+  // 스타캔디 보너스 내역 테이블 컬럼 설정
+  const starCandyBonusColumns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      title: '금액',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (amount: number) => amount?.toLocaleString() || 0,
+    },
+    {
+      title: '남은 금액',
+      dataIndex: 'remain_amount',
+      key: 'remain_amount',
+      render: (remain_amount: number) => remain_amount?.toLocaleString() || 0,
+    },
+    {
+      title: '유형',
+      dataIndex: 'type',
+      key: 'type',
+    },
+    {
+      title: '만료일',
+      dataIndex: 'expired_dt',
+      key: 'expired_dt',
+      render: (date: string) =>
+        date ? <DateField value={date} format='YYYY-MM-DD HH:mm:ss' /> : '-',
+    },
+    {
+      title: '트랜잭션 ID',
+      dataIndex: 'transaction_id',
+      key: 'transaction_id',
+      render: (transaction_id: string) => transaction_id || '-',
+    },
+    {
+      title: '생성 일시',
       dataIndex: 'created_at',
       key: 'created_at',
       render: (date: string) => (
@@ -440,6 +683,70 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
     </div>
   );
 
+  // 스타캔디 내역 탭 렌더링
+  const renderStarCandyHistoryTab = () => (
+    <div style={getCardStyle(token)}>
+      <div style={getSectionStyle(token)}>
+        <div style={{ width: '100%', overflowX: 'auto' }}>
+          <Table
+            dataSource={starCandyHistory}
+            columns={starCandyColumns}
+            rowKey='id'
+            loading={loadingStarCandyHistory}
+            pagination={{
+              current: candyCurrentPage,
+              pageSize: candyPageSize,
+              total: starCandyHistory.length,
+              onChange: handleCandyPageChange,
+              showSizeChanger: true,
+              pageSizeOptions: ['10', '20', '50', '100'],
+              showTotal: (total) => `총 ${total}개 스타캔디 내역`,
+            }}
+            onRow={() => ({
+              style: {
+                cursor: 'pointer',
+              },
+            })}
+            scroll={{ x: 'max-content' }}
+            size='small'
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  // 스타캔디 보너스 내역 탭 렌더링
+  const renderStarCandyBonusHistoryTab = () => (
+    <div style={getCardStyle(token)}>
+      <div style={getSectionStyle(token)}>
+        <div style={{ width: '100%', overflowX: 'auto' }}>
+          <Table
+            dataSource={starCandyBonusHistory}
+            columns={starCandyBonusColumns}
+            rowKey='id'
+            loading={loadingStarCandyBonusHistory}
+            pagination={{
+              current: bonusCurrentPage,
+              pageSize: bonusPageSize,
+              total: starCandyBonusHistory.length,
+              onChange: handleBonusPageChange,
+              showSizeChanger: true,
+              pageSizeOptions: ['10', '20', '50', '100'],
+              showTotal: (total) => `총 ${total}개 스타캔디 보너스 내역`,
+            }}
+            onRow={() => ({
+              style: {
+                cursor: 'pointer',
+              },
+            })}
+            scroll={{ x: 'max-content' }}
+            size='small'
+          />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       {record && (
@@ -500,6 +807,12 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
             </Tabs.TabPane>
             <Tabs.TabPane tab='구매 내역' key='receipts'>
               {renderReceiptHistoryTab()}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab='스타캔디 내역' key='star_candy'>
+              {renderStarCandyHistoryTab()}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab='보너스 스타캔디 내역' key='star_candy_bonus'>
+              {renderStarCandyBonusHistoryTab()}
             </Tabs.TabPane>
           </Tabs>
         </>

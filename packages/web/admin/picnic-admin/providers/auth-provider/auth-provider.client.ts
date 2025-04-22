@@ -292,11 +292,12 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
   logPermission('사용자 역할 조회 성공', { userId, roleIds });
 
   // 디버깅을 위한 역할 정보 쿼리
-  const { data: roleDetails, error: roleDetailError } = await supabaseBrowserClient
-    .from('admin_roles')
-    .select('*')
-    .in('id', roleIds);
-    
+  const { data: roleDetails, error: roleDetailError } =
+    await supabaseBrowserClient
+      .from('admin_roles')
+      .select('*')
+      .in('id', roleIds);
+
   if (roleDetailError) {
     console.warn('역할 상세 정보 조회 실패:', roleDetailError);
   } else {
@@ -337,23 +338,23 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
   const permissionsMap = permissions.reduce(
     (acc: Record<string, string[]>, curr: any) => {
       const { resource, action } = curr.admin_permissions;
-      
+
       if (!acc[resource]) {
         acc[resource] = [];
       }
       if (!acc[resource].includes(action)) {
         acc[resource].push(action);
       }
-      
+
       // 관리자 권한인 경우 admin_roles에 대한 권한도 자동 추가
       if (resource.startsWith('admin_') && !acc['admin_roles']) {
         acc['admin_roles'] = ['*']; // 관리자 권한 하나라도 있으면 admin_roles에 접근 가능하도록
       }
-      
+
       // CS 관련 메뉴 (notices, faqs, qnas) 권한이 있으면 각각이 서로 참조할 수 있게 함
       if (['notices', 'faqs', 'qnas'].includes(resource)) {
         // CS 관련 모든 리소스에 read 권한 부여
-        ['notices', 'faqs', 'qnas'].forEach(csResource => {
+        ['notices', 'faqs', 'qnas'].forEach((csResource) => {
           if (!acc[csResource]) {
             acc[csResource] = [];
           }
@@ -362,7 +363,7 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
           }
         });
       }
-      
+
       return acc;
     },
     {},

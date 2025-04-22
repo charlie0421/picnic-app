@@ -55,53 +55,59 @@ export const writeLog = (logMessage: ReturnType<typeof createLogMessage>) => {
 
   // 개발 환경에서는 콘솔에 출력
   // if (process.env.NODE_ENV !== 'production') {
-    const logPrefix = `[${timestamp}] [${level}] [${category}]`;
+  const logPrefix = `[${timestamp}] [${level}] [${category}]`;
 
-    let dataOutput = '';
-    if (data) {
-      try {
-        if (typeof data === 'object') {
-          // 객체를 최대 2단계까지만 문자열로 변환 (중첩 객체 처리)
-          const formattedData = JSON.stringify(data, (key, value) => {
+  let dataOutput = '';
+  if (data) {
+    try {
+      if (typeof data === 'object') {
+        // 객체를 최대 2단계까지만 문자열로 변환 (중첩 객체 처리)
+        const formattedData = JSON.stringify(
+          data,
+          (key, value) => {
             // 길이가 긴 배열이나 객체는 요약
             if (Array.isArray(value) && value.length > 10) {
-              return `Array(${value.length}) [${value.slice(0, 3).join(', ')}...]`;
+              return `Array(${value.length}) [${value
+                .slice(0, 3)
+                .join(', ')}...]`;
             }
             // 객체를 문자열로 변환할 때 너무 깊은 중첩은 피함
             if (typeof value === 'object' && value !== null) {
               const keys = Object.keys(value);
               if (keys.length > 10) {
                 const obj: Record<string, any> = {};
-                keys.slice(0, 5).forEach(k => obj[k] = value[k]);
+                keys.slice(0, 5).forEach((k) => (obj[k] = value[k]));
                 return `Object {${keys.length} keys} ${JSON.stringify(obj)}...`;
               }
             }
             return value;
-          }, 2);
-          
-          dataOutput = formattedData;
-        } else {
-          dataOutput = String(data);
-        }
-      } catch (e) {
-        dataOutput = 'Error formatting log data';
-      }
-    }
+          },
+          2,
+        );
 
-    switch (level) {
-      case LogLevel.ERROR:
-        console.error(logPrefix, message, dataOutput);
-        break;
-      case LogLevel.WARN:
-        console.warn(logPrefix, message, dataOutput);
-        break;
-      case LogLevel.DEBUG:
-        console.debug(logPrefix, message, dataOutput);
-        break;
-      default:
-        // INFO 레벨도 모두 출력하여 디버깅 용이하게
-        console.log(logPrefix, message, dataOutput);
+        dataOutput = formattedData;
+      } else {
+        dataOutput = String(data);
+      }
+    } catch (e) {
+      dataOutput = 'Error formatting log data';
     }
+  }
+
+  switch (level) {
+    case LogLevel.ERROR:
+      console.error(logPrefix, message, dataOutput);
+      break;
+    case LogLevel.WARN:
+      console.warn(logPrefix, message, dataOutput);
+      break;
+    case LogLevel.DEBUG:
+      console.debug(logPrefix, message, dataOutput);
+      break;
+    default:
+      // INFO 레벨도 모두 출력하여 디버깅 용이하게
+      console.log(logPrefix, message, dataOutput);
+  }
   // }
 
   // TODO: 프로덕션 환경에서는 서버 로깅, 분석 툴 등에 전송 가능
@@ -138,7 +144,7 @@ export const logPermission = (
     message,
     data,
   );
-  writeLog(logMessage);
+  // writeLog(logMessage);
 };
 
 /**
