@@ -10,7 +10,14 @@ import { useResource, useShow } from '@refinedev/core';
 import { UserProfile } from '@/lib/types/user_profiles';
 
 export default function UserProfileShowPage() {
-  const { queryResult } = useShow<UserProfile>({});
+  const params = useParams();
+  const { queryResult } = useShow<UserProfile>({
+    id: params.id as string,
+    resource: 'user_profiles',
+    meta: {
+      select: '*',
+    },
+  });
   const { data, isLoading } = queryResult;
   const { resource } = useResource();
 

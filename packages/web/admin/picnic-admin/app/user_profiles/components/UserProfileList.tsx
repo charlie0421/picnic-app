@@ -203,52 +203,46 @@ export function UserProfileList({
   );
 
   // Refine useTable 훅 사용
-  const { tableProps, setFilters, sorters, setSorters } = useTable<UserProfile>(
-    {
-      resource,
-      // syncWithLocation으로 인한 검색 상태 초기화 방지
-      syncWithLocation: false,
-      sorters: {
-        initial: initialSorters,
-        mode: 'server',
-      },
-      pagination: {
-        current: urlCurrent,
-        pageSize: urlPageSize,
-      },
-      filters: {
-        mode: 'server',
-        initial: createSearchFilters(urlSearch, urlField),
-      },
-      onSearch: (values) => {
-        return createSearchFilters(searchTerm, searchField);
-      },
-      meta: {
-        // Supabase에서 필드별로 다른 검색 연산자 사용
-        fields: (() => {
-          if (searchField === 'all') return ['nickname', 'email'];
-          if (searchField === 'id') return ['id'];
-          return [searchField];
-        })(),
-        operators: [
-          {
-            kind: 'contains',
-            operator: 'ilike',
-            value: `%:value%`,
-          },
-          {
-            kind: 'eq',
-            operator: 'eq',
-            value: `:value`,
-          },
-          {
-            kind: 'or',
-            operator: 'or',
-          },
-        ],
-      },
+  const { tableProps, setFilters, sorters, setSorters } = useTable<UserProfile>({
+    resource,
+    syncWithLocation: true,
+    sorters: {
+      initial: initialSorters,
+      mode: 'server',
     },
-  );
+    pagination: {
+      mode: 'server',
+      current: Number(searchParams.get('current')) || 1,
+      pageSize: Number(searchParams.get('pageSize')) || 10,
+    },
+    filters: {
+      mode: 'server',
+      initial: createSearchFilters(urlSearch, urlField),
+    },
+    meta: {
+      fields: (() => {
+        if (searchField === 'all') return ['nickname', 'email'];
+        if (searchField === 'id') return ['id'];
+        return [searchField];
+      })(),
+      operators: [
+        {
+          kind: 'contains',
+          operator: 'ilike',
+          value: `%:value%`,
+        },
+        {
+          kind: 'eq',
+          operator: 'eq',
+          value: `:value`,
+        },
+        {
+          kind: 'or',
+          operator: 'or',
+        },
+      ],
+    },
+  });
 
   // 검색어 입력 핸들러 - 로컬 상태만 업데이트
   const handleSearchInputChange = useCallback(
@@ -375,6 +369,63 @@ export function UserProfileList({
     setSorters,
   ]);
 
+  // URL 파라미터 업데이트
+  useEffect(() => {
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    // 검색어 업데이트
+    if (searchTerm) {
+      params.set('search', searchTerm);
+    } else {
+      params.delete('search');
+    }
+
+    // 검색 필드 업데이트
+    if (searchField && searchField !== 'all') {
+      params.set('field', searchField);
+    } else {
+      params.delete('field');
+    }
+
+    // 페이지네이션 정보 업데이트
+    if (tableProps.pagination && typeof tableProps.pagination !== 'boolean') {
+      const { current, pageSize } = tableProps.pagination;
+      if (current && current !== 1) {
+        params.set('current', current.toString());
+      } else {
+        params.delete('current');
+      }
+
+      if (pageSize && pageSize !== 10) {
+        params.set('pageSize', pageSize.toString());
+      } else {
+        params.delete('pageSize');
+      }
+    }
+
+    // 정렬 정보 업데이트
+    if (sorters && sorters.length > 0) {
+      params.set('sorters[0][field]', sorters[0].field as string);
+      params.set('sorters[0][order]', sorters[0].order as string);
+    } else {
+      params.delete('sorters[0][field]');
+      params.delete('sorters[0][order]');
+    }
+
+    const newUrl = `${pathname}?${params.toString()}`;
+    router.push(newUrl);
+  }, [searchTerm, searchField, tableProps.pagination, sorters, pathname, router, searchParams]);
+
+  // 행 클릭 핸들러 추가
+  const handleRowClick = (record: UserProfile) => {
+    show('user_profiles', record.id);
+  };
+
   return (
     <List breadcrumb={false} headerButtons={<CreateButton />} title='유저관리'>
       <Space style={{ marginBottom: 16 }}>
@@ -404,9 +455,9 @@ export function UserProfileList({
           {...tableProps}
           rowKey='id'
           scroll={{ x: 'max-content' }}
-          onRow={(record: UserProfile) => ({
-            style: { cursor: 'pointer' },
-            onClick: () => show(resource, record.id),
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+            style: { cursor: 'pointer' }
           })}
           pagination={{
             ...tableProps.pagination,
@@ -416,95 +467,8 @@ export function UserProfileList({
           }}
           size='small'
           onChange={(pagination, filters, sorter, extra) => {
-            // 콘솔에 로그 출력
-            console.log('Table onChange:', { pagination, sorter, extra });
-
-            // 정렬 상태 변경 처리
-            if (extra.action === 'sort') {
-              // antd는 'ascend'/'descend' 형식을 사용하고 Refine은 'asc'/'desc' 형식을 사용함
-              // 여기서 올바르게 변환
-              const convertOrder = (
-                antdOrder: 'ascend' | 'descend' | null,
-              ): 'asc' | 'desc' | undefined => {
-                if (!antdOrder) return undefined;
-                return antdOrder === 'ascend' ? 'asc' : 'desc';
-              };
-
-              const newSorters = Array.isArray(sorter)
-                ? sorter.length > 0 && sorter[0].order
-                  ? [
-                      {
-                        field: sorter[0].field as string,
-                        order: convertOrder(
-                          sorter[0].order as 'ascend' | 'descend',
-                        ) as 'asc' | 'desc',
-                      },
-                    ]
-                  : []
-                : sorter && sorter.field && sorter.order
-                ? [
-                    {
-                      field: sorter.field as string,
-                      order: convertOrder(
-                        sorter.order as 'ascend' | 'descend',
-                      ) as 'asc' | 'desc',
-                    },
-                  ]
-                : [];
-
-              console.log('변환된 정렬 설정:', newSorters);
-
-              // sorters 상태 업데이트
-              setSorters(newSorters);
-
-              // URL 직접 업데이트
-              const urlParams = new URLSearchParams(searchParams.toString());
-
-              // 기존 정렬 파라미터 삭제
-              urlParams.delete('sort');
-              urlParams.delete('order');
-
-              if (newSorters.length > 0) {
-                // 새 형식으로 정렬 파라미터 설정
-                urlParams.set('sorters[0][field]', newSorters[0].field);
-                urlParams.set('sorters[0][order]', newSorters[0].order);
-              } else {
-                // 정렬 파라미터 삭제
-                urlParams.delete('sorters[0][field]');
-                urlParams.delete('sorters[0][order]');
-              }
-
-              // URL 업데이트
-              router.push(`${pathname}?${urlParams.toString()}`, {
-                scroll: false,
-              });
-            }
-
-            // 페이지네이션 상태 변경 처리
-            if (extra.action === 'paginate') {
-              // URL 직접 업데이트
-              const urlParams = new URLSearchParams(searchParams.toString());
-
-              // 페이지네이션 파라미터 설정
-              if (pagination.current === 1) {
-                urlParams.delete('current');
-              } else {
-                urlParams.set('current', pagination.current?.toString() || '1');
-              }
-
-              if (pagination.pageSize === 10) {
-                urlParams.delete('pageSize');
-              } else {
-                urlParams.set(
-                  'pageSize',
-                  pagination.pageSize?.toString() || '10',
-                );
-              }
-
-              // URL 업데이트
-              router.push(`${pathname}?${urlParams.toString()}`, {
-                scroll: false,
-              });
+            if (tableProps.onChange) {
+              tableProps.onChange(pagination, filters, sorter, extra);
             }
           }}
         >
