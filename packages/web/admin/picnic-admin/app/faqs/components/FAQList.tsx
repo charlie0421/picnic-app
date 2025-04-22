@@ -1,9 +1,14 @@
 import React from 'react';
 import { Table, Space, Button, Tag } from 'antd';
 import { useNavigation, useDelete } from '@refinedev/core';
-import { EditButton, ShowButton, DeleteButton, DateField } from '@refinedev/antd';
+import {
+  EditButton,
+  ShowButton,
+  DeleteButton,
+  DateField,
+} from '@refinedev/antd';
 import { TableProps } from 'antd/es/table';
-import { FAQ } from '@/lib/types/faq';
+import { FAQ, convertToDisplayFAQ } from '@/lib/types/faq';
 
 interface FAQListProps {
   tableProps: TableProps<FAQ>;
@@ -22,13 +27,23 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
     },
     {
       title: '질문',
-      dataIndex: 'question',
       key: 'question',
-      render: (value: string, record: FAQ) => (
-        <span style={{ cursor: 'pointer' }} onClick={() => show('faqs', record.id)}>
-          {value}
-        </span>
-      ),
+      render: (record: FAQ) => {
+        // 한국어 질문 표시
+        const displayText =
+          typeof record.question === 'string'
+            ? record.question
+            : record.question?.ko || '';
+
+        return (
+          <span
+            style={{ cursor: 'pointer' }}
+            onClick={() => show('faqs', record.id)}
+          >
+            {displayText}
+          </span>
+        );
+      },
     },
     {
       title: '카테고리',
@@ -47,7 +62,7 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
         if (value === 'PUBLISHED') color = 'green';
         if (value === 'DRAFT') color = 'gold';
         if (value === 'ARCHIVED') color = 'gray';
-        
+
         return <Tag color={color}>{value}</Tag>;
       },
     },
@@ -62,7 +77,10 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
       key: 'created_by',
       width: 120,
       render: (_: any, record: FAQ) => {
-        const userName = record.created_by_user?.user_metadata?.name || record.created_by_user?.email || '시스템';
+        const userName =
+          record.created_by_user?.user_metadata?.name ||
+          record.created_by_user?.email ||
+          '시스템';
         return userName;
       },
     },
@@ -72,23 +90,13 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
       width: 120,
       render: (_: any, record: FAQ) => (
         <Space>
-          <ShowButton size="small" recordItemId={record.id} />
-          <EditButton size="small" recordItemId={record.id} />
-          <DeleteButton
-            size="small"
-            recordItemId={record.id}
-            resource="faqs"
-          />
+          <ShowButton size='small' recordItemId={record.id} />
+          <EditButton size='small' recordItemId={record.id} />
+          <DeleteButton size='small' recordItemId={record.id} resource='faqs' />
         </Space>
       ),
     },
   ];
 
-  return (
-    <Table
-      {...tableProps}
-      rowKey="id"
-      columns={columns}
-    />
-  );
-}; 
+  return <Table {...tableProps} rowKey='id' columns={columns} />;
+};
