@@ -60,83 +60,6 @@ export function UserProfileList({
   const [searchField, setSearchField] = useState<string>(urlField);
   const [isSearching, setIsSearching] = useState<boolean>(false);
 
-  // URL 파라미터 업데이트 (검색 상태를 초기화하지 않도록 개선)
-  const updateUrlParams = useCallback(
-    (params: {
-      search?: string;
-      field?: string;
-      current?: number;
-      pageSize?: number;
-      sort?: string;
-      order?: string;
-    }) => {
-      const urlParams = new URLSearchParams(searchParams.toString());
-
-      // 검색어 업데이트
-      if (params.search !== undefined) {
-        if (!params.search) {
-          urlParams.delete('search');
-        } else {
-          urlParams.set('search', params.search);
-        }
-      }
-
-      // 검색 필드 업데이트
-      if (params.field !== undefined) {
-        if (params.field === 'all') {
-          urlParams.delete('field');
-        } else {
-          urlParams.set('field', params.field);
-        }
-      }
-
-      // 현재 페이지 업데이트
-      if (params.current !== undefined) {
-        if (params.current === 1) {
-          urlParams.delete('current');
-        } else {
-          urlParams.set('current', params.current.toString());
-        }
-      }
-
-      // 페이지 크기 업데이트
-      if (params.pageSize !== undefined) {
-        if (params.pageSize === 10) {
-          urlParams.delete('pageSize');
-        } else {
-          urlParams.set('pageSize', params.pageSize.toString());
-        }
-      }
-
-      // 정렬 필드 업데이트
-      if (params.sort !== undefined) {
-        if (!params.sort) {
-          urlParams.delete('sorters[0][field]');
-          urlParams.delete('sort'); // 이전 형식 파라미터도 삭제
-        } else {
-          urlParams.set('sorters[0][field]', params.sort);
-          urlParams.delete('sort'); // 이전 형식 파라미터 삭제
-        }
-      }
-
-      // 정렬 순서 업데이트
-      if (params.order !== undefined) {
-        if (!params.order) {
-          urlParams.delete('sorters[0][order]');
-          urlParams.delete('order'); // 이전 형식 파라미터도 삭제
-        } else {
-          urlParams.set('sorters[0][order]', params.order);
-          urlParams.delete('order'); // 이전 형식 파라미터 삭제
-        }
-      }
-
-      router.push(`${pathname}?${urlParams.toString()}`, {
-        scroll: false,
-      });
-    },
-    [searchParams, pathname, router],
-  );
-
   // 검색 필터 생성 함수
   const createSearchFilters = useCallback(
     (value: string, field: string): CrudFilters => {
@@ -203,7 +126,7 @@ export function UserProfileList({
   );
 
   // Refine useTable 훅 사용
-  const { tableProps, setFilters, sorters, setSorters } = useTable<UserProfile>({
+  const { tableProps, setFilters } = useTable<UserProfile>({
     resource,
     syncWithLocation: true,
     sorters: {
@@ -212,35 +135,15 @@ export function UserProfileList({
     },
     pagination: {
       mode: 'server',
-      current: Number(searchParams.get('current')) || 1,
-      pageSize: Number(searchParams.get('pageSize')) || 10,
+      current: urlCurrent,
+      pageSize: urlPageSize,
     },
     filters: {
       mode: 'server',
       initial: createSearchFilters(urlSearch, urlField),
     },
     meta: {
-      fields: (() => {
-        if (searchField === 'all') return ['nickname', 'email'];
-        if (searchField === 'id') return ['id'];
-        return [searchField];
-      })(),
-      operators: [
-        {
-          kind: 'contains',
-          operator: 'ilike',
-          value: `%:value%`,
-        },
-        {
-          kind: 'eq',
-          operator: 'eq',
-          value: `:value`,
-        },
-        {
-          kind: 'or',
-          operator: 'or',
-        },
-      ],
+      select: '*',
     },
   });
 
@@ -258,19 +161,49 @@ export function UserProfileList({
     (value: string) => {
       setIsSearching(true);
       setSearchTerm(value);
-      updateUrlParams({ search: value });
-
+      
       const filters = createSearchFilters(value, searchField);
-      if (filters.length > 0) {
-        setFilters(filters, 'replace');
-      } else if (!value) {
-        // 검색어가 비어있으면 필터 초기화
-        setFilters([], 'replace');
+      
+      // 검색 시 페이지네이션 상태도 함께 초기화
+      if (tableProps.onChange && tableProps.pagination) {
+        const newPagination = {
+          ...tableProps.pagination,
+          current: 1,
+        };
+        
+        tableProps.onChange(
+          newPagination,
+          {},
+          {},
+          { currentDataSource: [], action: 'paginate' }
+        );
       }
-
+      
+      setFilters(filters, 'replace');
+      
+      // URL 파라미터 업데이트
+      const params = new URLSearchParams();
+      
+      if (value) {
+        params.set('search', value);
+      }
+      
+      if (searchField !== 'all') {
+        params.set('field', searchField);
+      }
+      
+      // 페이지 크기만 유지
+      if (tableProps.pagination && typeof tableProps.pagination === 'object') {
+        const pageSize = tableProps.pagination.pageSize || 10;
+        if (pageSize !== 10) {
+          params.set('pageSize', pageSize.toString());
+        }
+      }
+      
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
       setIsSearching(false);
     },
-    [searchField, setFilters, updateUrlParams, createSearchFilters],
+    [searchField, setFilters, createSearchFilters, pathname, router, tableProps],
   );
 
   // 검색 버튼 클릭 핸들러
@@ -281,145 +214,71 @@ export function UserProfileList({
     [executeSearch],
   );
 
+  // 필드 변경 핸들러
   const handleFieldChange = useCallback(
     (value: string) => {
       setSearchField(value);
-      updateUrlParams({ field: value });
-
       if (searchTerm) {
-        // 검색 필드가 변경되면 현재 검색어로 검색 다시 실행
         executeSearch(searchTerm);
       }
     },
-    [searchTerm, updateUrlParams, executeSearch],
+    [searchTerm, executeSearch],
   );
 
-  // 컴포넌트 마운트 시와 URL 파라미터 변경 시 상태 초기화
+  // 컴포넌트 마운트 시 초기화
   useEffect(() => {
     if (initialMountRef.current) {
-      // 첫 마운트 시에만 실행
       initialMountRef.current = false;
-
-      // URL 파라미터에서 값을 가져와 초기 필터 설정
+      
       if (urlSearch) {
+        setSearchTerm(urlSearch);
+        setLocalSearchTerm(urlSearch);
         const initialFilters = createSearchFilters(urlSearch, urlField);
-        if (initialFilters.length > 0) {
-          setFilters(initialFilters, 'replace');
-        }
-      }
-
-      // URL에서 정렬 정보 가져와서 상태 설정
-      if (urlSortField && urlSortOrder) {
-        setSorters([{ field: urlSortField, order: urlSortOrder }]);
-      }
-
-      return;
-    }
-
-    // URL 파라미터에서 값을 가져와 컴포넌트 상태 설정
-    // 검색중이 아닐 때만 URL 변경에 따라 상태 업데이트
-    if (!isSearching) {
-      const currentUrlSearch = searchParams.get('search') || '';
-      const currentUrlField = searchParams.get('field') || 'all';
-      const currentSortField =
-        searchParams.get('sorters[0][field]') || searchParams.get('sort');
-      const currentSortOrder = (searchParams.get('sorters[0][order]') ||
-        searchParams.get('order')) as 'asc' | 'desc';
-
-      // 상태가 실제로 변경될 때만 업데이트
-      if (currentUrlSearch !== searchTerm) {
-        setSearchTerm(currentUrlSearch);
-        setLocalSearchTerm(currentUrlSearch);
-      }
-
-      if (currentUrlField !== searchField) {
-        setSearchField(currentUrlField);
-      }
-
-      // 정렬 상태 업데이트
-      if (currentSortField && currentSortOrder) {
-        setSorters([{ field: currentSortField, order: currentSortOrder }]);
-      }
-
-      // URL 파라미터에 검색어가 있을 때만 필터 적용
-      if (
-        currentUrlSearch &&
-        (currentUrlSearch !== searchTerm || currentUrlField !== searchField)
-      ) {
-        const filters = createSearchFilters(currentUrlSearch, currentUrlField);
-        if (filters.length > 0) {
-          setFilters(filters, 'replace');
-        }
-      } else if (!currentUrlSearch && searchTerm) {
-        // URL 파라미터에서 검색어가 제거되었으면 필터도 초기화
-        setFilters([], 'replace');
+        setFilters(initialFilters, 'replace');
       }
     }
-  }, [
-    searchParams,
-    setFilters,
-    createSearchFilters,
-    urlSearch,
-    urlField,
-    searchTerm,
-    searchField,
-    isSearching,
-    urlSortField,
-    urlSortOrder,
-    setSorters,
-  ]);
+  }, [urlSearch, urlField, setFilters, createSearchFilters]);
 
-  // URL 파라미터 업데이트
-  useEffect(() => {
-    if (initialMountRef.current) {
-      initialMountRef.current = false;
-      return;
+  // 테이블 변경 핸들러
+  const handleTableChange = (pagination: any, filters: any, sorter: any, extra: any) => {
+    if (tableProps.onChange) {
+      tableProps.onChange(pagination, filters, sorter, extra);
     }
 
     const params = new URLSearchParams(searchParams.toString());
-
-    // 검색어 업데이트
-    if (searchTerm) {
-      params.set('search', searchTerm);
-    } else {
-      params.delete('search');
-    }
-
-    // 검색 필드 업데이트
-    if (searchField && searchField !== 'all') {
-      params.set('field', searchField);
-    } else {
-      params.delete('field');
-    }
-
+    
     // 페이지네이션 정보 업데이트
-    if (tableProps.pagination && typeof tableProps.pagination !== 'boolean') {
-      const { current, pageSize } = tableProps.pagination;
-      if (current && current !== 1) {
-        params.set('current', current.toString());
-      } else {
-        params.delete('current');
-      }
-
-      if (pageSize && pageSize !== 10) {
-        params.set('pageSize', pageSize.toString());
-      } else {
-        params.delete('pageSize');
-      }
+    if (pagination.current !== 1) {
+      params.set('current', pagination.current.toString());
+    } else {
+      params.delete('current');
     }
-
+    
+    if (pagination.pageSize !== 10) {
+      params.set('pageSize', pagination.pageSize.toString());
+    } else {
+      params.delete('pageSize');
+    }
+    
     // 정렬 정보 업데이트
-    if (sorters && sorters.length > 0) {
-      params.set('sorters[0][field]', sorters[0].field as string);
-      params.set('sorters[0][order]', sorters[0].order as string);
+    if (sorter.field && sorter.order) {
+      params.set('sorters[0][field]', sorter.field);
+      params.set('sorters[0][order]', sorter.order);
     } else {
       params.delete('sorters[0][field]');
       params.delete('sorters[0][order]');
     }
 
-    const newUrl = `${pathname}?${params.toString()}`;
-    router.push(newUrl);
-  }, [searchTerm, searchField, tableProps.pagination, sorters, pathname, router, searchParams]);
+    // 검색 파라미터 유지
+    if (searchTerm) {
+      params.set('search', searchTerm);
+    }
+    if (searchField !== 'all') {
+      params.set('field', searchField);
+    }
+    
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // 행 클릭 핸들러 추가
   const handleRowClick = (record: UserProfile) => {
@@ -466,11 +325,7 @@ export function UserProfileList({
             showTotal: (total) => `총 ${total}개 항목`,
           }}
           size='small'
-          onChange={(pagination, filters, sorter, extra) => {
-            if (tableProps.onChange) {
-              tableProps.onChange(pagination, filters, sorter, extra);
-            }
-          }}
+          onChange={handleTableChange}
         >
           <Table.Column
             dataIndex='id'
