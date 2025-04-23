@@ -1,14 +1,11 @@
 import React from 'react';
 import { Space, Tag, message } from 'antd';
 import { useNavigation, useDelete, CrudFilters } from '@refinedev/core';
-import { EditButton, ShowButton, DeleteButton, DateField, List, CreateButton } from '@refinedev/antd';
+import { EditButton, ShowButton, DeleteButton, DateField } from '@refinedev/antd';
 import { Notice } from '@/lib/types/notice';
 import { DataTable } from '../../components/common/DataTable';
 
-// UUID 유효성 검사 정규식
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export function NoticeList() {
+export const NoticeList: React.FC = () => {
   const { show, edit } = useNavigation();
   const { mutate: deleteMutate } = useDelete();
 
@@ -137,14 +134,18 @@ export function NoticeList() {
   ];
 
   return (
-      <DataTable<Notice>
-        resource='notices'
-        columns={columns}
-        searchFields={[
-          { value: 'title', label: '제목' },
-          { value: 'id', label: 'ID' },
-        ]}
-        createSearchFilters={createSearchFilters}
-      />
+    <DataTable<Notice>
+      resource='notices'
+      columns={columns}
+      searchFields={[
+        { value: 'title', label: '제목' },
+        { value: 'id', label: 'ID' },
+      ]}
+      createSearchFilters={createSearchFilters}
+      onRow={(record) => ({
+        onClick: () => show('notices', record.id),
+        style: { cursor: 'pointer' }
+      })}
+    />
   );
-} 
+}; 

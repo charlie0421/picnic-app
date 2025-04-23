@@ -1,47 +1,27 @@
 import React from 'react';
-import { Space, Tag, message } from 'antd';
+import { Space, Tag } from 'antd';
 import { useNavigation, useDelete, CrudFilters } from '@refinedev/core';
-import {
-  EditButton,
-  ShowButton,
-  DeleteButton,
-  DateField,
-  List,
-  CreateButton,
-} from '@refinedev/antd';
-import { FAQ, convertToDisplayFAQ } from '@/lib/types/faq';
+import { EditButton, ShowButton, DeleteButton, DateField } from '@refinedev/antd';
+import { FAQ } from '@/lib/types/faq';
 import { DataTable } from '../../components/common/DataTable';
 
 // UUID 유효성 검사 정규식
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function FAQList() {
-  const { show, edit } = useNavigation();
-  const { mutate: deleteMutate } = useDelete();
+export const FAQList: React.FC = () => {
+  const { show } = useNavigation();
 
   const createSearchFilters = (value: string, field: string): CrudFilters => {
     if (!value) return [];
 
     if (field === 'all') {
-      const filters: CrudFilters = [];
-
-      filters.push({
-        field: 'question->>ko',
-        operator: 'contains',
-        value,
-      });
-
-      // ID가 숫자인 경우에만 ID 검색 추가
-      const numericValue = parseInt(value);
-      if (!isNaN(numericValue)) {
-        filters.push({
-          field: 'id',
-          operator: 'eq',
-          value: numericValue,
-        });
-      }
-
-      return filters;
+      return [
+        {
+          field: 'question->>ko',
+          operator: 'contains',
+          value,
+        },
+      ];
     }
 
     if (field === 'question') {
@@ -54,23 +34,23 @@ export function FAQList() {
       ];
     }
 
-    if (field === 'id') {
-      const numericValue = parseInt(value);
-      if (isNaN(numericValue)) {
-        message.warning('ID는 숫자만 입력 가능합니다.');
-        return [];
-      }
-
+    if (field === 'answer') {
       return [
         {
-          field: 'id',
-          operator: 'eq',
-          value: numericValue,
+          field: 'answer->>ko',
+          operator: 'contains',
+          value,
         },
       ];
     }
 
-    return [];
+    return [
+      {
+        field: field,
+        operator: 'contains',
+        value,
+      },
+    ];
   };
 
   const columns = [
@@ -83,18 +63,10 @@ export function FAQList() {
     },
     {
       title: '질문',
+      dataIndex: 'question',
       key: 'question',
-      dataIndex: ['question', 'ko'],
       sorter: true,
-      render: (value: string, record: FAQ) => {
-        // 한국어 질문 표시
-        const displayText =
-          typeof record.question === 'string'
-            ? record.question
-            : record.question?.ko || '';
-
-        return displayText;
-      },
+      render: (value: any) => value?.ko || value,
     },
     {
       title: '카테고리',
@@ -102,7 +74,7 @@ export function FAQList() {
       key: 'category',
       width: 120,
       sorter: true,
-      render: (value: string) => value || '-',
+      render: (value: string) => <Tag>{value || '미분류'}</Tag>,
     },
     {
       title: '상태',
@@ -115,28 +87,17 @@ export function FAQList() {
         if (value === 'PUBLISHED') color = 'green';
         if (value === 'DRAFT') color = 'gold';
         if (value === 'ARCHIVED') color = 'gray';
-
+        
         return <Tag color={color}>{value}</Tag>;
       },
     },
     {
-      title: '순서',
-      dataIndex: 'order_number',
-      key: 'order_number',
-      width: 80,
+      title: '작성일',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      width: 160,
       sorter: true,
-    },
-    {
-      title: '작성자',
-      key: 'created_by',
-      width: 120,
-      render: (_: any, record: FAQ) => {
-        const userName =
-          record.created_by_user?.user_metadata?.name ||
-          record.created_by_user?.email ||
-          '시스템';
-        return userName;
-      },
+      render: (value: string) => <DateField value={value} format="YYYY-MM-DD HH:mm" />,
     },
     {
       title: '액션',
@@ -144,23 +105,31 @@ export function FAQList() {
       width: 120,
       render: (_: any, record: FAQ) => (
         <Space>
-          <ShowButton size='small' recordItemId={record.id} />
-          <EditButton size='small' recordItemId={record.id} />
-          <DeleteButton size='small' recordItemId={record.id} resource='faqs' />
+          <ShowButton size="small" recordItemId={record.id} />
+          <EditButton size="small" recordItemId={record.id} />
+          <DeleteButton
+            size="small"
+            recordItemId={record.id}
+            resource="faqs"
+          />
         </Space>
       ),
     },
   ];
 
   return (
-      <DataTable<FAQ>
-        resource='faqs'
-        columns={columns}
-        searchFields={[
-          { value: 'question', label: '질문' },
-          { value: 'id', label: 'ID' },
-        ]}
-        createSearchFilters={createSearchFilters}
-      />
+    <DataTable<FAQ>
+      resource='faqs'
+      columns={columns}
+      searchFields={[
+        { value: 'question', label: '질문' },
+        { value: 'answer', label: '답변' },
+      ]}
+      createSearchFilters={createSearchFilters}
+      onRow={(record) => ({
+        onClick: () => show('faqs', record.id),
+        style: { cursor: 'pointer' }
+      })}
+    />
   );
-}
+};
