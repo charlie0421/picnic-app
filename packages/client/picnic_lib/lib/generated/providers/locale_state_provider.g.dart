@@ -6,7 +6,7 @@ part of '../../presentation/providers/locale_state_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$localeStateHash() => r'c2e2e0b2e5513dbee4587c4bff3dee658c38759d';
+String _$localeStateHash() => r'4a38598b9e77a9566ea5c8a4541422e856c6d8bf';
 
 /// 로케일 상태 제공자
 ///
