@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:load_switch/load_switch.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
@@ -20,8 +17,6 @@ import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
-import 'package:picnic_lib/presentation/providers/locale_provider.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
