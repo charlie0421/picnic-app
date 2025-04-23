@@ -21,9 +21,6 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-// Crowdin 배포 해시
-const String crowdinDistributionHash = 'your_distribution_hash_here';
-
 void main() async {
   await runZonedGuarded(() async {
     try {
