@@ -168,58 +168,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Text(t('label_setting_language'),
-                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  DropdownButtonFormField(
-                    value: ref.watch(localeStateProvider).languageCode,
-                    icon: SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/arrow_down_style=line.svg'),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: AppColors.grey00, width: 0),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                    ),
-                    dropdownColor: AppColors.grey00,
-                    borderRadius: BorderRadius.circular(8),
-                    items: languageMap.entries.map((entry) {
-                      return DropdownMenuItem(
-                        alignment: Alignment.center,
-                        value: entry.key,
-                        child: Text(
-                          entry.value,
-                          style: ref.watch(localeStateProvider).languageCode ==
-                                  entry.key
-                              ? getTextStyle(AppTypo.body14B, AppColors.grey900)
-                              : getTextStyle(
-                                  AppTypo.body14M, AppColors.grey400),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-                      logger.d('onChanged: $value');
-                      if (ref.watch(localeStateProvider).languageCode ==
-                          value) {
-                        return;
-                      }
-
-                      final newLocale = Locale(value, countryMap[value]);
-
-                      ref
-                          .read(localeStateProvider.notifier)
-                          .setLocale(newLocale);
-
-                      SnackbarUtil().showSnackbar(
-                          '${languageMap[value]} ${t('language_changed')}');
-                    },
-                  ),
-                  const SizedBox(height: 24),
                   Text(t('label_setting_storage'),
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   PicnicListItem(
