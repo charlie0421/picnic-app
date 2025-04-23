@@ -13,10 +13,8 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
-import 'package:picnic_lib/generated/crowdin_localizations.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/l10n_setup.dart';
-import 'package:picnic_lib/presentation/providers/locale_provider.dart';
+import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -72,7 +70,7 @@ void main() async {
       );
 
       // 기본 언어(한국어) 번역 로드
-      for (final locale in CrowdinLocalization.supportedLocales) {
+      for (final locale in PicnicLibL10n.supportedLocales) {
         await Crowdin.loadTranslations(locale);
       }
 
@@ -83,11 +81,8 @@ void main() async {
         observers: [LoggingObserver()],
       );
 
-      // l10n에 컨테이너 설정 (전역 접근용)
-      setProviderContainer(container);
-
       // 로케일 초기화 및 모든 번역 미리 로드
-      await PicnicLibL10n.preloadTranslations(container);
+      await PicnicLibL10n.preloadTranslations();
 
       runApp(
         UncontrolledProviderScope(
@@ -96,9 +91,8 @@ void main() async {
             final currentLocale = ref.watch(localeStateProvider);
 
             return MaterialApp(
-              localizationsDelegates:
-                  CrowdinLocalization.localizationsDelegates,
-              supportedLocales: CrowdinLocalization.supportedLocales,
+              localizationsDelegates: PicnicLibL10n.localizationsDelegates,
+              supportedLocales: PicnicLibL10n.supportedLocales,
               locale: currentLocale,
               home: const App(),
             );
@@ -130,8 +124,8 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         locale: currentLocale,
-        localizationsDelegates: CrowdinLocalization.localizationsDelegates,
-        supportedLocales: CrowdinLocalization.supportedLocales,
+        localizationsDelegates: PicnicLibL10n.localizationsDelegates,
+        supportedLocales: PicnicLibL10n.supportedLocales,
         home: const Placeholder(), // 실제 홈 위젯으로 교체
       );
     });

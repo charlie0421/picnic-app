@@ -11,7 +11,6 @@ import 'package:picnic_app/presentation/screens/portal.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/enums.dart';
-import 'package:picnic_lib/l10n_setup.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
@@ -19,7 +18,7 @@ import 'package:picnic_lib/presentation/pages/oauth_callback_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
-import 'package:picnic_lib/presentation/providers/locale_provider.dart';
+import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
@@ -40,6 +39,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:picnic_lib/l10n.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});

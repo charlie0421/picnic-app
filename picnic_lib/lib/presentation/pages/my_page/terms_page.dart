@@ -3,7 +3,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/enums.dart';
-import 'package:picnic_lib/presentation/providers/locale_provider.dart';
+import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
 import 'package:picnic_lib/presentation/providers/policy_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 

@@ -6,7 +6,7 @@ import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'dart:ui';
 
-part '../../generated/providers/locale_provider.g.dart';
+part '../../generated/providers/locale_state_provider.g.dart';
 
 /// 로케일 상태 제공자
 @riverpod

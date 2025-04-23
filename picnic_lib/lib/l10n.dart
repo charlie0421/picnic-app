@@ -1,66 +1,77 @@
 // picnic_lib/lib/core/utils/i18n.dart
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/presentation/providers/locale_provider.dart';
+import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
 
-// 주의: Crowdin은 로케일 문자열을 ko_KR 형식으로 필요로 함
-String _formatLocale(Locale locale) {
-  if (locale.countryCode != null && locale.countryCode!.isNotEmpty) {
-    return '${locale.languageCode}_${locale.countryCode}';
+/// 로컬라이제이션 설정 클래스
+class PicnicLibL10n {
+  /// 지원되는 로케일 목록
+  static const supportedLocales = [
+    Locale('en'),
+    Locale('ja'),
+    Locale('ko'),
+    Locale('zh'),
+    Locale('id'),
+  ];
+
+  /// 로컬라이제이션 델리게이트 목록
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
+
+  /// Crowdin OTA 초기화
+  static Future<void> initialize({
+    required String distributionHash,
+    Duration updatesInterval = const Duration(minutes: 15),
+  }) async {
+    await Crowdin.init(
+      distributionHash: distributionHash,
+      connectionType: InternetConnectionType.any,
+      updatesInterval: updatesInterval,
+    );
   }
-  return locale.languageCode;
-}
 
-ProviderContainer? _container;
-
-void setProviderContainer(ProviderContainer container) {
-  _container = container;
-}
-
-String t(String key, [List<String>? args]) {
-  // 1. 가능하면 localeProvider에서 로케일 가져오기 (우선순위 1)
-  Locale? currentLocale;
-
-  if (_container != null) {
+  /// 특정 로케일의 번역 로드
+  static Future<void> loadTranslations(Locale locale) async {
     try {
-      currentLocale = _container!.read(localeStateProvider);
+      await Crowdin.loadTranslations(locale);
     } catch (e) {
-      // Provider를 찾을 수 없는 경우 무시
+      debugPrint('Crowdin 번역 로드 실패: $e');
     }
   }
 
-  // 2. navigatorKey로 로케일 가져오기 (우선순위 2)
-  String localeStr;
-  if (currentLocale != null) {
-    localeStr = _formatLocale(currentLocale);
-  } else if (navigatorKey.currentContext != null) {
-    Locale contextLocale = Localizations.localeOf(navigatorKey.currentContext!);
-    localeStr = _formatLocale(contextLocale);
-  } else {
-    // 3. 기본값 사용 (우선순위 3)
-    localeStr = 'ko_KR';
+  /// 모든 지원 로케일의 번역 미리 로드
+  static Future<void> preloadTranslations() async {
+    try {
+      for (final locale in supportedLocales) {
+        await loadTranslations(locale);
+      }
+    } catch (e) {
+      debugPrint('번역 미리 로드 중 오류 발생: $e');
+    }
   }
+}
 
-  // Crowdin에서 번역 가져오기
-  String? translatedText = Crowdin.getText(localeStr, key);
+/// 번역 텍스트 가져오기
+String t(String key, [List<String>? args]) {
+  final locale = ProviderContainer().read(localeStateProvider);
+  String? translatedText = Crowdin.getText(locale.languageCode, key);
 
-  // 번역이 없으면 영어로 시도
   if (translatedText == null || translatedText.isEmpty) {
     translatedText = Crowdin.getText('en', key);
   }
 
-  // 영어도 없으면 한국어로 시도
   if (translatedText == null || translatedText.isEmpty) {
-    translatedText = Crowdin.getText('ko_KR', key);
+    translatedText = Crowdin.getText('ko', key);
   }
 
-  // 최종적으로 키 반환
   String finalText = translatedText ?? key;
 
-  // 인자가 있으면 플레이스홀더 교체
   if (args != null) {
     for (int i = 0; i < args.length; i++) {
       finalText = finalText.replaceAll('{$i}', args[i]);
@@ -70,28 +81,15 @@ String t(String key, [List<String>? args]) {
   return finalText;
 }
 
+/// 현재 로케일의 언어 코드 가져오기
 String getLocaleLanguage() {
-  // localeProvider가 있으면 사용
-  if (_container != null) {
-    try {
-      final locale = _container!.read(localeStateProvider);
-      return locale.languageCode;
-    } catch (e) {
-      // Provider를 찾을 수 없는 경우 무시
-    }
-  }
-  return Intl.getCurrentLocale().split('_').first;
+  return PlatformDispatcher.instance.locale.languageCode;
 }
 
+/// JSON에서 로케일별 텍스트 가져오기
 String getLocaleTextFromJson(Map<String, dynamic> json) {
-  String locale = getLocaleLanguage();
+  if (json.isEmpty) return '';
 
-  if (json.isEmpty) {
-    return '';
-  }
-
-  if (json.containsKey(locale)) {
-    return json[locale];
-  }
-  return json['en'];
+  final locale = getLocaleLanguage();
+  return json[locale] ?? json['en'] ?? '';
 }

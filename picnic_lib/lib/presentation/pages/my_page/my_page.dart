@@ -16,7 +16,7 @@ import 'package:picnic_lib/presentation/pages/my_page/my_profile.dart';
 import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
-import 'package:picnic_lib/presentation/providers/locale_provider.dart';
+import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
