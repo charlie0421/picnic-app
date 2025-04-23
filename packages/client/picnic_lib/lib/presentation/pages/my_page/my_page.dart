@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -95,6 +97,58 @@ class _MyPageState extends ConsumerState<MyPage> {
                       onTap: () {
                         _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
                       }),
+                  Text(t('label_setting_language'),
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
+                  DropdownButtonFormField(
+                    value: ref.watch(localeStateProvider).languageCode,
+                    icon: SvgPicture.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/arrow_down_style=line.svg'),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: AppColors.grey00, width: 0),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                    ),
+                    dropdownColor: AppColors.grey00,
+                    borderRadius: BorderRadius.circular(8),
+                    items: languageMap.entries.map((entry) {
+                      return DropdownMenuItem(
+                        alignment: Alignment.center,
+                        value: entry.key,
+                        child: Text(
+                          entry.value,
+                          style: ref.watch(localeStateProvider).languageCode ==
+                                  entry.key
+                              ? getTextStyle(AppTypo.body14B, AppColors.grey900)
+                              : getTextStyle(
+                                  AppTypo.body14M, AppColors.grey400),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      logger.d('onChanged: $value');
+                      if (ref.watch(localeStateProvider).languageCode ==
+                          value) {
+                        return;
+                      }
+
+                      final newLocale = Locale(value, countryMap[value]);
+
+                      ref
+                          .read(localeStateProvider.notifier)
+                          .setLocale(newLocale);
+
+                      SnackbarUtil().showSnackbar(
+                          '${languageMap[value]} ${t('language_changed')}');
+                    },
+                  ),
+
                   PicnicListItem(
                       leading: t('label_mypage_setting'),
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
