@@ -429,13 +429,20 @@ export function UserProfileList({
           <Table.Column
             dataIndex='deleted_at'
             title='상태'
-            width={80}
+            width={120}
             sorter={true}
             sortDirections={['ascend', 'descend']}
             render={(deleted_at) => (
-              <Tag color={deleted_at ? 'error' : 'success'}>
-                {deleted_at ? '탈퇴' : '활성'}
-              </Tag>
+              <Space direction="vertical" size={1}>
+                <Tag color={deleted_at ? 'error' : 'success'}>
+                  {deleted_at ? '탈퇴' : '활성'}
+                </Tag>
+                {deleted_at && (
+                  <div style={{ fontSize: '12px', color: '#666' }}>
+                    <DateField value={deleted_at} format='YYYY-MM-DD HH:mm' />
+                  </div>
+                )}
+              </Space>
             )}
           />
         </Table>
