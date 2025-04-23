@@ -13,8 +13,8 @@ part '../../generated/providers/locale_state_provider.g.dart';
 class LocaleState extends _$LocaleState {
   @override
   Locale build() {
-    final deviceLocale = PlatformDispatcher.instance.locale;
-    return _isSupported(deviceLocale) ? deviceLocale : const Locale('ko');
+    // 초기값은 한국어로 설정
+    return const Locale('ko');
   }
 
   bool _isSupported(Locale locale) {
@@ -26,10 +26,54 @@ class LocaleState extends _$LocaleState {
     if (!_isSupported(locale)) return;
 
     try {
-      await PicnicLibL10n.loadTranslations(locale);
+      logger.i('로케일 변경 시도: ${locale.languageCode}');
+
+      // 1. Crowdin 번역 로드
+      logger.i('Crowdin 번역 로드 시작');
+      await Crowdin.loadTranslations(locale);
+      logger.i('Crowdin 번역 로드 완료');
+
+      // 2. 번역이 실제로 로드되었는지 확인
+      final testKeys = ['nav_vote'];
+      bool allTranslationsLoaded = true;
+
+      for (final key in testKeys) {
+        final translation = Crowdin.getText(locale.languageCode, key);
+        logger.i('번역 키 "$key" 검사: ${translation ?? "null"}');
+
+        if (translation == null || translation.isEmpty) {
+          logger.w('번역 키 "$key" 로드 실패');
+          allTranslationsLoaded = false;
+          break;
+        }
+      }
+
+      if (!allTranslationsLoaded) {
+        // 실패 시 기본 번역 사용 시도
+        logger.i('기본 번역 사용 시도');
+        final defaultTranslation = Crowdin.getText('ko', 'nav_vote');
+        if (defaultTranslation != null && defaultTranslation.isNotEmpty) {
+          logger.i('기본 번역 사용 성공');
+          allTranslationsLoaded = true;
+        } else {
+          throw Exception('번역 로드 실패: nav_vote 키를 찾을 수 없음');
+        }
+      }
+
+      // 3. 로컬 스토리지에 언어 설정 저장
+      await globalStorage.saveData('locale', locale.languageCode);
+
+      // 4. 상태 업데이트
       state = locale;
-    } catch (e) {
+
+      logger.i('로케일 변경 성공: ${locale.languageCode}');
+    } catch (e, s) {
+      logger.e('로케일 변경 실패', error: e, stackTrace: s);
       debugPrint('로케일 변경 실패: $e');
+
+      // 실패 시 기본값으로 설정
+      state = const Locale('ko');
+      await globalStorage.saveData('locale', 'ko');
     }
   }
 
@@ -38,55 +82,40 @@ class LocaleState extends _$LocaleState {
     try {
       // 1. 로컬 스토리지에서 저장된 로케일 가져오기
       final languageCode = await globalStorage.loadData('locale', 'ko');
+      logger.i('저장된 로케일: $languageCode');
 
       if (languageCode != null && languageCode.isNotEmpty) {
-        // 저장된 언어 코드가 지원되는 언어인지 확인
         final isSupported = PicnicLibL10n.supportedLocales
             .any((locale) => locale.languageCode == languageCode);
 
         if (isSupported) {
-          // 지원되는 언어면 해당 언어의 기본 국가 코드와 함께 로케일 생성
           final countryCode = countryMap[languageCode] ?? '';
           final savedLocale = Locale(languageCode, countryCode);
-          await _updateLocale(savedLocale);
+          await setLocale(savedLocale);
           return;
         }
       }
 
-      // 2. 저장된 로케일이 없거나 지원되지 않는 경우 디바이스 로케일 사용
+      // 2. 디바이스 로케일 확인
       final deviceLocale = PlatformDispatcher.instance.locale;
-      final isSupported = PicnicLibL10n.supportedLocales
+      logger.i('디바이스 로케일: ${deviceLocale.languageCode}');
+
+      final isDeviceLocaleSupported = PicnicLibL10n.supportedLocales
           .any((locale) => locale.languageCode == deviceLocale.languageCode);
 
-      if (isSupported) {
-        // 디바이스 로케일이 지원되는 언어면 해당 언어의 기본 국가 코드와 함께 로케일 생성
+      if (isDeviceLocaleSupported) {
         final countryCode = countryMap[deviceLocale.languageCode] ?? '';
         final locale = Locale(deviceLocale.languageCode, countryCode);
-        await _updateLocale(locale);
-      } else {
-        // 3. 디바이스 로케일도 지원되지 않는 경우 기본값 사용
-        await _updateLocale(const Locale('ko', 'KR'));
+        await setLocale(locale);
+        return;
       }
+
+      // 3. 기본값 사용
+      logger.i('기본 로케일(한국어) 사용');
+      await setLocale(const Locale('ko', 'KR'));
     } catch (e, s) {
-      logger.e('Error initializing locale', error: e, stackTrace: s);
-      // 오류 발생 시 기본값 사용
-      await _updateLocale(const Locale('ko', 'KR'));
-    }
-  }
-
-  /// 로케일 업데이트 공통 메서드
-  Future<void> _updateLocale(Locale locale) async {
-    try {
-      // Crowdin 번역 로드 (언어 코드만 사용)
-      await Crowdin.loadTranslations(Locale(locale.languageCode));
-      logger.i('Crowdin 번역 로드 성공: ${locale.languageCode}');
-
-      // 상태 업데이트
-      state = locale;
-    } catch (e) {
-      logger.e('Crowdin 번역 로드 실패', error: e);
-      // Crowdin 로드 실패 시에도 상태는 업데이트
-      state = locale;
+      logger.e('로케일 초기화 실패', error: e, stackTrace: s);
+      await setLocale(const Locale('ko', 'KR'));
     }
   }
 }
