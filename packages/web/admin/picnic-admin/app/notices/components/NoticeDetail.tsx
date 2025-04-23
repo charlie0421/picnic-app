@@ -2,6 +2,7 @@ import { Typography, Space, Tag, Descriptions, theme } from 'antd';
 import { DateField } from '@refinedev/antd';
 import { Notice } from '../../../lib/types/notice';
 import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
+import { MultiLanguageDisplay, UUIDDisplay } from '@/components/ui';
 
 const { Title, Text } = Typography;
 
@@ -20,50 +21,39 @@ export const NoticeDetail: React.FC<NoticeDetailProps> = ({ record }) => {
   return (
     <div style={getCardStyle(token)}>
       <Title level={4} style={getTitleStyle(token)}>
-        공지사항 정보
+        공지사항 상세
       </Title>
 
-      <Descriptions bordered column={1}>
-        <Descriptions.Item label='ID'>{record.id}</Descriptions.Item>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <UUIDDisplay uuid={String(record.id)} label="공지사항 ID" />
+      </div>
 
-        <Descriptions.Item label='제목'>
-          <Space>
-            {record.is_pinned && <Tag color='red'>공지</Tag>}
-            {record.title}
-          </Space>
-        </Descriptions.Item>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <Title level={5}>제목</Title>
+        <Text>{record.title}</Text>
+      </div>
 
-        <Descriptions.Item label='내용'>
-          <div dangerouslySetInnerHTML={{ __html: record.content }} />
-        </Descriptions.Item>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <Title level={5}>내용</Title>
+        <Text>{record.content}</Text>
+      </div>
 
-        <Descriptions.Item label='상태'>
-          <Tag
-            color={
-              record.status === 'PUBLISHED'
-                ? 'green'
-                : record.status === 'DRAFT'
-                ? 'gold'
-                : 'default'
-            }
-          >
-            {record.status}
-          </Tag>
-        </Descriptions.Item>
-
-        <Descriptions.Item label='작성자'>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <Title level={5}>작성자</Title>
+        <Text>
           {record.created_by_user?.user_metadata?.name ||
             record.created_by_user?.email ||
-            '-'}
-        </Descriptions.Item>
+            record.created_by}
+        </Text>
+      </div>
 
-        <Descriptions.Item label='생성일/수정일'>
-          <Space direction='vertical'>
-            <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
-            <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
-          </Space>
-        </Descriptions.Item>
-      </Descriptions>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <Title level={5}>생성일/수정일</Title>
+        <Space direction="vertical">
+          <DateField value={record.created_at} format="YYYY-MM-DD HH:mm:ss" />
+          <DateField value={record.updated_at} format="YYYY-MM-DD HH:mm:ss" />
+        </Space>
+      </div>
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { ColorModeContext } from '@/contexts/color-mode';
 import { theme } from 'antd';
 
 interface MultiLanguageDisplayProps {
-  value: Record<LanguageType, string> | undefined;
+  value: Record<LanguageType, string> | string | undefined;
   showFlags?: boolean;
   languages?: LanguageType[];
   style?: React.CSSProperties;
@@ -27,8 +27,13 @@ export const MultiLanguageDisplay: React.FC<MultiLanguageDisplayProps> = ({
   
   if (!value) return <span style={{ color: isDarkMode ? '#ffffff' : token.colorText, ...style }}>-</span>;
 
-  const languagesToDisplay = languages || ['ko', 'en', 'ja', 'zh'] as LanguageType[];
-  const allLanguages = ['ko', 'en', 'ja', 'zh'] as LanguageType[];
+  // 문자열인 경우 한국어로 처리
+  if (typeof value === 'string') {
+    return <span style={{ color: isDarkMode ? '#ffffff' : token.colorText, ...style }}>{value}</span>;
+  }
+
+  const languagesToDisplay = languages || ['ko', 'en', 'ja', 'zh','id'] as LanguageType[];
+  const allLanguages = ['ko', 'en', 'ja', 'zh','id'] as LanguageType[];
   const isFilteredView = languages && languages.length !== allLanguages.length;
 
   // 언어별 국기 이모지 맵핑
@@ -37,6 +42,7 @@ export const MultiLanguageDisplay: React.FC<MultiLanguageDisplayProps> = ({
     en: '🇺🇸',
     ja: '🇯🇵',
     zh: '🇨🇳',
+    id: '🇮🇩',
   };
 
   // 텍스트 스타일 - 다크모드 지원
