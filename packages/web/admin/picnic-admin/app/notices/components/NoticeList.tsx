@@ -1,17 +1,70 @@
 import React from 'react';
-import { Table, Space, Button, Tag } from 'antd';
-import { useNavigation, useDelete } from '@refinedev/core';
-import { EditButton, ShowButton, DeleteButton, DateField } from '@refinedev/antd';
-import { TableProps } from 'antd/es/table';
+import { Space, Tag, message } from 'antd';
+import { useNavigation, useDelete, CrudFilters } from '@refinedev/core';
+import { EditButton, ShowButton, DeleteButton, DateField, List, CreateButton } from '@refinedev/antd';
 import { Notice } from '@/lib/types/notice';
+import { DataTable } from '../../components/common/DataTable';
 
-interface NoticeListProps {
-  tableProps: TableProps<Notice>;
-}
+// UUID 유효성 검사 정규식
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export const NoticeList: React.FC<NoticeListProps> = ({ tableProps }) => {
+export function NoticeList() {
   const { show, edit } = useNavigation();
   const { mutate: deleteMutate } = useDelete();
+
+  const createSearchFilters = (value: string, field: string): CrudFilters => {
+    if (!value) return [];
+
+    if (field === 'all') {
+      const filters: CrudFilters = [];
+
+      filters.push({
+        field: 'title',
+        operator: 'contains',
+        value,
+      });
+
+      // ID가 숫자인 경우에만 ID 검색 추가
+      const numericValue = parseInt(value);
+      if (!isNaN(numericValue)) {
+        filters.push({
+          field: 'id',
+          operator: 'eq',
+          value: numericValue,
+        });
+      }
+
+      return filters;
+    }
+
+    if (field === 'title') {
+      return [
+        {
+          field: 'title',
+          operator: 'contains',
+          value,
+        },
+      ];
+    }
+
+    if (field === 'id') {
+      const numericValue = parseInt(value);
+      if (isNaN(numericValue)) {
+        message.warning('ID는 숫자만 입력 가능합니다.');
+        return [];
+      }
+
+      return [
+        {
+          field: 'id',
+          operator: 'eq',
+          value: numericValue,
+        },
+      ];
+    }
+
+    return [];
+  };
 
   const columns = [
     {
@@ -19,17 +72,17 @@ export const NoticeList: React.FC<NoticeListProps> = ({ tableProps }) => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      sorter: true,
     },
     {
       title: '제목',
       dataIndex: 'title',
       key: 'title',
+      sorter: true,
       render: (value: string, record: Notice) => (
         <Space>
           {record.is_pinned && <Tag color="red">공지</Tag>}
-          <span style={{ cursor: 'pointer' }} onClick={() => show('notices', record.id)}>
-            {value}
-          </span>
+          <span>{value}</span>
         </Space>
       ),
     },
@@ -38,6 +91,7 @@ export const NoticeList: React.FC<NoticeListProps> = ({ tableProps }) => {
       dataIndex: 'status',
       key: 'status',
       width: 120,
+      sorter: true,
       render: (value: string) => {
         let color = 'default';
         if (value === 'PUBLISHED') color = 'green';
@@ -61,6 +115,7 @@ export const NoticeList: React.FC<NoticeListProps> = ({ tableProps }) => {
       dataIndex: 'created_at',
       key: 'created_at',
       width: 160,
+      sorter: true,
       render: (value: string) => <DateField value={value} format="YYYY-MM-DD HH:mm" />,
     },
     {
@@ -82,10 +137,14 @@ export const NoticeList: React.FC<NoticeListProps> = ({ tableProps }) => {
   ];
 
   return (
-    <Table
-      {...tableProps}
-      rowKey="id"
-      columns={columns}
-    />
+      <DataTable<Notice>
+        resource='notices'
+        columns={columns}
+        searchFields={[
+          { value: 'title', label: '제목' },
+          { value: 'id', label: 'ID' },
+        ]}
+        createSearchFilters={createSearchFilters}
+      />
   );
-}; 
+} 

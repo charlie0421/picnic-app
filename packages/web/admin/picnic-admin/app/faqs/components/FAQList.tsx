@@ -1,22 +1,77 @@
 import React from 'react';
-import { Table, Space, Button, Tag } from 'antd';
-import { useNavigation, useDelete } from '@refinedev/core';
+import { Space, Tag, message } from 'antd';
+import { useNavigation, useDelete, CrudFilters } from '@refinedev/core';
 import {
   EditButton,
   ShowButton,
   DeleteButton,
   DateField,
+  List,
+  CreateButton,
 } from '@refinedev/antd';
-import { TableProps } from 'antd/es/table';
 import { FAQ, convertToDisplayFAQ } from '@/lib/types/faq';
+import { DataTable } from '../../components/common/DataTable';
 
-interface FAQListProps {
-  tableProps: TableProps<FAQ>;
-}
+// UUID 유효성 검사 정규식
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
+export function FAQList() {
   const { show, edit } = useNavigation();
   const { mutate: deleteMutate } = useDelete();
+
+  const createSearchFilters = (value: string, field: string): CrudFilters => {
+    if (!value) return [];
+
+    if (field === 'all') {
+      const filters: CrudFilters = [];
+
+      filters.push({
+        field: 'question->>ko',
+        operator: 'contains',
+        value,
+      });
+
+      // ID가 숫자인 경우에만 ID 검색 추가
+      const numericValue = parseInt(value);
+      if (!isNaN(numericValue)) {
+        filters.push({
+          field: 'id',
+          operator: 'eq',
+          value: numericValue,
+        });
+      }
+
+      return filters;
+    }
+
+    if (field === 'question') {
+      return [
+        {
+          field: 'question->>ko',
+          operator: 'contains',
+          value,
+        },
+      ];
+    }
+
+    if (field === 'id') {
+      const numericValue = parseInt(value);
+      if (isNaN(numericValue)) {
+        message.warning('ID는 숫자만 입력 가능합니다.');
+        return [];
+      }
+
+      return [
+        {
+          field: 'id',
+          operator: 'eq',
+          value: numericValue,
+        },
+      ];
+    }
+
+    return [];
+  };
 
   const columns = [
     {
@@ -24,25 +79,21 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      sorter: true,
     },
     {
       title: '질문',
       key: 'question',
-      render: (record: FAQ) => {
+      dataIndex: ['question', 'ko'],
+      sorter: true,
+      render: (value: string, record: FAQ) => {
         // 한국어 질문 표시
         const displayText =
           typeof record.question === 'string'
             ? record.question
             : record.question?.ko || '';
 
-        return (
-          <span
-            style={{ cursor: 'pointer' }}
-            onClick={() => show('faqs', record.id)}
-          >
-            {displayText}
-          </span>
-        );
+        return displayText;
       },
     },
     {
@@ -50,6 +101,7 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
       dataIndex: 'category',
       key: 'category',
       width: 120,
+      sorter: true,
       render: (value: string) => value || '-',
     },
     {
@@ -57,6 +109,7 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
       dataIndex: 'status',
       key: 'status',
       width: 120,
+      sorter: true,
       render: (value: string) => {
         let color = 'default';
         if (value === 'PUBLISHED') color = 'green';
@@ -71,6 +124,7 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
       dataIndex: 'order_number',
       key: 'order_number',
       width: 80,
+      sorter: true,
     },
     {
       title: '작성자',
@@ -98,5 +152,15 @@ export const FAQList: React.FC<FAQListProps> = ({ tableProps }) => {
     },
   ];
 
-  return <Table {...tableProps} rowKey='id' columns={columns} />;
-};
+  return (
+      <DataTable<FAQ>
+        resource='faqs'
+        columns={columns}
+        searchFields={[
+          { value: 'question', label: '질문' },
+          { value: 'id', label: 'ID' },
+        ]}
+        createSearchFilters={createSearchFilters}
+      />
+  );
+}

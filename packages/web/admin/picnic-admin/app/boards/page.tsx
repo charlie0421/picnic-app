@@ -130,16 +130,6 @@ export default function BoardListPage() {
         headerButtons={<CreateButton />}
         title={resource?.meta?.list?.label || '게시판 목록'}
       >
-        <Space style={{ marginBottom: 16 }}>
-          <Input.Search
-            placeholder='게시판 검색'
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            allowClear
-            defaultValue={initialSearchTerm}
-          />
-        </Space>
-
         <BoardList tableProps={tableProps} />
       </List>
     </AuthorizePage>

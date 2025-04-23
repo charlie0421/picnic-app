@@ -129,16 +129,6 @@ export default function NoticeListPage() {
         headerButtons={<CreateButton />}
         title={resource?.meta?.list?.label || '공지사항'}
       >
-        <Space style={{ marginBottom: 16 }}>
-          <Input.Search
-            placeholder='공지사항 검색'
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            allowClear
-            defaultValue={initialSearchTerm}
-          />
-        </Space>
-
         <NoticeList tableProps={tableProps} />
       </List>
     </AuthorizePage>

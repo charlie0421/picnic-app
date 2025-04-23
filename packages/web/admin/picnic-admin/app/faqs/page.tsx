@@ -204,30 +204,6 @@ export default function FAQListPage() {
         headerButtons={<CreateButton />}
         title={resource?.meta?.list?.label || 'FAQ'}
       >
-        <Space style={{ marginBottom: 16 }}>
-          <Input.Search
-            placeholder='FAQ 검색'
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-            allowClear
-            defaultValue={initialSearchTerm}
-          />
-
-          <Select
-            placeholder='카테고리 선택'
-            style={{ width: 150 }}
-            value={category}
-            onChange={handleCategoryChange}
-            allowClear
-          >
-            {categoryOptions.map((option) => (
-              <Option key={option.value} value={option.value}>
-                {option.label}
-              </Option>
-            ))}
-          </Select>
-        </Space>
-
         <FAQList tableProps={tableProps} />
       </List>
     </AuthorizePage>
