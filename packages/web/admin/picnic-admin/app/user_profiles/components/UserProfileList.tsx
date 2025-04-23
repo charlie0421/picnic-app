@@ -241,21 +241,26 @@ export function UserProfileList({
 
   // 테이블 변경 핸들러
   const handleTableChange = (pagination: any, filters: any, sorter: any, extra: any) => {
+    // 정렬 변경 시 페이지를 1로 설정
+    const newPagination = extra.action === 'sort' 
+      ? { ...pagination, current: 1 }
+      : pagination;
+
     if (tableProps.onChange) {
-      tableProps.onChange(pagination, filters, sorter, extra);
+      tableProps.onChange(newPagination, filters, sorter, extra);
     }
 
     const params = new URLSearchParams(searchParams.toString());
     
     // 페이지네이션 정보 업데이트
-    if (pagination.current !== 1) {
-      params.set('current', pagination.current.toString());
+    if (newPagination.current !== 1) {
+      params.set('current', newPagination.current.toString());
     } else {
       params.delete('current');
     }
     
-    if (pagination.pageSize !== 10) {
-      params.set('pageSize', pagination.pageSize.toString());
+    if (newPagination.pageSize !== 10) {
+      params.set('pageSize', newPagination.pageSize.toString());
     } else {
       params.delete('pageSize');
     }
