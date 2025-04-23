@@ -9,7 +9,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/enums.dart';
-import 'package:picnic_lib/l10n_setup.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
@@ -17,7 +16,7 @@ import 'package:picnic_lib/presentation/pages/oauth_callback_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
-import 'package:picnic_lib/presentation/providers/locale_provider.dart';
+import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
 import 'package:picnic_lib/presentation/providers/update_checker.dart';
@@ -40,6 +39,7 @@ import 'package:ttja_app/bottom_navigation_menu.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
+import 'package:picnic_lib/l10n.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
