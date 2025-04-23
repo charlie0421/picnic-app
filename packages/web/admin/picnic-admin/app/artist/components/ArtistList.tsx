@@ -8,7 +8,8 @@ import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { getCdnImageUrl } from '@/lib/image';
 import { MultiLanguageDisplay } from '@/components/ui';
 import { Artist } from '@/lib/types/artist';
-import { genderOptions, UserGender } from '@/lib/types/user_profiles';
+import { genderOptions } from '@/lib/types/user_profiles';
+import { supabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function ArtistList() {
   const searchParams = useSearchParams();
@@ -19,10 +20,12 @@ export default function ArtistList() {
   const urlSearch = searchParams.get('search') || '';
   
   const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
+  const [searchQuery, setSearchQuery] = useState<string>(urlSearch);
+  const [searchResults, setSearchResults] = useState<Artist[]>([]);
   const { show } = useNavigation();
   const { resource } = useResource();
 
-  const { tableProps } = useTable<Artist>({
+  const { tableProps, tableQueryResult } = useTable<Artist>({
     resource: 'artist',
     syncWithLocation: true,
     sorters: {
@@ -34,12 +37,7 @@ export default function ArtistList() {
       ],
     },
     meta: {
-      search: searchTerm
-        ? {
-            query: searchTerm,
-            fields: ['name.ko', 'name.en', 'name.ja', 'name.zh'],
-          }
-        : undefined,
+      select: '*',
     },
   });
 
@@ -56,19 +54,56 @@ export default function ArtistList() {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // 컴포넌트 마운트 시 URL에서 검색어 복원
-  useEffect(() => {
-    if (urlSearch) {
-      setSearchTerm(urlSearch);
+  // 검색어 입력 시
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // 검색 실행
+  const handleSearch = async (value: string) => {
+    const trimmedValue = value.trim();
+    setSearchQuery(trimmedValue);
+    updateUrlParams(trimmedValue);
+
+    if (trimmedValue) {
+      const { data, error } = await supabaseBrowserClient
+        .from('artist')
+        .select('*')
+        .or(
+          `name->>ko.ilike.%${trimmedValue}%,` +
+          `name->>en.ilike.%${trimmedValue}%,` +
+          `name->>ja.ilike.%${trimmedValue}%,` +
+          `name->>zh.ilike.%${trimmedValue}%`
+        )
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setSearchResults(data);
+      }
+    } else {
+      tableQueryResult.refetch();
+      setSearchResults([]);
     }
+  };
+
+  // URL 검색 파라미터가 변경될 때마다 검색어 상태 업데이트
+  useEffect(() => {
+    setSearchTerm(urlSearch);
+    setSearchQuery(urlSearch);
+    handleSearch(urlSearch);
   }, [urlSearch]);
+
+  const finalTableProps = {
+    ...tableProps,
+    dataSource: searchQuery ? searchResults : tableProps.dataSource,
+  };
 
   // 아티스트 그룹 정보 가져오기
   const { data: groupsData, isLoading: groupsIsLoading } = useMany({
     resource: 'artist_group',
     ids:
       (tableProps?.dataSource
-        ?.map((item) => {
+        ?.map((item: Artist) => {
           const groupId = item?.artist_group_id;
           return groupId ? String(groupId) : undefined;
         })
@@ -77,11 +112,6 @@ export default function ArtistList() {
       enabled: !!tableProps?.dataSource?.length,
     },
   });
-
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    updateUrlParams(value);
-  };
 
   return (
     <List
@@ -93,14 +123,15 @@ export default function ArtistList() {
         <Input.Search
           placeholder='아티스트 이름 검색'
           onSearch={handleSearch}
-          defaultValue={searchTerm}
+          value={searchTerm}
+          onChange={handleSearchChange}
           style={{ width: 300, maxWidth: '100%' }}
           allowClear
         />
       </Space>
       <div style={{ width: '100%', overflowX: 'auto' }}>
         <Table
-          {...tableProps}
+          {...finalTableProps}
           rowKey='id'
           scroll={{ x: 'max-content' }}
           onRow={(record) => ({
@@ -108,7 +139,7 @@ export default function ArtistList() {
             onClick: () => show('artist', record.id),
           })}
           pagination={{
-            ...tableProps.pagination,
+            ...finalTableProps.pagination,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
             showTotal: (total) => `총 ${total}개 항목`,
