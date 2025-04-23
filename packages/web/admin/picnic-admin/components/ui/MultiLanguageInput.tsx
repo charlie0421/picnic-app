@@ -3,7 +3,7 @@
 import { Form, Input } from 'antd';
 import React from 'react';
 
-export type LanguageType = 'ko' | 'en' | 'ja' | 'zh';
+export type LanguageType = 'ko' | 'en' | 'ja' | 'zh' | 'id';
 
 interface MultiLanguageInputProps {
   name: string;
@@ -14,6 +14,7 @@ interface MultiLanguageInputProps {
     en?: string;
     ja?: string;
     zh?: string;
+    id?: string;
   };
 }
 
