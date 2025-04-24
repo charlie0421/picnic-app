@@ -4,6 +4,7 @@ import { convertToDisplayFAQ, FAQ } from '../../../lib/types/faq';
 import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
 import { SupportedLocale, supportedLocales } from '@/lib/utils/translation';
 import { useState } from 'react';
+import { MultiLanguageDisplay, UUIDDisplay } from '@/components/ui';
 
 const { Title, Text } = Typography;
 
@@ -52,45 +53,32 @@ export const FAQDetail: React.FC<FAQDetailProps> = ({ record }) => {
   }));
 
   return (
-    <div>
-      <Descriptions bordered column={1} style={{ marginBottom: 24 }}>
-        <Descriptions.Item label='ID'>{record.id}</Descriptions.Item>
+    <div style={getCardStyle(token)}>
+      <Title level={4} style={getTitleStyle(token)}>
+        FAQ 상세
+      </Title>
 
-        <Descriptions.Item label='카테고리'>
-          {record.category || '-'}
-        </Descriptions.Item>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <UUIDDisplay uuid={String(record.id)} label="FAQ ID" />
+      </div>
 
-        <Descriptions.Item label='상태'>
-          <Tag
-            color={
-              record.status === 'PUBLISHED'
-                ? 'green'
-                : record.status === 'DRAFT'
-                ? 'gold'
-                : 'default'
-            }
-          >
-            {record.status}
-          </Tag>
-        </Descriptions.Item>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <Title level={5}>질문</Title>
+        <MultiLanguageDisplay value={record.question} />
+      </div>
 
-        <Descriptions.Item label='정렬 순서'>
-          {record.order_number}
-        </Descriptions.Item>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <Title level={5}>답변</Title>
+        <MultiLanguageDisplay value={record.answer} />
+      </div>
 
-        <Descriptions.Item label='작성자'>
-          {record.created_by_user?.user_metadata?.name ||
-            record.created_by_user?.email ||
-            '-'}
-        </Descriptions.Item>
-
-        <Descriptions.Item label='생성일/수정일'>
-          <Space direction='vertical'>
-            <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
-            <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
-          </Space>
-        </Descriptions.Item>
-      </Descriptions>
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <Title level={5}>생성일/수정일</Title>
+        <Space direction="vertical">
+          <DateField value={record.created_at} format="YYYY-MM-DD HH:mm:ss" />
+          <DateField value={record.updated_at} format="YYYY-MM-DD HH:mm:ss" />
+        </Space>
+      </div>
 
       <Title level={5}>언어별 내용</Title>
       <Tabs

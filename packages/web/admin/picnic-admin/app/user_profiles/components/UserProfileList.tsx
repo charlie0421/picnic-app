@@ -1,20 +1,12 @@
 'use client';
 
-import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
-import {
-  Table,
-  Space,
-  Input,
-  Tag,
-  Avatar,
-  Switch,
-  Select,
-  message,
-} from 'antd';
+import { CreateButton, DateField, List } from '@refinedev/antd';
+import { Space, Tag, Avatar, Switch, message } from 'antd';
+import type { SortOrder } from 'antd/es/table/interface';
+import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
 import { useNavigation, CrudFilters } from '@refinedev/core';
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { UserProfile } from '../../../lib/types/user_profiles';
+import { DataTable } from '../../components/common/DataTable';
 
 // UUID 유효성 검사 정규식
 const UUID_REGEX =
@@ -27,564 +19,197 @@ interface UserProfileListProps {
 export function UserProfileList({
   resource = 'user_profiles',
 }: UserProfileListProps) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
   const { show } = useNavigation();
 
-  // URL에서 파라미터 가져오기
-  const urlSearch = searchParams.get('search') || '';
-  const urlField = searchParams.get('field') || 'all';
-
-  // URL에서 페이지네이션 및 정렬 정보 가져오기
-  const urlCurrent = searchParams.get('current')
-    ? Number(searchParams.get('current'))
-    : 1;
-  const urlPageSize = searchParams.get('pageSize')
-    ? Number(searchParams.get('pageSize'))
-    : 10;
-  const urlSortField =
-    searchParams.get('sorters[0][field]') || searchParams.get('sort');
-  const urlSortOrder = (searchParams.get('sorters[0][order]') ||
-    searchParams.get('order')) as 'asc' | 'desc';
-  const initialSorters =
-    urlSortField && urlSortOrder
-      ? [{ field: urlSortField, order: urlSortOrder }]
-      : [{ field: 'created_at', order: 'desc' as const }];
-
-  // 초기 마운트 여부를 추적하는 ref
-  const initialMountRef = useRef(true);
-
-  const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
-  const [localSearchTerm, setLocalSearchTerm] = useState<string>(urlSearch);
-  const [searchField, setSearchField] = useState<string>(urlField);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
-
-  // URL 파라미터 업데이트 (검색 상태를 초기화하지 않도록 개선)
-  const updateUrlParams = useCallback(
-    (params: {
-      search?: string;
-      field?: string;
-      current?: number;
-      pageSize?: number;
-      sort?: string;
-      order?: string;
-    }) => {
-      const urlParams = new URLSearchParams(searchParams.toString());
-
-      // 검색어 업데이트
-      if (params.search !== undefined) {
-        if (!params.search) {
-          urlParams.delete('search');
-        } else {
-          urlParams.set('search', params.search);
-        }
-      }
-
-      // 검색 필드 업데이트
-      if (params.field !== undefined) {
-        if (params.field === 'all') {
-          urlParams.delete('field');
-        } else {
-          urlParams.set('field', params.field);
-        }
-      }
-
-      // 현재 페이지 업데이트
-      if (params.current !== undefined) {
-        if (params.current === 1) {
-          urlParams.delete('current');
-        } else {
-          urlParams.set('current', params.current.toString());
-        }
-      }
-
-      // 페이지 크기 업데이트
-      if (params.pageSize !== undefined) {
-        if (params.pageSize === 10) {
-          urlParams.delete('pageSize');
-        } else {
-          urlParams.set('pageSize', params.pageSize.toString());
-        }
-      }
-
-      // 정렬 필드 업데이트
-      if (params.sort !== undefined) {
-        if (!params.sort) {
-          urlParams.delete('sorters[0][field]');
-          urlParams.delete('sort'); // 이전 형식 파라미터도 삭제
-        } else {
-          urlParams.set('sorters[0][field]', params.sort);
-          urlParams.delete('sort'); // 이전 형식 파라미터 삭제
-        }
-      }
-
-      // 정렬 순서 업데이트
-      if (params.order !== undefined) {
-        if (!params.order) {
-          urlParams.delete('sorters[0][order]');
-          urlParams.delete('order'); // 이전 형식 파라미터도 삭제
-        } else {
-          urlParams.set('sorters[0][order]', params.order);
-          urlParams.delete('order'); // 이전 형식 파라미터 삭제
-        }
-      }
-
-      router.push(`${pathname}?${urlParams.toString()}`, {
-        scroll: false,
-      });
-    },
-    [searchParams, pathname, router],
-  );
-
   // 검색 필터 생성 함수
-  const createSearchFilters = useCallback(
-    (value: string, field: string): CrudFilters => {
-      const filters: CrudFilters = [];
+  const createSearchFilters = (value: string, field: string): CrudFilters => {
+    const filters: CrudFilters = [];
 
-      if (!value) return [];
+    if (!value) return [];
 
-      if (field === 'all') {
-        return [
-          {
-            operator: 'or',
-            value: [
-              {
-                field: 'nickname',
-                operator: 'contains',
-                value,
-              },
-              {
-                field: 'email',
-                operator: 'contains',
-                value,
-              },
-            ],
-          },
-        ];
-      }
-
-      if (field === 'nickname') {
-        filters.push({
-          field: 'nickname',
-          operator: 'contains',
-          value,
-        });
-      }
-
-      if (field === 'email') {
-        filters.push({
-          field: 'email',
-          operator: 'contains',
-          value,
-        });
-      }
-
-      if (field === 'id') {
-        // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
-        if (UUID_REGEX.test(value)) {
-          filters.push({
-            field: 'id',
-            operator: 'eq',
-            value,
-          });
-        } else if (value) {
-          // 유효하지 않은 UUID 형식이면 메시지만 표시하고 빈 필터 반환
-          message.warning(
-            'UUID 형식이 올바르지 않습니다. 예: 123e4567-e89b-12d3-a456-426614174000',
-          );
-          return [];
-        }
-      }
-
-      return filters;
-    },
-    [],
-  );
-
-  // Refine useTable 훅 사용
-  const { tableProps, setFilters, sorters, setSorters } = useTable<UserProfile>({
-    resource,
-    syncWithLocation: true,
-    sorters: {
-      initial: initialSorters,
-      mode: 'server',
-    },
-    pagination: {
-      mode: 'server',
-      current: Number(searchParams.get('current')) || 1,
-      pageSize: Number(searchParams.get('pageSize')) || 10,
-    },
-    filters: {
-      mode: 'server',
-      initial: createSearchFilters(urlSearch, urlField),
-    },
-    meta: {
-      fields: (() => {
-        if (searchField === 'all') return ['nickname', 'email'];
-        if (searchField === 'id') return ['id'];
-        return [searchField];
-      })(),
-      operators: [
+    if (field === 'all') {
+      return [
         {
-          kind: 'contains',
-          operator: 'ilike',
-          value: `%:value%`,
-        },
-        {
-          kind: 'eq',
-          operator: 'eq',
-          value: `:value`,
-        },
-        {
-          kind: 'or',
           operator: 'or',
+          value: [
+            {
+              field: 'nickname',
+              operator: 'contains',
+              value,
+            },
+            {
+              field: 'email',
+              operator: 'contains',
+              value,
+            },
+          ],
         },
-      ],
-    },
-  });
-
-  // 검색어 입력 핸들러 - 로컬 상태만 업데이트
-  const handleSearchInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setLocalSearchTerm(value);
-    },
-    [],
-  );
-
-  // 검색 실행 함수
-  const executeSearch = useCallback(
-    (value: string) => {
-      setIsSearching(true);
-      setSearchTerm(value);
-      updateUrlParams({ search: value });
-
-      const filters = createSearchFilters(value, searchField);
-      if (filters.length > 0) {
-        setFilters(filters, 'replace');
-      } else if (!value) {
-        // 검색어가 비어있으면 필터 초기화
-        setFilters([], 'replace');
-      }
-
-      setIsSearching(false);
-    },
-    [searchField, setFilters, updateUrlParams, createSearchFilters],
-  );
-
-  // 검색 버튼 클릭 핸들러
-  const handleSearch = useCallback(
-    (value: string) => {
-      executeSearch(value);
-    },
-    [executeSearch],
-  );
-
-  const handleFieldChange = useCallback(
-    (value: string) => {
-      setSearchField(value);
-      updateUrlParams({ field: value });
-
-      if (searchTerm) {
-        // 검색 필드가 변경되면 현재 검색어로 검색 다시 실행
-        executeSearch(searchTerm);
-      }
-    },
-    [searchTerm, updateUrlParams, executeSearch],
-  );
-
-  // 컴포넌트 마운트 시와 URL 파라미터 변경 시 상태 초기화
-  useEffect(() => {
-    if (initialMountRef.current) {
-      // 첫 마운트 시에만 실행
-      initialMountRef.current = false;
-
-      // URL 파라미터에서 값을 가져와 초기 필터 설정
-      if (urlSearch) {
-        const initialFilters = createSearchFilters(urlSearch, urlField);
-        if (initialFilters.length > 0) {
-          setFilters(initialFilters, 'replace');
-        }
-      }
-
-      // URL에서 정렬 정보 가져와서 상태 설정
-      if (urlSortField && urlSortOrder) {
-        setSorters([{ field: urlSortField, order: urlSortOrder }]);
-      }
-
-      return;
+      ];
     }
 
-    // URL 파라미터에서 값을 가져와 컴포넌트 상태 설정
-    // 검색중이 아닐 때만 URL 변경에 따라 상태 업데이트
-    if (!isSearching) {
-      const currentUrlSearch = searchParams.get('search') || '';
-      const currentUrlField = searchParams.get('field') || 'all';
-      const currentSortField =
-        searchParams.get('sorters[0][field]') || searchParams.get('sort');
-      const currentSortOrder = (searchParams.get('sorters[0][order]') ||
-        searchParams.get('order')) as 'asc' | 'desc';
-
-      // 상태가 실제로 변경될 때만 업데이트
-      if (currentUrlSearch !== searchTerm) {
-        setSearchTerm(currentUrlSearch);
-        setLocalSearchTerm(currentUrlSearch);
-      }
-
-      if (currentUrlField !== searchField) {
-        setSearchField(currentUrlField);
-      }
-
-      // 정렬 상태 업데이트
-      if (currentSortField && currentSortOrder) {
-        setSorters([{ field: currentSortField, order: currentSortOrder }]);
-      }
-
-      // URL 파라미터에 검색어가 있을 때만 필터 적용
-      if (
-        currentUrlSearch &&
-        (currentUrlSearch !== searchTerm || currentUrlField !== searchField)
-      ) {
-        const filters = createSearchFilters(currentUrlSearch, currentUrlField);
-        if (filters.length > 0) {
-          setFilters(filters, 'replace');
-        }
-      } else if (!currentUrlSearch && searchTerm) {
-        // URL 파라미터에서 검색어가 제거되었으면 필터도 초기화
-        setFilters([], 'replace');
-      }
-    }
-  }, [
-    searchParams,
-    setFilters,
-    createSearchFilters,
-    urlSearch,
-    urlField,
-    searchTerm,
-    searchField,
-    isSearching,
-    urlSortField,
-    urlSortOrder,
-    setSorters,
-  ]);
-
-  // URL 파라미터 업데이트
-  useEffect(() => {
-    if (initialMountRef.current) {
-      initialMountRef.current = false;
-      return;
+    if (field === 'nickname') {
+      filters.push({
+        field: 'nickname',
+        operator: 'contains',
+        value,
+      });
     }
 
-    const params = new URLSearchParams(searchParams.toString());
-
-    // 검색어 업데이트
-    if (searchTerm) {
-      params.set('search', searchTerm);
-    } else {
-      params.delete('search');
+    if (field === 'email') {
+      filters.push({
+        field: 'email',
+        operator: 'contains',
+        value,
+      });
     }
 
-    // 검색 필드 업데이트
-    if (searchField && searchField !== 'all') {
-      params.set('field', searchField);
-    } else {
-      params.delete('field');
-    }
-
-    // 페이지네이션 정보 업데이트
-    if (tableProps.pagination && typeof tableProps.pagination !== 'boolean') {
-      const { current, pageSize } = tableProps.pagination;
-      if (current && current !== 1) {
-        params.set('current', current.toString());
-      } else {
-        params.delete('current');
-      }
-
-      if (pageSize && pageSize !== 10) {
-        params.set('pageSize', pageSize.toString());
-      } else {
-        params.delete('pageSize');
+    if (field === 'id') {
+      // UUID 타입에는 contains 연산자를 사용하지 않고 정확한 값 비교
+      if (UUID_REGEX.test(value)) {
+        filters.push({
+          field: 'id',
+          operator: 'eq',
+          value,
+        });
+      } else if (value) {
+        // 유효하지 않은 UUID 형식이면 메시지만 표시하고 빈 필터 반환
+        message.warning(
+          'UUID 형식이 올바르지 않습니다. 예: 123e4567-e89b-12d3-a456-426614174000',
+        );
+        return [];
       }
     }
 
-    // 정렬 정보 업데이트
-    if (sorters && sorters.length > 0) {
-      params.set('sorters[0][field]', sorters[0].field as string);
-      params.set('sorters[0][order]', sorters[0].order as string);
-    } else {
-      params.delete('sorters[0][field]');
-      params.delete('sorters[0][order]');
-    }
-
-    const newUrl = `${pathname}?${params.toString()}`;
-    router.push(newUrl);
-  }, [searchTerm, searchField, tableProps.pagination, sorters, pathname, router, searchParams]);
-
-  // 행 클릭 핸들러 추가
-  const handleRowClick = (record: UserProfile) => {
-    show('user_profiles', record.id);
+    return filters;
   };
+
+  const columns = [
+    {
+      dataIndex: 'id',
+      title: 'ID',
+      width: 80,
+      ellipsis: true,
+      render: (value: string) => value && value.substring(0, 8) + '...',
+      sorter: true,
+      sortDirections: ['ascend', 'descend'] as SortOrder[],
+    },
+    {
+      dataIndex: 'avatar_url',
+      title: '프로필',
+      width: 160,
+      render: (avatar_url: string, record: UserProfile) => (
+        <Space>
+          <Avatar src={avatar_url} size='small' />
+          <div>
+            <div>{record.nickname || '-'}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>
+              {record.email || '-'}
+            </div>
+          </div>
+        </Space>
+      ),
+    },
+    {
+      dataIndex: 'star_candy',
+      title: '스타캔디',
+      sorter: true,
+      sortDirections: ['ascend', 'descend'] as SortOrder[],
+      width: 120,
+      responsive: ['sm' as Breakpoint],
+      render: (star_candy: number, record: UserProfile) => (
+        <Space>
+          <span>{star_candy}</span>
+          {record.star_candy_bonus > 0 && (
+            <Tag color='green'>+{record.star_candy_bonus}</Tag>
+          )}
+        </Space>
+      ),
+    },
+    {
+      dataIndex: 'gender',
+      title: '성별/나이 공개',
+      responsive: ['md' as Breakpoint],
+      sorter: true,
+      sortDirections: ['ascend', 'descend'] as SortOrder[],
+      render: (gender: string, record: UserProfile) => (
+        <Space>
+          <Tag color={gender ? 'blue' : 'default'}>
+            {gender || '미설정'}
+          </Tag>
+          <Space direction='vertical' size={2}>
+            <span>
+              성별 공개:{' '}
+              <Switch
+                size='small'
+                disabled
+                checked={record.open_gender}
+              />
+            </span>
+            <span>
+              나이 공개:{' '}
+              <Switch size='small' disabled checked={record.open_ages} />
+            </span>
+          </Space>
+        </Space>
+      ),
+    },
+    {
+      dataIndex: 'is_admin',
+      title: '관리자',
+      width: 80,
+      responsive: ['lg' as Breakpoint],
+      sorter: true,
+      sortDirections: ['ascend', 'descend'] as SortOrder[],
+      render: (is_admin: boolean) => (
+        <Tag color={is_admin ? 'red' : 'default'}>
+          {is_admin ? '관리자' : '일반'}
+        </Tag>
+      ),
+    },
+    {
+      dataIndex: 'created_at',
+      title: '가입일',
+      sorter: true,
+      sortDirections: ['ascend', 'descend'] as SortOrder[],
+      width: 120,
+      responsive: ['lg' as Breakpoint],
+      render: (created_at: string) => (
+        <DateField value={created_at} format='YYYY-MM-DD' />
+      ),
+    },
+    {
+      dataIndex: 'deleted_at',
+      title: '상태',
+      width: 120,
+      sorter: true,
+      sortDirections: ['ascend', 'descend'] as SortOrder[],
+      render: (deleted_at: string) => (
+        <Space direction="vertical" size={1}>
+          <Tag color={deleted_at ? 'error' : 'success'}>
+            {deleted_at ? '탈퇴' : '활성'}
+          </Tag>
+          {deleted_at && (
+            <div style={{ fontSize: '12px', color: '#666' }}>
+              <DateField value={deleted_at} format='YYYY-MM-DD HH:mm' />
+            </div>
+          )}
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <List breadcrumb={false} headerButtons={<CreateButton />} title='유저관리'>
-      <Space style={{ marginBottom: 16 }}>
-        <Select
-          value={searchField}
-          style={{ width: 120, maxWidth: '100%' }}
-          onChange={handleFieldChange}
-          options={[
-            { value: 'all', label: '전체' },
-            { value: 'nickname', label: '닉네임' },
-            { value: 'email', label: '이메일' },
-            { value: 'id', label: 'ID' },
-          ]}
-        />
-        <Input.Search
-          placeholder='검색어를 입력하세요'
-          onSearch={handleSearch}
-          style={{ width: 300, maxWidth: '100%' }}
-          allowClear
-          value={localSearchTerm}
-          onChange={handleSearchInputChange}
-        />
-      </Space>
-
-      <div style={{ width: '100%', overflowX: 'auto' }}>
-        <Table
-          {...tableProps}
-          rowKey='id'
-          scroll={{ x: 'max-content' }}
-          onRow={(record) => ({
-            onClick: () => handleRowClick(record),
-            style: { cursor: 'pointer' }
-          })}
-          pagination={{
-            ...tableProps.pagination,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50'],
-            showTotal: (total) => `총 ${total}개 항목`,
-          }}
-          size='small'
-          onChange={(pagination, filters, sorter, extra) => {
-            if (tableProps.onChange) {
-              tableProps.onChange(pagination, filters, sorter, extra);
-            }
-          }}
-        >
-          <Table.Column
-            dataIndex='id'
-            title='ID'
-            width={80}
-            ellipsis={true}
-            render={(value) => value && value.substring(0, 8) + '...'}
-            sorter={true}
-            sortDirections={['ascend', 'descend']}
-          />
-
-          <Table.Column
-            dataIndex='avatar_url'
-            title='프로필'
-            width={160}
-            render={(avatar_url, record: UserProfile) => (
-              <Space>
-                <Avatar src={avatar_url} size='small' />
-                <div>
-                  <div>{record.nickname || '-'}</div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>
-                    {record.email || '-'}
-                  </div>
-                </div>
-              </Space>
-            )}
-          />
-
-          <Table.Column
-            dataIndex='star_candy'
-            title='스타캔디'
-            sorter={true}
-            sortDirections={['ascend', 'descend']}
-            width={120}
-            responsive={['sm']}
-            render={(star_candy, record: UserProfile) => (
-              <Space>
-                <span>{star_candy}</span>
-                {record.star_candy_bonus > 0 && (
-                  <Tag color='green'>+{record.star_candy_bonus}</Tag>
-                )}
-              </Space>
-            )}
-          />
-
-          <Table.Column
-            dataIndex='gender'
-            title='성별/나이 공개'
-            responsive={['md']}
-            sorter={true}
-            sortDirections={['ascend', 'descend']}
-            render={(gender, record: UserProfile) => (
-              <Space>
-                <Tag color={gender ? 'blue' : 'default'}>
-                  {gender || '미설정'}
-                </Tag>
-                <Space direction='vertical' size={2}>
-                  <span>
-                    성별 공개:{' '}
-                    <Switch
-                      size='small'
-                      disabled
-                      checked={record.open_gender}
-                    />
-                  </span>
-                  <span>
-                    나이 공개:{' '}
-                    <Switch size='small' disabled checked={record.open_ages} />
-                  </span>
-                </Space>
-              </Space>
-            )}
-          />
-
-          <Table.Column
-            dataIndex='is_admin'
-            title='관리자'
-            width={80}
-            responsive={['lg']}
-            sorter={true}
-            sortDirections={['ascend', 'descend']}
-            render={(is_admin) => (
-              <Tag color={is_admin ? 'red' : 'default'}>
-                {is_admin ? '관리자' : '일반'}
-              </Tag>
-            )}
-          />
-
-          <Table.Column
-            dataIndex='created_at'
-            title='가입일'
-            sorter={true}
-            sortDirections={['ascend', 'descend']}
-            width={120}
-            responsive={['lg']}
-            render={(created_at) => (
-              <DateField value={created_at} format='YYYY-MM-DD' />
-            )}
-          />
-
-          <Table.Column
-            dataIndex='deleted_at'
-            title='상태'
-            width={80}
-            sorter={true}
-            sortDirections={['ascend', 'descend']}
-            render={(deleted_at) => (
-              <Tag color={deleted_at ? 'error' : 'success'}>
-                {deleted_at ? '탈퇴' : '활성'}
-              </Tag>
-            )}
-          />
-        </Table>
-      </div>
+      <DataTable<UserProfile>
+        resource={resource}
+        columns={columns}
+        searchFields={[
+          { value: 'nickname', label: '닉네임' },
+          { value: 'email', label: '이메일' },
+          { value: 'id', label: 'ID' },
+        ]}
+        createSearchFilters={createSearchFilters}
+      />
     </List>
   );
 }

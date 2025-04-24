@@ -12,7 +12,7 @@ import { DateField } from '@refinedev/antd';
 import { DownloadOutlined, UserOutlined } from '@ant-design/icons';
 import { Post } from '../../../lib/types/post';
 import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
-import { MultiLanguageDisplay } from '@/components/ui';
+import { MultiLanguageDisplay, UUIDDisplay } from '@/components/ui';
 import { Board } from '@/lib/types/board';
 import { UserProfile } from '@/lib/types/user_profiles';
 const { Title, Text } = Typography;
@@ -44,6 +44,10 @@ export const PostDetail: React.FC<PostDetailProps> = ({
       <Title level={4} style={getTitleStyle(token)}>
         {record.title}
       </Title>
+
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <UUIDDisplay uuid={record.post_id} label="게시글 ID" />
+      </div>
 
       <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
         <Space align="center" size="middle">

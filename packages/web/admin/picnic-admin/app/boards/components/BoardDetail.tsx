@@ -9,7 +9,7 @@ import {
 import { DateField } from '@refinedev/antd';
 import { Board } from '../../../lib/types/board';
 import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
-import { MultiLanguageDisplay } from '@/components/ui';
+import { MultiLanguageDisplay, UUIDDisplay } from '@/components/ui';
 
 const { Title, Text } = Typography;
 
@@ -36,7 +36,9 @@ export const BoardDetail: React.FC<BoardDetailProps> = ({
       </Title>
 
       <Descriptions bordered column={1}>
-        <Descriptions.Item label="ID">{record.board_id}</Descriptions.Item>
+        <Descriptions.Item label="ID">
+          <UUIDDisplay uuid={record.board_id} label="게시판 ID" />
+        </Descriptions.Item>
 
         <Descriptions.Item label="이름">
           <MultiLanguageDisplay value={record.name} />
