@@ -25,6 +25,16 @@ interface DataTableProps<T extends BaseRecord> {
       order: 'asc' | 'desc';
     }[];
   };
+  meta?: {
+    select?: string;
+    head?: boolean;
+    count?: 'exact' | 'planned' | 'estimated';
+    order?: Array<{
+      foreignTable: string;
+      column: string;
+      direction: 'asc' | 'desc';
+    }>;
+  };
 }
 
 export function DataTable<T extends BaseRecord>({
@@ -34,6 +44,7 @@ export function DataTable<T extends BaseRecord>({
   createSearchFilters,
   onRow,
   sorters,
+  meta,
 }: DataTableProps<T>) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -83,9 +94,11 @@ export function DataTable<T extends BaseRecord>({
     },
     filters: {
       mode: 'server',
-      initial: createSearchFilters ? createSearchFilters(urlSearch, urlField) : [],
+      initial: createSearchFilters
+        ? createSearchFilters(urlSearch, urlField)
+        : [],
     },
-    meta: {
+    meta: meta || {
       select: '*',
     },
   });
@@ -106,37 +119,37 @@ export function DataTable<T extends BaseRecord>({
 
       setIsSearching(true);
       setSearchTerm(value);
-      
+
       const filters = createSearchFilters(value, searchField);
-      
+
       // 검색 시 페이지네이션 상태도 함께 초기화
       if (tableProps.onChange && tableProps.pagination) {
         const newPagination = {
           ...tableProps.pagination,
           current: 1,
         };
-        
+
         tableProps.onChange(
           newPagination,
           {},
           {},
-          { currentDataSource: [], action: 'paginate' }
+          { currentDataSource: [], action: 'paginate' },
         );
       }
-      
+
       setFilters(filters, 'replace');
-      
+
       // URL 파라미터 업데이트
       const params = new URLSearchParams();
-      
+
       if (value) {
         params.set('search', value);
       }
-      
+
       if (searchField !== 'all') {
         params.set('field', searchField);
       }
-      
+
       // 페이지 크기만 유지
       if (tableProps.pagination && typeof tableProps.pagination === 'object') {
         const pageSize = tableProps.pagination.pageSize || 10;
@@ -144,11 +157,18 @@ export function DataTable<T extends BaseRecord>({
           params.set('pageSize', pageSize.toString());
         }
       }
-      
+
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
       setIsSearching(false);
     },
-    [searchField, setFilters, createSearchFilters, pathname, router, tableProps],
+    [
+      searchField,
+      setFilters,
+      createSearchFilters,
+      pathname,
+      router,
+      tableProps,
+    ],
   );
 
   // 검색 버튼 클릭 핸들러
@@ -174,7 +194,7 @@ export function DataTable<T extends BaseRecord>({
   useEffect(() => {
     if (initialMountRef.current) {
       initialMountRef.current = false;
-      
+
       if (urlSearch && createSearchFilters) {
         setSearchTerm(urlSearch);
         setLocalSearchTerm(urlSearch);
@@ -185,31 +205,35 @@ export function DataTable<T extends BaseRecord>({
   }, [urlSearch, urlField, setFilters, createSearchFilters]);
 
   // 테이블 변경 핸들러
-  const handleTableChange = (pagination: any, filters: any, sorter: any, extra: any) => {
+  const handleTableChange = (
+    pagination: any,
+    filters: any,
+    sorter: any,
+    extra: any,
+  ) => {
     // 정렬 변경 시 페이지를 1로 설정
-    const newPagination = extra.action === 'sort' 
-      ? { ...pagination, current: 1 }
-      : pagination;
+    const newPagination =
+      extra.action === 'sort' ? { ...pagination, current: 1 } : pagination;
 
     if (tableProps.onChange) {
       tableProps.onChange(newPagination, filters, sorter, extra);
     }
 
     const params = new URLSearchParams(searchParams.toString());
-    
+
     // 페이지네이션 정보 업데이트
     if (newPagination.current !== 1) {
       params.set('current', newPagination.current.toString());
     } else {
       params.delete('current');
     }
-    
+
     if (newPagination.pageSize !== 10) {
       params.set('pageSize', newPagination.pageSize.toString());
     } else {
       params.delete('pageSize');
     }
-    
+
     // 정렬 정보 업데이트
     if (sorter.field && sorter.order) {
       params.set('sorters[0][field]', sorter.field);
@@ -226,16 +250,16 @@ export function DataTable<T extends BaseRecord>({
     if (searchField !== 'all') {
       params.set('field', searchField);
     }
-    
+
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const defaultOnRow = useCallback(
     (record: T) => ({
       onClick: () => record.id && show(resource, record.id),
-      style: { cursor: 'pointer' }
+      style: { cursor: 'pointer' },
     }),
-    [resource, show]
+    [resource, show],
   );
 
   return (
@@ -246,10 +270,7 @@ export function DataTable<T extends BaseRecord>({
             value={searchField}
             style={{ width: 120, maxWidth: '100%' }}
             onChange={handleFieldChange}
-            options={[
-              { value: 'all', label: '전체' },
-              ...searchFields,
-            ]}
+            options={[{ value: 'all', label: '전체' }, ...searchFields]}
           />
           <Input.Search
             placeholder='검색어를 입력하세요'
@@ -281,4 +302,4 @@ export function DataTable<T extends BaseRecord>({
       </div>
     </>
   );
-} 
+}

@@ -6,11 +6,28 @@ import type { SortOrder } from 'antd/es/table/interface';
 import type { Breakpoint } from 'antd/es/_util/responsiveObserver';
 import { useNavigation, CrudFilters } from '@refinedev/core';
 import { UserProfile } from '../../../lib/types/user_profiles';
+import { VotePick } from '../../../lib/types/vote';
 import { DataTable } from '../../components/common/DataTable';
+import { MultiLanguageDisplay } from '@/components/ui';
 
 // UUID 유효성 검사 정규식
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+interface VotePickWithRelations extends VotePick {
+  vote: {
+    title: string;
+  };
+  vote_item: {
+    artist: {
+      name: string;
+    };
+  };
+}
+
+interface UserProfileWithVotes extends UserProfile {
+  vote_pick: VotePickWithRelations[];
+}
 
 interface UserProfileListProps {
   resource?: string;
@@ -89,7 +106,7 @@ export function UserProfileList({
       title: 'ID',
       width: 80,
       ellipsis: true,
-      render: (value: string) => value && value.substring(0, 8) + '...',
+      render: (value: string) => <Tag>{value}</Tag>,
       sorter: true,
       sortDirections: ['ascend', 'descend'] as SortOrder[],
     },
@@ -133,17 +150,11 @@ export function UserProfileList({
       sortDirections: ['ascend', 'descend'] as SortOrder[],
       render: (gender: string, record: UserProfile) => (
         <Space>
-          <Tag color={gender ? 'blue' : 'default'}>
-            {gender || '미설정'}
-          </Tag>
+          <Tag color={gender ? 'blue' : 'default'}>{gender || '미설정'}</Tag>
           <Space direction='vertical' size={2}>
             <span>
               성별 공개:{' '}
-              <Switch
-                size='small'
-                disabled
-                checked={record.open_gender}
-              />
+              <Switch size='small' disabled checked={record.open_gender} />
             </span>
             <span>
               나이 공개:{' '}
@@ -184,7 +195,7 @@ export function UserProfileList({
       sorter: true,
       sortDirections: ['ascend', 'descend'] as SortOrder[],
       render: (deleted_at: string) => (
-        <Space direction="vertical" size={1}>
+        <Space direction='vertical' size={1}>
           <Tag color={deleted_at ? 'error' : 'success'}>
             {deleted_at ? '탈퇴' : '활성'}
           </Tag>
@@ -196,17 +207,54 @@ export function UserProfileList({
         </Space>
       ),
     },
+    {
+      dataIndex: 'vote_pick',
+      title: '최근 투표',
+      width: 200,
+      responsive: ['xl' as Breakpoint],
+      render: (vote_picks: VotePickWithRelations[]) => {
+        if (!vote_picks?.length) return '-';
+
+        // created_at으로 정렬하여 최신 투표 찾기
+        const latestVote = [...vote_picks].sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )[0];
+
+        if (!latestVote) return '-';
+
+        return (
+          <Tag color='blue'>
+            <div>
+              <div>
+                <MultiLanguageDisplay
+                  languages={['ko']}
+                  value={latestVote.vote_item.artist.name}
+                />
+              </div>
+              <div style={{ fontSize: '10px', color: '#666' }}>
+                <DateField value={latestVote.created_at} format='MM-DD HH:mm' />
+                {latestVote.amount && (
+                  <span> ({latestVote.amount.toLocaleString()}표)</span>
+                )}
+              </div>
+            </div>
+          </Tag>
+        );
+      },
+    },
   ];
 
   return (
-    <List 
-      breadcrumb={false} 
-      headerButtons={<CreateButton />} 
-      title='유저관리'
-    >
-      <DataTable<UserProfile>
+    <List breadcrumb={false} headerButtons={<CreateButton />} title='유저관리'>
+      <DataTable<UserProfileWithVotes>
         resource={resource}
         columns={columns}
+        meta={{
+          select:
+            '*,vote_pick!inner(id,created_at,amount,vote_item!inner(artist!inner(name)))',
+          count: 'exact',
+        }}
         searchFields={[
           { value: 'nickname', label: '닉네임' },
           { value: 'email', label: '이메일' },
