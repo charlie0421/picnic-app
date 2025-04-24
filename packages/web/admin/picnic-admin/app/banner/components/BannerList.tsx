@@ -2,13 +2,13 @@
 
 import { List, CreateButton, useTable, DateField } from '@refinedev/antd';
 import { useNavigation, useResource } from '@refinedev/core';
-import { Space, Table, Tag, Image, Select } from 'antd';
+import { Space, Tag, Image, Select } from 'antd';
 import { useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { Banner } from '@/lib/types/banner';
-import { MultiLanguageDisplay } from '@/components/ui';
 import { getCdnImageUrl } from '@/lib/image';
 import { BANNER_LOCATIONS } from '@/lib/banner';
+import { DataTable } from '../../components/common/DataTable';
 
 // 배너 상태 상수 정의
 const BANNER_STATUS = {
@@ -24,6 +24,8 @@ export default function BannerList() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const { show } = useNavigation();
+  const { resource } = useResource();
 
   // URL에서 status 파라미터 가져오기
   const urlStatus = searchParams.get('status') as BannerStatus | null;
@@ -35,8 +37,6 @@ export default function BannerList() {
 
   const [statusFilter, setStatusFilter] = useState<BannerStatus>(initialStatus);
   const [filteredData, setFilteredData] = useState<Banner[]>([]);
-  const { show } = useNavigation();
-  const { resource } = useResource();
 
   const { tableProps } = useTable<Banner>({
     resource: 'banner',
@@ -54,7 +54,6 @@ export default function BannerList() {
     },
   });
 
-  console.log('tableProps', tableProps);
   // URL 파라미터 업데이트
   const updateUrlParams = (status: BannerStatus) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -125,18 +124,8 @@ export default function BannerList() {
     }
   };
 
-  // 필터링된 데이터로 tableProps 수정
-  const modifiedTableProps = {
-    ...tableProps,
-    dataSource: filteredData,
-  };
-
   return (
-    <List
-      breadcrumb={false}
-      headerButtons={<CreateButton />}
-      title={resource?.meta?.list?.label || ''}
-    >
+    <List breadcrumb={false} title={resource?.meta?.list?.label || ''}>
       <Space style={{ marginBottom: 16 }}>
         <Select
           style={{ width: 160, maxWidth: '100%' }}
@@ -151,30 +140,20 @@ export default function BannerList() {
           ]}
         />
       </Space>
-      <div style={{ width: '100%', overflowX: 'auto' }}>
-        <Table
-          {...modifiedTableProps}
-          rowKey='id'
-          onRow={(record) => ({
-            style: { cursor: 'pointer' },
-            onClick: () => show('banner', record.id),
-          })}
-          pagination={{
-            ...tableProps.pagination,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50'],
-            showTotal: (total) => `총 ${total}개 항목`,
-          }}
-          scroll={{ x: 'max-content' }}
-          size='small'
-        >
-          <Table.Column dataIndex='id' title='ID' width={80} />
-          <Table.Column
-            dataIndex='image'
-            title='이미지'
-            align='center'
-            responsive={['md']}
-            render={(value: any) => (
+      <DataTable
+        resource='banner'
+        columns={[
+          {
+            dataIndex: 'id',
+            title: 'ID',
+            width: 80,
+          },
+          {
+            dataIndex: 'image',
+            title: '이미지',
+            align: 'center',
+            responsive: ['md'],
+            render: (value: any) => (
               <Space direction='vertical' size='small'>
                 <Space size='small'>
                   <Image
@@ -205,14 +184,14 @@ export default function BannerList() {
                   />
                 </Space>
               </Space>
-            )}
-          />
-          <Table.Column
-            dataIndex={['start_at', 'end_at']}
-            title='시작일/종료일'
-            align='center'
-            width={160}
-            render={(value: any, record: Banner) => (
+            ),
+          },
+          {
+            dataIndex: ['start_at', 'end_at'],
+            title: '시작일/종료일',
+            align: 'center',
+            width: 160,
+            render: (value: any, record: Banner) => (
               <Space direction='vertical' size='small'>
                 {record?.start_at &&
                   record?.end_at &&
@@ -229,33 +208,33 @@ export default function BannerList() {
                   format='YYYY-MM-DD'
                 />
               </Space>
-            )}
-          />
-          <Table.Column
-            dataIndex='location'
-            title='위치'
-            align='center'
-            width={100}
-            render={(value: string) => {
+            ),
+          },
+          {
+            dataIndex: 'location',
+            title: '위치',
+            align: 'center',
+            width: 100,
+            render: (value: string) => {
               const locationObj = BANNER_LOCATIONS?.find(
                 (loc) => loc.value === value,
               );
               return locationObj ? locationObj.label : value || '-';
-            }}
-          />
-          <Table.Column
-            dataIndex='order'
-            title='순서'
-            align='center'
-            width={80}
-          />
-          <Table.Column
-            dataIndex={['created_at', 'updated_at']}
-            title='생성일/수정일'
-            align='center'
-            width={140}
-            responsive={['lg']}
-            render={(value: any, record: Banner) => (
+            },
+          },
+          {
+            dataIndex: 'order',
+            title: '순서',
+            align: 'center',
+            width: 80,
+          },
+          {
+            dataIndex: ['created_at', 'updated_at'],
+            title: '생성일/수정일',
+            align: 'center',
+            width: 140,
+            responsive: ['lg'],
+            render: (value: any, record: Banner) => (
               <Space direction='vertical' size='small'>
                 <DateField
                   value={record?.created_at?.toString()}
@@ -266,10 +245,18 @@ export default function BannerList() {
                   format='YYYY-MM-DD'
                 />
               </Space>
-            )}
-          />
-        </Table>
-      </div>
+            ),
+          },
+        ]}
+        sorters={{
+          initial: [
+            {
+              field: 'created_at',
+              order: 'desc',
+            },
+          ],
+        }}
+      />
     </List>
   );
 }
