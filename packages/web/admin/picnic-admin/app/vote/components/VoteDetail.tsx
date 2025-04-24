@@ -20,6 +20,7 @@ import {
   ClockCircleOutlined,
   UserOutlined,
   GiftOutlined,
+  StarTwoTone,
 } from '@ant-design/icons';
 import { 
   DateField, 
@@ -376,13 +377,18 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           label={<Text style={{ color: token.colorTextSecondary }}>노출 시작일</Text>}
           labelStyle={{ background: token.colorBgLayout }}
         >
-          {record.visible_at && (
-            <DateField
-              value={record.visible_at}
+          <Space>
+            <StarTwoTone style={{ color: token.colorPrimary }} />
+            {record.visible_at ? (
+              <DateField
+                value={record.visible_at}
               format='YYYY-MM-DD HH:mm'
               locales='ko'
             />
+          ) : (
+            <Text type='secondary'>설정되지 않음</Text>
           )}
+          </Space>
         </Descriptions.Item>
 
         <Descriptions.Item 
@@ -390,8 +396,8 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           labelStyle={{ background: token.colorBgLayout }}
         >
           <Space>
-            <CalendarOutlined style={{ color: token.colorPrimary }} />
-            {record.start_at ? (
+          <CalendarOutlined style={{ color: token.colorPrimary }} />
+          {record.start_at ? (
               <DateField
                 value={record.start_at}
                 format='YYYY-MM-DD HH:mm'
@@ -408,7 +414,7 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           labelStyle={{ background: token.colorBgLayout }}
         >
           <Space>
-            <ClockCircleOutlined style={{ color: token.colorError }} />
+          <CalendarOutlined style={{ color: token.colorWarningTextActive }} />
             {record.stop_at ? (
               <DateField
                 value={record.stop_at}
