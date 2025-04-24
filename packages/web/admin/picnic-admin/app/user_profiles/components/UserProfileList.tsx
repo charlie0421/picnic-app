@@ -199,7 +199,11 @@ export function UserProfileList({
   ];
 
   return (
-    <List breadcrumb={false} headerButtons={<CreateButton />} title='유저관리'>
+    <List 
+      breadcrumb={false} 
+      headerButtons={<CreateButton />} 
+      title='유저관리'
+    >
       <DataTable<UserProfile>
         resource={resource}
         columns={columns}
@@ -209,6 +213,14 @@ export function UserProfileList({
           { value: 'id', label: 'ID' },
         ]}
         createSearchFilters={createSearchFilters}
+        sorters={{
+          initial: [
+            {
+              field: 'created_at',
+              order: 'desc',
+            },
+          ],
+        }}
       />
     </List>
   );
