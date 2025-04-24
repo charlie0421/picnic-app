@@ -30,6 +30,8 @@ import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import { HttpError } from '@refinedev/core';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
 import { SUPABASE_KEY, SUPABASE_URL } from '@/lib/supabase/constants';
+import { TransactionList } from '@/app/transactions/components/TransactionList';
+import { Transaction } from '@/lib/types/transactions';
 
 const { Title } = Typography;
 
@@ -151,6 +153,30 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
   const [loadingStarCandyHistory, setLoadingStarCandyHistory] = useState(false);
   const [loadingStarCandyBonusHistory, setLoadingStarCandyBonusHistory] =
     useState(false);
+
+  // 광고 시청 이력 데이터 조회
+  const { data: transactionData, isLoading: transactionLoading } = useList<Transaction>({
+    resource: 'view_transaction_all',
+    filters: record?.id
+      ? [
+          {
+            field: 'user_id',
+            operator: 'eq',
+            value: record.id,
+          },
+        ]
+      : [],
+    pagination: {
+      current: 1,
+      pageSize: 10,
+    },
+    sorters: [
+      {
+        field: 'created_at',
+        order: 'desc',
+      },
+    ],
+  });
 
   // 컴포넌트가 마운트되거나 userId가 변경될 때 스타캔디 내역 데이터 가져오기
   useEffect(() => {
@@ -813,6 +839,16 @@ export function UserProfileDetail({ record, loading }: UserProfileDetailProps) {
             </Tabs.TabPane>
             <Tabs.TabPane tab='보너스 스타캔디 내역' key='star_candy_bonus'>
               {renderStarCandyBonusHistoryTab()}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab='광고 시청 이력' key='ad_views'>
+              <div style={getCardStyle(token)}>
+                <div style={getSectionStyle(token)}>
+                  <TransactionList
+                    data={transactionData?.data}
+                    loading={transactionLoading}
+                  />
+                </div>
+              </div>
             </Tabs.TabPane>
           </Tabs>
         </>

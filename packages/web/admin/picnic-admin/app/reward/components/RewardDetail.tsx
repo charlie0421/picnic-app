@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import { Reward, defaultLocalizations } from './types';
 import { getCdnImageUrl } from '@/lib/image';
-import { MultiLanguageDisplay } from '@/components/ui';
+import { LanguageType, MultiLanguageDisplay } from '@/components/ui';
 import { getLanguageLabel } from '@/lib/utils/language';
 
 const { Title, Text, Paragraph } = Typography;
@@ -63,7 +63,7 @@ export default function RewardDetail({ record, loading }: RewardShowProps) {
           <div style={{ marginBottom: 20 }}>
             <Title level={5}>제목</Title>
             <MultiLanguageDisplay
-              value={record?.title as Record<'ko' | 'en' | 'ja' | 'zh', string>}
+              value={record?.title as Record<LanguageType, string>}
             />
           </div>
 

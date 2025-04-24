@@ -19,6 +19,12 @@ interface DataTableProps<T extends BaseRecord> {
     onClick?: () => void;
     style?: React.CSSProperties;
   };
+  sorters?: {
+    initial?: {
+      field: string;
+      order: 'asc' | 'desc';
+    }[];
+  };
 }
 
 export function DataTable<T extends BaseRecord>({
@@ -27,6 +33,7 @@ export function DataTable<T extends BaseRecord>({
   searchFields,
   createSearchFilters,
   onRow,
+  sorters,
 }: DataTableProps<T>) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -65,7 +72,7 @@ export function DataTable<T extends BaseRecord>({
   const { tableProps, setFilters } = useTable<T>({
     resource,
     syncWithLocation: true,
-    sorters: {
+    sorters: sorters || {
       initial: initialSorters,
       mode: 'server',
     },

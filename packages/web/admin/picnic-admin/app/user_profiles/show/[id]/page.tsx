@@ -3,11 +3,12 @@
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import { UserProfileDetail } from '@/app/user_profiles/components/';
 import { useParams } from 'next/navigation';
-import { EditButton } from '@refinedev/antd';
-import { DeleteButton } from '@refinedev/antd';
-import { Show } from '@refinedev/antd';
-import { useResource, useShow } from '@refinedev/core';
+import { EditButton, DeleteButton, Show } from '@refinedev/antd';
+import { useResource, useShow, useList } from '@refinedev/core';
 import { UserProfile } from '@/lib/types/user_profiles';
+import { Transaction } from '@/lib/types/transactions';
+import { TransactionList } from '@/app/transactions/components/TransactionList';
+import { Tabs } from 'antd';
 
 export default function UserProfileShowPage() {
   const params = useParams();
@@ -18,6 +19,21 @@ export default function UserProfileShowPage() {
       select: '*',
     },
   });
+
+  const { data: transactionData, isLoading: transactionLoading } = useList<Transaction>({
+    resource: 'view_transaction_all',
+    filters: [
+      {
+        field: 'user_id',
+        operator: 'eq',
+        value: params.id,
+      },
+    ],
+    meta: {
+      select: '*',
+    },
+  });
+
   const { data, isLoading } = queryResult;
   const { resource } = useResource();
 
@@ -32,7 +48,8 @@ export default function UserProfileShowPage() {
           <DeleteButton key='delete' />,
         ]}
       >
-        <UserProfileDetail record={data?.data} loading={isLoading} />
+       <UserProfileDetail record={data?.data} loading={isLoading} 
+        />
       </Show>
     </AuthorizePage>
   );
