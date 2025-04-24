@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'dart:async';
 
 import 'package:crowdin_sdk/crowdin_sdk.dart';
@@ -14,7 +16,7 @@ import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
+import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -62,12 +64,14 @@ void main() async {
         );
       }
 
-      // Crowdin OTA 초기화
-      await Crowdin.init(
-        distributionHash: Environment.crowdinDistributionHash ?? '',
-        connectionType: InternetConnectionType.any,
-        updatesInterval: const Duration(minutes: 15),
+      // ProviderContainer 생성
+      final container = ProviderContainer(
+        observers: [LoggingObserver()],
       );
+
+      // Crowdin OTA 초기화
+      await PicnicLibL10n.initialize(
+          container.read(appSettingProvider.notifier), container);
 
       // 기본 언어(한국어) 번역 로드
       for (final locale in PicnicLibL10n.supportedLocales) {
@@ -76,24 +80,17 @@ void main() async {
 
       logger.i('Starting app...');
 
-      // ProviderScope 생성
-      final container = ProviderContainer(
-        observers: [LoggingObserver()],
-      );
-
-      // 로케일 초기화 및 모든 번역 미리 로드
-      await PicnicLibL10n.preloadTranslations();
-
       runApp(
         UncontrolledProviderScope(
           container: container,
           child: Consumer(builder: (context, ref, _) {
-            final currentLocale = ref.watch(localeStateProvider);
+            final locale = PicnicLibL10n.getCurrentLocale();
+            logger.i('MaterialApp locale: $locale');
 
             return MaterialApp(
               localizationsDelegates: PicnicLibL10n.localizationsDelegates,
               supportedLocales: PicnicLibL10n.supportedLocales,
-              locale: currentLocale,
+              locale: locale,
               home: const App(),
             );
           }),
@@ -110,27 +107,27 @@ void main() async {
   });
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, _) {
-      final currentLocale = ref.watch(localeStateProvider);
-      logger.i('currentLocale: $currentLocale');
-      return MaterialApp(
-        title: 'Picnic App',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        locale: currentLocale,
-        localizationsDelegates: PicnicLibL10n.localizationsDelegates,
-        supportedLocales: PicnicLibL10n.supportedLocales,
-        home: const Placeholder(), // 실제 홈 위젯으로 교체
-      );
-    });
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = PicnicLibL10n.getCurrentLocale();
+    logger.i('currentLocale: $locale');
+
+    return MaterialApp(
+      title: 'Picnic App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      locale: locale,
+      localizationsDelegates: PicnicLibL10n.localizationsDelegates,
+      supportedLocales: PicnicLibL10n.supportedLocales,
+      home: const Placeholder(), // 실제 홈 위젯으로 교체
+    );
   }
 }
 
 // 언어 변경 사용 예시:
-// ref.read(localeHelperProvider).changeLocale(Locale('en', 'US'));
+// ref.read(appSettingProvider.notifier).setLanguage('en');
+// await PicnicLibL10n.loadTranslations(Locale('en'));

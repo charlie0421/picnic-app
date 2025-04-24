@@ -34,6 +34,11 @@ class AppSetting extends _$AppSetting {
     globalStorage.saveData('postAnonymousMode', postAnonymousMode.toString());
     state = state.copyWith(postAnonymousMode: postAnonymousMode);
   }
+
+  void setLanguage(String language) {
+    globalStorage.saveData('language', language);
+    state = state.copyWith(language: language);
+  }
 }
 
 @freezed
@@ -43,19 +48,22 @@ class Setting with _$Setting {
   const factory Setting({
     @Default(ThemeMode.system) ThemeMode themeMode,
     @Default(false) bool postAnonymousMode,
+    @Default('en') String language,
   }) = _Setting;
 
   Future<Setting> load() async {
     var themeModeStr = await globalStorage.loadData('themeMode', 'system');
     var postAnonymousModeStr =
         await globalStorage.loadData('postAnonymousMode', 'false');
+    var languageStr = await globalStorage.loadData('language', 'en');
 
     logger.i(
-        'loaded config: themeMode=$themeModeStr, postAnonymousMode=$postAnonymousModeStr');
+        'loaded config: themeMode=$themeModeStr, postAnonymousMode=$postAnonymousModeStr, language=$languageStr');
 
     return copyWith(
         themeMode: parseThemeMode(themeModeStr!),
-        postAnonymousMode: postAnonymousModeStr == 'true');
+        postAnonymousMode: postAnonymousModeStr == 'true',
+        language: languageStr ?? 'en');
   }
 }
 

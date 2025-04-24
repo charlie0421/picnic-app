@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/l10n.dart';
 
 /// Crowdin 로컬라이제이션 관리를 위한 서비스 클래스
 class LocalizationService {
   /// Crowdin SDK를 초기화합니다.
   static Future<void> initialize({
-    required String distributionHash,
+    String? distributionHash,
     Duration updatesInterval = const Duration(minutes: 15),
     InternetConnectionType connectionType = InternetConnectionType.any,
   }) async {
     await Crowdin.init(
-      distributionHash: distributionHash,
+      distributionHash: distributionHash ?? Constants.crowdinDistributionHash,
       connectionType: connectionType,
       updatesInterval: updatesInterval,
     );

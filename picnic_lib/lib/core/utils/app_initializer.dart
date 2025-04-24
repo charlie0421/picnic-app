@@ -41,9 +41,20 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:universal_platform/universal_platform.dart';
+import 'package:logger/logger.dart';
 
 class AppInitializer {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
+  static Logger? _logger;
+
+  static Logger get logger {
+    _logger ??= Logger(
+      printer: LongMessagePrinter(),
+      output: LongOutputHandler(),
+      level: Level.all,
+    );
+    return _logger!;
+  }
 
   static Future<void> initializeBasics() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +92,14 @@ class AppInitializer {
 
         options.beforeSend = (event, hint) {
           if (!Environment.enableSentry || kDebugMode) {
-            _logSentryException(event);
+            try {
+              _logSentryException(event);
+            } catch (e) {
+              // logger가 초기화되지 않은 경우 무시
+              if (kDebugMode) {
+                print('Error logging Sentry event: $e');
+              }
+            }
             return null;
           }
           return event;

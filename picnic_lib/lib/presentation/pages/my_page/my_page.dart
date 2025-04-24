@@ -1,7 +1,10 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
@@ -11,12 +14,14 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
-import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart'
+    show showRequireLoginDialog;
 import 'package:picnic_lib/presentation/pages/my_page/my_profile.dart';
 import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
-import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
+import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
+import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -27,6 +32,8 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_mypage';
@@ -45,12 +52,29 @@ class _MyPageState extends ConsumerState<MyPage> {
       ref
           .read(navigationInfoProvider.notifier)
           .setMyPageTitle(pageTitle: t('page_title_mypage'));
+
+      // 앱 시작 시 언어 설정 확인
+      final currentLanguage = ref.read(appSettingProvider).language;
+      logger.i('앱 시작 시 언어 설정: $currentLanguage');
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final userInfoState = ref.watch(userInfoProvider);
+
+    // 언어 변경 감지를 위한 리스너 추가
+    ref.listen(appSettingProvider, (previous, current) {
+      logger.i(
+          'appSettingProvider 변경 감지: ${previous?.language} → ${current.language}');
+      if (previous?.language != current.language) {
+        // 언어가 변경되면 UI 갱신을 위해 setState 호출
+        setState(() {
+          logger.i('언어 변경으로 인한 setState 호출: ${current.language}');
+        });
+      }
+    });
+
     ref.listen(userInfoProvider, (previous, state) {
       if (state is AsyncData<UserProfilesModel?>) {
         ref
@@ -58,8 +82,6 @@ class _MyPageState extends ConsumerState<MyPage> {
             .refreshBookmarkedArtists();
       }
     });
-
-    ref.watch(localeStateProvider);
 
     return userInfoState.when(
         data: (data) {
@@ -99,56 +121,68 @@ class _MyPageState extends ConsumerState<MyPage> {
                       }),
                   Text(t('label_setting_language'),
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  DropdownButtonFormField(
-                    value: ref.watch(localeStateProvider).languageCode,
-                    icon: SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/arrow_down_style=line.svg'),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: AppColors.grey00, width: 0),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                    ),
-                    dropdownColor: AppColors.grey00,
-                    borderRadius: BorderRadius.circular(8),
-                    items: languageMap.entries.map((entry) {
-                      return DropdownMenuItem(
-                        alignment: Alignment.center,
-                        value: entry.key,
-                        child: Text(
-                          entry.value,
-                          style: ref.watch(localeStateProvider).languageCode ==
-                                  entry.key
-                              ? getTextStyle(AppTypo.body14B, AppColors.grey900)
-                              : getTextStyle(
-                                  AppTypo.body14M, AppColors.grey400),
-                        ),
+                  GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: AppColors.grey00,
+                        useSafeArea: true,
+                        builder: (context) {
+                          final currentLang =
+                              ref.read(appSettingProvider).language;
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                alignment: Alignment.center,
+                                child: Text('언어 선택',
+                                    style: getTextStyle(
+                                        AppTypo.body16B, AppColors.grey900)),
+                              ),
+                              Divider(height: 1, color: AppColors.grey100),
+                              _buildLanguageOption(
+                                  context, 'ko', '한국어', currentLang),
+                              _buildLanguageOption(
+                                  context, 'en', 'English', currentLang),
+                              _buildLanguageOption(
+                                  context, 'ja', '日本語', currentLang),
+                              _buildLanguageOption(
+                                  context, 'zh', '中文', currentLang),
+                              _buildLanguageOption(
+                                  context, 'id', 'Indonesia', currentLang),
+                              SizedBox(height: 32),
+                            ],
+                          );
+                        },
                       );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-                      logger.d('onChanged: $value');
-                      if (ref.watch(localeStateProvider).languageCode ==
-                          value) {
-                        return;
-                      }
-
-                      final newLocale = Locale(value, countryMap[value]);
-
-                      ref
-                          .read(localeStateProvider.notifier)
-                          .setLocale(newLocale);
-
-                      SnackbarUtil().showSnackbar(
-                          '${languageMap[value]} ${t('language_changed')}');
                     },
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.grey200),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            languageMap[
+                                    ref.watch(appSettingProvider).language] ??
+                                'Unknown',
+                            style: getTextStyle(
+                                AppTypo.body14M, AppColors.grey900),
+                          ),
+                          SvgPicture.asset(
+                            package: 'picnic_lib',
+                            'assets/icons/arrow_down_style=line.svg',
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-
                   PicnicListItem(
                       leading: t('label_mypage_setting'),
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -404,5 +438,160 @@ class _MyPageState extends ConsumerState<MyPage> {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  void _onLanguageChanged(String? selectedLang) async {
+    if (selectedLang == null) return;
+
+    logger.i('⭐ 언어 변경 시작: $selectedLang');
+
+    try {
+      // 1. 이전 언어 저장
+      final oldLanguage = ref.read(appSettingProvider).language;
+      logger.i('⭐ 이전 언어: $oldLanguage, 새 언어: $selectedLang');
+
+      if (oldLanguage == selectedLang) {
+        logger.i('🔄 동일한 언어가 선택됨, 변경 없음');
+        return;
+      }
+
+      // 2. 바텀시트 닫기 (UI 문제 방지)
+      Navigator.of(context).pop();
+
+      // 3. SharedPreferences 직접 업데이트
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('language', selectedLang);
+        logger.i('⭐ SharedPreferences 저장 완료: $selectedLang');
+
+        // 저장 확인
+        final savedLang = prefs.getString('language');
+        logger.i('⭐ 저장 확인: $savedLang');
+
+        if (savedLang != selectedLang) {
+          logger
+              .e('⭐ SharedPreferences 저장 불일치: 원함=$selectedLang, 실제=$savedLang');
+        }
+      } catch (e) {
+        logger.e('⭐ SharedPreferences 저장 오류', error: e);
+      }
+
+      // 4. 즉시 Provider 갱신
+      ref.read(appSettingProvider.notifier).setLanguage(selectedLang);
+
+      // 5. PicnicLibL10n 설정 (핵심)
+      PicnicLibL10n.setCurrentLocale(selectedLang);
+
+      // 6. 전역 리빌드 마커 변경
+      globalRebuildMarker = DateTime.now().millisecondsSinceEpoch;
+
+      // 7. UI 즉시 갱신
+      setState(() {
+        logger.i('⭐ 첫 번째 setState');
+      });
+
+      // 8. Provider 상태 확인
+      await Future.delayed(const Duration(milliseconds: 50));
+      final updatedLanguage = ref.read(appSettingProvider).language;
+      logger.i('⭐ Provider 상태 확인: $updatedLanguage');
+
+      if (updatedLanguage != selectedLang) {
+        logger.e('⭐ Provider 상태 불일치: 원함=$selectedLang, 실제=$updatedLanguage');
+
+        // 상태 강제 변경 시도
+        ref.read(appSettingProvider.notifier).setLanguage(selectedLang);
+      }
+
+      // 9. navigatorKey를 통한 앱 전체 갱신
+      final rootContext = navigatorKey.currentContext;
+      if (rootContext != null) {
+        try {
+          // Provider 컨테이너 접근
+          final container =
+              ProviderScope.containerOf(rootContext, listen: false);
+
+          // Provider 무효화
+          container.invalidate(appSettingProvider);
+          container.invalidate(appInitializationProvider);
+          container.invalidate(navigationInfoProvider);
+
+          // navigator setState 호출
+          navigatorKey.currentState?.setState(() {
+            logger.i('⭐ 앱 전체 리빌드 트리거');
+          });
+
+          logger.i('⭐ Provider 무효화 및 앱 전체 리빌드 완료');
+        } catch (e) {
+          logger.e('⭐ Provider 무효화 오류', error: e);
+        }
+      }
+
+      // 10. 최종 확인
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+
+      final finalLanguage = ref.read(appSettingProvider).language;
+      logger.i('⭐ 최종 상태 확인: $finalLanguage');
+
+      if (finalLanguage != selectedLang) {
+        logger.e('⭐ 최종 상태 불일치, 마지막 수정 시도');
+
+        // 상태 마지막 수정 시도
+        ref.read(appSettingProvider.notifier).setLanguage(selectedLang);
+
+        // SharedPreferences 마지막 확인
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          final finalSavedLang = prefs.getString('language');
+
+          if (finalSavedLang != selectedLang) {
+            logger.e('⭐ 최종 SharedPreferences 불일치, 다시 저장');
+            await prefs.setString('language', selectedLang);
+          }
+        } catch (e) {
+          logger.e('⭐ 최종 SharedPreferences 확인 오류', error: e);
+        }
+      }
+
+      // 11. 마지막 UI 갱신
+      setState(() {
+        logger.i('⭐ 최종 UI 갱신');
+      });
+
+      logger.i('⭐ 언어 변경 완료: $selectedLang');
+    } catch (e, s) {
+      logger.e('⭐ 언어 변경 오류', error: e, stackTrace: s);
+    }
+  }
+
+  // 각 언어 옵션 위젯 생성 함수
+  Widget _buildLanguageOption(
+      BuildContext context, String langCode, String label, String currentLang) {
+    final isSelected = langCode == currentLang;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        _onLanguageChanged(langCode);
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        color: isSelected ? AppColors.grey100 : Colors.transparent,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: getTextStyle(
+                isSelected ? AppTypo.body14B : AppTypo.body14M,
+                isSelected ? AppColors.grey900 : AppColors.grey600,
+              ),
+            ),
+            if (isSelected)
+              Icon(Icons.check, color: AppColors.grey900, size: 20),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -5,13 +5,15 @@ part '../../generated/providers/screen_infos_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class ScreenInfos extends _$ScreenInfos {
+  Map<String, ScreenInfo> _screenInfoMap = {};
+
   @override
   FutureOr<Map<String, ScreenInfo>> build() async {
-    return Future.value({});
+    return _screenInfoMap;
   }
 
   void setScreenInfoMap(Map<String, ScreenInfo> newScreenInfoMap) {
-    state = AsyncLoading();
-    state = AsyncData(newScreenInfoMap);
+    _screenInfoMap = newScreenInfoMap;
+    state = AsyncData(_screenInfoMap);
   }
 }

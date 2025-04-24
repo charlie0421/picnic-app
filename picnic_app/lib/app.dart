@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_element
+
 import 'dart:async';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -6,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:picnic_app/bottom_navigation_menu.dart';
 import 'package:picnic_app/presentation/screens/portal.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -18,7 +19,6 @@ import 'package:picnic_lib/presentation/pages/oauth_callback_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
-import 'package:picnic_lib/presentation/providers/locale_state_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
@@ -40,6 +40,7 @@ import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -77,14 +78,6 @@ class _AppState extends ConsumerState<App> {
     super.initState();
     logger.i('App initState 호출됨');
 
-    // Supabase 인증 리스너는 웹과 모바일 모두에서 필요함
-    AppInitializer.setupSupabaseAuthListener(ref);
-
-    // Branch 리스너는 모바일에서만 필요
-    if (UniversalPlatform.isMobile && !kIsWeb) {
-      AppInitializer.setupBranchListener(ref);
-    }
-
     // 초기화 로직을 initState()에서 수행
     _initializationFuture = _initializeApp();
   }
@@ -98,111 +91,145 @@ class _AppState extends ConsumerState<App> {
       return;
     }
 
-    // 모바일 환경에서만 시스템 UI 초기화
-    if (UniversalPlatform.isMobile && !kIsWeb) {
-      await AppInitializer.initializeSystemUI();
-    }
-
-    if (!mounted) {
-      logger.e('앱 초기화 중 위젯이 dispose됨');
-      _isAppInitialized = false;
-      return;
-    }
-
-    // AppInitializer 클래스 내부에 스크린 정보 설정 로직이 있는지 확인을 위한 로그
-    logger.i('AppInitializer 클래스 메서드 호출 전 - 스크린 정보 확인');
-
-    // 앱 초기화 로직 실행 전, 현재 스크린 정보 프로바이더 상태 로깅
-    final currentScreenInfos = ref.read(screenInfosProvider);
-    logger.i('현재 스크린 정보 상태: $currentScreenInfos');
-
-    if (UniversalPlatform.isMobile) {
-      await AppInitializer.initializeAppWithSplash(context, ref);
-    } else {
-      await AppInitializer.initializeWebApp(context, ref);
-    }
-
-    if (!mounted) {
-      logger.e('앱 초기화 완료 후 위젯이 dispose됨');
-      _isAppInitialized = false;
-      return;
-    }
-
-    // 앱 초기화 로직 실행 후 스크린 정보 설정
-    logger.i('앱 초기화 후 스크린 정보 설정 시작');
     try {
-      // 스크린 정보 맵 생성
-      final screenInfoMap = {
-        PortalType.vote.name.toString(): voteScreenInfo,
-        PortalType.pic.name.toString(): picScreenInfo,
-        PortalType.community.name.toString(): communityScreenInfo,
-        PortalType.novel.name.toString(): novelScreenInfo,
-      };
+      // 기본 초기화
+      logger.i('기본 초기화 시작');
+      await AppInitializer.initializeBasics();
+      logger.i('기본 초기화 완료');
 
-      // screenInfosProvider에 스크린 정보 설정
-      ref.read(screenInfosProvider.notifier).setScreenInfoMap(screenInfoMap);
+      // 환경 초기화
+      logger.i('환경 초기화 시작');
+      await AppInitializer.initializeEnvironment(
+          Environment.currentEnvironment);
+      logger.i('환경 초기화 완료');
 
-      // 설정 후 스크린 정보 상태 확인
-      final updatedScreenInfos = ref.read(screenInfosProvider);
-      logger.i('스크린 정보 설정 완료, 업데이트된 상태: $updatedScreenInfos');
+      // 모바일 환경에서만 시스템 UI 초기화
+      if (UniversalPlatform.isMobile && !kIsWeb) {
+        logger.i('시스템 UI 초기화 시작');
+        await AppInitializer.initializeSystemUI();
+        logger.i('시스템 UI 초기화 완료');
+      }
+
+      if (!mounted) {
+        logger.e('앱 초기화 중 위젯이 dispose됨');
+        _isAppInitialized = false;
+        return;
+      }
+
+      // 스크린 정보 설정 제거 (각 화면에서 직접 정의하므로 여기서는 필요 없음)
+      logger.i('스크린 정보 초기화 필요 없음 - 직접 정의 방식으로 변경됨');
+
+      // 앱 초기화
+      logger.i('앱 초기화 시작');
+      if (UniversalPlatform.isMobile) {
+        await AppInitializer.initializeAppWithSplash(context, ref);
+      } else {
+        await AppInitializer.initializeWebApp(context, ref);
+      }
+      logger.i('앱 초기화 완료');
+
+      if (!mounted) {
+        logger.e('앱 초기화 완료 후 위젯이 dispose됨');
+        _isAppInitialized = false;
+        return;
+      }
 
       // 앱 초기화 완료 플래그 설정
-      _isAppInitialized = true;
-    } catch (e) {
-      logger.e('스크린 정보 설정 중 오류 발생: $e');
-    }
+      if (mounted) {
+        setState(() {
+          _isAppInitialized = true;
+          logger.i('_isAppInitialized 상태를 true로 변경');
+        });
+      }
 
-    logger.i('_initializeApp 완료');
+      logger.i('_initializeApp 완료');
+    } catch (e, stackTrace) {
+      logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
+      if (mounted) {
+        setState(() {
+          _isAppInitialized = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final initState = ref.watch(appInitializationProvider);
-    logger.i(
-        'build 메서드: initState=$initState, _isAppInitialized=$_isAppInitialized');
+    final appSettingState = ref.watch(appSettingProvider);
 
-    // 이미 초기화되었고 화면이 캐시되어 있다면 그것을 반환
-    if (_isAppInitialized && _initializedAppScreen != null) {
-      logger.i('이미 초기화된 앱 화면 반환');
-      return _initializedAppScreen!;
+    logger.i('''
+build 메서드 상태:
+- initState: $initState
+- _isAppInitialized: $_isAppInitialized
+- appSettingState: $appSettingState
+''');
+
+    // ScreenUtil 초기화
+    ScreenUtil.init(
+      context,
+      designSize: const Size(393, 892),
+      minTextAdapt: true,
+      splitScreenMode: true,
+    );
+
+    Widget currentScreen;
+    if (!_isAppInitialized) {
+      logger.i('앱이 초기화되지 않음 - 스플래시 화면 표시');
+      currentScreen = const SplashImage();
+    } else if (!initState.hasNetwork) {
+      logger.i('네트워크 오류 - 네트워크 오류 화면 표시');
+      currentScreen = NetworkErrorScreen(onRetry: _retryConnection);
+    } else if (initState.isBanned) {
+      logger.i('밴 상태 - 밴 화면 표시');
+      currentScreen = const BanScreen();
+    } else if (initState.updateInfo?.status == UpdateStatus.updateRequired &&
+        !kIsWeb) {
+      logger.i('업데이트 필요 - 업데이트 화면 표시');
+      currentScreen = ForceUpdateOverlay(updateInfo: initState.updateInfo!);
+    } else {
+      logger.i('정상 상태 - 포털 화면 표시');
+      final currentScreenInfoState = ref.read(screenInfosProvider);
+      logger.i('포털 표시 직전 screenInfosProvider 상태: $currentScreenInfoState');
+      currentScreen = const Portal();
     }
 
     return MaterialApp(
-      home: FutureBuilder(
-        future: Future.wait([
-          _initializationFuture,
-          // 최소 3초 대기
-          if (UniversalPlatform.isMobile && !_isAppInitialized)
-            Future.delayed(const Duration(seconds: 3)),
-        ]),
-        builder: (context, snapshot) {
-          logger.i(
-              'FutureBuilder: connectionState=${snapshot.connectionState}, isInitialized=${initState.isInitialized}, _isAppInitialized=$_isAppInitialized');
-
-          // 이미 초기화되었다면 스플래시를 건너뛰고 메인 화면으로 이동
-          if (_isAppInitialized) {
-            logger.i('앱이 이미 초기화됨. 메인 화면으로 바로 이동');
-            _initializedAppScreen ??= _buildMainApp();
-            return _initializedAppScreen!;
-          }
-
-          if (snapshot.connectionState == ConnectionState.done &&
-              initState.isInitialized) {
-            logger.i('초기화 완료, 메인 화면 빌드');
-            _isAppInitialized = true;
-            _initializedAppScreen = _buildMainApp();
-            return _initializedAppScreen!;
-          } else {
-            return AnimatedOpacity(
-              opacity: 1.0,
-              duration: const Duration(milliseconds: 1500),
-              child: const SplashImage(),
-            );
-          }
-        },
-      ),
+      navigatorKey: navigatorKey,
+      title: 'TTJA',
+      theme: _getCurrentTheme(ref),
+      themeMode: appSettingState.themeMode,
+      locale: PicnicLibL10n.getCurrentLocale(),
       localizationsDelegates: PicnicLibL10n.localizationsDelegates,
       supportedLocales: PicnicLibL10n.supportedLocales,
+      routes: _buildRoutes(),
+      onGenerateRoute: (settings) {
+        final uri = Uri.parse(settings.name ?? '');
+        final path = uri.path;
+
+        if (path.startsWith('/auth/callback')) {
+          logger.i('OAuth callback: $uri');
+          return MaterialPageRoute(
+            builder: (_) => OAuthCallbackPage(callbackUri: uri),
+            settings: settings,
+          );
+        }
+        return MaterialPageRoute(builder: (_) => const Portal());
+      },
+      navigatorObservers: [observer],
+      builder: (context, child) {
+        return OverlaySupport.global(
+          child: UniversalPlatform.isWeb
+              ? MediaQuery(
+                  data: ref
+                      .watch(globalMediaQueryProvider)
+                      .copyWith(size: const Size(600, 800)),
+                  child: UpdateDialog(child: child ?? currentScreen),
+                )
+              : UpdateDialog(child: child ?? currentScreen),
+        );
+      },
+      home: currentScreen,
     );
   }
 
@@ -225,28 +252,16 @@ class _AppState extends ConsumerState<App> {
     logger.i('_buildNextScreen에서 스크린 정보 상태: $screenInfos');
 
     if (!initState.hasNetwork) {
-      return MaterialApp(
-        home: NetworkErrorScreen(
-          onRetry: _retryConnection,
-        ),
-      );
+      return NetworkErrorScreen(onRetry: _retryConnection);
     }
 
     if (initState.isBanned) {
-      return const MaterialApp(
-        home: BanScreen(),
-      );
+      return const BanScreen();
     }
 
-    if (initState.updateInfo?.status == UpdateStatus.updateRequired) {
-      // 웹에서는 강제 업데이트 화면 표시하지 않음
-      if (!kIsWeb) {
-        return MaterialApp(
-          home: ForceUpdateOverlay(
-            updateInfo: initState.updateInfo!,
-          ),
-        );
-      }
+    if (initState.updateInfo?.status == UpdateStatus.updateRequired &&
+        !kIsWeb) {
+      return ForceUpdateOverlay(updateInfo: initState.updateInfo!);
     }
 
     return ScreenUtilInit(
@@ -256,44 +271,17 @@ class _AppState extends ConsumerState<App> {
       child: OverlaySupport.global(
         child: Consumer(
           builder: (context, ref, child) {
-            final appSettingState = ref.watch(appSettingProvider);
             final isScreenProtector = ref.watch(isScreenProtectorProvider);
-
             _updateScreenProtector(isScreenProtector);
 
-            return MaterialApp(
-              navigatorKey: navigatorKey,
-              title: 'Picnic',
-              theme: _getCurrentTheme(ref),
-              themeMode: appSettingState.themeMode,
-              locale: ref.watch(localeStateProvider),
-              localizationsDelegates: PicnicLibL10n.localizationsDelegates,
-              supportedLocales: PicnicLibL10n.supportedLocales,
-              routes: _buildRoutes(),
-              onGenerateRoute: (settings) {
-                final uri = Uri.parse(settings.name ?? '');
-                final path = uri.path;
-
-                if (path.startsWith('/auth/callback')) {
-                  logger.i('OAuth callback: $uri');
-                  return MaterialPageRoute(
-                    builder: (_) => OAuthCallbackPage(callbackUri: uri),
-                    settings: settings,
-                  );
-                }
-                return MaterialPageRoute(builder: (_) => const Portal());
-              },
-              navigatorObservers: [observer],
-              builder: UniversalPlatform.isWeb
-                  ? (context, child) => MediaQuery(
-                        data: ref
-                            .watch(globalMediaQueryProvider)
-                            .copyWith(size: const Size(600, 800)),
-                        child: child ?? const SizedBox.shrink(),
-                      )
-                  : (context, child) => child ?? const SizedBox.shrink(),
-              home: UpdateDialog(child: initScreen ?? const Portal()),
-            );
+            return UniversalPlatform.isWeb
+                ? MediaQuery(
+                    data: ref
+                        .watch(globalMediaQueryProvider)
+                        .copyWith(size: const Size(600, 800)),
+                    child: UpdateDialog(child: initScreen ?? const Portal()),
+                  )
+                : UpdateDialog(child: initScreen ?? const Portal());
           },
         ),
       ),
