@@ -453,6 +453,10 @@ export default function VoteForm({
         <Input placeholder='중국어 제목을 입력하세요' />
       </Form.Item>
 
+      <Form.Item name={['title', 'id']} label='제목 (Bahasa Indonesia)'>
+        <Input placeholder='인도네시아어 제목을 입력하세요' />
+      </Form.Item>
+
       <Form.Item
         name='vote_category'
         label='카테고리'
