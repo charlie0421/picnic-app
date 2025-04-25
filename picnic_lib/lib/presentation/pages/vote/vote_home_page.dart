@@ -15,7 +15,6 @@ import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
-import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -24,9 +23,6 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
-
-/// globalRebuildMarker를 감시하는 프로바이더
-final rebuildMarkerProvider = Provider<int>((ref) => globalRebuildMarker);
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});
@@ -39,7 +35,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   final PagingController<int, VoteModel> _pagingController =
       PagingController(firstPageKey: 1);
   static const _pageSize = 20;
-  int _lastLanguageRefresh = 0;
 
   @override
   void initState() {
@@ -50,28 +45,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true, showTopMenu: true, showBottomNavigation: true);
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // 언어 설정이 변경되었는지 확인
-    final currentLanguage = ref.read(appSettingProvider).language;
-    final rebuildMarker = ref.watch(rebuildMarkerProvider);
-
-    // 언어가 변경되었거나 전역 마커가 변경된 경우
-    if (rebuildMarker != _lastLanguageRefresh) {
-      _lastLanguageRefresh = rebuildMarker;
-      logger.i('VoteHomePage: 언어 변경 감지, 페이지 갱신 중...');
-
-      // 페이지 데이터를 다시 로드
-      _pagingController.refresh();
-
-      // 상태를 갱신하여 UI 리빌드
-      if (mounted) {
-        setState(() {});
-      }
-    }
   }
 
   Future<void> _fetchPage(int pageKey) async {
@@ -99,11 +72,6 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // 언어 변경을 감지하도록 rebuildMarkerProvider 감시
-    ref.watch(rebuildMarkerProvider);
-    // 앱 설정에서 현재 언어를 감시
-    ref.watch(appSettingProvider.select((value) => value.language));
-
     return ListView(
       children: [
         const CommonBanner('vote_home', 786 / 400),

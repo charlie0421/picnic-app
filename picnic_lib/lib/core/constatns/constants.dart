@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 
 final voteMainColor = AppColors.secondary500;
 final picMainColor = AppColors.primary500;
@@ -19,6 +20,16 @@ class Constants {
 }
 
 LocalStorage globalStorage = LocalStorage();
+
+// LocalStorage 언어 설정 관련 확장 메서드
+extension LocalStorageLanguageExtension on LocalStorage {
+  Future<void> debugSaveLanguage(String language) async {
+    logger.i('언어 설정 저장: $language');
+    await saveData('language', language);
+    final savedValue = await loadData('language', null);
+    logger.i('저장된 언어 확인: $savedValue');
+  }
+}
 
 Map<String, String> countryMap = {
   'en': 'US',

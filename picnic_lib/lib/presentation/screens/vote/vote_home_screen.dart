@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/enums.dart';
-import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/navigator/bottom/common_bottom_navigation_bar.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
@@ -28,7 +26,6 @@ class VoteHomeScreen extends ConsumerStatefulWidget {
 class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
   bool _isSwipeEnabled = true;
   Timer? _swipeTimer;
-  int _lastRebuildMarker = 0;
 
   // 스크린 정보 직접 정의
   final List<BottomNavigationItem> votePages = [
@@ -71,20 +68,6 @@ class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    // 언어 변경 감지
-    final currentLanguage = ref.read(appSettingProvider).language;
-    final currentRebuildMarker = globalRebuildMarker;
-
-    if (currentRebuildMarker != _lastRebuildMarker) {
-      _lastRebuildMarker = currentRebuildMarker;
-      logger.i('VoteHomeScreen: 언어 변경 감지, UI 리빌드 ($currentLanguage)');
-
-      if (mounted) {
-        // 화면 전체 갱신
-        setState(() {});
-      }
-    }
   }
 
   void _handleRightSwipe() {
@@ -115,10 +98,6 @@ class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
   Widget build(BuildContext context) {
     final showBottomNavigation = ref.watch(
         navigationInfoProvider.select((value) => value.showBottomNavigation));
-
-    // 언어 변경 감지를 위해 rebuildMarkerProvider와 appSettingProvider를 감시
-    ref.watch(rebuildMarkerProvider);
-    ref.watch(appSettingProvider.select((value) => value.language));
 
     return PopScope(
       canPop: false,
