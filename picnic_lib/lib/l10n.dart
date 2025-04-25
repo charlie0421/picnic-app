@@ -254,7 +254,7 @@ String getLocaleLanguage() {
 String getLocaleTextFromJson(Map<String, dynamic> json) {
   if (json.isEmpty) return '';
 
-  final locale = getLocaleLanguage();
+  final locale = PicnicLibL10n.getCurrentLocale().languageCode;
   return json[locale] ?? json['en'] ?? '';
 }
 
