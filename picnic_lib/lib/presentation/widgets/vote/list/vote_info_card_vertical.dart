@@ -73,7 +73,7 @@ class VoteCardColumnVertical extends StatelessWidget {
           child: FadeTransition(
             opacity: opacityAnimation,
             child: Text(
-              t('text_vote_rank', [rank.toString()]),
+              t('text_vote_rank', {'rank': rank.toString()}),
               style: getTextStyle(AppTypo.caption12B, AppColors.point900),
               textAlign: TextAlign.center,
             ),

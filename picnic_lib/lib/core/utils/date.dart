@@ -8,11 +8,12 @@ String formatTimeAgo(BuildContext context, DateTime timestamp) {
   final difference = now.difference(timestamp);
 
   if (difference.inDays >= 1) {
-    return t('label_time_ago_day', [difference.inDays.toString()]);
+    return t('label_time_ago_day', {'day': difference.inDays.toString()});
   } else if (difference.inHours >= 1) {
-    return t('label_time_ago_hour', [difference.inHours.toString()]);
+    return t('label_time_ago_hour', {'hour': difference.inHours.toString()});
   } else if (difference.inMinutes >= 1) {
-    return t('label_time_ago_minute', [difference.inMinutes.toString()]);
+    return t(
+        'label_time_ago_minute', {'minute': difference.inMinutes.toString()});
   } else {
     return t('label_time_ago_right_now');
   }

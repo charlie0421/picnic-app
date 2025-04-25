@@ -34,7 +34,6 @@ import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/services/localization_service.dart';
@@ -56,7 +55,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   bool _isAppInitialized = false;
   bool _isLanguageLoaded = false;
-  bool _isUpdateRequired = false;
   Widget? initScreen;
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer =

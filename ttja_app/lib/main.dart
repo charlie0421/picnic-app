@@ -21,7 +21,6 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/l10n.dart';
 
 // 전역 언어 상태를 저장하는 변수
 bool isLanguageInitialized = false;

@@ -42,7 +42,7 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
                 children: [
                   Expanded(
                       child: Text(t('update_recommend_text',
-                          [updateInfo.latestVersion]))),
+                          {'version': updateInfo.latestVersion}))),
                   TextButton(
                     child: Text(
                       t("update_button"),

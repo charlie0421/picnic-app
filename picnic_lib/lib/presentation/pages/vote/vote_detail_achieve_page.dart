@@ -217,7 +217,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                             ),
                             child: Text(
                               t('text_achievement',
-                                  [achievements.length.toString()]),
+                                  {'count': achievements.length.toString()}),
                               style: getTextStyle(
                                   AppTypo.title18B, AppColors.grey00),
                             ),

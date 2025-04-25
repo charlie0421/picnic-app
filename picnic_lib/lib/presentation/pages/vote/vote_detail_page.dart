@@ -565,9 +565,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         .isNotEmpty;
 
     if (hasSameVotes) {
-      return t('text_vote_rank(rank)');
+      return t('text_vote_rank', {'rank': rank.toString()});
     }
-    return t('text_vote_rank(rank)');
+    return t('text_vote_rank', {'rank': rank.toString()});
   }
 
   Widget _buildArtistImage(VoteItemModel item, int index) {
