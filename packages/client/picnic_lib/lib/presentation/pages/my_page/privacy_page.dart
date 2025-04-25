@@ -33,7 +33,7 @@ class _PrivacyPageState extends ConsumerState<PrivacyPage>
 
   Widget _buildTabBar() {
     final PolicyLanguage language =
-        ref.watch(appSettingProvider).language == 'ko'
+        ref.read(appSettingProvider).language == 'ko'
             ? PolicyLanguage.ko
             : PolicyLanguage.en;
     final policyModelState = ref.watch(asyncPolicyProvider);

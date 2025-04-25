@@ -38,6 +38,7 @@ dependencies:
     url_launcher: ^6.2.5
     tapjoy_offerwall: ^14.2.1
     flutter_branch_sdk: ^8.3.2
+    crowdin_sdk: ^0.7.0
 
 dev_dependencies:
     flutter_test:

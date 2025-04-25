@@ -63,18 +63,6 @@ class _MyPageState extends ConsumerState<MyPage> {
   Widget build(BuildContext context) {
     final userInfoState = ref.watch(userInfoProvider);
 
-    // 언어 변경 감지를 위한 리스너 추가
-    ref.listen(appSettingProvider, (previous, current) {
-      logger.i(
-          'appSettingProvider 변경 감지: ${previous?.language} → ${current.language}');
-      if (previous?.language != current.language) {
-        // 언어가 변경되면 UI 갱신을 위해 setState 호출
-        setState(() {
-          logger.i('언어 변경으로 인한 setState 호출: ${current.language}');
-        });
-      }
-    });
-
     ref.listen(userInfoProvider, (previous, state) {
       if (state is AsyncData<UserProfilesModel?>) {
         ref
@@ -128,8 +116,6 @@ class _MyPageState extends ConsumerState<MyPage> {
                         backgroundColor: AppColors.grey00,
                         useSafeArea: true,
                         builder: (context) {
-                          final currentLang =
-                              ref.read(appSettingProvider).language;
                           return Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -142,16 +128,11 @@ class _MyPageState extends ConsumerState<MyPage> {
                                         AppTypo.body16B, AppColors.grey900)),
                               ),
                               Divider(height: 1, color: AppColors.grey100),
-                              _buildLanguageOption(
-                                  context, 'ko', '한국어', currentLang),
-                              _buildLanguageOption(
-                                  context, 'en', 'English', currentLang),
-                              _buildLanguageOption(
-                                  context, 'ja', '日本語', currentLang),
-                              _buildLanguageOption(
-                                  context, 'zh', '中文', currentLang),
-                              _buildLanguageOption(
-                                  context, 'id', 'Indonesia', currentLang),
+                              _buildLanguageOption(context, 'ko', '한국어'),
+                              _buildLanguageOption(context, 'en', 'English'),
+                              _buildLanguageOption(context, 'ja', '日本語'),
+                              _buildLanguageOption(context, 'zh', '中文'),
+                              _buildLanguageOption(context, 'id', 'Indonesia'),
                               SizedBox(height: 32),
                             ],
                           );
@@ -446,128 +427,29 @@ class _MyPageState extends ConsumerState<MyPage> {
     logger.i('⭐ 언어 변경 시작: $selectedLang');
 
     try {
-      // 1. 이전 언어 저장
-      final oldLanguage = ref.read(appSettingProvider).language;
-      logger.i('⭐ 이전 언어: $oldLanguage, 새 언어: $selectedLang');
-
-      if (oldLanguage == selectedLang) {
+      // 현재 선택된 언어와 같은지 확인
+      final currentLanguage = ref.read(appSettingProvider).language;
+      if (selectedLang == currentLanguage) {
         logger.i('🔄 동일한 언어가 선택됨, 변경 없음');
         return;
       }
 
-      // 2. 바텀시트 닫기 (UI 문제 방지)
-      Navigator.of(context).pop();
-
-      // 3. SharedPreferences 직접 업데이트
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('language', selectedLang);
-        logger.i('⭐ SharedPreferences 저장 완료: $selectedLang');
-
-        // 저장 확인
-        final savedLang = prefs.getString('language');
-        logger.i('⭐ 저장 확인: $savedLang');
-
-        if (savedLang != selectedLang) {
-          logger
-              .e('⭐ SharedPreferences 저장 불일치: 원함=$selectedLang, 실제=$savedLang');
-        }
-      } catch (e) {
-        logger.e('⭐ SharedPreferences 저장 오류', error: e);
-      }
-
-      // 4. 즉시 Provider 갱신
+      // 앱 설정에 언어 저장 (이게 핵심 - 리스너에서 감지함)
       ref.read(appSettingProvider.notifier).setLanguage(selectedLang);
-
-      // 5. PicnicLibL10n 설정 (핵심)
       PicnicLibL10n.setCurrentLocale(selectedLang);
-
-      // 6. 전역 리빌드 마커 변경
-      globalRebuildMarker = DateTime.now().millisecondsSinceEpoch;
-
-      // 7. UI 즉시 갱신
-      setState(() {
-        logger.i('⭐ 첫 번째 setState');
-      });
-
-      // 8. Provider 상태 확인
-      await Future.delayed(const Duration(milliseconds: 50));
-      final updatedLanguage = ref.read(appSettingProvider).language;
-      logger.i('⭐ Provider 상태 확인: $updatedLanguage');
-
-      if (updatedLanguage != selectedLang) {
-        logger.e('⭐ Provider 상태 불일치: 원함=$selectedLang, 실제=$updatedLanguage');
-
-        // 상태 강제 변경 시도
-        ref.read(appSettingProvider.notifier).setLanguage(selectedLang);
-      }
-
-      // 9. navigatorKey를 통한 앱 전체 갱신
-      final rootContext = navigatorKey.currentContext;
-      if (rootContext != null) {
-        try {
-          // Provider 컨테이너 접근
-          final container =
-              ProviderScope.containerOf(rootContext, listen: false);
-
-          // Provider 무효화
-          container.invalidate(appSettingProvider);
-          container.invalidate(appInitializationProvider);
-          container.invalidate(navigationInfoProvider);
-
-          // navigator setState 호출
-          navigatorKey.currentState?.setState(() {
-            logger.i('⭐ 앱 전체 리빌드 트리거');
-          });
-
-          logger.i('⭐ Provider 무효화 및 앱 전체 리빌드 완료');
-        } catch (e) {
-          logger.e('⭐ Provider 무효화 오류', error: e);
-        }
-      }
-
-      // 10. 최종 확인
-      await Future.delayed(const Duration(milliseconds: 300));
-      if (!mounted) return;
-
-      final finalLanguage = ref.read(appSettingProvider).language;
-      logger.i('⭐ 최종 상태 확인: $finalLanguage');
-
-      if (finalLanguage != selectedLang) {
-        logger.e('⭐ 최종 상태 불일치, 마지막 수정 시도');
-
-        // 상태 마지막 수정 시도
-        ref.read(appSettingProvider.notifier).setLanguage(selectedLang);
-
-        // SharedPreferences 마지막 확인
-        try {
-          final prefs = await SharedPreferences.getInstance();
-          final finalSavedLang = prefs.getString('language');
-
-          if (finalSavedLang != selectedLang) {
-            logger.e('⭐ 최종 SharedPreferences 불일치, 다시 저장');
-            await prefs.setString('language', selectedLang);
-          }
-        } catch (e) {
-          logger.e('⭐ 최종 SharedPreferences 확인 오류', error: e);
-        }
-      }
-
-      // 11. 마지막 UI 갱신
-      setState(() {
-        logger.i('⭐ 최종 UI 갱신');
-      });
-
       logger.i('⭐ 언어 변경 완료: $selectedLang');
     } catch (e, s) {
       logger.e('⭐ 언어 변경 오류', error: e, stackTrace: s);
     }
+
+    // 바텀시트 닫기
+    Navigator.of(context).pop();
   }
 
   // 각 언어 옵션 위젯 생성 함수
   Widget _buildLanguageOption(
-      BuildContext context, String langCode, String label, String currentLang) {
-    final isSelected = langCode == currentLang;
+      BuildContext context, String langCode, String label) {
+    final isSelected = langCode == ref.read(appSettingProvider).language;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {

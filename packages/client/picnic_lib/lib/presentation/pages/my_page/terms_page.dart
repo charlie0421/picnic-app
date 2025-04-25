@@ -30,7 +30,7 @@ class _TermsPageState extends ConsumerState<TermsPage>
   @override
   Widget build(BuildContext context) {
     final PolicyLanguage language =
-        ref.watch(appSettingProvider).language == 'ko'
+        ref.read(appSettingProvider).language == 'ko'
             ? PolicyLanguage.ko
             : PolicyLanguage.en;
     final policyModelState = ref.watch(asyncPolicyProvider);

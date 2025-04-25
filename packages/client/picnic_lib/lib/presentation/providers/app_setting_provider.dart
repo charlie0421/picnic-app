@@ -48,22 +48,25 @@ class Setting with _$Setting {
   const factory Setting({
     @Default(ThemeMode.system) ThemeMode themeMode,
     @Default(false) bool postAnonymousMode,
-    @Default('en') String language,
+    @Default('ko') String language,
   }) = _Setting;
 
   Future<Setting> load() async {
-    var themeModeStr = await globalStorage.loadData('themeMode', 'system');
-    var postAnonymousModeStr =
-        await globalStorage.loadData('postAnonymousMode', 'false');
-    var languageStr = await globalStorage.loadData('language', 'en');
+    final language = await globalStorage.loadData('language', 'ko');
+    // 빈 값이거나 'en'일 경우 'ko'로 설정
+    final fixedLanguage =
+        language == null || language.isEmpty || language == 'en'
+            ? 'ko'
+            : language;
 
-    logger.i(
-        'loaded config: themeMode=$themeModeStr, postAnonymousMode=$postAnonymousModeStr, language=$languageStr');
+    if (fixedLanguage != language) {
+      logger.i('언어 설정 수정: $language → $fixedLanguage');
+      await globalStorage.debugSaveLanguage(fixedLanguage);
+    }
 
-    return copyWith(
-        themeMode: parseThemeMode(themeModeStr!),
-        postAnonymousMode: postAnonymousModeStr == 'true',
-        language: languageStr ?? 'en');
+    return Setting(
+      language: fixedLanguage,
+    );
   }
 }
 
