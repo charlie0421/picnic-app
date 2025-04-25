@@ -12,6 +12,7 @@ import Footer from '@/components/layouts/Footer';
 import { getVoteById, getVoteItems, getVoteRewards } from '@/utils/api/queries';
 import { getLocalizedString } from '@/utils/api/image';
 import { getCdnImageUrl } from '@/utils/api/image';
+import VoteRankCard from '@/components/features/vote/VoteRankCard';
 
 const VoteDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -32,6 +33,10 @@ const VoteDetailPage: React.FC = () => {
   const [voteStatus, setVoteStatus] = useState<
     'upcoming' | 'ongoing' | 'ended'
   >('ongoing');
+  const [prevRankings, setPrevRankings] = useState<{ [key: number]: number }>({});
+  const [prevVotes, setPrevVotes] = useState<{ [key: number]: number }>({});
+  const [voteChanges, setVoteChanges] = useState<{ [key: number]: number }>({});
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // 투표 아이템 랭킹 계산 (동점자 공동 순위 처리)
   const rankedVoteItems = useMemo(() => {
@@ -60,19 +65,78 @@ const VoteDetailPage: React.FC = () => {
     return itemsWithRank;
   }, [voteItems]);
 
+  // 투표 아이템 주기적 업데이트
   useEffect(() => {
-    const fetchData = async () => {
+    if (voteStatus !== 'ongoing') return;
+
+    const fetchVoteItems = async () => {
       try {
         if (id) {
-          const voteData = await getVoteById(Number(id));
-          setVote(voteData);
-
           const voteItemsData = await getVoteItems(Number(id));
           // 투표수 내림차순 정렬
           const sortedItems = voteItemsData.sort(
             (a, b) => (b.voteTotal || 0) - (a.voteTotal || 0),
           );
           setVoteItems(sortedItems);
+        }
+      } catch (error) {
+        console.error('투표 아이템을 가져오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    // 초기 데이터 로드
+    fetchVoteItems();
+
+    // 1초마다 데이터 업데이트
+    const intervalId = setInterval(fetchVoteItems, 1000);
+    return () => clearInterval(intervalId);
+  }, [id, voteStatus]);
+
+  // 1초마다 투표수와 순위 변경 확인
+  useEffect(() => {
+    if (voteStatus !== 'ongoing') return;
+
+    const checkChanges = () => {
+      const newRankings: { [key: number]: number } = {};
+      const newVotes: { [key: number]: number } = {};
+      const newVoteChanges: { [key: number]: number } = {};
+
+      rankedVoteItems.forEach((item) => {
+        newRankings[item.id] = item.rank;
+        newVotes[item.id] = item.voteTotal || 0;
+        newVoteChanges[item.id] = (item.voteTotal || 0) - (prevVotes[item.id] || 0);
+      });
+
+      // 순위나 투표수가 변경되었는지 확인
+      const hasRankChange = Object.keys(prevRankings).some(
+        (id) => prevRankings[Number(id)] !== newRankings[Number(id)],
+      );
+      const hasVoteChange = Object.keys(prevVotes).some(
+        (id) => prevVotes[Number(id)] !== newVotes[Number(id)],
+      );
+
+      if (hasRankChange || hasVoteChange) {
+        setIsAnimating(true);
+        setVoteChanges(newVoteChanges);
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 1000);
+      }
+
+      setPrevRankings(newRankings);
+      setPrevVotes(newVotes);
+    };
+
+    const intervalId = setInterval(checkChanges, 1000);
+    return () => clearInterval(intervalId);
+  }, [rankedVoteItems, voteStatus, prevRankings, prevVotes]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (id) {
+          const voteData = await getVoteById(Number(id));
+          setVote(voteData);
 
           const rewardsData = await getVoteRewards(Number(id));
           setRewards(rewardsData);
@@ -293,7 +357,22 @@ const VoteDetailPage: React.FC = () => {
             {/* 랭킹 탭 */}
             {tab === 'ranking' && (
               <div className='space-y-3'>
-                <div className='relative'>
+                {/* 상위 3개 항목을 VoteRankCard로 표시 */}
+                <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16 mb-8'>
+                  {rankedVoteItems.slice(0, 3).map((item, index) => (
+                    <VoteRankCard
+                      key={item.id}
+                      item={item}
+                      rank={index + 1}
+                      isAnimating={isAnimating}
+                      voteChange={voteChanges[item.id] || 0}
+                      showVoteChange={true}
+                    />
+                  ))}
+                </div>
+
+                {/* 검색창 */}
+                <div className='relative mt-4'>
                   <input
                     type='text'
                     placeholder='나의 최애는 어디에?'
@@ -334,174 +413,76 @@ const VoteDetailPage: React.FC = () => {
                   </button>
                 </div>
 
-                {/* 아티스트 목록 - 랭킹 강조 및 동점자 공동 순위 */}
-                <div className='space-y-4 mt-4'>
-                  {rankedVoteItems.map((item, index) => {
-                    // 순위에 따라 스타일 다르게 적용
-                    let rankStyle = '';
-                    let rankBadge = '';
-                    let imageSize = 'w-12 h-12';
-                    let textSize = 'text-md';
-
-                    if (item.rank === 1) {
-                      // 1등 스타일 - 골드
-                      rankStyle =
-                        'border-4 border-yellow-500 shadow-xl bg-yellow-50 p-6 scale-105 transform';
-                      rankBadge =
-                        'flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-lg text-2xl font-extrabold';
-                      imageSize = 'w-20 h-20';
-                      textSize = 'text-2xl';
-                    } else if (item.rank === 2) {
-                      // 2등 스타일 - 실버
-                      rankStyle =
-                        'border-3 border-gray-400 shadow-lg bg-gray-50 p-5';
-                      rankBadge =
-                        'flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-gray-300 to-gray-500 text-white shadow-md text-xl font-bold';
-                      imageSize = 'w-18 h-18';
-                      textSize = 'text-xl';
-                    } else if (item.rank === 3) {
-                      // 3등 스타일 - 브론즈
-                      rankStyle =
-                        'border-2 border-amber-600 shadow-md bg-amber-50 p-4';
-                      rankBadge =
-                        'flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-amber-700 text-white shadow-sm text-lg font-bold';
-                      imageSize = 'w-16 h-16';
-                      textSize = 'text-lg';
-                    } else if (item.rank <= 10) {
-                      // 4-10등 스타일
-                      rankStyle =
-                        'border-2 border-blue-300 shadow-sm bg-blue-50';
-                      rankBadge =
-                        'flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 text-white shadow-md text-md font-bold';
-                      imageSize = 'w-14 h-14';
-                      textSize = 'text-lg';
-                    } else {
-                      // 11등 이후 스타일
-                      rankStyle = 'border border-gray-200';
-                      rankBadge = 'text-gray-600 text-lg font-semibold';
-                    }
-
-                    return (
-                      <div
-                        key={item.id}
-                        className={`flex items-center p-4 rounded-lg hover:bg-gray-50 transition-all ${rankStyle}`}
-                      >
-                        {/* 랭킹 표시 */}
-                        <div className='w-12 h-12 flex items-center justify-center'>
-                          {item.rank <= 10 ? (
-                            <span className={rankBadge}>{item.rank}</span>
-                          ) : (
-                            <span className={rankBadge}>{item.rank}</span>
-                          )}
-                        </div>
-
-                        {/* 아티스트 이미지 */}
-                        <div
-                          className={`${imageSize} rounded-full overflow-hidden border-2 border-white shadow-sm mx-3`}
-                        >
-                          {item.artist && item.artist.image ? (
-                            <Image
-                              src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                              alt={getLocalizedString(item.artist.name)}
-                              width={64}
-                              height={64}
-                              className='w-full h-full object-cover'
-                            />
-                          ) : (
-                            <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                              <span className='text-gray-600 text-xs'>No</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* 아티스트 정보 */}
-                        <div className='flex-1'>
-                          <div className='flex items-center'>
-                            <p
-                              className={`font-bold ${textSize} ${
-                                item.rank === 1
-                                  ? 'text-yellow-600'
-                                  : item.rank === 2
-                                  ? 'text-gray-600'
-                                  : item.rank === 3
-                                  ? 'text-amber-600'
-                                  : ''
-                              }`}
-                            >
-                              {getLocalizedString(item.artist?.name)}
-                            </p>
-                            <p className='text-sm text-gray-600 ml-2'>
-                              {getLocalizedString(item.artist?.artist_group?.name)}
-                            </p>
-                          </div>
-                          <div className='flex items-center'>
-                            <p
-                              className={`${
-                                item.rank === 1
-                                  ? 'text-yellow-600 text-2xl font-extrabold'
-                                  : item.rank === 2
-                                  ? 'text-gray-600 text-xl font-bold'
-                                  : item.rank === 3
-                                  ? 'text-amber-600 text-lg font-bold'
-                                  : item.rank <= 10
-                                  ? 'text-primary font-bold'
-                                  : 'text-gray-600'
-                              }`}
-                            >
-                              {item.voteTotal?.toLocaleString() || 0}
-                            </p>
-                            <span className='text-gray-600 text-sm ml-1'>
-                              표
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* 투표 버튼 */}
-                        <button
-                          className={`ml-2 p-3 rounded-full text-white ${
-                            item.rank === 1
-                              ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 shadow-xl px-5 py-4'
-                              : item.rank === 2
-                              ? 'bg-gradient-to-r from-gray-400 to-gray-500 shadow-lg px-4 py-3.5'
-                              : item.rank === 3
-                              ? 'bg-gradient-to-r from-amber-500 to-amber-700 shadow-md'
-                              : item.rank <= 10
-                              ? 'bg-primary shadow-sm'
-                              : 'bg-gray-500'
-                          } hover:opacity-90 transition-all flex items-center justify-center`}
-                          onClick={() => handleSelect(item)}
-                        >
-                          <svg
-                            xmlns='http://www.w3.org/2000/svg'
-                            className={`${
-                              item.rank === 1
-                                ? 'h-7 w-7'
-                                : item.rank === 2
-                                ? 'h-6 w-6'
-                                : 'h-5 w-5'
-                            } mr-1`}
-                            fill='none'
-                            viewBox='0 0 24 24'
-                            stroke='currentColor'
-                          >
-                            <path
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              strokeWidth={2}
-                              d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
-                            />
-                          </svg>
-                          <span
-                            className={`font-bold ${
-                              item.rank === 1 ? 'text-lg' : ''
-                            }`}
-                          >
-                            투표
-                          </span>
-                        </button>
+                {/* 전체 항목들 (1위부터) */}
+                <div className='space-y-4 mt-4 mb-8'>
+                  {rankedVoteItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className='flex items-center p-4 rounded-lg hover:bg-gray-50 transition-all border border-gray-200'
+                    >
+                      {/* 랭킹 표시 */}
+                      <div className='w-12 h-12 flex items-center justify-center'>
+                        <span className='text-gray-600 text-lg font-semibold'>{item.rank}</span>
                       </div>
-                    );
-                  })}
+
+                      {/* 아티스트 이미지 */}
+                      <div className='w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm mx-3'>
+                        {item.artist && item.artist.image ? (
+                          <Image
+                            src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
+                            alt={getLocalizedString(item.artist.name)}
+                            width={56}
+                            height={56}
+                            className='w-full h-full object-cover'
+                          />
+                        ) : (
+                          <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
+                            <span className='text-gray-600 text-xs'>No</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 아티스트 정보 */}
+                      <div className='flex-1'>
+                        <div className='flex items-center'>
+                          <p className='font-bold text-md text-gray-700'>
+                            {getLocalizedString(item.artist?.name)}
+                          </p>
+                          <p className='text-sm text-gray-600 ml-2'>
+                            {getLocalizedString(item.artist?.artist_group?.name)}
+                          </p>
+                        </div>
+                        <div className='flex items-center'>
+                          <p className='text-primary font-bold'>
+                            {item.voteTotal?.toLocaleString() || 0}
+                          </p>
+                          <span className='text-gray-600 text-sm ml-1'>표</span>
+                        </div>
+                      </div>
+
+                      {/* 투표 버튼 */}
+                      <button
+                        className='ml-2 p-3 rounded-full text-white bg-primary shadow-sm hover:opacity-90 transition-all flex items-center justify-center'
+                        onClick={() => handleSelect(item)}
+                      >
+                        <svg
+                          xmlns='http://www.w3.org/2000/svg'
+                          className='h-5 w-5 mr-1'
+                          fill='none'
+                          viewBox='0 0 24 24'
+                          stroke='currentColor'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
+                          />
+                        </svg>
+                        <span className='font-bold'>투표</span>
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

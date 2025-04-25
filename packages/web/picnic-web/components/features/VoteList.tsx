@@ -229,7 +229,7 @@ const CountdownTimer = React.memo(({ vote }: { vote: Vote }) => {
     minutes: number;
     seconds: number;
   } | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [scale, setScale] = useState(1);
   const { t } = useLanguageStore();
 
   const { targetDate, status } = useMemo(() => {
@@ -263,15 +263,15 @@ const CountdownTimer = React.memo(({ vote }: { vote: Vote }) => {
       const seconds = diffInSeconds % 60;
 
       setRemainingTime({ days, hours, minutes, seconds });
+      setScale(1.1);
+      setTimeout(() => setScale(1), 100);
     };
 
     calculateRemainingTime();
     const timer = setInterval(calculateRemainingTime, 1000);
-    const animationInterval = setInterval(() => setIsUpdating(prev => !prev), 500);
 
     return () => {
       clearInterval(timer);
-      clearInterval(animationInterval);
     };
   }, [targetDate]);
 
@@ -282,23 +282,22 @@ const CountdownTimer = React.memo(({ vote }: { vote: Vote }) => {
       <div className='text-xs text-gray-500 mb-2'>
         {status === 'start' ? t('text_vote_countdown_start') : t('text_vote_countdown_end')}
       </div>
-      <div className='flex items-center'>
+      <div className='flex items-center justify-center gap-2'>
         {Object.entries(remainingTime).map(([unit, value], index, array) => (
           <React.Fragment key={unit}>
             <div className='flex flex-col items-center'>
               <div
-                className={`bg-violet-50 w-12 h-12 rounded-lg flex items-center justify-center font-mono text-lg font-bold text-violet-500 ${
-                  isUpdating ? 'text-opacity-80' : 'text-opacity-100'
-                } transition-all relative`}
+                className='bg-violet-50 w-14 h-14 rounded-lg flex flex-col items-center justify-center font-mono text-lg font-bold text-violet-500 relative gap-0'
+                style={{ transform: `scale(${scale})`, transition: 'transform 0.1s ease-in-out' }}
               >
                 {value.toString().padStart(2, '0')}
-                <span className='absolute -bottom-4 text-[10px] font-medium text-violet-400'>
+                <span className='text-[10px] font-medium text-violet-400 leading-none'>
                   {unit === 'days' ? 'D' : unit === 'hours' ? 'H' : unit === 'minutes' ? 'M' : 'S'}
                 </span>
               </div>
             </div>
             {index < array.length - 1 && (
-              <span className='mx-1 text-violet-500 font-bold'>:</span>
+              <span className='text-violet-500 font-bold'>:</span>
             )}
           </React.Fragment>
         ))}

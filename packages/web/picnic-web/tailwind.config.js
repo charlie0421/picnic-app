@@ -14,6 +14,23 @@ module.exports = {
       '2xl': '1536px',
     },
     extend: {
+      keyframes: {
+        'fade-in-out': {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '20%': { opacity: '1', transform: 'translateY(0)' },
+          '80%': { opacity: '1', transform: 'translateY(0)' },
+          '100%': { opacity: '0', transform: 'translateY(-10px)' },
+        },
+        'rank-pulse': {
+          '0%': { transform: 'translateX(-50%) scale(1)' },
+          '50%': { transform: 'translateX(-50%) scale(1.1)' },
+          '100%': { transform: 'translateX(-50%) scale(1)' },
+        },
+      },
+      animation: {
+        'fade-in-out': 'fade-in-out 1s ease-in-out forwards',
+        'rank-pulse': 'rank-pulse 0.5s ease-in-out',
+      },
       colors: {
         primary: {
           DEFAULT: '#9374FF',
