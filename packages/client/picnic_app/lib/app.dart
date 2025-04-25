@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -326,11 +325,7 @@ build 메서드 상태:
       themeMode: appSettingState.themeMode,
       locale: Locale(appSettingState.language),
       localizationsDelegates: [
-        // 앱 자체 로컬라이제이션 추가
-        S.delegate, // 앱 내 generated/l10n.dart의 delegate
-        // PicnicLib 로컬라이제이션 추가
         ...LocalizationService.localizationDelegates,
-        // Flutter 기본 로컬라이제이션
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

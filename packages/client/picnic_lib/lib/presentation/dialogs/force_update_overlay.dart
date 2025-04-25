@@ -23,8 +23,7 @@ class ForceUpdateOverlay extends StatelessWidget {
               children: [
                 Text(t('update_required_title')),
                 const SizedBox(height: 16),
-                // Text(t('update_required_text(forceVersion)),
-                Text(t('update_required_text', [forceVersion])),
+                Text(t('update_required_text', {'version': forceVersion})),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   child: Text(t('update_button')),

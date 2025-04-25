@@ -176,10 +176,10 @@ abstract class AdPlatform {
               textAlign: TextAlign.center),
           const SizedBox(height: 16),
           UnderlinedText(
-            text: t('label_ads_limits', [
-              limits?['hourly'].toString() ?? '0',
-              limits?['daily'].toString() ?? '0'
-            ]),
+            text: t('label_ads_limits', {
+              'hourly': limits?['hourly'].toString() ?? '0',
+              'daily': limits?['daily'].toString() ?? '0'
+            }),
             textStyle: getTextStyle(AppTypo.body14M, AppColors.grey600),
           ),
           const SizedBox(height: 16),

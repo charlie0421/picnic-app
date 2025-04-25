@@ -59,7 +59,7 @@ class _CompatibilityResultPageState
   static const _animationDuration = Duration(milliseconds: 300);
   static const _scrollCurve = Curves.easeOut;
   late final _shareMessage = t('compatibility_share_message',
-      [getLocaleTextFromJson(widget.compatibility.artist.name)]);
+      {'artistName': getLocaleTextFromJson(widget.compatibility.artist.name)});
 
   @override
   void initState() {
@@ -518,7 +518,7 @@ class _CompatibilityResultPageState
       _shareKey,
       message: _shareMessage,
       hashtag: t('compatibility_share_hashtag',
-          [getLocaleTextFromJson(compatibility.artist.name)]),
+          {'artistName': getLocaleTextFromJson(compatibility.artist.name)}),
       downloadLink: await createBranchLink(
           getLocaleTextFromJson(compatibility.artist.name),
           '${Environment.appLinkPrefix}/community/compatibility/${compatibility.artist.id}'),

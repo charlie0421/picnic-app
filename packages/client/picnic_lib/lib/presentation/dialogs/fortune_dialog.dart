@@ -208,10 +208,14 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                             if (_isSaving) return;
                             ShareUtils.shareToSocial(
                               _shareKey,
-                              message: t('compatibility_share_message',
-                                  [getLocaleTextFromJson(fortune.artist.name)]),
-                              hashtag: t('compatibility_share_hashtag',
-                                  [getLocaleTextFromJson(fortune.artist.name)]),
+                              message: t('compatibility_share_message', {
+                                'artistName':
+                                    getLocaleTextFromJson(fortune.artist.name)
+                              }),
+                              hashtag: t('compatibility_share_hashtag', {
+                                'artistName':
+                                    getLocaleTextFromJson(fortune.artist.name)
+                              }),
                               downloadLink: await createBranchLink(
                                   getLocaleTextFromJson(fortune.artist.name),
                                   '${Environment.appLinkPrefix}/community/fortune/${widget.artistId}'),

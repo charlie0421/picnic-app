@@ -19,10 +19,15 @@ class PicnicLibL10n {
   /// 지원되는 로케일 목록 (언어 코드만 사용)
   static const List<Locale> supportedLocales = [
     Locale('en'), // 영어
+    Locale('en', 'US'), // 미국 영어
     Locale('ja'), // 일본어
+    Locale('ja', 'JP'), // 일본어 (일본)
     Locale('ko'), // 한국어
+    Locale('ko', 'KR'), // 한국어 (한국)
     Locale('zh'), // 중국어
+    Locale('zh', 'CN'), // 중국어 (중국)
     Locale('id'), // 인도네시아어
+    Locale('id', 'ID'), // 인도네시아어 (인도네시아)
   ];
 
   /// 기본 로케일
@@ -179,7 +184,7 @@ class PicnicLibL10n {
     return text[0].toUpperCase() + text.substring(1);
   }
 
-  static String t(String key, [List<String>? args]) {
+  static String t(String key, [Map<String, String>? args]) {
     if (!_isInitialized) {
       // 초기화 안 된 경우 로그 추가
       logger.e('PicnicLibL10n이 초기화되지 않았습니다! 키: $key');
@@ -235,13 +240,17 @@ class _PicnicLocalizationsDelegate extends LocalizationsDelegate<dynamic> {
 }
 
 /// 번역 텍스트 포맷팅
-String _formatTranslation(String text, List<String>? args) {
+String _formatTranslation(String text, Map<String, String>? args) {
   if (args == null || args.isEmpty) return text;
 
   String result = text;
-  for (int i = 0; i < args.length; i++) {
-    result = result.replaceAll('{$i}', args[i]);
-  }
+
+  // Map 타입 처리 (이름 기반 플레이스홀더)
+  args.forEach((key, value) {
+    final placeholder = '{$key}';
+    result = result.replaceAll(placeholder, value);
+  });
+
   return result;
 }
 
@@ -259,6 +268,6 @@ String getLocaleTextFromJson(Map<String, dynamic> json) {
 }
 
 /// 전역 번역 함수
-String t(String key, [List<String>? args]) {
+String t(String key, [Map<String, String>? args]) {
   return PicnicLibL10n.t(key, args);
 }
