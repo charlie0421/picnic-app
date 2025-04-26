@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { VoteItem } from '@/types/interfaces';
 import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
@@ -9,8 +9,26 @@ const UpcomingVoteItems: React.FC<{
   voteItems?: Array<VoteItem & { artist?: any }>;
 }> = ({ voteItems }) => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [shuffledItems, setShuffledItems] = useState<Array<VoteItem & { artist?: any }>>([]);
   const itemsPerPage = 8; // 한 페이지당 2줄 x 4개
   const totalPages = Math.ceil((voteItems?.length || 0) / itemsPerPage);
+
+  // 투표아이템을 랜덤으로 섞는 함수
+  const shuffleItems = (items: Array<VoteItem & { artist?: any }>) => {
+    const shuffled = [...items];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // 컴포넌트가 처음 마운트될 때만 랜덤으로 섞기
+  useEffect(() => {
+    if (voteItems && voteItems.length > 0) {
+      setShuffledItems(shuffleItems(voteItems));
+    }
+  }, []); // 빈 의존성 배열로 변경
 
   const handlePrevPage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -24,16 +42,20 @@ const UpcomingVoteItems: React.FC<{
     setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
   };
 
-  const currentItems = voteItems?.slice(
+  const currentItems = shuffledItems.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
   );
+
+  if (!shuffledItems || shuffledItems.length === 0) {
+    return null;
+  }
 
   return (
     <div className="relative">
       <div className="overflow-hidden">
         <div className="grid grid-cols-4 grid-rows-2 gap-4 p-4">
-          {currentItems?.map((item, index) => (
+          {currentItems.map((item, index) => (
             <div key={index} className="flex flex-col items-center">
               <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-blue-200">
                 {item.artist?.image && (
