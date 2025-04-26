@@ -470,52 +470,50 @@ const StatusFilter = React.memo(({
   setSelectedStatus: (status: VoteStatus | 'all') => void,
   t: (key: string) => string 
 }) => {
-  const getButtonStyle = (status: VoteStatus | 'all') => {
-    const baseStyle = 'px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ease-in-out flex items-center justify-center min-w-[80px]';
-    const activeStyle = {
-      'all': 'bg-white text-primary shadow-sm',
-      [VOTE_STATUS.ONGOING]: 'bg-white text-green-600 shadow-sm',
-      [VOTE_STATUS.UPCOMING]: 'bg-white text-blue-600 shadow-sm',
-      [VOTE_STATUS.COMPLETED]: 'bg-white text-gray-600 shadow-sm'
-    };
-    const inactiveStyle = 'text-gray-500 hover:text-gray-700 hover:bg-white/50';
-    
-    return `${baseStyle} ${selectedStatus === status ? activeStyle[status] : inactiveStyle}`;
-  };
+  const getButtonStyle = (status: VoteStatus | 'all') =>
+    selectedStatus === status
+      ? 'px-4 py-2 rounded-lg bg-blue-500 text-white font-bold mx-1 shadow'
+      : 'px-4 py-2 rounded-lg bg-gray-200 text-gray-700 mx-1 hover:bg-blue-100';
 
   const getButtonText = (status: VoteStatus | 'all') => {
-    const texts = {
-      'all': t('label_tabbar_vote_all') || '전체',
-      [VOTE_STATUS.ONGOING]: t('label_tabbar_vote_active') || '진행중',
-      [VOTE_STATUS.UPCOMING]: t('label_tabbar_vote_upcoming') || '예정',
-      [VOTE_STATUS.COMPLETED]: t('label_tabbar_vote_end') || '종료'
-    };
-    return texts[status];
+    if (status === 'all') return t('label_tabbar_vote_all');
+    if (status === VOTE_STATUS.ONGOING) return t('label_tabbar_vote_active');
+    if (status === VOTE_STATUS.UPCOMING) return t('label_tabbar_vote_upcoming');
+    if (status === VOTE_STATUS.COMPLETED) return t('label_tabbar_vote_end');
+    return '';
   };
 
   return (
-    <div className='inline-flex items-center gap-1 bg-gray-100 p-1 rounded-lg shadow-sm'>
+    <div className="flex space-x-2">
       <button
         onClick={() => setSelectedStatus('all')}
         className={getButtonStyle('all')}
+        aria-label={t('label_vote_filter_all_aria')}
+        aria-pressed={selectedStatus === 'all'}
       >
         {getButtonText('all')}
       </button>
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
         className={getButtonStyle(VOTE_STATUS.ONGOING)}
+        aria-label={t('label_vote_filter_ongoing_aria')}
+        aria-pressed={selectedStatus === VOTE_STATUS.ONGOING}
       >
         {getButtonText(VOTE_STATUS.ONGOING)}
       </button>
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
         className={getButtonStyle(VOTE_STATUS.UPCOMING)}
+        aria-label={t('label_vote_filter_upcoming_aria')}
+        aria-pressed={selectedStatus === VOTE_STATUS.UPCOMING}
       >
         {getButtonText(VOTE_STATUS.UPCOMING)}
       </button>
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
         className={getButtonStyle(VOTE_STATUS.COMPLETED)}
+        aria-label={t('label_vote_filter_completed_aria')}
+        aria-pressed={selectedStatus === VOTE_STATUS.COMPLETED}
       >
         {getButtonText(VOTE_STATUS.COMPLETED)}
       </button>
@@ -584,6 +582,7 @@ const VoteList: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+  const [error, setError] = useState<string | null>(null);
   const { t } = useLanguageStore();
   const loadingRef = useRef<HTMLDivElement>(null);
   const PAGE_SIZE = 6;
@@ -595,6 +594,7 @@ const VoteList: React.FC = () => {
   const updateVoteData = useCallback(async (pageNum: number = 1, append: boolean = false) => {
     try {
       setLoading(true);
+      setError(null);
       // getVotes 함수가 페이지네이션을 지원하지 않는 것 같으므로, 클라이언트 사이드에서 처리
       const votesData = await getVotes('votes');
       const start = (pageNum - 1) * PAGE_SIZE;
@@ -610,6 +610,7 @@ const VoteList: React.FC = () => {
       setHasMore(end < votesData.length);
     } catch (error) {
       console.error('투표 데이터를 가져오는 중 오류가 발생했습니다:', error);
+      setError('데이터를 불러오는 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -695,6 +696,20 @@ const VoteList: React.FC = () => {
   }, [votes, selectedStatus]);
 
   if (!mounted) return null;
+
+  if (error) {
+    return (
+      <div className="text-red-500 p-4 rounded-lg bg-red-50 flex flex-col items-center">
+        <p>{error}</p>
+        <button
+          className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          onClick={() => updateVoteData(page, false)}
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
 
   return (
     <section className="w-full">

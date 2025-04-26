@@ -1,20 +1,29 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
-    domains: [
-      'xtijtefcycoeqludlngc.supabase.co',
-      'api.picnic.fan',
-      'cdn.picnic.fan',
-      'picnic-fan.s3.ap-northeast-2.amazonaws.com',
-      'img.youtube.com'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'xtijtefcycoeqludlngc.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.picnic.fan',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.picnic.fan',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picnic-fan.s3.ap-northeast-2.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com',
+      }
     ],
-  },
-  logging: {
-    fetches: {
-      fullUrl: true
-    }
   }
 };
 

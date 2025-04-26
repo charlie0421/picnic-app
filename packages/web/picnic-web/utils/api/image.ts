@@ -28,7 +28,7 @@ export const getCdnImageUrl = (
 
   // 이미 전체 URL인 경우 그대로 반환
   if (path.startsWith("http://") || path.startsWith("https://")) {
-    return path;
+    return path.trim();
   }
 
   try {
@@ -39,10 +39,10 @@ export const getCdnImageUrl = (
       const localizedPath = pathObj[currentLang] || pathObj.en || pathObj.ko ||
         Object.values(pathObj)[0];
 
-      // 슬래시로 시작하는지 확인
-      const normalizedPath = localizedPath.startsWith("/")
+      // 슬래시로 시작하는지 확인하고 공백 제거
+      const normalizedPath = (localizedPath.startsWith("/")
         ? localizedPath.substring(1)
-        : localizedPath;
+        : localizedPath).trim();
 
       // 최종 URL 생성
       const widthParam = width ? `?w=${width}` : "";
@@ -55,8 +55,8 @@ export const getCdnImageUrl = (
     // JSON 파싱 실패 시 원래 경로 사용
   }
 
-  // 슬래시로 시작하는지 확인
-  const normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+  // 슬래시로 시작하는지 확인하고 공백 제거
+  const normalizedPath = (path.startsWith("/") ? path.substring(1) : path).trim();
 
   // 최종 URL 생성
   const widthParam = width ? `?w=${width}` : "";

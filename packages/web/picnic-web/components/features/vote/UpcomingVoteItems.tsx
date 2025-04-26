@@ -28,7 +28,7 @@ const UpcomingVoteItems: React.FC<{
     if (voteItems && voteItems.length > 0) {
       setShuffledItems(shuffleItems(voteItems));
     }
-  }, []); // 빈 의존성 배열로 변경
+  }, [voteItems]);
 
   const handlePrevPage = (e: React.MouseEvent) => {
     e.preventDefault();

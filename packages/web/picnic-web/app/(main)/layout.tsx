@@ -1,29 +1,22 @@
 'use client';
 
 import React from 'react';
-import Menu from '@/components/features/Menu';
+import { AuthProvider } from '@/contexts/AuthContext';
 import Footer from '@/components/layouts/Footer';
 
-interface MainLayoutProps {
+export default function MainLayout({
+  children,
+}: {
   children: React.ReactNode;
-}
-
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+}) {
   return (
-    <div className='min-h-screen flex flex-col'>
-      <div className='bg-gray-50 border-b'>
-        <div className='container mx-auto px-0'>
-          <Menu />
-        </div>
+    <AuthProvider>
+      <div className='min-h-screen flex flex-col'>
+        <main className='flex-grow'>
+          {children}
+        </main>
+        <Footer />
       </div>
-
-      <main className='flex-grow'>
-        {children}
-      </main>
-
-      <Footer />
-    </div>
+    </AuthProvider>
   );
-};
-
-export default MainLayout; 
+} 

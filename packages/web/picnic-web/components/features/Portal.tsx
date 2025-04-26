@@ -13,6 +13,7 @@ import {
 import PortalMenuItem from '@/components/features/PortalMenuItem';
 import LanguageSelector from '@/components/features/LanguageSelector';
 import ExclusiveOpenBadge from '@/components/features/ExclusiveOpenBadge';
+import Menu from '@/components/features/Menu';
 import { PortalType } from '@/utils/enums';
 import {
   PORTAL_MENU,
@@ -102,6 +103,12 @@ const Portal: React.FC<PortalProps> = ({ children }) => {
               {/* 배타 오픈 뱃지 */}
               <div className="flex justify-center py-4">
                 <ExclusiveOpenBadge />
+              </div>
+              {/* 서브 메뉴 */}
+              <div className='bg-gray-50 border-b'>
+                <div className='container mx-auto px-0'>
+                  <Menu />
+                </div>
               </div>
               {/* 메인 콘텐츠 */}
               {children}

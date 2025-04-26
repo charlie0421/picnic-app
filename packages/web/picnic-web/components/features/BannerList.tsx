@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Banner } from '@/types/interfaces';
@@ -50,7 +50,7 @@ const BannerList: React.FC = () => {
   }, []);
 
   // 다음 배너로 이동
-  const nextBanner = () => {
+  const nextBanner = useCallback(() => {
     if (banners.length <= 3) return;
     setCurrentIndex((prev) => {
       const next = prev + 1;
@@ -59,10 +59,10 @@ const BannerList: React.FC = () => {
       }
       return next;
     });
-  };
+  }, [banners.length]);
 
   // 이전 배너로 이동
-  const prevBanner = () => {
+  const prevBanner = useCallback(() => {
     if (banners.length <= 3) return;
     setCurrentIndex((prev) => {
       const next = prev - 1;
@@ -71,7 +71,7 @@ const BannerList: React.FC = () => {
       }
       return next;
     });
-  };
+  }, [banners.length]);
 
   // 자동 스크롤 시작
   useEffect(() => {
@@ -96,7 +96,7 @@ const BannerList: React.FC = () => {
         clearInterval(autoScrollRef.current);
       }
     };
-  }, [banners.length, isPaused]);
+  }, [banners.length, isPaused, nextBanner]);
 
   // 배너 렌더링
   const renderBanner = (banner: Banner) => {

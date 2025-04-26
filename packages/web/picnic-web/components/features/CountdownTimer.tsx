@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { differenceInSeconds } from "date-fns";
 import { useLanguageStore } from "@/stores/languageStore";
 
 interface CountdownTimerProps {
-  endTime: string;
-  startTime: string;
+  endTime: string | null;
+  startTime: string | null;
   status: 'scheduled' | 'in_progress';
 }
 
@@ -66,36 +66,40 @@ const shouldAnimate = (seconds: number, timerStyle: TimerStyle): boolean => {
 };
 
 const CountdownTimer = React.memo(({ endTime, startTime, status }: CountdownTimerProps) => {
-  const targetDate = status === 'scheduled' ? new Date(startTime) : new Date(endTime);
-  const isEnded = new Date() >= targetDate;
-  const initialDiffInSeconds = differenceInSeconds(targetDate, new Date());
-  
-  const [remainingTime, setRemainingTime] = useState<TimeUnits | null>(
-    initialDiffInSeconds > 0 ? calculateTimeUnits(initialDiffInSeconds) : null
-  );
-  const [scale, setScale] = useState(1);
-  const [pulse, setPulse] = useState(false);
-  const [timerStyle, setTimerStyle] = useState<TimerStyle>(
-    initialDiffInSeconds > 0 ? getTimerStyle(initialDiffInSeconds) : {
-      textColor: 'text-black',
-      bgColor: 'bg-secondary',
-      animationInterval: 60
-    }
-  );
   const { t } = useLanguageStore();
   const lastAnimationTimeRef = useRef<number>(0);
-  const targetDateRef = useRef(targetDate);
+  const targetDateRef = useRef<Date | null>(null);
+  
+  const [remainingTime, setRemainingTime] = useState<TimeUnits | null>(null);
+  const [scale, setScale] = useState(1);
+  const [pulse, setPulse] = useState(false);
+  const [timerStyle, setTimerStyle] = useState<TimerStyle>({
+    textColor: 'text-black',
+    bgColor: 'bg-secondary',
+    animationInterval: 60
+  });
+
+  // targetDate 계산을 useMemo로 분리
+  const targetDate = useMemo(() => {
+    if (!startTime || !endTime) return null;
+    return status === 'scheduled' ? new Date(startTime) : new Date(endTime);
+  }, [startTime, endTime, status]);
 
   useEffect(() => {
-    targetDateRef.current = targetDate;
+    if (targetDate) {
+      targetDateRef.current = targetDate;
+    }
   }, [targetDate]);
 
   useEffect(() => {
+    if (!targetDate) return;
+    
+    const isEnded = new Date() >= targetDate;
     if (isEnded) return;
 
     const updateTimer = () => {
       const now = new Date();
-      const diffInSeconds = differenceInSeconds(targetDateRef.current, now);
+      const diffInSeconds = differenceInSeconds(targetDateRef.current!, now);
 
       if (diffInSeconds <= 0) {
         setRemainingTime(null);
@@ -106,7 +110,6 @@ const CountdownTimer = React.memo(({ endTime, startTime, status }: CountdownTime
       setTimerStyle(newTimerStyle);
       setRemainingTime(calculateTimeUnits(diffInSeconds));
       
-      // 애니메이션 실행 조건
       if (shouldAnimate(diffInSeconds, newTimerStyle)) {
         setScale(1.1);
         setPulse(true);
@@ -117,14 +120,12 @@ const CountdownTimer = React.memo(({ endTime, startTime, status }: CountdownTime
       }
     };
 
-    // 초기 상태 설정
     updateTimer();
-    
     const timer = setInterval(updateTimer, 1000);
     return () => clearInterval(timer);
-  }, [isEnded]);
+  }, [targetDate]);
 
-  if (!remainingTime || isEnded) return null;
+  if (!targetDate || !remainingTime) return null;
 
   return (
     <div className='flex flex-col items-center'>

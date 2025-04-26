@@ -42,7 +42,7 @@ const OngoingVoteItems: React.FC<{
       });
       prevVoteTotals.current = newPrevVoteTotals;
     }
-  }, []);
+  }, [currentVoteItems]);
 
   // 외부 voteItems가 변경되면 currentVoteItems 업데이트
   useEffect(() => {
@@ -193,7 +193,7 @@ const OngoingVoteItems: React.FC<{
         clearTimeout(rankTimerRef.current);
       }
     };
-  }, [topThreeItems]);
+  }, [topThreeItems, prevRankings]);
 
   // 투표수 변경 표시 조건
   const shouldShowVoteChange = (itemId: number) => {

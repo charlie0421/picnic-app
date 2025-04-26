@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/utils/supabase';
+import { createBrowserSupabaseClient } from '@/utils/supabase';
 
 export default function Contact() {
+  const [supabase] = useState(() => createBrowserSupabaseClient());
   const [formData, setFormData] = useState({
     name: '',
     email: '',

@@ -33,7 +33,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
 
     const checkVoteChanges = async () => {
       try {
-        const voteItemsData = await getVoteItems(item.voteId);
+        const voteItemsData = await getVoteItems(item.voteId || 0);
         const currentItem = voteItemsData.find((v) => v.id === item.id);
         const currentVoteTotal = currentItem?.voteTotal || 0;
 
