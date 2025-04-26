@@ -5,17 +5,35 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Banner } from '@/types/interfaces';
 import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
+import { getBanners } from '@/utils/api/queries';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-interface BannerListProps {
-  banners: Banner[];
-}
-
-const BannerList: React.FC<BannerListProps> = ({ banners }) => {
-  const validBanners = Array.isArray(banners) ? banners : [];
+const BannerList: React.FC = () => {
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 배너 데이터 가져오기
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        setIsLoading(true);
+        const bannersData = await getBanners();
+        setBanners(bannersData);
+      } catch (error) {
+        console.error('배너 데이터를 가져오는 중 오류가 발생했습니다:', error);
+        setError('배너를 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
 
   // 모바일 여부 확인
   useEffect(() => {
@@ -33,11 +51,10 @@ const BannerList: React.FC<BannerListProps> = ({ banners }) => {
 
   // 다음 배너로 이동
   const nextBanner = () => {
-    if (validBanners.length <= 3) return;
+    if (banners.length <= 3) return;
     setCurrentIndex((prev) => {
       const next = prev + 1;
-      // 마지막 배너에 도달하면 처음으로 돌아감
-      if (next >= validBanners.length) {
+      if (next >= banners.length) {
         return 0;
       }
       return next;
@@ -46,12 +63,11 @@ const BannerList: React.FC<BannerListProps> = ({ banners }) => {
 
   // 이전 배너로 이동
   const prevBanner = () => {
-    if (validBanners.length <= 3) return;
+    if (banners.length <= 3) return;
     setCurrentIndex((prev) => {
       const next = prev - 1;
-      // 첫 번째 배너 이전으로 가면 마지막으로 이동
       if (next < 0) {
-        return validBanners.length - 1;
+        return banners.length - 1;
       }
       return next;
     });
@@ -59,7 +75,7 @@ const BannerList: React.FC<BannerListProps> = ({ banners }) => {
 
   // 자동 스크롤 시작
   useEffect(() => {
-    if (validBanners.length <= 3) return;
+    if (banners.length <= 3) return;
 
     const startAutoScroll = () => {
       if (autoScrollRef.current) {
@@ -80,7 +96,7 @@ const BannerList: React.FC<BannerListProps> = ({ banners }) => {
         clearInterval(autoScrollRef.current);
       }
     };
-  }, [validBanners.length, isPaused]);
+  }, [banners.length, isPaused]);
 
   // 배너 렌더링
   const renderBanner = (banner: Banner) => {
@@ -121,8 +137,24 @@ const BannerList: React.FC<BannerListProps> = ({ banners }) => {
     }
   };
 
+  if (isLoading) {
+    return <LoadingSpinner className="min-h-[300px]" />;
+  }
+
+  if (error) {
+    return (
+      <section>
+        <div className='mb-4'>
+          <div className='bg-red-100 p-6 rounded-lg text-center'>
+            <p className='text-red-700'>{error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   // 배너가 없는 경우 처리
-  if (validBanners.length === 0) {
+  if (banners.length === 0) {
     return (
       <section>
         <div className='mb-4'>
@@ -135,12 +167,12 @@ const BannerList: React.FC<BannerListProps> = ({ banners }) => {
   }
 
   // 배너가 3개 이하인 경우 그리드로 표시
-  if (validBanners.length <= 3) {
+  if (banners.length <= 3) {
     return (
       <section>
         <div className='mb-4'>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-            {validBanners.map((banner) => (
+            {banners.map((banner) => (
               <div key={banner.id} className="w-full">
                 {renderBanner(banner)}
               </div>
@@ -154,11 +186,11 @@ const BannerList: React.FC<BannerListProps> = ({ banners }) => {
   // 현재 인덱스를 기준으로 표시할 배너들을 계산
   const getVisibleBanners = () => {
     const result = [];
-    const totalBanners = validBanners.length;
+    const totalBanners = banners.length;
 
     for (let i = 0; i < (isMobile ? 1 : 3); i++) {
       const index = (currentIndex + i) % totalBanners;
-      result.push(validBanners[index]);
+      result.push(banners[index]);
     }
 
     return result;
@@ -183,7 +215,7 @@ const BannerList: React.FC<BannerListProps> = ({ banners }) => {
             >
               {isMobile ? (
                 // 모바일: 전체 배너를 한 번에 하나씩 표시
-                validBanners.map((banner, index) => (
+                banners.map((banner, index) => (
                   <div
                     key={`${banner.id}-${index}`}
                     className="w-full flex-shrink-0"

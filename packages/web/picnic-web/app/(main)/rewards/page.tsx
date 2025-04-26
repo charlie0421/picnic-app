@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Reward } from '@/types/interfaces';
-import Menu from '@/components/features/Menu';
-import Footer from '@/components/layouts/Footer';
 import RewardList from '@/components/features/RewardList';
 import { getRewards } from '@/utils/api/queries';
 import { useNavigation } from '@/contexts/NavigationContext';
@@ -37,28 +35,24 @@ const RewardsPage: React.FC = () => {
     fetchData();
   }, []);
 
-  return (
-    <div className='min-h-screen'>
-      <div className='bg-gray-50 border-b'>
-        <div className='container mx-auto px-0'>
-          <Menu />
-        </div>
+  if (isLoading) {
+    return (
+      <div className='flex justify-center items-center min-h-[300px]'>
+        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
       </div>
+    );
+  }
 
-      {isLoading ? (
-        <div className='flex justify-center items-center min-h-[300px]'>
-          <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
-        </div>
-      ) : error ? (
-        <div className='bg-red-100 text-red-700 p-4 rounded-md'>{error}</div>
-      ) : (
-        <div className='container mx-auto px-4 py-6 space-y-10'>
-          <h1 className='text-2xl font-bold mb-6'>리워드</h1>
-          <RewardList rewards={rewards} showViewAllLink={false} />
-        </div>
-      )}
+  if (error) {
+    return (
+      <div className='bg-red-100 text-red-700 p-4 rounded-md'>{error}</div>
+    );
+  }
 
-      <Footer />
+  return (
+    <div className='container mx-auto px-4 py-6 space-y-10'>
+      <h1 className='text-2xl font-bold mb-6'>리워드</h1>
+      <RewardList rewards={rewards} showViewAllLink={false} />
     </div>
   );
 };

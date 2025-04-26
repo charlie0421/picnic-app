@@ -14,7 +14,7 @@ import { getLocalizedString } from '@/utils/api/image';
 import { getCdnImageUrl } from '@/utils/api/image';
 import VoteRankCard from '@/components/features/vote/VoteRankCard';
 
-const VoteDetailPage: React.FC = () => {
+const VoteDetailPage: React.FC = (): JSX.Element => {
   const { id } = useParams();
   const [vote, setVote] = useState<Vote | null>(null);
   const [voteItems, setVoteItems] = useState<VoteItem[]>([]);
@@ -37,6 +37,90 @@ const VoteDetailPage: React.FC = () => {
   const [prevVotes, setPrevVotes] = useState<{ [key: number]: number }>({});
   const [voteChanges, setVoteChanges] = useState<{ [key: number]: number }>({});
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // 초기 데이터 페칭
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        if (id) {
+          const [voteData, rewardsData] = await Promise.all([
+            getVoteById(Number(id)),
+            getVoteRewards(Number(id))
+          ]);
+          
+          setVote(voteData);
+          setRewards(rewardsData);
+        }
+      } catch (error) {
+        console.error('데이터를 가져오는 중 오류가 발생했습니다:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [id]);
+
+  // 투표 아이템 주기적 업데이트
+  useEffect(() => {
+    if (voteStatus !== 'ongoing') return;
+
+    const fetchVoteItems = async () => {
+      try {
+        if (id) {
+          const voteItemsData = await getVoteItems(Number(id));
+          const sortedItems = voteItemsData.sort(
+            (a, b) => (b.voteTotal || 0) - (a.voteTotal || 0)
+          );
+          setVoteItems(sortedItems);
+        }
+      } catch (error) {
+        console.error('투표 아이템을 가져오는 중 오류가 발생했습니다:', error);
+      }
+    };
+
+    fetchVoteItems();
+    const intervalId = setInterval(fetchVoteItems, 1000);
+    return () => clearInterval(intervalId);
+  }, [id, voteStatus]);
+
+  // 남은 시간 계산 및 상태 업데이트
+  useEffect(() => {
+    if (!vote || !vote.startAt || !vote.stopAt) return;
+
+    const calculateRemainingTime = () => {
+      const now = new Date();
+      const startDate = new Date(vote.startAt as string);
+      const endDate = new Date(vote.stopAt as string);
+
+      if (now < startDate) {
+        setVoteStatus('upcoming');
+        const diffInSeconds = differenceInSeconds(startDate, now);
+        setRemainingTime({
+          days: Math.floor(diffInSeconds / 86400),
+          hours: Math.floor((diffInSeconds % 86400) / 3600),
+          minutes: Math.floor((diffInSeconds % 3600) / 60),
+          seconds: diffInSeconds % 60
+        });
+      } else if (now < endDate) {
+        setVoteStatus('ongoing');
+        const diffInSeconds = differenceInSeconds(endDate, now);
+        setRemainingTime({
+          days: Math.floor(diffInSeconds / 86400),
+          hours: Math.floor((diffInSeconds % 86400) / 3600),
+          minutes: Math.floor((diffInSeconds % 3600) / 60),
+          seconds: diffInSeconds % 60
+        });
+      } else {
+        setVoteStatus('ended');
+        setRemainingTime(null);
+      }
+    };
+
+    calculateRemainingTime();
+    const intervalId = setInterval(calculateRemainingTime, 1000);
+    return () => clearInterval(intervalId);
+  }, [vote]);
 
   // 투표 아이템 랭킹 계산 (동점자 공동 순위 처리)
   const rankedVoteItems = useMemo(() => {
@@ -64,33 +148,6 @@ const VoteDetailPage: React.FC = () => {
 
     return itemsWithRank;
   }, [voteItems]);
-
-  // 투표 아이템 주기적 업데이트
-  useEffect(() => {
-    if (voteStatus !== 'ongoing') return;
-
-    const fetchVoteItems = async () => {
-      try {
-        if (id) {
-          const voteItemsData = await getVoteItems(Number(id));
-          // 투표수 내림차순 정렬
-          const sortedItems = voteItemsData.sort(
-            (a, b) => (b.voteTotal || 0) - (a.voteTotal || 0),
-          );
-          setVoteItems(sortedItems);
-        }
-      } catch (error) {
-        console.error('투표 아이템을 가져오는 중 오류가 발생했습니다:', error);
-      }
-    };
-
-    // 초기 데이터 로드
-    fetchVoteItems();
-
-    // 1초마다 데이터 업데이트
-    const intervalId = setInterval(fetchVoteItems, 1000);
-    return () => clearInterval(intervalId);
-  }, [id, voteStatus]);
 
   // 1초마다 투표수와 순위 변경 확인
   useEffect(() => {
@@ -130,71 +187,6 @@ const VoteDetailPage: React.FC = () => {
     const intervalId = setInterval(checkChanges, 1000);
     return () => clearInterval(intervalId);
   }, [rankedVoteItems, voteStatus, prevRankings, prevVotes]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (id) {
-          const voteData = await getVoteById(Number(id));
-          setVote(voteData);
-
-          const rewardsData = await getVoteRewards(Number(id));
-          setRewards(rewardsData);
-        }
-      } catch (error) {
-        console.error('데이터를 가져오는 중 오류가 발생했습니다:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
-  // 남은 시간 계산 및 상태 업데이트
-  useEffect(() => {
-    if (!vote || !vote.startAt || !vote.stopAt) return;
-
-    const calculateRemainingTime = () => {
-      const now = new Date();
-      const startDate = new Date(vote.startAt as string);
-      const endDate = new Date(vote.stopAt as string);
-
-      // 투표 상태 결정
-      if (now < startDate) {
-        setVoteStatus('upcoming');
-        const diffInSeconds = differenceInSeconds(startDate, now);
-
-        const days = Math.floor(diffInSeconds / 86400);
-        const hours = Math.floor((diffInSeconds % 86400) / 3600);
-        const minutes = Math.floor((diffInSeconds % 3600) / 60);
-        const seconds = diffInSeconds % 60;
-
-        setRemainingTime({ days, hours, minutes, seconds });
-      } else if (now < endDate) {
-        setVoteStatus('ongoing');
-        const diffInSeconds = differenceInSeconds(endDate, now);
-
-        const days = Math.floor(diffInSeconds / 86400);
-        const hours = Math.floor((diffInSeconds % 86400) / 3600);
-        const minutes = Math.floor((diffInSeconds % 3600) / 60);
-        const seconds = diffInSeconds % 60;
-
-        setRemainingTime({ days, hours, minutes, seconds });
-      } else {
-        setVoteStatus('ended');
-        setRemainingTime(null);
-      }
-    };
-
-    // 초기 계산
-    calculateRemainingTime();
-
-    // 1초마다 업데이트
-    const intervalId = setInterval(calculateRemainingTime, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [vote]);
 
   const formatDateRange = (startAt?: string | null, stopAt?: string | null) => {
     if (!startAt || !stopAt) return '';
@@ -238,46 +230,25 @@ const VoteDetailPage: React.FC = () => {
     }
   };
 
-  if (isLoading) {
+  // 로딩 컴포넌트
+  const LoadingSpinner = () => (
+    <div className='flex justify-center items-center min-h-[300px]'>
+      <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
+    </div>
+  );
+
+  // 에러 컴포넌트
+  const ErrorMessage = () => (
+    <div className='bg-red-100 text-red-700 p-4 rounded-md'>
+      투표 정보를 찾을 수 없습니다.
+    </div>
+  );
+
+  // 메인 컨텐츠 컴포넌트
+  const MainContent = () => {
+    if (!vote) return null;
+    
     return (
-      <div className='min-h-screen'>
-        <div className='bg-gray-50 border-b'>
-          <div className='container mx-auto px-0'>
-            <Menu />
-          </div>
-        </div>
-        <div className='flex justify-center items-center min-h-[300px]'>
-          <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!vote) {
-    return (
-      <div className='min-h-screen'>
-        <div className='bg-gray-50 border-b'>
-          <div className='container mx-auto px-0'>
-            <Menu />
-          </div>
-        </div>
-        <div className='container mx-auto px-4 py-6'>
-          <div className='bg-red-100 text-red-700 p-4 rounded-md'>
-            투표 정보를 찾을 수 없습니다.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className='min-h-screen'>
-      <div className='bg-gray-50 border-b'>
-        <div className='container mx-auto px-0'>
-          <Menu />
-        </div>
-      </div>
-
       <div className='container mx-auto px-4 py-6'>
         <div className='bg-white rounded-lg shadow-md overflow-hidden'>
           {/* 헤더 */}
@@ -545,156 +516,20 @@ const VoteDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+    );
+  };
 
-      {/* 투표 모달 */}
-      <div
-        id='voteModal'
-        className='hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
-      >
-        <div className='bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden relative'>
-          {/* 닫기 버튼 */}
-          <button
-            className='absolute right-4 top-4 text-gray-600 hover:text-gray-700'
-            onClick={closeModal}
-          >
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              className='h-6 w-6'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M6 18L18 6M6 6l12 12'
-              />
-            </svg>
-          </button>
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
-          {selectedArtist && (
-            <div className='flex flex-col items-center p-6'>
-              {/* 아티스트 프로필 */}
-              <div className='w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-100 mb-4'>
-                {selectedArtist.artist && selectedArtist.artist.image ? (
-                  <Image
-                    src={`${process.env.NEXT_PUBLIC_CDN_URL}/${selectedArtist.artist.image}`}
-                    alt={getLocalizedString(selectedArtist.artist.name)}
-                    width={96}
-                    height={96}
-                    className='w-full h-full object-cover'
-                  />
-                ) : (
-                  <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                    <span className='text-gray-600 text-sm'>No Image</span>
-                  </div>
-                )}
-              </div>
+  if (!vote) {
+    return <ErrorMessage />;
+  }
 
-              <h3 className='text-xl font-bold mb-1'>
-                {getLocalizedString(selectedArtist.artist?.name)}
-              </h3>
-              <p className='text-gray-600 mb-6'>
-                {getLocalizedString(selectedArtist.artist?.artist_group?.name)}
-              </p>
-
-              <div className='flex items-center mb-2 w-full'>
-                <div className='flex items-center text-yellow-500 mr-3'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-5 w-5'
-                    viewBox='0 0 20 20'
-                    fill='currentColor'
-                  >
-                    <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
-                  </svg>
-                  <span className='ml-1 text-xl font-bold'>1,552</span>
-                </div>
-
-                <button className='ml-auto bg-gradient-to-r from-green-400 to-teal-500 text-white px-4 py-2 rounded-full flex items-center hover:opacity-90 transition-opacity'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-5 w-5 mr-1'
-                    viewBox='0 0 20 20'
-                    fill='currentColor'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
-                  충전하기
-                </button>
-              </div>
-
-              <div className='w-full border-t border-b py-4 flex items-center'>
-                <div className='flex items-center'>
-                  <input
-                    type='checkbox'
-                    id='useAll'
-                    className='w-5 h-5 rounded text-primary focus:ring-primary'
-                    checked={isUseAll}
-                    onChange={() => setIsUseAll(!isUseAll)}
-                  />
-                  <label htmlFor='useAll' className='ml-2 text-gray-700'>
-                    전체사용
-                  </label>
-                </div>
-
-                <div className='ml-auto relative'>
-                  <input
-                    type='number'
-                    className='w-36 py-2 px-4 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
-                    placeholder='입력'
-                    value={votes}
-                    onChange={(e) => setVotes(Number(e.target.value))}
-                    min={1}
-                  />
-                  <button className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600'>
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      className='h-5 w-5'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      stroke='currentColor'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M6 18L18 6M6 6l12 12'
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div className='mt-4 p-4 bg-green-100 rounded-lg text-sm text-green-800 w-full'>
-                <ul className='list-disc pl-5 space-y-1'>
-                  <li>
-                    100개 이상 투표 후 공유하면 100개당 1개 보너스 별 사탕 지급!
-                  </li>
-                  <li>
-                    금칙한 트래픽 증가 방지를 위해 전체 사용은 한 번에 1만개
-                    까지 가능합니다.
-                  </li>
-                </ul>
-              </div>
-
-              <button
-                className='w-full mt-6 bg-gradient-to-r from-primary to-primary-dark text-white py-4 rounded-full text-lg font-bold hover:opacity-90 transition-opacity shadow-lg transform hover:scale-105 transition-transform'
-                onClick={handleVote}
-              >
-                투표하기
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <Footer />
+  return (
+    <div className='min-h-screen'>
+      <MainContent />
     </div>
   );
 };
