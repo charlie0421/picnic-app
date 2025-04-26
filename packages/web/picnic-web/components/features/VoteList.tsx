@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Vote, VoteItem, Reward } from '@/types/interfaces';
@@ -15,6 +15,7 @@ import CompletedVoteItems from './vote/CompletedVoteItems';
 
 interface VoteListProps {
   votes: Vote[];
+  pageSize?: number;
 }
 
 const VOTE_STATUS = {
@@ -539,18 +540,154 @@ const getStatusText = (status: VoteStatus, t: (key: string) => string): string =
   }
 };
 
+// StatusFilter 컴포넌트 분리
+const StatusFilter = React.memo(({ 
+  selectedStatus, 
+  setSelectedStatus, 
+  t 
+}: { 
+  selectedStatus: VoteStatus | 'all', 
+  setSelectedStatus: (status: VoteStatus | 'all') => void,
+  t: (key: string) => string 
+}) => {
+  const getButtonStyle = (status: VoteStatus | 'all') => {
+    const baseStyle = 'px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ease-in-out flex items-center justify-center min-w-[80px]';
+    const activeStyle = {
+      'all': 'bg-white text-primary shadow-sm',
+      [VOTE_STATUS.ONGOING]: 'bg-white text-green-600 shadow-sm',
+      [VOTE_STATUS.UPCOMING]: 'bg-white text-blue-600 shadow-sm',
+      [VOTE_STATUS.COMPLETED]: 'bg-white text-gray-600 shadow-sm'
+    };
+    const inactiveStyle = 'text-gray-500 hover:text-gray-700 hover:bg-white/50';
+    
+    return `${baseStyle} ${selectedStatus === status ? activeStyle[status] : inactiveStyle}`;
+  };
+
+  const getButtonText = (status: VoteStatus | 'all') => {
+    const texts = {
+      'all': t('label_tabbar_vote_all') || '전체',
+      [VOTE_STATUS.ONGOING]: t('label_tabbar_vote_active') || '진행중',
+      [VOTE_STATUS.UPCOMING]: t('label_tabbar_vote_upcoming') || '예정',
+      [VOTE_STATUS.COMPLETED]: t('label_tabbar_vote_end') || '종료'
+    };
+    return texts[status];
+  };
+
+  return (
+    <div className='inline-flex items-center gap-1 bg-gray-100 p-1 rounded-lg shadow-sm'>
+      <button
+        onClick={() => setSelectedStatus('all')}
+        className={getButtonStyle('all')}
+      >
+        {getButtonText('all')}
+      </button>
+      <button
+        onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
+        className={getButtonStyle(VOTE_STATUS.ONGOING)}
+      >
+        {getButtonText(VOTE_STATUS.ONGOING)}
+      </button>
+      <button
+        onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
+        className={getButtonStyle(VOTE_STATUS.UPCOMING)}
+      >
+        {getButtonText(VOTE_STATUS.UPCOMING)}
+      </button>
+      <button
+        onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
+        className={getButtonStyle(VOTE_STATUS.COMPLETED)}
+      >
+        {getButtonText(VOTE_STATUS.COMPLETED)}
+      </button>
+    </div>
+  );
+});
+
+StatusFilter.displayName = 'StatusFilter';
+
+// LoadingSkeleton 컴포넌트 분리
+const LoadingSkeleton = React.memo(() => (
+  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+    {[1, 2, 3, 4].map((i) => (
+      <div
+        key={i}
+        className='bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 animate-pulse'
+      >
+        <div className='h-48 bg-gray-200'></div>
+        <div className='p-5'>
+          <div className='flex space-x-2 mb-3'>
+            <div className='h-4 bg-gray-200 rounded-full w-20'></div>
+            <div className='h-4 bg-gray-200 rounded-full w-16'></div>
+          </div>
+          <div className='h-6 bg-gray-200 rounded w-3/4 mb-4'></div>
+          <div className='flex justify-center mb-4'>
+            <div className='h-12 bg-gray-200 rounded w-40'></div>
+          </div>
+          <div className='h-24 bg-gray-200 rounded-xl mb-4'></div>
+          <div className='h-10 bg-gray-100 rounded-lg mt-4'></div>
+          <div className='h-4 bg-gray-200 rounded w-full mt-4'></div>
+        </div>
+      </div>
+    ))}
+  </div>
+));
+
+LoadingSkeleton.displayName = 'LoadingSkeleton';
+
+// EmptyState 컴포넌트 분리
+const EmptyState = React.memo(({ selectedStatus, t }: { selectedStatus: VoteStatus | 'all', t: (key: string) => string }) => {
+  const getMessage = () => {
+    if (selectedStatus === VOTE_STATUS.ONGOING) {
+      return '진행 중인 투표가 없습니다.';
+    } else if (selectedStatus === VOTE_STATUS.UPCOMING) {
+      return '예정된 투표가 없습니다.';
+    } else {
+      return '종료된 투표가 없습니다.';
+    }
+  };
+
+  return (
+    <div className='bg-gray-100 p-6 rounded-lg text-center'>
+      <p className='text-gray-500'>
+        {getMessage()}
+      </p>
+    </div>
+  );
+});
+
+EmptyState.displayName = 'EmptyState';
+
 const VoteList: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const [votes, setVotes] = useState<Vote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
   const { t } = useLanguageStore();
+  const loadingRef = useRef<HTMLDivElement>(null);
+  const PAGE_SIZE = 6;
 
-  const updateVoteData = useCallback(async () => {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateVoteData = useCallback(async (pageNum: number = 1, append: boolean = false) => {
     try {
       setLoading(true);
+      // getVotes 함수가 페이지네이션을 지원하지 않는 것 같으므로, 클라이언트 사이드에서 처리
       const votesData = await getVotes('votes');
-      setVotes(votesData);
+      const start = (pageNum - 1) * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      const paginatedData = votesData.slice(start, end);
+
+      if (append) {
+        setVotes(prev => [...prev, ...paginatedData]);
+      } else {
+        setVotes(paginatedData);
+      }
+
+      setHasMore(end < votesData.length);
     } catch (error) {
       console.error('투표 데이터를 가져오는 중 오류가 발생했습니다:', error);
     } finally {
@@ -559,18 +696,36 @@ const VoteList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setMounted(true);
-    updateVoteData();
+    if (mounted) {
+      setPage(1);
+      updateVoteData(1, false);
+    }
+  }, [selectedStatus, updateVoteData, mounted]);
 
-    let timer: NodeJS.Timeout | null = null;
-    if (selectedStatus === VOTE_STATUS.ONGOING || selectedStatus === 'all') {
-      timer = setInterval(updateVoteData, 1000);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && hasMore && !loading) {
+          const nextPage = page + 1;
+          setPage(nextPage);
+          updateVoteData(nextPage, true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentLoadingRef = loadingRef.current;
+    if (currentLoadingRef) {
+      observer.observe(currentLoadingRef);
     }
 
     return () => {
-      if (timer) clearInterval(timer);
+      if (currentLoadingRef) {
+        observer.unobserve(currentLoadingRef);
+      }
     };
-  }, [selectedStatus, updateVoteData]);
+  }, [hasMore, loading, page, updateVoteData]);
 
   const filteredVotes = useMemo(() => {
     if (selectedStatus === 'all') return votes;
@@ -588,99 +743,50 @@ const VoteList: React.FC = () => {
   if (!mounted) return null;
 
   return (
-    <section>
-      <div className='flex justify-between items-center mb-6'>
-        <div className='flex space-x-1 bg-gray-100 p-1 rounded-lg shadow-sm'>
-          <button
-            onClick={() => setSelectedStatus('all')}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
-              selectedStatus === 'all'
-                ? 'bg-white text-primary shadow-sm'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-            }`}
-          >
-            {t('label_tabbar_vote_all')}
-          </button>
-          <button
-            onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
-            className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-all ${
-              selectedStatus === VOTE_STATUS.ONGOING
-                ? 'bg-white text-green-600 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-            }`}
-          >
-            {t('label_tabbar_vote_active')}
-          </button>
-          <button
-            onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
-            className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-all ${
-              selectedStatus === VOTE_STATUS.UPCOMING
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-            }`}
-          >
-            {t('label_tabbar_vote_upcoming')}   
-          </button>
-          <button
-            onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
-            className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-all ${
-              selectedStatus === VOTE_STATUS.COMPLETED
-                ? 'bg-white text-gray-600 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-            }`}
-          >
-            {t('label_tabbar_vote_end')}
-          </button>
-        </div>
+    <section className="w-full">
+      <div className='flex justify-center items-center mb-6'>
+        <StatusFilter 
+          selectedStatus={selectedStatus} 
+          setSelectedStatus={setSelectedStatus}
+          t={t}
+        />
       </div>
 
       {loading && votes.length === 0 ? (
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className='bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 animate-pulse'
-            >
-              <div className='h-48 bg-gray-200'></div>
-              <div className='p-5'>
-                <div className='flex space-x-2 mb-3'>
-                  <div className='h-4 bg-gray-200 rounded-full w-20'></div>
-                  <div className='h-4 bg-gray-200 rounded-full w-16'></div>
-                </div>
-                <div className='h-6 bg-gray-200 rounded w-3/4 mb-4'></div>
-                <div className='flex justify-center mb-4'>
-                  <div className='h-12 bg-gray-200 rounded w-40'></div>
-                </div>
-                <div className='h-24 bg-gray-200 rounded-xl mb-4'></div>
-                <div className='h-10 bg-gray-100 rounded-lg mt-4'></div>
-                <div className='h-4 bg-gray-200 rounded w-full mt-4'></div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <LoadingSkeleton />
       ) : votes.length === 0 ? (
         <div className='bg-gray-100 p-6 rounded-lg text-center'>
           <p className='text-gray-500'>투표가 없습니다.</p>
         </div>
       ) : filteredVotes.length === 0 ? (
-        <div className='bg-gray-100 p-6 rounded-lg text-center'>
-          <p className='text-gray-500'>
-            {selectedStatus === VOTE_STATUS.ONGOING
-              ? '진행 중인 투표가 없습니다.'
-              : selectedStatus === VOTE_STATUS.UPCOMING
-              ? '예정된 투표가 없습니다.'
-              : '종료된 투표가 없습니다.'}
-          </p>
-        </div>
+        <EmptyState selectedStatus={selectedStatus} t={t} />
       ) : (
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          {filteredVotes.slice(0, 6).map((vote) => (
-            <VoteCard key={vote.id} vote={vote} />
-          ))}
-        </div>
+        <>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            {filteredVotes.map((vote) => (
+              <VoteCard key={vote.id} vote={vote} />
+            ))}
+          </div>
+          {hasMore && (
+            <div
+              ref={loadingRef}
+              className="w-full flex justify-center items-center py-4"
+            >
+              {loading ? (
+                <div className="animate-pulse flex space-x-2">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                </div>
+              ) : (
+                <div className="h-4"></div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </section>
   );
 };
 
-export default VoteList;
+export default React.memo(VoteList);
