@@ -12,6 +12,7 @@ import { useLanguageStore } from '@/stores/languageStore';
 import UpcomingVoteItems from './vote/UpcomingVoteItems';
 import OngoingVoteItems from './vote/OngoingVoteItems';
 import CompletedVoteItems from './vote/CompletedVoteItems';
+import CountdownTimer from '@/components/features/CountdownTimer';
 
 interface VoteListProps {
   votes: Vote[];
@@ -222,92 +223,7 @@ const SUB_CATEGORY_COLORS = {
   all: 'bg-gray-50 text-gray-600 border border-gray-100',
 } as const;
 
-// CountdownTimer 컴포넌트 분리
-const CountdownTimer = React.memo(({ vote }: { vote: Vote }) => {
-  const [remainingTime, setRemainingTime] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-  } | null>(null);
-  const [scale, setScale] = useState(1);
-  const { t } = useLanguageStore();
 
-  const { targetDate, status } = useMemo(() => {
-    const now = new Date();
-    const startDate = vote.startAt ? new Date(vote.startAt) : null;
-    const endDate = vote.stopAt ? new Date(vote.stopAt) : null;
-
-    if (startDate && now < startDate) {
-      return { targetDate: startDate, status: 'start' };
-    } else if (endDate && now < endDate) {
-      return { targetDate: endDate, status: 'end' };
-    }
-    return { targetDate: null, status: '' };
-  }, [vote.startAt, vote.stopAt]);
-
-  useEffect(() => {
-    if (!targetDate) return;
-
-    const calculateRemainingTime = () => {
-      const now = new Date();
-      const diffInSeconds = differenceInSeconds(targetDate, now);
-
-      if (diffInSeconds <= 0) {
-        setRemainingTime(null);
-        return;
-      }
-
-      const days = Math.floor(diffInSeconds / 86400);
-      const hours = Math.floor((diffInSeconds % 86400) / 3600);
-      const minutes = Math.floor((diffInSeconds % 3600) / 60);
-      const seconds = diffInSeconds % 60;
-
-      setRemainingTime({ days, hours, minutes, seconds });
-      setScale(1.1);
-      setTimeout(() => setScale(1), 100);
-    };
-
-    calculateRemainingTime();
-    const timer = setInterval(calculateRemainingTime, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [targetDate]);
-
-  if (!remainingTime) return null;
-
-  return (
-    <div className='flex flex-col items-center'>
-      <div className='text-xs text-gray-500 mb-2'>
-        {status === 'start' ? t('text_vote_countdown_start') : t('text_vote_countdown_end')}
-      </div>
-      <div className='flex items-center justify-center gap-2'>
-        {Object.entries(remainingTime).map(([unit, value], index, array) => (
-          <React.Fragment key={unit}>
-            <div className='flex flex-col items-center'>
-              <div
-                className='bg-violet-50 w-14 h-14 rounded-lg flex flex-col items-center justify-center font-mono text-lg font-bold text-violet-500 relative gap-0'
-                style={{ transform: `scale(${scale})`, transition: 'transform 0.1s ease-in-out' }}
-              >
-                {value.toString().padStart(2, '0')}
-                <span className='text-[10px] font-medium text-violet-400 leading-none'>
-                  {unit === 'days' ? 'D' : unit === 'hours' ? 'H' : unit === 'minutes' ? 'M' : 'S'}
-                </span>
-              </div>
-            </div>
-            {index < array.length - 1 && (
-              <span className='text-violet-500 font-bold'>:</span>
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-    </div>
-  );
-});
-
-CountdownTimer.displayName = 'CountdownTimer';
 
 // RewardItem 컴포넌트 분리
 const RewardItem = React.memo(({ reward }: { reward: Reward }) => (
@@ -462,7 +378,11 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
           </h3>
 
           <div className='flex justify-center mb-4'>
-            <CountdownTimer vote={vote} />
+            <CountdownTimer 
+              startTime={vote.startAt} 
+              endTime={vote.stopAt} 
+              status={status === VOTE_STATUS.UPCOMING ? 'scheduled' : 'in_progress'} 
+            />
           </div>
 
           <div className='flex-1'>
@@ -695,6 +615,17 @@ const VoteList: React.FC = () => {
     }
   }, []);
 
+  // 1초마다 투표 데이터 업데이트
+  useEffect(() => {
+    if (!mounted) return;
+
+    const intervalId = setInterval(() => {
+      updateVoteData(page, false);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [mounted, page, updateVoteData]);
+
   useEffect(() => {
     if (mounted) {
       setPage(1);
@@ -728,7 +659,30 @@ const VoteList: React.FC = () => {
   }, [hasMore, loading, page, updateVoteData]);
 
   const filteredVotes = useMemo(() => {
-    if (selectedStatus === 'all') return votes;
+    if (selectedStatus === 'all') {
+      return votes.sort((a, b) => {
+        const now = new Date();
+        const aStart = a.startAt ? new Date(a.startAt) : null;
+        const aEnd = a.stopAt ? new Date(a.stopAt) : null;
+        const bStart = b.startAt ? new Date(b.startAt) : null;
+        const bEnd = b.stopAt ? new Date(b.stopAt) : null;
+
+        // 진행중인 투표 우선
+        const aIsOngoing = aStart && aEnd && now >= aStart && now <= aEnd;
+        const bIsOngoing = bStart && bEnd && now >= bStart && now <= bEnd;
+        if (aIsOngoing && !bIsOngoing) return -1;
+        if (!aIsOngoing && bIsOngoing) return 1;
+
+        // 예정된 투표 다음
+        const aIsUpcoming = aStart && now < aStart;
+        const bIsUpcoming = bStart && now < bStart;
+        if (aIsUpcoming && !bIsUpcoming) return -1;
+        if (!aIsUpcoming && bIsUpcoming) return 1;
+
+        // 종료된 투표 마지막
+        return 0;
+      });
+    }
     return votes.filter((vote) => {
       if (!vote.startAt || !vote.stopAt) return selectedStatus === VOTE_STATUS.UPCOMING;
       const now = new Date();

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,7 +12,7 @@ import Footer from '@/components/layouts/Footer';
 import { getVoteById, getVoteItems, getVoteRewards } from '@/utils/api/queries';
 import { getLocalizedString } from '@/utils/api/image';
 import { getCdnImageUrl } from '@/utils/api/image';
-import VoteRankCard from '@/components/features/vote/VoteRankCard';
+import OngoingVoteItems from '@/components/features/vote/OngoingVoteItems';
 
 const VoteDetailPage: React.FC = (): JSX.Element => {
   const { id } = useParams();
@@ -33,10 +33,6 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
   const [voteStatus, setVoteStatus] = useState<
     'upcoming' | 'ongoing' | 'ended'
   >('ongoing');
-  const [prevRankings, setPrevRankings] = useState<{ [key: number]: number }>({});
-  const [prevVotes, setPrevVotes] = useState<{ [key: number]: number }>({});
-  const [voteChanges, setVoteChanges] = useState<{ [key: number]: number }>({});
-  const [isAnimating, setIsAnimating] = useState(false);
 
   // 초기 데이터 페칭
   useEffect(() => {
@@ -148,45 +144,6 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
 
     return itemsWithRank;
   }, [voteItems]);
-
-  // 1초마다 투표수와 순위 변경 확인
-  useEffect(() => {
-    if (voteStatus !== 'ongoing') return;
-
-    const checkChanges = () => {
-      const newRankings: { [key: number]: number } = {};
-      const newVotes: { [key: number]: number } = {};
-      const newVoteChanges: { [key: number]: number } = {};
-
-      rankedVoteItems.forEach((item) => {
-        newRankings[item.id] = item.rank;
-        newVotes[item.id] = item.voteTotal || 0;
-        newVoteChanges[item.id] = (item.voteTotal || 0) - (prevVotes[item.id] || 0);
-      });
-
-      // 순위나 투표수가 변경되었는지 확인
-      const hasRankChange = Object.keys(prevRankings).some(
-        (id) => prevRankings[Number(id)] !== newRankings[Number(id)],
-      );
-      const hasVoteChange = Object.keys(prevVotes).some(
-        (id) => prevVotes[Number(id)] !== newVotes[Number(id)],
-      );
-
-      if (hasRankChange || hasVoteChange) {
-        setIsAnimating(true);
-        setVoteChanges(newVoteChanges);
-        setTimeout(() => {
-          setIsAnimating(false);
-        }, 1000);
-      }
-
-      setPrevRankings(newRankings);
-      setPrevVotes(newVotes);
-    };
-
-    const intervalId = setInterval(checkChanges, 1000);
-    return () => clearInterval(intervalId);
-  }, [rankedVoteItems, voteStatus, prevRankings, prevVotes]);
 
   const formatDateRange = (startAt?: string | null, stopAt?: string | null) => {
     if (!startAt || !stopAt) return '';
@@ -329,18 +286,12 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
             {tab === 'ranking' && (
               <div className='space-y-3'>
                 {/* 상위 3개 항목을 VoteRankCard로 표시 */}
-                <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16 mb-8'>
-                  {rankedVoteItems.slice(0, 3).map((item, index) => (
-                    <VoteRankCard
-                      key={item.id}
-                      item={item}
-                      rank={index + 1}
-                      isAnimating={isAnimating}
-                      voteChange={voteChanges[item.id] || 0}
-                      showVoteChange={true}
-                    />
-                  ))}
-                </div>
+                {vote && voteItems.length > 0 && (
+                  <OngoingVoteItems 
+                    vote={vote}
+                    voteItems={voteItems}
+                  />
+                )}
 
                 {/* 검색창 */}
                 <div className='relative mt-4'>
