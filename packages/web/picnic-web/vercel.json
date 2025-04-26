@@ -1,3 +1,13 @@
 {
-  "version": 2
+  "version": 2,
+  "git": {
+    "deploymentEnabled": {
+      "production": {
+        "packages/web/picnic-web": true
+      }
+    }
+  },
+  "buildCommand": "cd packages/web/picnic-web && npm run build",
+  "installCommand": "cd packages/web/picnic-web && npm install",
+  "outputDirectory": "packages/web/picnic-web/.next"
 } 
