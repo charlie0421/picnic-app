@@ -108,103 +108,6 @@ const CATEGORY_ICONS = {
   ),
 };
 
-// 상태별 아이콘
-const STATUS_ICONS = {
-  [VOTE_STATUS.UPCOMING]: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path
-        fillRule='evenodd'
-        d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z'
-        clipRule='evenodd'
-      />
-    </svg>
-  ),
-  [VOTE_STATUS.ONGOING]: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path
-        fillRule='evenodd'
-        d='M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z'
-        clipRule='evenodd'
-      />
-    </svg>
-  ),
-  [VOTE_STATUS.COMPLETED]: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path
-        fillRule='evenodd'
-        d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-        clipRule='evenodd'
-      />
-    </svg>
-  ),
-};
-
-// 서브카테고리별 아이콘
-const SUB_CATEGORY_ICONS = {
-  male: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path
-        fillRule='evenodd'
-        d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
-        clipRule='evenodd'
-      />
-    </svg>
-  ),
-  female: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path
-        fillRule='evenodd'
-        d='M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 102 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z'
-        clipRule='evenodd'
-      />
-    </svg>
-  ),
-  group: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path d='M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z' />
-    </svg>
-  ),
-  all: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path d='M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z' />
-    </svg>
-  ),
-};
 
 // 카테고리별 색상
 const CATEGORY_COLORS = {
@@ -476,11 +379,18 @@ const StatusFilter = React.memo(({
       : 'px-4 py-2 rounded-lg bg-gray-200 text-gray-700 mx-1 hover:bg-blue-100';
 
   const getButtonText = (status: VoteStatus | 'all') => {
-    if (status === 'all') return t('label_tabbar_vote_all');
-    if (status === VOTE_STATUS.ONGOING) return t('label_tabbar_vote_active');
-    if (status === VOTE_STATUS.UPCOMING) return t('label_tabbar_vote_upcoming');
-    if (status === VOTE_STATUS.COMPLETED) return t('label_tabbar_vote_end');
-    return '';
+    switch (status) {
+      case 'all':
+        return t('label_tabbar_vote_all');
+      case VOTE_STATUS.ONGOING:
+        return t('label_tabbar_vote_active');
+      case VOTE_STATUS.UPCOMING:
+        return t('label_tabbar_vote_upcoming');
+      case VOTE_STATUS.COMPLETED:
+        return t('label_tabbar_vote_end');
+      default:
+        return '';
+    }
   };
 
   return (
@@ -488,7 +398,7 @@ const StatusFilter = React.memo(({
       <button
         onClick={() => setSelectedStatus('all')}
         className={getButtonStyle('all')}
-        aria-label={t('label_vote_filter_all_aria')}
+        aria-label={t('label_tabbar_vote_all')}
         aria-pressed={selectedStatus === 'all'}
       >
         {getButtonText('all')}
@@ -496,7 +406,7 @@ const StatusFilter = React.memo(({
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
         className={getButtonStyle(VOTE_STATUS.ONGOING)}
-        aria-label={t('label_vote_filter_ongoing_aria')}
+        aria-label={t('label_tabbar_vote_active')}
         aria-pressed={selectedStatus === VOTE_STATUS.ONGOING}
       >
         {getButtonText(VOTE_STATUS.ONGOING)}
@@ -504,7 +414,7 @@ const StatusFilter = React.memo(({
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
         className={getButtonStyle(VOTE_STATUS.UPCOMING)}
-        aria-label={t('label_vote_filter_upcoming_aria')}
+        aria-label={t('label_tabbar_vote_upcoming')}
         aria-pressed={selectedStatus === VOTE_STATUS.UPCOMING}
       >
         {getButtonText(VOTE_STATUS.UPCOMING)}
@@ -512,7 +422,7 @@ const StatusFilter = React.memo(({
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
         className={getButtonStyle(VOTE_STATUS.COMPLETED)}
-        aria-label={t('label_vote_filter_completed_aria')}
+        aria-label={t('label_tabbar_vote_end')}
         aria-pressed={selectedStatus === VOTE_STATUS.COMPLETED}
       >
         {getButtonText(VOTE_STATUS.COMPLETED)}
@@ -586,16 +496,20 @@ const VoteList: React.FC = () => {
   const { t } = useLanguageStore();
   const loadingRef = useRef<HTMLDivElement>(null);
   const PAGE_SIZE = 6;
+  const isFetching = useRef(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const updateVoteData = useCallback(async (pageNum: number = 1, append: boolean = false) => {
+    if (isFetching.current) return;
+    
     try {
+      isFetching.current = true;
       setLoading(true);
       setError(null);
-      // getVotes 함수가 페이지네이션을 지원하지 않는 것 같으므로, 클라이언트 사이드에서 처리
+      
       const votesData = await getVotes('votes');
       const start = (pageNum - 1) * PAGE_SIZE;
       const end = start + PAGE_SIZE;
@@ -613,20 +527,18 @@ const VoteList: React.FC = () => {
       setError('데이터를 불러오는 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
+      isFetching.current = false;
     }
   }, []);
 
-  // 1초마다 투표 데이터 업데이트
+  // 초기 데이터 로드
   useEffect(() => {
-    if (!mounted) return;
+    if (mounted) {
+      updateVoteData(1, false);
+    }
+  }, [mounted, updateVoteData]);
 
-    const intervalId = setInterval(() => {
-      updateVoteData(page, false);
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [mounted, page, updateVoteData]);
-
+  // 상태 변경 시 데이터 리셋
   useEffect(() => {
     if (mounted) {
       setPage(1);
@@ -634,11 +546,12 @@ const VoteList: React.FC = () => {
     }
   }, [selectedStatus, updateVoteData, mounted]);
 
+  // 스크롤 감지 및 추가 데이터 로드
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
-        if (first.isIntersecting && hasMore && !loading) {
+        if (first.isIntersecting && hasMore && !loading && !isFetching.current) {
           const nextPage = page + 1;
           setPage(nextPage);
           updateVoteData(nextPage, true);

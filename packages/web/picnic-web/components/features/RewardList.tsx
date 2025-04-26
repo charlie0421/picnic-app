@@ -13,21 +13,9 @@ interface RewardListProps {
 
 const RewardList: React.FC<RewardListProps> = ({
   rewards,
-  showViewAllLink = true,
 }) => {
   return (
     <section>
-      {showViewAllLink && (
-        <div className='flex justify-end items-center mb-6'>
-          <Link
-            href='/rewards'
-            className='text-primary text-sm hover:underline'
-          >
-            전체보기
-          </Link>
-        </div>
-      )}
-
       {rewards.length === 0 ? (
         <div className='bg-gray-100 p-6 rounded-lg text-center'>
           <p className='text-gray-500'>표시할 리워드가 없습니다.</p>
