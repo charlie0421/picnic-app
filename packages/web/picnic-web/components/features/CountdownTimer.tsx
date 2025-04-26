@@ -74,6 +74,7 @@ const CountdownTimer = React.memo(({ endTime, startTime, status }: CountdownTime
     initialDiffInSeconds > 0 ? calculateTimeUnits(initialDiffInSeconds) : null
   );
   const [scale, setScale] = useState(1);
+  const [pulse, setPulse] = useState(false);
   const [timerStyle, setTimerStyle] = useState<TimerStyle>(
     initialDiffInSeconds > 0 ? getTimerStyle(initialDiffInSeconds) : {
       textColor: 'text-black',
@@ -108,7 +109,11 @@ const CountdownTimer = React.memo(({ endTime, startTime, status }: CountdownTime
       // 애니메이션 실행 조건
       if (shouldAnimate(diffInSeconds, newTimerStyle)) {
         setScale(1.1);
-        setTimeout(() => setScale(1), 100);
+        setPulse(true);
+        setTimeout(() => {
+          setScale(1);
+          setPulse(false);
+        }, 500);
       }
     };
 
@@ -131,17 +136,27 @@ const CountdownTimer = React.memo(({ endTime, startTime, status }: CountdownTime
           <React.Fragment key={unit}>
             <div className='flex flex-col items-center'>
               <div
-                className={`${timerStyle.bgColor} w-14 h-14 rounded-lg flex flex-col items-center justify-center font-mono text-lg font-bold ${timerStyle.textColor} relative gap-0`}
-                style={{ transform: `scale(${scale})`, transition: 'transform 0.1s ease-in-out' }}
+                className={`${timerStyle.bgColor} w-14 h-14 rounded-lg flex flex-col items-center justify-center font-mono text-lg font-bold ${timerStyle.textColor} relative gap-0 shadow-lg transition-all duration-1000 ${
+                  pulse ? 'animate-pulse' : ''
+                }`}
+                style={{ 
+                  transform: `scale(${scale})`,
+                  transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: pulse ? '0 0 20px rgba(0,0,0,0.3)' : '0 4px 6px rgba(0,0,0,0.1)'
+                }}
               >
                 {value.toString().padStart(2, '0')}
-                <span className={`text-[10px] font-medium ${timerStyle.textColor} leading-none`}>
+                <span className={`text-[10px] font-medium ${timerStyle.textColor} leading-none transition-opacity duration-300 ${
+                  pulse ? 'opacity-100' : 'opacity-90'
+                }`}>
                   {unit === 'days' ? 'D' : unit === 'hours' ? 'H' : unit === 'minutes' ? 'M' : 'S'}
                 </span>
               </div>
             </div>
             {index < array.length - 1 && (
-              <span className={`${timerStyle.textColor} font-bold`}>:</span>
+              <span className={`${timerStyle.textColor} font-bold transition-opacity duration-300 ${
+                pulse ? 'opacity-100' : 'opacity-80'
+              }`}>:</span>
             )}
           </React.Fragment>
         ))}
