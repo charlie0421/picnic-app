@@ -33,6 +33,7 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
   const [voteStatus, setVoteStatus] = useState<
     'upcoming' | 'ongoing' | 'ended'
   >('ongoing');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 초기 데이터 페칭
   useEffect(() => {
@@ -172,19 +173,11 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
 
   const handleSelect = (item: VoteItem) => {
     setSelectedArtist(item);
-
-    // 모달 표시 로직 구현
-    const modal = document.getElementById('voteModal');
-    if (modal) {
-      modal.classList.remove('hidden');
-    }
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    const modal = document.getElementById('voteModal');
-    if (modal) {
-      modal.classList.add('hidden');
-    }
+    setIsModalOpen(false);
   };
 
   // 로딩 컴포넌트
@@ -464,6 +457,135 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
                 )}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* 투표 모달 */}
+        <div
+          id="voteModal"
+          className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${isModalOpen ? '' : 'hidden'}`}
+        >
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">투표하기</h3>
+              <button
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {selectedArtist && (
+              <div className="mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                    {selectedArtist.artist?.image ? (
+                      <Image
+                        src={`${process.env.NEXT_PUBLIC_CDN_URL}/${selectedArtist.artist.image}`}
+                        alt={getLocalizedString(selectedArtist.artist.name)}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-600 text-xs">No</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg">
+                      {getLocalizedString(selectedArtist.artist?.name)}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {getLocalizedString(selectedArtist.artist?.artist_group?.name)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                투표 수
+              </label>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setVotes(Math.max(1, votes - 1))}
+                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 12H4"
+                    />
+                  </svg>
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  value={votes}
+                  onChange={(e) => setVotes(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-20 text-center border rounded-lg p-2"
+                />
+                <button
+                  onClick={() => setVotes(votes + 1)}
+                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleVote}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark"
+              >
+                투표하기
+              </button>
+            </div>
           </div>
         </div>
       </div>
