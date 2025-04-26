@@ -5,6 +5,8 @@ import Portal from '@/components/features/Portal';
 import { useLanguageStore } from '@/stores/languageStore';
 import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
+import { injectSpeedInsights } from '@vercel/speed-insights';
+
 export default function MainTemplate({
     children,
 }: {
@@ -14,12 +16,13 @@ export default function MainTemplate({
 
     useEffect(() => {
         loadTranslations();
+        injectSpeedInsights();
     }, [loadTranslations]);
 
     return (
         <NavigationProvider>
             <Portal>{children}</Portal>
-            {process.env.NODE_ENV === 'production' && <Analytics />}
+            <Analytics />
         </NavigationProvider>
     );
 } 
