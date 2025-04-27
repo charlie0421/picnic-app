@@ -16,6 +16,7 @@ import { useLanguageStore } from '@/stores/languageStore';
 import VoteSearch from '@/components/features/vote/VoteSearch';
 import VoteRewardPreview from '@/components/features/vote/VoteRewardPreview';
 import CountdownTimer from '@/components/features/CountdownTimer';
+import VoteRankCard from '@/components/features/vote/VoteRankCard';
 
 const VoteDetailPage: React.FC = (): JSX.Element | null => {
   const { id } = useParams();
@@ -212,54 +213,44 @@ const VoteDetailPage: React.FC = (): JSX.Element | null => {
   const MainContent = () => {
     if (!vote) return null;
     
+    const top3 = rankedVoteItems.slice(0, 3);
+    const slideOrder = [1, 0, 2];
+    const slideTop3 = slideOrder.map(i => top3[i]).filter(Boolean);
+
     return (
-      <div className='container mx-auto px-4 py-6'>
-        {/* 상단 정보창(헤더) + 상위 3위 sticky로 묶기 */}
-        <div className='sticky top-0 left-0 right-0 z-30 bg-gradient-to-r from-green-400 to-teal-500 text-white border-b'>
-          <div className='p-4'>
-            <div className='flex justify-between items-start'>
-              {/* 왼쪽: 제목, 기간, 리워드 */}
-              <div>
-                <h1 className='text-xl font-bold'>
-                  {getLocalizedString(vote.title)}
-                </h1>
-                <div className='text-sm text-white/80 mb-1'>
-                  {vote.startAt && vote.stopAt && (
-                    <span>
-                      {format(new Date(vote.startAt), 'yyyy.MM.dd HH:mm', { locale: ko })} ~{' '}
-                      {format(new Date(vote.stopAt), 'yyyy.MM.dd HH:mm', { locale: ko })}
-                    </span>
-                  )}
-                </div>
-                {/* 리워드 프리뷰: 스크롤 시 숨김 */}
-                {rewards && rewards.length > 0 && (
-                  <div
-                    ref={rewardRef}
-                    className={`transition-all duration-300 ${isRewardHidden ? 'h-0 opacity-0 overflow-hidden' : 'h-auto opacity-100'}`}
-                  >
-                    <VoteRewardPreview rewards={rewards} />
-                  </div>
-                )}
-              </div>
-              {/* 오른쪽: 타이머 */}
-              <div>
-                {vote.startAt && vote.stopAt && (
-                  <CountdownTimer
-                    startTime={vote.startAt}
-                    endTime={vote.stopAt}
-                    status={voteStatus === 'upcoming' ? 'scheduled' : 'in_progress'}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-          {/* 상위 3위도 sticky 내부에 포함 */}
-          <div className='bg-white'>
-            {vote && voteItems.length > 0 && (
-              <OngoingVoteItems 
-                vote={vote}
-                voteItems={voteItems}
+      <div className='container mx-auto px-2 py-2'>
+        {/* 상단 정보창: 아주 얇고 심플하게 */}
+        <div className="sticky top-0 z-30 bg-gradient-to-r from-green-400 to-teal-500 text-white border-b px-2 py-6 min-h-[72px] md:py-6 md:min-h-[96px] flex flex-col items-start gap-y-1 relative">
+          <span className="text-base md:text-xl font-bold truncate w-full">
+            {getLocalizedString(vote.title)}
+          </span>
+          <span className="text-xs md:text-sm">
+            {vote.startAt && vote.stopAt && (
+              <>{format(new Date(vote.startAt), 'yyyy.MM.dd HH:mm', { locale: ko })} ~ {format(new Date(vote.stopAt), 'yyyy.MM.dd HH:mm', { locale: ko })}</>
+            )}
+          </span>
+          <div className="absolute right-2 top-1 md:top-4">
+            {vote.startAt && vote.stopAt && (
+              <CountdownTimer
+                startTime={vote.startAt}
+                endTime={vote.stopAt}
+                status={voteStatus === 'upcoming' ? 'scheduled' : 'in_progress'}
+                className="text-[10px] md:text-base [&_.w-14]:w-10 [&_.h-14]:h-10 md:[&_.w-14]:w-14 md:[&_.h-14]:h-14"
               />
+            )}
+          </div>
+        </div>
+        {/* 정보창과 랭킹카드 사이 여백 */}
+        <div className="h-2 md:h-1" />
+        {/* 상위 3위: sticky + 가로 슬라이드, 항상 가로로만 */}
+        <div className='sticky top-[72px] md:top-[96px] z-20 bg-white border-b'>
+          <div className='flex gap-2 md:gap-6 overflow-x-auto px-2 py-2 justify-center'>
+            {vote && voteItems.length > 0 && (
+              slideTop3.map((item, idx) => (
+                <div key={item.id} className='w-40 min-w-[10rem] flex-shrink-0'>
+                  <VoteRankCard item={item} rank={item.rank} />
+                </div>
+              ))
             )}
           </div>
         </div>
@@ -274,8 +265,8 @@ const VoteDetailPage: React.FC = (): JSX.Element | null => {
             className="mt-4"
           />
         </div>
-        {/* 전체 항목들 (1위부터) - 스크롤 영역 */}
-        <div className='space-y-4 mt-4 max-h-[600px] overflow-y-auto'>
+        {/* 전체 항목들 (1위부터) */}
+        <div className='space-y-4 mt-4'>
           {rankedVoteItems
             .filter(item => {
               if (!searchQuery) return true;
@@ -297,23 +288,23 @@ const VoteDetailPage: React.FC = (): JSX.Element | null => {
                 className='flex items-center p-4 rounded-lg hover:bg-gray-50 transition-all border border-gray-200'
               >
                 {/* 랭킹 표시 */}
-                <div className='w-12 h-12 flex items-center justify-center'>
-                  <span className='text-gray-600 text-lg font-semibold'>{item.rank}</span>
+                <div className='w-10 h-10 md:w-12 md:h-12 flex items-center justify-center'>
+                  <span className='text-gray-600 text-base md:text-lg font-semibold'>{item.rank}</span>
                 </div>
 
                 {/* 아티스트 이미지 */}
-                <div className='w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm mx-3'>
+                <div className='w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden border-2 border-white shadow-sm mx-2 md:mx-3'>
                   {item.artist && item.artist.image ? (
                     <Image
                       src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
                       alt={getLocalizedString(item.artist.name)}
-                      width={56}
-                      height={56}
+                      width={40}
+                      height={40}
                       className='w-full h-full object-cover'
                     />
                   ) : (
                     <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                      <span className='text-gray-600 text-xs'>No</span>
+                      <span className='text-gray-600 text-[10px] md:text-xs'>No</span>
                     </div>
                   )}
                 </div>
@@ -321,15 +312,15 @@ const VoteDetailPage: React.FC = (): JSX.Element | null => {
                 {/* 아티스트 정보 */}
                 <div className='flex-1'>
                   <div className='flex items-center'>
-                    <p className='font-bold text-md text-gray-700'>
+                    <p className='font-bold text-sm md:text-md text-gray-700'>
                       {getLocalizedString(item.artist?.name)}
                     </p>
-                    <p className='text-sm text-gray-600 ml-2'>
+                    <p className='text-xs md:text-sm text-gray-600 ml-1 md:ml-2'>
                       {getLocalizedString(item.artist?.artist_group?.name)}
                     </p>
                   </div>
                   <div className='flex items-center'>
-                    <p className='text-primary font-bold'>
+                    <p className='text-primary font-bold text-xs md:text-base'>
                       {item.voteTotal?.toLocaleString() || 0}
                     </p>
                   </div>
@@ -337,12 +328,12 @@ const VoteDetailPage: React.FC = (): JSX.Element | null => {
 
                 {/* 투표 버튼 */}
                 <button
-                  className='ml-2 p-3 rounded-full text-white bg-primary shadow-sm hover:opacity-90 transition-all flex items-center justify-center'
+                  className='ml-1 md:ml-2 p-2 md:p-3 rounded-full text-xs md:text-base text-white bg-primary shadow-sm hover:opacity-90 transition-all flex items-center justify-center min-w-[32px] min-h-[32px] md:min-w-[48px] md:min-h-[48px]'
                   onClick={() => handleSelect(item)}
                 >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
-                    className='h-5 w-5 mr-1'
+                    className='h-4 w-4 md:h-5 md:w-5 mr-0.5 md:mr-1'
                     fill='none'
                     viewBox='0 0 24 24'
                     stroke='currentColor'

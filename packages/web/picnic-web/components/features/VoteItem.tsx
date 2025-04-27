@@ -22,23 +22,23 @@ const VoteItem: React.FC<VoteItemProps> = ({ vote }) => {
               alt={vote.title}
               width={320}
               height={320}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover md:w-[320px] md:h-[320px] w-[120px] h-[120px]"
               priority
             />
           ) : (
             <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-              <span className="text-gray-400">이미지 없음</span>
+              <span className="text-gray-400 text-xs md:text-base">이미지 없음</span>
             </div>
           )}
         </div>
-        <div className="p-3">
+        <div className="p-2 md:p-3">
           <div className="flex items-start justify-between gap-2">
             {vote.rewards && vote.rewards.length > 0 && (
               <div>
                 <VoteRewardPreview rewards={vote.rewards} />
               </div>
             )}
-            <h3 className="text-base font-medium text-gray-800 truncate">
+            <h3 className="text-xs md:text-base font-medium text-gray-800 truncate">
               {getLocalizedString(vote.title)}
             </h3>
           </div>

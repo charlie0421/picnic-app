@@ -6,6 +6,7 @@ interface CountdownTimerProps {
   endTime: string | null;
   startTime: string | null;
   status: 'scheduled' | 'in_progress';
+  className?: string;
 }
 
 interface TimeUnits {
@@ -65,7 +66,7 @@ const shouldAnimate = (seconds: number, timerStyle: TimerStyle): boolean => {
   }
 };
 
-const CountdownTimer = React.memo(({ endTime, startTime, status }: CountdownTimerProps) => {
+const CountdownTimer = React.memo(({ endTime, startTime, status, className }: CountdownTimerProps) => {
   const { t } = useLanguageStore();
   const lastAnimationTimeRef = useRef<number>(0);
   const targetDateRef = useRef<Date | null>(null);
@@ -128,7 +129,7 @@ const CountdownTimer = React.memo(({ endTime, startTime, status }: CountdownTime
   if (!targetDate || !remainingTime) return null;
 
   return (
-    <div className='flex flex-col items-center'>
+    <div className={`flex flex-col items-center ${className || ''}`}>
       <div className='text-xs text-gray-500 mb-2'>
         {status === 'scheduled' ? t('text_vote_countdown_start') : t('text_vote_countdown_end')}
       </div>

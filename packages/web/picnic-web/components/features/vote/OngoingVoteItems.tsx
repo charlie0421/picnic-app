@@ -7,6 +7,7 @@ import { getLocalizedString } from '@/utils/api/image';
 import { useLanguageStore } from '@/stores/languageStore';
 import VoteRankCard from './VoteRankCard';
 import { getVoteItems } from '@/utils/api/queries';
+import { getTopThreeInOrder } from '@/utils/vote';
 
 const RANK_BADGE_COLORS = [
   'bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 shadow-lg',
@@ -149,12 +150,7 @@ const OngoingVoteItems: React.FC<{
   }, [vote.id, externalVoteItems]);
 
   const topThreeItems = useMemo(() => {
-    if (!currentVoteItems || currentVoteItems.length === 0) {
-      return [];
-    }
-    return [...currentVoteItems]
-      .sort((a, b) => (b.voteTotal || 0) - (a.voteTotal || 0))
-      .slice(0, 3);
+    return getTopThreeInOrder(currentVoteItems);
   }, [currentVoteItems]);
 
   // 순위 변경 감지
@@ -205,24 +201,17 @@ const OngoingVoteItems: React.FC<{
   }
 
   return (
-    <div className='mt-4'>
-      <div className='relative'>
-        {/* 배경 디자인 요소 */}
-        <div className='absolute inset-0 bg-gradient-to-br from-white to-gray-100 rounded-xl'></div>
-
-        <div className='relative grid grid-cols-1 sm:grid-cols-3 items-center gap-4 py-3 mt-8'>
-          {topThreeItems.map((item, index) => (
-            <VoteRankCard
-              key={item.id}
-              item={item}
-              rank={index + 1}
-              isAnimating={isRankAnimating}
-              voteChange={voteChanges.get(item.id) || 0}
-              showVoteChange={shouldShowVoteChange(item.id)}
-            />
-          ))}
-        </div>
-      </div>
+    <div className='flex justify-center items-center gap-2 md:gap-0.5 w-full max-w-full overflow-x-auto px-2 py-2'>
+      {topThreeItems.map((item, index) => (
+        <VoteRankCard
+          key={item.id}
+          item={item}
+          rank={index + 1}
+          isAnimating={isRankAnimating}
+          voteChange={voteChanges.get(item.id) || 0}
+          showVoteChange={shouldShowVoteChange(item.id)}
+        />
+      ))}
     </div>
   );
 };

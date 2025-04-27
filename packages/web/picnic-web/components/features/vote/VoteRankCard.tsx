@@ -59,37 +59,39 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
 
   return (
     <div
-      className={`relative flex flex-col items-center p-3 rounded-xl backdrop-blur-sm transform transition-all duration-300 ${
+      className={`relative flex flex-col items-center p-2 rounded-xl backdrop-blur-sm transform transition-all duration-300 w-full max-w-xs ${
         isAnimating ? 'animate-pulse' : ''
       } ${
         rank === 1
-          ? 'bg-gradient-to-br from-yellow-50/30 to-yellow-100/30 border-2 border-yellow-200/50 sm:order-2 sm:scale-110 -mt-4 sm:mt-0'
+          ? 'bg-gradient-to-br from-yellow-50/30 to-yellow-100/30 border-2 border-yellow-200/50 order-2 md:scale-110 md:mx-1'
           : rank === 2
-          ? 'bg-gradient-to-br from-gray-50/30 to-gray-100/30 border border-gray-200/50 sm:order-1 sm:scale-100 -mt-2 sm:mt-0'
-          : 'bg-gradient-to-br from-amber-50/30 to-amber-100/30 border border-amber-200/50 sm:order-3 sm:scale-100'
+          ? 'bg-gradient-to-br from-gray-50/30 to-gray-100/30 border border-gray-200/50 order-1 md:scale-100 md:mr-0.5'
+          : 'bg-gradient-to-br from-amber-50/30 to-amber-100/30 border border-amber-200/50 order-3 md:scale-100 md:ml-0.5'
       } ${className}`}
     >
-      {/* 순위 뱃지 */}
-      <div
-        className={`absolute -top-4 left-1/2 -translate-x-1/2 py-1 px-3 rounded-full ${
-          RANK_BADGE_COLORS[rank - 1]
-        } text-white/90 font-bold shadow-lg flex items-center justify-center space-x-1 whitespace-nowrap ${
-          isAnimating ? 'animate-rank-pulse' : ''
-        }`}
-      >
-        <span className='text-xl'>{RANK_BADGE_ICONS[rank - 1]}</span>
-        <span className='text-xs'>{t('text_vote_rank', { rank: rank.toString()   })}</span>
+      {/* 순위 뱃지 - 카드 내부 상단에 flex로 배치 */}
+      <div className='w-full flex justify-center mb-1'>
+        <div
+          className={`py-0.5 px-2 rounded-full ${
+            RANK_BADGE_COLORS[rank - 1]
+          } text-white/90 font-bold shadow-lg flex items-center justify-center space-x-1 whitespace-nowrap ${
+            isAnimating ? 'animate-rank-pulse' : ''
+          }`}
+        >
+          <span className='text-lg'>{RANK_BADGE_ICONS[rank - 1]}</span>
+          <span className='text-xs'>{t('text_vote_rank', { rank: rank.toString() })}</span>
+        </div>
       </div>
 
       {/* 아티스트 이미지 */}
       <div
-        className={`w-16 h-16 rounded-full overflow-hidden border-4 ${
+        className={`w-14 h-14 rounded-full overflow-hidden border-4 ${
           rank === 1
-            ? 'border-yellow-200/50 w-20 h-20'
+            ? 'border-yellow-200/50 w-16 h-16'
             : rank === 2
             ? 'border-gray-200/50'
             : 'border-amber-200/50'
-        } shadow-lg mt-4 ${isAnimating ? 'animate-spin-slow' : ''}`}
+        } shadow-lg mt-2 ${isAnimating ? 'animate-spin-slow' : ''}`}
       >
         {item.artist && item.artist.image ? (
           <Image
