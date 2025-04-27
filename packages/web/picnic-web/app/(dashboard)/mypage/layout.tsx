@@ -1,5 +1,5 @@
 import React from 'react';
-import Portal from '@/components/Portal';
+import PortalGuard from '@/components/PortalGuard';
 import { PortalType } from '@/utils/enums';
 
 export default function MyPageLayout({
@@ -8,8 +8,8 @@ export default function MyPageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Portal type={PortalType.PROTECTED}>
+    <PortalGuard type={PortalType.PROTECTED}>
       {children}
-    </Portal>
+    </PortalGuard>
   );
 } 

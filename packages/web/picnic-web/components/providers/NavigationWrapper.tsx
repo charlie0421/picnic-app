@@ -1,7 +1,7 @@
 'use client';
 
 import { NavigationProvider } from '@/contexts/NavigationContext';
-import Portal from '@/components/features/Portal';
+import PortalLayout from '@/components/features/PortalLayout';
 
 export default function NavigationWrapper({
   children,
@@ -10,7 +10,7 @@ export default function NavigationWrapper({
 }) {
   return (
     <NavigationProvider>
-      <Portal>{children}</Portal>
+      <PortalLayout>{children}</PortalLayout>
     </NavigationProvider>
   );
 } 

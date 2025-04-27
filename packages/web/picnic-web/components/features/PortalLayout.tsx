@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useParams, usePathname } from 'next/navigation';
@@ -33,6 +33,7 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
   const { navigationState, setCurrentPortalType } = useNavigation();
   const { t } = useLanguageStore();
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // 경로에 따라 현재 포탈 타입 설정
   useEffect(() => {
@@ -44,10 +45,10 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
     <div className='bg-gradient-to-b from-blue-50 to-white min-h-screen'>
       <div className='max-w-6xl mx-auto bg-white shadow-md min-h-screen'>
         <header className='border-b border-gray-200 bg-white'>
-          <div className='container mx-auto flex items-center px-4 py-2'>
+          <div className='container mx-auto px-2 sm:px-4 py-2'>
             <div className='flex-1 overflow-x-auto py-1 scrollbar-hide'>
-              <div className='flex items-center justify-between w-full'>
-                <div className='flex items-center space-x-1'>
+              <div className='flex flex-col sm:flex-row items-center justify-between w-full gap-2 sm:gap-0'>
+                <div className='flex items-center space-x-1 w-full sm:w-auto justify-between sm:justify-start'>
                   <div className='flex items-center space-x-1'>
                     <Image
                       src='/images/logo.png'
@@ -55,22 +56,54 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                       width={40}
                       height={40}
                       priority
+                      className='w-8 h-8 sm:w-10 sm:h-10'
                     />
                   </div>
-                  {/* 개발 환경 표시 */}
-                  {/* {isDev && <div className="text-xs text-gray-400 mr-2">개발</div>} */}
 
-                  {/* 포탈 메뉴 아이템들 */}
+                  {/* 모바일 메뉴 버튼 */}
+                  <button
+                    className='sm:hidden p-2 rounded-md hover:bg-gray-100'
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  >
+                    <svg
+                      className='w-6 h-6'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M4 6h16M4 12h16M4 18h16'
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* 모바일 메뉴 */}
+                <div className={`sm:hidden w-full ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+                  <div className='flex flex-col space-y-2 py-2'>
+                    {PORTAL_MENU.map((menuItem) => (
+                      <PortalMenuItem
+                        key={menuItem.path}
+                        portalType={menuItem.type}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* 데스크톱 메뉴 */}
+                <div className='hidden sm:flex items-center space-x-1'>
                   {PORTAL_MENU.map((menuItem) => (
                     <PortalMenuItem
                       key={menuItem.path}
                       portalType={menuItem.type}
                     />
                   ))}
-
                 </div>
 
-                <div className='flex items-center space-x-4'>
+                <div className='flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end'>
                   {/* 언어 선택기 추가 */}
                   <LanguageSelector />
 
@@ -79,17 +112,17 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                       {authState.user?.avatarUrl ? (
                         <ProfileImageContainer
                           avatarUrl={authState.user.avatarUrl}
-                          width={36}
-                          height={36}
+                          width={32}
+                          height={32}
                           borderRadius={8}
                         />
                       ) : (
-                        <DefaultAvatar width={36} height={36} />
+                        <DefaultAvatar width={32} height={32} />
                       )}
                     </Link>
                   ) : (
                     <Link href='/login'>
-                      <div className='px-3 py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors'>
+                      <div className='px-2 sm:px-3 py-1 sm:py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm sm:text-base'>
                         {t('button_login')}
                       </div>
                     </Link>
@@ -99,11 +132,11 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
             </div>
           </div>
         </header>
-        <main className='container mx-auto px-4 py-0'>
+        <main className='container mx-auto px-2 sm:px-4 py-0'>
           <div className='flex flex-col'>
             <div className='w-full'>
               {/* 배타 오픈 뱃지 */}
-              <div className="flex justify-center py-4">
+              <div className="flex justify-center py-2 sm:py-4">
                 <ExclusiveOpenBadge />
               </div>
               {/* 서브 메뉴 */}

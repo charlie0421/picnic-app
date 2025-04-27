@@ -14,7 +14,7 @@ interface PortalProps {
 // 릴리즈 모드에서 공개될 포탈 목록
 const RELEASED_PORTALS = process.env.NEXT_PUBLIC_RELEASED_PORTALS?.split(',') || [];
 
-export default function Portal({ type = PortalType.PUBLIC, children }: PortalProps) {
+export default function PortalGuard({ type = PortalType.PUBLIC, children }: PortalProps) {
   const { authState } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
