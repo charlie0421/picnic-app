@@ -17,7 +17,7 @@ import VoteSearch from '@/components/features/vote/VoteSearch';
 import VoteRewardPreview from '@/components/features/vote/VoteRewardPreview';
 import CountdownTimer from '@/components/features/CountdownTimer';
 
-const VoteDetailPage: React.FC = (): JSX.Element => {
+const VoteDetailPage: React.FC = (): JSX.Element | null => {
   const { id } = useParams();
   const { isAuthenticated } = useAuth();
   const [vote, setVote] = useState<Vote | null>(null);
@@ -34,6 +34,8 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFilter, setSearchFilter] = useState<'all' | 'artist' | 'group'>('all');
   const [isSearching, setIsSearching] = useState(false);
+  const rewardRef = useRef<HTMLDivElement>(null);
+  const [isRewardHidden, setIsRewardHidden] = useState(false);
 
   // 초기 데이터 페칭
   useEffect(() => {
@@ -45,20 +47,22 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
             getVoteRewards(Number(id))
           ]);
           
-          setVote(voteData);
-          setRewards(rewardsData);
+          if (voteData) {
+            setVote(voteData);
+            setRewards(rewardsData);
 
-          // 투표 상태 설정
-          const now = new Date();
-          const startDate = new Date(voteData.startAt as string);
-          const endDate = new Date(voteData.stopAt as string);
+            // 투표 상태 설정
+            const now = new Date();
+            const startDate = new Date(voteData.startAt as string);
+            const endDate = new Date(voteData.stopAt as string);
 
-          if (now < startDate) {
-            setVoteStatus('upcoming');
-          } else if (now < endDate) {
-            setVoteStatus('ongoing');
-          } else {
-            setVoteStatus('ended');
+            if (now < startDate) {
+              setVoteStatus('upcoming');
+            } else if (now < endDate) {
+              setVoteStatus('ongoing');
+            } else {
+              setVoteStatus('ended');
+            }
           }
         }
       } catch (error) {
@@ -126,6 +130,18 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
 
     return itemsWithRank;
   }, [voteItems]);
+
+  // 스크롤 시 리워드 프리뷰 숨김 처리
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!rewardRef.current) return;
+      const rect = rewardRef.current.getBoundingClientRect();
+      // 상단에서 80px 이상 스크롤되면 숨김
+      setIsRewardHidden(rect.top < 80);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const formatDateRange = (startAt?: string | null, stopAt?: string | null) => {
     if (!startAt || !stopAt) return '';
@@ -198,156 +214,150 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
     
     return (
       <div className='container mx-auto px-4 py-6'>
-        <div className='bg-white rounded-lg shadow-md overflow-hidden'>
-          {/* 헤더 */}
-          <div className='relative'>
-            <div className='bg-gradient-to-r from-green-400 to-teal-500 text-white'>
-              <div className='p-4'>
-                {/* 좌우 구분된 레이아웃 */}
-                <div className='flex justify-between items-start'>
-                  {/* 왼쪽: 제목, 기간, 리워드 */}
-                  <div className='flex flex-col gap-3'>
-                    <h1 className='text-xl font-bold'>
-                      {getLocalizedString(vote.title)}
-                    </h1>
-                    
-                    <div className='flex flex-col gap-2 text-sm text-white/80'>
-                      {vote.startAt && vote.stopAt && (
-                        <div>
-                          {format(new Date(vote.startAt), 'yyyy.MM.dd HH:mm', { locale: ko })} ~{' '}
-                          {format(new Date(vote.stopAt), 'yyyy.MM.dd HH:mm', { locale: ko })}
-                        </div>
-                      )}
-                      {rewards && rewards.length > 0 && (
-                        <div>
-                          <VoteRewardPreview rewards={rewards} />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 오른쪽: 타이머 */}
-                  <div>
-                    {vote.startAt && vote.stopAt && (
-                      <CountdownTimer
-                        startTime={vote.startAt}
-                        endTime={vote.stopAt}
-                        status={voteStatus === 'upcoming' ? 'scheduled' : 'in_progress'}
-                      />
-                    )}
-                  </div>
+        {/* 상단 정보창(헤더) + 상위 3위 sticky로 묶기 */}
+        <div className='sticky top-0 left-0 right-0 z-30 bg-gradient-to-r from-green-400 to-teal-500 text-white border-b'>
+          <div className='p-4'>
+            <div className='flex justify-between items-start'>
+              {/* 왼쪽: 제목, 기간, 리워드 */}
+              <div>
+                <h1 className='text-xl font-bold'>
+                  {getLocalizedString(vote.title)}
+                </h1>
+                <div className='text-sm text-white/80 mb-1'>
+                  {vote.startAt && vote.stopAt && (
+                    <span>
+                      {format(new Date(vote.startAt), 'yyyy.MM.dd HH:mm', { locale: ko })} ~{' '}
+                      {format(new Date(vote.stopAt), 'yyyy.MM.dd HH:mm', { locale: ko })}
+                    </span>
+                  )}
                 </div>
+                {/* 리워드 프리뷰: 스크롤 시 숨김 */}
+                {rewards && rewards.length > 0 && (
+                  <div
+                    ref={rewardRef}
+                    className={`transition-all duration-300 ${isRewardHidden ? 'h-0 opacity-0 overflow-hidden' : 'h-auto opacity-100'}`}
+                  >
+                    <VoteRewardPreview rewards={rewards} />
+                  </div>
+                )}
               </div>
-
+              {/* 오른쪽: 타이머 */}
+              <div>
+                {vote.startAt && vote.stopAt && (
+                  <CountdownTimer
+                    startTime={vote.startAt}
+                    endTime={vote.stopAt}
+                    status={voteStatus === 'upcoming' ? 'scheduled' : 'in_progress'}
+                  />
+                )}
+              </div>
             </div>
           </div>
-
-          {/* 투표 컨텐츠 */}
-          <div className='p-4'>
-            {/* 상위 3개 항목을 VoteRankCard로 표시 */}
+          {/* 상위 3위도 sticky 내부에 포함 */}
+          <div className='bg-white'>
             {vote && voteItems.length > 0 && (
               <OngoingVoteItems 
                 vote={vote}
                 voteItems={voteItems}
               />
             )}
-
-            {/* 검색창 */}
-            <VoteSearch
-              onSearch={handleSearch}
-              onFilterChange={handleFilterChange}
-              searchResults={rankedVoteItems}
-              totalItems={rankedVoteItems.length}
-              isLoading={isSearching}
-              className="mt-4"
-            />
-
-            {/* 전체 항목들 (1위부터) */}
-            <div className='space-y-4 mt-4'>
-              {rankedVoteItems
-                .filter(item => {
-                  if (!searchQuery) return true;
-                  const artistName = getLocalizedString(item.artist?.name)?.toLowerCase() || '';
-                  const groupName = getLocalizedString(item.artist?.artist_group?.name)?.toLowerCase() || '';
-                  const query = searchQuery.toLowerCase();
-                  
-                  if (searchFilter === 'artist') {
-                    return artistName.includes(query);
-                  } else if (searchFilter === 'group') {
-                    return groupName.includes(query);
-                  } else {
-                    return artistName.includes(query) || groupName.includes(query);
-                  }
-                })
-                .map((item) => (
-                  <div
-                    key={item.id}
-                    className='flex items-center p-4 rounded-lg hover:bg-gray-50 transition-all border border-gray-200'
-                  >
-                    {/* 랭킹 표시 */}
-                    <div className='w-12 h-12 flex items-center justify-center'>
-                      <span className='text-gray-600 text-lg font-semibold'>{item.rank}</span>
-                    </div>
-
-                    {/* 아티스트 이미지 */}
-                    <div className='w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm mx-3'>
-                      {item.artist && item.artist.image ? (
-                        <Image
-                          src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                          alt={getLocalizedString(item.artist.name)}
-                          width={56}
-                          height={56}
-                          className='w-full h-full object-cover'
-                        />
-                      ) : (
-                        <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                          <span className='text-gray-600 text-xs'>No</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* 아티스트 정보 */}
-                    <div className='flex-1'>
-                      <div className='flex items-center'>
-                        <p className='font-bold text-md text-gray-700'>
-                          {getLocalizedString(item.artist?.name)}
-                        </p>
-                        <p className='text-sm text-gray-600 ml-2'>
-                          {getLocalizedString(item.artist?.artist_group?.name)}
-                        </p>
-                      </div>
-                      <div className='flex items-center'>
-                        <p className='text-primary font-bold'>
-                          {item.voteTotal?.toLocaleString() || 0}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* 투표 버튼 */}
-                    <button
-                      className='ml-2 p-3 rounded-full text-white bg-primary shadow-sm hover:opacity-90 transition-all flex items-center justify-center'
-                      onClick={() => handleSelect(item)}
-                    >
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        className='h-5 w-5 mr-1'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        stroke='currentColor'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
-                        />
-                      </svg>
-                      <span className='font-bold'>{t('label_button_vote')}</span>
-                    </button>
-                  </div>
-                ))}
-            </div>
           </div>
+        </div>
+        {/* 검색창 */}
+        <div className='bg-white z-10 pt-4'>
+          <VoteSearch
+            onSearch={handleSearch}
+            onFilterChange={handleFilterChange}
+            searchResults={rankedVoteItems}
+            totalItems={rankedVoteItems.length}
+            isLoading={isSearching}
+            className="mt-4"
+          />
+        </div>
+        {/* 전체 항목들 (1위부터) - 스크롤 영역 */}
+        <div className='space-y-4 mt-4 max-h-[600px] overflow-y-auto'>
+          {rankedVoteItems
+            .filter(item => {
+              if (!searchQuery) return true;
+              const artistName = getLocalizedString(item.artist?.name)?.toLowerCase() || '';
+              const groupName = getLocalizedString(item.artist?.artist_group?.name)?.toLowerCase() || '';
+              const query = searchQuery.toLowerCase();
+              
+              if (searchFilter === 'artist') {
+                return artistName.includes(query);
+              } else if (searchFilter === 'group') {
+                return groupName.includes(query);
+              } else {
+                return artistName.includes(query) || groupName.includes(query);
+              }
+            })
+            .map((item) => (
+              <div
+                key={item.id}
+                className='flex items-center p-4 rounded-lg hover:bg-gray-50 transition-all border border-gray-200'
+              >
+                {/* 랭킹 표시 */}
+                <div className='w-12 h-12 flex items-center justify-center'>
+                  <span className='text-gray-600 text-lg font-semibold'>{item.rank}</span>
+                </div>
+
+                {/* 아티스트 이미지 */}
+                <div className='w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm mx-3'>
+                  {item.artist && item.artist.image ? (
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
+                      alt={getLocalizedString(item.artist.name)}
+                      width={56}
+                      height={56}
+                      className='w-full h-full object-cover'
+                    />
+                  ) : (
+                    <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
+                      <span className='text-gray-600 text-xs'>No</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 아티스트 정보 */}
+                <div className='flex-1'>
+                  <div className='flex items-center'>
+                    <p className='font-bold text-md text-gray-700'>
+                      {getLocalizedString(item.artist?.name)}
+                    </p>
+                    <p className='text-sm text-gray-600 ml-2'>
+                      {getLocalizedString(item.artist?.artist_group?.name)}
+                    </p>
+                  </div>
+                  <div className='flex items-center'>
+                    <p className='text-primary font-bold'>
+                      {item.voteTotal?.toLocaleString() || 0}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 투표 버튼 */}
+                <button
+                  className='ml-2 p-3 rounded-full text-white bg-primary shadow-sm hover:opacity-90 transition-all flex items-center justify-center'
+                  onClick={() => handleSelect(item)}
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    className='h-5 w-5 mr-1'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
+                    />
+                  </svg>
+                  <span className='font-bold'>{t('label_button_vote')}</span>
+                </button>
+              </div>
+            ))}
         </div>
       </div>
     );
