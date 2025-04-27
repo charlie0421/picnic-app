@@ -17,14 +17,16 @@ const LanguageSelector: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // 클라이언트 사이드에서만 마운트된 후에 렌더링
   useEffect(() => {
     setMounted(true);
+    return () => setMounted(false);
   }, []);
 
   const currentLanguage = languages.find((lang) => lang.code === currentLang);
 
   useEffect(() => {
+    if (!mounted) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -38,9 +40,10 @@ const LanguageSelector: React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [mounted]);
 
   const toggleDropdown = () => {
+    if (!mounted) return;
     setIsOpen(!isOpen);
   };
 
@@ -126,7 +129,7 @@ const LanguageSelector: React.FC = () => {
               key={language.code}
               type='button'
               onClick={() => {
-                if (!isCurrentLanguage) {
+                if (!isCurrentLanguage && mounted) {
                   setCurrentLang(language.code);
                   setIsOpen(false);
                 }
@@ -146,14 +149,16 @@ const LanguageSelector: React.FC = () => {
                 fontWeight: isCurrentLanguage ? 'bold' : 'normal',
               }}
               onMouseEnter={(e) => {
-                if (!isCurrentLanguage) {
+                if (!isCurrentLanguage && mounted) {
                   e.currentTarget.style.backgroundColor = '#f3f4f6';
                 }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = isCurrentLanguage
-                  ? '#f0f0f0'
-                  : 'white';
+                if (mounted) {
+                  e.currentTarget.style.backgroundColor = isCurrentLanguage
+                    ? '#f0f0f0'
+                    : 'white';
+                }
               }}
             >
               {language.name}

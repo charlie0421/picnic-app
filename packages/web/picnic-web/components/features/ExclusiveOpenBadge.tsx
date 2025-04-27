@@ -13,9 +13,12 @@ const ExclusiveOpenBadge: React.FC<ExclusiveOpenBadgeProps> = ({ className = '' 
 
   useEffect(() => {
     setMounted(true);
+    return () => setMounted(false);
   }, []);
 
   const getExclusiveOpenText = () => {
+    if (!mounted) return 'Currently in exclusive open beta. Official service coming soon.';
+    
     switch (currentLang) {
       case 'ko':
         return '현재는 배타 오픈 기간입니다. 곧 정식 서비스를 제공할 예정입니다.';
@@ -31,16 +34,6 @@ const ExclusiveOpenBadge: React.FC<ExclusiveOpenBadgeProps> = ({ className = '' 
         return 'Currently in exclusive open beta. Official service coming soon.';
     }
   };
-
-  // 서버 사이드에서는 기본 텍스트를 렌더링
-  if (!mounted) {
-    return (
-      <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 ${className}`}>
-        <span className="mr-1">🎯</span>
-        Currently in exclusive open beta. Official service coming soon.
-      </div>
-    );
-  }
 
   return (
     <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 ${className}`}>
