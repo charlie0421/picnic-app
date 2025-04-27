@@ -201,7 +201,7 @@ const OngoingVoteItems: React.FC<{
   }
 
   return (
-    <div className='flex justify-center items-center gap-2 md:gap-0.5 w-full max-w-full overflow-hidden px-2 py-2'>
+    <div className='flex justify-center items-stretch h-[260px] gap-1 md:gap-0.25 w-full max-w-full overflow-hidden px-1 py-1'>
       {topThreeItems.map((item, index) => (
         <VoteRankCard
           key={item.id}

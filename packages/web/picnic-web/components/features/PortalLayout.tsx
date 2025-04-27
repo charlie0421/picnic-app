@@ -85,23 +85,39 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                 {/* 모바일 메뉴 */}
                 <div className={`sm:hidden w-full ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
                   <div className='flex flex-col space-y-2 py-2'>
-                    {PORTAL_MENU.map((menuItem) => (
-                      <PortalMenuItem
-                        key={menuItem.path}
-                        portalType={menuItem.type}
-                      />
-                    ))}
+                    {PORTAL_MENU.map((menuItem) => {
+                      // 관리자 전용 메뉴 체크
+                      const isAdminMenu = ['community', 'pic', 'novel'].includes(menuItem.type);
+                      // 관리자 메뉴이고 관리자가 아닌 경우 숨김
+                      if (isAdminMenu && (!authState.isAuthenticated || !authState.user?.isAdmin)) {
+                        return null;
+                      }
+                      return (
+                        <PortalMenuItem
+                          key={menuItem.path}
+                          portalType={menuItem.type}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* 데스크톱 메뉴 */}
                 <div className='hidden sm:flex items-center space-x-4 flex-1'>
-                  {PORTAL_MENU.map((menuItem) => (
-                    <PortalMenuItem
-                      key={menuItem.path}
-                      portalType={menuItem.type}
-                    />
-                  ))}
+                  {PORTAL_MENU.map((menuItem) => {
+                    // 관리자 전용 메뉴 체크
+                    const isAdminMenu = ['community', 'pic', 'novel'].includes(menuItem.type);
+                    // 관리자 메뉴이고 관리자가 아닌 경우 숨김
+                    if (isAdminMenu && (!authState.isAuthenticated || !authState.user?.isAdmin)) {
+                      return null;
+                    }
+                    return (
+                      <PortalMenuItem
+                        key={menuItem.path}
+                        portalType={menuItem.type}
+                      />
+                    );
+                  })}
                 </div>
 
                 {/* 우측 메뉴 (언어 선택기, 로그인/프로필) */}

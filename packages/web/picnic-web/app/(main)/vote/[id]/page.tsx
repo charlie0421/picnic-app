@@ -244,7 +244,7 @@ const VoteDetailPage: React.FC = (): JSX.Element | null => {
         <div className="h-2 md:h-1" />
         {/* 상위 3위: sticky + 가로 슬라이드, 항상 가로로만 */}
         <div className='sticky top-[72px] md:top-[96px] z-20 bg-white border-b'>
-          <div className='flex gap-2 md:gap-6 overflow-x-auto overflow-y-hidden px-2 py-2 justify-center'>
+          <div className='flex gap-1 md:gap-3 overflow-x-auto overflow-y-hidden px-1 py-1 justify-center'>
             {vote && voteItems.length > 0 && (
               slideTop3.map((item, idx) => (
                 <div key={item.id} className='w-40 min-w-[10rem] flex-shrink-0'>

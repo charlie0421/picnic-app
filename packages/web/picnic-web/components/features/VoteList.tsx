@@ -213,7 +213,7 @@ const VoteCard = React.memo(({ vote, onClick }: { vote: Vote; onClick?: () => vo
       <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col'>
         <div className='absolute top-3 right-3 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
           <span
-            className={`flex items-center px-3 py-1.5 rounded-full text-sm font-bold whitespace-nowrap ${
+            className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
               STATUS_TAG_COLORS[status]
             }`}
           >
@@ -223,12 +223,12 @@ const VoteCard = React.memo(({ vote, onClick }: { vote: Vote; onClick?: () => vo
 
         <div className='relative'>
           {vote.mainImage && (
-            <div className='h-48 bg-gray-200 relative'>
+            <div className='h-48 sm:h-56 md:h-64 bg-gray-200 relative'>
               <Image
                 src={getCdnImageUrl(vote.mainImage)}
                 alt={vote.title}
                 width={320}
-                height={192}
+                height={256}
                 className='w-full h-full object-cover'
                 priority
               />
@@ -237,8 +237,8 @@ const VoteCard = React.memo(({ vote, onClick }: { vote: Vote; onClick?: () => vo
           )}
         </div>
 
-        <div className='p-4 sm:p-5 flex-1 flex flex-col'>
-          <div className='flex flex-wrap gap-1 mb-3'>
+        <div className='p-1 sm:p-2 flex-1 flex flex-col'>
+          <div className='flex flex-wrap gap-0.5 mb-1'>
             {vote.voteCategory && (
               <span
                 className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
@@ -656,7 +656,7 @@ const VoteList: React.FC = () => {
         <EmptyState selectedStatus={selectedStatus} t={t} />
       ) : (
         <>
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8'>
             {filteredVotes.map((vote) => (
               <VoteCard
                 key={vote.id}
