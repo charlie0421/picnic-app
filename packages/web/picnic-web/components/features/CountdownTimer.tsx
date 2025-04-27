@@ -133,12 +133,12 @@ const CountdownTimer = React.memo(({ endTime, startTime, status, className }: Co
       <div className='text-xs text-gray-500 mb-2'>
         {status === 'scheduled' ? t('text_vote_countdown_start') : t('text_vote_countdown_end')}
       </div>
-      <div className='flex items-center justify-center gap-2'>
+      <div className='flex items-center justify-center gap-1'>
         {Object.entries(remainingTime).map(([unit, value], index, array) => (
           <React.Fragment key={unit}>
             <div className='flex flex-col items-center'>
               <div
-                className={`${timerStyle.bgColor} w-14 h-14 rounded-lg flex flex-col items-center justify-center font-mono text-lg font-bold ${timerStyle.textColor} relative gap-0 shadow-lg transition-all duration-1000 ${
+                className={`${timerStyle.bgColor} w-10 h-10 rounded-lg flex flex-col items-center justify-center font-mono text-base font-bold ${timerStyle.textColor} relative gap-0 shadow-lg transition-all duration-1000 ${
                   pulse ? 'animate-pulse' : ''
                 }`}
                 style={{ 
@@ -148,7 +148,7 @@ const CountdownTimer = React.memo(({ endTime, startTime, status, className }: Co
                 }}
               >
                 {value.toString().padStart(2, '0')}
-                <span className={`text-[10px] font-medium ${timerStyle.textColor} leading-none transition-opacity duration-300 ${
+                <span className={`text-[9px] font-medium ${timerStyle.textColor} leading-none transition-opacity duration-300 ${
                   pulse ? 'opacity-100' : 'opacity-90'
                 }`}>
                   {unit === 'days' ? 'D' : unit === 'hours' ? 'H' : unit === 'minutes' ? 'M' : 'S'}

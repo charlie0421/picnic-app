@@ -59,11 +59,11 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
 
   return (
     <div
-      className={`relative flex flex-col justify-between items-center p-0.5 rounded-xl backdrop-blur-sm transform transition-all duration-300 overflow-hidden self-end ${
+      className={`relative flex flex-col h-full justify-between items-center p-0.5 rounded-xl backdrop-blur-sm transform transition-all duration-300 overflow-hidden self-end ${
         isAnimating ? 'animate-pulse' : ''
       } ${
         rank === 1
-          ? 'flex-[2_1_0%] h-[260px] bg-gradient-to-br from-yellow-50/30 to-yellow-100/30 border-2 border-yellow-200/50 order-2'
+          ? 'flex-[2_1_0%] h-[256px] bg-gradient-to-br from-yellow-50/30 to-yellow-100/30 border-2 border-yellow-200/50 order-2'
           : rank === 2
           ? 'flex-[1.5_1_0%] h-[220px] bg-gradient-to-br from-gray-50/30 to-gray-100/30 border border-gray-200/50 order-1'
           : 'flex-[1_1_0%] h-[200px] bg-gradient-to-br from-amber-50/30 to-amber-100/30 border border-amber-200/50 order-3'
@@ -84,14 +84,18 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
         </div>
         {/* 아티스트 이미지 */}
         <div
-          className='rounded-full overflow-hidden border-4 w-[100px] h-[100px] max-w-[100px] max-h-[100px] border-yellow-200/50 shadow-lg mx-auto'
+          className={
+            rank === 1
+              ? 'rounded-full overflow-hidden border-4 w-[130px] h-[130px] max-w-[130px] max-h-[130px] border-yellow-200/50 shadow-lg mx-auto'
+              : 'rounded-full overflow-hidden border-4 w-[100px] h-[100px] max-w-[100px] max-h-[100px] border-yellow-200/50 shadow-lg mx-auto'
+          }
         >
           {item.artist && item.artist.image ? (
             <Image
               src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
               alt={getLocalizedString(item.artist.name)}
-              width={100}
-              height={100}
+              width={rank === 1 ? 130 : 100}
+              height={rank === 1 ? 130 : 100}
               className='w-full h-full object-cover max-w-full max-h-full'
               priority
             />
@@ -103,25 +107,29 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
         </div>
       </div>
       {/* 하단 정보 */}
-      <div className="w-full text-center mt-auto">
+      <div className="flex-1 flex flex-col justify-between w-full text-center mt-2">
         <div
-          className={`font-bold ${
+          className={`font-bold min-h-[18px] flex items-center justify-center overflow-hidden min-w-0 max-w-[150px] ${
             rank === 1
               ? 'text-sm text-yellow-700/70'
-              : rank === 2
-              ? 'text-xs text-gray-700/70'
-              : 'text-xs text-amber-700/70'
-          } truncate max-w-[150px]`}
+              : 'text-xs text-gray-700/70'
+          }`}
         >
-          {item.artist ? getLocalizedString(item.artist.name) || '알 수 없는 아티스트' : '알 수 없는 아티스트'}
+          <span className="truncate overflow-ellipsis max-w-[150px]">
+            {item.artist ? getLocalizedString(item.artist.name) || '알 수 없는 아티스트' : '알 수 없는 아티스트'}
+          </span>
         </div>
-        {item.artist?.artist_group && (
-          <div className='text-xs text-gray-600 mt-1 truncate max-w-[150px]'>
-            {getLocalizedString(item.artist.artist_group.name)}
-          </div>
-        )}
-        <div className='mt-2 flex flex-col items-center'>
-          <div className='relative'>
+        <div className='min-h-[14px] flex items-center justify-center overflow-hidden min-w-0 max-w-[150px]'>
+          {item.artist?.artist_group ? (
+            <span className='text-[11px] text-gray-600 truncate overflow-ellipsis max-w-[150px]'>
+              {getLocalizedString(item.artist.artist_group.name)}
+            </span>
+          ) : (
+            <span className='text-[11px] text-transparent select-none'>-</span>
+          )}
+        </div>
+        <div className='min-h-[20px] flex items-center justify-center font-bold overflow-hidden min-w-0 max-w-[150px]'>
+          <div className='relative w-full flex items-center justify-center'>
             {showVoteChange && voteChange !== 0 && (
               <div
                 className={`absolute -top-4 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
@@ -133,17 +141,15 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
                 {voteChange > 0 ? '+' : ''}{voteChange}
               </div>
             )}
-            <div
-              className={`font-bold ${
+            <span
+              className={
                 rank === 1
                   ? 'text-sm text-yellow-600/70'
-                  : rank === 2
-                  ? 'text-xs text-gray-600/70'
                   : 'text-xs text-amber-600/70'
-              }`}
+              }
             >
               {item.voteTotal?.toLocaleString() || 0}
-            </div>
+            </span>
           </div>
         </div>
       </div>
