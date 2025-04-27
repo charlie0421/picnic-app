@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Vote } from '@/types/interfaces';
 import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
+import VoteRewardPreview from './vote/VoteRewardPreview';
 
 interface VoteItemProps {
   vote: Vote;
@@ -30,10 +31,17 @@ const VoteItem: React.FC<VoteItemProps> = ({ vote }) => {
             </div>
           )}
         </div>
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-gray-800 truncate">
-            {getLocalizedString(vote.title)}
-          </h3>
+        <div className="p-3">
+          <div className="flex items-start justify-between gap-2">
+            {vote.rewards && vote.rewards.length > 0 && (
+              <div>
+                <VoteRewardPreview rewards={vote.rewards} />
+              </div>
+            )}
+            <h3 className="text-base font-medium text-gray-800 truncate">
+              {getLocalizedString(vote.title)}
+            </h3>
+          </div>
         </div>
       </div>
     </Link>
