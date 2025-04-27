@@ -13,6 +13,7 @@ import UpcomingVoteItems from './vote/UpcomingVoteItems';
 import OngoingVoteItems from './vote/OngoingVoteItems';
 import CompletedVoteItems from './vote/CompletedVoteItems';
 import CountdownTimer from '@/components/features/CountdownTimer';
+import { useRouter } from 'next/navigation';
 
 interface VoteListProps {
   votes: Vote[];
@@ -195,7 +196,7 @@ const VoteItems = React.memo(({ vote }: { vote: Vote & { voteItems?: Array<VoteI
 VoteItems.displayName = 'VoteItems';
 
 // VoteCard 컴포넌트 분리
-const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
+const VoteCard = React.memo(({ vote, onClick }: { vote: Vote; onClick?: () => void }) => {
   const { t } = useLanguageStore();
   const status = useMemo(() => {
     if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
@@ -360,11 +361,6 @@ const StatusFilter = React.memo(({
 }) => {
   const { translations } = useLanguageStore();
 
-  const getButtonStyle = (status: VoteStatus | 'all') =>
-    selectedStatus === status
-      ? 'px-3 py-1.5 rounded-lg bg-primary text-white font-medium text-sm shadow-sm'
-      : 'px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-sm hover:bg-primary/10 hover:text-primary';
-
   const getButtonText = useCallback((status: VoteStatus | 'all') => {
     switch (status) {
       case 'all':
@@ -381,10 +377,14 @@ const StatusFilter = React.memo(({
   }, [t]);
 
   return (
-    <div className="flex space-x-1.5">
+    <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
       <button
         onClick={() => setSelectedStatus('all')}
-        className={getButtonStyle('all')}
+        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          selectedStatus === 'all'
+            ? 'bg-primary text-white shadow-sm'
+            : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+        }`}
         aria-label={t('label_tabbar_vote_all')}
         aria-pressed={selectedStatus === 'all'}
       >
@@ -392,7 +392,11 @@ const StatusFilter = React.memo(({
       </button>
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
-        className={getButtonStyle(VOTE_STATUS.ONGOING)}
+        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          selectedStatus === VOTE_STATUS.ONGOING
+            ? 'bg-primary text-white shadow-sm'
+            : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+        }`}
         aria-label={t('label_tabbar_vote_active')}
         aria-pressed={selectedStatus === VOTE_STATUS.ONGOING}
       >
@@ -400,7 +404,11 @@ const StatusFilter = React.memo(({
       </button>
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
-        className={getButtonStyle(VOTE_STATUS.UPCOMING)}
+        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          selectedStatus === VOTE_STATUS.UPCOMING
+            ? 'bg-primary text-white shadow-sm'
+            : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+        }`}
         aria-label={t('label_tabbar_vote_upcoming')}
         aria-pressed={selectedStatus === VOTE_STATUS.UPCOMING}
       >
@@ -408,7 +416,11 @@ const StatusFilter = React.memo(({
       </button>
       <button
         onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
-        className={getButtonStyle(VOTE_STATUS.COMPLETED)}
+        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          selectedStatus === VOTE_STATUS.COMPLETED
+            ? 'bg-primary text-white shadow-sm'
+            : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+        }`}
         aria-label={t('label_tabbar_vote_end')}
         aria-pressed={selectedStatus === VOTE_STATUS.COMPLETED}
       >
@@ -496,6 +508,7 @@ const VoteList: React.FC = () => {
   const loadingRef = useRef<HTMLDivElement>(null);
   const PAGE_SIZE = 6;
   const isFetching = useRef(false);
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -643,9 +656,13 @@ const VoteList: React.FC = () => {
         <EmptyState selectedStatus={selectedStatus} t={t} />
       ) : (
         <>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'>
             {filteredVotes.map((vote) => (
-              <VoteCard key={vote.id} vote={vote} />
+              <VoteCard
+                key={vote.id}
+                vote={vote}
+                onClick={() => router.push(`/vote/${vote.id}`)}
+              />
             ))}
           </div>
           {hasMore && (

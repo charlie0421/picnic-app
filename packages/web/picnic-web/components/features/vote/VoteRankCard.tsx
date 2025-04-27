@@ -59,7 +59,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
 
   return (
     <div
-      className={`relative flex flex-col items-center p-2 rounded-xl backdrop-blur-sm transform transition-all duration-300 w-full max-w-xs ${
+      className={`relative flex flex-col items-center p-2 rounded-xl backdrop-blur-sm transform transition-all duration-300 w-full max-w-xs overflow-hidden ${
         isAnimating ? 'animate-pulse' : ''
       } ${
         rank === 1

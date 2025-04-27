@@ -47,9 +47,10 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
         <header className='border-b border-gray-200 bg-white'>
           <div className='container mx-auto px-2 sm:px-4 py-2'>
             <div className='flex-1 overflow-x-auto py-1 scrollbar-hide'>
-              <div className='flex flex-col sm:flex-row items-center justify-between w-full gap-2 sm:gap-0'>
-                <div className='flex items-center space-x-1 w-full sm:w-auto justify-between sm:justify-start'>
-                  <div className='flex items-center space-x-1'>
+              <div className='flex flex-col sm:flex-row w-full gap-2 sm:gap-4'>
+                {/* 로고와 모바일 메뉴 버튼 */}
+                <div className='flex items-center justify-between w-full sm:w-auto'>
+                  <div className='flex items-center space-x-2'>
                     <Image
                       src='/images/logo.png'
                       alt='logo'
@@ -94,7 +95,7 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                 </div>
 
                 {/* 데스크톱 메뉴 */}
-                <div className='hidden sm:flex items-center space-x-1'>
+                <div className='hidden sm:flex items-center space-x-4 flex-1'>
                   {PORTAL_MENU.map((menuItem) => (
                     <PortalMenuItem
                       key={menuItem.path}
@@ -103,8 +104,8 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                   ))}
                 </div>
 
-                <div className='flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end'>
-                  {/* 언어 선택기 추가 */}
+                {/* 우측 메뉴 (언어 선택기, 로그인/프로필) */}
+                <div className='flex items-center space-x-2 sm:space-x-4 justify-end'>
                   <LanguageSelector />
 
                   {authState.isAuthenticated ? (
@@ -122,7 +123,7 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                     </Link>
                   ) : (
                     <Link href='/login'>
-                      <div className='px-2 sm:px-3 py-1 sm:py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm sm:text-base'>
+                      <div className='px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm sm:text-base'>
                         {t('button_login')}
                       </div>
                     </Link>
