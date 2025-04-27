@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createBrowserSupabaseClient } from '../../../utils/supabase';
+import { createBrowserSupabaseClient } from '@/utils/supabase-client';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 

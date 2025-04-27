@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/utils/api/supabase';
+import { supabase } from '@/utils/api/auth';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,7 +21,7 @@ export const useAuth = () => {
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setIsAuthenticated(!!session);
     });
 

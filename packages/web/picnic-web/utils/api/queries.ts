@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase } from "../supabase-client";
 import { Banner, Media, Reward, Vote, VoteItem } from "@/types/interfaces";
 
 // 투표 데이터 가져오기
@@ -31,7 +31,7 @@ export const getVotes = async (
     if (voteError) throw voteError;
     if (!voteData || voteData.length === 0) return [];
 
-    return voteData.map((vote) => ({
+    return voteData.map((vote: any) => ({
       ...vote,
       deletedAt: vote.deleted_at,
       startAt: vote.start_at,
@@ -87,7 +87,7 @@ export const getRewards = async (limit?: number): Promise<Reward[]> => {
     if (rewardError) throw rewardError;
     if (!rewardData || rewardData.length === 0) return [];
 
-    return rewardData.map((reward) => ({
+    return rewardData.map((reward: any) => ({
       ...reward,
       deletedAt: reward.deleted_at,
       createdAt: reward.created_at,
@@ -122,7 +122,7 @@ export const getBanners = async (): Promise<Banner[]> => {
     if (bannerError) throw bannerError;
     if (!bannerData || bannerData.length === 0) return [];
 
-    return bannerData.map((banner) => ({
+    return bannerData.map((banner: any) => ({
       ...banner,
       deletedAt: banner.deleted_at,
       createdAt: banner.created_at,
@@ -179,7 +179,7 @@ export const getMedias = async (): Promise<Media[]> => {
     if (!mediaData || mediaData.length === 0) return [];
 
     // 스네이크 케이스에서 캐멀 케이스로 필드 변환
-    return mediaData.map((media) => ({
+    return mediaData.map((media: any) => ({
       id: media.id,
       createdAt: media.created_at,
       updatedAt: media.updated_at,
@@ -252,7 +252,7 @@ export const getVoteItems = async (voteId: number): Promise<VoteItem[]> => {
     if (voteItemsError) throw voteItemsError;
     if (!voteItemsData || voteItemsData.length === 0) return [];
 
-    return voteItemsData.map((item) => ({
+    return voteItemsData.map((item: any) => ({
       ...item,
       deletedAt: item.deleted_at,
       createdAt: item.created_at,
@@ -282,7 +282,7 @@ export const getVoteRewards = async (voteId: number): Promise<Reward[]> => {
     if (voteRewardError) throw voteRewardError;
     if (!voteRewardData || voteRewardData.length === 0) return [];
 
-    const rewardIds = voteRewardData.map((vr) => vr.reward_id);
+    const rewardIds = voteRewardData.map((vr: any) => vr.reward_id);
 
     const { data: rewardData, error: rewardError } = await supabase
       .from("reward")
@@ -293,7 +293,7 @@ export const getVoteRewards = async (voteId: number): Promise<Reward[]> => {
     if (rewardError) throw rewardError;
     if (!rewardData || rewardData.length === 0) return [];
 
-    return rewardData.map((reward) => ({
+    return rewardData.map((reward: any) => ({
       ...reward,
       deletedAt: reward.deleted_at,
       createdAt: reward.created_at,

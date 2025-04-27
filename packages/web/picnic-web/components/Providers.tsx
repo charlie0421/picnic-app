@@ -5,7 +5,6 @@ import { NavigationProvider } from '../contexts/NavigationContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import Portal from './features/Portal';
 import { useLanguageStore } from '@/stores/languageStore';
-import { createBrowserSupabaseClient } from '../utils/supabase';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const { loadTranslations } = useLanguageStore();
@@ -13,10 +12,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     loadTranslations();
   }, [loadTranslations]);
-
-  useEffect(() => {
-    createBrowserSupabaseClient();
-  }, []);
 
   return (
     <AuthProvider>

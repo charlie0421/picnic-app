@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PortalType } from '@/utils/enums';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '@/utils/supabase-client';
 
 interface PortalProps {
   type?: PortalType;
