@@ -30,7 +30,7 @@ const MyPage = () => {
         <h1 className="text-2xl font-bold mb-6">로그인이 필요합니다</h1>
         <p className="text-gray-600 mb-8">마이페이지를 이용하기 위해서는 로그인이 필요합니다.</p>
         <Link
-          href="/auth/login"
+          href="/login"
           className="px-6 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
         >
           로그인하기
