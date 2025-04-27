@@ -358,12 +358,14 @@ const StatusFilter = React.memo(({
   setSelectedStatus: (status: VoteStatus | 'all') => void,
   t: (key: string) => string 
 }) => {
+  const { translations } = useLanguageStore();
+
   const getButtonStyle = (status: VoteStatus | 'all') =>
     selectedStatus === status
-      ? 'px-4 py-2 rounded-lg bg-blue-500 text-white font-bold mx-1 shadow'
-      : 'px-4 py-2 rounded-lg bg-gray-200 text-gray-700 mx-1 hover:bg-blue-100';
+      ? 'px-3 py-1.5 rounded-lg bg-primary text-white font-medium text-sm shadow-sm'
+      : 'px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-sm hover:bg-primary/10 hover:text-primary';
 
-  const getButtonText = (status: VoteStatus | 'all') => {
+  const getButtonText = useCallback((status: VoteStatus | 'all') => {
     switch (status) {
       case 'all':
         return t('label_tabbar_vote_all');
@@ -376,10 +378,10 @@ const StatusFilter = React.memo(({
       default:
         return '';
     }
-  };
+  }, [t]);
 
   return (
-    <div className="flex space-x-2">
+    <div className="flex space-x-1.5">
       <button
         onClick={() => setSelectedStatus('all')}
         className={getButtonStyle('all')}
