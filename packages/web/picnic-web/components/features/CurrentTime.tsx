@@ -39,7 +39,7 @@ const CurrentTime: React.FC = () => {
   return (
     <div className="flex items-center">
       <div className="px-3 py-1.5">
-        <span className="font-mono text-gray-700 font-medium text-sm">
+        <span className="font-mono text-gray-700 font-medium text-xs sm:text-sm">
           {currentTime}
         </span>
       </div>

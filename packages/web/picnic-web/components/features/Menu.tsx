@@ -27,12 +27,12 @@ const Menu: React.FC = () => {
 
   return (
     <div className='flex justify-between items-center py-0'>
-      <div className='flex overflow-x-auto'>
+      <div className='flex overflow-x-auto scrollbar-hide whitespace-nowrap'>
         {subMenus.map((menuItem) => (
           <Link
             key={menuItem.key}
             href={menuItem.path}
-            className={`px-5 py-2 ${
+            className={`px-5 py-2 text-sm sm:text-base ${
               isActive(menuItem.path) &&
               // 투표홈은 하위 경로가 아닐 때만 활성화
               (menuItem.key !== 'vote' ||
