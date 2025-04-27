@@ -137,7 +137,7 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
           <div className='flex flex-col'>
             <div className='w-full'>
               {/* 배타 오픈 뱃지 */}
-              <div className="flex justify-center py-2 sm:py-4">
+              <div className="flex justify-center py-1 sm:py-2">
                 <ExclusiveOpenBadge />
               </div>
               {/* 서브 메뉴 */}
