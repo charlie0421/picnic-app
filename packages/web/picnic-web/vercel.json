@@ -1,13 +1,10 @@
 {
   "version": 2,
   "git": {
-    "deploymentEnabled": {
-      "production": {
-        "packages/web/picnic-web": true
-      }
-    }
+    "deploymentEnabled": true
   },
-  "buildCommand": "cd packages/web/picnic-web && npm run build",
-  "installCommand": "cd packages/web/picnic-web && npm install",
-  "outputDirectory": "packages/web/picnic-web/.next"
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
 } 
