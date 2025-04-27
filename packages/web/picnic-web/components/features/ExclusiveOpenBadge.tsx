@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { useLanguageStore } from '@/stores/languageStore';
 
 interface ExclusiveOpenBadgeProps {
@@ -7,6 +9,11 @@ interface ExclusiveOpenBadgeProps {
 
 const ExclusiveOpenBadge: React.FC<ExclusiveOpenBadgeProps> = ({ className = '' }) => {
   const { currentLang } = useLanguageStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getExclusiveOpenText = () => {
     switch (currentLang) {
@@ -24,6 +31,16 @@ const ExclusiveOpenBadge: React.FC<ExclusiveOpenBadgeProps> = ({ className = '' 
         return 'Currently in exclusive open beta. Official service coming soon.';
     }
   };
+
+  // 서버 사이드에서는 기본 텍스트를 렌더링
+  if (!mounted) {
+    return (
+      <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 ${className}`}>
+        <span className="mr-1">🎯</span>
+        Currently in exclusive open beta. Official service coming soon.
+      </div>
+    );
+  }
 
   return (
     <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 ${className}`}>

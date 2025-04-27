@@ -14,7 +14,13 @@ const languages = [
 const LanguageSelector: React.FC = () => {
   const { currentLang, setCurrentLang } = useLanguageStore();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // 클라이언트 사이드에서만 마운트된 후에 렌더링
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const currentLanguage = languages.find((lang) => lang.code === currentLang);
 
@@ -37,6 +43,18 @@ const LanguageSelector: React.FC = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
+  // 서버 사이드에서는 빈 div를 렌더링
+  if (!mounted) {
+    return (
+      <div
+        style={{
+          width: '170px',
+          height: '36px',
+        }}
+      />
+    );
+  }
 
   return (
     <div
