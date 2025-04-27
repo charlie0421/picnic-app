@@ -449,6 +449,18 @@ const LoadingSkeleton = React.memo(() => (
 
 LoadingSkeleton.displayName = 'LoadingSkeleton';
 
+// 무한 로딩을 위한 로딩 인디케이터 컴포넌트 추가
+const InfiniteLoadingIndicator = React.memo(() => (
+  <div className="w-full flex flex-col items-center justify-center py-4">
+    <div className="relative w-8 h-8">
+      <div className="absolute top-0 left-0 w-full h-full border-2 border-primary/20 rounded-full"></div>
+      <div className="absolute top-0 left-0 w-full h-full border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  </div>
+));
+
+InfiniteLoadingIndicator.displayName = 'InfiniteLoadingIndicator';
+
 // EmptyState 컴포넌트 분리
 const EmptyState = React.memo(({ selectedStatus, t }: { selectedStatus: VoteStatus | 'all', t: (key: string) => string }) => {
   const getMessage = () => {
@@ -639,14 +651,10 @@ const VoteList: React.FC = () => {
           {hasMore && (
             <div
               ref={loadingRef}
-              className="w-full flex justify-center items-center py-4"
+              className="w-full"
             >
               {loading ? (
-                <div className="animate-pulse flex space-x-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                </div>
+                <InfiniteLoadingIndicator />
               ) : (
                 <div className="h-4"></div>
               )}
