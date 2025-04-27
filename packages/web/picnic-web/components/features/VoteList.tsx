@@ -207,21 +207,6 @@ const VoteCard = React.memo(({ vote }: { vote: Vote }) => {
     return VOTE_STATUS.ONGOING;
   }, [vote.startAt, vote.stopAt]);
 
-  const periodText = useMemo(() => {
-    if (!vote.startAt || !vote.stopAt) return '기간 미정';
-    const start = new Date(vote.startAt);
-    const end = new Date(vote.stopAt);
-    const now = new Date();
-
-    if (now < start) {
-      const daysUntilStart = differenceInDays(start, now);
-      return `${daysUntilStart}일 후 시작`;
-    }
-    if (now > end) return '투표 종료';
-    const daysLeft = differenceInDays(end, now);
-    return `${daysLeft}일 남음`;
-  }, [vote.startAt, vote.stopAt]);
-
   return (
     <Link href={`/vote/${vote.id}`}>
       <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col'>

@@ -3,12 +3,9 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import Link from 'next/link';
 import { format, differenceInSeconds } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { Vote, VoteItem, Reward } from '@/types/interfaces';
-import Menu from '@/components/features/Menu';
-import Footer from '@/components/layouts/Footer';
 import { getVoteById, getVoteItems, getVoteRewards } from '@/utils/api/queries';
 import { getLocalizedString } from '@/utils/api/image';
 import { getCdnImageUrl } from '@/utils/api/image';
@@ -16,6 +13,7 @@ import OngoingVoteItems from '@/components/features/vote/OngoingVoteItems';
 import VoteDialog from '@/components/features/vote/dialogs/VoteDialog';
 import LoginDialog from '@/components/features/vote/dialogs/LoginDialog';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguageStore } from '@/stores/languageStore';
 
 const VoteDetailPage: React.FC = (): JSX.Element => {
   const { id } = useParams();
@@ -39,6 +37,7 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
   >('ongoing');
   const [isVoteDialogOpen, setIsVoteDialogOpen] = useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+  const { t } = useLanguageStore();
 
   // 초기 데이터 페칭
   useEffect(() => {
@@ -224,32 +223,32 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
               {remainingTime && (
                 <div className='bg-white/20 rounded-lg p-2 inline-flex items-center space-x-2 backdrop-blur-sm'>
                   <div className='text-white'>
-                    {voteStatus === 'upcoming' ? '시작까지 ' : '종료까지 '}
+                    {voteStatus === 'upcoming' ? t('text_vote_countdown_start') : t('text_vote_countdown_end')}
                   </div>
                   <div className='flex space-x-2'>
                     <div className='bg-white/30 px-2 py-1 rounded text-white backdrop-blur-sm'>
                       <span className='font-mono font-bold'>
                         {remainingTime.days}
                       </span>
-                      <span className='text-xs ml-1'>일</span>
+                      <span className='text-xs ml-1'>D</span>
                     </div>
                     <div className='bg-white/30 px-2 py-1 rounded text-white backdrop-blur-sm'>
                       <span className='font-mono font-bold'>
                         {remainingTime.hours.toString().padStart(2, '0')}
                       </span>
-                      <span className='text-xs ml-1'>시</span>
+                      <span className='text-xs ml-1'>H</span>
                     </div>
                     <div className='bg-white/30 px-2 py-1 rounded text-white backdrop-blur-sm'>
                       <span className='font-mono font-bold'>
                         {remainingTime.minutes.toString().padStart(2, '0')}
                       </span>
-                      <span className='text-xs ml-1'>분</span>
+                      <span className='text-xs ml-1'>M</span>
                     </div>
                     <div className='bg-white/30 px-2 py-1 rounded text-white backdrop-blur-sm'>
                       <span className='font-mono font-bold'>
                         {remainingTime.seconds.toString().padStart(2, '0')}
                       </span>
-                      <span className='text-xs ml-1'>초</span>
+                      <span className='text-xs ml-1'>S</span>
                     </div>
                   </div>
                 </div>
@@ -304,7 +303,7 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
                 <div className='relative mt-4'>
                   <input
                     type='text'
-                    placeholder='나의 최애는 어디에?'
+                    placeholder={t('text_vote_where_is_my_bias')}
                     className='w-full p-3 pl-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
                   />
                   <div className='absolute left-4 top-1/2 transform -translate-y-1/2'>
@@ -385,7 +384,6 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
                           <p className='text-primary font-bold'>
                             {item.voteTotal?.toLocaleString() || 0}
                           </p>
-                          <span className='text-gray-600 text-sm ml-1'>표</span>
                         </div>
                       </div>
 
@@ -408,7 +406,7 @@ const VoteDetailPage: React.FC = (): JSX.Element => {
                             d='M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
                           />
                         </svg>
-                        <span className='font-bold'>투표</span>
+                        <span className='font-bold'>{t('label_button_vote')}</span>
                       </button>
                     </div>
                   ))}

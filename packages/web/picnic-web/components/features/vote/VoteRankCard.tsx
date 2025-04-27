@@ -78,7 +78,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
         }`}
       >
         <span className='text-xl'>{RANK_BADGE_ICONS[rank - 1]}</span>
-        <span className='text-xs'>{rank}위</span>
+        <span className='text-xs'>{t('text_vote_rank', { rank: rank.toString()   })}</span>
       </div>
 
       {/* 아티스트 이미지 */}

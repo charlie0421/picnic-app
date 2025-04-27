@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { createBrowserSupabaseClient } from '@/utils/supabase-client';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useLanguageStore } from '@/stores/languageStore';
 
 export default function SignIn() {
   const [supabase] = useState(() => createBrowserSupabaseClient());
   const router = useRouter();
+  const { t } = useLanguageStore();
 
   const handleSignIn = async (provider: 'google' | 'apple' | 'kakao') => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -28,7 +30,7 @@ export default function SignIn() {
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            로그인
+            {t('text_login_title')}
           </h2>
         </div>
         <div className="mt-8 space-y-4">

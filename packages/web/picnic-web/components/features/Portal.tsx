@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useParams, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { useLanguageStore } from '@/stores/languageStore';
 import {
   ProfileImageContainer,
   DefaultAvatar,
@@ -30,6 +31,7 @@ interface PortalProps {
 const Portal: React.FC<PortalProps> = ({ children }) => {
   const { authState } = useAuth();
   const { navigationState, setCurrentPortalType } = useNavigation();
+  const { t } = useLanguageStore();
   const pathname = usePathname();
 
   // 경로에 따라 현재 포탈 타입 설정
@@ -88,7 +90,7 @@ const Portal: React.FC<PortalProps> = ({ children }) => {
                   ) : (
                     <Link href='/login'>
                       <div className='px-3 py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors'>
-                        로그인
+                        {t('button_login')}
                       </div>
                     </Link>
                   )}
