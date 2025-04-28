@@ -51,7 +51,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
   >('ongoing');
   const [isVoteDialogOpen, setIsVoteDialogOpen] = useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-  const { t } = useLanguageStore();
+  const { t, currentLanguage } = useLanguageStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFilter, setSearchFilter] = useState<'all' | 'artist' | 'group'>(
     'all',
@@ -59,6 +59,11 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const rewardRef = useRef<HTMLDivElement>(null);
   const [isRewardHidden, setIsRewardHidden] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 초기 데이터 페칭
   useEffect(() => {
@@ -103,7 +108,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
           }
         }
       } catch (error) {
-        console.error('데이터를 가져오는 중 오류가 발생했습니다:', error);
+        console.error('Error fetching initial data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -181,16 +186,18 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
   }, []);
 
   const formatDateRange = (startAt?: string | null, stopAt?: string | null) => {
-    if (!startAt || !stopAt) return '';
-
-    const start = new Date(startAt as string);
-    const end = new Date(stopAt as string);
-
-    return `${format(start, 'yyyy.MM.dd HH:mm', { locale: ko })} ~ ${format(
-      end,
-      'yyyy.MM.dd HH:mm',
-      { locale: ko },
-    )} (KST)`;
+    if (!startAt || !stopAt) return null;
+    return (
+      <>
+        {format(new Date(startAt), 'yyyy.MM.dd HH:mm', {
+          locale: ko,
+        })}{' '}
+        ~{' '}
+        {format(new Date(stopAt), 'yyyy.MM.dd HH:mm', {
+          locale: ko,
+        })}
+      </>
+    );
   };
 
   const handleSelect = (item: VoteItem) => {
@@ -256,24 +263,14 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
     const slideTop3 = slideOrder.map((i) => top3[i]).filter(Boolean);
 
     return (
-      <div className='container mx-auto px-2 py-2'>
+      <div className='container mx-auto px-4 py-8'>
         {/* 상단 정보창: 아주 얇고 심플하게 */}
         <div className='sticky top-0 z-30 bg-gradient-to-r from-green-400 to-teal-500 text-white border-b px-2 py-6 min-h-[72px] md:py-6 md:min-h-[96px] flex flex-col items-start gap-y-1 relative'>
           <span className='text-base md:text-xl font-bold truncate w-full'>
-            {getLocalizedString(vote.title)}
+            {mounted ? getLocalizedString(vote.title) : typeof vote.title === 'string' ? vote.title : (vote.title as Record<string, string>)?.[currentLanguage] || (vote.title as Record<string, string>)?.['en'] || ''}
           </span>
-          <span className='text-xs md:text-sm'>
-            {vote.startAt && vote.stopAt && (
-              <>
-                {format(new Date(vote.startAt), 'yyyy.MM.dd HH:mm', {
-                  locale: ko,
-                })}{' '}
-                ~{' '}
-                {format(new Date(vote.stopAt), 'yyyy.MM.dd HH:mm', {
-                  locale: ko,
-                })}
-              </>
-            )}
+          <span className='text-sm md:text-base'>
+            {mounted ? formatDateRange(vote.startAt, vote.stopAt) : formatDateRange(vote.startAt, vote.stopAt)}
           </span>
           <div className='absolute right-2 top-1 md:top-4'>
             {vote.startAt && vote.stopAt && (
@@ -294,11 +291,12 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
             {vote &&
               voteItems.length > 0 &&
               slideTop3.map((item, idx) => (
-                <div key={item.id} className='w-40 min-w-[10rem] flex-shrink-0'>
+                <div key={item.id} className='flex-shrink-0'>
                   <VoteRankCard
                     item={item}
                     rank={item.rank}
-                    className='h-[18.5rem]'
+                    showVoteChange={true}
+                    isAnimating={true}
                   />
                 </div>
               ))}
@@ -322,7 +320,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
         </div>
 
         {/* 투표 항목 리스트 */}
-        <div className='mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'>
+        <div className='mt-4 space-y-4'>
           {rankedVoteItems
             .filter((item) => {
               if (!searchQuery) return true;
@@ -346,13 +344,63 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
             .map((item) => (
               <div
                 key={item.id}
-                className='relative transition-all duration-300 hover:scale-[1.02]'
+                className='bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer'
+                onClick={() => handleSelect(item)}
               >
-                <VoteRankCard
-                  item={item}
-                  rank={item.rank}
-                  onClick={() => handleSelect(item)}
-                />
+                <div className='flex items-center p-4'>
+                  <div className='relative w-20 h-20 rounded-full overflow-hidden border-2 border-gray-100 flex-shrink-0'>
+                    {item.artist?.image ? (
+                      <Image
+                        src={getCdnImageUrl(item.artist.image)}
+                        alt={getLocalizedString(item.artist.name)}
+                        fill
+                        className='object-cover'
+                      />
+                    ) : (
+                      <div className='w-full h-full bg-gray-100 flex items-center justify-center'>
+                        <span className='text-gray-400'>No Image</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className='flex-1 ml-4'>
+                    <div className='flex items-center gap-2'>
+                      <h3 className='text-lg font-bold text-gray-900'>
+                        {getLocalizedString(item.artist?.name)}
+                      </h3>
+                      {item.rank && (
+                        <div 
+                          className='px-2 py-1 rounded-full text-sm font-bold'
+                          style={{
+                            background: item.rank === 1 ? 'linear-gradient(135deg, #FFD700, #FFA500)' :
+                                      item.rank === 2 ? 'linear-gradient(135deg, #C0C0C0, #A9A9A9)' :
+                                      item.rank === 3 ? 'linear-gradient(135deg, #CD7F32, #8B4513)' :
+                                      'none',
+                            color: item.rank <= 3 ? 'white' : 'inherit'
+                          }}
+                        >
+                          {item.rank}위
+                        </div>
+                      )}
+                    </div>
+                    <p className='text-sm text-gray-600 mt-1'>
+                      {getLocalizedString(item.artist?.artistGroup?.name)}
+                    </p>
+                    <p className='text-xl font-bold text-primary mt-2'>
+                      {item.voteTotal?.toLocaleString() || 0}
+                    </p>
+                  </div>
+                  <div className='flex-shrink-0 ml-4'>
+                    <button
+                      className='px-6 py-3 bg-primary text-white rounded-full font-bold hover:bg-primary-dark transition-colors'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelect(item);
+                      }}
+                    >
+                      {t('label_button_vote')}
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
         </div>

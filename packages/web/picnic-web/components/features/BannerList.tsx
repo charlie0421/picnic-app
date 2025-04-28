@@ -15,7 +15,12 @@ const BannerList: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 배너 데이터 가져오기
   useEffect(() => {
@@ -37,6 +42,8 @@ const BannerList: React.FC = () => {
 
   // 모바일 여부 확인
   useEffect(() => {
+    if (!mounted) return;
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -137,8 +144,13 @@ const BannerList: React.FC = () => {
     }
   };
 
+  // 서버 사이드에서는 기본값 사용
+  if (typeof window === 'undefined') {
+    return <LoadingSpinner />;
+  }
+
   if (isLoading) {
-    return <LoadingSpinner className="min-h-[300px]" />;
+    return <LoadingSpinner />;
   }
 
   if (error) {

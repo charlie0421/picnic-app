@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguageStore } from '@/stores/languageStore';
+import { useRouter, usePathname } from 'next/navigation';
 
 const languages = [
   { code: 'ko', name: '한국어' },
@@ -12,17 +13,19 @@ const languages = [
 ];
 
 const LanguageSelector: React.FC = () => {
-  const { currentLang, setCurrentLang } = useLanguageStore();
+  const { currentLanguage, setLanguage } = useLanguageStore();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
 
-  const currentLanguage = languages.find((lang) => lang.code === currentLang);
+  const currentLanguageObj = languages.find((lang) => lang.code === currentLanguage);
 
   useEffect(() => {
     if (!mounted) return;
@@ -45,6 +48,16 @@ const LanguageSelector: React.FC = () => {
   const toggleDropdown = () => {
     if (!mounted) return;
     setIsOpen(!isOpen);
+  };
+
+  const handleLanguageChange = async (lang: string) => {
+    if (lang === currentLanguage) return;
+    
+    // 현재 경로에서 언어 코드를 새 언어로 변경
+    const newPath = pathname.replace(/^\/[a-z]{2}/, `/${lang}`);
+    await setLanguage(lang as any);
+    router.push(newPath);
+    setIsOpen(false);
   };
 
   // 서버 사이드에서는 빈 div를 렌더링
@@ -87,7 +100,7 @@ const LanguageSelector: React.FC = () => {
           fontSize: '13px',
         }}
       >
-        <span>{currentLanguage?.name || 'Language'}</span>
+        <span>{currentLanguageObj?.name || 'Language'}</span>
         <span
           style={{
             transform: isOpen ? 'rotate(180deg)' : 'none',
@@ -123,17 +136,12 @@ const LanguageSelector: React.FC = () => {
         }}
       >
         {languages.map((language) => {
-          const isCurrentLanguage = language.code === currentLang;
+          const isCurrentLanguage = language.code === currentLanguage;
           return (
             <button
               key={language.code}
               type='button'
-              onClick={() => {
-                if (!isCurrentLanguage && mounted) {
-                  setCurrentLang(language.code);
-                  setIsOpen(false);
-                }
-              }}
+              onClick={() => handleLanguageChange(language.code)}
               disabled={isCurrentLanguage}
               style={{
                 display: 'block',

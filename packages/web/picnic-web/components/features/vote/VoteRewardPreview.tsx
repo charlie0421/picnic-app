@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Reward } from '@/types/interfaces';
 import { getLocalizedString, getCdnImageUrl } from '@/utils/api/image';
@@ -8,14 +8,21 @@ interface VoteRewardPreviewProps {
   rewards: Reward[];
   className?: string;
   compact?: boolean;
+  isSticky?: boolean;
 }
 
 const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({ 
   rewards, 
   className = '',
-  compact = false 
+  compact = false,
+  isSticky = false
 }) => {
-  const { t } = useLanguageStore();
+  const { t, currentLanguage } = useLanguageStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!rewards.length) return null;
 
@@ -40,7 +47,7 @@ const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
               {reward.overviewImages?.[0] && (
                 <Image
                   src={getCdnImageUrl(reward.overviewImages[0])}
-                  alt={getLocalizedString(reward.title)}
+                  alt={mounted ? getLocalizedString(reward.title) : typeof reward.title === 'string' ? reward.title : (reward.title as Record<string, string>)?.[currentLanguage] || (reward.title as Record<string, string>)?.['en'] || ''}
                   fill
                   className='object-cover'
                 />
@@ -73,7 +80,7 @@ const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
               {reward.overviewImages?.[0] && (
                 <Image
                   src={getCdnImageUrl(reward.overviewImages[0])}
-                  alt={getLocalizedString(reward.title)}
+                  alt={mounted ? getLocalizedString(reward.title) : typeof reward.title === 'string' ? reward.title : (reward.title as Record<string, string>)?.[currentLanguage] || (reward.title as Record<string, string>)?.['en'] || ''}
                   fill
                   className='object-cover'
                 />
@@ -81,7 +88,7 @@ const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
             </div>
             <div className='flex-1'>
               <p className='text-base font-medium text-gray-900'>
-                {getLocalizedString(reward.title)}
+                {mounted ? getLocalizedString(reward.title) : typeof reward.title === 'string' ? reward.title : (reward.title as Record<string, string>)?.[currentLanguage] || (reward.title as Record<string, string>)?.['en'] || ''}
               </p>
             </div>
           </div>

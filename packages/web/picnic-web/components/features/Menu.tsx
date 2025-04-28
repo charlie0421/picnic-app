@@ -18,7 +18,10 @@ const Menu: React.FC = () => {
 
   // 현재 경로에 따라 메뉴 항목의 활성 상태 결정
   const isActive = (path: string) => {
-    return pathname.startsWith(path);
+    // 언어 코드를 제외한 경로 비교
+    const currentPath = pathname.split('/').slice(2).join('/');
+    const targetPath = path.split('/').slice(1).join('/');
+    return currentPath.startsWith(targetPath);
   };
 
   // 투표 포탈의 서브메뉴 가져오기

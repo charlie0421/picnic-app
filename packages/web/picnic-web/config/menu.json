@@ -23,12 +23,6 @@
           "name": "미디어",
           "path": "/media",
           "i18nKey": "nav_media"
-        },
-        {
-          "key": "shop",
-          "name": "상점",
-          "path": "/shop",
-          "i18nKey": "nav_store"
         }
       ]
     },

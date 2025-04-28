@@ -1,62 +1,28 @@
-'use client';
-
+import React from 'react';
 import Image from 'next/image';
+import { settings } from '@/config/settings';
 
 interface ProfileImageContainerProps {
-  avatarUrl?: string;
-  width?: number;
-  height?: number;
-  borderRadius?: number;
+  src: string;
+  alt: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export const ProfileImageContainer: React.FC<ProfileImageContainerProps> = ({
-  avatarUrl,
-  width = 40,
-  height = 40,
-  borderRadius = 8,
+const ProfileImageContainer: React.FC<ProfileImageContainerProps> = ({
+  src,
+  alt,
+  size = 'md',
 }) => {
   return (
-    <div
-      style={{
-        width,
-        height,
-        borderRadius,
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
+    <div className={`relative rounded-full overflow-hidden ${settings.layout.profileImage.sizes[size]}`}>
       <Image
-        src={avatarUrl || '/images/default-avatar.png'}
-        alt="Profile"
+        src={src}
+        alt={alt}
         fill
-        sizes={`${Math.max(width, height)}px`}
-        style={{ objectFit: 'cover' }}
+        className="object-cover"
       />
     </div>
   );
 };
 
-export const DefaultAvatar: React.FC<{ width?: number; height?: number }> = ({
-  width = 40,
-  height = 40,
-}) => {
-  return (
-    <div
-      style={{
-        width,
-        height,
-        borderRadius: 8,
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
-      <Image
-        src="/images/default-avatar.png"
-        alt="Default Avatar"
-        fill
-        sizes={`${Math.max(width, height)}px`}
-        style={{ objectFit: 'cover' }}
-      />
-    </div>
-  );
-}; 
+export default ProfileImageContainer; 

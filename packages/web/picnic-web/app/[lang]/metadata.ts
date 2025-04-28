@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
   title: "Picnic - 아티스트와 팬이 함께하는 피크닠!",
   description:
     "순위 투표와 차트, 아티스트와 함께 촬영하는 포토프레임 서비스까지 내 최애 아티스트와 함께 피크닉하는 공간, 피크닠입니다.",
@@ -78,3 +78,5 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
 };
+
+export const metadata: Metadata = defaultMetadata;

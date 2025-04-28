@@ -1,5 +1,6 @@
 import { PortalType } from "@/utils/enums";
 import menuConfig from './menu.json';
+import { SUPPORTED_LANGUAGES } from "./settings";
 
 // 포탈 메뉴 구성
 export const PORTAL_MENU = menuConfig.portals.map(portal => ({
@@ -27,10 +28,22 @@ export const MAIN_MENU: MenuItem[] = menuConfig.portals
 
 // 포털 타입과 경로 간의 맵핑 (양방향 매핑)
 export const PATH_TO_PORTAL_TYPE: Record<string, PortalType> = menuConfig.portals.reduce((acc, portal) => {
+    // 기본 경로 매핑
     acc[portal.path] = portal.type as PortalType;
+    
+    // 언어별 경로 매핑
+    SUPPORTED_LANGUAGES.forEach(lang => {
+        acc[`/${lang}${portal.path}`] = portal.type as PortalType;
+    });
+
+    // 서브메뉴 경로 매핑
     if (portal.subMenus) {
         portal.subMenus.forEach(menu => {
             acc[menu.path] = portal.type as PortalType;
+            // 서브메뉴의 언어별 경로 매핑
+            SUPPORTED_LANGUAGES.forEach(lang => {
+                acc[`/${lang}${menu.path}`] = portal.type as PortalType;
+            });
         });
     }
     return acc;
@@ -38,12 +51,15 @@ export const PATH_TO_PORTAL_TYPE: Record<string, PortalType> = menuConfig.portal
 
 // 현재 경로가 어떤 포털 타입에 해당하는지 찾는 함수
 export function getPortalTypeFromPath(path: string): PortalType {
+    // 언어 코드를 제거한 경로 추출
+    const pathWithoutLang = path.replace(/^\/(ko|en|ja|zh)/, '');
     // 경로의 첫 번째 세그먼트 추출 (예: '/vote/chart' -> '/vote')
-    const firstSegment = `/${path.split("/").filter(Boolean)[0]}`;
+    const firstSegment = `/${pathWithoutLang.split("/").filter(Boolean)[0]}`;
     return PATH_TO_PORTAL_TYPE[firstSegment] || PortalType.PUBLIC;
 }
 
-// 해당 경로가 VOTE 관련 경로인지 확인하는 함수
+// 투표 관련 경로인지 확인하는 함수
 export function isVoteRelatedPath(path: string): boolean {
-    return VOTE_SUB_PATHS.some((subPath) => path.startsWith(subPath));
+    const pathWithoutLang = path.replace(/^\/(ko|en|ja|zh)/, '');
+    return VOTE_SUB_PATHS.some(subPath => pathWithoutLang.startsWith(subPath));
 }

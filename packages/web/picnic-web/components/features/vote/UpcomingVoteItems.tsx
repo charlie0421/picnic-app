@@ -10,8 +10,13 @@ const UpcomingVoteItems: React.FC<{
 }> = ({ voteItems }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [shuffledItems, setShuffledItems] = useState<Array<VoteItem & { artist?: any }>>([]);
+  const [mounted, setMounted] = useState(false);
   const itemsPerPage = 8; // 한 페이지당 2줄 x 4개
   const totalPages = Math.ceil((voteItems?.length || 0) / itemsPerPage);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 투표아이템을 랜덤으로 섞는 함수
   const shuffleItems = (items: Array<VoteItem & { artist?: any }>) => {
@@ -23,12 +28,12 @@ const UpcomingVoteItems: React.FC<{
     return shuffled;
   };
 
-  // 컴포넌트가 처음 마운트될 때만 랜덤으로 섞기
+  // 컴포넌트가 마운트된 후에만 랜덤으로 섞기
   useEffect(() => {
-    if (voteItems && voteItems.length > 0) {
+    if (mounted && voteItems && voteItems.length > 0) {
       setShuffledItems(shuffleItems(voteItems));
     }
-  }, [voteItems]);
+  }, [mounted, voteItems]);
 
   const handlePrevPage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,98 +47,27 @@ const UpcomingVoteItems: React.FC<{
     setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
   };
 
-  const currentItems = shuffledItems.slice(
+  const currentItems = mounted ? shuffledItems.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
-  );
+  ) : voteItems?.slice(0, itemsPerPage) || [];
 
-  if (!shuffledItems || shuffledItems.length === 0) {
+  if (!voteItems || voteItems.length === 0) {
     return null;
   }
 
   return (
-    <div className="relative">
-      <div className="overflow-hidden">
-        <div className="grid grid-cols-4 grid-rows-2 gap-4 p-4">
-          {currentItems.map((item, index) => (
-            <div key={index} className="flex flex-col items-center">
-              <div className="w-16 h-16 relative rounded-full overflow-hidden border-2 border-blue-200">
-                {item.artist?.image && (
-                  <Image
-                    src={getCdnImageUrl(item.artist.image)}
-                    alt={getLocalizedString(item.artist.name)}
-                    fill
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              <div className="mt-2 text-center">
-                <div className="text-xs font-medium text-gray-700 truncate max-w-[80px]">
-                  {getLocalizedString(item.artist?.name)}
-                </div>
-              </div>
-            </div>
-          ))}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {currentItems.map((item) => (
+        <div key={item.id} className="relative aspect-square">
+          <Image
+            src={getCdnImageUrl(getLocalizedString(item.artist?.image), 300)}
+            alt={getLocalizedString(item.artist?.name)}
+            fill
+            className="object-cover rounded-lg"
+          />
         </div>
-      </div>
-      
-      {totalPages > 1 && (
-        <div 
-          className="flex justify-center items-center space-x-2 mt-2"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 0}
-            className={`p-2 rounded-full bg-white shadow-md ${
-              currentPage === 0
-                ? 'text-gray-500 cursor-not-allowed'
-                : 'text-blue-500 hover:bg-blue-50'
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-          <span className="text-xs text-gray-600 bg-white px-3 py-2 rounded-full shadow-md">
-            {currentPage + 1} / {totalPages}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages - 1}
-            className={`p-2 rounded-full bg-white shadow-md ${
-              currentPage === totalPages - 1
-                ? 'text-gray-500 cursor-not-allowed'
-                : 'text-blue-500 hover:bg-blue-50'
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-      )}
+      ))}
     </div>
   );
 };

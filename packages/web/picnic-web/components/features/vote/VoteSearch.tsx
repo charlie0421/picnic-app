@@ -11,6 +11,7 @@ interface VoteSearchProps {
   isLoading?: boolean;
   placeholder?: string;
   className?: string;
+  filter?: 'all' | 'artist' | 'group';
 }
 
 type SearchFilter = 'all' | 'artist' | 'group';
@@ -23,6 +24,7 @@ const VoteSearch: React.FC<VoteSearchProps> = ({
   isLoading = false,
   placeholder,
   className = '',
+  filter,
 }) => {
   const { t } = useLanguageStore();
   const [searchQuery, setSearchQuery] = useState('');

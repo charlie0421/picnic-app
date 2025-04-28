@@ -20,6 +20,9 @@ import {
   PORTAL_MENU,
   getPortalTypeFromPath
 } from '@/config/navigation';
+import { format } from 'date-fns';
+import { ko, ja, zhCN, enUS } from 'date-fns/locale';
+import CurrentTime from '@/components/features/CurrentTime';
 
 // 환경 설정 확인 (개발 환경인지)
 const isDev = process.env.NODE_ENV !== 'production';
@@ -34,6 +37,9 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
   const { t } = useLanguageStore();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // 초기 시간 생성
+  const initialTime = new Date().toISOString();
 
   // 경로에 따라 현재 포탈 타입 설정
   useEffect(() => {

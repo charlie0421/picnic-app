@@ -3,6 +3,7 @@ import { getServerVoteData } from '@/utils/api/serverQueries';
 import VoteDetailContent from '@/components/features/vote/VoteDetailContent';
 import VoteDetailSkeleton from '@/components/features/vote/VoteDetailSkeleton';
 import { Metadata } from 'next';
+import { Vote } from '@/types/interfaces';
 
 // 메타데이터 동적 생성
 export async function generateMetadata({
@@ -19,11 +20,12 @@ export async function generateMetadata({
     };
   }
 
-  let title;
+  let title: string;
   if (typeof vote.title === 'string') {
     title = vote.title;
   } else if (vote.title && typeof vote.title === 'object') {
-    title = vote.title.ko || vote.title.en || '투표';
+    const titleObj = vote.title as { ko?: string; en?: string };
+    title = titleObj.ko || titleObj.en || '투표';
   } else {
     title = '투표';
   }
@@ -52,13 +54,13 @@ export async function generateStaticParams() {
   }));
 }
 
-// 서버 컴포넌트로 초기 데이터 로드
-export default async function VoteDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  // 서버에서 초기 데이터 가져오기
+interface VoteDetailPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function VoteDetailPage({ params }: VoteDetailPageProps) {
   const initialData = await getServerVoteData(Number(params.id));
 
   return (

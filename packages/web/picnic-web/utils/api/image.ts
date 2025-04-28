@@ -20,7 +20,7 @@ export const getCdnImageUrl = (
   try {
     // 클라이언트 사이드에서만 store 접근
     if (typeof window !== "undefined") {
-      currentLang = useLanguageStore.getState().currentLang;
+      currentLang = useLanguageStore.getState().currentLanguage;
     }
   } catch (e) {
     console.error("언어 스토어 접근 오류:", e);
@@ -67,31 +67,33 @@ export const getCdnImageUrl = (
 
 export const getLocalizedString = (
   value: { [key: string]: string } | string | null | any,
+  currentLang?: string,
 ): string => {
   if (!value) return '';
   if (typeof value === "string") return value;
   if (typeof value === "number") return value.toString();
 
-  let currentLang = "en";
-
-  try {
-    // 서버 사이드에서도 동작하도록 수정
-    if (typeof window !== "undefined") {
-      currentLang = useLanguageStore.getState().currentLang;
-    } else {
+  // currentLang이 제공되지 않은 경우에만 store에서 가져옴
+  if (!currentLang) {
+    try {
       // 서버 사이드에서는 기본값 사용
+      if (typeof window === "undefined") {
+        currentLang = "en";
+      } else {
+        const store = useLanguageStore.getState();
+        currentLang = store.currentLanguage || "en";
+      }
+    } catch (error) {
+      console.error('Error getting current language:', error);
       currentLang = "en";
     }
-  } catch (e) {
-    console.error("언어 스토어 접근 오류:", e);
-    currentLang = "en";
   }
 
-  // 객체인 경우 현재 언어 키에 해당하는 값 반환
-  if (typeof value === "object" && value !== null) {
-    return value[currentLang] || value.en || value.ko ||
-      Object.values(value)[0] || '';
+  // 현재 언어의 번역이 있으면 반환
+  if (value[currentLang]) {
+    return value[currentLang];
   }
 
-  return '';
+  // 현재 언어의 번역이 없으면 영어로 폴백
+  return value["en"] || '';
 };

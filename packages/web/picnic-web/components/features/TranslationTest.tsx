@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useLanguageStore } from '@/stores/languageStore';
 
 const TranslationTest: React.FC = () => {
-  const { t, currentLang, translations } = useLanguageStore();
+  const { t, currentLanguage, translations } = useLanguageStore();
   const [testResults, setTestResults] = useState<Record<string, string>>({});
   const [systemLang, setSystemLang] = useState<string>('');
 
@@ -44,7 +44,7 @@ const TranslationTest: React.FC = () => {
           <strong>시스템 언어:</strong> {systemLang}
         </div>
         <div>
-          <strong>현재 언어:</strong> {currentLang}
+          <strong>현재 언어:</strong> {currentLanguage}
         </div>
         <div>
           <strong>로드된 번역 수:</strong> {Object.keys(translations).length}
