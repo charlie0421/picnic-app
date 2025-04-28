@@ -1,0 +1,11 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /private
+
+# Host
+Host: https://www.picnic.fan
+
+# Sitemaps
+Sitemap: https://www.picnic.fan/sitemap.xml

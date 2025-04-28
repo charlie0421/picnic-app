@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:types": "echo '🚀 Supabase 타입 생성 중...' && supabase gen types typescript --project-id xtijtefcycoeqludlngc > types/supabase.ts && echo '✅ Supabase 타입 생성 완료' && echo '🚀 인터페이스 생성 중...' && tsx scripts/generate-interfaces.ts"
+    "gen:types": "echo '🚀 Supabase 타입 생성 중...' && supabase gen types typescript --project-id xtijtefcycoeqludlngc > types/supabase.ts && echo '✅ Supabase 타입 생성 완료' && echo '🚀 인터페이스 생성 중...' && tsx scripts/generate-interfaces.ts",
+    "postbuild": "next-sitemap"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
@@ -24,6 +25,7 @@
     "glob": "^11.0.2",
     "next": "15.3.1",
     "next-auth": "^4.24.11",
+    "next-sitemap": "^4.2.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "rimraf": "^6.0.1",
