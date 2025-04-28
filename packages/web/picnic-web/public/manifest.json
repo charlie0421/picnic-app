@@ -1,0 +1,32 @@
+{
+  "name": "Picnic - 아티스트와 팬이 함께하는 피크닠!",
+  "short_name": "Picnic",
+  "description": "순위 투표와 차트, 아티스트와 함께 촬영하는 포토프레임 서비스까지 내 최애 아티스트와 함께 피크닉하는 공간, 피크닠입니다.\n\n1.최애 아티스트를 위한 서포트 \"실시간 투표\"\n- 실시간 투표를 통해 내 최애 아티스트를 전광판으로!\n- 소중한 투표 하나로 최애에 대한 내 마음을 표현해 보세요\n\n2.다양한 아티스트에게 투표하세요!\n세븐틴, STAYC, Stray Kids, BABYMONSTER, BOYNEXTDOOR, BLACKPINK, VIVIZ, 비투비, Kep1er, KISS OF LIFE, 아스트로, IVE, 아이유, 아일릿, n.SSign, 앤팀, 에스파, 에이티즈, NMIXX, ENHYPEN, 유니스, 이채연, ITZY, 제로베이스원, (여자)아이들, GOT7, 강다니엘, 뉴진스, 더보이즈, DAY6, 라이즈, 레드벨벳, 르세라핌, 몬스타엑스, 방탄소년단, 투모로우바이투게더, TWS, TREASURE, 트리플에스, TWICE, 프로미스나인, 플레이브, EXO, NCT, VCHA 등등!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
