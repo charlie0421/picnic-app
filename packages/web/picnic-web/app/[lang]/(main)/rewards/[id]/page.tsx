@@ -11,7 +11,7 @@ import { useLanguageStore } from '@/stores/languageStore';
 const RewardDetailPage = () => {
   const params = useParams();
   const { id } = params;
-  const { currentLang } = useLanguageStore();
+  const { currentLanguage } = useLanguageStore();
   const [reward, setReward] = useState<Reward | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -77,12 +77,12 @@ const RewardDetailPage = () => {
 
   // 다국어 위치 정보 처리
   const locationInfo = reward.location
-    ? (reward.location as any)[currentLang] || (reward.location as any)['ko']
+    ? (reward.location as any)[currentLanguage] || (reward.location as any)['ko']
     : null;
 
   // 다국어 크기 가이드 정보 처리
   const sizeGuideInfo = reward.sizeGuide
-    ? (reward.sizeGuide as any)[currentLang] || (reward.sizeGuide as any)['ko']
+    ? (reward.sizeGuide as any)[currentLanguage] || (reward.sizeGuide as any)['ko']
     : null;
 
   return (

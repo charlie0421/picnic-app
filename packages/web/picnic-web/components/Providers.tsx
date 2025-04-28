@@ -7,11 +7,11 @@ import PortalLayout from './features/PortalLayout';
 import { useLanguageStore } from '@/stores/languageStore';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const { loadTranslations } = useLanguageStore();
+  const { loadTranslations, currentLanguage } = useLanguageStore();
 
   useEffect(() => {
-    loadTranslations();
-  }, [loadTranslations]);
+    loadTranslations(currentLanguage);
+  }, [loadTranslations, currentLanguage]);
 
   return (
     <AuthProvider>

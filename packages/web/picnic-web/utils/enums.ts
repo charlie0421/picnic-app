@@ -17,7 +17,8 @@ export enum PortalType {
   NOVEL = 'novel',
   MYPAGE = 'mypage',
   MEDIA = 'media',
-  SHOP = 'shop'
+  SHOP = 'shop',
+  AUTH = 'auth'
 }
 
 export enum Gender {

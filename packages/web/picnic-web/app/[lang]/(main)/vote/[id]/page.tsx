@@ -3,15 +3,18 @@ import { getServerVoteData } from '@/utils/api/serverQueries';
 import VoteDetailContent from '@/components/features/vote/VoteDetailContent';
 import VoteDetailSkeleton from '@/components/features/vote/VoteDetailSkeleton';
 import { Metadata } from 'next';
-import { Vote } from '@/types/interfaces';
+
+// 동적 서버 사용을 위한 설정
+export const dynamic = 'force-dynamic';
 
 // 메타데이터 동적 생성
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { vote } = await getServerVoteData(Number(params.id));
+  const resolvedParams = await params;
+  const { vote } = await getServerVoteData(Number(resolvedParams.id));
 
   if (!vote) {
     return {
@@ -54,13 +57,18 @@ export async function generateStaticParams() {
   }));
 }
 
-interface VoteDetailPageProps {
-  params: {
+type VoteDetailPageProps = {
+  params: Promise<{
     id: string;
-  };
-}
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default async function VoteDetailPage({ params }: VoteDetailPageProps) {
+export default async function VoteDetailPage(props: VoteDetailPageProps) {
+  const [params, searchParams] = await Promise.all([
+    props.params,
+    props.searchParams,
+  ]);
   const initialData = await getServerVoteData(Number(params.id));
 
   return (

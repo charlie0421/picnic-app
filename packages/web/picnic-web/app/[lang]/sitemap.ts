@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
-import { createClient } from "../utils/supabase-server-client";
-import { Database } from "../types/supabase";
+import { createClient } from "./utils/supabase-server-client";
+import { Database } from "./types/supabase";
 import { SITE_URL, STATIC_PAGES } from "./constants/static-pages";
 import fs from "fs";
 import path from "path";
@@ -134,69 +134,20 @@ async function fetchVoteData(): Promise<Vote[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    // 정적 페이지 URL 생성 (수동으로 정의한 목록)
-    const staticUrls: MetadataRoute.Sitemap = STATIC_PAGES.map((page) => ({
-        url: `${SITE_URL}${page.path ? `/${page.path}` : ""}`,
+    const staticPages = STATIC_PAGES.map(path => ({
+        url: `${SITE_URL}${path}`,
         lastModified: new Date(),
-        changeFrequency: page.changeFreq as
-            | "hourly"
-            | "daily"
-            | "weekly"
-            | "monthly",
-        priority: page.priority,
+        changeFreq: 'daily' as const,
+        priority: path === '/' ? 1 : 0.8,
     }));
 
-    // 자동 감지된, 등록되지 않은 페이지 URL 생성
-    const detectedPages = detectAppPages();
-    const manuallyDefinedPaths = STATIC_PAGES.map((page) => page.path);
+    const votePages = await fetchVoteData();
+    const voteUrls = votePages.map(vote => ({
+        url: `${SITE_URL}/vote/${vote.id}`,
+        lastModified: new Date(vote.updated_at),
+        changeFreq: 'daily' as const,
+        priority: 0.7,
+    }));
 
-    const autoDetectedUrls: MetadataRoute.Sitemap = detectedPages
-        .filter((page) => !manuallyDefinedPaths.includes(page)) // 수동 등록된 페이지 제외
-        .map((page) => ({
-            url: `${SITE_URL}/${page}`,
-            lastModified: new Date(),
-            changeFrequency: "monthly" as const,
-            priority: 0.5,
-        }));
-
-    // 모든 정적 URL 합치기
-    const allStaticUrls = [...staticUrls, ...autoDetectedUrls];
-
-    try {
-        // 투표 데이터 가져오기
-        const votes = await fetchVoteData();
-
-        // 각 투표에 대한 URL 생성 (상태에 따라 우선순위 차별화)
-        const voteUrls: MetadataRoute.Sitemap = votes.map((vote) => {
-            // 상태에 따라 우선순위 결정
-            let priority = 0.8;
-            let changeFrequency: "hourly" | "daily" | "weekly" | "monthly" =
-                "daily";
-
-            if (vote.status === "active") {
-                priority = 0.8;
-                changeFrequency = "hourly";
-            } else if (vote.status === "upcoming") {
-                priority = 0.7;
-                changeFrequency = "daily";
-            } else if (vote.status === "past") {
-                priority = 0.5;
-                changeFrequency = "weekly";
-            }
-
-            return {
-                url: `${SITE_URL}/vote/${vote.id}`,
-                lastModified: new Date(vote.updated_at || vote.created_at),
-                changeFrequency,
-                priority,
-            };
-        });
-
-        // 정적 URL과 동적으로 생성된 투표 URL 결합
-        return [...allStaticUrls, ...voteUrls];
-    } catch (error) {
-        console.error("사이트맵 생성 중 오류:", error);
-        // 오류 발생 시 정적 URL만 반환
-        return allStaticUrls;
-    }
+    return [...staticPages, ...voteUrls];
 }

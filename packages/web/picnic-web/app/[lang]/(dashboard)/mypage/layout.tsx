@@ -8,7 +8,7 @@ export default function MyPageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <PortalGuard type={PortalType.PROTECTED}>
+    <PortalGuard type={PortalType.MYPAGE}>
       {children}
     </PortalGuard>
   );

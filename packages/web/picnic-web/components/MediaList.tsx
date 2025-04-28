@@ -14,7 +14,7 @@ interface MediaListProps {
 }
 
 const MediaList: React.FC<MediaListProps> = ({ medias, isLoading, error }) => {
-  const { currentLang } = useLanguageStore();
+  const { currentLanguage } = useLanguageStore();
 
   const getTitleString = (title: any) => {
     if (!title) return '제목 없음';
@@ -119,7 +119,7 @@ const MediaList: React.FC<MediaListProps> = ({ medias, isLoading, error }) => {
               </h2>
               <p className='text-sm text-gray-700'>
                 {new Date(media.createdAt).toLocaleDateString(
-                  currentLang === 'ko' ? 'ko-KR' : 'en-US',
+                  currentLanguage === 'ko' ? 'ko-KR' : 'en-US',
                   {
                     year: 'numeric',
                     month: 'long',

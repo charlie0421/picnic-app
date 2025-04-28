@@ -8,7 +8,7 @@ interface ExclusiveOpenBadgeProps {
 }
 
 const ExclusiveOpenBadge: React.FC<ExclusiveOpenBadgeProps> = ({ className = '' }) => {
-  const { currentLang } = useLanguageStore();
+  const { currentLanguage } = useLanguageStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const ExclusiveOpenBadge: React.FC<ExclusiveOpenBadgeProps> = ({ className = '' 
   const getExclusiveOpenText = () => {
     if (!mounted) return 'Currently in exclusive open beta. Official service coming soon.';
     
-    switch (currentLang) {
+    switch (currentLanguage) {
       case 'ko':
         return '현재는 배타 오픈 기간입니다. 곧 정식 서비스를 제공할 예정입니다.';
       case 'en':
