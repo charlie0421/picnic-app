@@ -11,24 +11,24 @@ console.log('Crowdin Distribution Hash:', distributionHash);
 const otaClient = new OtaClient(distributionHash || '');
 console.log('OTA Client initialized:', otaClient);
 
-// 초기 언어 설정
-const initialLanguage: Language = (() => {
-  if (typeof window === 'undefined') return 'en';
-  const storedLang = localStorage.getItem('language') as Language;
+// URL에서 현재 언어 가져오기
+const getCurrentLanguageFromPath = (): Language => {
+  if (typeof window === 'undefined') return settings.languages.default;
+  
   const pathSegments = window.location.pathname.split('/');
   const urlLang = pathSegments[1] as Language;
   
-  // URL 언어가 지원되는 언어인 경우 우선 사용
   if (urlLang && settings.languages.supported.includes(urlLang)) {
     return urlLang;
   }
   
-  // 저장된 언어가 지원되는 언어인 경우 사용
-  if (storedLang && settings.languages.supported.includes(storedLang)) {
-    return storedLang;
-  }
-  
-  return 'en';
+  return settings.languages.default;
+};
+
+// 초기 언어 설정은 항상 URL 경로에서 가져옴
+const initialLanguage: Language = (() => {
+  if (typeof window === 'undefined') return settings.languages.default;
+  return getCurrentLanguageFromPath();
 })();
 
 // OTA 클라이언트에 초기 언어 설정
@@ -51,26 +51,13 @@ interface LanguageState {
   t: (key: string, args?: Record<string, string>) => string;
   loadTranslations: (lang: string) => Promise<void>;
   setCurrentLang: (lang: Language) => void;
+  syncLanguageWithPath: () => void;
 }
-
-const getInitialLanguage = (): Language => {
-  if (typeof window === 'undefined') return 'en';
-  
-  // URL에서 언어 파라미터 가져오기
-  const pathSegments = window.location.pathname.split('/');
-  const urlLang = pathSegments[1] as Language;
-  
-  if (settings.languages.supported.includes(urlLang)) {
-    return urlLang;
-  }
-  
-  return 'en';
-};
 
 export const useLanguageStore = create<LanguageState>()(
   persist(
     (set, get) => ({
-      currentLanguage: settings.languages.default,
+      currentLanguage: initialLanguage,
       translations: settings.languages.supported.reduce((acc, lang) => {
         acc[lang] = {};
         return acc;
@@ -81,6 +68,11 @@ export const useLanguageStore = create<LanguageState>()(
         if (settings.languages.supported.includes(lang)) {
           set({ currentLanguage: lang });
         }
+      },
+      syncLanguageWithPath: () => {
+        if (typeof window === 'undefined') return;
+        const langFromPath = getCurrentLanguageFromPath();
+        set({ currentLanguage: langFromPath });
       },
       t: (key: string, args?: Record<string, string>) => {
         const { currentLanguage, translations } = get();

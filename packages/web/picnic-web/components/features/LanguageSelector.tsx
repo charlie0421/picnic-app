@@ -13,17 +13,22 @@ const languages = [
 ];
 
 const LanguageSelector: React.FC = () => {
-  const { currentLanguage, setLanguage } = useLanguageStore();
+  const { currentLanguage, setLanguage, syncLanguageWithPath } = useLanguageStore();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
+  // 마운트 시와 라우트 변경 시 언어 동기화
   useEffect(() => {
     setMounted(true);
+    
+    // URL이 변경될 때마다 현재 언어 상태를 URL과 동기화
+    syncLanguageWithPath();
+    
     return () => setMounted(false);
-  }, []);
+  }, [pathname, syncLanguageWithPath]);
 
   const currentLanguageObj = languages.find((lang) => lang.code === currentLanguage);
 
@@ -53,8 +58,20 @@ const LanguageSelector: React.FC = () => {
   const handleLanguageChange = async (lang: string) => {
     if (lang === currentLanguage) return;
     
-    // 현재 경로에서 언어 코드를 새 언어로 변경
-    const newPath = pathname.replace(/^\/[a-z]{2}/, `/${lang}`);
+    // 현재 경로에서 언어 코드 부분만 교체
+    let newPath = pathname;
+    const pathSegments = pathname.split('/');
+    
+    // 첫 번째 세그먼트가 언어 코드인 경우 교체
+    if (pathSegments.length > 1 && languages.some(l => l.code === pathSegments[1])) {
+      pathSegments[1] = lang;
+      newPath = pathSegments.join('/');
+    } else {
+      // 언어 코드가 없는 경우 추가
+      newPath = `/${lang}${pathname}`;
+    }
+    
+    // 상태 변경 및 페이지 이동
     await setLanguage(lang as any);
     router.push(newPath);
     setIsOpen(false);
