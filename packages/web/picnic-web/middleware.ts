@@ -19,6 +19,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // auth/callback 경로는 언어 경로 없이 직접 접근
+  if (pathname.startsWith('/auth/callback')) {
+    return NextResponse.next();
+  }
+
   // 이미 언어가 포함된 경로인지 확인
   const pathnameHasLang = SUPPORTED_LANGUAGES.some(lang => pathname.startsWith(`/${lang}/`) || pathname === `/${lang}`);
 
