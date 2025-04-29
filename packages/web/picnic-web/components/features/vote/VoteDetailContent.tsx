@@ -263,146 +263,141 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
     const slideTop3 = slideOrder.map((i) => top3[i]).filter(Boolean);
 
     return (
-      <div className='container mx-auto px-4 py-8'>
-        {/* 상단 정보창: 아주 얇고 심플하게 */}
-        <div className='sticky top-0 z-30 bg-gradient-to-r from-green-400 to-teal-500 text-white border-b px-2 py-6 min-h-[72px] md:py-6 md:min-h-[96px] flex flex-col items-start gap-y-1 relative'>
-          <span className='text-base md:text-xl font-bold truncate w-full'>
-            {mounted ? getLocalizedString(vote.title) : typeof vote.title === 'string' ? vote.title : (vote.title as Record<string, string>)?.[currentLanguage] || (vote.title as Record<string, string>)?.['en'] || ''}
-          </span>
-          <span className='text-sm md:text-base'>
-            {mounted ? formatDateRange(vote.startAt, vote.stopAt) : formatDateRange(vote.startAt, vote.stopAt)}
-          </span>
-          <div className='absolute right-2 top-1 md:top-4'>
-            {vote.startAt && vote.stopAt && (
-              <CountdownTimer
-                startTime={vote.startAt}
-                endTime={vote.stopAt}
-                status={voteStatus === 'upcoming' ? 'scheduled' : 'in_progress'}
-                className='text-[10px] md:text-base [&_.w-14]:w-10 [&_.h-14]:h-10 md:[&_.w-14]:w-14 md:[&_.h-14]:h-14'
-              />
-            )}
+      <div className='container mx-auto px-4'>
+        {/* 상단 정보창과 랭킹 카드 - sticky로 상단에 고정 */}
+        <div className='sticky top-0 z-40 -mx-4 bg-white shadow-md'>
+          {/* 상단 정보창: 아주 얇고 심플하게 */}
+          <div className='bg-gradient-to-r from-green-400 to-teal-500 text-white border-b px-4 py-3 min-h-[60px] md:py-3 md:min-h-[80px] flex flex-col items-start gap-y-1 relative'>
+            <span className='text-base md:text-xl font-bold truncate w-full'>
+              {mounted ? getLocalizedString(vote.title) : typeof vote.title === 'string' ? vote.title : (vote.title as Record<string, string>)?.[currentLanguage] || (vote.title as Record<string, string>)?.['en'] || ''}
+            </span>
+            <span className='text-sm md:text-base'>
+              {mounted ? formatDateRange(vote.startAt, vote.stopAt) : formatDateRange(vote.startAt, vote.stopAt)}
+            </span>
+            <div className='absolute right-4 top-1 md:top-2'>
+              {vote.startAt && vote.stopAt && (
+                <CountdownTimer
+                  startTime={vote.startAt}
+                  endTime={vote.stopAt}
+                  status={voteStatus === 'upcoming' ? 'scheduled' : 'in_progress'}
+                  className='text-[10px] md:text-base [&_.w-14]:w-8 [&_.h-14]:h-8 md:[&_.w-14]:w-10 md:[&_.h-14]:h-10'
+                />
+              )}
+            </div>
           </div>
-        </div>
-        {/* 정보창과 랭킹카드 사이 여백 */}
-        <div className='h-2 md:h-1' />
-        {/* 상위 3위: sticky + 가로 슬라이드, 항상 가로로만 */}
-        <div className='sticky top-[72px] md:top-[96px] z-20 bg-white border-b'>
-          <div className='flex gap-1 md:gap-3 overflow-x-auto overflow-y-hidden px-1 py-1 justify-center'>
-            {vote &&
-              voteItems.length > 0 &&
-              slideTop3.map((item, idx) => (
-                <div key={item.id} className='flex-shrink-0'>
-                  <VoteRankCard
-                    item={item}
-                    rank={item.rank}
-                    showVoteChange={true}
-                    isAnimating={true}
-                  />
-                </div>
-              ))}
-          </div>
-        </div>
-
-        {/* 리워드가 있는 경우 표시 */}
-        {rewards.length > 0 && (
-          <div ref={rewardRef} className='mt-4'>
-            <VoteRewardPreview rewards={rewards} isSticky={isRewardHidden} />
-          </div>
-        )}
-
-        {/* 검색 필터 */}
-        <div className='mt-4'>
-          <VoteSearch
-            onSearch={handleSearch}
-            onFilterChange={handleFilterChange}
-            filter={searchFilter}
-          />
-        </div>
-
-        {/* 투표 항목 리스트 */}
-        <div className='mt-4 space-y-4'>
-          {rankedVoteItems
-            .filter((item) => {
-              if (!searchQuery) return true;
-              const artistName = getLocalizedString(item.artist?.name || '');
-              const groupName = getLocalizedString(
-                item.artist?.artistGroup?.name || '',
-              );
-
-              const query = searchQuery.toLowerCase();
-
-              if (searchFilter === 'artist')
-                return artistName.toLowerCase().includes(query);
-              if (searchFilter === 'group')
-                return groupName.toLowerCase().includes(query);
-
-              return (
-                artistName.toLowerCase().includes(query) ||
-                groupName.toLowerCase().includes(query)
-              );
-            })
-            .map((item) => (
-              <div
-                key={item.id}
-                className='bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer'
-                onClick={() => handleSelect(item)}
-              >
-                <div className='flex items-center p-4'>
-                  <div className='relative w-20 h-20 rounded-full overflow-hidden border-2 border-gray-100 flex-shrink-0'>
-                    {item.artist?.image ? (
-                      <Image
-                        src={getCdnImageUrl(item.artist.image)}
-                        alt={getLocalizedString(item.artist.name)}
-                        fill
-                        className='object-cover'
-                      />
-                    ) : (
-                      <div className='w-full h-full bg-gray-100 flex items-center justify-center'>
-                        <span className='text-gray-400'>No Image</span>
-                      </div>
-                    )}
+          
+          {/* 상위 3위: 가로 슬라이드, 항상 가로로만 */}
+          <div className='bg-white border-b px-4'>
+            <div className='flex gap-1 md:gap-3 overflow-x-auto overflow-y-hidden py-1 justify-center'>
+              {vote &&
+                voteItems.length > 0 &&
+                slideTop3.map((item, idx) => (
+                  <div key={item.id} className='flex-shrink-0'>
+                    <VoteRankCard
+                      item={item}
+                      rank={item.rank}
+                      showVoteChange={true}
+                      isAnimating={true}
+                    />
                   </div>
-                  <div className='flex-1 ml-4'>
-                    <div className='flex items-center gap-2'>
-                      <h3 className='text-lg font-bold text-gray-900'>
-                        {getLocalizedString(item.artist?.name)}
-                      </h3>
-                      {item.rank && (
+                ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 메인 콘텐츠 영역 */}
+        <div className='pt-4'>
+          {/* 리워드가 있는 경우 표시 */}
+          {rewards.length > 0 && (
+            <div ref={rewardRef} className='mb-4'>
+              <VoteRewardPreview rewards={rewards} isSticky={isRewardHidden} />
+            </div>
+          )}
+
+          {/* 검색 필터 */}
+          <div className='mb-4'>
+            <VoteSearch
+              onSearch={handleSearch}
+              onFilterChange={handleFilterChange}
+              filter={searchFilter}
+            />
+          </div>
+
+          {/* 투표 아이템 그리드 */}
+          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'>
+            {rankedVoteItems
+              .filter((item) => {
+                if (!searchQuery) return true;
+                const artistName = getLocalizedString(item.artist?.name || '');
+                const groupName = getLocalizedString(
+                  item.artist?.artistGroup?.name || '',
+                );
+
+                const query = searchQuery.toLowerCase();
+
+                if (searchFilter === 'artist')
+                  return artistName.toLowerCase().includes(query);
+                if (searchFilter === 'group')
+                  return groupName.toLowerCase().includes(query);
+
+                return (
+                  artistName.toLowerCase().includes(query) ||
+                  groupName.toLowerCase().includes(query)
+                );
+              })
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className='bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer'
+                  onClick={() => handleSelect(item)}
+                >
+                  <div className='p-3 flex flex-col items-center'>
+                    <div className='relative w-full aspect-square rounded-lg overflow-hidden border-2 border-gray-100 mb-2'>
+                      {item.artist?.image ? (
+                        <Image
+                          src={getCdnImageUrl(item.artist.image)}
+                          alt={getLocalizedString(item.artist.name)}
+                          fill
+                          className='object-cover'
+                        />
+                      ) : (
+                        <div className='w-full h-full bg-gray-100 flex items-center justify-center'>
+                          <span className='text-gray-400'>No Image</span>
+                        </div>
+                      )}
+                      {item.rank && item.rank <= 3 && (
                         <div 
-                          className='px-2 py-1 rounded-full text-sm font-bold'
+                          className='absolute top-1 left-1 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm'
                           style={{
                             background: item.rank === 1 ? 'linear-gradient(135deg, #FFD700, #FFA500)' :
                                       item.rank === 2 ? 'linear-gradient(135deg, #C0C0C0, #A9A9A9)' :
-                                      item.rank === 3 ? 'linear-gradient(135deg, #CD7F32, #8B4513)' :
-                                      'none',
-                            color: item.rank <= 3 ? 'white' : 'inherit'
+                                      'linear-gradient(135deg, #CD7F32, #8B4513)'
                           }}
                         >
+                          {item.rank}
+                        </div>
+                      )}
+                    </div>
+                    <div className='w-full text-center'>
+                      <h3 className='text-base font-bold text-gray-900 truncate'>
+                        {getLocalizedString(item.artist?.name)}
+                      </h3>
+                      <p className='text-xs text-gray-600 truncate mt-1'>
+                        {getLocalizedString(item.artist?.artistGroup?.name)}
+                      </p>
+                      <p className='text-sm font-bold text-primary mt-1'>
+                        {item.voteTotal?.toLocaleString() || 0}
+                      </p>
+                      {item.rank && item.rank > 3 && (
+                        <div className='mt-1 text-xs text-gray-500'>
                           {item.rank}위
                         </div>
                       )}
                     </div>
-                    <p className='text-sm text-gray-600 mt-1'>
-                      {getLocalizedString(item.artist?.artistGroup?.name)}
-                    </p>
-                    <p className='text-xl font-bold text-primary mt-2'>
-                      {item.voteTotal?.toLocaleString() || 0}
-                    </p>
-                  </div>
-                  <div className='flex-shrink-0 ml-4'>
-                    <button
-                      className='px-6 py-3 bg-primary text-white rounded-full font-bold hover:bg-primary-dark transition-colors'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelect(item);
-                      }}
-                    >
-                      {t('label_button_vote')}
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+          </div>
         </div>
       </div>
     );

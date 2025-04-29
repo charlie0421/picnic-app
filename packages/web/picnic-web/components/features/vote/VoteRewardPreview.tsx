@@ -19,6 +19,7 @@ const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
 }) => {
   const { t, currentLanguage } = useLanguageStore();
   const [mounted, setMounted] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -60,40 +61,59 @@ const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
   }
 
   return (
-    <div className={`bg-cream-50 rounded-lg p-4 ${className}`}>
-      <div className='flex items-center gap-2 mb-4'>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brown-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+    <div className={`bg-cream-50 rounded-lg p-2 ${className}`}>
+      <div 
+        className='flex items-center justify-between cursor-pointer' 
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className='flex items-center gap-2'>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-brown-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+          </svg>
+          <span className='text-brown-600 text-sm font-medium'>
+            {rewards.length}개의 리워드가 있습니다
+          </span>
+        </div>
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          className={`h-4 w-4 text-brown-600 transition-transform ${expanded ? 'rotate-180' : ''}`} 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
-        <span className='text-brown-600 font-medium'>
-          {rewards.length} reward
-        </span>
       </div>
 
-      {rewards.map((reward) => (
-        <div
-          key={reward.id}
-          className='bg-white rounded-lg overflow-hidden border border-cream-100 mb-2 last:mb-0'
-        >
-          <div className='flex items-center p-3'>
-            <div className='w-12 h-12 rounded-lg overflow-hidden relative flex-shrink-0 mr-3'>
-              {reward.overviewImages?.[0] && (
-                <Image
-                  src={getCdnImageUrl(reward.overviewImages[0])}
-                  alt={mounted ? getLocalizedString(reward.title) : typeof reward.title === 'string' ? reward.title : (reward.title as Record<string, string>)?.[currentLanguage] || (reward.title as Record<string, string>)?.['en'] || ''}
-                  fill
-                  className='object-cover'
-                />
-              )}
-            </div>
-            <div className='flex-1'>
-              <p className='text-base font-medium text-gray-900'>
-                {mounted ? getLocalizedString(reward.title) : typeof reward.title === 'string' ? reward.title : (reward.title as Record<string, string>)?.[currentLanguage] || (reward.title as Record<string, string>)?.['en'] || ''}
-              </p>
-            </div>
+      {expanded && (
+        <div className='mt-2 overflow-x-auto'>
+          <div className='flex space-x-2 pb-1'>
+            {rewards.map((reward) => (
+              <div
+                key={reward.id}
+                className='bg-white rounded-lg border border-cream-100 flex-shrink-0'
+                style={{ width: '180px' }}
+              >
+                <div className='p-2'>
+                  <div className='w-full h-16 rounded-lg overflow-hidden relative mb-2'>
+                    {reward.overviewImages?.[0] && (
+                      <Image
+                        src={getCdnImageUrl(reward.overviewImages[0])}
+                        alt={mounted ? getLocalizedString(reward.title) : typeof reward.title === 'string' ? reward.title : (reward.title as Record<string, string>)?.[currentLanguage] || (reward.title as Record<string, string>)?.['en'] || ''}
+                        fill
+                        className='object-cover'
+                      />
+                    )}
+                  </div>
+                  <p className='text-xs font-medium text-gray-900 truncate'>
+                    {mounted ? getLocalizedString(reward.title) : typeof reward.title === 'string' ? reward.title : (reward.title as Record<string, string>)?.[currentLanguage] || (reward.title as Record<string, string>)?.['en'] || ''}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
+      )}
     </div>
   );
 };
