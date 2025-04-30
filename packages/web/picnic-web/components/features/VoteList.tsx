@@ -286,7 +286,11 @@ const VoteCard = React.memo(
                 startTime={vote.startAt}
                 endTime={vote.stopAt}
                 status={
-                  status === VOTE_STATUS.UPCOMING ? 'scheduled' : 'in_progress'
+                  status === VOTE_STATUS.UPCOMING
+                    ? 'scheduled'
+                    : status === VOTE_STATUS.COMPLETED
+                    ? 'ended'
+                    : 'in_progress'
                 }
               />
             </div>
