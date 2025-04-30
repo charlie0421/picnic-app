@@ -13,11 +13,23 @@ export const getVotes = async (
       .from("vote")
       .select(`
         *,
-        vote_item (
-          *,
+        vote_item!vote_id (
+          id,
+          vote_id,
+          artist_id,
+          group_id,
+          vote_total,
+          created_at,
+          updated_at,
+          deleted_at,
           artist (
-            *,
-            artist_group (*)
+            id,
+            name,
+            image,
+            artist_group (
+              id,
+              name
+            )
           )
         ),
         vote_reward (
@@ -54,8 +66,13 @@ export const getVotes = async (
           voteId: item.vote_id,
           artistId: item.artist_id,
           groupId: item.group_id,
-          voteTotal: item.vote_total,
-          artist: item.artist,
+          voteTotal: item.vote_total || 0,
+          artist: item.artist
+            ? {
+              ...item.artist,
+              image: item.artist.image,
+            }
+            : null,
         }))
         : [],
       rewards: vote.vote_reward

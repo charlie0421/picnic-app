@@ -268,24 +268,39 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
         <div className='sticky top-0 z-40 -mx-4 bg-white shadow-md'>
           {/* 상단 정보창: 아주 얇고 심플하게 */}
           <div className='bg-gradient-to-r from-green-400 to-teal-500 text-white border-b px-4 py-3 min-h-[60px] md:py-3 md:min-h-[80px] flex flex-col items-start gap-y-1 relative'>
-            <span className='text-base md:text-xl font-bold truncate w-full'>
-              {mounted ? getLocalizedString(vote.title) : typeof vote.title === 'string' ? vote.title : (vote.title as Record<string, string>)?.[currentLanguage] || (vote.title as Record<string, string>)?.['en'] || ''}
-            </span>
-            <span className='text-sm md:text-base'>
-              {mounted ? formatDateRange(vote.startAt, vote.stopAt) : formatDateRange(vote.startAt, vote.stopAt)}
-            </span>
+            <div className='w-full max-w-full'>
+              <h1
+                className='text-base md:text-xl font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-full block'
+                style={{ lineHeight: '1.2' }}
+              >
+                {mounted
+                  ? getLocalizedString(vote.title)
+                  : typeof vote.title === 'string'
+                  ? vote.title
+                  : (vote.title as Record<string, string>)?.[currentLanguage] ||
+                    (vote.title as Record<string, string>)?.['en'] ||
+                    ''}
+              </h1>
+              <div className='text-sm md:text-base mt-1'>
+                {mounted
+                  ? formatDateRange(vote.startAt, vote.stopAt)
+                  : formatDateRange(vote.startAt, vote.stopAt)}
+              </div>
+            </div>
             <div className='absolute right-4 top-1 md:top-2'>
               {vote.startAt && vote.stopAt && (
                 <CountdownTimer
                   startTime={vote.startAt}
                   endTime={vote.stopAt}
-                  status={voteStatus === 'upcoming' ? 'scheduled' : 'in_progress'}
+                  status={
+                    voteStatus === 'upcoming' ? 'scheduled' : 'in_progress'
+                  }
                   className='text-[10px] md:text-base [&_.w-14]:w-8 [&_.h-14]:h-8 md:[&_.w-14]:w-10 md:[&_.h-14]:h-10'
                 />
               )}
             </div>
           </div>
-          
+
           {/* 상위 3위: 가로 슬라이드, 항상 가로로만 */}
           <div className='bg-white border-b px-4'>
             <div className='flex gap-1 md:gap-3 overflow-x-auto overflow-y-hidden py-1 justify-center'>
@@ -366,12 +381,15 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
                         </div>
                       )}
                       {item.rank && item.rank <= 3 && (
-                        <div 
+                        <div
                           className='absolute top-1 left-1 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm'
                           style={{
-                            background: item.rank === 1 ? 'linear-gradient(135deg, #FFD700, #FFA500)' :
-                                      item.rank === 2 ? 'linear-gradient(135deg, #C0C0C0, #A9A9A9)' :
-                                      'linear-gradient(135deg, #CD7F32, #8B4513)'
+                            background:
+                              item.rank === 1
+                                ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+                                : item.rank === 2
+                                ? 'linear-gradient(135deg, #C0C0C0, #A9A9A9)'
+                                : 'linear-gradient(135deg, #CD7F32, #8B4513)',
                           }}
                         >
                           {item.rank}

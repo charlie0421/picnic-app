@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Vote, VoteItem, Reward } from '@/types/interfaces';
@@ -14,6 +20,8 @@ import OngoingVoteItems from './vote/OngoingVoteItems';
 import CompletedVoteItems from './vote/CompletedVoteItems';
 import CountdownTimer from '@/components/features/CountdownTimer';
 import { useRouter } from 'next/navigation';
+import { Database } from '@/types/supabase';
+import { Json } from '@/types/supabase';
 
 interface VoteListProps {
   votes: Vote[];
@@ -33,15 +41,6 @@ const STATUS_TAG_COLORS: Record<VoteStatus, string> = {
   [VOTE_STATUS.ONGOING]: 'bg-green-500 text-white border border-green-600',
   [VOTE_STATUS.COMPLETED]: 'bg-gray-500 text-white border border-gray-600',
 };
-
-const RANK_BADGE_COLORS = [
-  'bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg',
-  'bg-gradient-to-br from-gray-300 to-gray-400 shadow-md',
-  'bg-gradient-to-br from-amber-500 to-amber-700 shadow-sm',
-];
-
-const RANK_BADGE_ICONS = ['👑', '🥈', '🥉'];
-
 
 // 카테고리별 아이콘 (SVG 경로)
 const CATEGORY_ICONS = {
@@ -109,7 +108,6 @@ const CATEGORY_ICONS = {
   ),
 };
 
-
 // 카테고리별 색상
 const CATEGORY_COLORS = {
   birthday: 'bg-pink-100 text-pink-800 border border-pink-200',
@@ -126,8 +124,6 @@ const SUB_CATEGORY_COLORS = {
   group: 'bg-green-50 text-green-600 border border-green-100',
   all: 'bg-gray-50 text-gray-600 border border-gray-100',
 } as const;
-
-
 
 // RewardItem 컴포넌트 분리
 const RewardItem = React.memo(({ reward }: { reward: Reward }) => (
@@ -159,8 +155,8 @@ const RewardItem = React.memo(({ reward }: { reward: Reward }) => (
         </svg>
       </div>
     )}
-    <div className="flex-1 min-w-0">
-      <div className="text-sm font-medium text-gray-900 truncate">
+    <div className='flex-1 min-w-0'>
+      <div className='text-sm font-medium text-gray-900 truncate'>
         {getLocalizedString(reward.title) || '리워드 정보'}
       </div>
     </div>
@@ -170,173 +166,214 @@ const RewardItem = React.memo(({ reward }: { reward: Reward }) => (
 RewardItem.displayName = 'RewardItem';
 
 // VoteItems 컴포넌트 분리
-const VoteItems = React.memo(({ vote }: { vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> } }) => {
-  const status = useMemo(() => {
-    if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
-    const now = new Date();
-    const start = new Date(vote.startAt);
-    const end = new Date(vote.stopAt);
-    if (now < start) return VOTE_STATUS.UPCOMING;
-    if (now > end) return VOTE_STATUS.COMPLETED;
-    return VOTE_STATUS.ONGOING;
-  }, [vote.startAt, vote.stopAt]);
+const VoteItems = React.memo(
+  ({
+    vote,
+  }: {
+    vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> };
+  }) => {
+    const status = useMemo(() => {
+      if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
+      const now = new Date();
+      const start = new Date(vote.startAt);
+      const end = new Date(vote.stopAt);
+      if (now < start) return VOTE_STATUS.UPCOMING;
+      if (now > end) return VOTE_STATUS.COMPLETED;
+      return VOTE_STATUS.ONGOING;
+    }, [vote.startAt, vote.stopAt]);
 
-  switch (status) {
-    case VOTE_STATUS.UPCOMING:
-      return <UpcomingVoteItems voteItems={vote.voteItems} />;
-    case VOTE_STATUS.ONGOING:
-      return <OngoingVoteItems vote={vote} />;
-    case VOTE_STATUS.COMPLETED:
-      return <CompletedVoteItems vote={vote} />;
-    default:
-      return null;
-  }
-});
+    // 투표 업데이트 핸들러
+    const handleVoteChange = (
+      voteId: string | number,
+      itemId: string | number,
+      newTotal: number,
+    ) => {
+      console.log(
+        `VoteItems: 투표 변경 감지 - ${voteId}:${itemId} = ${newTotal}`,
+      );
+      // 여기서 추가 로직 구현 가능
+    };
+
+    switch (status) {
+      case VOTE_STATUS.UPCOMING:
+        return <UpcomingVoteItems voteItems={vote.voteItems} />;
+      case VOTE_STATUS.ONGOING:
+        return <OngoingVoteItems vote={vote} onVoteChange={handleVoteChange} />;
+      case VOTE_STATUS.COMPLETED:
+        return <CompletedVoteItems vote={vote} />;
+      default:
+        return null;
+    }
+  },
+);
 
 VoteItems.displayName = 'VoteItems';
 
 // VoteCard 컴포넌트 분리
-const VoteCard = React.memo(({ vote, onClick }: { vote: Vote; onClick?: () => void }) => {
-  const { t } = useLanguageStore();
-  const status = useMemo(() => {
-    if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
-    const now = new Date();
-    const start = new Date(vote.startAt);
-    const end = new Date(vote.stopAt);
-    if (now < start) return VOTE_STATUS.UPCOMING;
-    if (now > end) return VOTE_STATUS.COMPLETED;
-    return VOTE_STATUS.ONGOING;
-  }, [vote.startAt, vote.stopAt]);
+const VoteCard = React.memo(
+  ({ vote, onClick }: { vote: Vote; onClick?: () => void }) => {
+    const { t } = useLanguageStore();
+    const status = useMemo(() => {
+      if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
+      const now = new Date();
+      const start = new Date(vote.startAt);
+      const end = new Date(vote.stopAt);
+      if (now < start) return VOTE_STATUS.UPCOMING;
+      if (now > end) return VOTE_STATUS.COMPLETED;
+      return VOTE_STATUS.ONGOING;
+    }, [vote.startAt, vote.stopAt]);
 
-  return (
-    <Link href={`/vote/${vote.id}`}>
-      <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col'>
-        <div className='absolute top-3 right-3 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
-          <span
-            className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
-              STATUS_TAG_COLORS[status]
-            }`}
-          >
-            {getStatusText(status, t)}
-          </span>
-        </div>
+    return (
+      <Link href={`/vote/${vote.id}`}>
+        <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col'>
+          <div className='absolute top-2 right-2 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
+            <span
+              className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${STATUS_TAG_COLORS[status]}`}
+            >
+              {getStatusText(status, t)}
+            </span>
+          </div>
 
-        <div className='relative'>
-          {vote.mainImage && (
-            <div className='h-48 sm:h-56 md:h-64 bg-gray-200 relative'>
-              <Image
-                src={getCdnImageUrl(vote.mainImage)}
-                alt={vote.title}
-                width={320}
-                height={256}
-                className='w-full h-full object-cover'
-                priority
-              />
-              <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
-            </div>
-          )}
-        </div>
-
-        <div className='p-1 sm:p-2 flex-1 flex flex-col'>
-          <div className='flex flex-wrap gap-0.5 mb-1'>
-            {vote.voteCategory && (
-              <span
-                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
-                  CATEGORY_COLORS[vote.voteCategory as keyof typeof CATEGORY_COLORS] ||
-                  'bg-gray-100 text-gray-800 border border-gray-200'
-                }`}
-              >
-                {t(`label_vote_${vote.voteCategory}`)}
-              </span>
-            )}
-            {vote.voteSubCategory && (
-              <span
-                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
-                  SUB_CATEGORY_COLORS[vote.voteSubCategory as keyof typeof SUB_CATEGORY_COLORS] ||
-                  'bg-gray-50 text-gray-600 border border-gray-100'
-                }`}
-              >
-                {t(`compatibility_gender_${vote.voteSubCategory}`)}
-              </span>
+          <div className='relative'>
+            {vote.mainImage && (
+              <div className='h-48 sm:h-56 md:h-64 bg-gray-200 relative'>
+                <Image
+                  src={getCdnImageUrl(vote.mainImage)}
+                  alt={vote.title}
+                  width={320}
+                  height={256}
+                  className='w-full h-full object-cover'
+                  priority
+                />
+                <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+              </div>
             )}
           </div>
 
-          <h3 className='font-extrabold text-base sm:text-lg mb-4 text-gray-900 line-clamp-2 min-h-[2.5rem] p-2 relative group'>
-            {getLocalizedString(vote.title)}
-            <span className='absolute bottom-0 left-2 right-2 h-[2px] bg-primary/30 group-hover:bg-primary/50 transition-colors duration-300'></span>
-          </h3>
-
-          <div className='flex justify-center mb-4'>
-            <CountdownTimer 
-              startTime={vote.startAt} 
-              endTime={vote.stopAt} 
-              status={status === VOTE_STATUS.UPCOMING ? 'scheduled' : 'in_progress'} 
-            />
-          </div>
-
-          <div className='flex-1'>
-            <VoteItems vote={vote} />
-          </div>
-
-          {vote.rewards && vote.rewards.length > 0 && (
-            <div className='mt-4 bg-yellow-50 rounded-lg p-3 border border-yellow-100'>
-              <div className='flex items-center text-yellow-700 font-medium mb-2'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='h-5 w-5 mr-1'
-                  viewBox='0 0 20 20'
-                  fill='currentColor'
+          <div className='p-1 sm:p-2 flex-1 flex flex-col'>
+            <div className='flex flex-wrap gap-0.5 mb-1'>
+              {vote.voteCategory && (
+                <span
+                  className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
+                    CATEGORY_COLORS[
+                      vote.voteCategory as keyof typeof CATEGORY_COLORS
+                    ] || 'bg-gray-100 text-gray-800 border border-gray-200'
+                  }`}
                 >
-                  <path
-                    fillRule='evenodd'
-                    d='M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z'
-                    clipRule='evenodd'
-                  />
-                  <path d='M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z' />
-                </svg>
-                <span className='text-sm sm:text-base'>
-                  {t('text_vote_reward', {'count': vote.rewards.length.toString()})}
+                  {t(`label_vote_${vote.voteCategory}`)}
                 </span>
-              </div>
-              <div className='flex flex-wrap gap-2'>
-                {vote.rewards.slice(0, 2).map((reward) => (
-                  <RewardItem key={reward.id} reward={reward} />
-                ))}
-                {vote.rewards.length > 2 && (
-                  <div className="w-full text-center">
-                    <span className='text-xs text-gray-500'>
-                      +{vote.rewards.length - 2}개 더보기
-                    </span>
-                  </div>
-                )}
-              </div>
+              )}
+              {vote.voteSubCategory && (
+                <span
+                  className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${
+                    SUB_CATEGORY_COLORS[
+                      vote.voteSubCategory as keyof typeof SUB_CATEGORY_COLORS
+                    ] || 'bg-gray-50 text-gray-600 border border-gray-100'
+                  }`}
+                >
+                  {t(`compatibility_gender_${vote.voteSubCategory}`)}
+                </span>
+              )}
             </div>
-          )}
 
-          <div className='mt-4 pt-4 border-t border-gray-100'>
-            {vote.startAt && vote.stopAt && (
-              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm gap-1 sm:gap-0'>
-                <div className='flex items-center space-x-2 bg-primary/5 rounded-lg px-3 py-2'>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+            <h3 className='font-extrabold text-base sm:text-lg mb-4 text-gray-900 truncate p-2 relative group'>
+              {getLocalizedString(vote.title)}
+              <span className='absolute bottom-0 left-2 right-2 h-[2px] bg-primary/30 group-hover:bg-primary/50 transition-colors duration-300'></span>
+            </h3>
+
+            <div className='flex justify-center mb-4'>
+              <CountdownTimer
+                startTime={vote.startAt}
+                endTime={vote.stopAt}
+                status={
+                  status === VOTE_STATUS.UPCOMING ? 'scheduled' : 'in_progress'
+                }
+              />
+            </div>
+
+            <div className='flex-1'>
+              <VoteItems vote={vote} />
+            </div>
+
+            {vote.rewards && vote.rewards.length > 0 && (
+              <div className='mt-2 bg-yellow-50 rounded-lg p-3 border border-yellow-100'>
+                <div className='flex items-center text-yellow-700 font-medium mb-2'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    className='h-5 w-5 mr-1'
+                    viewBox='0 0 20 20'
+                    fill='currentColor'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z'
+                      clipRule='evenodd'
+                    />
+                    <path d='M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z' />
                   </svg>
-                  <span className='text-primary font-medium'>
-                    {format(new Date(vote.startAt), 'MM.dd HH:mm', { locale: ko })} ~{' '}
-                    {format(new Date(vote.stopAt), 'MM.dd HH:mm', { locale: ko })}
+                  <span className='text-sm sm:text-base'>
+                    {t('text_vote_reward', {
+                      count: vote.rewards.length.toString(),
+                    })}
                   </span>
+                </div>
+                <div className='flex flex-wrap gap-2'>
+                  {vote.rewards.slice(0, 2).map((reward) => (
+                    <RewardItem key={reward.id} reward={reward} />
+                  ))}
+                  {vote.rewards.length > 2 && (
+                    <div className='w-full text-center'>
+                      <span className='text-xs text-gray-500'>
+                        +{vote.rewards.length - 2}개 더보기
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
+
+            <div className='mt-1 pt-2 border-t border-gray-100'>
+              {vote.startAt && vote.stopAt && (
+                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm gap-1 sm:gap-0'>
+                  <div className='flex items-center space-x-2 bg-primary/5 rounded-lg px-3 py-2'>
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      className='h-4 w-4 text-primary'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span className='text-primary font-medium'>
+                      {format(new Date(vote.startAt), 'MM.dd HH:mm', {
+                        locale: ko,
+                      })}{' '}
+                      ~{' '}
+                      {format(new Date(vote.stopAt), 'MM.dd HH:mm', {
+                        locale: ko,
+                      })}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </Link>
-  );
-});
+      </Link>
+    );
+  },
+);
 
 VoteCard.displayName = 'VoteCard';
 
-const getStatusText = (status: VoteStatus, t: (key: string) => string): string => {
+const getStatusText = (
+  status: VoteStatus,
+  t: (key: string) => string,
+): string => {
   switch (status) {
     case VOTE_STATUS.UPCOMING:
       return t('label_tabbar_vote_upcoming');
@@ -350,85 +387,90 @@ const getStatusText = (status: VoteStatus, t: (key: string) => string): string =
 };
 
 // StatusFilter 컴포넌트 분리
-const StatusFilter = React.memo(({ 
-  selectedStatus, 
-  setSelectedStatus, 
-  t 
-}: { 
-  selectedStatus: VoteStatus | 'all', 
-  setSelectedStatus: (status: VoteStatus | 'all') => void,
-  t: (key: string) => string 
-}) => {
-  const { translations } = useLanguageStore();
+const StatusFilter = React.memo(
+  ({
+    selectedStatus,
+    setSelectedStatus,
+    t,
+  }: {
+    selectedStatus: VoteStatus | 'all';
+    setSelectedStatus: (status: VoteStatus | 'all') => void;
+    t: (key: string) => string;
+  }) => {
+    const { translations } = useLanguageStore();
 
-  const getButtonText = useCallback((status: VoteStatus | 'all') => {
-    switch (status) {
-      case 'all':
-        return t('label_tabbar_vote_all');
-      case VOTE_STATUS.ONGOING:
-        return t('label_tabbar_vote_active');
-      case VOTE_STATUS.UPCOMING:
-        return t('label_tabbar_vote_upcoming');
-      case VOTE_STATUS.COMPLETED:
-        return t('label_tabbar_vote_end');
-      default:
-        return '';
-    }
-  }, [t]);
+    const getButtonText = useCallback(
+      (status: VoteStatus | 'all') => {
+        switch (status) {
+          case 'all':
+            return t('label_tabbar_vote_all');
+          case VOTE_STATUS.ONGOING:
+            return t('label_tabbar_vote_active');
+          case VOTE_STATUS.UPCOMING:
+            return t('label_tabbar_vote_upcoming');
+          case VOTE_STATUS.COMPLETED:
+            return t('label_tabbar_vote_end');
+          default:
+            return '';
+        }
+      },
+      [t],
+    );
 
-  return (
-    <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
-      <button
-        onClick={() => setSelectedStatus('all')}
-        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
-          selectedStatus === 'all'
-            ? 'bg-primary text-white shadow-sm'
-            : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
-        }`}
-        aria-label={t('label_tabbar_vote_all')}
-        aria-pressed={selectedStatus === 'all'}
-      >
-        {getButtonText('all')}
-      </button>
-      <button
-        onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
-        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
-          selectedStatus === VOTE_STATUS.ONGOING
-            ? 'bg-primary text-white shadow-sm'
-            : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
-        }`}
-        aria-label={t('label_tabbar_vote_active')}
-        aria-pressed={selectedStatus === VOTE_STATUS.ONGOING}
-      >
-        {getButtonText(VOTE_STATUS.ONGOING)}
-      </button>
-      <button
-        onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
-        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
-          selectedStatus === VOTE_STATUS.UPCOMING
-            ? 'bg-primary text-white shadow-sm'
-            : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
-        }`}
-        aria-label={t('label_tabbar_vote_upcoming')}
-        aria-pressed={selectedStatus === VOTE_STATUS.UPCOMING}
-      >
-        {getButtonText(VOTE_STATUS.UPCOMING)}
-      </button>
-      <button
-        onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
-        className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
-          selectedStatus === VOTE_STATUS.COMPLETED
-            ? 'bg-primary text-white shadow-sm'
-            : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
-        }`}
-        aria-label={t('label_tabbar_vote_end')}
-        aria-pressed={selectedStatus === VOTE_STATUS.COMPLETED}
-      >
-        {getButtonText(VOTE_STATUS.COMPLETED)}
-      </button>
-    </div>
-  );
-});
+    return (
+      <div className='flex flex-wrap justify-center gap-1.5 sm:gap-2'>
+        <button
+          onClick={() => setSelectedStatus('all')}
+          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+            selectedStatus === 'all'
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+          }`}
+          aria-label={t('label_tabbar_vote_all')}
+          aria-pressed={selectedStatus === 'all'}
+        >
+          {getButtonText('all')}
+        </button>
+        <button
+          onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
+          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+            selectedStatus === VOTE_STATUS.ONGOING
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+          }`}
+          aria-label={t('label_tabbar_vote_active')}
+          aria-pressed={selectedStatus === VOTE_STATUS.ONGOING}
+        >
+          {getButtonText(VOTE_STATUS.ONGOING)}
+        </button>
+        <button
+          onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
+          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+            selectedStatus === VOTE_STATUS.UPCOMING
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+          }`}
+          aria-label={t('label_tabbar_vote_upcoming')}
+          aria-pressed={selectedStatus === VOTE_STATUS.UPCOMING}
+        >
+          {getButtonText(VOTE_STATUS.UPCOMING)}
+        </button>
+        <button
+          onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
+          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+            selectedStatus === VOTE_STATUS.COMPLETED
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+          }`}
+          aria-label={t('label_tabbar_vote_end')}
+          aria-pressed={selectedStatus === VOTE_STATUS.COMPLETED}
+        >
+          {getButtonText(VOTE_STATUS.COMPLETED)}
+        </button>
+      </div>
+    );
+  },
+);
 
 StatusFilter.displayName = 'StatusFilter';
 
@@ -463,10 +505,10 @@ LoadingSkeleton.displayName = 'LoadingSkeleton';
 
 // 무한 로딩을 위한 로딩 인디케이터 컴포넌트 추가
 const InfiniteLoadingIndicator = React.memo(() => (
-  <div className="w-full flex flex-col items-center justify-center py-4">
-    <div className="relative w-8 h-8">
-      <div className="absolute top-0 left-0 w-full h-full border-2 border-primary/20 rounded-full"></div>
-      <div className="absolute top-0 left-0 w-full h-full border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+  <div className='w-full flex flex-col items-center justify-center py-4'>
+    <div className='relative w-8 h-8'>
+      <div className='absolute top-0 left-0 w-full h-full border-2 border-primary/20 rounded-full'></div>
+      <div className='absolute top-0 left-0 w-full h-full border-2 border-primary border-t-transparent rounded-full animate-spin'></div>
     </div>
   </div>
 ));
@@ -474,25 +516,31 @@ const InfiniteLoadingIndicator = React.memo(() => (
 InfiniteLoadingIndicator.displayName = 'InfiniteLoadingIndicator';
 
 // EmptyState 컴포넌트 분리
-const EmptyState = React.memo(({ selectedStatus, t }: { selectedStatus: VoteStatus | 'all', t: (key: string) => string }) => {
-  const getMessage = () => {
-    if (selectedStatus === VOTE_STATUS.ONGOING) {
-      return '진행 중인 투표가 없습니다.';
-    } else if (selectedStatus === VOTE_STATUS.UPCOMING) {
-      return '예정된 투표가 없습니다.';
-    } else {
-      return '종료된 투표가 없습니다.';
-    }
-  };
+const EmptyState = React.memo(
+  ({
+    selectedStatus,
+    t,
+  }: {
+    selectedStatus: VoteStatus | 'all';
+    t: (key: string) => string;
+  }) => {
+    const getMessage = () => {
+      if (selectedStatus === VOTE_STATUS.ONGOING) {
+        return '진행 중인 투표가 없습니다.';
+      } else if (selectedStatus === VOTE_STATUS.UPCOMING) {
+        return '예정된 투표가 없습니다.';
+      } else {
+        return '종료된 투표가 없습니다.';
+      }
+    };
 
-  return (
-    <div className='bg-gray-100 p-6 rounded-lg text-center'>
-      <p className='text-gray-500'>
-        {getMessage()}
-      </p>
-    </div>
-  );
-});
+    return (
+      <div className='bg-gray-100 p-6 rounded-lg text-center'>
+        <p className='text-gray-500'>{getMessage()}</p>
+      </div>
+    );
+  },
+);
 
 EmptyState.displayName = 'EmptyState';
 
@@ -502,74 +550,171 @@ const VoteList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
-  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
+    'all',
+  );
   const [error, setError] = useState<string | null>(null);
   const { t } = useLanguageStore();
   const loadingRef = useRef<HTMLDivElement>(null);
   const PAGE_SIZE = 6;
   const isFetching = useRef(false);
   const router = useRouter();
+  const voteTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const updateVoteData = useCallback(async (pageNum: number = 1, append: boolean = false) => {
-    if (isFetching.current) return;
-    
-    try {
-      isFetching.current = true;
-      setLoading(true);
-      setError(null);
-      
-      const votesData = await getVotes('votes');
-      const start = (pageNum - 1) * PAGE_SIZE;
-      const end = start + PAGE_SIZE;
-      const paginatedData = votesData.slice(start, end);
+  const updateVoteData = useCallback(
+    async (pageNum: number = 1, append: boolean = false) => {
+      if (isFetching.current) return;
 
-      if (append) {
-        setVotes(prev => [...prev, ...paginatedData]);
-      } else {
-        setVotes(paginatedData);
+      try {
+        isFetching.current = true;
+        setLoading(true);
+        setError(null);
+
+        const votesData = await getVotes('votes');
+        const start = (pageNum - 1) * PAGE_SIZE;
+        const end = start + PAGE_SIZE;
+        const paginatedData = votesData.slice(start, end);
+
+        if (append) {
+          setVotes((prev) => [...prev, ...paginatedData]);
+        } else {
+          setVotes(paginatedData);
+        }
+
+        setHasMore(end < votesData.length);
+      } catch (error) {
+        console.error('투표 데이터를 가져오는 중 오류가 발생했습니다:', error);
+        setError('데이터를 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
+        isFetching.current = false;
       }
+    },
+    [],
+  );
 
-      setHasMore(end < votesData.length);
-    } catch (error) {
-      console.error('투표 데이터를 가져오는 중 오류가 발생했습니다:', error);
-      setError('데이터를 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-      isFetching.current = false;
-    }
-  }, []);
-
-  // 초기 데이터 로드
+  // 1초마다 투표 데이터 갱신
   useEffect(() => {
-    if (mounted) {
-      updateVoteData(1, false);
-    }
-  }, [mounted, updateVoteData]);
+    if (!mounted) return;
+
+    const updateVotes = async () => {
+      if (isFetching.current) return;
+
+      try {
+        isFetching.current = true;
+        const votesData = await getVotes('votes');
+        const start = (page - 1) * PAGE_SIZE;
+        const end = start + PAGE_SIZE;
+        const paginatedData = votesData.slice(start, end);
+
+        // 투표수 변경 감지 및 UI 업데이트
+        setVotes((prevVotes) => {
+          let hasChanges = false;
+          const newVotes = paginatedData.map((newVote) => {
+            const prevVote = prevVotes.find((v) => v.id === newVote.id);
+            if (prevVote) {
+              // 투표 아이템의 투표수 변경 감지
+              const updatedVoteItems = (newVote.voteItems || []).map(
+                (newItem) => {
+                  const prevItem = (prevVote.voteItems || []).find(
+                    (i) => i.id === newItem.id,
+                  );
+                  if (prevItem && prevItem.voteTotal !== newItem.voteTotal) {
+                    const prevTotal = prevItem.voteTotal ?? 0;
+                    const newTotal = newItem.voteTotal ?? 0;
+                    console.log(`투표수 변경: ${prevTotal} -> ${newTotal}`);
+                    hasChanges = true;
+
+                    return {
+                      ...newItem,
+                      voteTotal: newTotal,
+                      isAnimating: true,
+                      voteChange: newTotal - prevTotal,
+                    };
+                  }
+                  return newItem;
+                },
+              );
+
+              if (hasChanges) {
+                return {
+                  ...newVote,
+                  voteItems: updatedVoteItems,
+                };
+              }
+              return prevVote;
+            }
+            return newVote;
+          });
+
+          if (hasChanges) {
+            console.log('투표 데이터 업데이트됨');
+            return newVotes;
+          }
+          return prevVotes;
+        });
+
+        setHasMore(end < votesData.length);
+      } catch (error) {
+        console.error('투표 데이터 갱신 중 오류가 발생했습니다:', error);
+      } finally {
+        isFetching.current = false;
+      }
+    };
+
+    // 즉시 한 번 실행
+    updateVotes();
+
+    // 1초마다 반복 실행
+    voteTimerRef.current = setInterval(updateVotes, 1000);
+
+    return () => {
+      if (voteTimerRef.current) {
+        clearInterval(voteTimerRef.current);
+      }
+    };
+  }, [mounted, page]);
 
   // 상태 변경 시 데이터 리셋
   useEffect(() => {
     if (mounted) {
       setPage(1);
-      updateVoteData(1, false);
+      // updateVoteData 대신 직접 데이터 가져오기
+      const resetData = async () => {
+        try {
+          const votesData = await getVotes('votes');
+          const paginatedData = votesData.slice(0, PAGE_SIZE);
+          setVotes(paginatedData);
+          setHasMore(PAGE_SIZE < votesData.length);
+        } catch (error) {
+          console.error('투표 데이터 리셋 중 오류가 발생했습니다:', error);
+        }
+      };
+      resetData();
     }
-  }, [selectedStatus, updateVoteData, mounted]);
+  }, [selectedStatus, mounted]);
 
   // 스크롤 감지 및 추가 데이터 로드
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
-        if (first.isIntersecting && hasMore && !loading && !isFetching.current) {
+        if (
+          first.isIntersecting &&
+          hasMore &&
+          !loading &&
+          !isFetching.current
+        ) {
           const nextPage = page + 1;
           setPage(nextPage);
           updateVoteData(nextPage, true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     const currentLoadingRef = loadingRef.current;
@@ -610,12 +755,14 @@ const VoteList: React.FC = () => {
       });
     }
     return votes.filter((vote) => {
-      if (!vote.startAt || !vote.stopAt) return selectedStatus === VOTE_STATUS.UPCOMING;
+      if (!vote.startAt || !vote.stopAt)
+        return selectedStatus === VOTE_STATUS.UPCOMING;
       const now = new Date();
       const start = new Date(vote.startAt);
       const end = new Date(vote.stopAt);
       if (selectedStatus === VOTE_STATUS.UPCOMING) return now < start;
-      if (selectedStatus === VOTE_STATUS.ONGOING) return now >= start && now <= end;
+      if (selectedStatus === VOTE_STATUS.ONGOING)
+        return now >= start && now <= end;
       return now > end;
     });
   }, [votes, selectedStatus]);
@@ -624,10 +771,10 @@ const VoteList: React.FC = () => {
 
   if (error) {
     return (
-      <div className="text-red-500 p-4 rounded-lg bg-red-50 flex flex-col items-center">
+      <div className='text-red-500 p-4 rounded-lg bg-red-50 flex flex-col items-center'>
         <p>{error}</p>
         <button
-          className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          className='mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600'
           onClick={() => updateVoteData(page, false)}
         >
           다시 시도
@@ -637,10 +784,10 @@ const VoteList: React.FC = () => {
   }
 
   return (
-    <section className="w-full">
+    <section className='w-full'>
       <div className='flex justify-center items-center mb-6'>
-        <StatusFilter 
-          selectedStatus={selectedStatus} 
+        <StatusFilter
+          selectedStatus={selectedStatus}
           setSelectedStatus={setSelectedStatus}
           t={t}
         />
@@ -666,14 +813,11 @@ const VoteList: React.FC = () => {
             ))}
           </div>
           {hasMore && (
-            <div
-              ref={loadingRef}
-              className="w-full"
-            >
+            <div ref={loadingRef} className='w-full'>
               {loading ? (
                 <InfiniteLoadingIndicator />
               ) : (
-                <div className="h-4"></div>
+                <div className='h-4'></div>
               )}
             </div>
           )}

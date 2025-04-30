@@ -1,11 +1,19 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { differenceInSeconds } from "date-fns";
-import { useLanguageStore } from "@/stores/languageStore";
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { differenceInSeconds } from 'date-fns';
+import { useLanguageStore } from '@/stores/languageStore';
+
+const TIMER_STATUS = {
+  SCHEDULED: 'scheduled',
+  IN_PROGRESS: 'in_progress',
+  ENDED: 'ended',
+} as const;
+
+type TimerStatus = (typeof TIMER_STATUS)[keyof typeof TIMER_STATUS];
 
 interface CountdownTimerProps {
   endTime: string | null;
   startTime: string | null;
-  status: 'scheduled' | 'in_progress';
+  status: TimerStatus;
   className?: string;
 }
 
@@ -32,23 +40,26 @@ type TimerStyle = {
 };
 
 const getTimerStyle = (seconds: number): TimerStyle => {
-  if (seconds >= 86400) { // 24시간 이상
+  if (seconds >= 86400) {
+    // 24시간 이상
     return {
       textColor: 'text-black',
       bgColor: 'bg-secondary',
-      animationInterval: 60 // 1분
+      animationInterval: 60, // 1분
     };
-  } else if (seconds >= 3600) { // 1시간 이상 24시간 미만
+  } else if (seconds >= 3600) {
+    // 1시간 이상 24시간 미만
     return {
       textColor: 'text-black',
       bgColor: 'bg-sub',
-      animationInterval: 10 // 10초
+      animationInterval: 10, // 10초
     };
-  } else { // 1시간 미만
+  } else {
+    // 1시간 미만
     return {
       textColor: 'text-white',
       bgColor: 'bg-point',
-      animationInterval: 1 // 1초
+      animationInterval: 1, // 1초
     };
   }
 };
@@ -66,106 +77,150 @@ const shouldAnimate = (seconds: number, timerStyle: TimerStyle): boolean => {
   }
 };
 
-const CountdownTimer = React.memo(({ endTime, startTime, status, className }: CountdownTimerProps) => {
-  const { t } = useLanguageStore();
-  const lastAnimationTimeRef = useRef<number>(0);
-  const targetDateRef = useRef<Date | null>(null);
-  
-  const [remainingTime, setRemainingTime] = useState<TimeUnits | null>(null);
-  const [scale, setScale] = useState(1);
-  const [pulse, setPulse] = useState(false);
-  const [timerStyle, setTimerStyle] = useState<TimerStyle>({
-    textColor: 'text-black',
-    bgColor: 'bg-secondary',
-    animationInterval: 60
-  });
+const CountdownTimer = React.memo(
+  ({ endTime, startTime, status, className }: CountdownTimerProps) => {
+    const { t } = useLanguageStore();
+    const lastAnimationTimeRef = useRef<number>(0);
+    const targetDateRef = useRef<Date | null>(null);
 
-  // targetDate 계산을 useMemo로 분리
-  const targetDate = useMemo(() => {
-    if (!startTime || !endTime) return null;
-    return status === 'scheduled' ? new Date(startTime) : new Date(endTime);
-  }, [startTime, endTime, status]);
+    const [remainingTime, setRemainingTime] = useState<TimeUnits | null>(null);
+    const [scale, setScale] = useState(1);
+    const [pulse, setPulse] = useState(false);
+    const [timerStyle, setTimerStyle] = useState<TimerStyle>({
+      textColor: 'text-black',
+      bgColor: 'bg-secondary',
+      animationInterval: 60,
+    });
 
-  useEffect(() => {
-    if (targetDate) {
-      targetDateRef.current = targetDate;
-    }
-  }, [targetDate]);
+    // targetDate 계산을 useMemo로 분리
+    const targetDate = useMemo(() => {
+      if (!startTime || !endTime) return null;
+      return status === TIMER_STATUS.SCHEDULED
+        ? new Date(startTime)
+        : new Date(endTime);
+    }, [startTime, endTime, status]);
 
-  useEffect(() => {
-    if (!targetDate) return;
-    
-    const isEnded = new Date() >= targetDate;
-    if (isEnded) return;
-
-    const updateTimer = () => {
-      const now = new Date();
-      const diffInSeconds = differenceInSeconds(targetDateRef.current!, now);
-
-      if (diffInSeconds <= 0) {
-        setRemainingTime(null);
-        return;
+    useEffect(() => {
+      if (targetDate) {
+        targetDateRef.current = targetDate;
       }
+    }, [targetDate]);
 
-      const newTimerStyle = getTimerStyle(diffInSeconds);
-      setTimerStyle(newTimerStyle);
-      setRemainingTime(calculateTimeUnits(diffInSeconds));
-      
-      if (shouldAnimate(diffInSeconds, newTimerStyle)) {
-        setScale(1.1);
-        setPulse(true);
-        setTimeout(() => {
-          setScale(1);
-          setPulse(false);
-        }, 500);
+    useEffect(() => {
+      if (!targetDate) return;
+
+      const updateTimer = () => {
+        const now = new Date();
+        const diffInSeconds = differenceInSeconds(targetDateRef.current!, now);
+
+        if (diffInSeconds <= 0 || status === TIMER_STATUS.ENDED) {
+          setRemainingTime({
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+          });
+          return;
+        }
+
+        const newTimerStyle = getTimerStyle(diffInSeconds);
+        setTimerStyle(newTimerStyle);
+        setRemainingTime(calculateTimeUnits(diffInSeconds));
+
+        if (shouldAnimate(diffInSeconds, newTimerStyle)) {
+          setScale(1.1);
+          setPulse(true);
+          setTimeout(() => {
+            setScale(1);
+            setPulse(false);
+          }, 500);
+        }
+      };
+
+      updateTimer();
+      const timer = setInterval(updateTimer, 1000);
+      return () => clearInterval(timer);
+    }, [targetDate, status]);
+
+    if (!targetDate) return null;
+
+    const getStatusText = () => {
+      switch (status) {
+        case TIMER_STATUS.SCHEDULED:
+          return t('text_vote_countdown_start');
+        case TIMER_STATUS.IN_PROGRESS:
+          return t('text_vote_countdown_end');
+        case TIMER_STATUS.ENDED:
+          return t('text_vote_ended');
       }
     };
 
-    updateTimer();
-    const timer = setInterval(updateTimer, 1000);
-    return () => clearInterval(timer);
-  }, [targetDate]);
+    const isEnded = status === TIMER_STATUS.ENDED;
 
-  if (!targetDate || !remainingTime) return null;
-
-  return (
-    <div className={`flex flex-col items-center ${className || ''}`}>
-      <div className='text-xs text-gray-500 mb-2'>
-        {status === 'scheduled' ? t('text_vote_countdown_start') : t('text_vote_countdown_end')}
-      </div>
-      <div className='flex items-center justify-center gap-1'>
-        {Object.entries(remainingTime).map(([unit, value], index, array) => (
-          <React.Fragment key={unit}>
-            <div className='flex flex-col items-center'>
-              <div
-                className={`${timerStyle.bgColor} w-10 h-10 rounded-lg flex flex-col items-center justify-center font-mono text-base font-bold ${timerStyle.textColor} relative gap-0 shadow-lg transition-all duration-1000 ${
-                  pulse ? 'animate-pulse' : ''
-                }`}
-                style={{ 
-                  transform: `scale(${scale})`,
-                  transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: pulse ? '0 0 20px rgba(0,0,0,0.3)' : '0 4px 6px rgba(0,0,0,0.1)'
-                }}
-              >
-                {value.toString().padStart(2, '0')}
-                <span className={`text-[9px] font-medium ${timerStyle.textColor} leading-none transition-opacity duration-300 ${
-                  pulse ? 'opacity-100' : 'opacity-90'
-                }`}>
-                  {unit === 'days' ? 'D' : unit === 'hours' ? 'H' : unit === 'minutes' ? 'M' : 'S'}
-                </span>
+    return (
+      <div className={`flex flex-col items-center ${className || ''}`}>
+        <div className='text-xs text-gray-500 mb-2'>{getStatusText()}</div>
+        <div
+          className={`flex items-center justify-center gap-1 ${
+            isEnded ? 'opacity-50' : ''
+          }`}
+        >
+          {Object.entries(
+            remainingTime || { days: 0, hours: 0, minutes: 0, seconds: 0 },
+          ).map(([unit, value], index, array) => (
+            <React.Fragment key={unit}>
+              <div className='flex flex-col items-center'>
+                <div
+                  className={`${
+                    isEnded ? 'bg-gray-300' : timerStyle.bgColor
+                  } w-10 h-10 rounded-lg flex flex-col items-center justify-center font-mono text-base font-bold ${
+                    isEnded ? 'text-gray-500' : timerStyle.textColor
+                  } relative gap-0 shadow-lg transition-all duration-1000 ${
+                    pulse && !isEnded ? 'animate-pulse' : ''
+                  }`}
+                  style={{
+                    transform: `scale(${scale})`,
+                    transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow:
+                      pulse && !isEnded
+                        ? '0 0 20px rgba(0,0,0,0.3)'
+                        : '0 4px 6px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  {value.toString().padStart(2, '0')}
+                  <span
+                    className={`text-[9px] font-medium ${
+                      isEnded ? 'text-gray-500' : timerStyle.textColor
+                    } leading-none transition-opacity duration-300 ${
+                      pulse && !isEnded ? 'opacity-100' : 'opacity-90'
+                    }`}
+                  >
+                    {unit === 'days'
+                      ? 'D'
+                      : unit === 'hours'
+                      ? 'H'
+                      : unit === 'minutes'
+                      ? 'M'
+                      : 'S'}
+                  </span>
+                </div>
               </div>
-            </div>
-            {index < array.length - 1 && (
-              <span className={`${timerStyle.textColor} font-bold transition-opacity duration-300 ${
-                pulse ? 'opacity-100' : 'opacity-80'
-              }`}>:</span>
-            )}
-          </React.Fragment>
-        ))}
+              {index < array.length - 1 && (
+                <span
+                  className={`font-bold ${
+                    isEnded ? 'text-gray-400' : 'text-gray-500'
+                  }`}
+                >
+                  :
+                </span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 CountdownTimer.displayName = 'CountdownTimer';
 

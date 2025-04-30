@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { VoteItem } from '@/types/interfaces';
 import { getLocalizedString } from '@/utils/api/image';
-import { getVoteItems } from '@/utils/api/queries';
 import { useLanguageStore } from '@/stores/languageStore';
 
 interface VoteRankCardProps {
@@ -12,8 +11,9 @@ interface VoteRankCardProps {
   rank: number;
   className?: string;
   showVoteChange?: boolean;
-  isAnimating?: boolean;
   voteChange?: number;
+  voteTotal?: number;
+  onVoteChange?: (voteTotal: number) => void;
 }
 
 const VoteRankCard: React.FC<VoteRankCardProps> = ({
@@ -21,33 +21,88 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
   rank,
   className = '',
   showVoteChange = false,
-  isAnimating = false,
   voteChange = 0,
+  voteTotal,
+  onVoteChange,
 }) => {
   const { t } = useLanguageStore();
-  const [prevVoteTotal, setPrevVoteTotal] = useState(item.voteTotal || 0);
+  // 외부에서 제공된 voteTotal 값 사용 또는 기본값
+  const initialVoteTotal =
+    voteTotal !== undefined ? voteTotal : item.voteTotal ?? 0;
+  const [localVoteTotal, setLocalVoteTotal] = useState(initialVoteTotal);
 
-  // 1초마다 투표수 확인
+  // 애니메이션 관련 상태
+  const [isAnimating, setIsAnimating] = useState(false);
+  // 현재 표시할 변경량 (투표 수 증감)
+  const [currentVoteChange, setCurrentVoteChange] = useState(voteChange);
+  const processedVoteTotals = useRef<Set<number>>(new Set([initialVoteTotal]));
+  const prevVoteTotal = useRef(initialVoteTotal);
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 컴포넌트 마운트 시 초기화
   useEffect(() => {
-    if (!showVoteChange || !item.voteId) return;
-
-    const checkVoteChanges = async () => {
-      try {
-        const voteItemsData = await getVoteItems(item.voteId || 0);
-        const currentItem = voteItemsData.find((v) => v.id === item.id);
-        const currentVoteTotal = currentItem?.voteTotal || 0;
-
-        if (currentVoteTotal !== prevVoteTotal) {
-          setPrevVoteTotal(currentVoteTotal);
-        }
-      } catch (error) {
-        console.error('투표수 확인 중 오류가 발생했습니다:', error);
+    return () => {
+      // 컴포넌트 언마운트 시 모든 타이머 정리
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
       }
     };
+  }, []);
 
-    const intervalId = setInterval(checkVoteChanges, 1000);
-    return () => clearInterval(intervalId);
-  }, [item.id, item.voteId, prevVoteTotal, showVoteChange]);
+  // 외부에서 voteChange가 제공되었을 때 업데이트
+  useEffect(() => {
+    if (voteChange !== 0) {
+      setCurrentVoteChange(voteChange);
+    }
+  }, [voteChange]);
+
+  // 투표수 변경 감지 - 애니메이션 중복 방지 강화
+  useEffect(() => {
+    // voteTotal이 없거나 이미 처리된 값이면 무시
+    if (voteTotal === undefined || processedVoteTotals.current.has(voteTotal)) {
+      return;
+    }
+
+    // 실제 투표수 변경이 있는 경우에만 처리
+    if (voteTotal !== localVoteTotal) {
+      // 변화량 계산
+      const calculatedChange = voteTotal - prevVoteTotal.current;
+      console.log(
+        `VoteRankCard: 투표수 변경 - ${prevVoteTotal.current} -> ${voteTotal} (변화량: ${calculatedChange})`,
+      );
+
+      // 기존 애니메이션 타이머 정리
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+
+      // 새로운 투표수 저장
+      processedVoteTotals.current.add(voteTotal);
+      prevVoteTotal.current = voteTotal;
+
+      // 상태 업데이트 및 애니메이션 활성화
+      setLocalVoteTotal(voteTotal);
+      setCurrentVoteChange(calculatedChange);
+      setIsAnimating(true);
+
+      // 1초 후 애니메이션 종료
+      animationTimeoutRef.current = setTimeout(() => {
+        setIsAnimating(false);
+        animationTimeoutRef.current = null;
+      }, 1000);
+    }
+  }, [voteTotal, localVoteTotal]);
+
+  // 부모 컴포넌트에 초기값 전달 (한 번만 실행)
+  useEffect(() => {
+    if (onVoteChange && localVoteTotal !== undefined) {
+      onVoteChange(localVoteTotal);
+    }
+  }, []);
+
+  // 투표수 변화가 있고 애니메이션 중일 때만 변화량 표시
+  const shouldShowVoteChange =
+    isAnimating && currentVoteChange !== 0 && showVoteChange;
 
   const RANK_BADGE_COLORS = [
     'bg-gradient-to-br from-yellow-400/70 to-yellow-600/70 shadow-lg',
@@ -87,7 +142,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
           <div
             className={`py-0.5 px-1.5 rounded-full text-xs font-bold shadow-lg flex items-center justify-center space-x-1 whitespace-nowrap ${
               RANK_BADGE_COLORS[rank - 1]
-            } ${isAnimating ? 'animate-rank-pulse' : ''}`}
+            }`}
           >
             <span className='text-sm'>{RANK_BADGE_ICONS[rank - 1]}</span>
             <span>{RANK_TEXTS[rank - 1]}</span>
@@ -154,16 +209,16 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
           </div>
           <div className='min-h-[14px] flex items-center justify-center font-bold overflow-hidden min-w-0 max-w-full'>
             <div className='relative w-full flex items-center justify-center'>
-              {showVoteChange && voteChange !== 0 && (
+              {shouldShowVoteChange && (
                 <div
-                  className={`absolute -top-3 left-1/2 -translate-x-1/2 px-1 py-0.5 rounded-full text-[9px] font-medium whitespace-nowrap ${
-                    voteChange > 0
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  } animate-fade-in-out`}
+                  className={`absolute -top-5 left-1/2 -translate-x-1/2 min-w-[24px] px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap z-10 ${
+                    currentVoteChange > 0
+                      ? 'bg-green-200 text-green-800 border border-green-300'
+                      : 'bg-red-200 text-red-800 border border-red-300'
+                  } animate-bounce shadow-sm`}
                 >
-                  {voteChange > 0 ? '+' : ''}
-                  {voteChange}
+                  {currentVoteChange > 0 ? '+' : ''}
+                  {currentVoteChange}
                 </div>
               )}
               <span
@@ -175,7 +230,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
                     : 'text-[11px] text-amber-600/70 font-bold'
                 }
               >
-                {item.voteTotal?.toLocaleString() || 0}
+                {localVoteTotal.toLocaleString()}
               </span>
             </div>
           </div>
