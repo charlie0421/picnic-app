@@ -22,7 +22,16 @@ function AuthCallbackContent() {
         }
 
         // PKCE 플로우로 세션 교환
-        const { data: { session }, error } = await supabase.auth.exchangeCodeForSession(code);
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'apple',
+          options: {
+            skipBrowserRedirect: true,
+            queryParams: {
+              code,
+              state,
+            },
+          },
+        });
 
         if (error) {
           console.error('세션 교환 에러:', error);
@@ -30,7 +39,7 @@ function AuthCallbackContent() {
           return;
         }
 
-        if (!session) {
+        if (!data?.session) {
           console.error('세션이 생성되지 않았습니다.');
           router.push('/login');
           return;
@@ -38,7 +47,7 @@ function AuthCallbackContent() {
 
         // 리다이렉트
         const returnTo = state ? decodeURIComponent(state) : '/';
-        window.location.href = returnTo; // router.push 대신 window.location.href 사용
+        window.location.href = returnTo;
       } catch (error) {
         console.error('인증 처리 중 오류 발생:', error);
         router.push('/login');
