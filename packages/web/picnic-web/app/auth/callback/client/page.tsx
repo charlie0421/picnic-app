@@ -11,25 +11,41 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const exchangeCode = async () => {
-      const code = searchParams.get('code');
-      const state = searchParams.get('state');
+      try {
+        const code = searchParams.get('code');
+        const state = searchParams.get('state');
 
-      if (code) {
+        if (!code) {
+          console.error('OAuth 코드가 없습니다.');
+          router.push('/login');
+          return;
+        }
+
+        // 세션 교환
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
         if (error) {
           console.error('세션 교환 에러:', error);
           router.push('/login');
           return;
         }
 
-        if (data.session) {
-          router.push('/');
-        } else {
+        if (!data.session) {
+          console.error('세션이 생성되지 않았습니다.');
           router.push('/login');
+          return;
         }
-      } else {
-        console.error('OAuth 코드가 없습니다.');
+
+        // 세션 설정
+        await supabase.auth.setSession(data.session);
+
+        // 상태 업데이트를 위해 잠시 대기
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // 리다이렉트
+        const returnTo = state ? decodeURIComponent(state) : '/';
+        router.push(returnTo);
+      } catch (error) {
+        console.error('인증 처리 중 오류 발생:', error);
         router.push('/login');
       }
     };
