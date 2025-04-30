@@ -14,18 +14,34 @@ function AuthCallbackContent() {
       try {
         const code = searchParams.get('code');
         const state = searchParams.get('state');
+        const error = searchParams.get('error');
+        const errorDescription = searchParams.get('error_description');
 
-        if (!code) {
-          console.error('OAuth 코드가 없습니다.');
+        if (error) {
+          console.error('OAuth 에러:', error, errorDescription);
+          router.push('/login');
+          return;
+        }
+
+        if (!code || !state) {
+          console.error('필수 OAuth 파라미터가 없습니다.');
+          router.push('/login');
+          return;
+        }
+
+        // OAuth state 검증
+        const { error: stateError } = await supabase.auth.verifyOAuthState(state);
+        if (stateError) {
+          console.error('OAuth state 검증 실패:', stateError);
           router.push('/login');
           return;
         }
 
         // Apple OAuth 토큰 교환
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { data, error: signInError } = await supabase.auth.signInWithOAuth({
           provider: 'apple',
           options: {
-            redirectTo: 'https://api.picnic.fan/auth/callback',
+            skipBrowserRedirect: true,
             queryParams: {
               code,
               state,
@@ -33,8 +49,8 @@ function AuthCallbackContent() {
           },
         });
 
-        if (error) {
-          console.error('인증 에러:', error);
+        if (signInError) {
+          console.error('인증 에러:', signInError);
           router.push('/login');
           return;
         }
