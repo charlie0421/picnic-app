@@ -1,36 +1,40 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/utils/supabase-client';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { createBrowserSupabaseClient } from '@/utils/supabase-client';
 
 export default function AuthCallback() {
   const router = useRouter();
+  const supabase = createBrowserSupabaseClient();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const handleCallback = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+    const exchangeCode = async () => {
+      const code = searchParams.get('code');
+
+      if (code) {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
         if (error) {
-          console.error('인증 에러:', error);
+          console.error('세션 교환 에러:', error);
           router.push('/login');
           return;
         }
 
-        if (session) {
+        if (data.session) {
           router.push('/');
         } else {
           router.push('/login');
         }
-      } catch (error) {
-        console.error('콜백 처리 중 에러:', error);
+      } else {
+        console.error('OAuth 코드가 없습니다.');
         router.push('/login');
       }
     };
 
-    handleCallback();
-  }, [router]);
+    exchangeCode();
+  }, [router, searchParams, supabase]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -40,4 +44,4 @@ export default function AuthCallback() {
       </div>
     </div>
   );
-} 
+}
