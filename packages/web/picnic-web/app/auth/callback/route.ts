@@ -5,8 +5,8 @@ export async function POST(request: NextRequest) {
   const code = formData.get('code');
   const state = formData.get('state');
 
-  // 단순히 클라이언트 페이지로 리다이렉션
-  const redirectUrl = `/auth/callback/client?code=${encodeURIComponent(code as string)}&state=${encodeURIComponent(state as string)}`;
+  // Supabase 콜백 URL로 리다이렉션
+  const redirectUrl = `https://xtijtefcycoeqludlngc.supabase.co/auth/v1/callback?code=${encodeURIComponent(code as string)}&state=${encodeURIComponent(state as string)}`;
   
-  return NextResponse.redirect(new URL(redirectUrl, request.url), 302);
+  return NextResponse.redirect(new URL(redirectUrl), 302);
 } 

@@ -21,21 +21,11 @@ function AuthCallbackContent() {
           return;
         }
 
-        // state 디코딩
-        let decodedState;
-        try {
-          decodedState = JSON.parse(atob(state || ''));
-        } catch (e) {
-          console.error('state 디코딩 실패:', e);
-          router.push('/login');
-          return;
-        }
-
         // Apple OAuth 토큰 교환
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'apple',
           options: {
-            redirectTo: window.location.origin,
+            redirectTo: 'https://api.picnic.fan/auth/callback',
             queryParams: {
               code,
               state,
@@ -55,9 +45,8 @@ function AuthCallbackContent() {
           return;
         }
 
-        // 원래 페이지로 리다이렉션
-        const returnTo = decodedState?.redirect_url || '/';
-        window.location.href = returnTo;
+        // 리다이렉트
+        window.location.href = '/';
       } catch (error) {
         console.error('콜백 처리 중 오류:', error);
         router.push('/login');
