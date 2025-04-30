@@ -12,6 +12,8 @@ export default function Login() {
   const { t } = useLanguageStore();
 
   const handleSignIn = async (provider: 'google' | 'apple' | 'kakao' | 'wechat') => {
+    console.log(process.env.NEXT_PUBLIC_APPLE_CLIENT_ID);
+    console.log(process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
