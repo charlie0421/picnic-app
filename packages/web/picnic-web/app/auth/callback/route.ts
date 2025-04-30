@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
     console.log('세션 검증 완료:', { session: session ? '존재함' : '없음' });
 
-    // code verifier 쿠키 확인
+    // code verifier 확인
     const codeVerifier = cookieStore.get('sb-xtijtefcycoeqludlngc-auth-token-code-verifier')?.value;
     console.log('Code verifier 상태:', codeVerifier ? '존재함' : '없음');
 

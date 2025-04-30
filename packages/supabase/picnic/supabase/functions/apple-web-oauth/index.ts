@@ -1,5 +1,18 @@
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import { generatePKCE } from 'https://deno.land/x/oauth2_client@v1.0.0/pkce.ts';
+import { serve } from 'http/server';
+
+// PKCE 생성 함수
+async function generatePKCE() {
+  const verifier = crypto.randomUUID().replace(/-/g, '');
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const challenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+
+  return { codeVerifier: verifier, codeChallenge: challenge };
+}
 
 serve(async (req) => {
   // Preflight 요청 처리
@@ -9,6 +22,7 @@ serve(async (req) => {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Credentials': 'true',
       },
     });
   }
@@ -38,12 +52,16 @@ serve(async (req) => {
   const appleOauthUrl = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
 
   // code_verifier를 쿠키에 저장
-  const response = new Response(JSON.stringify({ url: appleOauthUrl }), {
+  const response = new Response(JSON.stringify({ 
+    url: appleOauthUrl,
+    code_verifier: codeVerifier // 클라이언트에서도 사용할 수 있도록 응답에 포함
+  }), {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': 'true',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Set-Cookie': `sb-xtijtefcycoeqludlngc-auth-token-code-verifier=${codeVerifier}; Path=/; HttpOnly; Secure; SameSite=Lax`,
+      'Set-Cookie': `sb-xtijtefcycoeqludlngc-auth-token-code-verifier=${codeVerifier}; Path=/; Domain=.picnic.fan; HttpOnly; Secure; SameSite=None`,
     },
   });
 

@@ -18,9 +18,16 @@ export default function Login() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: window.location.href }),
+        credentials: 'include', // 쿠키를 포함하여 요청
       });
 
-      const { url } = await res.json();
+      const { url, code_verifier } = await res.json();
+      
+      // code_verifier를 로컬 스토리지에 저장
+      if (code_verifier) {
+        localStorage.setItem('apple_code_verifier', code_verifier);
+      }
+      
       window.location.href = url;
       return;
     }
