@@ -8,6 +8,10 @@ export async function POST(request: NextRequest) {
     const code = formData.get('code');
     const state = formData.get('state');
 
+    if (!code || !state) {
+      return NextResponse.redirect(new URL('/?error=missing_params', request.url), 302);
+    }
+
     // Supabase 클라이언트 생성
     const cookieStore = cookies();
     const supabase = createServerClient(
@@ -19,10 +23,18 @@ export async function POST(request: NextRequest) {
             return cookieStore.get(name)?.value;
           },
           set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options });
+            try {
+              cookieStore.set(name, value, options);
+            } catch (error) {
+              // ReadonlyRequestCookies에서는 쿠키를 설정할 수 없음
+            }
           },
           remove(name: string, options: any) {
-            cookieStore.delete({ name, ...options });
+            try {
+              cookieStore.delete(name, options);
+            } catch (error) {
+              // ReadonlyRequestCookies에서는 쿠키를 삭제할 수 없음
+            }
           },
         },
       }
@@ -39,7 +51,18 @@ export async function POST(request: NextRequest) {
     // Supabase 콜백 URL로 리다이렉션
     const redirectUrl = `https://xtijtefcycoeqludlngc.supabase.co/auth/v1/callback?code=${encodeURIComponent(code as string)}&state=${encodeURIComponent(state as string)}`;
     
-    return NextResponse.redirect(new URL(redirectUrl), 302);
+    const response = NextResponse.redirect(new URL(redirectUrl), 302);
+
+    // 쿠키 복사
+    const supabaseCookie = cookieStore.get('sb-access-token');
+    if (supabaseCookie) {
+      response.cookies.set('sb-access-token', supabaseCookie.value, supabaseCookie);
+    }
+
+    // 응답 헤더에 state 추가
+    response.headers.set('x-supabase-state', state as string);
+
+    return response;
   } catch (error) {
     console.error('OAuth 콜백 처리 중 오류:', error);
     return NextResponse.redirect(new URL('/?error=callback_error', request.url), 302);
