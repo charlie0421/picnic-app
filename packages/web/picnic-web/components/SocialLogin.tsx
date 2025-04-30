@@ -23,6 +23,10 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ className = '' }) => {
     await signInWithSocial('kakao');
   };
 
+  const handleWechatLogin = async () => {
+    await signInWithSocial('wechat');
+  };
+
   return (
     <div className={`flex flex-col space-y-3 ${className}`}>
       <button
@@ -71,6 +75,22 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ className = '' }) => {
           />
         </div>
         <span>카카오로 계속하기</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={handleWechatLogin}
+        className="flex items-center justify-center w-full px-4 py-2.5 bg-[#07C160] text-white rounded-md hover:bg-[#06AD56] transition-colors"
+      >
+        <div className="relative w-5 h-5 mr-3">
+          <Image
+            src="/images/wechat-logo.svg"
+            alt="WeChat"
+            fill
+            sizes="20px"
+          />
+        </div>
+        <span>위챗으로 계속하기</span>
       </button>
     </div>
   );

@@ -16,7 +16,7 @@ export interface AuthState {
 interface AuthContextProps {
   authState: AuthState;
   signIn: (email: string, password: string) => Promise<void>;
-  signInWithSocial: (provider: 'google' | 'apple' | 'kakao') => Promise<void>;
+  signInWithSocial: (provider: 'google' | 'apple' | 'kakao' | 'wechat') => Promise<void>;
   signOut: () => Promise<void>;
   signUp: (email: string, password: string, username: string) => Promise<void>;
   updateUserProfile: (profile: Partial<UserProfiles>) => Promise<void>;
@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const signInWithSocial = useCallback(async (provider: 'google' | 'apple' | 'kakao') => {
+  const signInWithSocial = useCallback(async (provider: 'google' | 'apple' | 'kakao' | 'wechat') => {
     try {
       setAuthState((prev: AuthState) => ({ ...prev, loading: true, error: null }));
       
