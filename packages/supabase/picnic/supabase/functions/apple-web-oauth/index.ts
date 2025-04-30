@@ -1,5 +1,3 @@
-// functions/apple-web-oauth/index.ts
-
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
 serve(async (req) => {
@@ -7,7 +5,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: {
-        'Access-Control-Allow-Origin': 'https://www.picnic.fan',
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       },
@@ -16,13 +14,19 @@ serve(async (req) => {
 
   const { url } = await req.json();
 
+  // state에 리다이렉트 URL과 함께 nonce 추가
+  const state = btoa(JSON.stringify({
+    redirect_url: url,
+    nonce: crypto.randomUUID(),
+  }));
+
   const params = new URLSearchParams({
     client_id: Deno.env.get('APPLE_WEB_CLIENT_ID')!,
     redirect_uri: Deno.env.get('APPLE_WEB_REDIRECT_URI')!,
     response_type: 'code',
     response_mode: 'form_post',
     scope: 'name email',
-    state: btoa(JSON.stringify({ redirect_url: url })),
+    state,
   });
 
   const appleOauthUrl = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
@@ -30,7 +34,8 @@ serve(async (req) => {
   return new Response(JSON.stringify({ url: appleOauthUrl }), {
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': 'https://www.picnic.fan', // 필수 추가
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
     },
   });
-});
+}); 
