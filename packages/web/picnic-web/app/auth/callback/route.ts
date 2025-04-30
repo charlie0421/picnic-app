@@ -3,44 +3,26 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
-  const logs: string[] = [];
-  
   try {
-    logs.push('OAuth 콜백 요청 시작');
+    console.log('OAuth 콜백 요청 시작');
     
     const formData = await request.formData();
     const code = formData.get('code');
     const state = formData.get('state');
 
-    logs.push(`받은 파라미터: code=${code ? '존재함' : '없음'}, state=${state ? '존재함' : '없음'}`);
+    console.log('받은 파라미터:', {
+      code: code ? '존재함' : '없음',
+      state: state ? '존재함' : '없음',
+      stateValue: state
+    });
 
     if (!code || !state) {
-      logs.push(`필수 파라미터 누락: code=${code}, state=${state}`);
-      const response = NextResponse.redirect(new URL('/?error=missing_params', request.url), 302);
-      response.headers.set('x-auth-logs', JSON.stringify(logs));
-      return response;
-    }
-
-    // state에서 code_verifier 추출
-    let codeVerifier: string | null = null;
-    try {
-      const decodedState = Buffer.from(state as string, 'base64').toString('utf-8');
-      const stateData = JSON.parse(decodedState);
-      codeVerifier = stateData.code_verifier;
-      logs.push('state에서 code_verifier 추출 성공');
-    } catch (error) {
-      logs.push(`state 디코딩 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
-    }
-
-    if (!codeVerifier) {
-      logs.push('code_verifier를 찾을 수 없음');
-      const response = NextResponse.redirect(new URL('/?error=missing_code_verifier', request.url), 302);
-      response.headers.set('x-auth-logs', JSON.stringify(logs));
-      return response;
+      console.error('필수 파라미터 누락:', { code, state });
+      return NextResponse.redirect(new URL('/?error=missing_params', request.url), 302);
     }
 
     // Supabase 클라이언트 생성
-    logs.push('Supabase 클라이언트 생성 시작');
+    console.log('Supabase 클라이언트 생성 시작');
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,11 +31,11 @@ export async function POST(request: NextRequest) {
         cookies: {
           get(name: string) {
             const value = cookieStore.get(name)?.value;
-            logs.push(`쿠키 조회: ${name}=${value ? '존재함' : '없음'}`);
+            console.log(`쿠키 조회: ${name}`, value ? '존재함' : '없음');
             return value;
           },
           set(name: string, value: string) {
-            logs.push(`쿠키 설정: ${name}`);
+            console.log(`쿠키 설정: ${name}`);
             cookieStore.set({
               name,
               value,
@@ -63,7 +45,7 @@ export async function POST(request: NextRequest) {
             });
           },
           remove(name: string) {
-            logs.push(`쿠키 삭제: ${name}`);
+            console.log(`쿠키 삭제: ${name}`);
             cookieStore.delete({
               name,
               path: '/'
@@ -72,55 +54,58 @@ export async function POST(request: NextRequest) {
         },
       }
     );
-    logs.push('Supabase 클라이언트 생성 완료');
+    console.log('Supabase 클라이언트 생성 완료');
 
     // state 값 검증
-    logs.push('세션 검증 시작');
+    console.log('세션 검증 시작');
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
     if (sessionError) {
-      logs.push(`세션 검증 실패: ${JSON.stringify({
+      console.error('세션 검증 실패:', {
+        error: sessionError,
         message: sessionError.message,
         status: sessionError.status
-      })}`);
-      const response = NextResponse.redirect(new URL('/?error=session_error', request.url), 302);
-      response.headers.set('x-auth-logs', JSON.stringify(logs));
-      return response;
+      });
+      return NextResponse.redirect(new URL('/?error=session_error', request.url), 302);
     }
-    logs.push(`세션 검증 완료: session=${session ? '존재함' : '없음'}`);
+    console.log('세션 검증 완료:', { session: session ? '존재함' : '없음' });
+
+    // code verifier 쿠키 확인
+    const codeVerifier = cookieStore.get('sb-xtijtefcycoeqludlngc-auth-token-code-verifier')?.value;
+    console.log('Code verifier 상태:', codeVerifier ? '존재함' : '없음');
+
+    if (!codeVerifier) {
+      console.error('Code verifier가 없음');
+      return NextResponse.redirect(new URL('/?error=missing_code_verifier', request.url), 302);
+    }
 
     // Supabase OAuth 콜백 처리
-    logs.push('OAuth 코드 교환 시작');
-    const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-      options: {
-        redirectTo: `${request.nextUrl.origin}/auth/callback`,
-        queryParams: {
-          code: code as string,
-          code_verifier: codeVerifier
-        }
-      }
-    });
+    console.log('OAuth 코드 교환 시작');
+    const { data: oauthData, error: oauthError } = await supabase.auth.exchangeCodeForSession(code as string);
     
     if (oauthError) {
-      logs.push(`OAuth 콜백 처리 실패: ${JSON.stringify({
+      console.error('OAuth 콜백 처리 실패:', {
+        error: oauthError,
         message: oauthError.message,
-        status: oauthError.status
-      })}`);
-      const response = NextResponse.redirect(new URL('/?error=oauth_error', request.url), 302);
-      response.headers.set('x-auth-logs', JSON.stringify(logs));
-      return response;
+        status: oauthError.status,
+        details: oauthError
+      });
+      return NextResponse.redirect(new URL('/?error=oauth_error', request.url), 302);
     }
+    console.log('OAuth 코드 교환 완료:', { 
+      session: oauthData.session ? '존재함' : '없음',
+      user: oauthData.user ? '존재함' : '없음'
+    });
 
     // 성공 시 메인 페이지로 리다이렉션
-    logs.push('성공적으로 처리 완료, 메인 페이지로 리다이렉션');
-    const response = NextResponse.redirect(new URL('/', request.url), 302);
-    response.headers.set('x-auth-logs', JSON.stringify(logs));
-    return response;
+    console.log('성공적으로 처리 완료, 메인 페이지로 리다이렉션');
+    return NextResponse.redirect(new URL('/', request.url), 302);
   } catch (error) {
-    logs.push(`예기치 않은 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
-    const response = NextResponse.redirect(new URL('/?error=callback_error', request.url), 302);
-    response.headers.set('x-auth-logs', JSON.stringify(logs));
-    return response;
+    console.error('OAuth 콜백 처리 중 예기치 않은 오류:', {
+      error,
+      message: error instanceof Error ? error.message : '알 수 없는 오류',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    return NextResponse.redirect(new URL('/?error=callback_error', request.url), 302);
   }
 } 

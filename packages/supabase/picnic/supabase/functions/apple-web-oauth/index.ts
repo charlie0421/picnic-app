@@ -1,4 +1,5 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
+import { generatePKCE } from 'https://deno.land/x/oauth2_client@v1.0.0/pkce.ts';
 
 serve(async (req) => {
   // Preflight 요청 처리
@@ -14,6 +15,9 @@ serve(async (req) => {
 
   const { url } = await req.json();
 
+  // PKCE 생성
+  const { codeVerifier, codeChallenge } = await generatePKCE();
+
   // state에 리다이렉트 URL과 함께 nonce 추가
   const state = btoa(JSON.stringify({
     redirect_url: url,
@@ -27,15 +31,21 @@ serve(async (req) => {
     response_mode: 'form_post',
     scope: 'name email',
     state,
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
   });
 
   const appleOauthUrl = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
 
-  return new Response(JSON.stringify({ url: appleOauthUrl }), {
+  // code_verifier를 쿠키에 저장
+  const response = new Response(JSON.stringify({ url: appleOauthUrl }), {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Set-Cookie': `sb-xtijtefcycoeqludlngc-auth-token-code-verifier=${codeVerifier}; Path=/; HttpOnly; Secure; SameSite=Lax`,
     },
   });
+
+  return response;
 }); 
