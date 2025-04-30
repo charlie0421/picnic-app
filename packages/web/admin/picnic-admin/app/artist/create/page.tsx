@@ -4,11 +4,15 @@ import { Create, useForm } from '@refinedev/antd';
 import { Form, Select, DatePicker, message } from 'antd';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import ImageUpload from '@/components/features/upload';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
 import { MultiLanguageInput } from '@/components/ui';
 import { useResource } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+
+// UTC 플러그인 확장
+dayjs.extend(utc);
 
 export default function ArtistCreate() {
   const [groups, setGroups] = useState<any[]>([]);
@@ -69,6 +73,10 @@ export default function ArtistCreate() {
 
   // 저장 버튼 클릭 핸들러
   const handleSave = async (values: any) => {
+    // 디버깅을 위한 로그
+    console.log('Form values:', values);
+    console.log('Debut date value:', values.debut_date);
+
     // 날짜 변환 처리 로직
     let updatedValues = { ...values };
 
@@ -112,7 +120,19 @@ export default function ArtistCreate() {
         debut_mm: month,
         debut_dd: day,
       };
+    } else {
+      // 데뷔일이 없는 경우 관련 필드들을 명시적으로 null로 설정
+      updatedValues = {
+        ...updatedValues,
+        debut_date: null,
+        debut_yy: null,
+        debut_mm: null,
+        debut_dd: null,
+      };
     }
+
+    // 변환된 값 로깅
+    console.log('Transformed values:', updatedValues);
 
     return updatedValues;
   };
@@ -189,11 +209,32 @@ export default function ArtistCreate() {
                 message: '생년월일을 선택해주세요',
               },
             ]}
+            getValueFromEvent={(date) => {
+              if (date) {
+                return date.format('YYYY-MM-DD');
+              }
+              return undefined;
+            }}
+            getValueProps={(value) => ({
+              value: value ? dayjs(value) : undefined,
+            })}
           >
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
 
-          <Form.Item label='데뷔일' name='debut_date'>
+          <Form.Item
+            label='데뷔일'
+            name='debut_date'
+            getValueFromEvent={(date) => {
+              if (date) {
+                return date.format('YYYY-MM-DD');
+              }
+              return undefined;
+            }}
+            getValueProps={(value) => ({
+              value: value ? dayjs(value) : undefined,
+            })}
+          >
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
 

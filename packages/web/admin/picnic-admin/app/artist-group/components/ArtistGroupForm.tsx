@@ -6,8 +6,12 @@ import { ArtistGroup } from '@/lib/types/artist';
 import { useState, useEffect } from 'react';
 import { useCreate, useUpdate, useNavigation } from '@refinedev/core';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import ImageUpload from '@/components/features/upload';
 import MultiLanguageInput from '@/components/ui/MultiLanguageInput';
+
+// UTC 플러그인 확장
+dayjs.extend(utc);
 
 type ArtistGroupFormProps = {
   mode: 'create' | 'edit';
@@ -16,6 +20,12 @@ type ArtistGroupFormProps = {
   saveButtonProps: ReturnType<typeof useForm<ArtistGroup>>['saveButtonProps'];
   onFinish?: (values: ArtistGroup) => Promise<any>;
 };
+
+interface FormValues {
+  name: Record<string, string>;
+  debut_date?: any;
+  image?: string;
+}
 
 export default function ArtistGroupForm({
   mode,
@@ -44,18 +54,21 @@ export default function ArtistGroupForm({
 
   // 저장 핸들러
   const handleSave = async () => {
-    if (!formData) return;
-
     try {
-      // 날짜 변환 처리
-      let dataToSave = { ...formData };
+      // 폼 검증
+      const values = (await formProps.form?.validateFields()) as FormValues;
+      if (!values) return;
 
-      if (formData.debut_date) {
+      // 날짜 변환 처리
+      let dataToSave: any = { ...values };
+      console.log('Original values:', values); // 디버깅용 로그
+
+      if (values.debut_date) {
         // 날짜를 직접 파싱
         const dateStr =
-          typeof formData.debut_date === 'string'
-            ? formData.debut_date
-            : formData.debut_date.format('YYYY-MM-DD');
+          typeof values.debut_date === 'string'
+            ? values.debut_date
+            : values.debut_date.format('YYYY-MM-DD');
         const date = dayjs(dateStr);
 
         // 명시적으로 numeric 타입으로 변환
@@ -70,11 +83,29 @@ export default function ArtistGroupForm({
           debut_mm: month,
           debut_dd: day,
         };
+
+        console.log('Date transformation:', {
+          original: values.debut_date,
+          parsed: {
+            dateStr,
+            year,
+            month,
+            day,
+          },
+          final: {
+            debut_date: dateStr,
+            debut_yy: year,
+            debut_mm: month,
+            debut_dd: day,
+          },
+        });
       }
+
+      console.log('Final data to save:', dataToSave);
 
       if (mode === 'create') {
         // 직접 API 호출 - 생성
-        createArtistGroup(
+        await createArtistGroup(
           {
             resource: 'artist_group',
             values: dataToSave,
@@ -91,7 +122,7 @@ export default function ArtistGroupForm({
         );
       } else if (mode === 'edit' && id) {
         // 직접 API 호출 - 수정
-        updateArtistGroup(
+        await updateArtistGroup(
           {
             resource: 'artist_group',
             id: id,
@@ -109,29 +140,31 @@ export default function ArtistGroupForm({
         );
       }
     } catch (error) {
+      console.error('Save error:', error); // 디버깅용 로그
       messageApi.error(`오류 발생: ${error}`);
     }
   };
 
-  // saveButtonProps의 onClick 핸들러를 오버라이드
+  // saveButtonProps의 onClick 핸들러를 제거하고 Form의 onFinish를 사용
   const modifiedSaveButtonProps = {
     ...saveButtonProps,
-    onClick: handleSave,
+    onClick: undefined,
   };
 
   return (
     <>
       {contextHolder}
-      <Form 
-        {...formProps} 
-        layout="vertical" 
+      <Form
+        {...formProps}
+        layout='vertical'
         onValuesChange={handleFormChange}
+        onFinish={handleSave}
       >
-        <MultiLanguageInput name="name" label="이름" required={true} />
+        <MultiLanguageInput name='name' label='이름' required={true} />
 
         <Form.Item
-          label="데뷔일"
-          name="debut_date"
+          label='데뷔일'
+          name='debut_date'
           rules={[
             {
               required: true,
@@ -140,7 +173,7 @@ export default function ArtistGroupForm({
           ]}
           getValueFromEvent={(date) => {
             if (date) {
-              return date.utc(true);
+              return date.format('YYYY-MM-DD');
             }
             return undefined;
           }}
@@ -157,9 +190,9 @@ export default function ArtistGroupForm({
         </Form.Item>
 
         <Form.Item
-          label="그룹 이미지"
-          name="image"
-          valuePropName="value"
+          label='그룹 이미지'
+          name='image'
+          valuePropName='value'
           getValueFromEvent={(e) => {
             if (typeof e === 'string') {
               return e;
@@ -170,9 +203,9 @@ export default function ArtistGroupForm({
             return e;
           }}
         >
-          <ImageUpload folder="artist-group" />
+          <ImageUpload folder='artist-group' />
         </Form.Item>
       </Form>
     </>
   );
-} 
+}
