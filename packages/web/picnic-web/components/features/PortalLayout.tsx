@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useParams, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLanguageStore } from '@/stores/languageStore';
@@ -16,16 +16,7 @@ import LanguageSelector from '@/components/features/LanguageSelector';
 import ExclusiveOpenBadge from '@/components/features/ExclusiveOpenBadge';
 import Menu from '@/components/features/Menu';
 import { PortalType } from '@/utils/enums';
-import {
-  PORTAL_MENU,
-  getPortalTypeFromPath
-} from '@/config/navigation';
-import { format } from 'date-fns';
-import { ko, ja, zhCN, enUS } from 'date-fns/locale';
-import CurrentTime from '@/components/features/CurrentTime';
-
-// 환경 설정 확인 (개발 환경인지)
-const isDev = process.env.NODE_ENV !== 'production';
+import { PORTAL_MENU, getPortalTypeFromPath } from '@/config/navigation';
 
 interface PortalProps {
   children: React.ReactNode;
@@ -33,24 +24,20 @@ interface PortalProps {
 
 const PortalLayout: React.FC<PortalProps> = ({ children }) => {
   const { authState } = useAuth();
-  const { navigationState, setCurrentPortalType } = useNavigation();
+  const { setCurrentPortalType } = useNavigation();
   const { t } = useLanguageStore();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // 초기 시간 생성
-  const initialTime = new Date().toISOString();
-
-  // 경로에 따라 현재 포탈 타입 설정
   useEffect(() => {
     const portalType = getPortalTypeFromPath(pathname);
     setCurrentPortalType(portalType);
   }, [pathname, setCurrentPortalType]);
 
   return (
-    <div className='bg-gradient-to-b from-blue-50 to-white min-h-screen'>
-      <div className='max-w-6xl mx-auto bg-white shadow-md min-h-screen'>
-        <header className='border-b border-gray-200 bg-white'>
+    <div className='bg-gradient-to-b from-blue-50 to-white relative'>
+      <div className='max-w-6xl mx-auto bg-white shadow-md'>
+        <header className='border-b border-gray-200 bg-white relative'>
           <div className='container mx-auto px-2 sm:px-4 py-2'>
             <div className='flex-1 overflow-x-auto py-1 scrollbar-hide'>
               <div className='flex flex-col sm:flex-row w-full gap-2 sm:gap-4'>
@@ -89,13 +76,22 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                 </div>
 
                 {/* 모바일 메뉴 */}
-                <div className={`sm:hidden w-full ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+                <div
+                  className={`sm:hidden w-full ${
+                    isMobileMenuOpen ? 'block' : 'hidden'
+                  }`}
+                >
                   <div className='flex flex-col space-y-2 py-2'>
                     {PORTAL_MENU.map((menuItem) => {
-                      // 관리자 전용 메뉴 체크
-                      const isAdminMenu = ['community', 'pic', 'novel'].includes(menuItem.type);
-                      // 관리자 메뉴이고 관리자가 아닌 경우 숨김
-                      if (isAdminMenu && (!authState.isAuthenticated || !authState.user?.isAdmin)) {
+                      const isAdminMenu = [
+                        'community',
+                        'pic',
+                        'novel',
+                      ].includes(menuItem.type);
+                      if (
+                        isAdminMenu &&
+                        (!authState.isAuthenticated || !authState.user?.isAdmin)
+                      ) {
                         return null;
                       }
                       return (
@@ -111,10 +107,13 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                 {/* 데스크톱 메뉴 */}
                 <div className='hidden sm:flex items-center space-x-4 flex-1'>
                   {PORTAL_MENU.map((menuItem) => {
-                    // 관리자 전용 메뉴 체크
-                    const isAdminMenu = ['community', 'pic', 'novel'].includes(menuItem.type);
-                    // 관리자 메뉴이고 관리자가 아닌 경우 숨김
-                    if (isAdminMenu && (!authState.isAuthenticated || !authState.user?.isAdmin)) {
+                    const isAdminMenu = ['community', 'pic', 'novel'].includes(
+                      menuItem.type,
+                    );
+                    if (
+                      isAdminMenu &&
+                      (!authState.isAuthenticated || !authState.user?.isAdmin)
+                    ) {
                       return null;
                     }
                     return (
@@ -126,7 +125,7 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                   })}
                 </div>
 
-                {/* 우측 메뉴 (언어 선택기, 로그인/프로필) */}
+                {/* 우측 메뉴 */}
                 <div className='flex items-center space-x-2 sm:space-x-4 justify-end'>
                   <LanguageSelector />
 
@@ -159,7 +158,7 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
           <div className='flex flex-col'>
             <div className='w-full'>
               {/* 배타 오픈 뱃지 */}
-              <div className="flex justify-center py-1 sm:py-2">
+              <div className='flex justify-center py-1 sm:py-2'>
                 <ExclusiveOpenBadge />
               </div>
               {/* 서브 메뉴 */}

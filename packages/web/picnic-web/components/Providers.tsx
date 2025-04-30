@@ -16,8 +16,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
       <NavigationProvider>
-        <PortalLayout>{children}</PortalLayout>
+        <div className='relative'>
+          <PortalLayout>{children}</PortalLayout>
+        </div>
       </NavigationProvider>
     </AuthProvider>
   );
-} 
+}
