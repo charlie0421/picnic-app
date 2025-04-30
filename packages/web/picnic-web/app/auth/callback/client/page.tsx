@@ -14,9 +14,17 @@ function AuthCallbackContent() {
       try {
         const code = searchParams.get('code');
         const state = searchParams.get('state');
+        const clientId = searchParams.get('client_id');
 
         if (!code) {
           console.error('OAuth 코드가 없습니다.');
+          router.push('/login');
+          return;
+        }
+
+        // 앱 ID 확인
+        if (clientId !== 'io.iconcasting.picnic.app') {
+          console.error('잘못된 앱 ID:', clientId);
           router.push('/login');
           return;
         }

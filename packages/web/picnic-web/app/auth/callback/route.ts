@@ -5,8 +5,8 @@ export async function POST(request: NextRequest) {
   const code = formData.get('code');
   const state = formData.get('state');
 
-  // GET 방식으로 리다이렉트하여 클라이언트에서 처리 가능하도록 전달
-  const redirectUrl = `/auth/callback/client?code=${encodeURIComponent(code as string)}&state=${encodeURIComponent(state as string)}`;
+  // 앱 정보를 포함한 리다이렉션 URL 생성
+  const redirectUrl = `/auth/callback/client?code=${encodeURIComponent(code as string)}&state=${encodeURIComponent(state as string)}&client_id=io.iconcasting.picnic.app`;
   
   return NextResponse.redirect(new URL(redirectUrl, request.url), 302);
 } 
