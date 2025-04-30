@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Supabase 클라이언트 생성
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -22,30 +22,31 @@ export async function POST(request: NextRequest) {
           get(name: string) {
             return cookieStore.get(name)?.value;
           },
-          set(name: string, value: string, options: any) {
-            try {
-              cookieStore.set(name, value, options);
-            } catch (error) {
-              // ReadonlyRequestCookies에서는 쿠키를 설정할 수 없음
-            }
+          set(name: string, value: string) {
+            cookieStore.set({
+              name,
+              value,
+              path: '/',
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax'
+            });
           },
-          remove(name: string, options: any) {
-            try {
-              cookieStore.delete(name, options);
-            } catch (error) {
-              // ReadonlyRequestCookies에서는 쿠키를 삭제할 수 없음
-            }
+          remove(name: string) {
+            cookieStore.delete({
+              name,
+              path: '/'
+            });
           },
         },
       }
     );
 
-    // 현재 state 값 검증
-    const { data: { session }, error } = await supabase.auth.verifyOAuthState({ state: state as string });
+    // state 값 검증
+    const { data: { session }, error } = await supabase.auth.getSession();
     
     if (error) {
-      console.error('OAuth state 검증 실패:', error);
-      return NextResponse.redirect(new URL('/?error=invalid_state', request.url), 302);
+      console.error('세션 검증 실패:', error);
+      return NextResponse.redirect(new URL('/?error=session_error', request.url), 302);
     }
 
     // Supabase 콜백 URL로 리다이렉션
@@ -56,11 +57,14 @@ export async function POST(request: NextRequest) {
     // 쿠키 복사
     const supabaseCookie = cookieStore.get('sb-access-token');
     if (supabaseCookie) {
-      response.cookies.set('sb-access-token', supabaseCookie.value, supabaseCookie);
+      response.cookies.set({
+        name: 'sb-access-token',
+        value: supabaseCookie.value,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
     }
-
-    // 응답 헤더에 state 추가
-    response.headers.set('x-supabase-state', state as string);
 
     return response;
   } catch (error) {
