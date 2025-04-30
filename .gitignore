@@ -8,3 +8,4 @@ packages/supabase/.idea/workspace.xml
 # 빌드 출력 파일
 /build/
 **/build/
+packages/web/picnic-web/public/sitemap-0.xml
