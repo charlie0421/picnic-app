@@ -42,31 +42,23 @@ export async function POST(request: NextRequest) {
     );
 
     // state 값 검증
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
-    if (error) {
-      console.error('세션 검증 실패:', error);
+    if (sessionError) {
+      console.error('세션 검증 실패:', sessionError);
       return NextResponse.redirect(new URL('/?error=session_error', request.url), 302);
     }
 
-    // Supabase 콜백 URL로 리다이렉션
-    const redirectUrl = `https://xtijtefcycoeqludlngc.supabase.co/auth/v1/callback?code=${encodeURIComponent(code as string)}&state=${encodeURIComponent(state as string)}`;
+    // Supabase OAuth 콜백 처리
+    const { error: oauthError } = await supabase.auth.exchangeCodeForSession(code as string);
     
-    const response = NextResponse.redirect(new URL(redirectUrl), 302);
-
-    // 쿠키 복사
-    const supabaseCookie = cookieStore.get('sb-access-token');
-    if (supabaseCookie) {
-      response.cookies.set({
-        name: 'sb-access-token',
-        value: supabaseCookie.value,
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
+    if (oauthError) {
+      console.error('OAuth 콜백 처리 실패:', oauthError);
+      return NextResponse.redirect(new URL('/?error=oauth_error', request.url), 302);
     }
 
-    return response;
+    // 성공 시 메인 페이지로 리다이렉션
+    return NextResponse.redirect(new URL('/', request.url), 302);
   } catch (error) {
     console.error('OAuth 콜백 처리 중 오류:', error);
     return NextResponse.redirect(new URL('/?error=callback_error', request.url), 302);
