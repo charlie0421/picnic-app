@@ -567,6 +567,8 @@ const VoteList: React.FC = () => {
 
   useEffect(() => {
     setMounted(true);
+    // 초기 데이터 로드
+    updateVoteData(1, false);
   }, []);
 
   const updateVoteData = useCallback(
@@ -598,7 +600,7 @@ const VoteList: React.FC = () => {
         isFetching.current = false;
       }
     },
-    [],
+    [PAGE_SIZE],
   );
 
   // 1초마다 투표 데이터 갱신
@@ -681,26 +683,15 @@ const VoteList: React.FC = () => {
         clearInterval(voteTimerRef.current);
       }
     };
-  }, [mounted, page]);
+  }, [mounted, page, PAGE_SIZE]);
 
   // 상태 변경 시 데이터 리셋
   useEffect(() => {
     if (mounted) {
       setPage(1);
-      // updateVoteData 대신 직접 데이터 가져오기
-      const resetData = async () => {
-        try {
-          const votesData = await getVotes('votes');
-          const paginatedData = votesData.slice(0, PAGE_SIZE);
-          setVotes(paginatedData);
-          setHasMore(PAGE_SIZE < votesData.length);
-        } catch (error) {
-          console.error('투표 데이터 리셋 중 오류가 발생했습니다:', error);
-        }
-      };
-      resetData();
+      updateVoteData(1, false);
     }
-  }, [selectedStatus, mounted]);
+  }, [selectedStatus, mounted, updateVoteData]);
 
   // 스크롤 감지 및 추가 데이터 로드
   useEffect(() => {

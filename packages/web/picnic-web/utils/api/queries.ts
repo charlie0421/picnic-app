@@ -38,7 +38,7 @@ export const getVotes = async (
         )
       `)
       .is("deleted_at", null)
-      .order("created_at", { ascending: false });
+      .order("start_at", { ascending: false });
 
     if (voteError) throw voteError;
     if (!voteData || voteData.length === 0) return [];
