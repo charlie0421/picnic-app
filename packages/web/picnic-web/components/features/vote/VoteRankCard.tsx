@@ -14,6 +14,7 @@ interface VoteRankCardProps {
   voteChange?: number;
   voteTotal?: number;
   onVoteChange?: (voteTotal: number) => void;
+  isAnimating?: boolean;
 }
 
 const VoteRankCard: React.FC<VoteRankCardProps> = ({
@@ -24,6 +25,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
   voteChange = 0,
   voteTotal,
   onVoteChange,
+  isAnimating = false,
 }) => {
   const { t } = useLanguageStore();
   // 외부에서 제공된 voteTotal 값 사용 또는 기본값
@@ -32,8 +34,6 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
   const [localVoteTotal, setLocalVoteTotal] = useState(initialVoteTotal);
 
   // 애니메이션 관련 상태
-  const [isAnimating, setIsAnimating] = useState(false);
-  // 현재 표시할 변경량 (투표 수 증감)
   const [currentVoteChange, setCurrentVoteChange] = useState(voteChange);
   const processedVoteTotals = useRef<Set<number>>(new Set([initialVoteTotal]));
   const prevVoteTotal = useRef(initialVoteTotal);
@@ -83,11 +83,9 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
       // 상태 업데이트 및 애니메이션 활성화
       setLocalVoteTotal(voteTotal);
       setCurrentVoteChange(calculatedChange);
-      setIsAnimating(true);
 
       // 1초 후 애니메이션 종료
       animationTimeoutRef.current = setTimeout(() => {
-        setIsAnimating(false);
         animationTimeoutRef.current = null;
       }, 1000);
     }
