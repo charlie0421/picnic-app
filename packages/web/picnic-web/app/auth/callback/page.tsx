@@ -11,7 +11,9 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const exchangeCode = async () => {
+      // POST 요청으로 온 경우와 GET 파라미터로 온 경우 모두 처리
       const code = searchParams.get('code');
+      const state = searchParams.get('state');
 
       if (code) {
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
