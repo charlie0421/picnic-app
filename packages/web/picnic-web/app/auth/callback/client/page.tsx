@@ -14,7 +14,6 @@ function AuthCallbackContent() {
       try {
         const code = searchParams.get('code');
         const state = searchParams.get('state');
-        const clientId = searchParams.get('client_id');
 
         if (!code) {
           console.error('OAuth 코드가 없습니다.');
@@ -22,36 +21,24 @@ function AuthCallbackContent() {
           return;
         }
 
-        // 앱 ID 확인
-        if (clientId !== 'io.iconcasting.picnic.app') {
-          console.error('잘못된 앱 ID:', clientId);
-          router.push('/login');
-          return;
-        }
+        // PKCE 플로우로 세션 교환
+        const { data: { session }, error } = await supabase.auth.exchangeCodeForSession(code);
 
-        // 세션 교환
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
         if (error) {
           console.error('세션 교환 에러:', error);
           router.push('/login');
           return;
         }
 
-        if (!data.session) {
+        if (!session) {
           console.error('세션이 생성되지 않았습니다.');
           router.push('/login');
           return;
         }
 
-        // 세션 설정
-        await supabase.auth.setSession(data.session);
-
-        // 상태 업데이트를 위해 잠시 대기
-        await new Promise(resolve => setTimeout(resolve, 500));
-
         // 리다이렉트
         const returnTo = state ? decodeURIComponent(state) : '/';
-        router.push(returnTo);
+        window.location.href = returnTo; // router.push 대신 window.location.href 사용
       } catch (error) {
         console.error('인증 처리 중 오류 발생:', error);
         router.push('/login');
