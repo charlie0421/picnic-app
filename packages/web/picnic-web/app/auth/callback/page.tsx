@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/utils/supabase-client';
 
-export default function AuthCallback() {
+function AuthCallbackContent() {
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
@@ -37,11 +37,24 @@ export default function AuthCallback() {
   }, [router, searchParams, supabase]);
 
   return (
+    <div className="text-center">
+      <h1 className="text-2xl font-bold mb-4">인증 처리 중...</h1>
+      <p>잠시만 기다려주세요.</p>
+    </div>
+  );
+}
+
+export default function AuthCallback() {
+  return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">인증 처리 중...</h1>
-        <p>잠시만 기다려주세요.</p>
-      </div>
+      <Suspense fallback={
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">로딩 중...</h1>
+          <p>잠시만 기다려주세요.</p>
+        </div>
+      }>
+        <AuthCallbackContent />
+      </Suspense>
     </div>
   );
 }
