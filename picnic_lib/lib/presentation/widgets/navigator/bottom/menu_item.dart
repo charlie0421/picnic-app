@@ -40,28 +40,18 @@ class MenuItem extends ConsumerWidget {
           }
           navigationNotifier.setBottomNavigationIndex(this.index);
         },
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-                width: 24,
-                height: 24,
-                child: SvgPicture.asset(
-                  package: 'picnic_lib',
-                  assetPath,
-                  colorFilter: ColorFilter.mode(
-                      isSelected ? AppColors.grey900 : AppColors.grey400,
-                      BlendMode.srcIn),
-                )),
-            Text(
-              t(title),
-              style: getTextStyle(
-                isSelected ? AppTypo.caption12B : AppTypo.caption12R,
-                isSelected ? AppColors.grey900 : AppColors.grey400,
-              ),
-            )
-          ],
+        child: Center(
+          child: SizedBox(
+            width: 32,
+            height: 32,
+            child: SvgPicture.asset(
+              package: 'picnic_lib',
+              assetPath,
+              colorFilter: ColorFilter.mode(
+                  isSelected ? AppColors.grey900 : AppColors.grey400,
+                  BlendMode.srcIn),
+            ),
+          ),
         ),
       ),
     );
