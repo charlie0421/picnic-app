@@ -132,11 +132,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 children: languageMap.entries.map((entry) {
                   return GestureDetector(
                     onTap: () {
-                      if (appSettingState.locale.languageCode == entry.key) {
+                      if (appSettingState.language == entry.key) {
                         return;
                       }
-                      appSettingNotifier.setLocale(
-                          Locale(entry.key, countryMap[entry.key] ?? ''));
+                      appSettingNotifier.setLanguage(entry.key);
                       Navigator.of(context).pop();
                     },
                     child: Container(
@@ -183,7 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  languageMap[appSettingState.locale.languageCode]!,
+                  languageMap[appSettingState.language]!,
                   style: getTextStyle(AppTypo.body16M, AppColors.grey900),
                 ),
               ),
