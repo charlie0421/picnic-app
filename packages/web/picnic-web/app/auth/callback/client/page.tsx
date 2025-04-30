@@ -10,7 +10,7 @@ function AuthCallbackContent() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const exchangeCode = async () => {
+    const handleCallback = async () => {
       try {
         const code = searchParams.get('code');
         const state = searchParams.get('state');
@@ -21,11 +21,21 @@ function AuthCallbackContent() {
           return;
         }
 
-        // PKCE 플로우로 세션 교환
+        // state 디코딩
+        let decodedState;
+        try {
+          decodedState = JSON.parse(atob(state || ''));
+        } catch (e) {
+          console.error('state 디코딩 실패:', e);
+          router.push('/login');
+          return;
+        }
+
+        // Apple OAuth 토큰 교환
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'apple',
           options: {
-            skipBrowserRedirect: true,
+            redirectTo: window.location.origin,
             queryParams: {
               code,
               state,
@@ -34,7 +44,7 @@ function AuthCallbackContent() {
         });
 
         if (error) {
-          console.error('세션 교환 에러:', error);
+          console.error('인증 에러:', error);
           router.push('/login');
           return;
         }
@@ -45,16 +55,16 @@ function AuthCallbackContent() {
           return;
         }
 
-        // 리다이렉트
-        const returnTo = state ? decodeURIComponent(state) : '/';
+        // 원래 페이지로 리다이렉션
+        const returnTo = decodedState?.redirect_url || '/';
         window.location.href = returnTo;
       } catch (error) {
-        console.error('인증 처리 중 오류 발생:', error);
+        console.error('콜백 처리 중 오류:', error);
         router.push('/login');
       }
     };
 
-    exchangeCode();
+    handleCallback();
   }, [router, searchParams, supabase]);
 
   return (
