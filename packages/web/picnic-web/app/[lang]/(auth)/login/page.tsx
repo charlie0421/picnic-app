@@ -29,7 +29,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: 'https://www.picnic.fan/auth/callback',
       },
     });
 
@@ -62,7 +62,7 @@ export default function Login() {
             Google {t('button_continue_with')}
           </button>
 
-          <button
+          {/* <button
             onClick={() => handleSignIn('apple')}
             className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-black border border-gray-300 rounded-md hover:bg-gray-800"
           >
@@ -74,7 +74,7 @@ export default function Login() {
               className="mr-2"
             />
             Apple {t('button_continue_with')}
-          </button>
+          </button> */}
 
           <button
             onClick={() => handleSignIn('kakao')}
