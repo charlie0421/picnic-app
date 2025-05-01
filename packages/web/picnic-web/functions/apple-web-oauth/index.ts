@@ -1,57 +1,69 @@
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import { generatePKCE } from 'https://deno.land/x/oauth2_client@v1.0.0/pkce.ts';
+import { NextRequest, NextResponse } from 'next/server';
+import { generatePKCE } from './pkce';
 
-serve(async (req) => {
-  // Preflight 요청 처리
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Credentials': 'true',
-      },
-    });
+export const config = {
+  runtime: 'edge'
+};
+
+export default async function handler(req: NextRequest) {
+  if (req.method !== 'GET') {
+    return new NextResponse('Method not allowed', { status: 405 });
   }
 
-  const { url } = await req.json();
+  try {
+    // PKCE 생성
+    const { codeVerifier, codeChallenge } = await generatePKCE();
+    
+    // state 생성
+    const state = {
+      redirect_url: req.nextUrl.searchParams.get('redirect_url') || '/',
+      nonce: crypto.randomUUID(),
+      code_verifier: codeVerifier,
+      flow_state: crypto.randomUUID(),
+      provider: 'apple',
+      timestamp: Date.now()
+    };
 
-  // PKCE 생성
-  const { codeVerifier, codeChallenge } = await generatePKCE();
+    // Apple OAuth URL 생성
+    const clientId = 'io.iconcasting.picnic.app';
+    const redirectUri = 'https://api.picnic.fan/auth/callback';
+    const scope = 'name email';
 
-  // state에 리다이렉트 URL과 함께 nonce 추가
-  const state = btoa(JSON.stringify({
-    redirect_url: url,
-    nonce: crypto.randomUUID(),
-    code_verifier: codeVerifier, // state에 code_verifier 포함
-  }));
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: scope,
+      response_mode: 'form_post',
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256',
+      state: btoa(JSON.stringify(state))
+    });
 
-  const params = new URLSearchParams({
-    client_id: Deno.env.get('APPLE_WEB_CLIENT_ID')!,
-    redirect_uri: Deno.env.get('APPLE_WEB_REDIRECT_URI')!,
-    response_type: 'code',
-    response_mode: 'form_post',
-    scope: 'name email',
-    state,
-    code_challenge: codeChallenge,
-    code_challenge_method: 'S256',
-  });
+    const appleAuthUrl = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
 
-  const appleOauthUrl = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
+    // 쿠키 설정과 함께 리다이렉션
+    const response = NextResponse.redirect(appleAuthUrl);
+    
+    // code_verifier 쿠키 설정
+    response.cookies.set('sb-xtijtefcycoeqludlngc-auth-token-code-verifier', codeVerifier, {
+      path: '/',
+      secure: true,
+      sameSite: 'lax',
+      httpOnly: true
+    });
 
-  // code_verifier를 쿠키에 저장
-  const response = new Response(JSON.stringify({ 
-    url: appleOauthUrl,
-    code_verifier: codeVerifier // 클라이언트에서도 사용할 수 있도록 응답에 포함
-  }), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': 'true',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Set-Cookie': `sb-xtijtefcycoeqludlngc-auth-token-code-verifier=${codeVerifier}; Path=/; Domain=.picnic.fan; HttpOnly; Secure; SameSite=None; Max-Age=300`, // 5분 유효
-    },
-  });
+    // flow_state 쿠키 설정
+    response.cookies.set('sb-xtijtefcycoeqludlngc-auth-token-flow-state', state.flow_state, {
+      path: '/',
+      secure: true,
+      sameSite: 'lax',
+      httpOnly: true
+    });
 
-  return response;
-}); 
+    return response;
+  } catch (error) {
+    console.error('OAuth 초기화 오류:', error);
+    return NextResponse.redirect('/?error=oauth_init_error');
+  }
+} 
