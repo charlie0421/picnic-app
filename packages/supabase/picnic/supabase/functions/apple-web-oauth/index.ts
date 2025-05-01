@@ -1,4 +1,4 @@
-import { serve } from 'http/server';
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
 async function generatePKCE() {
   const verifier = crypto.randomUUID().replace(/-/g, '');
@@ -13,7 +13,6 @@ async function generatePKCE() {
 }
 
 serve(async (req) => {
-  // Preflight 요청 처리
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: {
@@ -21,17 +20,16 @@ serve(async (req) => {
         'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Credentials': 'true',
+        'Vary': 'Origin',
       },
     });
   }
 
   const { url } = await req.json();
 
-  // PKCE 생성
   const { codeVerifier, codeChallenge } = await generatePKCE();
   const flowState = crypto.randomUUID();
 
-  // state에 리다이렉트 URL과 함께 nonce 추가
   const state = btoa(JSON.stringify({
     redirect_url: url,
     nonce: crypto.randomUUID(),
@@ -54,7 +52,12 @@ serve(async (req) => {
 
   const appleOauthUrl = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
 
-  // code_verifier와 flow_state를 쿠키에 저장
+  const authToken = btoa(JSON.stringify({
+    flow_state: flowState,
+    provider: 'apple',
+    timestamp: Date.now()
+  }));
+
   const response = new Response(JSON.stringify({ 
     url: appleOauthUrl,
     code_verifier: codeVerifier,
@@ -65,13 +68,19 @@ serve(async (req) => {
       'Access-Control-Allow-Origin': 'https://www.picnic.fan',
       'Access-Control-Allow-Credentials': 'true',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Set-Cookie': [
-        `sb-xtijtefcycoeqludlngc-auth-token-code-verifier=${codeVerifier}; Path=/; Domain=picnic.fan; HttpOnly; Secure; SameSite=None; Max-Age=300`,
-        `sb-xtijtefcycoeqludlngc-auth-token-flow-state=${flowState}; Path=/; Domain=picnic.fan; HttpOnly; Secure; SameSite=None; Max-Age=300`,
-        `sb-xtijtefcycoeqludlngc-auth-token=${flowState}; Path=/; Domain=picnic.fan; HttpOnly; Secure; SameSite=None; Max-Age=300`
-      ].join(', ')
+      'Vary': 'Origin',
     },
   });
 
+  response.headers.append(
+    'Set-Cookie',
+    `sb-xtijtefcycoeqludlngc-auth-token-code-verifier=${codeVerifier}; Path=/; Domain=.picnic.fan; HttpOnly; Secure; SameSite=None; Max-Age=300`
+  );
+
+  response.headers.append(
+    'Set-Cookie',
+    `sb-xtijtefcycoeqludlngc-auth-token=${authToken}; Path=/; Domain=.picnic.fan; HttpOnly; Secure; SameSite=None; Max-Age=300`
+  );
+
   return response;
-}); 
+});
