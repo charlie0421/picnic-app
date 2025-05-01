@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
       console.log('State 데이터:', {
         redirect_url: stateData.redirect_url,
         nonce: stateData.nonce,
-        code_verifier: stateData.code_verifier ? '존재함' : '없음'
+        code_verifier: stateData.code_verifier ? '존재함' : '없음',
+        flow_state: stateData.flow_state
       });
     } catch (error) {
       console.error('State 디코딩 실패:', error);
@@ -38,6 +39,19 @@ export async function POST(request: NextRequest) {
     // Supabase 클라이언트 생성
     console.log('Supabase 클라이언트 생성 시작');
     const cookieStore = await cookies();
+
+    // flow state 쿠키 설정
+    if (stateData.flow_state) {
+      cookieStore.set({
+        name: 'sb-xtijtefcycoeqludlngc-auth-token-flow-state',
+        value: stateData.flow_state,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        httpOnly: true
+      });
+    }
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -48,14 +62,16 @@ export async function POST(request: NextRequest) {
             console.log(`쿠키 조회: ${name}`, value ? '존재함' : '없음');
             return value;
           },
-          set(name: string, value: string) {
+          set(name: string, value: string, options = {}) {
             console.log(`쿠키 설정: ${name}`);
             cookieStore.set({
               name,
               value,
               path: '/',
               secure: process.env.NODE_ENV === 'production',
-              sameSite: 'lax'
+              sameSite: 'lax',
+              httpOnly: true,
+              ...options
             });
           },
           remove(name: string) {
@@ -92,6 +108,16 @@ export async function POST(request: NextRequest) {
     if (!codeVerifier && stateData.code_verifier) {
       codeVerifier = stateData.code_verifier;
       console.log('State에서 Code verifier 가져옴');
+      
+      // code verifier 쿠키 설정
+      cookieStore.set({
+        name: 'sb-xtijtefcycoeqludlngc-auth-token-code-verifier',
+        value: stateData.code_verifier,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        httpOnly: true
+      });
     }
 
     if (!codeVerifier) {
@@ -117,9 +143,10 @@ export async function POST(request: NextRequest) {
       user: oauthData.user ? '존재함' : '없음'
     });
 
-    // 성공 시 메인 페이지로 리다이렉션
-    console.log('성공적으로 처리 완료, 메인 페이지로 리다이렉션');
-    return NextResponse.redirect(new URL('/', request.url), 302);
+    // 성공 시 리다이렉션
+    const redirectUrl = stateData.redirect_url || '/';
+    console.log('성공적으로 처리 완료, 리다이렉션:', redirectUrl);
+    return NextResponse.redirect(new URL(redirectUrl, request.url), 302);
   } catch (error) {
     console.error('OAuth 콜백 처리 중 예기치 않은 오류:', {
       error,
