@@ -29,7 +29,10 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: 'https://www.picnic.fan/auth/callback',
+        redirectTo: 'https://api.picnic.fan/auth/v1/callback',
+        queryParams: {
+          redirect_uri: 'https://api.picnic.fan/auth/v1/callback'
+        }
       },
     });
 
