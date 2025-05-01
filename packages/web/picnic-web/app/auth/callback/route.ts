@@ -21,6 +21,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.redirect(new URL('/?error=missing_params', request.url), 302);
     }
 
+    // state 디코딩
+    let stateData;
+    try {
+      stateData = JSON.parse(atob(state as string));
+      console.log('State 데이터:', {
+        redirect_url: stateData.redirect_url,
+        nonce: stateData.nonce,
+        code_verifier: stateData.code_verifier ? '존재함' : '없음'
+      });
+    } catch (error) {
+      console.error('State 디코딩 실패:', error);
+      return NextResponse.redirect(new URL('/?error=invalid_state', request.url), 302);
+    }
+
     // Supabase 클라이언트 생성
     console.log('Supabase 클라이언트 생성 시작');
     const cookieStore = await cookies();
@@ -71,8 +85,14 @@ export async function POST(request: NextRequest) {
     console.log('세션 검증 완료:', { session: session ? '존재함' : '없음' });
 
     // code verifier 확인
-    const codeVerifier = cookieStore.get('sb-xtijtefcycoeqludlngc-auth-token-code-verifier')?.value;
-    console.log('Code verifier 상태:', codeVerifier ? '존재함' : '없음');
+    let codeVerifier = cookieStore.get('sb-xtijtefcycoeqludlngc-auth-token-code-verifier')?.value;
+    console.log('쿠키에서 Code verifier 상태:', codeVerifier ? '존재함' : '없음');
+
+    // 쿠키에 없으면 state에서 가져오기
+    if (!codeVerifier && stateData.code_verifier) {
+      codeVerifier = stateData.code_verifier;
+      console.log('State에서 Code verifier 가져옴');
+    }
 
     if (!codeVerifier) {
       console.error('Code verifier가 없음');

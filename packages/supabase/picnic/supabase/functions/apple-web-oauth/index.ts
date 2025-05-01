@@ -1,6 +1,5 @@
 import { serve } from 'http/server';
 
-// PKCE 생성 함수
 async function generatePKCE() {
   const verifier = crypto.randomUUID().replace(/-/g, '');
   const encoder = new TextEncoder();
@@ -10,7 +9,6 @@ async function generatePKCE() {
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
-
   return { codeVerifier: verifier, codeChallenge: challenge };
 }
 
@@ -19,7 +17,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://www.picnic.fan',
         'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Credentials': 'true',
@@ -36,6 +34,10 @@ serve(async (req) => {
   const state = btoa(JSON.stringify({
     redirect_url: url,
     nonce: crypto.randomUUID(),
+    code_verifier: codeVerifier,
+    flow_state: crypto.randomUUID(),
+    provider: 'apple',
+    timestamp: Date.now()
   }));
 
   const params = new URLSearchParams({
@@ -54,14 +56,14 @@ serve(async (req) => {
   // code_verifier를 쿠키에 저장
   const response = new Response(JSON.stringify({ 
     url: appleOauthUrl,
-    code_verifier: codeVerifier // 클라이언트에서도 사용할 수 있도록 응답에 포함
+    code_verifier: codeVerifier
   }), {
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': 'https://www.picnic.fan',
       'Access-Control-Allow-Credentials': 'true',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Set-Cookie': `sb-xtijtefcycoeqludlngc-auth-token-code-verifier=${codeVerifier}; Path=/; Domain=.picnic.fan; HttpOnly; Secure; SameSite=None`,
+      'Set-Cookie': `sb-xtijtefcycoeqludlngc-auth-token-code-verifier=${codeVerifier}; Path=/; Domain=picnic.fan; HttpOnly; Secure; SameSite=None; Max-Age=300`,
     },
   });
 

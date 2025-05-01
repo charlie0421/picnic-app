@@ -8,7 +8,9 @@
     "crypto-js": "https://esm.sh/crypto-js",
     "postgres": "https://deno.land/x/postgres@v0.17.0/mod.ts",
     "http/server": "https://deno.land/std@0.208.0/http/server.ts",
-    "@shared/": "./shared/"
+    "@shared/": "./shared/",
+    "oauth2_client": "https://deno.land/x/oauth2_client@v1.0.0/mod.ts",
+    "oauth2_client/pkce": "https://deno.land/x/oauth2_client@v1.0.0/pkce.ts"
   },
   "compilerOptions": {
     "allowJs": true,
