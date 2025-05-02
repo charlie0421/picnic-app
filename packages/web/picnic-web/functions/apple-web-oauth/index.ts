@@ -34,7 +34,7 @@ export default async function handler(req: NextRequest) {
       redirect_uri: redirectUri,
       response_type: "code",
       scope: scope,
-      response_mode: "query",
+      response_mode: "form_post",
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
       state: btoa(JSON.stringify(state)),

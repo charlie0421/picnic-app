@@ -6,21 +6,24 @@ import crypto from "crypto";
 async function handleOAuthCallback(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },
+    method: "GET" | "POST",
+    getCodeAndState: (
+        request: NextRequest,
+    ) => Promise<{ code: string | null; state: string | null }>,
 ): Promise<Response> {
     try {
-        console.log("OAuth Callback Request:", {
+        const params = await context.params;
+        const provider = params.provider as string;
+        console.log(`OAuth Callback Request (${method}):`, {
             url: request.url,
             method: request.method,
             headers: Object.fromEntries(request.headers.entries()),
+            provider,
+            contentType: request.headers.get("content-type"),
+            body: method === "POST" ? await request.text() : undefined,
         });
 
-        const params = await context.params;
-        const provider = params.provider as string;
-        console.log("Provider from params:", provider);
-
-        const searchParams = request.nextUrl.searchParams;
-        const code = searchParams.get("code");
-        const state = searchParams.get("state");
+        const { code, state } = await getCodeAndState(request);
 
         console.log("OAuth Callback Data:", {
             hasCode: !!code,
@@ -236,5 +239,24 @@ export async function GET(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },
 ): Promise<Response> {
-    return handleOAuthCallback(request, context);
+    return handleOAuthCallback(request, context, "GET", async (request) => {
+        const searchParams = request.nextUrl.searchParams;
+        return {
+            code: searchParams.get("code"),
+            state: searchParams.get("state"),
+        };
+    });
+}
+
+export async function POST(
+    request: NextRequest,
+    context: { params: Promise<Record<string, string | string[] | undefined>> },
+): Promise<Response> {
+    return handleOAuthCallback(request, context, "POST", async (request) => {
+        const formData = await request.formData();
+        return {
+            code: formData.get("code") as string | null,
+            state: formData.get("state") as string | null,
+        };
+    });
 }
