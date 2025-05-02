@@ -123,10 +123,78 @@ async function handleOAuthCallback(
                 );
             }
 
-            return NextResponse.redirect(
+            const supabase = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+                {
+                    auth: {
+                        flowType: "pkce",
+                        detectSessionInUrl: false,
+                        persistSession: false,
+                    },
+                },
+            );
+
+            console.log("Exchanging code for session:", {
+                provider,
+                hasCode: !!code,
+                hasCodeVerifier: !!codeVerifier,
+            });
+
+            const { data, error } = await supabase.auth.exchangeCodeForSession(
+                code as string,
+            );
+
+            if (error || !data.session) {
+                console.error("OAuth session exchange error:", {
+                    error,
+                    hasSession: !!data?.session,
+                    provider,
+                    code: error?.code,
+                    message: error?.message,
+                });
+                return NextResponse.redirect(
+                    new URL(
+                        `/login?error=oauth_error&provider=${provider}`,
+                        request.url,
+                    ),
+                    302,
+                );
+            }
+
+            console.log("Session exchange successful:", {
+                provider,
+                userId: data.session?.user?.id,
+                expiresAt: data.session?.expires_at,
+            });
+
+            // 세션 정보를 쿠키에 저장
+            const response = NextResponse.redirect(
                 new URL(redirectUrl, request.url),
                 302,
             );
+
+            response.cookies.set({
+                name: "sb-access-token",
+                value: data.session.access_token,
+                path: "/",
+                domain: ".picnic.fan",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            response.cookies.set({
+                name: "sb-refresh-token",
+                value: data.session.refresh_token!,
+                path: "/",
+                domain: ".picnic.fan",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            return response;
         }
 
         const supabase = createClient(

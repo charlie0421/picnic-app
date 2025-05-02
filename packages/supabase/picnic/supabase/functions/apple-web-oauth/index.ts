@@ -38,9 +38,12 @@ serve(async (req) => {
     JSON.stringify({
       redirect_url: url,
       code_verifier: codeVerifier,
+      code_challenge: codeChallenge,
       timestamp: Date.now(),
     }),
   );
+
+  console.log('state', state);
 
   const redirectUri = 'https://www.picnic.fan/auth/callback/apple'; // 명확히 고정된 URL로 설정
 
