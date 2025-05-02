@@ -141,7 +141,7 @@ async function handleOAuthCallback(
                         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
                     },
                     body: JSON.stringify({
-                        grant_type: "authorization_code",
+                        grant_type: "id_token",
                         code: code,
                         code_verifier: codeVerifier,
                         redirect_uri:
