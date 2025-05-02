@@ -13,33 +13,18 @@ export const config = {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// JWT 파싱 함수
-function parseJwt(token: string) {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-        atob(base64)
-            .split("")
-            .map(function (c) {
-                return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-            })
-            .join(""),
-    );
-    return JSON.parse(jsonPayload);
-}
-
-export async function GET(request: NextRequest): Promise<Response> {
+export async function POST(request: NextRequest): Promise<Response> {
     try {
-        console.log(`Apple OAuth Callback Request (GET):`, {
+        console.log(`Apple OAuth Callback Request (POST):`, {
             url: request.url,
             method: request.method,
             headers: Object.fromEntries(request.headers.entries()),
             contentType: request.headers.get("content-type"),
         });
 
-        const url = new URL(request.url);
-        const code = url.searchParams.get("code");
-        const state = url.searchParams.get("state");
+        const formData = await request.formData();
+        const code = formData.get("code") as string | null;
+        const state = formData.get("state") as string | null;
 
         console.log("Apple OAuth Callback Data:", {
             hasCode: !!code,
@@ -59,10 +44,21 @@ export async function GET(request: NextRequest): Promise<Response> {
 
         let stateData;
         try {
-            stateData = parseJwt(state);
-            console.log("Parsed state data:", stateData);
+            const decodedState = atob(state);
+            console.log("Decoded state:", decodedState);
+            stateData = JSON.parse(decodedState);
+            console.log("Parsed state data:", {
+                redirectUrl: stateData.redirect_url,
+                codeVerifier: stateData.code_verifier,
+                codeChallenge: stateData.code_challenge,
+                rawStateData: stateData,
+            });
         } catch (error) {
-            console.error("Failed to parse state data:", { error, state });
+            console.error("Failed to parse state data:", {
+                error,
+                state,
+                decodedState: state ? atob(state) : null,
+            });
             return NextResponse.redirect(
                 new URL("/login?error=invalid_state", request.url),
             );
