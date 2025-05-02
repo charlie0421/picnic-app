@@ -10,6 +10,9 @@ export const config = {
     },
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function handleOAuthCallback(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },

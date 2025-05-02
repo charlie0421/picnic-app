@@ -6,10 +6,6 @@ export const config = {
 };
 
 export default async function handler(req: NextRequest) {
-  if (req.method !== "GET") {
-    return new NextResponse("Method not allowed", { status: 405 });
-  }
-
   try {
     // PKCE 생성
     const { codeVerifier, codeChallenge } = await generatePKCE();
