@@ -19,6 +19,7 @@ export default async function handler(req: NextRequest) {
       redirect_url: req.nextUrl.searchParams.get("redirect_url") || "/",
       nonce: crypto.randomUUID(),
       code_verifier: codeVerifier,
+      code_challenge: codeChallenge,
       flow_state: crypto.randomUUID(),
       provider: "apple",
       timestamp: Date.now(),
@@ -26,7 +27,8 @@ export default async function handler(req: NextRequest) {
 
     // Apple OAuth URL 생성
     const clientId = "io.iconcasting.picnic.app";
-    const redirectUri = "https://api.picnic.fan/auth/callback";
+    const redirectUri = req.nextUrl.searchParams.get("redirect_url") ||
+      "https://api.picnic.fan/auth/callback";
     const scope = "name email";
 
     const params = new URLSearchParams({

@@ -118,7 +118,7 @@ function LoginContent() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            url: window.location.origin + '/auth/callback/' + provider,
+            redirect_url: window.location.origin + '/auth/callback/' + provider,
           }),
           credentials: 'include',
         },
