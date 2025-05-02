@@ -81,7 +81,7 @@ function LoginContent() {
   ) => {
     console.log('Sign in attempt with provider:', provider);
 
-    if (provider === 'google' || provider === 'apple') {
+    if (provider === 'google') {
       try {
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
