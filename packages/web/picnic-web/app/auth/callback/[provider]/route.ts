@@ -13,7 +13,6 @@ export const config = {
 async function handleOAuthCallback(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },
-    method: "GET" | "POST",
     getCodeAndState: (
         request: NextRequest,
     ) => Promise<{ code: string | null; state: string | null }>,
@@ -22,7 +21,7 @@ async function handleOAuthCallback(
         const params = await context.params;
         const provider = params.provider as string;
 
-        console.log(`OAuth Callback Request (${method}):`, {
+        console.log(`OAuth Callback Request (POST):`, {
             url: request.url,
             method: request.method,
             headers: Object.fromEntries(request.headers.entries()),
@@ -242,24 +241,11 @@ async function handleOAuthCallback(
     }
 }
 
-export async function GET(
-    request: NextRequest,
-    context: { params: Promise<Record<string, string | string[] | undefined>> },
-): Promise<Response> {
-    return handleOAuthCallback(request, context, "GET", async (request) => {
-        const searchParams = request.nextUrl.searchParams;
-        return {
-            code: searchParams.get("code"),
-            state: searchParams.get("state"),
-        };
-    });
-}
-
 export async function POST(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },
 ): Promise<Response> {
-    return handleOAuthCallback(request, context, "POST", async (request) => {
+    return handleOAuthCallback(request, context, async (request) => {
         const formData = await request.formData();
         console.log("Form Data:", {
             code: formData.get("code"),
