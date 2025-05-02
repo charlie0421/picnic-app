@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import crypto from "crypto";
 
-export async function POST(
+async function handleOAuthCallback(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },
+    method: "GET" | "POST",
+    getCodeAndState: (
+        request: NextRequest,
+    ) => Promise<{ code: string | null; state: string | null }>,
 ): Promise<Response> {
     try {
-        console.log("OAuth Callback Request:", {
+        console.log(`OAuth Callback Request (${method}):`, {
             url: request.url,
             method: request.method,
             headers: Object.fromEntries(request.headers.entries()),
@@ -17,9 +22,7 @@ export async function POST(
         const provider = params.provider as string;
         console.log("Provider from params:", provider);
 
-        const formData = await request.formData();
-        const code = formData.get("code");
-        const state = formData.get("state");
+        const { code, state } = await getCodeAndState(request);
 
         console.log("OAuth Callback Data:", {
             hasCode: !!code,
@@ -46,6 +49,7 @@ export async function POST(
                 redirectUrl: stateData.redirect_url,
                 provider,
                 codeVerifier: stateData.code_verifier,
+                codeChallenge: stateData.code_challenge,
             });
         } catch (error) {
             console.error("Failed to parse state data:", {
@@ -68,10 +72,32 @@ export async function POST(
         console.log("Cookie store initialized");
 
         if (provider === "apple") {
-            if (!stateData.code_verifier) {
-                console.error("Missing code_verifier for Apple login");
+            if (!stateData.code_verifier || !stateData.code_challenge) {
+                console.error("Missing PKCE parameters for Apple login:", {
+                    hasCodeVerifier: !!stateData.code_verifier,
+                    hasCodeChallenge: !!stateData.code_challenge,
+                });
                 return NextResponse.redirect(
-                    new URL("/login?error=missing_code_verifier", request.url),
+                    new URL("/login?error=missing_pkce_params", request.url),
+                );
+            }
+
+            // PKCE 검증
+            const calculatedChallenge = crypto
+                .createHash("sha256")
+                .update(stateData.code_verifier)
+                .digest("base64")
+                .replace(/\+/g, "-")
+                .replace(/\//g, "_")
+                .replace(/=/g, "");
+
+            if (calculatedChallenge !== stateData.code_challenge) {
+                console.error("PKCE challenge verification failed:", {
+                    expected: stateData.code_challenge,
+                    actual: calculatedChallenge,
+                });
+                return NextResponse.redirect(
+                    new URL("/login?error=invalid_pkce_challenge", request.url),
                 );
             }
 
@@ -80,6 +106,7 @@ export async function POST(
                 302,
             );
 
+            // PKCE 관련 쿠키 설정
             response.cookies.set({
                 name: "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
                 value: stateData.code_verifier,
@@ -89,9 +116,19 @@ export async function POST(
                 httpOnly: true,
             });
 
+            response.cookies.set({
+                name: "sb-xtijtefcycoeqludlngc-auth-token-code-challenge",
+                value: stateData.code_challenge,
+                path: "/",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
             const flowState = {
                 provider: "apple",
                 code_verifier: stateData.code_verifier,
+                code_challenge: stateData.code_challenge,
                 redirect_url: redirectUrl,
                 created_at: new Date().toISOString(),
             };
@@ -195,4 +232,30 @@ export async function POST(
             302,
         );
     }
+}
+
+export async function GET(
+    request: NextRequest,
+    context: { params: Promise<Record<string, string | string[] | undefined>> },
+): Promise<Response> {
+    return handleOAuthCallback(request, context, "GET", async (request) => {
+        const searchParams = request.nextUrl.searchParams;
+        return {
+            code: searchParams.get("code"),
+            state: searchParams.get("state"),
+        };
+    });
+}
+
+export async function POST(
+    request: NextRequest,
+    context: { params: Promise<Record<string, string | string[] | undefined>> },
+): Promise<Response> {
+    return handleOAuthCallback(request, context, "POST", async (request) => {
+        const formData = await request.formData();
+        return {
+            code: formData.get("code") as string | null,
+            state: formData.get("state") as string | null,
+        };
+    });
 }
