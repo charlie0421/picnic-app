@@ -14,13 +14,13 @@ async function handleOAuthCallback(
     try {
         const params = await context.params;
         const provider = params.provider as string;
+
         console.log(`OAuth Callback Request (${method}):`, {
             url: request.url,
             method: request.method,
             headers: Object.fromEntries(request.headers.entries()),
             provider,
             contentType: request.headers.get("content-type"),
-            body: method === "POST" ? await request.text() : undefined,
         });
 
         const { code, state } = await getCodeAndState(request);
@@ -254,6 +254,11 @@ export async function POST(
 ): Promise<Response> {
     return handleOAuthCallback(request, context, "POST", async (request) => {
         const formData = await request.formData();
+        console.log("Form Data:", {
+            code: formData.get("code"),
+            state: formData.get("state"),
+            allFields: Object.fromEntries(formData.entries()),
+        });
         return {
             code: formData.get("code") as string | null,
             state: formData.get("state") as string | null,
