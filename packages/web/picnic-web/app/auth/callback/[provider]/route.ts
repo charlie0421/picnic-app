@@ -141,13 +141,11 @@ async function handleOAuthCallback(
                         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
                     },
                     body: JSON.stringify({
-                        grant_type: "pkce",
+                        grant_type: "authorization_code",
                         code: code,
                         code_verifier: codeVerifier,
                         redirect_uri:
                             "https://www.picnic.fan/auth/callback/apple",
-                        provider: "apple",
-                        client_id: "fan.picnic.web",
                     }),
                 },
             );
@@ -267,12 +265,12 @@ async function handleOAuthCallback(
         });
 
         // 세션 정보를 쿠키에 저장
-        const response = NextResponse.redirect(
+        const redirectResponse = NextResponse.redirect(
             new URL(redirectUrl, request.url),
             302,
         );
 
-        response.cookies.set({
+        redirectResponse.cookies.set({
             name: "sb-access-token",
             value: data.session.access_token,
             path: "/",
@@ -282,7 +280,7 @@ async function handleOAuthCallback(
             httpOnly: true,
         });
 
-        response.cookies.set({
+        redirectResponse.cookies.set({
             name: "sb-refresh-token",
             value: data.session.refresh_token!,
             path: "/",
@@ -292,7 +290,7 @@ async function handleOAuthCallback(
             httpOnly: true,
         });
 
-        return response;
+        return redirectResponse;
     } catch (error) {
         console.error("Unexpected error during OAuth callback:", {
             error,
