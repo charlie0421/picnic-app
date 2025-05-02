@@ -110,7 +110,7 @@ export async function POST(request: NextRequest): Promise<Response> {
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             {
                 auth: {
-                    flowType: "pkce",
+                    flowType: "implicit",
                     detectSessionInUrl: false,
                     persistSession: false,
                     autoRefreshToken: true,
@@ -120,18 +120,12 @@ export async function POST(request: NextRequest): Promise<Response> {
 
         console.log("Exchanging code for session:", {
             hasCode: !!code,
-            hasCodeVerifier: !!codeVerifier,
         });
 
         console.log("code", code);
 
-        const pkceParams = JSON.stringify({
-            code,
-            code_verifier: codeVerifier,
-        });
-
         const { data, error } = await supabase.auth.exchangeCodeForSession(
-            pkceParams,
+            code,
         );
 
         if (error || !data.session) {
