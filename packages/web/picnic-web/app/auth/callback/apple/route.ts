@@ -96,6 +96,7 @@ export async function POST(request: NextRequest): Promise<Response> {
                     detectSessionInUrl: true,
                     autoRefreshToken: true,
                     persistSession: true,
+                    storageKey: "picnic-auth",
                 },
             },
         );
@@ -106,23 +107,6 @@ export async function POST(request: NextRequest): Promise<Response> {
         });
 
         console.log("code", code);
-
-        const { data, error } = await supabase.auth.exchangeCodeForSession(
-            code,
-        );
-
-        if (error || !data.session) {
-            console.error("OAuth session exchange error:", {
-                error,
-                hasSession: !!data?.session,
-                code: error?.code,
-                message: error?.message,
-            });
-            return NextResponse.redirect(
-                new URL("/login?error=oauth_error", request.url),
-                302,
-            );
-        }
 
         // PKCE 검증
         const calculatedChallenge = crypto
@@ -140,6 +124,23 @@ export async function POST(request: NextRequest): Promise<Response> {
             });
             return NextResponse.redirect(
                 new URL("/login?error=invalid_pkce_challenge", request.url),
+            );
+        }
+
+        const { data, error } = await supabase.auth.exchangeCodeForSession(
+            code,
+        );
+
+        if (error || !data.session) {
+            console.error("OAuth session exchange error:", {
+                error,
+                hasSession: !!data?.session,
+                code: error?.code,
+                message: error?.message,
+            });
+            return NextResponse.redirect(
+                new URL("/login?error=oauth_error", request.url),
+                302,
             );
         }
 
