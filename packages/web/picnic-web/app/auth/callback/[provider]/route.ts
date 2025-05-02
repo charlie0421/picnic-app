@@ -45,6 +45,7 @@ export async function POST(
             console.log("Parsed state data:", {
                 redirectUrl: stateData.redirect_url,
                 provider,
+                codeVerifier: stateData.code_verifier,
             });
         } catch (error) {
             console.error("Failed to parse state data:", {
@@ -110,7 +111,19 @@ export async function POST(
         console.log("Exchanging code for session:", {
             provider,
             hasCode: !!code,
+            hasCodeVerifier: !!stateData.code_verifier,
         });
+
+        if (provider === "apple" && stateData.code_verifier) {
+            cookieStore.set({
+                name: "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
+                value: stateData.code_verifier,
+                path: "/",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+        }
 
         const { data, error } = await supabase.auth.exchangeCodeForSession(
             code as string,
