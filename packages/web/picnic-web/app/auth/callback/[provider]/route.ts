@@ -19,50 +19,19 @@ export async function POST(
             );
         }
 
-        const stateData = JSON.parse(atob(state as string));
-        const redirectUrl = stateData.redirect_url || "/";
-
-        const cookieStore = await cookies();
-
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value;
-                    },
-                    set(name: string, value: string, options = {}) {
-                        cookieStore.set({
-                            name,
-                            value,
-                            path: "/",
-                            secure: process.env.NODE_ENV === "production",
-                            sameSite: "lax",
-                            httpOnly: true,
-                            ...options,
-                        });
-                    },
-                    remove(name: string) {
-                        cookieStore.delete({ name, path: "/" });
-                    },
-                },
-            },
-        );
-
-        const { data, error } = await supabase.auth.exchangeCodeForSession(
-            code as string,
-        );
-
-        if (error || !data.session) {
-            console.error("OAuth session exchange error:", error);
+        if (!code) {
             return NextResponse.redirect(
-                new URL("/?error=oauth_error", request.url),
-                302,
+                new URL("/login?error=no_code", request.url),
             );
         }
 
-        return NextResponse.redirect(new URL(redirectUrl, request.url), 302);
+        const redirectUrl = `/auth/callback/${provider}?code=${
+            encodeURIComponent(
+                code as string,
+            )
+        }&state=${encodeURIComponent(state as string)}`;
+
+        return NextResponse.redirect(new URL(redirectUrl, request.url));
     } catch (error) {
         console.error("Unexpected error during OAuth callback:", error);
         return NextResponse.redirect(
