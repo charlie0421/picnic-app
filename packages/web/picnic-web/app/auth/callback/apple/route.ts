@@ -113,12 +113,15 @@ export async function POST(request: NextRequest): Promise<Response> {
                 auth: {
                     flowType: "pkce",
                     detectSessionInUrl: true,
+                    autoRefreshToken: true,
+                    persistSession: true,
                 },
             },
         );
 
         console.log("Exchanging code for session:", {
             hasCode: !!code,
+            codeVerifier: !!codeVerifier,
         });
 
         console.log("code", code);
