@@ -125,8 +125,13 @@ export async function POST(request: NextRequest): Promise<Response> {
 
         console.log("code", code);
 
-        const { data, error } = await supabase.auth.exchangeCodeForSession(
+        const pkceParams = JSON.stringify({
             code,
+            code_verifier: codeVerifier,
+        });
+
+        const { data, error } = await supabase.auth.exchangeCodeForSession(
+            pkceParams,
         );
 
         if (error || !data.session) {
