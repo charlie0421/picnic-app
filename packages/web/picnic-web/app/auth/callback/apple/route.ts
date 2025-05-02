@@ -87,25 +87,6 @@ export async function POST(request: NextRequest): Promise<Response> {
             );
         }
 
-        // PKCE 검증
-        const calculatedChallenge = crypto
-            .createHash("sha256")
-            .update(codeVerifier)
-            .digest("base64")
-            .replace(/\+/g, "-")
-            .replace(/\//g, "_")
-            .replace(/=/g, "");
-
-        if (calculatedChallenge !== codeChallenge) {
-            console.error("PKCE challenge verification failed:", {
-                expected: codeChallenge,
-                actual: calculatedChallenge,
-            });
-            return NextResponse.redirect(
-                new URL("/login?error=invalid_pkce_challenge", request.url),
-            );
-        }
-
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -140,6 +121,25 @@ export async function POST(request: NextRequest): Promise<Response> {
             return NextResponse.redirect(
                 new URL("/login?error=oauth_error", request.url),
                 302,
+            );
+        }
+
+        // PKCE 검증
+        const calculatedChallenge = crypto
+            .createHash("sha256")
+            .update(codeVerifier)
+            .digest("base64")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=/g, "");
+
+        if (calculatedChallenge !== codeChallenge) {
+            console.error("PKCE challenge verification failed:", {
+                expected: codeChallenge,
+                actual: calculatedChallenge,
+            });
+            return NextResponse.redirect(
+                new URL("/login?error=invalid_pkce_challenge", request.url),
             );
         }
 
