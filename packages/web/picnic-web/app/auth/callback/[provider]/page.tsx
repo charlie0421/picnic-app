@@ -39,7 +39,7 @@ export default function OAuthCallback() {
             provider,
             code,
             state,
-            redirect_uri: window.location.origin + `/auth/callback/${provider}`,
+            redirect_uri: window.location.origin,
           }),
           credentials: 'include',
         },
