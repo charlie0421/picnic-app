@@ -1,8 +1,11 @@
+// app/auth/callback/[provider]/route.ts
 import { NextRequest, NextResponse } from "next/server";
+
+type Params = { params: { provider: string } };
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { provider: string } },
+    { params }: Params,
 ) {
     const { provider } = params;
 
