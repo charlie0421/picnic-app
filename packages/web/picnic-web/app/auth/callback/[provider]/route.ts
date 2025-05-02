@@ -34,6 +34,9 @@ async function handleOAuthCallback(
 
         const { code, state } = await getCodeAndState(request);
 
+        console.log("code", code);
+        console.log("state", state);
+
         console.log("OAuth Callback Data:", {
             hasCode: !!code,
             hasState: !!state,
