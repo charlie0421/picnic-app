@@ -63,6 +63,7 @@ export default async function handler(req: NextRequest) {
       codeVerifier,
       {
         path: "/",
+        domain: ".picnic.fan",
         secure: true,
         sameSite: "lax",
         httpOnly: true,
@@ -75,6 +76,7 @@ export default async function handler(req: NextRequest) {
       codeChallenge,
       {
         path: "/",
+        domain: ".picnic.fan",
         secure: true,
         sameSite: "lax",
         httpOnly: true,
@@ -87,6 +89,7 @@ export default async function handler(req: NextRequest) {
       state.flow_state,
       {
         path: "/",
+        domain: ".picnic.fan",
         secure: true,
         sameSite: "lax",
         httpOnly: true,
