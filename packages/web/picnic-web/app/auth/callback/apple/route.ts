@@ -22,9 +22,9 @@ export async function GET(request: NextRequest): Promise<Response> {
             contentType: request.headers.get("content-type"),
         });
 
-        const formData = await request.formData();
-        const code = formData.get("code") as string | null;
-        const state = formData.get("state") as string | null;
+        const url = new URL(request.url);
+        const code = url.searchParams.get("code");
+        const state = url.searchParams.get("state");
 
         console.log("Apple OAuth Callback Data:", {
             hasCode: !!code,

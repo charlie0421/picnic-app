@@ -91,21 +91,21 @@ function LoginContent() {
         });
 
         if (error) {
-          console.error('Google Sign In Error:', {
+          console.error(`${provider} Sign In Error:`, {
             provider,
             error: error.message,
             code: error.status,
             details: error,
           });
-          router.push('/auth/error');
+          router.push(`/login?error=oauth_error&provider=${provider}`);
         }
         return;
       } catch (error) {
-        console.error('Unexpected Google Sign In Error:', {
+        console.error(`${provider} Sign In Error:`, {
           provider,
           error,
         });
-        router.push('/auth/error');
+        router.push(`/login?error=oauth_error&provider=${provider}`);
         return;
       }
     }
