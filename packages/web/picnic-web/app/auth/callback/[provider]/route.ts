@@ -148,7 +148,22 @@ async function handleOAuthCallback(
                 },
             );
 
-            const { data, error } = await tokenResponse.json();
+            const responseText = await tokenResponse.text();
+            console.log("Token exchange response:", {
+                status: tokenResponse.status,
+                statusText: tokenResponse.statusText,
+                responseText,
+            });
+
+            let data, error;
+            try {
+                const parsed = JSON.parse(responseText);
+                data = parsed.data;
+                error = parsed.error;
+            } catch (e) {
+                console.error("Failed to parse response:", e);
+                error = "Failed to parse response";
+            }
 
             if (error || !data?.session) {
                 console.error("OAuth session exchange error:", {
