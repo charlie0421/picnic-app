@@ -42,11 +42,13 @@ serve(async (req) => {
     }),
   );
 
+  const redirectUri = 'https://www.picnic.fan/auth/callback/apple'; // 명확히 고정된 URL로 설정
+
   const params = new URLSearchParams({
     client_id: Deno.env.get('APPLE_WEB_CLIENT_ID')!,
-    redirect_uri: `${url}/auth/callback/apple`,
+    redirect_uri: redirectUri,
     response_type: 'code',
-    response_mode: 'form_post', // 🚩 수정된 부분 (form_post 필수)
+    response_mode: 'form_post',
     scope: 'name email',
     state,
     code_challenge: codeChallenge,
