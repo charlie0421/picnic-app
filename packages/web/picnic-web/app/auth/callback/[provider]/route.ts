@@ -123,29 +123,31 @@ async function handleOAuthCallback(
                 );
             }
 
-            const supabase = createClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-                {
-                    auth: {
-                        flowType: "pkce",
-                        detectSessionInUrl: false,
-                        persistSession: false,
-                    },
-                },
-            );
-
             console.log("Exchanging code for session:", {
                 provider,
                 hasCode: !!code,
                 hasCodeVerifier: !!codeVerifier,
             });
 
-            const { data, error } = await supabase.auth.exchangeCodeForSession(
-                code as string,
+            const tokenResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+                    },
+                    body: JSON.stringify({
+                        grant_type: "authorization_code",
+                        code: code,
+                        code_verifier: codeVerifier,
+                    }),
+                },
             );
 
-            if (error || !data.session) {
+            const { data, error } = await tokenResponse.json();
+
+            if (error || !data?.session) {
                 console.error("OAuth session exchange error:", {
                     error,
                     hasSession: !!data?.session,
@@ -169,12 +171,12 @@ async function handleOAuthCallback(
             });
 
             // 세션 정보를 쿠키에 저장
-            const response = NextResponse.redirect(
+            const redirectResponse = NextResponse.redirect(
                 new URL(redirectUrl, request.url),
                 302,
             );
 
-            response.cookies.set({
+            redirectResponse.cookies.set({
                 name: "sb-access-token",
                 value: data.session.access_token,
                 path: "/",
@@ -184,7 +186,7 @@ async function handleOAuthCallback(
                 httpOnly: true,
             });
 
-            response.cookies.set({
+            redirectResponse.cookies.set({
                 name: "sb-refresh-token",
                 value: data.session.refresh_token!,
                 path: "/",
@@ -194,7 +196,7 @@ async function handleOAuthCallback(
                 httpOnly: true,
             });
 
-            return response;
+            return redirectResponse;
         }
 
         const supabase = createClient(
