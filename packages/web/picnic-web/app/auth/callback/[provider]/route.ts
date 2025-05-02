@@ -141,14 +141,13 @@ async function handleOAuthCallback(
                         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
                     },
                     body: JSON.stringify({
-                        grant_type: "authorization_code",
+                        grant_type: "pkce",
                         code: code,
                         code_verifier: codeVerifier,
-                        code_challenge: codeChallenge,
-                        code_challenge_method: "S256",
                         redirect_uri:
-                            `${request.nextUrl.origin}/auth/callback/${provider}`,
+                            "https://www.picnic.fan/auth/callback/apple",
                         provider: "apple",
+                        client_id: "fan.picnic.web",
                     }),
                 },
             );
