@@ -113,6 +113,7 @@ export async function POST(request: NextRequest): Promise<Response> {
                     flowType: "pkce",
                     detectSessionInUrl: false,
                     persistSession: false,
+                    autoRefreshToken: true,
                 },
             },
         );
@@ -122,9 +123,11 @@ export async function POST(request: NextRequest): Promise<Response> {
             hasCodeVerifier: !!codeVerifier,
         });
 
-        const { data, error } = await supabase.auth.exchangeCodeForSession(
+        // @ts-ignore - Supabase 타입 정의가 최신 버전과 맞지 않음
+        const { data, error } = await supabase.auth.exchangeCodeForSession({
             code,
-        );
+            code_verifier: codeVerifier,
+        });
 
         if (error || !data.session) {
             console.error("OAuth session exchange error:", {
