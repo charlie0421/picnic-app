@@ -15,19 +15,47 @@ function LoginContent() {
 
   useEffect(() => {
     const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+
+    console.log('Login Error:', {
+      error,
+      errorDescription,
+      searchParams: Object.fromEntries(searchParams.entries()),
+    });
+
     if (error) {
       switch (error) {
         case 'missing_params':
           setError('필수 파라미터가 누락되었습니다.');
+          console.error('Missing Parameters Error:', {
+            error,
+            errorDescription,
+            searchParams: Object.fromEntries(searchParams.entries()),
+          });
           break;
         case 'oauth_error':
           setError('소셜 로그인 중 오류가 발생했습니다.');
+          console.error('OAuth Error:', {
+            error,
+            errorDescription,
+            searchParams: Object.fromEntries(searchParams.entries()),
+          });
           break;
         case 'callback_error':
           setError('인증 처리 중 오류가 발생했습니다.');
+          console.error('Callback Error:', {
+            error,
+            errorDescription,
+            searchParams: Object.fromEntries(searchParams.entries()),
+          });
           break;
         default:
           setError('알 수 없는 오류가 발생했습니다.');
+          console.error('Unknown Error:', {
+            error,
+            errorDescription,
+            searchParams: Object.fromEntries(searchParams.entries()),
+          });
       }
     }
   }, [searchParams]);
@@ -35,50 +63,83 @@ function LoginContent() {
   const handleSignIn = async (
     provider: 'google' | 'apple' | 'kakao' | 'wechat',
   ) => {
-    console.log('provider', provider);
+    console.log('Sign in attempt with provider:', provider);
+
     if (provider === 'google') {
-      // 구글은 Supabase 기본 처리 유지 (원한다면 custom으로도 가능)
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback/google`,
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback/google`,
+          },
+        });
+
+        if (error) {
+          console.error('Google Sign In Error:', {
+            provider,
+            error: error.message,
+            code: error.status,
+            details: error,
+          });
+          router.push('/auth/error');
+        }
+        return;
+      } catch (error) {
+        console.error('Unexpected Google Sign In Error:', {
+          provider,
+          error,
+        });
+        router.push('/auth/error');
+        return;
+      }
+    }
+
+    try {
+      console.log('Fetching OAuth URL for provider:', provider);
+      const res = await fetch(
+        `https://api.picnic.fan/functions/v1/${provider}-web-oauth`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: window.location.origin + '/auth/callback/' + provider,
+          }),
+          credentials: 'include',
         },
+      );
+
+      console.log('OAuth URL Response:', {
+        provider,
+        status: res.status,
+        statusText: res.statusText,
       });
 
-      if (error) {
-        console.error('Google Error:', error.message);
+      const { url, error: oauthError } = await res.json();
+
+      console.log('OAuth URL Result:', {
+        provider,
+        url,
+        error: oauthError,
+      });
+
+      if (oauthError || !url) {
+        console.error('OAuth URL Error:', {
+          provider,
+          error: oauthError,
+          url,
+        });
         router.push('/auth/error');
+        return;
       }
-      return;
-    }
 
-    // Apple, Kakao, WeChat은 Custom Edge Function 처리
-    const res = await fetch(
-      `https://api.picnic.fan/functions/v1/${provider}-web-oauth`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: window.location.origin + '/auth/callback/' + provider,
-        }),
-        credentials: 'include',
-      },
-    );
-
-    console.log('res', res);
-
-    const { url, error: oauthError } = await res.json();
-
-    console.log('url', url);
-    console.log('error', oauthError);
-
-    if (oauthError || !url) {
-      console.error(`${provider} OAuth URL Error:`, oauthError);
+      window.location.href = url;
+    } catch (error) {
+      console.error('Unexpected OAuth Error:', {
+        provider,
+        error,
+      });
       router.push('/auth/error');
-      return;
     }
-
-    window.location.href = url;
   };
 
   return (
