@@ -1,15 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { createBrowserSupabaseClient } from '@/utils/supabase-client';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguageStore } from '@/stores/languageStore';
 
-export default function Login() {
+function LoginContent() {
   const [supabase] = useState(() => createBrowserSupabaseClient());
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLanguageStore();
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      switch (error) {
+        case 'missing_params':
+          setError('필수 파라미터가 누락되었습니다.');
+          break;
+        case 'oauth_error':
+          setError('소셜 로그인 중 오류가 발생했습니다.');
+          break;
+        case 'callback_error':
+          setError('인증 처리 중 오류가 발생했습니다.');
+          break;
+        default:
+          setError('알 수 없는 오류가 발생했습니다.');
+      }
+    }
+  }, [searchParams]);
 
   const handleSignIn = async (
     provider: 'google' | 'apple' | 'kakao' | 'wechat',
@@ -46,13 +67,13 @@ export default function Login() {
 
     console.log('res', res);
 
-    const { url, error } = await res.json();
+    const { url, error: oauthError } = await res.json();
 
     console.log('url', url);
-    console.log('error', error);
+    console.log('error', oauthError);
 
-    if (error || !url) {
-      console.error(`${provider} OAuth URL Error:`, error);
+    if (oauthError || !url) {
+      console.error(`${provider} OAuth URL Error:`, oauthError);
       router.push('/auth/error');
       return;
     }
@@ -67,6 +88,11 @@ export default function Login() {
           <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
             {t('button_login')}
           </h2>
+          {error && (
+            <div className='mt-4 p-4 bg-red-50 text-red-600 rounded-md'>
+              {error}
+            </div>
+          )}
         </div>
         <div className='mt-8 space-y-4'>
           <button
@@ -127,5 +153,25 @@ export default function Login() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense
+      fallback={
+        <div className='min-h-screen flex items-center justify-center bg-gray-50'>
+          <div className='max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg'>
+            <div className='text-center'>
+              <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
+                로딩 중...
+              </h2>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }
