@@ -13,9 +13,9 @@ export const config = {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function POST(request: NextRequest): Promise<Response> {
+export async function GET(request: NextRequest): Promise<Response> {
     try {
-        console.log(`Apple OAuth Callback Request (POST):`, {
+        console.log(`Apple OAuth Callback Request (GET):`, {
             url: request.url,
             method: request.method,
             headers: Object.fromEntries(request.headers.entries()),
