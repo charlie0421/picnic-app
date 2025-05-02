@@ -83,14 +83,24 @@ async function handleOAuthCallback(
             provider,
         });
 
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         console.log("Cookie store initialized");
 
         if (provider === "apple") {
-            if (!stateData.code_verifier || !stateData.code_challenge) {
+            const codeVerifier = stateData.code_verifier;
+            const codeChallenge = cookieStore.get(
+                "sb-xtijtefcycoeqludlngc-auth-token-code-challenge",
+            )?.value;
+
+            console.log("PKCE parameters:", {
+                codeVerifier,
+                codeChallenge,
+            });
+
+            if (!codeVerifier || !codeChallenge) {
                 console.error("Missing PKCE parameters for Apple login:", {
-                    hasCodeVerifier: !!stateData.code_verifier,
-                    hasCodeChallenge: !!stateData.code_challenge,
+                    hasCodeVerifier: !!codeVerifier,
+                    hasCodeChallenge: !!codeChallenge,
                     stateData: stateData,
                 });
                 return NextResponse.redirect(
@@ -101,15 +111,15 @@ async function handleOAuthCallback(
             // PKCE 검증
             const calculatedChallenge = crypto
                 .createHash("sha256")
-                .update(stateData.code_verifier)
+                .update(codeVerifier)
                 .digest("base64")
                 .replace(/\+/g, "-")
                 .replace(/\//g, "_")
                 .replace(/=/g, "");
 
-            if (calculatedChallenge !== stateData.code_challenge) {
+            if (calculatedChallenge !== codeChallenge) {
                 console.error("PKCE challenge verification failed:", {
-                    expected: stateData.code_challenge,
+                    expected: codeChallenge,
                     actual: calculatedChallenge,
                 });
                 return NextResponse.redirect(
@@ -125,7 +135,7 @@ async function handleOAuthCallback(
             // PKCE 관련 쿠키 설정
             response.cookies.set({
                 name: "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
-                value: stateData.code_verifier,
+                value: codeVerifier,
                 path: "/",
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
@@ -134,7 +144,7 @@ async function handleOAuthCallback(
 
             response.cookies.set({
                 name: "sb-xtijtefcycoeqludlngc-auth-token-code-challenge",
-                value: stateData.code_challenge,
+                value: codeChallenge,
                 path: "/",
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
@@ -143,8 +153,8 @@ async function handleOAuthCallback(
 
             const flowState = {
                 provider: "apple",
-                code_verifier: stateData.code_verifier,
-                code_challenge: stateData.code_challenge,
+                code_verifier: codeVerifier,
+                code_challenge: codeChallenge,
                 redirect_url: redirectUrl,
                 created_at: new Date().toISOString(),
             };

@@ -9,6 +9,10 @@ export default async function handler(req: NextRequest) {
   try {
     // PKCE 생성
     const { codeVerifier, codeChallenge } = await generatePKCE();
+    console.log("Generated PKCE:", {
+      codeVerifier,
+      codeChallenge,
+    });
 
     // state 생성
     const state = {
@@ -20,6 +24,8 @@ export default async function handler(req: NextRequest) {
       provider: "apple",
       timestamp: Date.now(),
     };
+
+    console.log("Generated state:", state);
 
     // Apple OAuth URL 생성
     const clientId = "fan.picnic.web";
@@ -35,6 +41,13 @@ export default async function handler(req: NextRequest) {
       response_mode: "form_post",
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
+      state: btoa(JSON.stringify(state)),
+    });
+
+    console.log("Apple OAuth URL params:", {
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      code_challenge: codeChallenge,
       state: btoa(JSON.stringify(state)),
     });
 
