@@ -86,26 +86,26 @@ function LoginContent() {
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
-            redirectTo: `${window.location.origin}/auth/callback/${provider}`,
+            redirectTo: `${window.location.origin}/auth/callback/google`,
           },
         });
 
         if (error) {
-          console.error(`${provider} Sign In Error:`, {
+          console.error('Google Sign In Error:', {
             provider,
             error: error.message,
             code: error.status,
             details: error,
           });
-          router.push(`/login?error=oauth_error&provider=${provider}`);
+          router.push('/auth/error');
         }
         return;
       } catch (error) {
-        console.error(`${provider} Sign In Error:`, {
+        console.error('Unexpected Google Sign In Error:', {
           provider,
           error,
         });
-        router.push(`/login?error=oauth_error&provider=${provider}`);
+        router.push('/auth/error');
         return;
       }
     }
