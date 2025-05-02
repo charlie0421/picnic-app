@@ -122,11 +122,9 @@ export async function POST(request: NextRequest): Promise<Response> {
             hasCodeVerifier: !!codeVerifier,
         });
 
-        const { data, error } = await supabase.auth.signInWithIdToken({
-            provider: "apple",
-            token: code,
-            nonce: codeVerifier,
-        });
+        const { data, error } = await supabase.auth.exchangeCodeForSession(
+            code,
+        );
 
         if (error || !data.session) {
             console.error("OAuth session exchange error:", {
