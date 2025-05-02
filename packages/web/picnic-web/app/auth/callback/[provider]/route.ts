@@ -67,6 +67,45 @@ export async function POST(
         const cookieStore = await cookies();
         console.log("Cookie store initialized");
 
+        if (provider === "apple") {
+            if (!stateData.code_verifier) {
+                console.error("Missing code_verifier for Apple login");
+                return NextResponse.redirect(
+                    new URL("/login?error=missing_code_verifier", request.url),
+                );
+            }
+
+            cookieStore.set({
+                name: "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
+                value: stateData.code_verifier,
+                path: "/",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            const flowState = {
+                provider: "apple",
+                code_verifier: stateData.code_verifier,
+                redirect_url: redirectUrl,
+                created_at: new Date().toISOString(),
+            };
+
+            cookieStore.set({
+                name: "sb-xtijtefcycoeqludlngc-auth-token-flow-state",
+                value: JSON.stringify(flowState),
+                path: "/",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            console.log("PKCE flow state set:", {
+                provider,
+                flowState,
+            });
+        }
+
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -113,37 +152,6 @@ export async function POST(
             hasCode: !!code,
             hasCodeVerifier: !!stateData.code_verifier,
         });
-
-        if (provider === "apple") {
-            if (!stateData.code_verifier) {
-                console.error("Missing code_verifier for Apple login");
-                return NextResponse.redirect(
-                    new URL("/login?error=missing_code_verifier", request.url),
-                );
-            }
-
-            cookieStore.set({
-                name: "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
-                value: stateData.code_verifier,
-                path: "/",
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                httpOnly: true,
-            });
-
-            cookieStore.set({
-                name: "sb-xtijtefcycoeqludlngc-auth-token-flow-state",
-                value: JSON.stringify({
-                    provider: "apple",
-                    code_verifier: stateData.code_verifier,
-                    redirect_url: redirectUrl,
-                }),
-                path: "/",
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                httpOnly: true,
-            });
-        }
 
         const { data, error } = await supabase.auth.exchangeCodeForSession(
             code as string,
