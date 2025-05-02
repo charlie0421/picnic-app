@@ -83,18 +83,14 @@ async function handleOAuthCallback(
             provider,
         });
 
-        const cookieStore = await cookies();
-        console.log("Cookie store initialized");
-
         if (provider === "apple") {
             const codeVerifier = stateData.code_verifier;
-            const codeChallenge = cookieStore.get(
-                "sb-xtijtefcycoeqludlngc-auth-token-code-challenge",
-            )?.value;
+            const codeChallenge = stateData.code_challenge;
 
             console.log("PKCE parameters:", {
                 codeVerifier,
                 codeChallenge,
+                stateData,
             });
 
             if (!codeVerifier || !codeChallenge) {
@@ -127,56 +123,10 @@ async function handleOAuthCallback(
                 );
             }
 
-            const response = NextResponse.redirect(
+            return NextResponse.redirect(
                 new URL(redirectUrl, request.url),
                 302,
             );
-
-            // PKCE 관련 쿠키 설정
-            response.cookies.set({
-                name: "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
-                value: codeVerifier,
-                path: "/",
-                domain: ".picnic.fan",
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                httpOnly: true,
-            });
-
-            response.cookies.set({
-                name: "sb-xtijtefcycoeqludlngc-auth-token-code-challenge",
-                value: codeChallenge,
-                path: "/",
-                domain: ".picnic.fan",
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                httpOnly: true,
-            });
-
-            const flowState = {
-                provider: "apple",
-                code_verifier: codeVerifier,
-                code_challenge: codeChallenge,
-                redirect_url: redirectUrl,
-                created_at: new Date().toISOString(),
-            };
-
-            response.cookies.set({
-                name: "sb-xtijtefcycoeqludlngc-auth-token-flow-state",
-                value: JSON.stringify(flowState),
-                path: "/",
-                domain: ".picnic.fan",
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                httpOnly: true,
-            });
-
-            console.log("PKCE flow state set:", {
-                provider,
-                flowState,
-            });
-
-            return response;
         }
 
         const supabase = createClient(

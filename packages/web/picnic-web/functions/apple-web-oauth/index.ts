@@ -9,7 +9,7 @@ export default async function handler(req: NextRequest) {
   try {
     // PKCE 생성
     const { codeVerifier, codeChallenge } = await generatePKCE();
-    console.log("Generated PKCE:", {
+    console.log("Generated PKCE parameters:", {
       codeVerifier,
       codeChallenge,
     });
@@ -27,10 +27,12 @@ export default async function handler(req: NextRequest) {
 
     console.log("Generated state:", state);
 
+    const encodedState = btoa(JSON.stringify(state));
+
     // Apple OAuth URL 생성
     const clientId = "fan.picnic.web";
     const redirectUri = req.nextUrl.searchParams.get("redirect_url") ||
-      "https://api.picnic.fan/auth/callback";
+      "https://www.picnic.fan/auth/callback";
     const scope = "name email";
 
     const params = new URLSearchParams({
@@ -41,62 +43,21 @@ export default async function handler(req: NextRequest) {
       response_mode: "form_post",
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
-      state: btoa(JSON.stringify(state)),
+      state: encodedState,
     });
 
     console.log("Apple OAuth URL params:", {
       client_id: clientId,
       redirect_uri: redirectUri,
       code_challenge: codeChallenge,
-      state: btoa(JSON.stringify(state)),
+      state: encodedState,
     });
 
     const appleAuthUrl =
       `https://appleid.apple.com/auth/authorize?${params.toString()}`;
 
-    // 쿠키 설정과 함께 리다이렉션
-    const response = NextResponse.redirect(appleAuthUrl);
-
-    // code_verifier 쿠키 설정
-    response.cookies.set(
-      "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
-      codeVerifier,
-      {
-        path: "/",
-        domain: ".picnic.fan",
-        secure: true,
-        sameSite: "lax",
-        httpOnly: true,
-      },
-    );
-
-    // code_challenge 쿠키 설정
-    response.cookies.set(
-      "sb-xtijtefcycoeqludlngc-auth-token-code-challenge",
-      codeChallenge,
-      {
-        path: "/",
-        domain: ".picnic.fan",
-        secure: true,
-        sameSite: "lax",
-        httpOnly: true,
-      },
-    );
-
-    // flow_state 쿠키 설정
-    response.cookies.set(
-      "sb-xtijtefcycoeqludlngc-auth-token-flow-state",
-      state.flow_state,
-      {
-        path: "/",
-        domain: ".picnic.fan",
-        secure: true,
-        sameSite: "lax",
-        httpOnly: true,
-      },
-    );
-
-    return response;
+    // 쿠키 설정 없이 리다이렉션
+    return NextResponse.redirect(appleAuthUrl);
   } catch (error) {
     console.error("OAuth 초기화 오류:", error);
     return NextResponse.redirect("/?error=oauth_init_error");
