@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 export async function POST(
@@ -64,7 +64,7 @@ export async function POST(
             provider,
         });
 
-        const cookieStore = await cookies();
+        const cookieStore = cookies();
         console.log("Cookie store initialized");
 
         if (provider === "apple") {
@@ -75,7 +75,12 @@ export async function POST(
                 );
             }
 
-            cookieStore.set({
+            const response = NextResponse.redirect(
+                new URL(redirectUrl, request.url),
+                302,
+            );
+
+            response.cookies.set({
                 name: "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
                 value: stateData.code_verifier,
                 path: "/",
@@ -91,7 +96,7 @@ export async function POST(
                 created_at: new Date().toISOString(),
             };
 
-            cookieStore.set({
+            response.cookies.set({
                 name: "sb-xtijtefcycoeqludlngc-auth-token-flow-state",
                 value: JSON.stringify(flowState),
                 path: "/",
@@ -104,45 +109,18 @@ export async function POST(
                 provider,
                 flowState,
             });
+
+            return response;
         }
 
-        const supabase = createServerClient(
+        const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             {
-                cookies: {
-                    get(name: string) {
-                        const cookie = cookieStore.get(name);
-                        console.log("Getting cookie:", {
-                            name,
-                            exists: !!cookie,
-                            provider,
-                        });
-                        return cookie?.value;
-                    },
-                    set(name: string, value: string, options = {}) {
-                        console.log("Setting cookie:", {
-                            name,
-                            options,
-                            provider,
-                        });
-                        cookieStore.set({
-                            name,
-                            value,
-                            path: "/",
-                            secure: process.env.NODE_ENV === "production",
-                            sameSite: "lax",
-                            httpOnly: true,
-                            ...options,
-                        });
-                    },
-                    remove(name: string) {
-                        console.log("Removing cookie:", {
-                            name,
-                            provider,
-                        });
-                        cookieStore.delete({ name, path: "/" });
-                    },
+                auth: {
+                    flowType: "pkce",
+                    detectSessionInUrl: false,
+                    persistSession: false,
                 },
             },
         );
@@ -180,7 +158,31 @@ export async function POST(
             expiresAt: data.session?.expires_at,
         });
 
-        return NextResponse.redirect(new URL(redirectUrl, request.url), 302);
+        // 세션 정보를 쿠키에 저장
+        const response = NextResponse.redirect(
+            new URL(redirectUrl, request.url),
+            302,
+        );
+
+        response.cookies.set({
+            name: "sb-access-token",
+            value: data.session.access_token,
+            path: "/",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            httpOnly: true,
+        });
+
+        response.cookies.set({
+            name: "sb-refresh-token",
+            value: data.session.refresh_token!,
+            path: "/",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            httpOnly: true,
+        });
+
+        return response;
     } catch (error) {
         console.error("Unexpected error during OAuth callback:", {
             error,
