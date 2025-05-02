@@ -127,6 +127,7 @@ export async function POST(request: NextRequest): Promise<Response> {
             );
         }
 
+        // Supabase의 PKCE 인증 흐름에 맞게 코드 교환
         const { data, error } = await supabase.auth.exchangeCodeForSession(
             code,
         );
