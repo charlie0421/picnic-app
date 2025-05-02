@@ -3,6 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import crypto from "crypto";
 
+export const config = {
+    runtime: "edge",
+    api: {
+        bodyParser: false,
+    },
+};
+
 async function handleOAuthCallback(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },
