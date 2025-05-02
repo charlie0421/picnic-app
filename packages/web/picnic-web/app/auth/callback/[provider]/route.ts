@@ -6,13 +6,9 @@ import crypto from "crypto";
 async function handleOAuthCallback(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },
-    method: "GET" | "POST",
-    getCodeAndState: (
-        request: NextRequest,
-    ) => Promise<{ code: string | null; state: string | null }>,
 ): Promise<Response> {
     try {
-        console.log(`OAuth Callback Request (${method}):`, {
+        console.log("OAuth Callback Request:", {
             url: request.url,
             method: request.method,
             headers: Object.fromEntries(request.headers.entries()),
@@ -22,7 +18,9 @@ async function handleOAuthCallback(
         const provider = params.provider as string;
         console.log("Provider from params:", provider);
 
-        const { code, state } = await getCodeAndState(request);
+        const searchParams = request.nextUrl.searchParams;
+        const code = searchParams.get("code");
+        const state = searchParams.get("state");
 
         console.log("OAuth Callback Data:", {
             hasCode: !!code,
@@ -238,24 +236,5 @@ export async function GET(
     request: NextRequest,
     context: { params: Promise<Record<string, string | string[] | undefined>> },
 ): Promise<Response> {
-    return handleOAuthCallback(request, context, "GET", async (request) => {
-        const searchParams = request.nextUrl.searchParams;
-        return {
-            code: searchParams.get("code"),
-            state: searchParams.get("state"),
-        };
-    });
-}
-
-export async function POST(
-    request: NextRequest,
-    context: { params: Promise<Record<string, string | string[] | undefined>> },
-): Promise<Response> {
-    return handleOAuthCallback(request, context, "POST", async (request) => {
-        const formData = await request.formData();
-        return {
-            code: formData.get("code") as string | null,
-            state: formData.get("state") as string | null,
-        };
-    });
+    return handleOAuthCallback(request, context);
 }
