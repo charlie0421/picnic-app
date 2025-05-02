@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
+import { createBrowserSupabaseClient } from "@/utils/supabase-client";
 
 export const config = {
     runtime: "edge",
@@ -110,10 +111,8 @@ export async function POST(request: NextRequest): Promise<Response> {
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             {
                 auth: {
-                    flowType: "implicit",
-                    detectSessionInUrl: false,
-                    persistSession: false,
-                    autoRefreshToken: true,
+                    flowType: "pkce",
+                    detectSessionInUrl: true,
                 },
             },
         );
