@@ -16,10 +16,12 @@ function LoginContent() {
   useEffect(() => {
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
+    const provider = searchParams.get('provider');
 
     console.log('Login Error:', {
       error,
       errorDescription,
+      provider,
       searchParams: Object.fromEntries(searchParams.entries()),
     });
 
@@ -30,22 +32,35 @@ function LoginContent() {
           console.error('Missing Parameters Error:', {
             error,
             errorDescription,
+            provider,
             searchParams: Object.fromEntries(searchParams.entries()),
           });
           break;
         case 'oauth_error':
-          setError('소셜 로그인 중 오류가 발생했습니다.');
-          console.error('OAuth Error:', {
-            error,
-            errorDescription,
-            searchParams: Object.fromEntries(searchParams.entries()),
-          });
+          if (provider === 'apple') {
+            setError('Apple 로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+            console.error('Apple OAuth Error:', {
+              error,
+              errorDescription,
+              provider,
+              searchParams: Object.fromEntries(searchParams.entries()),
+            });
+          } else {
+            setError('소셜 로그인 중 오류가 발생했습니다.');
+            console.error('OAuth Error:', {
+              error,
+              errorDescription,
+              provider,
+              searchParams: Object.fromEntries(searchParams.entries()),
+            });
+          }
           break;
         case 'callback_error':
           setError('인증 처리 중 오류가 발생했습니다.');
           console.error('Callback Error:', {
             error,
             errorDescription,
+            provider,
             searchParams: Object.fromEntries(searchParams.entries()),
           });
           break;
@@ -54,6 +69,7 @@ function LoginContent() {
           console.error('Unknown Error:', {
             error,
             errorDescription,
+            provider,
             searchParams: Object.fromEntries(searchParams.entries()),
           });
       }
@@ -114,6 +130,17 @@ function LoginContent() {
         statusText: res.statusText,
       });
 
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('OAuth URL Request Failed:', {
+          provider,
+          status: res.status,
+          error: errorData,
+        });
+        router.push(`/login?error=oauth_error&provider=${provider}`);
+        return;
+      }
+
       const { url, error: oauthError } = await res.json();
 
       console.log('OAuth URL Result:', {
@@ -128,7 +155,7 @@ function LoginContent() {
           error: oauthError,
           url,
         });
-        router.push('/auth/error');
+        router.push(`/login?error=oauth_error&provider=${provider}`);
         return;
       }
 
@@ -138,7 +165,7 @@ function LoginContent() {
         provider,
         error,
       });
-      router.push('/auth/error');
+      router.push(`/login?error=oauth_error&provider=${provider}`);
     }
   };
 
