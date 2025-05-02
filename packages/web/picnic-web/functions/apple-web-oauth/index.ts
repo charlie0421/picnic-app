@@ -22,7 +22,7 @@ export default async function handler(req: NextRequest) {
     };
 
     // Apple OAuth URL 생성
-    const clientId = "io.iconcasting.picnic.app";
+    const clientId = "fan.picnic.web";
     const redirectUri = req.nextUrl.searchParams.get("redirect_url") ||
       "https://api.picnic.fan/auth/callback";
     const scope = "name email";
@@ -48,6 +48,18 @@ export default async function handler(req: NextRequest) {
     response.cookies.set(
       "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
       codeVerifier,
+      {
+        path: "/",
+        secure: true,
+        sameSite: "lax",
+        httpOnly: true,
+      },
+    );
+
+    // code_challenge 쿠키 설정
+    response.cookies.set(
+      "sb-xtijtefcycoeqludlngc-auth-token-code-challenge",
+      codeChallenge,
       {
         path: "/",
         secure: true,

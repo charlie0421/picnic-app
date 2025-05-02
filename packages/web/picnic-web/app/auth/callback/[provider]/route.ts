@@ -39,6 +39,7 @@ async function handleOAuthCallback(
             hasState: !!state,
             state: state ? "present" : "missing",
             provider,
+            rawState: state,
         });
 
         if (!code || !state) {
@@ -54,17 +55,21 @@ async function handleOAuthCallback(
 
         let stateData;
         try {
-            stateData = JSON.parse(atob(state as string));
+            const decodedState = atob(state as string);
+            console.log("Decoded state:", decodedState);
+            stateData = JSON.parse(decodedState);
             console.log("Parsed state data:", {
                 redirectUrl: stateData.redirect_url,
                 provider,
                 codeVerifier: stateData.code_verifier,
                 codeChallenge: stateData.code_challenge,
+                rawStateData: stateData,
             });
         } catch (error) {
             console.error("Failed to parse state data:", {
                 error,
                 state,
+                decodedState: state ? atob(state as string) : null,
                 provider,
             });
             return NextResponse.redirect(
@@ -86,6 +91,7 @@ async function handleOAuthCallback(
                 console.error("Missing PKCE parameters for Apple login:", {
                     hasCodeVerifier: !!stateData.code_verifier,
                     hasCodeChallenge: !!stateData.code_challenge,
+                    stateData: stateData,
                 });
                 return NextResponse.redirect(
                     new URL("/login?error=missing_pkce_params", request.url),
