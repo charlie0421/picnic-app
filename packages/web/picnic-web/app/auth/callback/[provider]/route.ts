@@ -114,10 +114,30 @@ export async function POST(
             hasCodeVerifier: !!stateData.code_verifier,
         });
 
-        if (provider === "apple" && stateData.code_verifier) {
+        if (provider === "apple") {
+            if (!stateData.code_verifier) {
+                console.error("Missing code_verifier for Apple login");
+                return NextResponse.redirect(
+                    new URL("/login?error=missing_code_verifier", request.url),
+                );
+            }
+
             cookieStore.set({
                 name: "sb-xtijtefcycoeqludlngc-auth-token-code-verifier",
                 value: stateData.code_verifier,
+                path: "/",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            cookieStore.set({
+                name: "sb-xtijtefcycoeqludlngc-auth-token-flow-state",
+                value: JSON.stringify({
+                    provider: "apple",
+                    code_verifier: stateData.code_verifier,
+                    redirect_url: redirectUrl,
+                }),
                 path: "/",
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
