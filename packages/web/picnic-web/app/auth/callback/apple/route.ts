@@ -123,47 +123,11 @@ export async function POST(request: NextRequest): Promise<Response> {
             hasCodeVerifier: !!codeVerifier,
         });
 
-        // Apple 토큰 엔드포인트로 요청
-        const tokenResponse = await fetch(
-            "https://appleid.apple.com/auth/token",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: new URLSearchParams({
-                    grant_type: "authorization_code",
-                    code,
-                    client_id: process.env.APPLE_CLIENT_ID!,
-                    client_secret: process.env.APPLE_CLIENT_SECRET!,
-                    redirect_uri: process.env.APPLE_REDIRECT_URI!,
-                }),
-            },
+        console.log("code", code);
+
+        const { data, error } = await supabase.auth.exchangeCodeForSession(
+            code,
         );
-
-        if (!tokenResponse.ok) {
-            console.error(
-                "Apple token exchange failed:",
-                await tokenResponse.text(),
-            );
-            return NextResponse.redirect(
-                new URL(
-                    "/login?error=apple_token_exchange_failed",
-                    request.url,
-                ),
-            );
-        }
-
-        const tokenData = await tokenResponse.json();
-        const { id_token, access_token } = tokenData;
-
-        // Supabase로 세션 생성
-        // @ts-ignore - Supabase 타입 정의가 최신 버전과 맞지 않음
-        const { data, error } = await supabase.auth.signInWithIdToken({
-            provider: "apple",
-            token: id_token,
-            access_token,
-        });
 
         if (error || !data.session) {
             console.error("OAuth session exchange error:", {
