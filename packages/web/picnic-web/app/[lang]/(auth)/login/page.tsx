@@ -36,6 +36,15 @@ function LoginContent() {
             searchParams: Object.fromEntries(searchParams.entries()),
           });
           break;
+        case 'server_error':
+          setError(`서버 오류가 발생했습니다: ${errorDescription || '알 수 없는 오류'}`);
+          console.error('Server Error:', {
+            error,
+            errorDescription,
+            provider,
+            searchParams: Object.fromEntries(searchParams.entries()),
+          });
+          break;
         case 'oauth_error':
           if (provider === 'apple') {
             setError('Apple 로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -81,17 +90,34 @@ function LoginContent() {
   ) => {
     console.log('Sign in attempt with provider:', provider);
 
-    if (provider === 'google') {
+    if (provider === 'google' || provider === 'apple') {
+      const redirectUrl = provider === 'apple' 
+        ? 'https://api.picnic.fan/auth/v1/callback'
+        : `${window.location.origin}/auth/callback/${provider}`;
+      console.log('Redirect URL:', redirectUrl);
+      console.log('Supabase OAuth Configuration:', {
+        provider,
+        redirectUrl,
+        flowType: 'pkce',
+        origin: window.location.origin,
+        hostName: window.location.hostname,
+      });
+
       try {
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
-            redirectTo: `${window.location.origin}/auth/callback/google`,
+            redirectTo: provider === 'apple' 
+              ? 'https://api.picnic.fan/auth/v1/callback'
+              : `${window.location.origin}/auth/callback/${provider}`,
+            queryParams: provider === 'apple' ? {
+              client_id: 'fan.picnic.web',
+            } : undefined,
           },
         });
 
         if (error) {
-          console.error('Google Sign In Error:', {
+          console.error(`${provider} Sign In Error:`, {
             provider,
             error: error.message,
             code: error.status,
@@ -101,7 +127,7 @@ function LoginContent() {
         }
         return;
       } catch (error) {
-        console.error('Unexpected Google Sign In Error:', {
+        console.error(`Unexpected ${provider} Sign In Error:`, {
           provider,
           error,
         });
