@@ -116,24 +116,54 @@ export async function POST(request: NextRequest): Promise<Response> {
                     headers: {
                         'X-Apple-Client-Id': 'fan.picnic.web',
                         'X-Apple-Client-Secret': process.env.APPLE_CLIENT_SECRET || '',
-                        'X-Custom-Redirect-Url': 'https://www.picnic.fan/auth/callback/apple'
+                        'X-Auth-Flow': 'pkce',
+                        'X-Auth-Return-Redirect': 'true',
+                        'X-Client-Origin': new URL(request.url).origin,
                     }
                 }
             },
         );
 
-        console.log("Supabase client created with Apple OAuth config:", {
+        console.log("Supabase client created with enhanced configuration:", {
             url: process.env.NEXT_PUBLIC_SUPABASE_URL,
             requestOrigin: new URL(request.url).origin,
             flowType: "pkce",
             appleClientId: "fan.picnic.web",
             hasAppleSecret: !!process.env.APPLE_CLIENT_SECRET,
+            authCodeLength: code?.length,
+            referer: request.headers.get('referer'),
+            userAgent: request.headers.get('user-agent'),
         });
 
         console.log("Exchanging code for session:", {
             hasCode: !!code,
             codeVerifier: !!codeVerifier,
             codeLength: code?.length,
+            verifierLength: codeVerifier?.length,
+        });
+
+        // code와 verifier가 비어있지 않은지 철저히 확인
+        if (!code || code.trim() === '') {
+            console.error("Auth code is empty or missing", { code });
+            return NextResponse.redirect(
+                new URL("/login?error=missing_auth_code", request.url),
+                302
+            );
+        }
+
+        if (!codeVerifier || codeVerifier.trim() === '') {
+            console.error("Code verifier is empty or missing", { codeVerifier });
+            return NextResponse.redirect(
+                new URL("/login?error=missing_code_verifier", request.url),
+                302
+            );
+        }
+
+        console.log("Code and Verifier details:", {
+            codeFirstChars: code.substring(0, 10),
+            codeLength: code.length,
+            verifierFirstChars: codeVerifier.substring(0, 10),
+            verifierLength: codeVerifier.length,
         });
 
         console.log("code", code);

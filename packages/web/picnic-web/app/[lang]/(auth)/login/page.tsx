@@ -91,16 +91,15 @@ function LoginContent() {
     console.log('Sign in attempt with provider:', provider);
 
     if (provider === 'google' || provider === 'apple') {
-      const redirectUrl = provider === 'apple' 
-        ? 'https://api.picnic.fan/auth/v1/callback'
-        : `${window.location.origin}/auth/callback/${provider}`;
-      console.log('Redirect URL:', redirectUrl);
       console.log('Supabase OAuth Configuration:', {
         provider,
-        redirectUrl,
+        redirectUrl: provider === 'apple' 
+          ? 'https://api.picnic.fan/auth/v1/callback'
+          : `${window.location.origin}/auth/callback/${provider}`,
         flowType: 'pkce',
         origin: window.location.origin,
         hostName: window.location.hostname,
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
       });
 
       try {
@@ -112,6 +111,7 @@ function LoginContent() {
               : `${window.location.origin}/auth/callback/${provider}`,
             queryParams: provider === 'apple' ? {
               client_id: 'fan.picnic.web',
+              scope: 'name email',
             } : undefined,
           },
         });
@@ -119,9 +119,7 @@ function LoginContent() {
         if (error) {
           console.error(`${provider} Sign In Error:`, {
             provider,
-            error: error.message,
-            code: error.status,
-            details: error,
+            error,
           });
           router.push('/auth/error');
         }
