@@ -277,3 +277,182 @@ export async function POST(request: NextRequest): Promise<Response> {
         );
     }
 }
+
+// GET 요청도 처리하도록 추가
+export async function GET(request: NextRequest): Promise<Response> {
+    try {
+        console.log(`Apple OAuth Callback Request (GET) at /auth/callback/apple:`, {
+            url: request.url,
+            method: request.method,
+            headers: Object.fromEntries(request.headers.entries()),
+            searchParams: Object.fromEntries(new URL(request.url).searchParams.entries()),
+        });
+
+        // URL 파라미터에서 코드와 상태를 추출
+        const url = new URL(request.url);
+        const code = url.searchParams.get("code");
+        const state = url.searchParams.get("state");
+
+        console.log("Apple OAuth GET Callback Data:", {
+            hasCode: !!code,
+            hasState: !!state,
+            state: state ? "present" : "missing",
+        });
+
+        if (!state) {
+            console.error("OAuth state parameter missing on GET request");
+            return NextResponse.redirect(
+                new URL("/login?error=missing_state_parameter", request.url),
+                302
+            );
+        }
+
+        if (!code) {
+            console.error("Auth code missing on GET request");
+            return NextResponse.redirect(
+                new URL("/login?error=missing_auth_code", request.url),
+                302
+            );
+        }
+
+        // GET 요청의 경우 POST 요청과 동일한 방식으로 처리
+        // 상태 데이터 복호화
+        let stateData;
+        try {
+            const decodedState = atob(state);
+            console.log("Decoded state (GET):", decodedState);
+            stateData = JSON.parse(decodedState);
+            console.log("Parsed state data (GET):", stateData);
+        } catch (error) {
+            console.error("Failed to parse state data on GET request:", {
+                error,
+                state,
+            });
+            return NextResponse.redirect(
+                new URL("/login?error=invalid_state", request.url),
+                302
+            );
+        }
+
+        // 여기서부터는 POST 핸들러와 유사한 로직을 따름
+        const redirectUrl = stateData.redirect_url || "/";
+        
+        // ngrok URL 처리 - 프로덕션 환경의 URL로 변환
+        let finalRedirectUrl = redirectUrl;
+        if (process.env.NODE_ENV === "production" && redirectUrl.includes("ngrok")) {
+            // ngrok URL을 프로덕션 URL로 변환
+            finalRedirectUrl = redirectUrl.replace(
+                /https?:\/\/.*?ngrok(-free)?\.app/,
+                "https://www.picnic.fan"
+            );
+            console.log("Modified redirect URL for production:", {
+                original: redirectUrl,
+                modified: finalRedirectUrl
+            });
+        }
+        
+        // supabase 클라이언트 생성 및 코드 교환
+        const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                auth: {
+                    flowType: "pkce",
+                    detectSessionInUrl: true,
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    storageKey: "picnic-auth",
+                },
+                global: {
+                    headers: {
+                        'X-Apple-Client-Id': 'fan.picnic.web',
+                        'X-Apple-Client-Secret': process.env.APPLE_CLIENT_SECRET || '',
+                        'X-Auth-Flow': 'pkce',
+                        'X-Auth-Return-Redirect': 'true',
+                        'X-Client-Origin': new URL(request.url).origin,
+                    }
+                }
+            },
+        );
+
+        console.log("Processing GET OAuth callback with code:", {
+            codeLength: code.length,
+            hasState: !!state,
+            stateLength: state.length,
+        });
+
+        // 세션 교환 시도
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        
+        if (error || !data.session) {
+            console.error("OAuth session exchange error (GET):", {
+                error,
+                hasSession: !!data?.session,
+                code: error?.code,
+                message: error?.message,
+            });
+            
+            const errorCode = error?.message?.includes("exchange") 
+                ? "server_error" 
+                : "oauth_error";
+                
+            const errorDesc = error?.message || "Unknown error";
+            
+            return NextResponse.redirect(
+                new URL(`/login?error=${errorCode}&error_code=${error?.code || 'unknown'}&error_description=${encodeURIComponent(errorDesc)}`, request.url),
+                302,
+            );
+        }
+        
+        // 세션 성공적으로 교환됨 - 쿠키 설정 및 리다이렉트
+        console.log("Session exchange successful (GET):", {
+            userId: data.session?.user?.id,
+            expiresAt: data.session?.expires_at,
+        });
+        
+        // 세션 정보를 쿠키에 저장
+        const redirectResponse = NextResponse.redirect(
+            new URL(finalRedirectUrl, request.url),
+            302,
+        );
+
+        // 현재 요청의 호스트명 추출
+        const hostName = new URL(request.url).hostname;
+        const cookieDomain = process.env.NODE_ENV === "production" 
+            ? hostName.includes("picnic.fan") ? "picnic.fan" : hostName
+            : undefined;
+
+        redirectResponse.cookies.set({
+            name: "sb-access-token",
+            value: data.session.access_token,
+            path: "/",
+            domain: cookieDomain,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            httpOnly: true,
+        });
+
+        redirectResponse.cookies.set({
+            name: "sb-refresh-token",
+            value: data.session.refresh_token!,
+            path: "/",
+            domain: cookieDomain,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            httpOnly: true,
+        });
+
+        return redirectResponse;
+    } catch (error) {
+        console.error("Unexpected error during GET OAuth callback:", {
+            error,
+            message: error instanceof Error ? error.message : "Unknown error",
+            stack: error instanceof Error ? error.stack : undefined,
+            url: request.url,
+        });
+        return NextResponse.redirect(
+            new URL("/login?error=callback_error", request.url),
+            302,
+        );
+    }
+}

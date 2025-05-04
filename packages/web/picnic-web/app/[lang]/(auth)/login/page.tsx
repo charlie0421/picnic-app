@@ -94,7 +94,7 @@ function LoginContent() {
       console.log('Supabase OAuth Configuration:', {
         provider,
         redirectUrl: provider === 'apple' 
-          ? 'https://api.picnic.fan/auth/v1/callback'
+          ? `${window.location.origin}/auth/callback/apple`
           : `${window.location.origin}/auth/callback/${provider}`,
         flowType: 'pkce',
         origin: window.location.origin,
@@ -106,12 +106,16 @@ function LoginContent() {
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
-            redirectTo: provider === 'apple' 
-              ? 'https://api.picnic.fan/auth/v1/callback'
-              : `${window.location.origin}/auth/callback/${provider}`,
+            redirectTo: `${window.location.origin}/auth/callback/${provider}`,
             queryParams: provider === 'apple' ? {
               client_id: 'fan.picnic.web',
               scope: 'name email',
+              state: btoa(JSON.stringify({
+                redirect_url: window.location.origin,
+                provider: 'apple',
+                timestamp: Date.now(),
+                flow_state_id: crypto.randomUUID(),
+              }))
             } : undefined,
           },
         });
