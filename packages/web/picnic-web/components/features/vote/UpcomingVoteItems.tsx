@@ -11,7 +11,7 @@ const UpcomingVoteItems: React.FC<{
   const [currentPage, setCurrentPage] = useState(0);
   const [shuffledItems, setShuffledItems] = useState<Array<VoteItem & { artist?: any }>>([]);
   const [mounted, setMounted] = useState(false);
-  const itemsPerPage = 8; // 한 페이지당 2줄 x 4개
+  const itemsPerPage = 12; // 한 페이지당 3줄 x 4개
   const totalPages = Math.ceil((voteItems?.length || 0) / itemsPerPage);
 
   useEffect(() => {
@@ -57,18 +57,57 @@ const UpcomingVoteItems: React.FC<{
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {currentItems.map((item) => (
-        <div key={item.id} className="relative aspect-square">
-          <Image
-            src={getCdnImageUrl(getLocalizedString(item.artist?.image), 300)}
-            alt={getLocalizedString(item.artist?.name)}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover rounded-lg"
-          />
+    <div className="flex flex-col">
+      <div className="grid grid-cols-4 md:grid-cols-4 gap-1">
+        {currentItems.map((item) => (
+          <div key={item.id} className="relative aspect-square">
+            <div className="w-full h-full rounded-full overflow-hidden">
+              <Image
+                src={getCdnImageUrl(item.artist?.image, 300)}
+                alt={getLocalizedString(item.artist?.name)}
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 text-center mt-1">
+              <p className="text-gray-800 text-xs font-medium truncate bg-white/80 rounded-full py-1 px-1 mx-1">
+                {getLocalizedString(item.artist?.name)}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center my-2 py-1 gap-2">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 0}
+            className="p-2 rounded-full bg-gray-100 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+            aria-label="이전 페이지"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          <span className="text-sm text-gray-500">
+            {currentPage + 1} / {totalPages}
+          </span>
+          
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages - 1}
+            className="p-2 rounded-full bg-gray-100 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+            aria-label="다음 페이지"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
-      ))}
+      )}
     </div>
   );
 };

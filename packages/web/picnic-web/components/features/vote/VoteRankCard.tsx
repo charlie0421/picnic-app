@@ -111,14 +111,14 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
   const RANK_BADGE_ICONS = ['👑', '🥈', '🥉'];
   const RANK_TEXTS = ['1st', '2nd', '3rd'];
 
-  // 총 가로폭 230px을 2:1.5:1 비율로 나눔
-  const getCardWidth = (rankNum: number): number => {
-    if (rankNum === 1) return 100; // 230 * (2/4.5) ≈ 102px, 반올림해서 100px
-    if (rankNum === 2) return 75; // 230 * (1.5/4.5) ≈ 77px, 반올림해서 75px
-    return 55; // 230 * (1/4.5) ≈ 51px, 반올림해서 55px
+  // 2:1.5:1 비율에 따른 카드 클래스 결정
+  const getCardWidthClass = (rankNum: number): string => {
+    if (rankNum === 1) return 'w-[44%]'; // 2/4.5 ≈ 44%
+    if (rankNum === 2) return 'w-[33%]'; // 1.5/4.5 ≈ 33%
+    return 'w-[23%]'; // 1/4.5 ≈ 23%
   };
 
-  const cardWidth = getCardWidth(rank);
+  const cardWidthClass = getCardWidthClass(rank);
 
   return (
     <div
@@ -126,19 +126,18 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
         isAnimating ? 'animate-pulse' : ''
       } ${
         rank === 1
-          ? 'h-[220px] bg-gradient-to-br from-yellow-50/30 to-yellow-100/30 border-2 border-yellow-200/50 order-2'
+          ? 'bg-gradient-to-br from-yellow-50/30 to-yellow-100/30 border-2 border-yellow-200/50 order-2'
           : rank === 2
-          ? 'h-[180px] bg-gradient-to-br from-gray-50/30 to-gray-100/30 border border-gray-200/50 order-1'
-          : 'h-[160px] bg-gradient-to-br from-amber-50/30 to-amber-100/30 border border-amber-200/50 order-3'
-      } ${className}`}
-      style={{ width: `${cardWidth}px` }}
+          ? 'bg-gradient-to-br from-gray-50/30 to-gray-100/30 border border-gray-200/50 order-1'
+          : 'bg-gradient-to-br from-amber-50/30 to-amber-100/30 border border-amber-200/50 order-3'
+      } ${cardWidthClass} ${className}`}
     >
       {/* 컨텐츠 컨테이너 */}
       <div className='flex flex-col justify-between w-full h-full'>
         {/* 상단 영역 - 랭크 태그 */}
-        <div className='w-full flex justify-center mt-1'>
+        <div className='w-full flex justify-center pt-2 pb-1'>
           <div
-            className={`py-0.5 px-1.5 rounded-full text-xs font-bold shadow-lg flex items-center justify-center space-x-1 whitespace-nowrap ${
+            className={`py-1 px-2.5 rounded-full text-xs font-bold shadow-lg flex items-center justify-center space-x-1 whitespace-nowrap ${
               RANK_BADGE_COLORS[rank - 1]
             }`}
           >
@@ -147,89 +146,79 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
           </div>
         </div>
 
-        {/* 중앙 영역 - 이미지 */}
-        <div className='flex flex-col w-full flex-1 justify-center items-center'>
-          {/* 상단 공간 - 순위에 따라 다른 높이로 조정 */}
-          <div
-            style={{
-              height: rank === 1 ? '0px' : rank === 2 ? '10px' : '20px',
-            }}
-          ></div>
-
-          {/* 아티스트 이미지 */}
-          <div
-            className='rounded-full overflow-hidden border-4 border-yellow-200/50 shadow-lg'
-            style={{
-              width: `${cardWidth}px`,
-              height: `${cardWidth}px`,
-            }}
-          >
-            {item.artist && item.artist.image ? (
-              <Image
-                src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
-                alt={getLocalizedString(item.artist.name)}
-                width={cardWidth}
-                height={cardWidth}
-                className='w-full h-full object-cover'
-                priority
-              />
-            ) : (
-              <div className='w-full h-full bg-gray-200/50 flex items-center justify-center'>
-                <span className='text-gray-400 text-xs'>이미지 없음</span>
-              </div>
-            )}
+        {/* 이미지 영역 */}
+        <div className='w-full mx-auto mt-1 mb-3 px-1'>
+          <div className='aspect-square relative'>
+            <div className='absolute inset-0 rounded-full overflow-hidden border-4 border-yellow-200/50 shadow-lg'>
+              {item.artist && item.artist.image ? (
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
+                  alt={getLocalizedString(item.artist.name)}
+                  width={100}
+                  height={100}
+                  className='w-full h-full object-cover'
+                  priority
+                />
+              ) : (
+                <div className='w-full h-full bg-gray-200/50 flex items-center justify-center'>
+                  <span className='text-gray-400 text-xs'>이미지 없음</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* 하단 정보 - 고정 위치 */}
-        <div className='w-full text-center mb-2'>
-          <div
-            className={`font-bold min-h-[14px] flex items-center justify-center overflow-hidden min-w-0 max-w-full ${
-              rank === 1
-                ? 'text-xs text-yellow-700/70'
-                : 'text-[10px] text-gray-700/70'
-            }`}
-          >
-            <span className='truncate overflow-ellipsis max-w-full'>
-              {item.artist
-                ? getLocalizedString(item.artist.name) || '알 수 없는 아티스트'
-                : '알 수 없는 아티스트'}
-            </span>
-          </div>
-          <div className='min-h-[12px] flex items-center justify-center overflow-hidden min-w-0 max-w-full'>
-            {item.artist?.artist_group ? (
-              <span className='text-[9px] text-gray-600 truncate overflow-ellipsis max-w-full'>
-                {getLocalizedString(item.artist.artist_group.name)}
+        {/* 하단 정보 */}
+        <div className='w-full text-center mb-2 px-1'>
+          <div className='flex flex-col space-y-1'>
+            <div
+              className={`font-bold flex items-center justify-center overflow-hidden min-w-0 max-w-full ${
+                rank === 1
+                  ? 'text-xs text-yellow-700/70'
+                  : 'text-[10px] text-gray-700/70'
+              }`}
+            >
+              <span className='truncate overflow-ellipsis max-w-full'>
+                {item.artist
+                  ? getLocalizedString(item.artist.name) || '알 수 없는 아티스트'
+                  : '알 수 없는 아티스트'}
               </span>
-            ) : (
-              <span className='text-[9px] text-transparent select-none'>-</span>
-            )}
-          </div>
-          <div className='min-h-[14px] flex items-center justify-center font-bold overflow-hidden min-w-0 max-w-full'>
-            <div className='relative w-full flex items-center justify-center'>
-              {shouldShowVoteChange && (
-                <div
-                  className={`absolute -top-5 left-1/2 -translate-x-1/2 min-w-[24px] px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap z-10 ${
-                    currentVoteChange > 0
-                      ? 'bg-green-200 text-green-800 border border-green-300'
-                      : 'bg-red-200 text-red-800 border border-red-300'
-                  } animate-bounce shadow-sm`}
-                >
-                  {currentVoteChange > 0 ? '+' : ''}
-                  {currentVoteChange}
-                </div>
+            </div>
+            <div className='flex items-center justify-center overflow-hidden min-w-0 max-w-full'>
+              {item.artist?.artist_group ? (
+                <span className='text-[9px] text-gray-600 truncate overflow-ellipsis max-w-full'>
+                  {getLocalizedString(item.artist.artist_group.name)}
+                </span>
+              ) : (
+                <span className='text-[9px] text-transparent select-none'>-</span>
               )}
-              <span
-                className={
-                  rank === 1
-                    ? 'text-xs text-yellow-600/70'
-                    : rank === 2
-                    ? 'text-[10px] text-amber-600/70'
-                    : 'text-[11px] text-amber-600/70 font-bold'
-                }
-              >
-                {localVoteTotal.toLocaleString()}
-              </span>
+            </div>
+            <div className='flex items-center justify-center font-bold overflow-hidden min-w-0 max-w-full'>
+              <div className='relative w-full flex items-center justify-center'>
+                {shouldShowVoteChange && (
+                  <div
+                    className={`absolute -top-4 left-1/2 -translate-x-1/2 min-w-[20px] px-1 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap z-10 ${
+                      currentVoteChange > 0
+                        ? 'bg-green-200 text-green-800 border border-green-300'
+                        : 'bg-red-200 text-red-800 border border-red-300'
+                    } animate-bounce shadow-sm`}
+                  >
+                    {currentVoteChange > 0 ? '+' : ''}
+                    {currentVoteChange}
+                  </div>
+                )}
+                <span
+                  className={
+                    rank === 1
+                      ? 'text-xs text-yellow-600/70'
+                      : rank === 2
+                      ? 'text-[10px] text-amber-600/70'
+                      : 'text-[10px] text-amber-600/70 font-bold'
+                  }
+                >
+                  {localVoteTotal.toLocaleString()}
+                </span>
+              </div>
             </div>
           </div>
         </div>
