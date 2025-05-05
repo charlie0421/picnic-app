@@ -238,7 +238,17 @@ export async function POST(request: NextRequest): Promise<Response> {
             
             try {
                 // 세션 획득을 위해 Supabase API 직접 호출
-                const tokenResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=authorization_code&code=${code}`, {
+                console.log("Sending token request with:", {
+                    url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token`,
+                    grant_type: 'authorization_code',
+                    code_verifier_length: stateVerifier?.length || 0,
+                    code_length: code.length,
+                    redirect_uri: 'https://www.picnic.fan/auth/callback/apple',
+                    client_id: 'fan.picnic.web',
+                    has_apikey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+                });
+                
+                const tokenResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -246,19 +256,43 @@ export async function POST(request: NextRequest): Promise<Response> {
                         'X-Client-Info': 'picnicweb',
                     },
                     body: JSON.stringify({
+                        grant_type: 'authorization_code',
                         code_verifier: stateVerifier,
-                        auth_code: code,
+                        code: code,
+                        redirect_uri: 'https://www.picnic.fan/auth/callback/apple',
+                        client_id: 'fan.picnic.web'
                     }),
                 });
                 
                 if (!tokenResponse.ok) {
                     // 토큰 획득 실패 로그
-                    const errorJson = await tokenResponse.json().catch(() => ({}));
-                    console.error("Failed to exchange token:", {
+                    console.error("Token response not OK:", {
                         status: tokenResponse.status,
                         statusText: tokenResponse.statusText,
-                        error: errorJson,
+                        headers: Object.fromEntries(tokenResponse.headers.entries()),
                     });
+                    
+                    // 응답 내용 로깅 시도
+                    let errorJson;
+                    let responseText;
+                    try {
+                        // 먼저 텍스트로 읽기 시도
+                        responseText = await tokenResponse.text();
+                        console.error("Raw response text:", responseText);
+                        
+                        // JSON 파싱 시도
+                        try {
+                            errorJson = JSON.parse(responseText);
+                            console.error("Parsed error JSON:", errorJson);
+                        } catch (parseError) {
+                            console.error("Failed to parse response as JSON:", {
+                                parseError,
+                                responseText
+                            });
+                        }
+                    } catch (textError) {
+                        console.error("Failed to read response as text:", textError);
+                    }
                     
                     // 직접 리다이렉트
                     console.log("Token exchange failed, redirecting to homepage anyway:", finalRedirectUrl);
@@ -466,7 +500,17 @@ export async function GET(request: NextRequest): Promise<Response> {
         
         try {
             // 세션 획득을 위해 Supabase API 직접 호출
-            const tokenResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=authorization_code&code=${code}`, {
+            console.log("Sending token request with:", {
+                url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token`,
+                grant_type: 'authorization_code',
+                code_verifier_length: stateVerifier?.length || 0,
+                code_length: code.length,
+                redirect_uri: 'https://www.picnic.fan/auth/callback/apple',
+                client_id: 'fan.picnic.web',
+                has_apikey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+            });
+            
+            const tokenResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -474,19 +518,43 @@ export async function GET(request: NextRequest): Promise<Response> {
                     'X-Client-Info': 'picnicweb',
                 },
                 body: JSON.stringify({
+                    grant_type: 'authorization_code',
                     code_verifier: stateVerifier,
-                    auth_code: code,
+                    code: code,
+                    redirect_uri: 'https://www.picnic.fan/auth/callback/apple',
+                    client_id: 'fan.picnic.web'
                 }),
             });
             
             if (!tokenResponse.ok) {
                 // 토큰 획득 실패 로그
-                const errorJson = await tokenResponse.json().catch(() => ({}));
-                console.error("Failed to exchange token (GET):", {
+                console.error("Token response not OK:", {
                     status: tokenResponse.status,
                     statusText: tokenResponse.statusText,
-                    error: errorJson,
+                    headers: Object.fromEntries(tokenResponse.headers.entries()),
                 });
+                
+                // 응답 내용 로깅 시도
+                let errorJson;
+                let responseText;
+                try {
+                    // 먼저 텍스트로 읽기 시도
+                    responseText = await tokenResponse.text();
+                    console.error("Raw response text:", responseText);
+                    
+                    // JSON 파싱 시도
+                    try {
+                        errorJson = JSON.parse(responseText);
+                        console.error("Parsed error JSON:", errorJson);
+                    } catch (parseError) {
+                        console.error("Failed to parse response as JSON:", {
+                            parseError,
+                            responseText
+                        });
+                    }
+                } catch (textError) {
+                    console.error("Failed to read response as text:", textError);
+                }
                 
                 // 직접 리다이렉트
                 console.log("Token exchange failed, redirecting to homepage anyway (GET):", finalRedirectUrl);
