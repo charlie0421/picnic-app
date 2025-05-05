@@ -91,11 +91,15 @@ function LoginContent() {
     console.log('Sign in attempt with provider:', provider);
 
     if (provider === 'google' || provider === 'apple') {
+      const redirectUrl = provider === 'apple' 
+        ? 'https://www.picnic.fan/auth/callback/apple'
+        : `${window.location.origin}/auth/callback/${provider}`;
+
       console.log('Supabase OAuth Configuration:', {
         provider,
-        redirectUrl: provider === 'apple' 
-          ? `${window.location.origin}/auth/callback/apple`
-          : `${window.location.origin}/auth/callback/${provider}`,
+        redirectUrl,
+        explicitRedirect: 'https://www.picnic.fan/auth/callback/apple',
+        dynamicRedirect: `${window.location.origin}/auth/callback/${provider}`,
         flowType: 'pkce',
         origin: window.location.origin,
         hostName: window.location.hostname,
@@ -106,12 +110,14 @@ function LoginContent() {
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
-            redirectTo: `${window.location.origin}/auth/callback/${provider}`,
+            redirectTo: provider === 'apple' 
+              ? 'https://www.picnic.fan/auth/callback/apple' 
+              : `${window.location.origin}/auth/callback/${provider}`,
             queryParams: provider === 'apple' ? {
               client_id: 'fan.picnic.web',
               scope: 'name email',
               state: btoa(JSON.stringify({
-                redirect_url: window.location.origin,
+                redirect_url: 'https://www.picnic.fan',
                 provider: 'apple',
                 timestamp: Date.now(),
                 flow_state_id: crypto.randomUUID(),

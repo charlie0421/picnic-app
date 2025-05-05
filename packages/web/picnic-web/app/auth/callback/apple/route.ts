@@ -65,21 +65,35 @@ export async function POST(request: NextRequest): Promise<Response> {
         }
 
         const redirectUrl = stateData.redirect_url || "/";
-        console.log("Final redirect URL:", { redirectUrl });
+        console.log("Final redirect URL from state:", { 
+            redirectUrl,
+            isAbsoluteUrl: redirectUrl.startsWith('http'),
+            stateHasRedirectUrl: 'redirect_url' in stateData,
+        });
 
         // ngrok URL 처리 - 프로덕션 환경의 URL로 변환
         let finalRedirectUrl = redirectUrl;
-        if (process.env.NODE_ENV === "production" && redirectUrl.includes("ngrok")) {
-            // ngrok URL을 프로덕션 URL로 변환
-            finalRedirectUrl = redirectUrl.replace(
-                /https?:\/\/.*?ngrok(-free)?\.app/,
-                "https://www.picnic.fan"
-            );
-            console.log("Modified redirect URL for production:", {
-                original: redirectUrl,
-                modified: finalRedirectUrl
-            });
+        if (redirectUrl.startsWith('http')) {
+            // 외부 URL인 경우 프로덕션 URL로 변환
+            if (redirectUrl.includes("ngrok")) {
+                finalRedirectUrl = redirectUrl.replace(
+                    /https?:\/\/.*?ngrok(-free)?\.app/,
+                    "https://www.picnic.fan"
+                );
+            } else if (!redirectUrl.includes("picnic.fan")) {
+                // picnic.fan 도메인이 아닌 경우 홈페이지로 리다이렉트
+                finalRedirectUrl = "https://www.picnic.fan/";
+            }
+        } else {
+            // 상대 URL인 경우 www.picnic.fan 도메인으로 설정
+            finalRedirectUrl = `https://www.picnic.fan${redirectUrl.startsWith('/') ? '' : '/'}${redirectUrl}`;
         }
+
+        console.log("Modified redirect URL:", {
+            original: redirectUrl,
+            modified: finalRedirectUrl,
+            isProduction: process.env.NODE_ENV === "production",
+        });
 
         const codeVerifier = stateData.code_verifier;
         const codeChallenge = stateData.code_challenge;
@@ -336,21 +350,36 @@ export async function GET(request: NextRequest): Promise<Response> {
 
         // 여기서부터는 POST 핸들러와 유사한 로직을 따름
         const redirectUrl = stateData.redirect_url || "/";
+        console.log("Final redirect URL from state (GET):", { 
+            redirectUrl,
+            isAbsoluteUrl: redirectUrl.startsWith('http'),
+            stateHasRedirectUrl: 'redirect_url' in stateData,
+        });
         
         // ngrok URL 처리 - 프로덕션 환경의 URL로 변환
         let finalRedirectUrl = redirectUrl;
-        if (process.env.NODE_ENV === "production" && redirectUrl.includes("ngrok")) {
-            // ngrok URL을 프로덕션 URL로 변환
-            finalRedirectUrl = redirectUrl.replace(
-                /https?:\/\/.*?ngrok(-free)?\.app/,
-                "https://www.picnic.fan"
-            );
-            console.log("Modified redirect URL for production:", {
-                original: redirectUrl,
-                modified: finalRedirectUrl
-            });
+        if (redirectUrl.startsWith('http')) {
+            // 외부 URL인 경우 프로덕션 URL로 변환
+            if (redirectUrl.includes("ngrok")) {
+                finalRedirectUrl = redirectUrl.replace(
+                    /https?:\/\/.*?ngrok(-free)?\.app/,
+                    "https://www.picnic.fan"
+                );
+            } else if (!redirectUrl.includes("picnic.fan")) {
+                // picnic.fan 도메인이 아닌 경우 홈페이지로 리다이렉트
+                finalRedirectUrl = "https://www.picnic.fan/";
+            }
+        } else {
+            // 상대 URL인 경우 www.picnic.fan 도메인으로 설정
+            finalRedirectUrl = `https://www.picnic.fan${redirectUrl.startsWith('/') ? '' : '/'}${redirectUrl}`;
         }
-        
+
+        console.log("Modified redirect URL (GET):", {
+            original: redirectUrl,
+            modified: finalRedirectUrl,
+            isProduction: process.env.NODE_ENV === "production",
+        });
+
         // supabase 클라이언트 생성 및 코드 교환
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
