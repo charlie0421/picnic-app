@@ -152,9 +152,14 @@ function LoginContent() {
             flow_state_id: crypto.randomUUID(),
             code_verifier: codeVerifier,
             code_challenge: codeChallenge,
+            returnTo: window.location.pathname,
           };
           
           const encodedState = btoa(JSON.stringify(stateObj));
+          
+          // state 객체를 세션 스토리지에도 저장 (콜백에서 비교용)
+          sessionStorage.setItem('apple_oauth_state', encodedState);
+          sessionStorage.setItem('apple_code_verifier', codeVerifier);
           
           // Apple OAuth URL 직접 구성
           const appleAuthUrl = new URL('https://appleid.apple.com/auth/authorize');
