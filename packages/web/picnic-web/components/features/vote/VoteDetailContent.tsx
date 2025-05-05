@@ -303,16 +303,32 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
 
           {/* 상위 3위: 가로 슬라이드, 항상 가로로만 */}
           <div className='bg-white border-b px-4'>
-            <div className='flex gap-1 md:gap-3 overflow-x-auto overflow-y-hidden py-1 justify-center'>
+            <div className='flex gap-4 overflow-x-auto overflow-y-hidden py-3 pb-4 justify-center items-end'>
               {vote &&
                 voteItems.length > 0 &&
                 slideTop3.map((item, idx) => (
-                  <div key={item.id} className='flex-shrink-0'>
+                  <div key={item.id} 
+                       className={`flex-shrink-0 ${
+                        item.rank === 1 
+                          ? 'w-[44%] max-w-[160px]' 
+                          : item.rank === 2 
+                          ? 'w-[33%] max-w-[125px]' 
+                          : 'w-[23%] max-w-[95px]'
+                       }`}
+                       style={{
+                        height: item.rank === 1 
+                          ? '260px' 
+                          : item.rank === 2 
+                          ? '230px' 
+                          : '210px',
+                        paddingBottom: '10px'
+                       }}>
                     <VoteRankCard
                       item={item}
                       rank={item.rank}
-                      showVoteChange={true}
-                      isAnimating={true}
+                      showVoteChange={false}
+                      isAnimating={false}
+                      className="w-full h-full"
                     />
                   </div>
                 ))}
@@ -321,16 +337,16 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
         </div>
 
         {/* 메인 콘텐츠 영역 */}
-        <div className='pt-4'>
+        <div className='pt-1'>
           {/* 리워드가 있는 경우 표시 */}
           {rewards.length > 0 && (
-            <div ref={rewardRef} className='mb-4'>
+            <div ref={rewardRef} className='mb-2'>
               <VoteRewardPreview rewards={rewards} isSticky={isRewardHidden} />
             </div>
           )}
 
           {/* 검색 필터 */}
-          <div className='mb-4'>
+          <div className='mb-2'>
             <VoteSearch
               onSearch={handleSearch}
               onFilterChange={handleFilterChange}

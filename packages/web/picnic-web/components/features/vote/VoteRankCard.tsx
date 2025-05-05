@@ -118,7 +118,9 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
     return 'w-[23%]'; // 1/4.5 ≈ 23%
   };
 
-  const cardWidthClass = getCardWidthClass(rank);
+  // className에 너비 클래스가 포함되어 있으면 기본 너비 클래스를 사용하지 않음
+  const hasWidthClass = className.includes('w-');
+  const cardWidthClass = hasWidthClass ? '' : getCardWidthClass(rank);
 
   return (
     <div
@@ -147,7 +149,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
         </div>
 
         {/* 이미지 영역 */}
-        <div className='w-full mx-auto mt-1 mb-3 px-1'>
+        <div className='w-full mx-auto mt-1 mb-2 px-1'>
           <div className='aspect-square relative'>
             <div className='absolute inset-0 rounded-full overflow-hidden border-4 border-yellow-200/50 shadow-lg'>
               {item.artist && item.artist.image ? (
@@ -169,13 +171,13 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
         </div>
 
         {/* 하단 정보 */}
-        <div className='w-full text-center mb-2 px-1'>
+        <div className='w-full text-center mb-2 px-1 flex-1 flex flex-col justify-center'>
           <div className='flex flex-col space-y-1'>
             <div
               className={`font-bold flex items-center justify-center overflow-hidden min-w-0 max-w-full ${
                 rank === 1
-                  ? 'text-xs text-yellow-700/70'
-                  : 'text-[10px] text-gray-700/70'
+                  ? 'text-sm text-yellow-700/70'
+                  : 'text-xs text-gray-700/70'
               }`}
             >
               <span className='truncate overflow-ellipsis max-w-full'>
@@ -186,11 +188,11 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
             </div>
             <div className='flex items-center justify-center overflow-hidden min-w-0 max-w-full'>
               {item.artist?.artist_group ? (
-                <span className='text-[9px] text-gray-600 truncate overflow-ellipsis max-w-full'>
+                <span className='text-[10px] text-gray-600 truncate overflow-ellipsis max-w-full'>
                   {getLocalizedString(item.artist.artist_group.name)}
                 </span>
               ) : (
-                <span className='text-[9px] text-transparent select-none'>-</span>
+                <span className='text-[10px] text-transparent select-none'>-</span>
               )}
             </div>
             <div className='flex items-center justify-center font-bold overflow-hidden min-w-0 max-w-full'>
@@ -210,10 +212,10 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
                 <span
                   className={
                     rank === 1
-                      ? 'text-xs text-yellow-600/70'
+                      ? 'text-sm text-yellow-600/70'
                       : rank === 2
-                      ? 'text-[10px] text-amber-600/70'
-                      : 'text-[10px] text-amber-600/70 font-bold'
+                      ? 'text-xs text-amber-600/70'
+                      : 'text-xs text-amber-600/70 font-bold'
                   }
                 >
                   {localVoteTotal.toLocaleString()}
