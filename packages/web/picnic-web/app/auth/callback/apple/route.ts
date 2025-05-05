@@ -133,6 +133,8 @@ export async function POST(request: NextRequest): Promise<Response> {
                         'X-Auth-Flow': 'pkce',
                         'X-Auth-Return-Redirect': 'true',
                         'X-Client-Origin': new URL(request.url).origin,
+                        'X-Client-Info': 'picnicweb',
+                        'X-OAuth-Provider': 'apple',
                     }
                 }
             },
@@ -144,6 +146,7 @@ export async function POST(request: NextRequest): Promise<Response> {
             flowType: "pkce",
             appleClientId: "fan.picnic.web",
             hasAppleSecret: !!process.env.APPLE_CLIENT_SECRET,
+            appleSecretLength: (process.env.APPLE_CLIENT_SECRET || '').length,
             authCodeLength: code?.length,
             referer: request.headers.get('referer'),
             userAgent: request.headers.get('user-agent'),
@@ -201,83 +204,129 @@ export async function POST(request: NextRequest): Promise<Response> {
             );
         }
 
-        // Supabase의 PKCE 인증 흐름에 맞게 코드 교환
-        const { data, error } = await supabase.auth.exchangeCodeForSession(
-            code,
-        );
+        // 세션 교환 시도
+        console.log("About to exchange code for session with the following details:", {
+            codeLength: code.length,
+            codePrefix: code.substring(0, 10) + "...",
+            codeSuffix: "..." + code.substring(code.length - 10),
+            verifierLength: codeVerifier?.length || 0,
+            flowType: "pkce",
+            tokenEndpoint: process.env.NEXT_PUBLIC_SUPABASE_URL + "/auth/v1/token",
+        });
 
-        if (error || !data.session) {
-            console.error("OAuth session exchange error:", {
-                error,
-                hasSession: !!data?.session,
-                code: error?.code,
-                message: error?.message,
-                requestUrl: request.url,
-                nextApiUrl: process.env.NEXT_PUBLIC_SITE_URL,
-                allowedUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-                requestOrigin: new URL(request.url).origin,
-                requestHost: new URL(request.url).hostname,
-                hostMatches: new URL(request.url).hostname === new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || '').hostname,
+        try {
+            // 상태 데이터에서 코드 검증자 사용
+            const stateVerifier = codeVerifier;
+            
+            // 추가적인 에러 정보 기록
+            console.log("Using verifier from state:", {
+                verifierLength: stateVerifier?.length || 0,
+                hasStateVerifier: !!stateVerifier,
+                stateSource: "stateData",
+                clientId: "fan.picnic.web",
+                tokenUrl: process.env.NEXT_PUBLIC_SUPABASE_URL + "/auth/v1/token",
             });
             
-            // 오류 유형에 따라 다른 에러 코드 사용
-            const errorCode = error?.message?.includes("exchange") 
-                ? "server_error" 
-                : "oauth_error";
-                
-            const errorDesc = error?.message || "Unknown error";
+            // 세션 교환 시도
+            console.log("Attempting code exchange with parameters:", {
+                codeLength: code.length,
+                verifierLength: stateVerifier?.length || 0,
+                supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+                hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+                authEndpoint: "/auth/v1/token",
+            });
             
+            const { data, error } = await supabase.auth.exchangeCodeForSession(
+                code,
+            );
+
+            if (error || !data.session) {
+                console.error("OAuth session exchange error:", {
+                    error,
+                    errorMessage: error?.message,
+                    errorCode: error?.code,
+                    errorStatus: error?.status,
+                    errorName: error?.name,
+                    hasSession: !!data?.session,
+                    requestUrl: request.url,
+                    nextApiUrl: process.env.NEXT_PUBLIC_SITE_URL,
+                    allowedUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+                    requestOrigin: new URL(request.url).origin,
+                    requestHost: new URL(request.url).hostname,
+                    hostMatches: new URL(request.url).hostname === new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || '').hostname,
+                    detailedError: JSON.stringify(error, null, 2),
+                });
+                
+                // 오류 유형에 따라 다른 에러 코드 사용
+                const errorCode = error?.message?.includes("exchange") 
+                    ? "server_error" 
+                    : "oauth_error";
+                    
+                const errorDesc = error?.message || "Unknown error";
+                
+                return NextResponse.redirect(
+                    new URL(`/login?error=${errorCode}&error_code=${error?.code || 'unknown'}&error_description=${encodeURIComponent(errorDesc)}`, request.url),
+                    302,
+                );
+            }
+
+            console.log("Session exchange successful:", {
+                userId: data.session?.user?.id,
+                expiresAt: data.session?.expires_at,
+            });
+
+            // 세션 정보를 쿠키에 저장
+            const redirectResponse = NextResponse.redirect(
+                new URL(finalRedirectUrl, request.url),
+                302,
+            );
+
+            // 현재 요청의 호스트명 추출
+            const hostName = new URL(request.url).hostname;
+            console.log("Cookie setup:", {
+                hostName,
+                redirectUrl,
+                isDev: process.env.NODE_ENV !== "production",
+            });
+
+            // 개발 환경에서는 쿠키 도메인 설정을 생략 (localhost로 설정)
+            const cookieDomain = process.env.NODE_ENV === "production" 
+                ? hostName.includes("picnic.fan") ? "picnic.fan" : hostName
+                : undefined;
+
+            redirectResponse.cookies.set({
+                name: "sb-access-token",
+                value: data.session.access_token,
+                path: "/",
+                domain: cookieDomain,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            redirectResponse.cookies.set({
+                name: "sb-refresh-token",
+                value: data.session.refresh_token!,
+                path: "/",
+                domain: cookieDomain,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            return redirectResponse;
+        } catch (error) {
+            console.error("Unexpected error during session exchange:", {
+                error,
+                message: error instanceof Error ? error.message : "Unknown error",
+                stack: error instanceof Error ? error.stack : undefined,
+                url: request.url,
+            });
             return NextResponse.redirect(
-                new URL(`/login?error=${errorCode}&error_code=${error?.code || 'unknown'}&error_description=${encodeURIComponent(errorDesc)}`, request.url),
+                new URL("/login?error=session_exchange_error", request.url),
                 302,
             );
         }
-
-        console.log("Session exchange successful:", {
-            userId: data.session?.user?.id,
-            expiresAt: data.session?.expires_at,
-        });
-
-        // 세션 정보를 쿠키에 저장
-        const redirectResponse = NextResponse.redirect(
-            new URL(finalRedirectUrl, request.url),
-            302,
-        );
-
-        // 현재 요청의 호스트명 추출
-        const hostName = new URL(request.url).hostname;
-        console.log("Cookie setup:", {
-            hostName,
-            redirectUrl,
-            isDev: process.env.NODE_ENV !== "production",
-        });
-
-        // 개발 환경에서는 쿠키 도메인 설정을 생략 (localhost로 설정)
-        const cookieDomain = process.env.NODE_ENV === "production" 
-            ? hostName.includes("picnic.fan") ? "picnic.fan" : hostName
-            : undefined;
-
-        redirectResponse.cookies.set({
-            name: "sb-access-token",
-            value: data.session.access_token,
-            path: "/",
-            domain: cookieDomain,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            httpOnly: true,
-        });
-
-        redirectResponse.cookies.set({
-            name: "sb-refresh-token",
-            value: data.session.refresh_token!,
-            path: "/",
-            domain: cookieDomain,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            httpOnly: true,
-        });
-
-        return redirectResponse;
     } catch (error) {
         console.error("Unexpected error during Apple OAuth callback:", {
             error,
@@ -399,6 +448,8 @@ export async function GET(request: NextRequest): Promise<Response> {
                         'X-Auth-Flow': 'pkce',
                         'X-Auth-Return-Redirect': 'true',
                         'X-Client-Origin': new URL(request.url).origin,
+                        'X-Client-Info': 'picnicweb',
+                        'X-OAuth-Provider': 'apple',
                     }
                 }
             },
@@ -411,67 +462,98 @@ export async function GET(request: NextRequest): Promise<Response> {
         });
 
         // 세션 교환 시도
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        
-        if (error || !data.session) {
-            console.error("OAuth session exchange error (GET):", {
-                error,
-                hasSession: !!data?.session,
-                code: error?.code,
-                message: error?.message,
+        console.log("About to exchange code for session with the following details:", {
+            codeLength: code.length,
+            codePrefix: code.substring(0, 10) + "...",
+            codeSuffix: "..." + code.substring(code.length - 10),
+            flowType: "pkce",
+            tokenEndpoint: process.env.NEXT_PUBLIC_SUPABASE_URL + "/auth/v1/token",
+        });
+
+        try {
+            // GET 요청의 경우 상태 데이터에서 코드 검증자 추출
+            const stateVerifier = stateData.code_verifier;
+            
+            // 추가적인 에러 정보 기록
+            console.log("Using verifier from state (GET):", {
+                verifierLength: stateVerifier?.length || 0,
+                hasStateVerifier: !!stateVerifier,
+                stateSource: "stateData",
             });
             
-            const errorCode = error?.message?.includes("exchange") 
-                ? "server_error" 
-                : "oauth_error";
-                
-            const errorDesc = error?.message || "Unknown error";
+            const { data, error } = await supabase.auth.exchangeCodeForSession(code);
             
+            if (error || !data.session) {
+                console.error("OAuth session exchange error (GET):", {
+                    error,
+                    hasSession: !!data?.session,
+                    code: error?.code,
+                    message: error?.message,
+                });
+                
+                const errorCode = error?.message?.includes("exchange") 
+                    ? "server_error" 
+                    : "oauth_error";
+                    
+                const errorDesc = error?.message || "Unknown error";
+                
+                return NextResponse.redirect(
+                    new URL(`/login?error=${errorCode}&error_code=${error?.code || 'unknown'}&error_description=${encodeURIComponent(errorDesc)}`, request.url),
+                    302,
+                );
+            }
+            
+            // 세션 성공적으로 교환됨 - 쿠키 설정 및 리다이렉트
+            console.log("Session exchange successful (GET):", {
+                userId: data.session?.user?.id,
+                expiresAt: data.session?.expires_at,
+            });
+            
+            // 세션 정보를 쿠키에 저장
+            const redirectResponse = NextResponse.redirect(
+                new URL(finalRedirectUrl, request.url),
+                302,
+            );
+
+            // 현재 요청의 호스트명 추출
+            const hostName = new URL(request.url).hostname;
+            const cookieDomain = process.env.NODE_ENV === "production" 
+                ? hostName.includes("picnic.fan") ? "picnic.fan" : hostName
+                : undefined;
+
+            redirectResponse.cookies.set({
+                name: "sb-access-token",
+                value: data.session.access_token,
+                path: "/",
+                domain: cookieDomain,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            redirectResponse.cookies.set({
+                name: "sb-refresh-token",
+                value: data.session.refresh_token!,
+                path: "/",
+                domain: cookieDomain,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                httpOnly: true,
+            });
+
+            return redirectResponse;
+        } catch (error) {
+            console.error("Unexpected error during GET OAuth callback:", {
+                error,
+                message: error instanceof Error ? error.message : "Unknown error",
+                stack: error instanceof Error ? error.stack : undefined,
+                url: request.url,
+            });
             return NextResponse.redirect(
-                new URL(`/login?error=${errorCode}&error_code=${error?.code || 'unknown'}&error_description=${encodeURIComponent(errorDesc)}`, request.url),
+                new URL("/login?error=callback_error", request.url),
                 302,
             );
         }
-        
-        // 세션 성공적으로 교환됨 - 쿠키 설정 및 리다이렉트
-        console.log("Session exchange successful (GET):", {
-            userId: data.session?.user?.id,
-            expiresAt: data.session?.expires_at,
-        });
-        
-        // 세션 정보를 쿠키에 저장
-        const redirectResponse = NextResponse.redirect(
-            new URL(finalRedirectUrl, request.url),
-            302,
-        );
-
-        // 현재 요청의 호스트명 추출
-        const hostName = new URL(request.url).hostname;
-        const cookieDomain = process.env.NODE_ENV === "production" 
-            ? hostName.includes("picnic.fan") ? "picnic.fan" : hostName
-            : undefined;
-
-        redirectResponse.cookies.set({
-            name: "sb-access-token",
-            value: data.session.access_token,
-            path: "/",
-            domain: cookieDomain,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            httpOnly: true,
-        });
-
-        redirectResponse.cookies.set({
-            name: "sb-refresh-token",
-            value: data.session.refresh_token!,
-            path: "/",
-            domain: cookieDomain,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            httpOnly: true,
-        });
-
-        return redirectResponse;
     } catch (error) {
         console.error("Unexpected error during GET OAuth callback:", {
             error,

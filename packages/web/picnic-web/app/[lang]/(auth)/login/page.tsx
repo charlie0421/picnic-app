@@ -6,6 +6,29 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguageStore } from '@/stores/languageStore';
 
+// PKCE 유틸리티 함수
+function generateCodeVerifier(): string {
+  const array = new Uint8Array(64);
+  crypto.getRandomValues(array);
+  return Array.from(array)
+    .map(b => String.fromCharCode(b % 26 + 97))
+    .join('');
+}
+
+async function generateCodeChallenge(verifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  
+  // Base64 URL 인코딩
+  return btoa(Array.from(new Uint8Array(digest))
+    .map(byte => String.fromCharCode(byte))
+    .join(''))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
 function LoginContent() {
   const [supabase] = useState(() => createBrowserSupabaseClient());
   const router = useRouter();
@@ -107,31 +130,65 @@ function LoginContent() {
       });
 
       try {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider,
-          options: {
-            redirectTo: provider === 'apple' 
-              ? 'https://www.picnic.fan/auth/callback/apple' 
-              : `${window.location.origin}/auth/callback/${provider}`,
-            queryParams: provider === 'apple' ? {
-              client_id: 'fan.picnic.web',
-              scope: 'name email',
-              state: btoa(JSON.stringify({
-                redirect_url: 'https://www.picnic.fan',
-                provider: 'apple',
-                timestamp: Date.now(),
-                flow_state_id: crypto.randomUUID(),
-              }))
-            } : undefined,
-          },
-        });
-
-        if (error) {
-          console.error(`${provider} Sign In Error:`, {
-            provider,
-            error,
+        // Apple 로그인에 대해서는 PKCE 코드 검증자를 명시적으로 생성
+        if (provider === 'apple') {
+          // PKCE 코드 검증자 생성
+          const codeVerifier = generateCodeVerifier();
+          const codeChallenge = await generateCodeChallenge(codeVerifier);
+          
+          console.log('Generated PKCE parameters:', {
+            verifierLength: codeVerifier.length,
+            challengeLength: codeChallenge.length,
           });
-          router.push('/auth/error');
+          
+          // 로컬 스토리지에 코드 검증자 저장 (후에 검증할 때 사용)
+          localStorage.setItem('pkce_code_verifier', codeVerifier);
+          
+          // state 객체 생성
+          const stateObj = {
+            redirect_url: 'https://www.picnic.fan',
+            provider: 'apple',
+            timestamp: Date.now(),
+            flow_state_id: crypto.randomUUID(),
+            code_verifier: codeVerifier,
+            code_challenge: codeChallenge,
+          };
+          
+          const encodedState = btoa(JSON.stringify(stateObj));
+          
+          // Apple OAuth URL 직접 구성
+          const appleAuthUrl = new URL('https://appleid.apple.com/auth/authorize');
+          appleAuthUrl.searchParams.append('client_id', 'fan.picnic.web');
+          appleAuthUrl.searchParams.append('redirect_uri', 'https://www.picnic.fan/auth/callback/apple');
+          appleAuthUrl.searchParams.append('response_type', 'code');
+          appleAuthUrl.searchParams.append('response_mode', 'form_post');
+          appleAuthUrl.searchParams.append('scope', 'name email');
+          appleAuthUrl.searchParams.append('code_challenge', codeChallenge);
+          appleAuthUrl.searchParams.append('code_challenge_method', 'S256');
+          appleAuthUrl.searchParams.append('state', encodedState);
+          
+          console.log('Constructed Apple OAuth URL:', appleAuthUrl.toString());
+          
+          // Apple 로그인 페이지로 리다이렉트
+          window.location.href = appleAuthUrl.toString();
+          return;
+          
+        } else {
+          // Google 등 다른 로그인 방식
+          const { error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: {
+              redirectTo: `${window.location.origin}/auth/callback/${provider}`,
+            },
+          });
+          
+          if (error) {
+            console.error(`${provider} Sign In Error:`, {
+              provider,
+              error,
+            });
+            router.push('/auth/error');
+          }
         }
         return;
       } catch (error) {
