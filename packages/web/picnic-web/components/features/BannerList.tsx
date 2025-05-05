@@ -14,6 +14,7 @@ const BannerList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [mounted, setMounted] = useState(false);
   const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
@@ -40,49 +41,67 @@ const BannerList: React.FC = () => {
     fetchBanners();
   }, []);
 
-  // 모바일 여부 확인
+  // 화면 크기 감지
   useEffect(() => {
     if (!mounted) return;
 
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setIsMobile(true);
+        setIsTablet(false);
+      } else if (width < 1024) {
+        setIsMobile(false);
+        setIsTablet(true);
+      } else {
+        setIsMobile(false);
+        setIsTablet(false);
+      }
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
 
     return () => {
-      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('resize', checkScreenSize);
     };
-  }, []);
+  }, [mounted]);
 
   // 다음 배너로 이동
   const nextBanner = useCallback(() => {
-    if (banners.length <= 3) return;
+    if (banners.length <= 3 && !isMobile && !isTablet) return;
     setCurrentIndex((prev) => {
+      const totalGroups = isMobile || isTablet 
+        ? Math.ceil(banners.length / 2) 
+        : banners.length;
+      
       const next = prev + 1;
-      if (next >= banners.length) {
+      if (next >= totalGroups) {
         return 0;
       }
       return next;
     });
-  }, [banners.length]);
+  }, [banners.length, isMobile, isTablet]);
 
   // 이전 배너로 이동
   const prevBanner = useCallback(() => {
-    if (banners.length <= 3) return;
+    if (banners.length <= 3 && !isMobile && !isTablet) return;
     setCurrentIndex((prev) => {
+      const totalGroups = isMobile || isTablet 
+        ? Math.ceil(banners.length / 2) 
+        : banners.length;
+      
       const next = prev - 1;
       if (next < 0) {
-        return banners.length - 1;
+        return totalGroups - 1;
       }
       return next;
     });
-  }, [banners.length]);
+  }, [banners.length, isMobile, isTablet]);
 
   // 자동 스크롤 시작
   useEffect(() => {
-    if (banners.length <= 3) return;
+    if (banners.length <= 3 && !isMobile && !isTablet) return;
 
     const startAutoScroll = () => {
       if (autoScrollRef.current) {
@@ -103,7 +122,7 @@ const BannerList: React.FC = () => {
         clearInterval(autoScrollRef.current);
       }
     };
-  }, [banners.length, isPaused, nextBanner]);
+  }, [banners.length, isPaused, nextBanner, isMobile, isTablet]);
 
   // 배너 렌더링
   const renderBanner = (banner: Banner) => {
@@ -118,7 +137,7 @@ const BannerList: React.FC = () => {
                 src={getCdnImageUrl(getLocalizedString(image), 786)}
                 alt={typeof banner.title === 'string' ? banner.title : '배너'}
                 fill
-                sizes={isMobile ? '100vw' : '33.33vw'}
+                sizes="(max-width: 639px) 50vw, (max-width: 1023px) 50vw, 33.33vw"
                 className='object-cover'
                 priority
               />
@@ -183,7 +202,7 @@ const BannerList: React.FC = () => {
     return (
       <section>
         <div className='mb-4'>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
             {banners.map((banner) => (
               <div key={banner.id} className="w-full">
                 {renderBanner(banner)}
@@ -199,8 +218,11 @@ const BannerList: React.FC = () => {
   const getVisibleBanners = () => {
     const result = [];
     const totalBanners = banners.length;
+    
+    // 디바이스 크기별 표시할 배너 수
+    const countToShow = isMobile || isTablet ? 2 : 3;
 
-    for (let i = 0; i < (isMobile ? 1 : 3); i++) {
+    for (let i = 0; i < countToShow; i++) {
       const index = (currentIndex + i) % totalBanners;
       result.push(banners[index]);
     }
@@ -220,21 +242,32 @@ const BannerList: React.FC = () => {
             <div
               className='flex transition-all duration-500 ease-in-out'
               style={{
-                transform: isMobile
+                transform: isMobile || isTablet
                   ? `translateX(-${currentIndex * 100}%)`
                   : `translateX(0%)`,
               }}
             >
-              {isMobile ? (
-                // 모바일: 전체 배너를 한 번에 하나씩 표시
-                banners.map((banner, index) => (
-                  <div
-                    key={`${banner.id}-${index}`}
-                    className="w-full flex-shrink-0"
-                  >
-                    {renderBanner(banner)}
-                  </div>
-                ))
+              {isMobile || isTablet ? (
+                // 모바일/태블릿: 쌍으로 슬라이드(한 화면에 2개씩)
+                [...Array(Math.ceil(banners.length / 2))].map((_, groupIndex) => {
+                  const startIdx = (groupIndex * 2) % banners.length;
+                  const bannerPair = [
+                    banners[startIdx],
+                    banners[(startIdx + 1) % banners.length]
+                  ].filter(Boolean); // 마지막에 1개만 남을 경우 대비
+                  
+                  return (
+                    <div key={`group-${groupIndex}`} className="w-full flex-shrink-0">
+                      <div className="grid grid-cols-2 gap-2">
+                        {bannerPair.map((banner) => (
+                          <div key={banner.id} className="w-full">
+                            {renderBanner(banner)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })
               ) : (
                 // 데스크탑: 현재 보이는 3개의 배너만 표시
                 <div className="w-full grid grid-cols-3 gap-4 transition-all duration-500 ease-in-out">
