@@ -19,6 +19,7 @@ const ProfileImageContainer: React.FC<ProfileImageContainerProps> = ({
         src={src}
         alt={alt}
         fill
+        sizes="100px"
         className="object-cover"
       />
     </div>

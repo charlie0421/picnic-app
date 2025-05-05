@@ -373,6 +373,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
                           src={getCdnImageUrl(item.artist.image)}
                           alt={getLocalizedString(item.artist.name)}
                           fill
+                          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           className='object-cover'
                         />
                       ) : (

@@ -64,6 +64,7 @@ const UpcomingVoteItems: React.FC<{
             src={getCdnImageUrl(getLocalizedString(item.artist?.image), 300)}
             alt={getLocalizedString(item.artist?.name)}
             fill
+            sizes="(max-width: 768px) 50vw, 25vw"
             className="object-cover rounded-lg"
           />
         </div>
