@@ -33,14 +33,12 @@ const OngoingVoteItems: React.FC<OngoingVoteItemsProps> = ({
   // vote.voteItems가 변경될 때마다 로컬 상태 업데이트
   useEffect(() => {
     if (vote.voteItems) {
-      console.log('OngoingVoteItems: voteItems 업데이트됨', vote.voteItems);
       setVoteItems(vote.voteItems);
     }
   }, [vote.voteItems]);
 
   // 투표수 변경 감지 및 처리
   const handleVoteChange = (itemId: string | number, newTotal: number) => {
-    console.log(`OngoingVoteItems: 투표수 변경 (${itemId}) - ${newTotal}`);
     // 로컬 상태 업데이트
     setVoteItems((prevItems) =>
       prevItems.map((item) =>

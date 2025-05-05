@@ -5,20 +5,25 @@ import { NavigationProvider } from '../contexts/NavigationContext';
 import { AuthProvider } from '../contexts/AuthContext';
 import PortalLayout from './features/PortalLayout';
 import { useLanguageStore } from '@/stores/languageStore';
+import TranslationProvider from './providers/TranslationProvider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const { loadTranslations, currentLanguage } = useLanguageStore();
-
-  useEffect(() => {
-    loadTranslations(currentLanguage);
-  }, [loadTranslations, currentLanguage]);
+  const { currentLanguage } = useLanguageStore();
 
   return (
     <AuthProvider>
       <NavigationProvider>
-        <div className='relative'>
-          <PortalLayout>{children}</PortalLayout>
-        </div>
+        <TranslationProvider
+          fallback={
+            <div className='relative'>
+              <PortalLayout>{children}</PortalLayout>
+            </div>
+          }
+        >
+          <div className='relative'>
+            <PortalLayout>{children}</PortalLayout>
+          </div>
+        </TranslationProvider>
       </NavigationProvider>
     </AuthProvider>
   );

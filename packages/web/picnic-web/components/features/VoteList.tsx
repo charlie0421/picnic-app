@@ -632,7 +632,6 @@ const VoteList: React.FC = () => {
                   if (prevItem && prevItem.voteTotal !== newItem.voteTotal) {
                     const prevTotal = prevItem.voteTotal ?? 0;
                     const newTotal = newItem.voteTotal ?? 0;
-                    console.log(`투표수 변경: ${prevTotal} -> ${newTotal}`);
                     hasChanges = true;
 
                     return {
@@ -658,7 +657,6 @@ const VoteList: React.FC = () => {
           });
 
           if (hasChanges) {
-            console.log('투표 데이터 업데이트됨');
             return newVotes;
           }
           return prevVotes;
