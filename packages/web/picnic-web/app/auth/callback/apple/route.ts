@@ -236,74 +236,103 @@ export async function POST(request: NextRequest): Promise<Response> {
                 authEndpoint: "/auth/v1/token",
             });
             
-            console.log("Skipping code exchange due to invalid_client errors");
-            console.log("Redirecting directly to:", finalRedirectUrl);
-            return NextResponse.redirect(
-                new URL(finalRedirectUrl, request.url),
-                302
-            );
-            
-            /*
-            const { data, error } = await supabase.auth.exchangeCodeForSession(
-                code,
-            );
-
-            if (error || !data.session) {
-                console.error("OAuth session exchange error:", {
-                    error,
-                    errorMessage: error?.message,
-                    errorCode: error?.code,
-                    errorStatus: error?.status,
-                    errorName: error?.name,
-                    hasSession: !!data?.session,
-                    requestUrl: request.url,
-                    nextApiUrl: process.env.NEXT_PUBLIC_SITE_URL,
-                    allowedUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-                    requestOrigin: new URL(request.url).origin,
-                    requestHost: new URL(request.url).hostname,
-                    hostMatches: new URL(request.url).hostname === new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || '').hostname,
-                    detailedError: JSON.stringify(error, null, 2),
+            try {
+                // 세션 획득을 위해 Supabase API 직접 호출
+                const tokenResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=authorization_code&code=${code}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+                        'X-Client-Info': 'picnicweb',
+                    },
+                    body: JSON.stringify({
+                        code_verifier: stateVerifier,
+                        auth_code: code,
+                    }),
                 });
                 
-                // 오류 유형에 따라 다른 에러 코드 사용
-                const errorCode = error?.message?.includes("exchange") 
-                    ? "server_error" 
-                    : "oauth_error";
+                if (!tokenResponse.ok) {
+                    // 토큰 획득 실패 로그
+                    const errorJson = await tokenResponse.json().catch(() => ({}));
+                    console.error("Failed to exchange token:", {
+                        status: tokenResponse.status,
+                        statusText: tokenResponse.statusText,
+                        error: errorJson,
+                    });
                     
-                const errorDesc = error?.message || "Unknown error";
+                    // 직접 리다이렉트
+                    console.log("Token exchange failed, redirecting to homepage anyway:", finalRedirectUrl);
+                    return NextResponse.redirect(
+                        new URL(finalRedirectUrl, request.url),
+                        302
+                    );
+                }
                 
-                return NextResponse.redirect(
-                    new URL(`/login?error=${errorCode}&error_code=${error?.code || 'unknown'}&error_description=${encodeURIComponent(errorDesc)}`, request.url),
+                // 토큰 획득 성공
+                const tokenData = await tokenResponse.json();
+                console.log("Token exchange successful:", {
+                    hasAccessToken: !!tokenData.access_token,
+                    hasRefreshToken: !!tokenData.refresh_token,
+                    expiresIn: tokenData.expires_in,
+                });
+                
+                // 세션 정보를 쿠키에 저장
+                const redirectResponse = NextResponse.redirect(
+                    new URL(finalRedirectUrl, request.url),
                     302,
                 );
+                
+                // 현재 요청의 호스트명 추출
+                const hostName = new URL(request.url).hostname;
+                const cookieDomain = process.env.NODE_ENV === "production" 
+                    ? hostName.includes("picnic.fan") ? "picnic.fan" : hostName
+                    : undefined;
+                    
+                // 세션 쿠키 설정
+                if (tokenData.access_token) {
+                    redirectResponse.cookies.set({
+                        name: "sb-access-token",
+                        value: tokenData.access_token,
+                        path: "/",
+                        domain: cookieDomain,
+                        secure: process.env.NODE_ENV === "production",
+                        sameSite: "lax",
+                        httpOnly: true,
+                    });
+                    
+                    if (tokenData.refresh_token) {
+                        redirectResponse.cookies.set({
+                            name: "sb-refresh-token",
+                            value: tokenData.refresh_token,
+                            path: "/",
+                            domain: cookieDomain,
+                            secure: process.env.NODE_ENV === "production",
+                            sameSite: "lax",
+                            httpOnly: true,
+                        });
+                    }
+                    
+                    console.log("Auth cookies set, redirecting to:", finalRedirectUrl);
+                    return redirectResponse;
+                } else {
+                    console.log("No access token received, redirecting without auth cookies");
+                    return NextResponse.redirect(
+                        new URL(finalRedirectUrl, request.url),
+                        302
+                    );
+                }
+            } catch (tokenError) {
+                console.error("Error during token exchange:", {
+                    error: tokenError,
+                    message: tokenError instanceof Error ? tokenError.message : "Unknown error",
+                });
+                
+                // 오류 발생 시 홈페이지로 리다이렉트
+                return NextResponse.redirect(
+                    new URL(finalRedirectUrl, request.url),
+                    302
+                );
             }
-
-            console.log("Session exchange successful:", {
-                userId: data.session?.user?.id,
-                expiresAt: data.session?.expires_at,
-            });
-
-            // 세션 정보를 쿠키에 저장
-            const redirectResponse = NextResponse.redirect(
-                new URL(finalRedirectUrl, request.url),
-                302,
-            );
-
-            // 현재 요청의 호스트명 추출
-            const hostName = new URL(request.url).hostname;
-            console.log("Cookie setup:", {
-                hostName,
-                redirectUrl,
-                isDev: process.env.NODE_ENV !== "production",
-            });
-
-            // 쿠키 설정 없이 홈페이지로 리다이렉트
-            console.log("Redirecting to homepage without session exchange");
-            return NextResponse.redirect(
-                new URL(finalRedirectUrl, request.url),
-                302
-            );
-            */
         } catch (error) {
             console.error("Unexpected error during session exchange:", {
                 error,
@@ -432,12 +461,106 @@ export async function GET(request: NextRequest): Promise<Response> {
             isProduction: process.env.NODE_ENV === "production",
         });
 
-        // 이 시점에서는 state 파라미터가 없어도 진행합니다.
-        // 직접 홈페이지로 리다이렉트
-        return NextResponse.redirect(
-            new URL(finalRedirectUrl, request.url),
-            302
-        );
+        // 코드 검증자 확인 (state 객체에서 추출)
+        const stateVerifier = stateData.code_verifier;
+        
+        try {
+            // 세션 획득을 위해 Supabase API 직접 호출
+            const tokenResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=authorization_code&code=${code}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+                    'X-Client-Info': 'picnicweb',
+                },
+                body: JSON.stringify({
+                    code_verifier: stateVerifier,
+                    auth_code: code,
+                }),
+            });
+            
+            if (!tokenResponse.ok) {
+                // 토큰 획득 실패 로그
+                const errorJson = await tokenResponse.json().catch(() => ({}));
+                console.error("Failed to exchange token (GET):", {
+                    status: tokenResponse.status,
+                    statusText: tokenResponse.statusText,
+                    error: errorJson,
+                });
+                
+                // 직접 리다이렉트
+                console.log("Token exchange failed, redirecting to homepage anyway (GET):", finalRedirectUrl);
+                return NextResponse.redirect(
+                    new URL(finalRedirectUrl, request.url),
+                    302
+                );
+            }
+            
+            // 토큰 획득 성공
+            const tokenData = await tokenResponse.json();
+            console.log("Token exchange successful (GET):", {
+                hasAccessToken: !!tokenData.access_token,
+                hasRefreshToken: !!tokenData.refresh_token,
+                expiresIn: tokenData.expires_in,
+            });
+            
+            // 세션 정보를 쿠키에 저장
+            const redirectResponse = NextResponse.redirect(
+                new URL(finalRedirectUrl, request.url),
+                302,
+            );
+            
+            // 현재 요청의 호스트명 추출
+            const hostName = new URL(request.url).hostname;
+            const cookieDomain = process.env.NODE_ENV === "production" 
+                ? hostName.includes("picnic.fan") ? "picnic.fan" : hostName
+                : undefined;
+                
+            // 세션 쿠키 설정
+            if (tokenData.access_token) {
+                redirectResponse.cookies.set({
+                    name: "sb-access-token",
+                    value: tokenData.access_token,
+                    path: "/",
+                    domain: cookieDomain,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                    httpOnly: true,
+                });
+                
+                if (tokenData.refresh_token) {
+                    redirectResponse.cookies.set({
+                        name: "sb-refresh-token",
+                        value: tokenData.refresh_token,
+                        path: "/",
+                        domain: cookieDomain,
+                        secure: process.env.NODE_ENV === "production",
+                        sameSite: "lax",
+                        httpOnly: true,
+                    });
+                }
+                
+                console.log("Auth cookies set, redirecting to (GET):", finalRedirectUrl);
+                return redirectResponse;
+            } else {
+                console.log("No access token received, redirecting without auth cookies (GET)");
+                return NextResponse.redirect(
+                    new URL(finalRedirectUrl, request.url),
+                    302
+                );
+            }
+        } catch (tokenError) {
+            console.error("Error during token exchange (GET):", {
+                error: tokenError,
+                message: tokenError instanceof Error ? tokenError.message : "Unknown error",
+            });
+            
+            // 오류 발생 시 홈페이지로 리다이렉트
+            return NextResponse.redirect(
+                new URL(finalRedirectUrl, request.url),
+                302
+            );
+        }
     } catch (error) {
         console.error("Unexpected error during GET OAuth callback:", {
             error,
