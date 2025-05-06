@@ -302,6 +302,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
           </div>
 
           {/* 상위 3위: 가로 슬라이드, 항상 가로로만 */}
+          { voteStatus !== 'upcoming' && (
           <div className='bg-white border-b px-4'>
             <div className='flex gap-4 overflow-x-auto overflow-y-hidden py-3 pb-4 justify-center items-end'>
               {vote &&
@@ -334,6 +335,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
                 ))}
             </div>
           </div>
+          )}
         </div>
 
         {/* 메인 콘텐츠 영역 */}
