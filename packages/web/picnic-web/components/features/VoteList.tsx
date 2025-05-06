@@ -10,7 +10,7 @@ import React, {
 import Link from 'next/link';
 import Image from 'next/image';
 import { Vote, VoteItem, Reward } from '@/types/interfaces';
-import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
+import { getCdnImageUrl } from '@/utils/api/image';
 import { format, differenceInDays, differenceInSeconds } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { getVotes } from '@/utils/api/queries';
@@ -22,6 +22,7 @@ import CountdownTimer from '@/components/features/CountdownTimer';
 import { useRouter } from 'next/navigation';
 import { Database } from '@/types/supabase';
 import { Json } from '@/types/supabase';
+import { getLocalizedString } from '@/utils/api/strings';
 
 interface VoteListProps {
   votes: Vote[];

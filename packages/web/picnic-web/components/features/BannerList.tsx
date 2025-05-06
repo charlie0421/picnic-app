@@ -4,10 +4,10 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Banner } from '@/types/interfaces';
-import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
+import { getCdnImageUrl } from '@/utils/api/image';
 import { getBanners } from '@/utils/api/queries';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-
+import { getLocalizedString } from '@/utils/api/strings';
 const BannerList: React.FC = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [isLoading, setIsLoading] = useState(true);

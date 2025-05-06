@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Media } from '@/types/interfaces';
-import { getLocalizedString } from '@/utils/api/image';
+import { getLocalizedString } from '@/utils/api/strings';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLanguageStore } from '@/stores/languageStore';

@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { VoteItem } from '@/types/interfaces';
-import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
-
+import { getCdnImageUrl } from '@/utils/api/image';
+import { getLocalizedString } from '@/utils/api/strings';
 const UpcomingVoteItems: React.FC<{
   voteItems?: Array<VoteItem & { artist?: any }>;
 }> = ({ voteItems }) => {

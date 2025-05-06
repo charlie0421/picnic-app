@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Reward } from '@/types/interfaces';
-import { getLocalizedString, getCdnImageUrl } from '@/utils/api/image';
+import { getCdnImageUrl } from '@/utils/api/image';
 import { useLanguageStore } from '@/stores/languageStore';
-
+import { getLocalizedString } from '@/utils/api/strings';
 interface VoteRewardPreviewProps {
   rewards: Reward[];
   className?: string;

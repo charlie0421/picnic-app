@@ -4,8 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Reward } from '@/types/interfaces';
-import { getCdnImageUrl, getLocalizedString } from '@/utils/api/image';
-
+import { getCdnImageUrl } from '@/utils/api/image';
+import { getLocalizedString } from '@/utils/api/strings';
 interface RewardItemProps {
   reward: Reward;
 }
