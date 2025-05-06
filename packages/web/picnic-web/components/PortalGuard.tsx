@@ -12,7 +12,6 @@ interface PortalProps {
 }
 
 export default function PortalGuard({ type = PortalType.PUBLIC, children }: PortalProps) {
-  const { authState } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 

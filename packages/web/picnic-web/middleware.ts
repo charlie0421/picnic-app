@@ -5,11 +5,6 @@ import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from './config/settings';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // API 경로는 건너뛰기
-  // if (pathname.startsWith('/api/')) {
-    // return NextResponse.next();
-  // }
-
   // 정적 파일 경로는 건너뛰기
   if (
     pathname.startsWith('/_next/') ||

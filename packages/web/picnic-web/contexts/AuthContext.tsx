@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../utils/supabase-client';
-import { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { Session, User as SupabaseUser, AuthChangeEvent, Provider } from '@supabase/supabase-js';
 import { UserProfiles } from '@/types/interfaces';
 
 // 인증 상태 인터페이스
@@ -16,7 +16,7 @@ export interface AuthState {
 interface AuthContextProps {
   authState: AuthState;
   signIn: (email: string, password: string) => Promise<void>;
-  signInWithSocial: (provider: 'google' | 'apple' | 'kakao' | 'wechat') => Promise<void>;
+  signInWithSocial: (provider: Provider | 'wechat') => Promise<void>;
   signOut: () => Promise<boolean>;
   signUp: (email: string, password: string, username: string) => Promise<void>;
   updateUserProfile: (profile: Partial<UserProfiles>) => Promise<void>;
@@ -129,7 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // 인증 상태 변화 구독
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: 'SIGNED_IN' | 'SIGNED_OUT' | 'USER_UPDATED' | 'TOKEN_REFRESHED' | 'PASSWORD_RECOVERY', session: Session | null) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       console.log('Auth State Change:', event, !!session);
       
       // SIGNED_OUT 이벤트에 대한 특별 처리
@@ -183,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const signInWithSocial = useCallback(async (provider: 'google' | 'apple' | 'kakao' | 'wechat') => {
+  const signInWithSocial = useCallback(async (provider: Provider | 'wechat') => {
     try {
       setAuthState((prev: AuthState) => ({ ...prev, loading: true, error: null }));
       
@@ -191,8 +191,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         redirectTo: window.location.origin + '/auth/callback',
       };
       
+      if (provider === 'wechat') {
+        // WeChat은 별도 API 처리
+        setAuthState((prev: AuthState) => ({
+          ...prev,
+          loading: false,
+          error: 'WeChat 로그인은 별도 API를 통해 처리됩니다.'
+        }));
+        return;
+      }
+      
       const { error } = await supabase.auth.signInWithOAuth({ 
-        provider, 
+        provider: provider as Provider, 
         options 
       });
       
