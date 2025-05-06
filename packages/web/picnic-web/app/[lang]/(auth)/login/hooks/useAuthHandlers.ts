@@ -488,7 +488,9 @@ export const useAuthHandlers = () => {
       
       // NgRok 환경 또는 일반 환경 모두 직접 Google OAuth URL 구성 사용
       // 콜백 URL 동적 생성 (현재 환경과 언어 고려)
-      const callbackPath = `${actualOrigin}/${currentLang}/auth/callback/google`;
+      const callbackPath = isNgrokActual 
+        ? `${actualOrigin}/${currentLang}/auth/callback/google` // NgRok 환경에서는 동적 URL 사용
+        : `https://www.picnic.fan/auth/callback/google`; // 프로덕션 환경에서는 구글 콘솔에 등록된 고정 URL 사용
       
       // GoogleAuth 엔드포인트 URL
       debugLog('직접 Google OAuth URL 구성 시작 (PKCE 적용)', {
@@ -615,7 +617,7 @@ export const useAuthHandlers = () => {
     }
   }, [handleAppleSignIn, handleGoogleSignIn, handleOtherProviderSignIn]);
 
-  // 에러 파라미터 처리 및 URL 정리
+  // 오류 파라미터 처리 및 URL 정리
   const processErrorParams = useCallback(() => {
     if (typeof window === 'undefined') return;
     
@@ -637,7 +639,18 @@ export const useAuthHandlers = () => {
     if (authError === 'true' || error) {
       // 오류 메시지 설정
       if (errorDescription) {
-        setError(`인증 오류: ${decodeURIComponent(errorDescription)}`);
+        // redirect_uri_mismatch 오류 특별 처리
+        if (errorDescription.includes('redirect_uri_mismatch') || error === 'redirect_uri_mismatch') {
+          setError('인증 실패: 리디렉션 URI가 구글 콘솔에 등록된 URI와 일치하지 않습니다. 관리자에게 문의하세요.');
+          
+          // 디버깅 정보 기록
+          try {
+            localStorage.setItem('auth_redirect_uri_mismatch', 'true');
+            localStorage.setItem('auth_redirect_uri_mismatch_time', Date.now().toString());
+          } catch (e) {}
+        } else {
+          setError(`인증 오류: ${decodeURIComponent(errorDescription)}`);
+        }
       } else if (localErrorDescription) {
         setError(`인증 오류: ${localErrorDescription}`);
         // 로컬 스토리지에서 사용 후 제거

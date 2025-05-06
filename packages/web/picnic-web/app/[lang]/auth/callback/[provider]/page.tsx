@@ -40,13 +40,15 @@ export default function AuthCallbackPage() {
     debugLog('Auth 콜백 페이지 로드', {
       provider,
       url: window.location.href,
-      search: window.location.search
+      search: window.location.search,
+      pathname: window.location.pathname
     });
     
     try {
       localStorage.setItem('auth_callback_page_load', 'true');
       localStorage.setItem('auth_callback_provider', provider);
       localStorage.setItem('auth_callback_url', window.location.href);
+      localStorage.setItem('auth_callback_pathname', window.location.pathname);
     } catch (e) {
       // 저장 실패 시 무시
     }
@@ -148,6 +150,14 @@ export default function AuthCallbackPage() {
           debugLog('State 파싱 오류', { error: e instanceof Error ? e.message : '알 수 없는 오류' });
           // 기본값 사용
         }
+        
+        // 경로 유형 감지 (프로덕션 URL vs 언어 포함 URL)
+        const isLangPath = window.location.pathname.includes(`/${lang}/auth/callback/`);
+        debugLog('경로 유형 감지', { 
+          isLangPath,
+          pathname: window.location.pathname,
+          lang
+        });
         
         // PKCE 사용 중인데 코드 검증자가 없는 경우
         if (isPkce && !codeVerifier) {
@@ -323,8 +333,10 @@ export default function AuthCallbackPage() {
         
         // 약간의 지연 후 홈 또는 원래 경로로 리디렉션
         setTimeout(() => {
-          debugLog('로그인 완료, 리디렉션', { path: returnPath });
-          window.location.href = returnPath;
+          // 경로 유형에 따라 적절한 리디렉션 경로 사용
+          const redirectPath = isLangPath ? returnPath : `/${lang}`;
+          debugLog('로그인 완료, 리디렉션', { path: redirectPath, isLangPath });
+          window.location.href = redirectPath;
         }, 1000);
         
       } catch (e) {
