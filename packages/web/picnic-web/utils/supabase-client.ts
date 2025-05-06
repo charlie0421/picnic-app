@@ -15,6 +15,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 // 외부 도메인 허용 목록
 const allowedOrigins = ['ngrok-free.app', '.ngrok-free.app'];
 
+// Supabase API 키 (애노키)
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
 // 현재 언어 경로 감지
 const getCurrentLangPath = (): string => {
   if (typeof window === 'undefined') return '';
@@ -40,6 +43,18 @@ const getSupabaseUrl = () => {
   return originalUrl;
 };
 
+// URL에 apikey 파라미터 추가
+const addApiKeyToUrl = (url: URL | string): URL => {
+  const urlObj = url instanceof URL ? url : new URL(url.toString());
+  
+  // 이미 apikey가 있으면 추가하지 않음
+  if (!urlObj.searchParams.has('apikey') && supabaseAnonKey) {
+    urlObj.searchParams.set('apikey', supabaseAnonKey);
+  }
+  
+  return urlObj;
+};
+
 // Supabase 커스텀 fetch 함수
 const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
   try {
@@ -56,26 +71,48 @@ const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
       console.log(`Supabase 요청 프록시: ${urlStr} -> ${modifiedUrl}`);
     }
     
+    // URL이 문자열인 경우 URL 객체로 변환
+    const urlObj = typeof modifiedUrl === 'string' ? new URL(modifiedUrl) : 
+                   modifiedUrl instanceof URL ? modifiedUrl : new URL(modifiedUrl.toString());
+    
+    // API 키를 URL에 추가
+    const finalUrl = addApiKeyToUrl(urlObj);
+    
+    // 헤더 생성
+    const headers = new Headers(options?.headers || {});
+    
+    // API 키 헤더 추가
+    if (supabaseAnonKey && !headers.has('apikey')) {
+      headers.set('apikey', supabaseAnonKey);
+      headers.set('Authorization', `Bearer ${supabaseAnonKey}`);
+    }
+    
     // 옵션 설정
     const modifiedOptions: RequestInit = {
       ...options,
-      headers: {
-        ...options?.headers,
-        'X-Custom-Environment': isNgrokEnvironment ? 'ngrok' : 'regular',
-      },
+      headers,
       // CORS 정책 설정
       credentials: 'include' as RequestCredentials
     };
     
     // fetch 요청 수행
-    const response = await fetch(modifiedUrl, modifiedOptions);
+    const response = await fetch(finalUrl, modifiedOptions);
     
     // 응답 로깅 (디버깅용)
     if (!response.ok && isNgrokEnvironment) {
       console.error(`API 응답 오류: ${response.status} ${response.statusText}`, {
-        url: modifiedUrl,
+        url: finalUrl.toString(),
         originalUrl: url,
       });
+      
+      // 401 오류인 경우 API 키 정보 출력
+      if (response.status === 401) {
+        console.error('API 키 인증 오류:', {
+          apiKeyInHeader: headers.has('apikey'),
+          apiKeyInUrl: finalUrl.searchParams.has('apikey'),
+          apiKeyFirstChars: supabaseAnonKey.substring(0, 5) + '...',
+        });
+      }
     }
     
     return response;
@@ -88,7 +125,7 @@ const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
 // 전역 Supabase 클라이언트 인스턴스 직접 생성
 export const supabase = createBrowserClient(
   getSupabaseUrl(),
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  supabaseAnonKey,
   {
     auth: {
       flowType: 'pkce',
@@ -152,6 +189,8 @@ if (typeof window !== 'undefined') {
   console.log('Supabase 클라이언트 초기화 완료', {
     url: getSupabaseUrl(),
     originalUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    apiKeyExists: !!supabaseAnonKey,
+    apiKeyLength: supabaseAnonKey?.length,
     isNgrok: isNgrokEnvironment,
     isProduction,
     hostname: window.location.hostname,

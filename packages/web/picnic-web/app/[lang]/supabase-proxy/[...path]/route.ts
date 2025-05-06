@@ -50,9 +50,17 @@ async function handleRequest(
     // 원본 요청 헤더 복사
     const headers = new Headers(request.headers);
     
-    // Authorization 헤더 추가 (anon key 사용)
-    if (!headers.has('Authorization') && supabaseKey) {
+    // Supabase API 키 헤더 추가 
+    if (supabaseKey) {
+      headers.set('apikey', supabaseKey);
       headers.set('Authorization', `Bearer ${supabaseKey}`);
+      
+      console.log("[lang] API 키 헤더 설정 완료:", 
+        headers.has('apikey'), 
+        headers.has('Authorization')
+      );
+    } else {
+      console.error("[lang] API 키가 환경 변수에 설정되지 않았습니다!");
     }
 
     // 필요없는 헤더 제거
@@ -65,7 +73,7 @@ async function handleRequest(
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-Custom-Environment',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-Custom-Environment, apikey',
           'Access-Control-Max-Age': '86400',
         },
       });
@@ -84,6 +92,11 @@ async function handleRequest(
       url.searchParams.append(key, value);
     });
     
+    // apikey URL 파라미터 추가 (URL을 통한 인증 지원)
+    if (supabaseKey && !url.searchParams.has('apikey')) {
+      url.searchParams.append('apikey', supabaseKey);
+    }
+    
     console.log(`[lang] 최종 요청 URL: ${url.toString()}`);
 
     // Supabase API로 요청 전송
@@ -98,17 +111,24 @@ async function handleRequest(
     const responseHeaders = new Headers(response.headers);
     responseHeaders.set('Access-Control-Allow-Origin', '*');
     responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Client-Info, X-Custom-Environment');
+    responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Client-Info, X-Custom-Environment, apikey');
 
-    // 응답 본문 복사
+    // 응답 상태 코드와 본문
+    const status = response.status;
     const responseData = await response.arrayBuffer();
 
     // 응답 로깅
-    console.log(`[lang] 프록시 응답: ${response.status} ${response.statusText}`);
+    console.log(`[lang] 프록시 응답: ${status} ${response.statusText}`);
+    
+    // 오류 응답인 경우 로그 출력
+    if (status >= 400) {
+      const responseText = new TextDecoder().decode(responseData);
+      console.error(`[lang] 프록시 오류 응답 본문:`, responseText);
+    }
     
     // 응답 생성
     return new NextResponse(responseData, {
-      status: response.status,
+      status,
       statusText: response.statusText,
       headers: responseHeaders,
     });
