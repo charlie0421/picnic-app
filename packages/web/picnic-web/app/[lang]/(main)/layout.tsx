@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Footer from '@/components/layouts/Footer';
-import { logEnvironmentInfo } from '@/utils/api/debug';
 import { SupabaseProvider } from '@/components/providers/SupabaseProvider';
 
 export default function MainLayout({
@@ -18,15 +17,6 @@ export default function MainLayout({
       const isNgrok = window.location.hostname.includes('ngrok');
       const isDev = process.env.NODE_ENV === 'development';
       
-      if (isNgrok || isDev) {
-        // 비동기로 디버깅 모듈 로드 (프로덕션 번들에 포함되지 않도록)
-        import('@/utils/api/debug').then(({ enableDebugging }) => {
-          enableDebugging();
-        });
-      }
-      
-      // 기본 환경 정보는 항상 로깅
-      logEnvironmentInfo();
     }
   }, []);
 
