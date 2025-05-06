@@ -92,7 +92,7 @@ const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
       ...options,
       headers,
       // CORS 정책 설정
-      credentials: 'include' as RequestCredentials
+      credentials: 'same-origin' as RequestCredentials
     };
     
     // fetch 요청 수행

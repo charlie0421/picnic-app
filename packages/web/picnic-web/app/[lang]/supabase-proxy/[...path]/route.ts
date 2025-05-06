@@ -68,12 +68,14 @@ async function handleRequest(
     
     // OPTIONS 요청에 대한 CORS 프리플라이트 응답
     if (method === 'OPTIONS') {
+      const origin = request.headers.get('origin') || '*';
       return new NextResponse(null, {
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': origin,
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, X-Custom-Environment, apikey',
+          'Access-Control-Allow-Credentials': 'true',
           'Access-Control-Max-Age': '86400',
         },
       });
@@ -109,9 +111,11 @@ async function handleRequest(
 
     // 응답 헤더 복사
     const responseHeaders = new Headers(response.headers);
-    responseHeaders.set('Access-Control-Allow-Origin', '*');
+    const origin = request.headers.get('origin') || '*';
+    responseHeaders.set('Access-Control-Allow-Origin', origin);
     responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
     responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Client-Info, X-Custom-Environment, apikey');
+    responseHeaders.set('Access-Control-Allow-Credentials', 'true');
 
     // 응답 상태 코드와 본문
     const status = response.status;

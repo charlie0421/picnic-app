@@ -568,9 +568,7 @@ const VoteList: React.FC = () => {
       try {
         // Supabase가 준비된 후에만 데이터를 요청
         if (!isReady) return [];
-        console.log('투표 데이터 로드 시작...');
         const votesData = await getVotes('votes');
-        console.log(`투표 데이터 로드 완료: ${votesData.length}개 항목`);
         return votesData;
       } catch (err) {
         console.error('투표 데이터 로드 오류:', err);

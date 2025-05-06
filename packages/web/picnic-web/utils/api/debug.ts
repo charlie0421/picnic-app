@@ -34,11 +34,6 @@ export function setupNetworkMonitoring() {
       url = String(resource);
     }
     
-    console.log(`[네트워크 요청] ${config?.method || 'GET'} ${url}`, {
-      headers: config?.headers,
-      body: config?.body
-    });
-    
     try {
       const response = await originalFetch(...args);
       
@@ -55,12 +50,6 @@ export function setupNetworkMonitoring() {
       } catch (e) {
         // JSON이 아닌 경우 무시
       }
-      
-      console.log(`[네트워크 응답] ${status} ${url}`, {
-        status,
-        ok: clonedResponse.ok,
-        body: body ? '있음' : '없음',
-      });
       
       return response;
     } catch (error) {
