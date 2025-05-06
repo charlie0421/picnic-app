@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Footer from '@/components/layouts/Footer';
 import { logEnvironmentInfo } from '@/utils/api/debug';
+import { SupabaseProvider } from '@/components/providers/SupabaseProvider';
 
 export default function MainLayout({
   children,
@@ -30,13 +31,15 @@ export default function MainLayout({
   }, []);
 
   return (
-    <AuthProvider>
-      <div className='min-h-screen flex flex-col'>
-        <main className='flex-grow'>
-          {children}
-        </main>
-        <Footer />
-      </div>
-    </AuthProvider>
+    <SupabaseProvider>
+      <AuthProvider>
+        <div className='min-h-screen flex flex-col'>
+          <main className='flex-grow'>
+            {children}
+          </main>
+          <Footer />
+        </div>
+      </AuthProvider>
+    </SupabaseProvider>
   );
 } 

@@ -23,6 +23,8 @@ import { useRouter } from 'next/navigation';
 import { Database } from '@/types/supabase';
 import { Json } from '@/types/supabase';
 import { getLocalizedString } from '@/utils/api/strings';
+import { useSupabase } from '@/components/providers/SupabaseProvider';
+import { useSafeData } from '@/utils/api/hydration-safe-data';
 
 interface VoteListProps {
   votes: Vote[];
@@ -550,180 +552,54 @@ const EmptyState = React.memo(
 EmptyState.displayName = 'EmptyState';
 
 const VoteList: React.FC = () => {
-  const [mounted, setMounted] = useState(false);
-  const [votes, setVotes] = useState<Vote[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
-  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
-    'all',
-  );
-  const [error, setError] = useState<string | null>(null);
+  const { supabase, isReady } = useSupabase();
   const { t } = useLanguageStore();
-  const loadingRef = useRef<HTMLDivElement>(null);
-  const PAGE_SIZE = 6;
-  const isFetching = useRef(false);
   const router = useRouter();
-  const voteTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-    // 초기 데이터 로드
-    updateVoteData(1, false);
-  }, []);
-
-  const updateVoteData = useCallback(
-    async (pageNum: number = 1, append: boolean = false) => {
-      if (isFetching.current) return;
-
+  const PAGE_SIZE = 6;
+  
+  // 데이터 로드 및 로딩 상태 관리
+  const {
+    data: allVotes,
+    isLoading,
+    error,
+    mounted,
+  } = useSafeData(
+    async () => {
       try {
-        isFetching.current = true;
-        setLoading(true);
-        setError(null);
-
+        // Supabase가 준비된 후에만 데이터를 요청
+        if (!isReady) return [];
+        console.log('투표 데이터 로드 시작...');
         const votesData = await getVotes('votes');
-        const start = (pageNum - 1) * PAGE_SIZE;
-        const end = start + PAGE_SIZE;
-        const paginatedData = votesData.slice(start, end);
-
-        if (append) {
-          setVotes((prev) => [...prev, ...paginatedData]);
-        } else {
-          setVotes(paginatedData);
-        }
-
-        setHasMore(end < votesData.length);
-      } catch (error) {
-        console.error('투표 데이터를 가져오는 중 오류가 발생했습니다:', error);
-        setError('데이터를 불러오는 중 오류가 발생했습니다.');
-      } finally {
-        setLoading(false);
-        isFetching.current = false;
+        console.log(`투표 데이터 로드 완료: ${votesData.length}개 항목`);
+        return votesData;
+      } catch (err) {
+        console.error('투표 데이터 로드 오류:', err);
+        throw err;
       }
     },
-    [PAGE_SIZE],
+    [],
+    [isReady]  // Supabase가 준비되면 재실행
   );
-
-  // 1초마다 투표 데이터 갱신
-  useEffect(() => {
-    if (!mounted) return;
-
-    const updateVotes = async () => {
-      if (isFetching.current) return;
-
-      try {
-        isFetching.current = true;
-        const votesData = await getVotes('votes');
-        const start = (page - 1) * PAGE_SIZE;
-        const end = start + PAGE_SIZE;
-        const paginatedData = votesData.slice(start, end);
-
-        // 투표수 변경 감지 및 UI 업데이트
-        setVotes((prevVotes) => {
-          let hasChanges = false;
-          const newVotes = paginatedData.map((newVote) => {
-            const prevVote = prevVotes.find((v) => v.id === newVote.id);
-            if (prevVote) {
-              // 투표 아이템의 투표수 변경 감지
-              const updatedVoteItems = (newVote.voteItems || []).map(
-                (newItem) => {
-                  const prevItem = (prevVote.voteItems || []).find(
-                    (i) => i.id === newItem.id,
-                  );
-                  if (prevItem && prevItem.voteTotal !== newItem.voteTotal) {
-                    const prevTotal = prevItem.voteTotal ?? 0;
-                    const newTotal = newItem.voteTotal ?? 0;
-                    hasChanges = true;
-
-                    return {
-                      ...newItem,
-                      voteTotal: newTotal,
-                      isAnimating: true,
-                      voteChange: newTotal - prevTotal,
-                    };
-                  }
-                  return newItem;
-                },
-              );
-
-              if (hasChanges) {
-                return {
-                  ...newVote,
-                  voteItems: updatedVoteItems,
-                };
-              }
-              return prevVote;
-            }
-            return newVote;
-          });
-
-          if (hasChanges) {
-            return newVotes;
-          }
-          return prevVotes;
-        });
-
-        setHasMore(end < votesData.length);
-      } catch (error) {
-        console.error('투표 데이터 갱신 중 오류가 발생했습니다:', error);
-      } finally {
-        isFetching.current = false;
-      }
-    };
-
-    // 즉시 한 번 실행
-    updateVotes();
-
-    // 1초마다 반복 실행
-    voteTimerRef.current = setInterval(updateVotes, 1000);
-
-    return () => {
-      if (voteTimerRef.current) {
-        clearInterval(voteTimerRef.current);
-      }
-    };
-  }, [mounted, page, PAGE_SIZE]);
-
-  // 상태 변경 시 데이터 리셋
-  useEffect(() => {
-    if (mounted) {
-      setPage(1);
-      updateVoteData(1, false);
-    }
-  }, [selectedStatus, mounted, updateVoteData]);
-
-  // 스크롤 감지 및 추가 데이터 로드
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (
-          first.isIntersecting &&
-          hasMore &&
-          !loading &&
-          !isFetching.current
-        ) {
-          const nextPage = page + 1;
-          setPage(nextPage);
-          updateVoteData(nextPage, true);
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    const currentLoadingRef = loadingRef.current;
-    if (currentLoadingRef) {
-      observer.observe(currentLoadingRef);
-    }
-
-    return () => {
-      if (currentLoadingRef) {
-        observer.unobserve(currentLoadingRef);
-      }
-    };
-  }, [hasMore, loading, page, updateVoteData]);
-
+  
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+  const loadingRef = useRef<HTMLDivElement>(null);
+  
+  // 표시할 투표 목록 계산
+  const votes = useMemo(() => {
+    if (!allVotes) return [];
+    const start = 0;
+    const end = page * PAGE_SIZE;
+    const paginatedData = allVotes.slice(start, end);
+    setHasMore(end < allVotes.length);
+    return paginatedData;
+  }, [allVotes, page, PAGE_SIZE]);
+  
+  // 필터링된 투표 목록
   const filteredVotes = useMemo(() => {
+    if (!votes || votes.length === 0) return [];
+    
     if (selectedStatus === 'all') {
       return votes.sort((a, b) => {
         const now = new Date();
@@ -748,6 +624,7 @@ const VoteList: React.FC = () => {
         return 0;
       });
     }
+    
     return votes.filter((vote) => {
       if (!vote.startAt || !vote.stopAt)
         return selectedStatus === VOTE_STATUS.UPCOMING;
@@ -761,15 +638,54 @@ const VoteList: React.FC = () => {
     });
   }, [votes, selectedStatus]);
 
+  // 스크롤 감지 및 추가 데이터 로드
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (
+          first.isIntersecting &&
+          hasMore &&
+          !isLoading
+        ) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    const currentLoadingRef = loadingRef.current;
+    if (currentLoadingRef) {
+      observer.observe(currentLoadingRef);
+    }
+
+    return () => {
+      if (currentLoadingRef) {
+        observer.unobserve(currentLoadingRef);
+      }
+    };
+  }, [hasMore, isLoading, mounted]);
+  
+  // 상태가 변경되면 페이지 리셋
+  useEffect(() => {
+    if (mounted) {
+      setPage(1);
+    }
+  }, [selectedStatus, mounted]);
+
+  // 컴포넌트가 마운트되기 전에는 렌더링하지 않음
   if (!mounted) return null;
 
+  // 오류 발생 시
   if (error) {
     return (
       <div className='text-red-500 p-4 rounded-lg bg-red-50 flex flex-col items-center'>
-        <p>{error}</p>
+        <p>데이터를 불러오는 중 오류가 발생했습니다.</p>
         <button
           className='mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600'
-          onClick={() => updateVoteData(page, false)}
+          onClick={() => window.location.reload()}
         >
           다시 시도
         </button>
@@ -787,9 +703,9 @@ const VoteList: React.FC = () => {
         />
       </div>
 
-      {loading && votes.length === 0 ? (
+      {isLoading && votes.length === 0 ? (
         <LoadingSkeleton />
-      ) : votes.length === 0 ? (
+      ) : allVotes?.length === 0 ? (
         <div className='bg-gray-100 p-6 rounded-lg text-center'>
           <p className='text-gray-500'>투표가 없습니다.</p>
         </div>
@@ -808,7 +724,7 @@ const VoteList: React.FC = () => {
           </div>
           {hasMore && (
             <div ref={loadingRef} className='w-full'>
-              {loading ? (
+              {isLoading ? (
                 <InfiniteLoadingIndicator />
               ) : (
                 <div className='h-4'></div>
