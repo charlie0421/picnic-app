@@ -1,6 +1,7 @@
 'use client';
 
 import { createBrowserClient } from '@supabase/ssr';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 let supabaseClient: ReturnType<typeof createBrowserClient> | null = null;
 
@@ -16,8 +17,10 @@ export const createBrowserSupabaseClient = () => {
     {
       auth: {
         flowType: 'pkce',
-        // 자동으로 URL에서 세션 정보 감지
+        // 자동으로 URL에서 세션 정보 감지 - 항상 활성화
         detectSessionInUrl: true,
+        autoRefreshToken: true,
+        persistSession: true,
         // 로컬 스토리지 대신 쿠키도 지원하는 스토리지 설정
         storage: {
           getItem: (key) => {
@@ -61,6 +64,22 @@ export const createBrowserSupabaseClient = () => {
       }
     }
   );
+  
+  // 인증 상태 변경 리스너 추가
+  supabaseClient.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+    console.log('Supabase 인증 상태 변경:', event, !!session);
+    
+    // 세션이 생성되었을 때 로컬 스토리지에 저장
+    if (event === 'SIGNED_IN' && session) {
+      try {
+        localStorage.setItem('auth_success', 'true');
+        localStorage.setItem('auth_provider', session.user?.app_metadata?.provider || 'unknown');
+        localStorage.setItem('auth_timestamp', Date.now().toString());
+      } catch (e) {
+        console.warn('로컬 스토리지 저장 오류:', e);
+      }
+    }
+  });
 
   return supabaseClient;
 };

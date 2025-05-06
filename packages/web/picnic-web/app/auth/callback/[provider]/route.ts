@@ -156,6 +156,24 @@ async function handleGoogleCallback(request: NextRequest, code: string, state: s
     console.log('코드 확인:', code.substring(0, 10) + '...');
     console.log('state 값:', state);
     
+    // Supabase를 사용하여 코드를 세션으로 교환
+    console.log('구글 코드를 세션으로 교환 중...');
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    
+    if (error) {
+      console.error('세션 교환 오류:', error);
+      return NextResponse.redirect(
+        getSafeRedirectUrl(request, `/?auth_error=true&error_type=session_exchange&error_description=${error.message}&provider=google`)
+      );
+    }
+    
+    // 세션 정보 확인
+    console.log('세션 교환 성공:', {
+      hasSession: !!data.session,
+      hasUser: !!data.session?.user,
+      userId: data.session?.user?.id,
+    });
+    
     // state에서 정보 추출
     let originalUrl = '';
     let isNgrok = false;
@@ -232,63 +250,61 @@ async function handleGoogleCallback(request: NextRequest, code: string, state: s
     
     console.log('최종 타겟 URL:', targetUrl);
     
-    // PKCE 흐름에 맞는 응답 생성
-    // Supabase의 detectSessionInUrl 기능을 활용하기 위해 클라이언트에서 처리
-    const url = new URL(targetUrl);
-    // 인증 코드를 URL에 추가
-    url.searchParams.append('code', code);
-    
-    // 사용자 경험을 위한 HTML 응답 생성
-    const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>로그인 처리 중</title>
-      <script>
-        // 콘솔에 상태 표시
-        console.log('인증 코드 확인됨, 세션 처리 중...');
-        console.log('리디렉션 대상 URL: ${url.toString()}');
-        
-        // localStorage에 인증 상태 기록
-        try {
-          localStorage.setItem('auth_code_processed', 'true');
-          localStorage.setItem('auth_code_timestamp', Date.now().toString());
+    // 직접 HTML 응답으로 리디렉션
+    if (originalUrl && originalUrl !== requestUrl.origin && !originalUrl.includes('picnic.fan')) {
+      console.log(`원래 도메인으로 리디렉션: ${originalUrl}`);
+      
+      // 인증 성공 후 원래 도메인으로 리디렉션하는 HTML 응답
+      const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>로그인 성공</title>
+        <script>
+          // 로그인 성공 표시
+          localStorage.setItem('auth_success', 'true');
           localStorage.setItem('auth_provider', 'google');
-        } catch (e) {
-          console.error('로컬 스토리지 설정 오류:', e);
-        }
-        
-        // 세션 처리를 위한 타임아웃 설정
-        setTimeout(function() {
-          // Supabase 자동 감지가 작동하도록 현재 URL 그대로 사용
-          window.location.href = '${url.toString()}';
-        }, 500);
-      </script>
-    </head>
-    <body>
-      <h1>인증 처리 중...</h1>
-      <p>잠시만 기다려주세요. 자동으로 로그인이 완료됩니다.</p>
-      <script>
-        // 추가 디버깅 정보
-        console.log('브라우저 정보:', navigator.userAgent);
-        console.log('현재 URL:', window.location.href);
-        
-        // 오류 처리 리스너
-        window.addEventListener('error', function(e) {
-          console.error('오류 발생:', e.message);
-        });
-      </script>
-    </body>
-    </html>
-    `;
+          
+          // 원래 도메인으로 리디렉션
+          console.log('로그인 성공, 원래 도메인으로 리디렉션: ${originalUrl}');
+          window.location.href = '${originalUrl}';
+        </script>
+      </head>
+      <body>
+        <h1>로그인 성공</h1>
+        <p>잠시 후 원래 페이지로 이동합니다...</p>
+      </body>
+      </html>
+      `;
+      
+      return new Response(html, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        },
+      });
+    }
     
-    return new Response(html, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/html',
-      },
+    // 일반적인 리디렉션 처리
+    console.log(`일반 리디렉션 처리, 목적지: ${targetUrl}`);
+    const response = NextResponse.redirect(getSafeRedirectUrl(request, targetUrl));
+    
+    // 인증 성공 플래그 설정 (디버깅용)
+    response.cookies.set('auth_success', 'true', { 
+      maxAge: 60,
+      path: '/',
+      httpOnly: false,
+      sameSite: 'lax'
     });
+    response.cookies.set('auth_provider', 'google', {
+      maxAge: 60,
+      path: '/',
+      httpOnly: false,
+      sameSite: 'lax'
+    });
+    
+    return response;
     
   } catch (error: any) {
     console.error('구글 콜백 처리 중 오류:', error);

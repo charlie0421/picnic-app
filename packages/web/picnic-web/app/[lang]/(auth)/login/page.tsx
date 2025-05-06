@@ -325,25 +325,69 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
     const provider = searchParams.get('provider');
+    const authError = searchParams.get('auth_error');
 
-    if (error) {
-      switch (error) {
-        case 'missing_params':
-          setError('필수 파라미터가 누락되었습니다.');
-          break;
-        case 'server_error':
-          setError(`서버 오류가 발생했습니다: ${errorDescription || '알 수 없는 오류'}`);
-          break;
-        case 'oauth_error':
-          setError(provider === 'apple' 
-            ? 'Apple 로그인 중 오류가 발생했습니다. 다시 시도해주세요.'
-            : '소셜 로그인 중 오류가 발생했습니다.');
-          break;
-        case 'callback_error':
-          setError('인증 처리 중 오류가 발생했습니다.');
-          break;
-        default:
-          setError('알 수 없는 오류가 발생했습니다.');
+    // 오류 로컬 스토리지에서 확인
+    const localErrorDescription = (() => {
+      try {
+        return localStorage.getItem('auth_error_description');
+      } catch (e) {
+        return null;
+      }
+    })();
+    
+    if (authError === 'true' || error) {
+      // 먼저 디버그 로그 기록
+      debugLog('인증 오류 발생', {
+        error,
+        errorDescription,
+        authError,
+        localErrorDescription,
+        provider
+      });
+      
+      // 오류 메시지 설정
+      if (errorDescription) {
+        setError(`인증 오류: ${decodeURIComponent(errorDescription)}`);
+      } else if (localErrorDescription) {
+        setError(`인증 오류: ${localErrorDescription}`);
+        // 로컬 스토리지에서 사용 후 제거
+        try {
+          localStorage.removeItem('auth_error_description');
+        } catch (e) {}
+      } else if (error === 'invalid_request' || error === 'bad_oauth_callback') {
+        setError('OAuth 인증 중 문제가 발생했습니다. 다시 시도해주세요.');
+      } else if (error) {
+        switch (error) {
+          case 'missing_params':
+            setError('필수 파라미터가 누락되었습니다.');
+            break;
+          case 'server_error':
+            setError(`서버 오류가 발생했습니다: ${errorDescription || '알 수 없는 오류'}`);
+            break;
+          case 'oauth_error':
+            setError(provider === 'apple' 
+              ? 'Apple 로그인 중 오류가 발생했습니다. 다시 시도해주세요.'
+              : '소셜 로그인 중 오류가 발생했습니다.');
+            break;
+          case 'callback_error':
+            setError('인증 처리 중 오류가 발생했습니다.');
+            break;
+          default:
+            setError(`인증 오류가 발생했습니다: ${errorDescription || '알 수 없는 오류'}`);
+        }
+      } else {
+        setError('로그인 중 알 수 없는 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+      
+      // URL에서 오류 파라미터 제거
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('error');
+        url.searchParams.delete('error_description');
+        url.searchParams.delete('auth_error');
+        url.searchParams.delete('provider');
+        window.history.replaceState({}, document.title, url.toString());
       }
     }
   }, [searchParams]);
@@ -497,7 +541,22 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
         });
         
         // 현재 환경에 맞는 리디렉션 URL 설정 (실제 URL 기반)
-        const redirectUrl = `${actualOrigin}/auth/callback/${provider}`;
+        let redirectUrl;
+        
+        // ngrok 환경에서는 Supabase의 리디렉션 시스템을 사용
+        if (isNgrokActual) {
+          // ngrok 환경에서는 별도 리디렉션 설정 필요
+          redirectUrl = 'https://api.picnic.fan/auth/v1/callback';
+          
+          debugLog('ngrok 환경 감지, 백엔드 콜백 사용', { 
+            redirectUrl,
+            actualOrigin,
+            actualHost
+          });
+        } else {
+          // 일반 환경에서는 직접 콜백
+          redirectUrl = `${actualOrigin}/auth/callback/${provider}`;
+        }
         
         // 명시적으로 리다이렉트 URL을 변경 (환경 변수를 무시)
         debugLog(`${provider} 로그인 시도`, { 
@@ -542,18 +601,29 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
           redirectTo: redirectUrl,
           queryParams: {
             prompt: 'select_account', // 항상 계정 선택 화면 표시
-            access_type: 'offline' // refresh_token을 얻기 위해 필요
+            access_type: 'offline', // refresh_token을 얻기 위해 필요
+            ...(isNgrokActual ? { 
+              redirect_to: `${actualOrigin}/auth/callback/${provider}`, // 중요: 최종 리디렉션 URL
+              redirect_uri: 'https://api.picnic.fan/auth/v1/callback', // 명시적으로 지정
+              response_type: 'code'
+            } : {})
           },
           scopes: 'email profile openid',
           skipBrowserRedirect: false, // true로 설정하면 자동 리디렉션이 되지 않음
+          // state 파라미터는 간단하게 유지하고 리디렉션 정보는 redirect_to로 전달
           state: JSON.stringify({
-            redirectUrl: actualOrigin,
             timestamp: Date.now(),
             provider: 'google',
-            host: actualHost,
-            isNgrok: isNgrokActual
           })
         };
+
+        // 디버깅에 필요한 추가 정보 저장
+        try {
+          localStorage.setItem('oauth_options', JSON.stringify(oauthOptions));
+          localStorage.setItem('last_login_attempt', Date.now().toString());
+        } catch (e) {
+          // 저장 실패해도 계속 진행
+        }
         
         debugLog('OAuth 옵션', oauthOptions);
         console.log('OAuth 옵션:', JSON.stringify(oauthOptions, null, 2));
@@ -583,7 +653,8 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
             localStorage.setItem('last_oauth_attempt', JSON.stringify({
               provider,
               timestamp: Date.now(),
-              redirectUrl
+              redirectUrl,
+              url: data.url
             }));
           } catch (e) {
             // 저장 실패해도 진행
@@ -592,6 +663,33 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
           // 구글 로그인 페이지로 리디렉션
           debugLog('구글 로그인 페이지로 리디렉션', { url: data.url });
           console.log('구글 로그인 페이지로 리디렉션 중...');
+          
+          // ngrok 환경에서 Supabase URL에 문제가 있는 경우 직접 구성된 URL 사용
+          if (isNgrokActual && !data.url.includes('accounts.google.com')) {
+            debugLog('Supabase 제공 URL이 아닌 직접 구성 URL 사용');
+            
+            // 구글 OAuth URL 직접 구성
+            const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+            
+            // 필수 파라미터 설정
+            googleAuthUrl.searchParams.append('client_id', '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com');
+            googleAuthUrl.searchParams.append('redirect_uri', 'https://api.picnic.fan/auth/v1/callback');
+            googleAuthUrl.searchParams.append('redirect_to', `${actualOrigin}/auth/callback/${provider}`); // 명시적 리디렉션 URL
+            googleAuthUrl.searchParams.append('response_type', 'code');
+            googleAuthUrl.searchParams.append('scope', 'email profile openid');
+            googleAuthUrl.searchParams.append('access_type', 'offline');
+            googleAuthUrl.searchParams.append('prompt', 'select_account');
+            googleAuthUrl.searchParams.append('state', JSON.stringify({ timestamp: Date.now() })); // 간단하게 유지
+            
+            // 직접 구성한 URL 사용
+            debugLog('직접 구성한 구글 URL 사용', { url: googleAuthUrl.toString() });
+            
+            setTimeout(() => {
+              window.location.href = googleAuthUrl.toString();
+            }, 100);
+            
+            return;
+          }
           
           // 약간의 지연 후 리디렉션 (브라우저 처리 시간 확보)
           setTimeout(() => {
