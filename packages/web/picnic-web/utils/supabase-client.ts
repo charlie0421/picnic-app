@@ -15,13 +15,26 @@ const isProduction = process.env.NODE_ENV === 'production';
 // 외부 도메인 허용 목록
 const allowedOrigins = ['ngrok-free.app', '.ngrok-free.app'];
 
+// 현재 언어 경로 감지
+const getCurrentLangPath = (): string => {
+  if (typeof window === 'undefined') return '';
+  
+  // URL 경로를 분석하여 언어 부분 추출
+  const pathname = window.location.pathname;
+  const match = pathname.match(/^\/([a-z]{2})(\/|$)/);
+  
+  // 매치되면 해당 언어 경로 반환, 없으면 빈 문자열 반환
+  return match ? `/${match[1]}` : '';
+};
+
 // Supabase URL 결정 (ngrok 환경에서는 프록시 사용)
 const getSupabaseUrl = () => {
   const originalUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   
   // ngrok 환경에서는 로컬 프록시 사용
   if (isNgrokEnvironment && typeof window !== 'undefined') {
-    return `${window.location.origin}/supabase-proxy`;
+    const langPath = getCurrentLangPath();
+    return `${window.location.origin}${langPath}/supabase-proxy`;
   }
   
   return originalUrl;
@@ -38,7 +51,8 @@ const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
     let modifiedUrl = url;
     if (isNgrokEnvironment && urlStr.includes(originalSupabaseUrl)) {
       const path = urlStr.replace(originalSupabaseUrl, '');
-      modifiedUrl = `${window.location.origin}/supabase-proxy${path}` as unknown as URL;
+      const langPath = getCurrentLangPath();
+      modifiedUrl = `${window.location.origin}${langPath}/supabase-proxy${path}` as unknown as URL;
       console.log(`Supabase 요청 프록시: ${urlStr} -> ${modifiedUrl}`);
     }
     
@@ -140,7 +154,8 @@ if (typeof window !== 'undefined') {
     originalUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
     isNgrok: isNgrokEnvironment,
     isProduction,
-    hostname: window.location.hostname
+    hostname: window.location.hostname,
+    langPath: getCurrentLangPath()
   });
 }
 

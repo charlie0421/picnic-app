@@ -45,8 +45,18 @@ const nextConfig = {
         ]
       },
       {
-        // Supabase API 프록시 경로에 적용
+        // Supabase API 프록시 경로에 적용 (루트 레벨)
         source: '/supabase-proxy/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+        ]
+      },
+      {
+        // Supabase API 프록시 경로에 적용 (언어 경로 포함)
+        source: '/:lang/supabase-proxy/:path*',
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Access-Control-Allow-Origin', value: '*' },
@@ -61,7 +71,13 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        // 루트 레벨 프록시
         source: '/supabase-proxy/:path*',
+        destination: 'https://xtijtefcycoeqludlngc.supabase.co/:path*'
+      },
+      {
+        // 언어 경로 포함 프록시
+        source: '/:lang/supabase-proxy/:path*',
         destination: 'https://xtijtefcycoeqludlngc.supabase.co/:path*'
       }
     ]
