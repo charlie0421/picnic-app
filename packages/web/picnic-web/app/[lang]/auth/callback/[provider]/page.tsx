@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/utils/supabase-client';
+import { getStoredCodeVerifier, clearCodeVerifier } from '@/app/[lang]/(auth)/login/utils/pkceUtils';
 
 // 디버깅 로그 함수
 const debugLog = (message: string, data?: any) => {
@@ -30,6 +31,7 @@ export default function AuthCallbackPage() {
   const router = useRouter();
   const [status, setStatus] = useState<string>('로드 중...');
   const [error, setError] = useState<string | null>(null);
+  const [debugDetail, setDebugDetail] = useState<string | null>(null);
   
   useEffect(() => {
     const provider = params.provider as string;
@@ -60,18 +62,36 @@ export default function AuthCallbackPage() {
         const error = searchParams.get('error');
         const errorDescription = searchParams.get('error_description');
         
+        // PKCE 코드 검증자 가져오기
+        const codeVerifier = getStoredCodeVerifier();
+        
         // 디버깅 정보 기록
         debugLog('Auth 파라미터 분석', {
           code: code ? `${code.substring(0, 5)}...` : null,
           state,
           error,
-          errorDescription
+          errorDescription,
+          hasCodeVerifier: !!codeVerifier,
+          codeVerifierLength: codeVerifier?.length
         });
+        
+        // 디버그 상세 정보 설정 (NgRok 디버깅용)
+        setDebugDetail(JSON.stringify({
+          code: code ? `${code.substring(0, 5)}...` : null,
+          state: state ? JSON.parse(state) : null,
+          error,
+          errorDescription,
+          hasCodeVerifier: !!codeVerifier,
+          url: window.location.href
+        }, null, 2));
         
         // 오류 파라미터가 있는지 확인
         if (error) {
           setError(`인증 오류: ${errorDescription || error}`);
           setStatus('인증 실패');
+          
+          // 코드 검증자 정리
+          clearCodeVerifier();
           
           // 3초 후 로그인 페이지로 리디렉션
           setTimeout(() => {
@@ -86,6 +106,9 @@ export default function AuthCallbackPage() {
           setError('인증 코드가 없습니다.');
           setStatus('인증 실패');
           
+          // 코드 검증자 정리
+          clearCodeVerifier();
+          
           // 3초 후 로그인 페이지로 리디렉션
           setTimeout(() => {
             window.location.href = '/en/login?error=missing_code';
@@ -97,6 +120,7 @@ export default function AuthCallbackPage() {
         // 상태 정보 분석
         let lang = 'en';
         let returnPath = '/';
+        let isPkce = false;
         
         try {
           if (state) {
@@ -105,6 +129,9 @@ export default function AuthCallbackPage() {
             
             // 언어 정보 추출
             lang = stateData.lang || 'en';
+            
+            // PKCE 사용 여부 확인
+            isPkce = !!stateData.pkce;
             
             // 리턴 경로 추출
             if (stateData.returnTo) {
@@ -118,16 +145,47 @@ export default function AuthCallbackPage() {
           // 기본값 사용
         }
         
+        // PKCE 사용 중인데 코드 검증자가 없는 경우
+        if (isPkce && !codeVerifier) {
+          setError('PKCE 코드 검증자가 없습니다. 로그인 과정을 처음부터 다시 시작해주세요.');
+          setStatus('인증 실패 (코드 검증자 누락)');
+          
+          // 3초 후 로그인 페이지로 리디렉션
+          setTimeout(() => {
+            window.location.href = `/${lang}/login?error=missing_code_verifier`;
+          }, 3000);
+          
+          return;
+        }
+        
         // Supabase 클라이언트 생성 및 세션 교환
         const supabase = createBrowserSupabaseClient();
         
         // 디버그 로그
-        debugLog('세션 교환 시작', { codePrefix: code.substring(0, 5) + '...' });
+        debugLog('세션 교환 시작', { 
+          codePrefix: code.substring(0, 5) + '...',
+          isPkce,
+          codeVerifierLength: codeVerifier?.length
+        });
         
-        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        // PKCE 사용 여부에 따라 다른 메서드 호출
+        let exchangeResult;
+        
+        if (isPkce && codeVerifier) {
+          // PKCE 방식으로 코드 교환
+          exchangeResult = await supabase.auth.exchangeCodeForSession(code, { codeVerifier });
+        } else {
+          // 일반 방식으로 코드 교환
+          exchangeResult = await supabase.auth.exchangeCodeForSession(code);
+        }
+        
+        const { data, error: exchangeError } = exchangeResult;
+        
+        // 코드 검증자 정리 (사용 완료)
+        clearCodeVerifier();
         
         if (exchangeError) {
-          debugLog('세션 교환 오류', { error: exchangeError.message });
+          debugLog('세션 교환 오류', { error: exchangeError.message, isPkce });
           setError(`세션 교환 오류: ${exchangeError.message}`);
           setStatus('세션 교환 실패');
           
@@ -140,7 +198,7 @@ export default function AuthCallbackPage() {
         }
         
         if (!data.session) {
-          debugLog('세션 없음', { data });
+          debugLog('세션 없음', { data, isPkce });
           setError('세션 정보가 없습니다.');
           setStatus('세션 정보 누락');
           
@@ -153,7 +211,7 @@ export default function AuthCallbackPage() {
         }
         
         // 세션 설정 성공
-        debugLog('세션 교환 성공', { user: data.session.user.id });
+        debugLog('세션 교환 성공', { user: data.session.user.id, isPkce });
         setStatus('로그인 성공! 리디렉션 중...');
         
         // 인증 성공 정보 저장
@@ -161,6 +219,7 @@ export default function AuthCallbackPage() {
           localStorage.setItem('auth_success', 'true');
           localStorage.setItem('auth_provider', provider);
           localStorage.setItem('auth_timestamp', Date.now().toString());
+          localStorage.setItem('auth_pkce_used', isPkce ? 'true' : 'false');
         } catch (e) {
           // 저장 실패해도 진행
         }
@@ -176,6 +235,9 @@ export default function AuthCallbackPage() {
         debugLog('인증 처리 예외', { error: errorMessage });
         setError(`인증 처리 중 예외 발생: ${errorMessage}`);
         setStatus('처리 오류');
+        
+        // 코드 검증자 정리
+        clearCodeVerifier();
         
         // 3초 후 로그인 페이지로 리디렉션
         setTimeout(() => {
@@ -201,6 +263,16 @@ export default function AuthCallbackPage() {
           </div>
         )}
         <p className="text-sm text-gray-500 mt-4">잠시 후 자동으로 이동합니다...</p>
+        
+        {/* NgRok 환경에서 디버깅을 위한 상세 정보 */}
+        {debugDetail && (
+          <div className="mt-4 p-2 bg-gray-50 text-xs text-gray-600 rounded-md">
+            <details>
+              <summary className="cursor-pointer font-semibold">디버그 정보</summary>
+              <pre className="mt-2 text-left overflow-auto">{debugDetail}</pre>
+            </details>
+          </div>
+        )}
       </div>
     </div>
   );

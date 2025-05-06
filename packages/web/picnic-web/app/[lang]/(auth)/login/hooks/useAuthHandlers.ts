@@ -2,6 +2,13 @@ import { useState, useCallback, useRef } from 'react';
 import { createBrowserSupabaseClient } from '@/utils/supabase-client';
 import { SocialProvider } from '../types/auth';
 import { debugLog } from '../utils/debugUtils';
+import { 
+  generateCodeVerifier, 
+  generateCodeChallenge, 
+  storeCodeVerifier,
+  getStoredCodeVerifier,
+  clearCodeVerifier
+} from '../utils/pkceUtils';
 
 // 인증 처리 관련 훅
 export const useAuthHandlers = () => {
@@ -416,14 +423,23 @@ export const useAuthHandlers = () => {
       const langMatch = actualPathname.match(/^\/([a-z]{2})\//);
       const currentLang = langMatch ? langMatch[1] : 'en';
       
+      // PKCE 코드 검증자 및 챌린지 생성
+      const codeVerifier = generateCodeVerifier();
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      
+      // 코드 검증자를 로컬 스토리지에 저장 (나중에 검증 시 사용)
+      storeCodeVerifier(codeVerifier);
+      
       // 디버깅 정보 저장
-      debugLog('URL 정보 감지', {
+      debugLog('URL 정보 및 PKCE 설정', {
         actualOrigin,
         actualHost,
         actualHostname,
         actualProtocol,
         currentLang,
-        href: window.location.href
+        href: window.location.href,
+        codeChallengeLength: codeChallenge.length,
+        codeVerifierLength: codeVerifier.length
       });
       
       // 환경 정보 로컬 스토리지에 저장 (인증 후 비교용)
@@ -433,7 +449,8 @@ export const useAuthHandlers = () => {
           actualHost,
           actualHostname,
           language: currentLang,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          pkce: true
         }));
       } catch (e) {
         // 저장 실패 시 무시
@@ -471,7 +488,7 @@ export const useAuthHandlers = () => {
       
       // NgRok 환경에서는 직접 Google OAuth URL 구성
       if (isNgrokActual) {
-        debugLog('NgRok 환경 - 직접 Google OAuth URL 구성');
+        debugLog('NgRok 환경 - 직접 Google OAuth URL 구성 (PKCE 적용)');
         
         // Callback URL 정의 (언어 경로 포함)
         const callbackPath = `${actualOrigin}/${currentLang}/auth/callback/google`;
@@ -488,6 +505,10 @@ export const useAuthHandlers = () => {
         googleAuthUrl.searchParams.append('access_type', 'offline');
         googleAuthUrl.searchParams.append('prompt', 'select_account');
         
+        // PKCE 파라미터 추가
+        googleAuthUrl.searchParams.append('code_challenge', codeChallenge);
+        googleAuthUrl.searchParams.append('code_challenge_method', 'S256');
+        
         // state 파라미터에 중요한 정보를 포함
         const stateData = {
           timestamp: Date.now(),
@@ -495,13 +516,18 @@ export const useAuthHandlers = () => {
           host: actualHost,
           returnTo: callbackPath,
           provider: 'google',
-          lang: currentLang
+          lang: currentLang,
+          pkce: true // PKCE 사용 여부 표시
         };
         
         googleAuthUrl.searchParams.append('state', JSON.stringify(stateData));
         
         // 로그 및 디버깅
-        debugLog('Google OAuth URL 구성 완료', { url: googleAuthUrl.toString() });
+        debugLog('Google OAuth URL 구성 완료 (PKCE 적용)', { 
+          url: googleAuthUrl.toString(),
+          hasCodeChallenge: !!codeChallenge,
+          hasCodeVerifier: !!codeVerifier
+        });
         console.log('Google 인증 페이지로 이동:', googleAuthUrl.toString());
         
         // 로컬 스토리지에 정보 저장 (디버깅용)
@@ -510,7 +536,8 @@ export const useAuthHandlers = () => {
             provider: 'google',
             timestamp: Date.now(),
             url: googleAuthUrl.toString(),
-            state: stateData
+            state: stateData,
+            pkce: true
           }));
         } catch (e) {
           // 저장 실패해도 계속 진행
@@ -536,7 +563,10 @@ export const useAuthHandlers = () => {
           access_type: 'offline' // refresh_token을 얻기 위해 필요
         },
         scopes: 'email profile openid',
-        skipBrowserRedirect: false
+        skipBrowserRedirect: false,
+        // PKCE 옵션 추가
+        codeChallenge,
+        codeChallengeMethod: 'S256'
       };
 
       // 디버깅에 필요한 추가 정보 저장
@@ -547,7 +577,7 @@ export const useAuthHandlers = () => {
         // 저장 실패해도 계속 진행
       }
       
-      debugLog('일반 환경 - Supabase OAuth 사용', oauthOptions);
+      debugLog('일반 환경 - Supabase OAuth 사용 (PKCE 적용)', oauthOptions);
       
       // Supabase OAuth 요청
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -557,20 +587,23 @@ export const useAuthHandlers = () => {
       
       // 오류 확인
       if (error) {
+        // 코드 검증자 정리
+        clearCodeVerifier();
         logError(`구글 로그인 중 오류가 발생했습니다: ${error.message}`, error);
         return;
       }
       
       // 리디렉션 URL이 있으면 해당 URL로 이동
       if (data?.url) {
-        debugLog('구글 로그인 리디렉션 URL 획득', { url: data.url });
+        debugLog('구글 로그인 리디렉션 URL 획득 (PKCE 적용)', { url: data.url });
         
         // localStorage에 시도 정보 저장 (디버깅용)
         try {
           localStorage.setItem('last_oauth_attempt', JSON.stringify({
             provider: 'google',
             timestamp: Date.now(),
-            url: data.url
+            url: data.url,
+            pkce: true
           }));
         } catch (e) {
           // 저장 실패해도 진행
@@ -586,14 +619,17 @@ export const useAuthHandlers = () => {
       
       // URL이 없지만 데이터가 있는 경우 (드문 케이스)
       if (data) {
+        clearCodeVerifier(); // 성공 시 검증자 정리
         return handleAuthSuccess(data, 'google');
       }
       
       // 여기까지 왔다면 뭔가 잘못된 것
+      clearCodeVerifier(); // 실패 시 검증자 정리
       logError('구글 로그인을 시작할 수 없습니다. 다시 시도해주세요.', null);
     } catch (error: any) {
       console.error('구글 로그인 예외:', error);
       debugLog('구글 로그인 예외', { error: error?.message });
+      clearCodeVerifier(); // 예외 발생 시 검증자 정리
       setError(`구글 로그인 중 예기치 않은 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
       setLoading(false);
     }
