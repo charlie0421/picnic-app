@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import OtaClient from '@crowdin/ota-client';
 import { settings, type Language } from '@/config/settings';
-import { SUPPORTED_LANGUAGES } from '@/config/settings';
 
 // Crowdin OTA 클라이언트 초기화
 const distributionHash = process.env.NEXT_PUBLIC_CROWDIN_DISTRIBUTION_HASH;

@@ -3,6 +3,18 @@
 import { createBrowserClient } from '@supabase/ssr';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
+// ngrok 환경 감지 (브라우저에서만 실행)
+const isNgrokEnvironment = typeof window !== 'undefined' && (
+  window.location.hostname.includes('ngrok') ||
+  /^[a-z0-9]+\.ngrok(?:-free)?\.(?:io|app)$/.test(window.location.hostname)
+);
+
+// 배포 환경인지 확인
+const isProduction = process.env.NODE_ENV === 'production';
+
+// 외부 도메인 허용 목록
+const allowedOrigins = ['ngrok-free.app', '.ngrok-free.app'];
+
 // 전역 Supabase 클라이언트 인스턴스 직접 생성
 export const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,10 +46,13 @@ export const supabase = createBrowserClient(
             // 로컬 스토리지에 저장
             globalThis.localStorage?.setItem(key, value);
             
-            // 쿠키에도 저장
+            // 쿠키에도 저장 (ngrok 환경에서는 SameSite=None 추가)
             const date = new Date();
             date.setTime(date.getTime() + 8 * 60 * 60 * 1000); // 8시간 유효
-            document.cookie = `${key}=${encodeURIComponent(value)}; expires=${date.toUTCString()}; path=/`;
+            const cookieOptions = isNgrokEnvironment ? 
+              `; expires=${date.toUTCString()}; path=/; SameSite=None; Secure` : 
+              `; expires=${date.toUTCString()}; path=/`;
+            document.cookie = `${key}=${encodeURIComponent(value)}${cookieOptions}`;
           } catch (e) {
             console.warn('스토리지 저장 오류:', e);
           }
@@ -54,9 +69,29 @@ export const supabase = createBrowserClient(
           }
         }
       }
+    },
+    // fetch 옵션 설정 (ngrok 환경에서는 특별한 설정 추가)
+    global: {
+      fetch: (...args) => {
+        // 기본 fetch 사용
+        return fetch(...args).catch(error => {
+          console.error('Supabase fetch 오류:', error);
+          throw error;
+        });
+      }
     }
   }
 );
+
+// 초기화 시 로그
+if (typeof window !== 'undefined') {
+  console.log('Supabase 클라이언트 초기화 완료', {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    isNgrok: isNgrokEnvironment,
+    isProduction,
+    hostname: window.location.hostname
+  });
+}
 
 // 인증 상태 변경 리스너 추가
 supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {

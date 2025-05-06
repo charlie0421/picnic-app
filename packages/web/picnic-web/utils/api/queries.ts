@@ -1,8 +1,25 @@
 import { supabase } from "../supabase-client";
 import { Banner, Media, Reward, Vote, VoteItem } from "@/types/interfaces";
+import { withRetry, withTimeout } from "./retry-utils";
+
+// API 요청 실패 로깅 및 디버깅을 위한 함수
+const logRequestError = (error: any, functionName: string) => {
+  console.error(`[API 오류] ${functionName}:`, error);
+  
+  // 환경 정보 추가 (브라우저에서만 실행)
+  if (typeof window !== 'undefined') {
+    console.error('요청 환경:', {
+      url: window.location.href,
+      hostname: window.location.hostname,
+      isProduction: process.env.NODE_ENV === 'production'
+    });
+  }
+  
+  return error;
+};
 
 // 투표 데이터 가져오기
-export const getVotes = async (
+const _getVotes = async (
   sortBy: "votes" | "recent" = "votes",
 ): Promise<Vote[]> => {
   try {
@@ -81,13 +98,13 @@ export const getVotes = async (
       title: vote.title || "제목 없음",
     }));
   } catch (error) {
-    console.error("투표 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    logRequestError(error, 'getVotes');
     return [];
   }
 };
 
 // 리워드 데이터 가져오기
-export const getRewards = async (limit?: number): Promise<Reward[]> => {
+const _getRewards = async (limit?: number): Promise<Reward[]> => {
   try {
     let query = supabase
       .from("reward")
@@ -115,13 +132,13 @@ export const getRewards = async (limit?: number): Promise<Reward[]> => {
       sizeGuideImages: reward.size_guide_images,
     }));
   } catch (error) {
-    console.error("리워드 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    logRequestError(error, 'getRewards');
     return [];
   }
 };
 
 // 배너 데이터 가져오기
-export const getBanners = async (): Promise<Banner[]> => {
+const _getBanners = async (): Promise<Banner[]> => {
   try {
     const now = new Date();
     const currentTime = now.toISOString();
@@ -149,13 +166,13 @@ export const getBanners = async (): Promise<Banner[]> => {
       celebId: banner.celeb_id,
     }));
   } catch (error) {
-    console.error("배너 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    logRequestError(error, 'getBanners');
     return [];
   }
 };
 
 // 리워드 상세 정보 가져오기
-export const getRewardById = async (id: string): Promise<Reward | null> => {
+const _getRewardById = async (id: string): Promise<Reward | null> => {
   try {
     const { data: rewardData, error: rewardError } = await supabase
       .from("reward")
@@ -178,13 +195,13 @@ export const getRewardById = async (id: string): Promise<Reward | null> => {
       sizeGuideImages: rewardData.size_guide_images,
     };
   } catch (error) {
-    console.error("리워드 상세 정보를 가져오는 중 오류가 발생했습니다:", error);
+    logRequestError(error, 'getRewardById');
     return null;
   }
 };
 
 // 미디어 데이터 가져오기
-export const getMedias = async (): Promise<Media[]> => {
+const _getMedias = async (): Promise<Media[]> => {
   try {
     const { data: mediaData, error: mediaError } = await supabase
       .from("media")
@@ -207,13 +224,13 @@ export const getMedias = async (): Promise<Media[]> => {
       title: media.title,
     }));
   } catch (error) {
-    console.error("미디어 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    logRequestError(error, 'getMedias');
     return [];
   }
 };
 
 // 투표 상세 정보 가져오기
-export const getVoteById = async (id: number): Promise<Vote | null> => {
+const _getVoteById = async (id: number): Promise<Vote | null> => {
   try {
     const { data: voteData, error: voteError } = await supabase
       .from("vote")
@@ -244,13 +261,13 @@ export const getVoteById = async (id: number): Promise<Vote | null> => {
       title: voteData.title || "제목 없음",
     };
   } catch (error) {
-    console.error("투표 상세 정보를 가져오는 중 오류가 발생했습니다:", error);
+    logRequestError(error, 'getVoteById');
     return null;
   }
 };
 
 // 투표 항목 데이터 가져오기
-export const getVoteItems = async (voteId: number): Promise<VoteItem[]> => {
+const _getVoteItems = async (voteId: number): Promise<VoteItem[]> => {
   try {
     const { data: voteItemsData, error: voteItemsError } = await supabase
       .from("vote_item")
@@ -281,13 +298,13 @@ export const getVoteItems = async (voteId: number): Promise<VoteItem[]> => {
       artist: item.artist,
     }));
   } catch (error) {
-    console.error("투표 항목 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    logRequestError(error, 'getVoteItems');
     return [];
   }
 };
 
 // 투표 보상 데이터 가져오기
-export const getVoteRewards = async (voteId: number): Promise<Reward[]> => {
+const _getVoteRewards = async (voteId: number): Promise<Reward[]> => {
   try {
     const { data: voteRewardData, error: voteRewardError } = await supabase
       .from("vote_reward")
@@ -321,7 +338,17 @@ export const getVoteRewards = async (voteId: number): Promise<Reward[]> => {
       sizeGuideImages: reward.size_guide_images,
     }));
   } catch (error) {
-    console.error("투표 보상 데이터를 가져오는 중 오류가 발생했습니다:", error);
+    logRequestError(error, 'getVoteRewards');
     return [];
   }
 };
+
+// 재시도 메커니즘이 적용된 내보내기 함수
+export const getVotes = withRetry(_getVotes);
+export const getRewards = withRetry(_getRewards);
+export const getBanners = withRetry(_getBanners);
+export const getRewardById = withRetry(_getRewardById);
+export const getMedias = withRetry(_getMedias);
+export const getVoteById = withRetry(_getVoteById);
+export const getVoteItems = withRetry(_getVoteItems);
+export const getVoteRewards = withRetry(_getVoteRewards);
