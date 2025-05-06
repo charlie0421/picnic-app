@@ -14,12 +14,15 @@ function getSafeRedirectUrl(request: NextRequest, path: string = '/'): string {
   const forwardedProto = request.headers.get('x-forwarded-proto');
   const requestUrl = new URL(request.url);
   const referer = request.headers.get('referer') || '';
+  const host = request.headers.get('host') || '';
   
   console.log('리디렉션 결정을 위한 정보:', {
     forwardedHost,
     forwardedProto,
+    host,
     referer,
-    requestUrl: requestUrl.toString()
+    requestUrl: requestUrl.toString(),
+    path
   });
   
   // 경로가 슬래시로 시작하지 않으면 추가
@@ -27,11 +30,20 @@ function getSafeRedirectUrl(request: NextRequest, path: string = '/'): string {
     path = '/' + path;
   }
 
+  // 이미 완전한 URL인 경우
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    console.log(`이미 완전한 URL: ${path}`);
+    return path;
+  }
+
   // ngrok URL 감지
-  if (forwardedHost && forwardedHost.includes('ngrok')) {
-    console.log(`ngrok URL 감지됨: ${forwardedHost}`);
+  if (
+    (forwardedHost && forwardedHost.includes('ngrok')) || 
+    (host && host.includes('ngrok'))
+  ) {
+    console.log(`ngrok URL 감지됨: ${forwardedHost || host}`);
     const protocol = forwardedProto || 'https';
-    return `${protocol}://${forwardedHost}${path}`;
+    return `${protocol}://${forwardedHost || host}${path}`;
   }
   
   // 리퍼러에서 호스트 추출 시도
@@ -46,7 +58,9 @@ function getSafeRedirectUrl(request: NextRequest, path: string = '/'): string {
   }
   
   // 일반적인 경우는 요청의 origin 사용
-  return new URL(path, requestUrl.origin).toString();
+  const redirectUrl = new URL(path, requestUrl.origin).toString();
+  console.log(`최종 리디렉션 URL: ${redirectUrl}`);
+  return redirectUrl;
 }
 
 // Next.js App Router 라우트 핸들러
@@ -65,6 +79,9 @@ export async function GET(request: NextRequest, context: any) {
       console.log(`${key}: ${value}`);
     }
     
+    const host = request.headers.get('host') || '';
+    const referer = request.headers.get('referer') || '';
+    
     // URL에서 현재 코드와 상태 값을 추출
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get('code');
@@ -74,7 +91,20 @@ export async function GET(request: NextRequest, context: any) {
       provider,
       hasCode: !!code,
       hasState: !!state,
-      url: requestUrl.toString()
+      url: requestUrl.toString(),
+      host,
+      referer
+    });
+    
+    // Origin 확인
+    const originUrl = requestUrl.origin;
+    // 환경 변수 확인
+    const configuredRedirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || `${originUrl}/auth/callback/google`;
+    
+    console.log('설정된 리디렉션 정보:', {
+      originUrl,
+      configuredRedirectUri,
+      webDomain: process.env.NEXT_PUBLIC_WEB_DOMAIN
     });
     
     // 오류 파라미터가 있는지 확인
@@ -87,9 +117,9 @@ export async function GET(request: NextRequest, context: any) {
         errorDescription
       });
       
-      // 로그인 페이지로 다시 리디렉션하며 오류 파라미터 추가
+      // 루트 페이지로 리디렉션하며 오류 파라미터 추가
       return NextResponse.redirect(
-        getSafeRedirectUrl(request, `/login?error=${error}&error_description=${errorDescription || '알 수 없는 오류'}&provider=${provider}`)
+        getSafeRedirectUrl(request, `/?error=true&error_type=${error}&error_description=${errorDescription || '알 수 없는 오류'}&provider=${provider}`)
       );
     }
     
@@ -107,14 +137,14 @@ export async function GET(request: NextRequest, context: any) {
     // 코드가 없으면 잘못된 요청으로 처리
     console.error(`Missing code parameter in ${provider} callback`);
     return NextResponse.redirect(
-      getSafeRedirectUrl(request, `/login?error=missing_code&provider=${provider}`)
+      getSafeRedirectUrl(request, `/login?auth_error=true&error_type=missing_code&provider=${provider}`)
     );
   } catch (error: any) {
     console.error('Global auth callback error:', error);
     
     // 전체 오류 시 로그인 페이지로 리디렉션
     return NextResponse.redirect(
-      getSafeRedirectUrl(request, `/login?error=callback_error&error_description=${error.message || '알 수 없는 오류'}`)
+      getSafeRedirectUrl(request, `/login?auth_error=true&error_description=${error.message || '알 수 없는 오류'}`)
     );
   }
 }
@@ -123,111 +153,147 @@ export async function GET(request: NextRequest, context: any) {
 async function handleGoogleCallback(request: NextRequest, code: string, state: string | null) {
   try {
     console.log('구글 콜백 처리 시작');
+    console.log('코드 확인:', code.substring(0, 10) + '...');
+    console.log('state 값:', state);
     
-    // state에서 원래 URL 추출
+    // state에서 정보 추출
     let originalUrl = '';
+    let isNgrok = false;
+    let hostInfo = '';
+    
     if (state) {
       try {
         const stateData = JSON.parse(state);
-        if (stateData.originalUrl) {
+        console.log('파싱된 state 데이터:', stateData);
+        
+        // redirectUrl 정보 추출
+        if (stateData.redirectUrl) {
+          originalUrl = stateData.redirectUrl;
+          console.log(`state에서 redirectUrl 추출: ${originalUrl}`);
+        } else if (stateData.originalUrl) {
           originalUrl = stateData.originalUrl;
-          console.log(`state에서 원래 URL 추출: ${originalUrl}`);
+          console.log(`state에서 originalUrl 추출: ${originalUrl}`);
+        }
+        
+        // ngrok 정보 추출
+        if (stateData.isNgrok !== undefined) {
+          isNgrok = stateData.isNgrok;
+          console.log(`state에서 isNgrok 추출: ${isNgrok}`);
+        }
+        
+        // 호스트 정보 추출
+        if (stateData.host) {
+          hostInfo = stateData.host;
+          console.log(`state에서 host 추출: ${hostInfo}`);
         }
       } catch (e) {
         console.error('state 파싱 오류:', e);
       }
     }
     
+    // 요청 헤더 확인
+    const forwardedHost = request.headers.get('x-forwarded-host');
+    const forwardedProto = request.headers.get('x-forwarded-proto');
+    const host = request.headers.get('host') || '';
+    
+    console.log('요청 헤더 정보:', {
+      forwardedHost,
+      forwardedProto,
+      host,
+      'user-agent': request.headers.get('user-agent')
+    });
+    
+    // ngrok 환경 재확인
+    if (!isNgrok) {
+      isNgrok = !!((forwardedHost && forwardedHost.includes('ngrok')) || 
+                   (host && host.includes('ngrok')));
+      console.log(`헤더 기반 ngrok 감지: ${isNgrok}`);
+    }
+    
     // 리디렉션 URI - 현재 요청 URL 기반
     const requestUrl = new URL(request.url);
-    const redirectUri = `${requestUrl.origin}/auth/callback/google`;
     
-    // Supabase를 사용하여 코드를 세션으로 교환
-    console.log(`Exchanging code for session with Supabase...`);
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    // 목적지 URL 결정
+    let targetUrl = '';
     
-    if (error) {
-      console.error(`Session exchange error for google:`, error);
-      return NextResponse.redirect(
-        getSafeRedirectUrl(request, `/login?error=session_exchange&error_description=${error.message}&provider=google`)
-      );
+    if (originalUrl) {
+      targetUrl = originalUrl;
+    } else if (isNgrok && forwardedHost) {
+      const protocol = forwardedProto || 'https';
+      targetUrl = `${protocol}://${forwardedHost}`;
+    } else {
+      targetUrl = requestUrl.origin;
     }
     
-    // 세션 정보 확인
-    console.log(`Google auth successful:`, {
-      hasSession: !!data.session,
-      hasUser: !!data.session?.user,
-      userId: data.session?.user?.id,
-    });
+    // 최종 URL에 원래 경로가 있는지 확인하고 없으면 루트로 설정
+    if (targetUrl.endsWith('/auth/callback/google')) {
+      targetUrl = targetUrl.replace('/auth/callback/google', '');
+    }
     
-    // 원래 URL이 있고 현재 호스트와 다른 경우 (예: ngrok)
-    if (originalUrl && originalUrl !== requestUrl.origin && !originalUrl.includes('picnic.fan')) {
-      console.log(`원래 URL로 리디렉션: ${originalUrl}`);
-      
-      // 인증 성공 후 원래 URL로 리디렉션하는 HTML 응답
-      const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>로그인 성공</title>
-        <script>
-          // 로그인 성공 표시
-          localStorage.setItem('auth_success', 'true');
+    console.log('최종 타겟 URL:', targetUrl);
+    
+    // PKCE 흐름에 맞는 응답 생성
+    // Supabase의 detectSessionInUrl 기능을 활용하기 위해 클라이언트에서 처리
+    const url = new URL(targetUrl);
+    // 인증 코드를 URL에 추가
+    url.searchParams.append('code', code);
+    
+    // 사용자 경험을 위한 HTML 응답 생성
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>로그인 처리 중</title>
+      <script>
+        // 콘솔에 상태 표시
+        console.log('인증 코드 확인됨, 세션 처리 중...');
+        console.log('리디렉션 대상 URL: ${url.toString()}');
+        
+        // localStorage에 인증 상태 기록
+        try {
+          localStorage.setItem('auth_code_processed', 'true');
+          localStorage.setItem('auth_code_timestamp', Date.now().toString());
           localStorage.setItem('auth_provider', 'google');
-          
-          // 인증 이벤트 발생
-          try {
-            window.dispatchEvent(new Event('auth.state.changed'));
-            window.dispatchEvent(new Event('supabase.auth.session-update'));
-          } catch (e) {
-            console.error('이벤트 발생 오류:', e);
-          }
-          
-          // 원래 URL로 리디렉션
-          console.log('로그인 성공, 원래 URL로 리디렉션: ${originalUrl}');
-          window.location.href = '${originalUrl}';
-        </script>
-      </head>
-      <body>
-        <h1>로그인 성공</h1>
-        <p>잠시 후 원래 페이지로 이동합니다...</p>
-      </body>
-      </html>
-      `;
-      
-      return new Response(html, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/html',
-        },
-      });
-    }
+        } catch (e) {
+          console.error('로컬 스토리지 설정 오류:', e);
+        }
+        
+        // 세션 처리를 위한 타임아웃 설정
+        setTimeout(function() {
+          // Supabase 자동 감지가 작동하도록 현재 URL 그대로 사용
+          window.location.href = '${url.toString()}';
+        }, 500);
+      </script>
+    </head>
+    <body>
+      <h1>인증 처리 중...</h1>
+      <p>잠시만 기다려주세요. 자동으로 로그인이 완료됩니다.</p>
+      <script>
+        // 추가 디버깅 정보
+        console.log('브라우저 정보:', navigator.userAgent);
+        console.log('현재 URL:', window.location.href);
+        
+        // 오류 처리 리스너
+        window.addEventListener('error', function(e) {
+          console.error('오류 발생:', e.message);
+        });
+      </script>
+    </body>
+    </html>
+    `;
     
-    // 일반적인 리디렉션 처리
-    console.log(`일반 리디렉션 처리, 목적지: /`);
-    const response = NextResponse.redirect(getSafeRedirectUrl(request, '/'));
-    
-    // 인증 성공 플래그 설정 (디버깅용)
-    response.cookies.set('auth_success', 'true', { 
-      maxAge: 60,
-      path: '/',
-      httpOnly: false,
-      sameSite: 'lax'
-    });
-    response.cookies.set('auth_provider', 'google', {
-      maxAge: 60,
-      path: '/',
-      httpOnly: false,
-      sameSite: 'lax'
+    return new Response(html, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html',
+      },
     });
     
-    return response;
   } catch (error: any) {
     console.error('구글 콜백 처리 중 오류:', error);
-    return NextResponse.redirect(
-      getSafeRedirectUrl(request, `/login?error=google_callback&error_description=${error.message || '알 수 없는 오류'}`)
-    );
+    // 최종 오류 시 홈으로 리디렉션
+    return NextResponse.redirect(getSafeRedirectUrl(request, '/'));
   }
 }
 
@@ -264,7 +330,7 @@ async function handleDefaultCallback(request: NextRequest, code: string, state: 
     if (error) {
       console.error(`Session exchange error for ${provider}:`, error);
       return NextResponse.redirect(
-        getSafeRedirectUrl(request, `/login?error=session_exchange&error_description=${error.message}&provider=${provider}`)
+        getSafeRedirectUrl(request, `/?auth_error=true&error_type=session_exchange&error_description=${error.message}&provider=${provider}`)
       );
     }
     
@@ -291,9 +357,6 @@ async function handleDefaultCallback(request: NextRequest, code: string, state: 
           // 로그인 성공 표시
           localStorage.setItem('auth_success', 'true');
           localStorage.setItem('auth_provider', '${provider}');
-          
-          // 인증 이벤트 발생
-          window.dispatchEvent(new Event('auth.state.changed'));
           
           // 원래 도메인으로 리디렉션
           console.log('로그인 성공, 원래 도메인으로 리디렉션: ${originalDomain}');
@@ -337,7 +400,7 @@ async function handleDefaultCallback(request: NextRequest, code: string, state: 
   } catch (error: any) {
     console.error(`${provider} 콜백 처리 중 오류:`, error);
     return NextResponse.redirect(
-      getSafeRedirectUrl(request, `/login?error=${provider}_callback&error_description=${error.message || '알 수 없는 오류'}`)
+      getSafeRedirectUrl(request, `/?auth_error=true&error_type=${provider}_callback&error_description=${error.message || '알 수 없는 오류'}`)
     );
   }
 } 

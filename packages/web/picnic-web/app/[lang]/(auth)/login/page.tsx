@@ -25,6 +25,27 @@ declare global {
   }
 }
 
+// 간단한 디버깅 함수 추가
+const debugLog = (message: string, data?: any) => {
+  console.log(`[DEBUG] ${message}`, data ? data : '');
+  try {
+    // 디버그 정보를 로컬 스토리지에 저장
+    const debugLogs = JSON.parse(localStorage.getItem('debug_logs') || '[]');
+    debugLogs.push({
+      timestamp: Date.now(),
+      message,
+      data
+    });
+    // 최대 50개 항목만 유지
+    while (debugLogs.length > 50) {
+      debugLogs.shift();
+    }
+    localStorage.setItem('debug_logs', JSON.stringify(debugLogs));
+  } catch (e) {
+    // 저장 실패 시 무시
+  }
+};
+
 // SearchParams를 사용하는 컴포넌트
 function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
   const [supabase] = useState(() => createBrowserSupabaseClient());
@@ -44,6 +65,9 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
       return false;
     }
 
+    // 로딩 상태로 UI 변경 - 로그인 폼 숨김
+    setLoading(true);
+
     // 세션 정보 저장
     try {
       localStorage.setItem('auth_session_active', 'true');
@@ -52,59 +76,199 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
       // 무시: 저장 실패해도 인증 과정에는 영향 없음
     }
     
-    // 세션 정보 갱신을 위한 이벤트 발생
-    try {
-      // 인증 이벤트를 여러 번 발생시켜 모든 컴포넌트가 상태 변화를 인식하도록 함
-      window.dispatchEvent(new Event('supabase.auth.session-update'));
-      window.dispatchEvent(new Event('auth.state.changed'));
-      
-      // 약간의 지연 후 다시 한번 이벤트 발생 (비동기 상태 업데이트 문제 해결)
-      setTimeout(() => {
-        window.dispatchEvent(new Event('auth.state.changed'));
-      }, 100);
-    } catch (e) {
-      // 무시: 이벤트 발생 실패해도 인증 과정에는 영향 없음
-    }
-    
-    // 상태가 적용될 시간을 주기 위해 약간 지연 후 홈으로 리디렉션
-    setTimeout(() => {
-      router.push('/');
-    }, 300);
+    // 직접 홈으로 이동 (라우터 사용하지 않음)
+    console.log('로그인 성공, 홈으로 이동합니다.');
+    window.location.href = '/';
     
     return true;
-  }, [router]);
+  }, []);
   
   // 컴포넌트 마운트 시 현재 인증 상태 확인
   useEffect(() => {
-    const checkAuth = async () => {
+    // 브라우저 환경인지 확인
+    if (typeof window === 'undefined') return;
+    
+    // 디버그용 로그
+    debugLog('Login 페이지 마운트', {
+      url: window.location.href,
+      origin: window.location.origin,
+      host: window.location.host
+    });
+    
+    // URL에서 인증 코드 확인 (OAuth 콜백)
+    const checkForAuthCode = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
+        // 로딩 상태 표시
+        setLoading(true);
         
-        // 이미 로그인된 경우 홈으로 리디렉션
-        if (data.session) {
-          router.push('/');
-          return;
+        if (typeof window !== 'undefined') {
+          // 현재 URL 검사
+          const url = new URL(window.location.href);
+          const code = url.searchParams.get('code');
+          const state = url.searchParams.get('state');
+          const error = url.searchParams.get('error');
+          const errorDescription = url.searchParams.get('error_description');
+          
+          // 오류 파라미터가 있는지 확인
+          if (error) {
+            console.error('URL에서 OAuth 오류 파라미터 감지:', error, errorDescription);
+            setError(`OAuth 인증 오류: ${errorDescription || error}`);
+            setLoading(false);
+            return;
+          }
+          
+          if (code) {
+            debugLog('인증 코드 감지', {
+              codePrefix: code.substring(0, 5) + '...',
+              state,
+              url: window.location.href
+            });
+            
+            console.log('인증 코드 감지:', code.substring(0, 5) + '...');
+            console.log('상태 값:', state);
+            
+            // 디버깅을 위한 정보 기록
+            console.log('URL 전체 정보: ', window.location.href);
+            console.log('URL 검색 파라미터: ', url.search);
+            
+            // 인증 시도 기록
+            try {
+              localStorage.setItem('auth_code_detected', 'true');
+              localStorage.setItem('auth_code_timestamp', Date.now().toString());
+            } catch (e) {
+              // 저장 실패해도 진행
+            }
+            
+            // URL에서 코드 제거 (히스토리에 남지 않도록)
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            try {
+              // 세션 교환 시작 로그
+              debugLog('세션 교환 시작', { codePrefix: code.substring(0, 5) + '...' });
+              
+              // 수동으로 코드 교환 시도
+              console.log('세션 교환 시작...');
+              const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+              
+              if (error) {
+                console.error('세션 교환 오류:', error.message);
+                debugLog('세션 교환 오류', { error: error.message });
+                
+                // 5초 후 페이지 새로고침 (가끔 오류 후에도 세션이 설정됨)
+                setTimeout(() => {
+                  console.log('세션 교환 오류 후 페이지 새로고침');
+                  window.location.reload();
+                }, 5000);
+                
+                setError('로그인 처리 중 오류가 발생했습니다: ' + error.message);
+                setLoading(false);
+                return;
+              }
+              
+              if (data?.session) {
+                debugLog('세션 교환 성공', { userId: data.session.user?.id });
+                console.log('세션 교환 성공:', data.session.user?.id);
+                
+                // 수동으로 세션 설정
+                await supabase.auth.setSession({
+                  access_token: data.session.access_token,
+                  refresh_token: data.session.refresh_token,
+                });
+                
+                // localStorage에 성공 표시
+                try {
+                  localStorage.setItem('auth_success', 'true');
+                  localStorage.setItem('auth_provider', 'google');
+                  localStorage.setItem('auth_timestamp', Date.now().toString());
+                } catch (e) {
+                  // 실패해도 진행
+                }
+                
+                // 인증 이벤트 발생
+                window.dispatchEvent(new Event('auth.state.changed'));
+                
+                // 약간의 지연 후 홈으로 리디렉션 (이벤트가 처리될 시간을 주기 위함)
+                setTimeout(() => {
+                  debugLog('로그인 완료, 홈으로 이동');
+                  console.log('로그인 완료, 홈으로 이동합니다');
+                  window.location.href = '/';
+                }, 500);
+                
+                return;
+              } else {
+                console.warn('세션 교환은 성공했으나 세션이 없음');
+                debugLog('세션 없음', { data });
+                
+                // 3초 후 페이지 새로고침
+                setTimeout(() => {
+                  console.log('세션 없음 - 페이지 새로고침');
+                  window.location.reload();
+                }, 3000);
+              }
+            } catch (err: any) {
+              console.error('세션 교환 중 예외 발생:', err);
+              debugLog('세션 교환 예외', { error: err.message });
+              setError('로그인 처리 중 오류가 발생했습니다');
+              
+              // 5초 후 페이지 새로고침 (가끔 오류 후에도 세션이 설정됨)
+              setTimeout(() => {
+                console.log('오류 후 페이지 새로고침');
+                window.location.reload();
+              }, 5000);
+            }
+          }
         }
-      } catch (e) {
-        // 세션 확인 실패 - 로그인 화면 표시
-      } finally {
+        
+        // 코드가 없거나 처리 후에는 일반 체크 계속
+        await checkAuth();
+      } catch (e: any) {
+        console.error('인증 코드 확인 중 오류:', e);
+        debugLog('인증 코드 확인 오류', { error: e.message });
         setLoading(false);
       }
     };
     
-    checkAuth();
+    // 인증 상태 확인
+    const checkAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        
+        // 이미 로그인된 경우 즉시 홈으로 리디렉션
+        if (data.session) {
+          console.log('이미 로그인 상태, 홈으로 리디렉션합니다.');
+          window.location.href = '/';
+          return;
+        }
+        
+        // 로그인이 필요한 경우에만 로딩 상태 해제
+        setLoading(false);
+      } catch (e) {
+        // 세션 확인 실패 - 로그인 화면 표시
+        console.error('세션 확인 실패:', e);
+        setLoading(false);
+      }
+    };
+    
+    // 코드 확인 및 세션 처리 시작
+    checkForAuthCode();
     
     // 세션 상태 변경 감지
     const authListener = supabase.auth.onAuthStateChange((event: string, session: any) => {
+      console.log('인증 상태 변경:', event, !!session);
+      
       if (event === 'SIGNED_IN' && session) {
-        router.push('/');
+        // 로딩 상태로 UI 변경 - 로그인 폼 숨김
+        setLoading(true);
+        
+        // 직접 홈으로 이동 (라우터 사용하지 않음)
+        window.location.href = '/';
       }
     });
     
     return () => {
       authListener.data.subscription.unsubscribe();
     };
-  }, [supabase, router]);
+  }, [supabase]);
   
   // SDK가 로드되면 초기화
   useEffect(() => {
@@ -281,105 +445,175 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
   const handleOtherSignIn = async (provider: 'google' | 'kakao' | 'wechat') => {
     if (provider === 'google') {
       try {
-        // 로딩 상태 설정
+        // 로딩 상태 설정 - 로그인 폼 숨김
         setLoading(true);
         
-        // 현재 URL (ngrok 또는 로컬 개발 환경)
-        const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
-        const redirectUrl = `${currentDomain}/auth/callback/${provider}`;
+        // URL 환경 직접 감지 (window.location 객체 사용)
+        const actualOrigin = window.location.origin;
+        const actualHost = window.location.host;
+        const actualHostname = window.location.hostname;
+        const actualProtocol = window.location.protocol;
         
-        // 별도의 ngrok 감지
-        const isNgrok = typeof window !== 'undefined' && 
-          (window.location.hostname.includes('ngrok') || 
-           window.location.host.includes('ngrok'));
-           
-        console.log(`${provider} 로그인 시도 - 환경:`, { 
-          currentDomain,
-          redirectUrl,
-          isNgrok
+        // 디버깅 정보 저장
+        debugLog('URL 정보 감지', {
+          actualOrigin,
+          actualHost,
+          actualHostname,
+          actualProtocol,
+          href: window.location.href
         });
         
-        // ngrok 환경이면 커스텀 URL로 리디렉션
-        if (isNgrok) {
-          console.log('ngrok 환경 감지: 직접 로그인 URL 사용');
-          
-          // 구글 OAuth 클라이언트 ID - Supabase 설정과 동일한 값 사용
-          // 이 값은 다음 경로에서 확인 가능: Supabase 대시보드 > Authentication > Providers > Google
-          const clientId = '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com';
-          
-          // ✓ 옵션 1: 직접 콜백 URL 사용 (구글 Cloud Console에 이 URL 추가 필요)
-          // 구글 OAuth 설정에 이 URL을 추가해야 합니다:
-          // Google Cloud Console > API 및 서비스 > 사용자 인증 정보 > OAuth 클라이언트 ID > 승인된 리디렉션 URI
-          const ngrokCallbackUrl = `${currentDomain}/auth/callback/google`;
-          
-          // ✗ 옵션 2: Supabase 기본 콜백 URL 사용 (state로 원래 URL 전달)
-          // const supabaseRedirectUri = 'https://api.picnic.fan/auth/v1/callback';
-          
-          // 세션은 브라우저 전체에서 공유되므로 직접 로그인 URL로 이동
-          const url = `https://accounts.google.com/o/oauth2/v2/auth?` + 
-            `client_id=${clientId}&` +
-            `redirect_uri=${encodeURIComponent(ngrokCallbackUrl)}&` +
-            `response_type=code&` +
-            `scope=${encodeURIComponent('email profile openid')}&` +
-            `prompt=select_account&` +
-            `state=${encodeURIComponent(JSON.stringify({
-              originalUrl: currentDomain,
-              timestamp: Date.now(),
-              ngrok: true
-            }))}`;
-          
-          console.log('구글 로그인 URL로 이동:', url);
-          window.location.href = url;
-          return;
+        // 환경 정보 로컬 스토리지에 저장 (인증 후 비교용)
+        try {
+          localStorage.setItem('auth_request_info', JSON.stringify({
+            actualOrigin,
+            actualHost,
+            actualHostname,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          // 저장 실패 시 무시
         }
         
-        // 일반 환경은 Supabase OAuth 사용
-        console.log('일반 환경: Supabase OAuth 사용');
+        console.log('실제 URL 정보:', {
+          actualOrigin,
+          actualHost,
+          actualHostname,
+          actualProtocol,
+          href: window.location.href
+        });
+        
+        // ngrok 환경 직접 확인
+        const isNgrokActual = 
+          actualHostname.includes('ngrok') || 
+          actualHost.includes('ngrok') ||
+          /^[a-z0-9]+\.ngrok(?:-free)?\.(?:io|app)$/.test(actualHostname);
+        
+        debugLog('ngrok 환경 감지', {
+          isNgrokActual,
+          hostnameCheck: actualHostname.includes('ngrok'),
+          hostCheck: actualHost.includes('ngrok'),
+          regexCheck: /^[a-z0-9]+\.ngrok(?:-free)?\.(?:io|app)$/.test(actualHostname)
+        });
+        
+        // 현재 환경에 맞는 리디렉션 URL 설정 (실제 URL 기반)
+        const redirectUrl = `${actualOrigin}/auth/callback/${provider}`;
+        
+        // 명시적으로 리다이렉트 URL을 변경 (환경 변수를 무시)
+        debugLog(`${provider} 로그인 시도`, { 
+          actualOrigin,
+          actualHost,
+          redirectUrl,
+          isNgrokActual,
+          userAgent: navigator.userAgent
+        });
+        
+        console.log(`${provider} 로그인 시도 - 실제 환경:`, { 
+          actualOrigin,
+          actualHost,
+          redirectUrl,
+          isNgrokActual,
+          userAgent: navigator.userAgent
+        });
+        
+        // 구글 로그인 리디렉션 처리 개선
+        debugLog('구글 OAuth 요청 시작');
+        console.log('구글 OAuth 요청 시작');
+        
+        // 오류 로깅 함수
+        const logError = (message: string, error: any) => {
+          console.error(message, error);
+          debugLog('구글 OAuth 오류', { message, error });
+          setError(message);
+          setLoading(false);
+        };
+        
+        // 먼저 Supabase 세션을 클리어 (기존 인증 상태로 인한 문제 방지)
+        try {
+          await supabase.auth.signOut({ scope: 'local' });
+          debugLog('기존 세션 클리어');
+        } catch (e) {
+          debugLog('기존 세션 클리어 실패', { error: e });
+          // 실패해도 계속 진행
+        }
+        
+        // 공통 옵션 구성
+        const oauthOptions = {
+          redirectTo: redirectUrl,
+          queryParams: {
+            prompt: 'select_account', // 항상 계정 선택 화면 표시
+            access_type: 'offline' // refresh_token을 얻기 위해 필요
+          },
+          scopes: 'email profile openid',
+          skipBrowserRedirect: false, // true로 설정하면 자동 리디렉션이 되지 않음
+          state: JSON.stringify({
+            redirectUrl: actualOrigin,
+            timestamp: Date.now(),
+            provider: 'google',
+            host: actualHost,
+            isNgrok: isNgrokActual
+          })
+        };
+        
+        debugLog('OAuth 옵션', oauthOptions);
+        console.log('OAuth 옵션:', JSON.stringify(oauthOptions, null, 2));
+        
+        // Supabase OAuth 요청
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider,
-          options: {
-            redirectTo: redirectUrl,
-            queryParams: {
-              prompt: 'select_account' // 항상 계정 선택 화면 표시
-            },
-            scopes: 'email profile',
-            skipBrowserRedirect: false,
-            state: JSON.stringify({
-              redirectUrl: currentDomain,
-              timestamp: Date.now(),
-            })
-          },
+          options: oauthOptions
         });
         
         // 오류 확인
         if (error) {
-          setError(`구글 로그인 중 오류가 발생했습니다: ${error.message}`);
-          setLoading(false);
+          logError(`구글 로그인 중 오류가 발생했습니다: ${error.message}`, error);
           return;
         }
         
         // 리디렉션 URL이 있으면 해당 URL로 이동
         if (data?.url) {
-          // 인증 이벤트 미리 발생시키기
+          debugLog('구글 로그인 리디렉션 URL 획득', { url: data.url });
+          console.log('구글 로그인 리디렉션 URL 획득:', data.url);
+          
+          // 로그인 폼 계속 숨김 상태 유지
+          setLoading(true);
+          
+          // localStorage에 시도 정보 저장 (디버깅용)
           try {
-            window.dispatchEvent(new Event('supabase.auth.session-update'));
-            window.dispatchEvent(new Event('auth.state.changed'));
+            localStorage.setItem('last_oauth_attempt', JSON.stringify({
+              provider,
+              timestamp: Date.now(),
+              redirectUrl
+            }));
           } catch (e) {
-            // 무시
+            // 저장 실패해도 진행
           }
           
           // 구글 로그인 페이지로 리디렉션
-          window.location.href = data.url;
+          debugLog('구글 로그인 페이지로 리디렉션', { url: data.url });
+          console.log('구글 로그인 페이지로 리디렉션 중...');
+          
+          // 약간의 지연 후 리디렉션 (브라우저 처리 시간 확보)
+          setTimeout(() => {
+            window.location.href = data.url;
+          }, 100);
+          
           return;
         }
+        
+        debugLog('구글 리디렉션 URL이 없음', { data });
+        console.log('구글 리디렉션 URL이 없음, 직접 처리 시도');
         
         // URL이 없지만 데이터가 있는 경우 (드문 케이스)
         if (data) {
           return handleAuthSuccess(data, provider);
         }
         
-        setLoading(false);
+        // 여기까지 왔다면 뭔가 잘못된 것
+        logError('구글 로그인을 시작할 수 없습니다. 다시 시도해주세요.', null);
       } catch (error: any) {
+        console.error('구글 로그인 예외:', error);
+        debugLog('구글 로그인 예외', { error: error?.message });
         setError(`구글 로그인 중 예기치 않은 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
         setLoading(false);
       }
@@ -388,6 +622,9 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
     
     // Kakao, WeChat 처리
     try {
+      // 로딩 상태 설정 - 로그인 폼 숨김
+      setLoading(true);
+      
       const res = await fetch(
         `https://api.picnic.fan/functions/v1/${provider}-web-oauth`,
         {
@@ -401,20 +638,24 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
       );
 
       if (!res.ok) {
-        router.push(`/login?error=oauth_error&provider=${provider}`);
+        setError(`${provider} 로그인 중 오류가 발생했습니다.`);
+        setLoading(false);
         return;
       }
 
       const { url, error: oauthError } = await res.json();
 
       if (oauthError || !url) {
-        router.push(`/login?error=oauth_error&provider=${provider}`);
+        setError(`${provider} 로그인 중 오류가 발생했습니다: ${oauthError || '알 수 없는 오류'}`);
+        setLoading(false);
         return;
       }
 
+      // 소셜 제공자 로그인 페이지로 이동
       window.location.href = url;
-    } catch (error) {
-      router.push(`/login?error=oauth_error&provider=${provider}`);
+    } catch (error: any) {
+      setError(`${provider} 로그인 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
+      setLoading(false);
     }
   };
 
@@ -446,68 +687,68 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
             <p className='text-gray-600'>로그인 처리 중...</p>
           </div>
         ) : (
-          <div className='mt-8 space-y-4'>
-            <button
-              onClick={() => handleSignIn('google')}
+        <div className='mt-8 space-y-4'>
+          <button
+            onClick={() => handleSignIn('google')}
               disabled={loading}
               className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
-            >
-              <Image
-                src='/images/auth/google-logo.svg'
-                alt={`Google ${t('button_login')}`}
-                width={20}
-                height={20}
-                className='mr-2'
-              />
-              Google {t('button_continue_with')}
-            </button>
+          >
+            <Image
+              src='/images/auth/google-logo.svg'
+              alt={`Google ${t('button_login')}`}
+              width={20}
+              height={20}
+              className='mr-2'
+            />
+            Google {t('button_continue_with')}
+          </button>
 
-            <button
-              onClick={() => handleSignIn('apple')}
+          <button
+            onClick={() => handleSignIn('apple')}
               disabled={loading}
               className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-black border border-gray-300 rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'
               aria-label='Apple 계정으로 계속하기'
-            >
-              <Image
-                src='/images/auth/apple-logo.svg'
-                alt={`Apple ${t('button_login')}`}
-                width={20}
-                height={20}
-                className='mr-2'
-              />
-              Apple {t('button_continue_with')}
-            </button>
+          >
+            <Image
+              src='/images/auth/apple-logo.svg'
+              alt={`Apple ${t('button_login')}`}
+              width={20}
+              height={20}
+              className='mr-2'
+            />
+            Apple {t('button_continue_with')}
+          </button>
 
-            <button
-              onClick={() => handleSignIn('kakao')}
+          <button
+            onClick={() => handleSignIn('kakao')}
               disabled={loading}
               className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-[#191919] bg-[#FEE500] rounded-md hover:bg-[#F4DC00] disabled:opacity-50 disabled:cursor-not-allowed'
-            >
-              <Image
-                src='/images/auth/kakao-logo.svg'
-                alt={`Kakao ${t('button_login')}`}
-                width={20}
-                height={20}
-                className='mr-2'
-              />
-              Kakao {t('button_continue_with')}
-            </button>
+          >
+            <Image
+              src='/images/auth/kakao-logo.svg'
+              alt={`Kakao ${t('button_login')}`}
+              width={20}
+              height={20}
+              className='mr-2'
+            />
+            Kakao {t('button_continue_with')}
+          </button>
 
-            <button
-              onClick={() => handleSignIn('wechat')}
+          <button
+            onClick={() => handleSignIn('wechat')}
               disabled={loading}
               className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-[#07C160] rounded-md hover:bg-[#06AD56] disabled:opacity-50 disabled:cursor-not-allowed'
-            >
-              <Image
-                src='/images/auth/wechat-logo.svg'
-                alt={`WeChat ${t('button_login')}`}
-                width={20}
-                height={20}
-                className='mr-2'
-              />
-              WeChat {t('button_continue_with')}
-            </button>
-          </div>
+          >
+            <Image
+              src='/images/auth/wechat-logo.svg'
+              alt={`WeChat ${t('button_login')}`}
+              width={20}
+              height={20}
+              className='mr-2'
+            />
+            WeChat {t('button_continue_with')}
+          </button>
+        </div>
         )}
       </div>
     </div>
@@ -518,8 +759,8 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
 function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
   return (
     <Suspense fallback={
-      <div className='min-h-screen flex items-center justify-center bg-gray-50'>
-        <div className='max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg'>
+        <div className='min-h-screen flex items-center justify-center bg-gray-50'>
+          <div className='max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg'>
           <div className='flex flex-col items-center justify-center py-8'>
             <div className='animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-500 mb-4'></div>
             <p className='text-gray-600'>로딩 중...</p>

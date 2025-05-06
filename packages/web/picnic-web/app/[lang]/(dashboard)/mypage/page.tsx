@@ -38,8 +38,41 @@ const MyPage = () => {
   }, [user, loading, router]);
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push('/');
+    try {
+      // 로그아웃 진행 전에 먼저 리디렉션 준비
+      console.log('로그아웃 시작, 곧 홈으로 이동합니다');
+      
+      // 비동기 작업 전에 즉시 페이지 이동을 예약
+      // 이렇게 하면 인증 상태 변경 이벤트가 라우터에 의한 리디렉션을 트리거하기 전에 
+      // 브라우저가 루트 페이지로 이동하기 시작함
+      const redirectTimer = setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
+      
+      // signOut 함수 호출 (백그라운드에서 계속 진행됨)
+      await signOut();
+      
+      // 추가적인 로그인 흔적 제거 (백그라운드에서 실행)
+      try {
+        // 모든 세션 쿠키 정리 (다시 한번)
+        document.cookie.split(';').forEach(c => {
+          const cookieName = c.trim().split('=')[0];
+          if (cookieName) {
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          }
+        });
+      } catch (e) {
+        console.warn('추가 쿠키 정리 실패:', e);
+      }
+      
+      // 이미 페이지 이동이 시작되었으므로 여기서는 추가 작업이 필요 없음
+      
+    } catch (error) {
+      console.error('로그아웃 중 오류가 발생했습니다:', error);
+      
+      // 오류가 발생하더라도 즉시 홈으로 이동
+      window.location.href = '/';
+    }
   };
 
   if (loading) {
