@@ -486,146 +486,75 @@ export const useAuthHandlers = () => {
         // 실패해도 계속 진행
       }
       
-      // NgRok 환경에서는 직접 Google OAuth URL 구성
-      if (isNgrokActual) {
-        debugLog('NgRok 환경 - 직접 Google OAuth URL 구성 (PKCE 적용)');
-        
-        // Callback URL 정의 (언어 경로 포함)
-        const callbackPath = `${actualOrigin}/${currentLang}/auth/callback/google`;
-        
-        // 구글 OAuth URL 직접 구성
-        const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-        
-        // 필수 파라미터 설정
-        googleAuthUrl.searchParams.append('client_id', '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com');
-        googleAuthUrl.searchParams.append('redirect_uri', 'https://api.picnic.fan/auth/v1/callback');
-        googleAuthUrl.searchParams.append('redirect_to', callbackPath);
-        googleAuthUrl.searchParams.append('response_type', 'code');
-        googleAuthUrl.searchParams.append('scope', 'email profile openid');
-        googleAuthUrl.searchParams.append('access_type', 'offline');
-        googleAuthUrl.searchParams.append('prompt', 'select_account');
-        
-        // PKCE 파라미터 추가
-        googleAuthUrl.searchParams.append('code_challenge', codeChallenge);
-        googleAuthUrl.searchParams.append('code_challenge_method', 'S256');
-        
-        // state 파라미터에 중요한 정보를 포함
-        const stateData = {
-          timestamp: Date.now(),
-          origin: actualOrigin,
-          host: actualHost,
-          returnTo: callbackPath,
-          provider: 'google',
-          lang: currentLang,
-          pkce: true // PKCE 사용 여부 표시
-        };
-        
-        googleAuthUrl.searchParams.append('state', JSON.stringify(stateData));
-        
-        // 로그 및 디버깅
-        debugLog('Google OAuth URL 구성 완료 (PKCE 적용)', { 
-          url: googleAuthUrl.toString(),
-          hasCodeChallenge: !!codeChallenge,
-          hasCodeVerifier: !!codeVerifier
-        });
-        console.log('Google 인증 페이지로 이동:', googleAuthUrl.toString());
-        
-        // 로컬 스토리지에 정보 저장 (디버깅용)
-        try {
-          localStorage.setItem('last_oauth_request', JSON.stringify({
-            provider: 'google',
-            timestamp: Date.now(),
-            url: googleAuthUrl.toString(),
-            state: stateData,
-            pkce: true
-          }));
-        } catch (e) {
-          // 저장 실패해도 계속 진행
-        }
-        
-        // 약간의 지연 후 리디렉션 (브라우저 처리 시간 확보)
-        setTimeout(() => {
-          window.location.href = googleAuthUrl.toString();
-        }, 100);
-        
-        return;
-      }
+      // NgRok 환경 또는 일반 환경 모두 직접 Google OAuth URL 구성 사용
+      // 콜백 URL 동적 생성 (현재 환경과 언어 고려)
+      const callbackPath = `${actualOrigin}/${currentLang}/auth/callback/google`;
       
-      // 일반 환경(ngrok 아닌 경우)에서는 Supabase OAuth 사용
-      // 현재 환경에 맞는 리디렉션 URL 설정
-      const redirectUrl = `${actualOrigin}/auth/callback/google`;
+      // GoogleAuth 엔드포인트 URL
+      debugLog('직접 Google OAuth URL 구성 시작 (PKCE 적용)', {
+        callbackPath,
+        environment: isNgrokActual ? 'ngrok' : 'standard'
+      });
       
-      // 공통 옵션 구성
-      const oauthOptions = {
-        redirectTo: redirectUrl,
-        queryParams: {
-          prompt: 'select_account', // 항상 계정 선택 화면 표시
-          access_type: 'offline' // refresh_token을 얻기 위해 필요
-        },
-        scopes: 'email profile openid',
-        skipBrowserRedirect: false,
-        // PKCE 옵션 추가
-        codeChallenge,
-        codeChallengeMethod: 'S256'
+      // 구글 OAuth URL 직접 구성
+      const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+      
+      // 필수 파라미터 설정
+      googleAuthUrl.searchParams.append('client_id', '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com');
+      
+      // 콜백 URL 직접 설정 (Supabase가 아닌 우리 앱 URL 사용)
+      googleAuthUrl.searchParams.append('redirect_uri', callbackPath);
+      
+      googleAuthUrl.searchParams.append('response_type', 'code');
+      googleAuthUrl.searchParams.append('scope', 'email profile openid');
+      googleAuthUrl.searchParams.append('access_type', 'offline');
+      googleAuthUrl.searchParams.append('prompt', 'select_account');
+      
+      // PKCE 파라미터 추가
+      googleAuthUrl.searchParams.append('code_challenge', codeChallenge);
+      googleAuthUrl.searchParams.append('code_challenge_method', 'S256');
+      
+      // state 파라미터에 중요한 정보를 포함
+      const stateData = {
+        timestamp: Date.now(),
+        origin: actualOrigin,
+        host: actualHost,
+        returnTo: callbackPath,
+        provider: 'google',
+        lang: currentLang,
+        pkce: true, // PKCE 사용 여부 표시
+        direct: true // 직접 OAuth URL 사용 표시
       };
-
-      // 디버깅에 필요한 추가 정보 저장
+      
+      googleAuthUrl.searchParams.append('state', JSON.stringify(stateData));
+      
+      // 로그 및 디버깅
+      debugLog('Google OAuth URL 구성 완료 (PKCE 적용)', { 
+        url: googleAuthUrl.toString(),
+        hasCodeChallenge: !!codeChallenge,
+        hasCodeVerifier: !!codeVerifier,
+        redirect_uri: callbackPath
+      });
+      console.log('Google 인증 페이지로 이동:', googleAuthUrl.toString());
+      
+      // 로컬 스토리지에 정보 저장 (디버깅용)
       try {
-        localStorage.setItem('oauth_options', JSON.stringify(oauthOptions));
-        localStorage.setItem('last_login_attempt', Date.now().toString());
+        localStorage.setItem('last_oauth_request', JSON.stringify({
+          provider: 'google',
+          timestamp: Date.now(),
+          url: googleAuthUrl.toString(),
+          state: stateData,
+          pkce: true,
+          direct_redirect: true
+        }));
       } catch (e) {
         // 저장 실패해도 계속 진행
       }
       
-      debugLog('일반 환경 - Supabase OAuth 사용 (PKCE 적용)', oauthOptions);
-      
-      // Supabase OAuth 요청
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: oauthOptions
-      });
-      
-      // 오류 확인
-      if (error) {
-        // 코드 검증자 정리
-        clearCodeVerifier();
-        logError(`구글 로그인 중 오류가 발생했습니다: ${error.message}`, error);
-        return;
-      }
-      
-      // 리디렉션 URL이 있으면 해당 URL로 이동
-      if (data?.url) {
-        debugLog('구글 로그인 리디렉션 URL 획득 (PKCE 적용)', { url: data.url });
-        
-        // localStorage에 시도 정보 저장 (디버깅용)
-        try {
-          localStorage.setItem('last_oauth_attempt', JSON.stringify({
-            provider: 'google',
-            timestamp: Date.now(),
-            url: data.url,
-            pkce: true
-          }));
-        } catch (e) {
-          // 저장 실패해도 진행
-        }
-        
-        // 약간의 지연 후 리디렉션 (브라우저 처리 시간 확보)
-        setTimeout(() => {
-          window.location.href = data.url;
-        }, 100);
-        
-        return;
-      }
-      
-      // URL이 없지만 데이터가 있는 경우 (드문 케이스)
-      if (data) {
-        clearCodeVerifier(); // 성공 시 검증자 정리
-        return handleAuthSuccess(data, 'google');
-      }
-      
-      // 여기까지 왔다면 뭔가 잘못된 것
-      clearCodeVerifier(); // 실패 시 검증자 정리
-      logError('구글 로그인을 시작할 수 없습니다. 다시 시도해주세요.', null);
+      // 약간의 지연 후 리디렉션 (브라우저 처리 시간 확보)
+      setTimeout(() => {
+        window.location.href = googleAuthUrl.toString();
+      }, 100);
     } catch (error: any) {
       console.error('구글 로그인 예외:', error);
       debugLog('구글 로그인 예외', { error: error?.message });

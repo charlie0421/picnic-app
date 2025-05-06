@@ -121,6 +121,7 @@ export default function AuthCallbackPage() {
         let lang = 'en';
         let returnPath = '/';
         let isPkce = false;
+        let isDirect = false;
         
         try {
           if (state) {
@@ -132,6 +133,9 @@ export default function AuthCallbackPage() {
             
             // PKCE 사용 여부 확인
             isPkce = !!stateData.pkce;
+            
+            // 직접 OAuth 사용 여부 확인
+            isDirect = !!stateData.direct;
             
             // 리턴 경로 추출
             if (stateData.returnTo) {
@@ -158,9 +162,102 @@ export default function AuthCallbackPage() {
           return;
         }
         
-        // Supabase 클라이언트 생성 및 세션 교환
+        // Supabase 클라이언트 생성
         const supabase = createBrowserSupabaseClient();
         
+        // 직접 OAuth를 사용한 경우
+        if (isDirect) {
+          debugLog('직접 OAuth 인증 감지 - 구글 토큰 교환 시작', {
+            isPkce,
+            hasCodeVerifier: !!codeVerifier
+          });
+          
+          try {
+            // 직접 로그인 시도
+            setStatus('Google 계정으로 직접 로그인 중...');
+            
+            // 구글로부터 받은 코드로 Supabase 인증
+            const { data, error } = await supabase.auth.signInWithOAuth({
+              provider: 'google',
+              options: {
+                skipBrowserRedirect: true,
+                queryParams: {
+                  // 현재 페이지의 코드를 전달
+                  code: code,
+                  // PKCE 사용 중이면 코드 검증자도 전달
+                  ...(isPkce && codeVerifier ? { code_verifier: codeVerifier } : {})
+                }
+              }
+            });
+            
+            // 코드 검증자 정리 (사용 완료)
+            clearCodeVerifier();
+            
+            if (error) {
+              debugLog('직접 OAuth 인증 실패', { error: error.message });
+              setError(`구글 계정으로 로그인 실패: ${error.message}`);
+              setStatus('인증 실패');
+              
+              // 3초 후 로그인 페이지로 리디렉션
+              setTimeout(() => {
+                window.location.href = `/${lang}/login?error=direct_oauth&error_description=${encodeURIComponent(error.message)}`;
+              }, 3000);
+              
+              return;
+            }
+            
+            if (!data.session) {
+              setError('세션 정보가 없습니다.');
+              setStatus('세션 정보 누락');
+              
+              setTimeout(() => {
+                window.location.href = `/${lang}/login?error=no_session`;
+              }, 3000);
+              
+              return;
+            }
+            
+            // 로그인 성공
+            debugLog('직접 OAuth 인증 성공', { user: data.session.user.id });
+            setStatus('로그인 성공! 리디렉션 중...');
+            
+            // 인증 성공 정보 저장
+            try {
+              localStorage.setItem('auth_success', 'true');
+              localStorage.setItem('auth_provider', 'google');
+              localStorage.setItem('auth_timestamp', Date.now().toString());
+              localStorage.setItem('auth_direct_oauth', 'true');
+            } catch (e) {
+              // 저장 실패해도 진행
+            }
+            
+            // 약간의 지연 후 홈으로 리디렉션
+            setTimeout(() => {
+              debugLog('로그인 완료, 홈으로 이동', { path: '/' + lang });
+              window.location.href = '/' + lang;
+            }, 1000);
+            
+            return;
+          } catch (ex) {
+            const errorMessage = ex instanceof Error ? ex.message : '알 수 없는 오류';
+            debugLog('직접 OAuth 인증 예외', { error: errorMessage });
+            
+            setError(`직접 OAuth 처리 중 오류: ${errorMessage}`);
+            setStatus('처리 오류');
+            
+            // 코드 검증자 정리
+            clearCodeVerifier();
+            
+            // 3초 후 로그인 페이지로 리디렉션
+            setTimeout(() => {
+              window.location.href = `/${lang}/login?error=direct_oauth_exception`;
+            }, 3000);
+            
+            return;
+          }
+        }
+        
+        // 일반적인 OAuth 콜백 처리 (Supabase의 리디렉션을 통한 경우)
         // 디버그 로그
         debugLog('세션 교환 시작', { 
           codePrefix: code.substring(0, 5) + '...',
