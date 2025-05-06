@@ -130,14 +130,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // 인증 상태 변화 구독
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: 'SIGNED_IN' | 'SIGNED_OUT' | 'USER_UPDATED' | 'TOKEN_REFRESHED' | 'PASSWORD_RECOVERY', session: Session | null) => {
+      console.log('Auth State Change:', event, !!session);
       await handleSession(session);
     });
+
+    // 커스텀 이벤트 리스너 (외부에서 강제로 인증 상태 갱신을 요청할 수 있도록)
+    const handleAuthStateChanged = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        await handleSession(session);
+      } catch (error) {
+        console.error('이벤트 기반 인증 체크 에러:', error);
+      }
+    };
+
+    // 커스텀 이벤트 리스너 등록
+    window.addEventListener('auth.state.changed', handleAuthStateChanged);
 
     checkUser();
 
     // 클린업 함수
     return () => {
       subscription?.unsubscribe();
+      window.removeEventListener('auth.state.changed', handleAuthStateChanged);
     };
   }, [handleSession]);
 

@@ -1,15 +1,41 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileImageContainer, DefaultAvatar } from '@/components/ui/ProfileImageContainer';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/utils/supabase-client';
 
 const MyPage = () => {
   const { authState, signOut } = useAuth();
   const { user, loading } = authState;
   const router = useRouter();
+
+  // 페이지 로드 시 인증 상태 강제 확인
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        // 현재 세션 확인
+        const { data } = await supabase.auth.getSession();
+        
+        // 세션이 있지만 사용자 정보가 없는 경우 auth.state.changed 이벤트 발생
+        if (data.session && !user) {
+          window.dispatchEvent(new Event('auth.state.changed'));
+        }
+      } catch (error) {
+        console.error('세션 확인 중 오류:', error);
+      }
+    };
+    
+    if (!user && !loading) {
+      // 로딩이 끝났으나 사용자 정보가 없으면 로그인 페이지로 이동
+      router.push('/login');
+    } else if (loading) {
+      // 로딩 중이면 인증 상태 강제 확인
+      checkAuthStatus();
+    }
+  }, [user, loading, router]);
 
   const handleSignOut = async () => {
     await signOut();
