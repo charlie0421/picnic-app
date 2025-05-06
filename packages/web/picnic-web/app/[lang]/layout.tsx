@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import './layout.css';
 import { SUPPORTED_LANGUAGES } from '@/config/settings';
-import Root from '../root';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +18,6 @@ export default function LangLayout({
 }) {
   return (
     <div className={`layout-container ${inter.className}`}>
-      <Root />
       <div className="main-content">
         {children}
       </div>
