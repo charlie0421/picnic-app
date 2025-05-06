@@ -49,13 +49,13 @@ function getSafeRedirectUrl(request: NextRequest, path: string = '/'): string {
   return new URL(path, requestUrl.origin).toString();
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { provider: string } }
-) {
+// Next.js App Router 라우트 핸들러
+export async function GET(request: NextRequest, context: any) {
+  // context.params에서 provider 값 추출
+  const provider = context.params?.provider;
+  
   try {
     // 현재 제공자 정보 가져오기
-    const provider = params.provider;
     console.log(`Processing callback for provider: ${provider}`);
     
     // 요청 헤더 로깅 (디버깅용)
