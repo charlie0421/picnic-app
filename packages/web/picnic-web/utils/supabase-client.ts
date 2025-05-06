@@ -15,9 +15,65 @@ const isProduction = process.env.NODE_ENV === 'production';
 // 외부 도메인 허용 목록
 const allowedOrigins = ['ngrok-free.app', '.ngrok-free.app'];
 
+// Supabase URL 결정 (ngrok 환경에서는 프록시 사용)
+const getSupabaseUrl = () => {
+  const originalUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  
+  // ngrok 환경에서는 로컬 프록시 사용
+  if (isNgrokEnvironment && typeof window !== 'undefined') {
+    return `${window.location.origin}/supabase-proxy`;
+  }
+  
+  return originalUrl;
+};
+
+// Supabase 커스텀 fetch 함수
+const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
+  try {
+    // URL이 Supabase URL인지 확인
+    const urlStr = url.toString();
+    const originalSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    
+    // Supabase URL을 프록시 URL로 변경
+    let modifiedUrl = url;
+    if (isNgrokEnvironment && urlStr.includes(originalSupabaseUrl)) {
+      const path = urlStr.replace(originalSupabaseUrl, '');
+      modifiedUrl = `${window.location.origin}/supabase-proxy${path}` as unknown as URL;
+      console.log(`Supabase 요청 프록시: ${urlStr} -> ${modifiedUrl}`);
+    }
+    
+    // 옵션 설정
+    const modifiedOptions: RequestInit = {
+      ...options,
+      headers: {
+        ...options?.headers,
+        'X-Custom-Environment': isNgrokEnvironment ? 'ngrok' : 'regular',
+      },
+      // CORS 정책 설정
+      credentials: 'include' as RequestCredentials
+    };
+    
+    // fetch 요청 수행
+    const response = await fetch(modifiedUrl, modifiedOptions);
+    
+    // 응답 로깅 (디버깅용)
+    if (!response.ok && isNgrokEnvironment) {
+      console.error(`API 응답 오류: ${response.status} ${response.statusText}`, {
+        url: modifiedUrl,
+        originalUrl: url,
+      });
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Supabase fetch 오류:', error, { url });
+    throw error;
+  }
+};
+
 // 전역 Supabase 클라이언트 인스턴스 직접 생성
 export const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  getSupabaseUrl(),
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   {
     auth: {
@@ -70,15 +126,9 @@ export const supabase = createBrowserClient(
         }
       }
     },
-    // fetch 옵션 설정 (ngrok 환경에서는 특별한 설정 추가)
+    // fetch 옵션 설정 - 항상 커스텀 fetch 사용
     global: {
-      fetch: (...args) => {
-        // 기본 fetch 사용
-        return fetch(...args).catch(error => {
-          console.error('Supabase fetch 오류:', error);
-          throw error;
-        });
-      }
+      fetch: customFetch
     }
   }
 );
@@ -86,7 +136,8 @@ export const supabase = createBrowserClient(
 // 초기화 시 로그
 if (typeof window !== 'undefined') {
   console.log('Supabase 클라이언트 초기화 완료', {
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    url: getSupabaseUrl(),
+    originalUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
     isNgrok: isNgrokEnvironment,
     isProduction,
     hostname: window.location.hostname

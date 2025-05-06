@@ -43,6 +43,26 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
           { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
         ]
+      },
+      {
+        // Supabase API 프록시 경로에 적용
+        source: '/supabase-proxy/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+        ]
+      }
+    ]
+  },
+  
+  // Supabase API 요청을 프록시
+  async rewrites() {
+    return [
+      {
+        source: '/supabase-proxy/:path*',
+        destination: 'https://xtijtefcycoeqludlngc.supabase.co/:path*'
       }
     ]
   }
