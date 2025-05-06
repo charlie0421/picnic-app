@@ -32,7 +32,7 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
   const { t } = useLanguageStore();
   const [error, setError] = useState<string | null>(null);
   const [appleSDKInitialized, setAppleSDKInitialized] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   
   // 인증 성공 후 처리를 위한 함수
   const handleAuthSuccess = useCallback((data: any, provider: string = 'apple') => {
@@ -110,13 +110,27 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
     if (!sdkScriptLoaded || !window.AppleID || appleSDKInitialized) return;
     
     try {
+      // 리디렉션 URL 설정 - ngrok 고려
+      const redirectURI = getRedirectUrl('apple');
+      
+      // state 파라미터 준비 (원래 URL 정보 포함)
+      const stateParams = {
+        redirectUrl: typeof window !== 'undefined' ? window.location.origin : '',
+        timestamp: Date.now(),
+      };
+      
+      console.log('Apple SDK 초기화:', {
+        redirectURI,
+        originalUrl: stateParams.redirectUrl
+      });
+      
       // Apple SDK 초기화 - nonce 사용하지 않음
       const initOptions = {
         clientId: 'fan.picnic.web',
         scope: 'name email',
-        redirectURI: `${window.location.origin}/auth/callback/apple`,
+        redirectURI: redirectURI,
         usePopup: true,
-        state: 'no-nonce'
+        state: JSON.stringify(stateParams)
       };
       
       window.AppleID.auth.init(initOptions);
@@ -169,6 +183,30 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
     }
   }, [searchParams]);
 
+  // ngrok URL을 감지하여 올바른 리디렉션 URL 생성
+  const getRedirectUrl = (provider: string) => {
+    // ngrok 환경 감지 (브라우저에서만 작동)
+    const isNgrok = typeof window !== 'undefined' && 
+      (window.location.hostname.includes('ngrok') || 
+       window.location.host.includes('ngrok'));
+    
+    // 현재 호스트 감지
+    const currentHost = typeof window !== 'undefined' ? window.location.host : '';
+    const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https' : 'http';
+    
+    console.log('현재 환경:', {
+      isNgrok,
+      host: currentHost,
+      protocol
+    });
+    
+    // 콜백 URL 생성
+    const redirectUrl = `${protocol}://${currentHost}/auth/callback/${provider}`;
+    console.log(`리디렉션 URL: ${redirectUrl}`);
+    
+    return redirectUrl;
+  };
+
   // 간소화된 Apple 로그인 처리 함수
   const handleAppleSignIn = async () => {
     if (!window.AppleID || !appleSDKInitialized) {
@@ -181,6 +219,8 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
     }
 
     try {
+      setLoading(true);
+      
       // ID 토큰 획득
       const appleResponse = await window.AppleID.auth.signIn();
       if (!appleResponse.authorization.id_token) {
@@ -231,6 +271,8 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
       }
     } catch (err: any) {
       setError(`Apple 로그인 처리 중 오류가 발생했습니다: ${err.message || '알 수 없는 오류'}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -238,20 +280,107 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
   const handleOtherSignIn = async (provider: 'google' | 'kakao' | 'wechat') => {
     if (provider === 'google') {
       try {
+        // 로딩 상태 설정
+        setLoading(true);
+        
+        // 현재 URL (ngrok 또는 로컬 개발 환경)
+        const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
+        const redirectUrl = `${currentDomain}/auth/callback/${provider}`;
+        
+        // 별도의 ngrok 감지
+        const isNgrok = typeof window !== 'undefined' && 
+          (window.location.hostname.includes('ngrok') || 
+           window.location.host.includes('ngrok'));
+           
+        console.log(`${provider} 로그인 시도 - 환경:`, { 
+          currentDomain,
+          redirectUrl,
+          isNgrok
+        });
+        
+        // ngrok 환경이면 커스텀 URL로 리디렉션
+        if (isNgrok) {
+          console.log('ngrok 환경 감지: 직접 로그인 URL 사용');
+          
+          // 구글 OAuth 클라이언트 ID - Supabase 설정과 동일한 값 사용
+          // 이 값은 다음 경로에서 확인 가능: Supabase 대시보드 > Authentication > Providers > Google
+          const clientId = '853406219989-jrfkss5a0lqe5sq43t4uhm7n6i0g6s1b.apps.googleusercontent.com';
+          
+          // ✓ 옵션 1: 직접 콜백 URL 사용 (구글 Cloud Console에 이 URL 추가 필요)
+          // 구글 OAuth 설정에 이 URL을 추가해야 합니다:
+          // Google Cloud Console > API 및 서비스 > 사용자 인증 정보 > OAuth 클라이언트 ID > 승인된 리디렉션 URI
+          const ngrokCallbackUrl = `${currentDomain}/auth/callback/google`;
+          
+          // ✗ 옵션 2: Supabase 기본 콜백 URL 사용 (state로 원래 URL 전달)
+          // const supabaseRedirectUri = 'https://api.picnic.fan/auth/v1/callback';
+          
+          // 세션은 브라우저 전체에서 공유되므로 직접 로그인 URL로 이동
+          const url = `https://accounts.google.com/o/oauth2/v2/auth?` + 
+            `client_id=${clientId}&` +
+            `redirect_uri=${encodeURIComponent(ngrokCallbackUrl)}&` +
+            `response_type=code&` +
+            `scope=${encodeURIComponent('email profile openid')}&` +
+            `prompt=select_account&` +
+            `state=${encodeURIComponent(JSON.stringify({
+              originalUrl: currentDomain,
+              timestamp: Date.now(),
+              ngrok: true
+            }))}`;
+          
+          console.log('구글 로그인 URL로 이동:', url);
+          window.location.href = url;
+          return;
+        }
+        
+        // 일반 환경은 Supabase OAuth 사용
+        console.log('일반 환경: Supabase OAuth 사용');
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
-            redirectTo: `${window.location.origin}/auth/callback/${provider}`,
+            redirectTo: redirectUrl,
+            queryParams: {
+              prompt: 'select_account' // 항상 계정 선택 화면 표시
+            },
+            scopes: 'email profile',
+            skipBrowserRedirect: false,
+            state: JSON.stringify({
+              redirectUrl: currentDomain,
+              timestamp: Date.now(),
+            })
           },
         });
         
+        // 오류 확인
         if (error) {
-          router.push('/auth/error');
-        } else if (data) {
+          setError(`구글 로그인 중 오류가 발생했습니다: ${error.message}`);
+          setLoading(false);
+          return;
+        }
+        
+        // 리디렉션 URL이 있으면 해당 URL로 이동
+        if (data?.url) {
+          // 인증 이벤트 미리 발생시키기
+          try {
+            window.dispatchEvent(new Event('supabase.auth.session-update'));
+            window.dispatchEvent(new Event('auth.state.changed'));
+          } catch (e) {
+            // 무시
+          }
+          
+          // 구글 로그인 페이지로 리디렉션
+          window.location.href = data.url;
+          return;
+        }
+        
+        // URL이 없지만 데이터가 있는 경우 (드문 케이스)
+        if (data) {
           return handleAuthSuccess(data, provider);
         }
-      } catch (error) {
-        router.push('/auth/error');
+        
+        setLoading(false);
+      } catch (error: any) {
+        setError(`구글 로그인 중 예기치 않은 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
+        setLoading(false);
       }
       return;
     }
@@ -311,14 +440,16 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
           )}
         </div>
         {loading ? (
-          <div className='flex justify-center py-4'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900'></div>
+          <div className='flex flex-col items-center justify-center py-8'>
+            <div className='animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-500 mb-4'></div>
+            <p className='text-gray-600'>로그인 처리 중...</p>
           </div>
         ) : (
           <div className='mt-8 space-y-4'>
             <button
               onClick={() => handleSignIn('google')}
-              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50'
+              disabled={loading}
+              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
             >
               <Image
                 src='/images/auth/google-logo.svg'
@@ -332,7 +463,8 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
 
             <button
               onClick={() => handleSignIn('apple')}
-              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-black border border-gray-300 rounded-md hover:bg-gray-800'
+              disabled={loading}
+              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-black border border-gray-300 rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'
               aria-label='Apple 계정으로 계속하기'
             >
               <Image
@@ -347,7 +479,8 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
 
             <button
               onClick={() => handleSignIn('kakao')}
-              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-[#191919] bg-[#FEE500] rounded-md hover:bg-[#F4DC00]'
+              disabled={loading}
+              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-[#191919] bg-[#FEE500] rounded-md hover:bg-[#F4DC00] disabled:opacity-50 disabled:cursor-not-allowed'
             >
               <Image
                 src='/images/auth/kakao-logo.svg'
@@ -361,7 +494,8 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
 
             <button
               onClick={() => handleSignIn('wechat')}
-              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-[#07C160] rounded-md hover:bg-[#06AD56]'
+              disabled={loading}
+              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-[#07C160] rounded-md hover:bg-[#06AD56] disabled:opacity-50 disabled:cursor-not-allowed'
             >
               <Image
                 src='/images/auth/wechat-logo.svg'
