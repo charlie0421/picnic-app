@@ -24,7 +24,12 @@ const nextConfig = {
         hostname: 'img.youtube.com',
       }
     ],
-  }
+  },
+  // 개발 환경에서 ngrok과 같은 외부 도메인 허용
+  allowedDevOrigins: [
+    'ngrok-free.app',
+    '.ngrok-free.app'
+  ]
 };
 
 module.exports = nextConfig;
