@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { createBrowserSupabaseClient } from '@/utils/supabase-client';
+import { supabase } from '@/utils/supabase-client';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguageStore } from '@/stores/languageStore';
@@ -48,7 +48,6 @@ const debugLog = (message: string, data?: any) => {
 
 // SearchParams를 사용하는 컴포넌트
 function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
-  const [supabase] = useState(() => createBrowserSupabaseClient());
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useLanguageStore();
@@ -449,12 +448,12 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
           return handleAuthSuccess(data, 'apple');
         }
         
-        // 첫 번째 시도 실패 시, nonce를 명시적으로 null로 설정하여 재시도
+        // 첫 번째 시도 실패 시, nonce를 명시적으로 빈 문자열로 설정하여 재시도
         if (error.message?.includes('nonce') || error.message?.includes('Nonce')) {
           const { data: retryData, error: retryError } = await supabase.auth.signInWithIdToken({
             provider: 'apple',
             token: idToken,
-            nonce: null
+            nonce: ''
           });
           
           if (!retryError) {
