@@ -110,13 +110,18 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
         }
       } catch (error) {
         console.error('Error fetching initial data:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchInitialData();
   }, [id, initialData]);
+
+  // voteStatus가 변경될 때마다 로딩 상태 업데이트
+  useEffect(() => {
+    if (voteStatus !== 'upcoming' || vote) {
+      setIsLoading(false);
+    }
+  }, [voteStatus, vote]);
 
   // 투표 아이템 주기적 업데이트
   useEffect(() => {
@@ -268,7 +273,11 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
         {/* 상단 정보창과 랭킹 카드 - sticky로 상단에 고정 */}
         <div className='sticky top-0 z-40 -mx-4 bg-white shadow-md'>
           {/* 상단 정보창: 아주 얇고 심플하게 */}
-          <div className='bg-gradient-to-r from-green-400 to-teal-500 text-white border-b px-4 py-3 min-h-[60px] md:py-3 md:min-h-[80px] flex flex-col items-start gap-y-1 relative'>
+          <div
+            className={`bg-gradient-to-r from-green-400 to-teal-500 text-white border-b px-4 py-3 min-h-[60px] md:py-3 md:min-h-[80px] flex flex-col items-start gap-y-1 relative ${
+              voteStatus === 'ended' ? 'opacity-75' : ''
+            }`}
+          >
             <div className='w-full max-w-full'>
               <h1
                 className='text-base md:text-xl font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-full block'
@@ -304,7 +313,11 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
 
           {/* 상위 3위: 가로 슬라이드, 항상 가로로만 */}
           {voteStatus !== 'upcoming' && (
-            <div className='bg-white border-b px-4'>
+            <div
+              className={`bg-white border-b px-4 ${
+                voteStatus === 'ended' ? 'opacity-75' : ''
+              }`}
+            >
               <div className='flex gap-4 overflow-x-auto overflow-y-hidden py-3 pb-4 justify-center items-end'>
                 {vote &&
                   voteItems.length > 0 &&
@@ -346,7 +359,10 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
         <div className='pt-1'>
           {/* 리워드가 있는 경우 표시 */}
           {rewards.length > 0 && (
-            <div ref={rewardRef} className='mb-2'>
+            <div
+              ref={rewardRef}
+              className={`mb-2 ${voteStatus === 'ended' ? 'opacity-75' : ''}`}
+            >
               <VoteRewardPreview rewards={rewards} isSticky={isRewardHidden} />
             </div>
           )}
@@ -357,6 +373,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
               onSearch={handleSearch}
               onFilterChange={handleFilterChange}
               filter={searchFilter}
+              disabled={voteStatus === 'ended'}
             />
           </div>
 
@@ -385,8 +402,12 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
               .map((item) => (
                 <div
                   key={item.id}
-                  className='bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer'
-                  onClick={() => handleSelect(item)}
+                  className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden ${
+                    voteStatus === 'ended'
+                      ? 'opacity-75 cursor-not-allowed'
+                      : 'cursor-pointer'
+                  }`}
+                  onClick={() => voteStatus !== 'ended' && handleSelect(item)}
                 >
                   <div className='p-3 flex flex-col items-center'>
                     <div className='relative w-full aspect-square rounded-lg overflow-hidden border-2 border-gray-100 mb-2'>
