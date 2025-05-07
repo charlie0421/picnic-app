@@ -55,10 +55,10 @@ export default function VoteForm({
 
   // 선택된 투표 항목들 관리
   const [voteItems, setVoteItems] = useState<VoteItem[]>([]);
-  
+
   // voteItems 변경 사항을 추적할 임시 ID 카운터
   const tempIdCounter = React.useRef(1);
-  
+
   // 다음 임시 ID 생성 함수
   const getNextTempId = () => {
     const id = `temp_${tempIdCounter.current}`;
@@ -107,11 +107,12 @@ export default function VoteForm({
         ...item,
         temp_id: item.temp_id || getNextTempId(),
         // artist_id가 문자열인 경우 숫자로 변환
-        artist_id: typeof item.artist_id === 'string' 
-          ? parseInt(item.artist_id, 10) 
-          : item.artist_id,
+        artist_id:
+          typeof item.artist_id === 'string'
+            ? parseInt(item.artist_id, 10)
+            : item.artist_id,
       }));
-      
+
       setVoteItems(normalizedItems);
     }
   }, [formProps.initialValues?.vote_item]);
@@ -138,91 +139,96 @@ export default function VoteForm({
     const normalizedVoteItem = {
       ...newVoteItem,
       temp_id: newVoteItem.temp_id || getNextTempId(),
-      artist_id: typeof newVoteItem.artist_id === 'string' 
-        ? parseInt(newVoteItem.artist_id, 10) 
-        : newVoteItem.artist_id,
-      deleted_at: null,  // 명시적으로 삭제되지 않았음을 표시
+      artist_id:
+        typeof newVoteItem.artist_id === 'string'
+          ? parseInt(newVoteItem.artist_id, 10)
+          : newVoteItem.artist_id,
+      deleted_at: null, // 명시적으로 삭제되지 않았음을 표시
     };
-    
+
     // 이미 존재하는 아티스트인지 확인 (삭제된 항목 제외)
-    setVoteItems(prevItems => {
+    setVoteItems((prevItems) => {
       const isDuplicate = prevItems.some(
-        item => !item.deleted_at && 
-        item.artist_id.toString() === normalizedVoteItem.artist_id.toString()
+        (item) =>
+          !item.deleted_at &&
+          item.artist_id.toString() === normalizedVoteItem.artist_id.toString(),
       );
-      
+
       if (isDuplicate) {
         message.error('이미 추가된 아티스트입니다');
         return prevItems;
       }
-      
+
       return [...prevItems, normalizedVoteItem];
     });
   }, []);
 
   // 투표 항목 삭제 핸들러 - useCallback으로 최적화
-  const handleRemoveArtist = useCallback((
-    voteItemId: string | number,
-    isNewItem = false,
-  ) => {
-    // 삭제할 아이템 찾기
-    setVoteItems(prevItems => {
-      const itemToRemove = prevItems.find(
-        item => item.id === voteItemId || item.temp_id === voteItemId
-      );
-      
-      if (!itemToRemove) {
-        return prevItems;
-      }
-      
-      // 새 아이템 여부 확인 - id가 없고 temp_id만 있거나, is_existing이 false인 경우
-      const isNewVoteItem = !itemToRemove.id || (itemToRemove.is_existing === false);
+  const handleRemoveArtist = useCallback(
+    (voteItemId: string | number, isNewItem = false) => {
+      // 삭제할 아이템 찾기
+      setVoteItems((prevItems) => {
+        const itemToRemove = prevItems.find(
+          (item) => item.id === voteItemId || item.temp_id === voteItemId,
+        );
 
-      Modal.confirm({
-        title: '투표 항목 삭제',
-        content: '이 투표 항목을 삭제하시겠습니까?',
-        onOk: () => {
-          if (mode === 'create' || isNewVoteItem) {
-            // 생성 모드이거나 새 항목인 경우 목록에서 완전히 제거
-            setVoteItems(prevItems => 
-              prevItems.filter(
-                item => item.temp_id !== voteItemId && item.id !== voteItemId
-              )
-            );
-            
-            // 폼 값 즉시 업데이트
-            formProps.form?.setFieldValue(
-              'vote_item',
-              voteItems.filter(
-                item => item.temp_id !== voteItemId && item.id !== voteItemId
-              )
-            );
-          } else {
-            // 편집 모드에서 기존 항목은 deleted_at 설정
-            setVoteItems(prevItems => 
-              prevItems.map(item =>
-                (item.id === voteItemId || item.temp_id === voteItemId)
-                  ? { ...item, deleted_at: new Date().toISOString() }
-                  : item
-              )
-            );
-            
-            // 폼 값 즉시 업데이트
-            formProps.form?.setFieldValue(
-              'vote_item',
-              voteItems.map(item =>
-                (item.id === voteItemId || item.temp_id === voteItemId)
-                  ? { ...item, deleted_at: new Date().toISOString() }
-                  : item
-              )
-            );
-          }
-        },
+        if (!itemToRemove) {
+          return prevItems;
+        }
+
+        // 새 아이템 여부 확인 - id가 없고 temp_id만 있거나, is_existing이 false인 경우
+        const isNewVoteItem =
+          !itemToRemove.id || itemToRemove.is_existing === false;
+
+        Modal.confirm({
+          title: '투표 항목 삭제',
+          content: '이 투표 항목을 삭제하시겠습니까?',
+          onOk: () => {
+            if (mode === 'create' || isNewVoteItem) {
+              // 생성 모드이거나 새 항목인 경우 목록에서 완전히 제거
+              setVoteItems((prevItems) =>
+                prevItems.filter(
+                  (item) =>
+                    item.temp_id !== voteItemId && item.id !== voteItemId,
+                ),
+              );
+
+              // 폼 값 즉시 업데이트
+              formProps.form?.setFieldValue(
+                'vote_item',
+                voteItems.filter(
+                  (item) =>
+                    item.temp_id !== voteItemId && item.id !== voteItemId,
+                ),
+              );
+            } else {
+              // 편집 모드에서 기존 항목은 deleted_at 설정
+              setVoteItems((prevItems) =>
+                prevItems.map((item) =>
+                  item.id === voteItemId || item.temp_id === voteItemId
+                    ? { ...item, deleted_at: new Date().toISOString() }
+                    : item,
+                ),
+              );
+
+              // 폼 값 즉시 업데이트
+              formProps.form?.setFieldValue(
+                'vote_item',
+                voteItems.map((item) =>
+                  item.id === voteItemId || item.temp_id === voteItemId
+                    ? { ...item, deleted_at: new Date().toISOString() }
+                    : item,
+                ),
+              );
+            }
+          },
+        });
+
+        return prevItems;
       });
-      
-      return prevItems;
-    });
-  }, [formProps.form, mode, voteItems]);
+    },
+    [formProps.form, mode, voteItems],
+  );
 
   // API 훅
   const { mutate: createVoteReward } = useCreate();
@@ -238,10 +244,11 @@ export default function VoteForm({
       })
       .map((item) => {
         // artist_id가 문자열인 경우 숫자로 변환
-        const artistId = typeof item.artist_id === 'string' 
-          ? parseInt(item.artist_id, 10) 
-          : item.artist_id;
-          
+        const artistId =
+          typeof item.artist_id === 'string'
+            ? parseInt(item.artist_id, 10)
+            : item.artist_id;
+
         return {
           ...item,
           artist_id: artistId,
@@ -250,7 +257,7 @@ export default function VoteForm({
           deleted_at: null, // 명시적으로 null로 설정하여 삭제되지 않았음을 표시
         };
       });
-    
+
     const processedVoteRewards = selectedRewardIds.map((id) => ({
       reward_id: id,
       deleted_at: null,
@@ -265,9 +272,8 @@ export default function VoteForm({
       {
         name: 'vote_reward',
         value: processedVoteRewards,
-      }
+      },
     ]);
-    
   }, [voteItems, selectedRewardIds, formProps.form]);
 
   // voteItems 또는 selectedRewardIds가 변경될 때마다 폼 값 업데이트
@@ -286,7 +292,7 @@ export default function VoteForm({
       try {
         if (submitting) return; // 중복 제출 방지
         setSubmitting(true);
-        
+
         // vote_item과 vote_reward는 별도 테이블에 저장되므로 제외
         const { vote_item, vote_reward, ...voteData } = values as any;
 
@@ -307,9 +313,12 @@ export default function VoteForm({
 
         // 폼 데이터에 vote_item과 vote_reward 정보 설정 (handleVoteData에서 사용)
         updateFormFields();
-        
+
         // 최신 폼 값 가져오기
-        const updatedFormValues = formProps.form?.getFieldsValue() as Record<string, any>;
+        const updatedFormValues = formProps.form?.getFieldsValue() as Record<
+          string,
+          any
+        >;
         const updatedValues = {
           ...values,
           vote_item: updatedFormValues?.vote_item || [],
@@ -328,7 +337,7 @@ export default function VoteForm({
         if (redirectPath && mode === 'create') {
           push(redirectPath);
         }
-        
+
         return result;
       } catch (error) {
         console.error('VoteForm onFinish 에러:', error);
@@ -398,23 +407,26 @@ export default function VoteForm({
   }, [formProps.initialValues?.vote_reward, formProps.form]);
 
   // 리워드 변경 핸들러 - useCallback으로 최적화
-  const handleRewardChange = useCallback((rewardIds: number[]) => {
-    setSelectedRewardIds(rewardIds);
-    
-    // vote_reward 데이터 생성
-    const voteRewards = rewardIds.map(rewardId => ({
-      reward_id: rewardId
-    }));
-    
-    // 폼 필드에 설정
-    formProps.form?.setFieldValue('vote_reward', voteRewards);
-  }, [formProps.form]);
+  const handleRewardChange = useCallback(
+    (rewardIds: number[]) => {
+      setSelectedRewardIds(rewardIds);
+
+      // vote_reward 데이터 생성
+      const voteRewards = rewardIds.map((rewardId) => ({
+        reward_id: rewardId,
+      }));
+
+      // 폼 필드에 설정
+      formProps.form?.setFieldValue('vote_reward', voteRewards);
+    },
+    [formProps.form],
+  );
 
   // 폼 데이터 준비 - useMemo로 최적화
   const formData = useMemo(() => {
     return {
-      vote_item: voteItems.filter(item => !item.deleted_at),
-      vote_reward: selectedRewardIds.map(id => ({ reward_id: id })),
+      vote_item: voteItems.filter((item) => !item.deleted_at),
+      vote_reward: selectedRewardIds.map((id) => ({ reward_id: id })),
     };
   }, [voteItems, selectedRewardIds]);
 
@@ -425,14 +437,14 @@ export default function VoteForm({
       style={{ maxWidth: '800px', margin: '0 auto' }}
     >
       {/* 폼 데이터에 vote_item과 vote_reward를 보관하기 위한 숨겨진 필드 */}
-      <Form.Item name="vote_item" hidden={true}>
-        <Input type="hidden" />
+      <Form.Item name='vote_item' hidden={true}>
+        <Input type='hidden' />
       </Form.Item>
-      
-      <Form.Item name="vote_reward" hidden={true}>
-        <Input type="hidden" />
+
+      <Form.Item name='vote_reward' hidden={true}>
+        <Input type='hidden' />
       </Form.Item>
-      
+
       <Form.Item
         name={['title', 'ko']}
         label='제목 (한국어)'
@@ -573,14 +585,18 @@ export default function VoteForm({
             {voteItems
               .filter((item) => !item.deleted_at)
               .map((item, index) => (
-                <div key={item.id || item.temp_id} style={{ position: 'relative' }}>
+                <div
+                  key={item.id || item.temp_id}
+                  style={{ position: 'relative' }}
+                >
                   <ArtistCard
                     artist={item.artist!}
                     showDeleteButton
+                    showGroupName
                     onDelete={() =>
                       handleRemoveArtist(
-                        item.id || item.temp_id!, 
-                        !item.id // id가 없으면 새 항목으로 간주
+                        item.id || item.temp_id!,
+                        !item.id, // id가 없으면 새 항목으로 간주
                       )
                     }
                   />

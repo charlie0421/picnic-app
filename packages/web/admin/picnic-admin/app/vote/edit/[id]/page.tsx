@@ -20,7 +20,7 @@ export default function VoteEditPage({ params }: { params: { id: string } }) {
     action: 'edit',
     id: params.id,
     meta: {
-      select: '*, vote_item(*, artist(*)), vote_reward(*)',
+      select: '*, vote_item(*, artist(*, artist_group(*))), vote_reward(*)',
     },
     redirect: false,
     successNotification: false,

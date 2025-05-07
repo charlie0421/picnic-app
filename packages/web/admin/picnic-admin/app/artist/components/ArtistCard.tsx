@@ -11,6 +11,7 @@ import { Artist } from '@/lib/types/artist';
 import { getCdnImageUrl } from '@/lib/image';
 import { COLORS } from '@/lib/theme';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface ArtistCardProps {
   artist: Artist;
@@ -31,6 +32,15 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
   voteInfo,
 }) => {
   const { token } = theme.useToken();
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      router.push(`/artist/show/${artist.id}`);
+    }
+  };
 
   return (
     <div
@@ -42,10 +52,10 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
         boxShadow: `0 2px 8px rgba(0, 0, 0, ${
           token.colorBgMask === '#000000' ? 0.15 : 0.08
         })`,
-        cursor: onClick ? 'pointer' : 'default',
+        cursor: 'pointer',
         position: 'relative',
       }}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {showDeleteButton && onDelete && (
         <Button
