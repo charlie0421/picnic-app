@@ -7,6 +7,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 /// Unity Ads 플랫폼 구현
@@ -103,6 +104,7 @@ class UnityAdsPlatform extends AdPlatform {
     try {
       await UnityAds.showVideoAd(
         placementId: placementId,
+        serverId: supabase.auth.currentUser!.id,
         onStart: (placementId) {
           logger.i('[$id] 광고 시작');
           stopAllAnimations();
