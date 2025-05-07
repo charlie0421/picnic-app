@@ -186,16 +186,15 @@ const VoteItems = React.memo(
     }, [vote.startAt, vote.stopAt]);
 
     // 투표 업데이트 핸들러
-    const handleVoteChange = (
-      voteId: string | number,
-      itemId: string | number,
-      newTotal: number,
-    ) => {
-      console.log(
-        `VoteItems: 투표 변경 감지 - ${voteId}:${itemId} = ${newTotal}`,
-      );
-      // 여기서 추가 로직 구현 가능
-    };
+    const handleVoteChange = useCallback(
+      (voteId: string | number, itemId: string | number, newTotal: number) => {
+        console.log(
+          `VoteItems: 투표 변경 감지 - ${voteId}:${itemId} = ${newTotal}`,
+        );
+        // 여기서 추가 로직 구현 가능
+      },
+      [],
+    );
 
     switch (status) {
       case VOTE_STATUS.UPCOMING:
@@ -207,6 +206,28 @@ const VoteItems = React.memo(
       default:
         return null;
     }
+  },
+  (prevProps, nextProps) => {
+    // 투표 상태가 변경될 때만 리렌더링
+    const prevStatus =
+      !prevProps.vote.startAt || !prevProps.vote.stopAt
+        ? VOTE_STATUS.UPCOMING
+        : new Date() < new Date(prevProps.vote.startAt)
+        ? VOTE_STATUS.UPCOMING
+        : new Date() > new Date(prevProps.vote.stopAt)
+        ? VOTE_STATUS.COMPLETED
+        : VOTE_STATUS.ONGOING;
+
+    const nextStatus =
+      !nextProps.vote.startAt || !nextProps.vote.stopAt
+        ? VOTE_STATUS.UPCOMING
+        : new Date() < new Date(nextProps.vote.startAt)
+        ? VOTE_STATUS.UPCOMING
+        : new Date() > new Date(nextProps.vote.stopAt)
+        ? VOTE_STATUS.COMPLETED
+        : VOTE_STATUS.ONGOING;
+
+    return prevStatus === nextStatus;
   },
 );
 
@@ -556,7 +577,7 @@ const VoteList: React.FC = () => {
   const { t } = useLanguageStore();
   const router = useRouter();
   const PAGE_SIZE = 6;
-  
+
   // 데이터 로드 및 로딩 상태 관리
   const {
     data: allVotes,
@@ -576,14 +597,16 @@ const VoteList: React.FC = () => {
       }
     },
     [],
-    [isReady]  // Supabase가 준비되면 재실행
+    [isReady], // Supabase가 준비되면 재실행
   );
-  
+
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
+    'all',
+  );
   const loadingRef = useRef<HTMLDivElement>(null);
-  
+
   // 표시할 투표 목록 계산
   const votes = useMemo(() => {
     if (!allVotes) return [];
@@ -593,11 +616,11 @@ const VoteList: React.FC = () => {
     setHasMore(end < allVotes.length);
     return paginatedData;
   }, [allVotes, page, PAGE_SIZE]);
-  
+
   // 필터링된 투표 목록
   const filteredVotes = useMemo(() => {
     if (!votes || votes.length === 0) return [];
-    
+
     if (selectedStatus === 'all') {
       return votes.sort((a, b) => {
         const now = new Date();
@@ -622,7 +645,7 @@ const VoteList: React.FC = () => {
         return 0;
       });
     }
-    
+
     return votes.filter((vote) => {
       if (!vote.startAt || !vote.stopAt)
         return selectedStatus === VOTE_STATUS.UPCOMING;
@@ -639,16 +662,12 @@ const VoteList: React.FC = () => {
   // 스크롤 감지 및 추가 데이터 로드
   useEffect(() => {
     if (!mounted) return;
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
-        if (
-          first.isIntersecting &&
-          hasMore &&
-          !isLoading
-        ) {
-          setPage(prev => prev + 1);
+        if (first.isIntersecting && hasMore && !isLoading) {
+          setPage((prev) => prev + 1);
         }
       },
       { threshold: 0.1 },
@@ -665,7 +684,7 @@ const VoteList: React.FC = () => {
       }
     };
   }, [hasMore, isLoading, mounted]);
-  
+
   // 상태가 변경되면 페이지 리셋
   useEffect(() => {
     if (mounted) {
