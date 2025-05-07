@@ -12,12 +12,6 @@ const isNgrokEnvironment = typeof window !== 'undefined' && (
 // 배포 환경인지 확인
 const isProduction = process.env.NODE_ENV === 'production';
 
-// 외부 도메인 허용 목록
-const allowedOrigins = ['ngrok-free.app', '.ngrok-free.app'];
-
-// Supabase API 키 (애노키)
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
 // 현재 언어 경로 감지
 const getCurrentLangPath = (): string => {
   if (typeof window === 'undefined') return '';
@@ -30,102 +24,9 @@ const getCurrentLangPath = (): string => {
   return match ? `/${match[1]}` : '';
 };
 
-// Supabase URL 결정 (ngrok 환경에서는 프록시 사용)
-const getSupabaseUrl = () => {
-  const originalUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  
-  // ngrok 환경에서는 로컬 프록시 사용
-  if (isNgrokEnvironment && typeof window !== 'undefined') {
-    const langPath = getCurrentLangPath();
-    return `${window.location.origin}${langPath}/supabase-proxy`;
-  }
-  
-  return originalUrl;
-};
-
-// URL에 apikey 파라미터 추가
-const addApiKeyToUrl = (url: URL | string): URL => {
-  const urlObj = url instanceof URL ? url : new URL(url.toString());
-  
-  // 이미 apikey가 있으면 추가하지 않음
-  if (!urlObj.searchParams.has('apikey') && supabaseAnonKey) {
-    urlObj.searchParams.set('apikey', supabaseAnonKey);
-  }
-  
-  return urlObj;
-};
-
-// Supabase 커스텀 fetch 함수
-const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
-  try {
-    // URL이 Supabase URL인지 확인
-    const urlStr = url.toString();
-    const originalSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    
-    // Supabase URL을 프록시 URL로 변경
-    let modifiedUrl = url;
-    if (isNgrokEnvironment && urlStr.includes(originalSupabaseUrl)) {
-      const path = urlStr.replace(originalSupabaseUrl, '');
-      const langPath = getCurrentLangPath();
-      modifiedUrl = `${window.location.origin}${langPath}/supabase-proxy${path}` as unknown as URL;
-      console.log(`Supabase 요청 프록시: ${urlStr} -> ${modifiedUrl}`);
-    }
-    
-    // URL이 문자열인 경우 URL 객체로 변환
-    const urlObj = typeof modifiedUrl === 'string' ? new URL(modifiedUrl) : 
-                   modifiedUrl instanceof URL ? modifiedUrl : new URL(modifiedUrl.toString());
-    
-    // API 키를 URL에 추가
-    const finalUrl = addApiKeyToUrl(urlObj);
-    
-    // 헤더 생성
-    const headers = new Headers(options?.headers || {});
-    
-    // API 키 헤더 추가
-    if (supabaseAnonKey && !headers.has('apikey')) {
-      headers.set('apikey', supabaseAnonKey);
-      headers.set('Authorization', `Bearer ${supabaseAnonKey}`);
-    }
-    
-    // 옵션 설정
-    const modifiedOptions: RequestInit = {
-      ...options,
-      headers,
-      // CORS 정책 설정
-      credentials: 'same-origin' as RequestCredentials
-    };
-    
-    // fetch 요청 수행
-    const response = await fetch(finalUrl, modifiedOptions);
-    
-    // 응답 로깅 (디버깅용)
-    if (!response.ok && isNgrokEnvironment) {
-      console.error(`API 응답 오류: ${response.status} ${response.statusText}`, {
-        url: finalUrl.toString(),
-        originalUrl: url,
-      });
-      
-      // 401 오류인 경우 API 키 정보 출력
-      if (response.status === 401) {
-        console.error('API 키 인증 오류:', {
-          apiKeyInHeader: headers.has('apikey'),
-          apiKeyInUrl: finalUrl.searchParams.has('apikey'),
-          apiKeyFirstChars: supabaseAnonKey.substring(0, 5) + '...',
-        });
-      }
-    }
-    
-    return response;
-  } catch (error) {
-    console.error('Supabase fetch 오류:', error, { url });
-    throw error;
-  }
-};
-
-// 전역 Supabase 클라이언트 인스턴스 직접 생성
 export const supabase = createBrowserClient(
-  getSupabaseUrl(),
-  supabaseAnonKey,
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   {
     auth: {
       flowType: 'pkce',
@@ -177,20 +78,14 @@ export const supabase = createBrowserClient(
         }
       }
     },
-    // fetch 옵션 설정 - 항상 커스텀 fetch 사용
-    global: {
-      fetch: customFetch
-    }
   }
 );
 
 // 초기화 시 로그
 if (typeof window !== 'undefined') {
   console.log('Supabase 클라이언트 초기화 완료', {
-    url: getSupabaseUrl(),
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
     originalUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    apiKeyExists: !!supabaseAnonKey,
-    apiKeyLength: supabaseAnonKey?.length,
     isNgrok: isNgrokEnvironment,
     isProduction,
     hostname: window.location.hostname,
