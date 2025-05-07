@@ -250,14 +250,6 @@ const VoteCard = React.memo(
     return (
       <Link href={`/vote/${vote.id}`}>
         <div className='bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full flex flex-col'>
-          <div className='absolute top-2 right-2 z-10 flex flex-wrap gap-1 justify-end max-w-[75%]'>
-            <span
-              className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ${STATUS_TAG_COLORS[status]}`}
-            >
-              {getStatusText(status, t)}
-            </span>
-          </div>
-
           <div className='relative'>
             {vote.mainImage && (
               <div className='h-48 sm:h-56 md:h-64 bg-gray-200 relative'>
@@ -298,6 +290,11 @@ const VoteCard = React.memo(
                   {t(`compatibility_gender_${vote.voteSubCategory}`)}
                 </span>
               )}
+              <span
+                className={`flex items-center px-2 py-0.5 rounded-full text-xs font-medium shadow-sm whitespace-nowrap ml-auto ${STATUS_TAG_COLORS[status]}`}
+              >
+                {getStatusText(status, t)}
+              </span>
             </div>
 
             <h3 className='font-extrabold text-base sm:text-lg mb-4 text-gray-900 truncate p-2 relative group'>
