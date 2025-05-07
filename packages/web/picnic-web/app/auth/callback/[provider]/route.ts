@@ -64,9 +64,9 @@ function getSafeRedirectUrl(request: NextRequest, path: string = '/'): string {
 }
 
 // Next.js App Router 라우트 핸들러
-export async function GET(request: NextRequest, context: any) {
+export async function GET(request: NextRequest, { params }: { params: { provider: string } }) {
   // context.params에서 provider 값 추출
-  const provider = context.params?.provider;
+  const { provider } = params;  // 타입 안전하게 수정
   
   try {
     // 현재 제공자 정보 가져오기
