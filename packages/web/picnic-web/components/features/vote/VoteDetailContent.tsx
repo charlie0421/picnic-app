@@ -49,7 +49,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
   const [isLoading, setIsLoading] = useState(!initialData?.vote);
   const [voteStatus, setVoteStatus] = useState<
     'upcoming' | 'ongoing' | 'ended'
-  >('ongoing');
+  >('upcoming');
   const [isVoteDialogOpen, setIsVoteDialogOpen] = useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const { t, currentLanguage } = useLanguageStore();
@@ -303,39 +303,42 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
           </div>
 
           {/* 상위 3위: 가로 슬라이드, 항상 가로로만 */}
-          { voteStatus !== 'upcoming' && (
-          <div className='bg-white border-b px-4'>
-            <div className='flex gap-4 overflow-x-auto overflow-y-hidden py-3 pb-4 justify-center items-end'>
-              {vote &&
-                voteItems.length > 0 &&
-                slideTop3.map((item, idx) => (
-                  <div key={item.id} 
-                       className={`flex-shrink-0 ${
-                        item.rank === 1 
-                          ? 'w-[44%] max-w-[160px]' 
-                          : item.rank === 2 
-                          ? 'w-[33%] max-w-[125px]' 
+          {voteStatus !== 'upcoming' && (
+            <div className='bg-white border-b px-4'>
+              <div className='flex gap-4 overflow-x-auto overflow-y-hidden py-3 pb-4 justify-center items-end'>
+                {vote &&
+                  voteItems.length > 0 &&
+                  slideTop3.map((item, idx) => (
+                    <div
+                      key={item.id}
+                      className={`flex-shrink-0 ${
+                        item.rank === 1
+                          ? 'w-[44%] max-w-[160px]'
+                          : item.rank === 2
+                          ? 'w-[33%] max-w-[125px]'
                           : 'w-[23%] max-w-[95px]'
-                       }`}
-                       style={{
-                        height: item.rank === 1 
-                          ? '260px' 
-                          : item.rank === 2 
-                          ? '230px' 
-                          : '210px',
-                        paddingBottom: '10px'
-                       }}>
-                    <VoteRankCard
-                      item={item}
-                      rank={item.rank}
-                      showVoteChange={false}
-                      isAnimating={false}
-                      className="w-full h-full"
-                    />
-                  </div>
-                ))}
+                      }`}
+                      style={{
+                        height:
+                          item.rank === 1
+                            ? '260px'
+                            : item.rank === 2
+                            ? '230px'
+                            : '210px',
+                        paddingBottom: '10px',
+                      }}
+                    >
+                      <VoteRankCard
+                        item={item}
+                        rank={item.rank}
+                        showVoteChange={false}
+                        isAnimating={false}
+                        className='w-full h-full'
+                      />
+                    </div>
+                  ))}
+              </div>
             </div>
-          </div>
           )}
         </div>
 
@@ -392,7 +395,7 @@ const VoteDetailContent: React.FC<VoteDetailContentProps> = ({
                           src={getCdnImageUrl(item.artist.image)}
                           alt={getLocalizedString(item.artist.name)}
                           fill
-                          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          sizes='(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw'
                           className='object-cover'
                         />
                       ) : (
