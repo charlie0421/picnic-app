@@ -15,10 +15,10 @@ export default function ArtistList() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  
+
   // URL에서 search 파라미터 가져오기
   const urlSearch = searchParams.get('search') || '';
-  
+
   const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
   const [searchQuery, setSearchQuery] = useState<string>(urlSearch);
   const [searchResults, setSearchResults] = useState<Artist[]>([]);
@@ -44,13 +44,13 @@ export default function ArtistList() {
   // URL 파라미터 업데이트
   const updateUrlParams = (search: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    
+
     if (!search) {
       params.delete('search');
     } else {
       params.set('search', search);
     }
-    
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -71,9 +71,9 @@ export default function ArtistList() {
         .select('*')
         .or(
           `name->>ko.ilike.%${trimmedValue}%,` +
-          `name->>en.ilike.%${trimmedValue}%,` +
-          `name->>ja.ilike.%${trimmedValue}%,` +
-          `name->>zh.ilike.%${trimmedValue}%`
+            `name->>en.ilike.%${trimmedValue}%,` +
+            `name->>ja.ilike.%${trimmedValue}%,` +
+            `name->>zh.ilike.%${trimmedValue}%`,
         )
         .order('created_at', { ascending: false });
 
@@ -144,9 +144,15 @@ export default function ArtistList() {
             pageSizeOptions: ['10', '20', '50', '100'],
             showTotal: (total) => `총 ${total}개 항목`,
           }}
-          size="small"
+          size='small'
         >
-          <Table.Column dataIndex='id' title='ID' align='center' sorter width={80} />
+          <Table.Column
+            dataIndex='id'
+            title='ID'
+            align='center'
+            sorter
+            width={80}
+          />
 
           <Table.Column
             dataIndex={['name']}
@@ -175,15 +181,15 @@ export default function ArtistList() {
             )}
           />
 
-          <Table.Column 
-            dataIndex='gender' 
-            title='성별' 
-            align='center' 
-            sorter 
+          <Table.Column
+            dataIndex='gender'
+            title='성별'
+            align='center'
+            sorter
             width={100}
             responsive={['sm']}
             render={(value: string) => {
-              const option = genderOptions.find(opt => opt.value === value);
+              const option = genderOptions.find((opt) => opt.value === value);
               return option ? option.label : value || '-';
             }}
           />
@@ -197,40 +203,38 @@ export default function ArtistList() {
             render={(value) =>
               groupsIsLoading ? (
                 <>로딩 중...</>
-              ) : (
-                value ? (
-                  <Space
-                    style={{ cursor: 'pointer' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      show('artist_group', value);
-                    }}
-                  >
+              ) : value ? (
+                <Space
+                  style={{ cursor: 'pointer' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    show('artist_group', value);
+                  }}
+                >
+                  {groupsData?.data?.find(
+                    (item) => Number(item.id) === Number(value),
+                  )?.image && (
+                    <Image
+                      src={getCdnImageUrl(
+                        groupsData?.data?.find(
+                          (item) => Number(item.id) === Number(value),
+                        )?.image,
+                        40,
+                      )}
+                      alt='그룹 이미지'
+                      width={40}
+                      height={40}
+                      preview={false}
+                    />
+                  )}
+                  <span>
                     {groupsData?.data?.find(
                       (item) => Number(item.id) === Number(value),
-                    )?.image && (
-                      <Image
-                        src={getCdnImageUrl(
-                          groupsData?.data?.find(
-                            (item) => Number(item.id) === Number(value),
-                          )?.image,
-                          40
-                        )}
-                        alt='그룹 이미지'
-                        width={40}
-                        height={40}
-                        preview={false}
-                      />
-                    )}
-                    <span>
-                      {groupsData?.data?.find(
-                        (item) => Number(item.id) === Number(value),
-                      )?.name?.ko || '-'}
-                    </span>
-                  </Space>
-                ) : (
-                  <span>-</span>
-                )
+                    )?.name?.ko || '-'}
+                  </span>
+                </Space>
+              ) : (
+                <span>-</span>
               )
             }
           />
@@ -246,6 +250,15 @@ export default function ArtistList() {
           />
 
           <Table.Column
+            dataIndex='debut_date'
+            title='데뷔일'
+            align='center'
+            sorter
+            width={120}
+            render={(value: string) => value || '-'}
+          />
+
+          <Table.Column
             dataIndex={['created_at', 'updated_at']}
             title='생성일/수정일'
             align='center'
@@ -253,15 +266,9 @@ export default function ArtistList() {
             width={140}
             responsive={['lg']}
             render={(_, record: Artist) => (
-              <Space direction='vertical' size="small">
-                <DateField
-                  value={record.created_at}
-                  format='YYYY-MM-DD'
-                />
-                <DateField
-                  value={record.updated_at}
-                  format='YYYY-MM-DD'
-                />
+              <Space direction='vertical' size='small'>
+                <DateField value={record.created_at} format='YYYY-MM-DD' />
+                <DateField value={record.updated_at} format='YYYY-MM-DD' />
               </Space>
             )}
           />
@@ -269,4 +276,4 @@ export default function ArtistList() {
       </div>
     </List>
   );
-} 
+}
