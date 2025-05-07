@@ -215,6 +215,39 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
             </div>
           )}
 
+          {/* 데뷔 정보 */}
+          {(artist?.debut_date || artist?.debut_yy) && (
+            <div
+              style={{
+                margin: '8px 0',
+                padding: '8px',
+                backgroundColor: token.colorFillTertiary,
+                borderRadius: '4px',
+                border: `1px solid ${token.colorBorderSecondary}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '13px',
+                  color: token.colorTextSecondary,
+                }}
+              >
+                데뷔 🎤:{' '}
+                {artist.debut_date
+                  ? dayjs(artist.debut_date).format('YYYY-MM-DD')
+                  : `${artist.debut_yy}${
+                      artist.debut_mm
+                        ? `.${artist.debut_mm.toString().padStart(2, '0')}`
+                        : ''
+                    }${
+                      artist.debut_dd
+                        ? `.${artist.debut_dd.toString().padStart(2, '0')}`
+                        : ''
+                    }`}
+              </div>
+            </div>
+          )}
+
           {/* 그룹 정보 */}
           {artist?.artist_group && (
             <div
