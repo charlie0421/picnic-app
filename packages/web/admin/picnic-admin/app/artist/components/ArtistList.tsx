@@ -37,7 +37,7 @@ export default function ArtistList() {
       ],
     },
     meta: {
-      select: '*',
+      select: '*, group_id',
     },
   });
 
@@ -73,7 +73,8 @@ export default function ArtistList() {
           `name->>ko.ilike.%${trimmedValue}%,` +
             `name->>en.ilike.%${trimmedValue}%,` +
             `name->>ja.ilike.%${trimmedValue}%,` +
-            `name->>zh.ilike.%${trimmedValue}%`,
+            `name->>zh.ilike.%${trimmedValue}%,` +
+            `name->>id.ilike.%${trimmedValue}%`,
         )
         .order('created_at', { ascending: false });
 
@@ -104,7 +105,7 @@ export default function ArtistList() {
     ids:
       (tableProps?.dataSource
         ?.map((item: Artist) => {
-          const groupId = item?.artist_group_id;
+          const groupId = item?.group_id;
           return groupId ? String(groupId) : undefined;
         })
         .filter(Boolean) as string[]) ?? [],
@@ -195,15 +196,29 @@ export default function ArtistList() {
           />
 
           <Table.Column
-            dataIndex='artist_group_id'
+            dataIndex='group_id'
             title='그룹'
             align='center'
             sorter
             width={150}
-            render={(value) =>
-              groupsIsLoading ? (
-                <>로딩 중...</>
-              ) : value ? (
+            render={(value) => {
+              if (groupsIsLoading) {
+                return <>로딩 중...</>;
+              }
+
+              if (!value) {
+                return <span>-</span>;
+              }
+
+              const group = groupsData?.data?.find(
+                (item) => Number(item.id) === Number(value),
+              );
+
+              if (!group) {
+                return <span>-</span>;
+              }
+
+              return (
                 <Space
                   style={{ cursor: 'pointer' }}
                   onClick={(e) => {
@@ -211,32 +226,19 @@ export default function ArtistList() {
                     show('artist_group', value);
                   }}
                 >
-                  {groupsData?.data?.find(
-                    (item) => Number(item.id) === Number(value),
-                  )?.image && (
+                  {group.image && (
                     <Image
-                      src={getCdnImageUrl(
-                        groupsData?.data?.find(
-                          (item) => Number(item.id) === Number(value),
-                        )?.image,
-                        40,
-                      )}
+                      src={getCdnImageUrl(group.image, 40)}
                       alt='그룹 이미지'
                       width={40}
                       height={40}
                       preview={false}
                     />
                   )}
-                  <span>
-                    {groupsData?.data?.find(
-                      (item) => Number(item.id) === Number(value),
-                    )?.name?.ko || '-'}
-                  </span>
+                  <span>{group.name?.ko || '-'}</span>
                 </Space>
-              ) : (
-                <span>-</span>
-              )
-            }
+              );
+            }}
           />
 
           <Table.Column
