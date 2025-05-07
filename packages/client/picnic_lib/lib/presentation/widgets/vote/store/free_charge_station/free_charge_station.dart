@@ -186,7 +186,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       globalIndex++;
     }
 
-    if (isIOS() && _adService.isPlatformAvailable('unity')) {
+    if (_adService.isPlatformAvailable('unity')) {
       items.add(ChargeStationItem(
         id: 'unity',
         title: '${t('label_global_recommendation')} #${globalIndex + 1}',
