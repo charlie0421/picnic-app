@@ -62,6 +62,7 @@ export interface ArtistGroup {
     en: string;
     ja: string;
     zh: string;
+    id: string;
   };
   image?: string;
   created_at: string;

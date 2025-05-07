@@ -27,6 +27,7 @@ export const MultiLanguageInput: React.FC<MultiLanguageInputProps> = ({
     en: '영어를 입력하세요',
     ja: '일본어를 입력하세요',
     zh: '중국어를 입력하세요',
+    id: '인도네시아어를 입력하세요',
   },
 }) => {
   return (
@@ -81,6 +82,19 @@ export const MultiLanguageInput: React.FC<MultiLanguageInputProps> = ({
         ]}
       >
         <Input placeholder={placeholder.zh} />
+      </Form.Item>
+
+      <Form.Item
+        label={`${label} (인도네시아어) 🇮🇩`}
+        name={[name, 'id']}
+        rules={[
+          {
+            required,
+            message: `인도네시아어 ${label}을(를) 입력해주세요.`,
+          },
+        ]}
+      >
+        <Input placeholder={placeholder.id} />
       </Form.Item>
     </>
   );

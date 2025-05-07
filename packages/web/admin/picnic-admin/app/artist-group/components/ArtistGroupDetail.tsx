@@ -212,6 +212,16 @@ const ArtistGroupDetail: React.FC<ArtistGroupDetailProps> = ({
           <TextField value={record?.name?.zh || '-'} />
         </div>
 
+        <div
+          className='info-section'
+          style={{ ...getSectionStyle(token), marginTop: '16px' }}
+        >
+          <Title level={5} style={getTitleStyle(token)}>
+            {'인도네시아어 (🇮🇩)'}
+          </Title>
+          <TextField value={record?.name?.id || '-'} />
+        </div>
+
         <div style={getSectionHeaderStyle(token)}>
           <Title level={4} style={headerTitleStyle}>
             이미지
