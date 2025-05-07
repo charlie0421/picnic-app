@@ -592,7 +592,6 @@ export default function VoteForm({
                   <ArtistCard
                     artist={item.artist!}
                     showDeleteButton
-                    showGroupName
                     onDelete={() =>
                       handleRemoveArtist(
                         item.id || item.temp_id!,
