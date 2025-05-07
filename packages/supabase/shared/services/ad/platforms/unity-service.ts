@@ -102,6 +102,15 @@ export class UnityService extends BaseAdService {
         };
       }
 
+      // 4. 사용자 존재 여부 확인
+      const userExists = await this.checkUserExists(params.user_id);
+      if (!userExists) {
+        return {
+          status: 400,
+          body: '사용자를 찾을 수 없습니다.',
+        };
+      }
+
       return {
         status: 200,
         body: '1',
@@ -132,7 +141,6 @@ export class UnityService extends BaseAdService {
       throw new Error('이미 처리된 트랜잭션입니다.');
     }
 
-    await this.updateUserReward(params.user_id, params.reward_amount);
     await this.addRewardHistory(
       params.user_id,
       params.reward_amount,
@@ -146,6 +154,8 @@ export class UnityService extends BaseAdService {
       reward_type: params.reward_type,
       hmac: params.hmac,
     });
+
+    await this.updateUserReward(params.user_id, params.reward_amount);
 
     if (error) throw error;
   }
