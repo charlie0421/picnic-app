@@ -334,13 +334,19 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback/${provider}`,
+          redirectTo: `https://${window.location.host}/auth/callback/${provider}`,
           queryParams: {
-            redirect_to: window.location.origin,
-            next: '/'
+            redirect_to: `https://${window.location.host}/auth/callback/${provider}`,
           },
-          skipBrowserRedirect: true
-        }
+          skipBrowserRedirect: true,
+        },
+      });
+
+      console.log('OAuth Response:', {
+        data,
+        error,
+        redirectTo: `https://${window.location.host}/auth/callback/${provider}`,
+        currentUrl: window.location.href
       });
 
       if (error) {
