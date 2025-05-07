@@ -573,7 +573,7 @@ const VoteList: React.FC = () => {
   const { supabase, isReady } = useSupabase();
   const { t } = useLanguageStore();
   const router = useRouter();
-  const PAGE_SIZE = 6;
+  const PAGE_SIZE = 8;
 
   // 데이터 로드 및 로딩 상태 관리
   const {
@@ -584,7 +584,6 @@ const VoteList: React.FC = () => {
   } = useSafeData(
     async () => {
       try {
-        // Supabase가 준비된 후에만 데이터를 요청
         if (!isReady) return [];
         const votesData = await getVotes('votes');
         return votesData;
@@ -594,7 +593,7 @@ const VoteList: React.FC = () => {
       }
     },
     [],
-    [isReady], // Supabase가 준비되면 재실행
+    [isReady],
   );
 
   const [page, setPage] = useState(1);
@@ -602,7 +601,6 @@ const VoteList: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
     'all',
   );
-  const loadingRef = useRef<HTMLDivElement>(null);
 
   // 표시할 투표 목록 계산
   const votes = useMemo(() => {
@@ -626,19 +624,16 @@ const VoteList: React.FC = () => {
         const bStart = b.startAt ? new Date(b.startAt) : null;
         const bEnd = b.stopAt ? new Date(b.stopAt) : null;
 
-        // 진행중인 투표 우선
         const aIsOngoing = aStart && aEnd && now >= aStart && now <= aEnd;
         const bIsOngoing = bStart && bEnd && now >= bStart && now <= bEnd;
         if (aIsOngoing && !bIsOngoing) return -1;
         if (!aIsOngoing && bIsOngoing) return 1;
 
-        // 예정된 투표 다음
         const aIsUpcoming = aStart && now < aStart;
         const bIsUpcoming = bStart && now < bStart;
         if (aIsUpcoming && !bIsUpcoming) return -1;
         if (!aIsUpcoming && bIsUpcoming) return 1;
 
-        // 종료된 투표 마지막
         return 0;
       });
     }
@@ -655,32 +650,6 @@ const VoteList: React.FC = () => {
       return now > end;
     });
   }, [votes, selectedStatus]);
-
-  // 스크롤 감지 및 추가 데이터 로드
-  useEffect(() => {
-    if (!mounted) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting && hasMore && !isLoading) {
-          setPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    const currentLoadingRef = loadingRef.current;
-    if (currentLoadingRef) {
-      observer.observe(currentLoadingRef);
-    }
-
-    return () => {
-      if (currentLoadingRef) {
-        observer.unobserve(currentLoadingRef);
-      }
-    };
-  }, [hasMore, isLoading, mounted]);
 
   // 상태가 변경되면 페이지 리셋
   useEffect(() => {
@@ -737,12 +706,35 @@ const VoteList: React.FC = () => {
             ))}
           </div>
           {hasMore && (
-            <div ref={loadingRef} className='w-full'>
-              {isLoading ? (
-                <InfiniteLoadingIndicator />
-              ) : (
-                <div className='h-4'></div>
-              )}
+            <div className='flex justify-center mt-8'>
+              <button
+                onClick={() => setPage((prev) => prev + 1)}
+                className='px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 flex items-center gap-2'
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{t('label_list_more')}</span>
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      className='h-4 w-4'
+                      viewBox='0 0 20 20'
+                      fill='currentColor'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                  </>
+                )}
+              </button>
             </div>
           )}
         </>
