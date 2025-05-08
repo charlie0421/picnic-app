@@ -1,12 +1,19 @@
 import React from 'react';
 import { Space, Tag } from 'antd';
+import type { SortOrder } from 'antd/es/table/interface';
 import { useNavigation, useDelete, CrudFilters } from '@refinedev/core';
-import { EditButton, ShowButton, DeleteButton, DateField } from '@refinedev/antd';
+import {
+  EditButton,
+  ShowButton,
+  DeleteButton,
+  DateField,
+} from '@refinedev/antd';
 import { FAQ } from '@/lib/types/faq';
 import { DataTable } from '../../components/common/DataTable';
 
 // UUID 유효성 검사 정규식
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const FAQList: React.FC = () => {
   const { show } = useNavigation();
@@ -60,6 +67,7 @@ export const FAQList: React.FC = () => {
       key: 'id',
       width: 80,
       sorter: true,
+      defaultSortOrder: 'descend' as SortOrder,
     },
     {
       title: '질문',
@@ -74,7 +82,16 @@ export const FAQList: React.FC = () => {
       key: 'category',
       width: 120,
       sorter: true,
-      render: (value: string) => <Tag>{value || '미분류'}</Tag>,
+      render: (value: string) => {
+        const categoryMap: Record<string, string> = {
+          GENERAL: '일반',
+          ACCOUNT: '계정',
+          SERVICE: '서비스',
+          PAYMENT: '결제',
+          ETC: '기타',
+        };
+        return <Tag>{categoryMap[value] || '미분류'}</Tag>;
+      },
     },
     {
       title: '상태',
@@ -87,7 +104,7 @@ export const FAQList: React.FC = () => {
         if (value === 'PUBLISHED') color = 'green';
         if (value === 'DRAFT') color = 'gold';
         if (value === 'ARCHIVED') color = 'gray';
-        
+
         return <Tag color={color}>{value}</Tag>;
       },
     },
@@ -97,22 +114,8 @@ export const FAQList: React.FC = () => {
       key: 'created_at',
       width: 160,
       sorter: true,
-      render: (value: string) => <DateField value={value} format="YYYY-MM-DD HH:mm" />,
-    },
-    {
-      title: '액션',
-      key: 'actions',
-      width: 120,
-      render: (_: any, record: FAQ) => (
-        <Space>
-          <ShowButton size="small" recordItemId={record.id} />
-          <EditButton size="small" recordItemId={record.id} />
-          <DeleteButton
-            size="small"
-            recordItemId={record.id}
-            resource="faqs"
-          />
-        </Space>
+      render: (value: string) => (
+        <DateField value={value} format='YYYY-MM-DD HH:mm' />
       ),
     },
   ];
@@ -128,8 +131,16 @@ export const FAQList: React.FC = () => {
       createSearchFilters={createSearchFilters}
       onRow={(record) => ({
         onClick: () => show('faqs', record.id),
-        style: { cursor: 'pointer' }
+        style: { cursor: 'pointer' },
       })}
+      sorters={{
+        initial: [
+          {
+            field: 'id',
+            order: 'desc',
+          },
+        ],
+      }}
     />
   );
 };

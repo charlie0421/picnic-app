@@ -46,11 +46,11 @@ export default function FAQEditPage({ params }: { params: { id: string } }) {
 
   // FAQ 카테고리 목록 (실제로는 데이터베이스에서 가져와야 함)
   const categoryOptions = [
-    { label: '일반', value: '일반' },
-    { label: '계정', value: '계정' },
-    { label: '서비스', value: '서비스' },
-    { label: '결제', value: '결제' },
-    { label: '기타', value: '기타' },
+    { label: '일반', value: 'GENERAL' },
+    { label: '계정', value: 'ACCOUNT' },
+    { label: '서비스', value: 'SERVICE' },
+    { label: '결제', value: 'PAYMENT' },
+    { label: '기타', value: 'ETC' },
   ];
 
   return (
