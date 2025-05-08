@@ -31,7 +31,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
-import 'package:picnic_lib/presentation/providers/update_checker.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/screens/privacy.dart';
 import 'package:picnic_lib/presentation/screens/terms.dart';

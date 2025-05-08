@@ -23,6 +23,7 @@ import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/services/localization_service.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 
 // 전역 언어 상태 변수
 bool isLanguageInitialized = false;
@@ -32,6 +33,9 @@ void main() async {
   await runZonedGuarded(() async {
     try {
       logger.i('앱 초기화 시작...');
+
+      // Shorebird
+      await ShorebirdUtils.checkAndUpdate();
 
       // Flutter 바인딩 초기화
       WidgetsFlutterBinding.ensureInitialized();

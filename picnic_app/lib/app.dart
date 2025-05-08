@@ -27,7 +27,7 @@ import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
-import 'package:picnic_lib/presentation/providers/update_checker.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_camera_screen.dart';

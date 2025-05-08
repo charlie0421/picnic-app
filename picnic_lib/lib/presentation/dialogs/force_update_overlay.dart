@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/providers/update_checker.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 

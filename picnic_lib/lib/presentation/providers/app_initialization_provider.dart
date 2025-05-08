@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_lib/presentation/providers/update_checker.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/app_initialization_provider.freezed.dart';

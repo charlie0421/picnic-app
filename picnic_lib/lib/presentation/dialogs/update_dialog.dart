@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
-import 'package:picnic_lib/presentation/providers/update_checker.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/overlay_notifier.dart';
 import 'package:picnic_lib/presentation/widgets/ui/smooth_circular_countdown.dart';
 import 'package:picnic_lib/ui/style.dart';
