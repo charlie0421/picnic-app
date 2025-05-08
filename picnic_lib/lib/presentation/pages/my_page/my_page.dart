@@ -88,28 +88,10 @@ class _MyPageState extends ConsumerState<MyPage> {
                           child: StarCandyInfoText(
                               alignment: MainAxisAlignment.start))
                       : const SizedBox(height: 16),
-                  // 공지사항
-                  if (data != null && (data.isAdmin ?? false))
-                    PicnicListItem(
-                        leading: t('label_mypage_notice'),
-                        assetPath: 'assets/icons/arrow_right_style=line.svg',
-                        onTap: () {}),
-                  // 충전내역
-                  if (data != null && (data.isAdmin ?? false))
-                    PicnicListItem(
-                        leading: t('label_mypage_charge_history'),
-                        assetPath: 'assets/icons/arrow_right_style=line.svg',
-                        onTap: () {}),
-                  // 고객센터
-                  PicnicListItem(
-                      leading: t('label_mypage_customer_center'),
-                      assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      onTap: () {
-                        _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
-                      }),
                   Text(t('label_setting_language'),
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () {
                       showModalBottomSheet(
                         context: context,
@@ -140,12 +122,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                       );
                     },
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.grey200),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      padding: EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -164,6 +141,26 @@ class _MyPageState extends ConsumerState<MyPage> {
                       ),
                     ),
                   ),
+                  const Divider(color: AppColors.grey200),
+                  // 공지사항
+                  if (data != null && (data.isAdmin ?? false))
+                    PicnicListItem(
+                        leading: t('label_mypage_notice'),
+                        assetPath: 'assets/icons/arrow_right_style=line.svg',
+                        onTap: () {}),
+                  // 충전내역
+                  if (data != null && (data.isAdmin ?? false))
+                    PicnicListItem(
+                        leading: t('label_mypage_charge_history'),
+                        assetPath: 'assets/icons/arrow_right_style=line.svg',
+                        onTap: () {}),
+                  // 고객센터
+                  PicnicListItem(
+                      leading: t('label_mypage_customer_center'),
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      onTap: () {
+                        _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
+                      }),
                   PicnicListItem(
                       leading: t('label_mypage_setting'),
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
