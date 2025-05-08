@@ -63,6 +63,7 @@ const convertToDatabaseResource = (resource: string): string => {
     admin_permissions: 'admin_permissions',
     admin_role_permissions: 'admin_role_permissions',
     admin_user_roles: 'admin_user_roles',
+    version: 'version',
   };
 
   console.log('리소스 변환 시도:', resource);

@@ -484,6 +484,27 @@ export default function RootLayout({
                               },
                             },
                           },
+                          // 앱 버전
+                          {
+                            name: 'version',
+                            list: '/version',
+                            show: '/version/show/:id',
+                            edit: '/version/edit/:id',
+                            meta: {
+                              label: '앱 버전 관리',
+                              icon: <AppstoreOutlined />,
+                              resourceType: ResourceType.APP_VERSION,
+                              list: {
+                                label: '앱 버전 목록',
+                              },
+                              show: {
+                                label: '앱 버전 상세',
+                              },
+                              edit: {
+                                label: '앱 버전 수정',
+                              },
+                            },
+                          },
                           // 관리 메뉴 (권한 관리 상위 메뉴) - 가장 아래로 이동
                           {
                             name: 'admin',
