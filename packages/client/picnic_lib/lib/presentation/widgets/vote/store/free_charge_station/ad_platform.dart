@@ -255,9 +255,8 @@ abstract class AdPlatform {
       String message, StackTrace? stackTrace) {
     logger.e(message, error: error);
 
-    Sentry.captureException(
+    Sentry.captureMessage(
       error,
-      stackTrace: stackTrace,
       withScope: (scope) {
         scope.setTag('platform', platform);
         scope.setTag('ad_type', 'show');
