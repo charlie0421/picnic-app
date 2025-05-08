@@ -48,15 +48,6 @@ export async function generateMetadata({
   };
 }
 
-// 자주 방문하는 투표 페이지의 정적 경로 생성
-export async function generateStaticParams() {
-  // 인기 있는 투표 ID만 미리 생성 (최대 10개)
-  // 실제 구현에서는 DB에서 가장 인기 있는 투표 ID를 가져오는 로직으로 대체
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
-    id: id.toString(),
-  }));
-}
-
 type VoteDetailPageProps = {
   params: Promise<{
     id: string;

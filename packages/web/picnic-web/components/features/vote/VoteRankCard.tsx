@@ -89,14 +89,14 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
         animationTimeoutRef.current = null;
       }, 1000);
     }
-  }, [voteTotal, localVoteTotal]);
+  }, [voteTotal,localVoteTotal]);
 
   // 부모 컴포넌트에 초기값 전달 (한 번만 실행)
   useEffect(() => {
     if (onVoteChange && localVoteTotal !== undefined) {
       onVoteChange(localVoteTotal);
     }
-  }, []);
+  }, [localVoteTotal, onVoteChange]);
 
   // 투표수 변화가 있고 애니메이션 중일 때만 변화량 표시
   const shouldShowVoteChange =

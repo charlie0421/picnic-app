@@ -20,6 +20,7 @@ import {
   PORTAL_MENU,
   getPortalTypeFromPath
 } from '@/config/navigation';
+import { Menu as MenuIcon } from 'lucide-react';
 
 // 환경 설정 확인 (개발 환경인지)
 const isDev = process.env.NODE_ENV !== 'production';
@@ -88,9 +89,9 @@ const PortalLayout: React.FC<PortalProps> = ({ children }) => {
                       )}
                     </Link>
                   ) : (
-                    <Link href='/login'>
-                      <div className='px-3 py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors'>
-                        {t('button_login')}
+                    <Link href='/mypage'>
+                      <div className='p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer border border-gray-200'>
+                        <MenuIcon className="w-6 h-6 text-gray-700" />
                       </div>
                     </Link>
                   )}

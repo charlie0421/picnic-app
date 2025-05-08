@@ -109,7 +109,7 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
     return () => {
       authListener.data.subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, []);
   
   // SDK가 로드되면 초기화
   useEffect(() => {
