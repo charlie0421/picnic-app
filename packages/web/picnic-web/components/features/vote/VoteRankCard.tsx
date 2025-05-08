@@ -67,10 +67,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
     if (voteTotal !== localVoteTotal) {
       // 변화량 계산
       const calculatedChange = voteTotal - prevVoteTotal.current;
-      console.log(
-        `VoteRankCard: 투표수 변경 - ${prevVoteTotal.current} -> ${voteTotal} (변화량: ${calculatedChange})`,
-      );
-
+      
       // 기존 애니메이션 타이머 정리
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);
@@ -86,14 +83,15 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
 
       // 1초 후 애니메이션 종료
       animationTimeoutRef.current = setTimeout(() => {
+        setCurrentVoteChange(0);
         animationTimeoutRef.current = null;
       }, 1000);
     }
-  }, [voteTotal,localVoteTotal]);
+  }, [voteTotal]);
 
   // 부모 컴포넌트에 초기값 전달 (한 번만 실행)
   useEffect(() => {
-    if (onVoteChange && localVoteTotal !== undefined) {
+    if (onVoteChange && localVoteTotal !== undefined && !processedVoteTotals.current.has(localVoteTotal)) {
       onVoteChange(localVoteTotal);
     }
   }, [localVoteTotal, onVoteChange]);
@@ -156,8 +154,8 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
                 <Image
                   src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.artist.image}`}
                   alt={getLocalizedString(item.artist.name)}
-                  width={100}
-                  height={100}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className='w-full h-full object-cover'
                   priority
                 />

@@ -65,7 +65,7 @@ const UpcomingVoteItems: React.FC<{
       <div className='grid grid-cols-4 md:grid-cols-4 gap-1'>
         {currentItems.map((item) => (
           <div key={item.id} className='relative aspect-square'>
-            <div className='w-full h-full rounded-full overflow-hidden'>
+            <div className='w-full h-full rounded-full overflow-hidden relative'>
               <Image
                 src={getCdnImageUrl(item.artist?.image, 300)}
                 alt={getLocalizedString(item.artist?.name)}

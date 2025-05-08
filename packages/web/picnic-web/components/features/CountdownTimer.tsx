@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { differenceInSeconds } from 'date-fns';
 import { useLanguageStore } from '@/stores/languageStore';
+import useGlobalTimer from '@/utils/global-timer';
 
 const TIMER_STATUS = {
   SCHEDULED: 'scheduled',
@@ -41,38 +42,32 @@ type TimerStyle = {
 
 const getTimerStyle = (seconds: number): TimerStyle => {
   if (seconds >= 86400) {
-    // 24시간 이상
     return {
       textColor: 'text-black',
       bgColor: 'bg-secondary',
-      animationInterval: 60, // 1분
+      animationInterval: 60,
     };
   } else if (seconds >= 3600) {
-    // 1시간 이상 24시간 미만
     return {
       textColor: 'text-black',
       bgColor: 'bg-sub',
-      animationInterval: 10, // 10초
+      animationInterval: 10,
     };
   } else {
-    // 1시간 미만
     return {
       textColor: 'text-white',
       bgColor: 'bg-point',
-      animationInterval: 1, // 1초
+      animationInterval: 1,
     };
   }
 };
 
 const shouldAnimate = (seconds: number, timerStyle: TimerStyle): boolean => {
   if (timerStyle.animationInterval === 60) {
-    // 1분마다 (1분 00초)
     return seconds % 60 === 0;
   } else if (timerStyle.animationInterval === 10) {
-    // 10초마다 (00초, 10초, 20초, 30초, 40초, 50초)
     return seconds % 10 === 0;
   } else {
-    // 1초마다
     return true;
   }
 };
@@ -80,9 +75,6 @@ const shouldAnimate = (seconds: number, timerStyle: TimerStyle): boolean => {
 const CountdownTimer = React.memo(
   ({ endTime, startTime, status, className }: CountdownTimerProps) => {
     const { t } = useLanguageStore();
-    const lastAnimationTimeRef = useRef<number>(0);
-    const targetDateRef = useRef<Date | null>(null);
-
     const [remainingTime, setRemainingTime] = useState<TimeUnits | null>(null);
     const [scale, setScale] = useState(1);
     const [pulse, setPulse] = useState(false);
@@ -92,7 +84,6 @@ const CountdownTimer = React.memo(
       animationInterval: 60,
     });
 
-    // targetDate 계산을 useMemo로 분리
     const targetDate = useMemo(() => {
       if (!startTime || !endTime) return null;
       return status === TIMER_STATUS.SCHEDULED
@@ -101,19 +92,20 @@ const CountdownTimer = React.memo(
     }, [startTime, endTime, status]);
 
     useEffect(() => {
-      if (targetDate) {
-        targetDateRef.current = targetDate;
+      if (!targetDate || status === TIMER_STATUS.ENDED) {
+        setRemainingTime({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+        });
+        return;
       }
-    }, [targetDate]);
 
-    useEffect(() => {
-      if (!targetDate) return;
+      const updateTimer = (now: Date) => {
+        const diffInSeconds = differenceInSeconds(targetDate, now);
 
-      const updateTimer = () => {
-        const now = new Date();
-        const diffInSeconds = differenceInSeconds(targetDateRef.current!, now);
-
-        if (diffInSeconds <= 0 || status === TIMER_STATUS.ENDED) {
+        if (diffInSeconds <= 0) {
           setRemainingTime({
             days: 0,
             hours: 0,
@@ -124,8 +116,10 @@ const CountdownTimer = React.memo(
         }
 
         const newTimerStyle = getTimerStyle(diffInSeconds);
+        const newRemainingTime = calculateTimeUnits(diffInSeconds);
+
         setTimerStyle(newTimerStyle);
-        setRemainingTime(calculateTimeUnits(diffInSeconds));
+        setRemainingTime(newRemainingTime);
 
         if (shouldAnimate(diffInSeconds, newTimerStyle)) {
           setScale(1.1);
@@ -137,9 +131,17 @@ const CountdownTimer = React.memo(
         }
       };
 
-      updateTimer();
-      const timer = setInterval(updateTimer, 1000);
-      return () => clearInterval(timer);
+      // 초기 업데이트
+      updateTimer(new Date());
+
+      // 전역 타이머 구독
+      const unsubscribe = useGlobalTimer.subscribe((state) => {
+        updateTimer(state.currentTime);
+      });
+
+      return () => {
+        unsubscribe();
+      };
     }, [targetDate, status]);
 
     if (!targetDate) return null;

@@ -24,12 +24,7 @@ import { Database } from '@/types/supabase';
 import { Json } from '@/types/supabase';
 import { getLocalizedString } from '@/utils/api/strings';
 import { useSupabase } from '@/components/providers/SupabaseProvider';
-import { useSafeData } from '@/utils/api/hydration-safe-data';
-
-interface VoteListProps {
-  votes: Vote[];
-  pageSize?: number;
-}
+import useGlobalTimer from '@/utils/global-timer';
 
 const VOTE_STATUS = {
   UPCOMING: 'upcoming',
@@ -43,72 +38,6 @@ const STATUS_TAG_COLORS: Record<VoteStatus, string> = {
   [VOTE_STATUS.UPCOMING]: 'bg-blue-500 text-white border border-blue-600',
   [VOTE_STATUS.ONGOING]: 'bg-green-500 text-white border border-green-600',
   [VOTE_STATUS.COMPLETED]: 'bg-gray-500 text-white border border-gray-600',
-};
-
-// 카테고리별 아이콘 (SVG 경로)
-const CATEGORY_ICONS = {
-  birthday: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path
-        fillRule='evenodd'
-        d='M6 3.75A2.75 2.75 0 018.75 1h2.5A2.75 2.75 0 0114 3.75v.443c.795.077 1.584.24 2.346.485a.75.75 0 01.154 1.384A9.958 9.958 0 0010 18a9.958 9.958 0 00-6.5-2.388.75.75 0 01.154-1.384A13.718 13.718 0 016 4.193V3.75zm2.75-.75A1.25 1.25 0 008.75 2.5h2.5A1.25 1.25 0 0012.5 3.75V4c0 .092.002.184.005.274a.75.75 0 01-.83.853 15.99 15.99 0 00-3.35 0 .75.75 0 01-.83-.853A8.032 8.032 0 018.75 4v-.25z'
-        clipRule='evenodd'
-      />
-    </svg>
-  ),
-  debut: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
-    </svg>
-  ),
-  accumulated: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path
-        fillRule='evenodd'
-        d='M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z'
-        clipRule='evenodd'
-      />
-    </svg>
-  ),
-  special: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path d='M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z' />
-    </svg>
-  ),
-  event: (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      className='h-3 w-3 mr-1'
-      viewBox='0 0 20 20'
-      fill='currentColor'
-    >
-      <path
-        fillRule='evenodd'
-        d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z'
-        clipRule='evenodd'
-      />
-    </svg>
-  ),
 };
 
 // 카테고리별 색상
@@ -175,15 +104,24 @@ const VoteItems = React.memo(
   }: {
     vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> };
   }) => {
+    const now = useRef(new Date());
     const status = useMemo(() => {
       if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
-      const now = new Date();
       const start = new Date(vote.startAt);
       const end = new Date(vote.stopAt);
-      if (now < start) return VOTE_STATUS.UPCOMING;
-      if (now > end) return VOTE_STATUS.COMPLETED;
+      if (now.current < start) return VOTE_STATUS.UPCOMING;
+      if (now.current > end) return VOTE_STATUS.COMPLETED;
       return VOTE_STATUS.ONGOING;
     }, [vote.startAt, vote.stopAt]);
+
+    // 1초마다 현재 시간 업데이트
+    useEffect(() => {
+      const timer = setInterval(() => {
+        now.current = new Date();
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }, []);
 
     // 투표 업데이트 핸들러
     const handleVoteChange = useCallback(
@@ -209,21 +147,22 @@ const VoteItems = React.memo(
   },
   (prevProps, nextProps) => {
     // 투표 상태가 변경될 때만 리렌더링
+    const now = new Date();
     const prevStatus =
       !prevProps.vote.startAt || !prevProps.vote.stopAt
         ? VOTE_STATUS.UPCOMING
-        : new Date() < new Date(prevProps.vote.startAt)
+        : now < new Date(prevProps.vote.startAt)
         ? VOTE_STATUS.UPCOMING
-        : new Date() > new Date(prevProps.vote.stopAt)
+        : now > new Date(prevProps.vote.stopAt)
         ? VOTE_STATUS.COMPLETED
         : VOTE_STATUS.ONGOING;
 
     const nextStatus =
       !nextProps.vote.startAt || !nextProps.vote.stopAt
         ? VOTE_STATUS.UPCOMING
-        : new Date() < new Date(nextProps.vote.startAt)
+        : now < new Date(nextProps.vote.startAt)
         ? VOTE_STATUS.UPCOMING
-        : new Date() > new Date(nextProps.vote.stopAt)
+        : now > new Date(nextProps.vote.stopAt)
         ? VOTE_STATUS.COMPLETED
         : VOTE_STATUS.ONGOING;
 
@@ -237,15 +176,24 @@ VoteItems.displayName = 'VoteItems';
 const VoteCard = React.memo(
   ({ vote, onClick }: { vote: Vote; onClick?: () => void }) => {
     const { t } = useLanguageStore();
+    const now = useRef(new Date());
     const status = useMemo(() => {
       if (!vote.startAt || !vote.stopAt) return VOTE_STATUS.UPCOMING;
-      const now = new Date();
       const start = new Date(vote.startAt);
       const end = new Date(vote.stopAt);
-      if (now < start) return VOTE_STATUS.UPCOMING;
-      if (now > end) return VOTE_STATUS.COMPLETED;
+      if (now.current < start) return VOTE_STATUS.UPCOMING;
+      if (now.current > end) return VOTE_STATUS.COMPLETED;
       return VOTE_STATUS.ONGOING;
     }, [vote.startAt, vote.stopAt]);
+
+    // 1초마다 현재 시간 업데이트
+    useEffect(() => {
+      const timer = setInterval(() => {
+        now.current = new Date();
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }, []);
 
     return (
       <Link href={`/vote/${vote.id}`}>
@@ -574,50 +522,147 @@ const VoteList: React.FC = () => {
   const { t } = useLanguageStore();
   const router = useRouter();
   const PAGE_SIZE = 8;
-
-  // 데이터 로드 및 로딩 상태 관리
-  const {
-    data: allVotes,
-    isLoading,
-    error,
-    mounted,
-  } = useSafeData(
-    async () => {
-      try {
-        if (!isReady) return [];
-        const votesData = await getVotes('votes');
-        return votesData;
-      } catch (err) {
-        console.error('투표 데이터 로드 오류:', err);
-        throw err;
-      }
-    },
-    [],
-    [isReady],
-  );
-
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
-    'all',
-  );
+  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+  const [votes, setVotes] = useState<Vote[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchVotes = useCallback(async () => {
+    if (!isReady || !supabase) {
+      console.log('Supabase not ready:', { isReady, supabase });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      console.log('Fetching votes...');
+      const { data: voteData, error: voteError } = await supabase
+        .from("vote")
+        .select(`
+          *,
+          vote_item!vote_id (
+            id,
+            vote_id,
+            artist_id,
+            group_id,
+            vote_total,
+            created_at,
+            updated_at,
+            deleted_at,
+            artist (
+              id,
+              name,
+              image,
+              artist_group (
+                id,
+                name
+              )
+            )
+          ),
+          vote_reward (
+            reward_id,
+            reward:reward_id (*)
+          )
+        `)
+        .is("deleted_at", null)
+        .order("start_at", { ascending: false });
+
+      if (voteError) {
+        console.error('Vote fetch error:', voteError);
+        throw voteError;
+      }
+
+      if (!voteData || voteData.length === 0) {
+        console.log('No votes found');
+        setVotes([]);
+        return;
+      }
+
+      const formattedVotes = voteData.map((vote: any) => ({
+        ...vote,
+        deletedAt: vote.deleted_at,
+        startAt: vote.start_at,
+        stopAt: vote.stop_at,
+        createdAt: vote.created_at,
+        updatedAt: vote.updated_at,
+        mainImage: vote.main_image,
+        resultImage: vote.result_image,
+        waitImage: vote.wait_image,
+        voteCategory: vote.vote_category,
+        voteContent: vote.vote_content,
+        voteSubCategory: vote.vote_sub_category,
+        visibleAt: vote.visible_at,
+        voteItems: vote.vote_item
+          ? vote.vote_item.map((item: any) => ({
+              ...item,
+              deletedAt: item.deleted_at,
+              createdAt: item.created_at,
+              updatedAt: item.updated_at,
+              voteId: item.vote_id,
+              artistId: item.artist_id,
+              groupId: item.group_id,
+              voteTotal: item.vote_total || 0,
+              artist: item.artist
+                ? {
+                    ...item.artist,
+                    image: item.artist.image,
+                  }
+                : null,
+            }))
+          : [],
+        rewards: vote.vote_reward
+          ? vote.vote_reward.map((vr: any) => vr.reward).filter(Boolean)
+          : [],
+        title: vote.title || "제목 없음",
+      }));
+
+      console.log('Fetched votes:', formattedVotes);
+      setVotes(formattedVotes);
+      setError(null);
+    } catch (err) {
+      console.error('투표 데이터 로드 오류:', err);
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isReady, supabase]);
+
+  // 초기 데이터 로드
+  useEffect(() => {
+    if (isReady && supabase) {
+      fetchVotes();
+    }
+  }, [isReady, supabase, fetchVotes]);
+
+  // 전역 타이머 구독
+  useEffect(() => {
+    const timer = setInterval(() => {
+      fetchVotes();
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [fetchVotes]);
 
   // 표시할 투표 목록 계산
-  const votes = useMemo(() => {
-    if (!allVotes) return [];
+  const paginatedVotes = useMemo(() => {
+    if (!votes) return [];
     const start = 0;
     const end = page * PAGE_SIZE;
-    const paginatedData = allVotes.slice(start, end);
-    setHasMore(end < allVotes.length);
+    const paginatedData = votes.slice(start, end);
+    setHasMore(end < votes.length);
     return paginatedData;
-  }, [allVotes, page, PAGE_SIZE]);
+  }, [votes, page, PAGE_SIZE]);
 
   // 필터링된 투표 목록
   const filteredVotes = useMemo(() => {
-    if (!votes || votes.length === 0) return [];
+    if (!paginatedVotes || paginatedVotes.length === 0) return [];
 
     if (selectedStatus === 'all') {
-      return votes.sort((a, b) => {
+      return paginatedVotes.sort((a, b) => {
         const now = new Date();
         const aStart = a.startAt ? new Date(a.startAt) : null;
         const aEnd = a.stopAt ? new Date(a.stopAt) : null;
@@ -638,7 +683,7 @@ const VoteList: React.FC = () => {
       });
     }
 
-    return votes.filter((vote) => {
+    return paginatedVotes.filter((vote) => {
       if (!vote.startAt || !vote.stopAt)
         return selectedStatus === VOTE_STATUS.UPCOMING;
       const now = new Date();
@@ -649,17 +694,12 @@ const VoteList: React.FC = () => {
         return now >= start && now <= end;
       return now > end;
     });
-  }, [votes, selectedStatus]);
+  }, [paginatedVotes, selectedStatus]);
 
   // 상태가 변경되면 페이지 리셋
   useEffect(() => {
-    if (mounted) {
-      setPage(1);
-    }
-  }, [selectedStatus, mounted]);
-
-  // 컴포넌트가 마운트되기 전에는 렌더링하지 않음
-  if (!mounted) return null;
+    setPage(1);
+  }, [selectedStatus]);
 
   // 오류 발생 시
   if (error) {
@@ -688,7 +728,7 @@ const VoteList: React.FC = () => {
 
       {isLoading && votes.length === 0 ? (
         <LoadingSkeleton />
-      ) : allVotes?.length === 0 ? (
+      ) : votes.length === 0 ? (
         <div className='bg-gray-100 p-6 rounded-lg text-center'>
           <p className='text-gray-500'>투표가 없습니다.</p>
         </div>

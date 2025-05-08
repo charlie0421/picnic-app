@@ -1,7 +1,7 @@
 /**
  * 하이드레이션 안전한 데이터 로딩을 위한 유틸리티
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type DataFetcher<T> = () => Promise<T>;
 
@@ -18,25 +18,25 @@ export function useSafeData<T>(
   initialData?: T,
   dependencies: any[] = []
 ) {
-  // 클라이언트 사이드에서 마운트 여부 추적
   const [mounted, setMounted] = useState(false);
   const [data, setData] = useState<T | undefined>(initialData);
   const [isLoading, setIsLoading] = useState(!initialData);
   const [error, setError] = useState<Error | null>(null);
 
-  // 클라이언트 사이드에서만 마운트 설정
+  // 마운트 상태 설정
   useEffect(() => {
     setMounted(true);
+    return () => setMounted(false);
   }, []);
 
-  // 의존성이 변경되거나 마운트될 때 데이터 로드
+  // 데이터 로드
   useEffect(() => {
     if (!mounted) return;
 
     let isCancelled = false;
+    let timeoutId: NodeJS.Timeout;
     
     const loadData = async () => {
-      // 초기 데이터가 없을 때만 로딩 상태 표시
       if (!initialData) {
         setIsLoading(true);
       }
@@ -44,7 +44,6 @@ export function useSafeData<T>(
       try {
         const result = await fetcher();
         
-        // 비동기 작업 중 컴포넌트가 언마운트되었다면 상태 업데이트 중단
         if (isCancelled) return;
         
         setData(result);
@@ -60,13 +59,17 @@ export function useSafeData<T>(
       }
     };
 
+    // 초기 데이터 로드
     loadData();
 
-    // 클린업 함수
+    // 30초마다 데이터 새로고침
+    timeoutId = setInterval(loadData, 30000);
+
     return () => {
       isCancelled = true;
+      clearInterval(timeoutId);
     };
-  }, [mounted, fetcher, initialData, ...dependencies]);
+  }, [mounted, initialData, ...dependencies]);
 
   return { data, isLoading, error, mounted };
 }

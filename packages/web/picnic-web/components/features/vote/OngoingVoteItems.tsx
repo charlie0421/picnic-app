@@ -39,12 +39,16 @@ const OngoingVoteItems: React.FC<OngoingVoteItemsProps> = ({
 
   // 투표수 변경 감지 및 처리
   const handleVoteChange = (itemId: string | number, newTotal: number) => {
-    // 로컬 상태 업데이트
-    setVoteItems((prevItems) =>
-      prevItems.map((item) =>
+    // 현재 아이템의 투표수와 새로운 투표수가 다른 경우에만 업데이트
+    setVoteItems((prevItems) => {
+      const currentItem = prevItems.find((item) => item.id === itemId);
+      if (currentItem?.voteTotal === newTotal) {
+        return prevItems;
+      }
+      return prevItems.map((item) =>
         item.id === itemId ? { ...item, voteTotal: newTotal } : item,
-      ),
-    );
+      );
+    });
 
     // 부모 컴포넌트에 변경 알림
     if (onVoteChange) {
