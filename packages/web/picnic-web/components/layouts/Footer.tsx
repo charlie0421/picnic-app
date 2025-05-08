@@ -28,7 +28,7 @@ const Footer: React.FC = () => {
   const currentContent = currentLanguage === 'ko' ? content.ko : content.en;
 
   return (
-    <footer className='w-full py-4 px-10 text-center text-gray-500'>
+    <footer className='w-full py-4 px-10 text-center text-gray-500 text-xs'>
       <p className='space-y-2'>
         <span className='block'>{currentContent.company}</span>
         <span className='block'>{currentContent.address}</span>
