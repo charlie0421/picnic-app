@@ -82,23 +82,20 @@ export default function NoticeEditPage({ params }: { params: { id: string } }) {
 
   // 폼 제출 핸들러
   const handleSubmit = async (values: NoticeFormData) => {
-    // 현재 폼의 모든 값을 가져옴
-    const formValues = formProps.form?.getFieldsValue() as NoticeFormData;
-
     const submitData = {
       title: {
-        ko: formValues?.title_ko || values.title_ko,
-        en: formValues?.title_en || values.title_en,
-        ja: formValues?.title_ja || values.title_ja,
-        zh: formValues?.title_zh || values.title_zh,
-        id: formValues?.title_id || values.title_id,
+        ko: values.title_ko || '',
+        en: values.title_en || '',
+        ja: values.title_ja || '',
+        zh: values.title_zh || '',
+        id: values.title_id || '',
       },
       content: {
-        ko: formValues?.content_ko || values.content_ko,
-        en: formValues?.content_en || values.content_en,
-        ja: formValues?.content_ja || values.content_ja,
-        zh: formValues?.content_zh || values.content_zh,
-        id: formValues?.content_id || values.content_id,
+        ko: values.content_ko || '',
+        en: values.content_en || '',
+        ja: values.content_ja || '',
+        zh: values.content_zh || '',
+        id: values.content_id || '',
       },
       status: values.status,
       is_pinned: values.is_pinned,

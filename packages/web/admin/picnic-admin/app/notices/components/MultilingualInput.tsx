@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Form, Input, Tabs, Typography, Space } from 'antd';
 import { SupportedLocale, supportedLocales } from '@/lib/utils/translation';
 import TranslationButton from '@/components/ui/TranslationButton';
@@ -23,20 +23,6 @@ const MultilingualInput: React.FC<MultilingualInputProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>(baseLocale);
   const form = Form.useFormInstance();
-
-  // 탭 변경 시 폼 값 유지
-  useEffect(() => {
-    const currentValues = form.getFieldsValue();
-    const newValues = { ...currentValues };
-
-    // 현재 활성화된 탭의 값이 없으면 이전 값 유지
-    supportedLocales.forEach((locale) => {
-      const fieldName = `${name}_${locale}`;
-      if (!newValues[fieldName] && currentValues[fieldName]) {
-        form.setFieldValue(fieldName, currentValues[fieldName]);
-      }
-    });
-  }, [activeTab, form, name]);
 
   const handleTranslated = (
     translatedText: string,
@@ -69,6 +55,7 @@ const MultilingualInput: React.FC<MultilingualInputProps> = ({
                     : []
                 }
                 noStyle
+                preserve={true}
               >
                 {useRichText ? (
                   <TextEditor />
