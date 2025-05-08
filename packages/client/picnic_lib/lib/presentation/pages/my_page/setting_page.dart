@@ -5,18 +5,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:load_switch/load_switch.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/platform_info_provider.dart';
-import 'package:picnic_lib/presentation/providers/update_checker.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
@@ -293,10 +294,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   Future<void> _fetchPatchInfo() async {
     try {
-      final patchNumber = await shorebird.ShorebirdUpdater().readCurrentPatch();
+      final patch = await ShorebirdUtils.checkPatch();
+      logger.i('패치 정보: $patch');
       setState(() {
-        _patchInfo =
-            patchNumber != null ? "Current Patch: $patchNumber" : "No patch";
+        if (patch != null) {
+          _patchInfo = "Current Patch: ${patch.number}";
+        } else {
+          _patchInfo = "No patch";
+        }
       });
     } catch (e) {
       setState(() {

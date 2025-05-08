@@ -7,8 +7,8 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:version/version.dart';
 
-part '../../generated/providers/update_checker.freezed.dart';
-part '../../generated/providers/update_checker.g.dart';
+part '../../generated/providers/check_update_provider.freezed.dart';
+part '../../generated/providers/check_update_provider.g.dart';
 
 enum UpdateStatus {
   upToDate,
