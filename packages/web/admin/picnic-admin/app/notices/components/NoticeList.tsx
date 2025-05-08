@@ -1,7 +1,12 @@
 import React from 'react';
 import { Space, Tag, message } from 'antd';
 import { useNavigation, useDelete, CrudFilters } from '@refinedev/core';
-import { EditButton, ShowButton, DeleteButton, DateField } from '@refinedev/antd';
+import {
+  EditButton,
+  ShowButton,
+  DeleteButton,
+  DateField,
+} from '@refinedev/antd';
 import { Notice } from '@/lib/types/notice';
 import { DataTable } from '../../components/common/DataTable';
 
@@ -13,31 +18,19 @@ export const NoticeList: React.FC = () => {
     if (!value) return [];
 
     if (field === 'all') {
-      const filters: CrudFilters = [];
-
-      filters.push({
-        field: 'title',
-        operator: 'contains',
-        value,
-      });
-
-      // ID가 숫자인 경우에만 ID 검색 추가
-      const numericValue = parseInt(value);
-      if (!isNaN(numericValue)) {
-        filters.push({
-          field: 'id',
-          operator: 'eq',
-          value: numericValue,
-        });
-      }
-
-      return filters;
+      return [
+        {
+          field: 'title->>ko',
+          operator: 'contains',
+          value,
+        },
+      ];
     }
 
     if (field === 'title') {
       return [
         {
-          field: 'title',
+          field: 'title->>ko',
           operator: 'contains',
           value,
         },
@@ -76,10 +69,10 @@ export const NoticeList: React.FC = () => {
       dataIndex: 'title',
       key: 'title',
       sorter: true,
-      render: (value: string, record: Notice) => (
+      render: (value: any, record: Notice) => (
         <Space>
-          {record.is_pinned && <Tag color="red">공지</Tag>}
-          <span>{value}</span>
+          {record.is_pinned && <Tag color='red'>공지</Tag>}
+          <span>{value?.ko || value}</span>
         </Space>
       ),
     },
@@ -94,7 +87,7 @@ export const NoticeList: React.FC = () => {
         if (value === 'PUBLISHED') color = 'green';
         if (value === 'DRAFT') color = 'gold';
         if (value === 'ARCHIVED') color = 'gray';
-        
+
         return <Tag color={color}>{value}</Tag>;
       },
     },
@@ -103,7 +96,10 @@ export const NoticeList: React.FC = () => {
       key: 'created_by',
       width: 120,
       render: (_: any, record: Notice) => {
-        const userName = record.created_by_user?.user_metadata?.name || record.created_by_user?.email || '시스템';
+        const userName =
+          record.created_by_user?.user_metadata?.name ||
+          record.created_by_user?.email ||
+          '시스템';
         return userName;
       },
     },
@@ -113,7 +109,9 @@ export const NoticeList: React.FC = () => {
       key: 'created_at',
       width: 160,
       sorter: true,
-      render: (value: string) => <DateField value={value} format="YYYY-MM-DD HH:mm" />,
+      render: (value: string) => (
+        <DateField value={value} format='YYYY-MM-DD HH:mm' />
+      ),
     },
     {
       title: '액션',
@@ -121,12 +119,12 @@ export const NoticeList: React.FC = () => {
       width: 120,
       render: (_: any, record: Notice) => (
         <Space>
-          <ShowButton size="small" recordItemId={record.id} />
-          <EditButton size="small" recordItemId={record.id} />
+          <ShowButton size='small' recordItemId={record.id} />
+          <EditButton size='small' recordItemId={record.id} />
           <DeleteButton
-            size="small"
+            size='small'
             recordItemId={record.id}
-            resource="notices"
+            resource='notices'
           />
         </Space>
       ),
@@ -144,8 +142,8 @@ export const NoticeList: React.FC = () => {
       createSearchFilters={createSearchFilters}
       onRow={(record) => ({
         onClick: () => show('notices', record.id),
-        style: { cursor: 'pointer' }
+        style: { cursor: 'pointer' },
       })}
     />
   );
-}; 
+};

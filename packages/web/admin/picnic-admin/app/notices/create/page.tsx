@@ -1,22 +1,40 @@
 'use client';
 
-import { Create, useForm, useSelect } from '@refinedev/antd';
-import { Form, Input, Select, Switch, Alert, Button, Space } from 'antd';
+import { Create, useForm } from '@refinedev/antd';
+import { Button } from 'antd';
 import { useGetIdentity, useNavigation } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import { useEffect } from 'react';
-import TextEditor from '@/components/ui/TextEditor';
+import { Notice, NoticeFormData } from '@/lib/types/notice';
+import { NoticeForm } from '../components/NoticeForm';
 
-const { Option } = Select;
+// FormData를 Notice로 변환
+const convertFormDataToNotice = (formData: NoticeFormData): Partial<Notice> => {
+  return {
+    title: {
+      ko: formData.title_ko,
+      en: formData.title_en,
+      ja: formData.title_ja,
+      zh: formData.title_zh,
+      id: formData.title_id,
+    },
+    content: {
+      ko: formData.content_ko,
+      en: formData.content_en,
+      ja: formData.content_ja,
+      zh: formData.content_zh,
+      id: formData.content_id,
+    },
+    status: formData.status,
+    is_pinned: formData.is_pinned,
+  };
+};
 
 export default function NoticeCreatePage() {
   const { goBack } = useNavigation();
-  const { formProps, saveButtonProps, queryResult, onFinish } = useForm({
+  const { formProps, saveButtonProps, onFinish } = useForm<NoticeFormData>({
     resource: 'notices',
     redirect: 'list',
-    meta: {
-      idField: 'notice_id',
-    },
   });
 
   const { data: identity } = useGetIdentity<{ id: string }>();
@@ -30,76 +48,33 @@ export default function NoticeCreatePage() {
   }, [formProps.form]);
 
   // 폼 제출 핸들러
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: NoticeFormData) => {
+    const submitData = convertFormDataToNotice(values);
+
     // 현재 사용자 ID 추가
-    const submitValues = {
-      ...values,
+    const finalData = {
+      ...submitData,
       created_by: identity?.id,
     };
 
-    return onFinish(submitValues);
+    return onFinish(finalData);
   };
 
   return (
-    <AuthorizePage resource="notices" action="create">
+    <AuthorizePage resource='notices' action='create'>
       <Create
-        title="공지사항 작성"
+        title='공지사항 작성'
         footerButtons={
           <>
             <Button onClick={goBack}>취소</Button>
-            <Button 
-              type="primary" 
-              {...saveButtonProps}
-            >
+            <Button type='primary' {...saveButtonProps}>
               저장
             </Button>
           </>
         }
       >
-        <Form 
-          {...formProps} 
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
-          <Form.Item
-            label="제목"
-            name="title"
-            rules={[{ required: true, message: '제목을 입력해주세요' }]}
-          >
-            <Input placeholder="제목을 입력하세요" />
-          </Form.Item>
-
-          <Form.Item
-            label="내용"
-            name="content"
-            rules={[{ required: true, message: '내용을 입력해주세요' }]}
-          >
-            <TextEditor />
-          </Form.Item>
-
-          <Space>
-            <Form.Item
-              label="상태"
-              name="status"
-              rules={[{ required: true }]}
-            >
-              <Select style={{ width: 200 }}>
-                <Option value="DRAFT">초안</Option>
-                <Option value="PUBLISHED">발행</Option>
-                <Option value="ARCHIVED">보관</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label="상단 고정"
-              name="is_pinned"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
-          </Space>
-        </Form>
+        <NoticeForm formProps={formProps} onSubmit={handleSubmit} />
       </Create>
     </AuthorizePage>
   );
-} 
+}

@@ -25,17 +25,17 @@ export const NoticeDetail: React.FC<NoticeDetailProps> = ({ record }) => {
       </Title>
 
       <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
-        <UUIDDisplay uuid={String(record.id)} label="공지사항 ID" />
+        <UUIDDisplay uuid={String(record.id)} label='공지사항 ID' />
       </div>
 
       <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
         <Title level={5}>제목</Title>
-        <Text>{record.title}</Text>
+        <MultiLanguageDisplay value={record.title} />
       </div>
 
       <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
         <Title level={5}>내용</Title>
-        <Text>{record.content}</Text>
+        <MultiLanguageDisplay value={record.content} />
       </div>
 
       <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
@@ -49,9 +49,9 @@ export const NoticeDetail: React.FC<NoticeDetailProps> = ({ record }) => {
 
       <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
         <Title level={5}>생성일/수정일</Title>
-        <Space direction="vertical">
-          <DateField value={record.created_at} format="YYYY-MM-DD HH:mm:ss" />
-          <DateField value={record.updated_at} format="YYYY-MM-DD HH:mm:ss" />
+        <Space direction='vertical'>
+          <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />
+          <DateField value={record.updated_at} format='YYYY-MM-DD HH:mm:ss' />
         </Space>
       </div>
     </div>
