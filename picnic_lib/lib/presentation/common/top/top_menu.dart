@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/common/area_switch.dart';
 import 'package:picnic_lib/presentation/common/common_my_point_info.dart';
-import 'package:picnic_lib/presentation/common/top/top_right_common.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_community.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post_view.dart';
@@ -46,7 +46,7 @@ class _TopState extends ConsumerState<TopMenu> {
     if (navigationInfo.topRightMenu == TopRightType.common &&
         navigationInfo.portalType == PortalType.vote &&
         _isVotePage(navigationInfo.voteNavigationStack)) {
-      return const TopRightCommon();
+      return const AreaSwitch();
     }
 
     if (navigationInfo.topRightMenu == TopRightType.board) {
