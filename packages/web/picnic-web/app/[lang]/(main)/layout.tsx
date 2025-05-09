@@ -1,14 +1,14 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
-import {usePathname} from 'next/navigation';
-import {useAuth} from '@/contexts/AuthContext';
-import {useNavigation,} from '@/contexts/NavigationContext';
-import {useLanguageStore} from '@/stores/languageStore';
+import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { useLanguageStore } from '@/stores/languageStore';
 import Footer from '@/components/layouts/Footer';
 import ExclusiveOpenBadge from '@/components/features/ExclusiveOpenBadge';
 import Menu from '@/components/features/Menu';
-import {getPortalTypeFromPath} from '@/config/navigation';
+import { getPortalTypeFromPath } from '@/config/navigation';
 import Header from '@/components/layouts/Header';
 
 const MainContent = ({ children }: { children: React.ReactNode }) => {
@@ -27,7 +27,7 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
     <div className='bg-gradient-to-b from-blue-50 to-white relative'>
       <div className='max-w-6xl mx-auto bg-white shadow-md'>
         <Header />
-        <main className='container mx-auto px-2 sm:px-4 py-0'>
+        <main className='container mx-auto px-2 sm:px-4 py-0 min-h-screen'>
           <div className='flex flex-col'>
             <div className='w-full'>
               {/* 배타 오픈 뱃지 */}
