@@ -519,7 +519,7 @@ EmptyState.displayName = 'EmptyState';
 
 const VoteList: React.FC = () => {
   const { supabase, isReady } = useSupabase();
-  const { t } = useLanguageStore();
+  const { t, currentLanguage } = useLanguageStore();
   const router = useRouter();
   const PAGE_SIZE = 8;
   const [page, setPage] = useState(1);
@@ -639,7 +639,27 @@ const VoteList: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isReady, supabase]);
+  }, [currentLanguage, isReady, supabase]);
+
+  // 언어 변경 시 쿼리 재실행
+  useEffect(() => {
+    if (isReady && supabase) {
+      fetchVotes();
+    }
+  }, [currentLanguage, isReady, supabase, fetchVotes]);
+
+  // 전역 타이머 구독
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (isReady && supabase) {
+        fetchVotes();
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [fetchVotes, isReady, supabase]);
 
   // 초기 데이터 로드
   useEffect(() => {
@@ -647,17 +667,6 @@ const VoteList: React.FC = () => {
       fetchVotes();
     }
   }, [isReady, supabase, fetchVotes]);
-
-  // 전역 타이머 구독
-  useEffect(() => {
-    const timer = setInterval(() => {
-      fetchVotes();
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [fetchVotes]);
 
   // 표시할 투표 목록 계산
   const paginatedVotes = useMemo(() => {
