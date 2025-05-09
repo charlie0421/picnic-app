@@ -90,27 +90,87 @@ export const authProviderClient: AuthProvider = {
     };
   },
   check: async () => {
-    const { data, error } = await supabaseBrowserClient.auth.getUser();
-    const { user } = data;
+    try {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabaseBrowserClient.auth.getSession();
 
-    if (error) {
+      if (sessionError) {
+        logAuth(
+          '세션 확인 실패',
+          { error: sessionError.message },
+          LogLevel.ERROR,
+        );
+        await supabaseBrowserClient.auth.signOut();
+        localStorage.clear();
+        return {
+          authenticated: false,
+          redirectTo: '/login',
+          logout: true,
+        };
+      }
+
+      if (!session) {
+        logAuth('세션 없음', {}, LogLevel.WARN);
+        await supabaseBrowserClient.auth.signOut();
+        localStorage.clear();
+        return {
+          authenticated: false,
+          redirectTo: '/login',
+        };
+      }
+
+      const {
+        data: { user },
+        error: userError,
+      } = await supabaseBrowserClient.auth.getUser();
+
+      if (userError) {
+        logAuth(
+          '사용자 정보 확인 실패',
+          { error: userError.message },
+          LogLevel.ERROR,
+        );
+        await supabaseBrowserClient.auth.signOut();
+        localStorage.clear();
+        return {
+          authenticated: false,
+          redirectTo: '/login',
+          logout: true,
+        };
+      }
+
+      if (!user) {
+        logAuth('사용자 정보 없음', {}, LogLevel.WARN);
+        await supabaseBrowserClient.auth.signOut();
+        localStorage.clear();
+        return {
+          authenticated: false,
+          redirectTo: '/login',
+        };
+      }
+
+      logAuth('인증 상태 확인 성공', { userId: user.id });
+      return {
+        authenticated: true,
+      };
+    } catch (error) {
+      logAuth(
+        '인증 확인 중 예외 발생',
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+        LogLevel.ERROR,
+      );
+      await supabaseBrowserClient.auth.signOut();
+      localStorage.clear();
       return {
         authenticated: false,
         redirectTo: '/login',
         logout: true,
       };
     }
-
-    if (user) {
-      return {
-        authenticated: true,
-      };
-    }
-
-    return {
-      authenticated: false,
-      redirectTo: '/login',
-    };
   },
   getPermissions: async () => {
     const {
@@ -130,26 +190,45 @@ export const authProviderClient: AuthProvider = {
   },
   getIdentity: async () => {
     logAuth('*** getIdentity 함수 호출됨 ***');
-    const { data } = await supabaseBrowserClient.auth.getUser();
-
-    if (data?.user) {
-      logAuth('getIdentity: 사용자 정보 가져오기 시작', {
-        userId: data.user.id,
+    try {
+      const { data, error } = await supabaseBrowserClient.auth.getUser();
+      console.log('getIdentity: 사용자 정보 가져오기 결과', {
+        data,
+        error,
+        hasUser: !!data?.user,
       });
-      // 사용자의 추가 정보 조회 (슈퍼관리자 여부 등)
-      const { data: userData, error } = await supabaseBrowserClient
-        .from('user_profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
 
       if (error) {
         logAuth(
-          'getIdentity: 사용자 프로필 조회 실패',
-          { userId: data.user.id, error: error.message },
+          'getIdentity: 사용자 정보 가져오기 실패',
+          {
+            error: error.message,
+          },
           LogLevel.ERROR,
         );
-        console.error('사용자 정보 조회 실패:', error);
+        return null;
+      }
+
+      if (!data?.user) {
+        logAuth('getIdentity: 사용자 정보 없음', {}, LogLevel.WARN);
+        return null;
+      }
+
+      // 사용자의 추가 정보 조회 (슈퍼관리자 여부 등)
+      const { data: userData, error: userDataError } =
+        await supabaseBrowserClient
+          .from('user_profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+      if (userDataError) {
+        logAuth(
+          'getIdentity: 사용자 프로필 조회 실패',
+          { userId: data.user.id, error: userDataError.message },
+          LogLevel.ERROR,
+        );
+        console.error('사용자 정보 조회 실패:', userDataError);
         // 기본 정보라도 반환
         return {
           id: data.user.id,
@@ -237,10 +316,16 @@ export const authProviderClient: AuthProvider = {
         ...data.user, // Supabase 기본 user 정보 포함
         ...userInfo, // user_profiles 정보 포함 (name, isSuperAdmin 등)
       };
+    } catch (error) {
+      logAuth(
+        'getIdentity: 사용자 정보 가져오기 실패',
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+        LogLevel.ERROR,
+      );
+      return null;
     }
-
-    logAuth('getIdentity: 사용자 정보 없음', {}, LogLevel.WARN);
-    return null;
   },
   onError: async (error) => {
     if (error?.code === 'PGRST301' || error?.code === 401) {
