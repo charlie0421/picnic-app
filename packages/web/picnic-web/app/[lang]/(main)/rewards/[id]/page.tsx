@@ -1,13 +1,13 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
-import {useParams} from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import {Reward} from '@/types/interfaces';
-import {getRewardById} from '@/utils/api/queries';
-import {getCdnImageUrl} from '@/utils/api/image';
-import {useLanguageStore} from '@/stores/languageStore';
-import {getLocalizedString} from '@/utils/api/strings';
+import { Reward } from '@/types/interfaces';
+import { getRewardById } from '@/utils/api/queries';
+import { getCdnImageUrl } from '@/utils/api/image';
+import { useLanguageStore } from '@/stores/languageStore';
+import { getLocalizedString } from '@/utils/api/strings';
 
 const RewardDetailPage = () => {
   const params = useParams();
@@ -19,6 +19,7 @@ const RewardDetailPage = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'location' | 'size'>(
     'overview',
   );
+  const { t } = useLanguageStore();
 
   useEffect(() => {
     const fetchReward = async () => {
@@ -78,12 +79,14 @@ const RewardDetailPage = () => {
 
   // 다국어 위치 정보 처리
   const locationInfo = reward.location
-    ? (reward.location as any)[currentLanguage] || (reward.location as any)['ko']
+    ? (reward.location as any)[currentLanguage] ||
+      (reward.location as any)['ko']
     : null;
 
   // 다국어 크기 가이드 정보 처리
   const sizeGuideInfo = reward.sizeGuide
-    ? (reward.sizeGuide as any)[currentLanguage] || (reward.sizeGuide as any)['ko']
+    ? (reward.sizeGuide as any)[currentLanguage] ||
+      (reward.sizeGuide as any)['ko']
     : null;
 
   return (
@@ -105,7 +108,7 @@ const RewardDetailPage = () => {
             setCurrentImageIndex(0);
           }}
         >
-          개요
+          {t('label_reward_overview')}
         </button>
         <button
           className={`px-4 py-2 font-medium ${
@@ -118,7 +121,7 @@ const RewardDetailPage = () => {
             setCurrentImageIndex(0);
           }}
         >
-          위치
+          {t('label_reward_location')}
         </button>
         <button
           className={`px-4 py-2 font-medium ${
@@ -131,7 +134,7 @@ const RewardDetailPage = () => {
             setCurrentImageIndex(0);
           }}
         >
-          사이즈
+          {t('label_reward_size')}
         </button>
       </div>
 
@@ -250,10 +253,7 @@ const RewardDetailPage = () => {
               <div className='mb-4'>
                 <h3 className='text-lg font-medium mb-2'>설명</h3>
                 {locationInfo.desc.map((desc: string, index: number) => (
-                  <p
-                    key={index}
-                    className='text-gray-700 whitespace-pre-line'
-                  >
+                  <p key={index} className='text-gray-700 whitespace-pre-line'>
                     {desc}
                   </p>
                 ))}
@@ -263,13 +263,11 @@ const RewardDetailPage = () => {
             {locationInfo.address && locationInfo.address.length > 0 && (
               <div className='mb-4'>
                 <h3 className='text-lg font-medium mb-2'>주소</h3>
-                {locationInfo.address.map(
-                  (address: string, index: number) => (
-                    <p key={index} className='text-gray-700'>
-                      {address}
-                    </p>
-                  ),
-                )}
+                {locationInfo.address.map((address: string, index: number) => (
+                  <p key={index} className='text-gray-700'>
+                    {address}
+                  </p>
+                ))}
               </div>
             )}
           </div>
@@ -287,13 +285,11 @@ const RewardDetailPage = () => {
                 <div key={index} className='bg-gray-50 p-4 rounded-lg'>
                   {sizeItem.desc && sizeItem.desc.length > 0 && (
                     <div className='mb-2'>
-                      {sizeItem.desc.map(
-                        (desc: string, descIndex: number) => (
-                          <p key={descIndex} className='text-gray-700'>
-                            {desc}
-                          </p>
-                        ),
-                      )}
+                      {sizeItem.desc.map((desc: string, descIndex: number) => (
+                        <p key={descIndex} className='text-gray-700'>
+                          {desc}
+                        </p>
+                      ))}
                     </div>
                   )}
                 </div>
