@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Media } from '@/types/interfaces';
-import { getLocalizedString } from '@/utils/api/strings';
+import {Media} from '@/types/interfaces';
+import {getLocalizedString} from '@/utils/api/strings';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useLanguageStore } from '@/stores/languageStore';
+import {useLanguageStore} from '@/stores/languageStore';
 
 interface MediaListProps {
   medias: Media[];
@@ -141,4 +141,4 @@ const MediaList: React.FC<MediaListProps> = ({ medias, isLoading, error }) => {
   );
 };
 
-export default MediaList; 
+export default MediaList;

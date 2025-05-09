@@ -1,7 +1,7 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import {createBrowserClient} from '@supabase/ssr';
+import {AuthChangeEvent, Session} from '@supabase/supabase-js';
 
 // ngrok 환경 감지 (브라우저에서만 실행)
 const isNgrokEnvironment = typeof window !== 'undefined' && (
@@ -15,11 +15,11 @@ const isProduction = process.env.NODE_ENV === 'production';
 // 현재 언어 경로 감지
 const getCurrentLangPath = (): string => {
   if (typeof window === 'undefined') return '';
-  
+
   // URL 경로를 분석하여 언어 부분 추출
   const pathname = window.location.pathname;
   const match = pathname.match(/^\/([a-z]{2})(\/|$)/);
-  
+
   // 매치되면 해당 언어 경로 반환, 없으면 빈 문자열 반환
   return match ? `/${match[1]}` : '';
 };
@@ -40,7 +40,7 @@ export const supabase = createBrowserClient(
           // 먼저 로컬 스토리지에서 시도
           const localValue = globalThis.localStorage?.getItem(key) ?? null;
           if (localValue) return localValue;
-          
+
           // 쿠키에서 시도 (ngrok 환경에서 더 안정적일 수 있음)
           const cookies = document.cookie.split('; ');
           for (const cookie of cookies) {
@@ -53,12 +53,12 @@ export const supabase = createBrowserClient(
           try {
             // 로컬 스토리지에 저장
             globalThis.localStorage?.setItem(key, value);
-            
+
             // 쿠키에도 저장 (ngrok 환경에서는 SameSite=None 추가)
             const date = new Date();
             date.setTime(date.getTime() + 8 * 60 * 60 * 1000); // 8시간 유효
-            const cookieOptions = isNgrokEnvironment ? 
-              `; expires=${date.toUTCString()}; path=/; SameSite=None; Secure` : 
+            const cookieOptions = isNgrokEnvironment ?
+              `; expires=${date.toUTCString()}; path=/; SameSite=None; Secure` :
               `; expires=${date.toUTCString()}; path=/`;
             document.cookie = `${key}=${encodeURIComponent(value)}${cookieOptions}`;
           } catch (e) {
@@ -69,7 +69,7 @@ export const supabase = createBrowserClient(
           try {
             // 로컬 스토리지에서 제거
             globalThis.localStorage?.removeItem(key);
-            
+
             // 쿠키에서도 제거
             document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
           } catch (e) {
@@ -96,7 +96,7 @@ if (typeof window !== 'undefined') {
 // 인증 상태 변경 리스너 추가
 supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
   console.log('Supabase 인증 상태 변경:', event, !!session);
-  
+
   // 세션이 생성되었을 때 로컬 스토리지에 저장
   if (event === 'SIGNED_IN' && session) {
     try {
@@ -107,4 +107,4 @@ supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null
       console.warn('로컬 스토리지 저장 오류:', e);
     }
   }
-}); 
+});

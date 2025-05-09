@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useLanguageStore } from '@/stores/languageStore';
+import React, {useEffect, useState} from 'react';
+import {useLanguageStore} from '@/stores/languageStore';
 
 const TranslationExample: React.FC = () => {
   const { t } = useLanguageStore();
@@ -21,4 +21,4 @@ const TranslationExample: React.FC = () => {
   );
 };
 
-export default TranslationExample; 
+export default TranslationExample;

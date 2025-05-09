@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useLanguageStore } from '@/stores/languageStore';
+import React, {useEffect, useState} from 'react';
+import {useLanguageStore} from '@/stores/languageStore';
 
 interface ExclusiveOpenBadgeProps {
   className?: string;
@@ -18,7 +18,7 @@ const ExclusiveOpenBadge: React.FC<ExclusiveOpenBadgeProps> = ({ className = '' 
 
   const getExclusiveOpenText = () => {
     if (!mounted) return 'Currently in exclusive open beta. Official service coming soon.';
-    
+
     switch (currentLanguage) {
       case 'ko':
         return '현재는 배타 오픈 기간입니다. 곧 정식 서비스를 제공할 예정입니다.';
@@ -43,4 +43,4 @@ const ExclusiveOpenBadge: React.FC<ExclusiveOpenBadgeProps> = ({ className = '' 
   );
 };
 
-export default ExclusiveOpenBadge; 
+export default ExclusiveOpenBadge;

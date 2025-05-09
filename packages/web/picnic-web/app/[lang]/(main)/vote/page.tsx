@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation';
 import VotePageClient from '@/app/[lang]/(main)/vote/VotePageClient';
 
 export async function generateMetadata() {

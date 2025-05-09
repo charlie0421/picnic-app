@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
-import { VoteItem } from '@/types/interfaces';
-import { getLocalizedString } from '@/utils/api/strings';
+import {VoteItem} from '@/types/interfaces';
+import {getLocalizedString} from '@/utils/api/strings';
 
 interface VoteDialogProps {
   isOpen: boolean;
@@ -150,4 +150,4 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
   );
 };
 
-export default VoteDialog; 
+export default VoteDialog;

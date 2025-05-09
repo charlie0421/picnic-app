@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useLanguageStore } from '@/stores/languageStore';
-import { VoteItem } from '@/types/interfaces';
-import { getLocalizedString } from '@/utils/api/strings';
+import React, {useCallback, useEffect, useState} from 'react';
+import {useLanguageStore} from '@/stores/languageStore';
+import {VoteItem} from '@/types/interfaces';
+import {getLocalizedString} from '@/utils/api/strings';
 
 interface VoteSearchProps {
   onSearch: (query: string) => void;

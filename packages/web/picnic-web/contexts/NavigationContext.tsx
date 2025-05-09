@@ -1,13 +1,7 @@
 'use client';
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useCallback,
-} from 'react';
-import { PortalType } from '../utils/enums';
+import React, {createContext, ReactNode, useCallback, useContext, useState,} from 'react';
+import {PortalType} from '../utils/enums';
 
 interface NavigationState {
   currentScreen: ReactNode | null;

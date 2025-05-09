@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/utils/supabase-client';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { useParams, useRouter } from 'next/navigation';
+import React, {useEffect, useState} from 'react';
+import {supabase} from '@/utils/supabase-client';
+import {format} from 'date-fns';
+import {ko} from 'date-fns/locale';
+import {useParams, useRouter} from 'next/navigation';
 import Link from 'next/link';
 
 interface MultilingualText {
@@ -90,7 +90,7 @@ const NoticeDetailPage = () => {
             ← 목록으로 돌아가기
           </Link>
         </div>
-        
+
         <div className="border-b pb-4 mb-6">
           <div className="flex items-center space-x-2 mb-2">
             {notice.isPinned && (
@@ -113,4 +113,4 @@ const NoticeDetailPage = () => {
   );
 };
 
-export default NoticeDetailPage; 
+export default NoticeDetailPage;

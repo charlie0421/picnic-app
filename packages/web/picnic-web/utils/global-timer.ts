@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
 
 interface GlobalTimerState {
   currentTime: Date;
@@ -11,7 +11,7 @@ const useGlobalTimer = create<GlobalTimerState>((set, get) => {
 
   const startTimer = () => {
     if (timer) return;
-    
+
     timer = setInterval(() => {
       const now = new Date();
       set({ currentTime: now });
@@ -44,4 +44,4 @@ const useGlobalTimer = create<GlobalTimerState>((set, get) => {
   };
 });
 
-export default useGlobalTimer; 
+export default useGlobalTimer;

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type {Metadata} from "next";
 
 const defaultMetadata: Metadata = {
   title: "Picnic - 아티스트와 팬이 함께하는 피크닠!",

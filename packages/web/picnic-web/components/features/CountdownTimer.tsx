@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { differenceInSeconds } from 'date-fns';
-import { useLanguageStore } from '@/stores/languageStore';
+import React, {useEffect, useMemo, useState} from 'react';
+import {differenceInSeconds} from 'date-fns';
+import {useLanguageStore} from '@/stores/languageStore';
 import useGlobalTimer from '@/utils/global-timer';
 
 const TIMER_STATUS = {

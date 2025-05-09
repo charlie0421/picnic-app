@@ -1,4 +1,4 @@
-import { ko, enUS, zhCN, ja, id } from "date-fns/locale";
+import {enUS, id, ja, ko, zhCN} from "date-fns/locale";
 
 export interface RemainingTime {
   days: number;
@@ -23,7 +23,7 @@ export function calculateRemainingTime(endTime: string): RemainingTime {
     minutes,
     seconds,
   };
-} 
+}
 
 export const localeMap = {
   ko,

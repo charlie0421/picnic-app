@@ -1,26 +1,19 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useParams, usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigation } from '@/contexts/NavigationContext';
-import { useLanguageStore } from '@/stores/languageStore';
-import {
-  ProfileImageContainer,
-  DefaultAvatar,
-} from '@/components/ui/ProfileImageContainer';
+import {usePathname} from 'next/navigation';
+import {useAuth} from '@/contexts/AuthContext';
+import {useNavigation} from '@/contexts/NavigationContext';
+import {useLanguageStore} from '@/stores/languageStore';
+import {DefaultAvatar, ProfileImageContainer,} from '@/components/ui/ProfileImageContainer';
 import PortalMenuItem from '@/components/features/PortalMenuItem';
 import LanguageSelector from '@/components/features/LanguageSelector';
 import ExclusiveOpenBadge from '@/components/features/ExclusiveOpenBadge';
 import Menu from '@/components/features/Menu';
-import { PortalType } from '@/utils/enums';
-import {
-  PORTAL_MENU,
-  getPortalTypeFromPath
-} from '@/config/navigation';
-import { Menu as MenuIcon } from 'lucide-react';
+import {getPortalTypeFromPath, PORTAL_MENU} from '@/config/navigation';
+import {Menu as MenuIcon} from 'lucide-react';
 
 // 환경 설정 확인 (개발 환경인지)
 const isDev = process.env.NODE_ENV !== 'production';

@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Reward } from '@/types/interfaces';
+import React, {useEffect, useState} from 'react';
+import {Reward} from '@/types/interfaces';
 import RewardList from '@/components/features/RewardList';
-import { getRewards } from '@/utils/api/queries';
-import { useNavigation } from '@/contexts/NavigationContext';
-import { PortalType } from '@/utils/enums';
+import {getRewards} from '@/utils/api/queries';
+import {useNavigation} from '@/contexts/NavigationContext';
+import {PortalType} from '@/utils/enums';
 
 const RewardsPage: React.FC = () => {
   const [rewards, setRewards] = useState<Reward[]>([]);

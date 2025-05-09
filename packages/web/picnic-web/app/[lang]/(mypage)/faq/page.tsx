@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/utils/supabase-client';
-import { useParams } from 'next/navigation';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import React, {useEffect, useState} from 'react';
+import {supabase} from '@/utils/supabase-client';
+import {useParams} from 'next/navigation';
+import {ChevronDownIcon} from '@heroicons/react/24/outline';
 
 interface MultilingualText {
   en?: string;
@@ -63,8 +63,8 @@ const FAQPage = () => {
   const categories = ['all', ...Array.from(new Set(faqs.map(faq => faq.category).filter(Boolean) as string[]))];
 
   // 선택된 카테고리에 따른 FAQ 필터링
-  const filteredFaqs = selectedCategory === 'all' 
-    ? faqs 
+  const filteredFaqs = selectedCategory === 'all'
+    ? faqs
     : faqs.filter(faq => faq.category === selectedCategory);
 
   if (loading) {
@@ -79,7 +79,7 @@ const FAQPage = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold mb-6 text-gray-900">자주 묻는 질문</h1>
-        
+
         {/* 카테고리 선택 */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-4">
@@ -147,4 +147,4 @@ const FAQPage = () => {
   );
 };
 
-export default FAQPage; 
+export default FAQPage;

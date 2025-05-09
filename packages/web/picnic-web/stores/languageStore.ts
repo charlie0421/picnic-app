@@ -1,7 +1,7 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import {create} from "zustand";
+import {persist} from "zustand/middleware";
 import OtaClient from '@crowdin/ota-client';
-import { settings, type Language } from '@/config/settings';
+import {type Language, settings} from '@/config/settings';
 
 // Crowdin OTA 클라이언트 초기화
 const distributionHash = process.env.NEXT_PUBLIC_CROWDIN_DISTRIBUTION_HASH;
@@ -11,14 +11,14 @@ const otaClient = new OtaClient(distributionHash || '');
 // URL에서 현재 언어 가져오기
 const getCurrentLanguageFromPath = (): Language => {
   if (typeof window === 'undefined') return settings.languages.default;
-  
+
   const pathSegments = window.location.pathname.split('/');
   const urlLang = pathSegments[1] as Language;
-  
+
   if (urlLang && settings.languages.supported.includes(urlLang)) {
     return urlLang;
   }
-  
+
   return settings.languages.default;
 };
 
@@ -78,18 +78,18 @@ export const useLanguageStore = create<LanguageState>()(
       },
       t: (key: string, args?: Record<string, string>) => {
         const { currentLanguage, translations, isTranslationLoaded } = get();
-        
+
         // 번역이 아직 로드되지 않았으면 빈 문자열 반환 (경고 없이)
         if (!isTranslationLoaded[currentLanguage]) {
           return '';
         }
-        
+
         const langTranslations = translations[currentLanguage];
-        
+
         if (!langTranslations) {
           return '';
         }
-        
+
         // 배열 형태의 번역 데이터에서 identifier가 일치하는 항목 찾기
         const translationData = Object.values(langTranslations).find(
           (item) => item.identifier === key
@@ -115,15 +115,15 @@ export const useLanguageStore = create<LanguageState>()(
           // 로그 제거
           // console.log(`Loading translations for language: ${lang}`);
           set({ isLoading: true, error: null });
-          
+
           // Crowdin OTA 클라이언트에 현재 언어 설정
           // 중국어의 경우 'zh' 대신 'zh-CN'을 사용
           const crowdinLang = lang === 'zh' ? 'zh-CN' : lang;
           otaClient.setCurrentLocale(crowdinLang);
-          
+
           // 번역 데이터 로드
           const translations = await otaClient.getStringsByLocale(crowdinLang);
-          
+
           if (!translations || Object.keys(translations).length === 0) {
             // 로그 제거
             // console.warn(`No translations found for language: ${lang}`);
@@ -141,7 +141,7 @@ export const useLanguageStore = create<LanguageState>()(
             }));
             return;
           }
-          
+
           set((state) => ({
             translations: {
               ...state.translations,
@@ -162,7 +162,7 @@ export const useLanguageStore = create<LanguageState>()(
           //     stack: error.stack,
           //   });
           // }
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Failed to load translations',
             isLoading: false,
           });

@@ -1,17 +1,15 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
-import { Inter } from 'next/font/google';
+import {ReactNode, useEffect} from 'react';
+import {Inter} from 'next/font/google';
 import './globals.css';
 import './layout.css';
-import { SUPPORTED_LANGUAGES } from '@/config/settings';
-import { SupabaseProvider } from '@/components/providers/SupabaseProvider';
-import { NavigationProvider } from '@/contexts/NavigationContext';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { usePathname } from 'next/navigation';
-import { injectSpeedInsights } from '@vercel/speed-insights/*';
-import { useLanguageStore } from '@/stores/languageStore';
-import { Analytics } from '@vercel/analytics/react';
+import {SupabaseProvider} from '@/components/providers/SupabaseProvider';
+import {NavigationProvider} from '@/contexts/NavigationContext';
+import {AuthProvider} from '@/contexts/AuthContext';
+import {usePathname} from 'next/navigation';
+import {useLanguageStore} from '@/stores/languageStore';
+import {Analytics} from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'] });
 

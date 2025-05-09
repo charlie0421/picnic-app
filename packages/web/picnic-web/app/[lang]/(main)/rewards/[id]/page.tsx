@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import React, {useEffect, useState} from 'react';
+import {useParams} from 'next/navigation';
 import Image from 'next/image';
-import { Reward } from '@/types/interfaces';
-import { getRewardById } from '@/utils/api/queries';
-import { getCdnImageUrl } from '@/utils/api/image';
-import { useLanguageStore } from '@/stores/languageStore';
-import { getLocalizedString } from '@/utils/api/strings';
+import {Reward} from '@/types/interfaces';
+import {getRewardById} from '@/utils/api/queries';
+import {getCdnImageUrl} from '@/utils/api/image';
+import {useLanguageStore} from '@/stores/languageStore';
+import {getLocalizedString} from '@/utils/api/strings';
+
 const RewardDetailPage = () => {
   const params = useParams();
   const { id } = params;

@@ -1,11 +1,11 @@
-import { supabase } from "../supabase-client";
-import { Banner, Media, Reward, Vote, VoteItem } from "@/types/interfaces";
-import { withRetry, withTimeout } from "./retry-utils";
+import {supabase} from "../supabase-client";
+import {Banner, Media, Reward, Vote, VoteItem} from "@/types/interfaces";
+import {withRetry} from "./retry-utils";
 
 // API 요청 실패 로깅 및 디버깅을 위한 함수
 const logRequestError = (error: any, functionName: string) => {
   console.error(`[API 오류] ${functionName}:`, error);
-  
+
   // 환경 정보 추가 (브라우저에서만 실행)
   if (typeof window !== 'undefined') {
     console.error('요청 환경:', {
@@ -14,7 +14,7 @@ const logRequestError = (error: any, functionName: string) => {
       isProduction: process.env.NODE_ENV === 'production'
     });
   }
-  
+
   return error;
 };
 

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/utils/api/auth';
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import {useEffect, useState} from 'react';
+import {supabase} from '@/utils/api/auth';
+import {AuthChangeEvent, Session} from '@supabase/supabase-js';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,4 +34,4 @@ export const useAuth = () => {
     isAuthenticated,
     isLoading,
   };
-}; 
+};

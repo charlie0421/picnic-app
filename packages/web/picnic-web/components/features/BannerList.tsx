@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Banner } from '@/types/interfaces';
-import { getCdnImageUrl } from '@/utils/api/image';
-import { getBanners } from '@/utils/api/queries';
+import {Banner} from '@/types/interfaces';
+import {getCdnImageUrl} from '@/utils/api/image';
+import {getBanners} from '@/utils/api/queries';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { getLocalizedString } from '@/utils/api/strings';
+import {getLocalizedString} from '@/utils/api/strings';
+
 const BannerList: React.FC = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,10 +72,10 @@ const BannerList: React.FC = () => {
   const nextBanner = useCallback(() => {
     if (banners.length <= 3 && !isMobile && !isTablet) return;
     setCurrentIndex((prev) => {
-      const totalGroups = isMobile || isTablet 
-        ? Math.ceil(banners.length / 2) 
+      const totalGroups = isMobile || isTablet
+        ? Math.ceil(banners.length / 2)
         : banners.length;
-      
+
       const next = prev + 1;
       if (next >= totalGroups) {
         return 0;
@@ -87,10 +88,10 @@ const BannerList: React.FC = () => {
   const prevBanner = useCallback(() => {
     if (banners.length <= 3 && !isMobile && !isTablet) return;
     setCurrentIndex((prev) => {
-      const totalGroups = isMobile || isTablet 
-        ? Math.ceil(banners.length / 2) 
+      const totalGroups = isMobile || isTablet
+        ? Math.ceil(banners.length / 2)
         : banners.length;
-      
+
       const next = prev - 1;
       if (next < 0) {
         return totalGroups - 1;
@@ -218,7 +219,7 @@ const BannerList: React.FC = () => {
   const getVisibleBanners = () => {
     const result = [];
     const totalBanners = banners.length;
-    
+
     // 디바이스 크기별 표시할 배너 수
     const countToShow = isMobile || isTablet ? 2 : 3;
 
@@ -255,7 +256,7 @@ const BannerList: React.FC = () => {
                     banners[startIdx],
                     banners[(startIdx + 1) % banners.length]
                   ].filter(Boolean); // 마지막에 1개만 남을 경우 대비
-                  
+
                   return (
                     <div key={`group-${groupIndex}`} className="w-full flex-shrink-0">
                       <div className="grid grid-cols-2 gap-2">

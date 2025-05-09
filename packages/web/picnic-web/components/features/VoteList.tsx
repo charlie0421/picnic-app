@@ -1,30 +1,20 @@
 'use client';
 
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState,} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Vote, VoteItem, Reward } from '@/types/interfaces';
-import { getCdnImageUrl } from '@/utils/api/image';
-import { format, differenceInDays, differenceInSeconds } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { getVotes } from '@/utils/api/queries';
-import { useLanguageStore } from '@/stores/languageStore';
+import {Reward, Vote, VoteItem} from '@/types/interfaces';
+import {getCdnImageUrl} from '@/utils/api/image';
+import {format} from 'date-fns';
+import {ko} from 'date-fns/locale';
+import {useLanguageStore} from '@/stores/languageStore';
 import UpcomingVoteItems from './vote/UpcomingVoteItems';
 import OngoingVoteItems from './vote/OngoingVoteItems';
 import CompletedVoteItems from './vote/CompletedVoteItems';
 import CountdownTimer from '@/components/features/CountdownTimer';
-import { useRouter } from 'next/navigation';
-import { Database } from '@/types/supabase';
-import { Json } from '@/types/supabase';
-import { getLocalizedString } from '@/utils/api/strings';
-import { useSupabase } from '@/components/providers/SupabaseProvider';
-import useGlobalTimer from '@/utils/global-timer';
+import {useRouter} from 'next/navigation';
+import {getLocalizedString} from '@/utils/api/strings';
+import {useSupabase} from '@/components/providers/SupabaseProvider';
 
 const VOTE_STATUS = {
   UPCOMING: 'upcoming',
@@ -533,7 +523,7 @@ const VoteList: React.FC = () => {
     try {
       setIsLoading(true);
       console.log('Fetching votes...');
-      
+
       const { data: voteData, error: voteError } = await supabase
         .from("vote")
         .select(`

@@ -1,8 +1,8 @@
-import { supabase } from '../supabase-client'
+import {supabase} from '../supabase-client'
 
 export { supabase }
 
-// 로그인 상태 확인 
+// 로그인 상태 확인
 export const isUserLoggedIn = async () => {
   const { data: { session } } = await supabase.auth.getSession()
   return !!session
@@ -38,4 +38,4 @@ export const uploadFile = async (bucket: string, path: string, file: File) => {
 
   if (error) throw error
   return data
-} 
+}

@@ -1,7 +1,7 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { SUPPORTED_LANGUAGES } from '@/config/settings';
+import {usePathname, useRouter} from 'next/navigation';
+import {SUPPORTED_LANGUAGES} from '@/config/settings';
 
 export type Lang = typeof SUPPORTED_LANGUAGES[number];
 
@@ -24,4 +24,4 @@ export function useLang() {
 
 export function getLangPath(path: string, lang: Lang) {
   return `/${lang}${path}`;
-} 
+}

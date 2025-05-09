@@ -1,18 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '@/contexts/AuthContext';
-import { useLanguageStore } from '@/stores/languageStore';
-import {
-  ProfileImageContainer,
-  DefaultAvatar,
-} from '@/components/ui/ProfileImageContainer';
+import {useAuth} from '@/contexts/AuthContext';
+import {useLanguageStore} from '@/stores/languageStore';
+import {DefaultAvatar, ProfileImageContainer,} from '@/components/ui/ProfileImageContainer';
 import PortalMenuItem from '@/components/features/PortalMenuItem';
 import LanguageSelector from '@/components/features/LanguageSelector';
-import { PORTAL_MENU } from '@/config/navigation';
-import { Menu as MenuIcon } from 'lucide-react';
+import {PORTAL_MENU} from '@/config/navigation';
+import {Menu as MenuIcon} from 'lucide-react';
 
 const Header = () => {
   const { authState } = useAuth();
@@ -142,4 +139,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

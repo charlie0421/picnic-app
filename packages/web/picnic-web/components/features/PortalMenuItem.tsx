@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { PortalType } from '@/utils/enums';
-import { PORTAL_MENU, isVoteRelatedPath } from '@/config/navigation';
+import {usePathname} from 'next/navigation';
+import {PortalType} from '@/utils/enums';
+import {isVoteRelatedPath, PORTAL_MENU} from '@/config/navigation';
 import menuConfig from '@/config/menu.json';
 
 interface PortalMenuItemProps {

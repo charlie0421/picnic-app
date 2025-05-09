@@ -1,8 +1,8 @@
 'use client';
 
-import React, { createContext, useContext } from 'react';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { supabase as supabaseClient } from '@/utils/supabase-client';
+import React, {createContext, useContext} from 'react';
+import {SupabaseClient} from '@supabase/supabase-js';
+import {supabase as supabaseClient} from '@/utils/supabase-client';
 
 // Supabase 컨텍스트 타입 정의
 type SupabaseContextType = {
@@ -48,6 +48,6 @@ export const SupabaseGuard: React.FC<{ children: React.ReactNode; fallback?: Rea
   fallback = <div>Supabase 초기화 중...</div>,
 }) => {
   const { supabase } = useSupabase();
-  
+
   return <>{children}</>;
-}; 
+};

@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { ProfileImageContainer, DefaultAvatar } from '@/components/ui/ProfileImageContainer';
-import { useLanguageStore } from '@/stores/languageStore';
-import { useParams } from 'next/navigation';
+import {useAuth} from '@/contexts/AuthContext';
+import {DefaultAvatar, ProfileImageContainer} from '@/components/ui/ProfileImageContainer';
+import {useLanguageStore} from '@/stores/languageStore';
 
 const MyPage = () => {
   const { authState, signOut } = useAuth();
@@ -16,17 +15,17 @@ const MyPage = () => {
     try {
       // 로그아웃 진행 전에 먼저 리디렉션 준비
       console.log('로그아웃 시작, 곧 홈으로 이동합니다');
-      
+
       // 비동기 작업 전에 즉시 페이지 이동을 예약
-      // 이렇게 하면 인증 상태 변경 이벤트가 라우터에 의한 리디렉션을 트리거하기 전에 
+      // 이렇게 하면 인증 상태 변경 이벤트가 라우터에 의한 리디렉션을 트리거하기 전에
       // 브라우저가 루트 페이지로 이동하기 시작함
       const redirectTimer = setTimeout(() => {
         window.location.href = '/';
       }, 100);
-      
+
       // signOut 함수 호출 (백그라운드에서 계속 진행됨)
       await signOut();
-      
+
       // 추가적인 로그인 흔적 제거 (백그라운드에서 실행)
       try {
         // 모든 세션 쿠키 정리 (다시 한번)
@@ -39,12 +38,12 @@ const MyPage = () => {
       } catch (e) {
         console.warn('추가 쿠키 정리 실패:', e);
       }
-      
+
       // 이미 페이지 이동이 시작되었으므로 여기서는 추가 작업이 필요 없음
-      
+
     } catch (error) {
       console.error('로그아웃 중 오류가 발생했습니다:', error);
-      
+
       // 오류가 발생하더라도 즉시 홈으로 이동
       window.location.href = '/';
     }
@@ -152,8 +151,8 @@ const MyPage = () => {
           <div className="absolute inset-0 backdrop-blur-md flex items-center justify-center rounded-lg">
             <div className="text-center bg-white/90 p-8 rounded-lg shadow-lg max-w-md mx-auto">
               <p className="text-gray-600 mb-6">프로필 정보를 보시려면 로그인해주세요.</p>
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors"
               >
                 로그인하기
@@ -199,4 +198,4 @@ const MyPage = () => {
   );
 };
 
-export default MyPage; 
+export default MyPage;

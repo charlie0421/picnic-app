@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { settings } from '@/config/settings';
+import {settings} from '@/config/settings';
 
 interface ProfileImageContainerProps {
   src: string;
@@ -26,4 +26,4 @@ const ProfileImageContainer: React.FC<ProfileImageContainerProps> = ({
   );
 };
 
-export default ProfileImageContainer; 
+export default ProfileImageContainer;

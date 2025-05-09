@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import {useEffect} from 'react';
 
 interface AdSenseProps {
   client: string;
@@ -8,17 +8,17 @@ interface AdSenseProps {
   responsive?: 'true' | 'false';
 }
 
-const AdSense: React.FC<AdSenseProps> = ({ 
-  client, 
-  slot, 
-  style = { display: 'block' }, 
-  format = 'auto', 
-  responsive = 'true' 
+const AdSense: React.FC<AdSenseProps> = ({
+  client,
+  slot,
+  style = { display: 'block' },
+  format = 'auto',
+  responsive = 'true'
 }) => {
   useEffect(() => {
     // 애드센스 스크립트가 이미 로드되었는지 확인
     const hasAdScript = document.querySelector('script[src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
-    
+
     if (!hasAdScript) {
       // 애드센스 스크립트 로드
       const adScript = document.createElement('script');
@@ -49,4 +49,4 @@ const AdSense: React.FC<AdSenseProps> = ({
   );
 };
 
-export default AdSense; 
+export default AdSense;

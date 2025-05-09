@@ -1,4 +1,4 @@
-import { useLanguageStore } from "@/stores/languageStore";
+import {useLanguageStore} from "@/stores/languageStore";
 
 export const getLocalizedString = (
     value: { [key: string]: string } | string | null | any,
@@ -7,7 +7,7 @@ export const getLocalizedString = (
     if (!value) return '';
     if (typeof value === "string") return value;
     if (typeof value === "number") return value.toString();
-  
+
     // currentLang이 제공되지 않은 경우에만 store에서 가져옴
     if (!currentLang) {
       try {
@@ -23,13 +23,12 @@ export const getLocalizedString = (
         currentLang = "en";
       }
     }
-  
+
     // 현재 언어의 번역이 있으면 반환
     if (value[currentLang]) {
       return value[currentLang];
         }
-    
+
     // 현재 언어의 번역이 없으면 영어로 폴백
     return value["en"] || '';
   };
-  

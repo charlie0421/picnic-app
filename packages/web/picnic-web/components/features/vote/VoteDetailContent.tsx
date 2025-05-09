@@ -1,24 +1,17 @@
 'use client';
 
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import React, {useEffect, useMemo, useRef, useState,} from 'react';
 import Image from 'next/image';
-import { format, differenceInSeconds } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { Vote, VoteItem, Reward } from '@/types/interfaces';
-import { getVoteById, getVoteItems, getVoteRewards } from '@/utils/api/queries';
-import { getCdnImageUrl } from '@/utils/api/image';
-import { getLocalizedString } from '@/utils/api/strings';
-import OngoingVoteItems from '@/components/features/vote/OngoingVoteItems';
+import {format} from 'date-fns';
+import {ko} from 'date-fns/locale';
+import {Reward, Vote, VoteItem} from '@/types/interfaces';
+import {getVoteById, getVoteItems, getVoteRewards} from '@/utils/api/queries';
+import {getCdnImageUrl} from '@/utils/api/image';
+import {getLocalizedString} from '@/utils/api/strings';
 import VoteDialog from '@/components/features/vote/dialogs/VoteDialog';
 import LoginDialog from '@/components/features/vote/dialogs/LoginDialog';
-import { useAuth } from '@/hooks/useAuth';
-import { useLanguageStore } from '@/stores/languageStore';
+import {useAuth} from '@/hooks/useAuth';
+import {useLanguageStore} from '@/stores/languageStore';
 import VoteSearch from '@/components/features/vote/VoteSearch';
 import VoteRewardPreview from '@/components/features/vote/VoteRewardPreview';
 import CountdownTimer from '@/components/features/CountdownTimer';

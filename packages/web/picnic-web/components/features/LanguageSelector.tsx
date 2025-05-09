@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { useLanguageStore } from '@/stores/languageStore';
-import { useRouter, usePathname } from 'next/navigation';
+import React, {useEffect, useRef, useState} from 'react';
+import {useLanguageStore} from '@/stores/languageStore';
+import {usePathname, useRouter} from 'next/navigation';
 
 const languages = [
   { code: 'ko', name: '한국어' },
@@ -23,10 +23,10 @@ const LanguageSelector: React.FC = () => {
   // 마운트 시와 라우트 변경 시 언어 동기화
   useEffect(() => {
     setMounted(true);
-    
+
     // URL이 변경될 때마다 현재 언어 상태를 URL과 동기화
     syncLanguageWithPath();
-    
+
     return () => setMounted(false);
   }, [pathname, syncLanguageWithPath]);
 
@@ -57,11 +57,11 @@ const LanguageSelector: React.FC = () => {
 
   const handleLanguageChange = async (lang: string) => {
     if (lang === currentLanguage) return;
-    
+
     // 현재 경로에서 언어 코드 부분만 교체
     let newPath = pathname;
     const pathSegments = pathname.split('/');
-    
+
     // 첫 번째 세그먼트가 언어 코드인 경우 교체
     if (pathSegments.length > 1 && languages.some(l => l.code === pathSegments[1])) {
       pathSegments[1] = lang;
@@ -70,7 +70,7 @@ const LanguageSelector: React.FC = () => {
       // 언어 코드가 없는 경우 추가
       newPath = `/${lang}${pathname}`;
     }
-    
+
     // 상태 변경 및 페이지 이동
     await setLanguage(lang as any);
     router.push(newPath);

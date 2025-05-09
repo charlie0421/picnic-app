@@ -1,29 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import {
-  useNavigation,
-  NavigationProvider,
-} from '@/contexts/NavigationContext';
-import { useLanguageStore } from '@/stores/languageStore';
-import { AuthProvider } from '@/contexts/AuthContext';
+import React, {useEffect, useState} from 'react';
+import {usePathname} from 'next/navigation';
+import {useAuth} from '@/contexts/AuthContext';
+import {useNavigation,} from '@/contexts/NavigationContext';
+import {useLanguageStore} from '@/stores/languageStore';
 import Footer from '@/components/layouts/Footer';
-import {
-  ProfileImageContainer,
-  DefaultAvatar,
-} from '@/components/ui/ProfileImageContainer';
-import PortalMenuItem from '@/components/features/PortalMenuItem';
-import LanguageSelector from '@/components/features/LanguageSelector';
 import ExclusiveOpenBadge from '@/components/features/ExclusiveOpenBadge';
 import Menu from '@/components/features/Menu';
-import { PortalType } from '@/utils/enums';
-import { PORTAL_MENU, getPortalTypeFromPath } from '@/config/navigation';
-import { Menu as MenuIcon } from 'lucide-react';
-import { Analytics } from '@vercel/analytics/react';
+import {getPortalTypeFromPath} from '@/config/navigation';
 import Header from '@/components/layouts/Header';
 
 const MainContent = ({ children }: { children: React.ReactNode }) => {

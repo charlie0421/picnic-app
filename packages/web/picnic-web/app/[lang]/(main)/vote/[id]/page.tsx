@@ -1,8 +1,8 @@
-import { Suspense } from 'react';
-import { getServerVoteData } from '@/utils/api/serverQueries';
+import {Suspense} from 'react';
+import {getServerVoteData} from '@/utils/api/serverQueries';
 import VoteDetailContent from '@/components/features/vote/VoteDetailContent';
 import VoteDetailSkeleton from '@/components/features/vote/VoteDetailSkeleton';
-import { Metadata } from 'next';
+import {Metadata} from 'next';
 
 // 동적 서버 사용을 위한 설정
 export const dynamic = 'force-dynamic';

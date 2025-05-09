@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/utils/supabase-client';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { useParams, useRouter } from 'next/navigation';
+import React, {useEffect, useState} from 'react';
+import {supabase} from '@/utils/supabase-client';
+import {format} from 'date-fns';
 import Link from 'next/link';
-import { getCurrentLocale } from '@/utils/date';
-import { useLanguageStore } from '@/stores/languageStore';
+import {getCurrentLocale} from '@/utils/date';
+import {useLanguageStore} from '@/stores/languageStore';
 
 interface MultilingualText {
   en?: string;
@@ -74,8 +72,8 @@ const NoticePage = () => {
           ) : (
             <div className="divide-y divide-gray-200">
               {notices.map((notice) => (
-                <Link 
-                  href={`/notice/${notice.id}`} 
+                <Link
+                  href={`/notice/${notice.id}`}
                   key={notice.id}
                   className="block hover:bg-gray-50 transition-colors"
                 >
@@ -91,7 +89,7 @@ const NoticePage = () => {
                       </div>
                       <div className="flex flex-col items-end">
                         <span className="text-sm text-gray-600">
-                        
+
                           {notice.created_at && format(new Date(notice.created_at), 'yyyy.MM.dd (EEE)', { locale: getCurrentLocale(currentLang) })}
                         </span>
                         <span className="text-xs text-gray-500">

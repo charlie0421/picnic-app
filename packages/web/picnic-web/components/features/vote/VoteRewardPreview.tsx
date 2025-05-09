@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
-import { Reward } from '@/types/interfaces';
-import { getCdnImageUrl } from '@/utils/api/image';
-import { useLanguageStore } from '@/stores/languageStore';
-import { getLocalizedString } from '@/utils/api/strings';
+import {Reward} from '@/types/interfaces';
+import {getCdnImageUrl} from '@/utils/api/image';
+import {useLanguageStore} from '@/stores/languageStore';
+import {getLocalizedString} from '@/utils/api/strings';
+
 interface VoteRewardPreviewProps {
   rewards: Reward[];
   className?: string;
@@ -11,8 +12,8 @@ interface VoteRewardPreviewProps {
   isSticky?: boolean;
 }
 
-const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({ 
-  rewards, 
+const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
+  rewards,
   className = '',
   compact = false,
   isSticky = false
@@ -62,8 +63,8 @@ const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
 
   return (
     <div className={`bg-cream-50 rounded-lg p-2 ${className}`}>
-      <div 
-        className='flex items-center justify-between cursor-pointer' 
+      <div
+        className='flex items-center justify-between cursor-pointer'
         onClick={() => setExpanded(!expanded)}
       >
         <div className='flex items-center gap-2'>
@@ -74,11 +75,11 @@ const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
             {rewards.length}개의 리워드가 있습니다
           </span>
         </div>
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className={`h-4 w-4 text-brown-600 transition-transform ${expanded ? 'rotate-180' : ''}`} 
-          fill="none" 
-          viewBox="0 0 24 24" 
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={`h-4 w-4 text-brown-600 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
           stroke="currentColor"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -118,4 +119,4 @@ const VoteRewardPreview: React.FC<VoteRewardPreviewProps> = ({
   );
 };
 
-export default VoteRewardPreview; 
+export default VoteRewardPreview;

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useLanguageStore } from '@/stores/languageStore';
-import { settings, type Language } from '@/config/settings';
+import React, {useEffect, useState} from 'react';
+import {usePathname, useRouter} from 'next/navigation';
+import {useLanguageStore} from '@/stores/languageStore';
+import {type Language, settings} from '@/config/settings';
 
 const LanguageSelector: React.FC = () => {
   const { currentLanguage, setLanguage } = useLanguageStore();
@@ -43,4 +43,4 @@ const LanguageSelector: React.FC = () => {
   );
 };
 
-export default LanguageSelector; 
+export default LanguageSelector;

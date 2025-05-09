@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
-import { supabase } from '@/utils/supabase-client';
+import {Suspense, useCallback, useEffect, useState} from 'react';
+import {supabase} from '@/utils/supabase-client';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useLanguageStore } from '@/stores/languageStore';
+import {useSearchParams} from 'next/navigation';
+import {useLanguageStore} from '@/stores/languageStore';
 import Script from 'next/script';
 
 // AppleID 타입 정의
@@ -53,7 +53,7 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [appleSDKInitialized, setAppleSDKInitialized] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // 인증 성공 후 처리를 위한 함수
   const handleAuthSuccess = useCallback((data: any, provider: string = 'apple') => {
     const session = data.session;
@@ -73,63 +73,63 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
     } catch (e) {
       // 무시: 저장 실패해도 인증 과정에는 영향 없음
     }
-    
+
     // 직접 홈으로 이동 (라우터 사용하지 않음)
     console.log('로그인 성공, 홈으로 이동합니다.');
     window.location.href = '/';
-    
+
     return true;
   }, []);
-  
+
   // 컴포넌트 마운트 시 현재 인증 상태 확인
   useEffect(() => {
     // 브라우저 환경인지 확인
     if (typeof window === 'undefined') return;
-    
+
     // 디버그용 로그
     debugLog('Login 페이지 마운트', {
       url: window.location.href,
       origin: window.location.origin,
       host: window.location.host
     });
-    
+
     // 세션 상태 변경 감지
     const authListener = supabase.auth.onAuthStateChange((event: string, session: any) => {
       console.log('인증 상태 변경:', event, !!session);
-      
+
       if (event === 'SIGNED_IN' && session) {
         // 로딩 상태로 UI 변경 - 로그인 폼 숨김
         setLoading(true);
-        
+
         // 직접 홈으로 이동 (라우터 사용하지 않음)
         window.location.href = '/';
       }
     });
-    
+
     return () => {
       authListener.data.subscription.unsubscribe();
     };
   }, []);
-  
+
   // SDK가 로드되면 초기화
   useEffect(() => {
     if (!sdkScriptLoaded || !window.AppleID || appleSDKInitialized) return;
-    
+
     try {
       // 리디렉션 URL 설정 - ngrok 고려
       const redirectURI = getRedirectUrl('apple');
-      
+
       // state 파라미터 준비 (원래 URL 정보 포함)
       const stateParams = {
         redirectUrl: typeof window !== 'undefined' ? window.location.origin : '',
         timestamp: Date.now(),
       };
-      
+
       console.log('Apple SDK 초기화:', {
         redirectURI,
         originalUrl: stateParams.redirectUrl
       });
-      
+
       // Apple SDK 초기화 - nonce 사용하지 않음
       const initOptions = {
         clientId: 'fan.picnic.web',
@@ -138,20 +138,20 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
         usePopup: true,
         state: JSON.stringify(stateParams)
       };
-      
+
       window.AppleID.auth.init(initOptions);
-      
+
       // 이벤트 리스너 등록
       const successHandler = () => {};
       const failureHandler = () => {
         setError('Apple 로그인 중 오류가 발생했습니다.');
       };
-      
+
       document.addEventListener('AppleIDSignInOnSuccess', successHandler);
       document.addEventListener('AppleIDSignInOnFailure', failureHandler);
-      
+
       setAppleSDKInitialized(true);
-      
+
       return () => {
         document.removeEventListener('AppleIDSignInOnSuccess', successHandler);
         document.removeEventListener('AppleIDSignInOnFailure', failureHandler);
@@ -176,7 +176,7 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
         return null;
       }
     })();
-    
+
     if (authError === 'true' || error) {
       // 먼저 디버그 로그 기록
       debugLog('인증 오류 발생', {
@@ -186,7 +186,7 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
         localErrorDescription,
         provider
       });
-      
+
       // 오류 메시지 설정
       if (errorDescription) {
         setError(`인증 오류: ${decodeURIComponent(errorDescription)}`);
@@ -207,7 +207,7 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
             setError(`서버 오류가 발생했습니다: ${errorDescription || '알 수 없는 오류'}`);
             break;
           case 'oauth_error':
-            setError(provider === 'apple' 
+            setError(provider === 'apple'
               ? 'Apple 로그인 중 오류가 발생했습니다. 다시 시도해주세요.'
               : '소셜 로그인 중 오류가 발생했습니다.');
             break;
@@ -220,7 +220,7 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
       } else {
         setError('로그인 중 알 수 없는 오류가 발생했습니다. 다시 시도해주세요.');
       }
-      
+
       // URL에서 오류 파라미터 제거
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
@@ -236,24 +236,24 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
   // ngrok URL을 감지하여 올바른 리디렉션 URL 생성
   const getRedirectUrl = (provider: string) => {
     // ngrok 환경 감지 (브라우저에서만 작동)
-    const isNgrok = typeof window !== 'undefined' && 
-      (window.location.hostname.includes('ngrok') || 
+    const isNgrok = typeof window !== 'undefined' &&
+      (window.location.hostname.includes('ngrok') ||
        window.location.host.includes('ngrok'));
-    
+
     // 현재 호스트 감지
     const currentHost = typeof window !== 'undefined' ? window.location.host : '';
     const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https' : 'http';
-    
+
     console.log('현재 환경:', {
       isNgrok,
       host: currentHost,
       protocol
     });
-    
+
     // 콜백 URL 생성
     const redirectUrl = `${protocol}://${currentHost}/auth/callback/${provider}`;
     console.log(`리디렉션 URL: ${redirectUrl}`);
-    
+
     return redirectUrl;
   };
 
@@ -270,7 +270,7 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
 
     try {
       setLoading(true);
-      
+
       // ID 토큰 획득
       const appleResponse = await window.AppleID.auth.signIn();
       if (!appleResponse.authorization.id_token) {
@@ -278,18 +278,18 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
       }
 
       const idToken = appleResponse.authorization.id_token;
-      
+
       // Supabase로 인증 시도
       try {
         const { data, error } = await supabase.auth.signInWithIdToken({
           provider: 'apple',
           token: idToken
         });
-        
+
         if (!error) {
           return handleAuthSuccess(data, 'apple');
         }
-        
+
         // 첫 번째 시도 실패 시, nonce를 명시적으로 빈 문자열로 설정하여 재시도
         if (error.message?.includes('nonce') || error.message?.includes('Nonce')) {
           const { data: retryData, error: retryError } = await supabase.auth.signInWithIdToken({
@@ -297,21 +297,21 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
             token: idToken,
             nonce: ''
           });
-          
+
           if (!retryError) {
             return handleAuthSuccess(retryData, 'apple');
           }
-          
+
           // 마지막 시도
           const { data: finalData, error: finalError } = await supabase.auth.signInWithIdToken({
             provider: 'apple',
             token: idToken
           });
-          
+
           if (!finalError) {
             return handleAuthSuccess(finalData, 'apple');
           }
-          
+
           setError(`Apple 로그인에 실패했습니다: ${finalError.message}`);
         } else {
           setError(`Apple 로그인에 실패했습니다: ${error.message}`);
@@ -330,7 +330,7 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
   const handleOtherSignIn = async (provider: 'google' | 'kakao') => {
     try {
       setLoading(true);
-      
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
@@ -463,14 +463,14 @@ function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
 export default function Login() {
   // Apple SDK 스크립트 로드 상태 관리
   const [sdkScriptLoaded, setSdkScriptLoaded] = useState(false);
-  
+
   const handleAppleScriptLoad = () => {
     setSdkScriptLoaded(true);
   };
 
   return (
     <>
-      <Script 
+      <Script
         src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"
         strategy="afterInteractive"
         onLoad={handleAppleScriptLoad}

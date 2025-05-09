@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLanguageStore } from '@/stores/languageStore';
+import {useLanguageStore} from '@/stores/languageStore';
 
 const Footer: React.FC = () => {
   const { currentLanguage } = useLanguageStore();

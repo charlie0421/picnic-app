@@ -3,9 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Vote } from '@/types/interfaces';
-import { getCdnImageUrl } from '@/utils/api/image';
-import { getLocalizedString } from '@/utils/api/strings';
+import {Vote} from '@/types/interfaces';
+import {getCdnImageUrl} from '@/utils/api/image';
+import {getLocalizedString} from '@/utils/api/strings';
 import VoteRewardPreview from './vote/VoteRewardPreview';
 
 interface VoteItemProps {
@@ -49,4 +49,4 @@ const VoteItem: React.FC<VoteItemProps> = ({ vote }) => {
   );
 };
 
-export default VoteItem; 
+export default VoteItem;

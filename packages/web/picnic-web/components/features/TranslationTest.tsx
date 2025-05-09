@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useLanguageStore } from '@/stores/languageStore';
+import React, {useEffect, useState} from 'react';
+import {useLanguageStore} from '@/stores/languageStore';
 
 const TranslationTest: React.FC = () => {
   const { t, currentLanguage, translations } = useLanguageStore();
@@ -68,4 +68,4 @@ const TranslationTest: React.FC = () => {
   );
 };
 
-export default TranslationTest; 
+export default TranslationTest;

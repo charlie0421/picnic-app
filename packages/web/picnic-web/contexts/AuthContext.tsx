@@ -1,9 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { supabase } from '../utils/supabase-client';
-import { Session, User as SupabaseUser, AuthChangeEvent, Provider } from '@supabase/supabase-js';
-import { UserProfiles } from '@/types/interfaces';
+import React, {createContext, useCallback, useContext, useEffect, useState} from 'react';
+import {supabase} from '../utils/supabase-client';
+import {AuthChangeEvent, Provider, Session, User as SupabaseUser} from '@supabase/supabase-js';
+import {UserProfiles} from '@/types/interfaces';
 
 // 인증 상태 인터페이스
 export interface AuthState {
@@ -131,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 인증 상태 변화 구독
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       console.log('Auth State Change:', event, !!session);
-      
+
       // SIGNED_OUT 이벤트에 대한 특별 처리
       if (event === 'SIGNED_OUT') {
         console.log('로그아웃 이벤트 감지: 인증 상태 초기화');
@@ -143,7 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         return;
       }
-      
+
       await handleSession(session);
     });
 
@@ -186,11 +186,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signInWithSocial = useCallback(async (provider: Provider | 'wechat') => {
     try {
       setAuthState((prev: AuthState) => ({ ...prev, loading: true, error: null }));
-      
+
       const options = {
         redirectTo: window.location.origin + '/auth/callback',
       };
-      
+
       if (provider === 'wechat') {
         // WeChat은 별도 API 처리
         setAuthState((prev: AuthState) => ({
@@ -200,12 +200,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }));
         return;
       }
-      
-      const { error } = await supabase.auth.signInWithOAuth({ 
-        provider: provider as Provider, 
-        options 
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider as Provider,
+        options
       });
-      
+
       if (error) throw error;
     } catch (error: any) {
       setAuthState((prev: AuthState) => ({
@@ -219,7 +219,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = useCallback(async () => {
     try {
       setAuthState((prev: AuthState) => ({ ...prev, loading: true, error: null }));
-      
+
       // 상태를 즉시 초기화하여 UI가 빠르게 반응하도록 함
       setAuthState({
         isAuthenticated: false,
@@ -227,21 +227,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading: false,
         error: null,
       });
-      
+
       // 로그아웃 시도 - 오류가 발생해도 계속 진행 (백그라운드 작업)
       try {
         // 모든 세션 제거
         const { error } = await supabase.auth.signOut({
           scope: 'global'
         });
-        
+
         if (error) {
           console.warn('Supabase 로그아웃 오류 (진행 계속):', error.message);
         }
       } catch (e: any) {
         console.warn('Supabase 로그아웃 예외 발생 (진행 계속):', e.message || '알 수 없는 오류');
       }
-      
+
       // 인증 관련 로컬 스토리지 데이터 제거 - 오류가 발생해도 최대한 진행 (백그라운드 작업)
       try {
         localStorage.removeItem('supabase.auth.token');
@@ -249,7 +249,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('auth_provider');
         localStorage.removeItem('supabase.auth.expires_at');
         localStorage.removeItem('supabase.auth.refresh_token');
-        
+
         // 브라우저에서 사용할 수 있는 로컬 스토리지 키를 모두 순회하면서 관련 키 삭제
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
@@ -260,7 +260,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (e) {
         console.warn('로컬 스토리지 정리 중 오류 (진행 계속):', e);
       }
-      
+
       // 쿠키 정리 시도 - 오류가 발생해도 계속 진행 (백그라운드 작업)
       try {
         document.cookie.split(';').forEach(c => {
@@ -272,21 +272,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (e) {
         console.warn('쿠키 정리 중 오류 (진행 계속):', e);
       }
-      
+
       // 로그아웃 성공 표시
       return true;
-      
+
     } catch (error: any) {
       console.error('로그아웃 총괄 오류:', error);
-      
+
       // 오류가 있어도 인증 상태는 초기화
       setAuthState({
-        isAuthenticated: false, 
+        isAuthenticated: false,
         user: null,
         loading: false,
         error: error.message || '로그아웃 중 오류가 발생했습니다.',
       });
-      
+
       // 로그아웃은 성공한 것으로 간주
       return true;
     }
@@ -295,11 +295,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = useCallback(async (email: string, password: string, username: string) => {
     try {
       setAuthState((prev: AuthState) => ({ ...prev, loading: true, error: null }));
-      
+
       const { data, error } = await supabase.auth.signUp({ email, password });
-      
+
       if (error) throw error;
-      
+
       if (data.user) {
         const { error: profileError } = await supabase
           .from('user_profiles')
@@ -312,7 +312,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               updatedAt: new Date().toISOString()
             }
           ]);
-          
+
         if (profileError) throw profileError;
       }
     } catch (error: any) {
@@ -331,25 +331,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading: true,
         error: null,
       }));
-      
+
       const currentUserId = authState.user?.id;
       if (!currentUserId) {
         throw new Error('로그인이 필요합니다');
       }
-      
+
       const { error } = await supabase
         .from('user_profiles')
         .update(profile)
         .eq('id', currentUserId);
-        
+
       if (error) throw error;
-      
+
       setAuthState((prev: AuthState) => ({
         ...prev,
         loading: false,
         user: prev.user ? { ...prev.user, ...profile } : null
       }));
-      
+
     } catch (error: any) {
       setAuthState((prev: AuthState) => ({
         ...prev,
@@ -360,11 +360,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [authState.user?.id]);
 
   return (
-    <AuthContext.Provider value={{ 
-      authState, 
-      signIn, 
+    <AuthContext.Provider value={{
+      authState,
+      signIn,
       signInWithSocial,
-      signOut, 
+      signOut,
       signUp,
       updateUserProfile
     }}>
@@ -379,4 +379,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

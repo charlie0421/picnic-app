@@ -1,5 +1,4 @@
-import { supabase } from '../supabase-client';
-import { useLanguageStore } from "@/stores/languageStore";
+import {useLanguageStore} from "@/stores/languageStore";
 
 /**
  * CDN 이미지 URL을 생성하는 유틸리티 함수

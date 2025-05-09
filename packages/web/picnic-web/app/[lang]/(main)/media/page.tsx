@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Media } from '@/types/interfaces';
-import { getMedias } from '@/utils/api/queries';
+import React, {useEffect, useState} from 'react';
+import {Media} from '@/types/interfaces';
+import {getMedias} from '@/utils/api/queries';
 import MediaList from '@/components/MediaList';
 
 const MediaPage: React.FC = () => {

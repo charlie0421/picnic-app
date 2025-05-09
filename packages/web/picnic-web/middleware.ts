@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from './config/settings';
+import type {NextRequest} from 'next/server';
+import {NextResponse} from 'next/server';
+import {DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES} from './config/settings';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // 정적 파일 경로는 건너뛰기
   if (
     pathname.startsWith('/_next/') ||
@@ -38,4 +38,4 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-}; 
+};

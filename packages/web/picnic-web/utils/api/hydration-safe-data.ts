@@ -1,13 +1,13 @@
 /**
  * 하이드레이션 안전한 데이터 로딩을 위한 유틸리티
  */
-import { useState, useEffect, useCallback } from 'react';
+import {useEffect, useState} from 'react';
 
 type DataFetcher<T> = () => Promise<T>;
 
 /**
  * 하이드레이션 안전한 방식으로 데이터를 로드하는 훅
- * 
+ *
  * @param fetcher 데이터를 가져오는 비동기 함수
  * @param initialData 초기 데이터 (SSR에서 제공된 경우)
  * @param dependencies 의존성 배열 ([] 기본값은 컴포넌트 마운트 시 한 번만 실행)
@@ -35,7 +35,7 @@ export function useSafeData<T>(
 
     let isCancelled = false;
     let timeoutId: NodeJS.Timeout;
-    
+
     const loadData = async () => {
       if (!initialData) {
         setIsLoading(true);
@@ -43,9 +43,9 @@ export function useSafeData<T>(
 
       try {
         const result = await fetcher();
-        
+
         if (isCancelled) return;
-        
+
         setData(result);
         setError(null);
       } catch (err) {
@@ -76,7 +76,7 @@ export function useSafeData<T>(
 
 /**
  * 하이드레이션 안전한 방식으로 데이터를 새로고침하는 훅
- * 
+ *
  * @param fetcher 데이터를 가져오는 비동기 함수
  * @param interval 새로고침 간격 (밀리초)
  * @param initialData 초기 데이터 (SSR에서 제공된 경우)
@@ -100,7 +100,7 @@ export function useRefreshableData<T>(
 
   const refresh = async () => {
     if (!mounted) return;
-    
+
     setIsLoading(true);
     try {
       const result = await fetcher();
@@ -118,7 +118,7 @@ export function useRefreshableData<T>(
   // 초기 데이터 로드
   useEffect(() => {
     if (!mounted) return;
-    
+
     // 초기 데이터가 없는 경우에만 처음 로드
     if (!initialData) {
       refresh();
@@ -128,13 +128,13 @@ export function useRefreshableData<T>(
   // 정기적 새로고침 설정
   useEffect(() => {
     if (!mounted || interval <= 0) return;
-    
+
     const timer = setInterval(refresh, interval);
-    
+
     return () => {
       clearInterval(timer);
     };
   }, [mounted, interval]);
 
   return { data, isLoading, error, mounted, refresh, lastRefreshed };
-} 
+}

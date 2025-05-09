@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Vote, VoteItem } from '@/types/interfaces';
+import {Vote, VoteItem} from '@/types/interfaces';
 import VoteRankCard from './VoteRankCard';
 
 const CompletedVoteItems: React.FC<{
@@ -33,4 +33,4 @@ const CompletedVoteItems: React.FC<{
   );
 };
 
-export default CompletedVoteItems; 
+export default CompletedVoteItems;

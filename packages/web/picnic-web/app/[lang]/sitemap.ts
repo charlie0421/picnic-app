@@ -1,7 +1,6 @@
-import { MetadataRoute } from "next";
-import { createClient } from "./utils/supabase-server-client";
-import { Database } from "./types/supabase";
-import { SITE_URL, STATIC_PAGES } from "./constants/static-pages";
+import {MetadataRoute} from "next";
+import {createClient} from "./utils/supabase-server-client";
+import {SITE_URL, STATIC_PAGES} from "./constants/static-pages";
 import fs from "fs";
 import path from "path";
 

@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { useNavigation, NavigationProvider } from '@/contexts/NavigationContext';
+import React, {useEffect} from 'react';
+import {usePathname} from 'next/navigation';
+import {useNavigation} from '@/contexts/NavigationContext';
 import Footer from '@/components/layouts/Footer';
 import ExclusiveOpenBadge from '@/components/features/ExclusiveOpenBadge';
-import { getPortalTypeFromPath } from '@/config/navigation';
+import {getPortalTypeFromPath} from '@/config/navigation';
 import Header from '@/components/layouts/Header';
 
 const MainContent = ({ children }: { children: React.ReactNode }) => {
@@ -56,4 +56,4 @@ export default function MainLayout({
   return (
     <MainContent>{children}</MainContent>
   );
-} 
+}

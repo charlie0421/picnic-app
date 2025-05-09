@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { format } from 'date-fns';
-import { useLanguageStore } from '@/stores/languageStore';
-import { localeMap, getCurrentLocale } from '@/utils/date';
-import { enUS } from 'date-fns/locale';
+import React, {useEffect, useRef, useState} from 'react';
+import {format} from 'date-fns';
+import {useLanguageStore} from '@/stores/languageStore';
+import {getCurrentLocale} from '@/utils/date';
 
 interface CurrentTimeProps {
   initialTime?: string;

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Vote, VoteItem } from '@/types/interfaces';
-import { useLanguageStore } from '@/stores/languageStore';
+import React, {useEffect, useState} from 'react';
+import {Vote, VoteItem} from '@/types/interfaces';
+import {useLanguageStore} from '@/stores/languageStore';
 import VoteRankCard from './VoteRankCard';
 
 // 확장된 VoteItem 타입 정의

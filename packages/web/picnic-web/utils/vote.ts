@@ -1,4 +1,4 @@
-import { VoteItem } from '@/types/interfaces';
+import {VoteItem} from '@/types/interfaces';
 
 export function getTopThreeInOrder(items: VoteItem[]): (VoteItem & { rank: number })[] {
   const sorted = [...items].sort((a, b) => (b.voteTotal || 0) - (a.voteTotal || 0)).slice(0, 3);
@@ -7,4 +7,4 @@ export function getTopThreeInOrder(items: VoteItem[]): (VoteItem & { rank: numbe
   const rank2 = withRank.find(item => item.rank === 2) || withRank[1];
   const rank3 = withRank.find(item => item.rank === 3) || withRank[2];
   return [rank2, rank1, rank3].filter(Boolean);
-} 
+}

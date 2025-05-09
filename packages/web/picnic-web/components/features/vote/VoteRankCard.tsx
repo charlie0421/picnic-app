@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
-import { VoteItem } from '@/types/interfaces';
-import { getLocalizedString } from '@/utils/api/strings';
-import { useLanguageStore } from '@/stores/languageStore';
+import {VoteItem} from '@/types/interfaces';
+import {getLocalizedString} from '@/utils/api/strings';
+import {useLanguageStore} from '@/stores/languageStore';
 
 interface VoteRankCardProps {
   item: VoteItem & { artist?: any };
@@ -67,7 +67,7 @@ const VoteRankCard: React.FC<VoteRankCardProps> = ({
     if (voteTotal !== localVoteTotal) {
       // 변화량 계산
       const calculatedChange = voteTotal - prevVoteTotal.current;
-      
+
       // 기존 애니메이션 타이머 정리
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);

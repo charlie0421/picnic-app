@@ -3,9 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Banner } from '@/types/interfaces';
-import { getCdnImageUrl } from '@/utils/api/image';
-import { getLocalizedString } from '@/utils/api/strings';
+import {Banner} from '@/types/interfaces';
+import {getCdnImageUrl} from '@/utils/api/image';
+import {getLocalizedString} from '@/utils/api/strings';
+
 interface BannerItemProps {
   banner: Banner;
 }
@@ -37,4 +38,4 @@ const BannerItem: React.FC<BannerItemProps> = ({ banner }) => {
   );
 };
 
-export default BannerItem; 
+export default BannerItem;

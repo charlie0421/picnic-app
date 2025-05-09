@@ -1,5 +1,5 @@
-import { createClient } from "@/utils/supabase-server-client";
-import { Reward, Vote, VoteItem } from "@/types/interfaces";
+import {createClient} from "@/utils/supabase-server-client";
+import {Reward, Vote, VoteItem} from "@/types/interfaces";
 
 // 서버 컴포넌트에서 투표 상세 정보 가져오기
 export const getServerVoteById = async (id: number): Promise<Vote | null> => {

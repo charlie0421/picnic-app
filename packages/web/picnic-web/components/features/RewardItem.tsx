@@ -3,9 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Reward } from '@/types/interfaces';
-import { getCdnImageUrl } from '@/utils/api/image';
-import { getLocalizedString } from '@/utils/api/strings';
+import {Reward} from '@/types/interfaces';
+import {getCdnImageUrl} from '@/utils/api/image';
+import {getLocalizedString} from '@/utils/api/strings';
+
 interface RewardItemProps {
   reward: Reward;
 }
@@ -43,4 +44,4 @@ const RewardItem: React.FC<RewardItemProps> = ({ reward }) => {
   );
 };
 
-export default RewardItem; 
+export default RewardItem;
