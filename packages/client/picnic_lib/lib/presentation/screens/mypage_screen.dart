@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/top/top_right_common.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
@@ -70,15 +69,6 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
               style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
           centerTitle: true,
           leadingWidth: 40.w,
-          actions: [
-            userInfoState.when(
-                data: (data) => data != null && (data.isAdmin ?? false)
-                    ? const TopRightCommon()
-                    : Container(),
-                loading: () => Container(),
-                error: (error, stackTrace) => Container()),
-            SizedBox(width: 16.w),
-          ],
         ),
         body: const DrawerAnimatedSwitcher(),
       ),
