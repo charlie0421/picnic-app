@@ -1,13 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { supabase as supabaseClient } from '@/utils/supabase-client';
 
 // Supabase 컨텍스트 타입 정의
 type SupabaseContextType = {
   supabase: SupabaseClient;
-  isReady: boolean;
 };
 
 // 컨텍스트 생성
@@ -22,35 +21,8 @@ interface SupabaseProviderProps {
  * Supabase 클라이언트를 앱 전체에서 사용할 수 있게 해주는 Provider
  */
 export const SupabaseProvider: React.FC<SupabaseProviderProps> = ({ children }) => {
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    // 브라우저 환경에서만 실행
-    if (typeof window !== 'undefined') {
-      // Supabase 연결 상태 확인
-      const checkConnection = async () => {
-        try {
-          // 간단한 쿼리로 연결 상태 확인
-          await supabaseClient.from('vote').select('count').limit(1);
-          setIsReady(true);
-          
-          console.log('Supabase 연결 성공', {
-            isReady: true,
-            url: window.location.href,
-          });
-        } catch (error) {
-          console.error('Supabase 연결 실패:', error);
-          // 연결 실패 시 1초 후 재시도
-          setTimeout(checkConnection, 1000);
-        }
-      };
-
-      checkConnection();
-    }
-  }, []);
-
   return (
-    <SupabaseContext.Provider value={{ supabase: supabaseClient, isReady }}>
+    <SupabaseContext.Provider value={{ supabase: supabaseClient }}>
       {children}
     </SupabaseContext.Provider>
   );
@@ -58,7 +30,7 @@ export const SupabaseProvider: React.FC<SupabaseProviderProps> = ({ children }) 
 
 /**
  * Supabase 클라이언트를 사용하기 위한 훅
- * @returns Supabase 클라이언트와 초기화 상태
+ * @returns Supabase 클라이언트
  */
 export const useSupabase = (): SupabaseContextType => {
   const context = useContext(SupabaseContext);
@@ -75,11 +47,7 @@ export const SupabaseGuard: React.FC<{ children: React.ReactNode; fallback?: Rea
   children,
   fallback = <div>Supabase 초기화 중...</div>,
 }) => {
-  const { isReady } = useSupabase();
-  
-  if (!isReady) {
-    return <>{fallback}</>;
-  }
+  const { supabase } = useSupabase();
   
   return <>{children}</>;
 }; 

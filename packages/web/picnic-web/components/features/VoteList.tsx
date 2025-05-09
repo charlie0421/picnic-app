@@ -518,7 +518,7 @@ const EmptyState = React.memo(
 EmptyState.displayName = 'EmptyState';
 
 const VoteList: React.FC = () => {
-  const { supabase, isReady } = useSupabase();
+  const { supabase } = useSupabase();
   const { t, currentLanguage } = useLanguageStore();
   const router = useRouter();
   const PAGE_SIZE = 8;
@@ -530,26 +530,10 @@ const VoteList: React.FC = () => {
   const [error, setError] = useState<Error | null>(null);
 
   const fetchVotes = useCallback(async () => {
-    if (!isReady || !supabase) {
-      console.log('Supabase not ready:', { isReady, supabase });
-      return;
-    }
-
     try {
       setIsLoading(true);
-      console.log('Fetching votes...', { isReady, supabase });
+      console.log('Fetching votes...');
       
-      // Supabase 연결 상태 확인
-      const { data: testData, error: testError } = await supabase
-        .from('vote')
-        .select('count')
-        .limit(1);
-
-      if (testError) {
-        console.error('Supabase connection test failed:', testError);
-        throw testError;
-      }
-
       const { data: voteData, error: voteError } = await supabase
         .from("vote")
         .select(`
@@ -639,34 +623,28 @@ const VoteList: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentLanguage, isReady, supabase]);
+  }, [supabase]);
 
   // 언어 변경 시 쿼리 재실행
   useEffect(() => {
-    if (isReady && supabase) {
-      fetchVotes();
-    }
-  }, [currentLanguage, isReady, supabase, fetchVotes]);
+    fetchVotes();
+  }, [currentLanguage, fetchVotes]);
 
   // 전역 타이머 구독
   useEffect(() => {
     const timer = setInterval(() => {
-      if (isReady && supabase) {
-        fetchVotes();
-      }
+      fetchVotes();
     }, 1000);
 
     return () => {
       clearInterval(timer);
     };
-  }, [fetchVotes, isReady, supabase]);
+  }, [fetchVotes]);
 
   // 초기 데이터 로드
   useEffect(() => {
-    if (isReady && supabase) {
-      fetchVotes();
-    }
-  }, [isReady, supabase, fetchVotes]);
+    fetchVotes();
+  }, [fetchVotes]);
 
   // 표시할 투표 목록 계산
   const paginatedVotes = useMemo(() => {
