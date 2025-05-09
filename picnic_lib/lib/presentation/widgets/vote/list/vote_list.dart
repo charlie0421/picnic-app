@@ -13,8 +13,9 @@ import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 class VoteList extends ConsumerStatefulWidget {
   final VoteStatus status;
   final VoteCategory category;
+  final String area;
 
-  const VoteList(this.status, this.category, {super.key});
+  const VoteList(this.status, this.category, this.area, {super.key});
 
   @override
   ConsumerState<VoteList> createState() => _VoteListState();
@@ -31,7 +32,7 @@ class _VoteListState extends ConsumerState<VoteList> {
     super.initState();
     _pageController = PageController();
     _pagingController.addPageRequestListener(
-        (pageKey) => _fetch(pageKey, status: widget.status));
+        (pageKey) => _fetch(pageKey, status: widget.status, area: widget.area));
   }
 
   @override
@@ -75,13 +76,15 @@ class _VoteListState extends ConsumerState<VoteList> {
     );
   }
 
-  Future<void> _fetch(int pageKey, {required VoteStatus status}) async {
+  Future<void> _fetch(int pageKey,
+      {required VoteStatus status, required String area}) async {
     try {
       final newItems = await ref.read(asyncVoteListProvider(
         pageKey,
         _pageSize,
         'id',
         'DESC',
+        area,
         status: status,
         category: VoteCategory.all,
       ).future);

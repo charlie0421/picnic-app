@@ -11,6 +11,10 @@ import 'package:picnic_lib/presentation/common/top/top_right_post.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post_view.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
+import 'package:picnic_lib/navigation_stack.dart';
 
 class TopMenu extends ConsumerStatefulWidget {
   const TopMenu({
@@ -26,6 +30,38 @@ class _TopState extends ConsumerState<TopMenu> {
   void initState() {
     super.initState();
     // _setupRealtime();
+  }
+
+  bool _isVotePage(NavigationStack? stack) {
+    if (stack == null) return false;
+    final currentPage = stack.peek();
+    return currentPage is VoteHomePage || currentPage is VoteListPage;
+  }
+
+  Widget _buildTopRightMenu(Navigation navigationInfo) {
+    if (navigationInfo.topRightMenu == TopRightType.none) {
+      return Container();
+    }
+
+    if (navigationInfo.topRightMenu == TopRightType.common &&
+        navigationInfo.portalType == PortalType.vote &&
+        _isVotePage(navigationInfo.voteNavigationStack)) {
+      return const TopRightCommon();
+    }
+
+    if (navigationInfo.topRightMenu == TopRightType.board) {
+      return const TopRightPost();
+    }
+
+    if (navigationInfo.topRightMenu == TopRightType.community) {
+      return const TopRightCommunity();
+    }
+
+    if (navigationInfo.topRightMenu == TopRightType.postView) {
+      return const TopRightPostView();
+    }
+
+    return Container();
   }
 
   @override
@@ -74,20 +110,12 @@ class _TopState extends ConsumerState<TopMenu> {
                   )
                 : const CommonMyPoint(),
           ),
-          Positioned.fill(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: navigationInfo.topRightMenu == TopRightType.none
-                  ? Container()
-                  : navigationInfo.topRightMenu == TopRightType.common
-                      ? const TopRightCommon()
-                      : navigationInfo.topRightMenu == TopRightType.board
-                          ? const TopRightPost()
-                          : navigationInfo.topRightMenu ==
-                                  TopRightType.community
-                              ? const TopRightCommunity()
-                              : const TopRightPostView()),
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: _buildTopRightMenu(navigationInfo),
+          ),
         ],
       ),
     );
