@@ -5,11 +5,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigation, NavigationProvider } from '@/contexts/NavigationContext';
+import {
+  useNavigation,
+  NavigationProvider,
+} from '@/contexts/NavigationContext';
 import { useLanguageStore } from '@/stores/languageStore';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Footer from '@/components/layouts/Footer';
-import { SupabaseProvider } from '@/components/providers/SupabaseProvider';
 import {
   ProfileImageContainer,
   DefaultAvatar,
@@ -39,8 +41,8 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className='bg-gradient-to-b from-blue-50 to-white relative'>
       <div className='max-w-6xl mx-auto bg-white shadow-md'>
-      <Header />
-      <main className='container mx-auto px-2 sm:px-4 py-0'>
+        <Header />
+        <main className='container mx-auto px-2 sm:px-4 py-0'>
           <div className='flex flex-col'>
             <div className='w-full'>
               {/* 배타 오픈 뱃지 */}
@@ -69,8 +71,5 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-          <MainContent>{children}</MainContent>
-    
-  );
-} 
+  return <MainContent>{children}</MainContent>;
+}
