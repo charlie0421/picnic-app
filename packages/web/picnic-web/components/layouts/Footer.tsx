@@ -1,5 +1,5 @@
 import React from 'react';
-import {useLanguageStore} from '@/stores/languageStore';
+import { useLanguageStore } from '@/stores/languageStore';
 
 const Footer: React.FC = () => {
   const { currentLanguage } = useLanguageStore();
@@ -25,7 +25,10 @@ const Footer: React.FC = () => {
     },
   };
 
-  const currentContent = currentLanguage === 'ko' ? content.ko : content.en;
+  const currentContent =
+    typeof window !== 'undefined' && currentLanguage === 'ko'
+      ? content.ko
+      : content.en;
 
   return (
     <footer className='w-full py-4 px-10 text-center text-gray-500 text-xs'>
