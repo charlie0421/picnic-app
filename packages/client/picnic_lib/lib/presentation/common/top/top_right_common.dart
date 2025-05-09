@@ -1,103 +1,112 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/presentation/widgets/rotate_image.dart';
-import 'package:picnic_lib/presentation/widgets/ui/bounce_red_dot.dart';
-import 'package:picnic_lib/supabase_options.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/providers/area_provider.dart';
+import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 
-class TopRightCommon extends ConsumerStatefulWidget {
+class TopRightCommon extends ConsumerWidget {
   const TopRightCommon({
     super.key,
   });
 
   @override
-  ConsumerState<TopRightCommon> createState() => _TopRightCommonState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final area = ref.watch(areaProvider);
 
-class _TopRightCommonState extends ConsumerState<TopRightCommon> {
-  @override
-  Widget build(BuildContext context) {
-    final isAdmin =
-        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin));
-
-    return isAdmin != null && isAdmin == true
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(12.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
             children: [
-              Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      supabase.isLogged
-                          ? SnackbarUtil().showSnackbar('Test')
-                          : showRequireLoginDialog();
-                    },
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      width: 40.w,
-                      height: 36,
-                      child: SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/calendar_style=line.svg',
-                        width: 24.w,
-                        height: 24,
-                      ),
+              GestureDetector(
+                onTap: () {
+                  ref.read(areaProvider.notifier).setArea('kpop');
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: area == 'kpop'
+                        ? AppColors.primary500
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.r),
+                    boxShadow: area == 'kpop'
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primary500.withOpacity(0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Text(
+                    'K-POP',
+                    style: TextStyle(
+                      color: area == 'kpop'
+                          ? Colors.white
+                          : const Color(0xFF666666),
+                      fontSize: 10.sp,
+                      fontWeight:
+                          area == 'kpop' ? FontWeight.w600 : FontWeight.w500,
                     ),
                   ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Column(
-                      children: [
-                        RotationImage(
-                          image: Image.asset(
-                            package: 'picnic_lib',
-                            'assets/icons/store/star_100.png',
-                            width: 24.w,
-                            height: 24,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
               GestureDetector(
                 onTap: () {
-                  supabase.isLogged
-                      ? SnackbarUtil().showSnackbar('Test')
-                      : showRequireLoginDialog();
+                  ref.read(areaProvider.notifier).setArea('musical');
                 },
-                child: Stack(
-                  children: [
-                    SizedBox(
-                      width: 24.w,
-                      height: 24,
-                      child: SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/alarm_style=line.svg',
-                        width: 24.w,
-                        height: 24,
-                      ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: area == 'musical'
+                        ? AppColors.primary500
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.r),
+                    boxShadow: area == 'musical'
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primary500.withOpacity(0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Text(
+                    'K-MUSICAL',
+                    style: TextStyle(
+                      color: area == 'musical'
+                          ? Colors.white
+                          : const Color(0xFF666666),
+                      fontSize: 10.sp,
+                      fontWeight:
+                          area == 'musical' ? FontWeight.w600 : FontWeight.w500,
                     ),
-                    Positioned(
-                      top: 0.w,
-                      right: 0.w,
-                      left: 0.w,
-                      bottom: 3.w,
-                      child: const BounceRedDot(),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
-          )
-        : const SizedBox();
+          ),
+        ),
+      ],
+    );
   }
 }

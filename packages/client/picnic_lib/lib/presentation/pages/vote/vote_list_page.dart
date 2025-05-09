@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/providers/area_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
@@ -55,6 +57,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
 
   @override
   Widget build(BuildContext context) {
+    final area = ref.watch(areaProvider);
     return PageStorage(
       bucket: _pageStorageBucket,
       child: Column(
@@ -73,12 +76,13 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
           ),
           Expanded(
             child: TabBarView(
+              key: ValueKey(area),
               controller: _tabController,
               physics: const NeverScrollableScrollPhysics(),
-              children: const [
-                VoteList(VoteStatus.active, VoteCategory.all),
-                VoteList(VoteStatus.end, VoteCategory.all),
-                VoteList(VoteStatus.upcoming, VoteCategory.all),
+              children: [
+                VoteList(VoteStatus.active, VoteCategory.all, area),
+                VoteList(VoteStatus.end, VoteCategory.all, area),
+                VoteList(VoteStatus.upcoming, VoteCategory.all, area),
               ],
             ),
           ),

@@ -13,6 +13,7 @@ import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_detail_page.dart';
+import 'package:picnic_lib/presentation/providers/area_provider.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/gallery_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -49,12 +50,15 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
   }
 
   Future<void> _fetchPage(int pageKey) async {
+    final area = ref.watch(areaProvider);
+    logger.i('area: $area');
     try {
       final newItems = await ref.read(asyncVoteListProvider(
         pageKey,
         _pageSize,
         'vote.id',
         'DESC',
+        area,
         votePortal: VotePortal.pic,
         status: VoteStatus.activeAndUpcoming,
         category: VoteCategory.all,

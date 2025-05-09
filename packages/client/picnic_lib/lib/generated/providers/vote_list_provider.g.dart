@@ -6,7 +6,7 @@ part of '../../presentation/providers/vote_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteListHash() => r'f784aaf20ce0e3c91d0dea360dafd5568f3deeaf';
+String _$asyncVoteListHash() => r'4369bd5be8617dc581c9870805f5ee98820860d8';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -35,6 +35,7 @@ abstract class _$AsyncVoteList
   late final int limit;
   late final String sort;
   late final String order;
+  late final String area;
   late final VotePortal votePortal;
   late final VoteStatus status;
   late final VoteCategory category;
@@ -43,7 +44,8 @@ abstract class _$AsyncVoteList
     int page,
     int limit,
     String sort,
-    String order, {
+    String order,
+    String area, {
     VotePortal votePortal = VotePortal.vote,
     required VoteStatus status,
     required VoteCategory category,
@@ -64,7 +66,8 @@ class AsyncVoteListFamily extends Family<AsyncValue<List<VoteModel>>> {
     int page,
     int limit,
     String sort,
-    String order, {
+    String order,
+    String area, {
     VotePortal votePortal = VotePortal.vote,
     required VoteStatus status,
     required VoteCategory category,
@@ -74,6 +77,7 @@ class AsyncVoteListFamily extends Family<AsyncValue<List<VoteModel>>> {
       limit,
       sort,
       order,
+      area,
       votePortal: votePortal,
       status: status,
       category: category,
@@ -89,6 +93,7 @@ class AsyncVoteListFamily extends Family<AsyncValue<List<VoteModel>>> {
       provider.limit,
       provider.sort,
       provider.order,
+      provider.area,
       votePortal: provider.votePortal,
       status: provider.status,
       category: provider.category,
@@ -118,7 +123,8 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     int page,
     int limit,
     String sort,
-    String order, {
+    String order,
+    String area, {
     VotePortal votePortal = VotePortal.vote,
     required VoteStatus status,
     required VoteCategory category,
@@ -128,6 +134,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
             ..limit = limit
             ..sort = sort
             ..order = order
+            ..area = area
             ..votePortal = votePortal
             ..status = status
             ..category = category,
@@ -144,6 +151,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
           limit: limit,
           sort: sort,
           order: order,
+          area: area,
           votePortal: votePortal,
           status: status,
           category: category,
@@ -160,6 +168,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required this.limit,
     required this.sort,
     required this.order,
+    required this.area,
     required this.votePortal,
     required this.status,
     required this.category,
@@ -169,6 +178,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final int limit;
   final String sort;
   final String order;
+  final String area;
   final VotePortal votePortal;
   final VoteStatus status;
   final VoteCategory category;
@@ -182,6 +192,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
       limit,
       sort,
       order,
+      area,
       votePortal: votePortal,
       status: status,
       category: category,
@@ -198,6 +209,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
           ..limit = limit
           ..sort = sort
           ..order = order
+          ..area = area
           ..votePortal = votePortal
           ..status = status
           ..category = category,
@@ -210,6 +222,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
         limit: limit,
         sort: sort,
         order: order,
+        area: area,
         votePortal: votePortal,
         status: status,
         category: category,
@@ -230,6 +243,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
         other.limit == limit &&
         other.sort == sort &&
         other.order == order &&
+        other.area == area &&
         other.votePortal == votePortal &&
         other.status == status &&
         other.category == category;
@@ -242,6 +256,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     hash = _SystemHash.combine(hash, limit.hashCode);
     hash = _SystemHash.combine(hash, sort.hashCode);
     hash = _SystemHash.combine(hash, order.hashCode);
+    hash = _SystemHash.combine(hash, area.hashCode);
     hash = _SystemHash.combine(hash, votePortal.hashCode);
     hash = _SystemHash.combine(hash, status.hashCode);
     hash = _SystemHash.combine(hash, category.hashCode);
@@ -264,6 +279,9 @@ mixin AsyncVoteListRef on AutoDisposeAsyncNotifierProviderRef<List<VoteModel>> {
 
   /// The parameter `order` of this provider.
   String get order;
+
+  /// The parameter `area` of this provider.
+  String get area;
 
   /// The parameter `votePortal` of this provider.
   VotePortal get votePortal;
@@ -288,6 +306,8 @@ class _AsyncVoteListProviderElement
   String get sort => (origin as AsyncVoteListProvider).sort;
   @override
   String get order => (origin as AsyncVoteListProvider).order;
+  @override
+  String get area => (origin as AsyncVoteListProvider).area;
   @override
   VotePortal get votePortal => (origin as AsyncVoteListProvider).votePortal;
   @override

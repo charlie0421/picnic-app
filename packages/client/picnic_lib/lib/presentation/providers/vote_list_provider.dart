@@ -3,6 +3,7 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:picnic_lib/presentation/providers/area_provider.dart';
 
 part '../../generated/providers/vote_list_provider.g.dart';
 
@@ -17,15 +18,21 @@ class AsyncVoteList extends _$AsyncVoteList {
   List<VoteModel> _allItems = [];
 
   @override
-  Future<List<VoteModel>> build(int page, int limit, String sort, String order,
+  Future<List<VoteModel>> build(
+      int page, int limit, String sort, String order, String area,
       {VotePortal votePortal = VotePortal.vote,
       required VoteStatus status,
       required VoteCategory category}) async {
-    // 첫 페이지이거나 아직 데이터가 없는 경우에만 전체 데이터를 가져옴
-    if (page == 1 || _allItems.isEmpty) {
-      _allItems = await _fetchAll(sort, order,
-          votePortal: votePortal, category: category.name, status: status);
-    }
+    // area 값이 변경될 때마다 provider를 다시 빌드
+    final area = ref.watch(areaProvider);
+    logger.i('AsyncVoteList build with area: $area');
+
+    // area가 변경될 때마다 캐시를 초기화하고 데이터를 다시 가져옴
+    _allItems = await _fetchAll(sort, order,
+        votePortal: votePortal,
+        category: category.name,
+        status: status,
+        area: area);
 
     final startIndex = (page - 1) * limit;
     final endIndex = startIndex + limit;
@@ -35,21 +42,19 @@ class AsyncVoteList extends _$AsyncVoteList {
     }
 
     // 현재 페이지의 아이템들 반환
-    return _allItems
-        .sublist(
-          startIndex,
-          endIndex > _allItems.length ? _allItems.length : endIndex,
-        )
-        .toList();
+    return _allItems;
   }
 
   Future<List<VoteModel>> _fetchAll(String sort, String order,
       {required VotePortal votePortal,
       required String category,
-      required VoteStatus status}) async {
-    String voteTable = VotePortal.vote == votePortal ? 'vote' : 'pic_vote';
+      required VoteStatus status,
+      required String area}) async {
+    String voteTable = votePortal == VotePortal.vote ? 'vote' : 'pic_vote';
     String voteItemTable =
-        VotePortal.vote == votePortal ? 'vote_item' : 'pic_vote_item';
+        votePortal == VotePortal.vote ? 'vote_item' : 'pic_vote_item';
+
+    logger.i('fetching with area: $area');
 
     try {
       PostgrestList response;
@@ -60,6 +65,7 @@ class AsyncVoteList extends _$AsyncVoteList {
                 'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
             .lt('start_at', 'now()')
             .gt('stop_at', 'now()')
+            .eq('area', area)
             .order(sort, ascending: order == 'ASC');
       } else if (status == VoteStatus.end) {
         response = await supabase
@@ -67,6 +73,7 @@ class AsyncVoteList extends _$AsyncVoteList {
             .select(
                 'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
             .lt('stop_at', 'now()')
+            .eq('area', area)
             .order(sort, ascending: order == 'ASC');
       } else if (status == VoteStatus.upcoming) {
         response = await supabase
@@ -75,6 +82,7 @@ class AsyncVoteList extends _$AsyncVoteList {
                 'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
             .lt('visible_at', 'now()')
             .gt('start_at', 'now()')
+            .eq('area', area)
             .order(sort, ascending: order == 'ASC');
       } else if (status == VoteStatus.activeAndUpcoming) {
         response = await supabase
@@ -83,12 +91,14 @@ class AsyncVoteList extends _$AsyncVoteList {
                 'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
             .lt('visible_at', 'now()')
             .gt('stop_at', 'now()')
+            .eq('area', area)
             .order('stop_at', ascending: true);
       } else {
         response = await supabase
             .from(voteTable)
             .select(
                 'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
+            .eq('area', area)
             .order(sort, ascending: order == 'ASC');
       }
 
@@ -97,6 +107,11 @@ class AsyncVoteList extends _$AsyncVoteList {
       logger.e('error', error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  void refresh() {
+    _allItems = [];
+    ref.invalidateSelf();
   }
 }
 

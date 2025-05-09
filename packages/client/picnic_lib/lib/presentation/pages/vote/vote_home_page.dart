@@ -15,6 +15,7 @@ import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
+import 'package:picnic_lib/presentation/providers/area_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -47,31 +48,11 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     });
   }
 
-  Future<void> _fetchPage(int pageKey) async {
-    try {
-      final newItems = await ref.read(asyncVoteListProvider(
-        pageKey,
-        _pageSize,
-        'stop_at',
-        'DESC',
-        status: VoteStatus.activeAndUpcoming,
-        category: VoteCategory.all,
-      ).future);
-
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        _pagingController.appendPage(newItems, pageKey + 1);
-      }
-    } catch (e, s) {
-      _pagingController.error = e;
-      logger.e('error', error: e, stackTrace: s);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    ref.watch(areaProvider);
+    _pagingController.refresh();
+
     return ListView(
       children: [
         const CommonBanner('vote_home', 786 / 400),
@@ -244,5 +225,30 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         ),
       ],
     );
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    final area = ref.watch(areaProvider);
+    try {
+      final newItems = await ref.read(asyncVoteListProvider(
+        pageKey,
+        _pageSize,
+        'stop_at',
+        'DESC',
+        area,
+        status: VoteStatus.activeAndUpcoming,
+        category: VoteCategory.all,
+      ).future);
+
+      final isLastPage = newItems.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        _pagingController.appendPage(newItems, pageKey + 1);
+      }
+    } catch (e, s) {
+      _pagingController.error = e;
+      logger.e('error', error: e, stackTrace: s);
+    }
   }
 }
