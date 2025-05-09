@@ -78,16 +78,10 @@ const RewardDetailPage = () => {
   })();
 
   // 다국어 위치 정보 처리
-  const locationInfo = reward.location
-    ? (reward.location as any)[currentLanguage] ||
-      (reward.location as any)['ko']
-    : null;
+  const locationInfo = getLocalizedString(reward.location) || null;
 
   // 다국어 크기 가이드 정보 처리
-  const sizeGuideInfo = reward.sizeGuide
-    ? (reward.sizeGuide as any)[currentLanguage] ||
-      (reward.sizeGuide as any)['ko']
-    : null;
+  const sizeGuideInfo = getLocalizedString(reward.sizeGuide) || null;
 
   return (
     <div className='container mx-auto px-4 py-8'>
