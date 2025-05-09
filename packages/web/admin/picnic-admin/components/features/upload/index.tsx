@@ -126,6 +126,62 @@ export default function ImageUpload({
     }
   };
 
+  // 붙여넣기 이벤트 핸들러
+  const handlePaste = async (e: ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    // DataTransferItemList를 배열로 변환
+    const itemsArray = Array.from(items);
+    for (const item of itemsArray) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (!file) continue;
+
+        // 파일 크기 체크
+        const isLessThanMaxSize = file.size / 1024 / 1024 < maxSize;
+        if (!isLessThanMaxSize) {
+          message.error(`이미지 크기는 ${maxSize}MB 이하여야 합니다!`);
+          return;
+        }
+
+        try {
+          setLoading(true);
+          // 고유한 파일명 생성 (UUID + 원본 확장자)
+          const fileExt = file.name.split('.').pop() || 'png';
+          const fileName = `${uuidv4()}.${fileExt}`;
+          const filePath = `${folder}/${fileName}`;
+
+          // AWS S3에 파일 업로드
+          await uploadToS3(file, bucket, folder, fileName);
+
+          // 업로드 성공 핸들링
+          setImageUrl(filePath);
+          if (onChange) {
+            onChange(filePath);
+          }
+
+          message.success('이미지가 성공적으로 업로드되었습니다!');
+        } catch (error) {
+          console.error('붙여넣기 업로드 오류:', error);
+          message.error('이미지 업로드 중 오류가 발생했습니다.');
+        } finally {
+          setLoading(false);
+        }
+        break;
+      }
+    }
+  };
+
+  // 붙여넣기 이벤트 리스너 등록
+  useEffect(() => {
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, [bucket, folder, maxSize, onChange]);
+
   return (
     <div className='image-upload-container'>
       <Upload
@@ -167,7 +223,7 @@ export default function ImageUpload({
               ) : (
                 <>
                   <UploadOutlined style={{ fontSize: '32px' }} />
-                  <div className='upload-text'>이미지 업로드</div>
+                  <div className='upload-text'>이미지 업로드 또는 붙여넣기</div>
                 </>
               )}
             </div>

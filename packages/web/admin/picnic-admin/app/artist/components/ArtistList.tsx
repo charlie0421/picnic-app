@@ -2,7 +2,7 @@
 
 import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
 import { useMany, useNavigation, useResource } from '@refinedev/core';
-import { Table, Input, Space, Image, Tag, Checkbox } from 'antd';
+import { Table, Input, Space, Image, Tag, Checkbox, Select, TablePaginationConfig } from 'antd';
 import { useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { getCdnImageUrl } from '@/lib/image';
@@ -18,14 +18,18 @@ export default function ArtistList() {
 
   // URL에서 search 파라미터 가져오기
   const urlSearch = searchParams.get('search') || '';
+  const currentPage = parseInt(searchParams.get('current') || '1');
+  const pageSize = parseInt(searchParams.get('pageSize') || '10');
 
   const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
   const [searchQuery, setSearchQuery] = useState<string>(urlSearch);
   const [searchResults, setSearchResults] = useState<Artist[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [filters, setFilters] = useState({
-    is_solo: false,
-    is_kpop: false,
-    is_musical: false,
+    is_solo: searchParams.get('is_solo') === 'true',
+    is_kpop: searchParams.get('is_kpop') === 'true',
+    is_musical: searchParams.get('is_musical') === 'true',
+    birthMonth: searchParams.get('birth_month') ? parseInt(searchParams.get('birth_month')!) : undefined,
   });
   const { show } = useNavigation();
   const { resource } = useResource();
@@ -47,7 +51,7 @@ export default function ArtistList() {
   });
 
   // URL 파라미터 업데이트
-  const updateUrlParams = (search: string) => {
+  const updateUrlParams = (search: string, page: number = 1, size: number = 10) => {
     const params = new URLSearchParams(searchParams.toString());
 
     if (!search) {
@@ -66,6 +70,13 @@ export default function ArtistList() {
     if (filters.is_musical) params.set('is_musical', 'true');
     else params.delete('is_musical');
 
+    if (filters.birthMonth) params.set('birth_month', filters.birthMonth.toString());
+    else params.delete('birth_month');
+
+    // 페이지네이션 파라미터 추가
+    params.set('current', page.toString());
+    params.set('pageSize', size.toString());
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -75,12 +86,10 @@ export default function ArtistList() {
   };
 
   // 검색 실행
-  const handleSearch = async (value: string) => {
+  const handleSearch = async (value: string, page: number = currentPage, size: number = pageSize) => {
     const trimmedValue = value.trim();
     setSearchQuery(trimmedValue);
-    updateUrlParams(trimmedValue);
-
-    let query = supabaseBrowserClient.from('artist').select('*');
+    updateUrlParams(trimmedValue, page, size);
 
     // 필터 조건을 OR로 적용
     const filterConditions = [];
@@ -88,11 +97,41 @@ export default function ArtistList() {
     if (filters.is_kpop) filterConditions.push('is_kpop.eq.true');
     if (filters.is_musical) filterConditions.push('is_musical.eq.true');
 
+    // 총 개수 조회
+    let countQuery = supabaseBrowserClient.from('artist').select('*', { count: 'exact', head: true });
+
+    if (filterConditions.length > 0) {
+      countQuery = countQuery.or(filterConditions.join(','));
+    }
+
+    if (filters.birthMonth) {
+      countQuery = countQuery.eq('mm', filters.birthMonth);
+    }
+
+    if (trimmedValue) {
+      countQuery = countQuery.or(
+        `name->>ko.ilike.%${trimmedValue}%,` +
+          `name->>en.ilike.%${trimmedValue}%,` +
+          `name->>ja.ilike.%${trimmedValue}%,` +
+          `name->>zh.ilike.%${trimmedValue}%,` +
+          `name->>id.ilike.%${trimmedValue}%`,
+      );
+    }
+
+    const { count } = await countQuery;
+    setTotalCount(count || 0);
+
+    // 데이터 조회
+    let query = supabaseBrowserClient.from('artist').select('*');
+
     if (filterConditions.length > 0) {
       query = query.or(filterConditions.join(','));
     }
 
-    // 검색어가 있는 경우 검색 조건 추가
+    if (filters.birthMonth) {
+      query = query.eq('mm', filters.birthMonth);
+    }
+
     if (trimmedValue) {
       query = query.or(
         `name->>ko.ilike.%${trimmedValue}%,` +
@@ -103,17 +142,16 @@ export default function ArtistList() {
       );
     }
 
-    // 정렬 조건 추가
     query = query.order('created_at', { ascending: false });
 
-    console.log('Filters:', filters);
-    console.log('Filter conditions:', filterConditions);
+    // 페이지네이션 적용
+    const from = (page - 1) * size;
+    const to = from + size - 1;
+    query = query.range(from, to);
 
     const { data, error } = await query;
 
     if (!error && data) {
-      console.log('Query result count:', data.length);
-      console.log('First result:', data[0]);
       setSearchResults(data);
     } else {
       console.error('Query error:', error);
@@ -121,34 +159,64 @@ export default function ArtistList() {
     }
   };
 
+  // 검색 버튼 클릭 시
+  const handleSearchSubmit = (value: string) => {
+    handleSearch(value);
+  };
+
   // URL에서 필터 상태 복원
   useEffect(() => {
     const isSolo = searchParams.get('is_solo') === 'true';
     const isKpop = searchParams.get('is_kpop') === 'true';
     const isMusical = searchParams.get('is_musical') === 'true';
+    const birthMonth = searchParams.get('birth_month') ? parseInt(searchParams.get('birth_month')!) : undefined;
 
     setFilters({
       is_solo: isSolo,
       is_kpop: isKpop,
       is_musical: isMusical,
+      birthMonth,
     });
   }, [searchParams]);
 
   // 필터 변경 시 검색 실행
   useEffect(() => {
     handleSearch(searchQuery);
-  }, [filters.is_solo, filters.is_kpop, filters.is_musical]);
+  }, [filters.is_solo, filters.is_kpop, filters.is_musical, filters.birthMonth]);
 
-  // URL 검색 파라미터가 변경될 때마다 검색어 상태 업데이트
+  // URL 파라미터가 변경될 때마다 검색 실행
   useEffect(() => {
-    setSearchTerm(urlSearch);
-    setSearchQuery(urlSearch);
-    handleSearch(urlSearch);
-  }, [urlSearch]);
+    const newSearch = searchParams.get('search') || '';
+    const newFilters = {
+      is_solo: searchParams.get('is_solo') === 'true',
+      is_kpop: searchParams.get('is_kpop') === 'true',
+      is_musical: searchParams.get('is_musical') === 'true',
+      birthMonth: searchParams.get('birth_month') ? parseInt(searchParams.get('birth_month')!) : undefined,
+    };
+    const newPage = parseInt(searchParams.get('current') || '1');
+    const newPageSize = parseInt(searchParams.get('pageSize') || '10');
+
+    setSearchTerm(newSearch);
+    setSearchQuery(newSearch);
+    setFilters(newFilters);
+    handleSearch(newSearch, newPage, newPageSize);
+  }, [searchParams]);
 
   const finalTableProps = {
     ...tableProps,
     dataSource: searchResults,
+    pagination: {
+      ...tableProps.pagination,
+      total: totalCount,
+      current: currentPage,
+      pageSize: pageSize,
+      showSizeChanger: true,
+      pageSizeOptions: ['10', '20', '50', '100'],
+      showTotal: (total: number) => `총 ${total}개 항목`,
+      onChange: (page: number, pageSize: number) => {
+        handleSearch(searchQuery, page, pageSize);
+      },
+    },
   };
 
   // 아티스트 그룹 정보 가져오기
@@ -176,11 +244,22 @@ export default function ArtistList() {
         <Space>
           <Input.Search
             placeholder='아티스트 이름 검색'
-            onSearch={handleSearch}
+            onSearch={handleSearchSubmit}
             value={searchTerm}
             onChange={handleSearchChange}
             style={{ width: 300, maxWidth: '100%' }}
             allowClear
+          />
+          <Select
+            placeholder="생년월일 월 선택"
+            allowClear
+            style={{ width: 150 }}
+            value={filters.birthMonth}
+            onChange={(value) => setFilters({ ...filters, birthMonth: value })}
+            options={Array.from({ length: 12 }, (_, i) => ({
+              value: i + 1,
+              label: `${i + 1}월`,
+            }))}
           />
         </Space>
         <Space>
@@ -219,12 +298,6 @@ export default function ArtistList() {
             style: { cursor: 'pointer' },
             onClick: () => show('artist', record.id),
           })}
-          pagination={{
-            ...finalTableProps.pagination,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            showTotal: (total) => `총 ${total}개 항목`,
-          }}
           size='small'
         >
           <Table.Column
@@ -253,13 +326,16 @@ export default function ArtistList() {
             responsive={['md']}
             render={(value: string) =>
               value && (
-                <Image
-                  src={getCdnImageUrl(value, 80)}
-                  alt='아티스트 이미지'
-                  width={80}
-                  height={80}
-                  preview={false}
-                />
+                <div style={{ width: 80, height: 80, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Image
+                    src={getCdnImageUrl(value, 80)}
+                    alt='아티스트 이미지'
+                    width={80}
+                    height={80}
+                    preview={false}
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
               )
             }
           />
@@ -309,13 +385,16 @@ export default function ArtistList() {
                   }}
                 >
                   {group.image && (
-                    <Image
-                      src={getCdnImageUrl(group.image, 40)}
-                      alt='그룹 이미지'
-                      width={40}
-                      height={40}
-                      preview={false}
-                    />
+                    <div style={{ width: 40, height: 40, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Image
+                        src={getCdnImageUrl(group.image, 40)}
+                        alt='그룹 이미지'
+                        width={40}
+                        height={40}
+                        preview={false}
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
                   )}
                   <span>{group.name?.ko || '-'}</span>
                 </Space>

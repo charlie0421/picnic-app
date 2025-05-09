@@ -3,16 +3,19 @@
 import { Edit, useForm } from '@refinedev/antd';
 import { Form, Input, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { useResource } from '@refinedev/core';
+import { useResource, useNavigation } from '@refinedev/core';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import ArtistForm from '../../components/ArtistForm';
 import dayjs from 'dayjs';
+import { useSearchParams } from 'next/navigation';
 
 export default function ArtistEdit() {
   const [groups, setGroups] = useState<any[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
   const { resource } = useResource();
+  const searchParams = useSearchParams();
+  const { goBack } = useNavigation();
 
   // 아티스트 그룹 정보 가져오기
   useEffect(() => {
@@ -41,9 +44,10 @@ export default function ArtistEdit() {
   const { formProps, saveButtonProps } = useForm({
     resource: 'artist',
     warnWhenUnsavedChanges: true,
-    redirect: 'list',
+    redirect: false,
     onMutationSuccess: () => {
       messageApi.success('아티스트가 성공적으로 수정되었습니다');
+      goBack();
     },
   });
 

@@ -6,9 +6,10 @@ import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
-import { useResource } from '@refinedev/core';
+import { useResource, useNavigation } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import ArtistForm from '../components/ArtistForm';
+import { useSearchParams } from 'next/navigation';
 
 // UTC 플러그인 확장
 dayjs.extend(utc);
@@ -18,6 +19,8 @@ export default function ArtistCreate() {
   const [loadingGroups, setLoadingGroups] = useState<boolean>(true);
   const [messageApi, contextHolder] = message.useMessage();
   const { resource } = useResource();
+  const searchParams = useSearchParams();
+  const { goBack } = useNavigation();
 
   // 아티스트 그룹 정보 직접 Supabase에서 가져오기
   useEffect(() => {
@@ -49,9 +52,10 @@ export default function ArtistCreate() {
   const { formProps, saveButtonProps } = useForm({
     resource: 'artist',
     warnWhenUnsavedChanges: true,
-    redirect: 'list',
+    redirect: false,
     onMutationSuccess: () => {
       messageApi.success('아티스트가 성공적으로 생성되었습니다');
+      goBack();
     },
   });
 
