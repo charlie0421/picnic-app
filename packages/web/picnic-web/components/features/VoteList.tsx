@@ -486,17 +486,23 @@ const VoteList: React.FC = () => {
   );
   const [votes, setVotes] = useState<Vote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchVotes = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      console.log('Fetching votes...');
+  const fetchVotes = useCallback(
+    async (isRefresh = false) => {
+      try {
+        if (isRefresh) {
+          setIsRefreshing(true);
+        } else {
+          setIsLoading(true);
+        }
+        console.log('Fetching votes...');
 
-      const { data: voteData, error: voteError } = await supabase
-        .from('vote')
-        .select(
-          `
+        const { data: voteData, error: voteError } = await supabase
+          .from('vote')
+          .select(
+            `
           *,
           vote_item!vote_id (
             id,
@@ -522,79 +528,85 @@ const VoteList: React.FC = () => {
             reward:reward_id (*)
           )
         `,
-        )
-        .is('deleted_at', null)
-        .order('start_at', { ascending: false });
+          )
+          .is('deleted_at', null)
+          .order('start_at', { ascending: false });
 
-      if (voteError) {
-        console.error('Vote fetch error:', voteError);
-        throw voteError;
+        if (voteError) {
+          console.error('Vote fetch error:', voteError);
+          throw voteError;
+        }
+
+        if (!voteData || voteData.length === 0) {
+          console.log('No votes found');
+          setVotes([]);
+          return;
+        }
+
+        const formattedVotes = voteData.map((vote: any) => ({
+          ...vote,
+          deletedAt: vote.deleted_at,
+          startAt: vote.start_at,
+          stopAt: vote.stop_at,
+          createdAt: vote.created_at,
+          updatedAt: vote.updated_at,
+          mainImage: vote.main_image,
+          resultImage: vote.result_image,
+          waitImage: vote.wait_image,
+          voteCategory: vote.vote_category,
+          voteContent: vote.vote_content,
+          voteSubCategory: vote.vote_sub_category,
+          visibleAt: vote.visible_at,
+          voteItems: vote.vote_item
+            ? vote.vote_item.map((item: any) => ({
+                ...item,
+                deletedAt: item.deleted_at,
+                createdAt: item.created_at,
+                updatedAt: item.updated_at,
+                voteId: item.vote_id,
+                artistId: item.artist_id,
+                groupId: item.group_id,
+                voteTotal: item.vote_total || 0,
+                artist: item.artist
+                  ? {
+                      ...item.artist,
+                      image: item.artist.image,
+                    }
+                  : null,
+              }))
+            : [],
+          rewards: vote.vote_reward
+            ? vote.vote_reward.map((vr: any) => vr.reward).filter(Boolean)
+            : [],
+          title: vote.title || '제목 없음',
+        }));
+
+        console.log('Fetched votes:', formattedVotes);
+        setVotes(formattedVotes);
+        setError(null);
+      } catch (err) {
+        console.error('투표 데이터 로드 오류:', err);
+        setError(err as Error);
+      } finally {
+        if (isRefresh) {
+          setIsRefreshing(false);
+        } else {
+          setIsLoading(false);
+        }
       }
-
-      if (!voteData || voteData.length === 0) {
-        console.log('No votes found');
-        setVotes([]);
-        return;
-      }
-
-      const formattedVotes = voteData.map((vote: any) => ({
-        ...vote,
-        deletedAt: vote.deleted_at,
-        startAt: vote.start_at,
-        stopAt: vote.stop_at,
-        createdAt: vote.created_at,
-        updatedAt: vote.updated_at,
-        mainImage: vote.main_image,
-        resultImage: vote.result_image,
-        waitImage: vote.wait_image,
-        voteCategory: vote.vote_category,
-        voteContent: vote.vote_content,
-        voteSubCategory: vote.vote_sub_category,
-        visibleAt: vote.visible_at,
-        voteItems: vote.vote_item
-          ? vote.vote_item.map((item: any) => ({
-              ...item,
-              deletedAt: item.deleted_at,
-              createdAt: item.created_at,
-              updatedAt: item.updated_at,
-              voteId: item.vote_id,
-              artistId: item.artist_id,
-              groupId: item.group_id,
-              voteTotal: item.vote_total || 0,
-              artist: item.artist
-                ? {
-                    ...item.artist,
-                    image: item.artist.image,
-                  }
-                : null,
-            }))
-          : [],
-        rewards: vote.vote_reward
-          ? vote.vote_reward.map((vr: any) => vr.reward).filter(Boolean)
-          : [],
-        title: vote.title || '제목 없음',
-      }));
-
-      console.log('Fetched votes:', formattedVotes);
-      setVotes(formattedVotes);
-      setError(null);
-    } catch (err) {
-      console.error('투표 데이터 로드 오류:', err);
-      setError(err as Error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [supabase]);
+    },
+    [supabase],
+  );
 
   // 언어 변경 시 쿼리 재실행
   useEffect(() => {
-    fetchVotes();
+    fetchVotes(false);
   }, [currentLanguage, fetchVotes]);
 
   // 전역 타이머 구독
   useEffect(() => {
     const timer = setInterval(() => {
-      fetchVotes();
+      fetchVotes(true);
     }, 1000);
 
     return () => {
@@ -604,7 +616,7 @@ const VoteList: React.FC = () => {
 
   // 초기 데이터 로드
   useEffect(() => {
-    fetchVotes();
+    fetchVotes(false);
   }, [fetchVotes]);
 
   // 표시할 투표 목록 계산
