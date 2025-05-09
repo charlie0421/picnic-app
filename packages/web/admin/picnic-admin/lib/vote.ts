@@ -62,6 +62,7 @@ export interface VoteRecord {
   vote_category?: VoteCategory;
   category?: VoteCategory;
   title?: MultilingualTitle;
+  area?: string;
   visible_at?: string;
   start_at?: string;
   stop_at?: string;
@@ -83,7 +84,6 @@ export interface RewardItem {
   order?: number;
   thumbnail?: string;
 }
-
 
 // API 응답 타입 정의
 export interface ApiResponse<T> {

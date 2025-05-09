@@ -65,6 +65,17 @@ const getCategoryName = (category: string) => {
   }
 };
 
+const getAreaName = (area: string | undefined) => {
+  switch (area) {
+    case 'kpop':
+      return 'K-POP';
+    case 'musical':
+      return '뮤지컬';
+    default:
+      return '영역 없음';
+  }
+};
+
 /**
  * 투표 카테고리에 따른 컬러 정의
  */
@@ -83,6 +94,17 @@ const getCategoryColor = (category: string) => {
       return '#FF9800';
     default:
       return '#757575';
+  }
+};
+
+const getAreaColor = (area: string | undefined) => {
+  switch (area) {
+    case 'kpop':
+      return '#FF1493'; // 핫 핑크
+    case 'musical':
+      return '#4169E1'; // 로얄 블루
+    default:
+      return '#8B8B8B'; // 회색
   }
 };
 
@@ -511,6 +533,19 @@ export default function VoteList() {
                 />
               );
             }}
+          />
+
+          <Table.Column
+            title='영역'
+            dataIndex='area'
+            render={(area) => (
+              <Tag
+                color={getAreaColor(area)}
+                style={{ fontSize: '14px', padding: '4px 8px' }}
+              >
+                {getAreaName(area)}
+              </Tag>
+            )}
           />
 
           <Table.Column

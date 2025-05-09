@@ -3265,6 +3265,7 @@ export type Database = {
       }
       vote: {
         Row: {
+          area: string
           created_at: string
           deleted_at: string | null
           id: number
@@ -3282,6 +3283,7 @@ export type Database = {
           wait_image: string | null
         }
         Insert: {
+          area: string
           created_at?: string
           deleted_at?: string | null
           id?: number
@@ -3299,6 +3301,7 @@ export type Database = {
           wait_image?: string | null
         }
         Update: {
+          area?: string
           created_at?: string
           deleted_at?: string | null
           id?: number

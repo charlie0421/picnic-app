@@ -481,6 +481,20 @@ export default function VoteForm({
       </Form.Item>
 
       <Form.Item
+        name='area'
+        label='영역'
+        rules={[{ required: true, message: '영역을 선택해주세요' }]}
+      >
+        <Select
+          options={[
+            { label: 'K-POP', value: 'kpop' },
+            { label: '뮤지컬', value: 'musical' },
+          ]}
+          placeholder='영역을 선택하세요'
+        />
+      </Form.Item>
+
+      <Form.Item
         name='main_image'
         label='메인 이미지'
         valuePropName='value'

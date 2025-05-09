@@ -976,6 +976,7 @@ export interface Version {
 }
 
 export interface Vote {
+  area: string
   createdAt: string
   deletedAt: string | null
   id: number

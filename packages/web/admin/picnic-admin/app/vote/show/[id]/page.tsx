@@ -10,7 +10,7 @@ export default function VoteShow() {
   const { queryResult } = useShow<VoteRecord>({
     meta: {
       select:
-        'id, title, main_image, vote_category, visible_at, start_at, stop_at, created_at, updated_at, deleted_at, vote_item(id, artist_id, vote_total, artist(id, name, image, birth_date, yy, mm, dd, artist_group(id, name, image, debut_yy, debut_mm, debut_dd)), created_at, updated_at, deleted_at)',
+        'id, title, main_image, vote_category, area, visible_at, start_at, stop_at, created_at, updated_at, deleted_at, vote_item(id, artist_id, vote_total, artist(id, name, image, birth_date, yy, mm, dd, artist_group(id, name, image, debut_yy, debut_mm, debut_dd)), created_at, updated_at, deleted_at)',
     },
   });
   const { data, isLoading } = queryResult;

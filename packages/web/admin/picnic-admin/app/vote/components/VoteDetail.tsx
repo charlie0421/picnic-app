@@ -4,16 +4,21 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { useNavigation, useList, useMany } from '@refinedev/core';
 import { getCdnImageUrl } from '@/lib/image';
-import { VoteRecord, VOTE_STATUS, getVoteStatus, STATUS_TAG_COLORS } from '@/lib/vote';
-import { 
-  Space, 
-  Tag, 
-  Typography, 
-  Card, 
+import {
+  VoteRecord,
+  VOTE_STATUS,
+  getVoteStatus,
+  STATUS_TAG_COLORS,
+} from '@/lib/vote';
+import {
+  Space,
+  Tag,
+  Typography,
+  Card,
   Descriptions,
   Divider,
   theme as antdTheme,
-  Empty
+  Empty,
 } from 'antd';
 import {
   CalendarOutlined,
@@ -22,12 +27,7 @@ import {
   GiftOutlined,
   StarTwoTone,
 } from '@ant-design/icons';
-import { 
-  DateField, 
-  ImageField,
-  TagField,
-  NumberField,
-} from '@refinedev/antd';
+import { DateField, ImageField, TagField, NumberField } from '@refinedev/antd';
 import Link from 'next/link';
 import MultiLanguageDisplay from '@/components/ui/MultiLanguageDisplay';
 import type { ComponentProps } from 'react';
@@ -35,7 +35,7 @@ import ArtistCard from '@/app/artist/components/ArtistCard';
 
 const { Title, Text } = Typography;
 
-// 카테고리에 맞는 한글 이름 반환 
+// 카테고리에 맞는 한글 이름 반환
 const getCategoryName = (category: string) => {
   switch (category) {
     case 'birthday':
@@ -46,6 +46,17 @@ const getCategoryName = (category: string) => {
       return '누적';
     default:
       return category || '카테고리 없음';
+  }
+};
+
+const getAreaName = (area: string | undefined) => {
+  switch (area) {
+    case 'kpop':
+      return 'K-POP';
+    case 'musical':
+      return '뮤지컬';
+    default:
+      return '영역 없음';
   }
 };
 
@@ -70,92 +81,108 @@ const getCategoryColor = (category: string) => {
   }
 };
 
+const getAreaColor = (area: string | undefined) => {
+  switch (area) {
+    case 'kpop':
+      return '#FF1493'; // 핫 핑크
+    case 'musical':
+      return '#4169E1'; // 로얄 블루
+    default:
+      return '#8B8B8B'; // 회색
+  }
+};
+
 interface VoteDetailProps {
   record?: VoteRecord;
   loading?: boolean;
 }
 
 // 투표 항목 카드 컴포넌트 분리 - 렌더링 최적화
-const VoteItemCard = React.memo(({ 
-  item, 
-  index, 
-  token, 
-  onArtistClick 
-}: { 
-  item: any; 
-  index: number; 
-  token: any;
-  onArtistClick: (artistId: string | number) => void;
-}) => {
-  return (
-    <Card
-      key={item.id || index}
-      hoverable
-      style={{ 
-        height: '100%',
-        background: index === 0 
-          ? `linear-gradient(to bottom, ${token.colorPrimaryBg}, ${token.colorBgContainer})` 
-          : token.colorBgContainer,
-        border: `1px solid ${index === 0 ? token.colorPrimaryBorder : token.colorBorderSecondary}`,
-        borderRadius: token.borderRadiusLG,
-      }}
-      onClick={() => {
-        if (item.artist_id) {
-          onArtistClick(item.artist_id);
-        }
-      }}
-    >
-      <div
+const VoteItemCard = React.memo(
+  ({
+    item,
+    index,
+    token,
+    onArtistClick,
+  }: {
+    item: any;
+    index: number;
+    token: any;
+    onArtistClick: (artistId: string | number) => void;
+  }) => {
+    return (
+      <Card
+        key={item.id || index}
+        hoverable
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-          alignItems: 'center',
+          height: '100%',
+          background:
+            index === 0
+              ? `linear-gradient(to bottom, ${token.colorPrimaryBg}, ${token.colorBgContainer})`
+              : token.colorBgContainer,
+          border: `1px solid ${
+            index === 0 ? token.colorPrimaryBorder : token.colorBorderSecondary
+          }`,
+          borderRadius: token.borderRadiusLG,
+        }}
+        onClick={() => {
+          if (item.artist_id) {
+            onArtistClick(item.artist_id);
+          }
         }}
       >
-        {/* 순위 표시 */}
-        {index === 0 && (
-          <Tag
-            color="gold"
-            style={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              zIndex: 1,
-            }}
-          >
-            1위
-          </Tag>
-        )}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            alignItems: 'center',
+          }}
+        >
+          {/* 순위 표시 */}
+          {index === 0 && (
+            <Tag
+              color='gold'
+              style={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                zIndex: 1,
+              }}
+            >
+              1위
+            </Tag>
+          )}
 
-        {/* 아티스트 정보 */}
-        {item.artist && (
-          <ArtistCard
-            artist={item.artist}
-            voteInfo={{ voteTotal: item.vote_total }}
-            onClick={() => item.artist_id && onArtistClick(item.artist_id)}
-          />
-        )}
-
-        {/* 투표 수 */}
-        <div style={{ width: '100%', textAlign: 'center' }}>
-          <Divider plain style={{ margin: '8px 0' }}>
-            <Text strong style={{ color: token.colorTextSecondary }}>
-              <UserOutlined /> 투표 수
-            </Text>
-          </Divider>
-          <Title level={4} style={{ margin: 0, color: token.colorPrimary }}>
-            <NumberField
-              value={item.vote_total || 0}
-              options={{ notation: 'compact' }}
-              strong
+          {/* 아티스트 정보 */}
+          {item.artist && (
+            <ArtistCard
+              artist={item.artist}
+              voteInfo={{ voteTotal: item.vote_total }}
+              onClick={() => item.artist_id && onArtistClick(item.artist_id)}
             />
-          </Title>
+          )}
+
+          {/* 투표 수 */}
+          <div style={{ width: '100%', textAlign: 'center' }}>
+            <Divider plain style={{ margin: '8px 0' }}>
+              <Text strong style={{ color: token.colorTextSecondary }}>
+                <UserOutlined /> 투표 수
+              </Text>
+            </Divider>
+            <Title level={4} style={{ margin: 0, color: token.colorPrimary }}>
+              <NumberField
+                value={item.vote_total || 0}
+                options={{ notation: 'compact' }}
+                strong
+              />
+            </Title>
+          </div>
         </div>
-      </div>
-    </Card>
-  );
-});
+      </Card>
+    );
+  },
+);
 
 VoteItemCard.displayName = 'VoteItemCard';
 
@@ -261,14 +288,17 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
   }, [rewardsData]);
 
   // 리워드 데이터 로딩 상태 및 데이터 여부 확인
-  const isRewardLoading = isVoteRewardLoading || (isRewardsLoading && rewardIds.length > 0);
+  const isRewardLoading =
+    isVoteRewardLoading || (isRewardsLoading && rewardIds.length > 0);
   const hasRewardData = !isVoteRewardLoading && rewardIds.length > 0;
 
   // 투표 항목 필터링 및 정렬
   const filteredVoteItems = useMemo(() => {
-    return record?.vote_item
-      ?.filter((item: any) => !item.deleted_at)
-      ?.sort((a: any, b: any) => b.vote_total - a.vote_total) || [];
+    return (
+      record?.vote_item
+        ?.filter((item: any) => !item.deleted_at)
+        ?.sort((a: any, b: any) => b.vote_total - a.vote_total) || []
+    );
   }, [record?.vote_item]);
 
   // 투표 상태 확인
@@ -291,38 +321,44 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
   }
 
   return (
-    <div className="vote-detail" style={{ color: token.colorText }}>
+    <div className='vote-detail' style={{ color: token.colorText }}>
       {/* 메인 이미지 */}
       {record.main_image && (
         <div style={{ marginBottom: 24 }}>
           <ImageField
-            value={getCdnImageUrl(record.main_image) || '/images/placeholder.jpg'}
+            value={
+              getCdnImageUrl(record.main_image) || '/images/placeholder.jpg'
+            }
             title={record.title?.ko || '투표 이미지'}
             width={isMobile ? 300 : 500}
             height={isMobile ? 180 : 250}
-            style={{ 
-              objectFit: 'cover', 
+            style={{
+              objectFit: 'cover',
               borderRadius: 8,
-              boxShadow: `0 4px 12px ${token.colorBgContainerDisabled}`
+              boxShadow: `0 4px 12px ${token.colorBgContainerDisabled}`,
             }}
           />
         </div>
       )}
 
       {/* 기본 정보 */}
-      <Descriptions 
-        title={<Title level={4} style={{ color: token.colorText }}>기본 정보</Title>}
-        bordered 
-        column={1} 
-        layout={isMobile ? "vertical" : "horizontal"}
-        style={{ 
+      <Descriptions
+        title={
+          <Title level={4} style={{ color: token.colorText }}>
+            기본 정보
+          </Title>
+        }
+        bordered
+        column={1}
+        layout={isMobile ? 'vertical' : 'horizontal'}
+        style={{
           marginBottom: 24,
           background: token.colorBgContainer,
           borderRadius: token.borderRadiusLG,
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       >
-        <Descriptions.Item 
+        <Descriptions.Item
           label={<Text style={{ color: token.colorTextSecondary }}>제목</Text>}
           labelStyle={{ background: token.colorBgLayout }}
         >
@@ -335,15 +371,36 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           />
         </Descriptions.Item>
 
-        <Descriptions.Item 
-          label={<Text style={{ color: token.colorTextSecondary }}>카테고리</Text>}
+        <Descriptions.Item
+          label={
+            <Text style={{ color: token.colorTextSecondary }}>카테고리</Text>
+          }
           labelStyle={{ background: token.colorBgLayout }}
         >
-          <TagField value={getCategoryName(category)} color={getCategoryColor(category)} />
+          <TagField
+            value={getCategoryName(category)}
+            color={getCategoryColor(category)}
+          />
         </Descriptions.Item>
 
-        <Descriptions.Item 
-          label={<Text style={{ color: token.colorTextSecondary }}>연결된 리워드</Text>}
+        <Descriptions.Item
+          label={<Text style={{ color: token.colorTextSecondary }}>영역</Text>}
+          labelStyle={{ background: token.colorBgLayout }}
+        >
+          <Tag
+            color={getAreaColor(record?.area)}
+            style={{ fontSize: '14px', padding: '4px 8px' }}
+          >
+            {getAreaName(record?.area)}
+          </Tag>
+        </Descriptions.Item>
+
+        <Descriptions.Item
+          label={
+            <Text style={{ color: token.colorTextSecondary }}>
+              연결된 리워드
+            </Text>
+          }
           labelStyle={{ background: token.colorBgLayout }}
         >
           {isRewardLoading ? (
@@ -354,16 +411,17 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
             <Space wrap>
               {linkedRewards.map((reward) => (
                 <Link key={reward.id} href={`/reward/show/${reward.id}`}>
-                  <Tag 
-                    color='blue' 
-                    style={{ 
+                  <Tag
+                    color='blue'
+                    style={{
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 4
+                      gap: 4,
                     }}
                   >
-                    <GiftOutlined /> {reward.title?.ko || `리워드 #${reward.id}`}
+                    <GiftOutlined />{' '}
+                    {reward.title?.ko || `리워드 #${reward.id}`}
                   </Tag>
                 </Link>
               ))}
@@ -373,8 +431,10 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           )}
         </Descriptions.Item>
 
-        <Descriptions.Item 
-          label={<Text style={{ color: token.colorTextSecondary }}>노출 시작일</Text>}
+        <Descriptions.Item
+          label={
+            <Text style={{ color: token.colorTextSecondary }}>노출 시작일</Text>
+          }
           labelStyle={{ background: token.colorBgLayout }}
         >
           <Space>
@@ -382,22 +442,24 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
             {record.visible_at ? (
               <DateField
                 value={record.visible_at}
-              format='YYYY-MM-DD HH:mm'
-              locales='ko'
-            />
-          ) : (
-            <Text type='secondary'>설정되지 않음</Text>
-          )}
+                format='YYYY-MM-DD HH:mm'
+                locales='ko'
+              />
+            ) : (
+              <Text type='secondary'>설정되지 않음</Text>
+            )}
           </Space>
         </Descriptions.Item>
 
-        <Descriptions.Item 
-          label={<Text style={{ color: token.colorTextSecondary }}>투표 시작일</Text>}
+        <Descriptions.Item
+          label={
+            <Text style={{ color: token.colorTextSecondary }}>투표 시작일</Text>
+          }
           labelStyle={{ background: token.colorBgLayout }}
         >
           <Space>
-          <CalendarOutlined style={{ color: token.colorPrimary }} />
-          {record.start_at ? (
+            <CalendarOutlined style={{ color: token.colorPrimary }} />
+            {record.start_at ? (
               <DateField
                 value={record.start_at}
                 format='YYYY-MM-DD HH:mm'
@@ -409,12 +471,14 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           </Space>
         </Descriptions.Item>
 
-        <Descriptions.Item 
-          label={<Text style={{ color: token.colorTextSecondary }}>투표 종료일</Text>}
+        <Descriptions.Item
+          label={
+            <Text style={{ color: token.colorTextSecondary }}>투표 종료일</Text>
+          }
           labelStyle={{ background: token.colorBgLayout }}
         >
           <Space>
-          <CalendarOutlined style={{ color: token.colorWarningTextActive }} />
+            <CalendarOutlined style={{ color: token.colorWarningTextActive }} />
             {record.stop_at ? (
               <DateField
                 value={record.stop_at}
@@ -427,53 +491,61 @@ const VoteDetail: React.FC<VoteDetailProps> = ({ record, loading }) => {
           </Space>
         </Descriptions.Item>
 
-        <Descriptions.Item 
-          label={<Text style={{ color: token.colorTextSecondary }}>투표 상태</Text>}
+        <Descriptions.Item
+          label={
+            <Text style={{ color: token.colorTextSecondary }}>투표 상태</Text>
+          }
           labelStyle={{ background: token.colorBgLayout }}
         >
           {voteStatus && (
-            <TagField 
+            <TagField
               value={
                 voteStatus === VOTE_STATUS.UPCOMING
                   ? '예정됨'
                   : voteStatus === VOTE_STATUS.ONGOING
                   ? '진행 중'
                   : '종료됨'
-              } 
-              color={STATUS_TAG_COLORS[voteStatus]} 
+              }
+              color={STATUS_TAG_COLORS[voteStatus]}
             />
           )}
         </Descriptions.Item>
       </Descriptions>
 
       {/* 투표 항목 */}
-      <Card 
-        title={<Title level={4} style={{ margin: 0, color: token.colorText }}>투표 항목</Title>}
-        variant="borderless"
-        style={{ 
+      <Card
+        title={
+          <Title level={4} style={{ margin: 0, color: token.colorText }}>
+            투표 항목
+          </Title>
+        }
+        variant='borderless'
+        style={{
           marginBottom: 24,
           background: token.colorBgContainer,
           borderRadius: token.borderRadiusLG,
-          boxShadow: `0 2px 8px ${token.colorBgContainerDisabled}`
+          boxShadow: `0 2px 8px ${token.colorBgContainerDisabled}`,
         }}
       >
         {filteredVoteItems.length === 0 ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="등록된 투표 항목이 없습니다"
+            description='등록된 투표 항목이 없습니다'
             style={{ color: token.colorTextSecondary }}
           />
         ) : (
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))',
+              gridTemplateColumns: isMobile
+                ? '1fr'
+                : 'repeat(auto-fill, minmax(280px, 1fr))',
               gap: 16,
               padding: 8,
             }}
           >
             {filteredVoteItems.map((item: any, index: number) => (
-              <VoteItemCard 
+              <VoteItemCard
                 key={item.id || index}
                 item={item}
                 index={index}
