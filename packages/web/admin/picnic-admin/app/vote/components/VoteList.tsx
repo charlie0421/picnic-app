@@ -51,6 +51,15 @@ const FILTER_CATEGORY = {
 
 type FilterCategoryType = (typeof FILTER_CATEGORY)['ALL'] | VoteCategory;
 
+// 영역 필터 상수 추가
+const FILTER_AREA = {
+  ALL: 'all',
+  KPOP: 'kpop',
+  MUSICAL: 'musical',
+} as const;
+
+type FilterAreaType = (typeof FILTER_AREA)[keyof typeof FILTER_AREA];
+
 // 카테고리에 맞는 한글 이름 반환
 const getCategoryName = (category: string) => {
   switch (category) {
@@ -119,11 +128,14 @@ export default function VoteList() {
     (searchParams.get('category') as FilterCategoryType) || FILTER_CATEGORY.ALL;
   const urlStatus =
     (searchParams.get('status') as FilterStatusType) || FILTER_STATUS.ALL;
+  const urlArea =
+    (searchParams.get('area') as FilterAreaType) || FILTER_AREA.ALL;
 
   const [categoryFilter, setCategoryFilter] =
     React.useState<FilterCategoryType>(urlCategory);
   const [statusFilter, setStatusFilter] =
     React.useState<FilterStatusType>(urlStatus);
+  const [areaFilter, setAreaFilter] = React.useState<FilterAreaType>(urlArea);
   const [filteredData, setFilteredData] = useState<VoteRecord[]>([]);
 
   const { show, edit } = useNavigation();
@@ -138,6 +150,7 @@ export default function VoteList() {
   const updateUrlParams = (params: {
     category?: FilterCategoryType;
     status?: FilterStatusType;
+    area?: FilterAreaType;
   }) => {
     const urlParams = new URLSearchParams(searchParams.toString());
 
@@ -159,6 +172,15 @@ export default function VoteList() {
       }
     }
 
+    // 영역 필터 업데이트
+    if (params.area !== undefined) {
+      if (params.area === FILTER_AREA.ALL) {
+        urlParams.delete('area');
+      } else {
+        urlParams.set('area', params.area);
+      }
+    }
+
     router.push(`${pathname}?${urlParams.toString()}`);
   };
 
@@ -170,7 +192,17 @@ export default function VoteList() {
     if (urlStatus !== statusFilter) {
       setStatusFilter(urlStatus);
     }
-  }, [urlCategory, urlStatus, categoryFilter, statusFilter]);
+    if (urlArea !== areaFilter) {
+      setAreaFilter(urlArea);
+    }
+  }, [
+    urlCategory,
+    urlStatus,
+    urlArea,
+    categoryFilter,
+    statusFilter,
+    areaFilter,
+  ]);
 
   // 필터 체인지 핸들러
   const handleCategoryChange = (value: FilterCategoryType) => {
@@ -181,6 +213,11 @@ export default function VoteList() {
   const handleStatusChange = (value: FilterStatusType) => {
     setStatusFilter(value);
     updateUrlParams({ status: value });
+  };
+
+  const handleAreaChange = (value: FilterAreaType) => {
+    setAreaFilter(value);
+    updateUrlParams({ area: value });
   };
 
   const { tableProps } = useTable<VoteRecord>({
@@ -333,11 +370,16 @@ export default function VoteList() {
         });
       }
 
+      // 영역 필터 적용
+      if (areaFilter !== FILTER_AREA.ALL) {
+        filtered = filtered.filter((item) => item.area === areaFilter);
+      }
+
       setFilteredData(filtered);
     } else {
       setFilteredData([]);
     }
-  }, [tableProps.dataSource, categoryFilter, statusFilter]);
+  }, [tableProps.dataSource, categoryFilter, statusFilter, areaFilter]);
 
   // 테이블 데이터 설정
   const dataSource = React.useMemo(() => {
@@ -427,6 +469,22 @@ export default function VoteList() {
                 { label: '예정됨', value: VOTE_STATUS.UPCOMING },
                 { label: '진행 중', value: VOTE_STATUS.ONGOING },
                 { label: '종료됨', value: VOTE_STATUS.COMPLETED },
+              ]}
+              disabled={isLoading}
+            />
+          </Space>
+          <Space>
+            <Typography.Text strong style={{ color: token.colorTextSecondary }}>
+              영역:
+            </Typography.Text>
+            <Select
+              value={areaFilter}
+              onChange={handleAreaChange}
+              style={{ width: 120 }}
+              options={[
+                { label: '전체', value: FILTER_AREA.ALL },
+                { label: 'K-POP', value: FILTER_AREA.KPOP },
+                { label: '뮤지컬', value: FILTER_AREA.MUSICAL },
               ]}
               disabled={isLoading}
             />
