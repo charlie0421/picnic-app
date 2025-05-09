@@ -6,6 +6,8 @@ import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getCurrentLocale } from '@/utils/date';
+import { useLanguageStore } from '@/stores/languageStore';
 
 interface MultilingualText {
   en?: string;
@@ -19,7 +21,7 @@ interface Notice {
   id: number;
   title: MultilingualText;
   content: MultilingualText;
-  createdAt: string | null;
+  created_at: string | null;
   isPinned: boolean | null;
   status: string | null;
 }
@@ -27,10 +29,7 @@ interface Notice {
 const NoticePage = () => {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
-  const params = useParams();
-  const currentLang = (params?.lang as string) || 'ko';
-  const router = useRouter();
-
+  const currentLang = useLanguageStore((state) => state.currentLanguage);
   useEffect(() => {
     const fetchNotices = async () => {
       try {
@@ -92,10 +91,11 @@ const NoticePage = () => {
                       </div>
                       <div className="flex flex-col items-end">
                         <span className="text-sm text-gray-600">
-                          {notice.createdAt && format(new Date(notice.createdAt), 'yyyy년 MM월 dd일', { locale: ko })}
+                        
+                          {notice.created_at && format(new Date(notice.created_at), 'yyyy.MM.dd (EEE)', { locale: getCurrentLocale(currentLang) })}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {notice.createdAt && format(new Date(notice.createdAt), 'HH:mm', { locale: ko })}
+                          {notice.created_at && format(new Date(notice.created_at), 'HH:mm', { locale: getCurrentLocale(currentLang) })}
                         </span>
                       </div>
                     </div>

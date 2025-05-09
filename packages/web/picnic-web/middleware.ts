@@ -26,9 +26,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // 쿠키에서 현재 언어 확인
+  const currentLang = request.cookies.get('NEXT_LOCALE')?.value;
+  const preferredLang = SUPPORTED_LANGUAGES.includes(currentLang as any) ? currentLang : DEFAULT_LANGUAGE;
+
   // 기본 언어로 리다이렉트
   const newUrl = new URL(request.url);
-  newUrl.pathname = `/${DEFAULT_LANGUAGE}${pathname}`;
+  newUrl.pathname = `/${preferredLang}${pathname}`;
   return NextResponse.redirect(newUrl);
 }
 

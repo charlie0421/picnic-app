@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileImageContainer, DefaultAvatar } from '@/components/ui/ProfileImageContainer';
 import { useLanguageStore } from '@/stores/languageStore';
+import { useParams } from 'next/navigation';
 
 const MyPage = () => {
   const { authState, signOut } = useAuth();

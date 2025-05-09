@@ -2,15 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
-import { ko, ja, zhCN, enUS } from 'date-fns/locale';
 import { useLanguageStore } from '@/stores/languageStore';
-
-const localeMap = {
-  ko,
-  ja,
-  zh: zhCN,
-  en: enUS,
-};
+import { localeMap, getCurrentLocale } from '@/utils/date';
+import { enUS } from 'date-fns/locale';
 
 interface CurrentTimeProps {
   initialTime?: string;
@@ -47,8 +41,7 @@ const CurrentTime: React.FC<CurrentTimeProps> = ({
 
     const updateTime = () => {
       const now = new Date();
-      const locale =
-        localeMap[currentLanguage as keyof typeof localeMap] || enUS;
+      const locale = getCurrentLocale(currentLanguage);
       const formattedTime = format(now, 'yyyy.MM.dd (EEE) HH:mm:ss', {
         locale,
       });
