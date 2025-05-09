@@ -39,15 +39,6 @@ export const NoticeDetail: React.FC<NoticeDetailProps> = ({ record }) => {
       </div>
 
       <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
-        <Title level={5}>작성자</Title>
-        <Text>
-          {record.created_by_user?.user_metadata?.name ||
-            record.created_by_user?.email ||
-            record.created_by}
-        </Text>
-      </div>
-
-      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
         <Title level={5}>생성일/수정일</Title>
         <Space direction='vertical'>
           <DateField value={record.created_at} format='YYYY-MM-DD HH:mm:ss' />

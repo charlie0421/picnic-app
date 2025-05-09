@@ -92,18 +92,6 @@ export const NoticeList: React.FC = () => {
       },
     },
     {
-      title: '작성자',
-      key: 'created_by',
-      width: 120,
-      render: (_: any, record: Notice) => {
-        const userName =
-          record.created_by_user?.user_metadata?.name ||
-          record.created_by_user?.email ||
-          '시스템';
-        return userName;
-      },
-    },
-    {
       title: '작성일',
       dataIndex: 'created_at',
       key: 'created_at',
