@@ -1,20 +1,26 @@
 'use client';
 
-import React, {useCallback, useEffect, useMemo, useRef, useState,} from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {Reward, Vote, VoteItem} from '@/types/interfaces';
-import {getCdnImageUrl} from '@/utils/api/image';
-import {format} from 'date-fns';
-import {ko} from 'date-fns/locale';
-import {useLanguageStore} from '@/stores/languageStore';
+import { Reward, Vote, VoteItem } from '@/types/interfaces';
+import { getCdnImageUrl } from '@/utils/api/image';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { useLanguageStore } from '@/stores/languageStore';
 import UpcomingVoteItems from './vote/UpcomingVoteItems';
 import OngoingVoteItems from './vote/OngoingVoteItems';
 import CompletedVoteItems from './vote/CompletedVoteItems';
 import CountdownTimer from '@/components/features/CountdownTimer';
-import {useRouter} from 'next/navigation';
-import {getLocalizedString} from '@/utils/api/strings';
-import {useSupabase} from '@/components/providers/SupabaseProvider';
+import { useRouter } from 'next/navigation';
+import { getLocalizedString } from '@/utils/api/strings';
+import { useSupabase } from '@/components/providers/SupabaseProvider';
 
 const VOTE_STATUS = {
   UPCOMING: 'upcoming',
@@ -514,9 +520,12 @@ const VoteList: React.FC = () => {
   const PAGE_SIZE = 8;
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>('all');
+  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
+    'all',
+  );
   const [votes, setVotes] = useState<Vote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchVotes = useCallback(async () => {
@@ -525,8 +534,9 @@ const VoteList: React.FC = () => {
       console.log('Fetching votes...');
 
       const { data: voteData, error: voteError } = await supabase
-        .from("vote")
-        .select(`
+        .from('vote')
+        .select(
+          `
           *,
           vote_item!vote_id (
             id,
@@ -551,9 +561,10 @@ const VoteList: React.FC = () => {
             reward_id,
             reward:reward_id (*)
           )
-        `)
-        .is("deleted_at", null)
-        .order("start_at", { ascending: false });
+        `,
+        )
+        .is('deleted_at', null)
+        .order('start_at', { ascending: false });
 
       if (voteError) {
         console.error('Vote fetch error:', voteError);
@@ -601,7 +612,7 @@ const VoteList: React.FC = () => {
         rewards: vote.vote_reward
           ? vote.vote_reward.map((vr: any) => vr.reward).filter(Boolean)
           : [],
-        title: vote.title || "제목 없음",
+        title: vote.title || '제목 없음',
       }));
 
       console.log('Fetched votes:', formattedVotes);
@@ -614,6 +625,13 @@ const VoteList: React.FC = () => {
       setIsLoading(false);
     }
   }, [supabase]);
+
+  // 더보기 버튼 클릭 핸들러
+  const handleLoadMore = useCallback(() => {
+    setIsLoadingMore(true);
+    setPage((prev) => prev + 1);
+    setIsLoadingMore(false);
+  }, []);
 
   // 언어 변경 시 쿼리 재실행
   useEffect(() => {
@@ -737,11 +755,11 @@ const VoteList: React.FC = () => {
           {hasMore && (
             <div className='flex justify-center mt-8'>
               <button
-                onClick={() => setPage((prev) => prev + 1)}
+                onClick={handleLoadMore}
                 className='px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 flex items-center gap-2'
-                disabled={isLoading}
+                disabled={isLoadingMore}
               >
-                {isLoading ? (
+                {isLoadingMore ? (
                   <>
                     <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
                     <span>Loading...</span>
