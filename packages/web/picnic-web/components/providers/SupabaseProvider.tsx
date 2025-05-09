@@ -27,19 +27,25 @@ export const SupabaseProvider: React.FC<SupabaseProviderProps> = ({ children }) 
   useEffect(() => {
     // 브라우저 환경에서만 실행
     if (typeof window !== 'undefined') {
-      // 초기화 완료 설정
-      setIsReady(true);
+      // Supabase 연결 상태 확인
+      const checkConnection = async () => {
+        try {
+          // 간단한 쿼리로 연결 상태 확인
+          await supabaseClient.from('vote').select('count').limit(1);
+          setIsReady(true);
+          
+          console.log('Supabase 연결 성공', {
+            isReady: true,
+            url: window.location.href,
+          });
+        } catch (error) {
+          console.error('Supabase 연결 실패:', error);
+          // 연결 실패 시 1초 후 재시도
+          setTimeout(checkConnection, 1000);
+        }
+      };
 
-      // 디버깅 정보 출력
-      const isNgrok = window.location.hostname.includes('ngrok');
-      const isProd = process.env.NODE_ENV === 'production';
-      
-      console.log('SupabaseProvider 초기화', {
-        isReady: true,
-        isNgrok,
-        isProd,
-        url: window.location.href,
-      });
+      checkConnection();
     }
   }, []);
 

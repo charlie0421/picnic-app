@@ -537,7 +537,19 @@ const VoteList: React.FC = () => {
 
     try {
       setIsLoading(true);
-      console.log('Fetching votes...');
+      console.log('Fetching votes...', { isReady, supabase });
+      
+      // Supabase 연결 상태 확인
+      const { data: testData, error: testError } = await supabase
+        .from('vote')
+        .select('count')
+        .limit(1);
+
+      if (testError) {
+        console.error('Supabase connection test failed:', testError);
+        throw testError;
+      }
+
       const { data: voteData, error: voteError } = await supabase
         .from("vote")
         .select(`
