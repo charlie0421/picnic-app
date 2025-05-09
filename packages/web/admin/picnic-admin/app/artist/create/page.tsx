@@ -1,15 +1,14 @@
 'use client';
 
 import { Create, useForm } from '@refinedev/antd';
-import { Form, Select, DatePicker, message } from 'antd';
+import { Form, message } from 'antd';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import ImageUpload from '@/components/features/upload';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
-import { MultiLanguageInput } from '@/components/ui';
 import { useResource } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import ArtistForm from '../components/ArtistForm';
 
 // UTC 플러그인 확장
 dayjs.extend(utc);
@@ -73,10 +72,6 @@ export default function ArtistCreate() {
 
   // 저장 버튼 클릭 핸들러
   const handleSave = async (values: any) => {
-    // 디버깅을 위한 로그
-    console.log('Form values:', values);
-    console.log('Debut date value:', values.debut_date);
-
     // 날짜 변환 처리 로직
     let updatedValues = { ...values };
 
@@ -131,9 +126,6 @@ export default function ArtistCreate() {
       };
     }
 
-    // 변환된 값 로깅
-    console.log('Transformed values:', updatedValues);
-
     return updatedValues;
   };
 
@@ -155,101 +147,12 @@ export default function ArtistCreate() {
       >
         {contextHolder}
         <Form {...formProps} layout='vertical'>
-          <MultiLanguageInput name='name' label='이름' required={true} />
-
-          <Form.Item
-            label='아티스트 그룹'
-            name='group_id'
-            rules={[
-              {
-                required: true,
-                message: '아티스트 그룹을 선택해주세요',
-              },
-            ]}
-          >
-            <Select
-              loading={loadingGroups}
-              showSearch
-              placeholder='아티스트 그룹 선택'
-              options={groups.map((group) => ({
-                label: group.name?.ko || group.name?.en || 'N/A',
-                value: group.id,
-                name: group.name,
-              }))}
-              filterOption={filterGroupOption}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label='성별'
-            name='gender'
-            rules={[
-              {
-                required: true,
-                message: '성별을 선택해주세요',
-              },
-            ]}
-          >
-            <Select
-              placeholder='성별을 선택하세요'
-              options={[
-                { label: '남성', value: 'male' },
-                { label: '여성', value: 'female' },
-                { label: '기타', value: 'other' },
-              ]}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label='생년월일'
-            name='birth_date'
-            rules={[
-              {
-                required: true,
-                message: '생년월일을 선택해주세요',
-              },
-            ]}
-            getValueFromEvent={(date) => {
-              if (date) {
-                return date.format('YYYY-MM-DD');
-              }
-              return undefined;
-            }}
-            getValueProps={(value) => ({
-              value: value ? dayjs(value) : undefined,
-            })}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item
-            label='데뷔일'
-            name='debut_date'
-            getValueFromEvent={(date) => {
-              if (date) {
-                return date.format('YYYY-MM-DD');
-              }
-              return undefined;
-            }}
-            getValueProps={(value) => ({
-              value: value ? dayjs(value) : undefined,
-            })}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item
-            label='이미지'
-            name='image'
-            rules={[
-              {
-                required: true,
-                message: '이미지를 업로드해주세요',
-              },
-            ]}
-          >
-            <ImageUpload />
-          </Form.Item>
+          <ArtistForm
+            form={formProps.form}
+            loadingGroups={loadingGroups}
+            groups={groups}
+            filterGroupOption={filterGroupOption}
+          />
         </Form>
       </Create>
     </AuthorizePage>

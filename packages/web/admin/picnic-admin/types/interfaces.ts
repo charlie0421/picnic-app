@@ -162,9 +162,12 @@ export interface Artist {
   debutYy: number | null
   deletedAt: string | null
   gender: string | null
-  groupId: number
+  groupId: number | null
   id: number
   image: string | null
+  isKpop: boolean
+  isMusical: boolean
+  isSolo: boolean
   mm: number | null
   name: Json | null
   updatedAt: string
@@ -563,13 +566,13 @@ export interface Media {
 }
 
 export interface Notices {
-  content: string
+  content: Json
   createdAt: string | null
   createdBy: string | null
   id: number
   isPinned: boolean | null
   status: string | null
-  title: string
+  title: Json
   updatedAt: string | null
 }
 
@@ -1025,7 +1028,7 @@ export interface VoteItem {
   artistId: number | null
   createdAt: string | null
   deletedAt: string | null
-  groupId: number | null
+  groupId: number
   id: number
   updatedAt: string | null
   voteId: number | null
@@ -1055,4 +1058,17 @@ export interface VoteShareBonus {
   updatedAt: string
   userId: string
   voteId: number
+}
+
+export interface ViewTransactionAll {
+  adNetwork: string | null
+  commission: number | null
+  createdAt: string | null
+  platform: string | null
+  rewardAmount: number | null
+  rewardName: string | null
+  rewardType: string | null
+  source: string | null
+  transactionId: string | null
+  userId: string | null
 }

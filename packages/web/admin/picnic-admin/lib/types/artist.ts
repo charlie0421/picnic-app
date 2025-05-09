@@ -52,6 +52,10 @@ export interface Artist {
   debut_mm?: number | null;
   debut_dd?: number | null;
   artist_group?: ArtistGroup;
+  is_admin?: boolean;
+  is_solo?: boolean;
+  is_kpop?: boolean;
+  is_musical?: boolean;
 }
 
 // 애플리케이션에서 사용할 통합 아티스트 그룹 인터페이스

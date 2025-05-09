@@ -2,7 +2,7 @@
 
 import { CreateButton, DateField, List, useTable } from '@refinedev/antd';
 import { useMany, useNavigation, useResource } from '@refinedev/core';
-import { Table, Input, Space, Image } from 'antd';
+import { Table, Input, Space, Image, Tag, Checkbox } from 'antd';
 import { useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { getCdnImageUrl } from '@/lib/image';
@@ -22,6 +22,11 @@ export default function ArtistList() {
   const [searchTerm, setSearchTerm] = useState<string>(urlSearch);
   const [searchQuery, setSearchQuery] = useState<string>(urlSearch);
   const [searchResults, setSearchResults] = useState<Artist[]>([]);
+  const [filters, setFilters] = useState({
+    is_solo: false,
+    is_kpop: false,
+    is_musical: false,
+  });
   const { show } = useNavigation();
   const { resource } = useResource();
 
@@ -51,6 +56,16 @@ export default function ArtistList() {
       params.set('search', search);
     }
 
+    // 필터 상태를 URL에 반영
+    if (filters.is_solo) params.set('is_solo', 'true');
+    else params.delete('is_solo');
+
+    if (filters.is_kpop) params.set('is_kpop', 'true');
+    else params.delete('is_kpop');
+
+    if (filters.is_musical) params.set('is_musical', 'true');
+    else params.delete('is_musical');
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -65,27 +80,64 @@ export default function ArtistList() {
     setSearchQuery(trimmedValue);
     updateUrlParams(trimmedValue);
 
-    if (trimmedValue) {
-      const { data, error } = await supabaseBrowserClient
-        .from('artist')
-        .select('*')
-        .or(
-          `name->>ko.ilike.%${trimmedValue}%,` +
-            `name->>en.ilike.%${trimmedValue}%,` +
-            `name->>ja.ilike.%${trimmedValue}%,` +
-            `name->>zh.ilike.%${trimmedValue}%,` +
-            `name->>id.ilike.%${trimmedValue}%`,
-        )
-        .order('created_at', { ascending: false });
+    let query = supabaseBrowserClient.from('artist').select('*');
 
-      if (!error && data) {
-        setSearchResults(data);
-      }
+    // 필터 조건을 OR로 적용
+    const filterConditions = [];
+    if (filters.is_solo) filterConditions.push('is_solo.eq.true');
+    if (filters.is_kpop) filterConditions.push('is_kpop.eq.true');
+    if (filters.is_musical) filterConditions.push('is_musical.eq.true');
+
+    if (filterConditions.length > 0) {
+      query = query.or(filterConditions.join(','));
+    }
+
+    // 검색어가 있는 경우 검색 조건 추가
+    if (trimmedValue) {
+      query = query.or(
+        `name->>ko.ilike.%${trimmedValue}%,` +
+          `name->>en.ilike.%${trimmedValue}%,` +
+          `name->>ja.ilike.%${trimmedValue}%,` +
+          `name->>zh.ilike.%${trimmedValue}%,` +
+          `name->>id.ilike.%${trimmedValue}%`,
+      );
+    }
+
+    // 정렬 조건 추가
+    query = query.order('created_at', { ascending: false });
+
+    console.log('Filters:', filters);
+    console.log('Filter conditions:', filterConditions);
+
+    const { data, error } = await query;
+
+    if (!error && data) {
+      console.log('Query result count:', data.length);
+      console.log('First result:', data[0]);
+      setSearchResults(data);
     } else {
-      tableQueryResult.refetch();
+      console.error('Query error:', error);
       setSearchResults([]);
     }
   };
+
+  // URL에서 필터 상태 복원
+  useEffect(() => {
+    const isSolo = searchParams.get('is_solo') === 'true';
+    const isKpop = searchParams.get('is_kpop') === 'true';
+    const isMusical = searchParams.get('is_musical') === 'true';
+
+    setFilters({
+      is_solo: isSolo,
+      is_kpop: isKpop,
+      is_musical: isMusical,
+    });
+  }, [searchParams]);
+
+  // 필터 변경 시 검색 실행
+  useEffect(() => {
+    handleSearch(searchQuery);
+  }, [filters.is_solo, filters.is_kpop, filters.is_musical]);
 
   // URL 검색 파라미터가 변경될 때마다 검색어 상태 업데이트
   useEffect(() => {
@@ -96,21 +148,21 @@ export default function ArtistList() {
 
   const finalTableProps = {
     ...tableProps,
-    dataSource: searchQuery ? searchResults : tableProps.dataSource,
+    dataSource: searchResults,
   };
 
   // 아티스트 그룹 정보 가져오기
   const { data: groupsData, isLoading: groupsIsLoading } = useMany({
     resource: 'artist_group',
     ids:
-      (tableProps?.dataSource
+      (searchResults
         ?.map((item: Artist) => {
           const groupId = item?.group_id;
           return groupId ? String(groupId) : undefined;
         })
         .filter(Boolean) as string[]) ?? [],
     queryOptions: {
-      enabled: !!tableProps?.dataSource?.length,
+      enabled: !!searchResults?.length,
     },
   });
 
@@ -120,15 +172,43 @@ export default function ArtistList() {
       headerButtons={<CreateButton />}
       title={resource?.meta?.list?.label}
     >
-      <Space style={{ marginBottom: 16 }}>
-        <Input.Search
-          placeholder='아티스트 이름 검색'
-          onSearch={handleSearch}
-          value={searchTerm}
-          onChange={handleSearchChange}
-          style={{ width: 300, maxWidth: '100%' }}
-          allowClear
-        />
+      <Space direction='vertical' style={{ width: '100%', marginBottom: 16 }}>
+        <Space>
+          <Input.Search
+            placeholder='아티스트 이름 검색'
+            onSearch={handleSearch}
+            value={searchTerm}
+            onChange={handleSearchChange}
+            style={{ width: 300, maxWidth: '100%' }}
+            allowClear
+          />
+        </Space>
+        <Space>
+          <Checkbox
+            checked={filters.is_solo}
+            onChange={(e) =>
+              setFilters({ ...filters, is_solo: e.target.checked })
+            }
+          >
+            솔로
+          </Checkbox>
+          <Checkbox
+            checked={filters.is_kpop}
+            onChange={(e) =>
+              setFilters({ ...filters, is_kpop: e.target.checked })
+            }
+          >
+            K-POP
+          </Checkbox>
+          <Checkbox
+            checked={filters.is_musical}
+            onChange={(e) =>
+              setFilters({ ...filters, is_musical: e.target.checked })
+            }
+          >
+            뮤지컬
+          </Checkbox>
+        </Space>
       </Space>
       <div style={{ width: '100%', overflowX: 'auto' }}>
         <Table
@@ -171,15 +251,17 @@ export default function ArtistList() {
             align='center'
             width={120}
             responsive={['md']}
-            render={(value: string) => (
-              <Image
-                src={getCdnImageUrl(value, 80)}
-                alt='아티스트 이미지'
-                width={80}
-                height={80}
-                preview={false}
-              />
-            )}
+            render={(value: string) =>
+              value && (
+                <Image
+                  src={getCdnImageUrl(value, 80)}
+                  alt='아티스트 이미지'
+                  width={80}
+                  height={80}
+                  preview={false}
+                />
+              )
+            }
           />
 
           <Table.Column
@@ -258,6 +340,42 @@ export default function ArtistList() {
             sorter
             width={120}
             render={(value: string) => value || '-'}
+          />
+
+          <Table.Column
+            dataIndex='is_solo'
+            title='솔로'
+            align='center'
+            width={80}
+            render={(value: boolean) => (
+              <Tag color={value ? 'green' : 'default'}>
+                {value ? '예' : '아니오'}
+              </Tag>
+            )}
+          />
+
+          <Table.Column
+            dataIndex='is_kpop'
+            title='K-POP'
+            align='center'
+            width={80}
+            render={(value: boolean) => (
+              <Tag color={value ? 'purple' : 'default'}>
+                {value ? '예' : '아니오'}
+              </Tag>
+            )}
+          />
+
+          <Table.Column
+            dataIndex='is_musical'
+            title='뮤지컬'
+            align='center'
+            width={80}
+            render={(value: boolean) => (
+              <Tag color={value ? 'orange' : 'default'}>
+                {value ? '예' : '아니오'}
+              </Tag>
+            )}
           />
 
           <Table.Column

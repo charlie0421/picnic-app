@@ -1,15 +1,13 @@
 'use client';
 
 import { Edit, useForm } from '@refinedev/antd';
-import { Form, Input, DatePicker, Select, message } from 'antd';
-import dayjs from 'dayjs';
+import { Form, Input, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { useOne, useResource } from '@refinedev/core';
-import ImageUpload from '@/components/features/upload';
+import { useResource } from '@refinedev/core';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
-import { getCdnImageUrl } from '@/lib/image';
-import { MultiLanguageInput } from '@/components/ui';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
+import ArtistForm from '../../components/ArtistForm';
+import dayjs from 'dayjs';
 
 export default function ArtistEdit() {
   const [groups, setGroups] = useState<any[]>([]);
@@ -109,6 +107,15 @@ export default function ArtistEdit() {
         debut_mm: month,
         debut_dd: day,
       };
+    } else {
+      // 데뷔일이 없는 경우 관련 필드들을 명시적으로 null로 설정
+      updatedValues = {
+        ...updatedValues,
+        debut_date: null,
+        debut_yy: null,
+        debut_mm: null,
+        debut_dd: null,
+      };
     }
 
     return updatedValues;
@@ -136,65 +143,11 @@ export default function ArtistEdit() {
             <Input disabled />
           </Form.Item>
 
-          <MultiLanguageInput name='name' label='이름' required={true} />
-
-          <Form.Item
-            label='아티스트 그룹'
-            name='group_id'
-            rules={[
-              {
-                required: true,
-                message: '아티스트 그룹을 선택해주세요',
-              },
-            ]}
-          >
-            <Select
-              placeholder='아티스트 그룹 선택'
-              showSearch
-              filterOption={filterGroupOption}
-              options={groups.map((group) => ({
-                label: group.name?.ko || group.name?.en || 'N/A',
-                value: group.id,
-                name: group.name,
-              }))}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label='생년월일'
-            name='birth_date'
-            getValueProps={(value) => ({
-              value: value ? dayjs(value) : undefined,
-            })}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item
-            label='데뷔일'
-            name='debut_date'
-            getValueProps={(value) => ({
-              value: value ? dayjs(value) : undefined,
-            })}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item
-            label='이미지'
-            name='image'
-            rules={[
-              {
-                required: true,
-                message: '이미지를 업로드해주세요',
-              },
-            ]}
-            getValueProps={(value) => ({
-              value: value ? getCdnImageUrl(value) : undefined,
-            })}
-          >
-            <ImageUpload />
-          </Form.Item>
+          <ArtistForm
+            form={formProps.form}
+            groups={groups}
+            filterGroupOption={filterGroupOption}
+          />
         </Form>
       </Edit>
     </AuthorizePage>

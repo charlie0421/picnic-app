@@ -9,6 +9,7 @@ interface MultiLanguageInputProps {
   name: string;
   required?: boolean;
   label?: string;
+  requiredLanguages?: LanguageType[];
   placeholder?: {
     ko?: string;
     en?: string;
@@ -22,6 +23,7 @@ export const MultiLanguageInput: React.FC<MultiLanguageInputProps> = ({
   name,
   required = true,
   label = '이름',
+  requiredLanguages = ['ko', 'en'],
   placeholder = {
     ko: '한국어를 입력하세요',
     en: '영어를 입력하세요',
@@ -37,7 +39,7 @@ export const MultiLanguageInput: React.FC<MultiLanguageInputProps> = ({
         name={[name, 'ko']}
         rules={[
           {
-            required,
+            required: requiredLanguages.includes('ko'),
             message: `한국어 ${label}을(를) 입력해주세요.`,
           },
         ]}
@@ -50,7 +52,7 @@ export const MultiLanguageInput: React.FC<MultiLanguageInputProps> = ({
         name={[name, 'en']}
         rules={[
           {
-            required,
+            required: requiredLanguages.includes('en'),
             message: `영어 ${label}을(를) 입력해주세요.`,
           },
         ]}
@@ -63,7 +65,7 @@ export const MultiLanguageInput: React.FC<MultiLanguageInputProps> = ({
         name={[name, 'ja']}
         rules={[
           {
-            required,
+            required: requiredLanguages.includes('ja'),
             message: `일본어 ${label}을(를) 입력해주세요.`,
           },
         ]}
@@ -76,7 +78,7 @@ export const MultiLanguageInput: React.FC<MultiLanguageInputProps> = ({
         name={[name, 'zh']}
         rules={[
           {
-            required,
+            required: requiredLanguages.includes('zh'),
             message: `중국어 ${label}을(를) 입력해주세요.`,
           },
         ]}
@@ -89,7 +91,7 @@ export const MultiLanguageInput: React.FC<MultiLanguageInputProps> = ({
         name={[name, 'id']}
         rules={[
           {
-            required,
+            required: requiredLanguages.includes('id'),
             message: `인도네시아어 ${label}을(를) 입력해주세요.`,
           },
         ]}

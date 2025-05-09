@@ -451,9 +451,12 @@ export type Database = {
           debut_yy: number | null
           deleted_at: string | null
           gender: string | null
-          group_id: number
+          group_id: number | null
           id: number
           image: string | null
+          is_kpop: boolean
+          is_musical: boolean
+          is_solo: boolean
           mm: number | null
           name: Json | null
           updated_at: string
@@ -469,9 +472,12 @@ export type Database = {
           debut_yy?: number | null
           deleted_at?: string | null
           gender?: string | null
-          group_id: number
+          group_id?: number | null
           id?: number
           image?: string | null
+          is_kpop?: boolean
+          is_musical?: boolean
+          is_solo?: boolean
           mm?: number | null
           name?: Json | null
           updated_at?: string
@@ -487,9 +493,12 @@ export type Database = {
           debut_yy?: number | null
           deleted_at?: string | null
           gender?: string | null
-          group_id?: number
+          group_id?: number | null
           id?: number
           image?: string | null
+          is_kpop?: boolean
+          is_musical?: boolean
+          is_solo?: boolean
           mm?: number | null
           name?: Json | null
           updated_at?: string
@@ -1828,33 +1837,33 @@ export type Database = {
       }
       notices: {
         Row: {
-          content: string
+          content: Json
           created_at: string | null
           created_by: string | null
           id: number
           is_pinned: boolean | null
           status: string | null
-          title: string
+          title: Json
           updated_at: string | null
         }
         Insert: {
-          content: string
+          content: Json
           created_at?: string | null
           created_by?: string | null
           id?: number
           is_pinned?: boolean | null
           status?: string | null
-          title: string
+          title: Json
           updated_at?: string | null
         }
         Update: {
-          content?: string
+          content?: Json
           created_at?: string | null
           created_by?: string | null
           id?: number
           is_pinned?: boolean | null
           status?: string | null
-          title?: string
+          title?: Json
           updated_at?: string | null
         }
         Relationships: [
@@ -3421,7 +3430,7 @@ export type Database = {
           artist_id: number | null
           created_at: string | null
           deleted_at: string | null
-          group_id: number | null
+          group_id: number
           id: number
           updated_at: string | null
           vote_id: number | null
@@ -3431,7 +3440,7 @@ export type Database = {
           artist_id?: number | null
           created_at?: string | null
           deleted_at?: string | null
-          group_id?: number | null
+          group_id?: number
           id?: number
           updated_at?: string | null
           vote_id?: number | null
@@ -3441,7 +3450,7 @@ export type Database = {
           artist_id?: number | null
           created_at?: string | null
           deleted_at?: string | null
-          group_id?: number | null
+          group_id?: number
           id?: number
           updated_at?: string | null
           vote_id?: number | null
@@ -3463,7 +3472,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "vote_item_vote_id_fkey"
+            foreignKeyName: "vote_item_vote_id_fk"
             columns: ["vote_id"]
             isOneToOne: false
             referencedRelation: "vote"
@@ -3503,6 +3512,13 @@ export type Database = {
           vote_item_id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "vote_pick_user_profiles_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "vote_pick_vote_id_fkey"
             columns: ["vote_id"]
@@ -3593,7 +3609,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      view_transaction_all: {
+        Row: {
+          ad_network: string | null
+          commission: number | null
+          created_at: string | null
+          platform: string | null
+          reward_amount: number | null
+          reward_name: string | null
+          reward_type: string | null
+          source: string | null
+          transaction_id: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       begin_transaction: {

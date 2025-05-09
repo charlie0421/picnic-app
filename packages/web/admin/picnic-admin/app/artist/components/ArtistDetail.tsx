@@ -94,6 +94,33 @@ export default function ArtistDetail({ record, loading }: ArtistDetailProps) {
       children: <DateField value={record?.debut_date} format='YYYY-MM-DD' />,
     },
     {
+      key: 'is_solo',
+      label: '솔로',
+      children: (
+        <Tag color={record?.is_solo ? 'green' : 'default'}>
+          {record?.is_solo ? '예' : '아니오'}
+        </Tag>
+      ),
+    },
+    {
+      key: 'is_kpop',
+      label: 'K-POP',
+      children: (
+        <Tag color={record?.is_kpop ? 'purple' : 'default'}>
+          {record?.is_kpop ? '예' : '아니오'}
+        </Tag>
+      ),
+    },
+    {
+      key: 'is_musical',
+      label: '뮤지컬',
+      children: (
+        <Tag color={record?.is_musical ? 'orange' : 'default'}>
+          {record?.is_musical ? '예' : '아니오'}
+        </Tag>
+      ),
+    },
+    {
       key: 'created_at',
       label: '생성일',
       children: (
