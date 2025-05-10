@@ -202,15 +202,13 @@ const BannerList: React.FC = () => {
   if (banners.length <= 3) {
     return (
       <section>
-        <div className='mb-4'>
-          <div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
-            {banners.map((banner) => (
-              <div key={banner.id} className="w-full">
-                {renderBanner(banner)}
-              </div>
-            ))}
+        <div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
+          {banners.map((banner) => (
+            <div key={banner.id} className='w-full'>
+              {renderBanner(banner)}
+            </div>
+          ))}
           </div>
-        </div>
       </section>
     );
   }
@@ -234,7 +232,7 @@ const BannerList: React.FC = () => {
   return (
     <section>
       <div
-        className='mb-4 relative'
+        className='elative'
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
