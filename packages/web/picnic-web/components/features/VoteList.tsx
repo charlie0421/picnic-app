@@ -327,39 +327,34 @@ const getStatusText = (
 const StatusFilter = React.memo(
   ({
     selectedStatus,
-    setSelectedStatus,
-    t,
+    onStatusChange,
   }: {
     selectedStatus: VoteStatus;
-    setSelectedStatus: (status: VoteStatus) => void;
-    t: (key: string) => string;
+    onStatusChange: (status: VoteStatus) => void;
   }) => {
-    const { translations } = useLanguageStore();
+    const { t } = useLanguageStore();
 
-    const getButtonText = useCallback(
-      (status: VoteStatus) => {
-        switch (status) {
-          case VOTE_STATUS.ONGOING:
-            return t('label_tabbar_vote_active');
-          case VOTE_STATUS.UPCOMING:
-            return t('label_tabbar_vote_upcoming');
-          case VOTE_STATUS.COMPLETED:
-            return t('label_tabbar_vote_end');
-          default:
-            return '';
-        }
-      },
-      [t],
-    );
+    const getButtonText = (status: VoteStatus) => {
+      switch (status) {
+        case VOTE_STATUS.ONGOING:
+          return t('label_tabbar_vote_active');
+        case VOTE_STATUS.UPCOMING:
+          return t('label_tabbar_vote_upcoming');
+        case VOTE_STATUS.COMPLETED:
+          return t('label_tabbar_vote_end');
+        default:
+          return '';
+      }
+    };
 
     return (
-      <div className='flex flex-wrap justify-center gap-1.5 sm:gap-2'>
+      <div className='flex flex-wrap justify-end gap-1 sm:gap-1.5 bg-white/50 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-gray-100'>
         <button
-          onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
-          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          onClick={() => onStatusChange(VOTE_STATUS.ONGOING)}
+          className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
             selectedStatus === VOTE_STATUS.ONGOING
-              ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+              ? 'bg-primary text-white shadow-sm transform scale-[1.02]'
+              : 'bg-gray-50 text-gray-600 hover:bg-primary/10 hover:text-primary hover:shadow-sm'
           }`}
           aria-label={t('label_tabbar_vote_active')}
           aria-pressed={selectedStatus === VOTE_STATUS.ONGOING}
@@ -367,11 +362,11 @@ const StatusFilter = React.memo(
           {getButtonText(VOTE_STATUS.ONGOING)}
         </button>
         <button
-          onClick={() => setSelectedStatus(VOTE_STATUS.UPCOMING)}
-          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          onClick={() => onStatusChange(VOTE_STATUS.UPCOMING)}
+          className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
             selectedStatus === VOTE_STATUS.UPCOMING
-              ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+              ? 'bg-primary text-white shadow-sm transform scale-[1.02]'
+              : 'bg-gray-50 text-gray-600 hover:bg-primary/10 hover:text-primary hover:shadow-sm'
           }`}
           aria-label={t('label_tabbar_vote_upcoming')}
           aria-pressed={selectedStatus === VOTE_STATUS.UPCOMING}
@@ -379,11 +374,11 @@ const StatusFilter = React.memo(
           {getButtonText(VOTE_STATUS.UPCOMING)}
         </button>
         <button
-          onClick={() => setSelectedStatus(VOTE_STATUS.COMPLETED)}
-          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          onClick={() => onStatusChange(VOTE_STATUS.COMPLETED)}
+          className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
             selectedStatus === VOTE_STATUS.COMPLETED
-              ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+              ? 'bg-primary text-white shadow-sm transform scale-[1.02]'
+              : 'bg-gray-50 text-gray-600 hover:bg-primary/10 hover:text-primary hover:shadow-sm'
           }`}
           aria-label={t('label_tabbar_vote_end')}
           aria-pressed={selectedStatus === VOTE_STATUS.COMPLETED}
@@ -401,31 +396,29 @@ StatusFilter.displayName = 'StatusFilter';
 const AreaFilter = React.memo(
   ({
     selectedArea,
-    setSelectedArea,
-    t,
+    onAreaChange,
   }: {
     selectedArea: VoteArea;
-    setSelectedArea: (area: VoteArea) => void;
-    t: (key: string) => string;
+    onAreaChange: (area: VoteArea) => void;
   }) => {
     return (
-      <div className='flex flex-wrap justify-center gap-1.5 sm:gap-2'>
+      <div className='flex flex-wrap justify-start gap-1 sm:gap-1.5 bg-white/50 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-gray-100'>
         <button
-          onClick={() => setSelectedArea(VOTE_AREAS.KPOP)}
-          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          onClick={() => onAreaChange(VOTE_AREAS.KPOP)}
+          className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
             selectedArea === VOTE_AREAS.KPOP
-              ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+              ? 'bg-primary text-white shadow-sm transform scale-[1.02]'
+              : 'bg-gray-50 text-gray-600 hover:bg-primary/10 hover:text-primary hover:shadow-sm'
           }`}
         >
           K-POP
         </button>
         <button
-          onClick={() => setSelectedArea(VOTE_AREAS.MUSICAL)}
-          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+          onClick={() => onAreaChange(VOTE_AREAS.MUSICAL)}
+          className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
             selectedArea === VOTE_AREAS.MUSICAL
-              ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+              ? 'bg-primary text-white shadow-sm transform scale-[1.02]'
+              : 'bg-gray-50 text-gray-600 hover:bg-primary/10 hover:text-primary hover:shadow-sm'
           }`}
         >
           K-MUSICAL
@@ -767,19 +760,17 @@ const VoteList: React.FC = () => {
 
   return (
     <section className='w-full'>
-      <div className='flex justify-between items-center mb-6 px-4'>
-        <div className='flex-1'>
+      <div className='flex justify-between items-center mb-8'>
+        <div className='flex-1 flex justify-start'>
           <AreaFilter
             selectedArea={selectedArea}
-            setSelectedArea={handleAreaChange}
-            t={t}
+            onAreaChange={handleAreaChange}
           />
         </div>
         <div className='flex-1 flex justify-end'>
           <StatusFilter
             selectedStatus={selectedStatus}
-            setSelectedStatus={handleStatusChange}
-            t={t}
+            onStatusChange={handleStatusChange}
           />
         </div>
       </div>
