@@ -7,7 +7,7 @@ import { Reward } from '@/types/interfaces';
 import { getRewardById } from '@/utils/api/queries';
 import { getCdnImageUrl } from '@/utils/api/image';
 import { useLanguageStore } from '@/stores/languageStore';
-import { getLocalizedString } from '@/utils/api/strings';
+import { getLocalizedJson, getLocalizedString } from '@/utils/api/strings';
 
 const RewardDetailPage = () => {
   const params = useParams();
@@ -78,10 +78,10 @@ const RewardDetailPage = () => {
   })();
 
   // 다국어 위치 정보 처리
-  const locationInfo = getLocalizedString(reward.location) || null;
+  const locationInfo = getLocalizedJson(reward.location) || null;
 
   // 다국어 크기 가이드 정보 처리
-  const sizeGuideInfo = getLocalizedString(reward.sizeGuide) || null;
+  const sizeGuideInfo = getLocalizedJson(reward.sizeGuide) || null;
 
   return (
     <div className='container mx-auto px-4 py-8'>

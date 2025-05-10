@@ -20,7 +20,7 @@ const VoteItem: React.FC<VoteItemProps> = ({ vote }) => {
           {vote.mainImage ? (
             <Image
               src={getCdnImageUrl(vote.mainImage, 320)}
-              alt={vote.title}
+              alt={getLocalizedString(vote.title)}
               width={320}
               height={320}
               className="w-full h-full object-cover md:w-[320px] md:h-[320px] w-[120px] h-[120px]"
@@ -34,9 +34,9 @@ const VoteItem: React.FC<VoteItemProps> = ({ vote }) => {
         </div>
         <div className="p-2 md:p-3">
           <div className="flex items-start justify-between gap-2">
-            {vote.rewards && vote.rewards.length > 0 && (
+            {vote.voteReward && vote.voteReward.length > 0 && (
               <div>
-                <VoteRewardPreview rewards={vote.rewards} />
+                <VoteRewardPreview rewards={vote.voteReward.map(reward => reward.reward!)} />
               </div>
             )}
             <h3 className="text-xs md:text-base font-medium text-gray-800 truncate">

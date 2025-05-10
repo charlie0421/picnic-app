@@ -88,7 +88,7 @@ const VoteSearch: React.FC<VoteSearchProps> = ({
     return searchResults.filter((item) => {
       if (selectedFilter === 'all') return true;
       if (selectedFilter === 'artist') return item.artist?.name;
-      if (selectedFilter === 'group') return item.artist?.artist_group?.name;
+      if (selectedFilter === 'group') return item.artist?.name;
       return true;
     });
   }, [searchResults, selectedFilter]);
@@ -170,7 +170,7 @@ const VoteSearch: React.FC<VoteSearchProps> = ({
                     </p>
                     <p className='text-sm text-gray-600'>
                       {highlightMatch(
-                        getLocalizedString(item.artist?.artist_group?.name) ||
+                        getLocalizedString(item.artist?.name) ||
                           '',
                       )}
                     </p>

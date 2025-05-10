@@ -71,7 +71,7 @@ const VoteDialog: React.FC<VoteDialogProps> = ({
                   {getLocalizedString(selectedArtist.artist?.name)}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {getLocalizedString(selectedArtist.artist?.artist_group?.name)}
+                  {getLocalizedString(selectedArtist.artist?.name)}
                 </p>
               </div>
             </div>

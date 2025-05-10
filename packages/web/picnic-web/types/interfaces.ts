@@ -172,7 +172,7 @@ export interface Artist {
   name: Json | null
   updatedAt: string
   yy: number | null
-  artistGroup?: ArtistGroup[];
+  artistGroup?: ArtistGroup;
   voteItem?: VoteItem[];
 }
 
@@ -1009,7 +1009,6 @@ export interface Vote {
   voteReward?: VoteReward[];
   voteShareBonus?: VoteShareBonus[];
   voteAchieve?: VoteAchieve[];
-  reward?: Reward[];
 }
 
 export interface VoteAchieve {
@@ -1018,8 +1017,8 @@ export interface VoteAchieve {
   order: number | null
   rewardId: number | null
   voteId: number | null
-  vote?: Vote[];
-  reward?: Reward[];
+  vote?: Vote;
+  reward?: Reward;
 }
 
 export interface VoteComment {
@@ -1033,8 +1032,8 @@ export interface VoteComment {
   updatedAt: string | null
   userId: number | null
   voteId: number | null
-  vote?: Vote[];
-  userProfiles?: UserProfiles[];
+  vote?: Vote;
+  userProfiles?: UserProfiles;
   voteCommentLike?: VoteCommentLike[];
   voteCommentReport?: VoteCommentReport[];
 }
@@ -1042,15 +1041,15 @@ export interface VoteComment {
 export interface VoteCommentLike {
   commentId: number | null
   userId: number | null
-  voteComment?: VoteComment[];
-  userProfiles?: UserProfiles[];
+  voteComment?: VoteComment;
+  userProfiles?: UserProfiles;
 }
 
 export interface VoteCommentReport {
   commentId: number | null
   userId: number | null
-  voteComment?: VoteComment[];
-  userProfiles?: UserProfiles[];
+  voteComment?: VoteComment;
+  userProfiles?: UserProfiles;
 }
 
 export interface VoteItem {
@@ -1062,9 +1061,9 @@ export interface VoteItem {
   updatedAt: string | null
   voteId: number | null
   voteTotal: number | null
-  vote?: Vote[];
-  artist?: Artist[];
-  artistGroup?: ArtistGroup[];
+  vote?: Vote;
+  artist?: Artist;
+  artistGroup?: ArtistGroup;
 }
 
 export interface VotePick {
@@ -1076,16 +1075,16 @@ export interface VotePick {
   userId: string | null
   voteId: number | null
   voteItemId: number
-  vote?: Vote[];
-  voteItem?: VoteItem[];
-  userProfiles?: UserProfiles[];
+  vote?: Vote;
+  voteItem?: VoteItem;
+  userProfiles?: UserProfiles;
 }
 
 export interface VoteReward {
   rewardId: number
   voteId: number
-  vote?: Vote[];
-  reward?: Reward[];
+  vote?: Vote;
+  reward?: Reward;
 }
 
 export interface VoteShareBonus {
@@ -1095,8 +1094,8 @@ export interface VoteShareBonus {
   updatedAt: string
   userId: string
   voteId: number
-  vote?: Vote[];
-  userProfiles?: UserProfiles[];
+  vote?: Vote;
+  userProfiles?: UserProfiles;
 }
 
 export interface ViewTransactionAll {

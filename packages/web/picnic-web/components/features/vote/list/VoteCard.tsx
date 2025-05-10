@@ -153,7 +153,7 @@ const VoteCard = React.memo(
               <VoteItems vote={vote} />
             </div>
 
-            {vote.reward && vote.reward.length > 0 && (
+            {vote.voteReward && vote.voteReward.length > 0 && (
               <div className='mt-2 bg-yellow-50 rounded-lg p-3 border border-yellow-100'>
                 <div className='flex items-center text-yellow-700 font-medium mb-2'>
                   <svg
@@ -171,18 +171,18 @@ const VoteCard = React.memo(
                   </svg>
                   <span className='text-sm sm:text-base'>
                     {t('text_vote_reward', {
-                      count: vote.reward.length.toString(),
+                      count: vote.voteReward.length.toString(),
                     })}
                   </span>
                 </div>
                 <div className='flex flex-wrap gap-2'>
-                  {vote.reward.slice(0, 2).map((reward) => (
-                    <RewardItem key={reward.id} reward={reward} />
+                  {vote.voteReward.slice(0, 2).map((reward) => (
+                    <RewardItem key={reward.reward?.id} reward={reward.reward!} />
                   ))}
-                  {vote.reward.length > 2 && (
+                  {vote.voteReward.length > 2 && (
                     <div className='w-full text-center'>
                       <span className='text-xs text-gray-500'>
-                        +{vote.reward.length - 2}개 더보기
+                        +{vote.voteReward.length - 2}개 더보기
                       </span>
                     </div>
                   )}

@@ -93,20 +93,70 @@ function generateInterfaces() {
   let tableCount = 0;
 
   // 외래키 관계 정의
-  const foreignKeyRelations: Record<string, string[]> = {
-    'VoteItem': ['Vote', 'Artist', 'ArtistGroup'],
-    'Vote': ['VoteItem', 'VotePick', 'VoteComment', 'VoteReward', 'VoteShareBonus', 'VoteAchieve'],
-    'Artist': ['ArtistGroup', 'VoteItem'],
-    'ArtistGroup': ['Artist', 'VoteItem'],
-    'VotePick': ['Vote', 'VoteItem', 'UserProfiles'],
-    'VoteComment': ['Vote', 'UserProfiles', 'VoteCommentLike', 'VoteCommentReport'],
-    'VoteCommentLike': ['VoteComment', 'UserProfiles'],
-    'VoteCommentReport': ['VoteComment', 'UserProfiles'],
-    'VoteReward': ['Vote', 'Reward'],
-    'VoteShareBonus': ['Vote', 'UserProfiles'],
-    'VoteAchieve': ['Vote', 'Reward'],
-    'UserProfiles': ['VotePick', 'VoteComment', 'VoteCommentLike', 'VoteCommentReport', 'VoteShareBonus'],
-    'Reward': ['VoteReward', 'VoteAchieve']
+  const foreignKeyRelations: Record<string, Array<{table: string, isArray: boolean}>> = {
+    'VoteItem': [
+      {table: 'Vote', isArray: false},
+      {table: 'Artist', isArray: false},
+      {table: 'ArtistGroup', isArray: false}
+    ],
+    'Vote': [
+      {table: 'VoteItem', isArray: true},
+      {table: 'VotePick', isArray: true},
+      {table: 'VoteComment', isArray: true},
+      {table: 'VoteReward', isArray: true},
+      {table: 'VoteShareBonus', isArray: true},
+      {table: 'VoteAchieve', isArray: true}
+    ],
+    'Artist': [
+      {table: 'ArtistGroup', isArray: false},
+      {table: 'VoteItem', isArray: true}
+    ],
+    'ArtistGroup': [
+      {table: 'Artist', isArray: true},
+      {table: 'VoteItem', isArray: true}
+    ],
+    'VotePick': [
+      {table: 'Vote', isArray: false},
+      {table: 'VoteItem', isArray: false},
+      {table: 'UserProfiles', isArray: false}
+    ],
+    'VoteComment': [
+      {table: 'Vote', isArray: false},
+      {table: 'UserProfiles', isArray: false},
+      {table: 'VoteCommentLike', isArray: true},
+      {table: 'VoteCommentReport', isArray: true}
+    ],
+    'VoteCommentLike': [
+      {table: 'VoteComment', isArray: false},
+      {table: 'UserProfiles', isArray: false}
+    ],
+    'VoteCommentReport': [
+      {table: 'VoteComment', isArray: false},
+      {table: 'UserProfiles', isArray: false}
+    ],
+    'VoteReward': [
+      {table: 'Vote', isArray: false},
+      {table: 'Reward', isArray: false}
+    ],
+    'VoteShareBonus': [
+      {table: 'Vote', isArray: false},
+      {table: 'UserProfiles', isArray: false}
+    ],
+    'VoteAchieve': [
+      {table: 'Vote', isArray: false},
+      {table: 'Reward', isArray: false}
+    ],
+    'UserProfiles': [
+      {table: 'VotePick', isArray: true},
+      {table: 'VoteComment', isArray: true},
+      {table: 'VoteCommentLike', isArray: true},
+      {table: 'VoteCommentReport', isArray: true},
+      {table: 'VoteShareBonus', isArray: true}
+    ],
+    'Reward': [
+      {table: 'VoteReward', isArray: true},
+      {table: 'VoteAchieve', isArray: true}
+    ]
   };
 
   while ((match = tableRegex.exec(fileContent)) !== null) {
@@ -143,10 +193,10 @@ function generateInterfaces() {
     let allFields = [...fields];
     const pascalCaseKey = toPascalCase(tableName);
     if (foreignKeyRelations[pascalCaseKey]) {
-      foreignKeyRelations[pascalCaseKey].forEach(relatedTable => {
-        const pascalCaseRelatedTable = toPascalCase(relatedTable);
+      foreignKeyRelations[pascalCaseKey].forEach(({table, isArray}) => {
+        const pascalCaseRelatedTable = toPascalCase(table);
         const fieldName = pascalCaseRelatedTable.charAt(0).toLowerCase() + pascalCaseRelatedTable.slice(1);
-        allFields.push(`  ${fieldName}?: ${pascalCaseRelatedTable}[];`);
+        allFields.push(`  ${fieldName}?: ${pascalCaseRelatedTable}${isArray ? '[]' : ''};`);
       });
     }
     const interfaceContent = `export interface ${pascalCaseTableName} {\n${allFields.join('\n')}\n}`;
