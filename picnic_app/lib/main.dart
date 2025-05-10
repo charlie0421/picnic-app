@@ -34,9 +34,6 @@ void main() async {
     try {
       logger.i('앱 초기화 시작...');
 
-      // Shorebird
-      await ShorebirdUtils.checkAndUpdate();
-
       // Flutter 바인딩 초기화
       WidgetsFlutterBinding.ensureInitialized();
 
