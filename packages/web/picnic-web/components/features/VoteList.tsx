@@ -18,7 +18,7 @@ import UpcomingVoteItems from './vote/UpcomingVoteItems';
 import OngoingVoteItems from './vote/OngoingVoteItems';
 import CompletedVoteItems from './vote/CompletedVoteItems';
 import CountdownTimer from '@/components/features/CountdownTimer';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getLocalizedString } from '@/utils/api/strings';
 import { useSupabase } from '@/components/providers/SupabaseProvider';
 import RewardItem from '@/components/common/RewardItem';
@@ -478,16 +478,35 @@ const VoteList: React.FC = () => {
   const { supabase } = useSupabase();
   const { t, currentLanguage } = useLanguageStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const PAGE_SIZE = 8;
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
-    'all',
+    searchParams.get('status') as VoteStatus | 'all' || 'all'
   );
   const [votes, setVotes] = useState<Vote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  // URL 파라미터 업데이트 함수
+  const updateUrlParams = useCallback((status: VoteStatus | 'all') => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (status === 'all') {
+      params.delete('status');
+    } else {
+      params.set('status', status);
+    }
+    router.push(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
+
+  // 상태 변경 핸들러
+  const handleStatusChange = useCallback((status: VoteStatus | 'all') => {
+    setSelectedStatus(status);
+    updateUrlParams(status);
+    setPage(1);
+  }, [updateUrlParams]);
 
   const fetchVotes = useCallback(
     async (isRefresh = false) => {
@@ -497,9 +516,9 @@ const VoteList: React.FC = () => {
         } else {
           setIsLoading(true);
         }
-        console.log('Fetching votes...');
 
-        const { data: voteData, error: voteError } = await supabase
+        const now = new Date().toISOString();
+        let query = supabase
           .from('vote')
           .select(
             `
@@ -529,8 +548,32 @@ const VoteList: React.FC = () => {
           )
         `,
           )
-          .is('deleted_at', null)
-          .order('start_at', { ascending: false });
+          .is('deleted_at', null);
+
+        // 상태별 필터링
+        if (selectedStatus !== 'all') {
+          switch (selectedStatus) {
+            case VOTE_STATUS.UPCOMING:
+              query = query.gt('start_at', now);
+              break;
+            case VOTE_STATUS.ONGOING:
+              query = query.lte('start_at', now).gte('stop_at', now);
+              break;
+            case VOTE_STATUS.COMPLETED:
+              query = query.lt('stop_at', now);
+              break;
+          }
+        }
+
+        // all 상태일 때는 상태별 순서 적용
+        if (selectedStatus === 'all') {
+          query = query.order('start_at', { ascending: false })
+            .order('stop_at', { ascending: false });
+        } else {
+          query = query.order('start_at', { ascending: false });
+        }
+
+        const { data: voteData, error: voteError } = await query;
 
         if (voteError) {
           console.error('Vote fetch error:', voteError);
@@ -581,7 +624,6 @@ const VoteList: React.FC = () => {
           title: vote.title || '제목 없음',
         }));
 
-        console.log('Fetched votes:', formattedVotes);
         setVotes(formattedVotes);
         setError(null);
       } catch (err) {
@@ -595,8 +637,16 @@ const VoteList: React.FC = () => {
         }
       }
     },
-    [supabase],
+    [supabase, selectedStatus],
   );
+
+  // URL 파라미터 변경 감지
+  useEffect(() => {
+    const status = searchParams.get('status') as VoteStatus | 'all' || 'all';
+    setSelectedStatus(status);
+    setPage(1);
+    fetchVotes(false);
+  }, [searchParams, fetchVotes]);
 
   // 언어 변경 시 쿼리 재실행
   useEffect(() => {
@@ -614,59 +664,70 @@ const VoteList: React.FC = () => {
     };
   }, [fetchVotes]);
 
-  // 초기 데이터 로드
-  useEffect(() => {
-    fetchVotes(false);
-  }, [fetchVotes]);
-
   // 표시할 투표 목록 계산
   const paginatedVotes = useMemo(() => {
     if (!votes) return [];
+
+    // all 상태일 때는 상태별로 그룹화
+    if (selectedStatus === 'all') {
+      const now = new Date();
+      const ongoingVotes = votes.filter(vote => {
+        const start = vote.startAt ? new Date(vote.startAt) : null;
+        const end = vote.stopAt ? new Date(vote.stopAt) : null;
+        return start && end && now >= start && now <= end;
+      });
+
+      const upcomingVotes = votes.filter(vote => {
+        const start = vote.startAt ? new Date(vote.startAt) : null;
+        return start && now < start;
+      });
+
+      const completedVotes = votes.filter(vote => {
+        const end = vote.stopAt ? new Date(vote.stopAt) : null;
+        return end && now > end;
+      });
+
+      // 각 그룹 내에서 시작 시간 기준으로 정렬
+      ongoingVotes.sort((a, b) => {
+        const aStart = a.startAt ? new Date(a.startAt).getTime() : 0;
+        const bStart = b.startAt ? new Date(b.startAt).getTime() : 0;
+        return bStart - aStart;
+      });
+
+      upcomingVotes.sort((a, b) => {
+        const aStart = a.startAt ? new Date(a.startAt).getTime() : 0;
+        const bStart = b.startAt ? new Date(b.startAt).getTime() : 0;
+        return bStart - aStart;
+      });
+
+      completedVotes.sort((a, b) => {
+        const aStart = a.startAt ? new Date(a.startAt).getTime() : 0;
+        const bStart = b.startAt ? new Date(b.startAt).getTime() : 0;
+        return bStart - aStart;
+      });
+
+      // 모든 투표를 하나의 배열로 합치기
+      const allVotes = [...ongoingVotes, ...upcomingVotes, ...completedVotes];
+      const start = 0;
+      const end = page * PAGE_SIZE;
+      const paginatedData = allVotes.slice(start, end);
+      setHasMore(end < allVotes.length);
+      return paginatedData;
+    }
+
+    // 다른 상태일 때는 기존 페이지네이션 로직 사용
     const start = 0;
     const end = page * PAGE_SIZE;
     const paginatedData = votes.slice(start, end);
     setHasMore(end < votes.length);
     return paginatedData;
-  }, [votes, page, PAGE_SIZE]);
+  }, [votes, page, PAGE_SIZE, selectedStatus]);
 
   // 필터링된 투표 목록
   const filteredVotes = useMemo(() => {
     if (!paginatedVotes || paginatedVotes.length === 0) return [];
-
-    if (selectedStatus === 'all') {
-      return paginatedVotes.sort((a, b) => {
-        const now = new Date();
-        const aStart = a.startAt ? new Date(a.startAt) : null;
-        const aEnd = a.stopAt ? new Date(a.stopAt) : null;
-        const bStart = b.startAt ? new Date(b.startAt) : null;
-        const bEnd = b.stopAt ? new Date(b.stopAt) : null;
-
-        const aIsOngoing = aStart && aEnd && now >= aStart && now <= aEnd;
-        const bIsOngoing = bStart && bEnd && now >= bStart && now <= bEnd;
-        if (aIsOngoing && !bIsOngoing) return -1;
-        if (!aIsOngoing && bIsOngoing) return 1;
-
-        const aIsUpcoming = aStart && now < aStart;
-        const bIsUpcoming = bStart && now < bStart;
-        if (aIsUpcoming && !bIsUpcoming) return -1;
-        if (!aIsUpcoming && bIsUpcoming) return 1;
-
-        return 0;
-      });
-    }
-
-    return paginatedVotes.filter((vote) => {
-      if (!vote.startAt || !vote.stopAt)
-        return selectedStatus === VOTE_STATUS.UPCOMING;
-      const now = new Date();
-      const start = new Date(vote.startAt);
-      const end = new Date(vote.stopAt);
-      if (selectedStatus === VOTE_STATUS.UPCOMING) return now < start;
-      if (selectedStatus === VOTE_STATUS.ONGOING)
-        return now >= start && now <= end;
-      return now > end;
-    });
-  }, [paginatedVotes, selectedStatus]);
+    return paginatedVotes;
+  }, [paginatedVotes]);
 
   // 상태가 변경되면 페이지 리셋
   useEffect(() => {
@@ -693,7 +754,7 @@ const VoteList: React.FC = () => {
       <div className='flex justify-center items-center mb-6'>
         <StatusFilter
           selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
+          setSelectedStatus={handleStatusChange}
           t={t}
         />
       </div>
