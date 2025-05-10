@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/providers/area_provider.dart';
 
-class AreaSwitch extends ConsumerWidget {
-  const AreaSwitch({
+class AreaSelector extends ConsumerWidget {
+  const AreaSelector({
     super.key,
   });
 
@@ -38,11 +38,7 @@ class AreaSwitch extends ConsumerWidget {
             size: 16,
           ),
         ),
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 11.sp,
-          fontWeight: FontWeight.w500,
-        ),
+        style: getTextStyle(AppTypo.caption10SB, AppColors.grey900),
         dropdownColor: AppColors.primary500,
         borderRadius: BorderRadius.circular(8.r),
         elevation: 8,
@@ -68,19 +64,13 @@ class AreaSwitch extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (area == 'kpop')
-                    Icon(
-                      Icons.check_circle,
-                      size: 12.sp,
-                      color: AppColors.primary500,
-                    ),
-                  SizedBox(width: 4.w),
                   Text(
                     'K-POP',
-                    style: TextStyle(
-                      color: area == 'kpop' ? AppColors.primary500 : Colors.white,
-                      fontWeight: area == 'kpop' ? FontWeight.w600 : FontWeight.w500,
-                    ),
+                    style: getTextStyle(
+                        area == 'kpop'
+                            ? AppTypo.caption12R
+                            : AppTypo.caption10SB,
+                        area == 'kpop' ? AppColors.primary500 : AppColors.grey00),
                   ),
                 ],
               ),
@@ -107,19 +97,13 @@ class AreaSwitch extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (area == 'musical')
-                    Icon(
-                      Icons.check_circle,
-                      size: 12.sp,
-                      color: AppColors.primary500,
-                    ),
-                  SizedBox(width: 4.w),
                   Text(
                     'K-MUSICAL',
-                    style: TextStyle(
-                      color: area == 'musical' ? AppColors.primary500 : Colors.white,
-                      fontWeight: area == 'musical' ? FontWeight.w600 : FontWeight.w500,
-                    ),
+                    style: getTextStyle(
+                        area == 'musical'
+                            ? AppTypo.caption12R
+                            : AppTypo.caption10SB,
+                        area == 'musical' ? AppColors.primary500 : AppColors.grey00),
                   ),
                 ],
               ),
