@@ -31,6 +31,13 @@ const VOTE_STATUS = {
 
 type VoteStatus = (typeof VOTE_STATUS)[keyof typeof VOTE_STATUS];
 
+const VOTE_AREAS = {
+  KPOP: 'kpop',
+  MUSICAL: 'musical',
+} as const;
+
+type VoteArea = (typeof VOTE_AREAS)[keyof typeof VOTE_AREAS];
+
 const STATUS_TAG_COLORS: Record<VoteStatus, string> = {
   [VOTE_STATUS.UPCOMING]: 'bg-blue-500 text-white border border-blue-600',
   [VOTE_STATUS.ONGOING]: 'bg-green-500 text-white border border-green-600',
@@ -160,7 +167,7 @@ const VoteCard = React.memo(
               <div className='h-48 sm:h-56 md:h-64 bg-gray-200 relative'>
                 <Image
                   src={getCdnImageUrl(vote.mainImage)}
-                  alt={vote.title}
+                  alt={getLocalizedString(vote.title)}
                   width={320}
                   height={256}
                   className='w-full h-full object-cover'
@@ -225,7 +232,7 @@ const VoteCard = React.memo(
               <VoteItems vote={vote} />
             </div>
 
-            {vote.rewards && vote.rewards.length > 0 && (
+            {vote.reward && vote.reward.length > 0 && (
               <div className='mt-2 bg-yellow-50 rounded-lg p-3 border border-yellow-100'>
                 <div className='flex items-center text-yellow-700 font-medium mb-2'>
                   <svg
@@ -243,18 +250,18 @@ const VoteCard = React.memo(
                   </svg>
                   <span className='text-sm sm:text-base'>
                     {t('text_vote_reward', {
-                      count: vote.rewards.length.toString(),
+                      count: vote.reward.length.toString(),
                     })}
                   </span>
                 </div>
                 <div className='flex flex-wrap gap-2'>
-                  {vote.rewards.slice(0, 2).map((reward) => (
+                  {vote.reward.slice(0, 2).map((reward) => (
                     <RewardItem key={reward.id} reward={reward} />
                   ))}
-                  {vote.rewards.length > 2 && (
+                  {vote.reward.length > 2 && (
                     <div className='w-full text-center'>
                       <span className='text-xs text-gray-500'>
-                        +{vote.rewards.length - 2}개 더보기
+                        +{vote.reward.length - 2}개 더보기
                       </span>
                     </div>
                   )}
@@ -316,24 +323,22 @@ const getStatusText = (
   }
 };
 
-// StatusFilter 컴포넌트 분리
+// StatusFilter 컴포넌트 수정
 const StatusFilter = React.memo(
   ({
     selectedStatus,
     setSelectedStatus,
     t,
   }: {
-    selectedStatus: VoteStatus | 'all';
-    setSelectedStatus: (status: VoteStatus | 'all') => void;
+    selectedStatus: VoteStatus;
+    setSelectedStatus: (status: VoteStatus) => void;
     t: (key: string) => string;
   }) => {
     const { translations } = useLanguageStore();
 
     const getButtonText = useCallback(
-      (status: VoteStatus | 'all') => {
+      (status: VoteStatus) => {
         switch (status) {
-          case 'all':
-            return t('label_tabbar_vote_all');
           case VOTE_STATUS.ONGOING:
             return t('label_tabbar_vote_active');
           case VOTE_STATUS.UPCOMING:
@@ -349,18 +354,6 @@ const StatusFilter = React.memo(
 
     return (
       <div className='flex flex-wrap justify-center gap-1.5 sm:gap-2'>
-        <button
-          onClick={() => setSelectedStatus('all')}
-          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
-            selectedStatus === 'all'
-              ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
-          }`}
-          aria-label={t('label_tabbar_vote_all')}
-          aria-pressed={selectedStatus === 'all'}
-        >
-          {getButtonText('all')}
-        </button>
         <button
           onClick={() => setSelectedStatus(VOTE_STATUS.ONGOING)}
           className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
@@ -403,6 +396,46 @@ const StatusFilter = React.memo(
 );
 
 StatusFilter.displayName = 'StatusFilter';
+
+// AreaFilter 컴포넌트 수정
+const AreaFilter = React.memo(
+  ({
+    selectedArea,
+    setSelectedArea,
+    t,
+  }: {
+    selectedArea: VoteArea;
+    setSelectedArea: (area: VoteArea) => void;
+    t: (key: string) => string;
+  }) => {
+    return (
+      <div className='flex flex-wrap justify-center gap-1.5 sm:gap-2'>
+        <button
+          onClick={() => setSelectedArea(VOTE_AREAS.KPOP)}
+          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+            selectedArea === VOTE_AREAS.KPOP
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+          }`}
+        >
+          K-POP
+        </button>
+        <button
+          onClick={() => setSelectedArea(VOTE_AREAS.MUSICAL)}
+          className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium ${
+            selectedArea === VOTE_AREAS.MUSICAL
+              ? 'bg-primary text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary'
+          }`}
+        >
+          K-MUSICAL
+        </button>
+      </div>
+    );
+  },
+);
+
+AreaFilter.displayName = 'AreaFilter';
 
 // LoadingSkeleton 컴포넌트 분리
 const LoadingSkeleton = React.memo(() => (
@@ -451,7 +484,7 @@ const EmptyState = React.memo(
     selectedStatus,
     t,
   }: {
-    selectedStatus: VoteStatus | 'all';
+    selectedStatus: VoteStatus;
     t: (key: string) => string;
   }) => {
     const getMessage = () => {
@@ -482,34 +515,31 @@ const VoteList: React.FC = () => {
   const PAGE_SIZE = 8;
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<VoteStatus | 'all'>(
-    searchParams.get('status') as VoteStatus | 'all' || 'all'
+  const [selectedStatus, setSelectedStatus] = useState<VoteStatus>(
+    (searchParams.get('status') as VoteStatus) || VOTE_STATUS.ONGOING
+  );
+  const [selectedArea, setSelectedArea] = useState<VoteArea>(
+    (searchParams.get('area') as VoteArea) || VOTE_AREAS.KPOP
   );
   const [votes, setVotes] = useState<Vote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const prevVotesRef = useRef<Vote[]>([]);
 
   // URL 파라미터 업데이트 함수
-  const updateUrlParams = useCallback((status: VoteStatus | 'all') => {
+  const updateUrlParams = useCallback((status: VoteStatus, area: VoteArea) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (status === 'all') {
-      params.delete('status');
-    } else {
-      params.set('status', status);
-    }
+    params.set('status', status);
+    params.set('area', area);
     router.push(`?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
 
-  // 상태 변경 핸들러
-  const handleStatusChange = useCallback((status: VoteStatus | 'all') => {
-    setSelectedStatus(status);
-    updateUrlParams(status);
-    setPage(1);
-  }, [updateUrlParams]);
-
   const fetchVotes = useCallback(
     async (isRefresh = false) => {
+      if (isTransitioning && !isRefresh) return;
+
       try {
         if (isRefresh) {
           setIsRefreshing(true);
@@ -551,27 +581,23 @@ const VoteList: React.FC = () => {
           .is('deleted_at', null);
 
         // 상태별 필터링
-        if (selectedStatus !== 'all') {
-          switch (selectedStatus) {
-            case VOTE_STATUS.UPCOMING:
-              query = query.gt('start_at', now);
-              break;
-            case VOTE_STATUS.ONGOING:
-              query = query.lte('start_at', now).gte('stop_at', now);
-              break;
-            case VOTE_STATUS.COMPLETED:
-              query = query.lt('stop_at', now);
-              break;
-          }
+        switch (selectedStatus) {
+          case VOTE_STATUS.UPCOMING:
+            query = query.gt('start_at', now);
+            break;
+          case VOTE_STATUS.ONGOING:
+            query = query.lte('start_at', now).gte('stop_at', now);
+            break;
+          case VOTE_STATUS.COMPLETED:
+            query = query.lt('stop_at', now);
+            break;
         }
 
-        // all 상태일 때는 상태별 순서 적용
-        if (selectedStatus === 'all') {
-          query = query.order('start_at', { ascending: false })
-            .order('stop_at', { ascending: false });
-        } else {
-          query = query.order('start_at', { ascending: false });
-        }
+        // 영역별 필터링
+        query = query.eq('area', selectedArea);
+
+        // 정렬
+        query = query.order('start_at', { ascending: false });
 
         const { data: voteData, error: voteError } = await query;
 
@@ -583,6 +609,7 @@ const VoteList: React.FC = () => {
         if (!voteData || voteData.length === 0) {
           console.log('No votes found');
           setVotes([]);
+          setHasMore(false);
           return;
         }
 
@@ -600,6 +627,7 @@ const VoteList: React.FC = () => {
           voteContent: vote.vote_content,
           voteSubCategory: vote.vote_sub_category,
           visibleAt: vote.visible_at,
+          area: vote.area,
           voteItems: vote.vote_item
             ? vote.vote_item.map((item: any) => ({
                 ...item,
@@ -618,110 +646,118 @@ const VoteList: React.FC = () => {
                   : null,
               }))
             : [],
-          rewards: vote.vote_reward
+          reward: vote.vote_reward
             ? vote.vote_reward.map((vr: any) => vr.reward).filter(Boolean)
             : [],
           title: vote.title || '제목 없음',
         }));
 
+        // 이전 데이터를 유지하면서 새 데이터로 업데이트
+        prevVotesRef.current = votes;
         setVotes(formattedVotes);
+        setHasMore(formattedVotes.length >= PAGE_SIZE);
         setError(null);
       } catch (err) {
         console.error('투표 데이터 로드 오류:', err);
         setError(err as Error);
+        setVotes([]);
+        setHasMore(false);
       } finally {
         if (isRefresh) {
           setIsRefreshing(false);
         } else {
           setIsLoading(false);
         }
+        setIsTransitioning(false);
       }
     },
-    [supabase, selectedStatus],
+    [supabase, selectedStatus, selectedArea, PAGE_SIZE, votes, isTransitioning],
   );
+
+  // 상태 변경 핸들러
+  const handleStatusChange = useCallback(async (status: VoteStatus) => {
+    if (status === selectedStatus || isTransitioning) return;
+    
+    try {
+      setIsTransitioning(true);
+      setSelectedStatus(status);
+      updateUrlParams(status, selectedArea);
+      setPage(1);
+      await fetchVotes(false);
+    } catch (error) {
+      console.error('상태 변경 중 오류 발생:', error);
+    }
+  }, [updateUrlParams, selectedArea, fetchVotes, selectedStatus, isTransitioning]);
+
+  // 영역 변경 핸들러
+  const handleAreaChange = useCallback(async (area: VoteArea) => {
+    if (area === selectedArea || isTransitioning) return;
+    
+    try {
+      setIsTransitioning(true);
+      setSelectedArea(area);
+      updateUrlParams(selectedStatus, area);
+      setPage(1);
+      await fetchVotes(false);
+    } catch (error) {
+      console.error('영역 변경 중 오류 발생:', error);
+    }
+  }, [updateUrlParams, selectedStatus, fetchVotes, selectedArea, isTransitioning]);
 
   // URL 파라미터 변경 감지
   useEffect(() => {
-    const status = searchParams.get('status') as VoteStatus | 'all' || 'all';
-    setSelectedStatus(status);
-    setPage(1);
-    fetchVotes(false);
-  }, [searchParams, fetchVotes]);
+    const status = searchParams.get('status') as VoteStatus || VOTE_STATUS.ONGOING;
+    const area = searchParams.get('area') as VoteArea || VOTE_AREAS.KPOP;
+    
+    if ((status !== selectedStatus || area !== selectedArea) && !isTransitioning) {
+      const updateFilters = async () => {
+        try {
+          setIsTransitioning(true);
+          setSelectedStatus(status);
+          setSelectedArea(area);
+          setPage(1);
+          await fetchVotes(false);
+        } catch (error) {
+          console.error('URL 파라미터 변경 중 오류 발생:', error);
+        }
+      };
+      
+      updateFilters();
+    }
+  }, [searchParams, fetchVotes, selectedStatus, selectedArea, isTransitioning]);
 
   // 언어 변경 시 쿼리 재실행
   useEffect(() => {
-    fetchVotes(false);
-  }, [currentLanguage, fetchVotes]);
+    if (currentLanguage && !isTransitioning) {
+      fetchVotes(false);
+    }
+  }, [currentLanguage, fetchVotes, isTransitioning]);
 
   // 전역 타이머 구독
   useEffect(() => {
+    let isMounted = true;
     const timer = setInterval(() => {
-      fetchVotes(true);
+      if (isMounted && !isTransitioning) {
+        fetchVotes(true);
+      }
     }, 1000);
 
     return () => {
+      isMounted = false;
       clearInterval(timer);
     };
-  }, [fetchVotes]);
+  }, [fetchVotes, isTransitioning]);
 
   // 표시할 투표 목록 계산
   const paginatedVotes = useMemo(() => {
     if (!votes) return [];
 
-    // all 상태일 때는 상태별로 그룹화
-    if (selectedStatus === 'all') {
-      const now = new Date();
-      const ongoingVotes = votes.filter(vote => {
-        const start = vote.startAt ? new Date(vote.startAt) : null;
-        const end = vote.stopAt ? new Date(vote.stopAt) : null;
-        return start && end && now >= start && now <= end;
-      });
-
-      const upcomingVotes = votes.filter(vote => {
-        const start = vote.startAt ? new Date(vote.startAt) : null;
-        return start && now < start;
-      });
-
-      const completedVotes = votes.filter(vote => {
-        const end = vote.stopAt ? new Date(vote.stopAt) : null;
-        return end && now > end;
-      });
-
-      // 각 그룹 내에서 시작 시간 기준으로 정렬
-      ongoingVotes.sort((a, b) => {
-        const aStart = a.startAt ? new Date(a.startAt).getTime() : 0;
-        const bStart = b.startAt ? new Date(b.startAt).getTime() : 0;
-        return bStart - aStart;
-      });
-
-      upcomingVotes.sort((a, b) => {
-        const aStart = a.startAt ? new Date(a.startAt).getTime() : 0;
-        const bStart = b.startAt ? new Date(b.startAt).getTime() : 0;
-        return bStart - aStart;
-      });
-
-      completedVotes.sort((a, b) => {
-        const aStart = a.startAt ? new Date(a.startAt).getTime() : 0;
-        const bStart = b.startAt ? new Date(b.startAt).getTime() : 0;
-        return bStart - aStart;
-      });
-
-      // 모든 투표를 하나의 배열로 합치기
-      const allVotes = [...ongoingVotes, ...upcomingVotes, ...completedVotes];
-      const start = 0;
-      const end = page * PAGE_SIZE;
-      const paginatedData = allVotes.slice(start, end);
-      setHasMore(end < allVotes.length);
-      return paginatedData;
-    }
-
-    // 다른 상태일 때는 기존 페이지네이션 로직 사용
     const start = 0;
     const end = page * PAGE_SIZE;
     const paginatedData = votes.slice(start, end);
     setHasMore(end < votes.length);
     return paginatedData;
-  }, [votes, page, PAGE_SIZE, selectedStatus]);
+  }, [votes, page, PAGE_SIZE]);
 
   // 필터링된 투표 목록
   const filteredVotes = useMemo(() => {
@@ -729,89 +765,80 @@ const VoteList: React.FC = () => {
     return paginatedVotes;
   }, [paginatedVotes]);
 
-  // 상태가 변경되면 페이지 리셋
-  useEffect(() => {
-    setPage(1);
-  }, [selectedStatus]);
-
-  // 오류 발생 시
-  if (error) {
-    return (
-      <div className='text-red-500 p-4 rounded-lg bg-red-50 flex flex-col items-center'>
-        <p>데이터를 불러오는 중 오류가 발생했습니다.</p>
-        <button
-          className='mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600'
-          onClick={() => window.location.reload()}
-        >
-          다시 시도
-        </button>
-      </div>
-    );
-  }
-
   return (
     <section className='w-full'>
-      <div className='flex justify-center items-center mb-6'>
-        <StatusFilter
-          selectedStatus={selectedStatus}
-          setSelectedStatus={handleStatusChange}
-          t={t}
-        />
+      <div className='flex justify-between items-center mb-6 px-4'>
+        <div className='flex-1'>
+          <AreaFilter
+            selectedArea={selectedArea}
+            setSelectedArea={handleAreaChange}
+            t={t}
+          />
+        </div>
+        <div className='flex-1 flex justify-end'>
+          <StatusFilter
+            selectedStatus={selectedStatus}
+            setSelectedStatus={handleStatusChange}
+            t={t}
+          />
+        </div>
       </div>
 
-      {isLoading && votes.length === 0 ? (
-        <LoadingSkeleton />
-      ) : votes.length === 0 ? (
-        <div className='bg-gray-100 p-6 rounded-lg text-center'>
-          <p className='text-gray-500'>투표가 없습니다.</p>
-        </div>
-      ) : filteredVotes.length === 0 ? (
-        <EmptyState selectedStatus={selectedStatus} t={t} />
-      ) : (
-        <>
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8'>
-            {filteredVotes.map((vote) => (
-              <VoteCard
-                key={vote.id}
-                vote={vote}
-                onClick={() => router.push(`/vote/${vote.id}`)}
-              />
-            ))}
+      <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
+        {isLoading && votes.length === 0 ? (
+          <LoadingSkeleton />
+        ) : votes.length === 0 ? (
+          <div className='bg-gray-100 p-6 rounded-lg text-center'>
+            <p className='text-gray-500'>투표가 없습니다.</p>
           </div>
-          {hasMore && (
-            <div className='flex justify-center mt-8'>
-              <button
-                onClick={() => setPage((prev) => prev + 1)}
-                className='px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 flex items-center gap-2'
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
-                    <span>Loading...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{t('label_list_more')}</span>
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      className='h-4 w-4'
-                      viewBox='0 0 20 20'
-                      fill='currentColor'
-                    >
-                      <path
-                        fillRule='evenodd'
-                        d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
-                        clipRule='evenodd'
-                      />
-                    </svg>
-                  </>
-                )}
-              </button>
+        ) : filteredVotes.length === 0 ? (
+          <EmptyState selectedStatus={selectedStatus} t={t} />
+        ) : (
+          <>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8'>
+              {filteredVotes.map((vote) => (
+                <VoteCard
+                  key={vote.id}
+                  vote={vote}
+                  onClick={() => router.push(`/vote/${vote.id}`)}
+                />
+              ))}
             </div>
-          )}
-        </>
-      )}
+            {hasMore && (
+              <div className='flex justify-center mt-8'>
+                <button
+                  onClick={() => setPage((prev) => prev + 1)}
+                  className='px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 flex items-center gap-2'
+                  disabled={isLoading || isTransitioning}
+                >
+                  {isLoading ? (
+                    <>
+                      <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{t('label_list_more')}</span>
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='h-4 w-4'
+                        viewBox='0 0 20 20'
+                        fill='currentColor'
+                      >
+                        <path
+                          fillRule='evenodd'
+                          d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
+                          clipRule='evenodd'
+                        />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </section>
   );
 };

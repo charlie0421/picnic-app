@@ -95,16 +95,18 @@ function generateInterfaces() {
   // 외래키 관계 정의
   const foreignKeyRelations: Record<string, string[]> = {
     'VoteItem': ['Vote', 'Artist', 'ArtistGroup'],
-    'Vote': ['VoteItem'],
-    'Artist': ['ArtistGroup'],
-    'ArtistGroup': ['Artist'],
-    'VotePick': ['Vote', 'VoteItem', 'User'],
-    'VoteComment': ['Vote', 'User'],
-    'VoteCommentLike': ['VoteComment', 'User'],
-    'VoteCommentReport': ['VoteComment', 'User'],
+    'Vote': ['VoteItem', 'VotePick', 'VoteComment', 'VoteReward', 'VoteShareBonus', 'VoteAchieve'],
+    'Artist': ['ArtistGroup', 'VoteItem'],
+    'ArtistGroup': ['Artist', 'VoteItem'],
+    'VotePick': ['Vote', 'VoteItem', 'UserProfiles'],
+    'VoteComment': ['Vote', 'UserProfiles', 'VoteCommentLike', 'VoteCommentReport'],
+    'VoteCommentLike': ['VoteComment', 'UserProfiles'],
+    'VoteCommentReport': ['VoteComment', 'UserProfiles'],
     'VoteReward': ['Vote', 'Reward'],
-    'VoteShareBonus': ['Vote', 'User'],
-    'VoteAchieve': ['Vote', 'Reward']
+    'VoteShareBonus': ['Vote', 'UserProfiles'],
+    'VoteAchieve': ['Vote', 'Reward'],
+    'UserProfiles': ['VotePick', 'VoteComment', 'VoteCommentLike', 'VoteCommentReport', 'VoteShareBonus'],
+    'Reward': ['VoteReward', 'VoteAchieve']
   };
 
   while ((match = tableRegex.exec(fileContent)) !== null) {
@@ -137,17 +139,17 @@ function generateInterfaces() {
         return `  ${camelCaseName}: ${processedType}`;
       });
 
-    // 외래키 관계 추가
-    if (foreignKeyRelations[tableName]) {
-      foreignKeyRelations[tableName].forEach(relatedTable => {
+    // Generate interface
+    let allFields = [...fields];
+    const pascalCaseKey = toPascalCase(tableName);
+    if (foreignKeyRelations[pascalCaseKey]) {
+      foreignKeyRelations[pascalCaseKey].forEach(relatedTable => {
         const pascalCaseRelatedTable = toPascalCase(relatedTable);
         const fieldName = pascalCaseRelatedTable.charAt(0).toLowerCase() + pascalCaseRelatedTable.slice(1);
-        fields.push(`  ${fieldName}?: ${pascalCaseRelatedTable};`);
+        allFields.push(`  ${fieldName}?: ${pascalCaseRelatedTable}[];`);
       });
     }
-
-    // Generate interface
-    const interfaceContent = `export interface ${pascalCaseTableName} {\n${fields.join('\n')}\n}`;
+    const interfaceContent = `export interface ${pascalCaseTableName} {\n${allFields.join('\n')}\n}`;
     interfaces.push(interfaceContent);
   }
 
