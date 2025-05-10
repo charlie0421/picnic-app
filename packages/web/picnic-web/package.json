@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "gen:types": "echo '🚀 Supabase 타입 생성 중...' && supabase gen types typescript --project-id xtijtefcycoeqludlngc > types/supabase.ts && echo '✅ Supabase 타입 생성 완료' && echo '🚀 인터페이스 생성 중...' && tsx scripts/generate-interfaces.ts",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap && npm run sentry:release",
+    "sentry:release": "node scripts/sentry-release.js"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
@@ -16,6 +17,9 @@
     "@headlessui/react": "^2.2.2",
     "@heroicons/react": "^2.2.0",
     "@humanwhocodes/config-array": "^0.13.0",
+    "@sentry/nextjs": "^9.17.0",
+    "@sentry/replay": "^7.116.0",
+    "@sentry/tracing": "^7.120.3",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",
     "@vercel/analytics": "^1.5.0",
@@ -36,10 +40,12 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@sentry/cli": "^2.45.0",
     "@types/node": "20.4.5",
     "@types/react": "18.2.17",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "^10.4.14",
+    "dotenv": "^16.5.0",
     "eslint": "^9.25.1",
     "eslint-config-next": "^15.3.1",
     "postcss": "^8.5.3",
