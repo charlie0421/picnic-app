@@ -45,7 +45,7 @@ import {
   QuestionCircleOutlined,
   NotificationOutlined,
 } from '@ant-design/icons';
-
+import Image from 'next/image';
 export const metadata: Metadata = {
   title: 'Picnic Admin Panel',
   description: 'Picnic Admin Panel',
@@ -641,6 +641,12 @@ export default function RootLayout({
                           warnWhenUnsavedChanges: true,
                           useNewQueryKeys: true,
                           projectId: 'Uu8KtH-kZkC5Q-8t8wTz',
+                          title: {
+                            icon: <div>
+                              <Image src="/app_icon.png" alt="Picnic Admin Panel" width={25} height={25} />
+                            </div>,
+                            text: 'Picnic Admin Panel',
+                          },
                         }}
                       >
                         <PermissionLoadingProvider>
