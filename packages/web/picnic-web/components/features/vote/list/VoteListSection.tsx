@@ -24,14 +24,6 @@ const VoteListSection: React.FC<VoteListSectionProps> = ({
     return <VoteLoadingSkeleton />;
   }
 
-  if (votes.length === 0) {
-    return (
-      <div className='bg-gray-100 p-6 rounded-lg text-center'>
-        <p className='text-gray-500'>투표가 없습니다.</p>
-      </div>
-    );
-  }
-
   return (
     <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
       {votes.length === 0 ? (
@@ -42,7 +34,7 @@ const VoteListSection: React.FC<VoteListSectionProps> = ({
             <VoteCard
               key={vote.id}
               vote={vote}
-              onClick={() => onVoteClick(vote.id)}
+              onClick={() => onVoteClick(vote.id.toString())}
             />
           ))}
         </div>
