@@ -6,8 +6,9 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // applink.picnic.fan/vote/detail/ 경로를 vote/로 리다이렉트
-  if (pathname.startsWith('/vote/detail/')) {
+  if (pathname.includes('/vote/detail/')) {
     const voteId = pathname.split('/').pop();
+    console.log('voteId', voteId);
     return NextResponse.redirect(new URL(`/vote/${voteId}`, request.url));
   }
 
