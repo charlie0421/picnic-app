@@ -5,6 +5,7 @@ const { withSentryConfig } = require('@sentry/nextjs');
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'xtijtefcycoeqludlngc.supabase.co' },
       { protocol: 'https', hostname: 'api.picnic.fan' },
