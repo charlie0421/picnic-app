@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {Reward} from '@/types/interfaces';
-import RewardList from '@/components/features/RewardList';
+import RewardList from '@/components/features/reward/RewardList';
 import {getRewards} from '@/utils/api/queries';
 import {useNavigation} from '@/contexts/NavigationContext';
 import {PortalType} from '@/utils/enums';

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import CurrentTime from '@/components/features/CurrentTime';
+import CurrentTime from '@/components/features/vote/CurrentTime';
 import {useLanguageStore} from '@/stores/languageStore';
 import menuConfig from '@/config/menu.json';
 

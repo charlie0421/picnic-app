@@ -3,7 +3,7 @@
 import React, {useEffect, useState} from 'react';
 import {Media} from '@/types/interfaces';
 import {getMedias} from '@/utils/api/queries';
-import MediaList from '@/components/MediaList';
+import MediaList from '@/components/features/media/MediaList';
 
 const MediaPage: React.FC = () => {
   const [medias, setMedias] = useState<Media[]>([]);

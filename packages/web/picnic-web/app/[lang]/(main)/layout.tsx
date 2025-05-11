@@ -6,12 +6,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLanguageStore } from '@/stores/languageStore';
 import Footer from '@/components/layouts/Footer';
-import ExclusiveOpenBadge from '@/components/features/ExclusiveOpenBadge';
-import Menu from '@/components/features/Menu';
+import ExclusiveOpenBadge from '@/components/layouts/ExclusiveOpenBadge';
+import Menu from '@/components/features/vote/Menu';
 import { getPortalTypeFromPath } from '@/config/navigation';
 import Header from '@/components/layouts/Header';
 
-const MainContent = ({ children }: { children: React.ReactNode }) => {
+const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { authState } = useAuth();
   const { setCurrentPortalType } = useNavigation();
   const { t } = useLanguageStore();
@@ -51,10 +51,4 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <MainContent>{children}</MainContent>;
-}
+export default MainLayout;

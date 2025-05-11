@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import BannerList from '@/components/features/BannerList';
+import BannerList from '@/components/features/vote/BannerList';
 import VoteList from '@/components/features/vote/list/VoteList';
 
 const VotePageClient: React.FC = () => {
