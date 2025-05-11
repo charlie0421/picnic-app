@@ -28,8 +28,8 @@ const Menu: React.FC = () => {
   const subMenus = votePortal?.subMenus || [];
 
   return (
-    <div className='flex justify-between items-center py-0'>
-      <div className='flex overflow-x-auto scrollbar-hide whitespace-nowrap'>
+    <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center py-0'>
+      <div className='flex overflow-x-auto scrollbar-hide whitespace-nowrap w-full sm:w-auto'>
         {subMenus.map((menuItem) => (
           <Link
             key={menuItem.key}
@@ -47,7 +47,9 @@ const Menu: React.FC = () => {
           </Link>
         ))}
       </div>
-      <CurrentTime />
+      <div className='mt-1 sm:mt-0'>
+        <CurrentTime />
+      </div>
     </div>
   );
 };
