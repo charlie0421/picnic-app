@@ -5,6 +5,12 @@ import {DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES} from './config/settings';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // applink.picnic.fan/vote/detail/ 경로를 vote/로 리다이렉트
+  if (pathname.startsWith('/vote/detail/')) {
+    const voteId = pathname.split('/').pop();
+    return NextResponse.redirect(new URL(`/vote/${voteId}`, request.url));
+  }
+
   // 정적 파일 경로는 건너뛰기
   if (
     pathname.startsWith('/_next/') ||
