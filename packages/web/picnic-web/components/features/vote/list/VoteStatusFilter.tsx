@@ -35,7 +35,7 @@ const VoteStatusFilter = React.memo(
       <div className='flex flex-wrap justify-end gap-1 sm:gap-1.5 bg-white/50 backdrop-blur-sm p-1.5 rounded-lg shadow-sm border border-gray-100'>
         <button
           onClick={() => onStatusChange(VOTE_STATUS.ONGOING)}
-          className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
+          className={`px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-all duration-200 ${
             selectedStatus === VOTE_STATUS.ONGOING
               ? 'bg-primary text-white shadow-sm transform scale-[1.02]'
               : 'bg-gray-50 text-gray-600 hover:bg-primary/10 hover:text-primary hover:shadow-sm'
@@ -47,7 +47,7 @@ const VoteStatusFilter = React.memo(
         </button>
         <button
           onClick={() => onStatusChange(VOTE_STATUS.UPCOMING)}
-          className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
+          className={`px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-all duration-200 ${
             selectedStatus === VOTE_STATUS.UPCOMING
               ? 'bg-primary text-white shadow-sm transform scale-[1.02]'
               : 'bg-gray-50 text-gray-600 hover:bg-primary/10 hover:text-primary hover:shadow-sm'
@@ -59,7 +59,7 @@ const VoteStatusFilter = React.memo(
         </button>
         <button
           onClick={() => onStatusChange(VOTE_STATUS.COMPLETED)}
-          className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
+          className={`px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium transition-all duration-200 ${
             selectedStatus === VOTE_STATUS.COMPLETED
               ? 'bg-primary text-white shadow-sm transform scale-[1.02]'
               : 'bg-gray-50 text-gray-600 hover:bg-primary/10 hover:text-primary hover:shadow-sm'
