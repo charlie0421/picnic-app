@@ -63,8 +63,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       setState(() {
         _updateStatus = 'Checking for patches...';
       });
-      // final status = await updater.checkForUpdate();
-      final status = shorebird.UpdateStatus.outdated;
+      final status = await updater.checkForUpdate();
 
       if (status == shorebird.UpdateStatus.outdated) {
         setState(() {
@@ -87,7 +86,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     } catch (e) {
       logger.e('패치 체크 중 오류 발생: $e');
       setState(() {
-        _updateStatus = 'Patch failed: ${e.toString()}';
+        _updateStatus = 'Patch failed...';
       });
     } finally {
       setState(() {
