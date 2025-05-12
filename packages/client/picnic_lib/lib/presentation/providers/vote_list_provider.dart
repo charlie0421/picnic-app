@@ -42,7 +42,8 @@ class AsyncVoteList extends _$AsyncVoteList {
     }
 
     // 현재 페이지의 아이템들 반환
-    return _allItems;
+    return _allItems.sublist(
+        startIndex, endIndex > _allItems.length ? _allItems.length : endIndex);
   }
 
   Future<List<VoteModel>> _fetchAll(String sort, String order,

@@ -20,7 +20,7 @@ class AreaSelector extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary500.withOpacity(0.3),
+            color: AppColors.primary500.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -54,7 +54,7 @@ class AreaSelector extends ConsumerWidget {
                 boxShadow: area == 'kpop'
                     ? [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -70,7 +70,9 @@ class AreaSelector extends ConsumerWidget {
                         area == 'kpop'
                             ? AppTypo.caption12R
                             : AppTypo.caption10SB,
-                        area == 'kpop' ? AppColors.primary500 : AppColors.grey00),
+                        area == 'kpop'
+                            ? AppColors.primary500
+                            : AppColors.grey00),
                   ),
                 ],
               ),
@@ -87,7 +89,7 @@ class AreaSelector extends ConsumerWidget {
                 boxShadow: area == 'musical'
                     ? [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -103,7 +105,9 @@ class AreaSelector extends ConsumerWidget {
                         area == 'musical'
                             ? AppTypo.caption12R
                             : AppTypo.caption10SB,
-                        area == 'musical' ? AppColors.primary500 : AppColors.grey00),
+                        area == 'musical'
+                            ? AppColors.primary500
+                            : AppColors.grey00),
                   ),
                 ],
               ),
