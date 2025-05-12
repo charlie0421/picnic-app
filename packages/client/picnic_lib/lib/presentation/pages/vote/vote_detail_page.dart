@@ -60,6 +60,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   Timer? _updateTimer;
   final Map<int, int> _previousVoteCounts = {};
   final Map<int, int> _previousRanks = {};
+  final Map<int, int> _currentRanks = {};
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   bool _isSaving = false;
@@ -70,6 +71,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
     _initializeControllers();
     _setupListeners();
     _setupUpdateTimer();
+    _initializeRanks();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -106,6 +108,39 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
       }
     });
+  }
+
+  void _initializeRanks() {
+    final items = ref
+        .read(asyncVoteItemListProvider(
+            voteId: widget.voteId, votePortal: widget.votePortal))
+        .value;
+    if (items != null) {
+      _updateRanks(items);
+    }
+  }
+
+  void _updateRanks(List<VoteItemModel?> items) {
+    final sortedItems = items.where((item) => item != null).toList()
+      ..sort((a, b) => b!.voteTotal!.compareTo(a!.voteTotal!));
+
+    int currentRank = 1;
+    int sameVoteCount = 0;
+    int? previousVoteTotal;
+
+    for (var i = 0; i < sortedItems.length; i++) {
+      final item = sortedItems[i]!;
+
+      if (previousVoteTotal != null && item.voteTotal == previousVoteTotal) {
+        sameVoteCount++;
+      } else {
+        currentRank = i + 1;
+        sameVoteCount = 0;
+      }
+
+      _currentRanks[item.id] = currentRank;
+      previousVoteTotal = item.voteTotal;
+    }
   }
 
   @override
@@ -336,6 +371,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                 voteId: widget.voteId, votePortal: widget.votePortal))
             .when(
               data: (data) {
+                _updateRanks(data);
                 final filteredIndices =
                     _getFilteredIndices([data, searchQuery]);
 
@@ -368,17 +404,18 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                                     child: Text(t('text_no_search_result')),
                                   ),
                                 )
-                              : ListView.separated(
+                              : ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: filteredIndices.length,
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(height: 36),
                                   itemBuilder: (context, index) {
                                     final itemIndex = filteredIndices[index];
                                     final item = data[itemIndex]!;
-                                    return _buildVoteItem(
-                                        context, item, itemIndex);
+                                    return Padding(
+                                      padding: EdgeInsets.only(bottom: 36),
+                                      child: _buildVoteItem(
+                                          context, item, itemIndex),
+                                    );
                                   },
                                 ),
                         ),
@@ -436,139 +473,120 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   }
 
   Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {
-    final previousVoteCount = _previousVoteCounts[item.id] ?? item.voteTotal;
-    final voteCountDiff = item.voteTotal! - previousVoteCount!;
+    return RepaintBoundary(
+      child: Consumer(
+        builder: (context, ref, _) {
+          final previousVoteCount =
+              _previousVoteCounts[item.id] ?? item.voteTotal;
+          final voteCountDiff = item.voteTotal! - previousVoteCount!;
+          final actualRank = _currentRanks[item.id] ?? 1;
+          final previousRank = _previousRanks[item.id] ?? actualRank;
+          final rankChanged = previousRank != actualRank;
 
-    // 현재 아이템의 실제 순위 계산
-    int actualRank = 1;
-    final allItems = ref
-            .read(asyncVoteItemListProvider(
-                voteId: widget.voteId, votePortal: widget.votePortal))
-            .value ??
-        [];
-    for (var otherItem in allItems) {
-      if (otherItem!.voteTotal! > item.voteTotal!) {
-        actualRank++;
-      }
-    }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _previousVoteCounts[item.id] = item.voteTotal!;
+            _previousRanks[item.id] = actualRank;
+          });
 
-    final previousRank = _previousRanks[item.id] ?? actualRank;
-    final rankChanged = previousRank != actualRank;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _previousVoteCounts[item.id] = item.voteTotal!;
-      _previousRanks[item.id] = actualRank;
-    });
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-      decoration: BoxDecoration(
-        color: rankChanged
-            ? AppColors.primary500.withValues(alpha: 0.3)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _handleVoteItemTap(context, item, index),
-        child: SizedBox(
-          height: 45,
-          child: Row(
-            children: [
-              SizedBox(
-                width: 39,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+          return Container(
+            decoration: BoxDecoration(
+              color: rankChanged
+                  ? AppColors.primary500.withValues(alpha: 0.3)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _handleVoteItemTap(context, item, index),
+              child: SizedBox(
+                height: 45,
+                child: Row(
                   children: [
-                    if (actualRank <= 3)
-                      SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/vote/crown$actualRank.svg',
+                    SizedBox(
+                      width: 39,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (actualRank <= 3)
+                            SvgPicture.asset(
+                              package: 'picnic_lib',
+                              'assets/icons/vote/crown$actualRank.svg',
+                              cacheColorFilter: true,
+                            ),
+                          Text(
+                            _buildRankText(actualRank, item),
+                            style: getTextStyle(
+                                AppTypo.caption12B, AppColors.point900),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                    Text(
-                      // 공동 순위 표시 추가
-                      _buildRankText(actualRank, item, allItems),
-                      style:
-                          getTextStyle(AppTypo.caption12B, AppColors.point900),
-                      textAlign: TextAlign.center,
                     ),
+                    SizedBox(width: 8.w),
+                    _buildArtistImage(item, index),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RichText(
+                            overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                                children: item.artist.id != 0
+                                    ? [
+                                        TextSpan(
+                                          text: getLocaleTextFromJson(
+                                              item.artist.name),
+                                          style: getTextStyle(AppTypo.body14B,
+                                              AppColors.grey900),
+                                        ),
+                                        const TextSpan(text: ' '),
+                                        TextSpan(
+                                          text: item.artist.artistGroup != null
+                                              ? getLocaleTextFromJson(
+                                                  item.artist.artistGroup!.name)
+                                              : '',
+                                          style: getTextStyle(
+                                              AppTypo.caption10SB,
+                                              AppColors.grey600),
+                                        ),
+                                      ]
+                                    : [
+                                        TextSpan(
+                                          text: getLocaleTextFromJson(
+                                              item.artistGroup.name),
+                                          style: getTextStyle(AppTypo.body14B,
+                                              AppColors.grey900),
+                                        ),
+                                      ]),
+                          ),
+                          _buildVoteCountContainer(item, voteCountDiff),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+                    if (!isEnded && !_isSaving)
+                      SizedBox(
+                        width: 24.w,
+                        height: 24,
+                        child: SvgPicture.asset(
+                            package: 'picnic_lib',
+                            'assets/icons/star_candy_icon.svg',
+                            cacheColorFilter: true),
+                      ),
                   ],
                 ),
               ),
-              SizedBox(width: 8.w),
-              _buildArtistImage(item, index),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      overflow: TextOverflow.ellipsis,
-                      text: TextSpan(
-                          children: item.artist.id != 0
-                              ? [
-                                  TextSpan(
-                                    text:
-                                        getLocaleTextFromJson(item.artist.name),
-                                    style: getTextStyle(
-                                        AppTypo.body14B, AppColors.grey900),
-                                  ),
-                                  const TextSpan(text: ' '),
-                                  TextSpan(
-                                    text: item.artist.artistGroup != null
-                                        ? getLocaleTextFromJson(
-                                            item.artist.artistGroup!.name)
-                                        : '',
-                                    style: getTextStyle(
-                                        AppTypo.caption10SB, AppColors.grey600),
-                                  ),
-                                ]
-                              : [
-                                  TextSpan(
-                                    text: getLocaleTextFromJson(
-                                        item.artistGroup.name),
-                                    style: getTextStyle(
-                                        AppTypo.body14B, AppColors.grey900),
-                                  ),
-                                ]),
-                    ),
-                    _buildVoteCountContainer(item, voteCountDiff),
-                  ],
-                ),
-              ),
-              SizedBox(width: 16.w),
-              if (!isEnded && !_isSaving)
-                SizedBox(
-                  width: 24.w,
-                  height: 24,
-                  child: SvgPicture.asset(
-                      package: 'picnic_lib',
-                      'assets/icons/star_candy_icon.svg'),
-                ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  // 순위 텍스트를 생성하는 새로운 메서드
-  String _buildRankText(
-      int rank, VoteItemModel currentItem, List<VoteItemModel?> allItems) {
-    // 동일한 투표 수를 가진 항목이 있는지 확인
-    final hasSameVotes = allItems
-        .where((item) =>
-            item != null &&
-            item.id != currentItem.id &&
-            item.voteTotal == currentItem.voteTotal)
-        .isNotEmpty;
-
-    if (hasSameVotes) {
-      return t('text_vote_rank', {'rank': rank.toString()});
-    }
+  String _buildRankText(int rank, VoteItemModel currentItem) {
     return t('text_vote_rank', {'rank': rank.toString()});
   }
 
