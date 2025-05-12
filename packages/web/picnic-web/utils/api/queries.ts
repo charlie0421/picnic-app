@@ -1,5 +1,5 @@
 import {supabase} from "../supabase-client";
-import {Banner, Media, Reward, Vote, VoteItem} from "@/types/interfaces";
+import {Banner, Media, Reward, Vote, VoteItem, Popup} from "@/types/interfaces";
 import {withRetry} from "./retry-utils";
 
 // API 요청 실패 로깅 및 디버깅을 위한 함수
@@ -343,6 +343,36 @@ const _getVoteRewards = async (voteId: number): Promise<Reward[]> => {
   }
 };
 
+// 팝업 데이터 가져오기
+const _getPopups = async (): Promise<Popup[]> => {
+  try {
+    const { data: popupData, error: popupError } = await supabase
+      .from("popup")
+      .select("*")
+      .is("deleted_at", null)
+      .order("start_at", { ascending: false });
+
+    if (popupError) throw popupError;
+    if (!popupData || popupData.length === 0) return [];
+
+    return popupData.map((popup: any) => ({
+      ...popup,
+      createdAt: popup.created_at,
+      updatedAt: popup.updated_at,
+      deletedAt: popup.deleted_at,
+      startAt: popup.start_at,
+      stopAt: popup.stop_at,
+      image: popup.image,
+      content: popup.content,
+      platform: popup.platform,
+      title: popup.title,
+    }));
+  } catch (error) {
+    logRequestError(error, 'getPopups');
+    return [];
+  }
+};
+
 // 재시도 메커니즘이 적용된 내보내기 함수
 export const getVotes = withRetry(_getVotes);
 export const getRewards = withRetry(_getRewards);
@@ -352,3 +382,4 @@ export const getMedias = withRetry(_getMedias);
 export const getVoteById = withRetry(_getVoteById);
 export const getVoteItems = withRetry(_getVoteItems);
 export const getVoteRewards = withRetry(_getVoteRewards);
+export const getPopups = withRetry(_getPopups);

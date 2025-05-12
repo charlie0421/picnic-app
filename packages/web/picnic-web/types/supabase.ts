@@ -1923,6 +1923,7 @@ export type Database = {
       }
       pic_vote: {
         Row: {
+          area: string | null
           created_at: string
           deleted_at: string | null
           id: number
@@ -1939,6 +1940,7 @@ export type Database = {
           wait_image: string | null
         }
         Insert: {
+          area?: string | null
           created_at?: string
           deleted_at?: string | null
           id?: number
@@ -1955,6 +1957,7 @@ export type Database = {
           wait_image?: string | null
         }
         Update: {
+          area?: string | null
           created_at?: string
           deleted_at?: string | null
           id?: number
@@ -2142,6 +2145,45 @@ export type Database = {
           type?: string | null
           updated_at?: string
           version?: string
+        }
+        Relationships: []
+      }
+      popup: {
+        Row: {
+          content: Json | null
+          created_at: string | null
+          deleted_at: string | null
+          id: number
+          image: Json | null
+          platform: string | null
+          start_at: string | null
+          stop_at: string | null
+          title: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: number
+          image?: Json | null
+          platform?: string | null
+          start_at?: string | null
+          stop_at?: string | null
+          title?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string | null
+          deleted_at?: string | null
+          id?: number
+          image?: Json | null
+          platform?: string | null
+          start_at?: string | null
+          stop_at?: string | null
+          title?: Json | null
+          updated_at?: string | null
         }
         Relationships: []
       }

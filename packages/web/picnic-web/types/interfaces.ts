@@ -596,6 +596,7 @@ export interface Permissions {
 }
 
 export interface PicVote {
+  area: string | null
   createdAt: string
   deletedAt: string | null
   id: number
@@ -648,6 +649,19 @@ export interface Policy {
   type: string | null
   updatedAt: string
   version: string
+}
+
+export interface Popup {
+  content: Json | null
+  createdAt: string | null
+  deletedAt: string | null
+  id: number
+  image: Json | null
+  platform: string | null
+  startAt: string | null
+  stopAt: string | null
+  title: Json | null
+  updatedAt: string | null
 }
 
 export interface PostAttachments {

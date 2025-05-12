@@ -202,6 +202,7 @@ const VoteList: React.FC = () => {
 
   return (
     <section className='w-full'>
+      {/* 기존 리스트 UI */}
       <VoteFilterSection />
       <VoteListSection
         votes={paginatedVotes}
