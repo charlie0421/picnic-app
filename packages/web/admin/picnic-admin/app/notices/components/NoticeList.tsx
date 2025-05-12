@@ -101,22 +101,6 @@ export const NoticeList: React.FC = () => {
         <DateField value={value} format='YYYY-MM-DD HH:mm' />
       ),
     },
-    {
-      title: '액션',
-      key: 'actions',
-      width: 120,
-      render: (_: any, record: Notice) => (
-        <Space>
-          <ShowButton size='small' recordItemId={record.id} />
-          <EditButton size='small' recordItemId={record.id} />
-          <DeleteButton
-            size='small'
-            recordItemId={record.id}
-            resource='notices'
-          />
-        </Space>
-      ),
-    },
   ];
 
   return (

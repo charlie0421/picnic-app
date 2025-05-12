@@ -18,7 +18,7 @@ export default function NoticeListPage() {
       <List
         breadcrumb={false}
         headerButtons={<CreateButton />}
-        title={resource?.meta?.list?.label || '공지사항'}
+        title={resource?.meta?.list?.label}
       >
         <NoticeList />
       </List>

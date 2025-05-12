@@ -2153,10 +2153,11 @@ export type Database = {
           content: Json | null
           created_at: string | null
           deleted_at: string | null
-          end_at: string | null
           id: number
           image: Json | null
-          stat_at: string | null
+          platform: string | null
+          start_at: string | null
+          stop_at: string | null
           title: Json | null
           updated_at: string | null
         }
@@ -2164,10 +2165,11 @@ export type Database = {
           content?: Json | null
           created_at?: string | null
           deleted_at?: string | null
-          end_at?: string | null
           id?: number
           image?: Json | null
-          stat_at?: string | null
+          platform?: string | null
+          start_at?: string | null
+          stop_at?: string | null
           title?: Json | null
           updated_at?: string | null
         }
@@ -2175,10 +2177,11 @@ export type Database = {
           content?: Json | null
           created_at?: string | null
           deleted_at?: string | null
-          end_at?: string | null
           id?: number
           image?: Json | null
-          stat_at?: string | null
+          platform?: string | null
+          start_at?: string | null
+          stop_at?: string | null
           title?: Json | null
           updated_at?: string | null
         }

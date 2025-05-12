@@ -1,28 +1,20 @@
 'use client';
 
-import React, { useEffect } from 'react';
 import dayjs from 'dayjs';
-import { Form, DatePicker } from 'antd';
+import { Form, DatePicker, Select , FormProps} from 'antd';
 import ImageUpload from '@/components/features/upload';
 import { getCdnImageUrl } from '@/lib/image';
-import type { FormProps } from 'antd';
 import MultilingualInput from '@/app/faqs/components/MultilingualInput';
+import type { PlatformEnum } from '@/lib/types/popup';
 
 interface PopupFormProps {
   formProps: FormProps<any>;
 }
 
-export const PopupForm: React.FC<PopupFormProps> = ({ formProps }) => {
-  const { form, initialValues } = formProps;
-
-  useEffect(() => {
-    if (form && initialValues) {
-      form.setFieldsValue(initialValues);
-    }
-  }, [form, initialValues]);
+export const PopupForm = ({ formProps }: PopupFormProps) => {
 
   return (
-    <Form {...formProps} layout='vertical' initialValues={initialValues}>
+    <Form form={formProps.form} layout='vertical'>
       <MultilingualInput name='title' label='제목' required baseLocale='ko' />
       <MultilingualInput name='content' label='내용' required baseLocale='ko' />
       <Form.Item
@@ -85,6 +77,19 @@ export const PopupForm: React.FC<PopupFormProps> = ({ formProps }) => {
         })}
       >
         <ImageUpload folder='popup' />
+      </Form.Item>
+      <Form.Item
+        name='platform'
+        label='플랫폼'
+        initialValue='all'
+        rules={[{ required: true, message: '플랫폼을 선택해주세요.' }]}
+      >
+        <Select<PlatformEnum>>
+          <Select.Option value='all'>전체</Select.Option>
+          <Select.Option value='android'>Android</Select.Option>
+          <Select.Option value='ios'>iOS</Select.Option>
+          <Select.Option value='web'>Web</Select.Option>
+        </Select>
       </Form.Item>
     </Form>
   );

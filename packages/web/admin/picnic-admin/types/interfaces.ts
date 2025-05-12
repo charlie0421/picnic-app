@@ -651,10 +651,11 @@ export interface Popup {
   content: Json | null
   createdAt: string | null
   deletedAt: string | null
-  endAt: string | null
   id: number
   image: Json | null
-  statAt: string | null
+  platform: string | null
+  startAt: string | null
+  stopAt: string | null
   title: Json | null
   updatedAt: string | null
 }

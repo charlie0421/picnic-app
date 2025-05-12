@@ -1,13 +1,5 @@
 import { SupportedLocale } from '../utils/translation';
-
-export interface MultilingualText {
-  ko: string;
-  en: string;
-  ja: string;
-  zh: string;
-  id: string;
-  [key: string]: string; // 추가 언어를 위한 인덱스 시그니처
-}
+import { MultilingualText } from './common';
 
 export interface FAQ {
   id: number;

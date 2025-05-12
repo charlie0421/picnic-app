@@ -6,6 +6,7 @@ import { message, Button } from 'antd';
 import { useResource } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import PopupForm from '../components/PopupForm';
+import { convertFormDataToPopup } from '@/lib/types/popup';
 
 export default function PopupCreate() {
   const router = useRouter();
@@ -17,35 +18,9 @@ export default function PopupCreate() {
   const [messageApi, contextHolder] = message.useMessage();
   const { resource } = useResource();
 
-  const handleSave = async (values: any) => {
-    const title = {
-      ko: values.title_ko,
-      en: values.title_en,
-      ja: values.title_ja,
-      zh: values.title_zh,
-      id: values.title_id,
-    };
-    const content = {
-      ko: values.content_ko,
-      en: values.content_en,
-      ja: values.content_ja,
-      zh: values.content_zh,
-      id: values.content_id,
-    };
-    const image = {
-      ko: values.image?.ko || undefined,
-      en: values.image?.en || undefined,
-      ja: values.image?.ja || undefined,
-      zh: values.image?.zh || undefined,
-      id: values.image?.id || undefined,
-    };
-    return {
-      title,
-      content,
-      image,
-      start_at: values.start_at?.toISOString(),
-      stop_at: values.stop_at?.toISOString(),
-    };
+  formProps.onFinish = async (values: any) => {
+    const transformedValues = convertFormDataToPopup(values);
+    return transformedValues;
   };
 
   const convertInitialValues = (values: any) => {
@@ -74,16 +49,7 @@ export default function PopupCreate() {
         headerButtons={({ defaultButtons }) => (
           <Button onClick={() => router.push('/popup')}>목록으로</Button>
         )}
-        saveButtonProps={{
-          ...saveButtonProps,
-          onClick: async () => {
-            const values = await formProps.form?.validateFields();
-            if (values) {
-              const transformedValues = await handleSave(values);
-              formProps.onFinish?.(transformedValues);
-            }
-          },
-        }}
+        saveButtonProps={saveButtonProps}
       >
         {contextHolder}
         <PopupForm formProps={{ ...formProps, initialValues }} />

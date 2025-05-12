@@ -8,6 +8,7 @@ import { Popup } from '@/lib/types/popup';
 import { DataTable } from '../../components/common/DataTable';
 import { MultiLanguageDisplay } from '@/components/ui';
 import { getCdnImageUrl } from '@/lib/image';
+import type { PlatformEnum } from '@/lib/types/popup';
 
 export const PopupList: React.FC = () => {
   const { show } = useNavigation();
@@ -140,6 +141,25 @@ export const PopupList: React.FC = () => {
       render: (value: string) => (
         <DateField value={value} format='YYYY-MM-DD' />
       ),
+    },
+    {
+      title: '플랫폼',
+      dataIndex: 'platform',
+      key: 'platform',
+      render: (value: PlatformEnum) => {
+        switch (value) {
+          case 'all':
+            return '전체';
+          case 'android':
+            return 'Android';
+          case 'ios':
+            return 'iOS';
+          case 'web':
+            return 'Web';
+          default:
+            return value;
+        }
+      },
     },
   ];
 

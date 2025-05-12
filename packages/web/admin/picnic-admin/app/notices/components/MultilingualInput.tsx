@@ -37,56 +37,56 @@ const MultilingualInput: React.FC<MultilingualInputProps> = ({
         activeKey={activeTab}
         onChange={setActiveTab}
         type='card'
+        destroyInactiveTabPane={false}
         items={supportedLocales.map((locale) => ({
           key: locale,
           label: getLocaleLabel(locale),
-          children: (
-            <Space direction='vertical' style={{ width: '100%' }}>
-              <Form.Item
-                name={`${name}_${locale}`}
-                rules={
-                  locale === baseLocale && required
-                    ? [
-                        {
-                          required: true,
-                          message: `${label}을(를) 입력해주세요`,
-                        },
-                      ]
-                    : []
-                }
-                noStyle
-                preserve={true}
-              >
-                {useRichText ? (
-                  <TextEditor />
-                ) : (
-                  <Input.TextArea
-                    rows={4}
-                    placeholder={`${label} (${getLocaleLabel(locale)})`}
-                  />
-                )}
-              </Form.Item>
-
-              {locale !== baseLocale && (
-                <Space style={{ marginTop: 8 }}>
-                  <TranslationButton
-                    text={form.getFieldValue(`${name}_${baseLocale}`)}
-                    sourceLang={baseLocale}
-                    targetLang={locale as SupportedLocale}
-                    onTranslated={(text) =>
-                      handleTranslated(text, locale as SupportedLocale)
-                    }
-                  />
-                  <Text type='secondary'>
-                    {getLocaleLabel(baseLocale)}에서 번역
-                  </Text>
-                </Space>
-              )}
-            </Space>
-          ),
         }))}
       />
-
+      {supportedLocales.map((locale) => (
+        <div key={locale} style={{ display: activeTab === locale ? 'block' : 'none' }}>
+          <Space direction='vertical' style={{ width: '100%' }}>
+            <Form.Item
+              name={`${name}_${locale}`}
+              rules={
+                locale === baseLocale && required
+                  ? [
+                      {
+                        required: true,
+                        message: `${label}을(를) 입력해주세요`,
+                      },
+                    ]
+                  : []
+              }
+              noStyle
+            >
+              {useRichText ? (
+                <TextEditor />
+              ) : (
+                <Input.TextArea
+                  rows={4}
+                  placeholder={`${label} (${getLocaleLabel(locale)})`}
+                />
+              )}
+            </Form.Item>
+            {locale !== baseLocale && (
+              <Space style={{ marginTop: 8 }}>
+                <TranslationButton
+                  text={form.getFieldValue(`${name}_${baseLocale}`)}
+                  sourceLang={baseLocale}
+                  targetLang={locale as SupportedLocale}
+                  onTranslated={(text) =>
+                    handleTranslated(text, locale as SupportedLocale)
+                  }
+                />
+                <Text type='secondary'>
+                  {getLocaleLabel(baseLocale)}에서 번역
+                </Text>
+              </Space>
+            )}
+          </Space>
+        </div>
+      ))}
       {required && (
         <Text type='secondary' style={{ marginTop: 8, display: 'block' }}>
           {getLocaleLabel(baseLocale)}는 필수 입력 항목입니다.

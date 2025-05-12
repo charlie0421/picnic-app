@@ -8,6 +8,7 @@ import { getCardStyle, getSectionStyle, getTitleStyle } from '@/lib/ui';
 import { MultiLanguageDisplay, UUIDDisplay } from '@/components/ui';
 import { getCdnImageUrl } from '@/lib/image';
 import Image from 'next/image';
+import type { PlatformEnum } from '@/lib/types/popup';
 
 const { Title } = Typography;
 
@@ -106,6 +107,24 @@ export const PopupDetail: React.FC<PopupDetailProps> = ({ record }) => {
       <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
         <Title level={5}>수정일</Title>
         <DateField value={record.updated_at} format='YYYY-MM-DD' />
+      </div>
+
+      <div style={{ ...getSectionStyle(token), marginTop: '16px' }}>
+        <Title level={5}>플랫폼</Title>
+        {(() => {
+          switch (record.platform) {
+            case 'all':
+              return '전체';
+            case 'android':
+              return 'Android';
+            case 'ios':
+              return 'iOS';
+            case 'web':
+              return 'Web';
+            default:
+              return record.platform;
+          }
+        })()}
       </div>
     </div>
   );

@@ -1,17 +1,15 @@
-import { Form, Select, Space, Switch } from 'antd';
-import { NoticeFormData } from '@/lib/types/notice';
+import { Form, FormProps, Select, Space, Switch } from 'antd';
 import MultilingualInput from './MultilingualInput';
 
 const { Option } = Select;
 
 interface NoticeFormProps {
-  formProps: any;
-  onSubmit?: (values: NoticeFormData) => void;
+  formProps: FormProps<any>;
 }
 
-export const NoticeForm = ({ formProps, onSubmit }: NoticeFormProps) => {
+export const NoticeForm = ({ formProps }: NoticeFormProps) => {
   return (
-    <Form {...formProps} layout='vertical' onFinish={onSubmit}>
+    <Form {...formProps} layout='vertical'>
       {/* 다국어 제목 입력 */}
       <MultilingualInput name='title' label='제목' required baseLocale='ko' />
 
@@ -21,7 +19,6 @@ export const NoticeForm = ({ formProps, onSubmit }: NoticeFormProps) => {
         label='내용'
         required
         baseLocale='ko'
-        useRichText
       />
 
       <Space>
