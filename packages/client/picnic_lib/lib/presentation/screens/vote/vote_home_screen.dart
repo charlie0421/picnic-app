@@ -15,6 +15,10 @@ import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/pic_chart_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_media_list_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
+import 'package:picnic_lib/presentation/providers/popup_provider.dart';
+import 'package:picnic_lib/data/models/common/popup.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:picnic_lib/presentation/widgets/ui/popup_carousel.dart';
 
 class VoteHomeScreen extends ConsumerStatefulWidget {
   const VoteHomeScreen({super.key});
@@ -128,6 +132,7 @@ class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
                 right: 0,
                 child: CommonBottomNavigationBar(),
               ),
+            const Center(child: PopupCarousel()),
           ],
         ),
       ),
