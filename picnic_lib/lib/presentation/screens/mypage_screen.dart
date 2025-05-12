@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -27,7 +26,6 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
   @override
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
-    final userInfoState = ref.watch(userInfoProvider);
 
     String pageName = navigationInfo.myPageTitle;
 

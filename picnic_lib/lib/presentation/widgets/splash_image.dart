@@ -158,7 +158,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
             left: 0,
             right: 0,
             child: Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               child: SizedBox(
                 height: 32,
                 child: Row(

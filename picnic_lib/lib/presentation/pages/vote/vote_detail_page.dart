@@ -125,17 +125,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       ..sort((a, b) => b!.voteTotal!.compareTo(a!.voteTotal!));
 
     int currentRank = 1;
-    int sameVoteCount = 0;
     int? previousVoteTotal;
 
     for (var i = 0; i < sortedItems.length; i++) {
       final item = sortedItems[i]!;
 
       if (previousVoteTotal != null && item.voteTotal == previousVoteTotal) {
-        sameVoteCount++;
+        // 같은 순위 유지
       } else {
         currentRank = i + 1;
-        sameVoteCount = 0;
       }
 
       _currentRanks[item.id] = currentRank;
@@ -512,7 +510,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                             SvgPicture.asset(
                               package: 'picnic_lib',
                               'assets/icons/vote/crown$actualRank.svg',
-                              cacheColorFilter: true,
                             ),
                           Text(
                             _buildRankText(actualRank, item),
@@ -573,8 +570,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         height: 24,
                         child: SvgPicture.asset(
                             package: 'picnic_lib',
-                            'assets/icons/star_candy_icon.svg',
-                            cacheColorFilter: true),
+                            'assets/icons/star_candy_icon.svg'),
                       ),
                   ],
                 ),
