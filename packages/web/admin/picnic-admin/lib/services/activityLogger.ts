@@ -53,6 +53,7 @@ export enum ResourceType {
   ADMIN_NO_ACCESS = 'ADMIN_NO_ACCESS',
   ACTIVITIES = 'ACTIVITIES',
   DASHBOARD = 'DASHBOARD',
+  POPUP = 'POPUP',
 }
 
 // 활동 로그 인터페이스

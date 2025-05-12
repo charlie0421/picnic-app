@@ -80,6 +80,15 @@ export default function NoticeEditPage({ params }: { params: { id: string } }) {
     }
   }, [queryResult?.data?.data, formProps.form]);
 
+  // FAQ/popup 구조처럼 form과 formData가 바뀔 때마다 setFieldsValue 호출
+  useEffect(() => {
+    if (formProps.form && queryResult?.data?.data) {
+      const notice = queryResult.data.data as unknown as Notice;
+      const formData = convertNoticeToFormData(notice);
+      formProps.form.setFieldsValue(formData);
+    }
+  }, [formProps.form, queryResult?.data?.data]);
+
   // 폼 제출 핸들러
   const handleSubmit = async (values: NoticeFormData) => {
     const submitData = {

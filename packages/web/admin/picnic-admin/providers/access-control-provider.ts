@@ -4,7 +4,7 @@ import { AccessControlProvider } from '@refinedev/core';
 // import { PERMISSION } from '@/interfaces'; // PERMISSION 타입 사용 안 함
 import { logPermission, LogLevel } from '@/lib/logger';
 // import { supabaseBrowserClient } from '@utils/supabase/client'; // 직접 사용 안 함
-// import { authProviderClient } from './auth-provider/auth-provider.client'; // getIdentity 호출 안 하므로 제거 가능
+import { authProviderClient } from '@/providers/auth-provider/auth-provider.client';
 import { getPermissions as getPermissionsFromStore } from '@/stores/permissionStore'; // 스토어에서 권한 가져오기
 
 // UserIdentity 인터페이스 불필요
@@ -31,6 +31,7 @@ const actionMapping: Record<string, string> = {
 const convertToDatabaseResource = (resource: string): string => {
   // 특수 케이스만 매핑
   const specialCaseMapping: Record<string, string> = {
+    popup: 'popup',
     artist_group: 'artists', // 예외 케이스
     artist: 'artists',
     vote: 'votes',
@@ -134,6 +135,20 @@ export const accessControlProvider: AccessControlProvider = {
       params,
     });
 
+    // 슈퍼관리자 권한: 모든 권한 허용
+    try {
+      const identity = await authProviderClient.getIdentity?.();
+      if ((identity as any).isSuperAdmin) {
+        logPermission('can: 슈퍼관리자 권한, 모든 권한 허용', {
+          resource,
+          action,
+        });
+        return Promise.resolve({ can: true });
+      }
+    } catch (error) {
+      console.error('슈퍼관리자 확인 중 오류 발생:', error);
+    }
+
     // 2. 로그인 리소스는 항상 허용
     if (resource === 'login') {
       logPermission('can: 로그인 리소스 접근 허용', { resource });
@@ -155,6 +170,18 @@ export const accessControlProvider: AccessControlProvider = {
 
     // 권한 스토어 접근
     const userPermissionsFromStore = getPermissionsFromStore();
+
+    // 시스템 권한(system) 보유 시 모든 권한 허용
+    if (
+      userPermissionsFromStore?.system?.includes('*') ||
+      userPermissionsFromStore?.systems?.includes('*')
+    ) {
+      logPermission('can: system 권한으로 모든 권한 허용', {
+        resource,
+        action,
+      });
+      return Promise.resolve({ can: true });
+    }
 
     // 3. 메뉴 표시를 위한 권한 처리 (메뉴 표시 여부만 결정)
     // action이 'menu'인 경우 메뉴 표시 여부만 결정하므로 거의 모든 경우 허용

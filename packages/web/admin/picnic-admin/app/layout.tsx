@@ -505,6 +505,30 @@ export default function RootLayout({
                               },
                             },
                           },
+                          {
+                            name: 'popup',
+                            list: '/popup',
+                            create: '/popup/create',
+                            edit: '/popup/edit/:id',
+                            show: '/popup/show/:id',
+                            meta: {
+                              label: '팝업 관리',
+                              icon: <NotificationOutlined />,
+                              resourceType: ResourceType.POPUP,
+                              list: {
+                                label: '팝업 목록',
+                              },
+                              create: {
+                                label: '팝업 추가',
+                              },
+                              edit: {
+                                label: '팝업 수정',
+                              },
+                              show: {
+                                label: '팝업 상세',
+                              },
+                            },
+                          },
                           // 관리 메뉴 (권한 관리 상위 메뉴) - 가장 아래로 이동
                           {
                             name: 'admin',
@@ -642,9 +666,16 @@ export default function RootLayout({
                           useNewQueryKeys: true,
                           projectId: 'Uu8KtH-kZkC5Q-8t8wTz',
                           title: {
-                            icon: <div>
-                              <Image src="/app_icon.png" alt="Picnic Admin Panel" width={25} height={25} />
-                            </div>,
+                            icon: (
+                              <div>
+                                <Image
+                                  src='/app_icon.png'
+                                  alt='Picnic Admin Panel'
+                                  width={25}
+                                  height={25}
+                                />
+                              </div>
+                            ),
                             text: 'Picnic Admin Panel',
                           },
                         }}

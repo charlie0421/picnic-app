@@ -189,14 +189,14 @@ export const authProviderClient: AuthProvider = {
     return permissions;
   },
   getIdentity: async () => {
-    logAuth('*** getIdentity 함수 호출됨 ***');
+    // logAuth('*** getIdentity 함수 호출됨 ***');
     try {
       const { data, error } = await supabaseBrowserClient.auth.getUser();
-      console.log('getIdentity: 사용자 정보 가져오기 결과', {
-        data,
-        error,
-        hasUser: !!data?.user,
-      });
+      // console.log('getIdentity: 사용자 정보 가져오기 결과', {
+      //   data,
+      //   error,
+      //   hasUser: !!data?.user,
+      // });
 
       if (error) {
         logAuth(
@@ -236,10 +236,10 @@ export const authProviderClient: AuthProvider = {
           name: data.user.email, // 이름 정보가 없을 경우 이메일 사용
         };
       }
-      logAuth('getIdentity: 사용자 프로필 조회 성공', {
-        userId: data.user.id,
-        userData,
-      });
+      // logAuth('getIdentity: 사용자 프로필 조회 성공', {
+      //   userId: data.user.id,
+      //   userData,
+      // });
 
       // 사용자 정보 구성 (isSuperAdmin 제거)
       const userInfo = {
@@ -254,7 +254,7 @@ export const authProviderClient: AuthProvider = {
       };
 
       // userInfo 객체 로그 추가
-      logAuth('getIdentity: 구성된 userInfo 객체', { userInfo });
+      // logAuth('getIdentity: 구성된 userInfo 객체', { userInfo });
 
       // 로컬 스토리지 저장 로직 제거 (user-info 제외)
       // localStorage.setItem('user-info', JSON.stringify(userInfo));
@@ -308,10 +308,10 @@ export const authProviderClient: AuthProvider = {
       //   logAuth('getIdentity: permissions 정보 없음', {}, LogLevel.WARN);
       // }
 
-      logAuth('getIdentity: 사용자 식별 정보 반환', {
-        userId: data.user.id,
-        userInfo,
-      });
+      // logAuth('getIdentity: 사용자 식별 정보 반환', {
+      //   userId: data.user.id,
+      //   userInfo,
+      // });
       return {
         ...data.user, // Supabase 기본 user 정보 포함
         ...userInfo, // user_profiles 정보 포함 (name, isSuperAdmin 등)
@@ -417,7 +417,7 @@ const getPermissionsWithLogging = async (userId: string | undefined) => {
   }
 
   // 원시 권한 데이터 디버깅
-  console.log('원시 권한 데이터:', permissions);
+  // console.log('원시 권한 데이터:', permissions);
 
   // 권한을 { resource: [actions] } 형태로 변환
   const permissionsMap = permissions.reduce(

@@ -40,7 +40,7 @@ const TranslationButton: React.FC<TranslationButtonProps> = ({
 
   // 번역할 내용이 없거나 로딩 중이면 버튼 비활성화
   const disableTranslation =
-    !text.trim() || loading || sourceLang === targetLang;
+    !text || !text.trim() || loading || sourceLang === targetLang;
 
   return (
     <Tooltip title='DeepL 번역'>
