@@ -73,7 +73,7 @@ export default function NoticeCreatePage() {
           </>
         }
       >
-        <NoticeForm formProps={formProps} onSubmit={handleSubmit} />
+        <NoticeForm formProps={formProps} />
       </Create>
     </AuthorizePage>
   );
