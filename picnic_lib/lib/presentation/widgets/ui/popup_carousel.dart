@@ -22,7 +22,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
   bool _loadingPrefs = true;
   List<Popup> _filteredPopups = [];
   List<String> _lastPopupIds = [];
-  bool _resetDone = false;
+  bool _resetDone = true;
 
   @override
   void initState() {
@@ -83,10 +83,10 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
     return popupAsync.when(
       data: (popups) {
         // 개발/테스트용: 최초 한 번만 숨김 초기화
-        // if (!_resetDone) {
-        //   _resetDone = true;
-        //   resetAllPopupHides(popups);
-        // }
+        if (!_resetDone) {
+          _resetDone = true;
+          resetAllPopupHides(popups);
+        }
         // 팝업 id 리스트가 완전히 바뀌었을 때만 복사 및 필터링
         final currentIds = _popupIds(popups);
         if (!listEquals(_lastPopupIds, currentIds)) {
@@ -223,14 +223,20 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                 ),
                 margin: const EdgeInsets.symmetric(horizontal: 48),
                 child: Container(
-                  constraints: BoxConstraints(maxWidth: maxWidth),
+                  constraints: BoxConstraints(
+                    maxWidth: maxWidth,
+                    maxHeight: 400, // 팝업 높이 고정 (원하는 값으로 조정)
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       AspectRatio(
                         aspectRatio: 16 / 9,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(24),
+                            topRight: Radius.circular(24),
+                          ),
                           child: imageUrl.isNotEmpty
                               ? PicnicCachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)
                               : Image.asset(
@@ -247,44 +253,57 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        popup.content[lang] ?? popup.content['en'] ?? '',
-                        style: const TextStyle(fontSize: 15, height: 1.5),
-                        textAlign: TextAlign.center,
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: SingleChildScrollView(
+                            child: Text(
+                              popup.content[lang] ?? popup.content['en'] ?? '',
+                              style: const TextStyle(fontSize: 15, height: 1.5),
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  side: const BorderSide(color: Color(0xFFDDDDDD)),
                                 ),
-                                side: const BorderSide(color: Color(0xFFDDDDDD)),
+                                onPressed: _close,
+                                child: Text(t('label_popup_close'), style: const TextStyle(fontSize: 16)),
                               ),
-                              onPressed: _close,
-                              child: Text(t('label_popup_close'), style: const TextStyle(fontSize: 16)),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  textStyle: const TextStyle(fontSize: 16),
                                 ),
-                                textStyle: const TextStyle(fontSize: 16),
+                                onPressed: _hideCurrentPopupFor7Days,
+                                child: Text(t('label_popup_hide_7days')),
                               ),
-                              onPressed: _hideCurrentPopupFor7Days,
-                              child: const Text('7일간 보지 않기'),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
