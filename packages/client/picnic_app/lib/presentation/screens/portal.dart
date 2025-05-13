@@ -17,6 +17,7 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/fixed_width_layout.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:picnic_lib/presentation/widgets/ui/popup_carousel.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';
@@ -129,24 +130,29 @@ class _PortalState extends ConsumerState<Portal> {
           ),
           body: LayoutBuilder(
             builder: (context, constraints) {
-              return kIsWeb
+              final mainContent = kIsWeb
                   ? Center(
                       child: SizedBox(
-                      width: webDesignSize.width,
-                      child: Column(children: [
-                        if (showTopMenu) const TopMenu(),
-                        Expanded(child: currentScreen ?? const VoteHomeScreen())
-                      ]),
-                    ))
+                        width: webDesignSize.width,
+                        child: Column(children: [
+                          if (showTopMenu) const TopMenu(),
+                          Expanded(child: currentScreen ?? const VoteHomeScreen())
+                        ]),
+                      ))
                   : SizedBox(
                       width: constraints.maxWidth,
                       height: constraints.maxHeight,
                       child: Column(children: [
                         if (showTopMenu) const TopMenu(),
-                        Expanded(
-                            child: currentScreen ?? const VoteHomeScreen()),
+                        Expanded(child: currentScreen ?? const VoteHomeScreen()),
                       ]),
                     );
+              return Stack(
+                children: [
+                  mainContent,
+                  const PopupCarousel(),
+                ],
+              );
             },
           ),
         ),
