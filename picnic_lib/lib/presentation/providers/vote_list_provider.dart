@@ -25,7 +25,6 @@ class AsyncVoteList extends _$AsyncVoteList {
       required VoteCategory category}) async {
     // area 값이 변경될 때마다 provider를 다시 빌드
     final area = ref.watch(areaProvider);
-    logger.i('AsyncVoteList build with area: $area');
 
     // area가 변경될 때마다 캐시를 초기화하고 데이터를 다시 가져옴
     _allItems = await _fetchAll(sort, order,
@@ -54,8 +53,6 @@ class AsyncVoteList extends _$AsyncVoteList {
     String voteTable = votePortal == VotePortal.vote ? 'vote' : 'pic_vote';
     String voteItemTable =
         votePortal == VotePortal.vote ? 'vote_item' : 'pic_vote_item';
-
-    logger.i('fetching with area: $area');
 
     try {
       PostgrestList response;
