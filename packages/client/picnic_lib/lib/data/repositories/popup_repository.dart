@@ -8,6 +8,9 @@ class PopupRepository {
     final response = await _client
         .from('popup')
         .select()
+        .lte('start_at', DateTime.now().toIso8601String())
+        .gte('end_at', DateTime.now().toIso8601String())
+        .filter('deleted_at', 'is', null)
         .order('start_at', ascending: false);
     return (response as List)
         .map((e) => Popup.fromJson(e as Map<String, dynamic>))
