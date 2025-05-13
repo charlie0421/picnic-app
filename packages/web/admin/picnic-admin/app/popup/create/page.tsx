@@ -6,53 +6,51 @@ import { message, Button } from 'antd';
 import { useResource } from '@refinedev/core';
 import { AuthorizePage } from '@/components/auth/AuthorizePage';
 import PopupForm from '../components/PopupForm';
-import { convertFormDataToPopup } from '@/lib/types/popup';
+import {
+  convertFormDataToPopup,
+  convertPopupToFormData,
+} from '@/lib/types/popup';
+import { useEffect } from 'react';
 
 export default function PopupCreate() {
-  const router = useRouter();
   const { formProps, saveButtonProps } = useForm({
     resource: 'popup',
     warnWhenUnsavedChanges: true,
     redirect: 'list',
   });
-  const [messageApi, contextHolder] = message.useMessage();
   const { resource } = useResource();
 
-  formProps.onFinish = async (values: any) => {
-    const transformedValues = convertFormDataToPopup(values);
-    return transformedValues;
-  };
-
-  const convertInitialValues = (values: any) => {
-    if (!values) return values;
-    const result = { ...values };
-    if (values.title) {
-      Object.entries(values.title).forEach(([locale, value]) => {
-        result[`title_${locale}`] = value;
-      });
+  useEffect(() => {
+    if (formProps.form && formProps.initialValues) {
+      const formData = convertPopupToFormData(formProps.initialValues as Popup);
+      formProps.form.setFieldsValue(formData);
+      setTimeout(() => {
+        if (formProps.form) {
+          formProps.form.setFieldsValue(formData);
+        }
+      }, 500);
     }
-    if (values.content) {
-      Object.entries(values.content).forEach(([locale, value]) => {
-        result[`content_${locale}`] = value;
-      });
-    }
-    return result;
-  };
+  }, [formProps.form, formProps.initialValues]);
 
-  const initialValues = convertInitialValues(formProps.initialValues);
+  const handleSubmit = async () => {
+    const values = formProps.form?.getFieldsValue();
+    console.log(values);
+    const submitData = convertFormDataToPopup(values);
+    console.log(submitData);
+    return formProps.onFinish?.(submitData);
+  };
 
   return (
     <AuthorizePage resource='popup' action='create'>
       <Create
         breadcrumb={false}
         title={resource?.meta?.create?.label}
-        headerButtons={({ defaultButtons }) => (
-          <Button onClick={() => router.push('/popup')}>목록으로</Button>
-        )}
-        saveButtonProps={saveButtonProps}
+        saveButtonProps={{
+          ...saveButtonProps,
+          onClick: handleSubmit,
+        }}
       >
-        {contextHolder}
-        <PopupForm formProps={{ ...formProps, initialValues }} />
+        <PopupForm formProps={{ ...formProps }} />
       </Create>
     </AuthorizePage>
   );
