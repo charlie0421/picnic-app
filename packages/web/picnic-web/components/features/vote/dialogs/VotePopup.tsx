@@ -1,62 +1,128 @@
-import React from 'react';
+import { useLanguageStore } from '@/stores/languageStore';
+import React, { useState, useRef, useEffect } from 'react';
+
+interface Slide {
+  imageUrl?: string;
+  title?: string;
+  content?: string;
+}
 
 interface VotePopupProps {
   isOpen: boolean;
   onClose: () => void;
   onCloseFor7Days: () => void;
-  imageUrl?: string;
-  title?: string;
-  content?: string;
+  slides: Slide[];
 }
 
 const VotePopup: React.FC<VotePopupProps> = ({
   isOpen,
   onClose,
   onCloseFor7Days,
-  imageUrl,
-  title,
-  content,
+  slides,
 }) => {
-  if (!isOpen) return null;
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState<'left' | 'right' | null>(null);
+  const contentRef = useRef<HTMLParagraphElement>(null);
+  const [isOverflow, setIsOverflow] = useState(false);
 
-  console.log(title);
-  console.log(content);
-  console.log(imageUrl);
+  const { imageUrl, title, content } = slides[current] || {};
+  const { t } = useLanguageStore();
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setIsOverflow(contentRef.current.scrollHeight > 100);
+    }
+  }, [content, current]);
+
+  if (!isOpen || !slides || slides.length === 0) return null;
+
+  const handlePrev = () => {
+    if (current > 0) {
+      setDirection('left');
+      setTimeout(() => {
+        setCurrent((prev) => prev - 1);
+        setDirection(null);
+      }, 250);
+    }
+  };
+
+  const handleNext = () => {
+    if (current < slides.length - 1) {
+      setDirection('right');
+      setTimeout(() => {
+        setCurrent((prev) => prev + 1);
+        setDirection(null);
+      }, 250);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm mx-4 flex flex-col items-center relative">
-        {/* 닫기 버튼 */}
-        <button
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
-          onClick={onClose}
-          aria-label="닫기"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        {/* 이미지 */}
-        {imageUrl && (
-          <img src={imageUrl} alt="popup" className="w-32 h-32 object-contain mb-4 rounded" />
-        )}
-        {/* 타이틀 */}
-        {title && <h2 className="text-lg font-bold mb-2 text-center text-black">{title}</h2>}
-        {/* 설명 */}
-        {content && <p className="text-gray-700 mb-4 text-center whitespace-pre-line">{content}</p>}
-        {/* 버튼 영역 */}
-        <div className="flex flex-col gap-2 w-full mt-2">
+      <div
+        className={`bg-white rounded-lg shadow-lg p-0 w-full max-w-sm mx-4 flex flex-col items-center relative overflow-hidden h-[450px]`}
+      >
+        {/* 좌우 버튼 */}
+        {current > 0 && (
           <button
-            className="w-full py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-primary shadow-lg rounded-full p-2 flex items-center justify-center hover:bg-primary-dark transition-colors z-10"
+            onClick={handlePrev}
+            aria-label="이전"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+        {current < slides.length - 1 && (
+          <button
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary shadow-lg rounded-full p-2 flex items-center justify-center hover:bg-primary-dark transition-colors z-10"
+            onClick={handleNext}
+            aria-label="다음"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
+        {/* 슬라이드 영역 */}
+        <div
+          className={`flex flex-col items-center w-full transition-transform duration-300 ease-in-out ${direction === 'left' ? '-translate-x-10 opacity-0' : direction === 'right' ? 'translate-x-10 opacity-0' : 'translate-x-0 opacity-100'}`}
+        >
+          <div className="w-full mb-4 rounded-t-lg overflow-hidden bg-gray-100" style={{ position: 'relative', paddingTop: '56.25%' }}>
+            <img
+              src={imageUrl || '/images/logo_alpha.png'}
+              alt="popup"
+              className={`absolute top-0 left-0 w-full h-full ${imageUrl ? 'object-cover' : 'object-contain'}`}
+            />
+          </div>
+          {title && <h2 className="text-lg font-bold mb-2 text-center text-black">{title}</h2>}
+          {content && (
+            <div className="w-full mb-4 px-4 relative text-sm">
+              <p
+                ref={contentRef}
+                className="text-gray-700 text-left whitespace-pre-line overflow-y-auto max-h-[100px] pr-2"
+              >
+                {content}
+              </p>
+              {isOverflow && (
+                <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-6 bg-gradient-to-t from-white to-transparent" />
+              )}
+            </div>
+          )}
+        </div>
+        {/* 버튼 영역 */}
+        <div className="flex flex-row gap-2 w-full mt-auto px-4 pb-4">
+          <button
+            className="flex-1 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
             onClick={onClose}
           >
-            닫기
+            {t('label_popup_close')}
           </button>
           <button
-            className="w-full py-2 rounded bg-primary text-white hover:bg-primary-dark"
+            className="flex-1 py-2 rounded bg-primary text-white hover:bg-primary-dark transition-colors"
             onClick={onCloseFor7Days}
           >
-            7일간 보지 않기
+            {t('label_popup_hide_7days')}
           </button>
         </div>
       </div>

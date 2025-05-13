@@ -19,7 +19,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { setCurrentPortalType } = useNavigation();
   const pathname = usePathname();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [popupResource, setPopupResource] = useState<any>(null);
+  const [popupSlides, setPopupSlides] = useState<any[]>([]);
 
   useEffect(() => {
     const portalType = getPortalTypeFromPath(pathname);
@@ -31,17 +31,27 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       try {
         const popups = await getPopups();
         if (!popups || popups.length === 0) return;
-        const popup = popups[0];
-        setPopupResource({
-          ...popup,
-          popupKey: popup.id,
-          imageUrl: getCdnImageUrl(getLocalizedString(popup.image)),
-          title: popup.title,
-          content: popup.content,
-          startAt: popup.startAt,
-          stopAt: popup.stopAt,
-          platform: popup.platform || 'all',
+        
+        const now = new Date();
+        const filteredPopups = popups.filter((popup: any) => {
+          const popupKey = popup.id;
+          const hideUntil = typeof window !== 'undefined' ? localStorage.getItem(`hide_popup_${popupKey}`) : null;
+          
+          if (hideUntil && new Date(hideUntil) > now) return false;
+          return true;
         });
+
+        setPopupSlides(
+          filteredPopups.map((popup: any) => ({
+            imageUrl: getCdnImageUrl(getLocalizedString(popup.image)),
+            title: getLocalizedString(popup.title),
+            content: getLocalizedString(popup.content),
+            popupKey: popup.id,
+            startAt: popup.startAt,
+            stopAt: popup.stopAt,
+            platform: popup.platform || 'all',
+          }))
+        );
       } catch (e) {
         // 에러 무시
       }
@@ -64,14 +74,15 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    if (popupResource && checkPopupVisible(popupResource)) {
+    if (popupSlides.length > 0 && popupSlides.some(checkPopupVisible)) {
       setIsPopupOpen(true);
     }
-  }, [popupResource]);
+  }, [popupSlides]);
 
+  const [currentSlide, setCurrentSlide] = useState(0);
   const handleCloseFor7Days = () => {
-    if (!popupResource) return;
-    const popupKey = popupResource.popupKey;
+    if (!popupSlides[currentSlide]) return;
+    const popupKey = popupSlides[currentSlide].popupKey;
     const hideUntil = new Date();
     hideUntil.setDate(hideUntil.getDate() + 7);
     if (typeof window !== 'undefined') {
@@ -82,14 +93,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className='bg-gradient-to-b from-blue-50 to-white relative'>
-      {popupResource && (
+      {popupSlides.length > 0 && (
         <VotePopup
           isOpen={isPopupOpen}
           onClose={() => setIsPopupOpen(false)}
           onCloseFor7Days={handleCloseFor7Days}
-          imageUrl={getLocalizedString(popupResource.imageUrl)}
-          title={getLocalizedString(popupResource.title)}
-          content={getLocalizedString(popupResource.content)}
+          slides={popupSlides}
         />
       )}
       <div className='max-w-6xl mx-auto bg-white shadow-md'>
