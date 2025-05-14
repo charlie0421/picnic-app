@@ -71,7 +71,8 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
     });
   }
 
-  List<String> _popupIds(List<Popup> popups) => popups.map((e) => e.id.toString()).toList();
+  List<String> _popupIds(List<Popup> popups) =>
+      popups.map((e) => e.id.toString()).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +141,9 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                 onTap: _filteredPopups.length > 1
                     ? () {
                         setState(() {
-                          _currentIndex = (_currentIndex - 1 + _filteredPopups.length) % _filteredPopups.length;
+                          _currentIndex =
+                              (_currentIndex - 1 + _filteredPopups.length) %
+                                  _filteredPopups.length;
                         });
                         HapticFeedback.selectionClick();
                       }
@@ -160,8 +163,9 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                     ],
                   ),
                   child: Icon(
-                    Icons.arrow_back_ios,
-                    color: _filteredPopups.length > 1 ? Colors.white : Colors.grey,
+                    Icons.chevron_left,
+                    color:
+                        _filteredPopups.length > 1 ? Colors.white : Colors.grey,
                     size: 24,
                   ),
                 ),
@@ -181,7 +185,8 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                 onTap: _filteredPopups.length > 1
                     ? () {
                         setState(() {
-                          _currentIndex = (_currentIndex + 1) % _filteredPopups.length;
+                          _currentIndex =
+                              (_currentIndex + 1) % _filteredPopups.length;
                         });
                         HapticFeedback.selectionClick();
                       }
@@ -201,8 +206,9 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                     ],
                   ),
                   child: Icon(
-                    Icons.arrow_forward_ios,
-                    color: _filteredPopups.length > 1 ? Colors.white : Colors.grey,
+                    Icons.chevron_right,
+                    color:
+                        _filteredPopups.length > 1 ? Colors.white : Colors.grey,
                     size: 24,
                   ),
                 ),
@@ -215,7 +221,9 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
           alignment: Alignment.center,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final maxWidth = constraints.maxWidth * 0.9 > 400 ? 400.0 : constraints.maxWidth * 0.9;
+              final maxWidth = constraints.maxWidth * 0.9 > 400
+                  ? 400.0
+                  : constraints.maxWidth * 0.9;
               return Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
@@ -238,7 +246,8 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                             topRight: Radius.circular(24),
                           ),
                           child: imageUrl.isNotEmpty
-                              ? PicnicCachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover)
+                              ? PicnicCachedNetworkImage(
+                                  imageUrl: imageUrl, fit: BoxFit.cover)
                               : Image.asset(
                                   package: 'picnic_lib',
                                   'assets/images/logo.png',
@@ -249,7 +258,10 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                       const SizedBox(height: 16),
                       Text(
                         popup.title[lang] ?? popup.title['en'] ?? '',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
@@ -275,14 +287,17 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                               flex: 1,
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  side: const BorderSide(color: Color(0xFFDDDDDD)),
+                                  side: const BorderSide(
+                                      color: Color(0xFFDDDDDD)),
                                 ),
                                 onPressed: _close,
-                                child: Text(t('label_popup_close'), style: const TextStyle(fontSize: 16)),
+                                child: Text(t('label_popup_close'),
+                                    style: const TextStyle(fontSize: 16)),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -290,7 +305,8 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                               flex: 2,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
