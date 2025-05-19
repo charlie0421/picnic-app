@@ -281,86 +281,6 @@ export default function VoteForm({
     updateFormFields();
   }, [updateFormFields]);
 
-  // 기존 formProps 저장 및 커스텀 onFinish 핸들러 설정
-  useEffect(() => {
-    if (onFinishHandlerSet.current) return;
-    onFinishHandlerSet.current = true;
-
-    const originalFinish = formProps.onFinish;
-
-    formProps.onFinish = async (values: VoteRecord) => {
-      try {
-        if (submitting) return; // 중복 제출 방지
-        setSubmitting(true);
-
-        // vote_item과 vote_reward는 별도 테이블에 저장되므로 제외
-        const { vote_item, vote_reward, ...voteData } = values as any;
-
-        // dayjs 객체를 ISO 문자열로 변환
-        if (voteData.visibility_range) {
-          const [visibleAt, invisibleAt] = voteData.visibility_range;
-          if (visibleAt) voteData.visible_at = visibleAt.toISOString();
-          if (invisibleAt) voteData.invisible_at = invisibleAt.toISOString();
-          delete voteData.visibility_range;
-        }
-
-        if (voteData.vote_range) {
-          const [startAt, stopAt] = voteData.vote_range;
-          if (startAt) voteData.start_at = startAt.toISOString();
-          if (stopAt) voteData.stop_at = stopAt.toISOString();
-          delete voteData.vote_range;
-        }
-
-        // 폼 데이터에 vote_item과 vote_reward 정보 설정 (handleVoteData에서 사용)
-        updateFormFields();
-
-        // 최신 폼 값 가져오기
-        const updatedFormValues = formProps.form?.getFieldsValue() as Record<
-          string,
-          any
-        >;
-        const updatedValues = {
-          ...values,
-          vote_item: updatedFormValues?.vote_item || [],
-          vote_reward: updatedFormValues?.vote_reward || [],
-        };
-
-        // props로 전달된 onFinish 함수가 있으면 그것을 사용하고, 없으면 원래 함수 사용
-        let result;
-        if (onFinish) {
-          result = await onFinish(updatedValues);
-        } else {
-          result = await originalFinish?.(voteData);
-        }
-
-        // 리다이렉트 처리
-        if (redirectPath && mode === 'create') {
-          push(redirectPath);
-        }
-
-        return result;
-      } catch (error) {
-        console.error('VoteForm onFinish 에러:', error);
-        message.error('투표 저장 중 오류가 발생했습니다.');
-        throw error;
-      } finally {
-        setSubmitting(false);
-      }
-    };
-  }, [
-    id,
-    mode,
-    selectedRewardIds,
-    initialRewardIds,
-    push,
-    redirectPath,
-    onFinish,
-    formProps,
-    createVoteReward,
-    deleteVoteReward,
-    updateFormFields,
-  ]);
-
   // Transfer 컴포넌트를 리워드 선택에 효과적으로 사용하기 위한 처리
   const [transferTargetKeys, setTransferTargetKeys] = useState<string[]>([]);
 
@@ -433,6 +353,7 @@ export default function VoteForm({
   return (
     <Form
       {...formProps}
+      onFinish={onFinish}
       layout='vertical'
       style={{ maxWidth: '800px', margin: '0 auto' }}
     >
