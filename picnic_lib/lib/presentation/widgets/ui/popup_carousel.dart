@@ -19,7 +19,6 @@ class PopupCarousel extends ConsumerStatefulWidget {
 class _PopupCarouselState extends ConsumerState<PopupCarousel> {
   bool _visible = true;
   int _currentIndex = 0;
-  bool _loadingPrefs = true;
   List<Popup> _filteredPopups = [];
   List<String> _lastPopupIds = [];
   bool _resetDone = true;
@@ -27,7 +26,6 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
   @override
   void initState() {
     super.initState();
-    _loadingPrefs = false; // 팝업별로 관리하므로 전체 로딩은 필요 없음
   }
 
   Future<bool> _isPopupHidden(String popupId) async {

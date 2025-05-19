@@ -83,8 +83,15 @@ class _CommentListState extends ConsumerState<CommentList> {
   @override
   void initState() {
     super.initState();
-    _pagingController = PagingController(firstPageKey: 1)
-      ..addPageRequestListener(_fetchPage);
+    _pagingController = PagingController<int, CommentModel>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetchPage,
+    );
   }
 
   @override
@@ -95,8 +102,8 @@ class _CommentListState extends ConsumerState<CommentList> {
     super.dispose();
   }
 
-  Future<void> _fetchPage(int pageKey) async {
-    if (_isDisposed) return;
+  Future<List<CommentModel>> _fetchPage(int pageKey) async {
+    if (_isDisposed) return [];
 
     try {
       final params = CommentsPageParams(
@@ -107,19 +114,12 @@ class _CommentListState extends ConsumerState<CommentList> {
 
       final newItems = await ref.read(commentsPageProvider(params).future);
 
-      if (_isDisposed) return;
+      if (_isDisposed) return [];
 
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        _pagingController.appendPage(newItems, pageKey + 1);
-      }
+      return newItems;
     } catch (error, stack) {
       logger.e('Error fetching comments: $error', stackTrace: stack);
-      if (!_isDisposed) {
-        _pagingController.error = error;
-      }
+      rethrow;
     }
   }
 
@@ -244,49 +244,53 @@ class _CommentListState extends ConsumerState<CommentList> {
   }
 
   Widget _buildPagedListView() {
-    return PagedListView<int, CommentModel>(
-      pagingController: _pagingController,
-      builderDelegate: PagedChildBuilderDelegate<CommentModel>(
-        noItemsFoundIndicatorBuilder: (_) => NoItemContainer(
-          message: t('label_article_comment_empty'),
-        ),
-        firstPageProgressIndicatorBuilder: (_) => const Center(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(),
-          ),
-        ),
-        newPageProgressIndicatorBuilder: (_) => const Center(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(),
-          ),
-        ),
-        firstPageErrorIndicatorBuilder: (context) => buildErrorView(
-          context,
-          error: _pagingController.error,
-          retryFunction: _refreshComments,
-          stackTrace: null,
-        ),
-        newPageErrorIndicatorBuilder: (context) => Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Text(
-                t('error_loading_more_comments'),
-                textAlign: TextAlign.center,
+    return PagingListener(
+        controller: _pagingController,
+        builder: (context, state, fetchNextPage) =>
+            PagedListView<int, CommentModel>(
+              state: _pagingController.value,
+              fetchNextPage: _pagingController.fetchNextPage,
+              builderDelegate: PagedChildBuilderDelegate<CommentModel>(
+                noItemsFoundIndicatorBuilder: (_) => NoItemContainer(
+                  message: t('label_article_comment_empty'),
+                ),
+                firstPageProgressIndicatorBuilder: (_) => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                newPageProgressIndicatorBuilder: (_) => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                firstPageErrorIndicatorBuilder: (context) => buildErrorView(
+                  context,
+                  error: _pagingController.error,
+                  retryFunction: _refreshComments,
+                  stackTrace: null,
+                ),
+                newPageErrorIndicatorBuilder: (context) => Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Text(
+                        t('error_loading_more_comments'),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _refreshComments,
+                        child: Text(t('label_retry')),
+                      ),
+                    ],
+                  ),
+                ),
+                itemBuilder: (_, item, __) => _buildCommentItem(item),
               ),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: _refreshComments,
-                child: Text(t('label_retry')),
-              ),
-            ],
-          ),
-        ),
-        itemBuilder: (_, item, __) => _buildCommentItem(item),
-      ),
-    );
+            ));
   }
 
   @override

@@ -210,8 +210,6 @@ class PicnicLibL10n {
         }
       }
 
-      // 번역 못 찾음
-      logger.w('번역을 찾을 수 없음: $key');
       return _formatTranslation(key, args);
     } catch (e, s) {
       logger.e('번역 과정에서 오류 발생: $key', error: e, stackTrace: s);

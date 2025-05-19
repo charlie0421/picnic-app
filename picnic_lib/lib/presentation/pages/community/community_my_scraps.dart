@@ -20,8 +20,7 @@ class CommunityMyScraps extends ConsumerStatefulWidget {
 
 class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
     with SingleTickerProviderStateMixin {
-  late final PagingController<int, PostScrapModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, PostScrapModel> _pagingController;
 
   @override
   void initState() {
@@ -35,23 +34,33 @@ class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
           pageTitle: t('post_my_written_scrap'));
     });
 
-    _pagingController.addPageRequestListener((pageKey) async {
-      final newItems = await postsScrapedByUser(
-          pageKey, supabase.auth.currentUser!.id, 10, 1);
-      final isLastPage = newItems.length < 10;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + newItems.length;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    });
+    _pagingController = PagingController<int, PostScrapModel>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetchPage,
+    );
+  }
+
+  static const _pageSize = 20;
+
+  Future<List<PostScrapModel>> _fetchPage(int pageKey) async {
+    final newItems =
+        await postsScrapedByUser(pageKey, supabase.auth.currentUser!.id, 10, 1);
+    return newItems;
   }
 
   @override
   Widget build(BuildContext context) {
-    return PagedListView<int, PostScrapModel>(
-        pagingController: _pagingController,
+    return PagingListener(
+      controller: _pagingController,
+      builder: (context, state, fetchNextPage) =>
+          PagedListView<int, PostScrapModel>(
+        state: _pagingController.value,
+        fetchNextPage: _pagingController.fetchNextPage,
         builderDelegate: PagedChildBuilderDelegate<PostScrapModel>(
           itemBuilder: (context, item, index) {
             return PostListItem(
@@ -66,6 +75,8 @@ class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
             );
           },
           noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
-        ));
+        ),
+      ),
+    );
   }
 }

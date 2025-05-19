@@ -5,7 +5,6 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/video_info.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -24,23 +23,20 @@ class VoteMediaListPage extends ConsumerStatefulWidget {
 class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
   static const _pageSize = 10;
   final Map<String, Map<String, dynamic>> _videoStatsCache = {};
-  final PagingController<int, VideoInfo> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, VideoInfo> _pagingController;
 
   @override
   void initState() {
     super.initState();
-    _initializePage();
-  }
-
-  void _initializePage() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true, showTopMenu: true, showBottomNavigation: true);
-    });
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
-    });
+    _pagingController = PagingController<int, VideoInfo>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetch,
+    );
   }
 
   @override
@@ -111,7 +107,7 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
     };
   }
 
-  Future<void> _fetchPage(int pageKey) async {
+  Future<List<VideoInfo>> _fetch(int pageKey) async {
     try {
       final response = await supabase
           .from("media")
@@ -119,11 +115,6 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
           .filter('deleted_at', 'is', null)
           .order('id', ascending: false)
           .range((pageKey - 1) * _pageSize, pageKey * _pageSize - 1);
-
-      if (response.isEmpty) {
-        _pagingController.appendLastPage([]);
-        return;
-      }
 
       final newItems = await Future.wait(response.map((data) async {
         final videoId = data['video_id']?.toString() ?? '';
@@ -144,16 +135,10 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
         );
       }));
 
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
+      return newItems;
     } catch (e, s) {
       logger.e('Error fetching page', error: e, stackTrace: s);
-      _pagingController.error = e;
+      rethrow;
     }
   }
 
@@ -163,35 +148,35 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
       onRefresh: () async {
         _pagingController.refresh();
       },
-      child: CustomScrollView(
-        slivers: [
-          PagedSliverList<int, VideoInfo>(
-            pagingController: _pagingController,
-            builderDelegate: PagedChildBuilderDelegate<VideoInfo>(
-              itemBuilder: (context, item, index) => VideoListItem(
-                videoId: item.videoId,
-                title: item.title,
-                thumbnailUrl: item.thumbnailUrl,
-                channelTitle: item.channelTitle,
-                channelId: item.channelId,
-                channelThumbnail: item.channelThumbnail,
-                onTap: () {},
-              ),
-              firstPageErrorIndicatorBuilder: (context) {
-                return buildErrorView(
-                  context,
-                  error: _pagingController.error.toString(),
-                  retryFunction: () => _pagingController.refresh(),
-                  stackTrace: _pagingController.error is Error
-                      ? (_pagingController.error as Error).stackTrace
-                      : StackTrace.current,
-                );
-              },
-              noItemsFoundIndicatorBuilder: (context) =>
-                  const NoItemContainer(),
+      child: PagingListener(
+        controller: _pagingController,
+        builder: (context, state, fetchNextPage) =>
+            PagedListView<int, VideoInfo>(
+          state: _pagingController.value,
+          fetchNextPage: _pagingController.fetchNextPage,
+          builderDelegate: PagedChildBuilderDelegate<VideoInfo>(
+            itemBuilder: (context, item, index) => VideoListItem(
+              videoId: item.videoId,
+              title: item.title,
+              thumbnailUrl: item.thumbnailUrl,
+              channelTitle: item.channelTitle,
+              channelId: item.channelId,
+              channelThumbnail: item.channelThumbnail,
+              onTap: () {},
             ),
+            firstPageErrorIndicatorBuilder: (context) {
+              return buildErrorView(
+                context,
+                error: _pagingController.error.toString(),
+                retryFunction: () => _pagingController.refresh(),
+                stackTrace: _pagingController.error is Error
+                    ? (_pagingController.error as Error).stackTrace
+                    : StackTrace.current,
+              );
+            },
+            noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
           ),
-        ],
+        ),
       ),
     );
   }

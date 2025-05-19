@@ -34,14 +34,16 @@ class PicHomePage extends ConsumerStatefulWidget {
 }
 
 class _PicHomePageState extends ConsumerState<PicHomePage> {
-  final PagingController<int, VoteModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, VoteModel> _pagingController;
   static const _pageSize = 20;
 
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener(_fetchPage);
+    _pagingController = PagingController<int, VoteModel>(
+      getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
+      fetchPage: _fetch,
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
@@ -49,7 +51,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
     });
   }
 
-  Future<void> _fetchPage(int pageKey) async {
+  Future<List<VoteModel>> _fetch(int pageKey) async {
     final area = ref.watch(areaProvider);
     logger.i('area: $area');
     try {
@@ -64,15 +66,10 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
         category: VoteCategory.all,
       ).future);
 
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        _pagingController.appendPage(newItems, pageKey + 1);
-      }
+      return newItems;
     } catch (e, s) {
-      _pagingController.error = e;
       logger.e('error', error: e, stackTrace: s);
+      rethrow;
     }
   }
 
@@ -265,9 +262,10 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PagedListView<int, VoteModel>.separated(
+          state: _pagingController.value,
+          fetchNextPage: _pagingController.fetchNextPage,
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          pagingController: _pagingController,
           builderDelegate: PagedChildBuilderDelegate<VoteModel>(
             firstPageProgressIndicatorBuilder: (context) =>
                 SizedBox(height: 400, child: buildLoadingOverlay()),

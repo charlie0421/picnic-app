@@ -21,17 +21,22 @@ class VoteHistoryPage extends ConsumerStatefulWidget {
 }
 
 class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
-  final PagingController<int, VotePickModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, VotePickModel> _pagingController;
   String _sortOrder = 'DESC';
   static const int _pageSize = 10;
 
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
-    });
+    _pagingController = PagingController<int, VotePickModel>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetch,
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
@@ -40,7 +45,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
     });
   }
 
-  Future<void> _fetchPage(int pageKey) async {
+  Future<List<VotePickModel>> _fetch(int pageKey) async {
     try {
       final response = await supabase
           .from('vote_pick')
@@ -55,16 +60,10 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
           .map((item) => VotePickModel.fromJson(item))
           .toList();
 
-      final isLastPage = items.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(items);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(items, nextPageKey);
-      }
+      return items;
     } catch (error) {
       logger.e(error);
-      _pagingController.error = error;
+      rethrow;
     }
   }
 
@@ -103,86 +102,92 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
           ),
         ),
         Expanded(
-          child: PagedListView<int, VotePickModel>(
-            pagingController: _pagingController,
-            builderDelegate: PagedChildBuilderDelegate<VotePickModel>(
-              noItemsFoundIndicatorBuilder: (context) =>
-                  const NoItemContainer(),
-              itemBuilder: (context, item, index) => Container(
-                height: 107,
-                padding: EdgeInsets.all(16.w),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: AppColors.grey300, width: 1),
+          child: PagingListener(
+            controller: _pagingController,
+            builder: (context, state, fetchNextPage) =>
+                PagedListView<int, VotePickModel>(
+              state: _pagingController.value,
+              fetchNextPage: _pagingController.fetchNextPage,
+              builderDelegate: PagedChildBuilderDelegate<VotePickModel>(
+                noItemsFoundIndicatorBuilder: (context) =>
+                    const NoItemContainer(),
+                itemBuilder: (context, item, index) => Container(
+                  height: 107,
+                  padding: EdgeInsets.all(16.w),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: AppColors.grey300, width: 1),
+                    ),
                   ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          DateFormat('yyyy.MM.dd HH:mm:ss')
-                              .format(item.createdAt!),
-                          style: getTextStyle(
-                            AppTypo.caption12R,
-                            AppColors.grey900,
-                          ),
-                        ),
-                        Text(
-                          t('text_vote_complete'),
-                          style: getTextStyle(
-                            AppTypo.caption12M,
-                            AppColors.grey900,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '${formatNumberWithComma(item.amount)} ${t('text_star_candy')}',
-                      style: getTextStyle(AppTypo.title18B, AppColors.grey900),
-                    ),
-                    RichText(
-                      text: TextSpan(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          TextSpan(
-                            text: getLocaleTextFromJson(item.vote.title),
+                          Text(
+                            DateFormat('yyyy.MM.dd HH:mm:ss')
+                                .format(item.createdAt!),
                             style: getTextStyle(
-                              AppTypo.body14M,
+                              AppTypo.caption12R,
                               AppColors.grey900,
                             ),
                           ),
-                          TextSpan(
-                            text: ' ',
+                          Text(
+                            t('text_vote_complete'),
                             style: getTextStyle(
-                              AppTypo.body14M,
+                              AppTypo.caption12M,
                               AppColors.grey900,
                             ),
                           ),
-                          item.voteItem.artist.id != 0
-                              ? TextSpan(
-                                  text:
-                                      '${getLocaleTextFromJson(item.voteItem.artist.name)}_${getLocaleTextFromJson(item.voteItem.artist.artistGroup!.name)}',
-                                  style: getTextStyle(
-                                    AppTypo.caption12R,
-                                    AppColors.grey900,
-                                  ),
-                                )
-                              : TextSpan(
-                                  text: getLocaleTextFromJson(
-                                    item.voteItem.artistGroup.name,
-                                  ),
-                                  style: getTextStyle(
-                                    AppTypo.caption12R,
-                                    AppColors.grey900,
-                                  ),
-                                ),
                         ],
                       ),
-                    ),
-                  ],
+                      Text(
+                        '${formatNumberWithComma(item.amount)} ${t('text_star_candy')}',
+                        style:
+                            getTextStyle(AppTypo.title18B, AppColors.grey900),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: getLocaleTextFromJson(item.vote.title),
+                              style: getTextStyle(
+                                AppTypo.body14M,
+                                AppColors.grey900,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ',
+                              style: getTextStyle(
+                                AppTypo.body14M,
+                                AppColors.grey900,
+                              ),
+                            ),
+                            item.voteItem.artist.id != 0
+                                ? TextSpan(
+                                    text:
+                                        '${getLocaleTextFromJson(item.voteItem.artist.name)}_${getLocaleTextFromJson(item.voteItem.artist.artistGroup!.name)}',
+                                    style: getTextStyle(
+                                      AppTypo.caption12R,
+                                      AppColors.grey900,
+                                    ),
+                                  )
+                                : TextSpan(
+                                    text: getLocaleTextFromJson(
+                                      item.voteItem.artistGroup.name,
+                                    ),
+                                    style: getTextStyle(
+                                      AppTypo.caption12R,
+                                      AppColors.grey900,
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -77,7 +77,6 @@ class AppInitializer {
         options.tracesSampleRate = Environment.sentryTraceSampleRate;
         options.profilesSampleRate = Environment.sentryProfileSampleRate;
         options.enableAutoSessionTracking = !kDebugMode;
-        options.autoAppStart = !kDebugMode;
         options.experimental.replay.sessionSampleRate =
             Environment.sentrySessionSampleRate;
         options.experimental.replay.onErrorSampleRate =

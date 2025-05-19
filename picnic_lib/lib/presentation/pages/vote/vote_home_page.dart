@@ -33,25 +33,39 @@ class VoteHomePage extends ConsumerStatefulWidget {
 }
 
 class _VoteHomePageState extends ConsumerState<VoteHomePage> {
-  final PagingController<int, VoteModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, VoteModel> _pagingController =
+      PagingController<int, VoteModel>(
+    getNextPageKey: (state) {
+      if (state.items == null) return 1;
+      final isLastPage = state.items!.length < _pageSize;
+      if (isLastPage) return null;
+      return (state.keys?.last ?? 0) + 1;
+    },
+    fetchPage: _fetch,
+  );
   static const _pageSize = 20;
+
+  Object? _lastArea = Object();
 
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener(_fetchPage);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
           showPortal: true, showTopMenu: true, showBottomNavigation: true);
+      _pagingController.fetchNextPage();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(areaProvider);
-    _pagingController.refresh();
+    final area = ref.watch(areaProvider);
+
+    if (_lastArea != area) {
+      _lastArea = area;
+      _pagingController.refresh();
+    }
 
     return ListView(
       children: [
@@ -99,31 +113,30 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   }
 
   Widget _buildVoteSection() {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        PagedListView<int, VoteModel>.separated(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          pagingController: _pagingController,
-          builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-            firstPageProgressIndicatorBuilder: (context) =>
-                SizedBox(height: 400, child: buildLoadingOverlay()),
-            noItemsFoundIndicatorBuilder: (context) =>
-                VoteNoItem(status: VoteStatus.active, context: context),
-            itemBuilder: (context, vote, index) {
-              final now = DateTime.now().toUtc();
-              final status = vote.startAt!.isAfter(now)
-                  ? VoteStatus.upcoming
-                  : VoteStatus.active;
-              return VoteInfoCard(context: context, vote: vote, status: status);
-            },
-          ),
-          separatorBuilder: (context, index) =>
-              const Divider(height: 1, color: AppColors.grey300),
+    return PagingListener(
+      controller: _pagingController,
+      builder: (context, state, fetchNextPage) =>
+          PagedListView<int, VoteModel>.separated(
+        state: _pagingController.value,
+        fetchNextPage: _pagingController.fetchNextPage,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        builderDelegate: PagedChildBuilderDelegate<VoteModel>(
+          firstPageProgressIndicatorBuilder: (context) =>
+              SizedBox(height: 400, child: buildLoadingOverlay()),
+          noItemsFoundIndicatorBuilder: (context) =>
+              VoteNoItem(status: VoteStatus.active, context: context),
+          itemBuilder: (context, vote, index) {
+            final now = DateTime.now().toUtc();
+            final status = vote.startAt!.isAfter(now)
+                ? VoteStatus.upcoming
+                : VoteStatus.active;
+            return VoteInfoCard(context: context, vote: vote, status: status);
+          },
         ),
-      ],
+        separatorBuilder: (context, index) =>
+            const Divider(height: 1, color: AppColors.grey300),
+      ),
     );
   }
 
@@ -227,10 +240,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
     );
   }
 
-  Future<void> _fetchPage(int pageKey) async {
+  Future<List<VoteModel>> _fetch(int pageKey) async {
     final area = ref.watch(areaProvider);
     try {
-      final newItems = await ref.read(asyncVoteListProvider(
+      final newItems = await ref.watch(asyncVoteListProvider(
         pageKey,
         _pageSize,
         'stop_at',
@@ -240,15 +253,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         category: VoteCategory.all,
       ).future);
 
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        _pagingController.appendPage(newItems, pageKey + 1);
-      }
+      logger.d('newItems: $newItems');
+
+      return newItems;
     } catch (e, s) {
-      _pagingController.error = e;
       logger.e('error', error: e, stackTrace: s);
+      rethrow;
     }
   }
 }

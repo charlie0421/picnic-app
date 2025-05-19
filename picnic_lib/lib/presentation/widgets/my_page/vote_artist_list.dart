@@ -28,7 +28,7 @@ class VoteMyArtistList extends ConsumerStatefulWidget {
 }
 
 class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
-  final _pagingController = PagingController<int, ArtistModel>(firstPageKey: 0);
+  late final PagingController<int, ArtistModel> _pagingController;
   final _searchSubject = BehaviorSubject<String>();
   final _textEditingController = TextEditingController();
   final _focusNode = FocusNode();
@@ -38,7 +38,10 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener(_fetchPage);
+    _pagingController = PagingController<int, ArtistModel>(
+      getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
+      fetchPage: _fetch,
+    );
     _scrollController = ScrollController();
     _textEditingController.addListener(_onSearchQueryChange);
     _searchSubject
@@ -46,7 +49,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
         .listen((_) => _pagingController.refresh());
   }
 
-  Future<void> _fetchPage(int pageKey) async {
+  Future<List<ArtistModel>> _fetch(int pageKey) async {
     try {
       final bookmarkedArtists =
           await ref.read(asyncBookmarkedArtistsProvider.future);
@@ -61,21 +64,9 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
       final filteredItems = newItems
           .where((artist) => !bookmarkedArtistIds.contains(artist.id))
           .toList();
-      final isLastPage = filteredItems.length < 20;
-      if (isLastPage) {
-        if (mounted) {
-          _pagingController.appendLastPage(filteredItems);
-        }
-      } else {
-        if (mounted) {
-          _pagingController.appendPage(filteredItems, pageKey + 1);
-        }
-      }
+      return filteredItems;
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
-      if (mounted) {
-        _pagingController.error = e;
-      }
       rethrow;
     }
   }
@@ -112,14 +103,15 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
   }
 
   void _updateArtistBookmarkStatus(int artistId, bool isBookmarked) {
-    final updatedItems = _pagingController.itemList?.map((artist) {
+    final updatedItems = _pagingController.value.items?.map((artist) {
       if (artist.id == artistId) {
         return artist.copyWith(isBookmarked: isBookmarked);
       }
       return artist;
     }).toList();
     if (updatedItems != null) {
-      _pagingController.itemList = updatedItems;
+      _pagingController.value =
+          _pagingController.value.copyWith(pages: [updatedItems]);
     }
     setState(() {});
   }
@@ -193,7 +185,8 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
                     padding: EdgeInsets.zero,
                     sliver: PagedSliverList<int, ArtistModel>(
                       key: _listKey,
-                      pagingController: _pagingController,
+                      state: _pagingController.value,
+                      fetchNextPage: _pagingController.fetchNextPage,
                       builderDelegate: PagedChildBuilderDelegate<ArtistModel>(
                         itemBuilder: (context, item, index) =>
                             _buildArtistItem(item),
@@ -202,7 +195,9 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
                           context,
                           error: _pagingController.error.toString(),
                           retryFunction: _pagingController.refresh,
-                          stackTrace: _pagingController.error.stackTrace,
+                          stackTrace: _pagingController.error is Error
+                              ? (_pagingController.error as Error).stackTrace
+                              : null,
                         ),
                         firstPageProgressIndicatorBuilder: (context) =>
                             SizedBox(

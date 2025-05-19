@@ -375,7 +375,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         controller: _quillController!,
         scrollController: ScrollController(),
         focusNode: AlwaysDisabledFocusNode(),
-        configurations: quill.QuillEditorConfigurations(
+        config: quill.QuillEditorConfig(
           embedBuilders: [
             LinkEmbedBuilder(),
             YouTubeEmbedBuilder(),

@@ -25,8 +25,7 @@ class CommunityMyComment extends ConsumerStatefulWidget {
 }
 
 class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
-  late final PagingController<int, CommentModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, CommentModel> _pagingController;
 
   @override
   void initState() {
@@ -41,17 +40,18 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
           );
     });
 
-    _pagingController.addPageRequestListener((pageKey) async {
-      final newItems = await _fetchPage(pageKey);
-      final isLastPage = newItems.length < 10;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    });
+    _pagingController = PagingController<int, CommentModel>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetchPage,
+    );
   }
+
+  static const _pageSize = 20;
 
   Future<List<CommentModel>> _fetchPage(int pageKey) async {
     final userCommentsNotifier = ref.read(
@@ -103,10 +103,12 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: _handleRefresh,
-      child: PagedListView<int, CommentModel>(
-        pagingController: _pagingController,
+    return PagingListener(
+      controller: _pagingController,
+      builder: (context, state, fetchNextPage) =>
+          PagedListView<int, CommentModel>(
+        state: _pagingController.value,
+        fetchNextPage: _pagingController.fetchNextPage,
         builderDelegate: PagedChildBuilderDelegate<CommentModel>(
           itemBuilder: (context, item, index) => CommentListItem(
             item: item,

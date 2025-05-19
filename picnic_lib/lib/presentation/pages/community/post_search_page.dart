@@ -26,8 +26,7 @@ class PostSearchPage extends ConsumerStatefulWidget {
 class _PostSearchPageState extends ConsumerState<PostSearchPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textController = TextEditingController();
-  final PagingController<int, PostModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, PostModel> _pagingController;
   List<String> _searchHistory = [];
   String _currentSearchQuery = '';
 
@@ -41,8 +40,18 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
       _loadSearchHistory();
     });
 
-    _pagingController.addPageRequestListener(_fetch);
+    _pagingController = PagingController<int, PostModel>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetch,
+    );
   }
+
+  static const _pageSize = 10;
 
   @override
   void dispose() {
@@ -75,8 +84,8 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     if (query.isNotEmpty) _addToSearchHistory(query);
   }
 
-  Future<void> _fetch(int pageKey) async {
-    if (_currentSearchQuery.isEmpty) return;
+  Future<List<PostModel>> _fetch(int pageKey) async {
+    if (_currentSearchQuery.isEmpty) return [];
 
     final currentArtist = ref.watch(
         communityStateInfoProvider.select((value) => value.currentArtist));
@@ -91,15 +100,9 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
           ) ??
           [];
 
-      final isLastPage = newItems.length < 10;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        _pagingController.appendPage(newItems, pageKey + 1);
-      }
+      return newItems;
     } catch (e, s) {
       logger.e('Error fetching data: $e', stackTrace: s);
-      _pagingController.error = e;
       rethrow;
     }
   }
@@ -173,60 +176,65 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     return Column(
       children: [
         Expanded(
-          child: PagedListView<int, PostModel>(
-            pagingController: _pagingController,
-            builderDelegate: PagedChildBuilderDelegate<PostModel>(
-              itemBuilder: (context, post, index) {
-                if (index == 0) {
-                  // 첫 번째 아이템 앞에 검색 결과 레이블 추가
-                  return Column(
+          child: PagingListener(
+            controller: _pagingController,
+            builder: (context, state, fetchNextPage) =>
+                PagedListView<int, PostModel>(
+              state: _pagingController.value,
+              fetchNextPage: _pagingController.fetchNextPage,
+              builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                itemBuilder: (context, post, index) {
+                  if (index == 0) {
+                    // 첫 번째 아이템 앞에 검색 결과 레이블 추가
+                    return Column(
+                      children: [
+                        _buildSearchResultLabel(),
+                        const SizedBox(height: 24),
+                        PostListItem(
+                          post: post,
+                          popupMenu: PostPopupMenu(
+                              post: post,
+                              context: context,
+                              refreshFunction: ref.refresh),
+                        ),
+                      ],
+                    );
+                  }
+                  return PostListItem(
+                      post: post,
+                      popupMenu: PostPopupMenu(
+                          post: post,
+                          context: context,
+                          refreshFunction: ref.refresh));
+                },
+                firstPageProgressIndicatorBuilder: (_) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                newPageProgressIndicatorBuilder: (_) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                noItemsFoundIndicatorBuilder: (_) => SingleChildScrollView(
+                  child: Column(
                     children: [
-                      _buildSearchResultLabel(),
-                      const SizedBox(height: 24),
-                      PostListItem(
-                        post: post,
-                        popupMenu: PostPopupMenu(
-                            post: post,
-                            context: context,
-                            refreshFunction: ref.refresh),
+                      _buildNoResultsWidget(),
+                      _buildSearchHistory(),
+                    ],
+                  ),
+                ),
+                noMoreItemsIndicatorBuilder: (_) => const SizedBox.shrink(),
+                firstPageErrorIndicatorBuilder: (context) => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(t('common_text_search_error'),
+                          style:
+                              getTextStyle(AppTypo.body16M, AppColors.grey400)),
+                      ElevatedButton(
+                        onPressed: () => _pagingController.refresh(),
+                        child: Text(t('common_retry_label')),
                       ),
                     ],
-                  );
-                }
-                return PostListItem(
-                    post: post,
-                    popupMenu: PostPopupMenu(
-                        post: post,
-                        context: context,
-                        refreshFunction: ref.refresh));
-              },
-              firstPageProgressIndicatorBuilder: (_) => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              newPageProgressIndicatorBuilder: (_) => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              noItemsFoundIndicatorBuilder: (_) => SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildNoResultsWidget(),
-                    _buildSearchHistory(),
-                  ],
-                ),
-              ),
-              noMoreItemsIndicatorBuilder: (_) => const SizedBox.shrink(),
-              firstPageErrorIndicatorBuilder: (context) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(t('common_text_search_error'),
-                        style:
-                            getTextStyle(AppTypo.body16M, AppColors.grey400)),
-                    ElevatedButton(
-                      onPressed: () => _pagingController.refresh(),
-                      child: Text(t('common_retry_label')),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
