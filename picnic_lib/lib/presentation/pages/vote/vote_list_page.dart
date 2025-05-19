@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/providers/area_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
+import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 class VoteListPage extends ConsumerStatefulWidget {
   const VoteListPage({super.key});
@@ -56,7 +56,8 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
 
   @override
   Widget build(BuildContext context) {
-    final area = ref.watch(areaProvider);
+    final setting = ref.watch(appSettingProvider);
+    final area = setting.area;
     return PageStorage(
       bucket: _pageStorageBucket,
       child: Column(

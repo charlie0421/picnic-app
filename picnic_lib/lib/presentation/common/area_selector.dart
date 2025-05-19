@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/presentation/providers/area_provider.dart';
+import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 class AreaSelector extends ConsumerWidget {
   const AreaSelector({
@@ -11,7 +11,8 @@ class AreaSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final area = ref.watch(areaProvider);
+    final setting = ref.watch(appSettingProvider);
+    final area = setting.area;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
@@ -116,7 +117,7 @@ class AreaSelector extends ConsumerWidget {
         ],
         onChanged: (String? newValue) {
           if (newValue != null) {
-            ref.read(areaProvider.notifier).setArea(newValue);
+            ref.read(appSettingProvider.notifier).setArea(newValue);
           }
         },
       ),

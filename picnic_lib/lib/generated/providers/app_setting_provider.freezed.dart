@@ -19,6 +19,7 @@ mixin _$Setting {
   ThemeMode get themeMode => throw _privateConstructorUsedError;
   bool get postAnonymousMode => throw _privateConstructorUsedError;
   String get language => throw _privateConstructorUsedError;
+  String get area => throw _privateConstructorUsedError;
 
   /// Create a copy of Setting
   /// with the given fields replaced by the non-null parameter values.
@@ -31,7 +32,11 @@ abstract class $SettingCopyWith<$Res> {
   factory $SettingCopyWith(Setting value, $Res Function(Setting) then) =
       _$SettingCopyWithImpl<$Res, Setting>;
   @useResult
-  $Res call({ThemeMode themeMode, bool postAnonymousMode, String language});
+  $Res call(
+      {ThemeMode themeMode,
+      bool postAnonymousMode,
+      String language,
+      String area});
 }
 
 /// @nodoc
@@ -52,6 +57,7 @@ class _$SettingCopyWithImpl<$Res, $Val extends Setting>
     Object? themeMode = null,
     Object? postAnonymousMode = null,
     Object? language = null,
+    Object? area = null,
   }) {
     return _then(_value.copyWith(
       themeMode: null == themeMode
@@ -66,6 +72,10 @@ class _$SettingCopyWithImpl<$Res, $Val extends Setting>
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String,
+      area: null == area
+          ? _value.area
+          : area // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -77,7 +87,11 @@ abstract class _$$SettingImplCopyWith<$Res> implements $SettingCopyWith<$Res> {
       __$$SettingImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({ThemeMode themeMode, bool postAnonymousMode, String language});
+  $Res call(
+      {ThemeMode themeMode,
+      bool postAnonymousMode,
+      String language,
+      String area});
 }
 
 /// @nodoc
@@ -96,6 +110,7 @@ class __$$SettingImplCopyWithImpl<$Res>
     Object? themeMode = null,
     Object? postAnonymousMode = null,
     Object? language = null,
+    Object? area = null,
   }) {
     return _then(_$SettingImpl(
       themeMode: null == themeMode
@@ -110,6 +125,10 @@ class __$$SettingImplCopyWithImpl<$Res>
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String,
+      area: null == area
+          ? _value.area
+          : area // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -120,7 +139,8 @@ class _$SettingImpl extends _Setting {
   const _$SettingImpl(
       {this.themeMode = ThemeMode.system,
       this.postAnonymousMode = false,
-      this.language = 'ko'})
+      this.language = 'ko',
+      this.area = ''})
       : super._();
 
   @override
@@ -132,10 +152,13 @@ class _$SettingImpl extends _Setting {
   @override
   @JsonKey()
   final String language;
+  @override
+  @JsonKey()
+  final String area;
 
   @override
   String toString() {
-    return 'Setting(themeMode: $themeMode, postAnonymousMode: $postAnonymousMode, language: $language)';
+    return 'Setting(themeMode: $themeMode, postAnonymousMode: $postAnonymousMode, language: $language, area: $area)';
   }
 
   @override
@@ -148,12 +171,13 @@ class _$SettingImpl extends _Setting {
             (identical(other.postAnonymousMode, postAnonymousMode) ||
                 other.postAnonymousMode == postAnonymousMode) &&
             (identical(other.language, language) ||
-                other.language == language));
+                other.language == language) &&
+            (identical(other.area, area) || other.area == area));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, themeMode, postAnonymousMode, language);
+      Object.hash(runtimeType, themeMode, postAnonymousMode, language, area);
 
   /// Create a copy of Setting
   /// with the given fields replaced by the non-null parameter values.
@@ -168,7 +192,8 @@ abstract class _Setting extends Setting {
   const factory _Setting(
       {final ThemeMode themeMode,
       final bool postAnonymousMode,
-      final String language}) = _$SettingImpl;
+      final String language,
+      final String area}) = _$SettingImpl;
   const _Setting._() : super._();
 
   @override
@@ -177,6 +202,8 @@ abstract class _Setting extends Setting {
   bool get postAnonymousMode;
   @override
   String get language;
+  @override
+  String get area;
 
   /// Create a copy of Setting
   /// with the given fields replaced by the non-null parameter values.
