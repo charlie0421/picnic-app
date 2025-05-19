@@ -9,6 +9,7 @@ import PopupForm from '../components/PopupForm';
 import {
   convertFormDataToPopup,
   convertPopupToFormData,
+  Popup,
 } from '@/lib/types/popup';
 import { useEffect } from 'react';
 
