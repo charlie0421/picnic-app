@@ -62,6 +62,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   bool _isSaving = false;
+  bool _isRedBackground = false; // 배경색 점멸용 변수 추가
+  bool _shouldShowAnimation = false; // 애니메이션 표시 조건 변수 추가
 
   @override
   void initState() {
@@ -100,11 +102,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
   }
 
   void _setupUpdateTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) {
-        // ignore: unused_result
-        ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
-      }
+    _updateTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted) return;
+      if (!_shouldShowAnimation) return; // 조건이 아닐 때는 점멸하지 않음
+      setState(() {
+        _isRedBackground = true;
+      });
+      ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (!mounted) return;
+        setState(() {
+          _isRedBackground = false;
+        });
+      });
     });
   }
 
@@ -242,43 +252,64 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.grey00,
-      child: ref
-          .watch(asyncVoteDetailProvider(
-              voteId: widget.voteId, votePortal: widget.votePortal))
-          .when(
-            data: (voteModel) {
-              if (voteModel == null) return const SizedBox.shrink();
-              isEnded = voteModel.isEnded!;
-              isUpcoming = voteModel.isUpcoming!;
+    return Stack(
+      children: [
+        Container(
+          color: AppColors.grey00,
+          child: ref
+              .watch(asyncVoteDetailProvider(
+                  voteId: widget.voteId, votePortal: widget.votePortal))
+              .when(
+                data: (voteModel) {
+                  if (voteModel == null) return const SizedBox.shrink();
+                  isEnded = voteModel.isEnded!;
+                  isUpcoming = voteModel.isUpcoming!;
+                  final now = DateTime.now();
+                  final stopAt = voteModel.stopAt!;
+                  final isOngoing = !isEnded && !isUpcoming;
+                  final isLessThan10MinutesLeft =
+                      stopAt.difference(now).inMinutes <= 10 &&
+                          stopAt.isAfter(now);
+                  _shouldShowAnimation = isOngoing && isLessThan10MinutesLeft;
 
-              return GestureDetector(
-                onTap: () => _focusNode.unfocus(),
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: RepaintBoundary(
-                        key: _captureKey,
-                        child: Column(
-                          children: [
-                            _buildVoteInfo(context, voteModel),
-                            SizedBox(height: 24),
-                            if (_isSaving) _buildCaptureVoteList(context),
-                          ],
+                  return GestureDetector(
+                    onTap: () => _focusNode.unfocus(),
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: RepaintBoundary(
+                            key: _captureKey,
+                            child: Column(
+                              children: [
+                                _buildVoteInfo(context, voteModel),
+                                SizedBox(height: 24),
+                                if (_isSaving) _buildCaptureVoteList(context),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                        if (!_isSaving) _buildVoteItemList(context),
+                      ],
                     ),
-                    if (!_isSaving) _buildVoteItemList(context),
-                  ],
-                ),
-              );
-            },
-            loading: () => _buildLoadingShimmer(),
-            error: (error, stackTrace) => buildErrorView(context,
-                error: error.toString(), stackTrace: stackTrace),
+                  );
+                },
+                loading: () => _buildLoadingShimmer(),
+                error: (error, stackTrace) => buildErrorView(context,
+                    error: error.toString(), stackTrace: stackTrace),
+              ),
+        ),
+        if (_shouldShowAnimation)
+          AnimatedOpacity(
+            opacity: _isRedBackground ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 300),
+            child: Container(
+              color: AppColors.primary500.withOpacity(0.18),
+              width: double.infinity,
+              height: double.infinity,
+            ),
           ),
+      ],
     );
   }
 
