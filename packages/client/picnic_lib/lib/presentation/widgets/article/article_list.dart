@@ -21,53 +21,61 @@ class ArticleList extends ConsumerStatefulWidget {
 }
 
 class _ArticleListState extends ConsumerState<ArticleList> {
-  final PagingController<int, ArticleModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, ArticleModel> _pagingController;
 
   @override
   void initState() {
     super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
-      ref
-          .watch(FetchArticleListProvider(
-                  page: pageKey,
-                  limit: 10,
-                  sort: 'id',
-                  order: 'ASC',
-                  galleryId: widget.galleryId)
-              .future)
-          .then((newItems) {
-        final isLastPage = newItems!.length < 10;
-        if (isLastPage) {
-          _pagingController.appendLastPage(newItems);
-        } else {
-          final nextPageKey = pageKey + 1;
-          _pagingController.appendPage(newItems, nextPageKey);
-        }
-      });
-    });
+    _pagingController = PagingController<int, ArticleModel>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetch,
+    );
+  }
+
+  static const _pageSize = 10;
+
+  Future<List<ArticleModel>> _fetch(int pageKey) async {
+    final newItems = await ref.watch(FetchArticleListProvider(
+            page: pageKey,
+            limit: 10,
+            sort: 'id',
+            order: 'ASC',
+            galleryId: widget.galleryId)
+        .future);
+    return newItems ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: PagedListView<int, ArticleModel>(
-        pagingController: _pagingController,
-        scrollDirection: Axis.vertical,
-        builderDelegate: PagedChildBuilderDelegate<ArticleModel>(
-            firstPageErrorIndicatorBuilder: (context) {
-              return buildErrorView(context,
-                  error: _pagingController.error.toString(),
-                  retryFunction: () => _pagingController.refresh(),
-                  stackTrace: null);
-            },
-            firstPageProgressIndicatorBuilder: (context) {
-              return buildLoadingOverlay();
-            },
-            noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
-            itemBuilder: (context, item, index) =>
-                _buildArticle(context, ref, item)),
+      child: PagingListener(
+        controller: _pagingController,
+        builder: (context, state, fetchNextPage) =>
+            PagedListView<int, ArticleModel>(
+          state: _pagingController.value,
+          fetchNextPage: _pagingController.fetchNextPage,
+          scrollDirection: Axis.vertical,
+          builderDelegate: PagedChildBuilderDelegate<ArticleModel>(
+              firstPageErrorIndicatorBuilder: (context) {
+                return buildErrorView(context,
+                    error: _pagingController.error.toString(),
+                    retryFunction: () => _pagingController.refresh(),
+                    stackTrace: null);
+              },
+              firstPageProgressIndicatorBuilder: (context) {
+                return buildLoadingOverlay();
+              },
+              noItemsFoundIndicatorBuilder: (context) =>
+                  const NoItemContainer(),
+              itemBuilder: (context, item, index) =>
+                  _buildArticle(context, ref, item)),
+        ),
       ),
     );
   }

@@ -26,8 +26,7 @@ class BoardListPage extends ConsumerStatefulWidget {
 class _BoardPageState extends ConsumerState<BoardListPage> {
   final FocusNode focusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
-  final _pagingController =
-      PagingController<int, List<BoardModel>>(firstPageKey: 0);
+  late final PagingController<int, List<BoardModel>> _pagingController;
   final _searchSubject = BehaviorSubject<String>();
 
   @override
@@ -42,12 +41,23 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
           topRightMenu: TopRightType.community);
     });
 
-    _pagingController.addPageRequestListener(_fetch);
     _textEditingController.addListener(_onSearchQueryChange);
     _searchSubject
         .debounceTime(const Duration(milliseconds: 300))
         .listen((_) => _pagingController.refresh());
+
+    _pagingController = PagingController<int, List<BoardModel>>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetch,
+    );
   }
+
+  static const _pageSize = 20;
 
   @override
   void dispose() {
@@ -63,7 +73,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
     _searchSubject.add(_textEditingController.text);
   }
 
-  Future<void> _fetch(int pageKey) async {
+  Future<List<List<BoardModel>>> _fetch(int pageKey) async {
     try {
       final newItems = await ref.read(boardsByArtistNameNotifierProvider(
               _textEditingController.text, pageKey, 10)
@@ -71,15 +81,10 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
 
       final groupedBoards = _groupBoardsByArtist(newItems ?? []);
 
-      final isLastPage = (newItems?.length ?? 0) < 10;
-      if (isLastPage) {
-        _pagingController.appendLastPage(groupedBoards);
-      } else {
-        _pagingController.appendPage(groupedBoards, pageKey + 1);
-      }
+      return groupedBoards;
     } catch (e, s) {
       logger.e('Error fetching boards', error: e, stackTrace: s);
-      _pagingController.error = e;
+      rethrow;
     }
   }
 
@@ -114,27 +119,34 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () => Future.sync(() => _pagingController.refresh()),
-                child: PagedListView<int, List<BoardModel>>(
-                  pagingController: _pagingController,
-                  builderDelegate: PagedChildBuilderDelegate<List<BoardModel>>(
-                    itemBuilder:
-                        (context, List<BoardModel> artistBoards, index) {
-                      return _buildArtistBoardGroup(artistBoards);
-                    },
-                    noItemsFoundIndicatorBuilder: (context) => NoItemContainer(
-                      message: t('common_text_no_search_result'),
-                    ),
-                    firstPageErrorIndicatorBuilder: (context) => Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(t('message_error_occurred')),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () => _pagingController.refresh(),
-                            child: Text(t('label_retry')),
-                          ),
-                        ],
+                child: PagingListener(
+                  controller: _pagingController,
+                  builder: (context, state, fetchNextPage) =>
+                      PagedListView<int, List<BoardModel>>(
+                    state: _pagingController.value,
+                    fetchNextPage: _pagingController.fetchNextPage,
+                    builderDelegate:
+                        PagedChildBuilderDelegate<List<BoardModel>>(
+                      itemBuilder:
+                          (context, List<BoardModel> artistBoards, index) {
+                        return _buildArtistBoardGroup(artistBoards);
+                      },
+                      noItemsFoundIndicatorBuilder: (context) =>
+                          NoItemContainer(
+                        message: t('common_text_no_search_result'),
+                      ),
+                      firstPageErrorIndicatorBuilder: (context) => Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(t('message_error_occurred')),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () => _pagingController.refresh(),
+                              child: Text(t('label_retry')),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

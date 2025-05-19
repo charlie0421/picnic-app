@@ -22,82 +22,108 @@ class VoteList extends ConsumerStatefulWidget {
 }
 
 class _VoteListState extends ConsumerState<VoteList> {
-  final PagingController<int, VoteModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  final List<VoteModel> _items = [];
+  bool _isLoading = true;
+  bool _isFetchingMore = false;
+  int _pageKey = 1;
   static const _pageSize = 10;
-  late PageController _pageController;
+  late final PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
-    _pagingController.addPageRequestListener(
-        (pageKey) => _fetch(pageKey, status: widget.status, area: widget.area));
+    _fetchVotes();
+  }
+
+  Future<void> _fetchVotes() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final newItems = await ref.read(asyncVoteListProvider(
+        _pageKey,
+        _pageSize,
+        'id',
+        'DESC',
+        widget.area,
+        status: widget.status,
+        category: widget.category,
+      ).future);
+
+      setState(() {
+        _items.addAll(newItems);
+        _isLoading = false;
+        _isFetchingMore = false;
+        if (newItems.isNotEmpty) {
+          _pageKey++;
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _isFetchingMore = false;
+      });
+    }
+  }
+
+  void _onPageChanged(int index) {
+    // 마지막 아이템에 도달하면 추가 fetch
+    if (!_isFetchingMore && index == _items.length - 1) {
+      setState(() {
+        _isFetchingMore = true;
+      });
+      _fetchVotes();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading && _items.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_items.isEmpty) {
+      return VoteNoItem(status: widget.status, context: context);
+    }
+    return Stack(
+      children: [
+        PageView.builder(
+          controller: _pageController,
+          scrollDirection: Axis.vertical,
+          itemCount: _items.length,
+          onPageChanged: _onPageChanged,
+          itemBuilder: (context, index) {
+            final item = _items[index];
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                VoteInfoCard(
+                  context: context,
+                  vote: item,
+                  status: widget.status,
+                ),
+                BannerAdWidget(
+                  configKey: 'VOTE_DETAIL',
+                  adSize: AdSize.largeBanner,
+                ),
+              ],
+            );
+          },
+        ),
+        if (_isFetchingMore)
+          const Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      ],
+    );
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    _pagingController.dispose();
     super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PagedPageView<int, VoteModel>(
-      pagingController: _pagingController,
-      scrollDirection: Axis.vertical,
-      physics: const AlwaysScrollableScrollPhysics(),
-      pageController: _pageController,
-      builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-        firstPageErrorIndicatorBuilder: (context) => buildErrorView(
-          context,
-          error: _pagingController.error.toString(),
-          retryFunction: () => _pagingController.refresh(),
-          stackTrace: _pagingController.error.stackTrace,
-        ),
-        noItemsFoundIndicatorBuilder: (context) =>
-            VoteNoItem(status: widget.status, context: context),
-        itemBuilder: (context, item, index) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              VoteInfoCard(
-                context: context,
-                vote: item,
-                status: widget.status,
-              ),
-              BannerAdWidget(
-                  configKey: 'VOTE_DETAIL', adSize: AdSize.largeBanner),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _fetch(int pageKey,
-      {required VoteStatus status, required String area}) async {
-    try {
-      final newItems = await ref.read(asyncVoteListProvider(
-        pageKey,
-        _pageSize,
-        'id',
-        'DESC',
-        area,
-        status: status,
-        category: VoteCategory.all,
-      ).future);
-
-      final isLastPage = newItems.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        _pagingController.appendPage(newItems, pageKey + 1);
-      }
-    } catch (e, s) {
-      _pagingController.error = e;
-      logger.e('error', error: e, stackTrace: s);
-    }
   }
 }

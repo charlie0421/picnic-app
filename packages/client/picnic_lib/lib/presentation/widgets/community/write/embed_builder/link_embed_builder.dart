@@ -7,6 +7,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:picnic_lib/core/services/link_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/deletable_embed_builder.dart';
+import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LinkEmbedBuilder extends EmbedBuilder {
@@ -14,10 +15,14 @@ class LinkEmbedBuilder extends EmbedBuilder {
   String get key => 'link';
 
   @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle textStyle) {
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    final node = embedContext.node;
+    final readOnly = embedContext.readOnly;
     return readOnly
-        ? _ReadOnlyLinkPreviewWidget(node: node, textStyle: textStyle)
+        ? _ReadOnlyLinkPreviewWidget(
+            node: node,
+            textStyle: const TextStyle(fontSize: 14),
+          )
         : _EditableLinkPreviewWidget(node: node);
   }
 }
@@ -27,8 +32,8 @@ class EditableLinkEmbedBuilder extends EmbedBuilder {
   String get key => 'link';
 
   @override
-  Widget build(BuildContext context, QuillController controller, Embed node,
-      bool readOnly, bool inline, TextStyle textStyle) {
+  Widget build(BuildContext context, EmbedContext embedContext) {
+    final node = embedContext.node;
     return _EditableLinkPreviewWidget(node: node);
   }
 }
@@ -433,10 +438,10 @@ class _EditableLinkPreviewWidgetState
                             const SizedBox(height: 4),
                             Text(
                               description ?? 'No description available',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 height: 1.3,
-                                color: Colors.grey[700],
+                                color: AppColors.grey700,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,

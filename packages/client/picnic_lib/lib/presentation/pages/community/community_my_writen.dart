@@ -20,8 +20,7 @@ class CommunityMyWriten extends ConsumerStatefulWidget {
 
 class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
     with SingleTickerProviderStateMixin {
-  late final PagingController<int, PostModel> _pagingController =
-      PagingController(firstPageKey: 1);
+  late final PagingController<int, PostModel> _pagingController;
 
   @override
   void initState() {
@@ -35,38 +34,48 @@ class _CommunityMyWritenState extends ConsumerState<CommunityMyWriten>
           pageTitle: t('post_my_written_post'));
     });
 
-    _pagingController.addPageRequestListener((pageKey) async {
-      final newItems =
-          await postsByUser(pageKey, supabase.auth.currentUser!.id, 10, 1);
-      final isLastPage = newItems.length < 10;
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + newItems.length;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    });
+    _pagingController = PagingController<int, PostModel>(
+      getNextPageKey: (state) {
+        if (state.items == null) return 1;
+        final isLastPage = state.items!.length < _pageSize;
+        if (isLastPage) return null;
+        return (state.keys?.last ?? 0) + 1;
+      },
+      fetchPage: _fetchPage,
+    );
+  }
+
+  static const _pageSize = 20;
+
+  Future<List<PostModel>> _fetchPage(int pageKey) async {
+    final newItems =
+        await postsByUser(pageKey, supabase.auth.currentUser!.id, 10, 1);
+    return newItems;
   }
 
   @override
   Widget build(BuildContext context) {
-    return PagedListView<int, PostModel>(
-        pagingController: _pagingController,
-        builderDelegate: PagedChildBuilderDelegate<PostModel>(
-          itemBuilder: (context, item, index) {
-            return PostListItem(
-              post: item,
-              popupMenu: PostPopupMenu(
-                  post: item,
-                  context: context,
-                  deletePost: (PostModel post) async {
-                    await deletePost(ref, post.postId);
-                    _pagingController.refresh();
-                  },
-                  refreshFunction: () => _pagingController.refresh()),
-            );
-          },
-          noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
-        ));
+    return PagingListener(
+      controller: _pagingController,
+      builder: (context, state, fetchNextPage) => PagedListView<int, PostModel>(
+          state: _pagingController.value,
+          fetchNextPage: _pagingController.fetchNextPage,
+          builderDelegate: PagedChildBuilderDelegate<PostModel>(
+            itemBuilder: (context, item, index) {
+              return PostListItem(
+                post: item,
+                popupMenu: PostPopupMenu(
+                    post: item,
+                    context: context,
+                    deletePost: (PostModel post) async {
+                      await deletePost(ref, post.postId);
+                      _pagingController.refresh();
+                    },
+                    refreshFunction: () => _pagingController.refresh()),
+              );
+            },
+            noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
+          )),
+    );
   }
 }
