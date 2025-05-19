@@ -4,8 +4,6 @@ import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
@@ -15,7 +13,6 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
@@ -35,6 +32,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
@@ -312,17 +310,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
           ),
         ),
-        if (!_isSaving) ...[
-          const SizedBox(height: 8),
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: BannerAdWidget(
-              configKey: 'VOTE_DETAIL',
-              adSize: AdSize.largeBanner,
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
         if (voteModel.reward != null && widget.votePortal == VotePortal.vote)
           Column(
             children: [
@@ -362,74 +349,89 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
   Widget _buildVoteItemList(BuildContext context) {
     final searchQuery = ref.watch(searchQueryProvider);
-    return Consumer(
-      builder: (context, ref, _) {
-        return ref
-            .watch(asyncVoteItemListProvider(
-                voteId: widget.voteId, votePortal: widget.votePortal))
-            .when(
-              data: (data) {
-                _updateRanks(data);
-                final filteredIndices =
-                    _getFilteredIndices([data, searchQuery]);
+    final dataAsync = ref.watch(asyncVoteItemListProvider(
+        voteId: widget.voteId, votePortal: widget.votePortal));
 
-                return SliverToBoxAdapter(
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        margin:
-                            EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppColors.primary500, width: 1.r),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(70.r),
-                            topRight: Radius.circular(70.r),
-                            bottomLeft: Radius.circular(40.r),
-                            bottomRight: Radius.circular(40.r),
-                          ),
-                        ),
-                        child: Padding(
-                          padding:
-                              EdgeInsets.only(top: 56, left: 16.w, right: 16.w)
-                                  .r,
-                          child: filteredIndices.isEmpty &&
-                                  searchQuery.isNotEmpty
-                              ? SizedBox(
-                                  height: 200,
-                                  child: Center(
-                                    child: Text(t('text_no_search_result')),
-                                  ),
-                                )
-                              : ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: filteredIndices.length,
-                                  itemBuilder: (context, index) {
-                                    final itemIndex = filteredIndices[index];
-                                    final item = data[itemIndex]!;
-                                    return Padding(
-                                      padding: EdgeInsets.only(bottom: 36),
-                                      child: _buildVoteItem(
-                                          context, item, itemIndex),
-                                    );
-                                  },
-                                ),
-                        ),
-                      ),
-                      _buildSearchBox(),
-                    ],
+    return dataAsync.when(
+      data: (data) {
+        _updateRanks(data);
+        final filteredIndices = _getFilteredIndices([data, searchQuery]);
+        return SliverToBoxAdapter(
+          child: Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.primary500, width: 1.r),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(70.r),
+                    topRight: Radius.circular(70.r),
+                    bottomLeft: Radius.circular(40.r),
+                    bottomRight: Radius.circular(40.r),
                   ),
-                );
-              },
-              loading: () => SliverToBoxAdapter(child: _buildLoadingShimmer()),
-              error: (error, stackTrace) => SliverToBoxAdapter(
-                child: buildErrorView(context,
-                    error: error.toString(), stackTrace: stackTrace),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(top: 56, left: 16.w, right: 16.w).r,
+                  child: filteredIndices.isEmpty && searchQuery.isNotEmpty
+                      ? SizedBox(
+                          height: 200,
+                          child: Center(
+                            child: Text(t('text_no_search_result')),
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: filteredIndices.length,
+                          itemBuilder: (context, index) {
+                            final itemIndex = filteredIndices[index];
+                            final item = data[itemIndex]!;
+                            final previousVoteCount =
+                                _previousVoteCounts[item.id] ?? item.voteTotal;
+                            final voteCountDiff =
+                                item.voteTotal! - previousVoteCount!;
+                            final actualRank = _currentRanks[item.id] ?? 1;
+                            final previousRank =
+                                _previousRanks[item.id] ?? actualRank;
+                            final rankChanged = previousRank != actualRank;
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _previousVoteCounts[item.id] = item.voteTotal!;
+                              _previousRanks[item.id] = actualRank;
+                            });
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 36),
+                              child: VoteItemWidget(
+                                item: item,
+                                index: itemIndex,
+                                actualRank: actualRank,
+                                voteCountDiff: voteCountDiff,
+                                rankChanged: rankChanged,
+                                rankUp: previousRank > actualRank,
+                                isEnded: isEnded,
+                                isSaving: _isSaving,
+                                onTap: () => _handleVoteItemTap(
+                                    context, item, itemIndex),
+                                artistImage: _buildArtistImage(item, itemIndex),
+                                voteCountContainer: _buildVoteCountContainer(
+                                    item, voteCountDiff),
+                                rankText: _buildRankText(actualRank, item),
+                              ),
+                            );
+                          },
+                        ),
+                ),
               ),
-            );
+              _buildSearchBox(),
+            ],
+          ),
+        );
       },
+      loading: () => SliverToBoxAdapter(child: _buildLoadingShimmer()),
+      error: (error, stackTrace) => SliverToBoxAdapter(
+        child: buildErrorView(context,
+            error: error.toString(), stackTrace: stackTrace),
+      ),
     );
   }
 
@@ -456,7 +458,23 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
                         for (int i = 0; i < 3 && i < data.length; i++)
                           Padding(
                             padding: EdgeInsets.only(bottom: i < 2 ? 36 : 16),
-                            child: _buildVoteItem(context, data[i]!, i),
+                            child: VoteItemWidget(
+                              item: data[i]!,
+                              index: i,
+                              actualRank: _currentRanks[data[i]!.id] ?? 1,
+                              voteCountDiff: 0,
+                              rankChanged: false,
+                              rankUp: false,
+                              isEnded: isEnded,
+                              isSaving: _isSaving,
+                              onTap: () =>
+                                  _handleVoteItemTap(context, data[i]!, i),
+                              artistImage: _buildArtistImage(data[i]!, i),
+                              voteCountContainer:
+                                  _buildVoteCountContainer(data[i]!, 0),
+                              rankText: _buildRankText(
+                                  _currentRanks[data[i]!.id] ?? 1, data[i]!),
+                            ),
                           ),
                       ],
                     ),
@@ -467,118 +485,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
               error: (_, __) => const SizedBox.shrink(),
             );
       },
-    );
-  }
-
-  Widget _buildVoteItem(BuildContext context, VoteItemModel item, int index) {
-    return RepaintBoundary(
-      child: Consumer(
-        builder: (context, ref, _) {
-          final previousVoteCount =
-              _previousVoteCounts[item.id] ?? item.voteTotal;
-          final voteCountDiff = item.voteTotal! - previousVoteCount!;
-          final actualRank = _currentRanks[item.id] ?? 1;
-          final previousRank = _previousRanks[item.id] ?? actualRank;
-          final rankChanged = previousRank != actualRank;
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _previousVoteCounts[item.id] = item.voteTotal!;
-            _previousRanks[item.id] = actualRank;
-          });
-
-          return Container(
-            decoration: BoxDecoration(
-              color: rankChanged
-                  ? AppColors.primary500.withValues(alpha: 0.3)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _handleVoteItemTap(context, item, index),
-              child: SizedBox(
-                height: 45,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 39,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (actualRank <= 3)
-                            SvgPicture.asset(
-                              package: 'picnic_lib',
-                              'assets/icons/vote/crown$actualRank.svg',
-                            ),
-                          Text(
-                            _buildRankText(actualRank, item),
-                            style: getTextStyle(
-                                AppTypo.caption12B, AppColors.point900),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    _buildArtistImage(item, index),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          RichText(
-                            overflow: TextOverflow.ellipsis,
-                            text: TextSpan(
-                                children: item.artist.id != 0
-                                    ? [
-                                        TextSpan(
-                                          text: getLocaleTextFromJson(
-                                              item.artist.name),
-                                          style: getTextStyle(AppTypo.body14B,
-                                              AppColors.grey900),
-                                        ),
-                                        const TextSpan(text: ' '),
-                                        TextSpan(
-                                          text: item.artist.artistGroup != null
-                                              ? getLocaleTextFromJson(
-                                                  item.artist.artistGroup!.name)
-                                              : '',
-                                          style: getTextStyle(
-                                              AppTypo.caption10SB,
-                                              AppColors.grey600),
-                                        ),
-                                      ]
-                                    : [
-                                        TextSpan(
-                                          text: getLocaleTextFromJson(
-                                              item.artistGroup.name),
-                                          style: getTextStyle(AppTypo.body14B,
-                                              AppColors.grey900),
-                                        ),
-                                      ]),
-                          ),
-                          _buildVoteCountContainer(item, voteCountDiff),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 16.w),
-                    if (!isEnded && !_isSaving)
-                      SizedBox(
-                        width: 24.w,
-                        height: 24,
-                        child: SvgPicture.asset(
-                            package: 'picnic_lib',
-                            'assets/icons/star_candy_icon.svg'),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 

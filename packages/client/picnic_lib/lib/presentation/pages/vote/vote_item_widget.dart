@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/l10n.dart';
 
@@ -12,6 +11,7 @@ class VoteItemWidget extends StatelessWidget {
   final int actualRank;
   final int voteCountDiff;
   final bool rankChanged;
+  final bool rankUp;
   final bool isEnded;
   final bool isSaving;
   final VoidCallback onTap;
@@ -26,6 +26,7 @@ class VoteItemWidget extends StatelessWidget {
     required this.actualRank,
     required this.voteCountDiff,
     required this.rankChanged,
+    required this.rankUp,
     required this.isEnded,
     required this.isSaving,
     required this.onTap,
@@ -37,10 +38,14 @@ class VoteItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
         decoration: BoxDecoration(
           color: rankChanged
-              ? AppColors.primary500.withValues(alpha: 0.3)
+              ? (rankUp
+                  ? Colors.blue.withOpacity(0.18)
+                  : Colors.red.withOpacity(0.18))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8.r),
         ),
