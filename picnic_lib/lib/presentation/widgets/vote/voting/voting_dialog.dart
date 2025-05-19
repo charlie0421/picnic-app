@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:math' as math;
 
-import 'package:animated_digit/animated_digit.dart';
 import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +12,6 @@ import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -32,27 +29,16 @@ Future showVotingDialog({
   required VoteItemModel voteItemModel,
   VotePortal portalType = VotePortal.vote,
 }) {
-  return Navigator.of(context).push(
-    PageRouteBuilder(
-      opaque: false,
-      barrierDismissible: true,
-      pageBuilder: (BuildContext context, _, __) {
-        return VotingDialog(
-          voteModel: voteModel,
-          voteItemModel: voteItemModel,
-          portalType: portalType,
-        );
-      },
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(0.0, 0.1);
-        const end = Offset.zero;
-        const curve = Curves.easeOut;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
-        return SlideTransition(position: offsetAnimation, child: child);
-      },
-    ),
+  return showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (context) {
+      return VotingDialog(
+        voteModel: voteModel,
+        voteItemModel: voteItemModel,
+        portalType: portalType,
+      );
+    },
   );
 }
 
@@ -127,87 +113,32 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final userId =
         ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
 
-    // 키보드 높이 계산
-    final mediaQuery = MediaQuery.of(context);
-    final keyboardHeight = mediaQuery.viewInsets.bottom;
-    final screenHeight = mediaQuery.size.height;
-    final isKeyboardOpen = keyboardHeight > 0;
-
-    // 작은 화면에 대한 조정: 화면이 작을수록 더 많이 올라가도록 함
-    final screenSizeRatio = math.min(1.0, screenHeight / 700);
-    final offsetY = isKeyboardOpen
-        ? -keyboardHeight * (0.5 + (1 - screenSizeRatio) * 0.3)
-        : 0.0;
-
-    return Material(
-      color: Colors.black54,
-      child: SafeArea(
-        bottom: false,
-        child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-          },
-          behavior: HitTestBehavior.opaque,
-          child: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              // 스크롤 상태를 감지하여 필요시 추가 작업 수행
-              return false;
-            },
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 100),
-                  curve: Curves.easeOutQuint,
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Center(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      transform: Matrix4.translationValues(0, offsetY, 0),
-                      constraints: BoxConstraints(
-                        maxHeight: isKeyboardOpen
-                            ? screenHeight - keyboardHeight * 0.8
-                            : screenHeight * 0.9,
-                      ),
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: LargePopupWidget(
-                            content: Container(
-                              padding: EdgeInsets.only(
-                                  top: 32, bottom: 24, left: 24.w, right: 24.w),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const SizedBox(height: 8),
-                                  _buildMemberInfo(),
-                                  _buildStarCandyInfo(myStarCandy),
-                                  const SizedBox(height: 8),
-                                  _buildCheckAllOption(),
-                                  const SizedBox(height: 8),
-                                  _buildVoteAmountInput(context),
-                                  const SizedBox(height: 8),
-                                  _buildErrorMessage(),
-                                  _buildBubble(),
-                                  const SizedBox(height: 9),
-                                  _buildVoteButton(myStarCandy, userId),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+    return AlertDialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
+      contentPadding: EdgeInsets.zero,
+      content: LargePopupWidget(
+        showCloseButton: false,
+        content: Container(
+          padding:
+              EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 8),
+              _buildMemberInfo(),
+              _buildStarCandyInfo(myStarCandy),
+              const SizedBox(height: 8),
+              _buildCheckAllOption(),
+              const SizedBox(height: 8),
+              _buildVoteAmountInput(context),
+              const SizedBox(height: 8),
+              _buildErrorMessage(),
+              _buildBubble(),
+              const SizedBox(height: 9),
+              _buildVoteButton(myStarCandy, userId),
+            ],
           ),
         ),
       ),
@@ -361,24 +292,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   Widget _buildMemberInfo() {
     return Column(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(120),
-            border: Border.all(color: AppColors.primary500, width: 1.5.r),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(120),
-            child: PicnicCachedNetworkImage(
-              imageUrl: (widget.voteItemModel.artist.id != 0
-                      ? widget.voteItemModel.artist.image
-                      : widget.voteItemModel.artistGroup.image) ??
-                  '',
-              width: 100,
-              height: 100,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
         SizedBox(
           height: 24,
           child: Row(
@@ -429,18 +342,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             child: Container(
               height: 26,
               alignment: Alignment.topLeft,
-              child: AnimatedDigitWidget(
-                autoSize: false,
-                animateAutoSize: false,
-                value: myStarCandy,
-                duration: const Duration(milliseconds: 500),
-                enableSeparator: true,
-                curve: Curves.easeInOut,
-                textStyle: TextStyle(
-                  fontSize: 16.w,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary500,
-                ),
+              child: Text(
+                myStarCandy.toString(),
+                style: getTextStyle(AppTypo.body16B, AppColors.primary500),
               ),
             ),
           ),
