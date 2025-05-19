@@ -15,7 +15,6 @@ import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
-import 'package:picnic_lib/presentation/providers/area_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -24,6 +23,7 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 class VoteHomePage extends ConsumerStatefulWidget {
   const VoteHomePage({super.key});
@@ -60,7 +60,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final area = ref.watch(areaProvider);
+    final setting = ref.watch(appSettingProvider);
+    final area = setting.area;
 
     if (_lastArea != area) {
       _lastArea = area;
@@ -241,7 +242,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   }
 
   Future<List<VoteModel>> _fetch(int pageKey) async {
-    final area = ref.watch(areaProvider);
+    final setting = ref.watch(appSettingProvider);
+    final area = setting.area;
     try {
       final newItems = await ref.watch(asyncVoteListProvider(
         pageKey,

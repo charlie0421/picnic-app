@@ -13,7 +13,6 @@ import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_detail_page.dart';
-import 'package:picnic_lib/presentation/providers/area_provider.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/gallery_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -25,6 +24,7 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 import '../../providers/celeb_list_provider.dart';
+import '../../providers/app_setting_provider.dart';
 
 class PicHomePage extends ConsumerStatefulWidget {
   const PicHomePage({super.key});
@@ -52,7 +52,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
   }
 
   Future<List<VoteModel>> _fetch(int pageKey) async {
-    final area = ref.watch(areaProvider);
+    final setting = ref.read(appSettingProvider);
+    final area = setting.area;
     logger.i('area: $area');
     try {
       final newItems = await ref.read(asyncVoteListProvider(
