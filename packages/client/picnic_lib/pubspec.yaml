@@ -112,6 +112,8 @@ dev_dependencies:
   change_app_package_name: ^1.4.0
   freezed: ^2.5.7
   intl_translation: ^0.20.1
+  delete_un_used_assets: ^1.0.1
+  flutter_assets_cleaner: ^0.0.9
 
 flutter_intl:
   enabled: true
