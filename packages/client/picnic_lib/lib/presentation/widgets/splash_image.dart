@@ -6,6 +6,7 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:restart/restart.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
@@ -51,33 +52,34 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
   }
 
   Future<void> _checkForUpdates() async {
-    if (UniversalPlatform.isWeb) return;
-
     setState(() {
       _isCheckingUpdate = true;
-      _updateStatus = 'Checking for patches...';
+      _updateStatus = t('patch_check');
     });
+    await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      // 업데이트 체크 및 적용
-      setState(() {
-        _updateStatus = 'Checking for patches...';
-      });
       final status = await updater.checkForUpdate();
-
       if (status == shorebird.UpdateStatus.outdated) {
         setState(() {
-          _updateStatus = 'Installing patch...';
+          _updateStatus = t('patch_install');
         });
+        await Future.delayed(const Duration(milliseconds: 500));
+
         await ShorebirdUtils.checkAndUpdate();
         setState(() {
-          _updateStatus = '';
+          _updateStatus = t('patch_restart_app');
         });
+
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        restart();
       } else if (status == shorebird.UpdateStatus.restartRequired) {
         setState(() {
-          _updateStatus = 'Restarting app...';
+          _updateStatus = t('patch_restart_app');
         });
-        // 앱 재시작 로직 추가
+        await Future.delayed(const Duration(milliseconds: 500));
+        restart();
       } else {
         setState(() {
           _updateStatus = '';
@@ -86,7 +88,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     } catch (e) {
       logger.e('패치 체크 중 오류 발생: $e');
       setState(() {
-        _updateStatus = 'Patch failed...';
+        _updateStatus = t('patch_error');
       });
     } finally {
       setState(() {
