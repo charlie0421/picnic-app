@@ -413,7 +413,9 @@ class _MyPageState extends ConsumerState<MyPage> {
                     // 언어 변경 및 앱 재시작
                     ref.read(appSettingProvider.notifier).setLanguage(langCode);
                     PicnicLibL10n.setCurrentLocale(langCode);
-                    Phoenix.rebirth(context);
+                    if (context.mounted) {
+                      Phoenix.rebirth(context);
+                    }
                     logger.i('⭐ 언어 변경 완료: $langCode');
                   });
                 }
@@ -424,7 +426,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       alignment: Alignment.center,
-                      child: Text('언어 선택',
+                      child: Text(t('title_select_language'),
                           style:
                               getTextStyle(AppTypo.body16B, AppColors.grey900)),
                     ),
