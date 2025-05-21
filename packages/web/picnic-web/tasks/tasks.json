@@ -799,7 +799,8 @@
       "description": "현재 지원 중인 소셜 로그인 기능을 확장하여 Google, Apple, Kakao, WeChat 로그인을 모두 지원하도록 통합 구현하는 작업입니다. 이 작업은 Supabase 클라이언트 구조 개선 작업(ID 2)에 의존성을 가집니다.",
       "status": "pending",
       "dependencies": [
-        "2"
+        "2",
+        "17"
       ],
       "priority": "high",
       "details": "이 작업은 다음 단계로 진행됩니다:\n\n1. **현재 구현 상태 분석**:\n   - 기존 소셜 로그인 구현 코드 검토\n   - 현재 지원 중인 플랫폼과 미지원 플랫폼 식별\n   - Supabase 클라이언트 구조와의 통합 지점 파악\n\n2. **각 플랫폼별 OAuth 설정**:\n   - Google OAuth 클라이언트 설정 및 API 키 발급\n   - Apple Sign-In 개발자 계정 설정 및 인증서 생성\n   - Kakao 개발자 계정 설정 및 앱 등록\n   - WeChat 개발자 계정 설정 및 앱 ID 발급\n   - 각 플랫폼의 콜백 URL 설정 및 권한 범위 정의\n\n3. **인증 흐름 구현**:\n   - 각 플랫폼별 로그인 버튼 UI 구현\n   - OAuth 인증 요청 처리 로직 구현\n   - 콜백 처리 및 토큰 교환 로직 구현\n   - 사용자 프로필 정보 가져오기 및 저장 로직 구현\n   - 토큰 갱신 및 세션 관리 로직 구현\n\n4. **사용자 데이터 통합**:\n   - 각 플랫폼에서 가져온 사용자 정보 표준화\n   - 기존 계정과의 연동 처리 (이메일 중복 확인 등)\n   - 사용자 프로필 정보 업데이트 로직 구현\n\n5. **에러 처리 및 예외 상황 관리**:\n   - 인증 실패 시나리오 처리\n   - 네트워크 오류 처리\n   - 토큰 만료 및 갱신 실패 처리\n   - 사용자 취소 처리\n\n6. **보안 고려사항**:\n   - 토큰 저장 방식 보안 검토\n   - CSRF 방지 대책 구현\n   - 민감 정보 처리 방식 검토\n\n7. **성능 최적화**:\n   - 로그인 프로세스 지연 시간 최소화\n   - 필요한 사용자 정보만 요청하도록 스코프 최적화\n\n모든 구현은 Supabase 클라이언트 구조와 통합되어야 하며, 기존 인증 시스템과 원활하게 작동해야 합니다.",
@@ -882,6 +883,72 @@
           "details": "1. 모든 인증 실패 시나리오에 대한 통합 오류 처리 구현\n2. CSRF 방지 및 상태 토큰 검증 로직 구현\n3. 토큰 저장소 보안 강화 (암호화 저장, 안전한 접근 방식)\n4. 로그인 프로세스 성능 측정 및 최적화\n5. 사용자 경험 개선을 위한 로딩 상태 및 오류 메시지 표시 구현\n6. 모든 소셜 로그인 통합 테스트 및 문서화",
           "status": "pending",
           "testStrategy": "보안 취약점 테스트, 오류 주입 테스트, 성능 벤치마킹, 다양한 네트워크 환경에서의 테스트"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "title": "AuthProvider 통합 및 인증 시스템 일관성 확보",
+      "description": "두 개의 AuthProvider(contexts/AuthContext.tsx와 lib/supabase/auth-provider.tsx)를 통합하거나 하나를 선택하여 일관된 인증 시스템을 구축하고, 모든 컴포넌트가 동일한 AuthProvider를 사용하도록 업데이트하는 작업입니다.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "현재 애플리케이션에서는 두 개의 AuthProvider가 동시에 사용되고 있어 'useAuth must be used within an AuthProvider' 오류가 발생하고 있습니다:\n1. contexts/AuthContext.tsx의 기존 AuthProvider\n2. lib/supabase/auth-provider.tsx의 새 AuthProvider\n\n문제 상황:\n- app/[lang]/layout.tsx에서는 새 AuthProvider를 사용\n- components/layouts/Header.tsx에서는 기존 AuthProvider의 useAuth 훅을 사용\n\n해결 방안:\n1. 두 AuthProvider의 기능을 비교 분석하여 통합 가능성 평가\n2. 가능하면 하나의 통합된 AuthProvider 구현 (Supabase 기반 권장)\n3. 통합이 어렵다면 하나의 AuthProvider를 선택하고 다른 하나는 제거\n4. 선택된 AuthProvider를 사용하도록 모든 컴포넌트 업데이트\n5. 특히 components/layouts/Header.tsx의 useAuth 호출 부분 수정\n6. app/[lang]/layout.tsx에서 올바른 AuthProvider 사용 확인\n\n구현 시 고려사항:\n- 인증 상태 관리 일관성 유지\n- 로그인/로그아웃 기능 정상 작동 확인\n- 사용자 정보 접근 방식 통일\n- 소셜 로그인 확장 작업(#16)과의 호환성 확보\n- 기존 인증 관련 기능 손실 없이 마이그레이션\n\n우선순위: 높음(high)\n의존성: 소셜 로그인 기능 확장 작업(#16)의 선행 작업으로 지정",
+      "testStrategy": "1. 코드 리뷰:\n   - 두 AuthProvider 중 하나가 제거되었거나 통합되었는지 확인\n   - 모든 컴포넌트가 동일한 AuthProvider를 참조하는지 검증\n   - 불필요한 코드가 제거되었는지 확인\n\n2. 기능 테스트:\n   - 로그인 프로세스 테스트 (이메일/비밀번호, 소셜 로그인)\n   - 로그아웃 기능 테스트\n   - 인증된 사용자만 접근 가능한 페이지 테스트\n   - 인증 상태 유지 및 새로고침 후 상태 복원 테스트\n\n3. 오류 테스트:\n   - 'useAuth must be used within an AuthProvider' 오류가 더 이상 발생하지 않는지 확인\n   - 콘솔에 인증 관련 오류가 없는지 확인\n   - 개발자 도구의 React DevTools를 사용하여 컴포넌트 트리에서 AuthProvider가 올바르게 구성되었는지 확인\n\n4. 통합 테스트:\n   - Header 컴포넌트가 인증 상태를 올바르게 표시하는지 확인\n   - 인증이 필요한 다른 컴포넌트들이 정상 작동하는지 확인\n   - 소셜 로그인 기능과의 호환성 테스트\n\n5. 성능 테스트:\n   - 인증 관련 작업 수행 시 불필요한 리렌더링이 발생하지 않는지 확인\n   - 인증 상태 변경 시 애플리케이션 반응 속도 측정",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "분석: 두 AuthProvider 코드 비교 및 통합 전략 수립",
+          "description": "contexts/AuthContext.tsx와 lib/supabase/auth-provider.tsx의 코드를 분석하여 기능, 인터페이스, 의존성을 비교하고 통합 전략을 수립합니다.",
+          "dependencies": [],
+          "details": "1. 두 AuthProvider의 상태 관리 방식 비교\n2. 제공하는 메서드와 훅 인터페이스 분석\n3. Supabase 연동 방식 차이점 파악\n4. 각 Provider가 사용되는 컴포넌트 목록 작성\n5. 통합 또는 대체 전략 문서화(Supabase 기반 권장)\n6. 마이그레이션 계획 수립",
+          "status": "pending",
+          "testStrategy": "코드 분석 결과와 통합 전략을 문서화하여 리뷰"
+        },
+        {
+          "id": 2,
+          "title": "통합 AuthProvider 인터페이스 설계 및 구현",
+          "description": "분석 결과를 바탕으로 통합된 AuthProvider를 설계하고 구현합니다. Supabase 기반으로 기존 기능을 모두 지원하는 단일 AuthProvider를 개발합니다.",
+          "dependencies": [
+            1
+          ],
+          "details": "1. lib/supabase/auth-provider.tsx를 기반으로 통합 AuthProvider 구현\n2. contexts/AuthContext.tsx의 필수 기능 통합\n3. useAuth 훅 인터페이스 일관성 유지\n4. 사용자 인증 상태, 로그인/로그아웃, 사용자 정보 접근 메서드 구현\n5. 타입 정의 업데이트\n6. 소셜 로그인 확장성 고려",
+          "status": "pending",
+          "testStrategy": "단위 테스트로 AuthProvider의 주요 기능 검증, 특히 로그인/로그아웃 및 상태 관리 테스트"
+        },
+        {
+          "id": 3,
+          "title": "레이아웃 컴포넌트 마이그레이션",
+          "description": "app/[lang]/layout.tsx와 components/layouts/Header.tsx 등 레이아웃 관련 컴포넌트를 통합된 AuthProvider를 사용하도록 업데이트합니다.",
+          "dependencies": [
+            2
+          ],
+          "details": "1. app/[lang]/layout.tsx에서 AuthProvider 사용 방식 업데이트\n2. components/layouts/Header.tsx의 useAuth 호출 수정\n3. 레이아웃 관련 다른 컴포넌트 확인 및 업데이트\n4. 인증 상태에 따른 UI 렌더링 로직 검증\n5. 네비게이션 및 권한 관련 로직 업데이트",
+          "status": "pending",
+          "testStrategy": "개발 환경에서 레이아웃 컴포넌트의 렌더링 및 인증 상태 반영 테스트"
+        },
+        {
+          "id": 4,
+          "title": "인증 관련 기능 컴포넌트 마이그레이션",
+          "description": "로그인, 회원가입, 프로필 등 인증 관련 기능을 사용하는 모든 컴포넌트를 통합된 AuthProvider를 사용하도록 업데이트합니다.",
+          "dependencies": [
+            2
+          ],
+          "details": "1. 로그인/회원가입 폼 컴포넌트 업데이트\n2. 프로필 관리 컴포넌트 업데이트\n3. 인증이 필요한 페이지 및 컴포넌트 식별 및 수정\n4. 권한 검사 로직 업데이트\n5. 리다이렉션 로직 검증\n6. 에러 처리 및 사용자 피드백 메커니즘 확인",
+          "status": "pending",
+          "testStrategy": "주요 인증 플로우(로그인, 로그아웃, 회원가입, 권한 검사)에 대한 통합 테스트"
+        },
+        {
+          "id": 5,
+          "title": "테스트, 정리 및 문서화",
+          "description": "통합된 인증 시스템을 전체적으로 테스트하고, 불필요한 코드를 제거하며, 변경사항을 문서화합니다.",
+          "dependencies": [
+            3,
+            4
+          ],
+          "details": "1. 전체 인증 플로우 테스트(로그인, 로그아웃, 세션 유지 등)\n2. 사용하지 않는 AuthProvider 코드 제거(contexts/AuthContext.tsx)\n3. 불필요한 import 및 의존성 정리\n4. 인증 관련 에러 메시지 확인 및 개선\n5. README 또는 개발 문서 업데이트\n6. 소셜 로그인 확장 작업(#16)과의 호환성 최종 확인",
+          "status": "pending",
+          "testStrategy": "다양한 브라우저 환경에서 E2E 테스트 수행, 특히 인증 상태 유지 및 페이지 새로고침 시나리오 검증"
         }
       ]
     }
