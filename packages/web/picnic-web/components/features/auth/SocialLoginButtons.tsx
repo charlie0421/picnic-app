@@ -1,78 +1,52 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/lib/supabase/auth-provider';
 import { useLanguageStore } from '@/stores/languageStore';
-
-type SocialLoginProvider = 'google' | 'apple' | 'kakao' | 'wechat';
+import { getSocialAuthService } from '@/lib/supabase/social';
+import type { SocialLoginProvider } from '@/lib/supabase/social/types';
 
 interface SocialLoginButtonsProps {
-  onSuccess?: () => void;
+  onLoginStart?: () => void;
+  onLoginComplete?: () => void;
   onError?: (error: Error) => void;
-  className?: string;
-  size?: 'small' | 'medium' | 'large';
-  showLabels?: boolean;
-  providers?: SocialLoginProvider[];
 }
 
-const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({
-  onSuccess,
-  onError,
-  className = '',
-  size = 'medium',
-  showLabels = true,
-  providers = ['google', 'apple', 'kakao', 'wechat']
-}) => {
+export default function SocialLoginButtons({
+  onLoginStart,
+  onLoginComplete,
+  onError
+}: SocialLoginButtonsProps) {
   const { signInWithOAuth } = useAuth();
   const [isLoading, setIsLoading] = useState<SocialLoginProvider | null>(null);
   const { t } = useLanguageStore();
 
-  // 버튼 크기 및 스타일 설정
-  const buttonSize = {
-    small: 'h-9 px-3 text-sm gap-2',
-    medium: 'h-11 px-4 text-base gap-3',
-    large: 'h-14 px-5 text-lg gap-4'
-  }[size];
-
-  const iconSize = {
-    small: 16,
-    medium: 20,
-    large: 24
-  }[size];
-
-  // 소셜 로그인 처리
-  const handleSocialLogin = async (provider: SocialLoginProvider) => {
+  const handleSocialLogin = useCallback(async (provider: SocialLoginProvider) => {
     try {
-      // 이미 로딩 중일 때는 중복 호출 방지
-      if (isLoading !== null) {
-        console.log(`이미 ${isLoading} 로그인 처리중입니다. ${provider} 로그인 요청 무시`);
-        return;
-      }
+      // 로그인 시작 콜백
+      onLoginStart?.();
       
-      // 로그인 시도 전에 현재 페이지 URL을 저장 (로그인 후 되돌아올 수 있도록)
-      localStorage.setItem('auth_return_url', window.location.pathname);
+      // 소셜 로그인 서비스 인스턴스 가져오기
+      const socialAuthService = getSocialAuthService();
       
-      setIsLoading(provider);
-      const { error } = await signInWithOAuth(provider);
+      // 선택된 제공자로 로그인 시도
+      const result = await socialAuthService.signInWithProvider(provider);
       
-      if (error) {
-        console.error(`${provider} 로그인 오류:`, error);
-        onError?.(error);
-      } else {
-        // 성공 콜백 (리디렉션 전에 실행)
-        onSuccess?.();
+      // 로그인 성공 시 (리디렉션 중)
+      if (result.success) {
+        // 리디렉션 중이므로 완료 콜백은 호출되지 않음
+        // 사용자는 callback 처리 후에 리디렉션되어 돌아옴
+        console.log(`${provider} 로그인 리디렉션 중...`);
+      } else if (result.error) {
+        // 오류 처리
+        onError?.(result.error);
       }
     } catch (error) {
-      console.error(`${provider} 로그인 처리 중 오류:`, error);
-      onError?.(error instanceof Error ? error : new Error(String(error)));
-    } finally {
-      // 2초 후에 로딩 상태 해제 (너무 빠른 연속 클릭 방지)
-      setTimeout(() => {
-        setIsLoading(null);
-      }, 2000);
+      console.error('소셜 로그인 오류:', error);
+      onError?.(error instanceof Error ? error : new Error('알 수 없는 로그인 오류가 발생했습니다.'));
     }
-  };
+  }, [onLoginStart, onError]);
 
   // 각 소셜 로그인 버튼의 스타일 및 내용 설정
   const providerConfig: Record<SocialLoginProvider, {
@@ -115,40 +89,67 @@ const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({
   };
 
   return (
-    <div className={`flex flex-col space-y-3 w-full ${className}`}>
-      {providers.map(provider => {
-        const config = providerConfig[provider];
-        const loading = isLoading === provider;
-        
-        return (
-          <button
-            key={provider}
-            onClick={() => handleSocialLogin(provider)}
-            disabled={isLoading !== null}
-            className={`flex items-center justify-center ${buttonSize} rounded-lg border 
-                        transition-colors duration-300 ${config.bgColor} ${config.textColor} 
-                        ${config.hoverColor} ${config.borderColor ? `border-${config.borderColor}` : 'border-transparent'}
-                        disabled:opacity-70 disabled:cursor-not-allowed`}
-          >
-            {loading ? (
-              <div className="animate-spin h-5 w-5 border-t-2 border-b-2 border-current rounded-full" />
-            ) : (
-              <>
-                <Image 
-                  src={config.iconPath} 
-                  width={iconSize} 
-                  height={iconSize} 
-                  alt={`${provider} logo`} 
-                  className="flex-shrink-0"
-                />
-                {showLabels && <span>{config.label}</span>}
-              </>
-            )}
-          </button>
-        );
-      })}
+    <div className="flex flex-col w-full gap-3">
+      <button
+        type="button"
+        className="flex items-center justify-center w-full gap-2 h-11 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-300"
+        onClick={() => handleSocialLogin('google')}
+      >
+        <Image
+          src="/images/auth/google.svg"
+          alt="Google"
+          width={20}
+          height={20}
+          className="w-5 h-5"
+        />
+        <span>Google로 시작하기</span>
+      </button>
+      
+      <button
+        type="button"
+        className="flex items-center justify-center w-full gap-2 h-11 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-300"
+        onClick={() => handleSocialLogin('apple')}
+      >
+        <Image
+          src="/images/auth/apple.svg"
+          alt="Apple"
+          width={20}
+          height={20}
+          className="w-5 h-5"
+        />
+        <span>Apple로 시작하기</span>
+      </button>
+      
+      <button
+        type="button"
+        className="flex items-center justify-center w-full gap-2 h-11 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-300"
+        onClick={() => handleSocialLogin('kakao')}
+      >
+        <Image
+          src="/images/auth/kakao.svg"
+          alt="Kakao"
+          width={20}
+          height={20}
+          className="w-5 h-5"
+        />
+        <span>카카오로 시작하기</span>
+      </button>
+      
+      {/* WeChat 버튼 (필요시 활성화) */}
+      {/* <button
+        type="button"
+        className="flex items-center justify-center w-full gap-2 h-11 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-300"
+        onClick={() => handleSocialLogin('wechat')}
+      >
+        <Image
+          src="/images/auth/wechat.svg"
+          alt="WeChat"
+          width={20}
+          height={20}
+          className="w-5 h-5"
+        />
+        <span>WeChat으로 시작하기</span>
+      </button> */}
     </div>
   );
-};
-
-export default SocialLoginButtons; 
+} 

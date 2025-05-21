@@ -1,69 +1,121 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getSocialAuthService } from '@/lib/supabase/social';
+import type { SocialLoginProvider } from '@/lib/supabase/social/types';
 
-export default function AuthCallbackPage() {
+export default function AuthCallbackPage({ params }: { params: { provider: string } }) {
   const router = useRouter();
-  const params = useParams();
-  const provider = params.provider as string;
+  const searchParams = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>('인증 세션을 처리 중입니다...');
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // 페이지 로드 시 즉시 Supabase 클라이언트 초기화
-        const supabase = createBrowserSupabaseClient();
+        // URL 쿼리 파라미터 가져오기
+        const provider = params.provider as SocialLoginProvider;
         
-        // URL에서 인증 코드와 상태를 가져오기
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('콜백 처리 중 오류:', error.message);
-          throw error;
+        // 오류 코드가 있으면 처리
+        const errorCode = searchParams.get('error');
+        if (errorCode) {
+          setError(`인증 오류: ${errorCode}`);
+          return;
         }
-
-        if (data.session) {
-          console.log(`✅ ${provider} 로그인 성공:`, data.session.user.id);
+        
+        // Apple은 특수한 처리가 필요함
+        if (provider === 'apple') {
+          // user 파라미터 (Apple은 첫 로그인 시에만 name 정보 제공)
+          const userParam = searchParams.get('user');
           
-          // 로컬 스토리지에 인증 성공 정보 저장
-          localStorage.setItem('auth_success', 'true');
-          localStorage.setItem('auth_provider', provider);
-          localStorage.setItem('auth_timestamp', Date.now().toString());
+          // state 파라미터 검증 (CSRF 방지용)
+          const stateParam = searchParams.get('state');
           
-          // 리다이렉트 (홈페이지 또는 이전 페이지)
-          const returnUrl = localStorage.getItem('auth_return_url') || '/';
+          // id_token 파라미터
+          const idTokenParam = searchParams.get('id_token');
+          
+          // 코드 파라미터
+          const codeParam = searchParams.get('code');
+          
+          // 로그 출력
+          console.log('Apple callback params:', { 
+            user: userParam, 
+            state: stateParam, 
+            id_token: idTokenParam ? '[redacted]' : null,
+            code: codeParam ? '[redacted]' : null 
+          });
+        }
+        
+        // 소셜 로그인 서비스 가져오기
+        const socialAuthService = getSocialAuthService();
+        
+        // 콜백 처리
+        setStatus('인증 처리 중...');
+        
+        // 모든 URL 파라미터를 객체로 변환
+        const paramObj: Record<string, string> = {};
+        searchParams.forEach((value, key) => {
+          paramObj[key] = value;
+        });
+        
+        // 콜백 처리 요청
+        const authResult = await socialAuthService.handleCallback(provider, paramObj);
+        
+        // 결과 처리
+        if (authResult.success) {
+          setStatus('인증 성공! 리디렉션 중...');
+          
+          // 성공 후 이동할 URL 결정
+          let returnUrl = '/';
+          
+          // 로컬 스토리지에서 리다이렉트 URL 가져오기
+          if (typeof localStorage !== 'undefined') {
+            const savedReturnUrl = localStorage.getItem('auth_return_url');
+            if (savedReturnUrl) {
+              returnUrl = savedReturnUrl;
+              localStorage.removeItem('auth_return_url');
+            }
+          }
+          
+          // 인증 후 지정된 페이지로 리디렉션
           router.push(returnUrl);
-          localStorage.removeItem('auth_return_url'); // 사용 후 제거
+        } else if (authResult.error) {
+          setError(`인증 오류: ${authResult.error.message}`);
         } else {
-          console.warn('세션이 없습니다. 인증 프로세스가 완료되지 않았습니다.');
-          // 로그인 페이지로 리다이렉트
-          router.push('/login?error=callback_failed');
+          setError('알 수 없는 인증 오류가 발생했습니다.');
         }
       } catch (error) {
-        console.error('소셜 로그인 콜백 처리 오류:', error);
-        router.push('/login?error=callback_error');
+        console.error('콜백 처리 오류:', error);
+        setError('인증 처리 중 오류가 발생했습니다.');
       }
     };
-
-    // 컴포넌트 마운트 시 콜백 처리 실행
+    
     handleCallback();
-  }, [provider, router]);
+  }, [params.provider, router, searchParams]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">로그인 처리 중...</h2>
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-          </div>
-          <p className="mt-4 text-gray-600">
-            {provider.charAt(0).toUpperCase() + provider.slice(1)} 계정으로 로그인을 완료하고 있습니다.
-            <br />잠시만 기다려주세요.
-          </p>
-        </div>
+  // 에러 표시
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+        <h1 className="text-2xl font-bold mb-4">로그인 오류</h1>
+        <p className="text-red-500 mb-6">{error}</p>
+        <button
+          onClick={() => router.push('/login')}
+          className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+        >
+          로그인으로 돌아가기
+        </button>
       </div>
+    );
+  }
+
+  // 로딩 표시
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+      <div className="animate-spin w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full mb-4"></div>
+      <h1 className="text-xl font-medium mb-2">처리 중입니다</h1>
+      <p className="text-gray-600">{status}</p>
     </div>
   );
 } 
