@@ -12,6 +12,7 @@ import { getCdnImageUrl } from '@/lib/image';
 import { COLORS } from '@/lib/theme';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { UserGender } from '@/lib/types/user_profiles';
 
 interface ArtistCardProps {
   artist: Artist;
@@ -183,9 +184,9 @@ const ArtistCard: React.FC<ArtistCardProps> = ({
                 }}
               >
                 성별:{' '}
-                {artist.gender === 'male'
+                {artist.gender === UserGender.MALE
                   ? '남성'
-                  : artist.gender === 'female'
+                  : artist.gender === UserGender.FEMALE
                   ? '여성'
                   : artist.gender}
               </div>

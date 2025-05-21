@@ -4,6 +4,7 @@ import ImageUpload from '@/components/features/upload';
 import { useEffect, useState } from 'react';
 import { supabaseBrowserClient } from '@/lib/supabase/client';
 import dayjs from 'dayjs';
+import { UserGender } from '@/lib/types/user_profiles';
 
 const { Title } = Typography;
 
@@ -57,9 +58,8 @@ export default function ArtistForm({
         <Select
           placeholder='성별을 선택하세요'
           options={[
-            { label: '남성', value: 'male' },
-            { label: '여성', value: 'female' },
-            { label: '기타', value: 'other' },
+            { label: '남성', value: UserGender.MALE },
+            { label: '여성', value: UserGender.FEMALE },
           ]}
         />
       </Form.Item>

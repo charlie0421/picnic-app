@@ -20,11 +20,11 @@ export interface UserProfile {
 }
 
 export enum UserGender {
-  MALE = 'male',
-  FEMALE = 'female',
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
 }
 
 export const genderOptions = [
   { label: '남성', value: UserGender.MALE },
   { label: '여성', value: UserGender.FEMALE },
-]; 
+];

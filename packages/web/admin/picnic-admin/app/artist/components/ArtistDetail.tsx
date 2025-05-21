@@ -6,6 +6,7 @@ import { getCdnImageUrl } from '@/lib/image';
 import { DateField, TextField } from '@refinedev/antd';
 import { MultiLanguageDisplay } from '@/components/ui';
 import { useMany } from '@refinedev/core';
+import { UserGender } from '@/lib/types/user_profiles';
 
 const { Text } = Typography;
 
@@ -55,10 +56,10 @@ export default function ArtistDetail({ record, loading }: ArtistDetailProps) {
       key: 'gender',
       label: '성별',
       children: (
-        <Tag color={record?.gender === 'male' ? 'blue' : 'pink'}>
-          {record?.gender === 'male'
+        <Tag color={record?.gender === UserGender.MALE ? 'blue' : 'pink'}>
+          {record?.gender === UserGender.MALE
             ? '남성'
-            : record?.gender === 'female'
+            : record?.gender === UserGender.FEMALE
             ? '여성'
             : record?.gender}
         </Tag>
