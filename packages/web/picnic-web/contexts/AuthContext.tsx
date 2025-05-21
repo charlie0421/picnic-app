@@ -1,3 +1,9 @@
+/**
+ * @deprecated 이 파일은 더 이상 사용되지 않습니다. 대신 lib/supabase/auth-provider.tsx를 사용하세요.
+ * 백업용으로 유지되는 파일입니다. 이 파일의 코드를 참조할 수는 있지만 직접 import하지 마세요.
+ * 인증 관련 기능을 사용하려면 import { useAuth } from '@/lib/supabase/auth-provider'를 사용하세요.
+ */
+
 'use client';
 
 import React, {createContext, useCallback, useContext, useEffect, useState} from 'react';

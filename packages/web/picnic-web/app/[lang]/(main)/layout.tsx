@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/supabase/auth-provider';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLanguageStore } from '@/stores/languageStore';
 import Footer from '@/components/layouts/Footer';
@@ -15,11 +15,16 @@ import { getPopups } from '@/utils/api/queries';
 import { getLocalizedString } from '@/utils/api/strings';
 import { getCdnImageUrl } from '@/utils/api/image';
 
-const MainLayout = ({ children }: { children: React.ReactNode }) => {
+interface MainLayoutProps {
+  children: React.ReactNode;
+}
+
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const { setCurrentPortalType } = useNavigation();
   const pathname = usePathname();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupSlides, setPopupSlides] = useState<any[]>([]);
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     const portalType = getPortalTypeFromPath(pathname);
@@ -90,6 +95,11 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     }
     setIsPopupOpen(false);
   };
+
+  useEffect(() => {
+    console.log('인증 상태 확인:', { isAuthenticated, isLoading });
+    // 추가 인증 관련 로직이 있을 수 있음
+  }, [isAuthenticated, isLoading]);
 
   return (
     <div className='bg-gradient-to-b from-blue-50 to-white relative'>

@@ -2,13 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
-import {useAuth} from '@/contexts/AuthContext';
+import {useAuth} from '@/lib/supabase/auth-provider';
 import {DefaultAvatar, ProfileImageContainer} from '@/components/ui/ProfileImageContainer';
 import {useLanguageStore} from '@/stores/languageStore';
 
 const MyPage = () => {
-  const { authState, signOut } = useAuth();
-  const { user, loading } = authState;
+  const { userProfile, isAuthenticated, isLoading, signOut } = useAuth();
   const { t } = useLanguageStore();
 
   const handleSignOut = async () => {
@@ -49,7 +48,7 @@ const MyPage = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
@@ -62,9 +61,9 @@ const MyPage = () => {
       <div className="bg-white rounded-lg shadow-md p-6 mb-8 relative">
         <div className="flex flex-col sm:flex-row items-start sm:items-center">
           <div className="mb-4 sm:mb-0 sm:mr-6">
-            {user?.avatarUrl ? (
+            {userProfile?.avatarUrl ? (
               <ProfileImageContainer
-                avatarUrl={user.avatarUrl}
+                avatarUrl={userProfile.avatarUrl}
                 width={100}
                 height={100}
                 borderRadius={12}
@@ -74,10 +73,10 @@ const MyPage = () => {
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-bold mb-2">{user?.nickname || '사용자'}</h1>
-            <p className="text-gray-600 mb-1">{user?.email || '로그인 후 이메일이 표시됩니다'}</p>
-            {user?.birthDate && <p className="text-gray-700 mt-2">{user?.birthDate}</p>}
-            {user?.isAdmin && (
+            <h1 className="text-2xl font-bold mb-2">{userProfile?.nickname || '사용자'}</h1>
+            <p className="text-gray-600 mb-1">{userProfile?.email || '로그인 후 이메일이 표시됩니다'}</p>
+            {userProfile?.birthDate && <p className="text-gray-700 mt-2">{userProfile?.birthDate}</p>}
+            {userProfile?.isAdmin && (
               <div className="mt-2 bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">
                 관리자
               </div>
@@ -90,7 +89,7 @@ const MyPage = () => {
             <div>
               <h2 className="text-lg font-semibold mb-4">계정 관리</h2>
               <ul className="space-y-3">
-                {user ? (
+                {isAuthenticated ? (
                   <>
                     <li>
                       <Link href="/mypage/edit-profile" className="text-primary-600 hover:underline">
@@ -119,7 +118,7 @@ const MyPage = () => {
             <div>
               <h2 className="text-lg font-semibold mb-4">활동 내역</h2>
               <ul className="space-y-3">
-                {user ? (
+                {isAuthenticated ? (
                   <>
                     <li>
                       <Link href="/mypage/votes" className="text-primary-600 hover:underline">
@@ -147,7 +146,7 @@ const MyPage = () => {
           </div>
         </div>
 
-        {!user && (
+        {!isAuthenticated && (
           <div className="absolute inset-0 backdrop-blur-md flex items-center justify-center rounded-lg">
             <div className="text-center bg-white/90 p-8 rounded-lg shadow-lg max-w-md mx-auto">
               <p className="text-gray-600 mb-6">프로필 정보를 보시려면 로그인해주세요.</p>
@@ -185,7 +184,7 @@ const MyPage = () => {
               {t('label_mypage_terms_of_use')}
             </Link>
           </li>
-          {user && (
+          {isAuthenticated && (
             <li>
               <Link href="/mypage/delete-account" className="text-red-600 hover:underline">
                 {t('label_mypage_withdrawal')}

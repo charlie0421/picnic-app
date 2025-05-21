@@ -6,6 +6,9 @@ import Image from 'next/image';
 import {useSearchParams} from 'next/navigation';
 import {useLanguageStore} from '@/stores/languageStore';
 import Script from 'next/script';
+import SocialLoginButtons from '@/components/features/auth/SocialLoginButtons';
+import { useAuth } from '@/lib/supabase/auth-provider';
+import Link from 'next/link';
 
 // AppleID 타입 정의
 declare global {
@@ -47,119 +50,12 @@ const debugLog = (message: string, data?: any) => {
 };
 
 // SearchParams를 사용하는 컴포넌트
-function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
+function LoginContentInner() {
   const searchParams = useSearchParams();
   const { t } = useLanguageStore();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [appleSDKInitialized, setAppleSDKInitialized] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // 인증 성공 후 처리를 위한 함수
-  const handleAuthSuccess = useCallback((data: any, provider: string = 'apple') => {
-    const session = data.session;
-    if (!session) {
-      console.error('세션 정보가 없습니다');
-      setError('인증은 성공했으나 세션 정보가 없습니다.');
-      return false;
-    }
-
-    // 로딩 상태로 UI 변경 - 로그인 폼 숨김
-    setLoading(true);
-
-    // 세션 정보 저장
-    try {
-      localStorage.setItem('auth_session_active', 'true');
-      localStorage.setItem('auth_provider', provider);
-    } catch (e) {
-      // 무시: 저장 실패해도 인증 과정에는 영향 없음
-    }
-
-    // 직접 홈으로 이동 (라우터 사용하지 않음)
-    console.log('로그인 성공, 홈으로 이동합니다.');
-    window.location.href = '/';
-
-    return true;
-  }, []);
-
-  // 컴포넌트 마운트 시 현재 인증 상태 확인
-  useEffect(() => {
-    // 브라우저 환경인지 확인
-    if (typeof window === 'undefined') return;
-
-    // 디버그용 로그
-    debugLog('Login 페이지 마운트', {
-      url: window.location.href,
-      origin: window.location.origin,
-      host: window.location.host
-    });
-
-    // 세션 상태 변경 감지
-    const authListener = supabase.auth.onAuthStateChange((event: string, session: any) => {
-      console.log('인증 상태 변경:', event, !!session);
-
-      if (event === 'SIGNED_IN' && session) {
-        // 로딩 상태로 UI 변경 - 로그인 폼 숨김
-        setLoading(true);
-
-        // 직접 홈으로 이동 (라우터 사용하지 않음)
-        window.location.href = '/';
-      }
-    });
-
-    return () => {
-      authListener.data.subscription.unsubscribe();
-    };
-  }, []);
-
-  // SDK가 로드되면 초기화
-  useEffect(() => {
-    if (!sdkScriptLoaded || !window.AppleID || appleSDKInitialized) return;
-
-    try {
-      // 리디렉션 URL 설정 - ngrok 고려
-      const redirectURI = getRedirectUrl('apple');
-
-      // state 파라미터 준비 (원래 URL 정보 포함)
-      const stateParams = {
-        redirectUrl: typeof window !== 'undefined' ? window.location.origin : '',
-        timestamp: Date.now(),
-      };
-
-      console.log('Apple SDK 초기화:', {
-        redirectURI,
-        originalUrl: stateParams.redirectUrl
-      });
-
-      // Apple SDK 초기화 - nonce 사용하지 않음
-      const initOptions = {
-        clientId: 'fan.picnic.web',
-        scope: 'name email',
-        redirectURI: redirectURI,
-        usePopup: true,
-        state: JSON.stringify(stateParams)
-      };
-
-      window.AppleID.auth.init(initOptions);
-
-      // 이벤트 리스너 등록
-      const successHandler = () => {};
-      const failureHandler = () => {
-        setError('Apple 로그인 중 오류가 발생했습니다.');
-      };
-
-      document.addEventListener('AppleIDSignInOnSuccess', successHandler);
-      document.addEventListener('AppleIDSignInOnFailure', failureHandler);
-
-      setAppleSDKInitialized(true);
-
-      return () => {
-        document.removeEventListener('AppleIDSignInOnSuccess', successHandler);
-        document.removeEventListener('AppleIDSignInOnFailure', failureHandler);
-      };
-    } catch (error) {
-      setError('Apple 로그인을 초기화하는 중 오류가 발생했습니다.');
-    }
-  }, [sdkScriptLoaded, appleSDKInitialized]);
 
   // 오류 파라미터 처리
   useEffect(() => {
@@ -233,250 +129,83 @@ function LoginContentInner({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
     }
   }, [searchParams]);
 
-  // ngrok URL을 감지하여 올바른 리디렉션 URL 생성
-  const getRedirectUrl = (provider: string) => {
-    // ngrok 환경 감지 (브라우저에서만 작동)
-    const isNgrok = typeof window !== 'undefined' &&
-      (window.location.hostname.includes('ngrok') ||
-       window.location.host.includes('ngrok'));
+  // 로딩 상태 또는 이미 인증된 상태 처리
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
 
-    // 현재 호스트 감지
-    const currentHost = typeof window !== 'undefined' ? window.location.host : '';
-    const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https' : 'http';
-
-    console.log('현재 환경:', {
-      isNgrok,
-      host: currentHost,
-      protocol
-    });
-
-    // 콜백 URL 생성
-    const redirectUrl = `${protocol}://${currentHost}/auth/callback/${provider}`;
-    console.log(`리디렉션 URL: ${redirectUrl}`);
-
-    return redirectUrl;
-  };
-
-  // 간소화된 Apple 로그인 처리 함수
-  const handleAppleSignIn = async () => {
-    if (!window.AppleID || !appleSDKInitialized) {
-      if (sdkScriptLoaded && !window.AppleID) {
-        setError('이 브라우저에서는 Apple 로그인이 지원되지 않습니다. 다른 로그인 방법을 이용하세요.');
-      } else {
-        setError('Apple 로그인이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.');
-      }
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // ID 토큰 획득
-      const appleResponse = await window.AppleID.auth.signIn();
-      if (!appleResponse.authorization.id_token) {
-        throw new Error('Apple에서 ID 토큰을 받지 못했습니다.');
-      }
-
-      const idToken = appleResponse.authorization.id_token;
-
-      // Supabase로 인증 시도
-      try {
-        const { data, error } = await supabase.auth.signInWithIdToken({
-          provider: 'apple',
-          token: idToken
-        });
-
-        if (!error) {
-          return handleAuthSuccess(data, 'apple');
-        }
-
-        // 첫 번째 시도 실패 시, nonce를 명시적으로 빈 문자열로 설정하여 재시도
-        if (error.message?.includes('nonce') || error.message?.includes('Nonce')) {
-          const { data: retryData, error: retryError } = await supabase.auth.signInWithIdToken({
-            provider: 'apple',
-            token: idToken,
-            nonce: ''
-          });
-
-          if (!retryError) {
-            return handleAuthSuccess(retryData, 'apple');
-          }
-
-          // 마지막 시도
-          const { data: finalData, error: finalError } = await supabase.auth.signInWithIdToken({
-            provider: 'apple',
-            token: idToken
-          });
-
-          if (!finalError) {
-            return handleAuthSuccess(finalData, 'apple');
-          }
-
-          setError(`Apple 로그인에 실패했습니다: ${finalError.message}`);
-        } else {
-          setError(`Apple 로그인에 실패했습니다: ${error.message}`);
-        }
-      } catch (error: any) {
-        setError(`Apple 로그인 처리 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
-      }
-    } catch (err: any) {
-      setError(`Apple 로그인 처리 중 오류가 발생했습니다: ${err.message || '알 수 없는 오류'}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 다른 소셜 로그인 처리 함수
-  const handleOtherSignIn = async (provider: 'google' | 'kakao') => {
-    try {
-      setLoading(true);
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider,
-        options: {
-          redirectTo: `https://${window.location.host}/auth/callback/${provider}`,
-          queryParams: {
-            redirect_to: `https://${window.location.host}/auth/callback/${provider}`,
-          },
-          skipBrowserRedirect: true,
-        },
-      });
-
-      console.log('OAuth Response:', {
-        data,
-        error,
-        redirectTo: `https://${window.location.host}/auth/callback/${provider}`,
-        currentUrl: window.location.href
-      });
-
-      if (error) {
-        setError(`${provider} 로그인 중 오류가 발생했습니다: ${error.message}`);
-        setLoading(false);
-      } else if (data?.url) {
-        window.location.href = data.url;
-      }
-    } catch (error: any) {
-      setError(`${provider} 로그인 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
-      setLoading(false);
-    }
-  };
-
-  // 통합된 로그인 처리 함수
-  const handleSignIn = async (provider: 'google' | 'apple' | 'kakao') => {
-    if (provider === 'apple') {
-      await handleAppleSignIn();
-    } else {
-      await handleOtherSignIn(provider);
-    }
-  };
+  if (isAuthenticated) {
+    return (
+      <div className="text-center py-10">
+        <h2 className="text-2xl font-bold mb-4">{t('label_already_logged_in')}</h2>
+        <p className="mb-6">{t('message_already_logged_in')}</p>
+        <Link 
+          href="/"
+          className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors"
+        >
+          {t('button_go_to_home')}
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-50'>
-      <div className='max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg'>
-        <div className='text-center'>
-          <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
-            {t('button_login')}
-          </h2>
-          {error && (
-            <div className='mt-4 p-4 bg-red-50 text-red-600 rounded-md'>
-              {error}
-            </div>
-          )}
-        </div>
-        {loading ? (
-          <div className='flex flex-col items-center justify-center py-8'>
-            <div className='animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-500 mb-4'></div>
-            <p className='text-gray-600'>로그인 처리 중...</p>
-          </div>
-        ) : (
-        <div className='mt-8 space-y-4'>
-          <button
-            onClick={() => handleSignIn('google')}
-              disabled={loading}
-              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
-          >
-            <Image
-              src='/images/auth/google-logo.svg'
-              alt={`Google ${t('button_login')}`}
-              width={20}
-              height={20}
-              className='mr-2'
-            />
-            Google {t('button_continue_with')}
-          </button>
+    <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold mb-6 text-center">{t('label_login')}</h1>
 
-          <button
-            onClick={() => handleSignIn('apple')}
-              disabled={loading}
-              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-black border border-gray-300 rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'
-              aria-label='Apple 계정으로 계속하기'
-          >
-            <Image
-              src='/images/auth/apple-logo.svg'
-              alt={`Apple ${t('button_login')}`}
-              width={20}
-              height={20}
-              className='mr-2'
-            />
-            Apple {t('button_continue_with')}
-          </button>
-
-          <button
-            onClick={() => handleSignIn('kakao')}
-              disabled={loading}
-              className='flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-[#191919] bg-[#FEE500] rounded-md hover:bg-[#F4DC00] disabled:opacity-50 disabled:cursor-not-allowed'
-          >
-            <Image
-              src='/images/auth/kakao-logo.svg'
-              alt={`Kakao ${t('button_login')}`}
-              width={20}
-              height={20}
-              className='mr-2'
-            />
-            Kakao {t('button_continue_with')}
-          </button>
+      {/* 오류 메시지 표시 */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+          <span className="block sm:inline">{error}</span>
         </div>
-        )}
+      )}
+
+      {/* 소셜 로그인 버튼 */}
+      <div className="mb-6">
+        <h2 className="text-lg font-medium mb-4">{t('label_login_with_social')}</h2>
+        <SocialLoginButtons 
+          providers={['google', 'apple', 'kakao']} 
+          onError={(error) => setError(error.message)}
+          size="large"
+        />
+      </div>
+
+      <div className="mt-6 text-center text-sm text-gray-600">
+        <p>{t('label_no_account')} <Link href="/signup" className="text-primary-600 hover:underline">{t('button_signup')}</Link></p>
       </div>
     </div>
   );
 }
 
-// Suspense로 감싸서 제공하는 컴포넌트
-function LoginContent({ sdkScriptLoaded }: { sdkScriptLoaded: boolean }) {
+function LoginContent() {
   return (
-    <Suspense fallback={
-        <div className='min-h-screen flex items-center justify-center bg-gray-50'>
-          <div className='max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg'>
-          <div className='flex flex-col items-center justify-center py-8'>
-            <div className='animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-500 mb-4'></div>
-            <p className='text-gray-600'>로딩 중...</p>
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white py-10 px-4">
+      <div className="mb-8">
+        <Link href="/">
+          <Image
+            src="/images/logo.png"
+            alt="Picnic Logo"
+            width={80}
+            height={80}
+            priority
+            className="mx-auto"
+          />
+        </Link>
       </div>
-    }>
-      <LoginContentInner sdkScriptLoaded={sdkScriptLoaded} />
-    </Suspense>
+      
+      <Suspense fallback={
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      }>
+        <LoginContentInner />
+      </Suspense>
+    </div>
   );
 }
 
 export default function Login() {
-  // Apple SDK 스크립트 로드 상태 관리
-  const [sdkScriptLoaded, setSdkScriptLoaded] = useState(false);
-
-  const handleAppleScriptLoad = () => {
-    setSdkScriptLoaded(true);
-  };
-
-  return (
-    <>
-      <Script
-        src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"
-        strategy="afterInteractive"
-        onLoad={handleAppleScriptLoad}
-        onError={() => console.error('Apple SDK 스크립트 로드 실패')}
-      />
-      <LoginContent sdkScriptLoaded={sdkScriptLoaded} />
-    </>
-  );
+  return <LoginContent />;
 }

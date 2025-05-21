@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {useAuth} from '@/contexts/AuthContext';
+import {usePathname} from 'next/navigation';
+import {useAuth} from '@/lib/supabase/auth-provider';
 import {useLanguageStore} from '@/stores/languageStore';
 import {DefaultAvatar, ProfileImageContainer,} from '@/components/ui/ProfileImageContainer';
 import PortalMenuItem from './PortalMenuItem';
@@ -11,9 +12,10 @@ import {PORTAL_MENU} from '@/config/navigation';
 import {Menu as MenuIcon} from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 
-const Header = () => {
-  const { authState } = useAuth();
-  const { t } = useLanguageStore();
+const Header: React.FC = () => {
+  const { isAuthenticated, userProfile, signOut } = useAuth();
+  const { currentLanguage } = useLanguageStore();
+  const pathname = usePathname();
 
   return (
     <header className='border-b border-gray-200 bg-white relative'>
@@ -44,7 +46,7 @@ const Header = () => {
                 );
                 if (
                   isAdminMenu &&
-                  (!authState.isAuthenticated || !authState.user?.isAdmin)
+                  (!isAuthenticated || !userProfile?.isAdmin)
                 ) {
                   return null;
                 }
@@ -61,11 +63,11 @@ const Header = () => {
             <div className='flex items-center space-x-2 sm:space-x-4'>
               <LanguageSelector />
 
-              {authState.isAuthenticated ? (
+              {isAuthenticated ? (
                 <Link href='/mypage'>
-                  {authState.user?.avatarUrl ? (
+                  {userProfile?.avatarUrl ? (
                     <ProfileImageContainer
-                      avatarUrl={authState.user.avatarUrl}
+                      avatarUrl={userProfile.avatarUrl}
                       width={32}
                       height={32}
                       borderRadius={8}
