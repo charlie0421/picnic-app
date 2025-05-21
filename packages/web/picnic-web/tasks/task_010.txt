@@ -1,0 +1,91 @@
+# Task ID: 10
+# Title: 테스트 유틸리티 및 목 생성
+# Status: pending
+# Dependencies: 9
+# Priority: medium
+# Description: Develop test utilities and mocks to facilitate testing of components that use Supabase and Next.js features.
+# Details:
+1. Create test utilities for rendering components with providers
+2. Develop mocks for Supabase client
+3. Create mocks for Next.js features (router, headers, cookies)
+4. Implement helper functions for common testing scenarios
+
+Example implementation:
+```typescript
+// src/test/utils.tsx
+import { render } from '@testing-library/react'
+import { SupabaseProvider } from '@/lib/supabase/provider'
+
+const customRender = (ui, options = {}) => {
+  return render(ui, {
+    wrapper: ({ children }) => (
+      <SupabaseProvider>{children}</SupabaseProvider>
+    ),
+    ...options,
+  })
+}
+
+// Mock data
+export const mockPosts = [
+  { id: 1, title: 'Test Post 1', content: 'Content 1' },
+  { id: 2, title: 'Test Post 2', content: 'Content 2' },
+]
+
+// Mock Supabase responses
+export const mockSupabaseFrom = (tableName, data, error = null) => {
+  return {
+    from: jest.fn((table) => {
+      if (table === tableName) {
+        return {
+          select: jest.fn(() => ({
+            eq: jest.fn(() => ({ data, error })),
+            order: jest.fn(() => ({ data, error })),
+            data,
+            error,
+          })),
+          insert: jest.fn(() => ({ data, error })),
+          update: jest.fn(() => ({ data, error })),
+          delete: jest.fn(() => ({ data, error })),
+        }
+      }
+      return {
+        select: jest.fn(() => ({ data: null, error: null })),
+      }
+    }),
+  }
+}
+
+export { customRender as render }
+```
+
+# Test Strategy:
+1. Test the custom render function with a simple component
+2. Verify mocks correctly simulate Supabase responses
+3. Test that providers are correctly applied in the test environment
+4. Create example tests using the utilities to validate their effectiveness
+
+# Subtasks:
+## 1. Create render utilities for component testing [pending]
+### Dependencies: None
+### Description: Develop utilities to simplify rendering components in test environments with proper context providers and test configurations
+### Details:
+Implement render utilities that wrap components with necessary providers (theme, auth, etc.), handle test rendering configurations, and provide helper methods for querying and interacting with rendered components. Include utilities for both shallow and deep rendering approaches.
+
+## 2. Implement Supabase mocking utilities [pending]
+### Dependencies: 10.1
+### Description: Create comprehensive mocks for Supabase client, authentication, and database operations
+### Details:
+Develop mock implementations for Supabase client, auth methods, database queries, and real-time subscriptions. Include utilities to simulate successful responses, errors, and edge cases. Ensure mocks can be easily configured for different test scenarios.
+
+## 3. Develop Next.js feature mocks [pending]
+### Dependencies: 10.1
+### Description: Create mocks for Next.js specific features like routing, data fetching, and server components
+### Details:
+Implement mock utilities for Next.js router, navigation methods, server-side rendering functions, and data fetching methods. Include mocks for useRouter, Link component behavior, and other Next.js specific APIs. Ensure compatibility with the application's routing structure.
+
+## 4. Create test helper functions [pending]
+### Dependencies: 10.1, 10.2, 10.3
+### Description: Implement reusable helper functions for common testing patterns and assertions
+### Details:
+Develop helper functions for common testing tasks such as form interactions, authentication state simulation, waiting for async operations, and custom assertions. Create utilities for generating test data, simulating user interactions, and validating component states across different test scenarios.
+

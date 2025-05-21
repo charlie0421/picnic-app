@@ -1,0 +1,46 @@
+# Task ID: 1
+# Title: 현재 Supabase 클라이언트 구현 검토
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Analyze the current Supabase client implementation to identify inconsistencies and areas for improvement in client/server usage.
+# Details:
+1. Review all files that import and use Supabase client
+2. Document where createBrowserClient and createServerClient are currently used
+3. Identify instances where the wrong client type is used for the context
+4. Create a report of all inconsistencies found
+5. Map out the current authentication flow and data fetching patterns
+6. Identify potential bottlenecks or performance issues in the current implementation
+
+Implementation notes:
+- Use static code analysis tools to find all Supabase client imports
+- Document findings in a structured format for reference during implementation
+
+# Test Strategy:
+This is an analysis task, so formal testing is not applicable. Success criteria will be a comprehensive report documenting all current Supabase client usage patterns and issues.
+
+# Subtasks:
+## 1. Conduct Static Code Analysis [pending]
+### Dependencies: None
+### Description: Perform a comprehensive static analysis of the current Supabase client implementation to identify usage patterns and potential issues.
+### Details:
+Use code analysis tools to scan all files that import and use Supabase client. Document all client initialization patterns, configuration options being used, and error handling approaches. Identify any deprecated methods or inconsistent usage patterns across the codebase. Create a report highlighting potential code smells or anti-patterns.
+
+## 2. Document Authentication Flow [pending]
+### Dependencies: 1.1
+### Description: Map and document all authentication flows implemented with the Supabase client.
+### Details:
+Create detailed sequence diagrams for each authentication flow (sign-up, sign-in, password reset, session refresh, etc.). Document how authentication state is managed throughout the application. Identify potential security vulnerabilities or edge cases in the current implementation. Compare implementation against Supabase best practices.
+
+## 3. Create Client Usage Documentation [pending]
+### Dependencies: 1.1, 1.2
+### Description: Develop comprehensive documentation on current Supabase client usage across the application.
+### Details:
+Create a wiki page or documentation that outlines all database tables being accessed, RLS policies in place, and how they're being queried through the client. Document all custom types and interfaces used with Supabase. Include examples of correct usage patterns for future development. Highlight any custom wrappers or utility functions built around the client.
+
+## 4. Perform Performance Assessment [pending]
+### Dependencies: 1.1, 1.3
+### Description: Evaluate the performance implications of current Supabase client implementation and identify optimization opportunities.
+### Details:
+Profile application performance focusing on Supabase client operations. Measure and document response times for common queries and operations. Identify any N+1 query problems or inefficient data fetching patterns. Recommend optimizations such as query caching, connection pooling, or better use of realtime subscriptions where appropriate. Create a prioritized list of performance improvements.
+

@@ -1,0 +1,75 @@
+# Task ID: 15
+# Title: CI/CD 파이프라인에 테스트 커버리지 통합
+# Status: pending
+# Dependencies: 14
+# Priority: low
+# Description: Configure CI/CD pipeline to run tests and verify code coverage meets thresholds.
+# Details:
+1. Configure GitHub Actions or other CI/CD service to run tests
+2. Add coverage verification step to CI pipeline
+3. Configure reporting of test results and coverage
+4. Set up PR checks based on test results and coverage
+
+Example GitHub Actions configuration:
+```yaml
+# .github/workflows/test.yml
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests with coverage
+        run: npm run test:coverage
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage/
+          fail_ci_if_error: true
+```
+
+# Test Strategy:
+1. Test the CI configuration with a sample PR
+2. Verify that tests run correctly in the CI environment
+3. Check that coverage reports are correctly uploaded
+4. Test that PR checks work as expected for both passing and failing tests
+
+# Subtasks:
+## 1. Configure CI/CD Workflow [pending]
+### Dependencies: None
+### Description: Set up the basic CI/CD workflow configuration using GitHub Actions or similar service
+### Details:
+Create workflow YAML file that defines the CI pipeline, including environment setup, dependency installation, and test execution. Configure the workflow to trigger on push and pull requests to relevant branches. Ensure proper caching of dependencies to optimize build times.
+
+## 2. Implement Test Coverage Reporting [pending]
+### Dependencies: 15.1
+### Description: Configure the CI pipeline to generate and report test coverage metrics
+### Details:
+Integrate a coverage tool (like Istanbul/nyc, Jest coverage, or similar) into the CI workflow. Configure the tool to generate coverage reports in appropriate formats (HTML, JSON, lcov). Set up the CI to upload coverage artifacts or publish them to a dashboard service. Define minimum coverage thresholds if applicable.
+
+## 3. Implement PR Status Checks [pending]
+### Dependencies: 15.1, 15.2
+### Description: Configure the repository to require passing CI checks before merging pull requests
+### Details:
+Set up branch protection rules in the repository settings. Configure required status checks that must pass before merging. Implement PR comments that show test results and coverage changes. Add status badges to the repository README to display current build status and coverage metrics.
+

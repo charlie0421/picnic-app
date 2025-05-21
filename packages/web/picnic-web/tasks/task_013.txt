@@ -1,0 +1,98 @@
+# Task ID: 13
+# Title: 페이지 통합 테스트 작성
+# Status: pending
+# Dependencies: 5, 7, 10
+# Priority: low
+# Description: Create integration tests for key pages to ensure they correctly fetch and display data.
+# Details:
+1. Identify critical pages for testing
+2. Mock server-side data fetching
+3. Test page rendering with different data scenarios
+4. Test page interactions and navigation
+
+Example test implementation:
+```typescript
+// src/app/posts/page.test.tsx
+import { render, screen } from '@testing-library/react'
+import PostsPage from './page'
+import { mockPosts } from '@/test/utils'
+
+// Mock the data fetching function
+jest.mock('@/lib/supabase/server', () => ({
+  createServerSupabaseClient: jest.fn(() => ({
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        order: jest.fn(() => ({
+          data: mockPosts,
+          error: null,
+        })),
+      })),
+    })),
+  })),
+}))
+
+describe('PostsPage', () => {
+  it('renders posts correctly', async () => {
+    // Since this is an async component, we need to render it differently
+    const PostsPageComponent = await PostsPage()
+    render(PostsPageComponent)
+    
+    expect(screen.getByText('Posts')).toBeInTheDocument()
+    expect(screen.getByText('Test Post 1')).toBeInTheDocument()
+    expect(screen.getByText('Test Post 2')).toBeInTheDocument()
+  })
+
+  it('handles empty posts array', async () => {
+    // Override the mock for this test
+    jest.mock('@/lib/supabase/server', () => ({
+      createServerSupabaseClient: jest.fn(() => ({
+        from: jest.fn(() => ({
+          select: jest.fn(() => ({
+            order: jest.fn(() => ({
+              data: [],
+              error: null,
+            })),
+          })),
+        })),
+      })),
+    }))
+    
+    const PostsPageComponent = await PostsPage()
+    render(PostsPageComponent)
+    
+    expect(screen.getByText('No posts found')).toBeInTheDocument()
+  })
+})
+```
+
+# Test Strategy:
+1. Test pages with different data scenarios (empty, error, loaded)
+2. Verify that pages correctly handle loading and error states
+3. Test that pages correctly render components with fetched data
+4. Test page-level interactions
+
+# Subtasks:
+## 1. Set up data fetching mocks [pending]
+### Dependencies: None
+### Description: Create mock implementations for all data fetching functions used by the page
+### Details:
+Identify all data fetching functions used by the page. Create mock implementations that return predefined test data. Set up a testing utility that allows switching between different mock data scenarios (empty data, full data, partial data). Ensure mocks properly simulate loading states and timing.
+
+## 2. Implement page rendering tests [pending]
+### Dependencies: 13.1
+### Description: Test that the page renders correctly with different data scenarios
+### Details:
+Create tests that verify the page renders correctly with various data scenarios. Test rendering with full data, empty data, and partial data. Verify that all expected UI elements are present and contain the correct content. Test that server and client components integrate properly. Verify that loading states are displayed appropriately.
+
+## 3. Develop user interaction tests [pending]
+### Dependencies: 13.2
+### Description: Test all interactive elements and user flows on the page
+### Details:
+Identify all interactive elements on the page (buttons, forms, links, etc.). Create tests for each interaction, verifying that the correct actions occur. Test form submissions, navigation events, and state changes. Verify that client-side state updates correctly after interactions. Test any conditional rendering based on user interactions.
+
+## 4. Implement error state tests [pending]
+### Dependencies: 13.1, 13.2
+### Description: Test how the page handles various error conditions
+### Details:
+Configure data fetching mocks to simulate different error scenarios (network errors, server errors, validation errors). Test that appropriate error messages are displayed to the user. Verify error boundary functionality if implemented. Test recovery paths from error states. Ensure errors are logged or reported appropriately.
+

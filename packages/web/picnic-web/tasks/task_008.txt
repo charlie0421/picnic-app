@@ -1,0 +1,95 @@
+# Task ID: 8
+# Title: SEO 및 메타데이터 최적화 구현
+# Status: pending
+# Dependencies: 7
+# Priority: medium
+# Description: Add proper metadata to all pages and implement SEO best practices using Next.js metadata API.
+# Details:
+1. Implement metadata for all pages using Next.js metadata API
+2. Create dynamic metadata based on page content
+3. Add Open Graph and Twitter card metadata
+4. Implement structured data where appropriate
+
+Example implementation:
+```typescript
+// app/blog/[slug]/page.tsx
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { Metadata, ResolvingMetadata } from 'next'
+
+type Props = {
+  params: { slug: string }
+}
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const post = await getPost(params.slug)
+  
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.featuredImage],
+      type: 'article',
+      publishedTime: post.publishedAt,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: [post.featuredImage],
+    },
+  }
+}
+
+async function getPost(slug) {
+  const supabase = createServerSupabaseClient()
+  const { data } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('slug', slug)
+    .single()
+  
+  return data
+}
+
+export default async function BlogPost({ params }: Props) {
+  const post = await getPost(params.slug)
+  
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <div dangerouslySetInnerHTML={{ __html: post.content }} />
+    </article>
+  )
+}
+```
+
+# Test Strategy:
+1. Verify metadata is correctly generated for each page
+2. Test dynamic metadata generation with different content
+3. Use tools like Lighthouse to verify SEO score improvements
+4. Test structured data using Google's Rich Results Test
+
+# Subtasks:
+## 1. Basic Metadata Setup [pending]
+### Dependencies: None
+### Description: Implement basic metadata for all static pages using Next.js metadata API
+### Details:
+Create a consistent metadata structure for static pages including title, description, and Open Graph tags. Set up default metadata in the root layout.js file and implement page-specific overrides. Ensure proper favicon and site icon implementation.
+
+## 2. Dynamic Metadata Generation [pending]
+### Dependencies: 8.1
+### Description: Implement dynamic metadata for content-driven pages
+### Details:
+Create generateMetadata functions for dynamic routes like blog posts, product pages, and category pages. Ensure metadata reflects the specific content being displayed. Implement proper canonical URLs and alternates for pagination or filtered views. Test with various content types to ensure metadata is correctly generated.
+
+## 3. Structured Data Implementation [pending]
+### Dependencies: 8.2
+### Description: Add JSON-LD structured data for relevant page types
+### Details:
+Implement JSON-LD structured data for products, articles, FAQs, and other relevant content types. Create reusable structured data components that can be populated dynamically. Test implementation using Google's Rich Results Test and Schema Validator. Ensure proper integration with the Next.js metadata API.
+

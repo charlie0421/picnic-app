@@ -1,0 +1,797 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "현재 Supabase 클라이언트 구현 검토",
+      "description": "Analyze the current Supabase client implementation to identify inconsistencies and areas for improvement in client/server usage.",
+      "details": "1. Review all files that import and use Supabase client\n2. Document where createBrowserClient and createServerClient are currently used\n3. Identify instances where the wrong client type is used for the context\n4. Create a report of all inconsistencies found\n5. Map out the current authentication flow and data fetching patterns\n6. Identify potential bottlenecks or performance issues in the current implementation\n\nImplementation notes:\n- Use static code analysis tools to find all Supabase client imports\n- Document findings in a structured format for reference during implementation",
+      "testStrategy": "This is an analysis task, so formal testing is not applicable. Success criteria will be a comprehensive report documenting all current Supabase client usage patterns and issues.",
+      "priority": "high",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Conduct Static Code Analysis",
+          "description": "Perform a comprehensive static analysis of the current Supabase client implementation to identify usage patterns and potential issues.",
+          "dependencies": [],
+          "details": "Use code analysis tools to scan all files that import and use Supabase client. Document all client initialization patterns, configuration options being used, and error handling approaches. Identify any deprecated methods or inconsistent usage patterns across the codebase. Create a report highlighting potential code smells or anti-patterns.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Document Authentication Flow",
+          "description": "Map and document all authentication flows implemented with the Supabase client.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create detailed sequence diagrams for each authentication flow (sign-up, sign-in, password reset, session refresh, etc.). Document how authentication state is managed throughout the application. Identify potential security vulnerabilities or edge cases in the current implementation. Compare implementation against Supabase best practices.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Create Client Usage Documentation",
+          "description": "Develop comprehensive documentation on current Supabase client usage across the application.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Create a wiki page or documentation that outlines all database tables being accessed, RLS policies in place, and how they're being queried through the client. Document all custom types and interfaces used with Supabase. Include examples of correct usage patterns for future development. Highlight any custom wrappers or utility functions built around the client.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Perform Performance Assessment",
+          "description": "Evaluate the performance implications of current Supabase client implementation and identify optimization opportunities.",
+          "dependencies": [
+            1,
+            3
+          ],
+          "details": "Profile application performance focusing on Supabase client operations. Measure and document response times for common queries and operations. Identify any N+1 query problems or inefficient data fetching patterns. Recommend optimizations such as query caching, connection pooling, or better use of realtime subscriptions where appropriate. Create a prioritized list of performance improvements.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Supabase 클라이언트 구조 개선",
+      "description": "Create a proper separation between browser and server Supabase clients using @supabase/ssr package.",
+      "details": "1. Create a dedicated module for Supabase client initialization\n2. Implement browser client using createBrowserClient from @supabase/ssr\n3. Implement server client using createServerClient from @supabase/ssr\n4. Add proper type definitions for both clients\n5. Ensure environment variables are properly accessed in both contexts\n\nExample implementation:\n```typescript\n// lib/supabase/server.ts\nimport { createServerClient } from '@supabase/ssr'\nimport { cookies } from 'next/headers'\n\nexport function createServerSupabaseClient() {\n  const cookieStore = cookies()\n  return createServerClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,\n    {\n      cookies: {\n        get(name) {\n          return cookieStore.get(name)?.value\n        },\n        set(name, value, options) {\n          cookieStore.set({ name, value, ...options })\n        },\n        remove(name, options) {\n          cookieStore.set({ name, value: '', ...options })\n        },\n      },\n    }\n  )\n}\n\n// lib/supabase/client.ts\nimport { createBrowserClient } from '@supabase/ssr'\n\nexport function createBrowserSupabaseClient() {\n  return createBrowserClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!\n  )\n}\n```",
+      "testStrategy": "1. Write unit tests to verify both client and server Supabase instances are created correctly\n2. Test that environment variables are properly accessed\n3. Mock cookies for server client tests\n4. Verify type safety of both client implementations",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create server-side Supabase client implementation",
+          "description": "Implement a server-side Supabase client using the @supabase/ssr package that handles authentication and data fetching in server components.",
+          "dependencies": [],
+          "details": "Create a new file for server client implementation. Use createServerClient from @supabase/ssr. Handle cookies properly for authentication. Ensure proper error handling and logging. Document usage patterns for server components.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement browser-side Supabase client",
+          "description": "Create a browser-side Supabase client implementation that works with client components and handles real-time subscriptions.",
+          "dependencies": [],
+          "details": "Create a separate file for browser client implementation. Use createBrowserClient from @supabase/ssr. Implement proper authentication state management. Handle browser-specific features like real-time subscriptions. Document usage patterns for client components.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Define comprehensive type definitions",
+          "description": "Create type definitions for the Supabase client implementations, database schema, and API responses.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Create types for database tables and relationships. Define types for API responses and requests. Create utility types for common operations. Ensure type safety across both server and browser implementations. Document type usage patterns.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Configure environment variables and settings",
+          "description": "Set up environment variables and configuration for different environments (development, production) for the Supabase client.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Create environment variable definitions for Supabase URL and keys. Implement validation for required environment variables. Create configuration files for different environments. Document environment setup requirements. Ensure secrets are properly handled.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Implement testing strategy and examples",
+          "description": "Create tests for both server and browser Supabase client implementations and document testing patterns.",
+          "dependencies": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "details": "Create unit tests for both client implementations. Set up mock Supabase responses for testing. Create integration tests for critical paths. Document testing patterns for components using Supabase. Create example usage patterns in test files.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Supabase 컨텍스트 프로바이더 구현",
+      "description": "Create a React context provider for Supabase client to ensure consistent access throughout the application.",
+      "details": "1. Create a SupabaseProvider component that uses React Context API\n2. Initialize the browser Supabase client within this provider\n3. Provide methods for authentication and common data operations\n4. Ensure the provider is only used in client components\n\nExample implementation:\n```typescript\n'use client'\n\nimport { createContext, useContext, useState, useEffect } from 'react'\nimport { createBrowserSupabaseClient } from '@/lib/supabase/client'\nimport type { SupabaseClient } from '@supabase/supabase-js'\n\ntype SupabaseContext = {\n  supabase: SupabaseClient\n}\n\nconst Context = createContext<SupabaseContext | undefined>(undefined)\n\nexport function SupabaseProvider({ children }: { children: React.ReactNode }) {\n  const [supabase] = useState(() => createBrowserSupabaseClient())\n\n  return (\n    <Context.Provider value={{ supabase }}>\n      {children}\n    </Context.Provider>\n  )\n}\n\nexport function useSupabase() {\n  const context = useContext(Context)\n  if (context === undefined) {\n    throw new Error('useSupabase must be used inside SupabaseProvider')\n  }\n  return context\n}\n```",
+      "testStrategy": "1. Test that the context provider correctly initializes the Supabase client\n2. Verify that the useSupabase hook throws an error when used outside the provider\n3. Test that the context value is properly passed to child components\n4. Mock Supabase client for testing to avoid actual API calls",
+      "priority": "high",
+      "dependencies": [
+        2
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create Supabase Context and Provider Component",
+          "description": "Implement the Supabase context and provider component to manage Supabase client instance and authentication state",
+          "dependencies": [],
+          "details": "Create a new file for the Supabase context and provider. Define the context type with proper TypeScript interfaces for the Supabase client, user session, and any other required state. Implement the provider component that initializes the Supabase client and manages authentication state. Add proper error handling and loading states. Ensure the provider is marked as a client component using 'use client' directive.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement useSupabase Custom Hook",
+          "description": "Create a custom hook to easily access the Supabase context throughout the application",
+          "dependencies": [
+            1
+          ],
+          "details": "Create a useSupabase hook that uses the React useContext hook to access the Supabase context. Add proper error handling to ensure the hook is only used within the context provider. Include TypeScript typing for the return values. Document the hook's usage with JSDoc comments. Test the hook with basic usage patterns.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Integrate Supabase Provider with Application Components",
+          "description": "Wrap appropriate components with the Supabase provider and update existing components to use the Supabase context",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Identify the appropriate level in the component tree to place the Supabase provider (likely in layout.tsx or a high-level wrapper). Update existing components that need Supabase functionality to use the useSupabase hook instead of direct client imports. Ensure authentication-dependent components properly handle loading and unauthenticated states. Test the integration with existing components to verify proper functionality.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "현재 컴포넌트 구조 분석",
+      "description": "Analyze the current component structure to identify components that should be server components vs. client components.",
+      "details": "1. Review all components in the codebase\n2. Identify components that primarily handle:\n   - Data fetching (potential server components)\n   - UI rendering without interactivity (potential server components)\n   - Interactive elements (must be client components)\n   - State management (must be client components)\n3. Document current client-side data fetching that could be moved to server components\n4. Identify components with mixed responsibilities that should be split\n5. Create a migration plan for each component\n\nImplementation approach:\n- Create a spreadsheet or document listing all components\n- Categorize each component as 'Server', 'Client', or 'Split needed'\n- Note dependencies between components to understand migration impact",
+      "testStrategy": "This is an analysis task, so formal testing is not applicable. Success criteria will be a comprehensive component inventory with clear categorization and migration recommendations.",
+      "priority": "medium",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create Component Inventory",
+          "description": "Catalog all existing components in the application with their current rendering type, functionality, and usage patterns.",
+          "dependencies": [],
+          "details": "Create a spreadsheet or document listing all components with columns for: component name, current rendering type (client/server/hybrid), primary functionality, where it's used in the application, and any special requirements (e.g., needs user interaction, relies on browser APIs, etc.). Include component file paths for easy reference.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Server vs. Client Component Analysis",
+          "description": "Analyze each component to determine optimal rendering strategy (server or client component) based on its functionality and requirements.",
+          "dependencies": [
+            1
+          ],
+          "details": "For each component in the inventory, evaluate: Does it need interactivity? Does it use browser-only APIs? Does it use hooks? Does it need access to request-time data? Mark each component with a recommended rendering strategy and document the reasoning. Flag components that may need to be split into server/client parts.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Dependency Mapping",
+          "description": "Create a visual dependency map showing relationships between components and identify potential issues in the current structure.",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Generate a directed graph showing component dependencies. Identify circular dependencies, client components importing server components, and other architectural issues. Document potential refactoring needs based on Next.js server/client component rules. Use a tool like Mermaid or draw.io for visualization.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Migration Planning",
+          "description": "Develop a phased migration plan for transitioning components to their optimal rendering strategy with minimal disruption.",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "Create a prioritized list of components to migrate, starting with leaf components and working up the tree. Document required changes for each component, including: file renaming (.js/.jsx to .server.js/.client.js), code splitting needs, prop adjustments, and potential performance impacts. Include testing strategies for each migration phase.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "서버 컴포넌트 데이터 페칭 구현",
+      "description": "Refactor data fetching logic to use server components with the server Supabase client.",
+      "details": "1. Create utility functions for common data fetching operations using server Supabase client\n2. Move data fetching from client components to server components\n3. Implement proper error handling for server-side data fetching\n4. Use React Suspense for loading states where appropriate\n\nExample implementation:\n```typescript\n// app/posts/page.tsx\nimport { createServerSupabaseClient } from '@/lib/supabase/server'\n\nasync function getPosts() {\n  const supabase = createServerSupabaseClient()\n  const { data, error } = await supabase\n    .from('posts')\n    .select('*')\n    .order('created_at', { ascending: false })\n  \n  if (error) {\n    console.error('Error fetching posts:', error)\n    throw new Error('Failed to fetch posts')\n  }\n  \n  return data\n}\n\nexport default async function PostsPage() {\n  const posts = await getPosts()\n  \n  return (\n    <div>\n      <h1>Posts</h1>\n      <ul>\n        {posts.map(post => (\n          <li key={post.id}>{post.title}</li>\n        ))}\n      </ul>\n    </div>\n  )\n}\n```",
+      "testStrategy": "1. Write unit tests for data fetching utility functions\n2. Test error handling scenarios\n3. Create integration tests that verify server components correctly fetch and render data\n4. Mock Supabase responses for testing",
+      "priority": "high",
+      "dependencies": [
+        2,
+        4
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create server-side data fetching utility functions",
+          "description": "Develop reusable utility functions for server-side data fetching using Supabase server client",
+          "dependencies": [],
+          "details": "Create a set of utility functions that leverage the Supabase server client for data fetching. These functions should handle common data access patterns, support pagination, filtering, and sorting. Implement proper typing for all functions and ensure they're optimized for server component usage. Include documentation for each function explaining its purpose and usage patterns.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement error handling patterns for server components",
+          "description": "Design and implement consistent error handling patterns for server component data fetching",
+          "dependencies": [
+            1
+          ],
+          "details": "Create error boundary components specifically designed for server components. Implement standardized error handling patterns including error logging, fallback UI components, and retry mechanisms. Ensure errors are properly typed and categorized (network errors, authentication errors, etc.). Develop a strategy for handling errors at different levels of the component tree.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Integrate React Suspense with server components",
+          "description": "Set up React Suspense boundaries and loading states for server component data fetching",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Implement Suspense boundaries at appropriate levels in the component hierarchy. Create loading UI components that provide meaningful feedback during data fetching. Ensure Suspense works correctly with nested server components and parallel data fetching. Test various network conditions to verify the loading states behave as expected.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Refactor existing components to use server-side data fetching",
+          "description": "Convert client components to server components where appropriate and update data fetching patterns",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Identify components that can be converted to server components. Refactor these components to use the new server-side data fetching utilities. Update component props and interfaces as needed. Ensure proper separation between server and client components. Test each refactored component to verify functionality remains intact.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Optimize performance of server component data fetching",
+          "description": "Implement caching, prefetching, and other performance optimizations for server components",
+          "dependencies": [
+            4
+          ],
+          "details": "Implement React Cache for data fetching results. Set up appropriate cache invalidation strategies. Add prefetching for anticipated user interactions. Measure and optimize server component rendering performance. Implement waterfall prevention techniques for parallel data fetching. Document performance improvements and best practices for the team.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "'use client' 지시문을 사용한 클라이언트 컴포넌트 리팩토링",
+      "description": "Properly mark interactive components with the 'use client' directive and ensure they follow client component best practices.",
+      "details": "1. Add 'use client' directive to all components that:\n   - Use hooks (useState, useEffect, etc.)\n   - Handle user interactions (onClick, onChange, etc.)\n   - Use browser-only APIs\n2. Ensure client components are properly importing the browser Supabase client\n3. Move state management and event handlers to client components\n4. Minimize the size of client component trees by keeping as much as possible in server components\n\nExample refactoring:\n```typescript\n// Before: Mixed component with data fetching and interactivity\nimport { useState, useEffect } from 'react'\nimport { supabase } from '@/lib/supabase'\n\nexport default function PostList() {\n  const [posts, setPosts] = useState([])\n  const [loading, setLoading] = useState(true)\n  \n  useEffect(() => {\n    async function fetchPosts() {\n      const { data, error } = await supabase.from('posts').select('*')\n      if (!error) setPosts(data)\n      setLoading(false)\n    }\n    fetchPosts()\n  }, [])\n  \n  return (\n    <div>\n      {loading ? <p>Loading...</p> : (\n        <ul>\n          {posts.map(post => <li key={post.id}>{post.title}</li>)}\n        </ul>\n      )}\n    </div>\n  )\n}\n\n// After: Split into server and client components\n// app/posts/page.tsx (Server Component)\nimport { createServerSupabaseClient } from '@/lib/supabase/server'\nimport PostList from './PostList'\n\nasync function getPosts() {\n  const supabase = createServerSupabaseClient()\n  const { data, error } = await supabase.from('posts').select('*')\n  if (error) throw new Error('Failed to fetch posts')\n  return data\n}\n\nexport default async function PostsPage() {\n  const posts = await getPosts()\n  return <PostList initialPosts={posts} />\n}\n\n// app/posts/PostList.tsx (Client Component)\n'use client'\n\nimport { useState } from 'react'\n\nexport default function PostList({ initialPosts }) {\n  const [posts, setPosts] = useState(initialPosts)\n  \n  return (\n    <ul>\n      {posts.map(post => <li key={post.id}>{post.title}</li>)}\n    </ul>\n  )\n}\n```",
+      "testStrategy": "1. Verify that all interactive components have the 'use client' directive\n2. Test that client components correctly receive and render data from server components\n3. Test interactive features like button clicks and form submissions\n4. Ensure client components don't unnecessarily re-render",
+      "priority": "high",
+      "dependencies": [
+        4
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Component Identification and Analysis",
+          "description": "Identify all components that need to be refactored as client components and analyze their current implementation.",
+          "dependencies": [],
+          "details": "Create an inventory of all components in the application. Analyze each component to determine if it needs the 'use client' directive based on its interactivity, event handlers, and state management. Document the components that require refactoring and their dependencies.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Add 'use client' Directives",
+          "description": "Add the 'use client' directive to all identified components that require client-side functionality.",
+          "dependencies": [
+            1
+          ],
+          "details": "Based on the analysis from subtask 1, systematically add the 'use client' directive at the top of each component file that requires client-side functionality. Ensure the directive is placed before any imports or other code in the file.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "State Management Migration",
+          "description": "Refactor state management in components to align with the client component architecture.",
+          "dependencies": [
+            2
+          ],
+          "details": "Review all state management code in the identified components. Move React hooks (useState, useReducer, useContext) to client components. Ensure state is properly contained within client boundaries. Consider implementing state lifting where necessary to maintain proper data flow between components.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Event Handler Refactoring",
+          "description": "Refactor event handlers to ensure they are properly implemented in client components.",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "Identify all event handlers (onClick, onChange, onSubmit, etc.) in the components. Ensure they are contained within client components. Refactor any event handling logic that spans across component boundaries. Test each handler to verify functionality is maintained after refactoring.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "Component Tree Optimization",
+          "description": "Optimize the component tree to minimize client components and improve performance.",
+          "dependencies": [
+            3,
+            4
+          ],
+          "details": "Review the refactored component structure to identify opportunities for optimization. Split components to separate client and server parts where possible. Minimize the number of client components to reduce JavaScript bundle size. Implement performance testing to ensure the refactored components maintain or improve application performance.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "정적 및 동적 렌더링 최적화",
+      "description": "Identify and implement opportunities for static generation and dynamic rendering based on page content requirements.",
+      "details": "1. Analyze each page to determine if it can be statically generated or needs dynamic rendering\n2. Implement static generation for pages with content that doesn't change frequently\n3. Configure revalidation periods for statically generated pages\n4. Ensure dynamic pages use server components for data fetching\n\nImplementation approach:\n```typescript\n// Static page with revalidation\n// app/blog/[slug]/page.tsx\nimport { createServerSupabaseClient } from '@/lib/supabase/server'\n\nexport async function generateStaticParams() {\n  const supabase = createServerSupabaseClient()\n  const { data } = await supabase.from('posts').select('slug')\n  \n  return data?.map(post => ({\n    slug: post.slug,\n  })) || []\n}\n\nasync function getPost(slug) {\n  const supabase = createServerSupabaseClient()\n  const { data } = await supabase\n    .from('posts')\n    .select('*')\n    .eq('slug', slug)\n    .single()\n  \n  return data\n}\n\nexport default async function BlogPost({ params }) {\n  const post = await getPost(params.slug)\n  \n  return (\n    <article>\n      <h1>{post.title}</h1>\n      <div dangerouslySetInnerHTML={{ __html: post.content }} />\n    </article>\n  )\n}\n\nexport const revalidate = 3600 // Revalidate every hour\n```",
+      "testStrategy": "1. Test that static pages are correctly pre-rendered\n2. Verify revalidation works as expected\n3. Test dynamic pages with different query parameters\n4. Measure and compare performance between static and dynamic pages",
+      "priority": "medium",
+      "dependencies": [
+        5,
+        6
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Page Analysis and Rendering Strategy Mapping",
+          "description": "Analyze all pages in the application and determine the optimal rendering strategy for each based on content type and update frequency.",
+          "dependencies": [],
+          "details": "Create a comprehensive inventory of all pages, categorizing them by data requirements, update frequency, and user interaction patterns. Document which pages should use static generation (SSG), incremental static regeneration (ISR), or server-side rendering (SSR). Include performance metrics and user experience considerations in the analysis.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Static Generation Implementation",
+          "description": "Implement static generation for pages with infrequently changing content to improve performance and reduce server load.",
+          "dependencies": [
+            1
+          ],
+          "details": "Modify page components to use getStaticProps for data fetching. Ensure proper error handling and fallback states. Implement build-time data fetching for static content. Test the implementation by comparing load times before and after changes.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Revalidation Configuration Setup",
+          "description": "Configure incremental static regeneration (ISR) for semi-dynamic pages that require periodic updates.",
+          "dependencies": [
+            2
+          ],
+          "details": "Implement revalidation strategies using Next.js ISR capabilities. Set appropriate revalidation intervals based on content update frequency. Add on-demand revalidation triggers where applicable. Document the revalidation strategy for each page and test the revalidation process.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Dynamic Rendering Implementation",
+          "description": "Implement server-side rendering or client-side rendering for highly dynamic pages that require real-time data.",
+          "dependencies": [
+            1,
+            3
+          ],
+          "details": "Identify pages requiring real-time data and implement getServerSideProps or client-side data fetching as appropriate. Optimize server-side rendering with caching headers where possible. Implement loading states and error boundaries for dynamic content. Test performance under various network conditions.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "SEO 및 메타데이터 최적화 구현",
+      "description": "Add proper metadata to all pages and implement SEO best practices using Next.js metadata API.",
+      "details": "1. Implement metadata for all pages using Next.js metadata API\n2. Create dynamic metadata based on page content\n3. Add Open Graph and Twitter card metadata\n4. Implement structured data where appropriate\n\nExample implementation:\n```typescript\n// app/blog/[slug]/page.tsx\nimport { createServerSupabaseClient } from '@/lib/supabase/server'\nimport { Metadata, ResolvingMetadata } from 'next'\n\ntype Props = {\n  params: { slug: string }\n}\n\nexport async function generateMetadata(\n  { params }: Props,\n  parent: ResolvingMetadata\n): Promise<Metadata> {\n  const post = await getPost(params.slug)\n  \n  return {\n    title: post.title,\n    description: post.excerpt,\n    openGraph: {\n      title: post.title,\n      description: post.excerpt,\n      images: [post.featuredImage],\n      type: 'article',\n      publishedTime: post.publishedAt,\n    },\n    twitter: {\n      card: 'summary_large_image',\n      title: post.title,\n      description: post.excerpt,\n      images: [post.featuredImage],\n    },\n  }\n}\n\nasync function getPost(slug) {\n  const supabase = createServerSupabaseClient()\n  const { data } = await supabase\n    .from('posts')\n    .select('*')\n    .eq('slug', slug)\n    .single()\n  \n  return data\n}\n\nexport default async function BlogPost({ params }: Props) {\n  const post = await getPost(params.slug)\n  \n  return (\n    <article>\n      <h1>{post.title}</h1>\n      <div dangerouslySetInnerHTML={{ __html: post.content }} />\n    </article>\n  )\n}\n```",
+      "testStrategy": "1. Verify metadata is correctly generated for each page\n2. Test dynamic metadata generation with different content\n3. Use tools like Lighthouse to verify SEO score improvements\n4. Test structured data using Google's Rich Results Test",
+      "priority": "medium",
+      "dependencies": [
+        7
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Basic Metadata Setup",
+          "description": "Implement basic metadata for all static pages using Next.js metadata API",
+          "dependencies": [],
+          "details": "Create a consistent metadata structure for static pages including title, description, and Open Graph tags. Set up default metadata in the root layout.js file and implement page-specific overrides. Ensure proper favicon and site icon implementation.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Dynamic Metadata Generation",
+          "description": "Implement dynamic metadata for content-driven pages",
+          "dependencies": [
+            1
+          ],
+          "details": "Create generateMetadata functions for dynamic routes like blog posts, product pages, and category pages. Ensure metadata reflects the specific content being displayed. Implement proper canonical URLs and alternates for pagination or filtered views. Test with various content types to ensure metadata is correctly generated.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Structured Data Implementation",
+          "description": "Add JSON-LD structured data for relevant page types",
+          "dependencies": [
+            2
+          ],
+          "details": "Implement JSON-LD structured data for products, articles, FAQs, and other relevant content types. Create reusable structured data components that can be populated dynamically. Test implementation using Google's Rich Results Test and Schema Validator. Ensure proper integration with the Next.js metadata API.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Jest 및 React Testing Library 설정",
+      "description": "Configure Jest and React Testing Library for the project to enable component and utility testing.",
+      "details": "1. Install required dependencies:\n   - jest\n   - @testing-library/react\n   - @testing-library/jest-dom\n   - jest-environment-jsdom\n2. Configure Jest in package.json or jest.config.js\n3. Setup test utilities and mocks\n4. Configure TypeScript for testing\n\nImplementation steps:\n```bash\nnpm install --save-dev jest @testing-library/react @testing-library/jest-dom jest-environment-jsdom @testing-library/user-event\n```\n\nCreate jest.config.js:\n```javascript\nconst nextJest = require('next/jest')\n\nconst createJestConfig = nextJest({\n  dir: './',\n})\n\nconst customJestConfig = {\n  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],\n  testEnvironment: 'jest-environment-jsdom',\n  moduleNameMapper: {\n    '^@/(.*)$': '<rootDir>/src/$1',\n  },\n  collectCoverage: true,\n  collectCoverageFrom: [\n    'src/**/*.{js,jsx,ts,tsx}',\n    '!src/**/*.d.ts',\n    '!src/**/_*.{js,jsx,ts,tsx}',\n    '!src/**/*.stories.{js,jsx,ts,tsx}',\n  ],\n}\n\nmodule.exports = createJestConfig(customJestConfig)\n```\n\nCreate jest.setup.js:\n```javascript\nimport '@testing-library/jest-dom'\n\n// Mock Supabase\njest.mock('@/lib/supabase/client', () => ({\n  createBrowserSupabaseClient: jest.fn(() => ({\n    auth: {\n      getUser: jest.fn(),\n      signIn: jest.fn(),\n      signOut: jest.fn(),\n    },\n    from: jest.fn(() => ({\n      select: jest.fn(() => ({\n        eq: jest.fn(() => ({\n          data: [],\n          error: null,\n        })),\n      })),\n    })),\n  })),\n}))\n\njest.mock('@/lib/supabase/server', () => ({\n  createServerSupabaseClient: jest.fn(() => ({\n    auth: {\n      getUser: jest.fn(),\n    },\n    from: jest.fn(() => ({\n      select: jest.fn(() => ({\n        eq: jest.fn(() => ({\n          data: [],\n          error: null,\n        })),\n      })),\n    })),\n  })),\n}))\n```",
+      "testStrategy": "1. Verify Jest configuration by running a simple test\n2. Test that mocks are working correctly\n3. Ensure test environment correctly simulates the Next.js environment\n4. Verify code coverage reporting works",
+      "priority": "medium",
+      "dependencies": [],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Install Testing Dependencies",
+          "description": "Install Jest, React Testing Library, and other necessary testing packages",
+          "dependencies": [],
+          "details": "Install Jest, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event, and jest-environment-jsdom. Update package.json with appropriate test scripts. Configure any necessary TypeScript settings for Jest.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Configure Jest for Next.js",
+          "description": "Set up Jest configuration to work with Next.js environment",
+          "dependencies": [
+            1
+          ],
+          "details": "Create jest.config.js file with appropriate Next.js settings. Configure moduleNameMapper for handling CSS, image imports, and other assets. Set up the correct test environment and transform settings for JSX/TSX files.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Create Mock Setup for External Dependencies",
+          "description": "Set up mocks for Supabase, Next.js router, and other external services",
+          "dependencies": [
+            2
+          ],
+          "details": "Create __mocks__ directory with mock implementations for Supabase client, Next.js useRouter, and any other external services. Set up a test utilities file with common testing functions and providers for wrapping components during tests.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Create Initial Component Tests",
+          "description": "Write basic test cases for a simple component to verify the testing setup",
+          "dependencies": [
+            3
+          ],
+          "details": "Create a test file for a simple component (e.g., Button or Header). Write tests for rendering, user interactions, and any component-specific logic. Ensure tests pass and the setup is working correctly before proceeding with more complex component testing.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "테스트 유틸리티 및 목 생성",
+      "description": "Develop test utilities and mocks to facilitate testing of components that use Supabase and Next.js features.",
+      "details": "1. Create test utilities for rendering components with providers\n2. Develop mocks for Supabase client\n3. Create mocks for Next.js features (router, headers, cookies)\n4. Implement helper functions for common testing scenarios\n\nExample implementation:\n```typescript\n// src/test/utils.tsx\nimport { render } from '@testing-library/react'\nimport { SupabaseProvider } from '@/lib/supabase/provider'\n\nconst customRender = (ui, options = {}) => {\n  return render(ui, {\n    wrapper: ({ children }) => (\n      <SupabaseProvider>{children}</SupabaseProvider>\n    ),\n    ...options,\n  })\n}\n\n// Mock data\nexport const mockPosts = [\n  { id: 1, title: 'Test Post 1', content: 'Content 1' },\n  { id: 2, title: 'Test Post 2', content: 'Content 2' },\n]\n\n// Mock Supabase responses\nexport const mockSupabaseFrom = (tableName, data, error = null) => {\n  return {\n    from: jest.fn((table) => {\n      if (table === tableName) {\n        return {\n          select: jest.fn(() => ({\n            eq: jest.fn(() => ({ data, error })),\n            order: jest.fn(() => ({ data, error })),\n            data,\n            error,\n          })),\n          insert: jest.fn(() => ({ data, error })),\n          update: jest.fn(() => ({ data, error })),\n          delete: jest.fn(() => ({ data, error })),\n        }\n      }\n      return {\n        select: jest.fn(() => ({ data: null, error: null })),\n      }\n    }),\n  }\n}\n\nexport { customRender as render }\n```",
+      "testStrategy": "1. Test the custom render function with a simple component\n2. Verify mocks correctly simulate Supabase responses\n3. Test that providers are correctly applied in the test environment\n4. Create example tests using the utilities to validate their effectiveness",
+      "priority": "medium",
+      "dependencies": [
+        9
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create render utilities for component testing",
+          "description": "Develop utilities to simplify rendering components in test environments with proper context providers and test configurations",
+          "dependencies": [],
+          "details": "Implement render utilities that wrap components with necessary providers (theme, auth, etc.), handle test rendering configurations, and provide helper methods for querying and interacting with rendered components. Include utilities for both shallow and deep rendering approaches.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement Supabase mocking utilities",
+          "description": "Create comprehensive mocks for Supabase client, authentication, and database operations",
+          "dependencies": [
+            1
+          ],
+          "details": "Develop mock implementations for Supabase client, auth methods, database queries, and real-time subscriptions. Include utilities to simulate successful responses, errors, and edge cases. Ensure mocks can be easily configured for different test scenarios.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Develop Next.js feature mocks",
+          "description": "Create mocks for Next.js specific features like routing, data fetching, and server components",
+          "dependencies": [
+            1
+          ],
+          "details": "Implement mock utilities for Next.js router, navigation methods, server-side rendering functions, and data fetching methods. Include mocks for useRouter, Link component behavior, and other Next.js specific APIs. Ensure compatibility with the application's routing structure.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Create test helper functions",
+          "description": "Implement reusable helper functions for common testing patterns and assertions",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Develop helper functions for common testing tasks such as form interactions, authentication state simulation, waiting for async operations, and custom assertions. Create utilities for generating test data, simulating user interactions, and validating component states across different test scenarios.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Supabase 클라이언트 유틸리티 유닛 테스트 작성",
+      "description": "Create comprehensive unit tests for the Supabase client utility functions.",
+      "details": "1. Write tests for createServerSupabaseClient function\n2. Write tests for createBrowserSupabaseClient function\n3. Test SupabaseProvider and useSupabase hook\n4. Test error handling in Supabase utility functions\n\nExample test implementation:\n```typescript\n// src/lib/supabase/client.test.ts\nimport { createBrowserSupabaseClient } from './client'\n\njest.mock('@supabase/ssr', () => ({\n  createBrowserClient: jest.fn(() => ({\n    // Mock Supabase client methods\n  })),\n}))\n\ndescribe('createBrowserSupabaseClient', () => {\n  beforeEach(() => {\n    jest.clearAllMocks()\n  })\n\n  it('should create a browser Supabase client', () => {\n    const client = createBrowserSupabaseClient()\n    expect(client).toBeDefined()\n  })\n})\n\n// src/lib/supabase/provider.test.tsx\nimport { render, screen } from '@testing-library/react'\nimport { SupabaseProvider, useSupabase } from './provider'\n\nconst TestComponent = () => {\n  const { supabase } = useSupabase()\n  return <div>Supabase Client: {supabase ? 'Available' : 'Not Available'}</div>\n}\n\ndescribe('SupabaseProvider', () => {\n  it('should provide Supabase client to children', () => {\n    render(\n      <SupabaseProvider>\n        <TestComponent />\n      </SupabaseProvider>\n    )\n    \n    expect(screen.getByText(/Supabase Client: Available/)).toBeInTheDocument()\n  })\n\n  it('should throw error when useSupabase is used outside provider', () => {\n    // Suppress console.error for this test\n    const originalError = console.error\n    console.error = jest.fn()\n    \n    expect(() => {\n      render(<TestComponent />)\n    }).toThrow('useSupabase must be used inside SupabaseProvider')\n    \n    console.error = originalError\n  })\n})\n```",
+      "testStrategy": "1. Test that client creation functions return expected objects\n2. Verify error handling works correctly\n3. Test that context providers correctly provide values to consumers\n4. Use mocks to avoid actual API calls during testing",
+      "priority": "medium",
+      "dependencies": [
+        2,
+        3,
+        10
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Implement server-side Supabase client tests",
+          "description": "Create comprehensive unit tests for the server-side Supabase client implementation",
+          "dependencies": [],
+          "details": "Write tests that verify server-side Supabase client initialization, authentication methods, database queries, and storage operations. Set up proper mocking for Supabase responses. Include tests for successful operations and edge cases. Ensure tests run in a Node.js environment.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement browser-side Supabase client tests",
+          "description": "Create comprehensive unit tests for the browser-side Supabase client implementation",
+          "dependencies": [
+            1
+          ],
+          "details": "Write tests that verify browser-specific Supabase client behavior, including local storage integration, cookie handling, and browser-specific authentication flows. Set up proper DOM mocking and ensure tests run in a simulated browser environment. Test both successful operations and edge cases.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Implement provider and hook tests",
+          "description": "Create tests for Supabase context providers and React hooks",
+          "dependencies": [
+            2
+          ],
+          "details": "Test the Supabase provider component and associated React hooks. Verify that the provider correctly initializes the Supabase client and provides it to child components. Test hooks for authentication state, data fetching, and real-time subscriptions. Use React Testing Library to render components and test hook behavior.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Implement error handling tests",
+          "description": "Create tests that verify proper error handling in all Supabase client utilities",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "Test error scenarios including network failures, authentication errors, permission issues, and invalid operations. Verify that errors are properly caught, logged, and handled. Test error recovery mechanisms and retry logic if applicable. Ensure consistent error handling across both server and browser environments.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "컴포넌트 테스트 작성",
+      "description": "Create tests for key UI components to ensure they render correctly and handle user interactions properly.",
+      "details": "1. Identify critical UI components for testing\n2. Write tests for component rendering\n3. Test user interactions (clicks, form inputs, etc.)\n4. Test component state changes\n\nExample test implementation:\n```typescript\n// src/components/PostCard.test.tsx\nimport { render, screen, fireEvent } from '@testing-library/react'\nimport PostCard from './PostCard'\n\nconst mockPost = {\n  id: 1,\n  title: 'Test Post',\n  excerpt: 'This is a test post',\n  slug: 'test-post',\n}\n\ndescribe('PostCard', () => {\n  it('renders post information correctly', () => {\n    render(<PostCard post={mockPost} />)\n    \n    expect(screen.getByText('Test Post')).toBeInTheDocument()\n    expect(screen.getByText('This is a test post')).toBeInTheDocument()\n    expect(screen.getByRole('link')).toHaveAttribute('href', '/blog/test-post')\n  })\n\n  it('navigates to post page when clicked', () => {\n    render(<PostCard post={mockPost} />)\n    \n    const link = screen.getByRole('link')\n    fireEvent.click(link)\n    \n    // Test navigation would go here if using a router mock\n  })\n})\n```",
+      "testStrategy": "1. Test that components render with different props\n2. Verify user interactions trigger expected behaviors\n3. Test loading, error, and success states\n4. Test accessibility features",
+      "priority": "medium",
+      "dependencies": [
+        6,
+        10
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Implement Rendering Tests",
+          "description": "Create tests to verify components render correctly with different props and in different states",
+          "dependencies": [],
+          "details": "Write tests that check if components render without errors, display the correct content based on props, handle conditional rendering correctly, and render child components as expected. Use snapshot testing where appropriate to detect unexpected UI changes.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Develop Interaction Tests",
+          "description": "Create tests for user interactions like clicks, inputs, and form submissions",
+          "dependencies": [
+            1
+          ],
+          "details": "Simulate user events (clicks, typing, etc.) and verify components respond correctly. Test form validations, button click handlers, hover states, and other interactive elements. Use testing libraries to mock user interactions and verify the expected outcomes.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Implement State Management Tests",
+          "description": "Test component state changes and integration with state management systems",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Verify that component state updates correctly in response to props changes and user interactions. Test integration with Redux, Context API, or other state management solutions. Ensure that components re-render appropriately when state changes and that state is maintained correctly across component lifecycle events.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Create Accessibility Tests",
+          "description": "Test components for accessibility compliance and screen reader compatibility",
+          "dependencies": [
+            1
+          ],
+          "details": "Verify that components meet WCAG guidelines. Test keyboard navigation, focus management, proper ARIA attributes, color contrast, and screen reader compatibility. Use accessibility testing tools to automate checks and ensure components are usable by people with disabilities.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "페이지 통합 테스트 작성",
+      "description": "Create integration tests for key pages to ensure they correctly fetch and display data.",
+      "details": "1. Identify critical pages for testing\n2. Mock server-side data fetching\n3. Test page rendering with different data scenarios\n4. Test page interactions and navigation\n\nExample test implementation:\n```typescript\n// src/app/posts/page.test.tsx\nimport { render, screen } from '@testing-library/react'\nimport PostsPage from './page'\nimport { mockPosts } from '@/test/utils'\n\n// Mock the data fetching function\njest.mock('@/lib/supabase/server', () => ({\n  createServerSupabaseClient: jest.fn(() => ({\n    from: jest.fn(() => ({\n      select: jest.fn(() => ({\n        order: jest.fn(() => ({\n          data: mockPosts,\n          error: null,\n        })),\n      })),\n    })),\n  })),\n}))\n\ndescribe('PostsPage', () => {\n  it('renders posts correctly', async () => {\n    // Since this is an async component, we need to render it differently\n    const PostsPageComponent = await PostsPage()\n    render(PostsPageComponent)\n    \n    expect(screen.getByText('Posts')).toBeInTheDocument()\n    expect(screen.getByText('Test Post 1')).toBeInTheDocument()\n    expect(screen.getByText('Test Post 2')).toBeInTheDocument()\n  })\n\n  it('handles empty posts array', async () => {\n    // Override the mock for this test\n    jest.mock('@/lib/supabase/server', () => ({\n      createServerSupabaseClient: jest.fn(() => ({\n        from: jest.fn(() => ({\n          select: jest.fn(() => ({\n            order: jest.fn(() => ({\n              data: [],\n              error: null,\n            })),\n          })),\n        })),\n      })),\n    }))\n    \n    const PostsPageComponent = await PostsPage()\n    render(PostsPageComponent)\n    \n    expect(screen.getByText('No posts found')).toBeInTheDocument()\n  })\n})\n```",
+      "testStrategy": "1. Test pages with different data scenarios (empty, error, loaded)\n2. Verify that pages correctly handle loading and error states\n3. Test that pages correctly render components with fetched data\n4. Test page-level interactions",
+      "priority": "low",
+      "dependencies": [
+        5,
+        7,
+        10
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Set up data fetching mocks",
+          "description": "Create mock implementations for all data fetching functions used by the page",
+          "dependencies": [],
+          "details": "Identify all data fetching functions used by the page. Create mock implementations that return predefined test data. Set up a testing utility that allows switching between different mock data scenarios (empty data, full data, partial data). Ensure mocks properly simulate loading states and timing.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement page rendering tests",
+          "description": "Test that the page renders correctly with different data scenarios",
+          "dependencies": [
+            1
+          ],
+          "details": "Create tests that verify the page renders correctly with various data scenarios. Test rendering with full data, empty data, and partial data. Verify that all expected UI elements are present and contain the correct content. Test that server and client components integrate properly. Verify that loading states are displayed appropriately.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Develop user interaction tests",
+          "description": "Test all interactive elements and user flows on the page",
+          "dependencies": [
+            2
+          ],
+          "details": "Identify all interactive elements on the page (buttons, forms, links, etc.). Create tests for each interaction, verifying that the correct actions occur. Test form submissions, navigation events, and state changes. Verify that client-side state updates correctly after interactions. Test any conditional rendering based on user interactions.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "Implement error state tests",
+          "description": "Test how the page handles various error conditions",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Configure data fetching mocks to simulate different error scenarios (network errors, server errors, validation errors). Test that appropriate error messages are displayed to the user. Verify error boundary functionality if implemented. Test recovery paths from error states. Ensure errors are logged or reported appropriately.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "코드 커버리지 리포팅 설정",
+      "description": "Set up code coverage reporting with Jest and configure minimum coverage thresholds.",
+      "details": "1. Configure Jest to collect coverage information\n2. Set coverage thresholds (minimum 70% as per requirements)\n3. Configure coverage report output formats\n4. Add coverage reporting to npm scripts\n\nImplementation steps:\n1. Update Jest configuration:\n```javascript\n// jest.config.js\nconst customJestConfig = {\n  // ... existing config\n  collectCoverage: true,\n  coverageDirectory: 'coverage',\n  collectCoverageFrom: [\n    'src/**/*.{js,jsx,ts,tsx}',\n    '!src/**/*.d.ts',\n    '!src/**/_*.{js,jsx,ts,tsx}',\n    '!src/**/*.stories.{js,jsx,ts,tsx}',\n    '!**/node_modules/**',\n  ],\n  coverageThreshold: {\n    global: {\n      branches: 70,\n      functions: 70,\n      lines: 70,\n      statements: 70,\n    },\n  },\n  coverageReporters: ['json', 'lcov', 'text', 'clover'],\n}\n```\n\n2. Add npm scripts:\n```json\n// package.json\n{\n  \"scripts\": {\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:coverage\": \"jest --coverage\"\n  }\n}\n```",
+      "testStrategy": "1. Run test coverage to verify configuration works\n2. Check that coverage reports are generated in expected formats\n3. Verify that coverage thresholds are enforced\n4. Test that coverage reporting works in CI environment",
+      "priority": "low",
+      "dependencies": [
+        9
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Configure Jest for code coverage collection",
+          "description": "Set up Jest configuration to collect code coverage metrics during test runs",
+          "dependencies": [],
+          "details": "Update Jest configuration to enable coverage collection by adding the appropriate flags in package.json or jest.config.js. Configure the coverage directory and ensure the correct file patterns are included/excluded from coverage analysis.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Establish code coverage thresholds",
+          "description": "Define minimum acceptable code coverage thresholds for the project",
+          "dependencies": [
+            1
+          ],
+          "details": "Set up coverage thresholds in the Jest configuration for statements, branches, functions, and lines. Determine appropriate threshold values based on project requirements. Configure Jest to fail tests if coverage falls below these thresholds.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Integrate code coverage reporting with CI pipeline",
+          "description": "Configure CI system to generate and display code coverage reports",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Update CI configuration to run tests with coverage enabled. Configure the CI pipeline to generate coverage reports in the appropriate format (HTML, lcov, etc.). Set up the CI to fail builds if coverage thresholds are not met. Consider adding coverage badges to the repository README.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "CI/CD 파이프라인에 테스트 커버리지 통합",
+      "description": "Configure CI/CD pipeline to run tests and verify code coverage meets thresholds.",
+      "details": "1. Configure GitHub Actions or other CI/CD service to run tests\n2. Add coverage verification step to CI pipeline\n3. Configure reporting of test results and coverage\n4. Set up PR checks based on test results and coverage\n\nExample GitHub Actions configuration:\n```yaml\n# .github/workflows/test.yml\nname: Test\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n\n    steps:\n      - uses: actions/checkout@v3\n      \n      - name: Setup Node.js\n        uses: actions/setup-node@v3\n        with:\n          node-version: '18'\n          cache: 'npm'\n      \n      - name: Install dependencies\n        run: npm ci\n      \n      - name: Run tests with coverage\n        run: npm run test:coverage\n      \n      - name: Upload coverage to Codecov\n        uses: codecov/codecov-action@v3\n        with:\n          token: ${{ secrets.CODECOV_TOKEN }}\n          directory: ./coverage/\n          fail_ci_if_error: true\n```",
+      "testStrategy": "1. Test the CI configuration with a sample PR\n2. Verify that tests run correctly in the CI environment\n3. Check that coverage reports are correctly uploaded\n4. Test that PR checks work as expected for both passing and failing tests",
+      "priority": "low",
+      "dependencies": [
+        14
+      ],
+      "status": "pending",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Configure CI/CD Workflow",
+          "description": "Set up the basic CI/CD workflow configuration using GitHub Actions or similar service",
+          "dependencies": [],
+          "details": "Create workflow YAML file that defines the CI pipeline, including environment setup, dependency installation, and test execution. Configure the workflow to trigger on push and pull requests to relevant branches. Ensure proper caching of dependencies to optimize build times.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "Implement Test Coverage Reporting",
+          "description": "Configure the CI pipeline to generate and report test coverage metrics",
+          "dependencies": [
+            1
+          ],
+          "details": "Integrate a coverage tool (like Istanbul/nyc, Jest coverage, or similar) into the CI workflow. Configure the tool to generate coverage reports in appropriate formats (HTML, JSON, lcov). Set up the CI to upload coverage artifacts or publish them to a dashboard service. Define minimum coverage thresholds if applicable.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Implement PR Status Checks",
+          "description": "Configure the repository to require passing CI checks before merging pull requests",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Set up branch protection rules in the repository settings. Configure required status checks that must pass before merging. Implement PR comments that show test results and coverage changes. Add status badges to the repository README to display current build status and coverage metrics.",
+          "status": "pending"
+        }
+      ]
+    }
+  ]
+}
