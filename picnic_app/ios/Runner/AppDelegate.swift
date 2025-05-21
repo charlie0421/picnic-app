@@ -2,7 +2,6 @@ import Flutter
 import PAGAdSDK
 import PincruxOfferwall
 import UIKit
-import restart
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -13,12 +12,6 @@ import restart
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-
-        // --------------------------------------------------
-        RestartPlugin.generatedPluginRegistrantRegisterCallback = { [weak self] in
-            GeneratedPluginRegistrant.register(with: self!)
-        }
-        // --------------------------------------------------
 
         let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
 

@@ -109,20 +109,27 @@ class AppInitializer {
   }
 
   static void _logSentryException(SentryEvent event) {
-    event.exceptions?.forEach((element) {
-      if (element.stackTrace != null) {
-        final frames = element.stackTrace?.frames;
-        if (frames != null && frames.isNotEmpty) {
-          final stackTraceString = frames
-              .map((frame) =>
-                  '${frame.fileName}:${frame.lineNo} - ${frame.function}')
-              .join('\n');
-          logger.e('${element.value}\nStacktrace:\n$stackTraceString');
-        } else {
-          logger.e('Stacktrace: No frames available');
+    try {
+      event.exceptions?.forEach((element) {
+        if (element.stackTrace != null) {
+          final frames = element.stackTrace?.frames;
+          if (frames != null && frames.isNotEmpty) {
+            final stackTraceString = frames
+                .map((frame) =>
+                    '${frame.fileName}:${frame.lineNo} - ${frame.function}')
+                .join('\n');
+            logger.e('${element.value}\nStacktrace:\n$stackTraceString');
+          } else {
+            logger.e('Stacktrace: No frames available');
+          }
         }
+      });
+    } catch (e) {
+      // 로그 출력 중 오류 발생 시 무시
+      if (kDebugMode) {
+        print('Error in _logSentryException: $e');
       }
-    });
+    }
   }
 
   // static Future<void> initializeMetaAudienceNetwork() async {
@@ -277,13 +284,19 @@ class AppInitializer {
       await precacheImage(const AssetImage("assets/splash.webp"), context);
       if (!context.mounted) return;
 
+      // 위젯 마운트 상태 확인 후 ref 사용
+      if (!context.mounted) return;
       ref.read(appSettingProvider.notifier);
+
+      // 위젯 마운트 상태 확인 후 ref 사용
+      if (!context.mounted) return;
       ref
           .read(globalMediaQueryProvider.notifier)
           .updateMediaQueryData(mediaQueryData);
 
       if (isMobile()) {
         await _initializeMobileApp(ref);
+        if (!context.mounted) return;
         await _loadProducts(ref);
 
         logger.i('제품 정보 로드 완료');
@@ -448,111 +461,141 @@ class AppInitializer {
   }
 
   static void setupSupabaseAuthListener(WidgetRef ref) {
-    supabase.auth.onAuthStateChange.listen((data) async {
-      final session = data.session;
-      if (session != null) {
-        logger.i('jwtToken: ${session.accessToken}');
-      }
+    final subscription = supabase.auth.onAuthStateChange.listen((data) async {
+      try {
+        final session = data.session;
+        if (session != null) {
+          logger.i('jwtToken: ${session.accessToken}');
+        }
 
-      if (data.event == AuthChangeEvent.signedIn) {
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
-      } else if (data.event == AuthChangeEvent.signedOut) {
-        logger.i('User signed out');
+        if (data.event == AuthChangeEvent.signedIn) {
+          try {
+            await ref.read(userInfoProvider.notifier).getUserProfiles();
+          } catch (e) {
+            logger.e('getUserProfiles 호출 중 오류: $e');
+            // ref가 더 이상 유효하지 않을 수 있으므로 무시
+          }
+        } else if (data.event == AuthChangeEvent.signedOut) {
+          logger.i('User signed out');
+        }
+      } catch (e, s) {
+        logger.e('인증 상태 변경 처리 중 오류:', error: e, stackTrace: s);
       }
     });
+
+    // 필요한 경우 나중에 구독 취소 로직 추가
+    // (dispose 메서드가 있는 위젯 내에서 호출될 경우)
   }
 
-  static void setupBranchListener(ref) {
-    FlutterBranchSdk.listSession().listen((data) {
-      logger.i('Incoming Branch link data: $data');
-      if (data.containsKey("+clicked_branch_link") &&
-          data["+clicked_branch_link"] == true) {
-        // 링크 클릭 시 처리 로직
-        final longUrl = data["\$desktop_url"];
-        // longUrl을 사용하여 원하는 페이지로 이동
-        handleDeepLink(ref, longUrl);
+  static void setupBranchListener(WidgetRef ref) {
+    final subscription = FlutterBranchSdk.listSession().listen((data) {
+      try {
+        logger.i('Incoming Branch link data: $data');
+        if (data.containsKey("+clicked_branch_link") &&
+            data["+clicked_branch_link"] == true) {
+          // 링크 클릭 시 처리 로직
+          final longUrl = data["\$desktop_url"];
+          // longUrl을 사용하여 원하는 페이지로 이동
+          handleDeepLink(ref, longUrl);
+        }
+      } catch (e, s) {
+        logger.e('Branch link 처리 중 오류:', error: e, stackTrace: s);
       }
     }, onError: (error) {
       logger.e('Branch link error: $error');
     });
+
+    // 필요한 경우 나중에 구독 취소 로직 추가
   }
 
   static void handleDeepLink(WidgetRef ref, String longUrl) {
-    final uri = Uri.parse(longUrl);
+    try {
+      final uri = Uri.parse(longUrl);
 
-    if (uri.pathSegments.isNotEmpty) {
-      final portal = uri.pathSegments[0];
-      final page = uri.pathSegments[1];
-      switch (portal) {
-        case 'vote':
-          switch (page) {
-            case 'list':
-              ref.read(navigationInfoProvider.notifier).setCurrentPage(
-                    const VoteListPage(),
+      // 네비게이션 로직을 캡처하여 나중에 위젯이 dispose 되어도 문제가 없도록 함
+      final navigationNotifier = ref.read(navigationInfoProvider.notifier);
+
+      if (uri.pathSegments.isNotEmpty) {
+        final portal = uri.pathSegments[0];
+        final page = uri.pathSegments[1];
+        switch (portal) {
+          case 'vote':
+            switch (page) {
+              case 'list':
+                navigationNotifier.setCurrentPage(
+                  const VoteListPage(),
+                );
+                break;
+              case 'detail':
+                final voteId = uri.pathSegments[2];
+                final type = uri.queryParameters['type'];
+                if (type == 'achieve') {
+                  navigationNotifier.setCurrentPage(
+                    VoteDetailAchievePage(voteId: int.parse(voteId)),
                   );
-              break;
-            case 'detail':
-              final voteId = uri.pathSegments[2];
-              final type = uri.queryParameters['type'];
-              if (type == 'achieve') {
-                ref.read(navigationInfoProvider.notifier).setCurrentPage(
-                      VoteDetailAchievePage(voteId: int.parse(voteId)),
-                    );
-              } else {
-                ref.read(navigationInfoProvider.notifier).setCurrentPage(
-                      VoteDetailPage(voteId: int.parse(voteId)),
-                    );
-              }
-              break;
-          }
-          break;
-        case 'community':
-          ref
-              .read(navigationInfoProvider.notifier)
-              .setPortal(PortalType.community);
-          switch (page) {
-            case 'home':
-              ref.read(navigationInfoProvider.notifier).setCurrentPage(
-                    const CommunityHomePage(),
+                } else {
+                  navigationNotifier.setCurrentPage(
+                    VoteDetailPage(voteId: int.parse(voteId)),
                   );
-              break;
-            case 'board_list':
-              ref.read(navigationInfoProvider.notifier).setCurrentPage(
-                    const BoardListPage(),
-                  );
-              break;
-            case 'board_detail':
-              final artistId = uri.pathSegments[2];
-              logger.i('artistId: $artistId');
-              ref.read(navigationInfoProvider.notifier).setCurrentPage(
-                    BoardHomePage(int.parse(artistId)),
-                  );
-              break;
-            case 'fortune':
-              final artistId = uri.pathSegments[2];
-              ref.read(navigationInfoProvider.notifier).setCurrentPage(
-                    CompatibilityListPage(artistId: int.parse(artistId)),
-                  );
-              break;
-            case 'compatibility':
-              final artistId = uri.pathSegments[2];
-              ref.read(navigationInfoProvider.notifier).setCurrentPage(
-                    CompatibilityListPage(artistId: int.parse(artistId)),
-                  );
-              break;
-          }
+                }
+                break;
+            }
+            break;
+          case 'community':
+            navigationNotifier.setPortal(PortalType.community);
+            switch (page) {
+              case 'home':
+                navigationNotifier.setCurrentPage(
+                  const CommunityHomePage(),
+                );
+                break;
+              case 'board_list':
+                navigationNotifier.setCurrentPage(
+                  const BoardListPage(),
+                );
+                break;
+              case 'board_detail':
+                final artistId = uri.pathSegments[2];
+                logger.i('artistId: $artistId');
+                navigationNotifier.setCurrentPage(
+                  BoardHomePage(int.parse(artistId)),
+                );
+                break;
+              case 'fortune':
+                final artistId = uri.pathSegments[2];
+                navigationNotifier.setCurrentPage(
+                  CompatibilityListPage(artistId: int.parse(artistId)),
+                );
+                break;
+              case 'compatibility':
+                final artistId = uri.pathSegments[2];
+                navigationNotifier.setCurrentPage(
+                  CompatibilityListPage(artistId: int.parse(artistId)),
+                );
+                break;
+            }
+        }
       }
-    }
-    if (uri.pathSegments.contains('terms')) {
-      uri.pathSegments.contains('ko')
-          ? const TermsScreen(language: 'ko')
-          : const TermsScreen(language: 'en');
-    } else if (uri.pathSegments.contains('privacy')) {
-      uri.pathSegments.contains('ko')
-          ? const PrivacyScreen(language: 'ko')
-          : const PrivacyScreen(language: 'en');
-    } else {
-      ref.read(userInfoProvider.notifier).getUserProfiles();
+
+      if (uri.pathSegments.contains('terms')) {
+        uri.pathSegments.contains('ko')
+            ? const TermsScreen(language: 'ko')
+            : const TermsScreen(language: 'en');
+      } else if (uri.pathSegments.contains('privacy')) {
+        uri.pathSegments.contains('ko')
+            ? const PrivacyScreen(language: 'ko')
+            : const PrivacyScreen(language: 'en');
+      } else {
+        try {
+          final userInfoNotifier = ref.read(userInfoProvider.notifier);
+          userInfoNotifier.getUserProfiles();
+        } catch (e) {
+          logger.e('getUserProfiles 호출 중 오류: $e');
+          // ref가 더 이상 유효하지 않을 수 있으므로 무시
+        }
+      }
+    } catch (e, s) {
+      logger.e('딥링크 처리 중 오류:', error: e, stackTrace: s);
     }
   }
 }

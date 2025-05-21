@@ -38,6 +38,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/services/localization_service.dart';
 import 'package:ttja_app/generated/l10n.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -50,11 +51,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
 
-  // MaterialApp 강제 리빌드를 위한 키 추가
-  Key _materialAppKey = UniqueKey();
-
   bool _isAppInitialized = false;
-  bool _isLanguageLoaded = false;
   Widget? initScreen;
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer =
@@ -190,15 +187,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       // PicnicLibL10n에 현재 언어 설정
       PicnicLibL10n.setCurrentLocale(currentLanguage);
       logger.i('PicnicLibL10n 언어 설정 완료: $currentLanguage');
-
-      if (mounted) {
-        setState(() {
-          _isLanguageLoaded = true;
-          // MaterialApp 강제 리빌드를 위한 키 갱신
-          _materialAppKey = UniqueKey();
-          logger.i('언어 로딩 완료 상태 설정됨, MaterialApp 키 갱신됨');
-        });
-      }
     } catch (e) {
       logger.e('언어 초기화 중 오류 발생', error: e);
       // 오류 발생 시 기본값으로 한국어 설정
@@ -206,11 +194,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         Intl.defaultLocale = 'ko';
         await S.load(const Locale('ko'));
         PicnicLibL10n.setCurrentLocale('ko');
-        if (mounted) {
-          setState(() {
-            _isLanguageLoaded = true;
-          });
-        }
       } catch (recoveryError) {
         logger.e('언어 복구 중 추가 오류 발생', error: recoveryError);
       }
@@ -246,68 +229,66 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
             // 현재 언어 가져오기
             final currentLanguage = appSettingState.language;
 
-            logger.i(
-                'MaterialApp 빌드: language=$currentLanguage, isAppInitialized=$_isAppInitialized, isLanguageLoaded=$_isLanguageLoaded');
-
-            return MaterialApp(
-              key: _materialAppKey,
-              scaffoldMessengerKey: _scaffoldKey,
-              navigatorKey: navigatorKey,
-              title: 'TTJA',
-              theme: _getCurrentTheme(ref),
-              themeMode: appSettingState.themeMode,
-              locale: Locale(currentLanguage),
-              localizationsDelegates: [
-                // 앱 자체 로컬라이제이션
-                S.delegate,
-                // PicnicLib 로컬라이제이션
-                ...LocalizationService.localizationDelegates,
-                // Flutter 기본 로컬라이제이션
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: LocalizationService.supportedLocales,
-              localeResolutionCallback: (locale, supportedLocales) {
-                // 지원하지 않는 로케일이 요청된 경우 기본값(한국어)으로 대체
-                if (locale != null) {
-                  for (final supportedLocale in supportedLocales) {
-                    if (supportedLocale.languageCode == locale.languageCode) {
-                      return supportedLocale;
+            return Phoenix(
+              child: MaterialApp(
+                scaffoldMessengerKey: _scaffoldKey,
+                navigatorKey: navigatorKey,
+                title: 'TTJA',
+                theme: _getCurrentTheme(ref),
+                themeMode: appSettingState.themeMode,
+                locale: Locale(currentLanguage),
+                localizationsDelegates: [
+                  // 앱 자체 로컬라이제이션
+                  S.delegate,
+                  // PicnicLib 로컬라이제이션
+                  ...LocalizationService.localizationDelegates,
+                  // Flutter 기본 로컬라이제이션
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: LocalizationService.supportedLocales,
+                localeResolutionCallback: (locale, supportedLocales) {
+                  // 지원하지 않는 로케일이 요청된 경우 기본값(한국어)으로 대체
+                  if (locale != null) {
+                    for (final supportedLocale in supportedLocales) {
+                      if (supportedLocale.languageCode == locale.languageCode) {
+                        return supportedLocale;
+                      }
                     }
                   }
-                }
-                // 기본 로케일 반환(한국어)
-                return const Locale('ko');
-              },
-              routes: _buildRoutes(),
-              onGenerateRoute: (settings) {
-                final uri = Uri.parse(settings.name ?? '');
-                final path = uri.path;
+                  // 기본 로케일 반환(한국어)
+                  return const Locale('ko');
+                },
+                routes: _buildRoutes(),
+                onGenerateRoute: (settings) {
+                  final uri = Uri.parse(settings.name ?? '');
+                  final path = uri.path;
 
-                if (path.startsWith('/auth/callback')) {
-                  logger.i('OAuth callback: $uri');
-                  return MaterialPageRoute(
-                    builder: (_) => OAuthCallbackPage(callbackUri: uri),
-                    settings: settings,
-                  );
-                }
-                return MaterialPageRoute(builder: (_) => const Portal());
-              },
-              navigatorObservers: [observer],
-              builder: UniversalPlatform.isWeb
-                  ? (context, child) => MediaQuery(
-                        data: ref
-                            .watch(globalMediaQueryProvider)
-                            .copyWith(size: const Size(600, 800)),
-                        child: UpdateDialog(
-                            child: child ?? const SizedBox.shrink()),
-                      )
-                  : (context, child) =>
-                      UpdateDialog(child: child ?? const SizedBox.shrink()),
-              home: _isAppInitialized && _isLanguageLoaded
-                  ? const Portal()
-                  : const Center(child: CircularProgressIndicator()),
+                  if (path.startsWith('/auth/callback')) {
+                    logger.i('OAuth callback: $uri');
+                    return MaterialPageRoute(
+                      builder: (_) => OAuthCallbackPage(callbackUri: uri),
+                      settings: settings,
+                    );
+                  }
+                  return MaterialPageRoute(builder: (_) => const Portal());
+                },
+                navigatorObservers: [observer],
+                builder: UniversalPlatform.isWeb
+                    ? (context, child) => MediaQuery(
+                          data: ref
+                              .watch(globalMediaQueryProvider)
+                              .copyWith(size: const Size(600, 800)),
+                          child: UpdateDialog(
+                              child: child ?? const SizedBox.shrink()),
+                        )
+                    : (context, child) =>
+                        UpdateDialog(child: child ?? const SizedBox.shrink()),
+                home: _isAppInitialized
+                    ? const Portal()
+                    : const Center(child: CircularProgressIndicator()),
+              ),
             );
           },
         ),
@@ -365,7 +346,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     try {
       setState(() {
         _isAppInitialized = false;
-        _isLanguageLoaded = false;
       });
 
       // 변경된 부분: 언어 변경 순서 최적화
@@ -380,9 +360,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         S.load(Locale(language)).then((_) {
           if (mounted) {
             setState(() {
-              _isLanguageLoaded = true;
               _isAppInitialized = true;
-              _materialAppKey = UniqueKey(); // 강제 리빌드
               logger.i('언어 변경 완료: $language, UI 리빌드 트리거');
             });
           }
@@ -391,7 +369,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         logger.e('번역 로드 중 오류: $e');
         if (mounted) {
           setState(() {
-            _isLanguageLoaded = true;
             _isAppInitialized = true;
           });
         }
@@ -400,7 +377,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       logger.e('언어 변경 적용 중 오류: $e');
       if (mounted) {
         setState(() {
-          _isLanguageLoaded = true;
           _isAppInitialized = true;
         });
       }

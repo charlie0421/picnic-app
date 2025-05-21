@@ -1,5 +1,3 @@
-// ignore_for_file: unused_field, unused_element
-
 import 'dart:async';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -56,7 +54,6 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
-  late Future<void> _initializationFuture;
   Widget? initScreen;
   static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer =
@@ -66,12 +63,6 @@ class _AppState extends ConsumerState<App> {
 
   // 앱이 이미 초기화되었는지 여부를 추적하는 플래그
   bool _isAppInitialized = false;
-
-  // 앱이 초기화된 후의 화면을 캐시하기 위한 변수
-  Widget? _initializedAppScreen;
-
-  // MaterialApp 리빌드를 위한 키 추가
-  Key _materialAppKey = UniqueKey();
 
   // 지원되는 언어 목록
   static const List<Locale> _supportedLocales = [
@@ -97,7 +88,7 @@ class _AppState extends ConsumerState<App> {
     logger.i('App initState 호출됨');
 
     // 초기화 로직을 initState()에서 수행
-    _initializationFuture = _initializeApp();
+    _initializeApp();
   }
 
   Future<void> _initializeApp() async {
@@ -164,7 +155,6 @@ class _AppState extends ConsumerState<App> {
       if (mounted) {
         setState(() {
           _isAppInitialized = true;
-          _materialAppKey = UniqueKey(); // 새 키로 MaterialApp 강제 리빌드
           logger.i('_isAppInitialized 상태를 true로 변경, 앱 UI 리빌드 트리거');
         });
       }
@@ -269,7 +259,6 @@ build 메서드 상태:
 - app 언어: $appLanguage
 - 언어 일치 여부: $isLanguageConsistent
 - currentLocale: ${Locale(appSettingState.language)}
-- materialAppKey: $_materialAppKey
 ''');
 
     // 언어가 일치하지 않으면 동기화
@@ -317,8 +306,6 @@ build 메서드 상태:
     logger.i('현재 언어: ${currentLocale.languageCode}');
 
     return MaterialApp(
-      key:
-          ValueKey('${_materialAppKey.toString()}_${appSettingState.language}'),
       navigatorKey: navigatorKey,
       title: 'TTJA',
       theme: _getCurrentTheme(ref),
@@ -506,7 +493,6 @@ build 메서드 상태:
       if (mounted) {
         setState(() {
           // 키를 변경하여 MaterialApp이 완전히 새로 빌드되도록 함
-          _materialAppKey = UniqueKey();
           _isAppInitialized = true; // 앱 초기화 완료 상태로 변경
           logger.i('MaterialApp 키 갱신 및 앱 초기화 완료: $language');
         });

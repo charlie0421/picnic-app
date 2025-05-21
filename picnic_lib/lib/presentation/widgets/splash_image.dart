@@ -6,9 +6,9 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:restart/restart.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class SplashImageData {
   final String imageUrl;
@@ -35,6 +35,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
   String? scheduledSplashUrl;
   bool _isCheckingUpdate = false;
   String _updateStatus = '';
+  bool _disposed = false;
 
   @override
   void initState() {
@@ -51,8 +52,20 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     });
   }
 
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  // setState 호출을 안전하게 하기 위한 헬퍼 메서드
+  void setStateIfMounted(VoidCallback fn) {
+    if (!mounted || _disposed) return;
+    setState(fn);
+  }
+
   Future<void> _checkForUpdates() async {
-    setState(() {
+    setStateIfMounted(() {
       _isCheckingUpdate = true;
       _updateStatus = t('patch_check');
     });
@@ -61,37 +74,41 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     try {
       final status = await updater.checkForUpdate();
       if (status == shorebird.UpdateStatus.outdated) {
-        setState(() {
+        setStateIfMounted(() {
           _updateStatus = t('patch_install');
         });
         await Future.delayed(const Duration(milliseconds: 500));
 
         await ShorebirdUtils.checkAndUpdate();
-        setState(() {
+        setStateIfMounted(() {
           _updateStatus = t('patch_restart_app');
         });
 
         await Future.delayed(const Duration(milliseconds: 500));
 
-        restart();
+        if (mounted) {
+          Phoenix.rebirth(context);
+        }
       } else if (status == shorebird.UpdateStatus.restartRequired) {
-        setState(() {
+        setStateIfMounted(() {
           _updateStatus = t('patch_restart_app');
         });
         await Future.delayed(const Duration(milliseconds: 500));
-        restart();
+        if (mounted) {
+          Phoenix.rebirth(context);
+        }
       } else {
-        setState(() {
+        setStateIfMounted(() {
           _updateStatus = '';
         });
       }
     } catch (e) {
       logger.e('패치 체크 중 오류 발생: $e');
-      setState(() {
+      setStateIfMounted(() {
         _updateStatus = t('patch_error');
       });
     } finally {
-      setState(() {
+      setStateIfMounted(() {
         _isCheckingUpdate = false;
       });
     }
@@ -120,7 +137,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
       logger.d('스플래시 데이터: $splashData');
 
-      setState(() {
+      setStateIfMounted(() {
         scheduledSplashUrl = splashData.imageUrl;
         logger.d('스플래시 이미지 url: $scheduledSplashUrl');
       });

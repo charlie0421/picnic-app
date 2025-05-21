@@ -1970,7 +1970,7 @@ packages:
     source: hosted
     version: "4.0.12"
   restart:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: restart
       sha256: "70c12d26900b7c451b99eb012dea7b0d5f229f93e705c3915df41c5ddd0b97cd"

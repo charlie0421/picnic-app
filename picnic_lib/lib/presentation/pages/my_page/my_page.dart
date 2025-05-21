@@ -36,6 +36,7 @@ import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class MyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_mypage';
@@ -92,57 +93,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                       : const SizedBox(height: 16),
                   Text(t('label_setting_language'),
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: AppColors.grey00,
-                        useSafeArea: true,
-                        builder: (context) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                alignment: Alignment.center,
-                                child: Text('언어 선택',
-                                    style: getTextStyle(
-                                        AppTypo.body16B, AppColors.grey900)),
-                              ),
-                              Divider(height: 1, color: AppColors.grey100),
-                              _buildLanguageOption(context, 'ko', '한국어'),
-                              _buildLanguageOption(context, 'en', 'English'),
-                              _buildLanguageOption(context, 'ja', '日本語'),
-                              _buildLanguageOption(context, 'zh', '中文'),
-                              _buildLanguageOption(context, 'id', 'Indonesia'),
-                              SizedBox(height: 32),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            languageMap[
-                                    ref.watch(appSettingProvider).language] ??
-                                'Unknown',
-                            style: getTextStyle(
-                                AppTypo.body14M, AppColors.grey900),
-                          ),
-                          SvgPicture.asset(
-                            package: 'picnic_lib',
-                            'assets/icons/arrow_down_style=line.svg',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _buildLanguageSelector(),
                   const Divider(color: AppColors.grey200),
                   // 공지사항
                   PicnicListItem(
@@ -428,40 +379,101 @@ class _MyPageState extends ConsumerState<MyPage> {
     }
   }
 
-  void _onLanguageChanged(String? selectedLang) async {
-    if (selectedLang == null) return;
+  // 언어 선택기 위젯
+  Widget _buildLanguageSelector() {
+    // 현재 언어를 미리 읽어둠
+    final currentLanguage = ref.read(appSettingProvider).language;
 
-    logger.i('⭐ 언어 변경 시작: $selectedLang');
-
-    try {
-      // 현재 선택된 언어와 같은지 확인
-      final currentLanguage = ref.read(appSettingProvider).language;
-      if (selectedLang == currentLanguage) {
-        logger.i('🔄 동일한 언어가 선택됨, 변경 없음');
-        return;
-      }
-
-      // 앱 설정에 언어 저장 (이게 핵심 - 리스너에서 감지함)
-      ref.read(appSettingProvider.notifier).setLanguage(selectedLang);
-      PicnicLibL10n.setCurrentLocale(selectedLang);
-      logger.i('⭐ 언어 변경 완료: $selectedLang');
-    } catch (e, s) {
-      logger.e('⭐ 언어 변경 오류', error: e, stackTrace: s);
-    }
-
-    // 바텀시트 닫기
-    Navigator.of(context).pop();
-  }
-
-  // 각 언어 옵션 위젯 생성 함수
-  Widget _buildLanguageOption(
-      BuildContext context, String langCode, String label) {
-    final isSelected = langCode == ref.read(appSettingProvider).language;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        _onLanguageChanged(langCode);
+        showModalBottomSheet(
+          context: context,
+          backgroundColor: AppColors.grey00,
+          useSafeArea: true,
+          builder: (context) {
+            // 바텀시트 내에서 현재 언어 값을 상태로 관리
+            return StatefulBuilder(
+              builder: (context, setState) {
+                // 로컬 상태로 현재 선택된 언어 관리
+                String selectedLanguage = currentLanguage;
+
+                void onLanguageSelected(String langCode) {
+                  // 같은 언어 선택 시 무시
+                  if (langCode == currentLanguage) {
+                    Navigator.of(context).pop();
+                    return;
+                  }
+
+                  // 바텀시트 닫기
+                  Navigator.of(context).pop();
+
+                  // 약간의 지연 후 작업 수행
+                  Future.delayed(const Duration(milliseconds: 50), () {
+                    // 언어 변경 및 앱 재시작
+                    ref.read(appSettingProvider.notifier).setLanguage(langCode);
+                    PicnicLibL10n.setCurrentLocale(langCode);
+                    Phoenix.rebirth(context);
+                    logger.i('⭐ 언어 변경 완료: $langCode');
+                  });
+                }
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      alignment: Alignment.center,
+                      child: Text('언어 선택',
+                          style:
+                              getTextStyle(AppTypo.body16B, AppColors.grey900)),
+                    ),
+                    Divider(height: 1, color: AppColors.grey100),
+                    _buildLanguageOptionItem(context, 'ko', '한국어',
+                        selectedLanguage, onLanguageSelected),
+                    _buildLanguageOptionItem(context, 'en', 'English',
+                        selectedLanguage, onLanguageSelected),
+                    _buildLanguageOptionItem(context, 'ja', '日本語',
+                        selectedLanguage, onLanguageSelected),
+                    _buildLanguageOptionItem(context, 'zh', '中文',
+                        selectedLanguage, onLanguageSelected),
+                    _buildLanguageOptionItem(context, 'id', 'Indonesia',
+                        selectedLanguage, onLanguageSelected),
+                    SizedBox(height: 32),
+                  ],
+                );
+              },
+            );
+          },
+        );
       },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              languageMap[currentLanguage] ?? 'Unknown',
+              style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+            ),
+            SvgPicture.asset(
+              package: 'picnic_lib',
+              'assets/icons/arrow_down_style=line.svg',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 언어 옵션 아이템 (바텀시트 내부용)
+  Widget _buildLanguageOptionItem(BuildContext context, String langCode,
+      String label, String currentLanguage, Function(String) onSelect) {
+    final isSelected = langCode == currentLanguage;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => onSelect(langCode),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
@@ -477,7 +489,7 @@ class _MyPageState extends ConsumerState<MyPage> {
               ),
             ),
             if (isSelected)
-              Icon(Icons.check, color: AppColors.grey900, size: 20),
+              const Icon(Icons.check, color: AppColors.grey900, size: 20),
           ],
         ),
       ),

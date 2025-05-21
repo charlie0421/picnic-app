@@ -98,8 +98,7 @@ dependencies:
   web: ^1.1.1
   googleapis: ^14.0.0
   googleapis_auth: ^2.0.0
-  restart: ^1.0.0+1
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -138,7 +137,6 @@ flutter:
     - assets/mockup/
     - assets/mockup/pic/
     - assets/landing/
-    - assets/web/
     - assets/splash.webp
   fonts:
     - family: Pretendard
