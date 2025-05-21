@@ -4,9 +4,16 @@ import {ReactNode, useEffect} from 'react';
 import {Inter} from 'next/font/google';
 import './globals.css';
 import './layout.css';
-import {SupabaseProvider} from '@/components/providers/SupabaseProvider';
+
+// 기존 legacy 프로바이더 (더 이상 사용하지 않음)
+// import {SupabaseProvider} from '@/components/providers/SupabaseProvider';
+// import {AuthProvider} from '@/contexts/AuthContext';
+
+// 새로운 프로바이더 import
+import { SupabaseProvider } from '@/components/providers/SupabaseProvider';
+import { AuthProvider } from '@/lib/supabase/auth-provider';
+
 import {NavigationProvider} from '@/contexts/NavigationContext';
-import {AuthProvider} from '@/contexts/AuthContext';
 import {usePathname} from 'next/navigation';
 import {useLanguageStore} from '@/stores/languageStore';
 import {Analytics} from '@vercel/analytics/react';
