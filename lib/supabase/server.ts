@@ -1,18 +1,19 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { Database } from '@/types/supabase';
 
+// 쿠키 저장소 인터페이스
+interface CookieStore {
+  get(name: string): { name: string; value: string } | undefined;
+  set(cookie: { name: string; value: string; [key: string]: any }): void;
+}
+
 /**
- * 서버 측에서 사용할 Supabase 클라이언트를 생성합니다.
+ * pages 라우터와 app 라우터 모두에서 사용할 수 있는 서버 Supabase 클라이언트 생성 함수
  * 
- * 이 함수는 서버 컴포넌트, API 라우트 또는 서버 액션에서만 사용해야 합니다.
- * 쿠키를 통해 인증 상태를 유지하므로 클라이언트 컴포넌트에서는 사용하지 마세요.
- * 
- * @returns Supabase 클라이언트 인스턴스
+ * @param cookieStore 쿠키 저장소 (headers API 또는 req/res 객체)
+ * @returns Supabase 클라이언트
  */
-export function createServerSupabaseClient() {
-  const cookieStore = cookies();
-  
+export function createServerSupabaseClientWithCookies(cookieStore: CookieStore) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     throw new Error('환경 변수 NEXT_PUBLIC_SUPABASE_URL이 설정되지 않았습니다.');
   }
@@ -52,6 +53,66 @@ export function createServerSupabaseClient() {
       },
     }
   );
+}
+
+// 페이지 라우터용 임시 해결책 - 빈 쿠키 스토어로 인증 없는 클라이언트 생성
+const emptyCookieStore: CookieStore = {
+  get: () => undefined,
+  set: () => {}
+};
+
+/**
+ * 기본 서버 Supabase 클라이언트를 생성합니다.
+ * 이 구현은 App Router와 Pages Router 모두에서 동작하지만 Pages Router에서는 인증 없는 기본 클라이언트만 제공합니다.
+ * 
+ * 중요: Pages Router에서는 createServerSupabaseClientWithRequest 함수를 대신 사용하세요.
+ * 
+ * @returns Supabase 클라이언트 인스턴스
+ */
+export function createServerSupabaseClient() {
+  return createServerSupabaseClientWithCookies(emptyCookieStore);
+}
+
+/**
+ * Pages Router에서 사용할 Supabase 클라이언트를 생성합니다.
+ * req/res 객체를 통해 쿠키를 관리합니다.
+ * 
+ * @param req Next.js 요청 객체
+ * @param res Next.js 응답 객체
+ * @returns Supabase 클라이언트
+ */
+export function createServerSupabaseClientWithRequest(req: any, res: any) {
+  // req/res 객체를 사용하여 쿠키 저장소 생성
+  const cookieStore: CookieStore = {
+    get: (name) => {
+      const cookies = req.cookies;
+      const value = cookies[name];
+      return value ? { name, value } : undefined;
+    },
+    set: (cookie) => {
+      const { name, value, maxAge, domain, path, sameSite, secure } = cookie;
+      const cookieOptions = {
+        maxAge: maxAge || 0,
+        domain,
+        path: path || '/',
+        sameSite: sameSite || 'lax',
+        secure: secure || false,
+        httpOnly: true
+      };
+      
+      res.setHeader('Set-Cookie', `${name}=${value}; ${Object.entries(cookieOptions)
+        .filter(([_, v]) => v !== undefined)
+        .map(([k, v]) => {
+          if (k === 'httpOnly' || k === 'secure') return v ? k : '';
+          if (k === 'maxAge') return v ? `Max-Age=${v}` : '';
+          return `${k.charAt(0).toUpperCase() + k.slice(1)}=${v}`;
+        })
+        .filter(Boolean)
+        .join('; ')}`);
+    }
+  };
+  
+  return createServerSupabaseClientWithCookies(cookieStore);
 }
 
 /**

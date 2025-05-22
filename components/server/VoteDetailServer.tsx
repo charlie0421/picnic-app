@@ -2,21 +2,31 @@ import React, { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { LoadingState } from '@/components/server';
 import { getByIdOrNotFound, TABLES } from '@/lib/data-fetching/supabase-service';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClientWithRequest } from '@/lib/supabase/server';
 import { Vote, VoteItem, Reward } from '@/types/interfaces';
 import { VoteDetailClient } from '@/components/client';
 
 interface VoteDetailServerProps {
   id: string;
+  req?: any;
+  res?: any;
 }
 
 /**
  * 투표 상세 정보를 가져오는 컴포넌트
  */
-async function VoteDetailData({ id }: VoteDetailServerProps) {
+async function VoteDetailData({ id, req, res }: VoteDetailServerProps) {
   try {
-    // 커스텀 쿼리 실행 (복잡한 조인을 위해 executeCustomQuery 사용)
-    const supabase = createServerSupabaseClient();
+    // 페이지 라우터에서는 req/res가 필요함
+    if (!req || !res) {
+      console.warn('서버 컴포넌트에 req/res 객체가 전달되지 않았습니다. 인증 없는 클라이언트를 사용합니다.');
+    }
+
+    // req/res가 있으면 페이지 라우터용 클라이언트를 사용하고, 없으면 기본 클라이언트를 사용합니다
+    const supabase = req && res 
+      ? createServerSupabaseClientWithRequest(req, res)
+      : createServerSupabaseClientWithRequest({ cookies: {} }, { setHeader: () => {} });
+
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
       throw new Error('유효하지 않은 ID 형식입니다.');
@@ -176,10 +186,10 @@ async function VoteDetailData({ id }: VoteDetailServerProps) {
  * 서버에서 투표 상세 데이터를 가져와 클라이언트 컴포넌트로 전달합니다.
  * Suspense를 사용하여 로딩 상태를 처리합니다.
  */
-export default function VoteDetailServer({ id }: VoteDetailServerProps) {
+export default function VoteDetailServer({ id, req, res }: VoteDetailServerProps) {
   return (
     <Suspense fallback={<LoadingState message="투표 정보를 불러오는 중..." size="medium" fullPage />}>
-      <VoteDetailData id={id} />
+      <VoteDetailData id={id} req={req} res={res} />
     </Suspense>
   );
 }
