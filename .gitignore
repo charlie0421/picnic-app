@@ -26,4 +26,8 @@ node_modules/
 .DS_Store
 # Task files
 tasks.json
-tasks/ 
+tasks/
+# Jest cache
+.jest-cache/
+# Coverage directory
+coverage/ 
