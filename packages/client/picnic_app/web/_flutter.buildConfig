@@ -1,6 +1,0 @@
-_flutter = {
-  buildConfig: {
-    ...(_flutter?.buildConfig ?? {}),
-    serviceWorkerVersion: serviceWorkerVersion,
-  }
-};

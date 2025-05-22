@@ -1,1 +1,0 @@
-{"version":3,"file":"access-and-refresh-token.dto.js","sourceRoot":"","sources":["access-and-refresh-token.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,wBAAwB;IAC1B,WAAW,CAAS;IACpB,YAAY,CAAS;IAE9B,YAAY,WAAmB,EAAE,YAAoB;QACnD,IAAI,CAAC,WAAW,GAAG,WAAW,CAAC;QAC/B,IAAI,CAAC,YAAY,GAAG,YAAY,CAAC;IACnC,CAAC;CACF;AARD,4DAQC"}

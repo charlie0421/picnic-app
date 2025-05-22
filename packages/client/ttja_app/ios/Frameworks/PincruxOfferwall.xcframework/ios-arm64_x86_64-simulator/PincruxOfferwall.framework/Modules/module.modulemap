@@ -1,4 +1,0 @@
-framework module PincruxOfferwall {
-  header "PincruxOfferwall-Swift.h"
-  requires objc
-}

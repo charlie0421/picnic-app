@@ -1,11 +1,29 @@
-/node_modules/
-/packages/api/node_modules/
+**/.next
+**/node_modules
+.vercel
+
+# Added by Claude Task Master
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+.env
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
 .DS_Store
-packages/.DS_Store
-packages/client/.DS_Store
-packages/supabase/.idea/workspace.xml
-packages/supabase/.idea/workspace.xml
-# 빌드 출력 파일
-/build/
-**/build/
-packages/web/picnic-web/public/sitemap-0.xml
+# Task files
+tasks.json
+tasks/ 
