@@ -4,6 +4,10 @@ import { Database } from '@/types/supabase';
 import { SocialAuthError, SocialAuthErrorCode } from '@/lib/supabase/social/types';
 import { normalizeGoogleProfile, parseGoogleIdToken } from '@/lib/supabase/social/google';
 
+// Next.js 15.3.1에서는 GET 핸들러도 기본적으로 캐싱되지 않도록 변경되었습니다.
+// 필요한 경우 dynamic = 'force-static' 또는 fetchCache = 'default-cache' 옵션을 사용할 수 있습니다.
+export const dynamic = 'force-dynamic'; // POST 요청이므로 항상 동적으로 처리
+
 /**
  * Google OAuth 토큰 교환 API
  * 
@@ -77,6 +81,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
+        cache: 'no-store', // Next.js 15.3.1에서 명시적으로 no-store 설정
         body: new URLSearchParams({
           code,
           client_id: clientId,
@@ -102,7 +107,8 @@ export async function POST(request: NextRequest) {
       const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`
-        }
+        },
+        cache: 'no-store', // Next.js 15.3.1에서 명시적으로 no-store 설정
       });
       
       if (!userInfoResponse.ok) {

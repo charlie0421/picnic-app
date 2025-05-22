@@ -13,10 +13,12 @@ import { cache } from 'react';
 export type CacheOptions = {
   revalidate?: number | false; // 데이터 재검증 시간 (초)
   tags?: string[]; // 캐시 태그
+  cache?: 'force-cache' | 'no-store' | 'default'; // 캐시 전략
 };
 
 const DEFAULT_CACHE_OPTIONS: CacheOptions = {
   revalidate: 60, // 기본 1분 캐싱
+  cache: 'force-cache', // Next.js 15.3.1부터 no-store가 기본값이므로 명시적으로 force-cache 설정
 };
 
 /**
@@ -37,7 +39,8 @@ export const fetchFromSupabase = cache(async <T>(
     }
 
     if (!data) {
-      return [] as unknown as T;
+      // 타입 안전한 방식으로 빈 값 반환
+      return (Array.isArray([] as unknown as T) ? [] : null) as T;
     }
 
     return data;
@@ -101,6 +104,7 @@ export const fetchApi = cache(async <T>(
   try {
     const res = await fetch(url, {
       ...options,
+      cache: cacheOptions.cache || 'force-cache', // Next.js 15.3.1부터 no-store가 기본값이므로 명시적으로 설정
       next: {
         revalidate: cacheOptions.revalidate,
         tags: cacheOptions.tags,
