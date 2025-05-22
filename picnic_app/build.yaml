@@ -1,0 +1,37 @@
+targets:
+    $default:
+        builders:
+            source_gen:combining_builder:
+                options:
+                    build_extensions:
+                        '^lib/models/{{}}.dart': 'lib/generated/models/{{}}.g.dart'
+                        '^lib/states/{{}}.dart': 'lib/generated/states/{{}}.g.dart'
+                        '^lib/providers/{{}}.dart': 'lib/generated/providers/{{}}.g.dart'
+            freezed:
+                options:
+                    build_extensions:
+                        '^lib/models/{{}}.dart': 'lib/generated/models/{{}}.freezed.dart'
+                        '^lib/states/{{}}.dart': 'lib/generated/states/{{}}.freezed.dart'
+                        '^lib/providers/{{}}.dart': 'lib/generated/providers/{{}}.freezed.dart'
+                generate_for:
+                    - lib/models/**.dart
+                    - lib/states/**.dart
+                    - lib/providers/**.dart
+            json_serializable:
+                options:
+                    any_map: false
+                    checked: true
+                    create_factory: true
+                    create_to_json: true
+                    explicit_to_json: true
+                    field_rename: snake
+                generate_for:
+                    - lib/models/**.dart
+                    - lib/states/**.dart
+                    - lib/providers/**.dart
+            riverpod_generator:
+                options:
+                    build_extensions:
+                        '^lib/providers/{{}}.dart': 'lib/generated/providers/{{}}.g.dart'
+                generate_for:
+                    - lib/providers/**.dart

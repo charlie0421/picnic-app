@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+    <base href="$FLUTTER_BASE_HREF" />
+
+    <meta charset="UTF-8" />
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+    <meta name="description" content="TTJA 앱" />
+
+    <!-- iOS meta tags & icons -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="ttja_app" />
+    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <title>ttja_app</title>
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- 반응형 디자인을 위한 viewport 설정 -->
+    <meta
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
+      name="viewport"
+    />
+
+    <!-- 리소스 사전 로딩 (필요한 이미지 및 스크립트 사전 로딩) -->
+    <link rel="preload" href="flutter_bootstrap.js" as="script" />
+
+    <!-- Next.js 스크립트 로딩 -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <style id="splash-screen-style">
+      html {
+        height: 100%;
+        min-width: 393px;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100%;
+        min-width: 393px;
+        background-color: #ffffff;
+        background-size: 100% 100%;
+        overflow-x: auto;
+        display: flex;
+        justify-content: center;
+      }
+
+      /* 전체 레이아웃 컨테이너 */
+      .layout-container {
+        display: flex;
+        width: 100%;
+        max-width: 1200px;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1; /* 레이어 순서 지정 */
+      }
+
+      /* 좌측 사이드바 */
+      .sidebar-left {
+        display: none;
+        width: 250px;
+        background-color: #f8f9fa;
+        padding: 20px;
+        z-index: 2; /* 사이드바를 더 높은 z-index로 설정 */
+      }
+
+      /* 중앙 Flutter 앱 컨테이너 */
+      .flutter-container {
+        flex: 1;
+        min-width: 393px;
+        max-width: 393px;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      /* Flutter 앱을 위한 전용 컨테이너 */
+      #flutter-app-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      /* 우측 사이드바 */
+      .sidebar-right {
+        display: none;
+        width: 250px;
+        background-color: #f8f9fa;
+        padding: 20px;
+        z-index: 2; /* 사이드바를 더 높은 z-index로 설정 */
+      }
+
+      /* 반응형 디자인을 위한 미디어 쿼리 */
+      @media (min-width: 768px) {
+        .sidebar-left,
+        .sidebar-right {
+          display: block;
+        }
+      }
+
+      /* 모든 컨테이너에 최소 너비 적용 */
+      #flutter_target {
+        min-width: 393px;
+      }
+
+      .center {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+      }
+
+      .contain {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .stretch {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .cover {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .bottom {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        -ms-transform: translate(-50%, 0);
+        transform: translate(-50%, 0);
+      }
+
+      .bottomLeft {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+      }
+
+      .bottomRight {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+      }
+    </style>
+    <script id="splash-screen-script">
+      function removeSplashFromWeb() {
+        document.getElementById('splash')?.remove();
+        document.getElementById('splash-branding')?.remove();
+
+        // body 대신 flutter-app-container만 배경을 변경
+        const flutterContainer = document.getElementById(
+          'flutter-app-container',
+        );
+        if (flutterContainer) {
+          flutterContainer.style.background = 'transparent';
+        }
+
+        // 사이드바를 다시 표시하는 코드
+        restoreSidebars();
+      }
+
+      // 사이드바를 복원하는 함수
+      function restoreSidebars() {
+        const mediaQuery = window.matchMedia('(min-width: 768px)');
+        if (mediaQuery.matches) {
+          const leftSidebar = document.getElementById('sidebar-left');
+          const rightSidebar = document.getElementById('sidebar-right');
+
+          if (leftSidebar) leftSidebar.style.display = 'block';
+          if (rightSidebar) rightSidebar.style.display = 'block';
+        }
+      }
+
+      // 주기적으로 사이드바 표시 상태 확인
+      function checkSidebarsVisibility() {
+        const mediaQuery = window.matchMedia('(min-width: 768px)');
+        if (mediaQuery.matches) {
+          const leftSidebar = document.getElementById('sidebar-left');
+          const rightSidebar = document.getElementById('sidebar-right');
+
+          // 사이드바가 숨겨져 있으면 다시 표시
+          if (leftSidebar && getComputedStyle(leftSidebar).display === 'none') {
+            leftSidebar.style.display = 'block';
+          }
+
+          if (
+            rightSidebar &&
+            getComputedStyle(rightSidebar).display === 'none'
+          ) {
+            rightSidebar.style.display = 'block';
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="layout-container">
+      <!-- 좌측 사이드바 (Next.js로 구현) -->
+      <div id="sidebar-left" class="sidebar-left">
+        <iframe
+          src="./next-export/left-sidebar"
+          frameborder="0"
+          width="100%"
+          height="100%"
+          style="border: none"
+          title="Left Sidebar"
+        ></iframe>
+      </div>
+
+      <!-- 중앙 Flutter 앱 컨테이너 -->
+      <div class="flutter-container">
+        <div id="flutter-app-container">
+          <picture id="splash">
+            <source
+              srcset="
+                splash/img/light-1x.png 1x,
+                splash/img/light-2x.png 2x,
+                splash/img/light-3x.png 3x,
+                splash/img/light-4x.png 4x
+              "
+              media="(prefers-color-scheme: light)"
+            />
+            <source
+              srcset="
+                splash/img/dark-1x.png 1x,
+                splash/img/dark-2x.png 2x,
+                splash/img/dark-3x.png 3x,
+                splash/img/dark-4x.png 4x
+              "
+              media="(prefers-color-scheme: dark)"
+            />
+            <img
+              class="center"
+              aria-hidden="true"
+              src="splash/img/light-1x.png"
+              alt=""
+            />
+          </picture>
+        </div>
+      </div>
+
+      <!-- 우측 사이드바 (Next.js로 구현) -->
+      <div id="sidebar-right" class="sidebar-right">
+        <iframe
+          src="./next-export/right-sidebar"
+          frameborder="0"
+          width="100%"
+          height="100%"
+          style="border: none"
+          title="Right Sidebar"
+        ></iframe>
+      </div>
+    </div>
+
+    <!-- 스크립트를 defer로 로딩하여 페이지 렌더링 차단 방지 -->
+    <script src="flutter_bootstrap.js" defer></script>
+    <script>
+      // iframe 메시지 처리
+      window.addEventListener('message', function (event) {
+        // 메시지 처리 로직
+        console.log('메시지 수신:', event.data);
+
+        // 메뉴 선택 이벤트 처리
+        if (event.data && event.data.type === 'MENU_SELECTED') {
+          console.log('선택된 메뉴:', event.data.menuId);
+          // 여기에 Flutter 앱에 메시지를 보내는 코드를 추가할 수 있습니다
+        }
+
+        // 알림 업데이트 이벤트 처리
+        if (event.data && event.data.type === 'NOTIFICATIONS_UPDATED') {
+          console.log('알림 개수:', event.data.count);
+          // 여기에 Flutter 앱에 메시지를 보내는 코드를 추가할 수 있습니다
+        }
+      });
+
+      // 사이드바가 사라지는 문제 해결을 위한 감시자
+      document.addEventListener('DOMContentLoaded', function () {
+        // Flutter가 로딩된 후에도 주기적으로 사이드바 표시 상태 확인
+        setInterval(checkSidebarsVisibility, 500);
+
+        // window resize 이벤트 시 사이드바 복원
+        window.addEventListener('resize', restoreSidebars);
+
+        // MutationObserver로 DOM 변화 감지하여 사이드바 유지
+        const observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function (mutation) {
+            if (
+              mutation.type === 'childList' ||
+              mutation.type === 'attributes'
+            ) {
+              // DOM 변경 감지 시 사이드바 복원
+              restoreSidebars();
+            }
+          });
+        });
+
+        // body 요소의 변화 감시 설정
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+        });
+      });
+    </script>
+  </body>
+</html>

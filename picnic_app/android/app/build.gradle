@@ -1,0 +1,128 @@
+plugins {
+    id "com.android.application"
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace "io.iconcasting.picnic.app"
+    compileSdk flutter.compileSdkVersion
+    ndkVersion = "27.0.12077973"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'  // Changed to match Java version
+        apiVersion = '1.7'  // Match Kotlin version
+        languageVersion = '1.7'  // Match Kotlin version
+        // Add this to suppress metadata version errors if needed
+        freeCompilerArgs += [
+            "-Xskip-metadata-version-check"
+        ]
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    defaultConfig {
+        applicationId "io.iconcasting.picnic.app"
+        minSdkVersion 23
+        targetSdkVersion 35
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        manifestPlaceholders += [
+            'sentryEnableCompose': 'false'
+        ]
+    }
+
+    signingConfigs {
+        release {
+            if (System.getenv()["CI"]) { // CI=true is exported by Codemagic
+                storeFile file(System.getenv()["CM_KEYSTORE_PATH"])
+                storePassword System.getenv()["CM_KEYSTORE_PASSWORD"]
+                keyAlias System.getenv()["CM_KEY_ALIAS"]
+                keyPassword System.getenv()["CM_KEY_PASSWORD"]
+            } else {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            ndk {
+                debugSymbolLevel "FULL"
+            }
+
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+repositories {
+    maven { url "https://artifact.bytedance.com/repository/pangle" }
+    maven { url "https://artifact.bytedance.com/repository/pangle-global" }
+    google()
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'com.tapjoy:tapjoy-android-sdk:14.2.1'
+
+    // Pincrux Offerwall
+    implementation files('libs/pincrux_offerwall.aar')
+
+    // Pangle SDK
+    implementation 'com.pangle.global:ads-sdk:6.5.0.5'
+    implementation 'com.pangle.global:crash_monitor:1.3.8-rc.1'
+    implementation 'com.pangle.global:gecko_pgl:1.0.0.1'
+    
+    // Flutter 의존성은 Flutter Gradle 플러그인이 자동으로 처리합니다
+}

@@ -1,0 +1,39 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name "Tapjoy's maven repo"
+            url "https://sdk.tapjoy.com/"
+        }
+        maven { url 'https://artifact.bytedance.com/repository/pangle' }
+        maven { url "https://jitpack.io" }
+        maven { url "https://www.jitpack.io" }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
+buildscript {
+    ext.kotlin_version = '2.1.0'
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.google.gms:google-services:4.4.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}

@@ -1,0 +1,283 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "list",
+      "devices",
+      "--json-output",
+      "devicectl.out.json"
+    ],
+    "commandType" : "devicectl.list.devices",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 2,
+    "outcome" : "success",
+    "version" : "443.19"
+  },
+  "result" : {
+    "devices" : [
+      {
+        "capabilities" : [
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.tags",
+            "name" : "Modify Tags"
+          }
+        ],
+        "connectionProperties" : {
+          "isMobileDeviceOnly" : false,
+          "pairingState" : "unpaired",
+          "potentialHostnames" : [
+
+          ],
+          "tunnelState" : "unavailable"
+        },
+        "deviceProperties" : {
+          "bootState" : "booted",
+          "ddiServicesAvailable" : false
+        },
+        "hardwareProperties" : {
+
+        },
+        "identifier" : "2E4DE728-DB42-533E-8321-493AFF031801",
+        "tags" : [
+
+        ],
+        "visibilityClass" : "default"
+      },
+      {
+        "capabilities" : [
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.tags",
+            "name" : "Modify Tags"
+          }
+        ],
+        "connectionProperties" : {
+          "isMobileDeviceOnly" : false,
+          "pairingState" : "unpaired",
+          "potentialHostnames" : [
+
+          ],
+          "tunnelState" : "unavailable"
+        },
+        "deviceProperties" : {
+          "bootState" : "booted",
+          "ddiServicesAvailable" : false
+        },
+        "hardwareProperties" : {
+
+        },
+        "identifier" : "7352BE9D-CE96-5971-B526-8429A8EEDAFE",
+        "tags" : [
+
+        ],
+        "visibilityClass" : "default"
+      },
+      {
+        "capabilities" : [
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.tags",
+            "name" : "Modify Tags"
+          },
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.unpairdevice",
+            "name" : "Unpair Device"
+          }
+        ],
+        "connectionProperties" : {
+          "authenticationType" : "manualPairing",
+          "isMobileDeviceOnly" : false,
+          "lastConnectionDate" : "2025-05-07T10:03:59.311Z",
+          "pairingState" : "paired",
+          "potentialHostnames" : [
+            "00008101-001C39223498001E.coredevice.local",
+            "8C55C8CC-E29A-5C9D-822F-80599D8A63E5.coredevice.local"
+          ],
+          "tunnelState" : "unavailable"
+        },
+        "deviceProperties" : {
+          "bootedFromSnapshot" : true,
+          "bootedSnapshotName" : "com.apple.os.update-031A8176ED0CDF80410F04120A432D835E0A3BCDE290C75D1BA989B3546DF089",
+          "ddiServicesAvailable" : false,
+          "developerModeStatus" : "enabled",
+          "hasInternalOSBuild" : false,
+          "name" : "iPhone 12 mini",
+          "osBuildUpdate" : "22E252",
+          "osVersionNumber" : "18.4.1",
+          "rootFileSystemIsWritable" : false
+        },
+        "hardwareProperties" : {
+          "authListingIdentifiers" : {
+            "APProductionMode" : true,
+            "ApECID" : 7944118421946398,
+            "BMU,UniqueID" : 283308116,
+            "BbSNUM" : "0x9264e39f",
+            "BoardID" : 10,
+            "ChipID" : 33025,
+            "HardwareModel" : "D52gAP",
+            "Rap,ECID" : "0x006401db7c04a31e",
+            "SE,ID" : "0x041f3863a560800202710362763070734e28ba7606e403b1",
+            "Savage,UID" : "0x55fbb4860e67836c678f11aeb3d2f58f",
+            "SerialNumber" : "FFWDQFYE0GPQ",
+            "eUICC,EID" : "89049032006008882600110931610230"
+          },
+          "cpuType" : {
+            "name" : "arm64e",
+            "subType" : 2,
+            "type" : 16777228
+          },
+          "deviceType" : "iPhone",
+          "ecid" : 7944118421946398,
+          "hardwareModel" : "D52gAP",
+          "internalStorageCapacity" : 64000000000,
+          "isProductionFused" : true,
+          "marketingName" : "iPhone 12 mini",
+          "platform" : "iOS",
+          "productType" : "iPhone13,1",
+          "reality" : "physical",
+          "serialNumber" : "FFWDQFYE0GPQ",
+          "supportedCPUTypes" : [
+            {
+              "name" : "arm64e",
+              "subType" : 2,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64",
+              "subType" : 0,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64",
+              "subType" : 1,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64_32",
+              "subType" : 1,
+              "type" : 33554444
+            }
+          ],
+          "supportedDeviceFamilies" : [
+            1
+          ],
+          "thinningProductType" : "iPhone13,1",
+          "udid" : "00008101-001C39223498001E"
+        },
+        "identifier" : "8C55C8CC-E29A-5C9D-822F-80599D8A63E5",
+        "tags" : [
+
+        ],
+        "visibilityClass" : "default"
+      },
+      {
+        "capabilities" : [
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.acquireusageassertion",
+            "name" : "Acquire Usage Assertion"
+          },
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.connectdevice",
+            "name" : "Connect to Device"
+          },
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.tags",
+            "name" : "Modify Tags"
+          },
+          {
+            "featureIdentifier" : "com.apple.coredevice.feature.unpairdevice",
+            "name" : "Unpair Device"
+          }
+        ],
+        "connectionProperties" : {
+          "authenticationType" : "manualPairing",
+          "isMobileDeviceOnly" : false,
+          "lastConnectionDate" : "2025-05-08T06:08:23.942Z",
+          "pairingState" : "paired",
+          "potentialHostnames" : [
+            "00008110-00024C610CEA401E.coredevice.local",
+            "97FB04E8-6E4A-5AB6-B938-2BD5628174A6.coredevice.local"
+          ],
+          "transportType" : "localNetwork",
+          "tunnelState" : "disconnected",
+          "tunnelTransportProtocol" : "tcp"
+        },
+        "deviceProperties" : {
+          "bootedFromSnapshot" : true,
+          "bootedSnapshotName" : "com.apple.os.update-756F2FC531584E7F434C5397F7EAC3CDCBE174CC912179FAD2216D7F4FF94F68",
+          "ddiServicesAvailable" : false,
+          "developerModeStatus" : "enabled",
+          "hasInternalOSBuild" : false,
+          "name" : "iPhone14",
+          "osBuildUpdate" : "22E252",
+          "osVersionNumber" : "18.4.1",
+          "rootFileSystemIsWritable" : false
+        },
+        "hardwareProperties" : {
+          "authListingIdentifiers" : {
+            "APProductionMode" : true,
+            "ApECID" : 646929665638430,
+            "BMU,UniqueID" : 1010208320,
+            "BbSNUM" : "0xc1806a10",
+            "BoardID" : 24,
+            "ChipID" : 33040,
+            "HardwareModel" : "D27AP",
+            "Rap,ECID" : "0x006404617482a440",
+            "SE,ID" : "0x041e06fb211890022223092458316788c1f161a3e29c12a2",
+            "Savage,UID" : "0x7ea9aa86cf9a8ea1c1f0f542657f3011",
+            "SerialNumber" : "G93V000WXJ",
+            "Yonkers,ECID" : "0xe78b1ab5cc6de1b9e5584e45aa2e2b46",
+            "eUICC,EID" : "89049032007108882600140261684018"
+          },
+          "cpuType" : {
+            "name" : "arm64e",
+            "subType" : 2,
+            "type" : 16777228
+          },
+          "deviceType" : "iPhone",
+          "ecid" : 646929665638430,
+          "hardwareModel" : "D27AP",
+          "internalStorageCapacity" : 256000000000,
+          "isProductionFused" : true,
+          "marketingName" : "iPhone 14",
+          "platform" : "iOS",
+          "productType" : "iPhone14,7",
+          "reality" : "physical",
+          "serialNumber" : "G93V000WXJ",
+          "supportedCPUTypes" : [
+            {
+              "name" : "arm64e",
+              "subType" : 2,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64",
+              "subType" : 0,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64",
+              "subType" : 1,
+              "type" : 16777228
+            },
+            {
+              "name" : "arm64_32",
+              "subType" : 1,
+              "type" : 33554444
+            }
+          ],
+          "supportedDeviceFamilies" : [
+            1
+          ],
+          "thinningProductType" : "iPhone14,7",
+          "udid" : "00008110-00024C610CEA401E"
+        },
+        "identifier" : "97FB04E8-6E4A-5AB6-B938-2BD5628174A6",
+        "tags" : [
+
+        ],
+        "visibilityClass" : "default"
+      }
+    ]
+  }
+}

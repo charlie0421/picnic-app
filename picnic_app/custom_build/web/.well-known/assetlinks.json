@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.iconcasting.picnic.app",
+      "sha256_cert_fingerprints": [
+        "E2:E5:D4:29:72:E5:31:9C:B2:FB:7C:D9:D2:61:2C:E0:79:C5:23:AE:94:FA:F2:FD:8D:64:44:98:70:06:CC:ED"
+      ]
+    }
+  }
+]

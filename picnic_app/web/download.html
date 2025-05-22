@@ -1,0 +1,33 @@
+<script>
+    function getMobileOperatingSystem() {
+        var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+        if (/android/i.test(userAgent)) {
+            return "Android";
+        }
+
+        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+            return "iOS";
+        }
+
+        return "unknown";
+    }
+
+    function redirectToStore() {
+        var os = getMobileOperatingSystem();
+        if (os == "Android") {
+            window.location.href = 'https://play.google.com/store/apps/details?id=io.iconcasting.picnic.app&pcampaignid=web_share';
+        } else if (os == "iOS") {
+            window.location.href = 'https://apps.apple.com/app/id6504887262';
+        } else {
+            // 데스크톱 또는 기타 기기를 위한 대체 페이지
+            window.location.href = "https://www.picnic.fan";
+        }
+    }
+</script>
+
+</head>
+<body onload="redirectToStore()">
+<h1>앱 다운로드 페이지로 리다이렉팅 중...</h1>
+</body>
+</html>

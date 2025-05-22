@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>branch_key</key>
+		<dict>
+			<key>live</key>
+			<string>key_live_cveOHIXaGzRcWLguNfY3LjgbxFoTfuE6</string>
+			<key>test</key>
+			<string>secret_live_8M7lDUhunj8F12hG2iUCG74t4hWV7NZo</string>
+		</dict>
+		<key>branch_universal_link_domains</key>
+		<array>
+			<string>applink.ttja.net</string>
+			<string>zt93x-alternate.app.link</string>
+			<string>zt93x.test.app.link</string>
+			<string>zt93x-alternate.test.app.link</string>
+		</array>
+		<key>FlutterDeepLinkingEnabled</key>
+		<true />
+		<key>CADisableMinimumFrameDurationOnPhone</key>
+		<true />
+		<key>CFBundleDevelopmentRegion</key>
+		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>CFBundleDisplayName</key>
+		<string>뜨자</string>
+		<key>CFBundleExecutable</key>
+		<string>$(EXECUTABLE_NAME)</string>
+		<key>CFBundleIdentifier</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>ttja_app</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>$(FLUTTER_BUILD_NAME)</string>
+		<key>CFBundleSignature</key>
+		<string>????</string>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+					<string>kakao3193f86672e3d14b5603d422b32c93f2</string>
+					<string>com.googleusercontent.apps.922874925395-t3anf1iksojil5fc7lss9h4ahr1kgbkm</string>
+					<string>com.fasoo.TTJA</string>
+				</array>
+			</dict>
+		</array>
+		<key>SKAdNetworkIdentifier</key>
+		<array>
+			<dict><!-- LifeStreet Corporation -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>t38b2kh725.skadnetwork</string>
+			</dict>
+			<dict><!-- Clearpier Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>x44k69ngh6.skadnetwork</string>
+			</dict>
+			<dict><!-- Pubmatic Inc -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>k674qkevps.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>feyaarzu9v.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>e5fvkxwrpn.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>mj797d8u6f.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>g6gcrrvk4p.skadnetwork</string>
+			</dict>
+			<dict><!-- Mail.Ru Group (myTarget) -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>n9x2a789qt.skadnetwork</string>
+			</dict>
+			<dict><!-- Tencent -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>f7s53z58qe.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>97r2b46745.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>2fnua5tdw4.skadnetwork</string>
+			</dict>
+			<dict><!-- BYTEMOD PTE. LTD-CN -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>238da6jt44.skadnetwork</string>
+			</dict>
+			<dict><!-- Kidoz Ltd. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>v79kvwwj4g.skadnetwork</string>
+			</dict>
+			<dict><!-- BidSwitch -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>294l99pt4k.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>p78axxw29g.skadnetwork</string>
+			</dict>
+			<dict><!-- ADTIMING TECHNOLOGY PTE. LTD. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>488r3q3dtq.skadnetwork</string>
+			</dict>
+			<dict><!-- Liftoff Mobile, Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>7ug5zh24hu.skadnetwork</string>
+			</dict>
+			<dict><!-- Sabio Mobile Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>glqzh8vgby.skadnetwork</string>
+			</dict>
+			<dict><!-- Clearpier Performance Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>mp6xlyr22a.skadnetwork</string>
+			</dict>
+			<dict><!-- Bigo -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>a8cz6cu7e5.skadnetwork</string>
+			</dict>
+			<dict><!-- Realtime Technologies GmbH -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>4468km3ulz.skadnetwork</string>
+			</dict>
+			<dict><!-- Bidease inc -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>s39g8k73mm.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>9nlqeag3gk.skadnetwork</string>
+			</dict>
+			<dict><!-- Criteo Corp -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>hs6bdukanm.skadnetwork</string>
+			</dict>
+			<dict><!-- Maiden Marketing Pvt Ltd.  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>zmvfpc5aq8.skadnetwork</string>
+			</dict>
+			<dict><!-- PubNative GMBH -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>tl55sbb4fm.skadnetwork</string>
+			</dict>
+			<dict><!-- Facebook, Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>v9wttpbfk9.skadnetwork</string>
+			</dict>
+			<dict><!-- CrossInstall -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>prcb7njmu6.skadnetwork</string>
+			</dict>
+			<dict><!-- Triapodi Ltd. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>mlmmfzh3r3.skadnetwork</string>
+			</dict>
+			<dict><!-- Appier Inc.  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>v72qych5uu.skadnetwork</string>
+			</dict>
+			<dict><!-- hybrid.ai -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>w9q455wk68.skadnetwork</string>
+			</dict>
+			<dict><!-- Jampp LTD -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>yclnxrl5pm.skadnetwork</string>
+			</dict>
+			<dict><!-- Centro Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>3sh42y64q3.skadnetwork</string>
+			</dict>
+			<dict><!-- Adikteev SA -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>ydx93a7ass.skadnetwork</string>
+			</dict>
+			<dict><!-- Aarki, Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>4fzdc2evr5.skadnetwork</string>
+			</dict>
+			<dict><!-- Mintegral -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>kbd757ywx3.skadnetwork</string>
+			</dict>
+			<dict><!-- TOPON PTE. LTD. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>6yxyv74ff7.skadnetwork</string>
+			</dict>
+			<dict><!-- Moloco, Inc -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>9t245vhmpl.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>mqn7fxpca7.skadnetwork</string>
+			</dict>
+			<dict><!-- ScaleMonk Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>av6w8kgt66.skadnetwork</string>
+			</dict>
+			<dict><!-- Google LLC -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>cstr6suwn9.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>xga6mpmplv.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>vhf287vqwu.skadnetwork</string>
+			</dict>
+			<dict><!-- RTBHouse Pte LTD -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>8s468mfl3y.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>4w7y6s5ca2.skadnetwork</string>
+			</dict>
+			<dict><!-- Opera Software Ireland Ltd. ("Opera") -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>a2p9lx4jpn.skadnetwork</string>
+			</dict>
+			<dict><!-- Yandex Europe AG -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>zq492l623r.skadnetwork</string>
+			</dict>
+			<dict><!-- Smadex SL -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>ppxm28t8ap.skadnetwork</string>
+			</dict>
+			<dict><!-- UNICORN Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>578prtvx9j.skadnetwork</string>
+			</dict>
+			<dict><!-- mkhoj Solutions Private Limited -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>wzmmz9fp6w.skadnetwork</string>
+			</dict>
+			<dict><!-- Sift Media, Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>klf5c3l5u5.skadnetwork</string>
+			</dict>
+			<dict><!-- Click Tech Limited -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>32z4fx6l9h.skadnetwork</string>
+			</dict>
+			<dict><!-- INFINITE STATE PTE. LTD. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>5f5u5tfb26.skadnetwork</string>
+			</dict>
+			<dict><!-- Apptimus LTD -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>lr83yxwka7.skadnetwork</string>
+			</dict>
+			<dict><!-- YouAppi Inc -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>3rd42ekr43.skadnetwork</string>
+			</dict>
+			<dict><!-- Snap Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>424m5254lk.skadnetwork</string>
+			</dict>
+			<dict><!-- Unity Technologies -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>4dzt52r2t5.skadnetwork</string>
+			</dict>
+			<dict><!-- Bidmachine -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>wg4vff78zm.skadnetwork</string>
+			</dict>
+			<dict><!-- SPOTAD LTD -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>f73kdq92p3.skadnetwork</string>
+			</dict>
+			<dict><!-- Persona.ly LTD -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>44jx6755aq.skadnetwork</string>
+			</dict>
+			<dict><!-- Criteo SA (Manage.com) -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>9rd848q2bz.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>5l3tpt7t6e.skadnetwork</string>
+			</dict>
+			<dict><!-- BYTEMOD PTE. LTD-global -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>22mmun2rn5.skadnetwork</string>
+			</dict>
+			<dict><!-- LoopMe Ltd -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>5lm9lj6jb7.skadnetwork</string>
+			</dict>
+			<dict><!-- REVX TECHNOLOGY PRIVATE LIMITED -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>5a6flpkh64.skadnetwork</string>
+			</dict>
+			<dict><!-- Remerge GmbH -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>2u9pt9hc89.skadnetwork</string>
+			</dict>
+			<dict><!-- Beeswax -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>c6k4g5qg8m.skadnetwork</string>
+			</dict>
+			<dict><!-- AdColony, Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>4pfyvq9l8r.skadnetwork</string>
+			</dict>
+			<dict><!-- Chartboost, Inc. -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>f38h382jlk.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>pwa73g5rt2.skadnetwork</string>
+			</dict>
+			<dict><!-- DATASEAT LTD -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>m8dbw4sv7c.skadnetwork</string>
+			</dict>
+			<dict><!-- IGNITE MEDIA HK LIMITED -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>k6y4y55b64.skadnetwork</string>
+			</dict>
+			<dict><!-- WEBEYE MOBILE(HK) LIMITED -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>5tjdwbrq8w.skadnetwork</string>
+			</dict>
+			<dict><!-- Biga Bid Media Ltd -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>3qy4746246.skadnetwork</string>
+			</dict>
+			<dict><!--  -->
+				<key>SKAdNetworkIdentifier</key>
+				<string>uw77j35x4d.skadnetwork</string>
+			</dict>
+		</array>
+		<key>CFBundleVersion</key>
+		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<key>GADApplicationIdentifier</key>
+		<string>ca-app-pub-1539304887624918~2126022075</string>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false />
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>instagram</string>
+			<string>fb</string>
+			<string>fbauth2</string>
+			<string>fbshareextension</string>
+			<string>fbapi</string>
+			<string>facebook-reels</string>
+			<string>facebook-stories</string>
+			<string>fb-messenger-share-api</string>
+			<string>fb-messenger</string>
+			<string>tg</string>
+			<string>whatsapp</string>
+			<string>twitter</string>
+			<string>kakao</string>
+			<string>kakaokompassauth</string>
+			<string>kakaolink</string>
+		</array>
+		<key>LSRequiresIPhoneOS</key>
+		<true />
+		<key>NSCameraUsageDescription</key>
+		<string>프로필 이미지 등록을 위한 카메라 사용에 동의하시겠습니까?</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>음성인식을 위한 마이크 사용에 동의하시겠습니까?</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>프로필 이미지 등록을 위한 갤러리 사용에 동의하시겠습니까?</string>
+		<key>NSUserTrackingUsageDescription</key>
+		<string>광고 식별을 위해 앱 추적 권한이 필요합니다.</string>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true />
+		<key>UILaunchStoryboardName</key>
+		<string>LaunchScreen</string>
+		<key>UIMainStoryboardFile</key>
+		<string>Main</string>
+		<key>UIStatusBarHidden</key>
+		<false />
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		</array>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+		<array>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		</array>
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<true />
+		</dict>
+		<key>io.flutter.embedded_views_preview</key>
+		<true />
+		<key>NSAllowsLocalNetworking</key>
+		<true />
+	</dict>
+</plist>

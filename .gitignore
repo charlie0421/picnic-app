@@ -1,0 +1,16 @@
+.vercel
+
+# 빌드 출력 파일
+build/
+**/build/
+
+# Flutter/Dart 관련 파일
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+*.iml
+*.lock
+pubspec.lock

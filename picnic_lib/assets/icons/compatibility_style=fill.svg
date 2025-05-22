@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <!-- 배경 원 -->
+    <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="0.3" opacity="0.1"/>
+
+    <!-- 장식적인 선들 -->
+    <path d="M12 3v2M12 19v2M21 12h-2M5 12H3" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+    <path d="M18.4 5.6l-1.4 1.4M7 17l-1.4 1.4M18.4 18.4l-1.4-1.4M7 7L5.6 5.6" stroke="currentColor" stroke-width="0.5"
+          opacity="0.3"/>
+
+    <!-- 왼쪽 하트 -->
+    <path
+        d="M9.3 7.5c-1.4 0-2.5 1.1-2.5 2.5 0 1.5 1.5 2.5 2.5 3.5l1.2 1.2c.2.2.5.2.7 0l1.2-1.2c1-1 2.5-2 2.5-3.5 0-1.4-1.1-2.5-2.5-2.5-1 0-1.5.5-2 1.2-.5-.7-1-1.2-2-1.2z"
+        fill="currentColor">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- 오른쪽 하트 -->
+    <path
+        d="M14.7 10.5c-1.4 0-2.5 1.1-2.5 2.5 0 1.5 1.5 2.5 2.5 3.5l1.2 1.2c.2.2.5.2.7 0l1.2-1.2c1-1 2.5-2 2.5-3.5 0-1.4-1.1-2.5-2.5-2.5-1 0-1.5.5-2 1.2-.5-.7-1-1.2-2-1.2z"
+        fill="currentColor">
+        <animate attributeName="opacity" values="1;0.6;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- 중앙 장식 -->
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" opacity="0.8"/>
+    <path d="M12 10.5v3M10.5 12h3" stroke="currentColor" stroke-width="0.5" opacity="0.8"/>
+
+    <!-- 연결선 -->
+    <path d="M10.5 13.5C11 14 11.5 14.5 12 14.5s1-.5 1.5-1" stroke="currentColor" stroke-width="0.5" fill="none"
+          stroke-dasharray="1 1"/>
+
+    <!-- 장식적인 별들 -->
+    <path d="M8 6l.2-.5L8.7 5l-.5-.2L8 4.3l-.2.5L7.3 5l.5.2L8 6z" fill="currentColor">
+        <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M16 18l.2-.5.5-.3-.5-.2-.2-.5-.2.5-.5.2.5.3.2.5z" fill="currentColor">
+        <animate attributeName="opacity" values="0.8;0.2;0.8" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M19 9l.2-.5.5-.3-.5-.2-.2-.5-.2.5-.5.2.5.3.2.5z" fill="currentColor">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite"/>
+    </path>
+
+    <!-- 작은 원형 장식들 -->
+    <circle cx="6" cy="15" r="0.3" fill="currentColor">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="18" cy="13" r="0.3" fill="currentColor">
+        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+</svg>

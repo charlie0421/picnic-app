@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "name": "ttja-prod",
+  "ignoreCommand": "exit 0",
+
+  "builds": [
+    {
+      "src": "packages/client/ttja_app/build/web/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/download",
+      "dest": "/build/web/download.html",
+      "status": 200
+    },
+    {
+      "src": "/privacy",
+      "dest": "/build/web/private.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/build/web/index.html",
+      "status": 200
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With, Content-Type, Accept"
+        }
+      ]
+    }
+  ],
+  "outputDirectory": "packages/client/ttja_app/build/web"
+}
