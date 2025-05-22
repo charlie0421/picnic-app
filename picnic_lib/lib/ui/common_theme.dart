@@ -3,7 +3,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-TabBarTheme commonTabBarTheme = TabBarTheme(
+TabBarThemeData commonTabBarTheme = TabBarThemeData(
   labelStyle: getTextStyle(
     AppTypo.body14M,
     AppColors.grey900,
@@ -60,7 +60,7 @@ MarkdownStyleSheet commonMarkdownStyleSheet = MarkdownStyleSheet(
   h6Align: WrapAlignment.center,
 );
 
-DialogTheme commonDialogTheme = const DialogTheme(
+DialogThemeData commonDialogTheme = const DialogThemeData(
   backgroundColor: AppColors.grey00,
 );
 
