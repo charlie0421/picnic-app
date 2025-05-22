@@ -1,3 +1,5 @@
+'use client';
+
 import React, {useEffect, useMemo, useState} from 'react';
 import {differenceInSeconds} from 'date-fns';
 import {useLanguageStore} from '@/stores/languageStore';

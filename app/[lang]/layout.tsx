@@ -2,8 +2,8 @@ import {ReactNode} from 'react';
 import {Inter} from 'next/font/google';
 import './globals.css';
 import './layout.css';
-import ClientLayout from './ClientLayout';
 import { Metadata } from 'next';
+import ClientLayout from './ClientLayout';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -11,8 +11,11 @@ const inter = Inter({ subsets: ['latin'] });
 export async function generateMetadata({
   params
 }: {
-  params: { lang: string }
+  params: { lang: string | Promise<string> }
 }): Promise<Metadata> {
+  // Next.js 15에서는 Promise.resolve를 사용하여 처리
+  const lang = typeof params.lang === 'string' ? params.lang : await Promise.resolve(params.lang) || 'ko';
+  
   return {
     title: {
       default: 'Picnic',
@@ -27,15 +30,15 @@ export async function generateMetadata({
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: { lang: string };
+  params: { lang: string | Promise<string> };
 }) {
-  // 서버 컴포넌트에서 params 사용
-  const lang = params.lang || 'ko';
+  // Next.js 15에서는 Promise.resolve를 사용하여 처리
+  const lang = typeof params.lang === 'string' ? params.lang : await Promise.resolve(params.lang) || 'ko';
   
   return (
     <html lang={lang}>

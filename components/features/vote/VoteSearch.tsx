@@ -1,3 +1,5 @@
+'use client';
+
 import React, {useCallback, useEffect, useState} from 'react';
 import {useLanguageStore} from '@/stores/languageStore';
 import {VoteItem} from '@/types/interfaces';

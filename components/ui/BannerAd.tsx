@@ -1,3 +1,5 @@
+'use client';
+
 import AdSense from './AdSense';
 
 interface BannerAdProps {

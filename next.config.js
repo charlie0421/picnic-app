@@ -4,6 +4,13 @@ const { withSentryConfig } = require('@sentry/nextjs');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    turbo: {
+      resolveAlias: {
+        // 필요한 별칭 해결
+      }
+    }
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
