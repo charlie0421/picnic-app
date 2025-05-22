@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/supabase/auth-provider';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLanguageStore } from '@/stores/languageStore';
-import Footer from '@/components/layouts/Footer';
+import Footer from '../Footer';
 import ExclusiveOpenBadge from '@/components/layouts/ExclusiveOpenBadge';
 import Menu from '@/components/features/vote/Menu';
 import { getPortalTypeFromPath } from '@/config/navigation';

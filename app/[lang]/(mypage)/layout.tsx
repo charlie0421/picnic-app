@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useNavigation } from '@/contexts/NavigationContext';
-import Footer from '@/components/layouts/Footer';
+import Footer from '../Footer';
 import ExclusiveOpenBadge from '@/components/layouts/ExclusiveOpenBadge';
 import { getPortalTypeFromPath } from '@/config/navigation';
 import Header from '@/components/layouts/Header';

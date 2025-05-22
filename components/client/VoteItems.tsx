@@ -1,8 +1,10 @@
+'use client';
+
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Vote, VoteItem } from '@/types/interfaces';
-import UpcomingVoteItems from './UpcomingVoteItems';
-import OngoingVoteItems from './OngoingVoteItems';
-import CompletedVoteItems from './CompletedVoteItems';
+import UpcomingVoteItems from '@/components/features/vote/UpcomingVoteItems';
+import OngoingVoteItems from '@/components/features/vote/OngoingVoteItems';
+import CompletedVoteItems from '@/components/features/vote/CompletedVoteItems';
 
 const VOTE_STATUS = {
   UPCOMING: 'upcoming',
@@ -16,6 +18,15 @@ interface VoteItemsProps {
   vote: Vote & { voteItems?: Array<VoteItem & { artist?: any }> };
 }
 
+/**
+ * 투표 항목 컴포넌트
+ * 
+ * 투표 상태(예정/진행중/완료)에 따라 다른 하위 컴포넌트를 렌더링합니다.
+ * 클라이언트 컴포넌트로 구현되어야 하는 이유:
+ * 1. 시간 기반 상태 계산(setInterval 사용)
+ * 2. 이벤트 핸들러 사용
+ * 3. useRef, useCallback 등 React 훅 사용
+ */
 const VoteItems = React.memo(({ vote }: VoteItemsProps) => {
   const now = useRef(new Date());
   const status = useMemo(() => {

@@ -797,6 +797,7 @@ export interface Reward {
   sizeGuideImages: string[] | null
   thumbnail: string | null
   title: Json | null
+  description: Json | null
   updatedAt: string
   voteReward?: VoteReward[];
   voteAchieve?: VoteAchieve[];

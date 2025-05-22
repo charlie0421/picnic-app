@@ -399,7 +399,27 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_vote: {
+        Args: {
+          p_vote_id: string
+          p_user_id: string
+        }
+        Returns: UserVote
+      }
+      add_user_vote: {
+        Args: {
+          p_user_id: string
+          p_vote_id: string
+          p_vote_item_id: string
+        }
+        Returns: undefined
+      }
+      increment_vote: {
+        Args: {
+          vote_item_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
@@ -408,4 +428,26 @@ export interface Database {
       [_ in never]: never
     }
   }
+}
+
+/**
+ * Supabase 테이블 인터페이스
+ * 
+ * 이 파일은 Supabase 테이블 중 기본 인터페이스에 정의되지 않은 
+ * 테이블에 대한 타입 정의를 포함합니다.
+ */
+
+// 사용자 투표 관련 인터페이스
+export interface UserVote {
+  id: string;
+  user_id: string;
+  vote_id: string;
+  vote_item_id: string;
+  created_at: string;
+}
+
+// Supabase RPC 함수 응답 타입
+export interface SupabaseRpcResponse {
+  data: any;
+  error: Error | null;
 }

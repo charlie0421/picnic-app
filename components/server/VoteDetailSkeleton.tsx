@@ -1,6 +1,10 @@
 import React from 'react';
 
-const VoteDetailSkeleton: React.FC = () => {
+/**
+ * 투표 상세 페이지 로딩 시 표시될 스켈레톤 UI
+ * 서버 컴포넌트로 구현 (인터랙션이 없는 정적 UI)
+ */
+export default function VoteDetailSkeleton() {
   return (
     <div className='container mx-auto px-2 py-2'>
       {/* 상단 정보창 스켈레톤 */}
@@ -71,6 +75,4 @@ const VoteDetailSkeleton: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default VoteDetailSkeleton;
+} 

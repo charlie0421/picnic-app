@@ -9,7 +9,7 @@ import { useLanguageStore } from '@/stores/languageStore';
 import CountdownTimer from '@/components/features/CountdownTimer';
 import { getLocalizedString } from '@/utils/api/strings';
 import RewardItem from '@/components/common/RewardItem';
-import VoteItems from '../VoteItems';
+import { VoteItems } from '@/components/client';
 
 const VOTE_STATUS = {
   UPCOMING: 'upcoming',
