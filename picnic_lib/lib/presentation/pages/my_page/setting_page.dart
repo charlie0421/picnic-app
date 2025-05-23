@@ -7,7 +7,7 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -267,7 +267,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                             );
                         }
                       },
-                      loading: () => buildLoadingOverlay(),
+                      loading: () => ui.buildLoadingOverlay(),
                       error: (_, __) => Container()),
                   if (isAdmin)
                     PicnicListItem(
@@ -288,7 +288,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 ],
               ),
             ),
-        loading: () => buildLoadingOverlay(),
+        loading: () => ui.buildLoadingOverlay(),
         error: (error, stackTrace) => Container());
   }
 

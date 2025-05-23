@@ -16,7 +16,7 @@ dependencies:
         sdk: flutter
     picnic_lib:
         path: ../picnic_lib
-    intl: ^0.20.2
+    intl: ^0.19.0
     screen_protector: ^1.4.2+1
     supabase_flutter: ^2.8.4
     universal_platform: ^1.1.0
@@ -40,11 +40,13 @@ dependencies:
     flutter_branch_sdk: ^8.3.2
     crowdin_sdk: ^0.7.0
     shorebird_code_push: ^2.0.3
+    flutter_phoenix: ^1.1.1
 
 dev_dependencies:
     flutter_test:
         sdk: flutter
-    flutter_lints: ^5.0.0
+    build_runner: ^2.4.13
+    flutter_lints: ^3.0.1
     json_serializable: ^6.9.0
     intl_utils: ^2.8.7
     intl_translation: ^0.20.1

@@ -8,7 +8,7 @@ import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
@@ -151,7 +151,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             ),
           );
         },
-        loading: () => buildLoadingOverlay(),
+        loading: () => ui.buildLoadingOverlay(),
         error: (error, stackTrace) => Container());
   }
 
@@ -235,7 +235,7 @@ class _MyPageState extends ConsumerState<MyPage> {
               ],
             );
           },
-          loading: () => buildLoadingOverlay(),
+          loading: () => ui.buildLoadingOverlay(),
           error: (error, stack) {
             return Text('Error: $error');
           },

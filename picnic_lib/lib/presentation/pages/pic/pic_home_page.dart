@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/data/models/pic/celeb.dart';
 import 'package:picnic_lib/data/models/pic/gallery.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
@@ -109,13 +109,13 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                       return const CommonBanner('pic_home', 16 / 9);
                     },
                     loading: () => SizedBox(
-                      width: getPlatformScreenSize(context).width,
-                      height: getPlatformScreenSize(context).width * .5,
+                      width: ui.getPlatformScreenSize(context).width,
+                      height: ui.getPlatformScreenSize(context).width * .5,
                       child: const Center(child: CircularProgressIndicator()),
                     ),
                     error: (error, stackTrace) => SizedBox(
-                      width: getPlatformScreenSize(context).width,
-                      height: getPlatformScreenSize(context).width * .5,
+                      width: ui.getPlatformScreenSize(context).width,
+                      height: ui.getPlatformScreenSize(context).width * .5,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -137,7 +137,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             ],
           );
         },
-        loading: () => buildLoadingOverlay(),
+        loading: () => ui.buildLoadingOverlay(),
         error: (error, stackTrace) {
           return buildErrorView(
             context,
@@ -189,7 +189,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 ref.read(asyncGalleryListProvider.notifier).build(),
           );
         },
-        loading: () => buildLoadingOverlay());
+        loading: () => ui.buildLoadingOverlay());
   }
 
   Widget _buildGalleryList(List<GalleryModel> data) {
@@ -269,7 +269,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           shrinkWrap: true,
           builderDelegate: PagedChildBuilderDelegate<VoteModel>(
             firstPageProgressIndicatorBuilder: (context) =>
-                SizedBox(height: 400, child: buildLoadingOverlay()),
+                SizedBox(height: 400, child: ui.buildLoadingOverlay()),
             itemBuilder: (context, vote, index) {
               final now = DateTime.now().toUtc();
               final status = vote.startAt!.isAfter(now)
@@ -380,7 +380,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
                           ? _buildSearchList(context, data, selectedCelebState)
                           : [const NoBookmarkCeleb()];
                     },
-                    loading: () => [buildLoadingOverlay()],
+                    loading: () => [ui.buildLoadingOverlay()],
                     error: (error, stackTrace) => [
                           buildErrorView(
                             context,

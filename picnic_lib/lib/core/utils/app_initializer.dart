@@ -259,10 +259,30 @@ class AppInitializer {
 
   static Future<void> initializeAppWithSplash(
       BuildContext context, WidgetRef ref) async {
-    await Future.wait([
-      initializeApp(context, ref),
-      Future.delayed(const Duration(milliseconds: 3000)),
-    ]);
+    final startTime = DateTime.now();
+    logger.i('앱 초기화 시작: ${startTime.toString()}');
+
+    // 앱 초기화 작업 수행
+    final initFuture = initializeApp(context, ref);
+
+    // 최소 표시 시간 설정 (기본 2초)
+    const minSplashDuration = Duration(milliseconds: 2000);
+
+    // 초기화 완료
+    await initFuture;
+
+    // 현재까지 소요된 시간 계산
+    final elapsedTime = DateTime.now().difference(startTime);
+    logger.i('앱 초기화 소요 시간: ${elapsedTime.inMilliseconds}ms');
+
+    // 최소 표시 시간보다 빨리 초기화가 완료된 경우, 차이만큼 대기
+    if (elapsedTime < minSplashDuration) {
+      final remainingTime = minSplashDuration - elapsedTime;
+      logger.i('스플래시 화면 추가 대기 시간: ${remainingTime.inMilliseconds}ms');
+      await Future.delayed(remainingTime);
+    }
+
+    logger.i('앱 초기화 및 스플래시 표시 완료');
   }
 
   static Future<void> initializeWebApp(

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -49,7 +49,7 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
   void initState() {
     super.initState();
     _isWeb = kIsWeb || UniversalPlatform.isWeb;
-    
+
     if (!_isWeb) {
       _loadBannerAd();
       _scheduleLoadingUI();
@@ -86,7 +86,7 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
       _bannerAd = null;
 
       final configService = ref.read(configServiceProvider);
-      final adUnitId = isIOS()
+      final adUnitId = ui.isIOS()
           ? await configService.getConfig('ADMOB_IOS_${widget.configKey}')
           : await configService.getConfig('ADMOB_ANDROID_${widget.configKey}');
 
@@ -172,7 +172,7 @@ class _BannerAdWidgetState extends ConsumerState<BannerAdWidget> {
         child: SizedBox(
           width: widget.adSize.width.toDouble(),
           height: widget.adSize.height.toDouble(),
-          child: widget.loadingWidget ?? buildLoadingOverlay(),
+          child: widget.loadingWidget ?? ui.buildLoadingOverlay(),
         ),
       );
     }

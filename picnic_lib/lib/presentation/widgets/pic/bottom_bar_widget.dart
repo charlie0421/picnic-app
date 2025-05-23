@@ -2,13 +2,19 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/memory_profiler.dart';
+import 'package:picnic_lib/core/utils/memory_profiler_provider.dart';
+import 'package:picnic_lib/core/utils/memory_profiling_hook.dart'
+    as profiling_hook;
 import 'package:picnic_lib/presentation/pages/pic/pic_camera_view_page.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class BottomBarWidget extends StatelessWidget {
+class BottomBarWidget extends ConsumerWidget {
   final CameraController? controller;
   final FlashMode flashMode;
   final File? recentImage;
@@ -41,7 +47,7 @@ class BottomBarWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       height: 100,
       padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -53,30 +59,67 @@ class BottomBarWidget extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: () async {
               final ImagePicker picker = ImagePicker();
-              final XFile? image =
-                  await picker.pickImage(source: ImageSource.gallery);
+
+              // 이미지 선택 작업 프로파일링
+              final XFile? image = await profiling_hook.MemoryProfilingHook
+                  .profileImageLoading<XFile?>(
+                imageUrl: 'gallery_picker',
+                loadFunction: () =>
+                    picker.pickImage(source: ImageSource.gallery),
+                ref: ref,
+              );
+
               if (image != null && context.mounted) {
-                final croppedFile = await ImageCropper().cropImage(
+                // 이미지 크롭 작업 프로파일링
+                final aspectRatio =
+                    const CropAspectRatio(ratioX: 5.5, ratioY: 8.5);
+                final croppedFile = await profiling_hook.MemoryProfilingHook
+                    .profileImageCropping<CroppedFile?>(
                   sourcePath: image.path,
-                  aspectRatio: const CropAspectRatio(ratioX: 5.5, ratioY: 8.5),
-                  uiSettings: [
-                    AndroidUiSettings(
-                      toolbarTitle: 'Cropping',
-                      toolbarColor: Colors.pinkAccent,
-                      toolbarWidgetColor: Colors.white,
-                      lockAspectRatio: true,
-                    ),
-                    IOSUiSettings(
-                      title: 'Cropping',
-                      aspectRatioLockEnabled: true,
-                    ),
-                    WebUiSettings(
-                      context: context,
-                    ),
-                  ],
+                  aspectRatio:
+                      profiling_hook.CropAspectRatio(ratioX: 5.5, ratioY: 8.5),
+                  cropFunction: () => ImageCropper().cropImage(
+                    sourcePath: image.path,
+                    aspectRatio: aspectRatio,
+                    uiSettings: [
+                      AndroidUiSettings(
+                        toolbarTitle: 'Cropping',
+                        toolbarColor: Colors.pinkAccent,
+                        toolbarWidgetColor: Colors.white,
+                        lockAspectRatio: true,
+                      ),
+                      IOSUiSettings(
+                        title: 'Cropping',
+                        aspectRatioLockEnabled: true,
+                      ),
+                      WebUiSettings(
+                        context: context,
+                      ),
+                    ],
+                  ),
+                  ref: ref,
                 );
+
                 if (croppedFile != null) {
+                  // 이미지 처리 결과 스냅샷 생성
+                  final profiler = ref.read(memoryProfilerProvider.notifier);
+                  if (profiler.state.isEnabled) {
+                    profiler.takeSnapshot(
+                      'image_crop_complete_${DateTime.now().millisecondsSinceEpoch}',
+                      metadata: {
+                        'type': 'image_crop_complete',
+                        'sourcePath': image.path,
+                        'resultPath': croppedFile.path,
+                      },
+                      level: MemoryProfiler.snapshotLevelMedium,
+                    );
+                  }
+
+                  // 결과 이미지 전달
                   onImagePicked(File(croppedFile.path));
+
+                  // 작업 완료 로그
+                  logger.i('이미지 선택 및 크롭 완료: ${croppedFile.path}');
                 }
               }
             },

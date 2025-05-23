@@ -19,7 +19,7 @@ TabBarThemeData commonTabBarTheme = TabBarThemeData(
 ElevatedButtonThemeData commonElevatedButtonThemeData = ElevatedButtonThemeData(
   style: ButtonStyle(
       padding: WidgetStateProperty.all(
-          EdgeInsets.symmetric(horizontal: 32.w, vertical: 0)),
+          EdgeInsets.symmetric(horizontal: 32.0, vertical: 0)),
       backgroundColor: WidgetStateProperty.all(AppColors.primary500),
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(
@@ -71,10 +71,13 @@ getElevatedButtonThemeData(
     Color? textColor,
     double? borderRadius,
     double? borderWidth}) {
+  // ScreenUtil이 초기화되지 않았을 때를 대비한 안전한 패딩 계산
+  final horizontalPadding = 32.0; // 고정 값 사용
+
   return ElevatedButtonThemeData(
     style: ButtonStyle(
         padding: WidgetStateProperty.all(
-            EdgeInsets.symmetric(horizontal: 32.w, vertical: 0)),
+            EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 0)),
         backgroundColor:
             WidgetStateProperty.all(backgroundColor ?? AppColors.primary500),
         foregroundColor: WidgetStateProperty.all(textColor ?? AppColors.grey00),

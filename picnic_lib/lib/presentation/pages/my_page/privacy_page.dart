@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/policy_provider.dart';
@@ -50,7 +50,7 @@ class _PrivacyPageState extends ConsumerState<PrivacyPage>
           ],
         );
       },
-      loading: () => buildLoadingOverlay(),
+      loading: () => ui.buildLoadingOverlay(),
       error: (error, stack) => buildErrorView(
         context,
         error: error,

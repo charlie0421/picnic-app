@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:picnic_lib/core/constatns/constants.dart';
+import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
+import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
+import 'package:picnic_lib/core/utils/language_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/main_initializer.dart';
+import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
@@ -16,6 +20,7 @@ import 'package:picnic_lib/presentation/pages/oauth_callback_page.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_camera_screen.dart';
 import 'package:picnic_lib/presentation/screens/privacy.dart';
@@ -26,19 +31,18 @@ import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
 import 'package:picnic_lib/ui/pic_theme.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:ttja_app/bottom_navigation_menu.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/services/localization_service.dart';
 import 'package:ttja_app/generated/l10n.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:ttja_app/main.dart' as main_file;
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -59,15 +63,18 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
 
-  static final Map<String, WidgetBuilder> _routes = {
+  // 지원되는 언어 목록
+  static const List<Locale> _supportedLocales = [
+    Locale('ko'), // 한국어 (기본값)
+    Locale('en'), // 영어
+    Locale('ja'), // 일본어
+    Locale('zh'), // 중국어
+    Locale('id'), // 인도네시아어
+  ];
+
+  // 앱의 라우트 맵 - 앱 고유 라우트만 포함 (공통 라우트는 RouteManager에서 관리)
+  final Map<String, WidgetBuilder> _appSpecificRoutes = {
     Portal.routeName: (context) => const Portal(),
-    SignUpScreen.routeName: (context) => const SignUpScreen(),
-    '/pic-camera': (context) => const PicCameraScreen(),
-    'terms/ko': (context) => const TermsScreen(),
-    'terms/en': (context) => const TermsScreen(),
-    'privacy/ko': (context) => const PrivacyScreen(),
-    'privacy/en': (context) => const PrivacyScreen(),
-    PurchaseScreen.routeName: (context) => const PurchaseScreen(),
   };
 
   @override
@@ -75,13 +82,11 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     super.initState();
     logger.i('App initState 호출됨');
 
-    // Supabase 인증 리스너는 웹과 모바일 모두에서 필요함
-    AppInitializer.setupSupabaseAuthListener(ref);
+    // AppLifecycleInitializer를 사용하여 앱 초기화 및 리스너 설정
+    AppLifecycleInitializer.setupAppInitializers(ref, context);
 
-    // Branch 리스너는 모바일에서만 필요
-    if (UniversalPlatform.isMobile && !kIsWeb) {
-      AppInitializer.setupBranchListener(ref);
-    }
+    // 앱 라우트 설정
+    AppLifecycleInitializer.setupAppRoutes(ref, _appSpecificRoutes);
 
     // 초기화 로직을 initState()에서 수행 - 별도 Future로 선언하지 않고 즉시 실행
     _initializeApp();
@@ -136,6 +141,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         setState(() {
           _isAppInitialized = true;
         });
+
+        // 앱 초기화 완료 표시
+        AppLifecycleInitializer.markAppInitialized(ref);
       }
     } catch (e, stackTrace) {
       logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
@@ -151,57 +159,35 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   // 언어 초기화를 위한 별도 메서드
   Future<void> _initializeLanguage() async {
-    try {
-      // 현재 언어 설정 로드 (앱 설정에서 가져옴)
-      await ref.read(appSettingProvider.notifier).loadSettings();
-      String currentLanguage = ref.read(appSettingProvider).language;
-      logger.i('설정에서 로드된 현재 언어: $currentLanguage');
+    // MainInitializer의 initializeLanguageAsync 메서드를 사용하여 언어 초기화
+    await MainInitializer.initializeLanguageAsync(
+      ref,
+      context,
+      S.load,
+      (success, language) {
+        logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
 
-      // 언어가 비어있거나 영어인 경우 한국어로 설정
-      if (currentLanguage.isEmpty || currentLanguage == 'en') {
-        logger.i('언어가 비어있거나 영어로 설정됨, 한국어로 설정');
-        currentLanguage = 'ko';
-        ref.read(appSettingProvider.notifier).setLanguage('ko');
-        await globalStorage.saveData('language', 'ko');
-      }
+        // main.dart의 전역 변수 업데이트
+        main_file.isLanguageInitialized = success;
+        main_file.currentLanguage = language;
 
-      // Intl.defaultLocale을 반드시 설정 (중요!)
-      Intl.defaultLocale = currentLanguage;
-      logger.i('Intl.defaultLocale 설정: $currentLanguage');
-
-      // PicnicLibL10n 초기화
-      await PicnicLibL10n.initialize(
-        ref.read(appSettingProvider.notifier),
-        ProviderScope.containerOf(context),
-      );
-      logger.i('PicnicLibL10n 초기화 완료');
-
-      // LocalizationService를 통한 번역 로드
-      await LocalizationService.loadTranslations(Locale(currentLanguage));
-      logger.i('$currentLanguage 언어 번역 로드 완료');
-
-      // 앱의 번역 로드
-      await S.load(Locale(currentLanguage));
-      logger.i('S.load() 완료: $currentLanguage');
-
-      // PicnicLibL10n에 현재 언어 설정
-      PicnicLibL10n.setCurrentLocale(currentLanguage);
-      logger.i('PicnicLibL10n 언어 설정 완료: $currentLanguage');
-    } catch (e) {
-      logger.e('언어 초기화 중 오류 발생', error: e);
-      // 오류 발생 시 기본값으로 한국어 설정
-      try {
-        Intl.defaultLocale = 'ko';
-        await S.load(const Locale('ko'));
-        PicnicLibL10n.setCurrentLocale('ko');
-      } catch (recoveryError) {
-        logger.e('언어 복구 중 추가 오류 발생', error: recoveryError);
-      }
-    }
+        // 앱 설정에 언어 반영
+        if (success) {
+          ref.read(appSettingProvider.notifier).setLanguage(language);
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    // 앱 설정 관련 상태 구독
+    final appSettingState = ref.watch(appSettingProvider);
+    final isScreenProtector = ref.watch(isScreenProtectorProvider);
+
+    // 화면 보호기 설정 업데이트
+    AppBuilder.updateScreenProtector(isScreenProtector);
+
     // 언어 변경 감지 및 적용 로직
     ref.listen<Setting>(
       appSettingProvider,
@@ -213,105 +199,37 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       },
     );
 
-    return ScreenUtilInit(
-      designSize: const Size(393, 892),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      child: OverlaySupport.global(
-        child: Consumer(
-          builder: (context, ref, child) {
-            final appSettingState = ref.watch(appSettingProvider);
-            final isScreenProtector = ref.watch(isScreenProtectorProvider);
+    // 내비게이션 관련 프로바이더 구독
+    final navigationInfo = ref.watch(navigationInfoProvider);
+    ref.watch(globalMediaQueryProvider);
 
-            // 화면 보호기 업데이트
-            _updateScreenProtector(isScreenProtector);
+    // 앱 홈 화면 결정
+    Widget homeWidget = _isAppInitialized
+        ? const Portal() // Portal 위젯으로 변경
+        : const SizedBox.shrink(); // 초기화 중에는 빈 위젯 표시 (스플래시는 AppBuilder에서 처리)
 
-            // 현재 언어 가져오기
-            final currentLanguage = appSettingState.language;
+    // 라우트 처리
+    final routes = RouteManager.mergeRoutes(_appSpecificRoutes);
 
-            return Phoenix(
-              child: MaterialApp(
-                scaffoldMessengerKey: _scaffoldKey,
-                navigatorKey: navigatorKey,
-                title: 'TTJA',
-                theme: _getCurrentTheme(ref),
-                themeMode: appSettingState.themeMode,
-                locale: Locale(currentLanguage),
-                localizationsDelegates: [
-                  // 앱 자체 로컬라이제이션
-                  S.delegate,
-                  // PicnicLib 로컬라이제이션
-                  ...LocalizationService.localizationDelegates,
-                  // Flutter 기본 로컬라이제이션
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                supportedLocales: LocalizationService.supportedLocales,
-                localeResolutionCallback: (locale, supportedLocales) {
-                  // 지원하지 않는 로케일이 요청된 경우 기본값(한국어)으로 대체
-                  if (locale != null) {
-                    for (final supportedLocale in supportedLocales) {
-                      if (supportedLocale.languageCode == locale.languageCode) {
-                        return supportedLocale;
-                      }
-                    }
-                  }
-                  // 기본 로케일 반환(한국어)
-                  return const Locale('ko');
-                },
-                routes: _buildRoutes(),
-                onGenerateRoute: (settings) {
-                  final uri = Uri.parse(settings.name ?? '');
-                  final path = uri.path;
-
-                  if (path.startsWith('/auth/callback')) {
-                    logger.i('OAuth callback: $uri');
-                    return MaterialPageRoute(
-                      builder: (_) => OAuthCallbackPage(callbackUri: uri),
-                      settings: settings,
-                    );
-                  }
-                  return MaterialPageRoute(builder: (_) => const Portal());
-                },
-                navigatorObservers: [observer],
-                builder: UniversalPlatform.isWeb
-                    ? (context, child) => MediaQuery(
-                          data: ref
-                              .watch(globalMediaQueryProvider)
-                              .copyWith(size: const Size(600, 800)),
-                          child: UpdateDialog(
-                              child: child ?? const SizedBox.shrink()),
-                        )
-                    : (context, child) =>
-                        UpdateDialog(child: child ?? const SizedBox.shrink()),
-                home: _isAppInitialized
-                    ? const Portal()
-                    : const Center(child: CircularProgressIndicator()),
-              ),
-            );
-          },
-        ),
-      ),
+    // AppBuilder를 사용하여 앱 UI 구성
+    return AppBuilder.buildApp(
+      navigatorKey: navigatorKey,
+      scaffoldKey: _scaffoldKey,
+      routes: routes,
+      title: 'TTJA',
+      theme: _getCurrentTheme(ref),
+      home: UpdateDialog(child: homeWidget),
+      localizationsDelegates: [
+        ...LocalizationService.localizationDelegates,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: _supportedLocales,
+      locale: Locale(appSettingState.language),
+      enableMemoryProfiler: kDebugMode, // 디버그 모드에서만 메모리 프로파일러 활성화
+      enableScreenProtector: isScreenProtector,
     );
-  }
-
-  // 앱의 메인 화면 구성
-
-  void _updateScreenProtector(bool isScreenProtector) {
-    if (!kIsWeb && UniversalPlatform.isMobile) {
-      if (isScreenProtector) {
-        ScreenProtector.protectDataLeakageWithColor(AppColors.primary500);
-        ScreenProtector.preventScreenshotOn();
-      } else {
-        ScreenProtector.protectDataLeakageWithColorOff();
-        ScreenProtector.preventScreenshotOff();
-      }
-    }
-  }
-
-  Map<String, WidgetBuilder> _buildRoutes() {
-    return _routes;
   }
 
   ThemeData _getCurrentTheme(WidgetRef ref) {
@@ -332,49 +250,81 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    _authSubscription?.cancel();
-    _appLinksSubscription?.cancel();
-    if (!kIsWeb) {
-      ScreenProtector.preventScreenshotOff();
-    }
+    WidgetsBinding.instance.removeObserver(this);
+
+    // 앱 리스너 정리
+    AppLifecycleInitializer.disposeAppListeners(
+      _authSubscription,
+      _appLinksSubscription,
+    );
+
+    // 화면 보호기 해제는 AppBuilder의 updateScreenProtector로 처리
     super.dispose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    logger.i('앱 생명주기 상태 변경: $state');
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // 앱이 포그라운드로 돌아올 때 필요한 작업
+        break;
+      case AppLifecycleState.inactive:
+        // 앱이 비활성화될 때 필요한 작업
+        break;
+      case AppLifecycleState.paused:
+        // 앱이 백그라운드로 전환될 때 필요한 작업
+        break;
+      case AppLifecycleState.detached:
+        // 앱이 분리될 때 필요한 작업
+        break;
+      default:
+        break;
+    }
+  }
+
   // 언어 변경 적용 - 번역을 즉시 로드하고 UI를 업데이트하는 강화된 메서드
-  void _applyLanguageChange(String language) {
-    logger.d('Language change to $language');
+  Future<void> _applyLanguageChange(String language) async {
     try {
+      logger.i('언어 변경 시작: $language');
+
+      // mounted 상태 확인 및 UI 상태 변경
+      if (!mounted) return;
+
+      // UI 상태 업데이트 - 로딩 화면 표시
       setState(() {
         _isAppInitialized = false;
+        logger.i('언어 변경 중 일시적으로 화면 초기화');
       });
 
-      // 변경된 부분: 언어 변경 순서 최적화
-      Intl.defaultLocale = language;
+      // LanguageManager를 사용하여 언어 변경 및 앱 리로드 처리
+      await LanguageManager.changeAppLanguage(
+        ref,
+        context,
+        language,
+        S.load,
+        callback: (isInitialized, language) {
+          // main.dart의 전역 변수 업데이트
+          main_file.isLanguageInitialized = isInitialized;
+          main_file.currentLanguage = language;
+          logger.i('main.dart 전역 변수 업데이트: $language');
+        },
+        shouldReload: false, // 직접 UI 상태를 관리하므로 자동 리로드는 비활성화
+      );
 
-      // 1. PicnicLib의 로케일 설정
-      PicnicLibL10n.setCurrentLocale(language);
+      // 마운트 상태 재확인 후 UI 업데이트
+      if (!mounted) return;
 
-      // 2. LocalizationService를 통한 번역 로드
-      LocalizationService.loadTranslations(Locale(language)).then((_) {
-        // 3. 앱의 S 클래스 번역 로드
-        S.load(Locale(language)).then((_) {
-          if (mounted) {
-            setState(() {
-              _isAppInitialized = true;
-              logger.i('언어 변경 완료: $language, UI 리빌드 트리거');
-            });
-          }
-        });
-      }).catchError((e) {
-        logger.e('번역 로드 중 오류: $e');
-        if (mounted) {
-          setState(() {
-            _isAppInitialized = true;
-          });
-        }
+      // UI 상태 업데이트 - 메인 화면 표시
+      setState(() {
+        _isAppInitialized = true;
+        logger.i('언어 변경 완료 후 UI 상태 복원');
       });
     } catch (e) {
-      logger.e('언어 변경 적용 중 오류: $e');
+      logger.e('언어 변경 중 오류 발생', error: e);
+
+      // 오류 발생 시에도 UI 상태 복구
       if (mounted) {
         setState(() {
           _isAppInitialized = true;

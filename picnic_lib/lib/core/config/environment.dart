@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:logger/logger.dart';
 
 class Environment {
   static late Map<String, dynamic> _config;
@@ -25,6 +26,47 @@ class Environment {
     }
     return current;
   }
+
+  // 설정값을 가져오되, 없으면 기본값 사용
+  static dynamic _getValueOrDefault(List<String> path, dynamic defaultValue) {
+    try {
+      return _getValue(path);
+    } catch (e) {
+      return defaultValue;
+    }
+  }
+
+  // 로그 관련 설정
+  static Level get logLevel {
+    final levelName = _getValueOrDefault(['logging', 'level'], 'info')
+        .toString()
+        .toLowerCase();
+    switch (levelName) {
+      case 'off':
+        return Level.off;
+      case 'verbose':
+        return Level.verbose;
+      case 'debug':
+        return Level.debug;
+      case 'info':
+        return Level.info;
+      case 'warning':
+        return Level.warning;
+      case 'error':
+        return Level.error;
+      case 'all':
+        return Level.all;
+      default:
+        return Level.info;
+    }
+  }
+
+  static int get imageLoadWarningThreshold => _getValueOrDefault(
+      ['logging', 'image_load_warning_threshold_seconds'], 10) as int;
+
+  static int get imageLoadErrorThreshold =>
+      _getValueOrDefault(['logging', 'image_load_error_threshold_seconds'], 20)
+          as int;
 
   // Supabase 관련 설정
   static String get supabaseUrl => _getValue(['supabase', 'url']) as String;

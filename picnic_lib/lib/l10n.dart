@@ -75,7 +75,7 @@ class PicnicLibL10n {
   }
 
   /// Crowdin OTA 초기화
-  static Future<void> initialize(AppSetting appSetting,
+  static Future<void> initialize(Setting appSetting,
       [ProviderContainer? container]) async {
     try {
       logger.i('PicnicLibL10n 초기화 시작');
@@ -156,10 +156,13 @@ class PicnicLibL10n {
         languageCode = 'en'; // 기본값으로 영어 사용
       }
 
-      // 2. Crowdin에서 직접 가져오기
-      Crowdin.getText(languageCode, key);
+      // Crowdin에서 직접 가져오기
+      final translation = Crowdin.getText(languageCode, key);
+      if (translation != null && translation.isNotEmpty) {
+        return translation;
+      }
 
-      // 4. 번역 실패 시 최후의 대안으로 하드코딩된 기본값 시도
+      // 번역 실패 시 최후의 대안으로 하드코딩된 기본값 시도
       if (key == 'app_name') return 'TTJA';
       if (key.startsWith('nav_')) return key.substring(4).toUpperCase();
       if (key.startsWith('label_')) {
@@ -169,7 +172,7 @@ class PicnicLibL10n {
         }
       }
 
-      // 5. 모든 시도가 실패하면 키 반환
+      // 모든 시도가 실패하면 키 반환
       logger.w('번역을 찾을 수 없음: [$languageCode] $key');
       return key;
     } catch (e, s) {
@@ -186,8 +189,18 @@ class PicnicLibL10n {
 
   static String t(String key, [Map<String, String>? args]) {
     if (!_isInitialized) {
-      // 초기화 안 된 경우 로그 추가
+      // 초기화 안 된 경우에도 키를 기반으로 가능한 의미있는 문자열 반환
       logger.e('PicnicLibL10n이 초기화되지 않았습니다! 키: $key');
+
+      // 키에서 의미 있는 텍스트 추출 시도
+      if (key.contains('_')) {
+        final parts = key.split('_');
+        if (parts.length > 1) {
+          // label_vote_upcoming -> Vote Upcoming 형태로 변환
+          return parts.sublist(1).map((part) => _capitalize(part)).join(' ');
+        }
+      }
+
       return key;
     }
 
