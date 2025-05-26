@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/core/utils/util.dart';
-import 'package:picnic_lib/data/models/reward.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
+import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
+import 'package:picnic_lib/data/models/reward.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/core/utils/i18n.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/utils/util.dart';
 
 // 상수 정의
 class RewardDialogConstants {
@@ -83,7 +83,6 @@ class _RewardDialogState extends State<RewardDialog> {
                 imageUrl: widget.data.thumbnail ?? '',
                 fit: BoxFit.cover,
                 width: (screenWidth * 1.1),
-                height: 200, // 명시적인 높이 지정으로 레이아웃 오류 방지
               ),
             ),
           ),
@@ -93,7 +92,7 @@ class _RewardDialogState extends State<RewardDialog> {
             right: 0,
             child: Container(
               height: 48,
-              margin: EdgeInsets.symmetric(horizontal: 30.w),
+              margin: EdgeInsets.symmetric(horizontal: 30.cw),
               child: VoteCommonTitle(
                 title: getLocaleTextFromJson(widget.data.title!),
               ),
@@ -134,8 +133,8 @@ class RewardSection extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12),
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 53),
+          margin: EdgeInsets.symmetric(horizontal: 16.cw, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 24.cw, vertical: 53),
           decoration: BoxDecoration(
             borderRadius:
                 BorderRadius.circular(RewardDialogConstants.imageRadius),
@@ -145,7 +144,7 @@ class RewardSection extends StatelessWidget {
         ),
         Positioned(
           top: 0,
-          left: 40.w,
+          left: 40.cw,
           child: Image.asset(
             package: 'picnic_lib',
             'assets/images/$fileName',
@@ -163,10 +162,7 @@ class RewardSection extends StatelessWidget {
     switch (type) {
       case RewardType.overview:
         if (data.overviewImages != null) {
-          widgets.addAll(_buildImageList(
-            context,
-            data.overviewImages,
-          ));
+          widgets.addAll(_buildImageList(context, data.overviewImages));
         }
         break;
 
@@ -191,10 +187,7 @@ class RewardSection extends StatelessWidget {
                 ),
               ));
               if (mapImages.length > 1) {
-                widgets.addAll(_buildImageList(
-                  context,
-                  mapImages.sublist(1),
-                ));
+                widgets.addAll(_buildImageList(context, mapImages.sublist(1)));
               }
             }
           }
@@ -298,20 +291,14 @@ class RewardSection extends StatelessWidget {
       BuildContext context, List<String>? images) {
     if (images == null) return [];
 
-    final imageSize = MediaQuery.of(context).size.width - 100;
-
     return images.asMap().entries.map((entry) {
       final i = entry.key;
       final image = entry.value;
       return Column(
         children: [
           SizedBox(
-            width: imageSize,
-            height: imageSize,
             child: PicnicCachedNetworkImage(
               imageUrl: image,
-              width: imageSize,
-              height: imageSize,
               fit: BoxFit.cover,
             ),
           ),
