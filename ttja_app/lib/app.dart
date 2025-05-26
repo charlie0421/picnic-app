@@ -159,6 +159,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   // 언어 초기화를 위한 별도 메서드
   Future<void> _initializeLanguage() async {
+    // 먼저 앱 설정이 로드될 때까지 대기
+    await ref.read(appSettingProvider.notifier).loadSettings();
+
     // MainInitializer의 initializeLanguageAsync 메서드를 사용하여 언어 초기화
     await MainInitializer.initializeLanguageAsync(
       ref,
@@ -174,6 +177,16 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         // 앱 설정에 언어 반영
         if (success) {
           ref.read(appSettingProvider.notifier).setLanguage(language);
+
+          // PicnicLibL10n을 올바른 ProviderContainer와 함께 초기화
+          try {
+            final appSetting = ref.read(appSettingProvider);
+            PicnicLibL10n.initialize(appSetting);
+            logger.i('PicnicLibL10n 명시적 초기화 완료');
+          } catch (e) {
+            logger.e('PicnicLibL10n 명시적 초기화 실패', error: e);
+            // 실패해도 계속 진행 (t 메서드가 대체 값을 반환하도록 개선됨)
+          }
         }
       },
     );

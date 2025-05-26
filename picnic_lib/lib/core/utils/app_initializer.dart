@@ -60,6 +60,17 @@ class AppInitializer {
     WidgetsFlutterBinding.ensureInitialized();
     logger.i('Widget binding initialized');
     BindingBase.debugZoneErrorsAreFatal = true;
+
+    // 앱 초기화 상태 확인을 위한 지연
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
+
+  /// MaterialApp 초기화 대기
+  static Future<void> _waitForMaterialAppInitialization(
+      BuildContext context) async {
+    // MaterialApp이 초기화될 때까지 잠시 대기
+    await Future.delayed(const Duration(milliseconds: 200));
+    logger.d('MaterialApp 초기화 대기 완료');
   }
 
   static Future<void> initializeEnvironment(String environment) async {
@@ -118,9 +129,30 @@ class AppInitializer {
                 .map((frame) =>
                     '${frame.fileName}:${frame.lineNo} - ${frame.function}')
                 .join('\n');
-            logger.e('${element.value}\nStacktrace:\n$stackTraceString');
+
+            final errorMessage = element.value ?? 'Unknown error';
+
+            // 특정 오류들은 로그 레벨을 낮춤 (너무 빈번하게 발생할 수 있음)
+            if (errorMessage.contains('RenderBox was not laid out') ||
+                errorMessage.contains('hasSize') ||
+                errorMessage.contains('Directionality widget') ||
+                errorMessage.contains('No Directionality widget found')) {
+              logger.w(
+                  'UI 레이아웃 경고: $errorMessage\nStacktrace:\n$stackTraceString');
+            } else {
+              logger.e('$errorMessage\nStacktrace:\n$stackTraceString');
+            }
           } else {
             logger.e('Stacktrace: No frames available');
+          }
+        } else {
+          // 스택 트레이스가 없는 경우
+          final errorMessage = element.value ?? 'Unknown error';
+          if (errorMessage.contains('Directionality widget') ||
+              errorMessage.contains('No Directionality widget found')) {
+            logger.w('UI 초기화 경고: $errorMessage');
+          } else {
+            logger.e('오류 (스택 트레이스 없음): $errorMessage');
           }
         }
       });
@@ -259,30 +291,38 @@ class AppInitializer {
 
   static Future<void> initializeAppWithSplash(
       BuildContext context, WidgetRef ref) async {
-    final startTime = DateTime.now();
-    logger.i('앱 초기화 시작: ${startTime.toString()}');
+    try {
+      final startTime = DateTime.now();
+      logger.i('앱 초기화 시작: ${startTime.toString()}');
 
-    // 앱 초기화 작업 수행
-    final initFuture = initializeApp(context, ref);
+      // MaterialApp이 완전히 초기화될 때까지 대기
+      await _waitForMaterialAppInitialization(context);
 
-    // 최소 표시 시간 설정 (기본 2초)
-    const minSplashDuration = Duration(milliseconds: 2000);
+      // 앱 초기화 작업 수행
+      final initFuture = initializeApp(context, ref);
 
-    // 초기화 완료
-    await initFuture;
+      // 최소 표시 시간 설정 (기본 2초)
+      const minSplashDuration = Duration(milliseconds: 2000);
 
-    // 현재까지 소요된 시간 계산
-    final elapsedTime = DateTime.now().difference(startTime);
-    logger.i('앱 초기화 소요 시간: ${elapsedTime.inMilliseconds}ms');
+      // 초기화 완료
+      await initFuture;
 
-    // 최소 표시 시간보다 빨리 초기화가 완료된 경우, 차이만큼 대기
-    if (elapsedTime < minSplashDuration) {
-      final remainingTime = minSplashDuration - elapsedTime;
-      logger.i('스플래시 화면 추가 대기 시간: ${remainingTime.inMilliseconds}ms');
-      await Future.delayed(remainingTime);
+      // 현재까지 소요된 시간 계산
+      final elapsedTime = DateTime.now().difference(startTime);
+      logger.i('앱 초기화 소요 시간: ${elapsedTime.inMilliseconds}ms');
+
+      // 최소 표시 시간보다 빨리 초기화가 완료된 경우, 차이만큼 대기
+      if (elapsedTime < minSplashDuration) {
+        final remainingTime = minSplashDuration - elapsedTime;
+        logger.i('스플래시 화면 추가 대기 시간: ${remainingTime.inMilliseconds}ms');
+        await Future.delayed(remainingTime);
+      }
+
+      logger.i('앱 초기화 및 스플래시 표시 완료');
+    } catch (e, stackTrace) {
+      logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
+      rethrow;
     }
-
-    logger.i('앱 초기화 및 스플래시 표시 완료');
   }
 
   static Future<void> initializeWebApp(
@@ -296,23 +336,72 @@ class AppInitializer {
     try {
       logger.i('앱 초기화 시작');
 
-      // MediaQuery 데이터를 미리 캐시
-      final mediaQueryData = MediaQuery.of(context);
+      // 위젯 마운트 상태 확인
+      if (!context.mounted) {
+        logger.w('Context가 마운트되지 않아 초기화를 중단합니다.');
+        return;
+      }
+
+      // MaterialApp/WidgetsApp이 초기화되었는지 확인
+      try {
+        final directionality = Directionality.maybeOf(context);
+        if (directionality == null) {
+          logger.w('Directionality가 아직 초기화되지 않았습니다. MaterialApp 초기화를 기다립니다.');
+          // 짧은 지연 후 다시 시도
+          await Future.delayed(const Duration(milliseconds: 100));
+        } else {
+          logger.d('Directionality 확인 완료: ${directionality.toString()}');
+        }
+      } catch (e) {
+        logger.w('Directionality 확인 중 오류 발생: $e');
+      }
+
+      // MediaQuery 데이터를 안전하게 확인
+      try {
+        final mediaQuery = MediaQuery.maybeOf(context);
+        if (mediaQuery != null) {
+          logger.d('MediaQuery 데이터 확인 완료: ${mediaQuery.size}');
+        } else {
+          logger.w('MediaQuery 데이터를 가져올 수 없습니다.');
+        }
+      } catch (e) {
+        logger.w('MediaQuery 데이터 확인 중 오류 발생: $e');
+      }
+
       if (!context.mounted) return;
 
-      // 기본 초기화
-      await precacheImage(const AssetImage("assets/splash.webp"), context);
+      // 기본 초기화 - 안전하게 처리
+      try {
+        await precacheImage(const AssetImage("assets/splash.webp"), context);
+      } catch (e) {
+        logger.w('스플래시 이미지 프리캐시 실패: $e');
+      }
+
       if (!context.mounted) return;
 
       // 위젯 마운트 상태 확인 후 ref 사용
       if (!context.mounted) return;
-      ref.read(appSettingProvider.notifier);
+
+      try {
+        ref.read(appSettingProvider.notifier);
+      } catch (e) {
+        logger.w('AppSettingProvider 초기화 중 오류: $e');
+      }
 
       // 위젯 마운트 상태 확인 후 ref 사용
       if (!context.mounted) return;
-      ref
-          .read(globalMediaQueryProvider.notifier)
-          .updateMediaQueryData(mediaQueryData);
+
+      // MediaQuery 데이터를 안전하게 가져와서 업데이트
+      try {
+        final mediaQueryData = MediaQuery.maybeOf(context);
+        if (mediaQueryData != null) {
+          ref
+              .read(globalMediaQueryProvider.notifier)
+              .updateMediaQueryData(mediaQueryData);
+        }
+      } catch (e) {
+        logger.w('MediaQuery 데이터 업데이트 중 오류: $e');
+      }
 
       if (isMobile()) {
         await _initializeMobileApp(ref);

@@ -40,9 +40,9 @@ class VoteItemModel with _$VoteItemModel {
       {@JsonKey(name: 'id') required int id,
       @JsonKey(name: 'vote_total') required int? voteTotal,
       @JsonKey(name: 'vote_id') required int voteId,
-      @JsonKey(name: 'artist') required ArtistModel artist,
+      @JsonKey(name: 'artist') required ArtistModel? artist,
       @JsonKey(name: 'artist_group')
-      required ArtistGroupModel artistGroup}) = _VoteItemModel;
+      required ArtistGroupModel? artistGroup}) = _VoteItemModel;
 
   factory VoteItemModel.fromJson(Map<String, dynamic> json) =>
       _$VoteItemModelFromJson(json);

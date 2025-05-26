@@ -152,7 +152,7 @@ class MainInitializer {
   /// [ref] Riverpod WidgetRef
   /// [context] BuildContext
   /// [loadGeneratedTranslations] 앱별 생성된 번역 파일 로드 함수
-  /// [onComplete] 초기화 완료 후 실행할 콜백 함수
+  /// [callback] 초기화 완료 후 실행할 콜백 함수
   static Future<void> initializeLanguageAsync(
     WidgetRef ref,
     BuildContext context,
@@ -181,19 +181,15 @@ class MainInitializer {
         loadGeneratedTranslations,
       );
 
-      // 콜백 함수 호출
-      if (callback != null) {
-        callback(success, language);
-      }
+      // 콜백 함수 호출 (non-nullable이므로 null 체크 불필요)
+      callback(success, language);
 
       logger.i('언어 초기화 ${success ? '성공' : '실패'}: $language');
     } catch (e, stackTrace) {
       logger.e('언어 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
 
       // 오류 발생 시에도 콜백 호출
-      if (callback != null) {
-        callback(false, 'ko');
-      }
+      callback(false, 'ko');
     }
   }
 }

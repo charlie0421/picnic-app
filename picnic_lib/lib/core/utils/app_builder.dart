@@ -96,40 +96,25 @@ class AppBuilder {
     required bool enableScreenProtector,
   }) {
     return OverlaySupport.global(
-      child: _buildAppWithMemoryProfiler(
+      child: _buildMaterialApp(
         enableMemoryProfiler: enableMemoryProfiler,
-        child: _buildMaterialApp(
-          navigatorKey: navigatorKey,
-          scaffoldKey: scaffoldKey,
-          routes: routes,
-          title: title,
-          theme: theme,
-          home: home,
-          localizationsDelegates: localizationsDelegates,
-          supportedLocales: supportedLocales,
-          locale: locale,
-          enableScreenProtector: enableScreenProtector,
-        ),
+        navigatorKey: navigatorKey,
+        scaffoldKey: scaffoldKey,
+        routes: routes,
+        title: title,
+        theme: theme,
+        home: home,
+        localizationsDelegates: localizationsDelegates,
+        supportedLocales: supportedLocales,
+        locale: locale,
+        enableScreenProtector: enableScreenProtector,
       ),
     );
   }
 
-  /// 메모리 프로파일러 래핑 여부에 따라 위젯 반환
-  static Widget _buildAppWithMemoryProfiler({
-    required bool enableMemoryProfiler,
-    required Widget child,
-  }) {
-    // 디버그 모드이거나 명시적으로 활성화된 경우에만 메모리 프로파일러 추가
-    if (enableMemoryProfiler) {
-      return MemoryProfilerOverlay(
-        child: child,
-      );
-    }
-    return child;
-  }
-
   /// MaterialApp 기본 구성 생성
   static Widget _buildMaterialApp({
+    required bool enableMemoryProfiler,
     required GlobalKey<NavigatorState> navigatorKey,
     required GlobalKey<ScaffoldMessengerState> scaffoldKey,
     required Map<String, WidgetBuilder> routes,
@@ -141,6 +126,14 @@ class AppBuilder {
     required Locale locale,
     bool enableScreenProtector = false,
   }) {
+    // home 위젯을 메모리 프로파일러와 화면 보호기로 래핑
+    Widget wrappedHome = _wrapWithScreenProtector(home, enableScreenProtector);
+
+    // 메모리 프로파일러가 활성화된 경우 MaterialApp 내부에서 래핑
+    if (enableMemoryProfiler) {
+      wrappedHome = MemoryProfilerOverlay(child: wrappedHome);
+    }
+
     return MaterialApp(
       navigatorKey: navigatorKey,
       scaffoldMessengerKey: scaffoldKey,
@@ -148,10 +141,7 @@ class AppBuilder {
       theme: theme,
       debugShowCheckedModeBanner: false,
       routes: routes,
-      home: _wrapWithScreenProtector(
-        home,
-        enableScreenProtector,
-      ),
+      home: wrappedHome,
       locale: locale,
       supportedLocales: supportedLocales,
       localizationsDelegates: [

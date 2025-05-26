@@ -30,60 +30,65 @@ class MemoryProfilerOverlay extends ConsumerWidget {
     final profilerState = ref.watch(memoryProfilerProvider);
     final isOverlayVisible = ref.watch(memoryProfilerOverlayVisibleProvider);
 
-    // 오버레이가 표시되지 않는 경우에는 원래 위젯 반환
-    // (토글 버튼만 표시)
-    if (!isOverlayVisible) {
-      return Stack(
-        alignment: Alignment.topLeft,
-        textDirection: TextDirection.ltr,
-        children: [
-          child,
-          Positioned(
-            right: 10,
-            bottom: 60,
-            child: _buildToggleButton(ref),
-          ),
-        ],
-      );
-    }
-
-    // 오버레이가 표시되는 경우 (전체 오버레이 + 토글 버튼)
     return Stack(
-      alignment: Alignment.topLeft,
-      textDirection: TextDirection.ltr,
       children: [
         child,
+
+        // 전체 프로파일러 오버레이 (오버레이가 열려있을 때만)
+        if (isOverlayVisible)
+          Positioned(
+            left: 16,
+            right: 16,
+            top: 100,
+            bottom: 120,
+            child: SafeArea(
+              child: _buildOverlayPanel(context, ref, profilerState),
+            ),
+          ),
+
+        // 액션 버튼들 (항상 표시) - 더 안전한 위치
         Positioned(
-          left: 0,
-          right: 0,
-          top: 0,
-          height: 150,
-          child: _buildMemoryInfoPanel(profilerState),
-        ),
-        Positioned(
-          right: 10,
-          bottom: 60,
-          child: _buildActionButtons(ref),
+          right: 8,
+          bottom: 16,
+          child: SafeArea(
+            child: _buildActionButtons(context, ref),
+          ),
         ),
       ],
     );
   }
 
   Widget _buildToggleButton(WidgetRef ref) {
+    final isOverlayVisible = ref.watch(memoryProfilerOverlayVisibleProvider);
+
     return GestureDetector(
       onTap: () {
-        ref.read(memoryProfilerOverlayVisibleProvider.notifier).state = true;
+        ref.read(memoryProfilerOverlayVisibleProvider.notifier).state =
+            !isOverlayVisible;
       },
       child: Container(
-        width: 50,
-        height: 50,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(25),
+          color: isOverlayVisible
+              ? Colors.blue.withOpacity(0.9)
+              : Colors.black.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+              color: isOverlayVisible ? Colors.blue : Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: (isOverlayVisible ? Colors.blue : Colors.white)
+                  .withOpacity(0.3),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        child: const Icon(
+        child: Icon(
           Icons.memory,
           color: Colors.white,
+          size: 24,
         ),
       ),
     );
@@ -94,199 +99,184 @@ class MemoryProfilerOverlay extends ConsumerWidget {
     WidgetRef ref,
     MemoryProfilerState profilerState,
   ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(-3, -3),
+    return Material(
+      type: MaterialType.card,
+      elevation: 12,
+      shadowColor: Colors.black.withOpacity(0.3),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Theme.of(context).primaryColor.withOpacity(0.2),
+            width: 1,
           ),
-        ],
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        textDirection: TextDirection.ltr,
-        children: [
-          _buildOverlayHeader(context, ref),
-          const Expanded(
-            child: MemoryProfilerTabView(),
-          ),
-        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildOverlayHeader(context, ref),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+                child: Container(
+                  constraints: const BoxConstraints(
+                    minHeight: 200,
+                  ),
+                  child: const MemoryProfilerTabView(),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildOverlayHeader(BuildContext context, WidgetRef ref) {
+    final profilerState = ref.watch(memoryProfilerProvider);
+    final isOverlayVisible = ref.watch(memoryProfilerOverlayVisibleProvider);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
+        color: Theme.of(context).primaryColor.withOpacity(0.05),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            width: 1,
           ),
-        ],
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        textDirection: TextDirection.ltr,
         children: [
-          const Row(
-            textDirection: TextDirection.ltr,
-            children: [
-              Icon(
-                Icons.memory,
-                color: Colors.white,
-                size: 20,
-              ),
-              SizedBox(width: 8),
-              Text(
-                '메모리 프로파일러',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+          // 제목과 상태
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.memory,
+                      color: Theme.of(context).primaryColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '메모리 프로파일러',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '누수 감지: ${profilerState.detectedLeaks.length}개 | ${profilerState.isDetecting ? "분석 중..." : "대기 중"}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 닫기 버튼
+          Material(
+            type: MaterialType.circle,
+            color: Colors.grey[100],
+            child: InkWell(
+              onTap: () => ref
+                  .read(memoryProfilerOverlayVisibleProvider.notifier)
+                  .state = false,
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Icon(
+                  Icons.close,
+                  color: Colors.grey[700],
+                  size: 18,
                 ),
               ),
-            ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: () {
-              ref.read(memoryProfilerOverlayVisibleProvider.notifier).state =
-                  false;
-            },
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            iconSize: 20,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMemoryInfoPanel(MemoryProfilerState profilerState) {
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.8),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(8),
-          bottomRight: Radius.circular(8),
-        ),
+        color: Colors.black.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        textDirection: TextDirection.ltr,
         children: [
-          const Text(
-            '메모리 사용량',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+          // 이미지 캐시 정리 버튼 (노란색 청소 아이콘)
+          _buildSimpleButton(
+            icon: Icons.cleaning_services,
+            color: Colors.amber,
+            onTap: () {
+              // 이미지 캐시 정리
+              final previousSize =
+                  PaintingBinding.instance.imageCache.currentSizeBytes;
+              PaintingBinding.instance.imageCache.clear();
+              logger.i(
+                  '이미지 캐시 정리: ${(previousSize / (1024 * 1024)).toStringAsFixed(1)}MB 해제');
+
+              // 안전한 스낵바 표시
+              _showSafeSnackBar(context, '이미지 캐시 정리 완료');
+            },
           ),
-          const SizedBox(height: 4),
-          Row(
-            textDirection: TextDirection.ltr,
-            children: [
-              const Icon(
-                Icons.memory,
-                color: Colors.green,
-                size: 16,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '힙: ${_formatMemorySize(0)} MB',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Icon(
-                Icons.image,
-                color: Colors.blue,
-                size: 16,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '이미지 캐시: ${_formatMemorySize(PaintingBinding.instance.imageCache.currentSizeBytes ~/ (1024 * 1024))} MB',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-              ),
-            ],
+          const SizedBox(height: 6),
+
+          // 메모리 스냅샷 생성 버튼 (파란색 카메라 아이콘)
+          _buildSimpleButton(
+            icon: Icons.camera_alt,
+            color: Colors.blue,
+            onTap: () {
+              // 스냅샷 생성
+              ref.read(memoryProfilerProvider.notifier).takeSnapshot(
+                  'manual_${DateTime.now().millisecondsSinceEpoch}',
+                  level: MemoryProfiler.snapshotLevelHigh);
+
+              // 안전한 스낵바 표시
+              _showSafeSnackBar(context, '메모리 스냅샷 생성 완료');
+            },
           ),
-          const SizedBox(height: 4),
-          Text(
-            '이미지 개수: ${PaintingBinding.instance.imageCache.liveImageCount}개 / 캐시 히트: ${PaintingBinding.instance.imageCache.currentSize}',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 11,
-            ),
-          ),
+          const SizedBox(height: 6),
+
+          // 메인 토글 버튼 (메모리 프로파일러 열기/닫기)
+          _buildToggleButton(ref),
         ],
       ),
     );
   }
 
-  String _formatMemorySize(int sizeInMB) {
-    if (sizeInMB < 1000) {
-      return '$sizeInMB';
-    } else {
-      return '${(sizeInMB / 1000).toStringAsFixed(1)}K';
-    }
-  }
-
-  Widget _buildActionButtons(WidgetRef ref) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      textDirection: TextDirection.ltr,
-      children: [
-        _buildActionButton(
-          icon: Icons.cleaning_services,
-          color: Colors.amber,
-          onTap: () {
-            // 이미지 캐시 정리
-            final previousSize =
-                PaintingBinding.instance.imageCache.currentSizeBytes;
-            PaintingBinding.instance.imageCache.clear();
-            logger.i(
-                '이미지 캐시 정리: ${(previousSize / (1024 * 1024)).toStringAsFixed(1)}MB 해제');
-          },
-        ),
-        const SizedBox(height: 8),
-        _buildActionButton(
-          icon: Icons.photo_camera,
-          color: Colors.blue,
-          onTap: () {
-            // 스냅샷 생성
-            ref.read(memoryProfilerProvider.notifier).takeSnapshot(
-                'manual_${DateTime.now().millisecondsSinceEpoch}',
-                level: MemoryProfiler.snapshotLevelHigh);
-          },
-        ),
-        const SizedBox(height: 8),
-        _buildToggleButton(ref),
-      ],
-    );
-  }
-
-  Widget _buildActionButton({
+  Widget _buildSimpleButton({
     required IconData icon,
     required Color color,
     required VoidCallback onTap,
@@ -294,18 +284,42 @@ class MemoryProfilerOverlay extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40,
-        height: 40,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(20),
+          color: Colors.black.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: color, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.3),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Icon(
           icon,
           color: color,
-          size: 20,
+          size: 24,
         ),
       ),
     );
+  }
+
+  /// 스낵바 표시 메서드 (MaterialApp 내부에 있으므로 안전함)
+  void _showSafeSnackBar(BuildContext context, String message) {
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      // 오류 발생 시 로그로만 출력
+      logger.i('메모리 프로파일러: $message (스낵바 표시 실패: $e)');
+    }
   }
 }

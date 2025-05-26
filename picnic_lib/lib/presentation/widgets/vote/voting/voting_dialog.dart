@@ -298,18 +298,20 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                getLocaleTextFromJson(widget.voteItemModel.artist.id != 0
-                    ? widget.voteItemModel.artist.name
-                    : widget.voteItemModel.artistGroup.name),
+                getLocaleTextFromJson(
+                    (widget.voteItemModel.artist?.id ?? 0) != 0
+                        ? widget.voteItemModel.artist?.name ?? {}
+                        : widget.voteItemModel.artistGroup?.name ?? {}),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               SizedBox(width: 8.w),
-              if (widget.voteItemModel.artist.id != 0)
+              if ((widget.voteItemModel.artist?.id ?? 0) != 0 &&
+                  widget.voteItemModel.artist?.artistGroup?.name != null)
                 Align(
                   alignment: Alignment.center,
                   child: Text(
                     getLocaleTextFromJson(
-                        widget.voteItemModel.artist.artistGroup!.name),
+                        widget.voteItemModel.artist!.artistGroup!.name),
                     style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
                   ),
                 ),

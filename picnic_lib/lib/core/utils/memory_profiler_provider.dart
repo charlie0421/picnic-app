@@ -124,10 +124,14 @@ class MemoryProfilerNotifier extends StateNotifier<MemoryProfilerState> {
       _autoSnapshotTimer = Timer.periodic(
         Duration(seconds: state.settings.autoSnapshotIntervalSeconds),
         (timer) {
-          takeSnapshot(
-            'auto_${DateTime.now().millisecondsSinceEpoch}',
-            level: MemoryProfiler.snapshotLevelMedium,
-          );
+          try {
+            takeSnapshot(
+              'auto_${DateTime.now().millisecondsSinceEpoch}',
+              level: MemoryProfiler.snapshotLevelMedium,
+            );
+          } catch (e) {
+            logger.e('자동 스냅샷 생성 중 오류: $e');
+          }
         },
       );
       logger.i('자동 스냅샷 타이머 설정: ${state.settings.autoSnapshotIntervalSeconds}초');
@@ -194,14 +198,8 @@ class MemoryProfilerNotifier extends StateNotifier<MemoryProfilerState> {
       // UI 업데이트를 위한 지연
       await Future.delayed(const Duration(milliseconds: 100));
 
-      // 가비지 컬렉션 유도 시도
-      await MemoryProfiler.instance.profileAction(
-        'gc_before_leak_detection',
-        () async {
-          // 빈 작업을 실행하여 GC 유도
-          await Future.delayed(const Duration(milliseconds: 500));
-        },
-      );
+      // 가비지 컬렉션 유도를 위한 간단한 지연 (스냅샷 생성 없이)
+      await Future.delayed(const Duration(milliseconds: 500));
 
       // 작업 수행 후 추가 지연
       await Future.delayed(const Duration(milliseconds: 1000));

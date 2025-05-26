@@ -24,6 +24,7 @@ final Set<String> _throttledLogKeys = <String>{};
 class LongMessagePrinter extends PrettyPrinter {
   static const int _skipFrames = 4;
   static const int _maxStackTraceLines = 20;
+  static const int _maxCallStackLines = 5; // 호출 스택 표시 라인 수
   static final _emojiMap = {
     Level.debug: '🔍',
     Level.info: 'ℹ️',
@@ -59,6 +60,67 @@ class LongMessagePrinter extends PrettyPrinter {
       return '${frame.uri}:${frame.line}';
     }
     return '';
+  }
+
+  List<String> _getCallStack() {
+    final frames = Trace.current().frames;
+    final callStack = <String>[];
+    int addedFrames = 0;
+
+    // 로거 관련 프레임들을 건너뛰고 실제 호출 스택 추출
+    for (int i = _skipFrames;
+        i < frames.length && addedFrames < _maxCallStackLines;
+        i++) {
+      final frame = frames[i];
+      final uri = frame.uri.toString();
+
+      // 내부 Flutter/Dart 프레임들은 제외
+      if (uri.contains('package:flutter/') ||
+          uri.contains('package:dart-sdk/') ||
+          uri.contains('dart:') ||
+          uri.contains('package:logger/') ||
+          uri.contains('package:stack_trace/')) {
+        continue;
+      }
+
+      // 패키지 경로 단순화
+      String simplifiedPath = uri;
+      if (uri.contains('package:picnic_lib/')) {
+        simplifiedPath =
+            uri.replaceFirst('package:picnic_lib/', '📦 picnic_lib/');
+      } else if (uri.contains('package:picnic_app/')) {
+        simplifiedPath =
+            uri.replaceFirst('package:picnic_app/', '📱 picnic_app/');
+      } else if (uri.contains('file:///')) {
+        // 로컬 파일 경로 단순화
+        final pathParts = uri.split('/');
+        if (pathParts.length > 3) {
+          simplifiedPath =
+              '📁 .../${pathParts.sublist(pathParts.length - 3).join('/')}';
+        }
+      }
+
+      final member = frame.member ?? '';
+      final location = '${simplifiedPath}:${frame.line}';
+
+      if (member.isNotEmpty && !member.startsWith('<anonymous')) {
+        // 메서드명 단순화
+        String simplifiedMember = member;
+        if (member.contains('.')) {
+          final parts = member.split('.');
+          if (parts.length > 1) {
+            simplifiedMember = '${parts[0]}.${parts.last}';
+          }
+        }
+        callStack.add('$location → $simplifiedMember()');
+      } else {
+        callStack.add(location);
+      }
+
+      addedFrames++;
+    }
+
+    return callStack;
   }
 
   String _getClassName() {
@@ -147,12 +209,23 @@ class LongMessagePrinter extends PrettyPrinter {
     final messages = <String>[];
     final emoji = _emojiMap[event.level] ?? '📝';
     final callerInfo = _getCallerInfo();
+    final callStack = _getCallStack();
     final timestamp = _getTimestamp();
     final className = _getClassName();
 
     messages.add(_createBorder('┌'));
     messages.add('│ 🕒 $timestamp');
     messages.add('│ 📍 $callerInfo');
+
+    // 호출 스택 표시 (여러 레벨의 호출 경로)
+    if (callStack.isNotEmpty) {
+      messages.add('│ 🔗 Call Stack:');
+      for (int i = 0; i < callStack.length; i++) {
+        final isLast = i == callStack.length - 1;
+        final prefix = i == 0 ? '   ├─' : (isLast ? '   └─' : '   ├─');
+        messages.add('│ $prefix ${callStack[i]}');
+      }
+    }
 
     final formattedMessage = _formatMessage(event.message);
     final tag = className.isNotEmpty ? '[$className] ' : '';

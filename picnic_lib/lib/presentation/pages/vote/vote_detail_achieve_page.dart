@@ -592,26 +592,27 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                     RichText(
                       overflow: TextOverflow.ellipsis,
                       text: TextSpan(
-                          children: item.artist.id != 0
+                          children: (item.artist?.id ?? 0) != 0
                               ? [
                                   TextSpan(
-                                    text:
-                                        getLocaleTextFromJson(item.artist.name),
+                                    text: getLocaleTextFromJson(
+                                        item.artist?.name ?? {}),
                                     style: getTextStyle(
                                         AppTypo.body14B, AppColors.grey900),
                                   ),
                                   const TextSpan(text: ' '),
-                                  TextSpan(
-                                    text: getLocaleTextFromJson(
-                                        item.artist.artistGroup!.name),
-                                    style: getTextStyle(
-                                        AppTypo.caption10SB, AppColors.grey600),
-                                  ),
+                                  if (item.artist?.artistGroup?.name != null)
+                                    TextSpan(
+                                      text: getLocaleTextFromJson(
+                                          item.artist!.artistGroup!.name),
+                                      style: getTextStyle(AppTypo.caption10SB,
+                                          AppColors.grey600),
+                                    ),
                                 ]
                               : [
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artistGroup.name),
+                                        item.artistGroup?.name ?? {}),
                                     style: getTextStyle(
                                         AppTypo.body14B, AppColors.grey900),
                                   ),
@@ -657,9 +658,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
         child: PicnicCachedNetworkImage(
-          imageUrl: (item.artist.id != 0
-                  ? item.artist.image
-                  : item.artistGroup.image) ??
+          imageUrl: ((item.artist?.id ?? 0) != 0
+                  ? item.artist?.image
+                  : item.artistGroup?.image) ??
               '',
           fit: BoxFit.cover,
           width: 80,

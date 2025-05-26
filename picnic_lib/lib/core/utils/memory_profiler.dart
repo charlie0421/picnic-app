@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:stack_trace/stack_trace.dart';
 
@@ -21,6 +22,18 @@ class MemoryProfiler {
 
   // 메모리 스냅샷 저장소
   final Map<String, MemorySnapshot> _snapshots = {};
+
+  // 스냅샷 관리 설정
+  static const int _maxSnapshots = 30; // 최대 스냅샷 개수 (감소)
+  static const int _maxAutoSnapshots = 5; // 자동 스냅샷 최대 개수 (대폭 감소)
+  static const int _memoryChangeThresholdMB = 10; // 메모리 변화 임계값 (MB) 증가
+
+  // 마지막 스냅샷 정보 (조건부 생성용)
+  MemorySnapshot? _lastSnapshot;
+
+  // 전역 스냅샷 생성 제한
+  DateTime? _lastGlobalSnapshotTime;
+  static const int _globalSnapshotCooldownSeconds = 2; // 전역 스냅샷 생성 최소 간격
 
   // 스냅샷 중요도 레벨
   static const int snapshotLevelLow = 0; // 낮은 중요도 (자주 발생하는 일상적인 이벤트)
@@ -41,7 +54,7 @@ class MemoryProfiler {
   void initialize({
     bool enabled = false,
     bool enableAutoSnapshot = false,
-    int autoSnapshotIntervalSeconds = 30,
+    int autoSnapshotIntervalSeconds = 300, // 기본값을 5분으로 변경
   }) {
     if (_isInitialized) return;
 
@@ -75,6 +88,7 @@ class MemoryProfiler {
 
     // 스냅샷 저장소 초기화
     _snapshots.clear();
+    _lastSnapshot = null; // 마지막 스냅샷 정보 초기화
 
     logger.i('메모리 프로파일러 리셋 완료');
 
@@ -99,7 +113,8 @@ class MemoryProfiler {
   }
 
   /// 자동 스냅샷 캡처 활성화/비활성화
-  void setAutoSnapshotEnabled(bool enabled, {int intervalSeconds = 30}) {
+  void setAutoSnapshotEnabled(bool enabled, {int intervalSeconds = 300}) {
+    // 기본값을 5분으로 변경
     if (!_isInitialized) {
       logger.w('메모리 프로파일러가 초기화되지 않았습니다. initialize()를 먼저 호출하세요.');
       return;
@@ -116,7 +131,8 @@ class MemoryProfiler {
   }
 
   /// 자동 스냅샷 타이머 시작
-  void _startAutoSnapshot({int intervalSeconds = 30}) {
+  void _startAutoSnapshot({int intervalSeconds = 600}) {
+    // 기본값을 10분으로 변경 (더 긴 간격)
     _stopAutoSnapshot(); // 이전 타이머가 있다면 정지
 
     _autoSnapshotTimer = Timer.periodic(
@@ -125,13 +141,42 @@ class MemoryProfiler {
         if (_isEnabled && _isAutoSnapshotEnabled) {
           final snapshotLabel =
               'auto_snapshot_${DateTime.now().millisecondsSinceEpoch}';
-          takeSnapshot(snapshotLabel,
-              level: snapshotLevelLow, includeStackTrace: true);
+
+          // 조건부 스냅샷 생성: 메모리 변화가 임계값 이상일 때만 생성
+          if (_shouldCreateAutoSnapshot()) {
+            takeSnapshot(snapshotLabel,
+                level: snapshotLevelLow,
+                includeStackTrace: false); // 스택 트레이스 비활성화
+            logger.v('자동 스냅샷 생성됨 (메모리 변화 감지)');
+          } else {
+            logger.v('자동 스냅샷 건너뜀 (변화량 부족 또는 시간 간격 부족)');
+          }
         }
       },
     );
 
     logger.i('자동 스냅샷이 $intervalSeconds초 간격으로 시작되었습니다.');
+  }
+
+  /// 자동 스냅샷 생성 여부를 결정합니다.
+  bool _shouldCreateAutoSnapshot() {
+    if (_lastSnapshot == null) return true;
+
+    // 최소 시간 간격 확인 (60초 미만이면 생성하지 않음) - 더 엄격하게 변경
+    final timeSinceLastSnapshot =
+        DateTime.now().difference(_lastSnapshot!.timestamp);
+    if (timeSinceLastSnapshot.inSeconds < 60) {
+      return false;
+    }
+
+    final currentHeapUsage = _getHeapUsage();
+    final lastHeapUsage = _lastSnapshot!.heapUsage;
+
+    // 메모리 변화량 계산 (MB 단위) - 임계값을 10MB로 증가
+    final heapChangeMB =
+        (currentHeapUsage.used - lastHeapUsage.used).abs() / (1024 * 1024);
+
+    return heapChangeMB >= 10; // 10MB 이상 변화가 있을 때만 스냅샷 생성
   }
 
   /// 자동 스냅샷 타이머 정지
@@ -153,17 +198,32 @@ class MemoryProfiler {
   }) {
     if (!_isEnabled) return null;
 
+    // 전역 스냅샷 생성 제한 (중요도가 높은 경우는 예외)
+    final now = DateTime.now();
+    if (level < snapshotLevelHigh && _lastGlobalSnapshotTime != null) {
+      final timeSinceLastGlobal = now.difference(_lastGlobalSnapshotTime!);
+      if (timeSinceLastGlobal.inSeconds < _globalSnapshotCooldownSeconds) {
+        logger.v('전역 스냅샷 생성 제한으로 건너뜀: $label');
+        return null;
+      }
+    }
+
     try {
+      // 스냅샷 저장소 크기 확인 및 정리
+      _cleanupSnapshots();
+
       // 현재 메모리 사용량 정보 수집
       final heapUsage = _getHeapUsage();
       final imageCache = _getImageCacheStats();
 
-      // 호출 스택 정보 수집
+      // 호출 스택 정보 수집 (중요도가 높은 경우에만)
       List<String>? stackTraceLines;
-      if (includeStackTrace) {
+      if (includeStackTrace && level >= snapshotLevelMedium) {
         final trace = Trace.current(2); // 현재 스택 트레이스 (2단계 위로 시작)
-        stackTraceLines =
-            trace.frames.map((frame) => frame.toString()).toList();
+        stackTraceLines = trace.frames
+            .take(10)
+            .map((frame) => frame.toString())
+            .toList(); // 최대 10개 프레임만 저장
       }
 
       final snapshot = MemorySnapshot(
@@ -179,23 +239,26 @@ class MemoryProfiler {
       );
 
       _snapshots[label] = snapshot;
+      _lastSnapshot = snapshot; // 마지막 스냅샷 업데이트
+      _lastGlobalSnapshotTime = now; // 전역 스냅샷 시간 업데이트
 
       // 중요도에 따라 로깅 레벨 다르게 설정
       switch (level) {
         case snapshotLevelLow:
-          if (kDebugMode) {
-            logger.d(
-                '메모리 스냅샷 생성: $label, 힙 사용량: ${heapUsage.used ~/ (1024 * 1024)}MB');
-          }
+          // 낮은 중요도는 로깅하지 않음 (자동 스냅샷 등)
           break;
         case snapshotLevelMedium:
-          logger.i(
+          // 중간 중요도는 디버그 레벨로만 로깅
+          logger.d(
               '메모리 스냅샷 생성: $label, 힙 사용량: ${heapUsage.used ~/ (1024 * 1024)}MB');
           break;
         case snapshotLevelHigh:
+          logger.i(
+              '중요 메모리 스냅샷 생성: $label, 힙 사용량: ${heapUsage.used ~/ (1024 * 1024)}MB');
+          break;
         case snapshotLevelCritical:
           logger.w(
-              '중요 메모리 스냅샷 생성: $label, 힙 사용량: ${heapUsage.used ~/ (1024 * 1024)}MB');
+              '긴급 메모리 스냅샷 생성: $label, 힙 사용량: ${heapUsage.used ~/ (1024 * 1024)}MB');
           break;
       }
 
@@ -204,6 +267,74 @@ class MemoryProfiler {
       logger.e('메모리 스냅샷 생성 실패: $label', error: e, stackTrace: stackTrace);
       Sentry.captureException(e, stackTrace: stackTrace);
       return null;
+    }
+  }
+
+  /// 스냅샷 저장소를 정리합니다.
+  void _cleanupSnapshots() {
+    // 전체 스냅샷 개수가 최대치를 초과하면 정리
+    if (_snapshots.length >= _maxSnapshots) {
+      _removeOldestSnapshots(_maxSnapshots ~/ 2); // 절반 정도 제거
+    }
+
+    // 자동 스냅샷이 너무 많으면 정리
+    final autoSnapshots = _snapshots.entries
+        .where((entry) => entry.key.startsWith('auto_snapshot_'))
+        .toList();
+
+    if (autoSnapshots.length > _maxAutoSnapshots) {
+      // 오래된 자동 스냅샷부터 제거
+      autoSnapshots
+          .sort((a, b) => a.value.timestamp.compareTo(b.value.timestamp));
+      final toRemove = autoSnapshots.length - _maxAutoSnapshots;
+
+      for (int i = 0; i < toRemove; i++) {
+        _snapshots.remove(autoSnapshots[i].key);
+      }
+
+      logger.d('오래된 자동 스냅샷 ${toRemove}개를 정리했습니다.');
+    }
+  }
+
+  /// 가장 오래된 스냅샷들을 제거합니다.
+  void _removeOldestSnapshots(int count) {
+    if (_snapshots.length <= count) return;
+
+    final sortedSnapshots = _snapshots.entries.toList()
+      ..sort((a, b) => a.value.timestamp.compareTo(b.value.timestamp));
+
+    // 중요도가 낮은 것부터 우선 제거
+    final toRemove = <String>[];
+
+    for (final entry in sortedSnapshots) {
+      if (toRemove.length >= count) break;
+
+      final level = entry.value.metadata['level'] ?? snapshotLevelMedium;
+      if (level <= snapshotLevelLow) {
+        toRemove.add(entry.key);
+      }
+    }
+
+    // 여전히 부족하면 시간순으로 제거
+    if (toRemove.length < count) {
+      for (final entry in sortedSnapshots) {
+        if (toRemove.length >= count) break;
+        if (!toRemove.contains(entry.key)) {
+          final level = entry.value.metadata['level'] ?? snapshotLevelMedium;
+          if (level < snapshotLevelCritical) {
+            // 중요한 스냅샷은 보존
+            toRemove.add(entry.key);
+          }
+        }
+      }
+    }
+
+    for (final key in toRemove) {
+      _snapshots.remove(key);
+    }
+
+    if (toRemove.isNotEmpty) {
+      logger.d('오래된 스냅샷 ${toRemove.length}개를 정리했습니다.');
     }
   }
 
@@ -299,14 +430,28 @@ class MemoryProfiler {
     final afterLabel = '${label}_after';
 
     try {
+      // 스냅샷 생성 빈도 제한 (같은 라벨로 5초 이내 중복 호출 방지) - 더 엄격하게 변경
+      final now = DateTime.now();
+      final recentSnapshot = _snapshots[beforeLabel];
+      if (recentSnapshot != null &&
+          now.difference(recentSnapshot.timestamp).inSeconds < 5) {
+        logger.v('profileAction 스냅샷 생성 건너뜀 (중복 호출): $label');
+        await action();
+        return null;
+      }
+
       takeSnapshot(beforeLabel,
-          metadata: metadata, level: level, includeStackTrace: true);
+          metadata: metadata,
+          level: level,
+          includeStackTrace: level >= snapshotLevelHigh);
       await action();
       takeSnapshot(afterLabel,
-          metadata: metadata, level: level, includeStackTrace: true);
+          metadata: metadata,
+          level: level,
+          includeStackTrace: level >= snapshotLevelHigh);
 
-      // 가비지 컬렉션을 유도하여 GC를 간접적으로 요청
-      if (kDebugMode) {
+      // 가비지 컬렉션을 유도하여 GC를 간접적으로 요청 (중요한 작업에서만)
+      if (kDebugMode && level >= snapshotLevelHigh) {
         // 메모리 압박을 유도하여 GC를 간접적으로 요청
         await _triggerGarbageCollection();
         await Future.delayed(const Duration(milliseconds: 500));

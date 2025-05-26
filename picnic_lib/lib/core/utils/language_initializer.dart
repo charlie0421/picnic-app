@@ -120,25 +120,43 @@ class LanguageInitializer {
 
       // 0. PicnicLibL10n 초기화 (최우선)
       try {
-        // 앱 설정만 전달하여 초기화 (ProviderContainer 없이)
+        // 앱 설정을 전달하여 초기화
         await PicnicLibL10n.initialize(appSetting);
         logger.i('PicnicLibL10n 초기화 완료');
       } catch (e) {
         logger.e('PicnicLibL10n 초기화 중 오류', error: e);
-        // 오류가 발생해도 계속 진행 (다른 방식으로 번역 시도)
+        // 오류가 발생해도 계속 진행 (기본 모드로 작동)
       }
 
       // 기본 로케일 설정
       Intl.defaultLocale = language;
 
       // 1. PicnicLib 기본 로케일 설정
-      PicnicLibL10n.setCurrentLocale(language);
+      try {
+        PicnicLibL10n.setCurrentLocale(language);
+        logger.i('PicnicLibL10n 로케일 설정 완료: $language');
+      } catch (e) {
+        logger.e('PicnicLibL10n 로케일 설정 실패', error: e);
+        // 실패해도 계속 진행
+      }
 
       // 2. LocalizationService를 통한 공통 번역 로드
-      await LocalizationService.loadTranslations(Locale(language));
+      try {
+        await LocalizationService.loadTranslations(Locale(language));
+        logger.i('LocalizationService 번역 로드 완료: $language');
+      } catch (e) {
+        logger.e('LocalizationService 번역 로드 실패', error: e);
+        // 실패해도 계속 진행
+      }
 
       // 3. 앱별 생성된 번역 로드
-      await loadGeneratedTranslations(Locale(language));
+      try {
+        await loadGeneratedTranslations(Locale(language));
+        logger.i('앱별 생성된 번역 로드 완료: $language');
+      } catch (e) {
+        logger.e('앱별 생성된 번역 로드 실패', error: e);
+        // 실패해도 계속 진행
+      }
 
       // 앱 설정에 변경된 언어 반영
       ref.read(appSettingProvider.notifier).setLanguage(language);

@@ -555,9 +555,9 @@ mixin _$VoteItemModel {
   @JsonKey(name: 'vote_id')
   int get voteId => throw _privateConstructorUsedError;
   @JsonKey(name: 'artist')
-  ArtistModel get artist => throw _privateConstructorUsedError;
+  ArtistModel? get artist => throw _privateConstructorUsedError;
   @JsonKey(name: 'artist_group')
-  ArtistGroupModel get artistGroup => throw _privateConstructorUsedError;
+  ArtistGroupModel? get artistGroup => throw _privateConstructorUsedError;
 
   /// Serializes this VoteItemModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -579,11 +579,11 @@ abstract class $VoteItemModelCopyWith<$Res> {
       {@JsonKey(name: 'id') int id,
       @JsonKey(name: 'vote_total') int? voteTotal,
       @JsonKey(name: 'vote_id') int voteId,
-      @JsonKey(name: 'artist') ArtistModel artist,
-      @JsonKey(name: 'artist_group') ArtistGroupModel artistGroup});
+      @JsonKey(name: 'artist') ArtistModel? artist,
+      @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup});
 
-  $ArtistModelCopyWith<$Res> get artist;
-  $ArtistGroupModelCopyWith<$Res> get artistGroup;
+  $ArtistModelCopyWith<$Res>? get artist;
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup;
 }
 
 /// @nodoc
@@ -604,8 +604,8 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
     Object? id = null,
     Object? voteTotal = freezed,
     Object? voteId = null,
-    Object? artist = null,
-    Object? artistGroup = null,
+    Object? artist = freezed,
+    Object? artistGroup = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -620,14 +620,14 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
           ? _value.voteId
           : voteId // ignore: cast_nullable_to_non_nullable
               as int,
-      artist: null == artist
+      artist: freezed == artist
           ? _value.artist
           : artist // ignore: cast_nullable_to_non_nullable
-              as ArtistModel,
-      artistGroup: null == artistGroup
+              as ArtistModel?,
+      artistGroup: freezed == artistGroup
           ? _value.artistGroup
           : artistGroup // ignore: cast_nullable_to_non_nullable
-              as ArtistGroupModel,
+              as ArtistGroupModel?,
     ) as $Val);
   }
 
@@ -635,8 +635,12 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ArtistModelCopyWith<$Res> get artist {
-    return $ArtistModelCopyWith<$Res>(_value.artist, (value) {
+  $ArtistModelCopyWith<$Res>? get artist {
+    if (_value.artist == null) {
+      return null;
+    }
+
+    return $ArtistModelCopyWith<$Res>(_value.artist!, (value) {
       return _then(_value.copyWith(artist: value) as $Val);
     });
   }
@@ -645,8 +649,12 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ArtistGroupModelCopyWith<$Res> get artistGroup {
-    return $ArtistGroupModelCopyWith<$Res>(_value.artistGroup, (value) {
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup {
+    if (_value.artistGroup == null) {
+      return null;
+    }
+
+    return $ArtistGroupModelCopyWith<$Res>(_value.artistGroup!, (value) {
       return _then(_value.copyWith(artistGroup: value) as $Val);
     });
   }
@@ -664,13 +672,13 @@ abstract class _$$VoteItemModelImplCopyWith<$Res>
       {@JsonKey(name: 'id') int id,
       @JsonKey(name: 'vote_total') int? voteTotal,
       @JsonKey(name: 'vote_id') int voteId,
-      @JsonKey(name: 'artist') ArtistModel artist,
-      @JsonKey(name: 'artist_group') ArtistGroupModel artistGroup});
+      @JsonKey(name: 'artist') ArtistModel? artist,
+      @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup});
 
   @override
-  $ArtistModelCopyWith<$Res> get artist;
+  $ArtistModelCopyWith<$Res>? get artist;
   @override
-  $ArtistGroupModelCopyWith<$Res> get artistGroup;
+  $ArtistGroupModelCopyWith<$Res>? get artistGroup;
 }
 
 /// @nodoc
@@ -689,8 +697,8 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? voteTotal = freezed,
     Object? voteId = null,
-    Object? artist = null,
-    Object? artistGroup = null,
+    Object? artist = freezed,
+    Object? artistGroup = freezed,
   }) {
     return _then(_$VoteItemModelImpl(
       id: null == id
@@ -705,14 +713,14 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
           ? _value.voteId
           : voteId // ignore: cast_nullable_to_non_nullable
               as int,
-      artist: null == artist
+      artist: freezed == artist
           ? _value.artist
           : artist // ignore: cast_nullable_to_non_nullable
-              as ArtistModel,
-      artistGroup: null == artistGroup
+              as ArtistModel?,
+      artistGroup: freezed == artistGroup
           ? _value.artistGroup
           : artistGroup // ignore: cast_nullable_to_non_nullable
-              as ArtistGroupModel,
+              as ArtistGroupModel?,
     ));
   }
 }
@@ -742,10 +750,10 @@ class _$VoteItemModelImpl extends _VoteItemModel {
   final int voteId;
   @override
   @JsonKey(name: 'artist')
-  final ArtistModel artist;
+  final ArtistModel? artist;
   @override
   @JsonKey(name: 'artist_group')
-  final ArtistGroupModel artistGroup;
+  final ArtistGroupModel? artistGroup;
 
   @override
   String toString() {
@@ -792,9 +800,9 @@ abstract class _VoteItemModel extends VoteItemModel {
       {@JsonKey(name: 'id') required final int id,
       @JsonKey(name: 'vote_total') required final int? voteTotal,
       @JsonKey(name: 'vote_id') required final int voteId,
-      @JsonKey(name: 'artist') required final ArtistModel artist,
+      @JsonKey(name: 'artist') required final ArtistModel? artist,
       @JsonKey(name: 'artist_group')
-      required final ArtistGroupModel artistGroup}) = _$VoteItemModelImpl;
+      required final ArtistGroupModel? artistGroup}) = _$VoteItemModelImpl;
   const _VoteItemModel._() : super._();
 
   factory _VoteItemModel.fromJson(Map<String, dynamic> json) =
@@ -811,10 +819,10 @@ abstract class _VoteItemModel extends VoteItemModel {
   int get voteId;
   @override
   @JsonKey(name: 'artist')
-  ArtistModel get artist;
+  ArtistModel? get artist;
   @override
   @JsonKey(name: 'artist_group')
-  ArtistGroupModel get artistGroup;
+  ArtistGroupModel? get artistGroup;
 
   /// Create a copy of VoteItemModel
   /// with the given fields replaced by the non-null parameter values.

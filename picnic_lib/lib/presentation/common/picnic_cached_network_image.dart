@@ -52,6 +52,9 @@ class _PicnicCachedNetworkImageState
   // 전역 이미지 캐시 맵 (URL -> 로드 시간)
   static final Map<String, DateTime> _loadedImages = {};
 
+  // 스냅샷 생성 중복 방지를 위한 정적 맵 (URL별로 마지막 스냅샷 생성 시간 추적)
+  static final Map<String, DateTime> _lastSnapshotTimes = {};
+
   bool get isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
 
   @override
@@ -183,11 +186,11 @@ class _PicnicCachedNetworkImageState
 
     // 디버그 모드에서만, 설정된 임계값 이상인 경우에만 로그 출력
     if (kDebugMode && loadDuration.inSeconds > warningThreshold && mounted) {
-      final disposeKey = "${widget.imageUrl}_dispose_${DateTime.now().day}";
+      final disposeKey = "${widget.imageUrl}_dispose_${DateTime.now().hour}";
       logger.throttledWarn(
         '[${widget.runtimeType}] 이미지 로드 시간이 매우 오래 걸림: ${widget.imageUrl} - ${loadDuration.inMilliseconds}ms',
         disposeKey,
-        throttleDuration: const Duration(hours: 6), // 6시간마다 한 번만 로그 출력
+        throttleDuration: const Duration(hours: 1), // 1시간마다 한 번만 로그 출력
       );
     }
     super.dispose();
@@ -284,12 +287,19 @@ class _PicnicCachedNetworkImageState
         height: height,
         fit: widget.fit,
         // 메모리 캐시 사이즈 최적화
-        memCacheWidth: widget.memCacheWidth ?? (width?.toInt() ?? 300),
-        memCacheHeight: widget.memCacheHeight ?? (height?.toInt() ?? 300),
-        maxWidthDiskCache: 1000, // 디스크 캐시 크기 제한
-        maxHeightDiskCache: 1000,
-        // 이미지 캐시 정책 수정
-        cacheKey: "${url}_${DateTime.now().day}", // 하루 단위로 캐시 키 변경
+        memCacheWidth: widget.memCacheWidth ?? (width?.toInt() ?? 400),
+        memCacheHeight: widget.memCacheHeight ?? (height?.toInt() ?? 400),
+        maxWidthDiskCache: 2000, // 디스크 캐시 크기 증가로 성능 개선
+        maxHeightDiskCache: 2000,
+        // 이미지 캐시 정책 수정 - URL 자체를 캐시 키로 사용하여 불필요한 재다운로드 방지
+        cacheKey: url,
+        // HTTP 헤더 최적화
+        httpHeaders: const {
+          'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Cache-Control': 'max-age=31536000', // 1년 캐시
+          'Connection': 'keep-alive',
+        },
         // 로딩 시 Shimmer 효과 표시
         progressIndicatorBuilder: (context, url, progress) =>
             buildImageLoadingOverlay(),
@@ -359,21 +369,41 @@ class _PicnicCachedNetworkImageState
     // 디버그 모드에서만, 설정된 임계값 이상인 경우에만 로그 출력 및 스냅샷 생성
     if (kDebugMode && loadDuration.inSeconds > warningThreshold) {
       // throttledWarn 메서드를 사용하여 중복 로그 최소화
-      final cacheKey = "${url}_${DateTime.now().day}";
+      final cacheKey = "${url}_${DateTime.now().hour}"; // 시간 단위로 로그 제한
       logger.throttledWarn(
         '[${widget.runtimeType}] 이미지 로드 시간이 매우 오래 걸림: $url - ${loadDuration.inMilliseconds}ms',
         cacheKey,
-        throttleDuration: const Duration(hours: 6), // 6시간마다 한 번만 로그 출력
+        throttleDuration: const Duration(hours: 1), // 1시간마다 한 번만 로그 출력
       );
 
-      // 설정된 에러 임계값 이상 걸린 경우만 메모리 스냅샷 생성
-      if (loadDuration.inSeconds > errorThreshold) {
-        final profiler = ref.read(memoryProfilerProvider.notifier);
-        profiler.takeSnapshot(
-          'slow_image_load_${DateTime.now().millisecondsSinceEpoch}',
-          level: MemoryProfiler.snapshotLevelMedium,
-          metadata: {'url': url, 'duration_ms': loadDuration.inMilliseconds},
-        );
+      // 설정된 에러 임계값 이상 걸린 경우만 메모리 스냅샷 생성 (더 엄격한 조건 추가)
+      if (loadDuration.inSeconds > errorThreshold &&
+          loadDuration.inSeconds > 60) {
+        // 최소 60초 이상으로 더 엄격하게 변경
+        // 스냅샷 생성 중복 방지: 같은 URL에 대해 30분 이내에는 스냅샷을 생성하지 않음
+        final now = DateTime.now();
+        final lastSnapshotTime = _lastSnapshotTimes[url];
+
+        if (lastSnapshotTime == null ||
+            now.difference(lastSnapshotTime).inMinutes >= 30) {
+          // 30분으로 증가
+          final profiler = ref.read(memoryProfilerProvider.notifier);
+          profiler.takeSnapshot(
+            'slow_image_load_${DateTime.now().millisecondsSinceEpoch}',
+            level: MemoryProfiler.snapshotLevelLow, // 로깅 레벨을 낮춤
+            metadata: {'url': url, 'duration_ms': loadDuration.inMilliseconds},
+          );
+
+          // 스냅샷 생성 시간 기록
+          _lastSnapshotTimes[url] = now;
+
+          // 오래된 스냅샷 기록 정리 (2시간 이상 된 것들)
+          _lastSnapshotTimes
+              .removeWhere((key, time) => now.difference(time).inHours >= 2);
+        } else {
+          logger.d(
+              '스냅샷 생성 건너뜀: $url (마지막 생성으로부터 ${now.difference(lastSnapshotTime).inMinutes}분 경과, 30분 대기 필요)');
+        }
       }
     }
   }
@@ -391,7 +421,7 @@ class _PicnicCachedNetworkImageState
 
     // 디버그 모드에서만 에러 로그 출력 (throttled 방식으로)
     if (kDebugMode) {
-      final errorKey = "${url}_error_${DateTime.now().day}";
+      final errorKey = "${url}_error_${DateTime.now().hour}";
       logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);
     }
   }

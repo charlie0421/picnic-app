@@ -87,19 +87,20 @@ class VoteItemWidget extends StatelessWidget {
                       RichText(
                         overflow: TextOverflow.ellipsis,
                         text: TextSpan(
-                            children: item.artist.id != 0
+                            children: (item.artist?.id ?? 0) != 0
                                 ? [
                                     TextSpan(
                                       text: getLocaleTextFromJson(
-                                          item.artist.name),
+                                          item.artist?.name ?? {}),
                                       style: getTextStyle(
                                           AppTypo.body14B, AppColors.grey900),
                                     ),
                                     const TextSpan(text: ' '),
                                     TextSpan(
-                                      text: item.artist.artistGroup != null
+                                      text: item.artist?.artistGroup?.name !=
+                                              null
                                           ? getLocaleTextFromJson(
-                                              item.artist.artistGroup!.name)
+                                              item.artist!.artistGroup!.name)
                                           : '',
                                       style: getTextStyle(AppTypo.caption10SB,
                                           AppColors.grey600),
@@ -108,7 +109,7 @@ class VoteItemWidget extends StatelessWidget {
                                 : [
                                     TextSpan(
                                       text: getLocaleTextFromJson(
-                                          item.artistGroup.name),
+                                          item.artistGroup?.name ?? {}),
                                       style: getTextStyle(
                                           AppTypo.body14B, AppColors.grey900),
                                     ),

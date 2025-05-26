@@ -1,4 +1,5 @@
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/memory_profiler.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -50,12 +51,22 @@ class AsyncVoteList extends _$AsyncVoteList {
       PostgrestList response;
       final offset = (page - 1) * limit;
 
-      var query = supabase
-          .from(voteTable)
-          .select(
-              'id,title,start_at,stop_at, visible_at,$voteItemTable(*, artist(id,name,image, artist_group(id,name,image)), artist_group(id,name,image))')
-          .eq('area', area)
-          .filter('deleted_at', 'is', null);
+      // 최적화: 목록에서는 상위 3개 vote_item만 가져오고, 필요한 필드만 선택
+      var query = supabase.from(voteTable).select('''
+            id,
+            title,
+            start_at,
+            stop_at,
+            visible_at,
+            vote_category,
+            $voteItemTable!inner(
+              id,
+              vote_id,
+              vote_total,
+              artist(id, name, image),
+              artist_group(id, name, image)
+            )
+          ''').eq('area', area).filter('deleted_at', 'is', null);
 
       if (status == VoteStatus.active) {
         query = query
@@ -76,9 +87,30 @@ class AsyncVoteList extends _$AsyncVoteList {
           .order(sort, ascending: order == 'ASC')
           .range(offset, offset + limit - 1);
 
-      return response.map((e) => VoteModel.fromJson(e)).toList();
+      // 각 투표에 대해 상위 3개 vote_item만 유지하여 메모리 사용량 최적화
+      final optimizedResponse = response.map((voteData) {
+        if (voteData[voteItemTable] is List) {
+          final voteItems = voteData[voteItemTable] as List;
+          // vote_total 기준으로 정렬하고 상위 3개만 유지
+          voteItems.sort(
+              (a, b) => (b['vote_total'] ?? 0).compareTo(a['vote_total'] ?? 0));
+          voteData[voteItemTable] = voteItems.take(3).toList();
+        }
+        return voteData;
+      }).toList();
+
+      final result =
+          optimizedResponse.map((e) => VoteModel.fromJson(e)).toList();
+
+      // 메모리 프로파일링 완료
+      MemoryProfiler.instance.takeSnapshot(
+        'vote_list_fetch_end_$page',
+        level: MemoryProfiler.snapshotLevelLow,
+      );
+
+      return result;
     } catch (e, s) {
-      logger.e('error', error: e, stackTrace: s);
+      logger.e('투표 목록 로딩 오류', error: e, stackTrace: s);
       rethrow;
     }
   }

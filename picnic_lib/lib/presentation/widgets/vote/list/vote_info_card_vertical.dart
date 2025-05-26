@@ -108,9 +108,9 @@ class VoteCardColumnVertical extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: PicnicCachedNetworkImage(
-                      imageUrl: (voteItem.artist.id != 0
-                              ? voteItem.artist.image
-                              : voteItem.artistGroup.image) ??
+                      imageUrl: (voteItem.artist?.id != 0
+                              ? voteItem.artist?.image
+                              : voteItem.artistGroup?.image) ??
                           '',
                       width: 100,
                       height: 100),
@@ -126,30 +126,32 @@ class VoteCardColumnVertical extends StatelessWidget {
             child: SizedBox(
               width: width,
               child: Column(
-                children: voteItem.artist.id != 0
+                children: (voteItem.artist?.id ?? 0) != 0
                     ? [
                         Text(
-                          getLocaleTextFromJson(voteItem.artist.name),
+                          getLocaleTextFromJson(voteItem.artist?.name ?? {}),
                           style: getTextStyle(
                             AppTypo.body14B,
                             AppColors.grey900,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        Text(
-                          getLocaleTextFromJson(
-                              voteItem.artist.artistGroup!.name),
-                          style: getTextStyle(
-                            AppTypo.caption10SB,
-                            AppColors.grey00,
+                        if (voteItem.artist?.artistGroup?.name != null)
+                          Text(
+                            getLocaleTextFromJson(
+                                voteItem.artist!.artistGroup!.name),
+                            style: getTextStyle(
+                              AppTypo.caption10SB,
+                              AppColors.grey00,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
                       ]
-                    : voteItem.artistGroup.id != 0
+                    : (voteItem.artistGroup?.id ?? 0) != 0
                         ? [
                             Text(
-                              getLocaleTextFromJson(voteItem.artistGroup.name),
+                              getLocaleTextFromJson(
+                                  voteItem.artistGroup?.name ?? {}),
                               style: getTextStyle(
                                 AppTypo.body14B,
                                 AppColors.grey900,

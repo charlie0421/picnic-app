@@ -14,7 +14,8 @@ bool _isSettingLanguage = false;
 /// 로컬라이제이션 설정 클래스
 class PicnicLibL10n {
   static bool _isInitialized = false;
-  static ProviderContainer? _container;
+  static Setting? _currentSetting;
+  static String _currentLanguage = 'ko'; // 기본 언어
 
   /// 지원되는 로케일 목록 (언어 코드만 사용)
   static const List<Locale> supportedLocales = [
@@ -35,12 +36,16 @@ class PicnicLibL10n {
 
   /// 현재 로케일 설정
   static void setCurrentLocale(String languageCode) {
-    if (!_isInitialized || _isSettingLanguage) return;
+    if (!_isInitialized || _isSettingLanguage) {
+      logger.w('PicnicLibL10n이 완전히 초기화되지 않았거나 이미 언어 설정 중입니다.');
+      return;
+    }
 
     _isSettingLanguage = true;
 
     try {
       logger.i('언어 변경 시작 (PicnicLibL10n): $languageCode');
+      _currentLanguage = languageCode;
       loadTranslations(Locale(languageCode));
     } finally {
       _isSettingLanguage = false;
@@ -49,15 +54,21 @@ class PicnicLibL10n {
 
   /// 현재 로케일 가져오기
   static Locale getCurrentLocale() {
-    if (!_isInitialized) return const Locale('en');
+    if (!_isInitialized) {
+      logger.w('PicnicLibL10n이 완전히 초기화되지 않았습니다. 기본 로케일(en) 사용');
+      return const Locale('en');
+    }
     return Locale(_getLanguage());
   }
 
   /// 현재 언어 코드 가져오기
   static String _getLanguage() {
     try {
-      final setting = _container!.read(appSettingProvider);
-      return setting.language;
+      // _currentSetting이 있으면 사용, 없으면 _currentLanguage 사용
+      if (_currentSetting != null) {
+        return _currentSetting!.language;
+      }
+      return _currentLanguage;
     } catch (e) {
       logger.e('언어 코드 가져오기 실패', error: e);
       return 'en';
@@ -80,26 +91,40 @@ class PicnicLibL10n {
     try {
       logger.i('PicnicLibL10n 초기화 시작');
 
-      // 앱 설정 객체와 컨테이너 저장
-      _container = container;
+      // 앱 설정 객체 저장
+      _currentSetting = appSetting;
+      _currentLanguage =
+          appSetting.language.isNotEmpty ? appSetting.language : 'ko';
 
       // SharedPreferences 초기화
       logger.i('SharedPreferences 초기화 완료');
 
-      // Crowdin 초기화
-      await Crowdin.init(
-        distributionHash: Constants.crowdinDistributionHash,
-        connectionType: InternetConnectionType.any,
-        updatesInterval: const Duration(minutes: 15),
-      );
-      logger.i('Crowdin 초기화 완료: ${Constants.crowdinDistributionHash}');
+      // Crowdin 초기화 시도
+      try {
+        await Crowdin.init(
+          distributionHash: Constants.crowdinDistributionHash,
+          connectionType: InternetConnectionType.any,
+          updatesInterval: const Duration(minutes: 15),
+        );
+        logger.i('Crowdin 초기화 완료: ${Constants.crowdinDistributionHash}');
+      } catch (crowdinError) {
+        logger.e('Crowdin 초기화 실패, 기본 번역으로 계속 진행', error: crowdinError);
+        // Crowdin 초기화가 실패해도 계속 진행
+      }
 
+      // 초기화 완료 플래그 설정
       _isInitialized = true;
-      logger.i('PicnicLibL10n 초기화 완료');
+      logger.i('PicnicLibL10n 초기화 완료 (언어: $_currentLanguage)');
     } catch (e, s) {
-      _isInitialized = false;
       logger.e('PicnicLibL10n 초기화 실패', error: e, stackTrace: s);
-      rethrow;
+
+      // 초기화 실패 시에도 기본 설정으로 작동하도록 함
+      _currentSetting = appSetting;
+      _currentLanguage =
+          appSetting.language.isNotEmpty ? appSetting.language : 'ko';
+      _isInitialized = true; // 기본 기능은 작동하도록 설정
+
+      logger.w('PicnicLibL10n 기본 모드로 초기화됨 (언어: $_currentLanguage)');
     }
   }
 
@@ -190,7 +215,7 @@ class PicnicLibL10n {
   static String t(String key, [Map<String, String>? args]) {
     if (!_isInitialized) {
       // 초기화 안 된 경우에도 키를 기반으로 가능한 의미있는 문자열 반환
-      logger.e('PicnicLibL10n이 초기화되지 않았습니다! 키: $key');
+      logger.w('PicnicLibL10n이 완전히 초기화되지 않았습니다! 키: $key');
 
       // 키에서 의미 있는 텍스트 추출 시도
       if (key.contains('_')) {
@@ -205,7 +230,7 @@ class PicnicLibL10n {
     }
 
     try {
-      // 현재 언어 코드 로깅
+      // 현재 언어 코드 가져오기
       final languageCode = _getLanguage();
 
       // Crowdin에서 직접 가져오기

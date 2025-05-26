@@ -192,36 +192,51 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     });
   }
 
-  // 언어 및 국제화 초기화
+  // 언어 초기화를 위한 별도 메서드
   Future<void> _initializeLanguage() async {
-    // LanguageManager를 사용하여 언어 초기화
-    await MainInitializer.initializeLanguageAsync(
-      ref,
-      context,
-      S.load,
-      (success, language) {
-        logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
+    logger.i('언어 초기화 시작 (picnic_app)');
 
-        // main.dart의 전역 변수 업데이트
-        main_file.isLanguageInitialized = success;
-        main_file.currentLanguage = language;
+    try {
+      // 먼저 앱 설정이 로드될 때까지 대기
+      await ref.read(appSettingProvider.notifier).loadSettings();
+      logger.i('앱 설정 로드 완료');
 
-        // 앱 설정에 언어 반영
-        if (success) {
-          ref.read(appSettingProvider.notifier).setLanguage(language);
+      // MainInitializer를 사용하여 언어 초기화
+      await MainInitializer.initializeLanguageAsync(
+        ref,
+        context,
+        S.load,
+        (success, language) {
+          logger.i('언어 초기화 콜백 호출: 성공=$success, 언어=$language');
 
-          // PicnicLibL10n 명시적 초기화 시도
-          try {
-            final appSetting = ref.read(appSettingProvider);
-            PicnicLibL10n.initialize(appSetting);
-            logger.i('PicnicLibL10n 명시적 초기화 완료');
-          } catch (e) {
-            logger.e('PicnicLibL10n 명시적 초기화 실패', error: e);
-            // 실패해도 계속 진행 (t 메서드가 대체 값을 반환하도록 개선됨)
+          // main.dart의 전역 변수 업데이트
+          main_file.isLanguageInitialized = success;
+          main_file.currentLanguage = language;
+
+          // 앱 설정에 언어 반영
+          if (success) {
+            ref.read(appSettingProvider.notifier).setLanguage(language);
+
+            // PicnicLibL10n 명시적 초기화 시도
+            try {
+              final appSetting = ref.read(appSettingProvider);
+              PicnicLibL10n.initialize(appSetting);
+              logger.i('PicnicLibL10n 명시적 초기화 완료 (picnic_app)');
+            } catch (e) {
+              logger.e('PicnicLibL10n 명시적 초기화 실패 (picnic_app)', error: e);
+              // 실패해도 계속 진행 (t 메서드가 대체 값을 반환하도록 개선됨)
+            }
           }
-        }
-      },
-    );
+        },
+      );
+
+      logger.i('언어 초기화 완료 (picnic_app)');
+    } catch (e, stackTrace) {
+      logger.e('언어 초기화 중 오류 발생 (picnic_app)', error: e, stackTrace: stackTrace);
+      // 오류 발생 시에도 기본값으로 설정
+      main_file.isLanguageInitialized = false;
+      main_file.currentLanguage = 'ko';
+    }
   }
 
   @override

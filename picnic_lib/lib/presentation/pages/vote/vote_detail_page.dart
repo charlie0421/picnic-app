@@ -239,14 +239,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
 
     return List<int>.generate(data.length, (index) => index).where((index) {
       final item = data[index]!;
-      return item.artist.id != 0 &&
-              getLocaleTextFromJson(item.artist.name)
+      return ((item.artist?.id ?? 0) != 0 &&
+              getLocaleTextFromJson(item.artist?.name ?? {})
                   .toLowerCase()
-                  .contains(query.toLowerCase()) ||
-          item.artist.id != 0 &&
-              getLocaleTextFromJson(item.artistGroup.name)
+                  .contains(query.toLowerCase())) ||
+          ((item.artistGroup?.id ?? 0) != 0 &&
+              getLocaleTextFromJson(item.artistGroup?.name ?? {})
                   .toLowerCase()
-                  .contains(query.toLowerCase());
+                  .contains(query.toLowerCase()));
     }).toList();
   }
 
@@ -538,9 +538,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
         child: PicnicCachedNetworkImage(
-          imageUrl: (item.artist.id != 0
-                  ? item.artist.image
-                  : item.artistGroup.image) ??
+          imageUrl: ((item.artist?.id ?? 0) != 0
+                  ? item.artist?.image
+                  : item.artistGroup?.image) ??
               '',
           fit: BoxFit.cover,
           width: 80,

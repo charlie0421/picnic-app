@@ -1,69 +1,57 @@
 // network_error_screen.dart
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/l10n.dart';
 
 class NetworkErrorScreen extends StatelessWidget {
-  final VoidCallback onRetry;
-
   const NetworkErrorScreen({
     super.key,
     required this.onRetry,
   });
 
+  final VoidCallback onRetry;
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  package: 'picnic_lib',
-                  'assets/images/logo.png',
-                  width: 120,
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.wifi_off,
+                size: 80,
+                color: Colors.orange,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                t('network_error_title'),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 40),
-                const Icon(
-                  Icons.signal_wifi_off_rounded,
-                  size: 48,
-                  color: AppColors.grey500,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Network connection failure',
-                  style: getTextStyle(AppTypo.title18B, AppColors.grey900),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Check your network connection\nPlease try again.',
-                  style: getTextStyle(AppTypo.body14R, AppColors.grey700),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: onRetry,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary500,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Retry',
-                      style: getTextStyle(AppTypo.body16B, Colors.white),
-                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                t('network_error_message'),
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: Text(t('retry')),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

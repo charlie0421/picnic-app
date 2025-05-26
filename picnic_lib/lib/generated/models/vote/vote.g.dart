@@ -88,9 +88,15 @@ _$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
           voteTotal: $checkedConvert('vote_total', (v) => (v as num?)?.toInt()),
           voteId: $checkedConvert('vote_id', (v) => (v as num).toInt()),
           artist: $checkedConvert(
-              'artist', (v) => ArtistModel.fromJson(v as Map<String, dynamic>)),
-          artistGroup: $checkedConvert('artist_group',
-              (v) => ArtistGroupModel.fromJson(v as Map<String, dynamic>)),
+              'artist',
+              (v) => v == null
+                  ? null
+                  : ArtistModel.fromJson(v as Map<String, dynamic>)),
+          artistGroup: $checkedConvert(
+              'artist_group',
+              (v) => v == null
+                  ? null
+                  : ArtistGroupModel.fromJson(v as Map<String, dynamic>)),
         );
         return val;
       },
@@ -106,8 +112,8 @@ Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
       'id': instance.id,
       'vote_total': instance.voteTotal,
       'vote_id': instance.voteId,
-      'artist': instance.artist.toJson(),
-      'artist_group': instance.artistGroup.toJson(),
+      'artist': instance.artist?.toJson(),
+      'artist_group': instance.artistGroup?.toJson(),
     };
 
 _$VoteAchieveImpl _$$VoteAchieveImplFromJson(Map<String, dynamic> json) =>

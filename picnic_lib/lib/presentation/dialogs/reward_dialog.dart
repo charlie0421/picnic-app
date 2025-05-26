@@ -83,6 +83,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 imageUrl: widget.data.thumbnail ?? '',
                 fit: BoxFit.cover,
                 width: (screenWidth * 1.1),
+                height: 200, // 명시적인 높이 지정으로 레이아웃 오류 방지
               ),
             ),
           ),
@@ -297,14 +298,20 @@ class RewardSection extends StatelessWidget {
       BuildContext context, List<String>? images) {
     if (images == null) return [];
 
+    final imageSize = MediaQuery.of(context).size.width - 100;
+
     return images.asMap().entries.map((entry) {
       final i = entry.key;
       final image = entry.value;
       return Column(
         children: [
           SizedBox(
+            width: imageSize,
+            height: imageSize,
             child: PicnicCachedNetworkImage(
               imageUrl: image,
+              width: imageSize,
+              height: imageSize,
               fit: BoxFit.cover,
             ),
           ),

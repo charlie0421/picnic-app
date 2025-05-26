@@ -235,10 +235,12 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                 height: 120,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: widget.voteItemModel.artist.id != 0
-                                      ? _artist(widget.voteItemModel.artist)
+                                  children: (widget.voteItemModel.artist?.id ??
+                                              0) !=
+                                          0
+                                      ? _artist(widget.voteItemModel.artist!)
                                       : _group(
-                                          widget.voteItemModel.artistGroup),
+                                          widget.voteItemModel.artistGroup!),
                                 ),
                               ),
                             ),
@@ -299,11 +301,11 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     },
                     onShare: () async {
                       if (_isSaving) return;
-                      final artist = widget.voteItemModel.artist.id != 0
+                      final artist = (widget.voteItemModel.artist?.id ?? 0) != 0
                           ? getLocaleTextFromJson(
-                              widget.voteItemModel.artist.name)
+                              widget.voteItemModel.artist?.name ?? {})
                           : getLocaleTextFromJson(
-                              widget.voteItemModel.artistGroup.name);
+                              widget.voteItemModel.artistGroup?.name ?? {});
                       final voteTitle =
                           getLocaleTextFromJson(widget.voteModel.title);
 
