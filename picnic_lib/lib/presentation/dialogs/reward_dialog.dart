@@ -156,7 +156,7 @@ class RewardSection extends StatelessWidget {
   }
 
   List<Widget> _buildSectionContent(BuildContext context) {
-    final locale = getLocaleLanguage();
+    final locale = PicnicLibL10n.getCurrentLocale().languageCode;
     List<Widget> widgets = [];
 
     switch (type) {
@@ -353,7 +353,7 @@ class RewardSection extends StatelessWidget {
                 TextButton(
                   onPressed: () => copyToClipboard(context, text),
                   child: Text(
-                    t('label_copy'),
+                    'COPY',
                     style: getTextStyle(AppTypo.body16B, AppColors.primary500),
                   ),
                 ),
