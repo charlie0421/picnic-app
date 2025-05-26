@@ -301,10 +301,15 @@ class RewardSection extends StatelessWidget {
           ClipRRect(
             borderRadius:
                 BorderRadius.circular(RewardDialogConstants.imageRadius),
-            child: PicnicCachedNetworkImage(
-              imageUrl: image,
+            child: SizedBox(
               width: imageWidth,
-              fit: BoxFit.fitWidth,
+              child: AspectRatio(
+                aspectRatio: 16 / 9, // 기본 16:9 비율 사용
+                child: PicnicCachedNetworkImage(
+                  imageUrl: image,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
           if (i != images.length - 1) const SizedBox(height: 12),
