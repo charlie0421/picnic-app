@@ -353,7 +353,7 @@ class RewardSection extends StatelessWidget {
                 TextButton(
                   onPressed: () => copyToClipboard(context, text),
                   child: Text(
-                    'COPY',
+                    t('label_copy'),
                     style: getTextStyle(AppTypo.body16B, AppColors.primary500),
                   ),
                 ),
