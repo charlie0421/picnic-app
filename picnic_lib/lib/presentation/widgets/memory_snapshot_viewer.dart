@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/memory_profiler.dart';
-import 'package:picnic_lib/core/utils/memory_profiler_provider.dart';
 
 /// 메모리 스냅샷 목록과 상세 정보를 표시하는 위젯
 class MemorySnapshotViewer extends ConsumerWidget {

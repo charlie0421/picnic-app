@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -26,7 +24,7 @@ class MemoryProfiler {
   // 스냅샷 관리 설정
   static const int _maxSnapshots = 30; // 최대 스냅샷 개수 (감소)
   static const int _maxAutoSnapshots = 5; // 자동 스냅샷 최대 개수 (대폭 감소)
-  static const int _memoryChangeThresholdMB = 10; // 메모리 변화 임계값 (MB) 증가
+// 메모리 변화 임계값 (MB) 증가
 
   // 마지막 스냅샷 정보 (조건부 생성용)
   MemorySnapshot? _lastSnapshot;
@@ -292,7 +290,7 @@ class MemoryProfiler {
         _snapshots.remove(autoSnapshots[i].key);
       }
 
-      logger.d('오래된 자동 스냅샷 ${toRemove}개를 정리했습니다.');
+      logger.d('오래된 자동 스냅샷 $toRemove개를 정리했습니다.');
     }
   }
 

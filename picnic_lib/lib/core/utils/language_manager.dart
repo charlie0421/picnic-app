@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:universal_platform/universal_platform.dart';

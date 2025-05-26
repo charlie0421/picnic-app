@@ -337,12 +337,12 @@ class MemoryProfilerWrapper extends ConsumerStatefulWidget {
   final int autoSnapshotIntervalSeconds;
 
   const MemoryProfilerWrapper({
-    Key? key,
+    super.key,
     required this.child,
     this.enableInDebug = true,
     this.enableAutoSnapshot = false,
     this.autoSnapshotIntervalSeconds = 60,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<MemoryProfilerWrapper> createState() =>
@@ -409,7 +409,8 @@ class _MemoryProfilerWrapperState extends ConsumerState<MemoryProfilerWrapper> {
       final notifier = ref.read(memoryProfilerProvider.notifier);
 
       // 자동 스냅샷 설정 변경
-      if (notifier.state.isEnabled) {
+      final currentState = ref.read(memoryProfilerProvider);
+      if (currentState.isEnabled) {
         if (oldWidget.autoSnapshotIntervalSeconds !=
             widget.autoSnapshotIntervalSeconds) {
           notifier.setAutoSnapshotInterval(widget.autoSnapshotIntervalSeconds);

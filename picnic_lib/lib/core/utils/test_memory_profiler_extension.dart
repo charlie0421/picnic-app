@@ -1,14 +1,10 @@
-import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/memory_profiler.dart';
 // MemoryLeakReport 충돌 해결을 위해 별칭 사용
-import 'package:picnic_lib/core/utils/memory_profiler_provider.dart'
-    as provider;
 import 'package:picnic_lib/services/memory_profiler_report_service.dart';
 
 /// 테스트 환경에서 메모리 프로파일러를 사용하기 위한 확장 기능

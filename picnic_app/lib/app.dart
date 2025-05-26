@@ -1,18 +1,14 @@
 import 'dart:async';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/main.dart' as main_file;
 import 'package:picnic_app/presentation/screens/portal.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
-import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/language_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
@@ -22,29 +18,20 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
-import 'package:picnic_lib/presentation/pages/oauth_callback_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
-import 'package:picnic_lib/presentation/screens/pic/pic_camera_screen.dart';
-import 'package:picnic_lib/presentation/screens/privacy.dart';
-import 'package:picnic_lib/presentation/screens/purchase.dart';
-import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
-import 'package:picnic_lib/presentation/screens/terms.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
 import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
-import 'package:screen_protector/screen_protector.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/services/localization_service.dart';
-import 'package:picnic_lib/core/utils/memory_profiler_provider.dart';
-import 'package:picnic_lib/presentation/widgets/debug/memory_profiler_overlay.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -55,9 +42,6 @@ class App extends ConsumerStatefulWidget {
 
 class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   Widget? initScreen;
-  static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static final FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: analytics);
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
 

@@ -570,7 +570,7 @@ class AppInitializer {
   }
 
   static void setupSupabaseAuthListener(WidgetRef ref) {
-    final subscription = supabase.auth.onAuthStateChange.listen((data) async {
+    supabase.auth.onAuthStateChange.listen((data) async {
       try {
         final session = data.session;
         if (session != null) {
@@ -597,7 +597,7 @@ class AppInitializer {
   }
 
   static void setupBranchListener(WidgetRef ref) {
-    final subscription = FlutterBranchSdk.listSession().listen((data) {
+    FlutterBranchSdk.listSession().listen((data) {
       try {
         logger.i('Incoming Branch link data: $data');
         if (data.containsKey("+clicked_branch_link") &&

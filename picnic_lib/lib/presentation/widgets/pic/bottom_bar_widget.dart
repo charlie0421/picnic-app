@@ -103,7 +103,8 @@ class BottomBarWidget extends ConsumerWidget {
                 if (croppedFile != null) {
                   // 이미지 처리 결과 스냅샷 생성
                   final profiler = ref.read(memoryProfilerProvider.notifier);
-                  if (profiler.state.isEnabled) {
+                  final isEnabled = ref.read(memoryProfilerProvider).isEnabled;
+                  if (isEnabled) {
                     profiler.takeSnapshot(
                       'image_crop_complete_${DateTime.now().millisecondsSinceEpoch}',
                       metadata: {

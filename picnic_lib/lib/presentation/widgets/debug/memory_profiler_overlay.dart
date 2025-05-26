@@ -140,7 +140,7 @@ class MemoryProfilerOverlay extends ConsumerWidget {
 
   Widget _buildOverlayHeader(BuildContext context, WidgetRef ref) {
     final profilerState = ref.watch(memoryProfilerProvider);
-    final isOverlayVisible = ref.watch(memoryProfilerOverlayVisibleProvider);
+    ref.watch(memoryProfilerOverlayVisibleProvider);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

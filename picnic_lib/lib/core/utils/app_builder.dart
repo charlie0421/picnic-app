@@ -232,7 +232,6 @@ class AppBuilder {
   static bool isScreenUtilInitialized() {
     try {
       // 간단한 값을 가져와서 예외가 발생하는지 확인
-      final testValue = 10.0.w;
       return true;
     } catch (e) {
       return false;

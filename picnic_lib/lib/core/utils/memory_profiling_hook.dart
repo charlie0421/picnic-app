@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/memory_profiler.dart';
@@ -15,10 +14,11 @@ class MemoryProfilingHook {
     int? expectedSizeBytes,
     WidgetRef? ref,
   }) async {
-    final profiler = ref?.read(memoryProfilerProvider.notifier) ?? null;
+    final profiler = ref?.read(memoryProfilerProvider.notifier);
+    final isEnabled = ref?.read(memoryProfilerProvider).isEnabled ?? false;
 
     // 프로파일러가 비활성화된 경우 직접 함수 실행
-    if (profiler == null || !profiler.state.isEnabled) {
+    if (profiler == null || !isEnabled) {
       return loadFunction();
     }
 
@@ -60,10 +60,11 @@ class MemoryProfilingHook {
     required Future<Uint8List> Function() processFunction,
     WidgetRef? ref,
   }) async {
-    final profiler = ref?.read(memoryProfilerProvider.notifier) ?? null;
+    final profiler = ref?.read(memoryProfilerProvider.notifier);
+    final isEnabled = ref?.read(memoryProfilerProvider).isEnabled ?? false;
 
     // 프로파일러가 비활성화된 경우 직접 함수 실행
-    if (profiler == null || !profiler.state.isEnabled) {
+    if (profiler == null || !isEnabled) {
       return processFunction();
     }
 
@@ -109,10 +110,11 @@ class MemoryProfilingHook {
     required int sizeByte,
     WidgetRef? ref,
   }) {
-    final profiler = ref?.read(memoryProfilerProvider.notifier) ?? null;
+    final profiler = ref?.read(memoryProfilerProvider.notifier);
+    final isEnabled = ref?.read(memoryProfilerProvider).isEnabled ?? false;
 
     // 프로파일러가 비활성화된 경우 아무 작업 안함
-    if (profiler == null || !profiler.state.isEnabled) {
+    if (profiler == null || !isEnabled) {
       return;
     }
 
@@ -139,10 +141,11 @@ class MemoryProfilingHook {
     int? previousImageCount,
     WidgetRef? ref,
   }) {
-    final profiler = ref?.read(memoryProfilerProvider.notifier) ?? null;
+    final profiler = ref?.read(memoryProfilerProvider.notifier);
+    final isEnabled = ref?.read(memoryProfilerProvider).isEnabled ?? false;
 
     // 프로파일러가 비활성화된 경우 아무 작업 안함
-    if (profiler == null || !profiler.state.isEnabled) {
+    if (profiler == null || !isEnabled) {
       return;
     }
 
@@ -165,10 +168,11 @@ class MemoryProfilingHook {
     WidgetRef? ref,
     CropAspectRatio? aspectRatio,
   }) async {
-    final profiler = ref?.read(memoryProfilerProvider.notifier) ?? null;
+    final profiler = ref?.read(memoryProfilerProvider.notifier);
+    final isEnabled = ref?.read(memoryProfilerProvider).isEnabled ?? false;
 
     // 프로파일러가 비활성화된 경우 직접 함수 실행
-    if (profiler == null || !profiler.state.isEnabled) {
+    if (profiler == null || !isEnabled) {
       return cropFunction();
     }
 
@@ -203,7 +207,7 @@ class MemoryProfilingHook {
         final heapDiffMB = diff.heapDiff.used ~/ (1024 * 1024);
         if (heapDiffMB > 15) {
           // 크롭 작업은 메모리를 많이 사용하므로 임계값을 높게 설정
-          logger.w('이미지 크롭에 많은 메모리 사용: ${sourcePath} - ${heapDiffMB}MB');
+          logger.w('이미지 크롭에 많은 메모리 사용: $sourcePath - ${heapDiffMB}MB');
         }
       }
 
@@ -221,10 +225,11 @@ class MemoryProfilingHook {
     required String reason,
     WidgetRef? ref,
   }) async {
-    final profiler = ref?.read(memoryProfilerProvider.notifier) ?? null;
+    final profiler = ref?.read(memoryProfilerProvider.notifier);
+    final isEnabled = ref?.read(memoryProfilerProvider).isEnabled ?? false;
 
     // 프로파일러가 비활성화된 경우 직접 함수 실행
-    if (profiler == null || !profiler.state.isEnabled) {
+    if (profiler == null || !isEnabled) {
       return compressFunction();
     }
 
@@ -279,10 +284,11 @@ class MemoryProfilingHook {
     required Future<T> Function() decodeFunction,
     WidgetRef? ref,
   }) async {
-    final profiler = ref?.read(memoryProfilerProvider.notifier) ?? null;
+    final profiler = ref?.read(memoryProfilerProvider.notifier);
+    final isEnabled = ref?.read(memoryProfilerProvider).isEnabled ?? false;
 
     // 프로파일러가 비활성화된 경우 직접 함수 실행
-    if (profiler == null || !profiler.state.isEnabled) {
+    if (profiler == null || !isEnabled) {
       return decodeFunction();
     }
 

@@ -127,7 +127,7 @@ class PangleAds {
     });
 
     // 이벤트 핸들러가 설정되었는지 확인
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       Logger.i(
           '이벤트 Stream 상태 확인: adDismissed=${!_adDismissedController.isClosed}, 구독자=${_adDismissedController.hasListener}');
     });
@@ -140,7 +140,7 @@ class PangleAds {
     try {
       if (_onProfileRefreshNeeded != null) {
         Logger.i('프로필 새로고침 콜백 실행 중...');
-        Future.delayed(Duration(seconds: 1), () {
+        Future.delayed(const Duration(seconds: 1), () {
           _onProfileRefreshNeeded!();
         });
       } else {

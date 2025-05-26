@@ -1,14 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 
 void main() {
   group('LanguageInitializer', () {
-    late Future<void> Function(Locale) mockLoadGeneratedTranslations;
-
-    setUp(() {
-      mockLoadGeneratedTranslations = (_) async {};
-    });
+    setUp(() {});
 
     test('LanguageInitializer 클래스의 정적 메서드 타입 확인', () {
       // initializeLanguage 메서드의 존재 여부 확인

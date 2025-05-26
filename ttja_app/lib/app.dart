@@ -1,11 +1,8 @@
 import 'dart:async';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
@@ -16,32 +13,23 @@ import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
-import 'package:picnic_lib/presentation/pages/oauth_callback_page.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
-import 'package:picnic_lib/presentation/screens/pic/pic_camera_screen.dart';
-import 'package:picnic_lib/presentation/screens/privacy.dart';
-import 'package:picnic_lib/presentation/screens/purchase.dart';
-import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
-import 'package:picnic_lib/presentation/screens/terms.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
 import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
-import 'package:screen_protector/screen_protector.dart';
 import 'package:ttja_app/bottom_navigation_menu.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_lib/services/localization_service.dart';
 import 'package:ttja_app/generated/l10n.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:ttja_app/main.dart' as main_file;
 
 class App extends ConsumerStatefulWidget {
@@ -57,9 +45,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   bool _isAppInitialized = false;
   Widget? initScreen;
-  static final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static final FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: analytics);
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
 
@@ -213,7 +198,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     );
 
     // 내비게이션 관련 프로바이더 구독
-    final navigationInfo = ref.watch(navigationInfoProvider);
+    ref.watch(navigationInfoProvider);
     ref.watch(globalMediaQueryProvider);
 
     // 앱 홈 화면 결정

@@ -101,7 +101,7 @@ class LongMessagePrinter extends PrettyPrinter {
       }
 
       final member = frame.member ?? '';
-      final location = '${simplifiedPath}:${frame.line}';
+      final location = '$simplifiedPath:${frame.line}';
 
       if (member.isNotEmpty && !member.startsWith('<anonymous')) {
         // 메서드명 단순화

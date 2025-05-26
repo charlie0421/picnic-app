@@ -1,13 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 /// 앱 생명주기 관리 및 초기화를 위한 유틸리티 클래스
 ///
