@@ -55,6 +55,7 @@
 					<string>kakao75e247f5d29512f84749e64aac77ebfa</string>
 					<string>com.googleusercontent.apps.853406219989-ntnler0e2qe0gfheh3qdjt3k2h4kpvj4</string>
 					<string>io.iconcasting.picnic.app</string>
+					<string>wxa5eea7ab9b3894a8</string>
 				</array>
 			</dict>
 			<dict>
@@ -93,6 +94,8 @@
 			<string>kakao</string>
 			<string>kakaokompassauth</string>
 			<string>kakaolink</string>
+			<string>weixin</string>
+			<string>weixinULAPI</string>
 		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true />

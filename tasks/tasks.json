@@ -868,15 +868,15 @@
       "testStrategy": "Create unit tests for WeChat login flow. Implement integration tests using mock WeChat responses. Conduct manual testing on Chinese Android devices with WeChat installed.",
       "priority": "high",
       "dependencies": [],
-      "status": "pending",
+      "status": "in-progress",
       "subtasks": [
         {
           "id": 1,
           "title": "WeChat SDK Installation and Configuration",
           "description": "Install the WeChat SDK and configure the necessary credentials in the application",
           "dependencies": [],
-          "details": "Install WeChat Android/iOS SDK, create and register WeChat object with app_id and app_secret from admin panel, configure universal links for iOS, and set up application signature for Android",
-          "status": "pending"
+          "details": "Install WeChat Android/iOS SDK, create and register WeChat object with app_id and app_secret from admin panel, configure universal links for iOS, and set up application signature for Android\n<info added on 2025-05-27T08:44:32.100Z>\nWeChat SDK 설치 및 기본 설정 완료:\n\n1. **Package 설치**: pubspec.yaml에 fluwx: ^3.13.1 추가 및 flutter pub get 실행 완료\n2. **Android 설정**:\n   - AndroidManifest.xml에 WeChat 앱 쿼리 권한 추가 (<package android:name=\"com.tencent.mm\" />)\n   - WXEntryActivity 설정 추가 (WeChat 콜백 처리용)\n3. **iOS 설정**:\n   - Info.plist에 WeChat URL schemes 추가 (weixin, weixinULAPI)\n   - CFBundleURLSchemes에 WeChat App ID 추가 (wxa5eea7ab9b3894a8)\n4. **Configuration 설정**:\n   - config/dev.json에 WeChat 설정 추가 (app_id, app_secret, universal_link)\n   - Environment 클래스에 WeChat 설정 getter 추가\n5. **WeChat Login Service 생성**: \n   - /picnic_lib/lib/core/services/auth/social_login/wechat_login.dart 파일 생성\n   - SocialLogin 인터페이스 구현\n   - 기본 로그인 플로우 구조 작성 (초기 버전)\n\n**현재 이슈**: fluwx API import 문제가 있어서 다음 단계에서 수정 필요\n\n**다음 단계**: API import 문제 해결 및 실제 WeChat 로그인 플로우 구현\n</info added on 2025-05-27T08:44:32.100Z>",
+          "status": "done"
         },
         {
           "id": 2,
@@ -885,8 +885,8 @@
           "dependencies": [
             1
           ],
-          "details": "Process login button clicks, check if WeChat is installed, implement SendAuth.Req with proper scope, handle redirects, and process authentication responses from WeChat",
-          "status": "pending"
+          "details": "Process login button clicks, check if WeChat is installed, implement SendAuth.Req with proper scope, handle redirects, and process authentication responses from WeChat\n<info added on 2025-05-27T08:47:28.273Z>\nFound solution for fluwx API issues:\n\n1. Missing fluwx dependency in picnic_lib/pubspec.yaml (currently only in picnic_app)\n2. Incorrect API usage with current fluwx 3.13.1\n3. API changes in latest fluwx 5.5.3\n\nImplementation corrections:\n- Add fluwx dependency to picnic_lib/pubspec.yaml\n- Update code to use proper API:\n  - Initialize with `Fluwx fluwx = Fluwx();`\n  - Register with `fluwx.registerApi(appId: ..., universalLink: ...)`\n  - Check installation with `fluwx.isWeChatInstalled()`\n  - Use `sendWeChatAuth()` method for authentication\n\nReferences:\n- GitHub: https://github.com/OpenFlutter/fluwx\n- pub.dev API docs: https://pub.dev/documentation/fluwx/latest/\n</info added on 2025-05-27T08:47:28.273Z>\n<info added on 2025-05-27T08:51:56.653Z>\n✅ **fluwx API 문제 해결 완료!**\n\n**문제 해결 과정:**\n1. **의존성 문제 해결**: picnic_lib/pubspec.yaml에 fluwx: ^3.13.1 추가\n2. **올바른 API 사용법 적용**: \n   - `registerWxApi()` 함수 직접 사용 (클래스 인스턴스 아님)\n   - `isWeChatInstalled` getter 사용\n   - `sendWeChatAuth()` 함수는 bool 반환\n   - 응답은 `weChatResponseEventHandler` 스트림으로 수신\n\n**수정된 코드 구조:**\n```dart\n// WeChat SDK 초기화\nawait registerWxApi(appId: ..., universalLink: ...);\n\n// WeChat 설치 확인  \nfinal isInstalled = await isWeChatInstalled;\n\n// 인증 요청 (비동기 스트림 방식)\nfinal completer = Completer<WeChatAuthResponse>();\nsubscription = weChatResponseEventHandler.listen((response) {\n  if (response is WeChatAuthResponse) {\n    completer.complete(response);\n  }\n});\nawait sendWeChatAuth(scope: \"snsapi_userinfo\", state: \"...\");\nfinal authResult = await completer.future.timeout(...);\n```\n\n**현재 상태**: \n- ✅ 컴파일 성공 (warning만 존재, 오류 없음)\n- ✅ fluwx 3.13.1 API 정확히 사용\n- ✅ 스트림 기반 응답 처리 구현\n- ✅ 타임아웃 및 에러 핸들링 포함\n\n**다음 단계**: 실제 서버 연동 (token exchange) 및 테스트\n</info added on 2025-05-27T08:51:56.653Z>",
+          "status": "done"
         },
         {
           "id": 3,

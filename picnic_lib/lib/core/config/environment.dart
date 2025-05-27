@@ -90,6 +90,12 @@ class Environment {
       _getValue(['auth', 'kakao', 'native_app_key']) as String;
   static String get kakaoJavascriptKey =>
       _getValue(['auth', 'kakao', 'javascript_key']) as String;
+  static String get wechatAppId =>
+      _getValue(['auth', 'wechat', 'app_id']) as String;
+  static String get wechatAppSecret =>
+      _getValue(['auth', 'wechat', 'app_secret']) as String;
+  static String get wechatUniversalLink =>
+      _getValue(['auth', 'wechat', 'universal_link']) as String;
 
   // Sentry 관련 설정
   static bool get enableSentry => _getValue(['sentry', 'enable']) as bool;

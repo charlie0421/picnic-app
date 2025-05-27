@@ -147,6 +147,9 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
+  - fluwx (0.0.1):
+    - Flutter
+    - WechatOpenSDK-XCFramework (~> 2.0.2)
   - Google-Mobile-Ads-SDK (12.2.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - google_mobile_ads (6.0.0):
@@ -299,6 +302,7 @@ PODS:
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
+  - WechatOpenSDK-XCFramework (2.0.4)
 
 DEPENDENCIES:
   - Ads-Global (= 6.5.0.9)
@@ -318,6 +322,7 @@ DEPENDENCIES:
   - flutter_keyboard_visibility_temp_fork (from `.symlinks/plugins/flutter_keyboard_visibility_temp_fork/ios`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - fluwx (from `.symlinks/plugins/fluwx/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
@@ -379,6 +384,7 @@ SPEC REPOS:
     - TapjoySDK
     - TOCropViewController
     - UnityAds
+    - WechatOpenSDK-XCFramework
 
 EXTERNAL SOURCES:
   app_links:
@@ -413,6 +419,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_native_splash/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  fluwx:
+    :path: ".symlinks/plugins/fluwx/ios"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   google_sign_in_ios:
@@ -494,6 +502,7 @@ SPEC CHECKSUMS:
   flutter_keyboard_visibility_temp_fork: 8a8809c4129e31d25fca77446e0f3fd548122ced
   flutter_native_splash: df59bb2e1421aa0282cb2e95618af4dcb0c56c29
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
+  fluwx: e9e728cfdb80e82dac5f4ff974b1901a7939dcd0
   Google-Mobile-Ads-SDK: 1dfb0c3cb46c7e2b00b0f4de74a1e06d9ea25d67
   google_mobile_ads: cab27248050510554aa646195eacc393ce7406ad
   google_sign_in_ios: 7411fab6948df90490dc4620ecbcabdc3ca04017
@@ -537,6 +546,7 @@ SPEC CHECKSUMS:
   UnityAds: b79991b34b0fc648f3b6052274ac8a0a3463cd4f
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
+  WechatOpenSDK-XCFramework: 36fb2bea0754266c17184adf4963d7e6ff98b69f
 
 PODFILE CHECKSUM: 8566ede3f997896b9119c58a1f855a5c1b070431
 

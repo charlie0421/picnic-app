@@ -1,118 +1,132 @@
-<manifest xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-feature android:name="android.hardware.camera" android:required="false" tools:targetApi="eclair"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature android:name="android.hardware.camera" android:required="false"
+        tools:targetApi="eclair" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
-            android:label="@string/app_name"
-            android:name="${applicationName}"
-            android:icon="@mipmap/launcher_icon"
-            android:usesCleartextTraffic="true"
-            android:largeHeap="true"
-            android:requestLegacyExternalStorage="true">
+        android:label="@string/app_name"
+        android:name="${applicationName}"
+        android:icon="@mipmap/launcher_icon"
+        android:usesCleartextTraffic="true"
+        android:largeHeap="true"
+        android:requestLegacyExternalStorage="true">
         <property
             android:name="android.adservices.AD_SERVICES_CONFIG"
             android:resource="@xml/gma_ad_services_config"
             tools:replace="android:resource" />
         <activity
-                android:name=".MainActivity"
-                android:exported="true"
-                android:launchMode="singleTop"
-                android:theme="@style/LaunchTheme"
-                android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-                android:hardwareAccelerated="true"
-                android:windowSoftInputMode="adjustResize" tools:targetApi="honeycomb">
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize" tools:targetApi="honeycomb">
 
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
             <meta-data
-                    android:name="io.flutter.embedding.android.NormalTheme"
-                    android:resource="@style/NormalTheme"
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme"
             />
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="io.iconcasting.picnic.app"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="io.iconcasting.picnic.app" />
             </intent-filter>
 
             <!-- Branch URI Scheme -->
-			<intent-filter>
-				<!-- If utilizing $deeplink_path please explicitly declare your hosts, or utilize a wildcard(*) -->
-				<!-- REPLACE `android:scheme` with your Android URI scheme -->
-				<data android:scheme="io.iconcasting.picnic.app" android:host="open" />
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-			</intent-filter>
+            <intent-filter>
+                <!-- If utilizing $deeplink_path please explicitly declare your hosts, or utilize a
+                wildcard(*) -->
+                <!-- REPLACE `android:scheme` with your Android URI scheme -->
+                <data android:scheme="io.iconcasting.picnic.app" android:host="open" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
 
-			<!-- Branch App Links - Live App -->
-			<intent-filter android:autoVerify="true">
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<!-- REPLACE `android:host` with your `app.link` domain -->
-				<data android:scheme="https" android:host="applink.picnic.fan" android:pathPattern="/.*" />
+            <!-- Branch App Links - Live App -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- REPLACE `android:host` with your `app.link` domain -->
+                <data android:scheme="https" android:host="applink.picnic.fan"
+                    android:pathPattern="/.*" />
 
-				<!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
-				<data android:scheme="https" android:host="uwwtw-alternate.app.link" />
-			</intent-filter>
+                <!-- REPLACE `android:host` with your `-alternate` domain (required for proper
+                functioning of App Links and Deepviews) -->
+                <data android:scheme="https" android:host="uwwtw-alternate.app.link" />
+            </intent-filter>
 
-			<!-- Branch App Links - Test App -->
-			<intent-filter android:autoVerify="true">
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="https" android:host="uwwtw.test-app.link" />
-				<!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
-				<data android:scheme="https" android:host="uwwtw-alternate.test-app.link" />
-			</intent-filter>
+            <!-- Branch App Links - Test App -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="uwwtw.test-app.link" />
+                <!-- REPLACE `android:host` with your `-alternate` domain (required for proper
+                functioning of App Links and Deepviews) -->
+                <data android:scheme="https" android:host="uwwtw-alternate.test-app.link" />
+            </intent-filter>
 
         </activity>
 
         <!-- Branch init -->
-		<!-- REPLACE `BranchKey` with the value from your Branch Dashboard -->
-		<meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_dsiXNxlgIa3pmcn6eK0djnjmzucZNIS4" />
-		<!-- REPLACE `BranchKey.test` with the value from your Branch Dashboard -->
-		<meta-data android:name="io.branch.sdk.BranchKey.test" android:value="secret_live_liz5dsCbxcOSBFfS0mCJ4CRYKlqCVw4l" />
-		<!-- Set to `true` to use `BranchKey.test` -->
-		<meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
+        <!-- REPLACE `BranchKey` with the value from your Branch Dashboard -->
+        <meta-data android:name="io.branch.sdk.BranchKey"
+            android:value="key_live_dsiXNxlgIa3pmcn6eK0djnjmzucZNIS4" />
+        <!-- REPLACE `BranchKey.test` with the value from your Branch Dashboard -->
+        <meta-data android:name="io.branch.sdk.BranchKey.test"
+            android:value="secret_live_liz5dsCbxcOSBFfS0mCJ4CRYKlqCVw4l" />
+        <!-- Set to `true` to use `BranchKey.test` -->
+        <meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
         <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
-        
+
         <activity
-                android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
-                android:exported="true">
+            android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <data android:host="oauth"
-                      android:scheme="kakao75e247f5d29512f84749e64aac77ebfa"/>
+                    android:scheme="kakao75e247f5d29512f84749e64aac77ebfa" />
             </intent-filter>
         </activity>
         <activity
-                android:name="com.yalantis.ucrop.UCropActivity"
-                android:screenOrientation="portrait"
-                android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <!-- WeChat Entry Activity -->
+        <activity
+            android:name="com.jarvan.fluwx.wxapi.WXEntryActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <!-- Don't delete the meta-data below.
                    This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
-                android:name="flutterEmbedding"
-                android:value="2"/>
+            android:name="flutterEmbedding"
+            android:value="2" />
 
         <meta-data
-                android:name="com.google.android.gms.ads.APPLICATION_ID"
-                android:value="ca-app-pub-1539304887624918~5060975477"/>
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1539304887624918~5060975477" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -126,16 +140,18 @@
     </application>
 
     <queries>
-    
+        <!-- WeChat -->
+        <package android:name="com.tencent.mm" />
+
         <package android:name="com.twitter.android" />
-		<intent>
-			<action android:name="android.intent.action.SEND" />
-			<data android:mimeType="text/plain" />
-		</intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="text/plain" />
+        </intent>
 
         <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
         </intent>
     </queries>
 </manifest>
