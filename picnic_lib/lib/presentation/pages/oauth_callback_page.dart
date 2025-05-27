@@ -1,9 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-
-import 'url_strategy.dart' if (dart.html) 'url_strategy_web.dart' as strategy;
 
 class OAuthCallbackPage extends ConsumerStatefulWidget {
   final Uri callbackUri;
@@ -37,10 +34,6 @@ class _OAuthCallbackPageState extends ConsumerState<OAuthCallbackPage> {
       logger.d('Successfully exchanged code for session');
 
       if (mounted) {
-// web 플랫폼인 경우에만 URL 파라미터 제거
-        if (kIsWeb) {
-          strategy.clearUrlParameters();
-        }
         _navigateToHome();
       }
     } catch (e, s) {

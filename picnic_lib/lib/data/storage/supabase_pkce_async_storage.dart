@@ -3,16 +3,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Conditionally import dart:html only for web
-import 'supabase_pkce_async_storage_web.dart'
-    if (dart.library.io) 'supabase_pkce_async_storage_mobile.dart';
-
-// This will be implemented differently for web and mobile
-abstract class PlatformStorage implements GotrueAsyncStorage {
-  factory PlatformStorage() => createPlatformStorage();
-}
-
-class PKCEMobile implements GotrueAsyncStorage {
+// Mobile-only implementation for PKCE storage
+class PlatformStorage implements GotrueAsyncStorage {
   @override
   Future<String?> getItem({required String key}) async {
     final prefs = await SharedPreferences.getInstance();
@@ -31,5 +23,3 @@ class PKCEMobile implements GotrueAsyncStorage {
     await prefs.remove(key);
   }
 }
-
-// File: lib/storage/supabase_pkce_async_storage_web.dart

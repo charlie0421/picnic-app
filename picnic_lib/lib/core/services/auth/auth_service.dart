@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
@@ -55,14 +54,10 @@ class AuthService {
 
   static Map<supa.OAuthProvider, SocialLogin> _createDefaultLoginProviders() =>
       {
-        supa.OAuthProvider.google: kIsWeb
-            ? GoogleLogin(GoogleSignIn(
-                clientId: Environment.googleServerClientId,
-              ))
-            : GoogleLogin(GoogleSignIn(
-                clientId: Environment.googleClientId,
-                serverClientId: Environment.googleServerClientId,
-              )),
+        supa.OAuthProvider.google: GoogleLogin(GoogleSignIn(
+          clientId: Environment.googleClientId,
+          serverClientId: Environment.googleServerClientId,
+        )),
         supa.OAuthProvider.apple: AppleLogin(),
         supa.OAuthProvider.kakao: KakaoLogin(),
       };

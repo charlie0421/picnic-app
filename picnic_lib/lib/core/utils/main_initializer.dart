@@ -61,7 +61,7 @@ class MainInitializer {
         await initializeSupabase();
 
         // 모바일 전용 초기화 로직
-        if (UniversalPlatform.isMobile && !kIsWeb) {
+        if (UniversalPlatform.isMobile) {
           await AppInitializer.initializeWebP();
           await AppInitializer.initializeTapjoy();
         }
@@ -75,7 +75,7 @@ class MainInitializer {
         await AppInitializer.initializeAuth();
 
         // 타임존 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile && !kIsWeb) {
+        if (UniversalPlatform.isMobile) {
           await AppInitializer.initializeTimezone();
         }
 
@@ -83,12 +83,12 @@ class MainInitializer {
         reflectableInitializer();
 
         // 프라이버시 동의 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile && !kIsWeb) {
+        if (UniversalPlatform.isMobile) {
           await AppInitializer.initializePrivacyConsent();
         }
 
         // Branch SDK 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile && !kIsWeb) {
+        if (UniversalPlatform.isMobile) {
           await FlutterBranchSdk.init(
             enableLogging: true,
             branchAttributionLevel: BranchAttributionLevel.NONE,

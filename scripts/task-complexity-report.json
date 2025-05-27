@@ -1,180 +1,14 @@
 {
   "meta": {
-    "generatedAt": "2025-05-23T06:31:52.122Z",
-    "tasksAnalyzed": 35,
-    "thresholdScore": 5,
+    "generatedAt": "2025-05-27T05:41:42.299Z",
+    "tasksAnalyzed": 25,
+    "totalTasks": 25,
+    "analysisCount": 39,
+    "thresholdScore": 6,
     "projectName": "Taskmaster",
     "usedResearch": true
   },
   "complexityAnalysis": [
-    {
-      "taskId": 1,
-      "taskTitle": "Memory Leak Detection and Analysis",
-      "complexityScore": 8,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Break down the memory leak detection and analysis task into subtasks such as: setting up memory profiling tools, integrating profiling into debug builds, implementing memory snapshots, creating reporting mechanisms, adding hooks to the image pipeline, and automating memory profiling in tests.",
-      "reasoning": "This task involves integrating multiple tools, deep analysis of memory usage, and automation for regression detection. It requires both instrumentation and reporting, as well as integration with image processing workflows, making it complex and multi-faceted."
-    },
-    {
-      "taskId": 2,
-      "taskTitle": "Image Loading Optimization",
-      "complexityScore": 7,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Expand this task into subtasks such as: implementing progressive image loading, optimizing caching strategies, adding image compression, configuring disk caching, and implementing lazy loading for lists/grids.",
-      "reasoning": "Optimizing image loading touches several performance-critical areas (caching, compression, lazy loading) and requires careful coordination to avoid regressions, but is less complex than deep memory analysis."
-    },
-    {
-      "taskId": 3,
-      "taskTitle": "App Startup Time Optimization",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Decompose this task into subtasks like: measuring startup time, analyzing initialization sequence, implementing deferred loading, optimizing asset loading, adding a splash screen, and removing web-related code.",
-      "reasoning": "Startup optimization requires both measurement and architectural changes, including code removal and deferred loading, but is somewhat bounded in scope."
-    },
-    {
-      "taskId": 4,
-      "taskTitle": "Animation Performance Optimization",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down into subtasks such as: identifying janky animations, optimizing widget construction, simplifying heavy animations, optimizing list/grid rendering, and implementing occlusion culling.",
-      "reasoning": "Animation optimization is challenging but typically involves targeted improvements and profiling, making it moderately complex."
-    },
-    {
-      "taskId": 5,
-      "taskTitle": "Network Request Optimization",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Expand into subtasks like: implementing request deduplication, designing caching strategies, adding ETag/conditional requests, background prefetching, payload compression, and custom Dio interceptor setup.",
-      "reasoning": "This task requires architectural changes to networking, caching, and request management, with several moving parts and potential for subtle bugs."
-    },
-    {
-      "taskId": 6,
-      "taskTitle": "Battery Usage Optimization",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Decompose into subtasks such as: implementing battery monitoring, optimizing GPS usage, batching network requests, managing wake locks, using WorkManager, and reducing background UI updates.",
-      "reasoning": "Battery optimization spans multiple subsystems (location, networking, background tasks), requiring coordinated changes and careful measurement."
-    },
-    {
-      "taskId": 7,
-      "taskTitle": "Offline Mode Enhancement",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down into subtasks like: implementing offline-first architecture, building sync service, adding offline indicators, action queuing, background sync, optimistic UI updates, and conflict resolution.",
-      "reasoning": "Offline mode requires robust data handling, sync, conflict resolution, and UI feedback, making it one of the more complex tasks."
-    },
-    {
-      "taskId": 8,
-      "taskTitle": "Localization System Improvement",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Expand into subtasks such as: auditing translation keys, implementing naming conventions, building a verification tool, adding RTL support, and creating a translation contribution workflow.",
-      "reasoning": "Localization improvements are mostly systematic and tool-based, with moderate complexity due to the need for consistency and automation."
-    },
-    {
-      "taskId": 9,
-      "taskTitle": "Accessibility Improvements",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Decompose into subtasks like: auditing accessibility issues, adding semantics labels, implementing keyboard navigation, ensuring contrast ratios, and adding screen reader hints.",
-      "reasoning": "Accessibility work is broad but can be broken into discrete, testable improvements, making it moderately complex."
-    },
-    {
-      "taskId": 10,
-      "taskTitle": "Dark Mode Completion",
-      "complexityScore": 5,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down into subtasks such as: auditing screens for dark mode, creating a color palette, implementing theme extensions, and ensuring theme-aware assets.",
-      "reasoning": "Completing dark mode is systematic and mostly involves UI adjustments, with lower complexity compared to architectural or data tasks."
-    },
-    {
-      "taskId": 11,
-      "taskTitle": "Push Notification System Enhancement",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Expand into subtasks like: implementing notification preferences, building notification history, adding rich notifications, deep linking, notification grouping, and scheduling.",
-      "reasoning": "Enhancing notifications involves backend, UI, and user preference management, with several integration points and edge cases."
-    },
-    {
-      "taskId": 12,
-      "taskTitle": "Code Duplication Analysis and Refactoring",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Decompose into subtasks such as: running code analysis, identifying duplicates, planning migration, moving code to shared library, refactoring platform-specific code, updating service classes, and documenting patterns.",
-      "reasoning": "Refactoring for code duplication across multiple apps and a shared library is a large, coordination-heavy effort with high risk and complexity."
-    },
-    {
-      "taskId": 13,
-      "taskTitle": "Architecture Refactoring for Better Separation of Concerns",
-      "complexityScore": 9,
-      "recommendedSubtasks": 8,
-      "expansionPrompt": "Break down into subtasks like: defining architecture boundaries, creating abstractions, implementing repository pattern, setting up use cases, restructuring folders, documenting decisions, creating migration guides, and updating tests.",
-      "reasoning": "Architecture refactoring is highly complex, requiring deep changes across the codebase, coordination, and extensive documentation and testing."
-    },
-    {
-      "taskId": 14,
-      "taskTitle": "Global Error Handling System",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Expand into subtasks such as: creating error handling service, categorizing errors, implementing user messages, adding logging/reporting, graceful degradation, and retry mechanisms.",
-      "reasoning": "Global error handling touches all layers of the app and requires both technical and UX considerations, making it moderately complex."
-    },
-    {
-      "taskId": 15,
-      "taskTitle": "Code Documentation Enhancement",
-      "complexityScore": 4,
-      "recommendedSubtasks": 3,
-      "expansionPrompt": "Break down into subtasks like: defining documentation standards, adding dartdoc comments, and implementing automated documentation generation.",
-      "reasoning": "Documentation enhancement is systematic and can be parallelized, with lower technical complexity."
-    },
-    {
-      "taskId": 16,
-      "taskTitle": "State Management Standardization",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Decompose into subtasks such as: evaluating current patterns, selecting a standard, creating migration guides, implementing DI, building reusable patterns, documenting best practices, and adding code generation.",
-      "reasoning": "Standardizing state management across a large codebase is complex, requiring migration, education, and tooling."
-    },
-    {
-      "taskId": 17,
-      "taskTitle": "Unit Test Coverage Expansion",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Expand into subtasks like: identifying critical components, creating a test plan, implementing tests, adding mocks/factories, setting up coverage reporting, and mutation testing.",
-      "reasoning": "Expanding test coverage is labor-intensive and requires coordination, but is less complex than architectural refactoring."
-    },
-    {
-      "taskId": 18,
-      "taskTitle": "UI Test Automation Implementation",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down into subtasks such as: identifying user flows, implementing UI tests, creating page objects, setting up CI, and adding test reporting.",
-      "reasoning": "UI test automation is systematic but requires careful setup and maintenance, with moderate complexity."
-    },
-    {
-      "taskId": 19,
-      "taskTitle": "Device Compatibility Testing Automation",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Expand into subtasks like: defining device matrix, implementing screenshot tests, integrating with device labs, creating responsive design tests, and reporting device-specific issues.",
-      "reasoning": "Automating device compatibility testing is moderately complex, involving integration with external services and responsive design validation."
-    },
-    {
-      "taskId": 20,
-      "taskTitle": "Performance Testing Framework Implementation",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Decompose into subtasks such as: implementing benchmarks, creating baselines, integrating performance tests in CI, adding memory tracking, profiling device categories, and setting up alerts.",
-      "reasoning": "Building a performance testing framework requires both tooling and integration, with moderate to high complexity."
-    },
-    {
-      "taskId": 21,
-      "taskTitle": "Test Data Management System",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down into subtasks like: building data generation library, implementing seeding, creating scenarios, adding cleanup, and documenting usage.",
-      "reasoning": "Test data management is systematic but requires careful design for flexibility and isolation."
-    },
     {
       "taskId": 27,
       "taskTitle": "Data Encryption Enhancement",
@@ -286,6 +120,206 @@
       "recommendedSubtasks": 7,
       "expansionPrompt": "Break down into subtasks such as: setting up WeChat developer account, integrating SDKs, implementing authentication flow, synchronizing user profiles, handling errors/edge cases, China-specific compliance, and documentation.",
       "reasoning": "Integrating WeChat login with Supabase involves multi-platform SDK integration, OAuth flows, user profile sync, and China-specific compliance, making it highly complex."
+    },
+    {
+      "taskId": 1,
+      "taskTitle": "Remove Web-related Code",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the process of removing web-specific code from a Flutter project into subtasks such as identifying web-only files, updating conditional imports, removing web dependencies, updating build configurations, and verifying mobile-only functionality.",
+      "reasoning": "This task involves codebase-wide changes, dependency management, and build configuration updates. While not algorithmically complex, it requires careful attention to avoid breaking mobile functionality and to ensure all web-specific code is removed."
+    },
+    {
+      "taskId": 2,
+      "taskTitle": "Optimize Memory Usage for Large Images",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand this task into subtasks covering image caching setup, lazy loading implementation, image resizing/compression, cache management, memory profiling, and comprehensive testing.",
+      "reasoning": "Optimizing memory for large images requires integrating multiple packages, handling asynchronous operations, and thorough testing to prevent leaks and performance issues."
+    },
+    {
+      "taskId": 3,
+      "taskTitle": "Improve App Startup Time",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide this task into subtasks such as profiling current startup, implementing lazy loading, optimizing asset loading, refactoring initialization code, integrating splash screen improvements, and measuring results.",
+      "reasoning": "Startup optimization involves both code and asset management, deferred loading, and performance measurement, requiring coordination across several app layers."
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "Optimize Scroll and Transition Animations",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down into subtasks for animation package integration, list optimization, repaint boundary implementation, custom scroll physics, and performance testing.",
+      "reasoning": "Animation and scroll optimization require both UI and performance engineering, but leverage existing Flutter tools and patterns."
+    },
+    {
+      "taskId": 5,
+      "taskTitle": "Implement Efficient Data Request Caching",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into subtasks for caching interceptor setup, custom cache logic, offline detection, cache invalidation, unit/integration testing, and documentation.",
+      "reasoning": "Data caching involves network, storage, and offline logic, requiring careful design to ensure consistency and efficiency."
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "Optimize Battery Usage",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into subtasks for background task optimization, geofencing setup, notification efficiency, Bluetooth optimization, battery profiling, and testing.",
+      "reasoning": "Battery optimization spans multiple system services and requires both code changes and real-device testing."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Enhance Offline Mode Functionality",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down into subtasks for local database integration, offline-first architecture, sync logic, retry mechanisms, conflict resolution, offline testing, and documentation.",
+      "reasoning": "Offline mode requires robust data handling, synchronization, and error management, making it a complex, multi-layered task."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "Improve Multilingual Support",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Expand into subtasks for localization package setup, translation key management, formatting integration, translation review automation, and locale testing.",
+      "reasoning": "Localization involves both code and process improvements, but leverages established packages and workflows."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Enhance Accessibility Features",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide into subtasks for semantics integration, keyboard navigation, text-to-speech setup, accessibility testing, and user feedback collection.",
+      "reasoning": "Accessibility improvements require UI updates and testing, but are well-supported by Flutter's built-in tools."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Complete Dark Mode Implementation",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Break down into subtasks for theme data setup, theme switcher implementation, widget compatibility checks, and visual testing.",
+      "reasoning": "Dark mode is a UI-focused task with moderate complexity, mainly requiring thorough testing across screens."
+    },
+    {
+      "taskId": 11,
+      "taskTitle": "Implement Customizable Push Notifications",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Expand into subtasks for push notification integration, preference UI, server-side logic, notification display, user settings persistence, testing, and compliance checks.",
+      "reasoning": "Customizable notifications require cross-platform integration, UI, backend logic, and compliance, making it a complex feature."
+    },
+    {
+      "taskId": 12,
+      "taskTitle": "Integrate Supabase Real-time Features",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Divide into subtasks for Supabase setup, real-time subscription implementation, stream management, optimistic UI updates, testing, load testing, and documentation.",
+      "reasoning": "Real-time features involve backend integration, reactive programming, and performance considerations, increasing complexity."
+    },
+    {
+      "taskId": 13,
+      "taskTitle": "Implement WeChat Login",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into subtasks for SDK integration, login flow implementation, secure token storage, compliance review, testing on Chinese devices, and documentation.",
+      "reasoning": "WeChat login requires third-party SDK integration, security, and regulatory compliance, with additional testing requirements."
+    },
+    {
+      "taskId": 14,
+      "taskTitle": "Refactor Code Architecture",
+      "complexityScore": 9,
+      "recommendedSubtasks": 8,
+      "expansionPrompt": "Expand into subtasks for architecture planning, dependency injection setup, state management refactor, code modularization, migration of features, testing, static analysis, and documentation.",
+      "reasoning": "Refactoring architecture is a large-scale, high-impact task affecting the entire codebase, requiring careful planning and staged execution."
+    },
+    {
+      "taskId": 15,
+      "taskTitle": "Implement Global Error Handling System",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into subtasks for error service implementation, network error interception, custom error classes, UI integration, testing, and user feedback review.",
+      "reasoning": "Global error handling requires both backend and frontend changes, with a focus on consistency and user experience."
+    },
+    {
+      "taskId": 16,
+      "taskTitle": "Enhance Code Documentation",
+      "complexityScore": 4,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down into subtasks for documentation style definition, codebase annotation, and documentation generation/validation.",
+      "reasoning": "Documentation is straightforward but time-consuming, with low technical complexity."
+    },
+    {
+      "taskId": 17,
+      "taskTitle": "Optimize State Management",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Expand into subtasks for state management audit, Riverpod integration, widget lifecycle optimization, state disposal, migration of features, testing, and performance monitoring.",
+      "reasoning": "Standardizing state management across a large app is complex, requiring code migration, testing, and performance tuning."
+    },
+    {
+      "taskId": 18,
+      "taskTitle": "Optimize Supabase Integration",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into subtasks for direct SDK integration, repository pattern implementation, offline support setup, error handling, testing, and documentation.",
+      "reasoning": "Refactoring data access to use Supabase directly involves architectural changes and thorough testing."
+    },
+    {
+      "taskId": 19,
+      "taskTitle": "Expand Unit Test Coverage",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down into subtasks for test coverage analysis, test writing for core logic, parameterized and mutation testing, CI integration, and coverage reporting.",
+      "reasoning": "Achieving high test coverage is labor-intensive and requires coordination across modules, but is essential for code quality."
+    },
+    {
+      "taskId": 20,
+      "taskTitle": "Implement Automated UI Testing",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into subtasks for test framework setup, page object model implementation, writing main flow tests, visual regression setup, CI integration, and manual test planning.",
+      "reasoning": "Automated UI testing involves both technical setup and comprehensive test case development."
+    },
+    {
+      "taskId": 21,
+      "taskTitle": "Implement Device Compatibility Testing",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide into subtasks for test matrix definition, responsive design checks, device simulation setup, screenshot testing, and manual verification.",
+      "reasoning": "Device compatibility testing is process-driven, requiring setup and validation across multiple device types."
+    },
+    {
+      "taskId": 22,
+      "taskTitle": "Implement Performance Testing Framework",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into subtasks for performance test setup, metric definition, benchmark implementation, regression detection, CI integration, and manual audits.",
+      "reasoning": "Performance testing requires both technical setup and ongoing maintenance to ensure regressions are caught early."
+    },
+    {
+      "taskId": 23,
+      "taskTitle": "Implement Test Data Management System",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand into subtasks for test data generation logic, seeding system implementation, data factory setup, and test integration.",
+      "reasoning": "Test data management is moderately complex, focusing on tooling and integration with existing tests."
+    },
+    {
+      "taskId": 24,
+      "taskTitle": "Implement Supabase Edge Functions",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into subtasks for Edge Function development, deployment setup, API integration, error handling, testing, and load testing.",
+      "reasoning": "Edge Functions require backend development, deployment, and integration with the main app, with a focus on performance and reliability."
+    },
+    {
+      "taskId": 25,
+      "taskTitle": "Implement Supabase Row Level Security",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down into subtasks for RLS policy definition, policy implementation, role-based access setup, client query updates, security testing, and audits.",
+      "reasoning": "Implementing RLS involves both database and client-side changes, with a strong emphasis on security and correctness."
     }
   ]
 }

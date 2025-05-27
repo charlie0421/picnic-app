@@ -12,8 +12,6 @@ dependencies:
         sdk: flutter
     flutter_localizations:
         sdk: flutter
-    flutter_web_plugins:
-        sdk: flutter
     picnic_lib:
         path: ../picnic_lib
     intl: ^0.20.2
@@ -32,7 +30,6 @@ dependencies:
     firebase_analytics: ^11.3.6
     flutter_secure_storage: ^9.2.3
     timezone: ^0.10.0
-    url_strategy: ^0.3.0
     flutter_svg: ^2.0.16
     supabase_extensions: ^1.0.1
     url_launcher: ^6.2.5

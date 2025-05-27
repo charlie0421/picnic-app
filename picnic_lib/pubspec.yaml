@@ -76,7 +76,6 @@ dependencies:
   version: ^3.0.2
   rxdart: ^0.28.0
   universal_html: ^2.2.4
-  url_strategy: ^0.3.0
   crypto: ^3.0.6
   keyboard_height_plugin: ^0.1.5
   flutter_animation_progress_bar: ^2.3.1
@@ -96,7 +95,6 @@ dependencies:
   flutter_branch_sdk: ^8.3.2
   unity_ads_plugin: ^0.3.23
   shorebird_code_push: ^2.0.3
-  web: ^1.1.1
   googleapis: ^14.0.0
   googleapis_auth: ^2.0.0
 

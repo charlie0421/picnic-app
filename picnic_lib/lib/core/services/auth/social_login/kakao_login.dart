@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:picnic_lib/core/config/environment.dart';
@@ -6,8 +5,6 @@ import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/social_login_result.dart';
-import 'package:picnic_lib/supabase_options.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class KakaoLogin implements SocialLogin {
   @override
@@ -17,29 +14,6 @@ class KakaoLogin implements SocialLogin {
         nativeAppKey: Environment.kakaoNativeAppKey,
         javaScriptAppKey: Environment.kakaoJavascriptKey,
       );
-
-      if (kIsWeb) {
-        try {
-          final success = await supabase.auth.signInWithOAuth(
-            OAuthProvider.kakao,
-          );
-
-          if (!success) {
-            throw PicnicAuthExceptions.unknown();
-          }
-
-          final session = supabase.auth.currentSession;
-          final user = supabase.auth.currentUser;
-
-          return SocialLoginResult(
-            accessToken: session?.accessToken,
-            userData: user?.userMetadata ?? {},
-          );
-        } catch (e, s) {
-          logger.e('Kakao login error', error: e, stackTrace: s);
-          throw _handleKakaoLoginError(e);
-        }
-      }
 
       final token = await _performKakaoLogin();
       if (token == null) {
@@ -99,11 +73,7 @@ class KakaoLogin implements SocialLogin {
   @override
   Future<void> logout() async {
     try {
-      if (kIsWeb) {
-        await supabase.auth.signOut();
-      } else {
-        await UserApi.instance.logout();
-      }
+      await UserApi.instance.logout();
     } catch (e, s) {
       logger.e('Kakao logout error', error: e, stackTrace: s);
       throw PicnicAuthExceptions.unknown(originalError: e);

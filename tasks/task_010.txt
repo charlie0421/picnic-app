@@ -1,0 +1,37 @@
+# Task ID: 10
+# Title: Complete Dark Mode Implementation
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Ensure dark mode is fully supported across all screens of the app.
+# Details:
+Use Flutter's built-in 'ThemeData' for consistent theming. Implement a theme switcher using 'provider' package (version 6.0.5). Use 'flutter_displaymode' package (version 0.6.0) for proper dark mode on OLED screens. Ensure all custom widgets support both light and dark themes.
+
+# Test Strategy:
+Create widget tests for each screen in both light and dark modes. Implement screenshot tests using 'golden_toolkit' package to compare visual changes. Conduct manual testing on various devices to ensure proper contrast and readability.
+
+# Subtasks:
+## 1. Theme Data Setup [pending]
+### Dependencies: None
+### Description: Configure theme data for both light and dark modes, including color palettes, typography, and layout settings.
+### Details:
+Ensure consistency across all UI elements and screens.
+
+## 2. Theme Switcher Implementation [pending]
+### Dependencies: 10.1
+### Description: Develop a mechanism to toggle between light and dark modes seamlessly, ensuring no loss of functionality.
+### Details:
+Use media queries or similar techniques to handle mode switching.
+
+## 3. Widget Compatibility Checks [pending]
+### Dependencies: 10.2
+### Description: Verify that all widgets and UI components are compatible with both light and dark modes.
+### Details:
+Test for layout issues, color inconsistencies, and functionality across different modes.
+
+## 4. Visual Testing [pending]
+### Dependencies: 10.3
+### Description: Conduct thorough visual testing to ensure a consistent user experience across all screens and modes.
+### Details:
+Test in various environments, including different lighting conditions.
+
