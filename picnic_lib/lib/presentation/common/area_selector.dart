@@ -45,6 +45,41 @@ class AreaSelector extends ConsumerWidget {
         elevation: 8,
         items: [
           DropdownMenuItem(
+            value: 'all',
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: area == 'all' ? Colors.white : Colors.transparent,
+                borderRadius: BorderRadius.circular(6.r),
+                boxShadow: area == 'all'
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'ALL',
+                    style: getTextStyle(
+                        area == 'all'
+                            ? AppTypo.caption12R
+                            : AppTypo.caption10SB,
+                        area == 'all'
+                            ? AppColors.primary500
+                            : AppColors.grey00),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          DropdownMenuItem(
             value: 'kpop',
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),

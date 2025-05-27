@@ -66,7 +66,14 @@ class AsyncVoteList extends _$AsyncVoteList {
               artist(id, name, image),
               artist_group(id, name, image)
             )
-          ''').eq('area', area).filter('deleted_at', 'is', null);
+          ''');
+
+      // area가 'all'이 아닌 경우에만 area 필터 적용
+      if (area != 'all') {
+        query = query.eq('area', area);
+      }
+
+      query = query.filter('deleted_at', 'is', null);
 
       if (status == VoteStatus.active) {
         query = query
@@ -83,9 +90,17 @@ class AsyncVoteList extends _$AsyncVoteList {
         order = 'ASC';
       }
 
-      response = await query
-          .order(sort, ascending: order == 'ASC')
-          .range(offset, offset + limit - 1);
+      // area가 'all'인 경우 kpop을 먼저 보여주기 위한 정렬 추가
+      if (area == 'all') {
+        response = await query
+            .order('area', ascending: true) // kpop이 musical보다 먼저 오도록
+            .order(sort, ascending: order == 'ASC')
+            .range(offset, offset + limit - 1);
+      } else {
+        response = await query
+            .order(sort, ascending: order == 'ASC')
+            .range(offset, offset + limit - 1);
+      }
 
       // 각 투표에 대해 상위 3개 vote_item만 유지하여 메모리 사용량 최적화
       final optimizedResponse = response.map((voteData) {

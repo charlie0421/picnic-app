@@ -54,18 +54,18 @@ class Setting with _$Setting {
     @Default(ThemeMode.system) ThemeMode themeMode,
     @Default(false) bool postAnonymousMode,
     @Default('ko') String language,
-    @Default('kpop') String area,
+    @Default('all') String area,
   }) = _Setting;
 
   Future<Setting> load() async {
     final language = await globalStorage.loadData('language', 'ko');
-    final area = await globalStorage.loadData('area', 'kpop');
+    final area = await globalStorage.loadData('area', 'all');
     // 빈 값이거나 'en'일 경우 'ko'로 설정
     final fixedLanguage =
         language == null || language.isEmpty || language == 'en'
             ? 'ko'
             : language;
-    final fixedArea = area == null || area.isEmpty ? 'kpop' : area;
+    final fixedArea = area == null || area.isEmpty ? 'all' : area;
 
     if (fixedLanguage != language) {
       logger.i('언어 설정 수정: $language → $fixedLanguage');
