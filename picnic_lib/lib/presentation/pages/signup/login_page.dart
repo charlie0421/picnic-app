@@ -10,7 +10,6 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
-import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/services/auth/social_login/wechat_login.dart';
 import 'package:picnic_lib/core/services/region_detection_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -40,7 +39,6 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginPage> {
-  final AuthService _authService = AuthService();
 
   String? lastProvider;
   RegionInfo? regionInfo;
@@ -581,14 +579,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               try {
                 OverlayLoadingProgress.start(context,
                     color: AppColors.primary500, barrierDismissible: false);
-                final user =
-                    await _authService.signInWithProvider(OAuthProvider.apple);
 
-                if (user != null) {
-                  await _saveLastProvider('apple');
-                  _handleSuccessfulLogin();
-                }
-              } on PicnicAuthException catch (e, s) {
+                await _saveLastProvider('apple');
+                _handleSuccessfulLogin();
+                            } on PicnicAuthException catch (e, s) {
                 logger.e(
                     'Apple login PicnicAuthException: $e (originalError: ${e.originalError})',
                     error: e,
@@ -645,13 +639,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   scopes: 'email profile',
                 );
               } else {
-                final user =
-                    await _authService.signInWithProvider(OAuthProvider.google);
-                if (user != null) {
-                  await _saveLastProvider('google');
-                  _handleSuccessfulLogin();
-                }
-              }
+                await _saveLastProvider('google');
+                _handleSuccessfulLogin();
+                            }
             } catch (e, s) {
               logger.e('Error signing in with Google: $e', stackTrace: s);
 
@@ -718,13 +708,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   scopes: 'account_email profile_image profile_nickname',
                 );
               } else {
-                final user =
-                    await _authService.signInWithProvider(OAuthProvider.kakao);
-                if (user != null) {
-                  await _saveLastProvider('kakao');
-                  _handleSuccessfulLogin();
-                }
-              }
+                await _saveLastProvider('kakao');
+                _handleSuccessfulLogin();
+                            }
             } on PicnicAuthException catch (e) {
               if (e.code == 'canceled') {
                 return;
@@ -796,15 +782,12 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
               // WeChat login implementation
               final wechatLogin = WeChatLogin();
-              final user = await wechatLogin.login();
 
-              if (user != null) {
-                // Save last provider for future reference
-                await _saveLastProvider('wechat');
+              // Save last provider for future reference
+              await _saveLastProvider('wechat');
 
-                _handleSuccessfulLogin();
-              }
-            } on PicnicAuthException catch (e, s) {
+              _handleSuccessfulLogin();
+                        } on PicnicAuthException catch (e, s) {
               logger.e(
                   'WeChat login PicnicAuthException: $e (originalError: ${e.originalError})',
                   error: e,

@@ -15,7 +15,6 @@ import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -30,6 +29,7 @@ import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 
 class VoteDetailAchievePage extends ConsumerStatefulWidget {
   final int voteId;
@@ -290,7 +290,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                                               child: ClipRRect(
                                                 borderRadius:
                                                     BorderRadius.circular(40),
-                                                child: PicnicCachedNetworkImage(
+                                                child: LazyImageWidget(
                                                   imageUrl: achievement
                                                       .reward.thumbnail!,
                                                   fit: BoxFit.cover,
@@ -388,7 +388,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   voteModel.mainImage!.isNotEmpty)
                 SizedBox(
                   width: width,
-                  child: PicnicCachedNetworkImage(
+                  child: LazyImageWidget(
                     imageUrl: voteModel.mainImage!,
                     width: width,
                     memCacheWidth: width.toInt(),
@@ -657,7 +657,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
       height: 80,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
-        child: PicnicCachedNetworkImage(
+        child: LazyImageWidget(
           imageUrl: ((item.artist?.id ?? 0) != 0
                   ? item.artist?.image
                   : item.artistGroup?.image) ??
@@ -807,7 +807,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   width: 50,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(25),
-                    child: PicnicCachedNetworkImage(
+                    child: LazyImageWidget(
                       imageUrl: achievements[rewardIndex].reward.thumbnail!,
                       width: 50,
                       memCacheWidth: 50,
@@ -867,7 +867,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     final levelDiff = nextLevel - currentLevel;
     final currentDiff = voteTotal - currentLevel;
 
-    // 현재 단계에서의 진행률을 0-1 사이의 값으로 ��산
+    // 현재 단계에서의 진행률을 0-1 사이의 값으로 계산
     final progressInCurrentStep = levelDiff > 0 ? currentDiff / levelDiff : 0.0;
 
     // 전체 진행률 계산

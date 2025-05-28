@@ -12,11 +12,11 @@ import 'package:picnic_lib/data/models/vote/artist_group.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 
 Future showVotingCompleteDialog({
   required BuildContext context,
@@ -354,7 +354,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
         height: 60,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(60.r),
-          child: PicnicCachedNetworkImage(
+          child: LazyImageWidget(
             imageUrl: artist.image ?? '',
             width: 60,
             height: 60,
@@ -384,7 +384,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(60.r),
-          child: PicnicCachedNetworkImage(
+          child: LazyImageWidget(
             imageUrl: group.image!,
             width: 60,
             height: 60,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -80,7 +80,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: PicnicCachedNetworkImage(
+                      child: LazyImageWidget(
                           imageUrl: rank.reward.thumbnail!,
                           width: 100,
                           height: 100),

@@ -1,16 +1,21 @@
+import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/image_memory_profiler.dart';
+import 'package:picnic_lib/core/utils/image_performance_benchmark.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/memory_profiler.dart';
 import 'package:picnic_lib/core/utils/memory_profiler_provider.dart';
 import 'package:picnic_lib/core/utils/memory_profiling_hook.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 
 class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final String imageUrl;
@@ -20,6 +25,8 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final int? memCacheWidth;
   final int? memCacheHeight;
   final BorderRadius? borderRadius;
+  final Widget? placeholder;
+  final Widget? errorWidget;
 
   const PicnicCachedNetworkImage({
     super.key,
@@ -30,6 +37,8 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.memCacheWidth,
     this.memCacheHeight,
     this.borderRadius,
+    this.placeholder,
+    this.errorWidget,
   });
 
   @override
@@ -39,15 +48,18 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
 
 class _PicnicCachedNetworkImageState
     extends ConsumerState<PicnicCachedNetworkImage> {
+  late String _processedImageUrl;
+  bool _hasError = false;
+  int _retryCount = 0;
+  static const int _maxRetries = 3;
   bool _loading = true;
   // 실제 사용되는 코드에서 참조하지는 않지만 나중에 사용할 수 있으므로 남겨두고 lint 경고만 무시
-  // ignore: unused_field
-  bool _hasError = false;
   // ignore: unused_field
   bool _hasAttemptedLoad = false;
   // ignore: unused_field
   DateTime? _lastLoadAttempt;
   late final DateTime _loadStartTime = DateTime.now();
+  bool _isImageUrlProcessed = false; // 중복 처리 방지를 위한 플래그
 
   // 전역 이미지 캐시 맵 (URL -> 로드 시간)
   static final Map<String, DateTime> _loadedImages = {};
@@ -57,9 +69,44 @@ class _PicnicCachedNetworkImageState
 
   bool get isGif => widget.imageUrl.toLowerCase().endsWith('.gif');
 
+  /// 안전한 정수 변환 (무한대나 NaN 값 처리)
+  int _safeToInt(double? value, int defaultValue) {
+    if (value == null || value.isNaN || value.isInfinite) {
+      return defaultValue;
+    }
+    return value.toInt();
+  }
+
   @override
   void initState() {
     super.initState();
+    // _processImageUrl() 호출을 didChangeDependencies()로 이동
+
+    // 성능 벤치마크 추적 시작
+    ImagePerformanceBenchmark().trackImageLoadStart(
+      widget.imageUrl,
+      metadata: {
+        'widget_type': 'PicnicCachedNetworkImage',
+        'width': widget.width,
+        'height': widget.height,
+        'fit': widget.fit.toString(),
+        'is_gif': isGif,
+      },
+    );
+
+    // 이미지 메모리 프로파일러 추적 시작
+    ImageMemoryProfiler().trackImageLoadStart(
+      widget.imageUrl,
+      metadata: {
+        'widget_type': 'PicnicCachedNetworkImage',
+        'width': widget.width,
+        'height': widget.height,
+        'fit': widget.fit.toString(),
+        'is_gif': isGif,
+        'mem_cache_width': widget.memCacheWidth,
+        'mem_cache_height': widget.memCacheHeight,
+      },
+    );
 
     // 이미 로드된 이미지인지 확인
     if (_loadedImages.containsKey(widget.imageUrl)) {
@@ -82,6 +129,50 @@ class _PicnicCachedNetworkImageState
         _prepareGifLoading();
       });
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // MediaQuery를 사용하는 _processImageUrl()을 여기서 호출 (중복 처리 방지)
+    if (!_isImageUrlProcessed) {
+      _processImageUrl();
+      _isImageUrlProcessed = true;
+    }
+  }
+
+  @override
+  void didUpdateWidget(PicnicCachedNetworkImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // URL이 변경된 경우 상태 리셋 및 재처리
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _resetState();
+      _isImageUrlProcessed = false; // 플래그 리셋
+      _processImageUrl();
+    }
+  }
+
+  void _resetState() {
+    setState(() {
+      _hasError = false;
+      _retryCount = 0;
+    });
+  }
+
+  void _processImageUrl() {
+    _processedImageUrl = _getOptimizedImageUrl(widget.imageUrl);
+  }
+
+  String _getOptimizedImageUrl(String originalUrl) {
+    // 이미 처리된 URL이거나 외부 URL인 경우 그대로 반환
+    if (originalUrl.startsWith('http')) {
+      return originalUrl;
+    }
+
+    // 내부 이미지 URL 최적화 처리
+    final resolutionMultiplier = _getResolutionMultiplier(context);
+    return _getTransformedUrl(originalUrl, resolutionMultiplier, 80);
   }
 
   // GIF 로딩을 위한 준비 작업
@@ -162,21 +253,6 @@ class _PicnicCachedNetworkImageState
   }
 
   @override
-  void didUpdateWidget(PicnicCachedNetworkImage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // URL이 변경된 경우에만 이미지 다시 로드
-    if (oldWidget.imageUrl != widget.imageUrl) {
-      setState(() {
-        _loading = true;
-        _hasError = false;
-        _hasAttemptedLoad = _loadedImages.containsKey(widget.imageUrl);
-        _lastLoadAttempt = null;
-      });
-    }
-  }
-
-  @override
   void dispose() {
     // 이미지가 화면에서 사라질 때 로드 시간 기록
     final loadDuration = DateTime.now().difference(_loadStartTime);
@@ -225,6 +301,11 @@ class _PicnicCachedNetworkImageState
 
   String _getTransformedUrl(
       String key, double resolutionMultiplier, int quality) {
+    // 공개 URL(http로 시작)은 변환하지 않고 그대로 반환
+    if (key.startsWith('http')) {
+      return key;
+    }
+
     Uri uri = Uri.parse('${Environment.cdnUrl}/$key');
 
     Map<String, String> queryParameters = {
@@ -253,10 +334,11 @@ class _PicnicCachedNetworkImageState
   Widget build(BuildContext context) {
     final imageWidth = widget.width;
     final imageHeight = widget.height;
-    final resolutionMultiplier = _getResolutionMultiplier(context);
 
-    // 단일 URL만 사용하여 이미지 중복 로딩 방지
-    final url = _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 80);
+    // 처리된 URL 사용 (재시도 시에도 동일한 URL 사용)
+    final url = _hasError && _retryCount < _maxRetries
+        ? _processedImageUrl
+        : _processedImageUrl;
 
     return SizedBox(
       width: imageWidth,
@@ -286,70 +368,98 @@ class _PicnicCachedNetworkImageState
         width: width,
         height: height,
         fit: widget.fit,
-        // 메모리 캐시 사이즈 최적화
-        memCacheWidth: widget.memCacheWidth ?? (width?.toInt() ?? 400),
-        memCacheHeight: widget.memCacheHeight ?? (height?.toInt() ?? 400),
-        maxWidthDiskCache: 2000, // 디스크 캐시 크기 증가로 성능 개선
-        maxHeightDiskCache: 2000,
+        // 메모리 캐시 사이즈 최적화 - 무한대나 NaN 값 안전 처리
+        memCacheWidth: widget.memCacheWidth ?? _safeToInt(width, 400),
+        memCacheHeight: widget.memCacheHeight ?? _safeToInt(height, 400),
+        // 디스크 캐시 크기 설정 제거 (일반 CacheManager 사용 시 지원되지 않음)
+        // maxWidthDiskCache: 800,
+        // maxHeightDiskCache: 800,
         // 이미지 캐시 정책 수정 - URL 자체를 캐시 키로 사용하여 불필요한 재다운로드 방지
         cacheKey: url,
-        // HTTP 헤더 최적화
-        httpHeaders: const {
-          'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+        // 캐시 매니저 사용 - 타임아웃 설정이 포함된 커스텀 CacheManager
+        cacheManager: CacheManager(Config(
+          'picnic_image_cache',
+          stalePeriod: const Duration(days: 7),
+          maxNrOfCacheObjects: 1000,
+          fileService: HttpFileService(
+            httpClient: IOClient(HttpClient()
+              ..connectionTimeout = const Duration(seconds: 8)
+              ..idleTimeout = const Duration(seconds: 8)),
+          ),
+        )),
+        // HTTP 헤더 최적화 - 연결 제한 문제 해결
+        httpHeaders: {
+          'Accept':
+              'image/webp,image/apng,image/jpg,image/jpeg,image/png,*/*;q=0.8',
           'Accept-Encoding': 'gzip, deflate, br',
-          'Cache-Control': 'max-age=31536000', // 1년 캐시
+          'Cache-Control': 'max-age=2592000', // 30일
           'Connection': 'keep-alive',
+          'User-Agent': 'PicnicApp/1.0 (Flutter)',
         },
-        // 로딩 시 Shimmer 효과 표시
-        progressIndicatorBuilder: (context, url, progress) =>
-            buildImageLoadingOverlay(),
-        errorWidget: (context, url, error) {
-          _onImageLoadError(url, error);
+        // 이미지 로딩 타임아웃 설정
+        fadeInDuration: const Duration(milliseconds: 300),
+        fadeOutDuration: const Duration(milliseconds: 100),
+        placeholderFadeInDuration: const Duration(milliseconds: 200),
+        // 에러 처리 및 재시도 최적화
+        errorListener: (exception) {
+          logger.e('이미지 로드 에러: $url', error: exception);
+          // 캐시에서 실패한 이미지 제거하여 재시도 시 완전한 재로딩 보장
+          _removeFromCache(url);
+        },
+        // 이미지 로딩 상태별 위젯
+        placeholder: (context, url) => _buildPlaceholder(width, height),
+        errorWidget: (context, url, error) => _buildErrorWidget(
+          width,
+          height,
+          () => _retryImageLoad(url, index),
+        ),
+        // 이미지 빌더 - 로딩 완료 시 부드러운 전환
+        imageBuilder: (context, imageProvider) {
+          _onImageLoaded(url);
           return Container(
             width: width,
             height: height,
-            color: Colors.grey[200],
-            child: const Center(
-              child: Icon(Icons.image_not_supported, color: Colors.grey),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: imageProvider,
+                fit: widget.fit,
+              ),
             ),
           );
         },
-        imageBuilder: (context, imageProvider) {
-          // 성공적으로 로드된 이미지 처리
-          _onImageLoadSuccess(url);
-
-          // 이미지가 성공적으로 로드되면 캐시에 추가
-          if (!_loadedImages.containsKey(url)) {
-            _loadedImages[url] = DateTime.now();
-          }
-
-          return Image(
-            image: imageProvider,
-            fit: widget.fit,
-            width: width,
-            height: height,
-          );
-        },
       );
-    } catch (e, stack) {
-      logger.e('이미지 로드 중 예외 발생: $e (URL: $url)');
-
-      // 예외 발생 시 Sentry에 기록
-      Sentry.captureException(e, stackTrace: stack);
-
-      return Container(
-        width: width,
-        height: height,
-        color: Colors.grey[200],
-        child: const Center(
-          child: Icon(Icons.error_outline, color: Colors.grey),
-        ),
-      );
+    } catch (e) {
+      logger.e('CachedNetworkImage 빌드 에러: $url', error: e);
+      return _buildErrorWidget(
+          width, height, () => _retryImageLoad(url, index));
     }
   }
 
   // 이미지 로드 성공 시 호출되는 메서드
-  void _onImageLoadSuccess(String url) {
+  void _onImageLoaded(String url) {
+    // 성능 벤치마크 추적 - 성공
+    ImagePerformanceBenchmark().trackImageLoadComplete(
+      widget.imageUrl,
+      true,
+      metadata: {
+        'cache_hit': _loadedImages.containsKey(url),
+        'load_duration_ms':
+            DateTime.now().difference(_loadStartTime).inMilliseconds,
+      },
+    );
+
+    // 이미지 메모리 프로파일러 추적 - 성공
+    ImageMemoryProfiler().trackImageLoadComplete(
+      widget.imageUrl,
+      null, // 이미지 바이트는 CachedNetworkImage에서 직접 접근 불가
+      metadata: {
+        'cache_hit': _loadedImages.containsKey(url),
+        'load_duration_ms':
+            DateTime.now().difference(_loadStartTime).inMilliseconds,
+        'success': true,
+      },
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
@@ -410,20 +520,175 @@ class _PicnicCachedNetworkImageState
 
   // 이미지 로드 실패 시 호출되는 메서드
   void _onImageLoadError(String url, dynamic error) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-          _hasError = true;
-        });
-      }
+    setState(() {
+      _hasError = true;
+      _loading = false;
     });
 
-    // 디버그 모드에서만 에러 로그 출력 (throttled 방식으로)
-    if (kDebugMode) {
-      final errorKey = "${url}_error_${DateTime.now().hour}";
-      logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);
+    // 재시도 가능한 경우 자동 재시도
+    if (_retryCount < _maxRetries && mounted) {
+      _retryCount++;
+
+      logger.throttledWarn(
+        '이미지 로딩 실패, 재시도 중 ($_retryCount/$_maxRetries): $url',
+        'image_load_retry_${url.hashCode}',
+        throttleDuration: const Duration(minutes: 5),
+      );
+
+      // 잠시 후 재시도
+      Future.delayed(Duration(milliseconds: 500 * _retryCount), () {
+        if (mounted && _hasError) {
+          setState(() {
+            _hasError = false;
+            _loading = true;
+          });
+        }
+      });
+    } else {
+      logger.throttledWarn(
+        '이미지 로딩 최종 실패: $url, 오류: $error',
+        'image_load_final_error_${url.hashCode}',
+        throttleDuration: const Duration(minutes: 10),
+      );
     }
+
+    // 성능 벤치마크에 실패 기록
+    try {
+      ImagePerformanceBenchmark().trackImageLoadComplete(
+        url,
+        false, // 실패
+        metadata: {
+          'error': error.toString(),
+          'retry_count': _retryCount,
+        },
+      );
+    } catch (e) {
+      // 벤치마크 추적 실패 시 무시
+    }
+
+    // 이미지 메모리 프로파일러에 오류 기록
+    ImageMemoryProfiler().trackImageLoadComplete(
+      url,
+      null, // 실패한 경우 null
+      metadata: {
+        'error': error.toString(),
+        'retry_count': _retryCount,
+        'widget_type': 'PicnicCachedNetworkImage',
+      },
+    );
+  }
+
+  /// 플레이스홀더 위젯 빌드
+  Widget _buildPlaceholder(double? width, double? height) {
+    if (widget.placeholder != null) {
+      return widget.placeholder!;
+    }
+
+    return Container(
+      width: width,
+      height: height,
+      color: Colors.grey[100],
+      child: Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 2.0,
+          color: Colors.grey[400],
+        ),
+      ),
+    );
+  }
+
+  /// 에러 위젯 빌드
+  Widget _buildErrorWidget(
+      double? width, double? height, VoidCallback onRetry) {
+    if (widget.errorWidget != null) {
+      return widget.errorWidget!;
+    }
+
+    return Container(
+      width: width,
+      height: height,
+      color: Colors.grey[100],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.image_not_supported,
+            color: Colors.grey[400],
+            size: 32,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '이미지 로딩 실패',
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: onRetry,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.blue[100],
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '재시도',
+                style: TextStyle(
+                  color: Colors.blue[700],
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 캐시에서 이미지 제거
+  void _removeFromCache(String url) {
+    try {
+      // CachedNetworkImage 캐시에서 제거
+      final cacheManager = CacheManager(Config(
+        'picnic_image_cache',
+        stalePeriod: const Duration(days: 7),
+        maxNrOfCacheObjects: 1000,
+        fileService: HttpFileService(
+          httpClient: IOClient(HttpClient()
+            ..connectionTimeout = const Duration(seconds: 8)
+            ..idleTimeout = const Duration(seconds: 8)),
+        ),
+      ));
+      cacheManager.removeFile(url);
+
+      // Flutter 이미지 캐시에서도 제거
+      final imageProvider = NetworkImage(url);
+      imageProvider.evict();
+
+      logger.d('캐시에서 이미지 제거: $url');
+    } catch (e) {
+      logger.e('캐시 제거 실패: $url', error: e);
+    }
+  }
+
+  /// 이미지 재로딩
+  void _retryImageLoad(String url, int index) {
+    setState(() {
+      _hasError = false;
+      _loading = true;
+
+      // 캐시에서 완전히 제거 후 재시도
+      _removeFromCache(url);
+
+      // 재빌드 트리거
+      _retryCount = 0;
+    });
+
+    logger.i('이미지 재시도: $url');
   }
 }
 

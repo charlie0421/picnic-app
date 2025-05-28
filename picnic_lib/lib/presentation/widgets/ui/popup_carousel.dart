@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:picnic_lib/presentation/providers/popup_provider.dart';
 import 'package:picnic_lib/data/models/common/popup.dart';
@@ -244,7 +244,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                             topRight: Radius.circular(24),
                           ),
                           child: imageUrl.isNotEmpty
-                              ? PicnicCachedNetworkImage(
+                              ? LazyImageWidget(
                                   imageUrl: imageUrl, fit: BoxFit.cover)
                               : Image.asset(
                                   package: 'picnic_lib',

@@ -12,7 +12,6 @@ import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart'
     show showRequireLoginDialog;
@@ -22,12 +21,14 @@ import 'package:picnic_lib/presentation/pages/my_page/vote_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_page.dart';
+import 'package:picnic_lib/presentation/pages/test/image_performance_test_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -37,6 +38,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:picnic_lib/data/models/common/navigation.dart';
+import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/presentation/common/common_banner.dart';
 
 class MyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_mypage';
@@ -307,7 +311,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                         itemBuilder: (context, index) => Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            PicnicCachedNetworkImage(
+                            LazyImageWidget(
                               imageUrl: artists[index].image ?? '',
                               width: 60,
                               height: 60,

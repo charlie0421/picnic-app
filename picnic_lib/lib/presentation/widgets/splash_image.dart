@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -164,7 +164,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
         // 2) 서버에서 조회된 이미지가 있으면 덮어씌우기
         if (scheduledSplashUrl != null)
-          PicnicCachedNetworkImage(
+          LazyImageWidget(
             imageUrl: scheduledSplashUrl!,
             fit: BoxFit.contain,
           ),

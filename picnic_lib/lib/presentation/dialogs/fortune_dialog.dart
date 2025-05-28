@@ -10,11 +10,11 @@ import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/community/fortune.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/fortune_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 
 showFortuneDialog(int artistId, int year) {
   final context = navigatorKey.currentContext;
@@ -41,10 +41,10 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   bool _isSaving = false;
 
   // ExpansionTile Controllers
-  final overallController = ExpansionTileController();
-  final luckyController = ExpansionTileController();
-  final adviceController = ExpansionTileController();
-  final Map<int, ExpansionTileController> monthControllers = {};
+  final overallController = ExpansibleController();
+  final luckyController = ExpansibleController();
+  final adviceController = ExpansibleController();
+  final Map<int, ExpansibleController> monthControllers = {};
   bool _wasOverallExpanded = false;
   bool _wasLuckyExpanded = false;
   bool _wasAdviceExpanded = false;
@@ -55,7 +55,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     super.initState();
     // Initialize monthly controllers
     for (int i = 1; i <= 12; i++) {
-      monthControllers[i] = ExpansionTileController();
+      monthControllers[i] = ExpansibleController();
     }
   }
 
@@ -437,7 +437,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                 stops: [0.7, 1],
               ).createShader(rect),
               blendMode: BlendMode.dstIn,
-              child: PicnicCachedNetworkImage(
+              child: LazyImageWidget(
                 imageUrl: fortune.artist.image ?? '',
                 fit: BoxFit.cover,
                 width: (screenWidth * 1.1),

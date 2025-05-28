@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,11 +10,11 @@ import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -174,7 +176,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(32.r),
-                child: PicnicCachedNetworkImage(
+                child: LazyImageWidget(
                   imageUrl: artist.image ?? '',
                   width: 32,
                 ),

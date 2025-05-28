@@ -9,13 +9,13 @@ import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/vote_artist_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -296,7 +296,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
             ListTile(
               leading: ClipRRect(
                 borderRadius: BorderRadius.circular(48),
-                child: PicnicCachedNetworkImage(
+                child: LazyImageWidget(
                   width: 48,
                   height: 48,
                   imageUrl: 'artist/${item.id}/image.png',

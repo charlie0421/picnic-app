@@ -5,8 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/pic/article.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/presentation/widgets/library/library_list.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 
@@ -37,7 +37,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                       children: [
                         Container(
                           alignment: Alignment.topCenter,
-                          child: PicnicCachedNetworkImage(
+                          child: LazyImageWidget(
                             imageUrl:
                                 widget.article.articleImage![index].image ?? '',
                             fit: BoxFit.fitHeight,
@@ -62,37 +62,6 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
           : SizedBox(width: 300.w, height: 300),
     );
   }
-
-  // itemBuilder: (BuildContext context, int index) {
-  //                GestureDetector(
-  //                 behavior: HitTestBehavior.opaque,
-  //                 onTap: () => _showFullScreenImage(context,
-  //                     widget.article.articleImage![index].image ?? ''),
-  //                 child: Stack(
-  //                   children: [
-  //                     Hero(
-  //                       tag:
-  //                           'imageHero${widget.article.articleImage![index].id}',
-  //                       child: PicnicCachedNetworkImage(
-  //                         Key: widget.article.articleImage![index].image ?? '',
-  //                         fit: BoxFit.cover,
-  //                         height:600,
-  //                       ),
-  //                     ),
-  //                     _buildBookmark(widget.article, index),
-  //                   ],
-  //                 ),
-  //               );
-  // },
-  // itemCount: widget.article.articleImage!.length,
-  // pagination: const SwiperPagination(
-  //   builder: DotSwiperPaginationBuilder(
-  //       color: Colors.grey, activeColor: picMainColor),
-  // ),
-  // )
-  // : SizedBox(width: 300.w, height:300),
-  // );
-  // }
 
   void _showFullScreenImage(BuildContext context, String imageUrl) {
     Navigator.of(context).push(
@@ -189,31 +158,10 @@ class _FullScreenImageViewerState extends ConsumerState<FullScreenImageViewer>
                     width: getPlatformScreenSize(context).width,
                     height: getPlatformScreenSize(context).height,
                     alignment: Alignment.center,
-                    child: PicnicCachedNetworkImage(
+                    child: LazyImageWidget(
                       imageUrl: widget.imageUrl,
                       fit: BoxFit.cover,
                       width: getPlatformScreenSize(context).width,
-                      // imageBuilder: (context, imageProvider) {
-                      //   return Image(
-                      //     image: imageProvider,
-                      //     fit: BoxFit.cover,
-                      //     frameBuilder:
-                      //         (context, child, frame, wasSynchronouslyLoaded) {
-                      //       if (frame == null) {
-                      //         return child; // Placeholder
-                      //       } else {
-                      //         WidgetsBinding.instance.addPostFrameCallback((_) {
-                      //           final RenderBox box =
-                      //               context.findRenderObject() as RenderBox;
-                      //           setState(() {
-                      //             imageSize = box.size; // 이미지 사이즈 업데이트
-                      //           });
-                      //         });
-                      //         return child;
-                      //       }
-                      //     },
-                      //   );
-                      // },
                     ),
                   ),
                 ),

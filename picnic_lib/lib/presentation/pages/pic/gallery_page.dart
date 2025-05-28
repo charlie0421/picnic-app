@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/pic/gallery.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/gallery_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -87,7 +87,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                       SizedBox(
                           width: double.infinity,
                           height: 215,
-                          child: PicnicCachedNetworkImage(
+                          child: LazyImageWidget(
                             imageUrl: gallery.cover ?? '',
                             width: 361,
                             height: 215,

@@ -7,11 +7,9 @@ import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-// ignore: unused_import
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityCard extends StatelessWidget {
@@ -58,7 +56,7 @@ class CompatibilityCard extends StatelessWidget {
                         topLeft: Radius.circular(16),
                         bottomLeft: Radius.circular(16),
                       ),
-                      child: PicnicCachedNetworkImage(
+                      child: LazyImageWidget(
                         imageUrl: artist.image ?? '',
                         width: 150.w,
                         height: 150.w,

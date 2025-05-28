@@ -12,7 +12,7 @@ import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -176,11 +176,12 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: PicnicCachedNetworkImage(
+                            child: LazyListImageWidget(
                               imageUrl: data[index].thumbnail ?? '',
                               width: 120,
                               height: 100,
                               fit: BoxFit.fitWidth,
+                              index: index,
                             ),
                           ),
                           Positioned(

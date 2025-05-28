@@ -145,9 +145,9 @@ class MemoryProfiler {
             takeSnapshot(snapshotLabel,
                 level: snapshotLevelLow,
                 includeStackTrace: false); // 스택 트레이스 비활성화
-            logger.v('자동 스냅샷 생성됨 (메모리 변화 감지)');
+            logger.t('자동 스냅샷 생성됨 (메모리 변화 감지)');
           } else {
-            logger.v('자동 스냅샷 건너뜀 (변화량 부족 또는 시간 간격 부족)');
+            logger.t('자동 스냅샷 건너뜀 (변화량 부족 또는 시간 간격 부족)');
           }
         }
       },
@@ -201,7 +201,7 @@ class MemoryProfiler {
     if (level < snapshotLevelHigh && _lastGlobalSnapshotTime != null) {
       final timeSinceLastGlobal = now.difference(_lastGlobalSnapshotTime!);
       if (timeSinceLastGlobal.inSeconds < _globalSnapshotCooldownSeconds) {
-        logger.v('전역 스냅샷 생성 제한으로 건너뜀: $label');
+        logger.t('전역 스냅샷 생성 제한으로 건너뜀: $label');
         return null;
       }
     }
@@ -433,7 +433,7 @@ class MemoryProfiler {
       final recentSnapshot = _snapshots[beforeLabel];
       if (recentSnapshot != null &&
           now.difference(recentSnapshot.timestamp).inSeconds < 5) {
-        logger.v('profileAction 스냅샷 생성 건너뜀 (중복 호출): $label');
+        logger.t('profileAction 스냅샷 생성 건너뜀 (중복 호출): $label');
         await action();
         return null;
       }

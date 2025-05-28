@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/services/cache_management_service.dart';
+import 'package:picnic_lib/core/services/image_cache_service.dart';
+import 'package:picnic_lib/core/services/image_memory_profiler.dart';
+import 'package:picnic_lib/core/services/network_connection_manager.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -54,8 +58,32 @@ class MainInitializer {
         if (enableMemoryProfiler || kDebugMode) {
           logger.i('메모리 프로파일러 초기화 중...');
           MemoryProfiler.instance.initialize(enabled: true);
-          logger.i('메모리 프로파일러 초기화 완료');
+
+          // 이미지 메모리 프로파일러 초기화
+          logger.i('이미지 메모리 프로파일러 초기화 중...');
+          ImageMemoryProfiler().initialize();
+
+          // 캐시 관리 서비스 초기화
+          logger.i('캐시 관리 서비스 초기화 중...');
+          await CacheManagementService().initialize();
+
+          logger.i('메모리 프로파일링 시스템 초기화 완료');
         }
+
+        // 이미지 캐시 서비스 초기화 - 전체 앱에서 사용
+        logger.i('글로벌 이미지 캐시 서비스 초기화 중...');
+        
+        // 네트워크 연결 관리자 초기화 - 이미지 로딩 성능 최적화
+        logger.i('네트워크 연결 관리자 초기화 중...');
+        await NetworkConnectionManager().initialize();
+        logger.i('네트워크 연결 관리자 초기화 완료');
+        
+        ImageCacheService().initialize();
+        
+        // Flutter 기본 이미지 캐시 최적화
+        _optimizeFlutterImageCache();
+        
+        logger.i('글로벌 이미지 캐시 서비스 초기화 완료');
 
         // Supabase 초기화
         await initializeSupabase();
@@ -190,6 +218,36 @@ class MainInitializer {
 
       // 오류 발생 시에도 콜백 호출
       callback(false, 'ko');
+    }
+  }
+
+  /// Flutter 기본 이미지 캐시 최적화
+  static void _optimizeFlutterImageCache() {
+    try {
+      final imageCache = PaintingBinding.instance.imageCache;
+      
+      // 플랫폼별 캐시 크기 설정
+      if (UniversalPlatform.isWeb) {
+        // 웹에서는 상대적으로 큰 캐시 허용
+        imageCache.maximumSize = 300;
+        imageCache.maximumSizeBytes = 150 * 1024 * 1024; // 150MB
+      } else if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+        // 모바일에서는 메모리 효율성 중시
+        imageCache.maximumSize = 200;
+        imageCache.maximumSizeBytes = 100 * 1024 * 1024; // 100MB
+      } else {
+        // 데스크톱 환경
+        imageCache.maximumSize = 400;
+        imageCache.maximumSizeBytes = 200 * 1024 * 1024; // 200MB
+      }
+      
+      logger.i(
+        'Flutter 이미지 캐시 최적화 완료: '
+        '최대 ${imageCache.maximumSize}개 이미지, '
+        '${imageCache.maximumSizeBytes ~/ (1024 * 1024)}MB'
+      );
+    } catch (e) {
+      logger.e('Flutter 이미지 캐시 최적화 실패', error: e);
     }
   }
 }

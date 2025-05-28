@@ -14,7 +14,6 @@ import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_search_box.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
@@ -24,6 +23,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -304,7 +304,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
             opacity: _isRedBackground ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 300),
             child: Container(
-              color: AppColors.primary500.withOpacity(0.18),
+              color: AppColors.primary500.withValues(alpha: 0.18),
               width: double.infinity,
               height: double.infinity,
             ),
@@ -320,7 +320,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
         if (voteModel.mainImage != null && voteModel.mainImage!.isNotEmpty)
           SizedBox(
             width: width,
-            child: PicnicCachedNetworkImage(
+            child: LazyImageWidget(
               imageUrl: voteModel.mainImage!,
               width: width,
               memCacheWidth: width.toInt(),
@@ -537,11 +537,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage> {
       height: 45,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
-        child: PicnicCachedNetworkImage(
+        child: LazyImageWidget(
           imageUrl: ((item.artist?.id ?? 0) != 0
                   ? item.artist?.image
                   : item.artistGroup?.image) ??
-              '',
+              '' '?w=100',
           fit: BoxFit.cover,
           width: 80,
           height: 80,

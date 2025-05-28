@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -107,13 +107,14 @@ class VoteCardColumnVertical extends StatelessWidget {
                 opacity: opacityAnimation,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
-                  child: PicnicCachedNetworkImage(
-                      imageUrl: (voteItem.artist?.id != 0
-                              ? voteItem.artist?.image
-                              : voteItem.artistGroup?.image) ??
-                          '',
-                      width: 100,
-                      height: 100),
+                  child: LazyImageWidget(
+                    imageUrl: (voteItem.artist?.id != 0
+                            ? voteItem.artist?.image
+                            : voteItem.artistGroup?.image) ??
+                        '',
+                    width: 100,
+                    height: 100,
+                  ),
                 ),
               ),
             ),

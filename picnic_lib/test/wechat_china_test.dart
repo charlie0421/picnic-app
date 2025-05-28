@@ -267,7 +267,7 @@ void main() {
         final results = await Future.wait(futures, eagerError: false);
 
         // At least some should succeed
-        final successes = results.where((r) => r is String).length;
+        final successes = results.whereType<String>().length;
         expect(successes, greaterThan(0));
       });
     });

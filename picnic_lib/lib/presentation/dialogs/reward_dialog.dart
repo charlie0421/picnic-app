@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
-import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
-import 'package:picnic_lib/data/models/reward.dart';
-import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/util.dart';
+import 'package:picnic_lib/data/models/reward.dart';
+import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 // 상수 정의
 class RewardDialogConstants {
@@ -79,7 +79,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 stops: [0.7, 1],
               ).createShader(rect),
               blendMode: BlendMode.dstIn,
-              child: PicnicCachedNetworkImage(
+              child: LazyImageWidget(
                 imageUrl: widget.data.thumbnail ?? '',
                 fit: BoxFit.cover,
                 width: (screenWidth * 1.1),
@@ -273,7 +273,7 @@ class RewardSection extends StatelessWidget {
             child: ClipRRect(
               borderRadius:
                   BorderRadius.circular(RewardDialogConstants.imageRadius),
-              child: PicnicCachedNetworkImage(
+              child: LazyImageWidget(
                 imageUrl: image,
                 width: imageSize,
                 height: imageSize,
@@ -305,7 +305,7 @@ class RewardSection extends StatelessWidget {
               width: imageWidth,
               child: AspectRatio(
                 aspectRatio: 16 / 9, // 기본 16:9 비율 사용
-                child: PicnicCachedNetworkImage(
+                child: LazyImageWidget(
                   imageUrl: image,
                   fit: BoxFit.cover,
                 ),

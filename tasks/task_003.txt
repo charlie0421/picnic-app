@@ -1,6 +1,6 @@
 # Task ID: 3
 # Title: Improve App Startup Time
-# Status: pending
+# Status: in-progress
 # Dependencies: 1
 # Priority: high
 # Description: Optimize the initialization process to reduce app startup time.
@@ -11,7 +11,7 @@ Implement lazy loading of non-critical components. Use Flutter's deferred loadin
 Use Flutter's 'dart:developer' TimelineTask API to measure startup phases. Implement automated performance tests using the 'integration_test' package. Compare startup times across different devices using Firebase Test Lab.
 
 # Subtasks:
-## 1. Profile Current Startup Performance [pending]
+## 1. Profile Current Startup Performance [in-progress]
 ### Dependencies: None
 ### Description: Analyze and benchmark the current app startup process to identify bottlenecks and establish a baseline for optimization.
 ### Details:

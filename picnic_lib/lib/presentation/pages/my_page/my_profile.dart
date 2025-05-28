@@ -10,8 +10,8 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
-import 'package:path/path.dart' as path;
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/image_processing_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/util.dart';
@@ -152,20 +152,47 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       if (croppedFile != null && mounted) {
         try {
           OverlayLoadingProgress.start(context);
-          final Uint8List fileBytes = await croppedFile.readAsBytes();
+          final Uint8List originalBytes = await croppedFile.readAsBytes();
 
-          // 파일 이름 생성
+          // ImageProcessingService를 사용하여 이미지 최적화
+          final imageProcessingService = ImageProcessingService();
+
+          // 프로필 이미지용 최적화: 512x512 최대 크기, 85% 품질
+          final Uint8List? optimizedBytes =
+              await imageProcessingService.processImage(
+            originalBytes,
+            maxWidth: 512,
+            maxHeight: 512,
+            quality: 85,
+            outputFormat: 'jpeg',
+            maintainAspectRatio: true,
+          );
+
+          if (optimizedBytes == null) {
+            throw Exception('Failed to process image');
+          }
+
+          // 최적화 결과 로깅
+          final originalSize = originalBytes.length;
+          final optimizedSize = optimizedBytes.length;
+          final compressionRatio = (1 - optimizedSize / originalSize) * 100;
+
+          logger.i(
+              '프로필 이미지 최적화 완료: ${originalSize ~/ 1024}KB → ${optimizedSize ~/ 1024}KB (${compressionRatio.toStringAsFixed(1)}% 압축)');
+
+          // 파일 이름 생성 (JPEG 확장자로 고정)
           final String fileName =
-              '$userId/avatar_${DateTime.now().millisecondsSinceEpoch}${path.extension(croppedFile.path)}';
+              '$userId/avatar_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-          // Supabase Storage에 이미지 업로드
+          // Supabase Storage에 최적화된 이미지 업로드
           final storageResponse =
               await supabase.storage.from('avatars').uploadBinary(
                     fileName,
-                    fileBytes,
+                    optimizedBytes,
                     fileOptions: const FileOptions(
                       cacheControl: '3600',
                       upsert: true,
+                      contentType: 'image/jpeg',
                     ),
                   );
 
@@ -182,7 +209,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             throw Exception('Failed to upload image');
           }
         } catch (e, s) {
-          logger.e('error', error: e, stackTrace: s);
+          logger.e('프로필 이미지 업로드 실패', error: e, stackTrace: s);
 
           SnackbarUtil().showSnackbar(t('common_fail'));
           rethrow;

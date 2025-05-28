@@ -11,6 +11,7 @@ import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/pages/test/image_performance_test_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/platform_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
@@ -18,6 +19,7 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:flutter/foundation.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
@@ -285,6 +287,34 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       tailing: SizedBox.shrink(),
                     ),
+                  // 개발자 옵션 섹션 (관리자이거나 디버그 모드일 때만 표시)
+                  if (isAdmin || kDebugMode) ...[
+                    const SizedBox(height: 24),
+                    Text('개발자 옵션',
+                        style:
+                            getTextStyle(AppTypo.body14B, AppColors.grey600)),
+                    PicnicListItem(
+                      leading: '이미지 성능 테스트',
+                      title: Container(
+                        margin: EdgeInsets.only(left: 8.w),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '기존 시스템과 최적화 시스템 성능 비교',
+                          style: getTextStyle(
+                              AppTypo.caption12R, AppColors.grey600),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      onTap: () {
+                        ref
+                            .read(navigationInfoProvider.notifier)
+                            .setCurrentMyPage(
+                              const ImagePerformanceTestPage(),
+                            );
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),

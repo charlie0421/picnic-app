@@ -11,7 +11,7 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/gallery_list_provider.dart';
@@ -218,11 +218,12 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                   SizedBox(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8.r),
-                      child: PicnicCachedNetworkImage(
+                      child: LazyListImageWidget(
                           width: 140,
                           height: 100,
                           imageUrl: data[index].cover ?? '',
-                          fit: BoxFit.cover),
+                          fit: BoxFit.cover,
+                          index: index),
                     ),
                   ),
                   Positioned(
@@ -314,7 +315,7 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(24),
-              child: PicnicCachedNetworkImage(
+              child: LazyImageWidget(
                 imageUrl: selectedCelebState?.thumbnail ?? '',
                 width: 28,
                 height: 28,

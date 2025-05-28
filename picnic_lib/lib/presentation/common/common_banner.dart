@@ -8,7 +8,7 @@ import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/data/models/common/banner.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/custom_pagination.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
 import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -73,7 +73,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         alignment: Alignment.center,
         children: [
           // key를 추가하여 위젯을 강제로 리빌드
-          PicnicCachedNetworkImage(
+          LazyImageWidget(
             key: ValueKey('${item.id}_$_currentIndex'),
             imageUrl: imageUrl,
             fit: BoxFit.cover,

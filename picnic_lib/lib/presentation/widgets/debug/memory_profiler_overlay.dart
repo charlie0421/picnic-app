@@ -71,15 +71,15 @@ class MemoryProfilerOverlay extends ConsumerWidget {
         height: 48,
         decoration: BoxDecoration(
           color: isOverlayVisible
-              ? Colors.blue.withOpacity(0.9)
-              : Colors.black.withOpacity(0.8),
+              ? Colors.blue.withValues(alpha: 0.9)
+              : Colors.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
               color: isOverlayVisible ? Colors.blue : Colors.white, width: 2),
           boxShadow: [
             BoxShadow(
               color: (isOverlayVisible ? Colors.blue : Colors.white)
-                  .withOpacity(0.3),
+                  .withValues(alpha: 0.3),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -102,14 +102,14 @@ class MemoryProfilerOverlay extends ConsumerWidget {
     return Material(
       type: MaterialType.card,
       elevation: 12,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Theme.of(context).primaryColor.withOpacity(0.2),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -145,14 +145,14 @@ class MemoryProfilerOverlay extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.05),
+        color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -228,9 +228,10 @@ class MemoryProfilerOverlay extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -287,12 +288,12 @@ class MemoryProfilerOverlay extends ConsumerWidget {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: color, width: 2),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
