@@ -1,0 +1,131 @@
+# Task ID: 26
+# Title: Implement Unified Storage Layer
+# Status: pending
+# Dependencies: 14, 13
+# Priority: high
+# Description: Create a consolidated storage abstraction that eliminates duplication and inconsistencies across the app's storage implementations.
+# Details:
+This task involves refactoring the existing storage implementations into a unified, testable storage layer:
+
+1. **Design Unified Storage Interface**:
+   - Create a `StorageService` abstract class with methods for secure and non-secure storage
+   - Implement clear separation between secure (tokens, credentials) and non-secure (settings, preferences) data
+   - Define consistent error handling strategy (either Result pattern or typed exceptions)
+
+2. **Implement Storage Providers**:
+   - Create `SecureStorageProvider` using FlutterSecureStorage
+   - Create `PreferencesStorageProvider` using SharedPreferences
+   - Implement web-compatible versions with appropriate fallbacks
+
+3. **Create Generic Token Storage**:
+   - Implement `TokenStorage<T>` generic class that can handle any token type
+   - Add serialization/deserialization support using json_serializable
+   - Include token refresh logic and expiration handling
+
+4. **Centralize Storage Key Management**:
+   - Create a `StorageKeys` class with constants for all storage keys
+   - Group keys by functional area (auth, settings, cache, etc.)
+   - Add documentation for each key's purpose and data format
+
+5. **Migration Plan**:
+   - Refactor `SecureStorageService` and `WeChatTokenStorageService` to use new abstractions
+   - Update all direct SharedPreferences and FlutterSecureStorage usages
+   - Implement proper dependency injection using get_it
+   - Add comprehensive unit tests for all storage implementations
+
+6. **Files to Refactor**:
+   - lib/core/services/secure_storage_service.dart
+   - lib/core/services/wechat_token_storage_service.dart
+   - lib/data/storage/ (entire directory)
+   - All files using SharedPreferences directly
+   - All files using FlutterSecureStorage directly
+
+Code example for the unified storage interface:
+```dart
+abstract class StorageService {
+  // Secure storage operations
+  Future<void> secureWrite(String key, String value);
+  Future<String?> secureRead(String key);
+  Future<void> secureDelete(String key);
+  
+  // Non-secure storage operations
+  Future<void> write<T>(String key, T value);
+  Future<T?> read<T>(String key);
+  Future<void> delete(String key);
+  
+  // Batch operations
+  Future<void> clear();
+  Future<Map<String, String>> getAll();
+}
+
+// Implementation for mobile platforms
+class MobileStorageService implements StorageService {
+  final FlutterSecureStorage _secureStorage;
+  final SharedPreferences _preferences;
+  
+  MobileStorageService(this._secureStorage, this._preferences);
+  
+  // Implementation of methods...
+}
+
+// Generic token storage
+class TokenStorage<T> {
+  final StorageService _storageService;
+  final String _storageKey;
+  final T Function(Map<String, dynamic>) _fromJson;
+  final Map<String, dynamic> Function(T) _toJson;
+  
+  TokenStorage(this._storageService, this._storageKey, this._fromJson, this._toJson);
+  
+  Future<void> saveToken(T token) async {
+    final json = _toJson(token);
+    await _storageService.secureWrite(_storageKey, jsonEncode(json));
+  }
+  
+  Future<T?> getToken() async {
+    final data = await _storageService.secureRead(_storageKey);
+    if (data == null) return null;
+    
+    try {
+      final json = jsonDecode(data) as Map<String, dynamic>;
+      return _fromJson(json);
+    } catch (e) {
+      // Log error
+      return null;
+    }
+  }
+}
+```
+
+# Test Strategy:
+1. **Unit Tests**:
+   - Create mock implementations of `StorageService` using mockito or manual mocks
+   - Test all storage operations with various data types (strings, numbers, booleans, complex objects)
+   - Test error handling for storage failures (device full, permission issues)
+   - Verify token serialization/deserialization works correctly for all token types
+   - Test migration of existing data to new storage format
+
+2. **Integration Tests**:
+   - Verify that the storage service correctly persists data between app restarts
+   - Test that secure data remains encrypted on device
+   - Verify that token refresh logic works correctly with actual API calls
+   - Test migration of real user data from old storage format to new format
+
+3. **Migration Verification**:
+   - Create a test suite that verifies all previous storage operations work with new implementation
+   - Compare performance metrics before and after refactoring
+   - Verify no data loss during migration for existing users
+   - Test backward compatibility with older app versions if needed
+
+4. **Manual Testing Checklist**:
+   - Verify login state persists correctly after app restart
+   - Check that user preferences are correctly saved and loaded
+   - Test WeChat login flow with new token storage
+   - Verify Supabase session management works correctly
+   - Test search history and other frequently accessed storage items
+
+5. **Code Quality Verification**:
+   - Run static analysis to ensure no direct usage of storage APIs remains
+   - Verify dependency injection is properly implemented
+   - Check that all storage keys are centralized in the `StorageKeys` class
+   - Ensure proper error handling throughout the storage layer

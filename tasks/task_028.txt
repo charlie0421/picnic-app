@@ -1,0 +1,73 @@
+# Task ID: 28
+# Title: Fix Last Login Method Storage and Display
+# Status: done
+# Dependencies: 27
+# Priority: high
+# Description: Fix the bug where only Google login is displayed regardless of the user's last login method. Implement proper storage and retrieval of the last used login method (Google, Apple, Kakao, WeChat) to prioritize its display on subsequent logins.
+# Details:
+This task involves fixing the login method persistence and display logic:
+
+1. Identify the current implementation issue:
+   - Review the login flow to understand why Google login is always displayed as the default
+   - Examine how login method information is currently stored (or not stored)
+
+2. Implement last login method storage:
+   - After successful authentication with any method (Google, Apple, Kakao, WeChat), store the login method identifier in secure local storage
+   - Use `flutter_secure_storage` to save the login method with a key like "last_login_method"
+   - Store a simple string identifier (e.g., "google", "apple", "kakao", "wechat")
+   - Include timestamp information for potential future features
+
+3. Modify the login screen to prioritize the last used method:
+   - On login screen initialization, retrieve the last login method from secure storage
+   - If a last method exists, visually prioritize that login button:
+     - Option 1: Reorder the buttons to show the last used method first
+     - Option 2: Highlight the last used method button with a subtle visual indicator
+     - Option 3: Show the last used method button slightly larger or more prominent
+   - Ensure all login options remain accessible regardless of which was last used
+
+4. Handle edge cases:
+   - First-time users (no stored preference)
+   - Cases where the previously used login method is no longer available
+   - User account deletion and reinstallation scenarios
+   - Device migration scenarios
+
+5. Update UI components:
+   - Modify the login screen layout to accommodate the dynamic prioritization
+   - Ensure responsive design is maintained across device sizes
+   - Maintain accessibility standards with the modified UI
+
+6. Code organization:
+   - Create a dedicated service/utility class for login method persistence
+   - Follow existing architectural patterns in the codebase
+   - Document the implementation with clear comments
+
+# Test Strategy:
+1. Unit Tests:
+   - Test the storage and retrieval of login method preferences
+   - Verify correct handling of edge cases (first login, missing preferences)
+   - Test the login method prioritization logic in isolation
+
+2. Integration Tests:
+   - Verify the end-to-end flow of logging in with different methods and seeing the correct method prioritized on subsequent app launches
+   - Test the flow across multiple login/logout cycles with different methods
+
+3. Manual Testing Scenarios:
+   - Login with Google, close app, reopen and verify Google is prioritized
+   - Login with Apple, close app, reopen and verify Apple is prioritized
+   - Login with Kakao, close app, reopen and verify Kakao is prioritized
+   - Login with WeChat, close app, reopen and verify WeChat is prioritized
+   - Test on both iOS and Android platforms to ensure consistent behavior
+   - Test with a fresh install to verify default behavior
+   - Test after clearing app data/cache
+   - Verify UI appearance on various screen sizes
+
+4. Regression Testing:
+   - Verify that all login methods still function correctly
+   - Ensure no performance degradation in the login screen loading time
+   - Check that the visual changes don't negatively impact accessibility
+
+5. User Acceptance Criteria:
+   - The last used login method is correctly stored after successful authentication
+   - On subsequent app launches, the last used login method is visually prioritized
+   - All login methods remain accessible regardless of which was last used
+   - The UI changes are subtle and don't confuse users

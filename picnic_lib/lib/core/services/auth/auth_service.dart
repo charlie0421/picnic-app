@@ -7,6 +7,7 @@ import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/social_login/apple_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/google_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/kakao_login.dart';
+import 'package:picnic_lib/core/services/auth/social_login/wechat_login.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/core/services/secure_storage_service.dart';
@@ -60,9 +61,44 @@ class AuthService {
         )),
         supa.OAuthProvider.apple: AppleLogin(),
         supa.OAuthProvider.kakao: KakaoLogin(),
+        // Note: WeChat is not in the standard OAuthProvider enum
+        // We'll need to handle it separately or extend the enum
+        // For now, we'll add a custom method for WeChat login
       };
 
-  Future<supa.User?> signInWithProvider(supa.OAuthProvider provider) async {
+  // WeChat login instance (separate from standard providers)
+  late final WeChatLogin _wechatLogin = WeChatLogin();
+
+  Future<bool> recoverSession() async {
+    try {
+      if (!await _networkService.checkOnlineStatus()) {
+        logger.w('Cannot recover session - offline');
+        return false;
+      }
+
+      final session = await _storageService.getSession();
+      if (session == null) {
+        logger.w('No stored session found');
+        return false;
+      }
+
+      if (session.isExpired) {
+        logger.w('Stored session is expired');
+        await _storageService.clearSession();
+        return false;
+      }
+
+      _sessionController.add(session);
+      logger.i('Session recovered successfully');
+      return true;
+    } catch (e, s) {
+      logger.e('Error recovering session', error: e, stackTrace: s);
+      await _handleAuthError(e);
+      return false;
+    }
+  }
+
+  Future<User> signInWithProvider(supa.OAuthProvider provider) async {
     try {
       if (await DeviceManager.isDeviceBanned()) {
         throw PicnicAuthExceptions.deviceBanned();
@@ -94,60 +130,96 @@ class AuthService {
       await DeviceManager.registerDevice(response.user!.id);
 
       await _saveAndNotifySession(response.session!);
-      return response.user;
+      return response.user!;
     } catch (e, s) {
       logger.e('Error during sign in:', error: e, stackTrace: s);
       rethrow;
     }
   }
 
-  Future<bool> recoverSession() async {
+  /// WeChat-specific login method
+  /// Since WeChat is not a standard Supabase OAuth provider,
+  /// we handle it separately with custom authentication flow
+  Future<User> signInWithWeChat() async {
     try {
+      if (await DeviceManager.isDeviceBanned()) {
+        throw PicnicAuthExceptions.deviceBanned();
+      }
+
       if (!await _networkService.checkOnlineStatus()) {
-        logger.w('Cannot recover session - offline');
-        return false;
+        throw PicnicAuthExceptions.network();
       }
 
-      final session = await _storageService.getSession();
-      if (session == null) {
-        logger.w('No stored session found');
-        return false;
+      // Perform WeChat login
+      final result = await _wechatLogin.login();
+      if (result.idToken == null) {
+        throw PicnicAuthExceptions.invalidToken();
       }
 
-      if (_isSessionExpired(session)) {
-        logger.i('Session expired, attempting refresh');
-        return await _refreshSession();
+      // For WeChat, we need to create a custom authentication flow
+      // This could involve:
+      // 1. Creating a custom JWT token on your server
+      // 2. Using Supabase's signInWithPassword with WeChat user data
+      // 3. Or implementing a custom auth provider in Supabase
+
+      // For now, we'll use a placeholder approach
+      // TODO: Implement proper WeChat authentication with Supabase
+      logger.w('WeChat authentication needs custom Supabase integration');
+
+      // Temporary approach - you'll need to implement proper server-side integration
+      // This is just a placeholder to demonstrate the flow
+      throw PicnicAuthExceptions.unsupportedProvider(
+          'WeChat authentication requires custom server integration');
+
+      // Example of what the final implementation might look like:
+      /*
+      final response = await supabase.auth.signInWithPassword(
+        email: 'wechat_${result.userData['openId']}@your-domain.com',
+        password: 'secure_generated_password',
+      );
+
+      if (response.session == null || response.user == null) {
+        throw PicnicAuthExceptions.invalidToken();
       }
 
-      // Session 복구 시도
-      try {
-        final response = await supabase.auth
-            .recoverSession(jsonEncode(session))
-            .timeout(_timeouts.sessionRecovery);
-
-        if (response.session != null) {
-          await DeviceManager.updateLastSeen();
-          await _saveAndNotifySession(response.session!);
-          return true;
-        }
-      } catch (e, s) {
-        logger.e('Session recovery failed, trying refresh',
-            error: e, stackTrace: s);
-      }
-
-      // 복구 실패시 refresh 시도
-      return await _refreshSession();
+      await DeviceManager.registerDevice(response.user!.id);
+      await _saveAndNotifySession(response.session!);
+      return response.user;
+      */
     } catch (e, s) {
-      logger.e('Session recovery failed', error: e, stackTrace: s);
-      await _handleAuthError(e);
+      logger.e('Error during WeChat sign in:', error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  /// Check if user has valid WeChat login
+  Future<bool> hasValidWeChatLogin() async {
+    try {
+      return await _wechatLogin.isLoggedIn();
+    } catch (e, s) {
+      logger.e('Error checking WeChat login status', error: e, stackTrace: s);
       return false;
     }
   }
 
-  bool _isSessionExpired(Session session) {
-    final expiresAt =
-        DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000);
-    return DateTime.now().isAfter(expiresAt);
+  /// Get WeChat user information
+  Future<Map<String, dynamic>?> getWeChatUserInfo() async {
+    try {
+      return await _wechatLogin.getCurrentUserInfo();
+    } catch (e, s) {
+      logger.e('Error getting WeChat user info', error: e, stackTrace: s);
+      return null;
+    }
+  }
+
+  /// Refresh WeChat token if needed
+  Future<bool> refreshWeChatToken() async {
+    try {
+      return await _wechatLogin.refreshTokenIfNeeded();
+    } catch (e, s) {
+      logger.e('Error refreshing WeChat token', error: e, stackTrace: s);
+      return false;
+    }
   }
 
   Future<bool> refreshSession() async {

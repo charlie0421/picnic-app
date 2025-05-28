@@ -1,0 +1,104 @@
+# Task ID: 31
+# Title: Add Debug Mode Region Simulation Feature
+# Status: done
+# Dependencies: 29, 26
+# Priority: medium
+# Description: Implement a debug-only feature that allows developers to simulate different regions (specifically China and US) for testing region-specific functionality without changing device location.
+# Details:
+This task involves implementing a region simulation feature for debug purposes:
+
+1. Create a RegionSimulationManager class:
+   - Implement methods to set, get, and clear simulated region
+   - Use SharedPreferences to persist the simulation settings
+   - Add region constants (CN, US, etc.)
+   - Ensure the feature is only accessible in debug builds
+
+2. Modify the login screen to include debug controls:
+   - Add a hidden debug panel that appears only in debug builds
+   - Implement toggle buttons for "Simulate CN", "Simulate US", and "Clear Simulation"
+   - Design the UI to be unobtrusive but accessible for developers
+   - Add visual indicators showing the current simulated region
+
+3. Integrate with region detection logic:
+   - Modify the existing region detection service to check for simulated region first
+   - Override actual device region with simulated region when active
+   - Ensure the simulation takes precedence over any other region detection methods
+
+4. Update the application to respond to region changes:
+   - Implement listeners for region simulation changes
+   - Refresh UI components when region simulation is toggled
+   - Ensure login options update correctly based on simulated region
+
+5. Add logging for debugging:
+   - Log when region simulation is enabled/disabled
+   - Include simulated region information in relevant API calls for debugging
+
+6. Update documentation:
+   - Add a section in the developer documentation about the region simulation feature
+   - Include instructions on how to use the feature for testing
+
+Code example for RegionSimulationManager:
+```kotlin
+class RegionSimulationManager(private val context: Context) {
+    companion object {
+        const val PREF_KEY_SIMULATED_REGION = "simulated_region"
+        const val REGION_NONE = ""
+        const val REGION_CN = "CN"
+        const val REGION_US = "US"
+    }
+
+    private val prefs = context.getSharedPreferences("debug_settings", Context.MODE_PRIVATE)
+
+    fun setSimulatedRegion(region: String) {
+        if (!BuildConfig.DEBUG) return
+        prefs.edit().putString(PREF_KEY_SIMULATED_REGION, region).apply()
+    }
+
+    fun getSimulatedRegion(): String {
+        if (!BuildConfig.DEBUG) return REGION_NONE
+        return prefs.getString(PREF_KEY_SIMULATED_REGION, REGION_NONE) ?: REGION_NONE
+    }
+
+    fun clearSimulatedRegion() {
+        if (!BuildConfig.DEBUG) return
+        prefs.edit().remove(PREF_KEY_SIMULATED_REGION).apply()
+    }
+
+    fun isRegionSimulationActive(): Boolean {
+        return BuildConfig.DEBUG && getSimulatedRegion().isNotEmpty()
+    }
+}
+```
+
+# Test Strategy:
+1. Unit Testing:
+   - Create unit tests for RegionSimulationManager
+   - Verify that simulation settings are correctly saved to and retrieved from SharedPreferences
+   - Confirm that simulation only works in debug builds
+   - Test all region options (CN, US, Clear)
+
+2. Integration Testing:
+   - Verify that the region simulation correctly overrides the actual device region
+   - Test that the login UI updates appropriately when different regions are simulated
+   - Confirm that WeChat login appears when CN region is simulated
+   - Verify that all login options appear when US region is simulated
+   - Test that clearing the simulation restores the actual device region
+
+3. UI Testing:
+   - Verify that debug controls only appear in debug builds
+   - Test the visibility and functionality of all simulation buttons
+   - Confirm that visual indicators correctly show the current simulated region
+   - Test the persistence of simulation settings across app restarts
+
+4. Manual Testing Checklist:
+   - Launch app in debug mode
+   - Access the debug controls on the login screen
+   - Set simulation to CN and verify WeChat login appears
+   - Set simulation to US and verify all login options appear
+   - Clear simulation and verify correct region detection
+   - Restart app and confirm simulation settings persist
+   - Verify that simulation has no effect in release builds
+
+5. Documentation Verification:
+   - Review updated documentation for clarity and completeness
+   - Confirm that usage instructions are accurate and easy to follow

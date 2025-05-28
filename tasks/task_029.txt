@@ -1,0 +1,73 @@
+# Task ID: 29
+# Title: Implement Region-Based Login Options Control
+# Status: done
+# Dependencies: 28
+# Priority: high
+# Description: Implement a system that displays different login options based on user region, showing only Apple and WeChat login for Chinese users while displaying all login options for users in other regions.
+# Details:
+This task involves implementing region-based login option control with the following steps:
+
+1. Create a region detection service:
+   - Implement IP-based geolocation using a reliable third-party service (e.g., ipinfo.io, MaxMind GeoIP)
+   - Add fallback mechanisms such as browser locale or device settings when IP detection fails
+   - Create a caching mechanism to avoid repeated API calls for the same user
+   - Implement proper error handling for network failures or ambiguous results
+
+2. Define region-specific login configurations:
+   - Create a configuration map that defines available login options by region
+   - For China: limit to Apple and WeChat login options only
+   - For other regions: show all available login options (Google, Apple, Kakao, WeChat)
+   - Make the configuration easily updatable for future region-specific requirements
+
+3. Modify the login screen logic:
+   - Integrate the region detection service into the login screen initialization
+   - Filter the displayed login buttons based on the detected region
+   - Ensure the UI adapts gracefully to different numbers of login options
+   - Maintain the last login method preference within the constraints of available options
+
+4. Implement proper loading states:
+   - Show a loading indicator while region detection is in progress
+   - Have a reasonable timeout for region detection to prevent blocking the UI
+   - Provide a fallback to show all login options if region detection fails
+
+5. Privacy considerations:
+   - Add appropriate privacy notices regarding geolocation
+   - Ensure compliance with relevant data protection regulations
+   - Only store the minimum necessary information about user location
+
+6. Performance optimization:
+   - Minimize the impact on login screen load time
+   - Consider pre-fetching region information during app initialization
+   - Implement background refresh of region data for returning users
+
+# Test Strategy:
+1. Unit testing:
+   - Test the region detection service with mock IP addresses from different countries
+   - Verify correct mapping of regions to login options
+   - Test fallback mechanisms when primary detection fails
+   - Validate caching behavior and expiration
+
+2. Integration testing:
+   - Verify the login screen correctly displays region-appropriate login options
+   - Test the integration between region detection and login UI components
+   - Ensure proper handling of edge cases (timeout, network failure, etc.)
+
+3. Manual testing with VPN:
+   - Use VPN connections to simulate access from different countries
+   - Verify that Chinese IP addresses only show Apple and WeChat login options
+   - Confirm other regions display all login options
+   - Test transitions between regions (e.g., when a user changes location)
+
+4. Performance testing:
+   - Measure the impact on login screen load time
+   - Verify that region detection doesn't significantly delay the user experience
+   - Test on various network conditions (fast, slow, intermittent)
+
+5. Compliance verification:
+   - Review implementation against privacy regulations
+   - Ensure appropriate user notifications about location detection
+   - Verify data minimization principles are followed
+
+6. Regression testing:
+   - Verify that the last login method preference still works correctly
+   - Ensure all login methods function properly in their respective regions
