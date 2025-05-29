@@ -37,3 +37,8 @@ node_modules/
 *.sw?
 # OS specific
 .DS_Store
+
+# Added by Claude Task Master
+# Task files
+tasks.json
+tasks/ 

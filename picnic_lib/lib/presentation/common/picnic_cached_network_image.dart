@@ -47,7 +47,6 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
 
 class _PicnicCachedNetworkImageState
     extends ConsumerState<PicnicCachedNetworkImage> {
-  late String _processedImageUrl;
   bool _hasError = false;
   int _retryCount = 0;
   static const int _maxRetries = 3;
@@ -59,6 +58,9 @@ class _PicnicCachedNetworkImageState
   DateTime? _lastLoadAttempt;
   late final DateTime _loadStartTime = DateTime.now();
   bool _isImageUrlProcessed = false; // 중복 처리 방지를 위한 플래그
+
+  // 처리된 이미지 URL 저장용 변수 추가
+  String _processedImageUrl = '';
 
   // 전역 이미지 캐시 맵 (URL -> 로드 시간)
   static final Map<String, DateTime> _loadedImages = {};
