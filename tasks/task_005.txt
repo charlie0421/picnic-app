@@ -11,39 +11,39 @@ Use the 'dio' package (version 5.1.2) with its built-in caching interceptor. Imp
 Create unit tests for caching logic. Implement integration tests simulating various network conditions. Use mock HTTP clients to test caching behavior without actual network requests.
 
 # Subtasks:
-## 1. Create HTTP Cache Service [pending]
+## 1. Set Up Caching Interceptor [pending]
 ### Dependencies: None
-### Description: Implement a service to handle storage and retrieval of cached responses
+### Description: Implement a caching interceptor that intercepts network requests and responses to manage cache storage and retrieval for API calls.
 ### Details:
-Create a service with methods for get, put, invalidateUrl, and invalidateCache. Implement storage using a key-value pair structure where keys are URLs and values are the corresponding responses. Include proper typing for cached items and consider memory management.
+Integrate the caching interceptor with existing network layers (e.g., Dio or http). Ensure it works seamlessly with Supabase and Firebase APIs. Configure it to check cache before making network requests and to store responses after successful fetches.
 
-## 2. Implement Cache Interceptor [pending]
+## 2. Implement Custom Cache Logic [pending]
 ### Dependencies: 5.1
-### Description: Create an HTTP interceptor that handles caching logic for API requests
+### Description: Develop custom cache logic to handle different data types, cache expiration, and storage strategies (in-memory, local storage, etc.).
 ### Details:
-Develop an interceptor that checks if a request exists in cache before making network calls. Configure the interceptor in the app module using HTTP_INTERCEPTORS token with multi: true option. Implement request handling logic to determine which requests should be cached.
+Design cache key strategies, set up cache duration policies, and handle serialization/deserialization for complex objects. Use repository pattern for maintainability and testability.
 
-## 3. Add Time-Based Cache Expiration [pending]
-### Dependencies: 5.1, 5.2
-### Description: Implement TTL (Time To Live) mechanism for cached items
-### Details:
-Enhance the cache service to store timestamps with cached responses. Implement logic to check if cached items have expired based on configurable TTL values. Create different TTL strategies for different types of data. Include a mechanism to automatically invalidate expired cache entries.
-
-## 4. Implement Offline Detection and Handling [pending]
+## 3. Integrate Offline Detection and Handling [pending]
 ### Dependencies: 5.2
-### Description: Add functionality to detect network status and serve cached content when offline
+### Description: Detect offline status and adjust data fetching logic to serve cached data or queue requests for later synchronization.
 ### Details:
-Create a service to monitor network connectivity status. Modify the interceptor to check network status before making requests. Implement fallback logic to serve cached content when offline, with appropriate user notifications. Add queue mechanism for requests made while offline to be processed when connection is restored.
+Leverage connectivity packages to monitor network status. Ensure the app gracefully falls back to cached data when offline and syncs pending changes when connectivity is restored.
 
-## 5. Create Cache Invalidation Strategies [pending]
-### Dependencies: 5.1, 5.3
-### Description: Implement mechanisms to invalidate cache based on different triggers
+## 4. Implement Cache Invalidation Strategies [pending]
+### Dependencies: 5.2
+### Description: Set up mechanisms to invalidate or refresh cached data based on time, user actions, or remote triggers.
 ### Details:
-Develop methods to invalidate specific URLs, URL patterns, or the entire cache. Implement write-through caching for POST/PUT/DELETE operations to keep cache consistent with server state. Add event-based invalidation triggered by user actions or server notifications. Create a cache header parser to respect server-side cache control directives.
+Implement time-based (TTL), manual, and event-driven invalidation. Ensure cache is cleared or updated when relevant data changes in Supabase or Firebase.
 
-## 6. Write Tests and Documentation [pending]
+## 5. Write Unit and Integration Tests for Caching System [pending]
+### Dependencies: 5.1, 5.2, 5.3, 5.4
+### Description: Develop comprehensive tests to verify caching logic, interceptor behavior, offline handling, and cache invalidation.
+### Details:
+Write unit tests for cache logic and interceptor, and integration tests simulating network failures, cache hits/misses, and invalidation scenarios. Use dependency injection for easier testing.
+
+## 6. Document Caching System and Usage [pending]
 ### Dependencies: 5.1, 5.2, 5.3, 5.4, 5.5
-### Description: Create comprehensive tests and documentation for the caching system
+### Description: Create detailed documentation covering caching architecture, usage guidelines, and extension points for future development.
 ### Details:
-Write unit tests for cache service and interceptor. Create integration tests to verify caching behavior with actual HTTP requests. Document cache configuration options, invalidation strategies, and offline behavior. Include performance considerations and memory management best practices in the documentation.
+Document setup steps, configuration options, cache invalidation policies, offline support, and testing instructions. Include code examples and troubleshooting tips.
 

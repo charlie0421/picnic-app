@@ -11,27 +11,27 @@ Use 'faker' package (version 2.1.0) for generating realistic test data. Implemen
 Create unit tests for data generation logic. Implement integration tests using generated data. Conduct regular audits of test data for realism and edge cases.
 
 # Subtasks:
-## 1. Design Test Data Generation Strategy [pending]
+## 1. Design and Implement Test Data Generation Logic [pending]
 ### Dependencies: None
-### Description: Define approaches for generating accurate, valid, and exception-based test data using multiple techniques
+### Description: Define the structure and requirements for test data, create reusable data generation utilities, and ensure compatibility with Supabase and Firebase schemas. Implement logic to generate diverse and realistic test data for all relevant models.
 ### Details:
-Evaluate and select appropriate test data generation methods including production cloning with masking, synthetic data generation, and manual creation. Document requirements for data accuracy, validity, and exception scenarios. Consider business logic constraints, database schemas, and data relationships to ensure realistic test data.
+Include support for edge cases and invalid data scenarios. Ensure generated data can be used for both unit and integration tests. Leverage Dart packages or custom logic as needed.
 
-## 2. Implement Data Factory Components [pending]
+## 2. Develop Seeding System for Test Environments [pending]
 ### Dependencies: 23.1
-### Description: Develop core components for automated test data generation with appropriate tooling
+### Description: Create a system to seed Supabase and Firebase with generated test data before test execution. Ensure the seeding process is idempotent and can be reset between test runs.
 ### Details:
-Create a modular data factory system with components for generating different data types. Implement API-driven and/or SQL-driven approaches based on system requirements. Build mechanisms for data masking to protect sensitive information. Include randomization libraries and parameterization options for diverse test scenarios.
+Automate the seeding process as part of test setup. Provide scripts or commands to seed and clear data. Ensure compatibility with local and CI environments.
 
-## 3. Develop Database Seeding System [pending]
-### Dependencies: 23.2
-### Description: Create mechanisms to efficiently populate test databases with generated data
+## 3. Set Up Data Factory Utilities [pending]
+### Dependencies: 23.1
+### Description: Implement data factory classes or functions to streamline the creation of test data objects within tests. Integrate with Riverpod for state overrides and support delayed loading scenarios.
 ### Details:
-Build database seeding scripts that can populate test environments with the generated data. Implement data slicing techniques to use only necessary portions of production data. Create automation for both setup and teardown processes to ensure clean test environments. Include performance optimization for handling large volumes of test data.
+Factories should allow customization of fields and support both synchronous and asynchronous data creation. Ensure easy integration with widget and integration tests.
 
-## 4. Integrate with Test Framework [pending]
+## 4. Integrate Test Data and Seeding into Test Suites [pending]
 ### Dependencies: 23.2, 23.3
-### Description: Connect data generation system with existing test automation framework
+### Description: Update unit, widget, and integration tests to utilize the data factories and seeding system. Ensure tests are isolated, reproducible, and compatible with Riverpod state management and delayed loading logic.
 ### Details:
-Develop integration points between the data factory and test automation framework. Create APIs or utilities that tests can call to request specific data scenarios. Implement logging and monitoring to track data usage across tests. Add validation mechanisms to verify data integrity before and after test execution.
+Refactor existing tests to use new utilities. Add setup and teardown hooks for data seeding and cleanup. Validate that tests run reliably in local and CI environments.
 

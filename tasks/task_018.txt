@@ -11,39 +11,39 @@ Use 'supabase_flutter' package (version 1.10.3) for direct Supabase integration.
 Create unit tests for each Supabase operation. Implement integration tests simulating various network conditions. Use mock Supabase client for testing offline scenarios.
 
 # Subtasks:
-## 1. Direct SDK Integration [done]
+## 1. Direct SDK Integration [pending]
 ### Dependencies: None
-### Description: Integrate the Supabase SDK directly into the application, replacing any existing indirect or intermediary data access layers.
+### Description: Refactor data access layers to use Supabase and Firebase SDKs directly, replacing any existing abstraction or indirect access patterns.
 ### Details:
-Set up the Supabase client, configure authentication, and ensure connectivity to the Supabase backend using the official SDK.
+Update repository and service classes to interact with Supabase and Firebase SDKs directly. Ensure all CRUD operations and authentication flows are migrated. Remove deprecated or redundant code.
 
 ## 2. Repository Pattern Implementation [pending]
 ### Dependencies: 18.1
-### Description: Refactor data access logic to use the repository pattern, abstracting Supabase operations behind repository interfaces.
+### Description: Implement the repository pattern to abstract data sources and provide a unified interface for data access throughout the app.
 ### Details:
-Create repository classes or modules that encapsulate all Supabase CRUD operations, promoting separation of concerns and easier testing.
+Design repository interfaces and concrete implementations for Supabase and Firebase. Integrate with Riverpod for dependency injection and state management. Ensure repositories handle both online and offline data sources.
 
 ## 3. Offline Support Setup [pending]
 ### Dependencies: 18.2
-### Description: Implement offline support to allow the application to function when the network is unavailable, syncing data with Supabase when connectivity is restored.
+### Description: Enable offline data access and synchronization, ensuring the app functions smoothly without network connectivity.
 ### Details:
-Integrate local storage or caching mechanisms, queue offline operations, and handle synchronization with Supabase upon reconnection.
+Integrate local storage solutions (e.g., Hive, SQLite) for caching. Implement data synchronization logic to reconcile local and remote changes. Handle conflict resolution and background sync.
 
-## 4. Error Handling [pending]
-### Dependencies: 18.2
-### Description: Establish robust error handling strategies for all Supabase interactions, including network failures, authentication issues, and data validation errors.
+## 4. Error Handling Implementation [pending]
+### Dependencies: 18.2, 18.3
+### Description: Establish robust error handling mechanisms across all data access and state management layers.
 ### Details:
-Implement global and local error handlers, provide user feedback, and log errors for monitoring and debugging.
+Define custom error classes and error boundaries. Implement error reporting, user-friendly error messages, and retry logic for failed operations. Integrate with Riverpod to propagate errors to the UI.
 
 ## 5. Testing [pending]
-### Dependencies: 18.2, 18.3, 18.4
-### Description: Develop comprehensive tests for the new data access layer, including unit, integration, and offline scenario tests.
+### Dependencies: 18.1, 18.2, 18.3, 18.4
+### Description: Develop comprehensive unit, integration, and widget tests for all new and refactored components.
 ### Details:
-Write tests to verify repository logic, offline support, and error handling, ensuring reliability and correctness after refactoring.
+Write tests for repository logic, offline sync, error handling, and UI flows. Use mocking for SDKs and local storage. Ensure high code coverage and reliability.
 
 ## 6. Documentation [pending]
 ### Dependencies: 18.1, 18.2, 18.3, 18.4, 18.5
-### Description: Document the new architecture, repository interfaces, offline support mechanisms, error handling strategies, and testing procedures.
+### Description: Document the architecture, repository interfaces, offline support, error handling strategies, and testing approach.
 ### Details:
-Update or create developer documentation to facilitate onboarding and maintenance, including code examples and usage guidelines.
+Update README, add code comments, and provide usage examples. Create diagrams for data flow and architecture. Ensure onboarding guides are clear for future developers.
 

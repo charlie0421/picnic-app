@@ -17,11 +17,11 @@
 			<string>uwwtw-alternate.test.app.link</string>
 		</array>
 		<key>FlutterDeepLinkingEnabled</key>
-		<true />
+		<true/>
 		<key>LSApplicationCategoryType</key>
 		<string></string>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true />
+		<true/>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
@@ -70,13 +70,13 @@
 			</dict>
 		</array>
 		<key>FlutterDeepLinkingEnabled</key>
-		<false />
+		<false/>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>GADApplicationIdentifier</key>
 		<string>ca-app-pub-1539304887624918~2126022075</string>
 		<key>ITSAppUsesNonExemptEncryption</key>
-		<false />
+		<false/>
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
 			<string>instagram</string>
@@ -98,13 +98,13 @@
 			<string>weixinULAPI</string>
 		</array>
 		<key>LSRequiresIPhoneOS</key>
-		<true />
+		<true/>
 		<key>NSAllowsLocalNetworking</key>
-		<true />
+		<true/>
 		<key>NSAppTransportSecurity</key>
 		<dict>
 			<key>NSAllowsArbitraryLoads</key>
-			<true />
+			<true/>
 		</dict>
 		<key>NSAppleIDUsageDescription</key>
 		<string>We use your Apple ID to sign you in to the app.</string>
@@ -596,13 +596,13 @@
 			</dict>
 		</array>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
-		<true />
+		<true/>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>
 		<string>Main</string>
 		<key>UIStatusBarHidden</key>
-		<false />
+		<true/>
 		<key>UISupportedInterfaceOrientations</key>
 		<array>
 			<string>UIInterfaceOrientationPortrait</string>
@@ -615,6 +615,8 @@
 			<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		</array>
 		<key>io.flutter.embedded_views_preview</key>
-		<true />
+		<true/>
+		<key>UIViewControllerBasedStatusBarAppearance</key>
+		<false/>
 	</dict>
 </plist>

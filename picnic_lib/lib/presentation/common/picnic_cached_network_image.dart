@@ -14,7 +14,6 @@ import 'package:picnic_lib/core/utils/memory_profiling_hook.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
 class PicnicCachedNetworkImage extends ConsumerStatefulWidget {

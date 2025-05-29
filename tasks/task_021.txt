@@ -11,33 +11,33 @@ Use Firebase Test Lab for testing on multiple device configurations. Implement r
 Create a matrix of test devices covering various screen sizes and OS versions. Implement screenshot tests for key screens across different devices. Conduct manual testing on physical devices for final verification.
 
 # Subtasks:
-## 1. Define Test Matrix [pending]
+## 1. Test Matrix Definition [pending]
 ### Dependencies: None
-### Description: Create a comprehensive test matrix identifying all device types, screen sizes, browsers, and orientations to be tested
+### Description: Define comprehensive test matrices for Android and iOS platforms
 ### Details:
-Include popular desktop, tablet, and mobile devices with various screen resolutions. Document browser versions to test (Chrome, Firefox, Safari, Edge). Include both portrait and landscape orientations for mobile devices. Prioritize devices based on user analytics if available.
+Create test configurations specifying device models, OS versions, screen sizes, and orientations to ensure broad coverage. Include popular devices like Samsung Galaxy series, Google Pixel, iPhone models, and iPads. Define minimum 5 Android and 5 iOS configurations.
 
-## 2. Implement Responsive Design Checks [pending]
+## 2. Responsive Design Verification [pending]
 ### Dependencies: 21.1
-### Description: Develop automated tests to verify responsive design elements across different viewport sizes
+### Description: Implement tests to verify UI responsiveness across different screen sizes
 ### Details:
-Create scripts to validate element visibility, content adaptation, layout consistency, and media responsiveness. Test navigation menus, forms, images, and interactive elements at each breakpoint. Verify font scaling and spacing between elements maintains readability.
+Create widget tests that validate layout adaptability using MediaQuery to simulate different screen dimensions. Test critical UI components with Supabase and Firebase integration points. Verify that UI elements properly resize and reposition across breakpoints.
 
-## 3. Configure Device Simulation Environment [pending]
+## 3. Device Simulation Environment Setup [pending]
 ### Dependencies: 21.1
-### Description: Set up device emulation and simulation tools for automated responsive testing
+### Description: Configure testing environment with Firebase Test Lab integration
 ### Details:
-Install and configure tools like Chrome DevTools, BrowserStack, or LambdaTest for device simulation. Set up mobile automation frameworks (Appium, XCTest, Espresso) for native testing. Configure viewport dimensions to match devices in the test matrix.
+Set up CI/CD pipeline with GitHub Actions for automated testing on Firebase Test Lab. Configure test runners for both Android and iOS platforms. Implement test reporting and notification system for failed tests. Ensure proper authentication for Firebase services.
 
-## 4. Implement Visual Regression Testing [pending]
+## 4. Screenshot Testing Implementation [pending]
 ### Dependencies: 21.2, 21.3
-### Description: Set up automated screenshot comparison across different devices and screen sizes
+### Description: Develop automated screenshot comparison tests for UI verification
 ### Details:
-Integrate visual regression tools like Applitools Eyes or Percy. Create baseline screenshots for each device/viewport combination. Implement automated comparison to detect visual differences between builds. Configure threshold settings for acceptable differences.
+Implement golden tests for key screens with Riverpod state variations. Create baseline screenshots for different device configurations. Set up comparison logic with acceptable threshold for differences. Include tests for loading states with the implemented lazy loading system.
 
-## 5. Perform Manual Verification and Edge Cases [pending]
+## 5. Manual Verification Checklist [pending]
 ### Dependencies: 21.4
-### Description: Conduct manual testing to verify automated results and test edge cases
+### Description: Create structured manual testing procedures for final verification
 ### Details:
-Manually verify critical user journeys on actual devices. Test orientation changes in real-time. Verify touch interactions and gestures on mobile devices. Check performance aspects like load times and animations. Document any inconsistencies found during manual testing.
+Develop step-by-step test scripts for critical user journeys. Include verification points for Supabase data persistence, Firebase authentication flows, and Riverpod state management edge cases. Create performance benchmarks for lazy loading system across different network conditions.
 

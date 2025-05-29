@@ -11,45 +11,45 @@ Use 'riverpod' package (version 2.3.6) for state management. Implement consisten
 Create unit tests for each state management class. Implement widget tests to verify correct state propagation. Use Flutter DevTools to monitor widget rebuilds and optimize performance.
 
 # Subtasks:
-## 1. Conduct State Management Audit [pending]
+## 1. Audit Current State Management Implementation [pending]
 ### Dependencies: None
-### Description: Review the current state management approaches used across the app, identify inconsistencies, and document areas needing standardization.
+### Description: Review the existing state management approaches (Riverpod, Supabase, Firebase, delayed loading system) across the entire Flutter app. Identify all stateful features, their dependencies, and any inconsistencies or anti-patterns.
 ### Details:
-Analyze usage of setState, Provider, BLoC, and any custom solutions. Note where state is lifted unnecessarily or where state management is inefficient.
+Document all providers, state notifiers, and their usage. Note any direct widget state management or legacy patterns that need migration.
 
-## 2. Plan and Integrate Riverpod [done]
+## 2. Plan and Integrate Riverpod for Unified State Management [pending]
 ### Dependencies: 17.1
-### Description: Develop a migration plan for integrating Riverpod as the primary state management solution, ensuring compatibility with existing architecture.
+### Description: Design a standardized Riverpod-based state management architecture. Integrate Riverpod throughout the app, ensuring ProviderScope is correctly set up at the root and all providers are statically defined.
 ### Details:
-Map out which features and modules will transition to Riverpod, and outline steps for incremental integration.
+Refactor existing state logic to use Riverpod providers, StateNotifiers, and dependency injection best practices. Avoid dynamic provider creation and side effects in provider initialization.
 
-## 3. Optimize Widget Lifecycle Management [pending]
+## 3. Optimize Widget Lifecycle and State Disposal [pending]
 ### Dependencies: 17.2
-### Description: Review and refactor widget build methods to minimize unnecessary rebuilds and optimize widget lifecycle handling.
+### Description: Analyze widget lifecycle usage and ensure proper state disposal to prevent memory leaks. Refactor widgets to use ConsumerWidget or ConsumerStatefulWidget as appropriate, and verify providers are disposed of correctly.
 ### Details:
-Implement best practices such as using const constructors, keys, and KeepAlive where appropriate. Convert StatefulWidgets to StatelessWidgets when possible.
+Implement best practices for provider and widget lifecycle management, such as using autoDispose providers where needed and avoiding ephemeral state in providers.
 
-## 4. Implement State Disposal and Cleanup [pending]
-### Dependencies: 17.3
-### Description: Ensure proper disposal of state and resources to prevent memory leaks and performance degradation.
+## 4. Migrate Existing Features to New State Management [pending]
+### Dependencies: 17.2, 17.3
+### Description: Systematically migrate all app features to the new Riverpod-based state management system. Replace legacy state logic and ensure all dependencies (Supabase, Firebase) are integrated via providers.
 ### Details:
-Audit and update providers, controllers, and listeners to dispose resources correctly, especially during widget unmounting.
+Update feature modules, screens, and services to use the new providers. Ensure API clients and async operations are managed through Riverpod.
 
-## 5. Migrate Existing Features to Riverpod [pending]
+## 5. Implement and Update Testing for State Management [pending]
 ### Dependencies: 17.4
-### Description: Refactor existing features to use Riverpod for state management, replacing legacy patterns and ensuring feature parity.
+### Description: Develop and update unit, widget, and integration tests to cover the new state management logic. Ensure all providers and state transitions are thoroughly tested.
 ### Details:
-Systematically update modules, test for regressions, and document migration steps for future reference.
+Write tests for StateNotifiers, providers, and widget interactions. Mock dependencies as needed and verify correct state disposal and lifecycle behavior.
 
-## 6. Develop and Execute Testing Strategy [pending]
+## 6. Monitor and Optimize Performance [pending]
 ### Dependencies: 17.5
-### Description: Create and run unit, widget, and integration tests to validate state management logic and ensure app stability post-migration.
+### Description: Set up performance monitoring tools and analyze the impact of the new state management system. Identify and resolve any performance bottlenecks related to provider rebuilds, widget lifecycle, or async operations.
 ### Details:
-Focus on testing state transitions, provider logic, and UI updates. Ensure coverage for edge cases and error handling.
+Use Flutter DevTools and Riverpod debugging tools to track provider rebuilds and memory usage. Optimize provider granularity and widget rebuilds as needed.
 
-## 7. Implement Performance Monitoring and Tuning [pending]
+## 7. Document Architecture and Best Practices [pending]
 ### Dependencies: None
-### Description: Set up performance monitoring tools and optimize app performance based on collected metrics.
+### Description: Create comprehensive documentation for the new state management architecture, migration steps, and best practices for future development.
 ### Details:
-Monitor widget rebuilds, memory usage, and app responsiveness. Address bottlenecks and fine-tune state management for optimal performance.
+Include guidelines for provider creation, widget lifecycle management, state disposal, and integration with Supabase/Firebase. Share documentation with the development team.
 

@@ -11,45 +11,45 @@ Use 'supabase_flutter' package (version 1.10.3) for Supabase integration. Implem
 Create unit tests for real-time data handling logic. Implement integration tests simulating real-time events. Conduct load testing to ensure real-time performance under high concurrency.
 
 # Subtasks:
-## 1. Supabase Project Setup and Configuration [done]
+## 1. Supabase Project Setup [pending]
 ### Dependencies: None
-### Description: Initialize and configure Supabase project with necessary database tables and security policies
+### Description: Create and configure a Supabase project for the Flutter application
 ### Details:
-Create a new Supabase project, set up database schema, configure Row Level Security (RLS) policies to control access to real-time data, and generate API keys for client authentication
+Create a new Supabase project at database.new, set up database tables with appropriate schemas, configure Row Level Security (RLS) policies for data access control, and generate API keys for application integration
 
-## 2. Client-Side Supabase Integration [done]
+## 2. Flutter Integration with Supabase [pending]
 ### Dependencies: 12.1
-### Description: Integrate Supabase client library into the application and establish connection
+### Description: Integrate Supabase client library into the Flutter application
 ### Details:
-Install Supabase client libraries, initialize the client with project URL and API key, implement connection handling including reconnection logic and error handling
+Add supabase_flutter dependency to pubspec.yaml, initialize Supabase client with project URL and anonymous key in main.dart, implement authentication flows, and create service classes for database operations
 
-## 3. Real-time Channel Subscription Implementation [pending]
+## 3. Real-time Subscription Implementation [pending]
 ### Dependencies: 12.2
-### Description: Implement subscription to Supabase Realtime channels for specific data changes
+### Description: Implement real-time data subscriptions using Supabase
 ### Details:
-Create channel subscriptions using appropriate topics, implement handlers for broadcast messages, presence updates, and Postgres changes (INSERT, UPDATE, DELETE events), add filtering logic to process only relevant updates
+Set up channel subscriptions to relevant tables, implement listeners for real-time updates, create subscription management system with Riverpod providers, and handle subscription lifecycle (connect, disconnect, reconnect)
 
-## 4. Stream Management and Data Synchronization [pending]
+## 4. Stream Management and State Integration [pending]
 ### Dependencies: 12.3
-### Description: Develop system to manage real-time data streams and synchronize with local state
+### Description: Integrate real-time streams with Riverpod state management
 ### Details:
-Implement data structures to track real-time updates, create mechanisms to merge incoming changes with existing data, handle conflict resolution for concurrent updates, and manage subscription lifecycle
+Create StreamProviders for real-time data, implement state transformation logic, handle error cases and connection issues, and ensure proper stream disposal to prevent memory leaks
 
-## 5. Optimistic UI Updates Implementation [pending]
+## 5. Optimistic UI Updates [pending]
 ### Dependencies: 12.4
-### Description: Implement optimistic UI updates to provide immediate feedback before server confirmation
+### Description: Implement optimistic UI updates for real-time operations
 ### Details:
-Create optimistic update patterns for user actions, implement rollback mechanisms for failed operations, ensure consistency between optimistic updates and server-confirmed data, and handle edge cases like network disconnections
+Create state mutation handlers that update UI before server confirmation, implement rollback mechanisms for failed operations, synchronize local and remote state, and handle conflict resolution for concurrent updates
 
-## 6. Testing and Load Testing [pending]
+## 6. Testing Real-time Features [pending]
 ### Dependencies: 12.5
-### Description: Develop comprehensive test suite and perform load testing for real-time functionality
+### Description: Create comprehensive tests for real-time functionality
 ### Details:
-Write unit tests for real-time event handling, create integration tests for end-to-end real-time flows, simulate high-load scenarios with multiple concurrent users, and measure performance metrics like latency and throughput
+Write unit tests for subscription logic, create widget tests for real-time UI updates, implement integration tests for end-to-end real-time flows, and set up mocking for Supabase services to enable isolated testing
 
-## 7. Documentation and Deployment [pending]
+## 7. Performance Optimization and Documentation [pending]
 ### Dependencies: 12.6
-### Description: Create documentation for the real-time implementation and deploy the solution
+### Description: Optimize real-time performance and document implementation
 ### Details:
-Document the real-time architecture, create usage examples and API references, implement monitoring for real-time connections and events, and deploy with appropriate scaling configurations for production use
+Conduct load testing with multiple simultaneous connections, implement connection pooling and throttling mechanisms, optimize subscription payload size, and create comprehensive documentation for the real-time system architecture and usage patterns
 

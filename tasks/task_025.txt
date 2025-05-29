@@ -11,39 +11,39 @@ Implement RLS policies for each table in Supabase. Use Supabase's policy functio
 Create unit tests for each RLS policy. Implement integration tests simulating various user roles and access scenarios. Conduct security audits to verify proper implementation of access controls.
 
 # Subtasks:
-## 1. Define RLS Policy Requirements [pending]
+## 1. Define RLS Policies in Supabase [pending]
 ### Dependencies: None
-### Description: Analyze data access patterns and define row-level security policy requirements
+### Description: Analyze app data access requirements and write Row Level Security (RLS) policies for each relevant table in Supabase. Ensure policies are tailored to user roles and data sensitivity.
 ### Details:
-Identify sensitive data that requires row-level protection, determine which user roles should have access to which data rows, and document the business rules that will govern access control. Create a mapping between user attributes (roles, departments, etc.) and the corresponding data access permissions.
+Use the Supabase dashboard or SQL editor to enable RLS on necessary tables and create policies that restrict access based on user identity, roles, or other criteria. Document each policy for future reference.
 
-## 2. Implement Database RLS Mechanisms [pending]
+## 2. Implement RLS Policies in Database [pending]
 ### Dependencies: 25.1
-### Description: Configure row-level security at the database level
+### Description: Apply the defined RLS policies to the Supabase database, ensuring correct syntax and logic for each policy.
 ### Details:
-Enable row-level security on target tables, create security predicates as inline table-valued functions, and implement both filter predicates (for read operations) and block predicates (for write operations) as needed. Set up the necessary database objects to support the security policies defined in the requirements.
+Execute SQL statements to enable RLS and add policies for SELECT, INSERT, UPDATE, and DELETE as needed. Test policies directly in the Supabase dashboard to verify correct enforcement.
 
-## 3. Set Up Role-Based Access Control [pending]
-### Dependencies: 25.1
-### Description: Configure user roles and permissions that integrate with RLS policies
+## 3. Set Up Role-Based Access Control (RBAC) [pending]
+### Dependencies: 25.2
+### Description: Configure user roles and permissions in Supabase and Firebase to align with RLS policies and app requirements.
 ### Details:
-Create role definitions that align with the RLS policies, establish user-to-role mappings, configure authentication mechanisms to pass user context to the database, and implement session context management to maintain the current user's security context during database operations.
+Define roles (e.g., admin, user, guest) and assign them to users. Map roles to RLS policies and ensure Firebase authentication integrates with Supabase role checks.
 
-## 4. Update Client Application Queries [pending]
-### Dependencies: 25.2, 25.3
-### Description: Modify application code to work with RLS-protected data
+## 4. Update Flutter Client Queries for RLS [pending]
+### Dependencies: 25.3
+### Description: Modify Flutter app queries to comply with new RLS policies and role-based access. Ensure proper authentication tokens are sent with each request.
 ### Details:
-Update data access layer to properly set execution context before queries, modify existing queries to work with the new security model, implement error handling for block predicate violations, and ensure the application correctly handles filtered result sets that may be empty due to RLS restrictions.
+Update Supabase and Firebase client calls in the Flutter app, using Riverpod for state management. Handle authorization errors gracefully and provide user feedback.
 
 ## 5. Conduct Security Testing [pending]
 ### Dependencies: 25.4
-### Description: Test RLS implementation to verify proper access control
+### Description: Test the app for unauthorized data access, policy bypass attempts, and correct enforcement of RLS and RBAC.
 ### Details:
-Create test cases for different user roles and access scenarios, verify that users can only access authorized rows, test that write operations are properly blocked when they violate security policies, and perform penetration testing to identify potential security vulnerabilities in the RLS implementation.
+Perform manual and automated tests, including attempts to access restricted data, privilege escalation, and edge cases. Use Supabase logs and debugging tools to verify policy effectiveness.
 
-## 6. Implement Auditing and Monitoring [pending]
+## 6. Perform Security Audits and Documentation [pending]
 ### Dependencies: 25.5
-### Description: Set up logging and monitoring for RLS-related activities
+### Description: Audit the implemented security measures, review logs, and document the RLS and RBAC setup for future maintenance.
 ### Details:
-Configure audit logging for all access attempts (both successful and failed), implement monitoring for suspicious access patterns, create reports to review access patterns over time, and establish procedures for regular security reviews of the RLS implementation and its effectiveness.
+Conduct a formal review of RLS policies, role assignments, and client-side enforcement. Document findings, update security documentation, and recommend improvements if needed.
 

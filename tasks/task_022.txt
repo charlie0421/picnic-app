@@ -11,39 +11,39 @@ Use 'integration_test' package for performance benchmarking. Implement custom pe
 Create benchmark tests for key performance metrics (startup time, frame rate, memory usage). Implement automated performance regression detection. Conduct regular manual performance audits using Flutter DevTools.
 
 # Subtasks:
-## 1. Set up performance testing environment [pending]
+## 1. Performance Test Environment Setup [pending]
 ### Dependencies: None
-### Description: Configure hardware and software environment that closely matches production for reliable performance testing
+### Description: Configure the development environment for performance testing with necessary tools and dependencies
 ### Details:
-Provision test cluster with minimum hardware requirements (8+ cores CPU, 32+ GB RAM, SSD/NVMe storage, 10 Gbps network). Ensure the environment is isolated from development libraries that might conflict with workload libraries. Configure settings to reflect production deployment.
+Install required packages (firebase_performance, integration_test), configure Flutter driver, set up profile mode compilation flags, and prepare the test directory structure for performance testing
 
-## 2. Define performance metrics and objectives [pending]
-### Dependencies: None
-### Description: Establish clear performance objectives and identify key metrics to measure
+## 2. Define Performance Metrics and Thresholds [pending]
+### Dependencies: 22.1
+### Description: Identify key performance indicators and establish baseline thresholds for the Flutter app
 ### Details:
-Define specific metrics for load testing, stress testing, endurance testing, availability testing, configuration testing, and isolation testing. Set acceptable thresholds and measurements for each metric. Document performance goals that align with business requirements.
+Define metrics for frame rendering times, startup duration, memory usage with Riverpod state management, network request latency with Supabase/Firebase, and establish acceptable thresholds for each metric based on initial benchmarks
 
-## 3. Implement benchmark tests [pending]
+## 3. Implement Benchmark Tests [pending]
 ### Dependencies: 22.1, 22.2
-### Description: Create automated performance tests that simulate realistic user scenarios
+### Description: Create automated performance tests for critical user flows and components
 ### Details:
-Develop benchmark tests that cover different types of performance testing (load, stress, endurance, etc.). Ensure tests simulate real-world user behavior rather than just server performance. Implement proper logging and segregation of test results for analysis.
+Develop integration tests that measure performance of lazy loading system, Riverpod state updates, Firebase/Supabase data fetching operations, and UI rendering performance using traceAction() for timeline recording
 
-## 4. Establish regression detection mechanism [pending]
-### Dependencies: 22.3
-### Description: Create a system to identify performance degradation between test runs
+## 4. Set Up Regression Detection System [pending]
+### Dependencies: 22.2, 22.3
+### Description: Implement a system to detect performance regressions between app versions
 ### Details:
-Implement comparison logic to detect performance regressions between test runs. Set up alerting for when metrics exceed defined thresholds. Create visualization dashboards to track performance trends over time. Ensure the ability to triage performance issues in the testing environment.
+Create scripts to compare performance metrics across builds, implement alerting when metrics exceed thresholds, and develop visualization tools for performance trends over time
 
-## 5. Integrate performance testing into CI pipeline [pending]
+## 5. CI/CD Integration for Performance Testing [pending]
 ### Dependencies: 22.3, 22.4
-### Description: Automate performance testing as part of the continuous integration process
+### Description: Integrate performance tests into the continuous integration pipeline
 ### Details:
-Configure CI pipeline to run performance tests automatically on code changes. Set up gates that prevent merging code that causes performance regressions. Implement scheduling for more intensive performance tests that may not run on every commit.
+Configure CI workflow to run performance tests in profile mode, store test results as artifacts, block merges when performance degrades significantly, and generate performance reports for each build
 
-## 6. Establish manual performance audit process [pending]
+## 6. Manual Performance Audit Process [pending]
 ### Dependencies: 22.2, 22.5
-### Description: Create procedures for periodic in-depth performance reviews
+### Description: Establish a process for regular manual performance reviews and optimizations
 ### Details:
-Define schedule for manual performance audits. Create templates for performance review reports. Establish process for deeper analysis using APM tools to examine application functionality under load. Document procedures for addressing identified performance issues.
+Create checklist for manual performance reviews, schedule periodic deep-dive sessions using DevTools Timeline view, document optimization techniques for Riverpod state management and Firebase/Supabase interactions, and maintain performance optimization documentation
 

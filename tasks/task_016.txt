@@ -11,21 +11,21 @@ Use Dart's built-in documentation comments (///). Implement consistent documenta
 Use 'dart doc' to generate documentation and check for completeness. Implement a linter rule for enforcing documentation on public APIs. Conduct peer reviews for documentation clarity and completeness.
 
 # Subtasks:
-## 1. Define Documentation Style Guide [pending]
+## 1. Define Documentation Style Guidelines [pending]
 ### Dependencies: None
-### Description: Establish a comprehensive style guide for the codebase documentation, covering terminology, tone, formatting, and visual standards to ensure consistency and clarity.
+### Description: Create comprehensive documentation style guidelines for the Flutter app project using Supabase, Firebase, Riverpod, and lazy loading systems
 ### Details:
-Include standardized terminology, voice and tone guidelines, page formatting rules, word choice preferences, and instructions for visuals. Reference industry-standard guides as needed.
+Establish consistent documentation format including header styles, code block formatting, naming conventions, and documentation structure. Define standards for documenting state management with Riverpod, backend interactions with Supabase/Firebase, and lazy loading implementation. Create templates for different documentation types (API, component, architecture).
 
-## 2. Annotate Codebase According to Style Guide [pending]
+## 2. Implement Codebase Annotation [pending]
 ### Dependencies: 16.1
-### Description: Apply the defined style guide to annotate the codebase, ensuring all comments and documentation blocks adhere to the established standards.
+### Description: Add detailed annotations and comments throughout the codebase following the established style guidelines
 ### Details:
-Review existing code comments and documentation, update them for consistency, and add missing annotations as required by the style guide.
+Annotate all major components including Riverpod providers, state notifiers, and consumer widgets. Document Firebase and Supabase service implementations with usage examples. Add detailed comments for lazy loading system implementation. Create class and method level documentation with parameter descriptions and return value explanations. Include architecture diagrams in markdown format within key files.
 
 ## 3. Generate and Validate Documentation [pending]
-### Dependencies: 16.2
-### Description: Generate documentation from the annotated codebase and validate it against the style guide for completeness, accuracy, and adherence to standards.
+### Dependencies: 16.1, 16.2
+### Description: Generate comprehensive documentation from annotations and validate against style guidelines
 ### Details:
-Use documentation generation tools to produce output, then review and validate the generated documentation to ensure it meets the defined style and quality criteria.
+Use dartdoc to generate API documentation from code annotations. Create architecture documentation explaining the MVVM pattern implementation. Document state management flows with Riverpod. Create backend integration guides for Supabase and Firebase. Validate all documentation against style guidelines and fix inconsistencies. Create a documentation testing process to ensure continued compliance.
 

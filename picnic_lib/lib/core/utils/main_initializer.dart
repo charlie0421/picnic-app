@@ -1,177 +1,127 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/core/services/cache_management_service.dart';
-import 'package:picnic_lib/core/services/image_cache_service.dart';
-import 'package:picnic_lib/core/services/image_memory_profiler.dart';
-import 'package:picnic_lib/core/services/network_connection_manager.dart';
-import 'package:picnic_lib/core/utils/app_initializer.dart';
+import 'package:picnic_lib/core/utils/initialization_manager.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
+import 'package:picnic_lib/core/utils/lazy_loading_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/memory_profiler.dart';
-import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/core/utils/startup_performance_analyzer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 /// main.dart 파일에서 공통으로 사용되는 초기화 로직을 담은 유틸리티 클래스
 ///
-/// 두 앱(picnic_app, ttja_app)의 main.dart 파일에서 중복되는 초기화 로직을
-/// 추출하여 재사용성을 높이고 코드 중복을 줄입니다.
+/// 새로운 InitializationManager를 사용하여 더욱 체계적이고 최적화된
+/// 초기화 과정을 제공합니다.
 class MainInitializer {
-  /// 앱 초기화를 위한 main 함수 래퍼
+  /// 앱 초기화를 위한 main 함수 래퍼 (리팩토링된 버전)
   ///
   /// [environment] 환경 설정 ('prod', 'dev' 등)
   /// [firebaseOptions] Firebase 초기화 옵션
   /// [appBuilder] 초기화 완료 후 앱 위젯을 생성할 함수
   /// [loadGeneratedTranslations] 앱별 생성된 번역 파일 로드 함수
   /// [reflectableInitializer] 리플렉션 초기화 함수
+  /// [enableMemoryProfiler] 메모리 프로파일러 활성화 여부
   static Future<void> initializeApp({
     required String environment,
     required FirebaseOptions firebaseOptions,
     required Widget Function() appBuilder,
-    required Future<void> Function(Locale) loadGeneratedTranslations,
-    required Function() reflectableInitializer,
+    required Future<bool> Function(Locale) loadGeneratedTranslations,
+    required void Function() reflectableInitializer,
     bool enableMemoryProfiler = false,
   }) async {
     await runZonedGuarded(() async {
       try {
-        logger.i('앱 초기화 시작...');
+        logger.i('🚀 리팩토링된 앱 초기화 시작...');
 
-        // Flutter 바인딩 초기화
-        WidgetsFlutterBinding.ensureInitialized();
+        // InitializationManager를 사용한 체계적 초기화
+        final initManager = InitializationManager();
 
-        // ScreenUtil 초기화 - 먼저 처리하여 다른 초기화 과정에서 사용 가능하도록 함
-        await _initializeScreenUtil();
-
-        // 기본 서비스 초기화
-        await AppInitializer.initializeBasics();
-        await AppInitializer.initializeEnvironment(environment);
-        await AppInitializer.initializeSentry();
-
-        // 메모리 프로파일러 초기화 (조건부)
-        if (enableMemoryProfiler || kDebugMode) {
-          logger.i('메모리 프로파일러 초기화 중...');
-          MemoryProfiler.instance.initialize(enabled: true);
-
-          // 이미지 메모리 프로파일러 초기화
-          logger.i('이미지 메모리 프로파일러 초기화 중...');
-          ImageMemoryProfiler().initialize();
-
-          // 캐시 관리 서비스 초기화
-          logger.i('캐시 관리 서비스 초기화 중...');
-          await CacheManagementService().initialize();
-
-          logger.i('메모리 프로파일링 시스템 초기화 완료');
-        }
-
-        // 이미지 캐시 서비스 초기화 - 전체 앱에서 사용
-        logger.i('글로벌 이미지 캐시 서비스 초기화 중...');
-        
-        // 네트워크 연결 관리자 초기화 - 이미지 로딩 성능 최적화
-        logger.i('네트워크 연결 관리자 초기화 중...');
-        await NetworkConnectionManager().initialize();
-        logger.i('네트워크 연결 관리자 초기화 완료');
-        
-        ImageCacheService().initialize();
-        
-        // Flutter 기본 이미지 캐시 최적화
-        _optimizeFlutterImageCache();
-        
-        logger.i('글로벌 이미지 캐시 서비스 초기화 완료');
-
-        // Supabase 초기화
-        await initializeSupabase();
-
-        // 모바일 전용 초기화 로직
-        if (UniversalPlatform.isMobile) {
-          await AppInitializer.initializeWebP();
-          await AppInitializer.initializeTapjoy();
-        }
-
-        // Firebase 초기화
-        await Firebase.initializeApp(
-          options: firebaseOptions,
+        final appWidget = await initManager.initializeApp(
+          environment: environment,
+          firebaseOptions: firebaseOptions,
+          appBuilder: appBuilder,
+          loadGeneratedTranslations: loadGeneratedTranslations,
+          reflectableInitializer: reflectableInitializer,
+          enableMemoryProfiler: enableMemoryProfiler,
         );
 
-        // 인증 서비스 초기화
-        await AppInitializer.initializeAuth();
-
-        // 타임존 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile) {
-          await AppInitializer.initializeTimezone();
-        }
-
-        // 리플렉션 초기화
-        reflectableInitializer();
-
-        // 프라이버시 동의 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile) {
-          await AppInitializer.initializePrivacyConsent();
-        }
-
-        // Branch SDK 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile) {
-          await FlutterBranchSdk.init(
-            enableLogging: true,
-            branchAttributionLevel: BranchAttributionLevel.NONE,
-          );
-        }
-
-        logger.i('앱 시작 중...');
-        // 앱 위젯 생성 후 ProviderScope으로 래핑
-        final appWidget = ProviderScope(
-          child: appBuilder(),
-        );
-
-        // Flutter의 runApp 호출 - 기본 Flutter 함수 사용
+        // 앱 실행
         runApp(appWidget);
 
-        logger.i('앱 시작 완료');
-      } catch (e, s) {
-        logger.e('초기화 중 오류 발생', error: e, stackTrace: s);
+        // 첫 번째 프레임 렌더링 완료 후 성능 분석
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          initManager.markFirstFrame();
+
+          // 성능 분석 수행 (백그라운드에서)
+          unawaited(_performPostInitializationAnalysis(initManager));
+        });
+
+        logger.i('✅ 리팩토링된 앱 초기화 완료');
+      } catch (e, stackTrace) {
+        logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
         rethrow;
       }
-    }, (Object error, StackTrace s) async {
-      logger.e('치명적 오류 발생', error: error, stackTrace: s);
-      await Sentry.captureException(error, stackTrace: s);
+    }, (Object error, StackTrace stackTrace) async {
+      logger.e('치명적 오류 발생', error: error, stackTrace: stackTrace);
+      await Sentry.captureException(error, stackTrace: stackTrace);
     });
   }
 
-  /// ScreenUtil을 초기화하는 메서드
-  /// 앱이 실행되기 전에 먼저 ScreenUtil 설정값을 초기화합니다.
-  static Future<void> _initializeScreenUtil() async {
+  /// 초기화 완료 후 성능 분석을 수행합니다
+  static Future<void> _performPostInitializationAnalysis(
+      InitializationManager initManager) async {
     try {
-      logger.i('ScreenUtil 초기화 시작');
+      logger.i('🔍 리팩토링된 앱 시작 성능 분석 시작...');
 
-      // 디자인 사이즈 설정 (앱 빌더에서 사용하는 것과 동일한 값 사용)
-      const designSize = Size(393, 852);
+      // 잠시 대기 (프로파일링 데이터가 완전히 수집될 때까지)
+      await Future.delayed(const Duration(milliseconds: 500));
 
-      // 화면 크기를 미리 계산하여 로깅 목적으로 사용
-      final window = WidgetsBinding.instance.window;
-      final physicalSize = window.physicalSize;
-      final devicePixelRatio = window.devicePixelRatio;
-      final logicalSize = Size(
-        physicalSize.width / devicePixelRatio,
-        physicalSize.height / devicePixelRatio,
-      );
+      // 성능 분석 수행
+      final analysis =
+          await StartupPerformanceAnalyzer.analyzeCurrentPerformance();
 
-      // 전역 ScreenUtil 설정 초기화 (메인 위젯이 없는 환경에서 사용 가능)
-      ScreenUtil.configure(
-        designSize: designSize,
-        minTextAdapt: true,
-        splitScreenMode: true,
-      );
+      if (analysis.isNotEmpty) {
+        // 분석 결과 출력
+        StartupPerformanceAnalyzer.printAnalysis(analysis);
 
-      logger.i('ScreenUtil 초기화 완료: 화면 크기 = $logicalSize, 디자인 크기 = $designSize');
-    } catch (e, s) {
-      // 초기화 실패 시에도 앱이 계속 실행되도록 예외 처리
-      logger.e('ScreenUtil 초기화 실패 (앱은 계속 실행됨)', error: e, stackTrace: s);
+        // 초기화 단계별 상태 로깅
+        _logInitializationStatus(initManager);
+
+        // 첫 실행인 경우 기준선으로 저장
+        await _saveBaselineIfNeeded();
+      }
+    } catch (e) {
+      logger.e('성능 분석 중 오류 발생', error: e);
+    }
+  }
+
+  /// 초기화 단계별 상태를 로깅합니다
+  static void _logInitializationStatus(InitializationManager initManager) {
+    final status = initManager.getInitializationStatus();
+    logger.i('📋 초기화 단계별 완료 상태:');
+
+    final executionOrder = InitializationDependencies.getExecutionOrder();
+    for (final stage in executionOrder) {
+      final isCompleted = status[stage] == true;
+      final emoji = isCompleted ? '✅' : '❌';
+      logger.i('  $emoji $stage');
+    }
+  }
+
+  /// 필요한 경우 현재 성능을 기준선으로 저장합니다
+  static Future<void> _saveBaselineIfNeeded() async {
+    try {
+      final baselineFile = File('startup_baseline.json');
+      if (!await baselineFile.exists()) {
+        await StartupPerformanceAnalyzer.saveAsBaseline();
+        logger.i('📊 첫 실행으로 현재 성능을 기준선으로 저장했습니다');
+      }
+    } catch (e) {
+      logger.e('기준선 저장 중 오류 발생', error: e);
     }
   }
 
@@ -184,7 +134,7 @@ class MainInitializer {
   static Future<void> initializeLanguageAsync(
     WidgetRef ref,
     BuildContext context,
-    Future<void> Function(Locale) loadGeneratedTranslations,
+    Future<bool> Function(Locale) loadGeneratedTranslations,
     Function(bool, String) callback,
   ) async {
     try {
@@ -209,45 +159,80 @@ class MainInitializer {
         loadGeneratedTranslations,
       );
 
-      // 콜백 함수 호출 (non-nullable이므로 null 체크 불필요)
+      // 콜백 함수 호출
       callback(success, language);
 
       logger.i('언어 초기화 ${success ? '성공' : '실패'}: $language');
     } catch (e, stackTrace) {
       logger.e('언어 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
-
-      // 오류 발생 시에도 콜백 호출
       callback(false, 'ko');
     }
   }
 
-  /// Flutter 기본 이미지 캐시 최적화
-  static void _optimizeFlutterImageCache() {
-    try {
-      final imageCache = PaintingBinding.instance.imageCache;
-      
-      // 플랫폼별 캐시 크기 설정
-      if (UniversalPlatform.isWeb) {
-        // 웹에서는 상대적으로 큰 캐시 허용
-        imageCache.maximumSize = 300;
-        imageCache.maximumSizeBytes = 150 * 1024 * 1024; // 150MB
-      } else if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-        // 모바일에서는 메모리 효율성 중시
-        imageCache.maximumSize = 200;
-        imageCache.maximumSizeBytes = 100 * 1024 * 1024; // 100MB
-      } else {
-        // 데스크톱 환경
-        imageCache.maximumSize = 400;
-        imageCache.maximumSizeBytes = 200 * 1024 * 1024; // 200MB
-      }
-      
-      logger.i(
-        'Flutter 이미지 캐시 최적화 완료: '
-        '최대 ${imageCache.maximumSize}개 이미지, '
-        '${imageCache.maximumSizeBytes ~/ (1024 * 1024)}MB'
-      );
-    } catch (e) {
-      logger.e('Flutter 이미지 캐시 최적화 실패', error: e);
+  /// 특정 초기화 단계가 완료되었는지 확인하는 유틸리티 메서드
+  static bool isInitializationStageCompleted(String stageName) {
+    final initManager = InitializationManager();
+    return initManager.isStageCompleted(stageName);
+  }
+
+  /// 특정 초기화 단계의 완료를 기다리는 유틸리티 메서드
+  static Future<void> waitForInitializationStage(String stageName) async {
+    final initManager = InitializationManager();
+    await initManager.waitForStage(stageName);
+  }
+
+  /// 여러 초기화 단계의 완료를 기다리는 유틸리티 메서드
+  static Future<void> waitForInitializationStages(
+      List<String> stageNames) async {
+    final initManager = InitializationManager();
+    await initManager.waitForStages(stageNames);
+  }
+
+  /// 특정 지연 로딩 서비스가 필요할 때 호출하는 유틸리티 메서드
+  ///
+  /// [serviceName] 로드할 서비스 이름
+  /// 사용 가능한 서비스: 'image_services', 'network_services',
+  /// 'memory_profiling_services', 'mobile_services', 'miscellaneous_services'
+  static Future<void> ensureServiceLoaded(String serviceName) async {
+    // 먼저 지연 로딩 단계가 완료되었는지 확인
+    await waitForInitializationStage(InitializationManager.stageLazyLoading);
+
+    final lazyManager = LazyLoadingManager();
+
+    if (!lazyManager.isServiceLoaded(serviceName)) {
+      logger.i('서비스 로딩 대기 중: $serviceName');
+      await lazyManager.waitForService(serviceName);
+      logger.i('서비스 로딩 완료: $serviceName');
     }
+  }
+
+  /// 모든 지연 로딩 서비스가 완료될 때까지 대기하는 유틸리티 메서드
+  ///
+  /// 주로 테스트나 특별한 상황에서 사용
+  static Future<void> waitForAllLazyServices() async {
+    await waitForInitializationStage(InitializationManager.stageLazyLoading);
+
+    final lazyManager = LazyLoadingManager();
+    logger.i('모든 지연 로딩 서비스 완료 대기 중...');
+    await lazyManager.waitForAllServices();
+    logger.i('모든 지연 로딩 서비스 완료');
+  }
+
+  /// 지연 로딩 서비스 상태를 확인하는 유틸리티 메서드
+  static Map<String, bool> getLazyServiceStatus() {
+    final lazyManager = LazyLoadingManager();
+    return lazyManager.getServiceStatus();
+  }
+
+  /// 전체 초기화 상태를 확인하는 유틸리티 메서드
+  static Map<String, dynamic> getFullInitializationStatus() {
+    final initManager = InitializationManager();
+    final lazyManager = LazyLoadingManager();
+
+    return {
+      'initialization_stages': initManager.getInitializationStatus(),
+      'lazy_services': lazyManager.getServiceStatus(),
+      'execution_order': InitializationDependencies.getExecutionOrder(),
+    };
   }
 }

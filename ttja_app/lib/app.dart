@@ -151,7 +151,15 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     await MainInitializer.initializeLanguageAsync(
       ref,
       context,
-      S.load,
+      (locale) async {
+        try {
+          await S.load(locale);
+          return true;
+        } catch (e) {
+          logger.e('언어 로드 실패', error: e);
+          return false;
+        }
+      },
       (success, language) {
         logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
 

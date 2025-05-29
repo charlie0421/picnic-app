@@ -11,51 +11,51 @@ Implement Clean Architecture principles. Use 'get_it' package (version 7.6.0) fo
 Create unit tests for each layer of the Clean Architecture. Implement integration tests for full feature flows. Use static analysis tools like 'dart analyze' for code quality checks.
 
 # Subtasks:
-## 1. Architecture Planning and Analysis [pending]
+## 1. Define and Document Target Architecture [pending]
 ### Dependencies: None
-### Description: Analyze current architecture, identify pain points, and design the target architecture with clear goals and principles.
+### Description: Analyze current app structure and define the target architecture (e.g., MVVM, Clean Architecture) suitable for Flutter, considering separation of concerns and scalability.
 ### Details:
-Conduct a thorough analysis of the existing codebase structure, identify architectural debt, document current dependencies, and create diagrams of both current and target architectures. Define clear architectural principles and patterns to follow.
+Review existing codebase, document current architecture, and create diagrams and documentation for the new architecture, including layers (UI, ViewModel, Repository, Service) and their responsibilities.
 
-## 2. Dependency Injection Framework Setup [pending]
+## 2. Set Up Dependency Injection Framework [pending]
 ### Dependencies: 14.1
-### Description: Establish a dependency injection system to decouple components and improve testability.
+### Description: Integrate and configure a dependency injection solution (e.g., get_it, riverpod DI) to manage object creation and dependencies across the app.
 ### Details:
-Select appropriate DI framework, create service provider configurations, define injection patterns, and establish container setup. Create interfaces for all major services and implement factory patterns where needed.
+Choose a DI framework, refactor existing service and repository instantiations, and ensure all dependencies are injected according to the new architecture.
 
-## 3. State Management Refactoring [pending]
+## 3. Refactor State Management with Riverpod [pending]
 ### Dependencies: 14.1, 14.2
-### Description: Implement a consistent state management approach across the application.
+### Description: Update and refactor state management logic to align with the new architecture, leveraging Riverpod for state and provider management.
 ### Details:
-Analyze current state management practices, define a unified approach, create state containers/stores, implement unidirectional data flow, and ensure proper separation between UI and business logic.
+Identify all stateful components, migrate legacy state management to Riverpod where needed, and ensure state flows are consistent with MVVM or chosen pattern.
 
-## 4. Code Modularization Implementation [pending]
-### Dependencies: 14.1, 14.2
-### Description: Restructure codebase into logical, loosely-coupled modules with clear boundaries.
+## 4. Modularize Codebase [pending]
+### Dependencies: 14.1, 14.2, 14.3
+### Description: Restructure the codebase into feature-based or layer-based modules to improve maintainability and scalability.
 ### Details:
-Define module boundaries, create folder structure, establish module interfaces, implement internal encapsulation, and ensure modules communicate only through defined APIs.
+Split code into modules/packages (e.g., features, core, shared, data), update imports, and enforce clear boundaries between modules.
 
-## 5. Automated Testing Infrastructure [pending]
-### Dependencies: 14.2, 14.3, 14.4
-### Description: Establish comprehensive testing framework before migrating features.
+## 5. Migrate Existing Features to New Architecture [pending]
+### Dependencies: 14.4
+### Description: Incrementally migrate existing features (UI, logic, data access) to the new modular architecture, ensuring compatibility with Supabase, Firebase, and lazy loading.
 ### Details:
-Set up unit testing framework, create integration test suites, implement end-to-end testing capabilities, establish CI pipeline for tests, and define test coverage requirements for all new and refactored code.
+For each feature, refactor views, view models, repositories, and services; update integrations with Supabase and Firebase; and ensure lazy loading is preserved.
 
-## 6. Feature Migration and Implementation [pending]
-### Dependencies: 14.4, 14.5
-### Description: Incrementally migrate features to the new architecture while maintaining functionality.
+## 6. Implement and Update Automated Tests [pending]
+### Dependencies: 14.5
+### Description: Write and update unit, widget, and integration tests to cover refactored modules and features, ensuring correctness and preventing regressions.
 ### Details:
-Prioritize features for migration, implement feature flags for gradual rollout, refactor one component at a time, ensure backward compatibility, and validate each migration with comprehensive tests.
+Create test cases for each module and feature, mock dependencies as needed, and ensure CI/CD pipelines run all tests successfully.
 
-## 7. Static Analysis and Code Quality Tools [pending]
-### Dependencies: 14.1
-### Description: Implement static analysis tools to enforce architectural patterns and code quality.
+## 7. Integrate Static Analysis and Code Quality Tools [pending]
+### Dependencies: None
+### Description: Set up and enforce static analysis tools (e.g., Dart analyzer, lint rules, code formatters) to maintain code quality and consistency.
 ### Details:
-Select and configure linting tools, set up static code analyzers, implement architectural validation tools, establish code style guides, and integrate all tools into the CI/CD pipeline.
+Configure analysis_options.yaml, add recommended lints, and integrate tools into the CI/CD pipeline for continuous code quality checks.
 
-## 8. Documentation and Knowledge Transfer [pending]
-### Dependencies: 14.1, 14.2, 14.3, 14.4, 14.6
-### Description: Create comprehensive documentation of the new architecture and conduct knowledge sharing sessions.
+## 8. Update and Expand Project Documentation [pending]
+### Dependencies: None
+### Description: Document the new architecture, module structure, dependency injection setup, state management patterns, and migration steps for future contributors.
 ### Details:
-Document architectural decisions and rationale, create developer guides, update API documentation, diagram the new system architecture, and conduct training sessions for the development team.
+Update README, add architecture diagrams, write guides for adding new features, and document testing and CI/CD processes.
 

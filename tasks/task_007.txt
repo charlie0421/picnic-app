@@ -11,45 +11,45 @@ Implement offline-first architecture using the 'moor' package (version 4.6.1+1) 
 Create unit tests for offline data operations. Implement integration tests simulating various offline scenarios. Use network connection interceptors in tests to simulate offline mode.
 
 # Subtasks:
-## 1. Local Database Implementation [pending]
+## 1. Integrate Local Database [pending]
 ### Dependencies: None
-### Description: Set up a local database structure to store application data for offline access
+### Description: Set up and configure a local database (e.g., SQLite, Hive, or Drift) for offline data storage in the Flutter app.
 ### Details:
-Implement a DatabaseService class that handles data persistence using SQL or another appropriate storage solution. Create schema designs, database migrations, and CRUD operations for all required data models. Ensure efficient querying capabilities for offline data access.
+Choose a suitable local database solution, define data models, and implement CRUD operations for storing and retrieving data locally.
 
-## 2. Repository Layer Development [pending]
+## 2. Implement Offline-First Architecture [pending]
 ### Dependencies: 7.1
-### Description: Create repository classes that act as the single source of truth for data access
+### Description: Refactor the app's data layer to prioritize local data access and ensure seamless offline functionality.
 ### Details:
-Develop repository classes (like UserProfileRepository) that combine local and remote data sources. Implement methods to fetch, update, and manage data regardless of connectivity state. Ensure repositories handle data consistency between local and remote sources.
+Modify repositories and data providers to read from and write to the local database first, falling back to remote sources only when necessary.
 
-## 3. Synchronization Logic Implementation [pending]
-### Dependencies: 7.1, 7.2
-### Description: Develop mechanisms for data synchronization between local and remote databases
+## 3. Develop Synchronization Logic [pending]
+### Dependencies: 7.2
+### Description: Create mechanisms to synchronize local data with remote backends (Supabase, Firebase) when connectivity is restored.
 ### Details:
-Implement both manual and scheduled sync capabilities. Create First Time Sync (FTS) logic for initial data population and Delta sync for subsequent updates. Add queue management for pending operations and develop background sync processes.
+Implement background sync tasks, queue offline changes, and ensure data consistency between local and remote sources.
 
-## 4. Conflict Resolution Strategy [pending]
+## 4. Add Retry Mechanisms [pending]
 ### Dependencies: 7.3
-### Description: Design and implement conflict resolution mechanisms for data synchronization
+### Description: Implement robust retry logic for failed network requests and sync operations.
 ### Details:
-Create strategies for handling conflicts when the same data is modified both locally and remotely. Implement version tracking, timestamp-based resolution, or custom merge logic. Develop user interfaces for manual conflict resolution when necessary.
+Design exponential backoff strategies and persistent retry queues to handle intermittent connectivity and ensure eventual consistency.
 
-## 5. Network Failure Handling and Retry Mechanisms [pending]
+## 5. Implement Conflict Resolution [pending]
 ### Dependencies: 7.3
-### Description: Implement robust error handling and retry logic for network operations
+### Description: Design and implement strategies to resolve data conflicts between local and remote sources during synchronization.
 ### Details:
-Develop exponential backoff algorithms for retry attempts. Create network status monitoring to detect connectivity changes. Implement queuing systems for failed operations that automatically retry when connectivity is restored.
+Define conflict resolution policies (e.g., last-write-wins, manual merge) and integrate them into the sync logic.
 
-## 6. Offline Testing Framework [pending]
-### Dependencies: 7.1, 7.2, 7.3, 7.4, 7.5
-### Description: Create comprehensive testing infrastructure for offline functionality
+## 6. Conduct Offline Testing [pending]
+### Dependencies: 7.4, 7.5
+### Description: Test the app's offline capabilities, sync logic, and conflict resolution under various connectivity scenarios.
 ### Details:
-Develop unit tests for repository and sync logic. Create integration tests simulating various network conditions. Implement UI tests for offline user experience. Build automated test scenarios for sync conflicts and resolution strategies.
+Simulate offline/online transitions, network failures, and concurrent updates to validate robustness and user experience.
 
-## 7. Documentation and Developer Guidelines [pending]
-### Dependencies: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6
-### Description: Create comprehensive documentation for the offline-first architecture
+## 7. Document Offline-First Features [pending]
+### Dependencies: None
+### Description: Create comprehensive documentation for the offline-first architecture, sync logic, retry mechanisms, and conflict resolution strategies.
 ### Details:
-Document the overall architecture, data flow diagrams, and component interactions. Create developer guidelines for working with the offline system. Provide code examples and best practices for implementing new features with offline support.
+Document code structure, usage guidelines, and troubleshooting steps for future maintainers and contributors.
 

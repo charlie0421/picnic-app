@@ -11,45 +11,45 @@ Use 'firebase_messaging' package (version 14.6.2) for push notifications. Implem
 Create unit tests for notification preference logic. Implement integration tests for notification delivery and display. Conduct user acceptance testing for the notification customization UI.
 
 # Subtasks:
-## 1. Push Notification SDK Integration [pending]
+## 1. Integrate Firebase Cloud Messaging (FCM) for Push Notifications [pending]
 ### Dependencies: None
-### Description: Integrate the push notification SDK into the mobile application for both iOS and Android platforms
+### Description: Set up Firebase Cloud Messaging in the Flutter app for both Android and iOS platforms. This includes adding necessary dependencies, configuring platform-specific files, and initializing Firebase in the app.
 ### Details:
-Select an appropriate push notification service provider. Install and configure the SDK in the mobile app codebase. Set up the necessary API keys and certificates for both iOS (APNS) and Android (FCM). Implement the basic notification reception functionality.
+Add firebase_core and firebase_messaging packages to pubspec.yaml. Place google-services.json in android/app/ and GoogleService-Info.plist in ios/Runner/. Update Gradle and Podfile as needed. Initialize Firebase in main.dart and set up background message handlers.
 
-## 2. User Preference UI Development [pending]
+## 2. Implement Push Notification Preference UI [pending]
 ### Dependencies: 11.1
-### Description: Design and implement the user interface for notification preferences
+### Description: Design and build a user interface in Flutter that allows users to customize their push notification preferences (e.g., enable/disable notifications, select notification types).
 ### Details:
-Create UI screens for users to opt-in/opt-out of notifications. Design category-based preference toggles. Implement time-based notification settings. Add UI elements for frequency control. Ensure the UI is consistent across platforms and follows accessibility guidelines.
+Create a settings page using Flutter widgets. Use Riverpod for state management to reflect user choices in real time. Ensure the UI is responsive and accessible.
 
-## 3. Server-side Notification Logic [pending]
-### Dependencies: 11.1
-### Description: Develop backend services to manage notification content, targeting, and scheduling
+## 3. Develop Server-Side Logic for Notification Delivery [pending]
+### Dependencies: 11.1, 11.2
+### Description: Implement backend logic to send push notifications based on user preferences and triggers. Integrate with Firebase Cloud Messaging APIs and ensure secure, targeted delivery.
 ### Details:
-Create API endpoints for notification management. Implement user segmentation logic. Develop content personalization algorithms. Set up scheduling and throttling mechanisms. Integrate analytics tracking for notification performance.
+Set up server endpoints (using Supabase or Firebase Functions) to trigger notifications. Handle scheduling, batching, and targeting specific users or groups. Store and respect user preferences when sending notifications.
 
-## 4. Notification Display and Rendering [pending]
-### Dependencies: 11.1, 11.3
-### Description: Implement the client-side logic for displaying and rendering notifications
+## 4. Implement Notification Display and Handling in App [pending]
+### Dependencies: 11.1, 11.2
+### Description: Handle incoming push notifications in the Flutter app, including foreground, background, and terminated states. Display notifications using platform-specific UI and handle user interactions.
 ### Details:
-Configure notification channels and categories. Implement rich media support (images, buttons). Create custom notification layouts. Handle notification interaction events. Ensure proper deep linking to relevant app sections.
+Use firebase_messaging to listen for notification events. Display notifications using local notifications plugin if needed. Handle navigation or actions when a notification is tapped.
 
-## 5. User Settings Persistence [pending]
-### Dependencies: 11.2, 11.3
-### Description: Implement storage and synchronization of user notification preferences
+## 5. Persist User Notification Settings [pending]
+### Dependencies: 11.2
+### Description: Store user notification preferences securely in the backend (Supabase or Firebase) and ensure they are loaded and applied on app startup.
 ### Details:
-Create database schema for user preferences. Implement local storage for offline access. Develop synchronization mechanism between client and server. Set up default preferences for new users. Ensure data consistency across devices.
+Create API endpoints or use existing database tables to save and retrieve user settings. Sync settings between client and server using Riverpod for state management.
 
-## 6. Testing and Quality Assurance [pending]
-### Dependencies: 11.1, 11.2, 11.3, 11.4, 11.5
-### Description: Conduct comprehensive testing of the notification system
+## 6. Test Push Notification Functionality [pending]
+### Dependencies: 11.3, 11.4, 11.5
+### Description: Perform comprehensive testing of push notification integration, including sending, receiving, displaying, and respecting user preferences across platforms.
 ### Details:
-Develop unit tests for notification components. Create integration tests for the entire notification flow. Test across different devices and OS versions. Verify notification delivery timing and content. Conduct performance testing under various network conditions.
+Write unit and integration tests for notification logic. Manually test on Android and iOS devices. Validate edge cases such as permission denial, app in background, and preference changes.
 
-## 7. Compliance and Regulatory Checks [pending]
-### Dependencies: 11.2, 11.3, 11.5
-### Description: Ensure the notification system complies with relevant regulations and platform guidelines
+## 7. Conduct Compliance and Privacy Checks [pending]
+### Dependencies: None
+### Description: Review and ensure compliance with platform policies (Google Play, App Store) and privacy regulations (GDPR, CCPA) regarding push notifications and user data.
 ### Details:
-Implement proper opt-in/opt-out mechanisms. Create privacy policy updates related to notifications. Ensure compliance with GDPR, CCPA, and other regional regulations. Follow platform-specific guidelines (Apple, Google). Implement data retention and deletion policies.
+Audit notification permission requests, data storage, and user consent flows. Update privacy policy and documentation as needed. Ensure opt-in/opt-out mechanisms are clear and functional.
 

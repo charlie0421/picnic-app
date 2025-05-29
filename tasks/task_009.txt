@@ -11,33 +11,33 @@ Use Flutter's built-in 'Semantics' widget to provide additional context for scre
 Use accessibility scanner tools (Android) and Accessibility Inspector (iOS) for automated checks. Conduct manual testing with screen readers like TalkBack and VoiceOver. Implement unit tests for semantic label generation.
 
 # Subtasks:
-## 1. Implement Semantics Integration [pending]
+## 1. Semantics Integration [pending]
 ### Dependencies: None
-### Description: Add meaningful descriptions and labels to UI elements using Flutter's Semantics widget
+### Description: Implement semantic labels and descriptions throughout the Flutter app to improve screen reader compatibility
 ### Details:
-Use the Semantics widget to annotate the widget tree with descriptions of what widgets mean. Focus on providing descriptive labels for all interactive elements and important content. Ensure proper semantic hierarchy for screen readers.
+Add semantics widgets to all interactive elements, implement custom semantic descriptions for complex UI components, and ensure proper focus order using Semantics and MergeSemantics widgets with Supabase and Firebase integration points
 
-## 2. Set Up Keyboard Navigation [pending]
+## 2. Keyboard Navigation [pending]
 ### Dependencies: 9.1
-### Description: Implement focus management and keyboard shortcuts for essential actions
+### Description: Enhance the app with comprehensive keyboard navigation support using Flutter's focus system
 ### Details:
-Manage the focus order of widgets to ensure logical and intuitive navigation. Add keyboard shortcuts for essential actions. Test navigation flow using keyboard-only input to verify accessibility.
+Implement FocusNode management, add keyboard shortcuts using Shortcuts widget, ensure logical tab order across all screens, and integrate with Riverpod state management to maintain focus state across navigation events
 
-## 3. Configure Text-to-Speech Support [pending]
+## 3. Text-to-Speech Setup [pending]
 ### Dependencies: 9.1
-### Description: Ensure proper screen reader compatibility with TalkBack and VoiceOver
+### Description: Integrate text-to-speech functionality to read content aloud for visually impaired users
 ### Details:
-Test the application with screen readers like TalkBack (Android) and VoiceOver (iOS). Verify that all content is properly conveyed through speech. Adjust semantics as needed to improve the screen reader experience.
+Implement Flutter TTS package, create service layer for TTS that works with the existing state management, add controls for speech rate and pitch, and ensure compatibility with lazy loading system for dynamic content
 
-## 4. Implement Accessibility Testing [pending]
+## 4. Accessibility Testing [pending]
 ### Dependencies: 9.1, 9.2, 9.3
-### Description: Create automated tests using Flutter's Accessibility Guideline API
+### Description: Conduct comprehensive accessibility testing across different platforms and devices
 ### Details:
-Set up automated tests using Flutter's Accessibility Guideline API to verify tap target sizes, text contrast, and proper labeling. Create a dedicated test file (e.g., a11y_test.dart) to organize accessibility tests. Test on real devices rather than simulators.
+Use Flutter's SemanticsDebugger, test with screen readers (TalkBack for Android, VoiceOver for iOS), verify color contrast ratios, and create automated accessibility tests using integration testing framework
 
-## 5. Establish User Feedback Collection [pending]
+## 5. User Feedback Collection [pending]
 ### Dependencies: 9.4
-### Description: Create mechanisms to gather accessibility feedback from users
+### Description: Implement a system to collect and analyze user feedback on accessibility features
 ### Details:
-Implement in-app feedback forms specifically for accessibility issues. Consider setting up user testing sessions with individuals who use assistive technologies. Create a process for prioritizing and addressing accessibility feedback.
+Create in-app feedback forms using Firebase for data collection, implement analytics to track accessibility feature usage, design A/B testing for different accessibility approaches, and establish a feedback loop for continuous improvement
 

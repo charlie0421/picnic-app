@@ -32,6 +32,17 @@ import 'package:picnic_lib/core/utils/main_initializer.dart';
 bool isLanguageInitialized = false;
 String currentLanguage = 'ko'; // 기본값은 한국어
 
+/// S.load를 MainInitializer가 기대하는 타입으로 래핑하는 헬퍼 함수
+Future<bool> _loadGeneratedTranslationsWrapper(Locale locale) async {
+  try {
+    await S.load(locale);
+    return true;
+  } catch (e) {
+    logger.e('언어 로드 실패', error: e);
+    return false;
+  }
+}
+
 void main() async {
   // MainInitializer를 사용하여 앱 초기화
   await MainInitializer.initializeApp(
@@ -41,7 +52,7 @@ void main() async {
       observers: [LoggingObserver()],
       child: const App(),
     ),
-    loadGeneratedTranslations: S.load,
+    loadGeneratedTranslations: _loadGeneratedTranslationsWrapper,
     reflectableInitializer: initializeReflectable,
     enableMemoryProfiler: kDebugMode,
   );

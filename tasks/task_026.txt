@@ -129,3 +129,35 @@ class TokenStorage<T> {
    - Verify dependency injection is properly implemented
    - Check that all storage keys are centralized in the `StorageKeys` class
    - Ensure proper error handling throughout the storage layer
+
+# Subtasks:
+## 1. Design Two-Layer Storage Architecture [pending]
+### Dependencies: None
+### Description: Create a robust two-layer storage architecture with a base class for raw storage operations and a service class for domain-specific operations
+### Details:
+Implement a `KeyValueStorageBase` class that interfaces directly with storage plugins (SharedPreferences, FlutterSecureStorage) and a `KeyValueStorageService` that provides typed, domain-specific storage operations. This separation ensures clear boundaries between storage mechanisms and business logic, following the single responsibility principle. Include methods for secure and non-secure storage operations, with proper error handling using either Result pattern or typed exceptions.
+
+## 2. Implement Platform-Specific Storage Providers [pending]
+### Dependencies: 26.1
+### Description: Create secure and non-secure storage providers with appropriate implementations for different platforms
+### Details:
+Develop `SecureStorageProvider` using FlutterSecureStorage for sensitive data and `PreferencesStorageProvider` using SharedPreferences for non-sensitive data. Ensure web compatibility by implementing appropriate fallbacks for web platforms where native secure storage isn't available. Each provider should implement the interfaces defined in the base architecture and handle platform-specific quirks and limitations.
+
+## 3. Create Generic Token Storage System [pending]
+### Dependencies: 26.1, 26.2
+### Description: Implement a flexible token storage system that can handle various token types with serialization support
+### Details:
+Develop a `TokenStorage<T>` generic class that can store and retrieve any token type. Implement serialization/deserialization using json_serializable for type safety. Add token refresh logic with expiration handling to automatically refresh tokens when needed. Include methods for token validation and secure deletion when tokens are no longer needed.
+
+## 4. Centralize Storage Key Management [pending]
+### Dependencies: 26.1
+### Description: Create a structured system for managing all storage keys used throughout the application
+### Details:
+Implement a `StorageKeys` class with static constants for all storage keys, grouped by functional area (auth, settings, cache, etc.). Add comprehensive documentation for each key explaining its purpose, data format, and usage context. This centralization will prevent key collisions and make it easier to track what data is being stored where.
+
+## 5. Implement Migration Plan and Dependency Injection [pending]
+### Dependencies: 26.1, 26.2, 26.3, 26.4
+### Description: Refactor existing storage services to use the new unified storage layer and set up proper dependency injection
+### Details:
+Refactor `SecureStorageService` and `WeChatTokenStorageService` to use the new storage abstractions. Update all direct SharedPreferences and FlutterSecureStorage usages throughout the codebase. Implement dependency injection using get_it to provide the appropriate storage implementation based on the current platform and environment. Create migration utilities to handle data format changes if needed when moving from the old storage system to the new one.
+

@@ -11,39 +11,39 @@ Use the 'workmanager' package (version 0.5.1) for efficient background task sche
 Use Android's Battery Historian and iOS's Energy Log for detailed battery usage analysis. Implement automated tests simulating long-running background tasks and location updates. Conduct real-world battery drain tests on various devices.
 
 # Subtasks:
-## 1. Background Task Optimization [pending]
+## 1. Background Process Implementation [pending]
 ### Dependencies: None
-### Description: Implement efficient background processing techniques to minimize battery drain
+### Description: Set up isolates for efficient background execution of Dart code
 ### Details:
-Replace traditional background services with JobScheduler or WorkManager. Limit background activities and batch operations when possible. Test with ADB commands to simulate restricted background states.
+Implement isolate-based background processing using Flutter's background execution model. Create a callback dispatcher to handle background tasks without affecting the main UI thread. Ensure proper memory management since isolates don't share memory with the main program.
 
-## 2. Geofencing Setup [pending]
+## 2. Geofencing Service Configuration [pending]
 ### Dependencies: 6.1
-### Description: Configure efficient location-based triggers with minimal battery impact
+### Description: Implement geofencing functionality with optimized battery usage
 ### Details:
-Implement low-power location services for geofencing. Configure appropriate geofence sizes and update intervals based on use case requirements. Ensure geofencing only activates when necessary.
+Configure geofencing services using the background execution framework. Implement location monitoring with appropriate accuracy levels to balance precision and battery consumption. Set up proper event handling for geofence entry and exit events.
 
-## 3. Notification Efficiency [pending]
+## 3. Notification System Optimization [pending]
 ### Dependencies: 6.1
-### Description: Optimize notification delivery system to reduce resource consumption
+### Description: Create an efficient notification system that works with background processes
 ### Details:
-Implement a notification batching system. Prioritize notifications based on importance. Use push notification services efficiently and avoid polling for updates.
+Develop a notification system that integrates with background processes. Implement priority-based notification delivery to minimize battery impact. Configure proper notification channels for Android and notification categories for iOS.
 
-## 4. Bluetooth Optimization [pending]
+## 4. Bluetooth Communication Optimization [pending]
 ### Dependencies: 6.1
-### Description: Enhance Bluetooth connectivity while minimizing power consumption
+### Description: Optimize Bluetooth operations for minimal battery consumption
 ### Details:
-Implement efficient Bluetooth scanning intervals. Use low-energy Bluetooth when possible. Ensure Bluetooth connections are properly closed when not in use.
+Implement efficient Bluetooth scanning and connection protocols. Use appropriate scan modes based on application requirements. Implement connection pooling and proper disconnection handling to prevent battery drain from lingering connections.
 
-## 5. Battery Profiling [pending]
+## 5. Battery Usage Profiling [pending]
 ### Dependencies: 6.1, 6.2, 6.3, 6.4
-### Description: Analyze and measure battery consumption across different app components
+### Description: Implement comprehensive battery usage monitoring and optimization
 ### Details:
-Use battery profiling tools to identify high-consumption components. Analyze CPU and GPU usage patterns. Optimize resource-intensive operations and reduce unnecessary background processes.
+Create a battery usage monitoring system to track consumption by different app components. Implement adaptive behavior based on battery levels. Optimize state management with Riverpod to prevent unnecessary rebuilds that consume battery. Configure Firebase and Supabase services for efficient network usage.
 
-## 6. Testing and Monitoring [pending]
-### Dependencies: 6.5
-### Description: Implement comprehensive testing across various devices and conditions
+## 6. Performance Testing and Optimization [pending]
+### Dependencies: 6.1, 6.2, 6.3, 6.4, 6.5
+### Description: Conduct thorough testing of all background processes and optimizations
 ### Details:
-Test on multiple device types and OS versions. Use Android Profiler and Xcode Instruments for performance analysis. Implement crash analytics and performance monitoring tools for real-time issue detection.
+Perform real-device testing across multiple device types. Use DevTools to identify and eliminate saveLayer() calls that impact performance. Implement lazy loading for UI components to improve startup time. Test background task persistence across app restarts and system reboots using WorkManager plugin.
 

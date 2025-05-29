@@ -1,11 +1,28 @@
 # dart run flutter_native_splash:create --path flutter_native_splash.yaml
 flutter_native_splash:
+  # 메인 배경색
   color: "#FFFFFF"
+  color_dark: "#1F2937"
+  
+  # 스플래시 이미지 (앱 로고)
   image: assets/app_icon_256.png
-
+  image_dark: assets/app_icon_256.png
+  
+  # Android 12+ 지원
   android_12:
     image: assets/app_icon_128.png
-    color: "#FFFFFF"
     icon_background_color: "#FFFFFF"
-    android_gravity: fill
-    android_screen_orientation: portrait
+    icon_background_color_dark: "#1F2937"
+    color: "#FFFFFF"
+    color_dark: "#1F2937"
+    
+  # iOS 지원
+  ios: true
+  
+  # 웹 지원
+  web: false
+  
+  # 추가 설정
+  android_gravity: center
+  android_screen_orientation: portrait
+  fullscreen: true

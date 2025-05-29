@@ -13,43 +13,43 @@ Create unit tests for all public methods in core business logic. Use parameteriz
 # Subtasks:
 ## 1. Analyze Current Test Coverage [pending]
 ### Dependencies: None
-### Description: Assess the existing test coverage across all modules using appropriate metrics (e.g., statement, branch, and function coverage) to identify gaps and prioritize areas for improvement.
+### Description: Generate and review the current test coverage report for the Flutter app, identifying untested code paths and modules, including those using Supabase, Firebase, Riverpod, and the lazy loading system.
 ### Details:
-Use tools and coverage reports to determine which parts of the codebase are insufficiently tested. Document uncovered or under-tested areas for targeted test development.
+Run `flutter test --coverage` to produce the lcov.info file. Use coverage visualization tools (e.g., Flutter Coverage extension, Coverage Gutters) to pinpoint areas with low coverage and document specific files and functions needing more tests.
 
-## 2. Define Core Logic and Critical Paths [pending]
+## 2. Identify and Prioritize Core Logic for Testing [pending]
 ### Dependencies: 19.1
-### Description: Identify and document the core logic and critical paths in the application that require thorough testing based on risk and requirements analysis.
+### Description: List and prioritize core business logic, state management flows, and asynchronous operations (including Supabase, Firebase, Riverpod, and lazy loading) that require thorough unit and widget test coverage.
 ### Details:
-Work with stakeholders and developers to map out essential business logic, high-risk modules, and user flows that must be prioritized for test coverage.
+Break down the app into logical modules and features. For each, specify critical functions, classes, and state transitions that must be tested, focusing on areas with low or no coverage.
 
-## 3. Write Unit and Integration Tests for Core Logic [pending]
+## 3. Write and Refactor Unit and Widget Tests for Core Logic [pending]
 ### Dependencies: 19.2
-### Description: Develop comprehensive unit and integration tests targeting the core logic and critical paths identified in the previous step.
+### Description: Develop or refactor unit and widget tests to cover the prioritized core logic, ensuring tests are meaningful and verify both expected and edge-case behaviors.
 ### Details:
-Ensure tests cover all relevant scenarios, including edge cases and error handling, to maximize statement and branch coverage.
+Implement tests for business logic, state management (Riverpod), and integration points with Supabase and Firebase. Ensure tests are isolated, deterministic, and follow best practices for maintainability.
 
-## 4. Implement Parameterized Testing [pending]
+## 4. Implement Parameterized and Mutation Testing [pending]
 ### Dependencies: 19.3
-### Description: Enhance test suites by introducing parameterized tests to efficiently cover multiple input combinations and edge cases.
+### Description: Enhance test robustness by introducing parameterized tests and mutation testing to uncover hidden bugs and ensure code resilience.
 ### Details:
-Refactor existing tests or write new ones using parameterization features of the test framework to increase coverage and reduce code duplication.
+Use Dart's test package features for parameterized tests. Integrate mutation testing tools (e.g., mutmut, Stryker) to automatically introduce code mutations and verify that tests fail as expected, indicating strong test coverage.
 
-## 5. Apply Mutation Testing [pending]
+## 5. Integrate Tests into Continuous Integration (CI) Pipeline [pending]
 ### Dependencies: 19.4
-### Description: Integrate mutation testing tools to evaluate the effectiveness of the test suite in detecting code changes and potential defects.
+### Description: Configure the CI system to automatically run all tests (unit, widget, integration, parameterized, mutation) on every commit and pull request.
 ### Details:
-Run mutation tests, analyze surviving mutants, and improve tests where necessary to ensure robust defect detection.
+Update CI configuration (e.g., GitHub Actions, GitLab CI) to execute `flutter test --coverage` and mutation tests. Ensure failures block merges and provide clear feedback to developers.
 
-## 6. Integrate Tests into CI Pipeline [pending]
+## 6. Automate Coverage Reporting and Visualization [pending]
 ### Dependencies: 19.5
-### Description: Configure the continuous integration (CI) system to automatically execute all tests, including parameterized and mutation tests, on every code change.
+### Description: Set up automated generation and publishing of test coverage reports, making them accessible to the team and highlighting areas needing improvement.
 ### Details:
-Set up CI jobs to run the full test suite and fail builds if coverage thresholds are not met or if tests fail.
+Configure the CI pipeline to generate lcov.info and publish HTML coverage reports (e.g., using genhtml). Optionally, integrate with coverage dashboards or badges for visibility in the repository.
 
-## 7. Generate and Report Test Coverage Metrics [pending]
+## 7. Review, Maintain, and Iterate on Test Coverage [pending]
 ### Dependencies: None
-### Description: Automate the generation and distribution of test coverage reports, ensuring visibility of coverage metrics and trends to all stakeholders.
+### Description: Regularly review test coverage metrics, update tests as the codebase evolves, and ensure new features and bug fixes are accompanied by appropriate tests.
 ### Details:
-Use coverage tools to produce detailed reports and integrate them with dashboards or notifications for ongoing monitoring and improvement.
+Establish a process for periodic coverage review, enforce minimum coverage thresholds, and require tests for all new code paths. Continuously refine tests to improve quality and maintainability.
 

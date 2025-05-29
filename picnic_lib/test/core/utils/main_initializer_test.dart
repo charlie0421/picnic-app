@@ -8,7 +8,7 @@ void main() {
     late Widget Function() mockAppBuilder;
     late FirebaseOptions mockFirebaseOptions;
     late Function() mockReflectableInitializer;
-    late Future<void> Function(Locale) mockLoadGeneratedTranslations;
+    late Future<bool> Function(Locale) mockLoadGeneratedTranslations;
 
     setUp(() {
       mockAppBuilder = () => const Text('Test App');
@@ -19,7 +19,7 @@ void main() {
         projectId: 'test_project_id',
       );
       mockReflectableInitializer = () {};
-      mockLoadGeneratedTranslations = (_) async {};
+      mockLoadGeneratedTranslations = (_) async => true;
     });
 
     test('initializeApp 메서드의 타입 확인', () {

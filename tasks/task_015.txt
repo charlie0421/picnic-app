@@ -11,39 +11,39 @@ Implement a centralized error handling service. Use 'dio_error_interceptor' for 
 Create unit tests for each error type and handling scenario. Implement integration tests simulating various error conditions. Conduct usability testing for error message clarity and user guidance.
 
 # Subtasks:
-## 1. Implement Error Service [pending]
+## 1. Error Service Implementation [pending]
 ### Dependencies: None
-### Description: Develop a centralized error service to manage and log errors across the application, ensuring consistent error handling and reporting.
+### Description: Create a centralized error handling service that integrates with Riverpod state management
 ### Details:
-Create a service class (e.g., GlobalErrorHandlerService) that will be responsible for capturing, logging, and possibly reporting errors. This service should be injectable and accessible throughout the application.
+Implement a global error service that captures and processes errors from various sources. Create a custom FlutterError.onError handler and set up PlatformDispatcher error callback in main.dart. Integrate with Riverpod providers to allow state-based error handling across the application.
 
-## 2. Intercept Network Errors [pending]
+## 2. Custom Error Classes [pending]
 ### Dependencies: 15.1
-### Description: Set up mechanisms to intercept and handle network-related errors globally, such as HTTP request failures.
+### Description: Design and implement standardized error classes for different error types
 ### Details:
-Implement network error interception using middleware, interceptors, or similar constructs depending on the framework (e.g., HTTP interceptors in Angular or middleware in ASP.NET Core). Ensure intercepted errors are routed to the error service.
+Create a hierarchy of custom error classes including NetworkException, AuthException, DatabaseException, and ValidationException. Implement a RepoException class that can wrap specific exceptions from Supabase and Firebase. Add proper error codes, user-friendly messages, and logging capabilities to each error class.
 
-## 3. Define Custom Error Classes [pending]
-### Dependencies: 15.1
-### Description: Create custom error classes to represent different error types and scenarios for more granular error handling.
+## 3. Network Error Interception [pending]
+### Dependencies: 15.1, 15.2
+### Description: Implement middleware to intercept and handle network errors from Supabase and Firebase
 ### Details:
-Design and implement custom error classes (e.g., NetworkError, ValidationError) that extend the base Error class, allowing for more descriptive and actionable error information.
+Create repository wrappers for Supabase and Firebase API calls that catch specific exceptions and convert them to standardized RepoException instances. Implement retry logic for transient network errors and proper authentication error handling. Add timeout handling for slow connections.
 
-## 4. Integrate Error Handling with UI [pending]
-### Dependencies: 15.1, 15.2, 15.3
-### Description: Connect the error service to the user interface to display appropriate error messages and feedback to users.
+## 4. UI Integration [pending]
+### Dependencies: 15.2
+### Description: Develop UI components for displaying errors to users
 ### Details:
-Update UI components to subscribe to error notifications from the error service. Ensure that user-friendly and context-aware error messages are shown, and that critical errors are handled gracefully.
+Create reusable error widgets including error dialogs, snackbars, and inline error displays. Implement error state handling in existing screens that use the lazy loading system. Add appropriate error animations and visual feedback for different error types. Ensure all error messages are user-friendly.
 
-## 5. Test Error Handling Implementation [pending]
+## 5. Testing Error Handling [pending]
 ### Dependencies: 15.1, 15.2, 15.3, 15.4
-### Description: Develop and execute tests to verify that error handling, interception, and UI integration work as intended.
+### Description: Create comprehensive tests for the error handling system
 ### Details:
-Write unit and integration tests to simulate various error scenarios, including network failures and custom error cases. Validate that errors are correctly intercepted, logged, and displayed in the UI.
+Write unit tests for custom error classes and the error service. Create integration tests that simulate various error conditions including network failures, authentication errors, and validation issues. Test error recovery paths and ensure proper state management during error conditions.
 
-## 6. Review and Refine User Feedback [pending]
+## 6. User Feedback Review System [pending]
 ### Dependencies: 15.4, 15.5
-### Description: Evaluate the user experience of error messages and feedback, refining as needed for clarity and usability.
+### Description: Implement a system to collect and analyze error-related user feedback
 ### Details:
-Gather feedback from users or stakeholders on the clarity and helpfulness of error messages. Refine UI messaging and error handling flows to improve user experience and ensure consistency.
+Create a feedback collection mechanism that triggers after certain errors occur. Implement analytics to track error frequency and user responses. Design a dashboard for reviewing error patterns and user feedback. Set up automated alerts for critical or frequently occurring errors.
 

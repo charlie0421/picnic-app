@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/shorebird_utils.dart';
+import 'package:picnic_lib/core/services/splash_screen_service.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/widgets/lazy_image_widget.dart';
-import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/enhanced_splash_screen.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class SplashImageData {
   final String imageUrl;
@@ -22,188 +17,135 @@ class SplashImageData {
   });
 }
 
+/// 기존 SplashImage 위젯의 호환성 래퍼
+///
+/// 기존 코드와의 호환성을 유지하면서 새로운 EnhancedSplashScreen을 사용합니다.
+/// @deprecated 새로운 코드에서는 EnhancedSplashScreen을 직접 사용하세요.
 class SplashImage extends ConsumerStatefulWidget {
+  final Widget? child;
+
   const SplashImage({
     super.key,
+    this.child,
   });
 
   @override
-  ConsumerState<SplashImage> createState() => _OptimizedSplashImageState();
+  ConsumerState<SplashImage> createState() => _SplashImageState();
 }
 
-class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
-  String? scheduledSplashUrl;
-  bool _isCheckingUpdate = false;
-  String _updateStatus = '';
-  bool _disposed = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // 웹 환경에서는 스플래시 이미지를 가져오지 않음
-    if (UniversalPlatform.isWeb) {
-      return;
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchScheduledSplashImage();
-      _checkForUpdates();
-    });
-  }
-
-  @override
-  void dispose() {
-    _disposed = true;
-    super.dispose();
-  }
-
-  // setState 호출을 안전하게 하기 위한 헬퍼 메서드
-  void setStateIfMounted(VoidCallback fn) {
-    if (!mounted || _disposed) return;
-    setState(fn);
-  }
-
-  Future<void> _checkForUpdates() async {
-    setStateIfMounted(() {
-      _isCheckingUpdate = true;
-      _updateStatus = t('patch_check');
-    });
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    try {
-      final status = await updater.checkForUpdate();
-      if (status == shorebird.UpdateStatus.outdated) {
-        setStateIfMounted(() {
-          _updateStatus = t('patch_install');
-        });
-        await Future.delayed(const Duration(milliseconds: 500));
-
-        await ShorebirdUtils.checkAndUpdate();
-        setStateIfMounted(() {
-          _updateStatus = t('patch_restart_app');
-        });
-
-        await Future.delayed(const Duration(milliseconds: 500));
-
-        if (mounted) {
-          Phoenix.rebirth(context);
-        }
-      } else if (status == shorebird.UpdateStatus.restartRequired) {
-        setStateIfMounted(() {
-          _updateStatus = t('patch_restart_app');
-        });
-        await Future.delayed(const Duration(milliseconds: 500));
-        if (mounted) {
-          Phoenix.rebirth(context);
-        }
-      } else {
-        setStateIfMounted(() {
-          _updateStatus = '';
-        });
-      }
-    } catch (e) {
-      logger.e('패치 체크 중 오류 발생: $e');
-      setStateIfMounted(() {
-        _updateStatus = t('patch_error');
-      });
-    } finally {
-      setStateIfMounted(() {
-        _isCheckingUpdate = false;
-      });
-    }
-  }
-
-  Future<void> _fetchScheduledSplashImage() async {
-    logger.d('스플래시 이미지 fetch 시작');
-    try {
-      // Supabase RPC 함수 호출
-      final response =
-          await supabase.rpc('get_current_splash_image').maybeSingle();
-
-      logger.d('스플래시 response: $response');
-
-      // response.data가 null 이면, 현재 노출할 이미지가 없다는 의미
-      if (response == null) {
-        logger.d('스플래시 이미지 없음');
-        return;
-      }
-
-      final splashData = SplashImageData(
-        imageUrl: getLocaleTextFromJson(response['image']),
-        startDate: DateTime.parse(response['start_at'] as String),
-        endDate: DateTime.parse(response['end_at'] as String),
-      );
-
-      logger.d('스플래시 데이터: $splashData');
-
-      setStateIfMounted(() {
-        scheduledSplashUrl = splashData.imageUrl;
-        logger.d('스플래시 이미지 url: $scheduledSplashUrl');
-      });
-    } catch (e, stack) {
-      logger.e('스플래시 이미지 fetch 실패: $e\n$stack');
-    }
-  }
-
+class _SplashImageState extends ConsumerState<SplashImage> {
   @override
   Widget build(BuildContext context) {
-    // 웹 환경에서는 스플래시 이미지를 표시하지 않음
+    // 웹 환경에서는 간단한 스플래시 표시
     if (UniversalPlatform.isWeb) {
-      return const SizedBox.shrink();
+      return _buildSimpleSplash();
     }
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // 1) 기본(로컬) 스플래시 이미지
-        Image.asset(
-          'assets/splash.webp',
-          fit: BoxFit.cover,
-        ),
+    // 모바일 환경에서는 향상된 스플래시 스크린 사용
+    return EnhancedSplashScreen(
+      config: const SplashScreenConfig(
+        minDisplayDuration: Duration(milliseconds: 2000),
+        fadeTransitionDuration: Duration(milliseconds: 500),
+        showProgressIndicator: true,
+        enableBrandingAnimation: true,
+      ),
+      child: widget.child,
+    );
+  }
 
-        // 2) 서버에서 조회된 이미지가 있으면 덮어씌우기
-        if (scheduledSplashUrl != null)
-          LazyImageWidget(
-            imageUrl: scheduledSplashUrl!,
-            fit: BoxFit.contain,
-          ),
-
-        // 3) 업데이트 상태 표시
-        if (_isCheckingUpdate || _updateStatus.isNotEmpty)
-          Positioned(
-            bottom: 50,
-            left: 0,
-            right: 0,
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.5),
-              child: SizedBox(
-                height: 32,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _updateStatus,
-                      style: getTextStyle(AppTypo.body14B, AppColors.grey00)
-                          .copyWith(decoration: TextDecoration.none),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(width: 16),
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 4,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+  /// 웹용 간단한 스플래시 화면
+  Widget _buildSimpleSplash() {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 로고
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.asset(
+                  'assets/app_icon_256.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Theme.of(context).primaryColor,
+                      child: const Icon(
+                        Icons.apps,
+                        size: 60,
+                        color: Colors.white,
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
-          ),
-      ],
+
+            const SizedBox(height: 24),
+
+            // 로딩 인디케이터
+            const CircularProgressIndicator(),
+
+            const SizedBox(height: 16),
+
+            // 로딩 텍스트
+            Text(
+              t('loading'),
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 향상된 스플래시 래퍼 위젯
+///
+/// 새로운 프로젝트나 코드에서 사용하기 위한 명시적 래퍼입니다.
+class PicnicSplashScreen extends ConsumerWidget {
+  final Widget child;
+  final SplashScreenConfig? config;
+
+  const PicnicSplashScreen({
+    super.key,
+    required this.child,
+    this.config,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return EnhancedSplashScreen(
+      config: config ?? _getDefaultConfig(),
+      child: child,
+    );
+  }
+
+  /// 기본 스플래시 설정
+  SplashScreenConfig _getDefaultConfig() {
+    return const SplashScreenConfig(
+      minDisplayDuration: Duration(milliseconds: 2000),
+      fadeTransitionDuration: Duration(milliseconds: 500),
+      backgroundColor: Color(0xFFFFFFFF),
+      darkModeBackgroundColor: Color(0xFF1F2937),
+      showProgressIndicator: true,
+      enableBrandingAnimation: true,
     );
   }
 }

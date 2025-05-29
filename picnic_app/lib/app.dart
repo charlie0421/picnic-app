@@ -30,7 +30,6 @@ import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
 import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
-import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/services/localization_service.dart';
 
 class App extends ConsumerStatefulWidget {
@@ -83,7 +82,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   Future<void> _initializeApp() async {
-    logger.i('_initializeApp 시작');
+    logger.i('_initializeApp 시작 (리팩토링된 버전)');
 
     // 앱이 이미 초기화되었다면 바로 반환
     if (_isAppInitialized) {
@@ -92,8 +91,15 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     }
 
     try {
-      // 컨텍스트 없이 실행 가능한 초기화 부분
-      await _initializeAppBasics();
+      // InitializationManager의 단계별 초기화 활용
+      // 필수 단계들이 완료될 때까지 대기
+      await MainInitializer.waitForInitializationStages([
+        'flutter_bindings',
+        'screen_util',
+        'critical_services',
+        'data_services',
+        'auth_services',
+      ]);
 
       // mounted 상태 확인
       if (!mounted) {
@@ -101,10 +107,13 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         return;
       }
 
+      // 앱별 추가 초기화 작업
+      await _performAppSpecificInitialization();
+
       // 컨텍스트가 필요한 부분 동기적으로 실행
       _initializeAppWithContext();
 
-      logger.i('_initializeApp 완료');
+      logger.i('_initializeApp 완료 (리팩토링된 버전)');
     } catch (e, stackTrace) {
       logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
       if (mounted) {
@@ -115,26 +124,19 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     }
   }
 
-  // 컨텍스트가 필요 없는 초기화 작업
-  Future<void> _initializeAppBasics() async {
-    // 기본 초기화
-    logger.i('기본 초기화 시작');
-    await AppInitializer.initializeBasics();
-    logger.i('기본 초기화 완료');
+  /// 앱별 추가 초기화 작업을 수행합니다
+  Future<void> _performAppSpecificInitialization() async {
+    logger.i('앱별 추가 초기화 시작');
 
-    // 환경 초기화
-    logger.i('환경 초기화 시작');
-    await AppInitializer.initializeEnvironment(Environment.currentEnvironment);
-    logger.i('환경 초기화 완료');
+    // 앱 설정 로드
+    await ref.read(appSettingProvider.notifier).loadSettings();
+    logger.i('앱 설정 로드 완료');
 
-    // 시스템 UI 초기화
-    logger.i('시스템 UI 초기화 시작');
-    await AppInitializer.initializeSystemUI();
-    logger.i('시스템 UI 초기화 완료');
-
-    // 언어 및 국제화 초기화
+    // 언어 초기화
     await _initializeLanguage();
-    logger.i('언어 및 국제화 초기화 완료');
+    logger.i('언어 초기화 완료');
+
+    logger.i('앱별 추가 초기화 완료');
   }
 
   // 컨텍스트가 필요한 초기화 작업 (동기적으로 실행)
@@ -181,15 +183,20 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     logger.i('언어 초기화 시작 (picnic_app)');
 
     try {
-      // 먼저 앱 설정이 로드될 때까지 대기
-      await ref.read(appSettingProvider.notifier).loadSettings();
-      logger.i('앱 설정 로드 완료');
-
       // MainInitializer를 사용하여 언어 초기화
       await MainInitializer.initializeLanguageAsync(
         ref,
         context,
-        S.load,
+        (locale) async {
+          // S.load를 호출하고 성공 여부를 bool로 반환
+          try {
+            await S.load(locale);
+            return true;
+          } catch (e) {
+            logger.e('S.load 실패', error: e);
+            return false;
+          }
+        },
         (success, language) {
           logger.i('언어 초기화 콜백 호출: 성공=$success, 언어=$language');
 

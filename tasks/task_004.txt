@@ -13,31 +13,31 @@ Use Flutter DevTools' Performance view to measure frame rates during scrolling a
 # Subtasks:
 ## 1. Animation Package Integration [pending]
 ### Dependencies: None
-### Description: Integrate and implement animation packages into the Flutter application
+### Description: Integrate and implement animation libraries to enhance UI interactions while maintaining performance
 ### Details:
-Research and select appropriate animation packages (like Lottie). Implement basic animations using AnimationController and Tween. Create reusable animation components that follow Flutter's animation patterns with SingleTickerProviderStateMixin. Ensure proper disposal of animation controllers in the dispose() method to prevent memory leaks.
+Select and integrate appropriate animation packages (Lottie or custom Flutter animations). Configure animation controllers with proper vsync and duration settings. Implement memory management by disposing controllers in the widget lifecycle.
 
 ## 2. List Optimization Implementation [pending]
 ### Dependencies: None
-### Description: Optimize list rendering and scrolling performance
+### Description: Optimize list rendering for improved scrolling performance and reduced memory usage
 ### Details:
-Implement ListView.builder for efficient item rendering. Add pagination or infinite scrolling where needed. Use const constructors for list items to minimize rebuilds. Consider implementing caching mechanisms for list data. Measure and compare performance before and after optimization.
+Implement ListView.builder or RecyclerListView for efficient item rendering. Add pagination with Supabase/Firebase integration. Configure proper item caching strategy with the existing delayed loading system.
 
 ## 3. Repaint Boundary Implementation [pending]
 ### Dependencies: 4.1
-### Description: Add RepaintBoundary widgets to isolate animations and improve rendering performance
+### Description: Add strategic RepaintBoundary widgets to minimize unnecessary repainting
 ### Details:
-Identify widgets that animate frequently. Wrap these widgets with RepaintBoundary to prevent unnecessary repainting of parent widgets. Test the impact on frame rates before and after implementation. Be careful not to overuse RepaintBoundary as it comes with memory overhead.
+Identify widgets with frequent updates that can be isolated. Wrap complex animated components with RepaintBoundary. Measure and compare rendering performance before and after implementation.
 
 ## 4. Custom Scroll Physics Implementation [pending]
 ### Dependencies: 4.2
-### Description: Create and implement custom scroll physics for improved user experience
+### Description: Create custom scroll physics for improved user experience across different screens
 ### Details:
-Extend ScrollPhysics class to create custom scrolling behaviors. Implement spring animations for scroll boundaries. Add custom friction and drag coefficients. Test the scroll physics on various screen sizes and devices to ensure consistent behavior.
+Extend ScrollPhysics class to create custom scrolling behavior. Implement platform-specific physics variations. Integrate with existing Riverpod state management for dynamic physics changes based on app state.
 
 ## 5. Performance Testing and Optimization [pending]
 ### Dependencies: 4.1, 4.2, 4.3, 4.4
-### Description: Conduct comprehensive performance testing and optimize animations
+### Description: Conduct comprehensive performance testing and implement optimizations
 ### Details:
-Use Flutter DevTools to profile animation performance. Test on lower-end devices to identify bottlenecks. Optimize animations that cause jank or frame drops. Implement staggered animations to distribute processing load. Document performance improvements and create guidelines for future animation implementations.
+Set up Flutter DevTools for performance profiling. Measure frame rates during complex animations and scrolling. Identify and fix jank issues. Optimize asset loading with the existing delayed loading system. Test across multiple device types.
 

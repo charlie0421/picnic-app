@@ -1,0 +1,41 @@
+{
+  "totalStartupTime": 4200.0,
+  "stageTimings": {
+    "flutter_bindings": 220.0,
+    "screen_util": 180.0,
+    "critical_services": 750.0,
+    "asset_loading": 1100.0,
+    "data_services": 1400.0,
+    "auth_services": 350.0,
+    "reflection": 120.0,
+    "lazy_loading": 180.0
+  },
+  "memoryUsage": {
+    "totalMemoryUsage": 92.0,
+    "fontMemoryUsage": 6.4,
+    "assetMemoryUsage": 18.0,
+    "appMemoryUsage": 67.6
+  },
+  "assetMetrics": {
+    "totalAssets": 115,
+    "criticalAssetsLoaded": 115,
+    "assetLoadingTime": 850.0,
+    "fontLoadingTime": 450.0,
+    "assetsByPriority": {
+      "total": 115,
+      "loaded": 115
+    }
+  },
+  "uxMetrics": {
+    "timeToFirstFrame": 2520.0,
+    "timeToInteractive": 4200.0,
+    "splashScreenDuration": 1500.0,
+    "hasProgressIndicator": false,
+    "hasSmoothTransitions": false
+  },
+  "performanceScore": 72,
+  "bottlenecks": [
+    "asset_loading",
+    "data_services"
+  ]
+}

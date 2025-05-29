@@ -13,37 +13,37 @@ Create UI tests for all main user flows. Implement visual regression testing usi
 # Subtasks:
 ## 1. Test Framework Setup [pending]
 ### Dependencies: None
-### Description: Install and configure the necessary test automation framework, including programming language runtimes, browser drivers, and dependencies. Set up the development environment and IDE for writing and executing test scripts.
+### Description: Set up the Flutter testing framework with necessary dependencies and configurations
 ### Details:
-Select the appropriate tools and frameworks based on project requirements. Ensure all team members have access to the configured environment.
+Install and configure integration_test package, flutter_test, and Appium Flutter driver. Create the basic test directory structure and configure test runners for both unit and integration tests. Set up test environment variables for Supabase and Firebase connections.
 
 ## 2. Page Object Model Implementation [pending]
 ### Dependencies: 20.1
-### Description: Design and implement the Page Object Model (POM) structure to encapsulate UI elements and actions for maintainable and reusable test scripts.
+### Description: Create a structured Page Object Model for all main screens in the application
 ### Details:
-Create page classes for each significant UI page or component. Define methods for interacting with UI elements and validating their states.
+Develop page objects for login, home, profile, and feature screens. Implement screen actions, element finders, and validation methods for each page. Create base page class with common methods for navigation and state verification. Ensure compatibility with Riverpod state management system.
 
-## 3. Writing Main Flow Automated Tests [pending]
+## 3. Main Flow Test Implementation [pending]
 ### Dependencies: 20.2
-### Description: Develop automated test scripts for the main user flows using the established framework and POM structure.
+### Description: Develop automated tests for critical user flows and functionality
 ### Details:
-Write scripts that cover critical application workflows, including assertions to validate expected outcomes. Handle test data as needed.
+Write tests for authentication flows using Supabase/Firebase. Implement tests for core features with state management verification. Create tests for lazy loading functionality and performance metrics. Add test coverage for error handling and edge cases.
 
-## 4. Visual Regression Setup [pending]
-### Dependencies: 20.1, 20.2
-### Description: Integrate visual regression testing tools to capture and compare UI screenshots, detecting unintended visual changes.
+## 4. Visual Regression Testing Setup [pending]
+### Dependencies: 20.1
+### Description: Implement visual regression testing to detect UI changes
 ### Details:
-Configure baseline image storage and define thresholds for acceptable visual differences. Integrate with the test framework for automated execution.
+Set up golden test infrastructure for UI components. Create baseline screenshots for all critical screens. Implement comparison logic with acceptable thresholds. Configure visual tests to run on different device sizes and orientations.
 
-## 5. Continuous Integration (CI) Integration [pending]
+## 5. CI Integration [pending]
 ### Dependencies: 20.3, 20.4
-### Description: Set up CI pipelines to automatically execute automated tests on code changes and generate test reports.
+### Description: Integrate automated tests into the CI/CD pipeline
 ### Details:
-Configure CI tools (e.g., Jenkins, GitHub Actions) to run tests on pull requests and merges. Ensure test results are reported and accessible.
+Configure GitHub Actions or similar CI tool to run tests on pull requests. Set up test reporting and artifact storage for test results. Implement parallel test execution for faster feedback. Create notification system for test failures.
 
 ## 6. Manual Test Planning [pending]
 ### Dependencies: 20.3
-### Description: Define manual test cases for scenarios not covered by automation, including exploratory and edge case testing.
+### Description: Create comprehensive manual test plans to complement automated testing
 ### Details:
-Document manual test cases in a test management tool. Prioritize tests based on risk and application areas not suited for automation.
+Document test scenarios that are difficult to automate. Create exploratory testing guidelines for new features. Develop regression test checklists for critical functionality. Establish user acceptance testing procedures with stakeholders.
 
