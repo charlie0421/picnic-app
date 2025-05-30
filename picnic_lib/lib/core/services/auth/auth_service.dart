@@ -252,7 +252,6 @@ class AuthService {
   }
 
   // Private refresh method for internal use
-  Future<bool> _refreshSession() => refreshSession();
 
   Future<void> signOut() async {
     try {

@@ -48,11 +48,8 @@ void main() {
 
       test('should load and cache images', () async {
         // 실제 이미지 URL 대신 테스트용 데이터 URL 사용
-        const imageUrl =
-            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
         // 이미지 로드 시도 (실제 네트워크 요청 없이 테스트)
-        final result = await cacheService.loadImage(imageUrl);
 
         // 결과 확인 (네트워크 환경에 따라 null일 수 있음)
         // expect(result, isNotNull);

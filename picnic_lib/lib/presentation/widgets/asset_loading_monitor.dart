@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/services/asset_loading_service.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
 
 /// 에셋 로딩 모니터 위젯
 ///

@@ -520,64 +520,6 @@ class _PicnicCachedNetworkImageState
   }
 
   // 이미지 로드 실패 시 호출되는 메서드
-  void _onImageLoadError(String url, dynamic error) {
-    setState(() {
-      _hasError = true;
-      _loading = false;
-    });
-
-    // 재시도 가능한 경우 자동 재시도
-    if (_retryCount < _maxRetries && mounted) {
-      _retryCount++;
-
-      logger.throttledWarn(
-        '이미지 로딩 실패, 재시도 중 ($_retryCount/$_maxRetries): $url',
-        'image_load_retry_${url.hashCode}',
-        throttleDuration: const Duration(minutes: 5),
-      );
-
-      // 잠시 후 재시도
-      Future.delayed(Duration(milliseconds: 500 * _retryCount), () {
-        if (mounted && _hasError) {
-          setState(() {
-            _hasError = false;
-            _loading = true;
-          });
-        }
-      });
-    } else {
-      logger.throttledWarn(
-        '이미지 로딩 최종 실패: $url, 오류: $error',
-        'image_load_final_error_${url.hashCode}',
-        throttleDuration: const Duration(minutes: 10),
-      );
-    }
-
-    // 성능 벤치마크에 실패 기록
-    try {
-      ImagePerformanceBenchmark().trackImageLoadComplete(
-        url,
-        false, // 실패
-        metadata: {
-          'error': error.toString(),
-          'retry_count': _retryCount,
-        },
-      );
-    } catch (e) {
-      // 벤치마크 추적 실패 시 무시
-    }
-
-    // 이미지 메모리 프로파일러에 오류 기록
-    ImageMemoryProfiler().trackImageLoadComplete(
-      url,
-      null, // 실패한 경우 null
-      metadata: {
-        'error': error.toString(),
-        'retry_count': _retryCount,
-        'widget_type': 'PicnicCachedNetworkImage',
-      },
-    );
-  }
 
   /// 플레이스홀더 위젯 빌드
   Widget _buildPlaceholder(double? width, double? height) {

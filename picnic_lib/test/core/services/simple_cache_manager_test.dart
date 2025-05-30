@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:picnic_lib/core/services/cache_policy.dart';
 import 'package:picnic_lib/core/services/simple_cache_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -109,11 +106,6 @@ void main() {
         );
 
         // Should not be cached (according to cache policy)
-        final cachedEntry = await cacheManager.get(
-          nonCacheableUrl,
-          headers,
-          isAuthenticated: false,
-        );
 
         // Note: The actual behavior depends on CachePolicy.shouldCacheUrl implementation
         // This test verifies that the policy is being respected
@@ -358,7 +350,6 @@ void main() {
             isAuthenticated: false);
 
         // Error responses might or might not be cached depending on policy
-        final entry = await cacheManager.get(url, {}, isAuthenticated: false);
         // Test passes regardless of caching decision for error responses
       });
     });

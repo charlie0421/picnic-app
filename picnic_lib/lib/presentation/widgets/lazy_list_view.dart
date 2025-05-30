@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/core/utils/data_lazy_loader.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 /// 지연 로딩을 지원하는 ListView
@@ -46,7 +45,6 @@ class _LazyListViewState<T> extends State<LazyListView<T>> {
   final Set<int> _loadedIndices = {};
   final Map<int, Timer> _loadingTimers = {};
   late ScrollController _scrollController;
-  final DataLazyLoader _dataLoader = DataLazyLoader();
 
   @override
   void initState() {

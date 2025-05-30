@@ -142,7 +142,6 @@ class SplashScreenService {
 
     // 각 단계 완료를 주기적으로 확인
     Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      bool hasUpdate = false;
       double newProgress = 0.0;
 
       for (final entry in stages.entries) {
@@ -156,7 +155,6 @@ class SplashScreenService {
 
       if (newProgress != cumulativeProgress) {
         cumulativeProgress = newProgress;
-        hasUpdate = true;
 
         // 현재 진행 중인 단계 찾기
         String currentStage = '초기화 중...';

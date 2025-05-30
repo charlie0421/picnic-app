@@ -58,15 +58,27 @@ Size getPlatformScreenSize(BuildContext context) {
 }
 
 Future<bool> checkSuperAdmin() async {
-  final response =
-      await supabase.from('auth.users').select('is_super_admin').single();
+  try {
+    final response = await supabase
+        .from('auth.users')
+        .select('is_super_admin')
+        .maybeSingle();
 
-  logger.i('response[\'is_super_admin\'] : ${response['is_super_admin']}');
-  if (response['is_super_admin'] == true) {
-    return true;
+    if (response == null) {
+      logger.w('Unable to check super admin status - no data returned');
+      return false; // 기본값을 false로 변경
+    }
+
+    logger.i('response[\'is_super_admin\'] : ${response['is_super_admin']}');
+    if (response['is_super_admin'] == true) {
+      return true;
+    }
+
+    return false; // 명시적으로 false 반환
+  } catch (e, s) {
+    logger.e('Error checking super admin status', error: e, stackTrace: s);
+    return false; // 오류 시 false 반환
   }
-
-  return true;
 }
 
 bool isIPad(BuildContext context) {

@@ -318,8 +318,8 @@ class AssetLoadingService {
 
       // BuildContext가 없는 경우를 대비한 안전한 프리로드
       final binding = WidgetsBinding.instance;
-      if (binding.renderViewElement != null) {
-        await precacheImage(image, binding.renderViewElement!);
+      if (binding.rootElement != null) {
+        await precacheImage(image, binding.rootElement!);
         logger.d('이미지 프리로드 완료: $imagePath');
       } else {
         // BuildContext가 없는 경우 이미지 데이터만 로드

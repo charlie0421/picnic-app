@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:picnic_lib/core/services/cache_policy.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -63,13 +62,11 @@ class CacheEntry {
 class SimpleCacheManager {
   static const String _cachePrefix = 'http_cache_';
   static const String _invalidationPrefix = 'cache_invalidation_';
-  static const Duration _defaultCacheDuration = Duration(hours: 1);
   static const int _maxMemoryCacheSize = 50;
   static const int _maxPersistentCacheSize = 100;
 
   late SharedPreferences _prefs;
   final Map<String, CacheEntry> _memoryCache = {};
-  final Set<String> _pendingInvalidations = {};
 
   static SimpleCacheManager? _instance;
 

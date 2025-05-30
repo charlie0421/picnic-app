@@ -101,6 +101,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   json_annotation: ^4.9.0
+  sqflite: ^2.2.8+4
+  synchronized: ^3.1.0
+  retry: ^3.1.2
 
 dev_dependencies:
   flutter_test:
@@ -141,6 +144,8 @@ flutter:
     - assets/mockup/pic/
     - assets/landing/
     - assets/splash.webp
+    - assets/fonts/
+    - assets/fonts/Pretendard/
   fonts:
     - family: Pretendard
       fonts:

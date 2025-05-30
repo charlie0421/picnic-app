@@ -101,6 +101,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
               CelebDropDown(),
               SingleChildScrollView(
                   child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

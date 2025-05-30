@@ -27,7 +27,10 @@ void main() async {
       observers: [LoggingObserver()],
       child: const App(),
     ),
-    loadGeneratedTranslations: S.load,
+    loadGeneratedTranslations: (locale) async {
+      await S.load(locale);
+      return true;
+    },
     reflectableInitializer: initializeReflectable,
     enableMemoryProfiler: kDebugMode,
   );

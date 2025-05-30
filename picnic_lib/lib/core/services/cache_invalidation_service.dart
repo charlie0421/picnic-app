@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'package:picnic_lib/core/services/cache_policy.dart';
 import 'package:picnic_lib/core/services/simple_cache_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';

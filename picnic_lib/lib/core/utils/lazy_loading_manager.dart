@@ -11,7 +11,6 @@ import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/data_lazy_loader.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/memory_profiler.dart';
-import 'package:picnic_lib/core/utils/startup_profiler.dart';
 import 'package:picnic_lib/core/utils/widget_lazy_loader.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -54,7 +53,6 @@ class LazyLoadingManager {
     }
 
     logger.i('🚀 백그라운드 서비스 초기화 시작 (통합 지연 로딩)');
-    final profiler = StartupProfiler();
 
     // 우선순위 0: 위젯과 데이터 지연 로딩 시스템 활성화
     _activateLazyLoadingSystems();

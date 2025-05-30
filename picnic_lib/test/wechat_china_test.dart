@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:picnic_lib/core/services/auth/social_login/wechat_login.dart';
 import 'package:picnic_lib/core/services/wechat_token_storage_service.dart';
 import 'package:picnic_lib/core/utils/china_network_simulator.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -8,7 +7,6 @@ import 'package:picnic_lib/data/models/wechat_token_info.dart';
 
 void main() {
   group('WeChat Login - China Environment Tests', () {
-    late WeChatLogin wechatLogin;
     late WeChatTokenStorageService tokenStorage;
 
     setUpAll(() {
@@ -20,7 +18,6 @@ void main() {
       // Create mock storage for testing
       const mockStorage = FlutterSecureStorage();
       tokenStorage = WeChatTokenStorageService(mockStorage);
-      wechatLogin = WeChatLogin(tokenStorage: tokenStorage);
 
       // Reset simulator state
       ChinaNetworkSimulator.disable();

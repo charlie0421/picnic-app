@@ -192,6 +192,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     ),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Container(
@@ -234,6 +235,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                 width: 120,
                                 height: 120,
                                 child: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: (widget.voteItemModel.artist?.id ??
                                               0) !=

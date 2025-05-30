@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/initialization_manager.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';

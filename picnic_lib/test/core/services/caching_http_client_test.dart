@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:picnic_lib/core/services/enhanced_network_service.dart';
 import 'package:picnic_lib/core/services/simple_cache_manager.dart';
 import 'package:picnic_lib/core/utils/caching_http_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';

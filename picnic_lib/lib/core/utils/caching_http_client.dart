@@ -350,10 +350,10 @@ class CachingHttpClient extends http.BaseClient {
     NetworkInfo networkInfo,
   ) {
     // Don't await this - it runs in background
-    _makeNetworkRequestAndCache(request, url, headers, networkInfo)
+    unawaited(_makeNetworkRequestAndCache(request, url, headers, networkInfo)
         .catchError((e) {
       logger.w('Background cache update failed for $url: $e');
-    });
+    }));
   }
 
   http.StreamedResponse _createStreamedResponseFromCache(

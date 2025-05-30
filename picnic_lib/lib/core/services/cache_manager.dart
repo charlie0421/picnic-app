@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/cache/cache_entry.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CacheManager {
   static const String _cacheBoxName = 'http_cache';
@@ -14,7 +12,6 @@ class CacheManager {
 
   late Box<CacheEntry> _cacheBox;
   late Box<dynamic> _metadataBox;
-  late SharedPreferences _prefs;
 
   static CacheManager? _instance;
 
@@ -32,7 +29,6 @@ class CacheManager {
 
       _cacheBox = await Hive.openBox<CacheEntry>(_cacheBoxName);
       _metadataBox = await Hive.openBox(_metadataBoxName);
-      _prefs = await SharedPreferences.getInstance();
 
       // Clean expired entries on startup
       await _cleanExpiredEntries();
@@ -204,21 +200,6 @@ class CacheManager {
     return _cacheBox.length;
   }
 
-  bool _shouldCacheResponse(int statusCode, String url) {
-    // Only cache successful responses
-    if (statusCode < 200 || statusCode >= 400) {
-      return false;
-    }
-
-    // Don't cache certain URLs (like real-time endpoints)
-    if (url.contains('/realtime/') ||
-        url.contains('/stream/') ||
-        url.contains('/ws/')) {
-      return false;
-    }
-
-    return true;
-  }
 
   Future<void> dispose() async {
     try {

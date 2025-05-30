@@ -357,6 +357,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
             data: (data) {
               if (data.isEmpty) return const SizedBox.shrink();
               return Column(
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   _buildVoteInfo(),
                   _buildAchieveItem(data[0]!),
@@ -364,6 +365,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                     child: SingleChildScrollView(
                       controller: _scrollController,
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [_buildLevelItem(data[0]!)],
                       ),
                     ),
@@ -383,6 +385,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           if (voteModel == null) return const SizedBox.shrink();
 
           return Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (voteModel.mainImage != null &&
                   voteModel.mainImage!.isNotEmpty)
@@ -469,6 +472,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   return Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: List.generate(
                         levels.length,
@@ -479,6 +483,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                               mainMilestones.contains(currentLevel);
 
                           return Row(
+                            mainAxisSize: MainAxisSize.max,
                             children: [
                               if (isMainMilestone && currentLevel > 0)
                                 _buildRewardInfo(
@@ -586,6 +591,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                 height: 80,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -764,6 +770,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
               width: 130,
               height: 50,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [

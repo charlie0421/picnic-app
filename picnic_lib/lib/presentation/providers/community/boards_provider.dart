@@ -41,16 +41,53 @@ class BoardsNotifier extends _$BoardsNotifier {
 
   Future<List<BoardModel>?> _fetchBoards(int artistId) async {
     try {
-      final response = await supabase
-          .from('boards')
-          .select(
-              'name, board_id, artist_id, description, is_official, features, status, creator_id, artist(*, artist_group(*))')
-          .eq('artist_id', artistId)
-          .eq('status', 'approved')
-          .order('is_official', ascending: false)
-          .order('order', ascending: true);
+      List<Map<String, dynamic>> response;
 
-      return response.map((data) => BoardModel.fromJson(data)).toList();
+      // 안전한 쿼리 실행 시도
+      try {
+        response = await supabase
+            .from('boards')
+            .select(
+                'name, board_id, artist_id, description, is_official, features, status, creator_id, artist(*, artist_group(*))')
+            .eq('artist_id', artistId)
+            .eq('status', 'approved')
+            .order('is_official', ascending: false)
+            .order('order', ascending: true);
+      } catch (queryError) {
+        logger.w('Complex boards query failed, trying fallback query',
+            error: queryError);
+
+        // 폴백 쿼리: 단순한 형태
+        response = await supabase
+            .from('boards')
+            .select(
+                'name, board_id, artist_id, description, is_official, features, status, creator_id')
+            .eq('artist_id', artistId)
+            .eq('status', 'approved')
+            .order('is_official', ascending: false)
+            .order('order', ascending: true);
+      }
+
+      // 응답이 비어있으면 빈 리스트 반환
+      if (response.isEmpty) {
+        logger.i('No boards found for artistId: $artistId');
+        return [];
+      }
+
+      // 안전한 JSON 변환
+      List<BoardModel> boardList = [];
+      for (final item in response) {
+        try {
+          if (item != null) {
+            boardList.add(BoardModel.fromJson(item));
+          }
+        } catch (jsonError) {
+          logger.w('Failed to parse board item: $item', error: jsonError);
+          // 개별 아이템 파싱 실패는 무시하고 계속 진행
+        }
+      }
+
+      return boardList;
     } catch (e, s) {
       logger.e('Error fetching boards:', error: e, stackTrace: s);
       return Future.error(e);

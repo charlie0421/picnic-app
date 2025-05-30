@@ -298,16 +298,13 @@ class _VisibilityDetectorState extends State<VisibilityDetector> {
     final renderObject = context.findRenderObject();
     if (renderObject is RenderBox && renderObject.hasSize) {
       final viewport = RenderAbstractViewport.of(renderObject);
-      if (viewport != null) {
-        final revealedOffset = viewport.getOffsetToReveal(renderObject, 0.0);
-        final visibleFraction =
-            _calculateVisibleFraction(renderObject, viewport);
+      viewport.getOffsetToReveal(renderObject, 0.0);
+      final visibleFraction = _calculateVisibleFraction(renderObject, viewport);
 
-        widget.onVisibilityChanged(VisibilityInfo(
-          visibleFraction: visibleFraction,
-          size: renderObject.size,
-        ));
-      }
+      widget.onVisibilityChanged(VisibilityInfo(
+        visibleFraction: visibleFraction,
+        size: renderObject.size,
+      ));
     }
   }
 

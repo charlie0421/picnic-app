@@ -45,12 +45,16 @@ class VoteCardColumnAchieve extends StatelessWidget {
         ),
         Positioned(
           bottom: (barHeight + width * .7),
-          child: FadeTransition(
-            opacity: opacityAnimation,
-            child: Text(
-              isAchieve ? '${t('achieve')}!' : '',
-              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
-              textAlign: TextAlign.center,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: width),
+            child: FadeTransition(
+              opacity: opacityAnimation,
+              child: Text(
+                isAchieve ? '${t('achieve')}!' : '',
+                style: getTextStyle(AppTypo.caption12B, AppColors.point900),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),

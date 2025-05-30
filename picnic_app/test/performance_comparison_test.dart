@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -182,7 +184,7 @@ void main() {
       print(
           '🔤 폰트 메모리 최적화: ${fontMemoryImprovement.toStringAsFixed(1)}MB 절약 (75% 감소)');
       print(
-          '📊 성능 점수 향상: +${scoreImprovement}점 (${beforeOptimization.performanceScore} → ${afterOptimization.performanceScore})');
+          '📊 성능 점수 향상: +$scoreImprovement점 (${beforeOptimization.performanceScore} → ${afterOptimization.performanceScore})');
       print(
           '🔧 병목 현상 해결: ${beforeOptimization.bottlenecks.length}개 → ${afterOptimization.bottlenecks.length}개');
       print('');

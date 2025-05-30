@@ -10,7 +10,6 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
-import 'package:picnic_lib/core/services/auth/social_login/wechat_login.dart';
 import 'package:picnic_lib/core/services/region_detection_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
@@ -781,7 +780,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                   color: AppColors.primary500, barrierDismissible: false);
 
               // WeChat login implementation
-              final wechatLogin = WeChatLogin();
 
               // Save last provider for future reference
               await _saveLastProvider('wechat');

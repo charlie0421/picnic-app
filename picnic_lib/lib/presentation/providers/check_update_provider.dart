@@ -40,7 +40,12 @@ Future<UpdateInfo?> checkUpdate(ref) async {
         .select()
         .filter('deleted_at', 'is', null)
         .limit(1)
-        .single();
+        .maybeSingle();
+
+    if (response == null) {
+      return null;
+    }
+
     final appVersionModel = AppVersionModel.fromJson(response);
 
     final platformName = _getPlatformName();

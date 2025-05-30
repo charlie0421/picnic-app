@@ -155,7 +155,7 @@ class FontOptimizationService {
     }
 
     logger.i(
-        '📱 모바일 설정: 저사양기기=${_isLowMemoryDevice}, 지연=${_fontLoadingDelay!.inMilliseconds}ms, 동시로딩=${_maxConcurrentFontLoads}');
+        '📱 모바일 설정: 저사양기기=$_isLowMemoryDevice, 지연=${_fontLoadingDelay!.inMilliseconds}ms, 동시로딩=$_maxConcurrentFontLoads');
   }
 
   /// 저사양 기기 감지 (간소화된 방법)
@@ -199,10 +199,14 @@ class FontOptimizationService {
 
   /// 폰트 메타데이터 등록
   void _registerFontMetadata() {
+    // 패키지 컨텍스트에서 실행되는지 확인하여 적절한 경로 사용
+    final assetPathPrefix = _getAssetPathPrefix();
+
     // Pretendard Regular - 가장 중요 (즉시 로드)
     _registerFont(FontMetadata(
       fontFamily: 'Pretendard',
-      assetPath: 'assets/fonts/Pretendard/Pretendard-Regular.otf',
+      assetPath:
+          '${assetPathPrefix}assets/fonts/Pretendard/Pretendard-Regular.otf',
       weight: FontWeight.w400,
       frequency: FontUsageFrequency.critical,
       estimatedSizeBytes: 1600000,
@@ -212,7 +216,8 @@ class FontOptimizationService {
     // Pretendard Medium - 자주 사용 (백그라운드 로드)
     _registerFont(FontMetadata(
       fontFamily: 'Pretendard',
-      assetPath: 'assets/fonts/Pretendard/Pretendard-Medium.otf',
+      assetPath:
+          '${assetPathPrefix}assets/fonts/Pretendard/Pretendard-Medium.otf',
       weight: FontWeight.w500,
       frequency: FontUsageFrequency.high,
       estimatedSizeBytes: 1600000,
@@ -222,7 +227,8 @@ class FontOptimizationService {
     // Pretendard SemiBold - 가끔 사용 (지연 로드)
     _registerFont(FontMetadata(
       fontFamily: 'Pretendard',
-      assetPath: 'assets/fonts/Pretendard/Pretendard-SemiBold.otf',
+      assetPath:
+          '${assetPathPrefix}assets/fonts/Pretendard/Pretendard-SemiBold.otf',
       weight: FontWeight.w600,
       frequency: FontUsageFrequency.medium,
       estimatedSizeBytes: 1600000,
@@ -232,12 +238,19 @@ class FontOptimizationService {
     // Pretendard Bold - 드물게 사용 (필요시 로드)
     _registerFont(FontMetadata(
       fontFamily: 'Pretendard',
-      assetPath: 'assets/fonts/Pretendard/Pretendard-Bold.otf',
+      assetPath:
+          '${assetPathPrefix}assets/fonts/Pretendard/Pretendard-Bold.otf',
       weight: FontWeight.w700,
       frequency: FontUsageFrequency.low,
       estimatedSizeBytes: 1600000,
       supportedLanguages: ['ko', 'en', 'ja'],
     ));
+  }
+
+  /// Asset 경로 접두사 결정
+  String _getAssetPathPrefix() {
+    // 패키지에서 실행될 때 패키지 경로 사용
+    return 'packages/picnic_lib/';
   }
 
   /// 폰트 등록
@@ -650,7 +663,7 @@ class FontOptimizationService {
     _fontLoaders.clear();
     _fontRegistry.clear();
     _isInitialized = false;
-    
+
     // 모바일 설정 리셋
     _isLowMemoryDevice = null;
     _fontLoadingDelay = null;
@@ -668,6 +681,6 @@ class FontOptimizationService {
         .length;
 
     logger.i(
-        '📊 폰트 메모리 사용량: ${(totalFontSize / (1024 * 1024)).toStringAsFixed(2)}MB (${loadedFonts}개 폰트)');
+        '📊 폰트 메모리 사용량: ${(totalFontSize / (1024 * 1024)).toStringAsFixed(2)}MB ($loadedFonts개 폰트)');
   }
 }
