@@ -1,0 +1,104 @@
+{
+  "logging": {
+    "level": "debug",
+    "image_load_warning_threshold_seconds": 5,
+    "image_load_error_threshold_seconds": 10
+  },
+  "supabase": {
+    "url": "http://127.0.0.1:54321",
+    "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
+    "storage": {
+      "url": "http://127.0.0.1:54321",
+      "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+    }
+  },
+  "auth": {
+    "apple": {
+      "client_id": "dev-apple-client-id",
+      "redirect_uri": "https://dev.example.com/auth/apple"
+    },
+    "google": {
+      "client_id": "dev-google-client-id",
+      "server_client_id": "dev-google-server-client-id"
+    },
+    "kakao": {
+      "native_app_key": "dev-kakao-native-app-key",
+      "javascript_key": "dev-kakao-javascript-key"
+    },
+    "wechat": {
+      "app_id": "wxa5eea7ab9b3894a8",
+      "app_secret": "dev-wechat-app-secret",
+      "universal_link": "https://dev.example.com/wechat/"
+    }
+  },
+  "sentry": {
+    "enable": false,
+    "app_dsn": "https://dev-sentry-dsn@sentry.io/project",
+    "web_dsn": "https://dev-sentry-web-dsn@sentry.io/project",
+    "sample_rates": {
+      "trace": 1.0,
+      "profile": 1.0,
+      "session": 1.0,
+      "error": 1.0
+    }
+  },
+  "storage": {
+    "cdn_url": "http://127.0.0.1:54321/storage/v1/object/public",
+    "aws": {
+      "access_key_id": "dev-aws-access-key",
+      "secret_access_key": "dev-aws-secret-key",
+      "region": "us-east-1",
+      "s3_bucket": "dev-s3-bucket",
+      "s3_bucket_url": "http://127.0.0.1:54321/storage/v1/object/public"
+    }
+  },
+  "api_keys": {
+    "youtube": "dev-youtube-api-key",
+    "deepl": "dev-deepl-api-key",
+    "branch": "dev-branch-key"
+  },
+  "app": {
+    "web_domain": "localhost:3000",
+    "download_link": "https://dev-download-link.com",
+    "app_link_prefix": "dev-app://",
+    "inapp_appname_prefix": "DevApp"
+  },
+  "theme": {
+    "colors": {
+      "primary": "0xFF6200EE",
+      "secondary": "0xFF03DAC6",
+      "sub": "0xFF9E9E9E",
+      "point": "0xFFFF5722",
+      "point_900": "0xFFBF360C"
+    }
+  },
+  "ads": {
+    "tapjoy": {
+      "android_sdk_key": "dev-tapjoy-android-key",
+      "ios_sdk_key": "dev-tapjoy-ios-key"
+    },
+    "unity": {
+      "apple_game_id": "dev-unity-apple-game-id",
+      "google_game_id": "dev-unity-google-game-id",
+      "ios_placement_id": "dev-unity-ios-placement-id",
+      "android_placement_id": "dev-unity-android-placement-id"
+    },
+    "pincrux": {
+      "android_app_key": "dev-pincrux-android-key",
+      "ios_app_key": "dev-pincrux-ios-key"
+    },
+    "pangle": {
+      "ios_app_id": "dev-pangle-ios-app-id",
+      "android_app_id": "dev-pangle-android-app-id",
+      "ios_rewarded_video_id": "dev-pangle-ios-rewarded-video-id",
+      "android_rewarded_video_id": "dev-pangle-android-rewarded-video-id"
+    },
+    "admob": {
+      "ios_rewarded_video_id": "dev-admob-ios-rewarded-video-id",
+      "android_rewarded_video_id": "dev-admob-android-rewarded-video-id"
+    }
+  },
+  "crowdin": {
+    "distribution_hash": "dev-crowdin-distribution-hash"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "logging": {
+    "level": "info",
+    "image_load_warning_threshold_seconds": 10,
+    "image_load_error_threshold_seconds": 20
+  },
+  "supabase": {
+    "url": "https://your-project.supabase.co",
+    "anon_key": "your-anon-key",
+    "storage": {
+      "url": "https://your-project.supabase.co",
+      "anon_key": "your-storage-anon-key"
+    }
+  },
+  "auth": {
+    "apple": {
+      "client_id": "your-apple-client-id",
+      "redirect_uri": "your-apple-redirect-uri"
+    },
+    "google": {
+      "client_id": "your-google-client-id",
+      "server_client_id": "your-google-server-client-id"
+    },
+    "kakao": {
+      "native_app_key": "your-kakao-native-app-key",
+      "javascript_key": "your-kakao-javascript-key"
+    },
+    "wechat": {
+      "app_id": "wxa5eea7ab9b3894a8",
+      "app_secret": "your-wechat-app-secret",
+      "universal_link": "https://example.com/wechat/"
+    }
+  },
+  "sentry": {
+    "enable": true,
+    "app_dsn": "your-sentry-app-dsn",
+    "web_dsn": "your-sentry-web-dsn",
+    "sample_rates": {
+      "trace": 1.0,
+      "profile": 1.0,
+      "session": 1.0,
+      "error": 1.0
+    }
+  },
+  "storage": {
+    "cdn_url": "https://your-cdn.com",
+    "aws": {
+      "access_key_id": "your-aws-access-key",
+      "secret_access_key": "your-aws-secret-key",
+      "region": "us-east-1",
+      "s3_bucket": "your-s3-bucket",
+      "s3_bucket_url": "https://your-s3-bucket.s3.amazonaws.com"
+    }
+  },
+  "api_keys": {
+    "youtube": "your-youtube-api-key",
+    "deepl": "your-deepl-api-key",
+    "branch": "your-branch-key"
+  },
+  "app": {
+    "web_domain": "your-domain.com",
+    "download_link": "https://your-download-link.com",
+    "app_link_prefix": "your-app://",
+    "inapp_appname_prefix": "YourApp"
+  },
+  "theme": {
+    "colors": {
+      "primary": "0xFF6200EE",
+      "secondary": "0xFF03DAC6",
+      "sub": "0xFF9E9E9E",
+      "point": "0xFFFF5722",
+      "point_900": "0xFFBF360C"
+    }
+  },
+  "ads": {
+    "tapjoy": {
+      "android_sdk_key": "your-tapjoy-android-key",
+      "ios_sdk_key": "your-tapjoy-ios-key"
+    },
+    "unity": {
+      "apple_game_id": "your-unity-apple-game-id",
+      "google_game_id": "your-unity-google-game-id",
+      "ios_placement_id": "your-unity-ios-placement-id",
+      "android_placement_id": "your-unity-android-placement-id"
+    },
+    "pincrux": {
+      "android_app_key": "your-pincrux-android-key",
+      "ios_app_key": "your-pincrux-ios-key"
+    },
+    "pangle": {
+      "ios_app_id": "your-pangle-ios-app-id",
+      "android_app_id": "your-pangle-android-app-id",
+      "ios_rewarded_video_id": "your-pangle-ios-rewarded-video-id",
+      "android_rewarded_video_id": "your-pangle-android-rewarded-video-id"
+    },
+    "admob": {
+      "ios_rewarded_video_id": "your-admob-ios-rewarded-video-id",
+      "android_rewarded_video_id": "your-admob-android-rewarded-video-id"
+    }
+  },
+  "crowdin": {
+    "distribution_hash": "your-crowdin-distribution-hash"
+  }
+}

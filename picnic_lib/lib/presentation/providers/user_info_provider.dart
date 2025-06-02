@@ -6,12 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
+import 'package:picnic_lib/data/repositories/repository_providers.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 part '../../generated/providers/user_info_provider.g.dart';
 
@@ -21,7 +20,9 @@ class UserInfo extends _$UserInfo {
 
   @override
   Future<UserProfilesModel?> build() async {
-    if (!supabase.isLogged) {
+    final userProfileRepository = ref.watch(userProfileRepositoryProvider);
+    
+    if (!userProfileRepository.isAuthenticated()) {
       logger.i('User is not logged in');
       return null;
     }
@@ -37,22 +38,17 @@ class UserInfo extends _$UserInfo {
   }
 
   Future<UserProfilesModel?> getUserProfiles() async {
-    if (!supabase.isLogged) {
+    final userProfileRepository = ref.read(userProfileRepositoryProvider);
+    
+    if (!userProfileRepository.isAuthenticated()) {
       logger.i('User is not logged in');
       return null;
     }
 
     try {
-      final response = await supabase
-          .from('user_profiles')
-          .select(
-              'id,avatar_url,star_candy,nickname,email,star_candy_bonus,is_admin,birth_date,gender,birth_time,deleted_at,user_agreement(id,terms,privacy)')
-          .eq('id', supabase.auth.currentUser!.id)
-          .maybeSingle();
-
-      logger.i('User profiles response: $response');
-      if (response != null) {
-        final userProfile = UserProfilesModel.fromJson(response);
+      final userProfile = await userProfileRepository.getCurrentUserProfile();
+      
+      if (userProfile != null) {
         state = AsyncValue.data(userProfile);
 
         if (!kIsWeb) {
@@ -86,22 +82,18 @@ class UserInfo extends _$UserInfo {
   }) async {
     logger.i('Updating profile - gender: $gender, birthDate: $birthDate');
     try {
-      if (!supabase.isLogged) {
+      final userProfileRepository = ref.read(userProfileRepositoryProvider);
+      
+      if (!userProfileRepository.isAuthenticated()) {
         logger.w('Cannot update profile: user not logged in');
         return;
       }
 
-      final updates = {
-        if (gender != null) 'gender': gender,
-        if (birthDate != null) 'birth_date': birthDate.toIso8601String(),
-        if (birthTime != null) 'birth_time': birthTime,
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      };
-
-      await supabase.from('user_profiles').upsert({
-        'id': supabase.auth.currentUser!.id,
-        ...updates,
-      });
+      await userProfileRepository.updateProfile(
+        gender: gender,
+        birthDate: birthDate,
+        birthTime: birthTime,
+      );
 
       // Refresh the profile
       await getUserProfiles();
@@ -127,36 +119,66 @@ class UserInfo extends _$UserInfo {
   Future<bool> updateNickname(String nickname) async {
     logger.i('Updating nickname to: $nickname');
     try {
-      final response = await supabase.functions.invoke(
-        'update-nickname',
-        body: {'nickname': nickname},
-      );
+      final userProfileRepository = ref.read(userProfileRepositoryProvider);
+      final success = await userProfileRepository.updateNickname(nickname);
 
-      if (response.status != 200) {
-        final error = jsonDecode(response.data)['error'];
-        logger.e('Error updating nickname: $error');
+      if (success) {
+        // Refresh the profile
+        await getUserProfiles();
+        logger.i('Nickname updated successfully: $nickname');
+        return true;
+      } else {
+        logger.e('Failed to update nickname');
         return false;
       }
-
-      final updatedProfile =
-          UserProfilesModel.fromJson(jsonDecode(response.data)['data']);
-      state = AsyncValue.data(updatedProfile);
-      logger.i('Nickname updated successfully: ${updatedProfile.nickname}');
-      return true;
     } catch (e, s) {
-      logger.e('Error calling update-nickname function',
-          error: e, stackTrace: s);
+      logger.e('Error updating nickname', error: e, stackTrace: s);
       return false;
     }
   }
 
   Future<void> updateAvatar(String url) async {
     logger.i('Updating avatar URL to: $url');
-    await supabase.from('user_profiles').update({
-      'avatar_url': url,
-    }).eq('id', supabase.auth.currentUser!.id);
-    state = AsyncValue.data(state.value!.copyWith(avatarUrl: url));
-    logger.i('Avatar URL updated successfully');
+    try {
+      final userProfileRepository = ref.read(userProfileRepositoryProvider);
+      await userProfileRepository.updateAvatar(url);
+      
+      if (state.value != null) {
+        state = AsyncValue.data(state.value!.copyWith(avatarUrl: url));
+      }
+      logger.i('Avatar URL updated successfully');
+    } catch (e, s) {
+      logger.e('Error updating avatar', error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> addStarCandy(int amount) async {
+    try {
+      final userProfileRepository = ref.read(userProfileRepositoryProvider);
+      await userProfileRepository.addStarCandy(amount);
+      
+      // Refresh the profile
+      await getUserProfiles();
+      logger.i('Star candy added: $amount');
+    } catch (e, s) {
+      logger.e('Error adding star candy', error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> spendStarCandy(int amount) async {
+    try {
+      final userProfileRepository = ref.read(userProfileRepositoryProvider);
+      await userProfileRepository.spendStarCandy(amount);
+      
+      // Refresh the profile
+      await getUserProfiles();
+      logger.i('Star candy spent: $amount');
+    } catch (e, s) {
+      logger.e('Error spending star candy', error: e, stackTrace: s);
+      rethrow;
+    }
   }
 }
 
@@ -164,11 +186,8 @@ class UserInfo extends _$UserInfo {
 Future<bool> setAgreement(Ref ref) async {
   logger.i('Setting user agreement');
   try {
-    await supabase.from('user_agreement').upsert({
-      'id': supabase.auth.currentUser?.id,
-      'terms': 'now',
-      'privacy': 'now',
-    }).select();
+    final userProfileRepository = ref.read(userProfileRepositoryProvider);
+    await userProfileRepository.setUserAgreement();
 
     logger.i('User agreement set successfully');
     return true;
@@ -184,11 +203,8 @@ Future<bool> setAgreement(Ref ref) async {
 Future<bool> agreement(Ref ref) async {
   logger.i('Creating user agreement');
   try {
-    await supabase.from('user_agreement').insert({
-      'id': supabase.auth.currentUser?.id,
-      'terms': DateTime.now().toUtc(),
-      'privacy': DateTime.now().toUtc(),
-    }).select();
+    final userProfileRepository = ref.read(userProfileRepositoryProvider);
+    await userProfileRepository.createUserAgreement();
 
     logger.i('User agreement created successfully');
     return true;
@@ -204,12 +220,15 @@ Future<bool> agreement(Ref ref) async {
 Future<List<Map<String, dynamic>?>?> expireBonus(Ref ref) async {
   logger.i('Calculating expire bonus');
   try {
-    final response = await supabase.rpc('get_expiring_bonus_prediction');
-    if (response != null && response is List) {
-      logger.i('Expire bonus calculated: $response');
-      return List<Map<String, dynamic>>.from(response);
+    final userProfileRepository = ref.read(userProfileRepositoryProvider);
+    final bonusPrediction = await userProfileRepository.getExpiringBonusPrediction();
+    
+    if (bonusPrediction != null) {
+      logger.i('Expire bonus calculated: $bonusPrediction');
+      return bonusPrediction;
     } else {
-      throw Exception('Unexpected response format');
+      logger.w('No bonus prediction data available');
+      return null;
     }
   } catch (e, s) {
     logger.e('Error calculating expire bonus', error: e, stackTrace: s);
