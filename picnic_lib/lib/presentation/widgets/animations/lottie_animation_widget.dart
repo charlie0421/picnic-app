@@ -16,7 +16,7 @@ class LottieAnimationWidget extends ConsumerStatefulWidget {
   final VoidCallback? onLoaded;
   final AnimationController? controller;
   final bool preloadImages;
-  final LottieFrameRate? frameRate;
+  final FrameRate? frameRate;
 
   const LottieAnimationWidget({
     super.key,
@@ -36,7 +36,8 @@ class LottieAnimationWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<LottieAnimationWidget> createState() => _LottieAnimationWidgetState();
+  ConsumerState<LottieAnimationWidget> createState() =>
+      _LottieAnimationWidgetState();
 }
 
 class _LottieAnimationWidgetState extends ConsumerState<LottieAnimationWidget>
@@ -48,7 +49,7 @@ class _LottieAnimationWidgetState extends ConsumerState<LottieAnimationWidget>
   @override
   void initState() {
     super.initState();
-    
+
     if (widget.controller == null && widget.animate) {
       _internalController = AnimationController(
         duration: widget.duration ?? const Duration(seconds: 2),
@@ -66,7 +67,7 @@ class _LottieAnimationWidgetState extends ConsumerState<LottieAnimationWidget>
   @override
   void didUpdateWidget(LottieAnimationWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Handle animation state changes
     if (widget.animate != oldWidget.animate) {
       if (widget.animate) {
@@ -75,7 +76,7 @@ class _LottieAnimationWidgetState extends ConsumerState<LottieAnimationWidget>
         _stopAnimation();
       }
     }
-    
+
     // Handle repeat changes
     if (widget.repeat != oldWidget.repeat && widget.animate) {
       _restartAnimation();
@@ -114,7 +115,8 @@ class _LottieAnimationWidgetState extends ConsumerState<LottieAnimationWidget>
 
   @override
   Widget build(BuildContext context) {
-    final AnimationController activeController = widget.controller ?? _internalController!;
+    final AnimationController activeController =
+        widget.controller ?? _internalController!;
 
     return Lottie.asset(
       widget.asset,
@@ -163,10 +165,12 @@ class ControlledLottieAnimation extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ControlledLottieAnimation> createState() => _ControlledLottieAnimationState();
+  ConsumerState<ControlledLottieAnimation> createState() =>
+      _ControlledLottieAnimationState();
 }
 
-class _ControlledLottieAnimationState extends ConsumerState<ControlledLottieAnimation>
+class _ControlledLottieAnimationState
+    extends ConsumerState<ControlledLottieAnimation>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   bool _isCompleted = false;
@@ -297,7 +301,7 @@ class _LottieSuccessIndicatorState extends State<LottieSuccessIndicator> {
   @override
   void initState() {
     super.initState();
-    
+
     // Delay animation start if specified
     if (widget.delay > Duration.zero) {
       Future.delayed(widget.delay, () {
@@ -321,7 +325,8 @@ class _LottieSuccessIndicatorState extends State<LottieSuccessIndicator> {
       );
     }
 
-    final String animationAsset = widget.asset ?? 'assets/animations/success.json';
+    final String animationAsset =
+        widget.asset ?? 'assets/animations/success.json';
 
     return SizedBox(
       width: widget.size,
@@ -334,7 +339,8 @@ class _LottieSuccessIndicatorState extends State<LottieSuccessIndicator> {
         onLoaded: () {
           // Auto-play when loaded
           Future.microtask(() {
-            final state = context.findAncestorStateOfType<_ControlledLottieAnimationState>();
+            final state = context
+                .findAncestorStateOfType<_ControlledLottieAnimationState>();
             state?.play();
           });
         },
@@ -346,31 +352,32 @@ class _LottieSuccessIndicatorState extends State<LottieSuccessIndicator> {
 /// Preloaded Lottie animations manager
 class LottiePreloader {
   static final Map<String, LottieComposition> _cache = {};
-  
+
   /// Preload a Lottie animation
-  static Future<LottieComposition> preload(String asset, {String? package}) async {
+  static Future<LottieComposition> preload(String asset,
+      {String? package}) async {
     final key = '$asset${package != null ? ':$package' : ''}';
-    
+
     if (_cache.containsKey(key)) {
       return _cache[key]!;
     }
-    
+
     final composition = await AssetLottie(asset, package: package).load();
     _cache[key] = composition;
     return composition;
   }
-  
+
   /// Get preloaded composition
   static LottieComposition? getPreloaded(String asset, {String? package}) {
     final key = '$asset${package != null ? ':$package' : ''}';
     return _cache[key];
   }
-  
+
   /// Clear cache
   static void clearCache() {
     _cache.clear();
   }
-  
+
   /// Clear specific animation from cache
   static void clearSpecific(String asset, {String? package}) {
     final key = '$asset${package != null ? ':$package' : ''}';
@@ -379,7 +386,8 @@ class LottiePreloader {
 }
 
 /// Lottie animation provider for Riverpod
-final lottieAnimationProvider = Provider.family<LottieComposition?, String>((ref, asset) {
+final lottieAnimationProvider =
+    Provider.family<LottieComposition?, String>((ref, asset) {
   return LottiePreloader.getPreloaded(asset);
 });
 
@@ -392,7 +400,7 @@ class CommonLottieAnimations {
   static const String confetti = 'assets/animations/confetti.json';
   static const String thumbsUp = 'assets/animations/thumbs_up.json';
   static const String wave = 'assets/animations/wave.json';
-  
+
   /// Preload common animations
   static Future<void> preloadCommonAnimations() async {
     await Future.wait([

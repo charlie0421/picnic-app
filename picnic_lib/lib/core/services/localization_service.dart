@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,7 +45,8 @@ class LocalizationService {
       await _loadSavedLocale();
       await _loadTranslations();
       _isInitialized = true;
-      debugPrint('LocalizationService initialized with locale: $_currentLocale');
+      debugPrint(
+          'LocalizationService initialized with locale: $_currentLocale');
     } catch (e) {
       debugPrint('Failed to initialize LocalizationService: $e');
       rethrow;
@@ -57,7 +58,7 @@ class LocalizationService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final savedLocaleCode = prefs.getString(_localeKey);
-      
+
       if (savedLocaleCode != null) {
         final parts = savedLocaleCode.split('_');
         if (parts.length == 2) {
@@ -68,7 +69,7 @@ class LocalizationService {
           }
         }
       }
-      
+
       // Fallback to system locale if supported
       final systemLocale = PlatformDispatcher.instance.locale;
       if (isLocaleSupported(systemLocale)) {
@@ -87,11 +88,12 @@ class LocalizationService {
 
     try {
       _currentLocale = locale;
-      
+
       // Save to preferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_localeKey, '${locale.languageCode}_${locale.countryCode}');
-      
+      await prefs.setString(
+          _localeKey, '${locale.languageCode}_${locale.countryCode}');
+
       debugPrint('Locale changed to: $locale');
     } catch (e) {
       debugPrint('Failed to change locale: $e');
@@ -111,7 +113,7 @@ class LocalizationService {
   /// Get translations for specific locale
   Map<String, String> _getTranslationsForLocale(Locale locale) {
     final localeKey = '${locale.languageCode}_${locale.countryCode}';
-    
+
     switch (localeKey) {
       case 'ko_KR':
         return _koreanTranslations;
@@ -131,27 +133,29 @@ class LocalizationService {
   /// Translate text key
   String translate(String key, {Locale? locale}) {
     final targetLocale = locale ?? _currentLocale;
-    final localeKey = '${targetLocale.languageCode}_${targetLocale.countryCode}';
-    
+    final localeKey =
+        '${targetLocale.languageCode}_${targetLocale.countryCode}';
+
     final translations = _translations[localeKey] ?? _translations['en_US']!;
     final translation = translations[key];
-    
+
     if (translation == null) {
       debugPrint('Translation not found for key: $key (locale: $localeKey)');
       return key; // Return key if translation not found
     }
-    
+
     return translation;
   }
 
   /// Translate with parameters
-  String translateWithParams(String key, Map<String, dynamic> params, {Locale? locale}) {
+  String translateWithParams(String key, Map<String, dynamic> params,
+      {Locale? locale}) {
     String translation = translate(key, locale: locale);
-    
+
     params.forEach((paramKey, value) {
       translation = translation.replaceAll('{$paramKey}', value.toString());
     });
-    
+
     return translation;
   }
 
@@ -176,7 +180,8 @@ class LocalizationService {
   /// Format date according to locale
   String formatDate(DateTime date, {String? pattern, Locale? locale}) {
     final targetLocale = locale ?? _currentLocale;
-    final formatter = DateFormat(pattern ?? 'yyyy-MM-dd', targetLocale.toString());
+    final formatter =
+        DateFormat(pattern ?? 'yyyy-MM-dd', targetLocale.toString());
     return formatter.format(date);
   }
 
@@ -223,7 +228,7 @@ class LocalizationService {
   /// Get locale-specific configurations
   LocaleConfig getLocaleConfig({Locale? locale}) {
     final targetLocale = locale ?? _currentLocale;
-    
+
     switch (targetLocale.languageCode) {
       case 'ko':
         return const LocaleConfig(
@@ -261,10 +266,10 @@ class LocalizationService {
   String getLocalizedAssetPath(String assetPath, {Locale? locale}) {
     final targetLocale = locale ?? _currentLocale;
     final languageCode = targetLocale.languageCode;
-    
+
     // Try language-specific asset first
     final localizedPath = assetPath.replaceAll('.', '_$languageCode.');
-    
+
     // For assets that might not have localized versions, return original path
     return localizedPath;
   }
@@ -279,8 +284,9 @@ class LocalizationService {
   }
 
   /// Get direction based on locale
-  TextDirection get textDirection {
-    return isRTL ? TextDirection.rtl : TextDirection.ltr;
+  ui.TextDirection get textDirection {
+    final isRightToLeft = getLocaleConfig().isRTL;
+    return isRightToLeft ? ui.TextDirection.rtl : ui.TextDirection.ltr;
   }
 }
 
@@ -529,17 +535,17 @@ class L10n {
   static LocalizationService get _service => LocalizationService();
 
   static String t(String key) => _service.translate(key);
-  
-  static String tp(String key, Map<String, dynamic> params) => 
+
+  static String tp(String key, Map<String, dynamic> params) =>
       _service.translateWithParams(key, params);
-  
+
   static String formatNumber(num number) => _service.formatNumber(number);
-  
-  static String formatCurrency(num amount, {String? currencyCode}) => 
+
+  static String formatCurrency(num amount, {String? currencyCode}) =>
       _service.formatCurrency(amount, currencyCode: currencyCode);
-  
-  static String formatDate(DateTime date, {String? pattern}) => 
+
+  static String formatDate(DateTime date, {String? pattern}) =>
       _service.formatDate(date, pattern: pattern);
-  
+
   static String formatTime(DateTime time) => _service.formatTime(time);
 }

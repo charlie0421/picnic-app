@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:math' as math;
+
+/// Available scroll physics types
+enum ScrollPhysicsType {
+  bouncing,
+  clamping,
+  custom,
+  elastic,
+  smooth,
+  snapping,
+}
 
 /// Custom scroll physics service for optimized scrolling experience
 class ScrollPhysicsService {
-  static final ScrollPhysicsService _instance = ScrollPhysicsService._internal();
+  static final ScrollPhysicsService _instance =
+      ScrollPhysicsService._internal();
   factory ScrollPhysicsService() => _instance;
   ScrollPhysicsService._internal();
-
-  /// Available scroll physics types
-  enum ScrollPhysicsType {
-    bouncing,
-    clamping,
-    custom,
-    elastic,
-    smooth,
-    snapping,
-  }
 
   /// Platform-specific physics configuration
   static const Map<TargetPlatform, ScrollPhysicsType> _platformDefaults = {
@@ -30,8 +32,9 @@ class ScrollPhysicsService {
 
   /// Get platform-appropriate scroll physics
   ScrollPhysics getPlatformPhysics() {
-    final platform = Theme.of(WidgetsBinding.instance.platformDispatcher.views.first.platformDispatcher.defaultTargetPlatform);
-    final physicsType = _platformDefaults[platform] ?? ScrollPhysicsType.clamping;
+    final platform = defaultTargetPlatform;
+    final physicsType =
+        _platformDefaults[platform] ?? ScrollPhysicsType.clamping;
     return getPhysics(physicsType);
   }
 
@@ -89,7 +92,7 @@ class CustomScrollPhysics extends ScrollPhysics {
     double velocity,
   ) {
     final tolerance = toleranceFor(position);
-    
+
     if (position.outOfRange) {
       double? end;
       if (position.pixels > position.maxScrollExtent) {
@@ -98,7 +101,7 @@ class CustomScrollPhysics extends ScrollPhysics {
       if (position.pixels < position.minScrollExtent) {
         end = position.minScrollExtent;
       }
-      
+
       if (end != null) {
         return ScrollSpringSimulation(
           spring,
@@ -109,18 +112,18 @@ class CustomScrollPhysics extends ScrollPhysics {
         );
       }
     }
-    
+
     if (velocity.abs() < tolerance.velocity) {
       return null;
     }
-    
+
     if (velocity > 0.0 && position.pixels >= position.maxScrollExtent) {
       return null;
     }
     if (velocity < 0.0 && position.pixels <= position.minScrollExtent) {
       return null;
     }
-    
+
     return ClampingScrollSimulation(
       position: position.pixels,
       velocity: velocity,
@@ -130,10 +133,10 @@ class CustomScrollPhysics extends ScrollPhysics {
 
   @override
   SpringDescription get spring => SpringDescription.withDampingRatio(
-    mass: 0.5,
-    stiffness: 100.0,
-    ratio: 1.1,
-  );
+        mass: 0.5,
+        stiffness: 100.0,
+        ratio: 1.1,
+      );
 }
 
 /// Elastic scroll physics with rubber band effect
@@ -152,10 +155,10 @@ class ElasticScrollPhysics extends ScrollPhysics {
 
   @override
   SpringDescription get spring => SpringDescription.withDampingRatio(
-    mass: 0.3,
-    stiffness: 120.0,
-    ratio: 0.9,
-  );
+        mass: 0.3,
+        stiffness: 120.0,
+        ratio: 0.9,
+      );
 }
 
 /// Smooth scroll physics for fluid animations
@@ -178,11 +181,11 @@ class SmoothScrollPhysics extends ScrollPhysics {
     double velocity,
   ) {
     final tolerance = toleranceFor(position);
-    
+
     if (velocity.abs() < tolerance.velocity) {
       return null;
     }
-    
+
     return FrictionSimulation.through(
       position.pixels,
       position.pixels + velocity * 0.2,
@@ -195,7 +198,7 @@ class SmoothScrollPhysics extends ScrollPhysics {
 /// Snapping scroll physics for grid or list items
 class SnappingScrollPhysics extends ScrollPhysics {
   final double snapSize;
-  
+
   const SnappingScrollPhysics({
     super.parent,
     this.snapSize = 100.0,
@@ -211,7 +214,7 @@ class SnappingScrollPhysics extends ScrollPhysics {
 
   double _getTargetPixels(double position, double velocity) {
     final snapPosition = (position / snapSize).round() * snapSize;
-    
+
     if (velocity.abs() > 100) {
       if (velocity > 0) {
         return snapPosition + snapSize;
@@ -219,7 +222,7 @@ class SnappingScrollPhysics extends ScrollPhysics {
         return snapPosition - snapSize;
       }
     }
-    
+
     return snapPosition;
   }
 
@@ -230,11 +233,11 @@ class SnappingScrollPhysics extends ScrollPhysics {
   ) {
     final tolerance = toleranceFor(position);
     final target = _getTargetPixels(position.pixels, velocity);
-    
+
     if ((target - position.pixels).abs() < tolerance.distance) {
       return null;
     }
-    
+
     return ScrollSpringSimulation(
       spring,
       position.pixels,
@@ -246,10 +249,10 @@ class SnappingScrollPhysics extends ScrollPhysics {
 
   @override
   SpringDescription get spring => SpringDescription.withDampingRatio(
-    mass: 0.4,
-    stiffness: 100.0,
-    ratio: 1.0,
-  );
+        mass: 0.4,
+        stiffness: 100.0,
+        ratio: 1.0,
+      );
 }
 
 /// Optimized scroll physics for lists
@@ -282,11 +285,11 @@ class OptimizedListScrollPhysics extends ScrollPhysics {
     double velocity,
   ) {
     final tolerance = toleranceFor(position);
-    
+
     if (velocity.abs() < tolerance.velocity) {
       return null;
     }
-    
+
     // Enhanced friction simulation for better deceleration
     return FrictionSimulation(
       0.135, // Reduced drag coefficient for smoother scrolling
@@ -352,11 +355,11 @@ class InfiniteScrollPhysics extends ScrollPhysics {
     double velocity,
   ) {
     final tolerance = toleranceFor(position);
-    
+
     if (velocity.abs() < tolerance.velocity) {
       return null;
     }
-    
+
     // Optimized for continuous scrolling
     return FrictionSimulation(
       0.12, // Lower friction for infinite scrolling
@@ -369,7 +372,8 @@ class InfiniteScrollPhysics extends ScrollPhysics {
 
 /// Scroll physics manager for dynamic physics switching
 class ScrollPhysicsManager {
-  static final ScrollPhysicsManager _instance = ScrollPhysicsManager._internal();
+  static final ScrollPhysicsManager _instance =
+      ScrollPhysicsManager._internal();
   factory ScrollPhysicsManager() => _instance;
   ScrollPhysicsManager._internal();
 
@@ -406,12 +410,12 @@ class ScrollPhysicsManager {
     if (metrics.maxScrollExtent <= 0) {
       return _service.getPhysics(ScrollPhysicsType.bouncing);
     }
-    
+
     // For long lists, use optimized list physics
     if (metrics.maxScrollExtent > 2000) {
       return _service.getListPhysics();
     }
-    
+
     // Default to platform physics
     return _service.getPlatformPhysics();
   }

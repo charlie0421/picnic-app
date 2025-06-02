@@ -21,7 +21,7 @@ class OptimizedListView<T> extends ConsumerStatefulWidget {
   final double cacheExtent;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
-  final ScrollPhysicsService.ScrollPhysicsType? physicsType;
+  final ScrollPhysicsType? physicsType;
   final bool enableAdaptivePhysics;
 
   const OptimizedListView({
@@ -46,7 +46,8 @@ class OptimizedListView<T> extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<OptimizedListView<T>> createState() => _OptimizedListViewState<T>();
+  ConsumerState<OptimizedListView<T>> createState() =>
+      _OptimizedListViewState<T>();
 }
 
 class _OptimizedListViewState<T> extends ConsumerState<OptimizedListView<T>>
@@ -64,10 +65,10 @@ class _OptimizedListViewState<T> extends ConsumerState<OptimizedListView<T>>
     super.initState();
     _scrollController = widget.scrollController ?? ScrollController();
     _physicsService = ScrollPhysicsService();
-    
+
     // Add scroll listener for load more functionality
     _scrollController.addListener(_onScroll);
-    
+
     // Initialize adaptive physics if enabled
     if (widget.enableAdaptivePhysics) {
       _scrollController.addListener(_updateAdaptivePhysics);
@@ -88,7 +89,7 @@ class _OptimizedListViewState<T> extends ConsumerState<OptimizedListView<T>>
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       // Trigger load more when near the end
       if (widget.hasMore && !widget.isLoading && widget.onLoadMore != null) {
@@ -99,10 +100,10 @@ class _OptimizedListViewState<T> extends ConsumerState<OptimizedListView<T>>
 
   void _updateAdaptivePhysics() {
     if (!widget.enableAdaptivePhysics || !_scrollController.hasClients) return;
-    
+
     final metrics = _scrollController.position;
     final newPhysics = ScrollPhysicsManager().getAdaptivePhysics(metrics);
-    
+
     if (_adaptivePhysics.runtimeType != newPhysics.runtimeType) {
       setState(() {
         _adaptivePhysics = newPhysics;
@@ -115,15 +116,15 @@ class _OptimizedListViewState<T> extends ConsumerState<OptimizedListView<T>>
     if (widget.physics != null) {
       return widget.physics!;
     }
-    
+
     if (widget.physicsType != null) {
       return _physicsService.getPhysics(widget.physicsType!);
     }
-    
+
     if (widget.enableAdaptivePhysics && _adaptivePhysics != null) {
       return _adaptivePhysics!;
     }
-    
+
     return _physicsService.getListPhysics();
   }
 
@@ -267,26 +268,34 @@ class ListPerformanceMetrics {
   /// Get performance report
   static Map<String, dynamic> getPerformanceReport() {
     final report = <String, dynamic>{};
-    
+
     for (final entry in _measurements.entries) {
       final key = entry.key;
       final measurements = entry.value;
-      
+
       if (measurements.isNotEmpty) {
         final total = measurements.fold<int>(
           0,
           (sum, duration) => sum + duration.inMicroseconds,
         );
-        
+
         report[key] = {
           'count': measurements.length,
           'average_ms': (total / measurements.length / 1000).toStringAsFixed(2),
-          'min_ms': (measurements.map((d) => d.inMicroseconds).reduce((a, b) => a < b ? a : b) / 1000).toStringAsFixed(2),
-          'max_ms': (measurements.map((d) => d.inMicroseconds).reduce((a, b) => a > b ? a : b) / 1000).toStringAsFixed(2),
+          'min_ms': (measurements
+                      .map((d) => d.inMicroseconds)
+                      .reduce((a, b) => a < b ? a : b) /
+                  1000)
+              .toStringAsFixed(2),
+          'max_ms': (measurements
+                      .map((d) => d.inMicroseconds)
+                      .reduce((a, b) => a > b ? a : b) /
+                  1000)
+              .toStringAsFixed(2),
         };
       }
     }
-    
+
     return report;
   }
 }

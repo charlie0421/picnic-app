@@ -1,6 +1,6 @@
 # Task ID: 10
 # Title: Complete Dark Mode Implementation
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: medium
 # Description: Ensure dark mode is fully supported across all screens of the app.
@@ -11,25 +11,25 @@ Use Flutter's built-in 'ThemeData' for consistent theming. Implement a theme swi
 Create widget tests for each screen in both light and dark modes. Implement screenshot tests using 'golden_toolkit' package to compare visual changes. Conduct manual testing on various devices to ensure proper contrast and readability.
 
 # Subtasks:
-## 1. Theme Data Setup [pending]
+## 1. Theme Data Setup [done]
 ### Dependencies: None
 ### Description: Define and configure light and dark ThemeData objects, ensuring consistent color schemes, typography, and widget styles across the app. Integrate theme definitions with Riverpod for state management compatibility.
 ### Details:
 Set up ThemeData for both light and dark modes. Ensure all primary, secondary, background, and text colors are defined. Extend themes for custom widgets if needed. Integrate with Riverpod to expose the current theme state.
 
-## 2. Theme Switcher Implementation [pending]
+## 2. Theme Switcher Implementation [done]
 ### Dependencies: 10.1
 ### Description: Implement a theme switcher UI component and logic to toggle between light and dark themes, persisting user preference using local storage. Ensure seamless integration with Riverpod state management.
 ### Details:
 Create a toggle switch or button in the app's settings or main UI. Use Riverpod to manage and update the theme state. Persist the user's theme choice using SharedPreferences or a similar local storage solution.
 
-## 3. Widget Compatibility Checks [pending]
+## 3. Widget Compatibility Checks [done]
 ### Dependencies: 10.1, 10.2
 ### Description: Audit all screens and widgets to ensure proper appearance and behavior under both light and dark themes. Refactor or update widgets as necessary for full theme compatibility.
 ### Details:
 Review all custom and third-party widgets for theme responsiveness. Update widget styles, backgrounds, and text colors to respect the current theme. Address any issues with contrast, visibility, or usability.
 
-## 4. Visual Testing and QA [pending]
+## 4. Visual Testing and QA [done]
 ### Dependencies: 10.3
 ### Description: Conduct comprehensive visual testing across all screens and devices to verify correct theme application and UI consistency. Document and resolve any visual defects or regressions.
 ### Details:

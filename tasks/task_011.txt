@@ -1,6 +1,6 @@
 # Task ID: 11
 # Title: Implement Customizable Push Notifications
-# Status: pending
+# Status: done
 # Dependencies: 6
 # Priority: high
 # Description: Develop a user-customizable push notification system with personalized settings.
@@ -11,43 +11,43 @@ Use 'firebase_messaging' package (version 14.6.2) for push notifications. Implem
 Create unit tests for notification preference logic. Implement integration tests for notification delivery and display. Conduct user acceptance testing for the notification customization UI.
 
 # Subtasks:
-## 1. Integrate Firebase Cloud Messaging (FCM) for Push Notifications [pending]
+## 1. Integrate Firebase Cloud Messaging (FCM) for Push Notifications [done]
 ### Dependencies: None
 ### Description: Set up Firebase Cloud Messaging in the Flutter app for both Android and iOS platforms. This includes adding necessary dependencies, configuring platform-specific files, and initializing Firebase in the app.
 ### Details:
 Add firebase_core and firebase_messaging packages to pubspec.yaml. Place google-services.json in android/app/ and GoogleService-Info.plist in ios/Runner/. Update Gradle and Podfile as needed. Initialize Firebase in main.dart and set up background message handlers.
 
-## 2. Implement Push Notification Preference UI [pending]
+## 2. Implement Push Notification Preference UI [done]
 ### Dependencies: 11.1
 ### Description: Design and build a user interface in Flutter that allows users to customize their push notification preferences (e.g., enable/disable notifications, select notification types).
 ### Details:
 Create a settings page using Flutter widgets. Use Riverpod for state management to reflect user choices in real time. Ensure the UI is responsive and accessible.
 
-## 3. Develop Server-Side Logic for Notification Delivery [pending]
+## 3. Develop Server-Side Logic for Notification Delivery [done]
 ### Dependencies: 11.1, 11.2
 ### Description: Implement backend logic to send push notifications based on user preferences and triggers. Integrate with Firebase Cloud Messaging APIs and ensure secure, targeted delivery.
 ### Details:
 Set up server endpoints (using Supabase or Firebase Functions) to trigger notifications. Handle scheduling, batching, and targeting specific users or groups. Store and respect user preferences when sending notifications.
 
-## 4. Implement Notification Display and Handling in App [pending]
+## 4. Implement Notification Display and Handling in App [done]
 ### Dependencies: 11.1, 11.2
 ### Description: Handle incoming push notifications in the Flutter app, including foreground, background, and terminated states. Display notifications using platform-specific UI and handle user interactions.
 ### Details:
 Use firebase_messaging to listen for notification events. Display notifications using local notifications plugin if needed. Handle navigation or actions when a notification is tapped.
 
-## 5. Persist User Notification Settings [pending]
+## 5. Persist User Notification Settings [done]
 ### Dependencies: 11.2
 ### Description: Store user notification preferences securely in the backend (Supabase or Firebase) and ensure they are loaded and applied on app startup.
 ### Details:
 Create API endpoints or use existing database tables to save and retrieve user settings. Sync settings between client and server using Riverpod for state management.
 
-## 6. Test Push Notification Functionality [pending]
+## 6. Test Push Notification Functionality [done]
 ### Dependencies: 11.3, 11.4, 11.5
 ### Description: Perform comprehensive testing of push notification integration, including sending, receiving, displaying, and respecting user preferences across platforms.
 ### Details:
 Write unit and integration tests for notification logic. Manually test on Android and iOS devices. Validate edge cases such as permission denial, app in background, and preference changes.
 
-## 7. Conduct Compliance and Privacy Checks [pending]
+## 7. Conduct Compliance and Privacy Checks [done]
 ### Dependencies: None
 ### Description: Review and ensure compliance with platform policies (Google Play, App Store) and privacy regulations (GDPR, CCPA) regarding push notifications and user data.
 ### Details:

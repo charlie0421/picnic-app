@@ -1,7 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+
+/// Pagination state management
+class PaginationState<T> {
+  final List<T> items;
+  final bool isLoading;
+  final bool hasMore;
+  final int currentPage;
+  final String? error;
+
+  const PaginationState({
+    this.items = const [],
+    this.isLoading = false,
+    this.hasMore = true,
+    this.currentPage = 0,
+    this.error,
+  });
+
+  PaginationState<T> copyWith({
+    List<T>? items,
+    bool? isLoading,
+    bool? hasMore,
+    int? currentPage,
+    String? error,
+  }) {
+    return PaginationState<T>(
+      items: items ?? this.items,
+      isLoading: isLoading ?? this.isLoading,
+      hasMore: hasMore ?? this.hasMore,
+      currentPage: currentPage ?? this.currentPage,
+      error: error ?? this.error,
+    );
+  }
+}
 
 /// Pagination-enabled list view with infinite scroll and backend integration
 class PaginatedListView<T> extends ConsumerStatefulWidget {
@@ -41,75 +73,125 @@ class PaginatedListView<T> extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PaginatedListView<T>> createState() => _PaginatedListViewState<T>();
+  ConsumerState<PaginatedListView<T>> createState() =>
+      _PaginatedListViewState<T>();
 }
 
 class _PaginatedListViewState<T> extends ConsumerState<PaginatedListView<T>> {
-  late PagingController<int, T> _pagingController;
+  late ScrollController _scrollController;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey();
+
+  PaginationState<T> _state = const PaginationState();
 
   @override
   void initState() {
     super.initState();
-    _pagingController = PagingController(firstPageKey: 0);
-    _pagingController.addPageRequestListener(_fetchPage);
+    _scrollController = widget.scrollController ?? ScrollController();
+    _scrollController.addListener(_onScroll);
+    _loadFirstPage();
   }
 
   @override
   void dispose() {
-    _pagingController.dispose();
+    if (widget.scrollController == null) {
+      _scrollController.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _fetchPage(int pageKey) async {
-    try {
-      final newItems = await widget.onLoadPage(pageKey, widget.pageSize);
-      final isLastPage = newItems.length < widget.pageSize;
-      
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      _loadNextPage();
     }
+  }
+
+  Future<void> _loadFirstPage() async {
+    if (_state.isLoading) return;
+
+    setState(() {
+      _state = _state.copyWith(isLoading: true, error: null);
+    });
+
+    try {
+      final items = await widget.onLoadPage(0, widget.pageSize);
+      setState(() {
+        _state = _state.copyWith(
+          items: items,
+          isLoading: false,
+          currentPage: 0,
+          hasMore: items.length >= widget.pageSize,
+          error: null,
+        );
+      });
+    } catch (error) {
+      setState(() {
+        _state = _state.copyWith(
+          isLoading: false,
+          error: error.toString(),
+        );
+      });
+    }
+  }
+
+  Future<void> _loadNextPage() async {
+    if (_state.isLoading || !_state.hasMore) return;
+
+    setState(() {
+      _state = _state.copyWith(isLoading: true);
+    });
+
+    try {
+      final nextPage = _state.currentPage + 1;
+      final newItems = await widget.onLoadPage(nextPage, widget.pageSize);
+
+      setState(() {
+        _state = _state.copyWith(
+          items: [..._state.items, ...newItems],
+          isLoading: false,
+          currentPage: nextPage,
+          hasMore: newItems.length >= widget.pageSize,
+        );
+      });
+    } catch (error) {
+      setState(() {
+        _state = _state.copyWith(isLoading: false);
+      });
+    }
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _state = const PaginationState();
+    });
+    await _loadFirstPage();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget listView = PagedListView<int, T>(
-      pagingController: _pagingController,
-      scrollController: widget.scrollController,
+    if (_state.items.isEmpty && _state.isLoading) {
+      return _buildFirstPageLoading();
+    }
+
+    if (_state.items.isEmpty && _state.error != null) {
+      return _buildErrorWidget(isFirstPage: true);
+    }
+
+    if (_state.items.isEmpty) {
+      return _buildEmptyWidget();
+    }
+
+    Widget listView = ListView.builder(
+      controller: _scrollController,
       padding: widget.padding,
-      builderDelegate: PagedChildBuilderDelegate<T>(
-        itemBuilder: (context, item, index) {
-          Widget itemWidget = widget.itemBuilder(context, item, index);
-          
-          if (widget.enableAnimation) {
-            itemWidget = AnimationConfiguration.staggeredList(
-              position: index,
-              child: SlideAnimation(
-                duration: const Duration(milliseconds: 300),
-                verticalOffset: 50.0,
-                child: FadeInAnimation(
-                  duration: const Duration(milliseconds: 300),
-                  child: itemWidget,
-                ),
-              ),
-            );
-          }
-          
-          return itemWidget;
-        },
-        firstPageErrorIndicatorBuilder: (context) => _buildErrorWidget(isFirstPage: true),
-        newPageErrorIndicatorBuilder: (context) => _buildErrorWidget(isFirstPage: false),
-        firstPageProgressIndicatorBuilder: (context) => _buildLoadingWidget(isFirstPage: true),
-        newPageProgressIndicatorBuilder: (context) => _buildLoadingWidget(isFirstPage: false),
-        noItemsFoundIndicatorBuilder: (context) => _buildEmptyWidget(),
-        noMoreItemsIndicatorBuilder: (context) => _buildNoMoreItemsWidget(),
-      ),
+      itemCount: _state.items.length + (_state.hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index < _state.items.length) {
+          return _buildItem(context, _state.items[index], index);
+        } else {
+          return _buildLoadingIndicator();
+        }
+      },
     );
 
     if (widget.enableAnimation) {
@@ -119,14 +201,48 @@ class _PaginatedListViewState<T> extends ConsumerState<PaginatedListView<T>> {
     if (widget.enableRefresh) {
       listView = RefreshIndicator(
         key: _refreshIndicatorKey,
-        onRefresh: () async {
-          _pagingController.refresh();
-        },
+        onRefresh: _refresh,
         child: listView,
       );
     }
 
     return listView;
+  }
+
+  Widget _buildItem(BuildContext context, T item, int index) {
+    Widget itemWidget = widget.itemBuilder(context, item, index);
+
+    if (widget.enableAnimation) {
+      itemWidget = AnimationConfiguration.staggeredList(
+        position: index,
+        child: SlideAnimation(
+          duration: const Duration(milliseconds: 300),
+          verticalOffset: 50.0,
+          child: FadeInAnimation(
+            duration: const Duration(milliseconds: 300),
+            child: itemWidget,
+          ),
+        ),
+      );
+    }
+
+    return itemWidget;
+  }
+
+  Widget _buildFirstPageLoading() {
+    return widget.firstPageLoadingWidget ??
+        widget.loadingWidget ??
+        const Center(child: CircularProgressIndicator());
+  }
+
+  Widget _buildLoadingIndicator() {
+    if (!_state.isLoading) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(),
+    );
   }
 
   Widget _buildErrorWidget({required bool isFirstPage}) {
@@ -146,21 +262,21 @@ class _PaginatedListViewState<T> extends ConsumerState<PaginatedListView<T>> {
           ),
           const SizedBox(height: 16),
           Text(
-            isFirstPage 
-              ? 'Failed to load data' 
-              : widget.newPageErrorText ?? 'Failed to load more items',
+            isFirstPage
+                ? 'Failed to load data'
+                : widget.newPageErrorText ?? 'Failed to load more items',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey[600],
-            ),
+                  color: Colors.grey[600],
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
               if (isFirstPage) {
-                _pagingController.refresh();
+                _refresh();
               } else {
-                _pagingController.retryLastFailedRequest();
+                _loadNextPage();
               }
             },
             child: Text(isFirstPage ? 'Retry' : 'Try Again'),
@@ -168,26 +284,6 @@ class _PaginatedListViewState<T> extends ConsumerState<PaginatedListView<T>> {
         ],
       ),
     );
-  }
-
-  Widget _buildLoadingWidget({required bool isFirstPage}) {
-    if (isFirstPage) {
-      return widget.firstPageLoadingWidget ?? 
-        widget.loadingWidget ?? 
-        const Center(
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: CircularProgressIndicator(),
-          ),
-        );
-    }
-
-    return widget.loadingWidget ?? 
-      Container(
-        padding: const EdgeInsets.all(16.0),
-        alignment: Alignment.center,
-        child: const CircularProgressIndicator(),
-      );
   }
 
   Widget _buildEmptyWidget() {
@@ -209,16 +305,16 @@ class _PaginatedListViewState<T> extends ConsumerState<PaginatedListView<T>> {
           Text(
             widget.noItemsFoundText ?? 'No items found',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: Colors.grey[600],
-            ),
+                  color: Colors.grey[600],
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             'Pull to refresh or try again later',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[500],
-            ),
+                  color: Colors.grey[500],
+                ),
             textAlign: TextAlign.center,
           ),
           if (widget.onEmptyActionPressed != null) ...[
@@ -233,35 +329,22 @@ class _PaginatedListViewState<T> extends ConsumerState<PaginatedListView<T>> {
     );
   }
 
-  Widget _buildNoMoreItemsWidget() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      alignment: Alignment.center,
-      child: Text(
-        'No more items to load',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Colors.grey[500],
-        ),
-      ),
-    );
-  }
-
   /// Refresh the list
   void refresh() {
-    _pagingController.refresh();
+    _refresh();
   }
 
   /// Check if list is loading
-  bool get isLoading => _pagingController.value.status == PagingStatus.loading;
+  bool get isLoading => _state.isLoading;
 
   /// Check if list has error
-  bool get hasError => _pagingController.value.status == PagingStatus.firstPageError;
+  bool get hasError => _state.error != null;
 
   /// Get current items
-  List<T> get items => _pagingController.itemList ?? [];
+  List<T> get items => _state.items;
 
   /// Check if list is empty
-  bool get isEmpty => items.isEmpty && !isLoading;
+  bool get isEmpty => _state.items.isEmpty && !_state.isLoading;
 }
 
 /// Paginated grid view with similar functionality
@@ -300,46 +383,115 @@ class PaginatedGridView<T> extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PaginatedGridView<T>> createState() => _PaginatedGridViewState<T>();
+  ConsumerState<PaginatedGridView<T>> createState() =>
+      _PaginatedGridViewState<T>();
 }
 
 class _PaginatedGridViewState<T> extends ConsumerState<PaginatedGridView<T>> {
-  late PagingController<int, T> _pagingController;
+  late ScrollController _scrollController;
+  PaginationState<T> _state = const PaginationState();
 
   @override
   void initState() {
     super.initState();
-    _pagingController = PagingController(firstPageKey: 0);
-    _pagingController.addPageRequestListener(_fetchPage);
+    _scrollController = widget.scrollController ?? ScrollController();
+    _scrollController.addListener(_onScroll);
+    _loadFirstPage();
   }
 
   @override
   void dispose() {
-    _pagingController.dispose();
+    if (widget.scrollController == null) {
+      _scrollController.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _fetchPage(int pageKey) async {
-    try {
-      final newItems = await widget.onLoadPage(pageKey, widget.pageSize);
-      final isLastPage = newItems.length < widget.pageSize;
-      
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
-    } catch (error) {
-      _pagingController.error = error;
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      _loadNextPage();
     }
+  }
+
+  Future<void> _loadFirstPage() async {
+    if (_state.isLoading) return;
+
+    setState(() {
+      _state = _state.copyWith(isLoading: true, error: null);
+    });
+
+    try {
+      final items = await widget.onLoadPage(0, widget.pageSize);
+      setState(() {
+        _state = _state.copyWith(
+          items: items,
+          isLoading: false,
+          currentPage: 0,
+          hasMore: items.length >= widget.pageSize,
+          error: null,
+        );
+      });
+    } catch (error) {
+      setState(() {
+        _state = _state.copyWith(
+          isLoading: false,
+          error: error.toString(),
+        );
+      });
+    }
+  }
+
+  Future<void> _loadNextPage() async {
+    if (_state.isLoading || !_state.hasMore) return;
+
+    setState(() {
+      _state = _state.copyWith(isLoading: true);
+    });
+
+    try {
+      final nextPage = _state.currentPage + 1;
+      final newItems = await widget.onLoadPage(nextPage, widget.pageSize);
+
+      setState(() {
+        _state = _state.copyWith(
+          items: [..._state.items, ...newItems],
+          isLoading: false,
+          currentPage: nextPage,
+          hasMore: newItems.length >= widget.pageSize,
+        );
+      });
+    } catch (error) {
+      setState(() {
+        _state = _state.copyWith(isLoading: false);
+      });
+    }
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _state = const PaginationState();
+    });
+    await _loadFirstPage();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget gridView = PagedGridView<int, T>(
-      pagingController: _pagingController,
-      scrollController: widget.scrollController,
+    if (_state.items.isEmpty && _state.isLoading) {
+      return widget.loadingWidget ??
+          const Center(child: CircularProgressIndicator());
+    }
+
+    if (_state.items.isEmpty && _state.error != null) {
+      return widget.errorWidget ?? const Center(child: Text('Error occurred'));
+    }
+
+    if (_state.items.isEmpty) {
+      return widget.emptyWidget ?? const Center(child: Text('No items found'));
+    }
+
+    Widget gridView = GridView.builder(
+      controller: _scrollController,
       padding: widget.padding,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: widget.crossAxisCount,
@@ -347,10 +499,12 @@ class _PaginatedGridViewState<T> extends ConsumerState<PaginatedGridView<T>> {
         crossAxisSpacing: widget.crossAxisSpacing,
         mainAxisSpacing: widget.mainAxisSpacing,
       ),
-      builderDelegate: PagedChildBuilderDelegate<T>(
-        itemBuilder: (context, item, index) {
-          Widget itemWidget = widget.itemBuilder(context, item, index);
-          
+      itemCount: _state.items.length + (_state.hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index < _state.items.length) {
+          Widget itemWidget =
+              widget.itemBuilder(context, _state.items[index], index);
+
           if (widget.enableAnimation) {
             itemWidget = AnimationConfiguration.staggeredGrid(
               position: index,
@@ -365,20 +519,14 @@ class _PaginatedGridViewState<T> extends ConsumerState<PaginatedGridView<T>> {
               ),
             );
           }
-          
+
           return itemWidget;
-        },
-        firstPageErrorIndicatorBuilder: (context) =>
-          widget.errorWidget ?? const Center(child: Text('Error occurred')),
-        newPageErrorIndicatorBuilder: (context) =>
-          const Center(child: Text('Error loading more')),
-        firstPageProgressIndicatorBuilder: (context) =>
-          widget.loadingWidget ?? const Center(child: CircularProgressIndicator()),
-        newPageProgressIndicatorBuilder: (context) =>
-          const Center(child: CircularProgressIndicator()),
-        noItemsFoundIndicatorBuilder: (context) =>
-          widget.emptyWidget ?? const Center(child: Text('No items found')),
-      ),
+        } else {
+          return _state.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : const SizedBox.shrink();
+        }
+      },
     );
 
     if (widget.enableAnimation) {
@@ -387,9 +535,7 @@ class _PaginatedGridViewState<T> extends ConsumerState<PaginatedGridView<T>> {
 
     if (widget.enableRefresh) {
       gridView = RefreshIndicator(
-        onRefresh: () async {
-          _pagingController.refresh();
-        },
+        onRefresh: _refresh,
         child: gridView,
       );
     }
@@ -399,24 +545,25 @@ class _PaginatedGridViewState<T> extends ConsumerState<PaginatedGridView<T>> {
 
   /// Refresh the grid
   void refresh() {
-    _pagingController.refresh();
+    _refresh();
   }
 
   /// Check if grid is loading
-  bool get isLoading => _pagingController.value.status == PagingStatus.loading;
+  bool get isLoading => _state.isLoading;
 }
 
 /// Supabase integration helper for pagination
 class SupabasePaginationHelper {
   /// Create a paginated query for Supabase
   static Future<List<Map<String, dynamic>>> paginatedQuery({
-    required Future<List<Map<String, dynamic>>> Function(int from, int to) queryBuilder,
+    required Future<List<Map<String, dynamic>>> Function(int from, int to)
+        queryBuilder,
     required int page,
     required int pageSize,
   }) async {
     final from = page * pageSize;
     final to = from + pageSize - 1;
-    
+
     try {
       return await queryBuilder(from, to);
     } catch (error) {
@@ -426,14 +573,16 @@ class SupabasePaginationHelper {
 
   /// Create a paginated query with search functionality
   static Future<List<Map<String, dynamic>>> paginatedSearchQuery({
-    required Future<List<Map<String, dynamic>>> Function(String searchTerm, int from, int to) queryBuilder,
+    required Future<List<Map<String, dynamic>>> Function(
+            String searchTerm, int from, int to)
+        queryBuilder,
     required String searchTerm,
     required int page,
     required int pageSize,
   }) async {
     final from = page * pageSize;
     final to = from + pageSize - 1;
-    
+
     try {
       return await queryBuilder(searchTerm, from, to);
     } catch (error) {
@@ -446,7 +595,8 @@ class SupabasePaginationHelper {
 class FirebasePaginationHelper {
   /// Create a paginated query for Firebase with cursor-based pagination
   static Future<List<T>> paginatedQuery<T>({
-    required Future<List<T>> Function(int limit, dynamic lastDocument) queryBuilder,
+    required Future<List<T>> Function(int limit, dynamic lastDocument)
+        queryBuilder,
     required int page,
     required int pageSize,
     dynamic lastDocument,
@@ -475,7 +625,7 @@ class AdvancedPaginationController<T> {
   List<T>? getCachedPage(int page) {
     final cachedData = _cache[page];
     final timestamp = _cacheTimestamps[page];
-    
+
     if (cachedData != null && timestamp != null) {
       if (DateTime.now().difference(timestamp) < cacheExpiry) {
         return cachedData;
@@ -485,7 +635,7 @@ class AdvancedPaginationController<T> {
         _cacheTimestamps.remove(page);
       }
     }
-    
+
     return null;
   }
 
@@ -508,7 +658,7 @@ class AdvancedPaginationController<T> {
         .where((entry) => now.difference(entry.value) >= cacheExpiry)
         .map((entry) => entry.key)
         .toList();
-    
+
     for (final page in expiredPages) {
       _cache.remove(page);
       _cacheTimestamps.remove(page);

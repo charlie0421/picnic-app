@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Accessibility service for enhanced screen reader compatibility
 class AccessibilityService {
-  static final AccessibilityService _instance = AccessibilityService._internal();
+  static final AccessibilityService _instance =
+      AccessibilityService._internal();
   factory AccessibilityService() => _instance;
   AccessibilityService._internal();
 
@@ -31,37 +32,41 @@ class AccessibilityService {
   Future<void> _loadAccessibilitySettings() async {
     final prefs = await SharedPreferences.getInstance();
     _isEnabled = prefs.getBool('${_prefixKey}enabled') ?? false;
-    _isHighContrastEnabled = prefs.getBool('${_prefixKey}high_contrast') ?? false;
+    _isHighContrastEnabled =
+        prefs.getBool('${_prefixKey}high_contrast') ?? false;
     _isLargeTextEnabled = prefs.getBool('${_prefixKey}large_text') ?? false;
-    _isReduceMotionEnabled = prefs.getBool('${_prefixKey}reduce_motion') ?? false;
+    _isReduceMotionEnabled =
+        prefs.getBool('${_prefixKey}reduce_motion') ?? false;
     _textScaleFactor = prefs.getDouble('${_prefixKey}text_scale') ?? 1.0;
   }
 
   /// Setup system accessibility listeners
   void _setupSystemAccessibilityListeners() {
     // Listen for system accessibility changes
-    WidgetsBinding.instance.platformDispatcher.onAccessibilityFeaturesChanged = () {
+    WidgetsBinding.instance.platformDispatcher.onAccessibilityFeaturesChanged =
+        () {
       _updateSystemAccessibilityFeatures();
     };
-    
+
     _updateSystemAccessibilityFeatures();
   }
 
   /// Update system accessibility features
   void _updateSystemAccessibilityFeatures() {
-    final features = WidgetsBinding.instance.platformDispatcher.accessibilityFeatures;
-    
+    final features =
+        WidgetsBinding.instance.platformDispatcher.accessibilityFeatures;
+
     // Update based on system settings
     if (features.boldText != _isLargeTextEnabled) {
       _isLargeTextEnabled = features.boldText;
       _saveAccessibilitySetting('large_text', _isLargeTextEnabled);
     }
-    
+
     if (features.reduceMotion != _isReduceMotionEnabled) {
       _isReduceMotionEnabled = features.reduceMotion;
       _saveAccessibilitySetting('reduce_motion', _isReduceMotionEnabled);
     }
-    
+
     if (features.highContrast != _isHighContrastEnabled) {
       _isHighContrastEnabled = features.highContrast;
       _saveAccessibilitySetting('high_contrast', _isHighContrastEnabled);
@@ -123,27 +128,27 @@ class AccessibilityService {
     bool isEnabled = true,
   }) {
     final buffer = StringBuffer(text);
-    
+
     if (value != null && value.isNotEmpty) {
       buffer.write(', $value');
     }
-    
+
     if (isButton) {
       buffer.write(', button');
     }
-    
+
     if (isSelected) {
       buffer.write(', selected');
     }
-    
+
     if (!isEnabled) {
       buffer.write(', disabled');
     }
-    
+
     if (hint != null && hint.isNotEmpty) {
       buffer.write(', $hint');
     }
-    
+
     return buffer.toString();
   }
 
@@ -211,7 +216,7 @@ class AccessibilityService {
       if (semanticHint.isNotEmpty) semanticHint.write(', ');
       semanticHint.write('required');
     }
-    
+
     return createAccessibleSemantics(
       label: label,
       hint: semanticHint.toString(),
@@ -230,15 +235,15 @@ class AccessibilityService {
     VoidCallback? onTap,
   }) {
     final buffer = StringBuffer(label);
-    
+
     if (subtitle != null && subtitle.isNotEmpty) {
       buffer.write(', $subtitle');
     }
-    
+
     if (index != null && totalCount != null) {
       buffer.write(', item ${index + 1} of $totalCount');
     }
-    
+
     return createAccessibleSemantics(
       label: buffer.toString(),
       onTap: onTap,
@@ -256,7 +261,7 @@ class AccessibilityService {
     if (isDecorative) {
       return ExcludeSemantics(child: child);
     }
-    
+
     return createAccessibleSemantics(
       label: label,
       hint: description,
@@ -274,11 +279,11 @@ class AccessibilityService {
     VoidCallback? onTap,
   }) {
     final buffer = StringBuffer(label);
-    
+
     if (index != null && totalCount != null) {
       buffer.write(', tab ${index + 1} of $totalCount');
     }
-    
+
     return createAccessibleSemantics(
       label: buffer.toString(),
       isButton: true,
@@ -292,12 +297,14 @@ class AccessibilityService {
   void announceMessage(String message, {bool polite = true}) {
     SemanticsService.announce(
       message,
-      polite ? Directionality.of(WidgetsBinding.instance.rootElement!) : TextDirection.ltr,
+      polite
+          ? Directionality.of(WidgetsBinding.instance.rootElement!)
+          : TextDirection.ltr,
     );
   }
 
   /// Provide haptic feedback
-  void provideHapticFeedback({HapticFeedbackType type = HapticFeedbackType.lightImpact}) {
+  void provideHapticFeedback() {
     if (_isEnabled) {
       HapticFeedback.lightImpact();
     }
@@ -306,11 +313,11 @@ class AccessibilityService {
   /// Get accessible colors based on contrast settings
   AccessibleColors getAccessibleColors(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (_isHighContrastEnabled) {
       return AccessibleColors.highContrast(theme.brightness);
     }
-    
+
     return AccessibleColors.standard(theme);
   }
 
@@ -318,14 +325,13 @@ class AccessibilityService {
   TextTheme getAccessibleTextTheme(BuildContext context) {
     final theme = Theme.of(context);
     final baseTextTheme = theme.textTheme;
-    
+
     if (_isLargeTextEnabled || _textScaleFactor != 1.0) {
       return baseTextTheme.apply(
         fontSizeFactor: _textScaleFactor,
-        fontWeightDelta: _isLargeTextEnabled ? 1 : 0,
       );
     }
-    
+
     return baseTextTheme;
   }
 

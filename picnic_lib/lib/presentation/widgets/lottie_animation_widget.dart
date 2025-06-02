@@ -1,43 +1,62 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import '../../core/services/animation_service.dart';
+import '../../../core/services/animation_service.dart';
 
-/// 메모리 효율적이고 성능 최적화된 Lottie 애니메이션 위젯
+/// Lottie 애니메이션 상태
+enum LottieAnimationState {
+  loading,
+  loaded,
+  playing,
+  paused,
+  stopped,
+  error,
+}
+
+/// 메모리 효율적인 Lottie 애니메이션 위젯
 class LottieAnimationWidget extends StatefulWidget {
-  final String assetPath;
-  final double? width;
-  final double? height;
-  final BoxFit fit;
-  final bool repeat;
-  final bool reverse;
-  final bool autoPlay;
-  final Duration? duration;
-  final VoidCallback? onCompleted;
-  final AnimationController? controller;
-  final bool preload;
-  final bool cacheEnabled;
-  final AlignmentGeometry alignment;
-  final Widget? placeholder;
-  final Widget? errorWidget;
-
   const LottieAnimationWidget({
     super.key,
     required this.assetPath,
     this.width,
     this.height,
     this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
     this.repeat = true,
     this.reverse = false,
-    this.autoPlay = true,
-    this.duration,
-    this.onCompleted,
-    this.controller,
-    this.preload = true,
-    this.cacheEnabled = true,
-    this.alignment = Alignment.center,
-    this.placeholder,
+    this.animate = true,
+    this.frameRate = FrameRate.max,
+    this.fallbackWidget,
     this.errorWidget,
+    this.loadingWidget,
+    this.onLoaded,
+    this.onError,
+    this.controller,
+    this.delegates,
+    this.options,
+    this.addRepaintBoundary = true,
+    this.filterQuality = FilterQuality.low,
   });
+
+  final String assetPath;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  final Alignment alignment;
+  final bool repeat;
+  final bool reverse;
+  final bool animate;
+  final FrameRate frameRate;
+  final Widget? fallbackWidget;
+  final Widget? errorWidget;
+  final Widget? loadingWidget;
+  final VoidCallback? onLoaded;
+  final ValueChanged<String>? onError;
+  final AnimationController? controller;
+  final LottieDelegates? delegates;
+  final LottieOptions? options;
+  final bool addRepaintBoundary;
+  final FilterQuality filterQuality;
 
   @override
   State<LottieAnimationWidget> createState() => _LottieAnimationWidgetState();
@@ -46,25 +65,24 @@ class LottieAnimationWidget extends StatefulWidget {
 class _LottieAnimationWidgetState extends State<LottieAnimationWidget>
     with TickerProviderStateMixin {
   late AnimationController _controller;
-  LottieComposition? _composition;
-  bool _isLoading = true;
-  bool _hasError = false;
+  LottieAnimationState _state = LottieAnimationState.loading;
   String? _errorMessage;
+  final AnimationService _animationService = AnimationService();
 
   @override
   void initState() {
     super.initState();
-    _setupController();
-    _loadAnimation();
+    _initializeController();
+    _preloadAnimation();
   }
 
-  void _setupController() {
+  void _initializeController() {
     if (widget.controller != null) {
       _controller = widget.controller!;
     } else {
-      _controller = AnimationService().createController(
+      _controller = _animationService.createController(
         vsync: this,
-        duration: widget.duration ?? AnimationService.defaultDuration,
+        tag: 'lottie_${widget.assetPath}',
       );
     }
 
@@ -72,320 +90,464 @@ class _LottieAnimationWidgetState extends State<LottieAnimationWidget>
   }
 
   void _onAnimationStatusChanged(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      widget.onCompleted?.call();
-      
-      if (widget.repeat) {
-        if (widget.reverse) {
-          _controller.reverse();
+    if (!mounted) return;
+
+    switch (status) {
+      case AnimationStatus.completed:
+        if (widget.repeat) {
+          if (widget.reverse) {
+            _controller.reverse();
+          } else {
+            _controller.repeat();
+          }
         } else {
-          _controller.reset();
+          setState(() {
+            _state = LottieAnimationState.stopped;
+          });
+        }
+        break;
+      case AnimationStatus.dismissed:
+        if (widget.repeat && widget.reverse) {
           _controller.forward();
         }
-      }
-    } else if (status == AnimationStatus.dismissed && widget.reverse && widget.repeat) {
-      _controller.forward();
+        break;
+      default:
+        break;
     }
   }
 
-  Future<void> _loadAnimation() async {
+  Future<void> _preloadAnimation() async {
     try {
-      LottieComposition? composition;
+      setState(() {
+        _state = LottieAnimationState.loading;
+      });
 
-      // 캐시 확인
-      if (widget.cacheEnabled) {
-        composition = AnimationService().getCachedLottieAnimation(widget.assetPath);
+      // 프리로드된 애니메이션 확인
+      final preloaded =
+          _animationService.getPreloadedLottieAnimation(widget.assetPath);
+      if (preloaded != null) {
+        _onAnimationLoaded();
+        return;
       }
 
-      // 캐시에 없거나 프리로드가 필요한 경우
-      if (composition == null) {
-        if (widget.preload) {
-          composition = await AnimationService().preloadLottieAnimation(widget.assetPath);
-        } else {
-          composition = await AssetLottie(widget.assetPath).load();
-        }
-      }
-
-      if (mounted) {
-        setState(() {
-          _composition = composition;
-          _isLoading = false;
-          _hasError = composition == null;
-        });
-
-        // 자동 재생
-        if (widget.autoPlay && composition != null) {
-          _controller.forward();
-        }
-      }
+      // 새로 로드
+      await _animationService.preloadLottieAnimation(
+          widget.assetPath, widget.assetPath);
+      _onAnimationLoaded();
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-          _errorMessage = e.toString();
-        });
+      _onAnimationError(e.toString());
+    }
+  }
+
+  void _onAnimationLoaded() {
+    if (!mounted) return;
+
+    setState(() {
+      _state = LottieAnimationState.loaded;
+    });
+
+    widget.onLoaded?.call();
+
+    if (widget.animate) {
+      play();
+    }
+  }
+
+  void _onAnimationError(String error) {
+    if (!mounted) return;
+
+    setState(() {
+      _state = LottieAnimationState.error;
+      _errorMessage = error;
+    });
+
+    widget.onError?.call(error);
+  }
+
+  /// 애니메이션 재생
+  void play() {
+    if (_state == LottieAnimationState.loaded ||
+        _state == LottieAnimationState.paused ||
+        _state == LottieAnimationState.stopped) {
+      setState(() {
+        _state = LottieAnimationState.playing;
+      });
+
+      if (widget.reverse) {
+        _controller.reverse();
+      } else {
+        _controller.forward();
       }
-      debugPrint('Failed to load Lottie animation: ${widget.assetPath} - $e');
+    }
+  }
+
+  /// 애니메이션 일시정지
+  void pause() {
+    if (_state == LottieAnimationState.playing) {
+      setState(() {
+        _state = LottieAnimationState.paused;
+      });
+      _controller.stop();
+    }
+  }
+
+  /// 애니메이션 정지
+  void stop() {
+    setState(() {
+      _state = LottieAnimationState.stopped;
+    });
+    _controller.reset();
+  }
+
+  /// 애니메이션 재개
+  void resume() {
+    if (_state == LottieAnimationState.paused) {
+      play();
     }
   }
 
   @override
-  void didUpdateWidget(LottieAnimationWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    
-    if (oldWidget.assetPath != widget.assetPath) {
-      _loadAnimation();
+  Widget build(BuildContext context) {
+    switch (_state) {
+      case LottieAnimationState.loading:
+        return _buildLoadingWidget();
+
+      case LottieAnimationState.error:
+        return _buildErrorWidget();
+
+      case LottieAnimationState.loaded:
+      case LottieAnimationState.playing:
+      case LottieAnimationState.paused:
+      case LottieAnimationState.stopped:
+        return _buildLottieWidget();
     }
-    
-    if (oldWidget.autoPlay != widget.autoPlay && widget.autoPlay) {
-      _controller.forward();
+  }
+
+  Widget _buildLoadingWidget() {
+    return widget.loadingWidget ??
+        SizedBox(
+          width: widget.width ?? 50,
+          height: widget.height ?? 50,
+          child: const CircularProgressIndicator(),
+        );
+  }
+
+  Widget _buildErrorWidget() {
+    return widget.errorWidget ??
+        widget.fallbackWidget ??
+        SizedBox(
+          width: widget.width ?? 50,
+          height: widget.height ?? 50,
+          child: Icon(
+            Icons.error_outline,
+            color: Colors.red,
+            size: (widget.width ?? 50) * 0.6,
+          ),
+        );
+  }
+
+  Widget _buildLottieWidget() {
+    Widget lottieWidget = Lottie.asset(
+      widget.assetPath,
+      width: widget.width,
+      height: widget.height,
+      fit: widget.fit,
+      alignment: widget.alignment,
+      controller: _controller,
+      repeat: false, // 컨트롤러에서 직접 관리
+      reverse: false, // 컨트롤러에서 직접 관리
+      animate: _state == LottieAnimationState.playing,
+      frameRate: widget.frameRate,
+      delegates: widget.delegates,
+      options: widget.options,
+      errorBuilder: (context, error, stackTrace) {
+        _onAnimationError(error.toString());
+        return _buildErrorWidget();
+      },
+      filterQuality: widget.filterQuality,
+    );
+
+    if (widget.addRepaintBoundary) {
+      lottieWidget = RepaintBoundary(child: lottieWidget);
     }
+
+    return lottieWidget;
   }
 
   @override
   void dispose() {
     _controller.removeStatusListener(_onAnimationStatusChanged);
-    
-    // 컨트롤러가 외부에서 제공된 경우가 아니라면 정리
     if (widget.controller == null) {
-      AnimationService().disposeController(_controller);
+      _animationService.disposeController('lottie_${widget.assetPath}');
     }
-    
     super.dispose();
   }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return _buildPlaceholder();
-    }
-
-    if (_hasError || _composition == null) {
-      return _buildErrorWidget();
-    }
-
-    return RepaintBoundary(
-      child: SizedBox(
-        width: widget.width,
-        height: widget.height,
-        child: Lottie(
-          composition: _composition!,
-          controller: _controller,
-          width: widget.width,
-          height: widget.height,
-          fit: widget.fit,
-          alignment: widget.alignment,
-          repeat: false, // 수동으로 제어하므로 false
-          reverse: false, // 수동으로 제어하므로 false
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder() {
-    if (widget.placeholder != null) {
-      return widget.placeholder!;
-    }
-
-    return SizedBox(
-      width: widget.width ?? 100,
-      height: widget.height ?? 100,
-      child: const Center(
-        child: CircularProgressIndicator(strokeWidth: 2),
-      ),
-    );
-  }
-
-  Widget _buildErrorWidget() {
-    if (widget.errorWidget != null) {
-      return widget.errorWidget!;
-    }
-
-    return SizedBox(
-      width: widget.width ?? 100,
-      height: widget.height ?? 100,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 32,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Animation Error',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
-            if (_errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  _errorMessage!,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[500],
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 애니메이션 제어 메서드들
-  void play() => _controller.forward();
-  void pause() => _controller.stop();
-  void stop() => _controller.reset();
-  void resume() => _controller.forward();
-  
-  bool get isPlaying => _controller.isAnimating;
-  bool get isCompleted => _controller.isCompleted;
-  double get progress => _controller.value;
 }
 
-/// 미리 정의된 Lottie 애니메이션 위젯들
+/// 사전 정의된 Lottie 애니메이션들
 class PreDefinedLottieAnimations {
-  static const String _basePath = 'assets/animations/';
-  
-  // 로딩 애니메이션
+  static const String loadingAsset = 'assets/animations/loading.json';
+  static const String successAsset = 'assets/animations/success.json';
+  static const String errorAsset = 'assets/animations/error.json';
+  static const String heartAsset = 'assets/animations/heart.json';
+  static const String thumbsUpAsset = 'assets/animations/thumbs_up.json';
+  static const String confettiAsset = 'assets/animations/confetti.json';
+  static const String emptyAsset = 'assets/animations/empty.json';
+  static const String noInternetAsset = 'assets/animations/no_internet.json';
+
+  /// 로딩 애니메이션
   static Widget loading({
     double size = 80,
     Color? color,
-  }) {
-    return LottieAnimationWidget(
-      assetPath: '${_basePath}loading.json',
-      width: size,
-      height: size,
-      repeat: true,
-      placeholder: SizedBox(
+  }) =>
+      LottieAnimationWidget(
+        assetPath: PreDefinedLottieAnimations.loadingAsset,
         width: size,
         height: size,
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation(color ?? Colors.blue),
-        ),
-      ),
-    );
-  }
+        repeat: true,
+        delegates: color != null
+            ? LottieDelegates(
+                values: [
+                  ValueDelegate.color(
+                    const ['**'],
+                    value: color,
+                  ),
+                ],
+              )
+            : null,
+      );
 
-  // 성공 애니메이션
+  /// 성공 애니메이션
   static Widget success({
     double size = 100,
     VoidCallback? onCompleted,
-  }) {
-    return LottieAnimationWidget(
-      assetPath: '${_basePath}success.json',
-      width: size,
-      height: size,
-      repeat: false,
-      onCompleted: onCompleted,
-    );
-  }
+  }) =>
+      LottieAnimationWidget(
+        assetPath: PreDefinedLottieAnimations.successAsset,
+        width: size,
+        height: size,
+        repeat: false,
+        onLoaded: onCompleted,
+      );
 
-  // 에러 애니메이션
+  /// 에러 애니메이션
   static Widget error({
     double size = 100,
-    VoidCallback? onCompleted,
-  }) {
-    return LottieAnimationWidget(
-      assetPath: '${_basePath}error.json',
-      width: size,
-      height: size,
-      repeat: false,
-      onCompleted: onCompleted,
-    );
-  }
+    Color color = Colors.red,
+  }) =>
+      LottieAnimationWidget(
+        assetPath: PreDefinedLottieAnimations.errorAsset,
+        width: size,
+        height: size,
+        repeat: false,
+        delegates: LottieDelegates(
+          values: [
+            ValueDelegate.color(
+              const ['**'],
+              value: color,
+            ),
+          ],
+        ),
+      );
 
-  // 하트 애니메이션
+  /// 좋아요 애니메이션
   static Widget heart({
     double size = 60,
-    bool isLiked = false,
-    VoidCallback? onCompleted,
-  }) {
-    return LottieAnimationWidget(
-      assetPath: isLiked 
-          ? '${_basePath}heart_filled.json'
-          : '${_basePath}heart_empty.json',
-      width: size,
-      height: size,
-      repeat: false,
-      onCompleted: onCompleted,
-    );
-  }
-
-  // 빈 상태 애니메이션
-  static Widget empty({
-    double size = 150,
-    String? message,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        LottieAnimationWidget(
-          assetPath: '${_basePath}empty.json',
-          width: size,
-          height: size,
-          repeat: true,
-        ),
-        if (message != null) ...[
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
+    Color color = Colors.red,
+    bool animate = true,
+  }) =>
+      LottieAnimationWidget(
+        assetPath: PreDefinedLottieAnimations.heartAsset,
+        width: size,
+        height: size,
+        repeat: false,
+        animate: animate,
+        delegates: LottieDelegates(
+          values: [
+            ValueDelegate.color(
+              const ['**'],
+              value: color,
             ),
-            textAlign: TextAlign.center,
+          ],
+        ),
+      );
+
+  /// 빈 상태 애니메이션
+  static Widget empty({
+    double size = 200,
+    String? text,
+    TextStyle? textStyle,
+  }) =>
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LottieAnimationWidget(
+            assetPath: PreDefinedLottieAnimations.emptyAsset,
+            width: size,
+            height: size,
+            repeat: true,
           ),
+          if (text != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              text,
+              style: textStyle ??
+                  const TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
-      ],
-    );
-  }
+      );
 }
 
 /// Lottie 애니메이션 프리로더
 class LottiePreloader {
-  static final List<String> _commonAnimations = [
-    'assets/animations/loading.json',
-    'assets/animations/success.json',
-    'assets/animations/error.json',
-    'assets/animations/heart_filled.json',
-    'assets/animations/heart_empty.json',
-    'assets/animations/empty.json',
-  ];
+  static final Map<String, Future<LottieComposition>> _loadingFutures = {};
+  static final Set<String> _preloadedAnimations = {};
 
-  /// 공통 애니메이션들을 미리 로드
-  static Future<void> preloadCommonAnimations() async {
-    final service = AnimationService();
-    
-    for (final path in _commonAnimations) {
-      try {
-        await service.preloadLottieAnimation(path);
-      } catch (e) {
-        debugPrint('Failed to preload animation: $path - $e');
-      }
+  /// 애니메이션 배치 프리로드
+  static Future<void> preloadAnimations(List<String> assetPaths) async {
+    final futures = assetPaths.map((path) => preloadAnimation(path));
+    await Future.wait(futures);
+  }
+
+  /// 단일 애니메이션 프리로드
+  static Future<LottieComposition> preloadAnimation(String assetPath) async {
+    if (_preloadedAnimations.contains(assetPath)) {
+      return AnimationService().getPreloadedLottieAnimation(assetPath)!;
+    }
+
+    if (_loadingFutures.containsKey(assetPath)) {
+      return _loadingFutures[assetPath]!;
+    }
+
+    final future = AssetLottie(assetPath).load();
+    _loadingFutures[assetPath] = future;
+
+    try {
+      final composition = await future;
+      await AnimationService().preloadLottieAnimation(assetPath, assetPath);
+      _preloadedAnimations.add(assetPath);
+      _loadingFutures.remove(assetPath);
+      return composition;
+    } catch (e) {
+      _loadingFutures.remove(assetPath);
+      rethrow;
     }
   }
 
-  /// 특정 애니메이션들을 미리 로드
-  static Future<void> preloadAnimations(List<String> assetPaths) async {
-    final service = AnimationService();
-    
+  /// 사전 정의된 애니메이션들 프리로드
+  static Future<void> preloadPredefinedAnimations() async {
+    await preloadAnimations([
+      PreDefinedLottieAnimations.loadingAsset,
+      PreDefinedLottieAnimations.successAsset,
+      PreDefinedLottieAnimations.errorAsset,
+      PreDefinedLottieAnimations.heartAsset,
+      PreDefinedLottieAnimations.emptyAsset,
+    ]);
+  }
+
+  /// 프리로드 상태 확인
+  static bool isPreloaded(String assetPath) {
+    return _preloadedAnimations.contains(assetPath);
+  }
+
+  /// 프리로드된 애니메이션들 정리
+  static void clearPreloadedAnimations() {
+    _preloadedAnimations.clear();
+    _loadingFutures.clear();
+  }
+
+  /// 프리로드 진행 상황 스트림
+  static Stream<double> preloadProgressStream(List<String> assetPaths) async* {
+    var completed = 0;
+    final total = assetPaths.length;
+
+    yield 0.0;
+
     for (final path in assetPaths) {
       try {
-        await service.preloadLottieAnimation(path);
+        await preloadAnimation(path);
+        completed++;
+        yield completed / total;
       } catch (e) {
-        debugPrint('Failed to preload animation: $path - $e');
+        debugPrint('Failed to preload animation $path: $e');
+        completed++;
+        yield completed / total;
       }
     }
+  }
+}
+
+/// Lottie 애니메이션 컨트롤러
+class LottieAnimationController {
+  final AnimationController _controller;
+  final String assetPath;
+  LottieAnimationState _state = LottieAnimationState.stopped;
+
+  LottieAnimationController._(this._controller, this.assetPath);
+
+  static LottieAnimationController create({
+    required TickerProvider vsync,
+    required String assetPath,
+    Duration duration = const Duration(seconds: 2),
+  }) {
+    final controller = AnimationController(
+      vsync: vsync,
+      duration: duration,
+    );
+    return LottieAnimationController._(controller, assetPath);
+  }
+
+  /// 애니메이션 재생
+  void play() {
+    _state = LottieAnimationState.playing;
+    _controller.forward();
+  }
+
+  /// 애니메이션 일시정지
+  void pause() {
+    _state = LottieAnimationState.paused;
+    _controller.stop();
+  }
+
+  /// 애니메이션 정지
+  void stop() {
+    _state = LottieAnimationState.stopped;
+    _controller.reset();
+  }
+
+  /// 애니메이션 재개
+  void resume() {
+    if (_state == LottieAnimationState.paused) {
+      play();
+    }
+  }
+
+  /// 애니메이션 반복
+  void repeat({bool reverse = false}) {
+    _controller.repeat(reverse: reverse);
+  }
+
+  /// 특정 프레임으로 이동
+  void seekToFrame(double frame) {
+    _controller.value = frame.clamp(0.0, 1.0);
+  }
+
+  /// 현재 상태
+  LottieAnimationState get state => _state;
+
+  /// 애니메이션 진행률
+  double get progress => _controller.value;
+
+  /// 애니메이션 컨트롤러
+  AnimationController get controller => _controller;
+
+  /// 리소스 정리
+  void dispose() {
+    _controller.dispose();
   }
 }
