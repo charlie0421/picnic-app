@@ -95,9 +95,9 @@ class TestWidget extends StatefulWidget {
   final AnimationService animationService;
 
   const TestWidget({
-    Key? key,
+    super.key,
     required this.animationService,
-  }) : super(key: key);
+  });
 
   @override
   State<TestWidget> createState() => _TestWidgetState();
@@ -124,13 +124,18 @@ class _TestWidgetState extends State<TestWidget> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      height: 100,
-      color: Colors.red,
-      child: const Center(
-        child: Text('Test'),
-      ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: 100,
+          height: 100,
+          color: Colors.red,
+          child: const Center(
+            child: Text('Test'),
+          ),
+        );
+      },
     );
   }
 }

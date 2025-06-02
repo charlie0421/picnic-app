@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-06-02T11:28:23.390994",
+  "timestamp": "2025-06-02T12:12:09.298499",
   "beforeOptimization": {
     "totalStartupTime": 4200.0,
     "stageTimings": {
@@ -45,16 +45,16 @@
     "totalStartupTime": 0.0,
     "stageTimings": {},
     "memoryUsage": {
-      "totalMemoryUsage": 443.859375,
+      "totalMemoryUsage": 441.3984375,
       "fontMemoryUsage": 1.5773963928222656,
       "assetMemoryUsage": 0.0,
-      "appMemoryUsage": 295.90625
+      "appMemoryUsage": 294.265625
     },
     "assetMetrics": {
       "totalAssets": 12,
       "criticalAssetsLoaded": 2,
-      "assetLoadingTime": 5.0,
-      "fontLoadingTime": 25.0,
+      "assetLoadingTime": 1.0,
+      "fontLoadingTime": 17.0,
       "assetsByPriority": {
         "total": 12,
         "loaded": 2,
@@ -63,8 +63,8 @@
       }
     },
     "uxMetrics": {
-      "timeToFirstFrame": 188.4,
-      "timeToInteractive": 314.0,
+      "timeToFirstFrame": 178.2,
+      "timeToInteractive": 297.0,
       "splashScreenDuration": 2000.0,
       "hasProgressIndicator": true,
       "hasSmoothTransitions": true
@@ -80,10 +80,10 @@
       "after": 0.0
     },
     "memory_usage": {
-      "improvement_mb": -351.859375,
-      "improvement_percent": -382.4558423913044,
+      "improvement_mb": -349.3984375,
+      "improvement_percent": -379.78091032608694,
       "before": 92.0,
-      "after": 443.859375
+      "after": 441.3984375
     },
     "font_optimization": {
       "memory_saved_mb": 4.822603607177735,
