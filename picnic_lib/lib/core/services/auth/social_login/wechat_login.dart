@@ -8,23 +8,36 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/social_login_result.dart';
 
 class WeChatLogin implements SocialLogin {
+  final Fluwx _fluwx = Fluwx();
+
   @override
   Future<SocialLoginResult> login() async {
     try {
-      // Initialize WeChat SDK
-      await registerWxApi(
+      // Initialize WeChat SDK (API 문서: Fluwx().registerApi)
+      await _fluwx.registerApi(
         appId: Environment.wechatAppId,
         universalLink: Environment.wechatUniversalLink,
       );
 
-      // Check if WeChat is installed
-      final isInstalled = await isWeChatInstalled;
+      // Check if WeChat is installed (API 문서: isWeChatInstalled)
+      final isInstalled = await _fluwx.isWeChatInstalled;
       if (!isInstalled) {
         throw PicnicAuthExceptions.unsupportedProvider('WeChat not installed');
       }
 
-      // Perform WeChat login
-      final authResult = await _performWeChatLogin();
+      // Send auth request (API 문서: sendWeChatAuth)
+      final success = await _fluwx.authBy(
+        which: NormalAuth(scope: 'snsapi_userinfo', state: 'wechat_sdk_demo_test'),
+      );
+
+      logger.i('WeChat login success: $success');
+
+      if (!success) {
+        throw PicnicAuthExceptions.unknown();
+      }
+
+      // Listen for response
+      final authResult = await _waitForWeChatResponse();
 
       if (authResult.errCode != 0 ||
           authResult.code == null ||
@@ -52,29 +65,18 @@ class WeChatLogin implements SocialLogin {
     }
   }
 
-  Future<WeChatAuthResponse> _performWeChatLogin() async {
+  Future<WeChatAuthResponse> _waitForWeChatResponse() async {
     try {
       // Set up response listener
       final completer = Completer<WeChatAuthResponse>();
-      StreamSubscription? subscription;
 
-      subscription = weChatResponseEventHandler.listen((response) {
-        if (response is WeChatAuthResponse) {
-          subscription?.cancel();
-          completer.complete(response);
-        }
-      });
-
-      // Send auth request
-      final success = await sendWeChatAuth(
-        scope: "snsapi_userinfo",
-        state: "wechat_sdk_demo_test",
+      final subscription = _fluwx.addSubscriber(
+        (response) {
+          if (response is WeChatAuthResponse) {
+            completer.complete(response);
+          }
+        },
       );
-
-      if (!success) {
-        subscription.cancel();
-        throw PicnicAuthExceptions.unknown();
-      }
 
       // Wait for response (with timeout)
       return await completer.future.timeout(
@@ -85,7 +87,7 @@ class WeChatLogin implements SocialLogin {
         },
       );
     } catch (e, s) {
-      logger.e('_performWeChatLogin', error: e, stackTrace: s);
+      logger.e('_waitForWeChatResponse', error: e, stackTrace: s);
       rethrow;
     }
   }

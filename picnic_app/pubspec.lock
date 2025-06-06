@@ -1067,7 +1067,7 @@ packages:
     source: sdk
     version: "0.0.0"
   fluwx:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: fluwx
       sha256: "08cea9fdbe187f450d63167f8ef944f89be3bd71b511d83138189f62bdd15c17"
