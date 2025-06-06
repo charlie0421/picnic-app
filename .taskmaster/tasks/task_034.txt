@@ -1,0 +1,240 @@
+# Task ID: 34
+# Title: 투표 신청 기능 종합 테스트 구현
+# Status: pending
+# Dependencies: 33
+# Priority: medium
+# Description: 비즈니스 로직 단위 테스트, API 엔드포인트 통합 테스트, UI 컴포넌트 테스트, 데이터베이스 제약조건 검증을 포함한 투표 신청 기능에 대한 포괄적인 테스트 전략을 개발하고 구현합니다.
+# Details:
+1. 비즈니스 로직 단위 테스트:
+   - VoteApplicationService에 대한 테스트 케이스 작성:
+     - 중복 신청 방지 로직 테스트
+     - 투표 상태에 따른 유효성 검사 테스트
+     - 사용자 신청 제한 테스트
+     - 데이터 유효성 검사 메서드 테스트
+   - 외부 의존성으로부터 비즈니스 로직을 분리하기 위한 모킹 프레임워크 사용
+   - 엣지 케이스 및 오류 조건에 대한 테스트 케이스 구현
+   - 테스트 구조 예시:
+     ```dart
+     void main() {
+       group('VoteApplicationService Tests', () {
+         late MockVoteApplicationRepository mockRepository;
+         late VoteApplicationService service;
+         
+         setUp(() {
+           mockRepository = MockVoteApplicationRepository();
+           service = VoteApplicationService(repository: mockRepository);
+         });
+         
+         test('should throw exception when user attempts duplicate application', () async {
+           // Arrange
+           when(mockRepository.checkUserApplication(any, any))
+               .thenAnswer((_) async => true);
+           
+           // Act & Assert
+           expect(
+             () => service.createApplication(userId: 'user1', voteId: 'vote1', title: 'Test'),
+             throwsA(isA<DuplicateVoteApplicationException>()),
+           );
+         });
+       });
+     }
+     ```
+
+2. API 엔드포인트 통합 테스트:
+   - POST /api/vote-applications 엔드포인트 테스트:
+     - 성공적인 신청 생성 확인
+     - 인증 요구사항 테스트
+     - 유효하지 않은 입력에 대한 적절한 오류 응답 확인
+     - 중복 신청 방지 테스트
+   - GET /api/vote-applications/:id 엔드포인트 테스트:
+     - 올바른 데이터 검색 확인
+     - 권한 규칙 테스트
+   - GET /api/users/:userId/vote-applications 엔드포인트 테스트:
+     - 사용자별 올바른 필터링 확인
+   - 통합 테스트 예시:
+     ```dart
+     void main() {
+       late Supabase supabase;
+       
+       setUpAll(() async {
+         supabase = await initializeTestSupabase();
+         // 테스트 데이터 설정
+       });
+       
+       test('POST /api/vote-applications creates new application', () async {
+         final response = await http.post(
+           Uri.parse('$baseUrl/api/vote-applications'),
+           headers: {'Authorization': 'Bearer $testToken'},
+           body: jsonEncode({
+             'vote_id': 'test-vote-id',
+             'title': 'Test Application',
+             'description': 'Test description'
+           }),
+         );
+         
+         expect(response.statusCode, equals(201));
+         final responseData = jsonDecode(response.body);
+         expect(responseData['title'], equals('Test Application'));
+       });
+     }
+     ```
+
+3. UI 컴포넌트 테스트:
+   - VoteApplicationForm 위젯 테스트:
+     - 폼 유효성 검사 확인
+     - 제출 동작 테스트
+     - 로딩 상태가 올바르게 표시되는지 확인
+     - 오류 메시지 표시 테스트
+   - VoteApplicationList 위젯 테스트:
+     - 신청 항목의 올바른 렌더링 확인
+     - 구현된 경우 페이지네이션 테스트
+     - 빈 상태 처리 확인
+   - 위젯 테스트 예시:
+     ```dart
+     void main() {
+       testWidgets('VoteApplicationForm validates required fields', (WidgetTester tester) async {
+         // Arrange
+         await tester.pumpWidget(MaterialApp(
+           home: VoteApplicationForm(voteId: 'test-vote'),
+         ));
+         
+         // Act
+         await tester.tap(find.byType(ElevatedButton));
+         await tester.pump();
+         
+         // Assert
+         expect(find.text('Title is required'), findsOneWidget);
+       });
+     }
+     ```
+
+4. 데이터베이스 제약조건 테스트:
+   - 고유 제약조건 테스트:
+     - 투표당 사용자당 하나의 신청 제약조건 확인
+     - 외래 키 제약조건 테스트
+   - 데이터 무결성 테스트:
+     - 필수 필드 유효성 검사 확인
+     - 데이터 유형 제약조건 테스트
+   - 데이터베이스 제약조건 테스트 예시:
+     ```dart
+     void main() {
+       late Supabase supabase;
+       
+       setUpAll(() async {
+         supabase = await initializeTestSupabase();
+       });
+       
+       test('Database prevents duplicate user applications for same vote', () async {
+         // 첫 번째 신청 생성
+         await supabase.from('vote_applications').insert({
+           'vote_id': 'test-vote-id',
+           'user_id': 'test-user-id',
+           'title': 'First Application'
+         });
+         
+         // 중복 신청 시도
+         try {
+           await supabase.from('vote_applications').insert({
+             'vote_id': 'test-vote-id',
+             'user_id': 'test-user-id',
+             'title': 'Second Application'
+           });
+           fail('Should have thrown a constraint violation');
+         } catch (e) {
+           expect(e, isA<PostgrestException>());
+         }
+       });
+     }
+     ```
+
+5. 테스트 환경 설정:
+   - 테스트 데이터가 있는 전용 테스트 데이터베이스 생성
+   - 인증 및 권한 부여를 위한 테스트 헬퍼 구현
+   - 외부 의존성에 대한 모의 서비스 설정
+
+# Test Strategy:
+1. 단위 테스트 검증:
+   - 테스트 러너를 사용하여 모든 단위 테스트 실행: `flutter test test/unit/vote_application_service_test.dart`
+   - 모든 테스트가 예상 커버리지로 통과하는지 확인(코드 커버리지 80% 이상 목표)
+   - 엣지 케이스가 적절히 테스트되었는지 확인:
+     - 중복 신청 시도
+     - 유효하지 않은 데이터 제출
+     - 다양한 투표 상태 시나리오
+   - 비즈니스 로직을 분리하기 위해 모의 객체가 적절히 사용되었는지 확인
+
+2. 통합 테스트 검증:
+   - 격리된 테스트 데이터베이스로 테스트 환경 설정
+   - 통합 테스트 실행: `flutter test test/integration/vote_application_api_test.dart`
+   - 모든 API 엔드포인트가 예상 상태 코드와 데이터를 반환하는지 확인
+   - 인증 및 권한 부여 시나리오 테스트:
+     - 인증된 사용자가 신청을 생성할 수 있음
+     - 인증되지 않은 요청이 거부됨
+     - 사용자는 자신의 신청만 액세스할 수 있음
+   - 오류 처리가 예상대로 작동하는지 확인
+
+3. UI 컴포넌트 테스트 검증:
+   - 위젯 테스트 실행: `flutter test test/widget/vote_application_form_test.dart`
+   - 폼 유효성 검사가 올바르게 작동하는지 확인
+   - 사용자 상호작용 테스트:
+     - 폼 제출
+     - 오류 메시지 표시
+     - 로딩 인디케이터
+   - 반응형 디자인을 보장하기 위해 다양한 화면 크기 테스트
+
+4. 데이터베이스 제약조건 테스트 검증:
+   - 데이터베이스 테스트 실행: `flutter test test/database/vote_application_constraints_test.dart`
+   - 고유 제약조건이 적용되는지 확인
+   - 외래 키 제약조건이 데이터 무결성을 유지하는지 테스트
+   - 필수 필드 유효성 검사가 작동하는지 확인
+
+5. 엔드-투-엔드 테스트:
+   - 완전한 투표 신청 흐름에 대한 수동 테스트 수행
+   - 신청 제출부터 상태 업데이트까지 전체 프로세스 확인
+   - 다양한 사용자 역할 및 권한으로 테스트
+   - 실시간 업데이트가 올바르게 작동하는지 확인
+
+6. 성능 테스트:
+   - API 호출에 대한 응답 시간 측정
+   - 더 큰 데이터셋으로 테스트하여 규모에 따른 성능 보장
+   - 데이터 로딩 중에도 UI가 응답성을 유지하는지 확인
+
+7. 회귀 테스트:
+   - 구현 후 전체 테스트 스위트를 실행하여 기존 기능이 손상되지 않았는지 확인
+
+# Subtasks:
+## 1. 단위 테스트 구현 [pending]
+### Dependencies: None
+### Description: 개별 컴포넌트 및 함수에 대한 단위 테스트 생성 및 실행
+### Details:
+핵심 함수, 엣지 케이스 및 오류 처리에 대한 테스트 케이스 작성. 의존성에 대한 모킹 사용.
+
+## 2. 통합 테스트 개발 [pending]
+### Dependencies: 34.1
+### Description: 서로 다른 모듈 간의 상호작용에 대한 테스트 설계 및 구현
+### Details:
+API 엔드포인트, 서비스 상호작용 및 컴포넌트 간 데이터 흐름에 중점.
+
+## 3. UI 테스트 생성 [pending]
+### Dependencies: 34.1
+### Description: 사용자 인터페이스 컴포넌트 및 상호작용에 대한 자동화된 테스트 구현
+### Details:
+Selenium 또는 Cypress와 같은 도구를 사용하여 UI 요소, 사용자 흐름 및 반응성 테스트.
+
+## 4. 데이터베이스 테스트 구현 [pending]
+### Dependencies: 34.1, 34.2
+### Description: 데이터베이스 작업, 쿼리 및 데이터 무결성에 대한 테스트 개발
+### Details:
+CRUD 작업, 복잡한 쿼리 테스트 및 트랜잭션 전반에 걸친 데이터 일관성 보장.
+
+## 5. 엔드-투-엔드 테스트 설정 [pending]
+### Dependencies: 34.1, 34.2, 34.3, 34.4
+### Description: 전체 애플리케이션에 걸쳐 실제 사용자 시나리오를 시뮬레이션하는 종합적인 테스트 생성
+### Details:
+중요한 사용자 여정을 다루고 전체적인 시스템 동작을 검증하는 테스트 시나리오 설계.
+
+## 6. 성능 테스트 수행 [pending]
+### Dependencies: 34.1, 34.2, 34.4, 34.5
+### Description: 다양한 부하 조건에서 시스템 성능을 평가하는 테스트 구현
+### Details:
+JMeter 또는 Gatling과 같은 도구를 사용하여 응답 시간, 처리량 및 스트레스 하에서의 시스템 안정성 테스트.
+

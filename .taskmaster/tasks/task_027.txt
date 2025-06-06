@@ -1,0 +1,101 @@
+# Task ID: 27
+# Title: 투표 신청 데이터 모델 및 리포지토리 구현
+# Status: pending
+# Dependencies: 26
+# Priority: high
+# Description: VoteApplication 및 VoteApplicationUser 모델 클래스를 생성하고, VoteApplicationRepository를 구현하며, 중복 신청을 방지하는 로직을 포함합니다.
+# Details:
+1. VoteApplication 모델 클래스 생성:
+   - 속성: id (UUID), voteId (UUID), title (String), description (String), createdAt (DateTime), updatedAt (DateTime)
+   - Supabase 통합을 위한 fromJson 및 toJson 메서드 구현
+
+2. VoteApplicationUser 모델 클래스 생성:
+   - 속성: id (UUID), voteApplicationId (UUID), userId (UUID), status (String), createdAt (DateTime), updatedAt (DateTime)
+   - fromJson 및 toJson 메서드 구현
+
+3. VoteApplicationRepository 구현:
+   - 데이터베이스 작업을 위해 Supabase SDK 사용
+   - 메서드:
+     a. createApplication(VoteApplication application): 새로운 투표 신청 생성
+     b. getApplicationsByVoteId(UUID voteId): 특정 투표에 대한 신청 목록 조회
+     c. getUserApplications(UUID userId): 특정 사용자의 신청 목록 조회
+     d. updateApplicationStatus(UUID applicationId, String status): 신청 상태 업데이트
+
+4. 중복 신청 방지 구현:
+   - createApplication 메서드에서 사용자가 이미 신청했는지 확인:
+     ```dart
+     Future<bool> hasUserApplied(UUID voteId, UUID userId) async {
+       final response = await supabase
+         .from('vote_application_users')
+         .select()
+         .eq('vote_id', voteId)
+         .eq('user_id', userId)
+         .single();
+       return response != null;
+     }
+     ```
+   - 사용자가 이미 신청한 경우 DuplicateApplicationException 발생
+
+5. Supabase Row Level Security 활용:
+   - 모든 리포지토리 메서드가 Task 25에서 설정한 RLS 정책을 준수하도록 보장
+
+6. 모든 리포지토리 메서드에 대한 오류 처리 및 로깅 구현
+
+7. 필요한 곳에 리포지토리 인스턴스를 제공하기 위해 의존성 주입(get_it) 사용
+
+# Test Strategy:
+1. 단위 테스트:
+   - VoteApplication 및 VoteApplicationUser 모델 직렬화/역직렬화 테스트
+   - Supabase 클라이언트를 모킹하여 모든 VoteApplicationRepository 메서드 테스트
+   - 중복 신청 방지 로직 검증
+
+2. 통합 테스트:
+   - Supabase에서 테스트 데이터베이스 설정
+   - 실제 Supabase 인스턴스에 대해 리포지토리 메서드 테스트
+   - RLS 정책이 준수되는지 확인
+
+3. UI 테스트:
+   - 투표 신청 제출을 위한 UI 구현
+   - 폼 유효성 검사 및 제출 프로세스 테스트
+   - 중복 신청에 대한 오류 메시지 확인
+
+4. 성능 테스트:
+   - 대용량 데이터셋으로 리포지토리 메서드 벤치마크
+   - 효율적인 쿼리 및 인덱싱 확인
+
+5. 보안 테스트:
+   - 투표 신청에 대한 무단 접근 시도
+   - RLS가 사용자 간 데이터 유출을 방지하는지 확인
+
+6. 엣지 케이스 테스트:
+   - 다양한 상태 값 및 상태 전환 테스트
+   - 누락되거나 잘못된 데이터에 대한 동작 확인
+
+7. 회귀 테스트:
+   - 구현이 기존 기능을 손상시키지 않는지 확인
+
+# Subtasks:
+## 1. 데이터 모델 정의 [pending]
+### Dependencies: None
+### Description: 애플리케이션을 위한 데이터 모델 생성
+### Details:
+User, Task, Project 등과 같은 데이터 모델의 구조와 속성을 정의합니다. 모델 간의 적절한 관계가 설정되었는지 확인합니다.
+
+## 2. 리포지토리 메서드 구현 [pending]
+### Dependencies: 27.1
+### Description: CRUD 작업을 위한 리포지토리 메서드 생성
+### Details:
+각 데이터 모델에 대한 리포지토리 메서드를 구현하며, 생성, 읽기, 업데이트 및 삭제 작업을 포함합니다. 적절한 오류 처리 및 데이터 유효성 검사를 보장합니다.
+
+## 3. Supabase와 통합 [pending]
+### Dependencies: 27.2
+### Description: Supabase 연결 설정 및 리포지토리 메서드 적응
+### Details:
+Supabase 클라이언트를 구성하고, Supabase 대시보드에서 테이블을 설정하며, 데이터 지속성을 위해 Supabase API를 사용하도록 리포지토리 메서드를 수정합니다.
+
+## 4. 데이터 모델 및 리포지토리 통합 테스트 [pending]
+### Dependencies: 27.3
+### Description: 데이터 모델 및 리포지토리 메서드에 대한 테스트 작성 및 실행
+### Details:
+데이터 모델에 대한 단위 테스트와 Supabase를 사용한 리포지토리 메서드에 대한 통합 테스트를 생성합니다. 모든 CRUD 작업이 올바르게 작동하고 예외 상황을 처리하는지 확인합니다.
+

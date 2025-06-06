@@ -1,0 +1,128 @@
+# Task ID: 32
+# Title: 투표 신청 API 엔드포인트 구현
+# Status: pending
+# Dependencies: 31
+# Priority: high
+# Description: 새로운 신청 생성, 특정 투표 신청 조회, 사용자별 투표 신청 세부 정보 가져오기를 포함한 투표 신청 기능을 위한 REST API 엔드포인트를 개발하고, 적절한 인증 및 권한 부여를 구현합니다.
+# Details:
+1. Implement POST /api/vote-applications endpoint:
+   - Create a new controller method in VoteApplicationController
+   - Accept request body with fields: vote_id, title, description, and any other required fields
+   - Validate request data using appropriate DTOs/validation classes
+   - Call the VoteApplicationService to handle business logic
+   - Return appropriate HTTP status codes (201 for success, 400 for validation errors, 409 for duplicates)
+   - Include proper error handling for business logic exceptions
+
+2. Implement GET /api/vote-applications/{vote_id} endpoint:
+   - Create a controller method to retrieve all applications for a specific vote
+   - Implement pagination support with query parameters (page, size)
+   - Add sorting options (e.g., by creation date, popularity)
+   - Return a structured response with application details and metadata
+   - Implement proper error handling for non-existent votes
+
+3. Implement GET /api/vote-applications/user/{user_id}/{vote_id} endpoint:
+   - Create a controller method to retrieve a specific user's application for a vote
+   - Validate that the requesting user has permission to view the requested data
+   - Return detailed application information or 404 if no application exists
+   - Include proper error handling
+
+4. Implement authentication and authorization:
+   - Secure all endpoints with appropriate authentication middleware
+   - For POST endpoint: verify user is authenticated and has permission to create applications
+   - For GET endpoints: implement proper authorization checks
+     - Admin users can access all applications
+     - Regular users can only access their own applications or public vote data
+   - Use JWT tokens for authentication
+   - Implement role-based access control
+
+5. Implement request/response DTOs:
+   - Create VoteApplicationRequestDto for POST requests
+   - Create VoteApplicationResponseDto for GET responses
+   - Include proper validation annotations on request DTOs
+   - Implement mapping between DTOs and domain models
+
+6. Add API documentation:
+   - Document all endpoints using Swagger/OpenAPI annotations
+   - Include request/response examples
+   - Document authentication requirements
+   - List possible error responses and status codes
+
+7. Implement proper logging:
+   - Log all API requests and responses (excluding sensitive data)
+   - Include request tracing for debugging
+   - Log performance metrics for monitoring
+
+# Test Strategy:
+1. Unit Testing:
+   - Write unit tests for each controller method
+   - Mock the VoteApplicationService to isolate controller logic
+   - Test all success and error scenarios
+   - Verify correct HTTP status codes are returned
+   - Test validation logic for request DTOs
+
+2. Integration Testing:
+   - Create integration tests that use a test database
+   - Test the complete request flow from controller through service to repository
+   - Verify database operations work correctly
+   - Test authentication and authorization logic
+   - Verify proper error handling across the stack
+
+3. API Testing:
+   - Use tools like Postman or REST-assured to test the API endpoints
+   - Create a collection of test requests covering all endpoints
+   - Test with valid and invalid authentication tokens
+   - Test with valid and invalid request data
+   - Verify response formats match expected structure
+
+4. Security Testing:
+   - Test authentication bypass attempts
+   - Verify authorization rules prevent unauthorized access
+   - Test for common API vulnerabilities (injection, CSRF, etc.)
+   - Verify proper handling of sensitive data
+
+5. Performance Testing:
+   - Test API endpoints under load
+   - Measure and verify response times
+   - Test pagination with large datasets
+
+6. Specific Test Cases:
+   - POST /api/vote-applications:
+     - Test successful creation
+     - Test duplicate application rejection
+     - Test with invalid vote_id
+     - Test with missing required fields
+   - GET /api/vote-applications/{vote_id}:
+     - Test retrieval of all applications for a vote
+     - Test with non-existent vote_id
+     - Test pagination and sorting
+   - GET /api/vote-applications/user/{user_id}/{vote_id}:
+     - Test retrieval of user's application
+     - Test with non-existent application
+     - Test authorization (user can only access their own applications)
+     - Test admin access to any application
+
+# Subtasks:
+## 1. 인증 및 권한 부여 구현 [pending]
+### Dependencies: None
+### Description: 안전한 인증 시스템을 설정하고 API 엔드포인트에 대한 권한 확인을 구현합니다
+### Details:
+인증 방법(예: JWT)을 선택하고, 사용자 등록 및 로그인을 구현하며, 토큰 검증을 위한 미들웨어를 만들고, 역할 기반 접근 제어를 설정합니다
+
+## 2. 각 엔드포인트에 대한 요청/응답 처리 개발 [pending]
+### Dependencies: 32.1
+### Description: 요청 파싱 및 응답 형식 지정을 포함한 각 API 엔드포인트의 핵심 기능을 생성합니다
+### Details:
+각 엔드포인트에 대한 입력 유효성 검사, 오류 처리, 데이터베이스 쿼리 및 비즈니스 로직을 구현합니다. 적절한 HTTP 상태 코드와 일관된 응답 구조를 보장합니다
+
+## 3. API 문서 작성 [pending]
+### Dependencies: 32.2
+### Description: 요청/응답 형식 및 인증 요구 사항을 포함한 모든 API 엔드포인트에 대한 포괄적인 문서를 작성합니다
+### Details:
+Swagger 또는 OpenAPI와 같은 도구를 사용하여 대화형 문서를 생성합니다. 예제, 오류 응답 및 인증 지침을 포함합니다
+
+## 4. 테스트 및 최적화 수행 [pending]
+### Dependencies: 32.2, 32.3
+### Description: 모든 API 엔드포인트에 대한 철저한 테스트를 수행하고 성능을 최적화합니다
+### Details:
+각 엔드포인트에 대한 단위 테스트 및 통합 테스트를 작성합니다. 부하 테스트를 수행하고 데이터베이스 쿼리를 최적화합니다. 필요한 경우 캐싱을 구현합니다
+

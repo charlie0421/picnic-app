@@ -1,0 +1,253 @@
+# Task ID: 33
+# Title: 투표 신청 상태 관리 프로바이더 구현
+# Status: pending
+# Dependencies: 32
+# Priority: medium
+# Description: 로딩, 성공, 실패 상태를 포함한 신청 상태를 관리하는 VoteApplicationProvider를 생성하고, 신청 상태에 대한 실시간 업데이트를 구현하며, 적절한 사용자 피드백과 함께 오류를 처리합니다.
+# Details:
+1. Create VoteApplicationProvider class:
+   - Implement using Provider pattern or BLoC pattern (depending on project architecture)
+   - Define state class with fields for:
+     - isLoading: boolean
+     - applications: List<VoteApplication>
+     - error: String?
+     - currentApplication: VoteApplication?
+
+2. Implement state management methods:
+   ```dart
+   class VoteApplicationProvider extends ChangeNotifier {
+     bool _isLoading = false;
+     List<VoteApplication> _applications = [];
+     String? _error;
+     VoteApplication? _currentApplication;
+     
+     // Getters
+     bool get isLoading => _isLoading;
+     List<VoteApplication> get applications => _applications;
+     String? get error => _error;
+     VoteApplication? get currentApplication => _currentApplication;
+     
+     // State update methods
+     void _setLoading(bool loading) {
+       _isLoading = loading;
+       notifyListeners();
+     }
+     
+     void _setError(String? error) {
+       _error = error;
+       notifyListeners();
+     }
+     
+     void _updateApplications(List<VoteApplication> applications) {
+       _applications = applications;
+       notifyListeners();
+     }
+   }
+   ```
+
+3. Implement application submission functionality:
+   ```dart
+   Future<void> submitApplication(VoteApplicationRequest request) async {
+     try {
+       _setLoading(true);
+       _setError(null);
+       
+       // Call API endpoint using appropriate service
+       final result = await _voteApplicationService.submitApplication(request);
+       
+       // Update current application
+       _currentApplication = result;
+       
+       // Refresh applications list
+       await fetchUserApplications();
+       
+       _setLoading(false);
+     } catch (e) {
+       _setLoading(false);
+       _setError(_formatErrorMessage(e));
+     }
+   }
+   ```
+
+4. Implement real-time updates using Supabase subscriptions:
+   ```dart
+   void subscribeToApplicationUpdates(String userId) {
+     _subscription = supabase
+       .from('vote_application_users')
+       .on(SupabaseEventTypes.all, (payload) {
+         // Check if update is relevant to current user
+         if (payload['user_id'] == userId) {
+           // Refresh applications list
+           fetchUserApplications();
+         }
+       })
+       .subscribe();
+   }
+   
+   void dispose() {
+     _subscription?.unsubscribe();
+     super.dispose();
+   }
+   ```
+
+5. Implement application status retrieval:
+   ```dart
+   Future<void> fetchUserApplications() async {
+     try {
+       _setLoading(true);
+       
+       final applications = await _voteApplicationService.getUserApplications();
+       _updateApplications(applications);
+       
+       _setLoading(false);
+     } catch (e) {
+       _setLoading(false);
+       _setError(_formatErrorMessage(e));
+     }
+   }
+   ```
+
+6. Implement error handling and user feedback:
+   ```dart
+   String _formatErrorMessage(dynamic error) {
+     if (error is DuplicateVoteApplicationException) {
+       return 'You have already applied for this vote.';
+     } else if (error is VoteClosedException) {
+       return 'This vote is no longer accepting applications.';
+     } else if (error is NetworkException) {
+       return 'Network error. Please check your connection and try again.';
+     } else {
+       return 'An unexpected error occurred. Please try again later.';
+     }
+   }
+   ```
+
+7. Create UI components to display loading states and error messages:
+   - Implement loading indicators during API calls
+   - Display error messages in snackbars or alert dialogs
+   - Add retry functionality for failed operations
+
+8. Register the provider in the application's dependency injection system:
+   ```dart
+   // Using GetIt
+   getIt.registerSingleton<VoteApplicationProvider>(
+     VoteApplicationProvider(
+       voteApplicationService: getIt<VoteApplicationService>(),
+     ),
+   );
+   
+   // Or using Provider package
+   Provider<VoteApplicationProvider>(
+     create: (context) => VoteApplicationProvider(
+       voteApplicationService: context.read<VoteApplicationService>(),
+     ),
+     dispose: (context, provider) => provider.dispose(),
+   )
+   ```
+
+# Test Strategy:
+1. Unit Testing:
+   - Create unit tests for VoteApplicationProvider using the test package
+   - Mock VoteApplicationService using mockito or mocktail
+   - Test all state transitions (loading, success, error)
+   - Verify proper error handling for different exception types
+   - Example test:
+   ```dart
+   test('submitApplication should update state correctly on success', () async {
+     // Arrange
+     final mockService = MockVoteApplicationService();
+     when(mockService.submitApplication(any))
+       .thenAnswer((_) async => testVoteApplication);
+     when(mockService.getUserApplications())
+       .thenAnswer((_) async => [testVoteApplication]);
+     
+     final provider = VoteApplicationProvider(voteApplicationService: mockService);
+     
+     // Act
+     await provider.submitApplication(testRequest);
+     
+     // Assert
+     expect(provider.isLoading, false);
+     expect(provider.error, null);
+     expect(provider.currentApplication, testVoteApplication);
+     expect(provider.applications, [testVoteApplication]);
+     verify(mockService.submitApplication(testRequest)).called(1);
+     verify(mockService.getUserApplications()).called(1);
+   });
+   
+   test('submitApplication should handle errors correctly', () async {
+     // Arrange
+     final mockService = MockVoteApplicationService();
+     when(mockService.submitApplication(any))
+       .thenThrow(DuplicateVoteApplicationException());
+     
+     final provider = VoteApplicationProvider(voteApplicationService: mockService);
+     
+     // Act
+     await provider.submitApplication(testRequest);
+     
+     // Assert
+     expect(provider.isLoading, false);
+     expect(provider.error, 'You have already applied for this vote.');
+     verify(mockService.submitApplication(testRequest)).called(1);
+   });
+   ```
+
+2. Widget Testing:
+   - Create widget tests for UI components that use the provider
+   - Test loading indicators appear during operations
+   - Test error messages display correctly
+   - Test successful state updates reflect in the UI
+   - Example:
+   ```dart
+   testWidgets('ApplicationForm shows loading indicator during submission', (tester) async {
+     // Arrange
+     final mockProvider = MockVoteApplicationProvider();
+     when(mockProvider.isLoading).thenReturn(true);
+     
+     // Act
+     await tester.pumpWidget(
+       ChangeNotifierProvider<VoteApplicationProvider>.value(
+         value: mockProvider,
+         child: MaterialApp(home: ApplicationForm()),
+       ),
+     );
+     
+     // Assert
+     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+   });
+   ```
+
+3. Integration Testing:
+   - Test the provider with actual API endpoints in a test environment
+   - Verify real-time updates work correctly with Supabase
+   - Test the complete flow from application submission to status update
+
+4. Manual Testing:
+   - Verify loading states appear during network operations
+   - Test error handling by triggering various error conditions:
+     - Submit duplicate applications
+     - Disconnect network during submission
+     - Submit to closed votes
+   - Verify real-time updates by submitting applications from different devices
+   - Test UI responsiveness during state transitions
+
+# Subtasks:
+## 1. 상태 프로바이더 클래스 생성 [pending]
+### Dependencies: None
+### Description: 애플리케이션의 상태를 관리하는 프로바이더 클래스 개발
+### Details:
+Define a class that will act as the central state management system. Include necessary properties to store the state and methods to access it.
+
+## 2. 상태 업데이트 메서드 구현 [pending]
+### Dependencies: 33.1
+### Description: 제어된 방식으로 상태를 업데이트하는 메서드 생성
+### Details:
+Develop functions that will handle state modifications, ensuring proper data flow and maintaining consistency across the application.
+
+## 3. 실시간 업데이트 통합 [pending]
+### Dependencies: 33.1, 33.2
+### Description: 실시간 상태 동기화를 위한 기능 구현
+### Details:
+Add mechanisms to handle real-time updates, such as WebSocket connections or polling, to keep the state synchronized across different instances or users of the application.
+

@@ -1,0 +1,605 @@
+{
+  "tasks": [
+    {
+      "id": 26,
+      "title": "투표 후보 신청을 위한 데이터베이스 스키마 설계 및 마이그레이션 생성",
+      "description": "투표 후보 신청 기능을 위한 데이터베이스 스키마를 설계하고 구현합니다. 필요한 테이블, 관계, 인덱스, 제약조건 및 행 수준 보안(RLS) 정책 생성을 포함합니다.",
+      "status": "done",
+      "dependencies": [],
+      "priority": "high",
+      "details": "1. 'vote_applications' 테이블 생성:\n   - 필드: id (UUID, 기본 키), vote_id (votes 테이블에 대한 외래 키), title, description, created_at, updated_at\n   - votes 테이블을 참조하는 외래 키 제약조건 추가\n   - 성능을 위해 vote_id에 인덱스 생성\n\n2. 'vote_application_users' 테이블 생성:\n   - 필드: id (UUID, 기본 키), vote_application_id (vote_applications 테이블에 대한 외래 키), user_id (users 테이블에 대한 외래 키), status (열거형: pending, approved, rejected), created_at, updated_at\n   - vote_applications 및 users 테이블을 참조하는 외래 키 제약조건 추가\n   - 고유성 및 성능을 위해 (vote_application_id, user_id)에 복합 인덱스 생성\n\n3. 필요한 인덱스 및 제약조건 추가:\n   - 중복 신청을 방지하기 위해 vote_application_users 테이블의 (vote_id, user_id)에 고유 제약조건 생성\n   - 유효한 값을 보장하기 위해 status 필드에 체크 제약조건 추가\n\n4. RLS 정책 구현:\n   - vote_applications 테이블에 대해:\n     * 모든 인증된 사용자에게 읽기 액세스 권한 부여\n     * 투표 생성자 또는 관리자에게만 쓰기 액세스 권한 부여\n   - vote_application_users 테이블에 대해:\n     * 투표 생성자, 관리자 및 신청 사용자에게 읽기 액세스 권한 부여\n     * 투표 생성자 또는 관리자에게만 쓰기 액세스 권한 부여\n\n5. 마이그레이션 파일 생성:\n   - Supabase CLI를 사용하여 마이그레이션 파일 생성\n   - 테이블 생성, 인덱스, 제약조건 및 RLS 정책에 대한 SQL 명령 구현\n   - 프로덕션에 적용하기 전에 개발 환경에서 마이그레이션 테스트\n\n6. API 및 백엔드 서비스 업데이트:\n   - 새 테이블과 상호 작용하기 위해 기존 API 엔드포인트 수정 또는 새 엔드포인트 생성\n   - 데이터베이스 작업에 대한 적절한 오류 처리 및 유효성 검사 보장\n\n7. 스키마 변경 문서화:\n   - 새 테이블 구조 및 관계로 프로젝트 문서 업데이트\n   - 새 테이블에 대한 일반적인 쿼리 및 작업 예제 제공",
+      "testStrategy": "1. 단위 테스트:\n   - 두 개의 새 테이블에 대한 데이터베이스 작업(CRUD)에 대한 단위 테스트 작성\n   - 제약조건 위반 테스트(예: 중복 신청, 유효하지 않은 상태 값)\n   - 외래 키 관계가 올바르게 적용되는지 확인\n\n2. 통합 테스트:\n   - 새 테이블과 상호 작용하는 API 엔드포인트 테스트\n   - 관련 테이블(votes, vote_applications, vote_application_users) 간의 데이터 무결성 확인\n\n3. RLS 정책 테스트:\n   - 다양한 사용자 역할(관리자, 투표 생성자, 일반 사용자)에 대한 테스트 케이스 생성\n   - 각 역할에 대해 읽기 및 쓰기 권한이 올바르게 적용되는지 확인\n   - 엣지 케이스 테스트(예: 사용자가 다른 사용자의 신청을 수정하려고 시도)\n\n4. 마이그레이션 테스트:\n   - 테스트 데이터베이스에 마이그레이션을 적용하고 모든 테이블, 인덱스 및 제약조건이 올바르게 생성되었는지 확인\n   - 롤백을 수행하고 데이터베이스가 이전 상태로 돌아가는지 확인\n\n5. 성능 테스트:\n   - 특히 새 테이블과 기존 테이블 간의 JOIN을 포함하는 작업에 대한 쿼리 성능 테스트 수행\n   - 쿼리 실행 계획을 분석하여 인덱스 효과 확인\n\n6. 데이터 무결성 테스트:\n   - 참조 무결성을 보장하기 위해 연쇄 삭제 및 업데이트 테스트\n   - 제약조건이 유효하지 않은 데이터 삽입을 방지하는지 확인\n\n7. API 및 서비스 테스트:\n   - 새 스키마와 상호 작용하는 모든 API 엔드포인트 및 서비스 테스트\n   - 입력 데이터의 적절한 오류 처리 및 유효성 검사 확인\n\n8. 사용자 수용 테스트:\n   - 새 스키마로 테스트 환경을 만들고 이해관계자가 기능이 요구 사항을 충족하는지 확인\n   - 투표 후보 신청 프로세스를 종단간 테스트",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "데이터베이스 테이블 및 관계 정의",
+          "description": "모든 필요한 테이블과 그 관계에 대한 포괄적인 스키마 설계 생성",
+          "dependencies": [],
+          "details": "모든 필요한 테이블을 식별하고, 기본 키와 외래 키를 정의하며, 테이블 간의 관계를 설정합니다. 데이터 유형, 제약조건 및 정규화 원칙을 고려하세요.\n<info added on 2025-06-06T16:06:40.609Z>\n# 데이터베이스 스키마 설계\n\n## 기존 데이터베이스 구조\n- vote: 투표 정보 (id, vote_title, vote_category, start_at, stop_at 등)\n- vote_item: 투표 항목 (id, vote_id, member_id, vote_total)\n- vote_pick: 사용자 투표 선택 (id, vote_id, vote_item_id, users_id, point_amount)\n- vote_comment: 투표 댓글\n- mystar_member: 아티스트/멤버 정보 (id, name_ko, name_en, group_id, gender, image)\n- mystar_group: 그룹 정보 (id, name_ko, name_en, image)\n\n## 투표 후보 신청을 위한 새 테이블 설계\n\n### vote_applications 테이블\n- id (UUID, 기본 키)\n- vote_id (integer, votes 테이블 외래 키)\n- title (varchar(255), 신청 제목)\n- description (text, 신청 설명)\n- status (varchar(50), 신청 상태: pending, approved, rejected)\n- created_at (timestamp)\n- updated_at (timestamp)\n\n### vote_application_users 테이블\n- id (UUID, 기본 키)\n- vote_application_id (UUID, vote_applications 테이블 외래 키)\n- user_id (UUID, auth.users 테이블 외래 키)\n- artist_name (varchar(255), 신청한 아티스트명)\n- artist_group (varchar(255), 아티스트 그룹명, nullable)\n- reason (text, 신청 이유)\n- status (varchar(50), 신청 상태: pending, approved, rejected)\n- created_at (timestamp)\n- updated_at (timestamp)\n\n## 관계 설정\n- vote_applications.vote_id → vote.id (외래 키)\n- vote_application_users.vote_application_id → vote_applications.id (외래 키)\n- vote_application_users.user_id → auth.users.id (외래 키)\n\n## 제약조건\n- (vote_id, user_id) 복합 고유 제약조건으로 중복 신청 방지\n- status 필드에 체크 제약조건 (pending, approved, rejected만 허용)\n</info added on 2025-06-06T16:06:40.609Z>",
+          "status": "done"
+        },
+        {
+          "id": 2,
+          "title": "데이터베이스 인덱스 구현",
+          "description": "쿼리 성능을 최적화하기 위한 적절한 인덱스 설계 및 생성",
+          "dependencies": [
+            1
+          ],
+          "details": "일반적인 쿼리 패턴을 분석하고 자주 액세스하는 열에 인덱스를 생성합니다. 다중 열 쿼리에 대한 복합 인덱스를 고려하고 읽기 및 쓰기 성능 간의 적절한 균형을 보장합니다.\n<info added on 2025-06-06T16:07:17.874Z>\n## 성능 최적화를 위한 인덱스 전략\n\n### vote_applications 테이블 인덱스:\n1. 기본 키 인덱스: id (UUID) - 자동 생성\n2. 외래 키 인덱스: vote_id - 특정 투표의 신청 목록 조회 최적화\n3. 상태별 조회 인덱스: status - 상태별 신청 필터링 최적화\n4. 복합 인덱스: (vote_id, status) - 특정 투표의 특정 상태 신청 조회 최적화\n5. 시간순 정렬 인덱스: created_at - 신청 시간순 정렬 최적화\n\n### vote_application_users 테이블 인덱스:\n1. 기본 키 인덱스: id (UUID) - 자동 생성\n2. 외래 키 인덱스: vote_application_id - 특정 신청의 사용자 목록 조회\n3. 외래 키 인덱스: user_id - 특정 사용자의 신청 목록 조회\n4. 복합 고유 인덱스: (vote_application_id, user_id) - 중복 신청 방지 및 조회 최적화\n5. 아티스트명 검색 인덱스: artist_name - 아티스트명으로 검색 최적화\n6. 복합 인덱스: (user_id, status) - 사용자별 상태별 신청 조회 최적화\n7. 시간순 정렬 인덱스: created_at - 신청 시간순 정렬 최적화\n\n### 추가 고려사항:\n- 부분 인덱스: status가 'pending'인 경우만 인덱싱하여 공간 절약\n- 텍스트 검색 인덱스: artist_name에 대한 GIN 인덱스로 부분 문자열 검색 지원\n- 복합 인덱스 순서: 선택도가 높은 컬럼을 앞에 배치\n</info added on 2025-06-06T16:07:17.874Z>",
+          "status": "done"
+        },
+        {
+          "id": 3,
+          "title": "행 수준 보안(RLS) 정책 설정",
+          "description": "행 수준에서 데이터 액세스 제어를 보장하기 위한 RLS 정책 구현",
+          "dependencies": [
+            1
+          ],
+          "details": "액세스 제어가 필요한 각 테이블에 대한 RLS 정책을 정의합니다. 사용자 액세스 권한을 결정하는 함수를 만들고 관련 테이블에 적용합니다. 적절한 데이터 격리를 보장하기 위해 정책을 철저히 테스트합니다.\n<info added on 2025-06-06T16:07:49.665Z>\n## 행 수준 보안(RLS) 정책 설계\n\n### vote_applications 테이블 RLS 정책:\n\n1. **읽기 정책 (SELECT)**:\n   - 모든 인증된 사용자가 승인된 신청(status = 'approved') 조회 가능\n   - 투표 생성자는 해당 투표의 모든 신청 조회 가능\n   - 관리자는 모든 신청 조회 가능\n\n2. **생성 정책 (INSERT)**:\n   - 인증된 사용자만 신청 생성 가능\n   - 투표가 신청 가능한 상태(예: 진행 중 또는 예정)일 때만 생성 가능\n\n3. **수정 정책 (UPDATE)**:\n   - 투표 생성자만 신청 상태 변경 가능\n   - 관리자는 모든 신청 수정 가능\n\n4. **삭제 정책 (DELETE)**:\n   - 투표 생성자와 관리자만 삭제 가능\n\n### vote_application_users 테이블 RLS 정책:\n\n1. **읽기 정책 (SELECT)**:\n   - 사용자는 자신의 신청만 조회 가능\n   - 투표 생성자는 해당 투표의 모든 사용자 신청 조회 가능\n   - 관리자는 모든 사용자 신청 조회 가능\n\n2. **생성 정책 (INSERT)**:\n   - 인증된 사용자만 자신의 신청 생성 가능\n   - 동일한 투표에 대한 중복 신청 방지\n\n3. **수정 정책 (UPDATE)**:\n   - 사용자는 자신의 신청만 수정 가능 (pending 상태일 때만)\n   - 투표 생성자는 신청 상태 변경 가능\n   - 관리자는 모든 신청 수정 가능\n\n4. **삭제 정책 (DELETE)**:\n   - 사용자는 자신의 신청만 삭제 가능 (pending 상태일 때만)\n   - 투표 생성자와 관리자는 모든 신청 삭제 가능\n\n### 보안 함수 정의:\n- is_vote_creator(vote_id): 현재 사용자가 투표 생성자인지 확인\n- is_admin(): 현재 사용자가 관리자인지 확인\n- is_vote_application_open(vote_id): 투표가 신청 가능한 상태인지 확인\n</info added on 2025-06-06T16:07:49.665Z>",
+          "status": "done"
+        },
+        {
+          "id": 4,
+          "title": "데이터베이스 마이그레이션 스크립트 생성",
+          "description": "스키마 변경 및 보안 정책을 적용하기 위한 마이그레이션 스크립트 개발",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "테이블 생성, 인덱스 추가 및 RLS 정책 구현을 위한 SQL 스크립트를 작성합니다. 스크립트가 멱등성을 가지고 오류 없이 여러 번 실행될 수 있도록 합니다. 각 마이그레이션에 대한 롤백 스크립트를 포함합니다.\n<info added on 2025-06-06T16:14:42.231Z>\n# 마이그레이션 스크립트 생성 및 적용 완료\n\n## 완료된 작업:\n1. **테이블명 변경**: 사용자 제안에 따라 더 명확한 이름으로 변경\n   - `vote_applications` → `vote_item_requests`\n   - `vote_application_users` → `vote_item_request_users`\n\n2. **마이그레이션 파일 생성**: `20250606160810_vote_application_schema.sql`\n   - 두 개의 새 테이블 생성 (vote_item_requests, vote_item_request_users)\n   - 모든 필요한 제약조건 및 외래 키 설정\n   - 성능 최적화를 위한 인덱스 생성\n   - 아티스트명 검색을 위한 GIN 인덱스 포함\n\n3. **보안 함수 구현**:\n   - `is_vote_creator()`: 투표 생성자 확인\n   - `is_admin()`: 관리자 권한 확인  \n   - `is_vote_item_request_open()`: 투표 신청 가능 상태 확인\n\n4. **RLS 정책 설정**:\n   - 각 테이블별 CRUD 작업에 대한 세밀한 권한 제어\n   - 사용자별, 역할별 데이터 접근 제한\n   - 보안 함수를 활용한 동적 권한 검증\n\n5. **데이터베이스 적용 완료**:\n   - Supabase 원격 데이터베이스에 성공적으로 마이그레이션 적용\n   - 모든 테이블, 인덱스, 함수, RLS 정책이 정상 생성됨\n\n## 생성된 테이블 구조:\n- **vote_item_requests**: 투표별 아이템 신청 관리\n- **vote_item_request_users**: 사용자별 아티스트 신청 상세 정보\n</info added on 2025-06-06T16:14:42.231Z>",
+          "status": "done"
+        },
+        {
+          "id": 5,
+          "title": "데이터베이스 변경사항을 API와 통합",
+          "description": "새 데이터베이스 스키마 및 보안 정책과 함께 작동하도록 API 엔드포인트 업데이트",
+          "dependencies": [
+            4
+          ],
+          "details": "새 테이블 구조 및 관계에 맞게 기존 API 엔드포인트를 수정합니다. 업데이트된 스키마에 필요한 새 엔드포인트를 구현합니다. 모든 API 호출이 RLS 정책을 존중하고 사용자 권한에 따라 적절한 데이터를 반환하는지 확인합니다.\n<info added on 2025-06-06T16:17:48.656Z>\n## 완료된 작업:\n1. **새로운 Edge Function 생성**: `vote-item-request`\n   - 투표 아이템 신청을 위한 RESTful API 엔드포인트 구현\n   - 파일 위치: `supabase/functions/vote-item-request/index.ts`\n\n2. **API 엔드포인트 구현**:\n   - `POST /vote-item-request`: 새 아이템 신청 생성\n   - `GET /vote-item-request`: 모든 승인된 신청 조회\n   - `GET /vote-item-request/{id}`: 특정 신청 조회\n   - `GET /vote-item-request/vote/{vote_id}`: 특정 투표의 모든 신청 조회\n   - `GET /vote-item-request/user/{user_id}`: 특정 사용자의 모든 신청 조회\n   - `PUT /vote-item-request/{id}`: 신청 상태 업데이트 (관리자용)\n   - `DELETE /vote-item-request/{id}`: 신청 삭제\n\n3. **보안 및 인증**:\n   - Supabase Auth를 통한 사용자 인증 확인\n   - RLS 정책과 연동하여 데이터 접근 제어\n   - CORS 헤더 설정으로 브라우저 호환성 확보\n\n4. **데이터 검증 및 오류 처리**:\n   - 필수 필드 검증 (vote_id, title, artist_name)\n   - 투표 존재 여부 확인\n   - 트랜잭션 롤백 처리 (신청 생성 실패 시)\n   - 상세한 오류 메시지 및 HTTP 상태 코드 반환\n\n5. **데이터베이스 연동**:\n   - 새로 생성된 `vote_item_requests` 및 `vote_item_request_users` 테이블과 완전 연동\n   - JOIN 쿼리를 통한 관련 데이터 조회 (투표 정보, 사용자 정보 포함)\n   - 적절한 정렬 및 필터링 적용\n\nAPI가 새로운 데이터베이스 스키마와 완전히 통합되어 투표 아이템 신청 기능을 위한 백엔드 인프라가 구축되었습니다.\n</info added on 2025-06-06T16:17:48.656Z>",
+          "status": "done"
+        },
+        {
+          "id": 6,
+          "title": "작업 제목 한글 번역 적용",
+          "description": "작업 제목을 한글로 번역하여 문서 및 UI에 적용",
+          "dependencies": [],
+          "details": "영문 제목 'Design Database Schema and Create Migration for Vote Candidate Application'을 한글로 '투표 후보 신청을 위한 데이터베이스 스키마 설계 및 마이그레이션 생성'으로 번역하여 프로젝트 문서, UI 및 관련 자료에 적용합니다. 이 번역은 내부 참조용으로만 사용하고 시스템 내 실제 ID는 변경하지 않습니다.\n<info added on 2025-06-06T16:18:17.144Z>\n## 완료된 작업:\n1. **작업 제목 번역**: \n   - 영문: \"Design Database Schema and Create Migration for Vote Candidate Application\"\n   - 한글: \"투표 후보 신청을 위한 데이터베이스 스키마 설계 및 마이그레이션 생성\"\n\n2. **테이블명 한글화 반영**:\n   - 사용자 제안에 따라 `applications` → `item_requests`로 변경\n   - 최종 테이블명: `vote_item_requests`, `vote_item_request_users`\n   - 마이그레이션 파일 내 주석도 \"투표 아이템 신청\"으로 업데이트\n\n3. **문서 및 코드 주석 한글화**:\n   - 마이그레이션 파일 내 모든 주석을 한글로 작성\n   - API 함수 내 주석도 한글로 작성\n   - 완료 메시지: \"투표 아이템 신청 스키마 마이그레이션이 성공적으로 완료되었습니다.\"\n\n4. **프로젝트 문서 일관성**:\n   - 모든 관련 문서에서 일관된 한글 용어 사용\n   - \"투표 후보 신청\" → \"투표 아이템 신청\"으로 용어 통일\n   - 기술 문서와 사용자 대면 UI에서 동일한 용어 사용\n\n한글 번역이 모든 관련 파일과 문서에 일관되게 적용되어 한국어 사용자를 위한 명확한 용어 체계가 구축되었습니다.\n</info added on 2025-06-06T16:18:17.144Z>",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "title": "투표 신청 데이터 모델 및 리포지토리 구현",
+      "description": "VoteApplication 및 VoteApplicationUser 모델 클래스를 생성하고, VoteApplicationRepository를 구현하며, 중복 신청을 방지하는 로직을 포함합니다.",
+      "status": "pending",
+      "dependencies": [
+        26
+      ],
+      "priority": "high",
+      "details": "1. Create VoteApplication model class:\n   - Properties: id (UUID), voteId (UUID), title (String), description (String), createdAt (DateTime), updatedAt (DateTime)\n   - Implement fromJson and toJson methods for Supabase integration\n\n2. Create VoteApplicationUser model class:\n   - Properties: id (UUID), voteApplicationId (UUID), userId (UUID), status (String), createdAt (DateTime), updatedAt (DateTime)\n   - Implement fromJson and toJson methods\n\n3. Implement VoteApplicationRepository:\n   - Use Supabase SDK for database operations\n   - Methods:\n     a. createApplication(VoteApplication application): Create new vote application\n     b. getApplicationsByVoteId(UUID voteId): Retrieve applications for a specific vote\n     c. getUserApplications(UUID userId): Get applications for a specific user\n     d. updateApplicationStatus(UUID applicationId, String status): Update application status\n\n4. Implement duplicate application prevention:\n   - In createApplication method, check if user has already applied:\n     ```dart\n     Future<bool> hasUserApplied(UUID voteId, UUID userId) async {\n       final response = await supabase\n         .from('vote_application_users')\n         .select()\n         .eq('vote_id', voteId)\n         .eq('user_id', userId)\n         .single();\n       return response != null;\n     }\n     ```\n   - If user has applied, throw DuplicateApplicationException\n\n5. Utilize Supabase Row Level Security:\n   - Ensure all repository methods respect RLS policies set in Task 25\n\n6. Implement error handling and logging for all repository methods\n\n7. Use dependency injection (get_it) to provide repository instance where needed",
+      "testStrategy": "1. Unit tests:\n   - Test VoteApplication and VoteApplicationUser model serialization/deserialization\n   - Mock Supabase client and test all VoteApplicationRepository methods\n   - Verify duplicate application prevention logic\n\n2. Integration tests:\n   - Set up test database in Supabase\n   - Test repository methods against actual Supabase instance\n   - Verify RLS policies are respected\n\n3. UI tests:\n   - Implement UI for vote application submission\n   - Test form validation and submission process\n   - Verify error messages for duplicate applications\n\n4. Performance tests:\n   - Benchmark repository methods with large datasets\n   - Verify efficient querying and indexing\n\n5. Security tests:\n   - Attempt unauthorized access to vote applications\n   - Verify RLS prevents data leakage between users\n\n6. Edge case testing:\n   - Test with various status values and state transitions\n   - Verify behavior with missing or invalid data\n\n7. Regression testing:\n   - Ensure implementation doesn't break existing functionality",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "데이터 모델 정의",
+          "description": "애플리케이션을 위한 데이터 모델 생성",
+          "dependencies": [],
+          "details": "User, Task, Project 등과 같은 데이터 모델의 구조와 속성을 정의합니다. 모델 간의 적절한 관계가 설정되었는지 확인합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "리포지토리 메서드 구현",
+          "description": "CRUD 작업을 위한 리포지토리 메서드 생성",
+          "dependencies": [
+            1
+          ],
+          "details": "각 데이터 모델에 대한 리포지토리 메서드를 구현하며, 생성, 읽기, 업데이트 및 삭제 작업을 포함합니다. 적절한 오류 처리 및 데이터 유효성 검사를 보장합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "Supabase와 통합",
+          "description": "Supabase 연결 설정 및 리포지토리 메서드 적응",
+          "dependencies": [
+            2
+          ],
+          "details": "Supabase 클라이언트를 구성하고, Supabase 대시보드에서 테이블을 설정하며, 데이터 지속성을 위해 Supabase API를 사용하도록 리포지토리 메서드를 수정합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "데이터 모델 및 리포지토리 통합 테스트",
+          "description": "데이터 모델 및 리포지토리 메서드에 대한 테스트 작성 및 실행",
+          "dependencies": [
+            3
+          ],
+          "details": "데이터 모델에 대한 단위 테스트와 Supabase를 사용한 리포지토리 메서드에 대한 통합 테스트를 생성합니다. 모든 CRUD 작업이 올바르게 작동하고 예외 상황을 처리하는지 확인합니다.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "title": "아티스트 검색 기능 구현",
+      "description": "사용자가 아티스트 이름이나 그룹명으로 검색할 수 있는 포괄적인 아티스트 검색 기능을 개발하고, 실시간 결과를 표시하며, 검색 API 엔드포인트를 구현하고, 검색 성능을 최적화합니다.",
+      "status": "pending",
+      "dependencies": [
+        27
+      ],
+      "priority": "medium",
+      "details": "1. 새로운 SearchService 클래스 생성:\n   - 아티스트 이름 및 그룹명으로 검색하는 메서드 구현\n   - 효율적인 쿼리를 위해 Supabase 전체 텍스트 검색 기능 활용\n\n2. 검색 API 엔드포인트 구현:\n   - 검색 요청을 처리할 새로운 컨트롤러(예: SearchController) 생성\n   - API 경로 정의(예: /api/search/artists)\n   - 요청 유효성 검사 및 오류 처리 구현\n\n3. 검색 기능을 위한 UI 컴포넌트 개발:\n   - 실시간 검색 기능이 있는 SearchBar 위젯 생성\n   - 타이핑 중 API 호출을 최적화하기 위한 디바운싱 구현\n   - 결과를 표시하기 위한 SearchResultsList 위젯 설계 및 구현\n\n4. 실시간 검색 결과 통합:\n   - 클라이언트에 즉각적인 업데이트를 푸시하기 위해 Supabase 실시간 기능 사용\n   - 향상된 사용자 경험을 위한 낙관적 UI 업데이트 구현\n\n5. 검색 성능 최적화:\n   - 대용량 결과 세트에 대한 서버 측 페이지네이션 구현\n   - 더 빠른 쿼리를 위한 데이터베이스 수준의 적절한 인덱싱 사용\n   - 자주 검색되는 용어에 대한 캐싱 메커니즘 구현\n\n6. 데이터 모델 업데이트:\n   - 관련 검색 필드를 포함하도록 Artist 모델 수정\n   - API 통신을 위한 적절한 직렬화/역직렬화 보장\n\n7. UI에서 적절한 오류 처리 및 로딩 상태 구현\n\n8. 사용자 행동에 대한 인사이트를 수집하기 위한 검색 쿼리 분석 추적 추가\n\nSearchService 코드 예시:\n\n```dart\nclass SearchService {\n  final SupabaseClient _supabaseClient;\n\n  SearchService(this._supabaseClient);\n\n  Future<List<Artist>> searchArtists(String query) async {\n    final response = await _supabaseClient\n        .from('artists')\n        .select()\n        .textSearch('name', query)\n        .execute();\n\n    if (response.error != null) {\n      throw Exception('Failed to search artists: ${response.error!.message}');\n    }\n\n    return (response.data as List)\n        .map((json) => Artist.fromJson(json))\n        .toList();\n  }\n}\n```\n\n전체 텍스트 검색 기능을 지원하도록 Supabase 통합을 업데이트하세요.",
+      "testStrategy": "1. 단위 테스트:\n   - 올바른 쿼리 구성 및 결과 파싱을 보장하기 위한 SearchService 클래스 테스트 작성\n   - 빈 쿼리, 특수 문자 및 긴 검색어와 같은 엣지 케이스 테스트\n\n2. 통합 테스트:\n   - 다양한 입력 시나리오로 검색 API 엔드포인트 테스트\n   - 페이지네이션 및 결과 제한의 올바른 처리 확인\n\n3. UI 테스트:\n   - Flutter 위젯 테스트를 사용하여 SearchBar 및 SearchResultsList 컴포넌트의 동작 확인\n   - 모의 Supabase 응답을 사용하여 실시간 업데이트 기능 테스트\n\n4. 성능 테스트:\n   - 동시 요청을 처리할 수 있는지 확인하기 위한 검색 API 부하 테스트 수행\n   - 다양한 쿼리 복잡성에 대한 검색 응답 시간 측정 및 벤치마킹\n\n5. 사용자 수용성 테스트:\n   - 수동 테스트를 위한 다양한 검색 시나리오가 포함된 테스트 계획 작성\n   - 검색 결과의 정확성 및 관련성 확인\n\n6. 접근성 테스트:\n   - 스크린 리더를 위한 적절한 라벨링을 포함하여 검색 기능이 접근 가능한지 확인\n\n7. 크로스 디바이스 테스트:\n   - 다양한 디바이스 크기 및 방향에서 검색 기능 테스트\n\n8. 오류 처리:\n   - 검색 실패 또는 네트워크 문제에 대해 적절한 오류 메시지가 표시되는지 확인\n\n9. 분석 검증:\n   - 검색 쿼리가 분석 시스템에서 올바르게 추적되고 있는지 확인\n\n10. 회귀 테스트:\n    - 새로운 검색 기능이 기존 기능에 부정적인 영향을 미치지 않는지 확인",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "아티스트 검색을 위한 UI 컴포넌트 생성",
+          "description": "아티스트 검색 기능을 위한 프론트엔드 컴포넌트 설계 및 구현",
+          "dependencies": [],
+          "details": "검색 입력 필드, 결과 표시 영역 및 로딩 인디케이터를 생성합니다. 다양한 화면 크기에 대한 반응형 디자인을 구현합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "백엔드 검색 기능 구현",
+          "description": "아티스트 검색 요청을 처리하고 결과를 반환하는 서버 측 로직 개발",
+          "dependencies": [],
+          "details": "아티스트 검색을 위한 API 엔드포인트 생성, 데이터베이스 쿼리 구현 및 검색 성능 최적화. 페이지네이션 및 필터링 옵션을 포함합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "실시간 업데이트 통합",
+          "description": "사용자가 입력하는 동안 검색 결과에 대한 실시간 업데이트 구현",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "서버에서 클라이언트로 업데이트를 푸시하기 위해 WebSocket 또는 유사한 기술을 사용합니다. API 호출을 제한하기 위해 프론트엔드에서 디바운싱을 구현합니다.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "title": "투표 상세 페이지에 신청 버튼 추가",
+      "description": "예정된 투표와 진행 중인 투표에만 나타나는 신청 버튼을 투표 상세 페이지에 구현하고, 인증되지 않은 사용자를 위한 로그인 연동 기능을 포함합니다.",
+      "status": "pending",
+      "dependencies": [
+        27
+      ],
+      "priority": "high",
+      "details": "1. UI 구현:\n   - 투표 상세 페이지에 신청 버튼 추가\n   - 투표 상태가 '예정됨' 또는 '진행 중'일 때만 버튼 표시\n   - 투표 상태가 '완료됨'일 때는 버튼을 완전히 숨김\n   - 기존 디자인 시스템에 맞게 버튼 스타일링\n   - 기존 UI 레이아웃 내에 버튼을 적절히 배치\n\n2. 조건부 렌더링 로직:\n   - 투표 상태에 따른 조건부 렌더링 구현\n   - 버튼 가시성을 결정하는 getter 또는 계산된 속성 추가\n   - 투표 상태 변경 시 적절한 반응성 보장\n\n3. 인증 통합:\n   - 신청 처리 전 사용자 인증 상태 확인\n   - 사용자가 로그인하지 않은 경우 로그인 흐름 트리거\n   - 로그인 성공 후 투표 상세 페이지로 복귀\n   - 로그인 완료 후 사용자의 신청 의도 유지\n\n4. 신청 제출:\n   - 버튼 클릭 핸들러를 VoteApplicationRepository에 연결\n   - 제출 중 로딩 상태 표시\n   - 성공 및 오류 상태 적절히 처리\n   - 기존 신청 확인을 통한 중복 신청 방지\n\n5. UI 피드백:\n   - 성공적인 신청 후 적절한 성공 메시지 표시\n   - 실패한 신청에 대한 오류 메시지 표시\n   - 사용자의 신청 상태를 반영하도록 UI 업데이트\n\n6. UI 수정:\n   - 새 버튼을 수용하도록 기존 투표 상세 페이지 레이아웃 조정\n   - 추가된 버튼으로 반응형 디자인이 올바르게 작동하는지 확인\n   - 새 UI 요소에 대한 접근성 표준 유지",
+      "testStrategy": "1. 단위 테스트:\n   - 다양한 투표 상태에 대한 조건부 렌더링 로직 테스트\n   - 인증 확인 기능 검증\n   - 신청 제출 로직 및 오류 처리 테스트\n\n2. 통합 테스트:\n   - 예정된 투표와 진행 중인 투표에만 버튼이 나타나는지 확인\n   - 완료된 투표에서는 버튼이 숨겨지는지 확인\n   - 인증되지 않은 사용자가 버튼을 클릭할 때 로그인 흐름 통합 테스트\n   - 인증 후 신청 제출이 올바르게 작동하는지 확인\n\n3. UI 테스트:\n   - 다양한 화면 크기에서 버튼 스타일링 및 위치 확인\n   - 접근성 준수 확인(대비, 탭 대상, 스크린 리더 지원)\n   - 다양한 상태(로딩, 성공, 오류)에 대한 UI 피드백 테스트\n\n4. 사용자 흐름 테스트:\n   - 투표 보기에서 성공적인 신청까지의 전체 사용자 여정 테스트\n   - 로그인 및 반환 흐름이 사용자 컨텍스트를 유지하는지 확인\n   - 오류 시나리오 및 복구 경로 테스트\n\n5. 엣지 케이스:\n   - 사용자가 이미 신청한 경우의 동작 테스트\n   - 제출 중 네트워크 오류 처리 확인\n   - 사용자가 페이지에 있는 동안 투표 상태가 변경될 때의 동작 테스트",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "신청 버튼 UI 구현",
+          "description": "투표 상세 페이지에 신청 버튼의 사용자 인터페이스 설계 및 구현",
+          "dependencies": [],
+          "details": "시각적으로 매력적이고 사용자 친화적인 버튼 디자인 생성, 투표 상세 페이지에 적절한 배치 보장, 다양한 화면 크기에 대한 반응형 동작 구현",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "신청 버튼 로직 통합",
+          "description": "신청 버튼 기능을 위한 백엔드 로직 및 프론트엔드 통합 구현",
+          "dependencies": [
+            1
+          ],
+          "details": "버튼을 적절한 API 엔드포인트에 연결, 사용자 상호작용 처리, 오류 처리 구현, 신청 상태에 따른 UI 업데이트",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "title": "아티스트 신청 페이지 UI 구현",
+      "description": "기존 신청 내역, 아티스트 검색 기능, 신청 버튼을 포함하는 다이얼로그 또는 바텀시트 형태의 반응형 아티스트 신청 페이지 UI를 개발합니다.",
+      "status": "pending",
+      "dependencies": [
+        28,
+        29
+      ],
+      "priority": "high",
+      "details": "1. UI 컴포넌트 구조:\n   - 다양한 화면 크기에 적응하는 반응형 다이얼로그 또는 바텀시트 컴포넌트 생성\n   - 상단, 중간, 하단의 세 가지 구분된 섹션 구현\n   - 콘텐츠 오버플로우에 대한 적절한 스크롤 동작 보장\n\n2. 상단 섹션 - 기존 신청 내역:\n   - 현재 투표에 대한 기존 아티스트 신청 목록 표시\n   - 각 항목에 대해 아티스트 이름, 신청 날짜 및 상태 표시\n   - 신청 내역이 없을 때 빈 상태 UI 구현\n   - VoteApplicationRepository를 사용하여 신청 데이터 가져오기\n\n3. 중간 섹션 - 아티스트 검색:\n   - 작업 #28의 아티스트 검색 기능 통합\n   - 적절한 스타일링이 적용된 검색 입력 필드 생성\n   - 아티스트 정보가 포함된 스크롤 가능한 목록에 검색 결과 표시\n   - 검색 결과에서 아티스트를 선택하는 메커니즘 구현\n   - 검색 작업에 대한 로딩 상태 및 오류 처리 추가\n\n4. 하단 섹션 - 신청 버튼:\n   - 신청 제출 버튼 구현\n   - 유효한 아티스트 선택에 따라 버튼 활성화/비활성화\n   - 제출 중 적절한 로딩 상태 추가\n   - 제출 후 확인 또는 오류 메시지 표시\n\n5. 반응형 디자인 구현:\n   - MediaQuery를 사용하여 화면 크기를 감지하고 레이아웃 조정\n   - 모바일: 전체 너비 디자인의 바텀시트 사용\n   - 태블릿/데스크톱: 적절한 너비 제약이 있는 중앙 정렬 다이얼로그 사용\n   - 다양한 화면 크기에서 적절한 간격과 타이포그래피 보장\n   - 다양한 기기 크기에서 테스트하여 반응형 동작 확인\n\n6. 상태 관리:\n   - 신청 양식에 대한 적절한 상태 관리 구현\n   - 선택된 아티스트, 양식 유효성 검사 상태 및 제출 상태 추적\n   - 로딩 및 오류 상태 적절히 처리\n\n7. 백엔드 통합:\n   - 새 신청서 제출을 위해 VoteApplicationRepository에 연결\n   - API 호출에 대한 적절한 오류 처리 구현\n   - 제출 성공 또는 실패에 따라 UI 업데이트",
+      "testStrategy": "1. UI 컴포넌트 테스트:\n   - 컴포넌트가 큰 화면에서는 다이얼로그로, 모바일에서는 바텀시트로 올바르게 렌더링되는지 확인\n   - 세 섹션(상단, 중간, 하단)이 올바르게 표시되는지 테스트\n   - 콘텐츠가 사용 가능한 공간을 초과할 때 스크롤이 올바르게 작동하는지 확인\n\n2. 기존 신청 내역 표시 테스트:\n   - 모의 데이터를 사용하여 기존 신청 내역이 올바르게 표시되는지 테스트\n   - 신청 내역이 없을 때 빈 상태가 표시되는지 확인\n   - 신청 세부 정보(아티스트 이름, 날짜, 상태)가 올바르게 형식화되었는지 확인\n\n3. 아티스트 검색 테스트:\n   - 검색 입력 필드가 사용자 입력을 올바르게 수락하는지 확인\n   - 다양한 검색어로 검색 기능 테스트\n   - 검색 결과가 올바르게 표시되는지 확인\n   - 검색 결과에서 아티스트 선택 테스트\n   - 오류 상태 및 로딩 표시기가 예상대로 작동하는지 확인\n\n4. 신청 버튼 테스트:\n   - 아티스트가 선택되지 않았을 때 버튼이 비활성화되는지 확인\n   - 유효한 아티스트가 선택되었을 때 버튼이 활성화되는지 테스트\n   - 제출 중에 로딩 상태가 표시되는지 확인\n   - 신청 제출에 대한 성공 및 오류 시나리오 테스트\n\n5. 반응형 디자인 테스트:\n   - 여러 기기 크기(모바일, 태블릿, 데스크톱)에서 테스트\n   - 화면 크기에 따라 레이아웃이 적절하게 조정되는지 확인\n   - 모든 요소가 다양한 기기에서 접근 가능하고 사용 가능한지 확인\n   - 모바일 기기에서 방향 변경(세로/가로) 테스트\n\n6. 통합 테스트:\n   - 신청 페이지 열기부터 성공적인 제출까지의 전체 흐름 테스트\n   - VoteApplicationRepository와의 통합 확인\n   - 다양한 API 실패 시나리오에 대한 오류 처리 테스트\n\n7. 접근성 테스트:\n   - 키보드 탐색을 위한 적절한 포커스 관리 확인\n   - 스크린 리더로 테스트하여 모든 요소가 올바르게 안내되는지 확인\n   - 색상 대비가 접근성 표준을 충족하는지 확인",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "기존 신청 내역 컴포넌트 구현",
+          "description": "기존 아티스트 신청 내역을 표시하는 컴포넌트 생성",
+          "dependencies": [],
+          "details": "아티스트 이름, 신청 날짜, 상태 등 관련 세부 정보를 포함하여 기존 아티스트 신청 내역을 나열하는 재사용 가능한 컴포넌트를 설계하고 구현합니다. 쉬운 가독성을 위한 적절한 스타일링과 레이아웃을 보장합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "아티스트 검색 기능 개발",
+          "description": "특정 아티스트 신청을 찾기 위한 검색 컴포넌트 생성",
+          "dependencies": [
+            1
+          ],
+          "details": "사용자가 특정 아티스트 신청을 검색할 수 있도록 필터링 기능이 있는 검색 바 컴포넌트를 구현합니다. 아티스트 이름, 신청 날짜 또는 상태별로 검색하는 옵션을 포함합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "신청 양식 설계 및 구현",
+          "description": "새로운 아티스트 신청을 위한 양식 컴포넌트 생성",
+          "dependencies": [],
+          "details": "아티스트 정보, 포트폴리오 링크 및 기타 관련 세부 정보를 위한 필드가 있는 종합적인 신청 양식 컴포넌트를 개발합니다. 양식 유효성 검사 및 제출 기능을 구현합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "반응형 디자인 구현",
+          "description": "전체 아티스트 신청 페이지가 반응형이 되도록 보장",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "모든 컴포넌트에 반응형 디자인 원칙을 적용하여 다양한 화면 크기와 기기에서 적절한 레이아웃과 기능을 보장합니다. 데스크톱, 태블릿 및 모바일에서 최적의 사용자 경험을 위해 테스트하고 필요에 따라 조정합니다.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "title": "투표 신청 비즈니스 로직 구현",
+      "description": "중복 방지, 투표 상태에 따른 검증, 사용자당 투표별 한 번의 신청 제한, 저장 전 데이터 검증을 포함한 투표 신청의 비즈니스 로직을 구현합니다.",
+      "status": "pending",
+      "dependencies": [
+        27
+      ],
+      "priority": "high",
+      "details": "1. 중복 신청 방지 구현:\n   - 신청 비즈니스 로직을 처리하기 위한 `VoteApplicationService` 서비스 클래스 생성\n   - 사용자가 이미 신청했는지 확인하기 위해 저장소를 쿼리하는 `checkDuplicateApplication(UUID userId, UUID voteId)` 메서드 추가\n   - 커스텀 예외(예: `DuplicateVoteApplicationException`)를 사용한 적절한 오류 처리 구현\n\n2. 투표 상태 검증 구현:\n   - 가능한 상태(DRAFT, OPEN, CLOSED 등)가 있는 `VoteStatus` 열거형 생성\n   - 현재 투표 상태를 검색하는 `validateVoteStatus(UUID voteId)` 메서드 추가\n   - 투표 상태가 OPEN일 때만 신청 허용\n   - 유효하지 않은 상태에 대한 적절한 예외 발생(예: `VoteNotOpenException`)\n\n3. 사용자당 투표별 한 번의 신청 로직 구현:\n   - 저장소에 `findByUserIdAndVoteId(UUID userId, UUID voteId)` 메서드 확장\n   - 새 신청을 처리하기 전에 서비스 계층에서 유효성 검사 추가\n   - 적절한 데이터베이스 제약 조건 생성(user_id와 vote_id 조합에 대한 고유 인덱스)\n\n4. 신청 데이터 유효성 검사 구현:\n   - 입력 데이터의 유효성을 검사하는 메서드가 있는 `VoteApplicationValidator` 클래스 생성\n   - 필수 필드(제목, 설명 등) 유효성 검사\n   - 문자 제한 및 콘텐츠 제한 유효성 검사\n   - 주입 공격을 방지하기 위한 사용자 입력 정화 구현\n\n5. 신청 저장 로직 구현:\n   - 서비스 클래스에 `createApplication(VoteApplication application)` 메서드 생성\n   - 데이터베이스에 저장하기 전에 모든 유효성 검사 수행\n   - 데이터 일관성을 보장하기 위한 트랜잭션 관리 구현\n   - 성공/실패 정보가 포함된 적절한 응답 객체 반환\n\n6. 오류 처리 및 로깅:\n   - 모든 비즈니스 로직에 대한 포괄적인 오류 처리 구현\n   - 다양한 유효성 검사 실패에 대한 커스텀 예외 클래스 생성\n   - 디버깅 및 감사 목적을 위한 상세한 로깅 추가\n   - UI 계층에 적절한 오류 메시지가 반환되도록 보장",
+      "testStrategy": "1. 단위 테스트:\n   - 모의 저장소 응답으로 중복 신청 방지 로직 테스트\n   - 다양한 투표 상태로 투표 상태 유효성 검사 테스트\n   - 다양한 시나리오로 사용자당 한 번의 신청 로직 테스트\n   - 유효하고 유효하지 않은 입력으로 데이터 유효성 검사 테스트\n   - 다양한 예외 시나리오로 오류 처리 테스트\n\n2. 통합 테스트:\n   - 신청 제출부터 저장까지의 전체 흐름 테스트\n   - 제약 조건을 확인하기 위한 실제 데이터베이스 상호 작용 테스트\n   - 강제 실패로 트랜잭션 관리 테스트\n   - 서비스 계층을 통한 적절한 오류 전파 확인\n\n3. 엣지 케이스 테스트:\n   - 동일한 사용자의 동시 신청 테스트\n   - 투표 마감 시간에 정확히 신청 제출 테스트\n   - 잘못된 형식이거나 악의적인 입력 데이터로 테스트\n   - 매우 큰 입력 값으로 테스트\n\n4. 성능 테스트:\n   - 신청 유효성 검사 및 저장에 대한 응답 시간 측정\n   - 기존 신청이 많은 상태에서 테스트\n   - 인덱스가 있는 데이터베이스 쿼리 성능 확인\n\n5. 수동 테스트:\n   - 모든 비즈니스 규칙을 수동으로 확인하기 위한 테스트 하네스 생성\n   - UI에 적절한 오류 메시지가 표시되는지 확인\n   - 신청부터 확인까지의 전체 사용자 흐름 테스트",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "중복 방지 컴포넌트 구현",
+          "description": "중복 신청 또는 투표를 방지하는 컴포넌트 생성",
+          "dependencies": [],
+          "details": "동일한 사용자 또는 IP 주소에서 기존 신청이나 투표를 확인하는 로직을 개발합니다. 효율적인 중복 감지를 위한 데이터베이스 쿼리 및 캐싱 메커니즘을 구현합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "투표 상태 검증 컴포넌트 개발",
+          "description": "투표 상태를 검증하는 컴포넌트 생성",
+          "dependencies": [
+            1
+          ],
+          "details": "투표가 여전히 열려 있는지, 닫혔는지 또는 특정 단계에 있는지 확인하는 로직을 구현합니다. 시간 기반 유효성 검사 및 상태 전환을 포함합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "신청 제한 컴포넌트 생성",
+          "description": "신청 제한을 적용하는 컴포넌트 구현",
+          "dependencies": [
+            1
+          ],
+          "details": "사용자별, 시간 기간별 또는 다른 기준에 따라 신청 수를 추적하고 제한하는 로직을 개발합니다. 카운터 및 시간 기반 제한을 구현합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "데이터 유효성 검사 컴포넌트 구현",
+          "description": "포괄적인 데이터 유효성 검사를 위한 컴포넌트 생성",
+          "dependencies": [],
+          "details": "형식 검사, 범위 유효성 검사 및 데이터 무결성 확인을 포함하여 모든 사용자 제출 데이터에 대한 입력 유효성 검사 로직을 개발합니다.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "오류 처리 컴포넌트 개발",
+          "description": "중앙 집중식 오류 처리 및 로깅 컴포넌트 생성",
+          "dependencies": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "details": "다른 모든 컴포넌트의 오류를 포착, 로깅 및 응답하는 시스템을 구현합니다. 오류 분류, 사용자 친화적인 오류 메시지 및 디버깅을 위한 상세한 로깅을 포함합니다.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "title": "투표 신청 API 엔드포인트 구현",
+      "description": "새로운 신청 생성, 특정 투표 신청 조회, 사용자별 투표 신청 세부 정보 가져오기를 포함한 투표 신청 기능을 위한 REST API 엔드포인트를 개발하고, 적절한 인증 및 권한 부여를 구현합니다.",
+      "status": "pending",
+      "dependencies": [
+        31
+      ],
+      "priority": "high",
+      "details": "1. Implement POST /api/vote-applications endpoint:\n   - Create a new controller method in VoteApplicationController\n   - Accept request body with fields: vote_id, title, description, and any other required fields\n   - Validate request data using appropriate DTOs/validation classes\n   - Call the VoteApplicationService to handle business logic\n   - Return appropriate HTTP status codes (201 for success, 400 for validation errors, 409 for duplicates)\n   - Include proper error handling for business logic exceptions\n\n2. Implement GET /api/vote-applications/{vote_id} endpoint:\n   - Create a controller method to retrieve all applications for a specific vote\n   - Implement pagination support with query parameters (page, size)\n   - Add sorting options (e.g., by creation date, popularity)\n   - Return a structured response with application details and metadata\n   - Implement proper error handling for non-existent votes\n\n3. Implement GET /api/vote-applications/user/{user_id}/{vote_id} endpoint:\n   - Create a controller method to retrieve a specific user's application for a vote\n   - Validate that the requesting user has permission to view the requested data\n   - Return detailed application information or 404 if no application exists\n   - Include proper error handling\n\n4. Implement authentication and authorization:\n   - Secure all endpoints with appropriate authentication middleware\n   - For POST endpoint: verify user is authenticated and has permission to create applications\n   - For GET endpoints: implement proper authorization checks\n     - Admin users can access all applications\n     - Regular users can only access their own applications or public vote data\n   - Use JWT tokens for authentication\n   - Implement role-based access control\n\n5. Implement request/response DTOs:\n   - Create VoteApplicationRequestDto for POST requests\n   - Create VoteApplicationResponseDto for GET responses\n   - Include proper validation annotations on request DTOs\n   - Implement mapping between DTOs and domain models\n\n6. Add API documentation:\n   - Document all endpoints using Swagger/OpenAPI annotations\n   - Include request/response examples\n   - Document authentication requirements\n   - List possible error responses and status codes\n\n7. Implement proper logging:\n   - Log all API requests and responses (excluding sensitive data)\n   - Include request tracing for debugging\n   - Log performance metrics for monitoring",
+      "testStrategy": "1. Unit Testing:\n   - Write unit tests for each controller method\n   - Mock the VoteApplicationService to isolate controller logic\n   - Test all success and error scenarios\n   - Verify correct HTTP status codes are returned\n   - Test validation logic for request DTOs\n\n2. Integration Testing:\n   - Create integration tests that use a test database\n   - Test the complete request flow from controller through service to repository\n   - Verify database operations work correctly\n   - Test authentication and authorization logic\n   - Verify proper error handling across the stack\n\n3. API Testing:\n   - Use tools like Postman or REST-assured to test the API endpoints\n   - Create a collection of test requests covering all endpoints\n   - Test with valid and invalid authentication tokens\n   - Test with valid and invalid request data\n   - Verify response formats match expected structure\n\n4. Security Testing:\n   - Test authentication bypass attempts\n   - Verify authorization rules prevent unauthorized access\n   - Test for common API vulnerabilities (injection, CSRF, etc.)\n   - Verify proper handling of sensitive data\n\n5. Performance Testing:\n   - Test API endpoints under load\n   - Measure and verify response times\n   - Test pagination with large datasets\n\n6. Specific Test Cases:\n   - POST /api/vote-applications:\n     - Test successful creation\n     - Test duplicate application rejection\n     - Test with invalid vote_id\n     - Test with missing required fields\n   - GET /api/vote-applications/{vote_id}:\n     - Test retrieval of all applications for a vote\n     - Test with non-existent vote_id\n     - Test pagination and sorting\n   - GET /api/vote-applications/user/{user_id}/{vote_id}:\n     - Test retrieval of user's application\n     - Test with non-existent application\n     - Test authorization (user can only access their own applications)\n     - Test admin access to any application",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "인증 및 권한 부여 구현",
+          "description": "안전한 인증 시스템을 설정하고 API 엔드포인트에 대한 권한 확인을 구현합니다",
+          "dependencies": [],
+          "details": "인증 방법(예: JWT)을 선택하고, 사용자 등록 및 로그인을 구현하며, 토큰 검증을 위한 미들웨어를 만들고, 역할 기반 접근 제어를 설정합니다",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "각 엔드포인트에 대한 요청/응답 처리 개발",
+          "description": "요청 파싱 및 응답 형식 지정을 포함한 각 API 엔드포인트의 핵심 기능을 생성합니다",
+          "dependencies": [
+            1
+          ],
+          "details": "각 엔드포인트에 대한 입력 유효성 검사, 오류 처리, 데이터베이스 쿼리 및 비즈니스 로직을 구현합니다. 적절한 HTTP 상태 코드와 일관된 응답 구조를 보장합니다",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "API 문서 작성",
+          "description": "요청/응답 형식 및 인증 요구 사항을 포함한 모든 API 엔드포인트에 대한 포괄적인 문서를 작성합니다",
+          "dependencies": [
+            2
+          ],
+          "details": "Swagger 또는 OpenAPI와 같은 도구를 사용하여 대화형 문서를 생성합니다. 예제, 오류 응답 및 인증 지침을 포함합니다",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "테스트 및 최적화 수행",
+          "description": "모든 API 엔드포인트에 대한 철저한 테스트를 수행하고 성능을 최적화합니다",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "각 엔드포인트에 대한 단위 테스트 및 통합 테스트를 작성합니다. 부하 테스트를 수행하고 데이터베이스 쿼리를 최적화합니다. 필요한 경우 캐싱을 구현합니다",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "title": "투표 신청 상태 관리 프로바이더 구현",
+      "description": "로딩, 성공, 실패 상태를 포함한 신청 상태를 관리하는 VoteApplicationProvider를 생성하고, 신청 상태에 대한 실시간 업데이트를 구현하며, 적절한 사용자 피드백과 함께 오류를 처리합니다.",
+      "status": "pending",
+      "dependencies": [
+        32
+      ],
+      "priority": "medium",
+      "details": "1. Create VoteApplicationProvider class:\n   - Implement using Provider pattern or BLoC pattern (depending on project architecture)\n   - Define state class with fields for:\n     - isLoading: boolean\n     - applications: List<VoteApplication>\n     - error: String?\n     - currentApplication: VoteApplication?\n\n2. Implement state management methods:\n   ```dart\n   class VoteApplicationProvider extends ChangeNotifier {\n     bool _isLoading = false;\n     List<VoteApplication> _applications = [];\n     String? _error;\n     VoteApplication? _currentApplication;\n     \n     // Getters\n     bool get isLoading => _isLoading;\n     List<VoteApplication> get applications => _applications;\n     String? get error => _error;\n     VoteApplication? get currentApplication => _currentApplication;\n     \n     // State update methods\n     void _setLoading(bool loading) {\n       _isLoading = loading;\n       notifyListeners();\n     }\n     \n     void _setError(String? error) {\n       _error = error;\n       notifyListeners();\n     }\n     \n     void _updateApplications(List<VoteApplication> applications) {\n       _applications = applications;\n       notifyListeners();\n     }\n   }\n   ```\n\n3. Implement application submission functionality:\n   ```dart\n   Future<void> submitApplication(VoteApplicationRequest request) async {\n     try {\n       _setLoading(true);\n       _setError(null);\n       \n       // Call API endpoint using appropriate service\n       final result = await _voteApplicationService.submitApplication(request);\n       \n       // Update current application\n       _currentApplication = result;\n       \n       // Refresh applications list\n       await fetchUserApplications();\n       \n       _setLoading(false);\n     } catch (e) {\n       _setLoading(false);\n       _setError(_formatErrorMessage(e));\n     }\n   }\n   ```\n\n4. Implement real-time updates using Supabase subscriptions:\n   ```dart\n   void subscribeToApplicationUpdates(String userId) {\n     _subscription = supabase\n       .from('vote_application_users')\n       .on(SupabaseEventTypes.all, (payload) {\n         // Check if update is relevant to current user\n         if (payload['user_id'] == userId) {\n           // Refresh applications list\n           fetchUserApplications();\n         }\n       })\n       .subscribe();\n   }\n   \n   void dispose() {\n     _subscription?.unsubscribe();\n     super.dispose();\n   }\n   ```\n\n5. Implement application status retrieval:\n   ```dart\n   Future<void> fetchUserApplications() async {\n     try {\n       _setLoading(true);\n       \n       final applications = await _voteApplicationService.getUserApplications();\n       _updateApplications(applications);\n       \n       _setLoading(false);\n     } catch (e) {\n       _setLoading(false);\n       _setError(_formatErrorMessage(e));\n     }\n   }\n   ```\n\n6. Implement error handling and user feedback:\n   ```dart\n   String _formatErrorMessage(dynamic error) {\n     if (error is DuplicateVoteApplicationException) {\n       return 'You have already applied for this vote.';\n     } else if (error is VoteClosedException) {\n       return 'This vote is no longer accepting applications.';\n     } else if (error is NetworkException) {\n       return 'Network error. Please check your connection and try again.';\n     } else {\n       return 'An unexpected error occurred. Please try again later.';\n     }\n   }\n   ```\n\n7. Create UI components to display loading states and error messages:\n   - Implement loading indicators during API calls\n   - Display error messages in snackbars or alert dialogs\n   - Add retry functionality for failed operations\n\n8. Register the provider in the application's dependency injection system:\n   ```dart\n   // Using GetIt\n   getIt.registerSingleton<VoteApplicationProvider>(\n     VoteApplicationProvider(\n       voteApplicationService: getIt<VoteApplicationService>(),\n     ),\n   );\n   \n   // Or using Provider package\n   Provider<VoteApplicationProvider>(\n     create: (context) => VoteApplicationProvider(\n       voteApplicationService: context.read<VoteApplicationService>(),\n     ),\n     dispose: (context, provider) => provider.dispose(),\n   )\n   ```",
+      "testStrategy": "1. Unit Testing:\n   - Create unit tests for VoteApplicationProvider using the test package\n   - Mock VoteApplicationService using mockito or mocktail\n   - Test all state transitions (loading, success, error)\n   - Verify proper error handling for different exception types\n   - Example test:\n   ```dart\n   test('submitApplication should update state correctly on success', () async {\n     // Arrange\n     final mockService = MockVoteApplicationService();\n     when(mockService.submitApplication(any))\n       .thenAnswer((_) async => testVoteApplication);\n     when(mockService.getUserApplications())\n       .thenAnswer((_) async => [testVoteApplication]);\n     \n     final provider = VoteApplicationProvider(voteApplicationService: mockService);\n     \n     // Act\n     await provider.submitApplication(testRequest);\n     \n     // Assert\n     expect(provider.isLoading, false);\n     expect(provider.error, null);\n     expect(provider.currentApplication, testVoteApplication);\n     expect(provider.applications, [testVoteApplication]);\n     verify(mockService.submitApplication(testRequest)).called(1);\n     verify(mockService.getUserApplications()).called(1);\n   });\n   \n   test('submitApplication should handle errors correctly', () async {\n     // Arrange\n     final mockService = MockVoteApplicationService();\n     when(mockService.submitApplication(any))\n       .thenThrow(DuplicateVoteApplicationException());\n     \n     final provider = VoteApplicationProvider(voteApplicationService: mockService);\n     \n     // Act\n     await provider.submitApplication(testRequest);\n     \n     // Assert\n     expect(provider.isLoading, false);\n     expect(provider.error, 'You have already applied for this vote.');\n     verify(mockService.submitApplication(testRequest)).called(1);\n   });\n   ```\n\n2. Widget Testing:\n   - Create widget tests for UI components that use the provider\n   - Test loading indicators appear during operations\n   - Test error messages display correctly\n   - Test successful state updates reflect in the UI\n   - Example:\n   ```dart\n   testWidgets('ApplicationForm shows loading indicator during submission', (tester) async {\n     // Arrange\n     final mockProvider = MockVoteApplicationProvider();\n     when(mockProvider.isLoading).thenReturn(true);\n     \n     // Act\n     await tester.pumpWidget(\n       ChangeNotifierProvider<VoteApplicationProvider>.value(\n         value: mockProvider,\n         child: MaterialApp(home: ApplicationForm()),\n       ),\n     );\n     \n     // Assert\n     expect(find.byType(CircularProgressIndicator), findsOneWidget);\n   });\n   ```\n\n3. Integration Testing:\n   - Test the provider with actual API endpoints in a test environment\n   - Verify real-time updates work correctly with Supabase\n   - Test the complete flow from application submission to status update\n\n4. Manual Testing:\n   - Verify loading states appear during network operations\n   - Test error handling by triggering various error conditions:\n     - Submit duplicate applications\n     - Disconnect network during submission\n     - Submit to closed votes\n   - Verify real-time updates by submitting applications from different devices\n   - Test UI responsiveness during state transitions",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "상태 프로바이더 클래스 생성",
+          "description": "애플리케이션의 상태를 관리하는 프로바이더 클래스 개발",
+          "dependencies": [],
+          "details": "Define a class that will act as the central state management system. Include necessary properties to store the state and methods to access it.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "상태 업데이트 메서드 구현",
+          "description": "제어된 방식으로 상태를 업데이트하는 메서드 생성",
+          "dependencies": [
+            1
+          ],
+          "details": "Develop functions that will handle state modifications, ensuring proper data flow and maintaining consistency across the application.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "실시간 업데이트 통합",
+          "description": "실시간 상태 동기화를 위한 기능 구현",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "Add mechanisms to handle real-time updates, such as WebSocket connections or polling, to keep the state synchronized across different instances or users of the application.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "title": "투표 신청 기능 종합 테스트 구현",
+      "description": "비즈니스 로직 단위 테스트, API 엔드포인트 통합 테스트, UI 컴포넌트 테스트, 데이터베이스 제약조건 검증을 포함한 투표 신청 기능에 대한 포괄적인 테스트 전략을 개발하고 구현합니다.",
+      "status": "pending",
+      "dependencies": [
+        33
+      ],
+      "priority": "medium",
+      "details": "1. 비즈니스 로직 단위 테스트:\n   - VoteApplicationService에 대한 테스트 케이스 작성:\n     - 중복 신청 방지 로직 테스트\n     - 투표 상태에 따른 유효성 검사 테스트\n     - 사용자 신청 제한 테스트\n     - 데이터 유효성 검사 메서드 테스트\n   - 외부 의존성으로부터 비즈니스 로직을 분리하기 위한 모킹 프레임워크 사용\n   - 엣지 케이스 및 오류 조건에 대한 테스트 케이스 구현\n   - 테스트 구조 예시:\n     ```dart\n     void main() {\n       group('VoteApplicationService Tests', () {\n         late MockVoteApplicationRepository mockRepository;\n         late VoteApplicationService service;\n         \n         setUp(() {\n           mockRepository = MockVoteApplicationRepository();\n           service = VoteApplicationService(repository: mockRepository);\n         });\n         \n         test('should throw exception when user attempts duplicate application', () async {\n           // Arrange\n           when(mockRepository.checkUserApplication(any, any))\n               .thenAnswer((_) async => true);\n           \n           // Act & Assert\n           expect(\n             () => service.createApplication(userId: 'user1', voteId: 'vote1', title: 'Test'),\n             throwsA(isA<DuplicateVoteApplicationException>()),\n           );\n         });\n       });\n     }\n     ```\n\n2. API 엔드포인트 통합 테스트:\n   - POST /api/vote-applications 엔드포인트 테스트:\n     - 성공적인 신청 생성 확인\n     - 인증 요구사항 테스트\n     - 유효하지 않은 입력에 대한 적절한 오류 응답 확인\n     - 중복 신청 방지 테스트\n   - GET /api/vote-applications/:id 엔드포인트 테스트:\n     - 올바른 데이터 검색 확인\n     - 권한 규칙 테스트\n   - GET /api/users/:userId/vote-applications 엔드포인트 테스트:\n     - 사용자별 올바른 필터링 확인\n   - 통합 테스트 예시:\n     ```dart\n     void main() {\n       late Supabase supabase;\n       \n       setUpAll(() async {\n         supabase = await initializeTestSupabase();\n         // 테스트 데이터 설정\n       });\n       \n       test('POST /api/vote-applications creates new application', () async {\n         final response = await http.post(\n           Uri.parse('$baseUrl/api/vote-applications'),\n           headers: {'Authorization': 'Bearer $testToken'},\n           body: jsonEncode({\n             'vote_id': 'test-vote-id',\n             'title': 'Test Application',\n             'description': 'Test description'\n           }),\n         );\n         \n         expect(response.statusCode, equals(201));\n         final responseData = jsonDecode(response.body);\n         expect(responseData['title'], equals('Test Application'));\n       });\n     }\n     ```\n\n3. UI 컴포넌트 테스트:\n   - VoteApplicationForm 위젯 테스트:\n     - 폼 유효성 검사 확인\n     - 제출 동작 테스트\n     - 로딩 상태가 올바르게 표시되는지 확인\n     - 오류 메시지 표시 테스트\n   - VoteApplicationList 위젯 테스트:\n     - 신청 항목의 올바른 렌더링 확인\n     - 구현된 경우 페이지네이션 테스트\n     - 빈 상태 처리 확인\n   - 위젯 테스트 예시:\n     ```dart\n     void main() {\n       testWidgets('VoteApplicationForm validates required fields', (WidgetTester tester) async {\n         // Arrange\n         await tester.pumpWidget(MaterialApp(\n           home: VoteApplicationForm(voteId: 'test-vote'),\n         ));\n         \n         // Act\n         await tester.tap(find.byType(ElevatedButton));\n         await tester.pump();\n         \n         // Assert\n         expect(find.text('Title is required'), findsOneWidget);\n       });\n     }\n     ```\n\n4. 데이터베이스 제약조건 테스트:\n   - 고유 제약조건 테스트:\n     - 투표당 사용자당 하나의 신청 제약조건 확인\n     - 외래 키 제약조건 테스트\n   - 데이터 무결성 테스트:\n     - 필수 필드 유효성 검사 확인\n     - 데이터 유형 제약조건 테스트\n   - 데이터베이스 제약조건 테스트 예시:\n     ```dart\n     void main() {\n       late Supabase supabase;\n       \n       setUpAll(() async {\n         supabase = await initializeTestSupabase();\n       });\n       \n       test('Database prevents duplicate user applications for same vote', () async {\n         // 첫 번째 신청 생성\n         await supabase.from('vote_applications').insert({\n           'vote_id': 'test-vote-id',\n           'user_id': 'test-user-id',\n           'title': 'First Application'\n         });\n         \n         // 중복 신청 시도\n         try {\n           await supabase.from('vote_applications').insert({\n             'vote_id': 'test-vote-id',\n             'user_id': 'test-user-id',\n             'title': 'Second Application'\n           });\n           fail('Should have thrown a constraint violation');\n         } catch (e) {\n           expect(e, isA<PostgrestException>());\n         }\n       });\n     }\n     ```\n\n5. 테스트 환경 설정:\n   - 테스트 데이터가 있는 전용 테스트 데이터베이스 생성\n   - 인증 및 권한 부여를 위한 테스트 헬퍼 구현\n   - 외부 의존성에 대한 모의 서비스 설정",
+      "testStrategy": "1. 단위 테스트 검증:\n   - 테스트 러너를 사용하여 모든 단위 테스트 실행: `flutter test test/unit/vote_application_service_test.dart`\n   - 모든 테스트가 예상 커버리지로 통과하는지 확인(코드 커버리지 80% 이상 목표)\n   - 엣지 케이스가 적절히 테스트되었는지 확인:\n     - 중복 신청 시도\n     - 유효하지 않은 데이터 제출\n     - 다양한 투표 상태 시나리오\n   - 비즈니스 로직을 분리하기 위해 모의 객체가 적절히 사용되었는지 확인\n\n2. 통합 테스트 검증:\n   - 격리된 테스트 데이터베이스로 테스트 환경 설정\n   - 통합 테스트 실행: `flutter test test/integration/vote_application_api_test.dart`\n   - 모든 API 엔드포인트가 예상 상태 코드와 데이터를 반환하는지 확인\n   - 인증 및 권한 부여 시나리오 테스트:\n     - 인증된 사용자가 신청을 생성할 수 있음\n     - 인증되지 않은 요청이 거부됨\n     - 사용자는 자신의 신청만 액세스할 수 있음\n   - 오류 처리가 예상대로 작동하는지 확인\n\n3. UI 컴포넌트 테스트 검증:\n   - 위젯 테스트 실행: `flutter test test/widget/vote_application_form_test.dart`\n   - 폼 유효성 검사가 올바르게 작동하는지 확인\n   - 사용자 상호작용 테스트:\n     - 폼 제출\n     - 오류 메시지 표시\n     - 로딩 인디케이터\n   - 반응형 디자인을 보장하기 위해 다양한 화면 크기 테스트\n\n4. 데이터베이스 제약조건 테스트 검증:\n   - 데이터베이스 테스트 실행: `flutter test test/database/vote_application_constraints_test.dart`\n   - 고유 제약조건이 적용되는지 확인\n   - 외래 키 제약조건이 데이터 무결성을 유지하는지 테스트\n   - 필수 필드 유효성 검사가 작동하는지 확인\n\n5. 엔드-투-엔드 테스트:\n   - 완전한 투표 신청 흐름에 대한 수동 테스트 수행\n   - 신청 제출부터 상태 업데이트까지 전체 프로세스 확인\n   - 다양한 사용자 역할 및 권한으로 테스트\n   - 실시간 업데이트가 올바르게 작동하는지 확인\n\n6. 성능 테스트:\n   - API 호출에 대한 응답 시간 측정\n   - 더 큰 데이터셋으로 테스트하여 규모에 따른 성능 보장\n   - 데이터 로딩 중에도 UI가 응답성을 유지하는지 확인\n\n7. 회귀 테스트:\n   - 구현 후 전체 테스트 스위트를 실행하여 기존 기능이 손상되지 않았는지 확인",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "단위 테스트 구현",
+          "description": "개별 컴포넌트 및 함수에 대한 단위 테스트 생성 및 실행",
+          "dependencies": [],
+          "details": "핵심 함수, 엣지 케이스 및 오류 처리에 대한 테스트 케이스 작성. 의존성에 대한 모킹 사용.",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "통합 테스트 개발",
+          "description": "서로 다른 모듈 간의 상호작용에 대한 테스트 설계 및 구현",
+          "dependencies": [
+            1
+          ],
+          "details": "API 엔드포인트, 서비스 상호작용 및 컴포넌트 간 데이터 흐름에 중점.",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "UI 테스트 생성",
+          "description": "사용자 인터페이스 컴포넌트 및 상호작용에 대한 자동화된 테스트 구현",
+          "dependencies": [
+            1
+          ],
+          "details": "Selenium 또는 Cypress와 같은 도구를 사용하여 UI 요소, 사용자 흐름 및 반응성 테스트.",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "데이터베이스 테스트 구현",
+          "description": "데이터베이스 작업, 쿼리 및 데이터 무결성에 대한 테스트 개발",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "CRUD 작업, 복잡한 쿼리 테스트 및 트랜잭션 전반에 걸친 데이터 일관성 보장.",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "엔드-투-엔드 테스트 설정",
+          "description": "전체 애플리케이션에 걸쳐 실제 사용자 시나리오를 시뮬레이션하는 종합적인 테스트 생성",
+          "dependencies": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "details": "중요한 사용자 여정을 다루고 전체적인 시스템 동작을 검증하는 테스트 시나리오 설계.",
+          "status": "pending"
+        },
+        {
+          "id": 6,
+          "title": "성능 테스트 수행",
+          "description": "다양한 부하 조건에서 시스템 성능을 평가하는 테스트 구현",
+          "dependencies": [
+            1,
+            2,
+            4,
+            5
+          ],
+          "details": "JMeter 또는 Gatling과 같은 도구를 사용하여 응답 시간, 처리량 및 스트레스 하에서의 시스템 안정성 테스트.",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "title": "투표 신청 기능 성능 최적화 및 보안 강화",
+      "description": "데이터베이스 인덱스 최적화, 속도 제한, 캐싱 전략, 보안 취약점 점검을 포함한 투표 신청 기능의 성능 최적화 및 보안 강화를 구현합니다.",
+      "status": "pending",
+      "dependencies": [
+        34
+      ],
+      "priority": "low",
+      "details": "1. 데이터베이스 인덱스 최적화:\n   - VoteApplicationRepository의 쿼리 패턴 분석\n   - 자주 조회되는 컬럼(예: user_id, vote_id)에 적절한 인덱스 생성\n   - EXPLAIN ANALYZE를 사용하여 쿼리 성능 향상 확인\n\n2. API 속도 제한 구현:\n   - 속도 제한 미들웨어 통합(예: Node.js의 express-rate-limit)\n   - 투표 신청 엔드포인트에 적절한 제한 설정(예: IP당 분당 5개 요청)\n   - 속도 제한 초과 시나리오에 대한 사용자 정의 오류 응답 구현\n\n3. 캐싱 전략 적용:\n   - 자주 접근하는 투표 신청 데이터에 Redis 캐싱 구현\n   - 개별 투표 신청 및 사용자별 신청 목록 캐싱\n   - 캐시된 항목에 대한 적절한 TTL(Time To Live) 설정\n   - 데이터 업데이트 시 캐시 무효화 구현\n\n4. 보안 취약점 점검 및 개선:\n   - 투표 신청 기능에 대한 보안 감사 수행\n   - 모든 사용자 입력에 대한 입력 유효성 검사 및 살균 구현\n   - SQL 인젝션 방지를 위한 매개변수화된 쿼리 사용\n   - 적절한 CORS(Cross-Origin Resource Sharing) 정책 구현\n   - 모든 민감한 데이터가 저장 및 전송 중에 암호화되도록 보장\n   - 모든 투표 신청 엔드포인트에 대한 적절한 인증 및 권한 부여 검사 구현\n\n5. 성능 모니터링:\n   - 애플리케이션 성능 모니터링(APM) 도구 통합\n   - 투표 신청 기능에 대한 사용자 정의 메트릭 설정(예: 신청 제출 시간, 쿼리 응답 시간)\n   - 성능 대시보드 생성 및 이상 징후에 대한 알림 설정\n\n6. 코드 최적화:\n   - 데이터베이스 호출을 최소화하도록 VoteApplicationService 리팩토링\n   - UI에서 투표 신청 세부 정보에 대한 지연 로딩 구현\n   - API 응답 페이로드 크기 최적화(예: 페이지네이션, 필드 필터링)\n\n7. 오류 처리 및 로깅:\n   - 모든 최적화된 구성 요소에 대한 포괄적인 오류 처리 구현\n   - 성능 관련 이벤트 및 보안 사고에 대한 상세 로깅 설정\n   - 로그에 민감한 정보가 포함되지 않도록 보장",
+      "testStrategy": "1. 데이터베이스 인덱스 테스트:\n   - 최적화된 쿼리에 EXPLAIN ANALYZE를 실행하여 성능 향상 확인\n   - 인덱스 최적화가 전체 시스템 성능을 향상시키는지 확인하기 위한 부하 테스트 수행\n\n2. 속도 제한 테스트:\n   - 속도 제한 미들웨어에 대한 단위 테스트 작성\n   - 속도 제한 적용을 확인하기 위한 통합 테스트 수행\n   - 동시 요청으로 속도 제한 동작 테스트\n\n3. 캐싱 전략 검증:\n   - 캐시 히트/미스 시나리오에 대한 단위 테스트 작성\n   - 캐시된 요청과 캐시되지 않은 요청의 응답 시간 측정 및 비교\n   - 데이터 업데이트 후 캐시 무효화가 올바르게 작동하는지 확인\n\n4. 보안 테스트:\n   - 투표 신청 기능에 중점을 둔 침투 테스트 수행\n   - 자동화된 보안 스캐닝 도구(예: OWASP ZAP)를 사용하여 취약점 식별\n   - 구현된 변경 사항에 대한 수동 보안 검토 수행\n   - CORS 정책이 올바르게 구현되었는지 테스트\n\n5. 성능 테스트:\n   - 전체 시스템 성능 향상을 확인하기 위한 부하 테스트 수행\n   - 테스트 중 성능 메트릭을 모니터링하고 분석하기 위해 APM 도구 사용\n   - 성능 최적화가 새로운 버그나 회귀를 도입하지 않는지 확인\n\n6. 기능 회귀 테스트:\n   - 최적화가 기존 기능을 손상시키지 않았는지 확인하기 위해 기존 테스트 스위트 실행\n   - 수정된 비즈니스 로직이나 데이터 액세스 패턴에 대한 새로운 테스트 케이스 추가\n\n7. 오류 처리 및 로깅 테스트:\n   - 다양한 오류 시나리오를 시뮬레이션하여 적절한 오류 처리 확인\n   - 민감한 데이터를 노출하지 않고 적절한 정보가 캡처되는지 로그 확인",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "데이터베이스 최적화",
+          "description": "향상된 성능을 위한 데이터베이스 쿼리 및 구조 분석 및 최적화",
+          "dependencies": [],
+          "details": "현재 데이터베이스 스키마 검토, 느린 쿼리 식별, 인덱스 생성 및 테이블 구조 최적화",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "API 속도 제한 구현",
+          "description": "남용을 방지하고 공정한 사용을 보장하기 위해 API 엔드포인트에 속도 제한 구현",
+          "dependencies": [],
+          "details": "속도 제한 시스템 설계 및 구현, 적절한 제한 설정, 속도 제한된 요청에 대한 오류 처리 추가",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "캐싱 구현",
+          "description": "응답 시간을 개선하고 서버 부하를 줄이기 위한 캐싱 메커니즘 구현",
+          "dependencies": [
+            1
+          ],
+          "details": "캐시 가능한 데이터 식별, Redis 또는 Memcached 구현, 기존 API 엔드포인트에 캐싱 통합",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "보안 감사",
+          "description": "시스템에 대한 포괄적인 보안 감사 수행 및 필요한 보안 강화 구현",
+          "dependencies": [
+            2
+          ],
+          "details": "취약점 스캐닝 수행, 인증 및 권한 부여 메커니즘 검토, 보안 모범 사례 구현",
+          "status": "pending"
+        },
+        {
+          "id": 5,
+          "title": "성능 모니터링 설정",
+          "description": "시스템 메트릭을 추적하고 분석하기 위한 강력한 성능 모니터링 시스템 구현",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "모니터링 도구 설정, 핵심 성능 지표 정의, 실시간 성능 추적을 위한 대시보드 생성",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "title": "투표 신청 기능 문서화 및 배포 준비",
+      "description": "API 문서 및 사용자 가이드를 포함한 투표 신청 기능에 대한 포괄적인 문서를 작성하고, 코드 리뷰를 수행하며, 최종 검증을 실시하고, 프로덕션 배포를 준비합니다.",
+      "status": "pending",
+      "dependencies": [
+        35
+      ],
+      "priority": "low",
+      "details": "1. API 문서화:\n   - 모든 투표 신청 API 엔드포인트 문서화:\n     - POST /api/vote-applications (신청서 생성)\n     - GET /api/vote-applications/:id (특정 신청서 조회)\n     - GET /api/vote-applications/user/:userId (사용자 신청서 조회)\n     - 기타 관련 엔드포인트\n   - 각 엔드포인트에 대해 문서화:\n     - HTTP 메소드 및 URL\n     - 필요한 인증/권한 부여\n     - 요청 매개변수 및 본문 스키마\n     - 응답 형식 및 상태 코드\n     - 오류 처리\n     - 속도 제한 정보\n   - curl 및 코드 스니펫을 사용한 요청 및 응답 예제 포함\n   - API 버전 관리 전략 문서화\n\n2. 사용자 가이드 작성:\n   - 다음에 대한 단계별 지침 작성:\n     - 투표 신청 방법\n     - 신청 상태 확인 방법\n     - 신청서 업데이트 또는 철회 방법\n     - 일반적인 문제 해결 시나리오\n   - 각 단계에 대한 UI 스크린샷 포함\n   - 유효성 검사 규칙 및 제약 조건에 대한 설명 제공\n   - 일반적인 사용자 질문에 대한 FAQ 섹션 작성\n   - 필요한 언어(한국어/영어)로 문서 번역\n\n3. 코드 리뷰 및 최종 검증:\n   - 종합적인 코드 리뷰 수행:\n     - 코딩 표준 및 모범 사례 준수 확인\n     - 적절한 오류 처리 및 로깅 확인\n     - 보안 구현 검토(인증, 권한 부여, 입력 유효성 검사)\n     - 성능 최적화가 올바르게 구현되었는지 확인\n   - 테스트 커버리지 검증:\n     - 모든 중요 경로에 적절한 테스트 커버리지가 있는지 확인\n     - 엣지 케이스가 적절히 테스트되었는지 확인\n     - 보안 테스트가 포괄적인지 확인\n   - 전체 사용자 여정에 대한 수동 테스트 수행\n\n4. 프로덕션 배포 준비:\n   - 배포 체크리스트 작성:\n     - 데이터베이스 마이그레이션 스크립트\n     - 환경 구성 요구 사항\n     - 필요한 경우 기능 플래그 또는 토글\n     - 롤백 절차\n   - 모니터링 및 경고 준비:\n     - 모니터링할 주요 지표 정의\n     - 중요한 실패에 대한 적절한 경고 설정\n     - 문제 해결을 위한 로깅 구현\n   - 배포 문서 작성:\n     - 단계별 배포 프로세스\n     - 배포 후 확인 단계\n     - 지원 팀 연락처 정보\n   - 해당되는 경우 점진적 출시 전략 계획",
+      "testStrategy": "1. API 문서 검증:\n   - 기능에 익숙하지 않은 개발자가 API 문서만을 사용하여 클라이언트를 구현하도록 함\n   - 실제 구현과 비교하여 모든 엔드포인트가 올바르게 문서화되었는지 확인\n   - 모든 예제 요청을 테스트하여 문서화된 대로 작동하는지 확인\n   - 기술 작성자가 문서의 명확성과 완전성을 검토하도록 함\n\n2. 사용자 가이드 테스트:\n   - 대표 사용자와 함께 사용자 테스트 수행:\n     - 사용자에게 가이드를 제공하고 주요 작업을 완료하도록 요청\n     - 혼란이나 어려움이 있는 지점을 관찰하고 문서화\n     - 명확성과 완전성에 대한 피드백 수집\n   - 모든 스크린샷이 현재 UI와 일치하는지 확인\n   - 설명된 모든 워크플로우가 실제 구현과 일치하는지 확인\n   - 번역의 정확성과 문화적 적절성 확인\n\n3. 코드 리뷰 검증:\n   - 코드 리뷰 체크리스트를 사용하여 모든 측면이 다루어졌는지 확인\n   - 모든 발견 사항을 문서화하고 배포 전에 해결되었는지 확인\n   - 중요 구성 요소를 검토하기 위한 페어 프로그래밍 세션 수행\n   - 정적 코드 분석 도구를 사용하여 잠재적 문제 식별\n   - 보안 스캐닝 도구를 사용하여 보안 취약점이 해결되었는지 확인\n\n4. 배포 준비 테스트:\n   - 스테이징 환경에서 완전한 배포 리허설 수행\n   - 모든 마이그레이션 스크립트가 오류 없이 실행되는지 확인\n   - 롤백 절차를 테스트하여 올바르게 작동하는지 확인\n   - 실패 조건을 시뮬레이션하여 모니터링 및 경고 검증\n   - 예상되는 프로덕션 부하에서 성능을 확인하기 위한 부하 테스트 수행\n   - 보안 침투 테스트 수행\n   - 백업 및 복구 절차 생성 및 테스트",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "API 문서 작성",
+          "description": "모든 엔드포인트 및 기능에 대한 포괄적인 API 문서 개발",
+          "dependencies": [],
+          "details": "요청/응답 예제, 인증 방법 및 오류 처리 포함",
+          "status": "pending"
+        },
+        {
+          "id": 2,
+          "title": "사용자 가이드 작성",
+          "description": "애플리케이션에 대한 상세한 사용자 가이드 작성",
+          "dependencies": [],
+          "details": "설치, 구성, 일반적인 사용 사례 및 문제 해결 포함",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "title": "최종 코드 리뷰 수행",
+          "description": "전체 코드베이스에 대한 철저한 코드 리뷰 수행",
+          "dependencies": [
+            1,
+            2
+          ],
+          "details": "코드 품질, 모범 사례 준수 및 문서와의 일관성 확인",
+          "status": "pending"
+        },
+        {
+          "id": 4,
+          "title": "배포 체크리스트 작성",
+          "description": "배포 준비를 위한 포괄적인 체크리스트 개발",
+          "dependencies": [
+            1,
+            2,
+            3
+          ],
+          "details": "환경 설정, 데이터베이스 마이그레이션, 보안 검사 및 롤백 절차 단계 포함",
+          "status": "pending"
+        }
+      ]
+    }
+  ]
+}

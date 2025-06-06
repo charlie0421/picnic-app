@@ -39,6 +39,8 @@ node_modules/
 .DS_Store
 
 # Added by Task Master AI
-# Task files
+# Task files (excluding .taskmaster directory)
 tasks.json
-tasks/ 
+tasks/
+# Allow .taskmaster directory to be tracked
+!.taskmaster/ 
