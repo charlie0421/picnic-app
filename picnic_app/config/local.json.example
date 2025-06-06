@@ -1,0 +1,94 @@
+{
+  "supabase": {
+    "url": "${SUPABASE_URL}",
+    "anon_key": "${SUPABASE_ANON_KEY}",
+    "storage": {
+      "url": "${SUPABASE_STORAGE_URL}",
+      "anon_key": "${SUPABASE_ANON_KEY}"
+    }
+  },
+  "auth": {
+    "apple": {
+      "client_id": "${APPLE_CLIENT_ID}",
+      "redirect_uri": "${APPLE_REDIRECT_URI}"
+    },
+    "google": {
+      "client_id": "${GOOGLE_CLIENT_ID}",
+      "server_client_id": "${GOOGLE_SERVER_CLIENT_ID}"
+    },
+    "kakao": {
+      "native_app_key": "${KAKAO_NATIVE_APP_KEY}",
+      "javascript_key": "${KAKAO_JAVASCRIPT_KEY}"
+    }
+  },
+  "sentry": {
+    "enable": true,
+    "app_dsn": "${SENTRY_APP_DSN}",
+    "web_dsn": "${SENTRY_WEB_DSN}",
+    "sample_rates": {
+      "trace": 1.0,
+      "profile": 1.0,
+      "session": 1.0,
+      "error": 1.0
+    }
+  },
+  "storage": {
+    "cdn_url": "${CDN_URL}",
+    "aws": {
+      "access_key_id": "${AWS_ACCESS_KEY_ID}",
+      "secret_access_key": "${AWS_SECRET_ACCESS_KEY}",
+      "region": "${AWS_REGION}",
+      "s3_bucket": "${AWS_S3_BUCKET}",
+      "s3_bucket_url": "${AWS_S3_BUCKET_URL}"
+    }
+  },
+  "api_keys": {
+    "youtube": "${YOUTUBE_API_KEY}",
+    "deepl": "${DEEPL_API_KEY}",
+    "branch": "${BRANCH_API_KEY}"
+  },
+  "app": {
+    "web_domain": "${WEB_DOMAIN}",
+    "download_link": "${DOWNLOAD_LINK}",
+    "app_link_prefix": "${APP_LINK_PREFIX}",
+    "inapp_appname_prefix": ""
+  },
+  "theme": {
+    "colors": {
+      "primary": "0xFF9374FF",
+      "secondary": "0xFF83FBC8",
+      "sub": "0xFFCDFB5D",
+      "point": "0xFFFFA9BD",
+      "point_900": "0xFFEB4A71"
+    }
+  },
+  "ads": {
+    "tapjoy": {
+      "ios_sdk_key": "${TAPJOY_IOS_SDK_KEY}",
+      "android_sdk_key": "${TAPJOY_ANDROID_SDK_KEY}"
+    },
+    "unity": {
+      "apple_game_id": "${UNITY_APPLE_GAME_ID}",
+      "google_game_id": "${UNITY_GOOGLE_GAME_ID}",
+      "ios_placement_id": "${UNITY_IOS_PLACEMENT_ID}",
+      "android_placement_id": "${UNITY_ANDROID_PLACEMENT_ID}"
+    },
+    "pangle": {
+      "ios_app_id": "${PANGLE_IOS_APP_ID}",
+      "ios_rewarded_video_id": "${PANGLE_IOS_REWARDED_VIDEO_ID}",
+      "android_app_id": "${PANGLE_ANDROID_APP_ID}",
+      "android_rewarded_video_id": "${PANGLE_ANDROID_REWARDED_VIDEO_ID}"
+    },
+    "pincrux": {
+      "android_app_key": "${PINCRUX_ANDROID_APP_KEY}",
+      "ios_app_key": "${PINCRUX_IOS_APP_KEY}"
+    },
+    "admob": {
+      "ios_rewarded_video_id": "${ADMOB_IOS_REWARDED_VIDEO_ID}",
+      "android_rewarded_video_id": "${ADMOB_ANDROID_REWARDED_VIDEO_ID}"
+    }
+  },
+  "crowdin": {
+    "distribution_hash": "${CROWDIN_DISTRIBUTION_HASH}"
+  }
+} 

@@ -97,4 +97,99 @@ Picnic은 소셜 콘텐츠 플랫폼으로 투표, 사진 공유, 커뮤니티 �
 - 오프라인 사용성 개선으로 사용자 만족도 증가
 - Supabase 직접 통합으로 코드 복잡성 25% 감소
 - 실시간 기능으로 사용자 참여도 20% 증가
-- 위챗 로그인 통합으로 중국 사용자 수 35% 증가 
+- 위챗 로그인 통합으로 중국 사용자 수 35% 증가
+
+# 투표 후보 신청 기능 PRD (Product Requirements Document)
+
+## 프로젝트 개요
+기존 투표 시스템에 사용자가 직접 투표 후보(아티스트)를 신청할 수 있는 기능을 추가합니다.
+
+## 기술 스택
+- Flutter (Dart)
+- Supabase (PostgreSQL)
+- 기존 프로젝트 아키텍처 활용
+
+## 주요 기능
+
+### 1. 데이터베이스 스키마
+#### 1.1 투표 신청 테이블 (vote_applications)
+- Vote 테이블과 1:N 관계
+- 필드:
+  - id (Primary Key)
+  - vote_id (Foreign Key to Vote table)
+  - artist_name (신청 아티스트명)
+  - artist_group (아티스트 그룹명, nullable)
+  - application_count (신청 숫자)
+  - is_confirmed (확정 여부, boolean)
+  - created_at (생성일시)
+  - updated_at (수정일시)
+
+#### 1.2 투표 신청 유저 정보 테이블 (vote_application_users)
+- 투표 신청 테이블과 1:N 관계
+- 필드:
+  - id (Primary Key)
+  - vote_application_id (Foreign Key to vote_applications)
+  - user_id (Foreign Key to users)
+  - created_at (생성일시)
+- 제약조건: vote_application_id + user_id 복합 유니크 키 (유저당 한번의 신청)
+
+### 2. UI/UX 기능
+
+#### 2.1 투표 상세 페이지 개선
+- 신청 버튼 추가
+  - 예정투표, 진행중 투표에만 표시
+  - 종료된 투표에는 표시하지 않음
+- 로그인 유도 기능
+  - 비로그인 사용자가 신청 버튼 클릭 시 기존 로그인 유도 다이얼로그 표시
+- 신청 페이지 진입
+  - 로그인된 사용자가 신청 버튼 클릭 시 다이얼로그 또는 바텀시트로 아티스트 신청 페이지 표시
+
+#### 2.2 아티스트 신청 페이지
+- 상단: 해당 투표에 대한 기존 신청 내역 표시
+- 중단: 아티스트 검색 기능
+  - 이름으로 검색
+  - 그룹명으로 검색
+  - 실시간 검색 결과 표시
+- 하단: 신청 버튼
+
+### 3. 비즈니스 로직 및 제약사항
+
+#### 3.1 신청 제약사항
+- 같은 투표에 같은 아티스트는 중복 신청 불가
+- 한 사용자는 투표당 하나의 아티스트에만 신청 가능
+- 종료된 투표는 신청 불가
+- 로그인된 사용자만 신청 가능
+
+#### 3.2 데이터 검증
+- 아티스트명 필수 입력
+- 중복 신청 방지 로직
+- 투표 상태 검증
+
+### 4. API 엔드포인트
+
+#### 4.1 투표 신청 관련 API
+- POST /api/vote-applications - 새로운 아티스트 신청
+- GET /api/vote-applications/{vote_id} - 특정 투표의 신청 내역 조회
+- GET /api/vote-applications/user/{user_id}/{vote_id} - 사용자의 특정 투표 신청 내역
+
+#### 4.2 아티스트 검색 API
+- GET /api/artists/search?query={search_term} - 아티스트 검색
+
+### 5. 보안 및 성능 고려사항
+- RLS (Row Level Security) 정책 적용
+- 인덱스 최적화 (vote_id, user_id 등)
+- 중복 신청 방지를 위한 데이터베이스 제약조건
+- API 호출 제한 (Rate Limiting)
+
+### 6. 테스트 전략
+- 단위 테스트: 비즈니스 로직 검증
+- 통합 테스트: API 엔드포인트 테스트
+- UI 테스트: 사용자 플로우 검증
+- 데이터베이스 제약조건 테스트
+
+## 성공 기준
+1. 사용자가 투표에 아티스트를 성공적으로 신청할 수 있음
+2. 중복 신청 방지 로직이 정상 작동함
+3. 검색 기능이 빠르고 정확하게 작동함
+4. 모든 제약사항이 올바르게 적용됨
+5. 기존 투표 기능에 영향을 주지 않음 
