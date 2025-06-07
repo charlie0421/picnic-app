@@ -140,7 +140,7 @@ class _$SettingImpl extends _Setting {
       {this.themeMode = ThemeMode.system,
       this.postAnonymousMode = false,
       this.language = 'ko',
-      this.area = 'kpop'})
+      this.area = 'all'})
       : super._();
 
   @override

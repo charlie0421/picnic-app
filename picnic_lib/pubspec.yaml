@@ -106,7 +106,7 @@ dev_dependencies:
   json_serializable: ^6.9.0
   riverpod_generator: ^2.3.9
   intl_utils: ^2.8.7
-  build_runner: ^2.4.7
+  build_runner: ^2.4.13
   custom_lint: ^0.7.0
   riverpod_lint: ^2.6.3
   change_app_package_name: ^1.4.0
@@ -114,6 +114,8 @@ dev_dependencies:
   intl_translation: ^0.20.1
   delete_un_used_assets: ^1.0.1
   flutter_assets_cleaner: ^0.0.9
+  test: ^1.25.15
+  mockito: ^5.4.5
 
 flutter_intl:
   enabled: true
