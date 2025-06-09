@@ -1,3 +1,4 @@
+import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -88,17 +89,14 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
         return response.map((data) => BoardModel.fromJson(data)).toList();
       }
 
-      final response = await supabase
-          .from('boards')
-          .select(
-              'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
-          .neq('artist_id', 0)
-          .eq('status', 'approved')
-          .or('name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh.ilike.%$query%')
-          .order('artist(name->>${getLocaleLanguage()})', ascending: true)
-          .range(page * limit, (page + 1) * limit - 1);
-
-      return response.map((data) => BoardModel.fromJson(data)).toList();
+      // SearchService의 편의 메서드를 사용하여 보드 검색
+      return await SearchService.searchBoards(
+        query: query,
+        page: page,
+        limit: limit,
+        language: getLocaleLanguage(),
+        useCache: true,
+      );
     } catch (e, s) {
       logger.e('Error fetching boards by artist name:',
           error: e, stackTrace: s);

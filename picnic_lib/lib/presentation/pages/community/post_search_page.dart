@@ -8,7 +8,7 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
-import 'package:picnic_lib/presentation/common/common_search_box.dart';
+import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -67,42 +67,54 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
   }
 
   void _initializeNavigation() {
-    ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: true,
-          showTopMenu: true,
-          showBottomNavigation: true,
-          topRightMenu: TopRightType.none,
-          pageTitle: t('text_community_post_search'),
-        );
+    if (mounted) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showBottomNavigation: true,
+            topRightMenu: TopRightType.none,
+            pageTitle: t('text_community_post_search'),
+          );
+    }
   }
 
   void _executeSearch(String query) {
-    setState(() {
-      _currentSearchQuery = query.isNotEmpty ? query : '';
-    });
-    _pagingController.refresh();
-    if (query.isNotEmpty) _addToSearchHistory(query);
+    if (!mounted) return;
+    
+    try {
+      setState(() {
+        _currentSearchQuery = query.isNotEmpty ? query : '';
+      });
+      _pagingController.refresh();
+      if (query.isNotEmpty) _addToSearchHistory(query);
+    } catch (e) {
+      logger.w('Failed to execute search: $e');
+    }
   }
 
   Future<List<PostModel>> _fetch(int pageKey) async {
-    if (_currentSearchQuery.isEmpty) return [];
+    if (!mounted || _currentSearchQuery.isEmpty) return [];
 
     final currentArtist = ref.watch(
         communityStateInfoProvider.select((value) => value.currentArtist));
 
+    if (currentArtist == null) return [];
+
     try {
       final newItems = await postsByQuery(
             ref,
-            currentArtist!.id,
+            currentArtist.id,
             _currentSearchQuery,
             pageKey,
             10,
           ) ??
           [];
 
+      if (!mounted) return [];
       return newItems;
     } catch (e, s) {
       logger.e('Error fetching data: $e', stackTrace: s);
+      if (!mounted) return [];
       rethrow;
     }
   }
@@ -163,11 +175,22 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
   Widget _buildSearchBox() {
     return Container(
       padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 23, bottom: 33),
-      child: CommonSearchBox(
-        focusNode: focusNode,
-        textEditingController: _textController,
+      child: EnhancedSearchBox(
         hintText: t('text_community_board_search'),
-        onSubmitted: _executeSearch,
+        onSearchChanged: (query) {
+          if (mounted) {
+            try {
+              _executeSearch(query);
+            } catch (e) {
+              logger.w('Failed to execute search: $e');
+            }
+          }
+        },
+        controller: _textController,
+        focusNode: focusNode,
+        debounceTime: const Duration(milliseconds: 500),
+        showClearButton: true,
+
       ),
     );
   }
@@ -186,26 +209,32 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
                 itemBuilder: (context, post, index) {
                   if (index == 0) {
                     // 첫 번째 아이템 앞에 검색 결과 레이블 추가
-                    return Column(
-                      children: [
-                        _buildSearchResultLabel(),
-                        const SizedBox(height: 24),
-                        PostListItem(
-                          post: post,
-                          popupMenu: PostPopupMenu(
-                              post: post,
-                              context: context,
-                              refreshFunction: ref.refresh),
-                        ),
-                      ],
+                    return RepaintBoundary(
+                      key: ValueKey('search_result_${post.postId}'),
+                      child: Column(
+                        children: [
+                          _buildSearchResultLabel(),
+                          const SizedBox(height: 24),
+                          PostListItem(
+                            post: post,
+                            popupMenu: PostPopupMenu(
+                                post: post,
+                                context: context,
+                                refreshFunction: ref.refresh),
+                          ),
+                        ],
+                      ),
                     );
                   }
-                  return PostListItem(
-                      post: post,
-                      popupMenu: PostPopupMenu(
-                          post: post,
-                          context: context,
-                          refreshFunction: ref.refresh));
+                  return RepaintBoundary(
+                    key: ValueKey('post_${post.postId}'),
+                    child: PostListItem(
+                        post: post,
+                        popupMenu: PostPopupMenu(
+                            post: post,
+                            context: context,
+                            refreshFunction: ref.refresh)),
+                  );
                 },
                 firstPageProgressIndicatorBuilder: (_) => const Center(
                   child: CircularProgressIndicator(),

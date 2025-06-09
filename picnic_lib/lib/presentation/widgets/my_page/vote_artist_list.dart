@@ -7,7 +7,7 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/common_search_box.dart';
+import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -43,30 +43,43 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
       fetchPage: _fetch,
     );
     _scrollController = ScrollController();
-    _textEditingController.addListener(_onSearchQueryChange);
     _searchSubject
         .debounceTime(const Duration(milliseconds: 300))
-        .listen((_) => _pagingController.refresh());
+        .listen((_) {
+          if (mounted) {
+            _pagingController.refresh();
+          }
+        });
   }
 
   Future<List<ArtistModel>> _fetch(int pageKey) async {
+    if (!mounted) return [];
+    
     try {
       final bookmarkedArtists =
           await ref.read(asyncBookmarkedArtistsProvider.future);
+      
+      if (!mounted) return [];
+      
       final bookmarkedArtistIds = bookmarkedArtists.map((a) => a.id).toSet();
+      final query = _textEditingController.text;
 
       final newItems =
           await ref.read(asyncVoteArtistListProvider.notifier).fetchArtists(
                 page: pageKey,
-                query: _textEditingController.text,
+                query: query,
                 language: getLocaleLanguage(),
               );
+      
+      if (!mounted) return [];
+      
       final filteredItems = newItems
           .where((artist) => !bookmarkedArtistIds.contains(artist.id))
           .toList();
       return filteredItems;
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
+      if (!mounted) return [];
       rethrow;
     }
   }
@@ -81,9 +94,7 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
     super.dispose();
   }
 
-  void _onSearchQueryChange() {
-    _searchSubject.add(_textEditingController.text);
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,10 +102,21 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.w, vertical: 16),
-          child: CommonSearchBox(
-            focusNode: _focusNode,
-            textEditingController: _textEditingController,
+          child: EnhancedSearchBox(
             hintText: t('text_hint_search'),
+            onSearchChanged: (query) {
+              if (mounted) {
+                try {
+                  _searchSubject.add(query);
+                } catch (e) {
+                  logger.w('Failed to update search query: $e');
+                }
+              }
+            },
+            controller: _textEditingController,
+            focusNode: _focusNode,
+            debounceTime: const Duration(milliseconds: 300),
+            showClearButton: true,
           ),
         ),
         Expanded(child: _buildArtistList()),
@@ -176,8 +198,13 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
                 slivers: [
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          _buildArtistItem(bookmarkedArtists[index]),
+                      (context, index) {
+                        if (index >= bookmarkedArtists.length) return const SizedBox.shrink();
+                        return RepaintBoundary(
+                          key: ValueKey('bookmarked_${bookmarkedArtists[index].id}'),
+                          child: _buildArtistItem(bookmarkedArtists[index]),
+                        );
+                      },
                       childCount: bookmarkedArtists.length,
                     ),
                   ),
@@ -188,8 +215,10 @@ class _VoteMyArtistState extends ConsumerState<VoteMyArtistList> {
                       state: _pagingController.value,
                       fetchNextPage: _pagingController.fetchNextPage,
                       builderDelegate: PagedChildBuilderDelegate<ArtistModel>(
-                        itemBuilder: (context, item, index) =>
-                            _buildArtistItem(item),
+                        itemBuilder: (context, item, index) => RepaintBoundary(
+                          key: ValueKey('artist_${item.id}'),
+                          child: _buildArtistItem(item),
+                        ),
                         firstPageErrorIndicatorBuilder: (context) =>
                             buildErrorView(
                           context,

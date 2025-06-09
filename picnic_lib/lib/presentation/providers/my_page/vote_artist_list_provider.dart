@@ -1,3 +1,4 @@
+import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
@@ -87,31 +88,28 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
       {required int page,
       required String query,
       String language = 'en'}) async {
-    query = query.trim();
     try {
       final bookmarkedArtists =
           await ref.read(asyncBookmarkedArtistsProvider.future);
       final bookmarkedArtistIds = bookmarkedArtists.map((a) => a.id).toSet();
 
-      final response = await supabase
-          .from('artist')
-          .select(
-              'id,name,image,gender, birth_date, artist_group(id,name,image)')
-          .or('name->>ko.ilike.%$query%,name->>en.ilike.%$query%,name->>ja.ilike.%$query%,name->>zh.ilike.%$query%')
-          .not('id', 'in', bookmarkedArtistIds.toList())
-          .not('id', 'in', [0])
-          .order('name->>$language', ascending: true)
-          .limit(20)
-          .range(page * 20, (page + 1) * 20 - 1);
-
-      List<ArtistModel> nonBookmarkedArtists = response.map((artistData) {
-        return ArtistModel.fromJson({...artistData, 'isBookmarked': false});
-      }).toList();
+      // 새로운 SearchService를 사용하여 아티스트 이름과 그룹명을 함께 검색
+      // 캐싱 기능을 활용하여 성능 최적화
+      List<ArtistModel> nonBookmarkedArtists = await SearchService.searchArtists(
+        query: query,
+        page: page,
+        limit: 20,
+        language: language,
+        excludeIds: bookmarkedArtistIds.toList(),
+        useCache: true, // 캐싱 활성화
+      );
 
       List<ArtistModel> allArtists = [
         ...bookmarkedArtists,
         ...nonBookmarkedArtists
       ];
+      
+      // 북마크된 아티스트를 먼저 표시하고, 그 다음 언어별로 정렬
       allArtists.sort((a, b) {
         if (a.isBookmarked != b.isBookmarked) {
           return (a.isBookmarked ?? false) ? -1 : 1;
