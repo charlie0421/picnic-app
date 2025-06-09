@@ -1,5 +1,4 @@
 import 'package:picnic_lib/core/services/search_service.dart';
-import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
