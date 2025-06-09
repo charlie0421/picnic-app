@@ -250,12 +250,16 @@ class _MyPageState extends ConsumerState<MyPage> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
+        logger.i('🎯 나의 아티스트 탭 clicked');
         if (!supabase.isLogged) {
+          logger.i('🎯 User not logged in, navigating to signup');
           Navigator.of(context).pushNamed(SignUpScreen.routeName);
         } else {
+          logger.i('🎯 User logged in, setting VoteArtistPage');
           ref
               .read(navigationInfoProvider.notifier)
               .setCurrentMyPage(const VoteArtistPage());
+          logger.i('🎯 VoteArtistPage set successfully');
         }
       },
       child: Column(

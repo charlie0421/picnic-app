@@ -74,6 +74,9 @@ class Navigation with _$Navigation {
       voteBottomNavigationIndex: newVoteBottomNavigationIndex,
       communityBottomNavigationIndex: newCommunityBottomNavigationIndex,
       novelBottomNavigationIndex: newNovelBottomNavigationIndex,
+      voteNavigationStack: NavigationStack()..push(const VoteHomePage()),
+      drawerNavigationStack: NavigationStack()..push(const MyPage()),
+      signUpNavigationStack: NavigationStack()..push(const LoginPage()),
     );
   }
 

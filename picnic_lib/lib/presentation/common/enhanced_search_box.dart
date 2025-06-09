@@ -36,67 +36,67 @@ class EnhancedSearchBox extends StatefulWidget {
 
   /// 힌트 텍스트
   final String hintText;
-  
+
   /// 검색어 변경 콜백 (디바운싱 적용)
   final ValueChanged<String>? onSearchChanged;
-  
+
   /// 검색 제출 콜백
   final ValueChanged<String>? onSearchSubmitted;
-  
+
   /// 검색어 클리어 콜백
   final VoidCallback? onClear;
-  
+
   /// 디바운싱 시간
   final Duration debounceTime;
-  
+
   /// 클리어 버튼 표시 여부
   final bool showClearButton;
-  
+
   /// 검색 아이콘 표시 여부
   final bool showSearchIcon;
-  
+
   /// 자동 포커스 여부
   final bool autofocus;
-  
+
   /// 활성화 여부
   final bool enabled;
-  
+
   /// 최대 입력 길이
   final int? maxLength;
-  
+
   /// 텍스트 입력 액션
   final TextInputAction textInputAction;
-  
+
   /// 키보드 타입
   final TextInputType keyboardType;
-  
+
   /// 텍스트 스타일
   final TextStyle? style;
-  
+
   /// 힌트 텍스트 스타일
   final TextStyle? hintStyle;
-  
+
   /// 배경색
   final Color? backgroundColor;
-  
+
   /// 테두리 색상
   final Color? borderColor;
-  
+
   /// 테두리 반지름
   final BorderRadius? borderRadius;
-  
+
   /// 내부 패딩
   final EdgeInsetsGeometry? contentPadding;
-  
+
   /// 앞쪽 아이콘
   final Widget? prefixIcon;
-  
+
   /// 뒤쪽 아이콘
   final Widget? suffixIcon;
-  
+
   /// 텍스트 컨트롤러
   final TextEditingController? controller;
-  
+
   /// 포커스 노드
   final FocusNode? focusNode;
 
@@ -115,9 +115,9 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
     super.initState();
     _controller = widget.controller ?? TextEditingController();
     _focusNode = widget.focusNode ?? FocusNode();
-    
+
     _controller.addListener(_onTextChanged);
-    
+
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
@@ -139,23 +139,38 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
 
   void _onTextChanged() {
     final currentText = _controller.text;
-    
+
+    // 디버깅 로그 추가
+    print(
+        '🔥 [EnhancedSearchBox] _onTextChanged called with text: "$currentText"');
+    print('🔥 [EnhancedSearchBox] Previous text was: "$_previousText"');
+
     // 텍스트가 실제로 변경된 경우에만 처리
     if (currentText != _previousText) {
       _previousText = currentText;
-      
+
+      print(
+          '🔥 [EnhancedSearchBox] Text actually changed, starting debounce timer');
+
       // 기존 타이머 취소
       _debounceTimer?.cancel();
-      
+
       // 새로운 타이머 시작
       _debounceTimer = Timer(widget.debounceTime, () {
+        print(
+            '🔥 [EnhancedSearchBox] Debounce timer fired, calling onSearchChanged with: "$currentText"');
         if (mounted && widget.onSearchChanged != null) {
           widget.onSearchChanged!(currentText);
+        } else {
+          print(
+              '🔥 [EnhancedSearchBox] Widget not mounted or onSearchChanged is null');
         }
       });
-      
+
       // UI 업데이트 (클리어 버튼 표시/숨김)
       setState(() {});
+    } else {
+      print('🔥 [EnhancedSearchBox] Text unchanged, skipping');
     }
   }
 
@@ -189,7 +204,7 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
           // 검색 아이콘 또는 커스텀 prefix 아이콘
           if (widget.showSearchIcon || widget.prefixIcon != null)
             _buildPrefixIcon(),
-          
+
           // 텍스트 입력 필드
           Expanded(
             child: TextField(
@@ -199,20 +214,21 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
               maxLength: widget.maxLength,
               textInputAction: widget.textInputAction,
               keyboardType: widget.keyboardType,
-              style: widget.style ?? getTextStyle(AppTypo.body16R, AppColors.grey900),
+              style: widget.style ??
+                  getTextStyle(AppTypo.body16R, AppColors.grey900),
               decoration: InputDecoration(
                 hintText: widget.hintText,
-                hintStyle: widget.hintStyle ?? 
+                hintStyle: widget.hintStyle ??
                     getTextStyle(AppTypo.body16R, AppColors.grey300),
                 border: InputBorder.none,
-                contentPadding: widget.contentPadding ?? 
+                contentPadding: widget.contentPadding ??
                     EdgeInsets.symmetric(vertical: 12.h),
                 counterText: '', // 글자 수 카운터 숨김
               ),
               onSubmitted: _onSubmitted,
             ),
           ),
-          
+
           // 클리어 버튼 또는 커스텀 suffix 아이콘
           if (widget.showClearButton || widget.suffixIcon != null)
             _buildSuffixIcon(),
@@ -228,7 +244,7 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
         child: widget.prefixIcon!,
       );
     }
-    
+
     return GestureDetector(
       onTap: () {
         if (_controller.text.isNotEmpty) {
@@ -258,7 +274,7 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
         child: widget.suffixIcon!,
       );
     }
-    
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: widget.enabled ? _onClear : null,
@@ -326,4 +342,4 @@ class SearchState {
         hasError.hashCode ^
         errorMessage.hashCode;
   }
-} 
+}

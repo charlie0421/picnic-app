@@ -10,6 +10,7 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
+import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
@@ -92,15 +93,18 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   void _setupListeners() {
     _focusNode.addListener(_onFocusChange);
-    _textEditingController.addListener(_onSearchQueryChange);
+    // macOS에서 검색이 안 되는 문제로 인해 EnhancedSearchBox의 onSearchChanged만 사용
+    // _textEditingController.addListener(_onSearchQueryChange);
 
-    _searchSubject
-        .debounceTime(const Duration(milliseconds: 300))
-        .listen((query) {
-      if (mounted) {
-        ref.read(searchQueryProvider.notifier).state = query;
-      }
-    });
+    // _searchSubject
+    //     .debounceTime(const Duration(milliseconds: 300))
+    //     .listen((query) {
+    //   print('🔍 _searchSubject 리스너 호출됨: "$query"');
+    //   if (mounted) {
+    //     ref.read(searchQueryProvider.notifier).state = query;
+    //     print('🔍 searchQueryProvider 상태 업데이트됨: "$query"');
+    //   }
+    // });
   }
 
   void _setupUpdateTimer() {
@@ -172,12 +176,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
-  void _onSearchQueryChange() {
-    _searchSubject.add(_textEditingController.text);
-    if (_hasFocus) {
-      _scrollToSearchBox();
-    }
-  }
+  // macOS에서 검색이 안 되는 문제로 인해 주석 처리
+  // void _onSearchQueryChange() {
+  //   final query = _textEditingController.text;
+  //   print('🔍 _onSearchQueryChange 호출됨: "$query"');
+  //   _searchSubject.add(query);
+  //   if (_hasFocus) {
+  //     _scrollToSearchBox();
+  //   }
+  // }
 
   void _scrollToSearchBox() {
     _scrollController.animateTo(
@@ -232,51 +239,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     );
   }
 
-  // 한국어 초성 추출 함수
-  String _extractKoreanInitials(String text) {
-    const initials = [
-      'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
-      'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
-    ];
-    
-    String result = '';
-    for (int i = 0; i < text.length; i++) {
-      final char = text[i];
-      final code = char.codeUnitAt(0);
-      
-      // 한글 완성형 문자인지 확인 (가-힣)
-      if (code >= 0xAC00 && code <= 0xD7A3) {
-        // 초성 추출: (문자코드 - 0xAC00) / (21 * 28)
-        final initialIndex = (code - 0xAC00) ~/ (21 * 28);
-        result += initials[initialIndex];
-      } else {
-        // 한글이 아닌 문자는 그대로 추가
-        result += char;
-      }
-    }
-    return result;
-  }
-
-  // 초성 검색 매칭 함수
-  bool _matchesKoreanInitials(String text, String query) {
-    if (text.isEmpty || query.isEmpty) return false;
-    
-    final textInitials = _extractKoreanInitials(text).toLowerCase();
-    final queryLower = query.toLowerCase();
-    
-    // 일반 텍스트 검색도 포함
-    if (text.toLowerCase().contains(queryLower)) {
-      return true;
-    }
-    
-    // 초성 검색
-    if (textInitials.contains(queryLower)) {
-      return true;
-    }
-    
-    return false;
-  }
-
   List<int> _getFilteredIndices(List<dynamic> args) {
     final List<VoteItemModel?> data = args[0];
     final String query = args[1];
@@ -285,143 +247,101 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
 
     print('🔍 검색어: "$query"');
-    
+
     return List<int>.generate(data.length, (index) => index).where((index) {
       final item = data[index]!;
       final lowerQuery = query.toLowerCase();
-      
+
       // 아티스트 이름 검색 (한국어 + 영어 + 초성)
       if (item.artist?.id != null && (item.artist?.id ?? 0) != 0) {
         // 한국어 아티스트 이름
         final artistNameKo = item.artist?.name?['ko']?.toString() ?? '';
         // 영어 아티스트 이름
         final artistNameEn = item.artist?.name?['en']?.toString() ?? '';
-        
+
         print('👤 아티스트 (한국어): "$artistNameKo"');
         print('👤 아티스트 (영어): "$artistNameEn"');
-        print('👤 아티스트 초성: "${_extractKoreanInitials(artistNameKo)}"');
-        
-        if (_matchesKoreanInitials(artistNameKo, query) || 
-            artistNameEn.toLowerCase().contains(lowerQuery)) {
+        print(
+            '👤 아티스트 초성: "${KoreanSearchUtils.extractKoreanInitials(artistNameKo)}"');
+
+        if ((artistNameKo.isNotEmpty &&
+                (artistNameKo.toLowerCase().contains(lowerQuery) ||
+                    KoreanSearchUtils.matchesKoreanInitials(
+                        artistNameKo, query))) ||
+            (artistNameEn.isNotEmpty &&
+                artistNameEn.toLowerCase().contains(lowerQuery))) {
           print('✅ 아티스트 이름 매칭: "$artistNameKo" / "$artistNameEn"');
           return true;
         }
-        
+
         // 아티스트의 그룹명 검색 (한국어 + 영어 + 초성)
         if (item.artist?.artistGroup?.name != null) {
-          final artistGroupNameKo = item.artist!.artistGroup!.name['ko']?.toString() ?? '';
-          final artistGroupNameEn = item.artist!.artistGroup!.name['en']?.toString() ?? '';
-          
+          final artistGroupNameKo =
+              item.artist!.artistGroup!.name['ko']?.toString() ?? '';
+          final artistGroupNameEn =
+              item.artist!.artistGroup!.name['en']?.toString() ?? '';
+
           print('🎵 아티스트의 그룹 (한국어): "$artistGroupNameKo"');
           print('🎵 아티스트의 그룹 (영어): "$artistGroupNameEn"');
-          print('🎵 아티스트의 그룹 초성: "${_extractKoreanInitials(artistGroupNameKo)}"');
-          
-          if (_matchesKoreanInitials(artistGroupNameKo, query) ||
-              artistGroupNameEn.toLowerCase().contains(lowerQuery)) {
-            print('✅ 아티스트의 그룹명 매칭: "$artistGroupNameKo" / "$artistGroupNameEn"');
+          print(
+              '🎵 아티스트의 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(artistGroupNameKo)}"');
+
+          if ((artistGroupNameKo.isNotEmpty &&
+                  (artistGroupNameKo.toLowerCase().contains(lowerQuery) ||
+                      KoreanSearchUtils.matchesKoreanInitials(
+                          artistGroupNameKo, query))) ||
+              (artistGroupNameEn.isNotEmpty &&
+                  artistGroupNameEn.toLowerCase().contains(lowerQuery))) {
+            print(
+                '✅ 아티스트의 그룹명 매칭: "$artistGroupNameKo" / "$artistGroupNameEn"');
             return true;
           }
         }
       }
-      
+
       // 직접 그룹 검색 (아티스트가 없고 그룹만 있는 경우) (한국어 + 영어 + 초성)
       if (item.artistGroup?.id != null && (item.artistGroup?.id ?? 0) != 0) {
         final groupNameKo = item.artistGroup?.name['ko']?.toString() ?? '';
         final groupNameEn = item.artistGroup?.name['en']?.toString() ?? '';
-        
+
         print('🎭 직접 그룹 (한국어): "$groupNameKo"');
         print('🎭 직접 그룹 (영어): "$groupNameEn"');
-        print('🎭 직접 그룹 초성: "${_extractKoreanInitials(groupNameKo)}"');
-        
-        if (_matchesKoreanInitials(groupNameKo, query) ||
-            groupNameEn.toLowerCase().contains(lowerQuery)) {
+        print(
+            '🎭 직접 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(groupNameKo)}"');
+
+        if ((groupNameKo.isNotEmpty &&
+                (groupNameKo.toLowerCase().contains(lowerQuery) ||
+                    KoreanSearchUtils.matchesKoreanInitials(
+                        groupNameKo, query))) ||
+            (groupNameEn.isNotEmpty &&
+                groupNameEn.toLowerCase().contains(lowerQuery))) {
           print('✅ 직접 그룹명 매칭: "$groupNameKo" / "$groupNameEn"');
           return true;
         }
       }
-      
+
       return false;
     }).toList();
-  }
-
-  // 검색어 하이라이트를 위한 헬퍼 메서드 (한국어/영어/초성 모두 지원)
-  List<TextSpan> _buildHighlightedText(String text, String query) {
-    if (query.isEmpty || text.isEmpty) {
-      return [TextSpan(text: text)];
-    }
-
-    final List<TextSpan> spans = [];
-    final lowerText = text.toLowerCase();
-    final lowerQuery = query.toLowerCase();
-    
-    // 일반 텍스트 검색 시도
-    int start = 0;
-    int index = lowerText.indexOf(lowerQuery);
-    
-    if (index != -1) {
-      // 일반 텍스트 검색 하이라이트
-      while (index != -1) {
-        // 하이라이트 이전 텍스트 추가
-        if (index > start) {
-          spans.add(TextSpan(text: text.substring(start, index)));
-        }
-        
-        // 심플한 형광펜 하이라이트 효과
-        spans.add(TextSpan(
-          text: text.substring(index, index + query.length),
-          style: TextStyle(
-            backgroundColor: AppColors.primary500.withOpacity(0.3),
-            fontWeight: FontWeight.bold,
-            color: AppColors.grey900,
-          ),
-        ));
-        
-        start = index + query.length;
-        index = lowerText.indexOf(lowerQuery, start);
-      }
-      
-      // 남은 텍스트 추가
-      if (start < text.length) {
-        spans.add(TextSpan(text: text.substring(start)));
-      }
-    } else {
-      // 초성 검색인지 확인
-      final textInitials = _extractKoreanInitials(text).toLowerCase();
-      if (textInitials.contains(lowerQuery)) {
-        // 초성 검색의 경우 전체 텍스트를 하이라이트
-        spans.add(TextSpan(
-          text: text,
-          style: TextStyle(
-            backgroundColor: AppColors.primary500.withOpacity(0.3),
-            fontWeight: FontWeight.bold,
-            color: AppColors.grey900,
-          ),
-        ));
-      } else {
-        // 매칭되지 않는 경우 일반 텍스트
-        spans.add(TextSpan(text: text));
-      }
-    }
-    
-    return spans;
   }
 
   // 다국어 텍스트에서 검색어가 포함된 언어의 텍스트를 반환 (초성 검색 포함)
   String _getMatchingText(Map<String, dynamic> nameMap, String query) {
     final lowerQuery = query.toLowerCase();
-    
+
     // 한국어에서 검색어 찾기 (일반 텍스트 + 초성)
     final koText = nameMap['ko']?.toString() ?? '';
-    if (_matchesKoreanInitials(koText, query)) {
+    if (koText.isNotEmpty &&
+        (koText.toLowerCase().contains(lowerQuery) ||
+            KoreanSearchUtils.matchesKoreanInitials(koText, query))) {
       return koText;
     }
-    
+
     // 영어에서 검색어 찾기
     final enText = nameMap['en']?.toString() ?? '';
-    if (enText.toLowerCase().contains(lowerQuery)) {
+    if (enText.isNotEmpty && enText.toLowerCase().contains(lowerQuery)) {
       return enText;
     }
-    
+
     // 검색어가 없으면 기본 로케일 텍스트 반환
     return getLocaleTextFromJson(nameMap);
   }
@@ -538,6 +458,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   ))
             ],
           ),
+        // 신청 버튼 추가 (예정된 투표와 진행 중인 투표에만 표시)
+        if (!isEnded && !_isSaving)
+          Column(
+            children: [
+              const SizedBox(height: 20),
+              _buildApplicationButton(context),
+              const SizedBox(height: 12),
+            ],
+          ),
         if (isEnded && !_isSaving)
           Column(
             children: [
@@ -556,6 +485,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   Widget _buildVoteItemList(BuildContext context) {
     final searchQuery = ref.watch(searchQueryProvider);
+    print('🔍 _buildVoteItemList에서 받은 검색어: "$searchQuery"');
     final dataAsync = ref.watch(asyncVoteItemListProvider(
         voteId: widget.voteId, votePortal: widget.votePortal));
 
@@ -596,17 +526,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                             if (index >= filteredIndices.length) {
                               return const SizedBox.shrink();
                             }
-                            
+
                             final itemIndex = filteredIndices[index];
                             if (itemIndex >= data.length) {
                               return const SizedBox.shrink();
                             }
-                            
+
                             final item = data[itemIndex];
                             if (item == null) {
                               return const SizedBox.shrink();
                             }
-                            
+
                             final previousVoteCount =
                                 _previousVoteCounts[item.id] ?? item.voteTotal;
                             final voteCountDiff =
@@ -615,7 +545,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                             final previousRank =
                                 _previousRanks[item.id] ?? actualRank;
                             final rankChanged = previousRank != actualRank;
-                            
+
                             // PostFrameCallback을 더 안전하게 처리
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               if (mounted) {
@@ -623,9 +553,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                 _previousRanks[item.id] = actualRank;
                               }
                             });
-                            
+
                             return RepaintBoundary(
-                              key: ValueKey('vote_item_${item.id}_$searchQuery'),
+                              key:
+                                  ValueKey('vote_item_${item.id}_$searchQuery'),
                               child: Padding(
                                 padding: EdgeInsets.only(bottom: 36),
                                 child: _buildVoteItemWithHighlight(
@@ -677,7 +608,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         searchQuery: searchQuery,
       );
     }
-    
+
     // 검색어가 없을 때는 기존 VoteItemWidget 사용
     return VoteItemWidget(
       item: item,
@@ -705,13 +636,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     required String searchQuery,
   }) {
     // 검색어가 매칭된 언어의 텍스트 가져오기
-    final artistName = item.artist?.name != null 
+    final artistName = item.artist?.name != null
         ? _getMatchingText(item.artist!.name, searchQuery)
         : '';
-    final groupName = item.artistGroup?.name != null 
+    final groupName = item.artistGroup?.name != null
         ? _getMatchingText(item.artistGroup!.name, searchQuery)
         : '';
-    
+
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 600),
@@ -763,35 +694,40 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       RichText(
                         overflow: TextOverflow.ellipsis,
                         text: TextSpan(
-                          style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                          style:
+                              getTextStyle(AppTypo.body14B, AppColors.grey900),
                           children: (item.artist?.id ?? 0) != 0
                               ? [
                                   // 아티스트 이름에 하이라이트 적용
-                                  ..._buildHighlightedText(
-                                    item.artist?.name != null 
-                                        ? _getMatchingText(item.artist!.name, searchQuery)
+                                  ...KoreanSearchUtils
+                                      .buildHighlightedTextSpans(
+                                    item.artist?.name != null
+                                        ? _getMatchingText(
+                                            item.artist!.name, searchQuery)
                                         : '',
                                     searchQuery,
                                   ),
                                   const TextSpan(text: ' '),
                                   // 아티스트의 그룹명에도 하이라이트 적용
                                   if (item.artist?.artistGroup?.name != null)
-                                    ..._buildHighlightedText(
-                                      _getMatchingText(item.artist!.artistGroup!.name, searchQuery),
+                                    ...KoreanSearchUtils
+                                        .buildHighlightedTextSpans(
+                                      _getMatchingText(
+                                          item.artist!.artistGroup!.name,
+                                          searchQuery),
                                       searchQuery,
-                                    ).map((span) => TextSpan(
-                                      text: span.text,
-                                      style: span.style?.copyWith(
-                                        color: AppColors.grey600,
-                                        fontSize: getTextStyle(AppTypo.caption10SB, AppColors.grey600).fontSize,
-                                      ) ?? getTextStyle(AppTypo.caption10SB, AppColors.grey600),
-                                    )),
+                                      baseStyle: getTextStyle(
+                                          AppTypo.caption10SB,
+                                          AppColors.grey600),
+                                    ),
                                 ]
                               : [
                                   // 그룹명에 하이라이트 적용
-                                  ..._buildHighlightedText(
-                                    item.artistGroup?.name != null 
-                                        ? _getMatchingText(item.artistGroup!.name, searchQuery)
+                                  ...KoreanSearchUtils
+                                      .buildHighlightedTextSpans(
+                                    item.artistGroup?.name != null
+                                        ? _getMatchingText(
+                                            item.artistGroup!.name, searchQuery)
                                         : '',
                                     searchQuery,
                                   ),
@@ -985,6 +921,50 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
+  Widget _buildApplicationButton(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 32.w),
+      child: Container(
+        width: double.infinity,
+        height: 48.h,
+        decoration: BoxDecoration(
+          gradient: commonGradient,
+          borderRadius: BorderRadius.circular(24.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary500.withOpacity(0.3),
+              offset: const Offset(0, 4),
+              blurRadius: 12,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24.r),
+            onTap: () => _handleApplicationButtonTap(context),
+            child: Center(
+              child: Text(
+                t('button_apply_as_candidate'),
+                style: getTextStyle(AppTypo.body16B, AppColors.grey00),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleApplicationButtonTap(BuildContext context) {
+    if (supabase.isLogged) {
+      // TODO: 투표 신청 다이얼로그/페이지 표시 로직 구현
+      showSimpleDialog(content: '투표 신청 기능이 곧 제공됩니다.');
+    } else {
+      showRequireLoginDialog();
+    }
+  }
+
   Widget _buildSearchBox() {
     return Positioned(
       top: 0,
@@ -995,14 +975,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         child: EnhancedSearchBox(
           hintText: t('text_vote_where_is_my_bias'),
           onSearchChanged: (query) {
-            // 안전한 상태 업데이트
+            print('🔍 EnhancedSearchBox onSearchChanged 호출됨: "$query"');
+            // 직접 searchQueryProvider 업데이트
             if (mounted) {
-              try {
-                ref.read(searchQueryProvider.notifier).state = query;
-              } catch (e) {
-                // 상태 업데이트 실패 시 로그만 남기고 계속 진행
-                print('Search state update failed: $e');
-              }
+              ref.read(searchQueryProvider.notifier).state = query;
+              print('🔍 searchQueryProvider 직접 업데이트됨: "$query"');
             }
           },
           controller: _textEditingController,

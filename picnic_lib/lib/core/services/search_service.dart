@@ -1,4 +1,5 @@
 import 'package:picnic_lib/core/services/search_cache_service.dart';
+import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
@@ -9,14 +10,16 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 /// 다양한 엔티티 타입에 대한 검색 기능을 제공하는 재사용 가능한 모듈
 class SearchService {
   static final SearchCacheService _cache = SearchCacheService();
+
   /// 아티스트 이름과 그룹명을 동시에 검색하는 메서드 (고급 검색 사용)
-  /// 
+  ///
   /// [query] 검색어
   /// [page] 페이지 번호 (0부터 시작)
   /// [limit] 페이지당 결과 수
   /// [language] 언어 코드 (기본값: 'en')
   /// [excludeIds] 제외할 아티스트 ID 목록
-  /// 
+  /// [supportKoreanInitials] 한국어 초성 검색 지원 여부 (기본값: true)
+  ///
   /// Returns: 검색된 아티스트 목록
   static Future<List<ArtistModel>> searchArtists({
     required String query,
@@ -25,34 +28,206 @@ class SearchService {
     String language = 'en',
     List<int> excludeIds = const [],
     bool useCache = true,
+    bool supportKoreanInitials = true,
   }) async {
-    return await searchEntitiesAdvanced<ArtistModel>(
+    query = query.trim();
+
+    // 캐시 키 생성
+    final cacheKey = generateCacheKey(
       query: query,
       table: 'artist',
-      selectFields: 'id,name,image,gender, birth_date, artist_group(id,name,image)',
-      searchConditions: [
-        'name->>ko.ilike.%{query}%',
-        'name->>en.ilike.%{query}%',
-        'name->>ja.ilike.%{query}%',
-        'name->>zh.ilike.%{query}%',
-        'artist_group.name->>ko.ilike.%{query}%',
-        'artist_group.name->>en.ilike.%{query}%',
-        'artist_group.name->>ja.ilike.%{query}%',
-        'artist_group.name->>zh.ilike.%{query}%',
-      ],
-      fromJson: (json) => ArtistModel.fromJson({...json, 'isBookmarked': false}),
       page: page,
       limit: limit,
-      orderBy: ['name->>$language asc'],
-      filters: {
-        'not_in_id': [0, ...excludeIds],
-      },
-      useCache: useCache,
+      language: language,
     );
+
+    // 캐시에서 조회 시도
+    if (useCache) {
+      final cachedResult = _cache.get<List<ArtistModel>>(cacheKey);
+      if (cachedResult != null) {
+        logger.d('Returning cached artist search results for query: $query');
+        return cachedResult;
+      }
+    }
+
+    try {
+      if (!isValidQuery(query) && query.isNotEmpty) {
+        throw ArgumentError('Invalid search query: $query');
+      }
+
+      // 한국어 초성 검색인지 확인 (간단한 초성 문자 체크)
+      final koreanInitials = [
+        'ㄱ',
+        'ㄲ',
+        'ㄴ',
+        'ㄷ',
+        'ㄸ',
+        'ㄹ',
+        'ㅁ',
+        'ㅂ',
+        'ㅃ',
+        'ㅅ',
+        'ㅆ',
+        'ㅇ',
+        'ㅈ',
+        'ㅉ',
+        'ㅊ',
+        'ㅋ',
+        'ㅌ',
+        'ㅍ',
+        'ㅎ'
+      ];
+      final isKoreanInitials = supportKoreanInitials &&
+          query.isNotEmpty &&
+          query.split('').every((char) => koreanInitials.contains(char));
+
+      dynamic queryBuilder = supabase
+          .from('artist')
+          .select(
+              'id,name,image,gender,birth_date,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+          .neq('id', 0); // artist id 0 제외
+
+      // 한국어 초성 검색인 경우 모든 아티스트를 가져와서 로컬 필터링
+      if (isKoreanInitials) {
+        logger.d('Korean initials search detected: $query');
+
+        // 제외할 ID가 있는 경우
+        if (excludeIds.isNotEmpty) {
+          queryBuilder = queryBuilder.not('id', 'in', excludeIds);
+        }
+
+        // 모든 아티스트 가져오기 (초성 검색은 로컬에서 처리)
+        // 북마크 정보도 함께 가져오기
+        final response =
+            await queryBuilder.order('name->>$language', ascending: true);
+
+        if (response == null) {
+          return <ArtistModel>[];
+        }
+
+        final allArtists = (response as List<dynamic>)
+            .where((data) => data != null)
+            .map((data) {
+          final artistData = data as Map<String, dynamic>;
+          // 북마크 정보 확인 (artist_user_bookmark 배열이 비어있지 않으면 북마크됨)
+          final bookmarkData = artistData['artist_user_bookmark'] as List?;
+          final isBookmarked = bookmarkData != null && bookmarkData.isNotEmpty;
+
+          // 북마크 정보를 제거하고 아티스트 데이터만 추출
+          final cleanArtistData = Map<String, dynamic>.from(artistData);
+          cleanArtistData.remove('artist_user_bookmark');
+          cleanArtistData['isBookmarked'] = isBookmarked;
+
+          return ArtistModel.fromJson(cleanArtistData);
+        }).toList();
+
+        // 로컬에서 초성 필터링 (KoreanSearchUtils 사용)
+        final filteredResults = allArtists.where((artist) {
+          // 아티스트 이름에서 검색
+          final artistNames = [
+            artist.name?['ko'],
+            artist.name?['en'],
+            artist.name?['ja'],
+          ].where((name) => name != null && name.isNotEmpty).cast<String>();
+
+          for (final name in artistNames) {
+            if (KoreanSearchUtils.matchesKoreanInitials(name, query)) {
+              return true;
+            }
+          }
+
+          // 그룹 이름에서 검색
+          if (artist.artistGroup?.name != null) {
+            final groupNames = [
+              artist.artistGroup!.name?['ko'],
+              artist.artistGroup!.name?['en'],
+              artist.artistGroup!.name?['ja'],
+            ].where((name) => name != null && name.isNotEmpty).cast<String>();
+
+            for (final groupName in groupNames) {
+              if (KoreanSearchUtils.matchesKoreanInitials(groupName, query)) {
+                return true;
+              }
+            }
+          }
+
+          return false;
+        }).toList();
+
+        // 페이지네이션 적용
+        final startIndex = page * limit;
+        final endIndex = (startIndex + limit).clamp(0, filteredResults.length);
+
+        if (startIndex >= filteredResults.length) {
+          return <ArtistModel>[];
+        }
+
+        final results = filteredResults.sublist(startIndex, endIndex);
+
+        // 결과를 캐시에 저장
+        if (useCache && results.isNotEmpty) {
+          _cache.put(cacheKey, results);
+        }
+
+        return results;
+      } else {
+        // 일반 텍스트 검색
+        if (query.isNotEmpty) {
+          queryBuilder = queryBuilder.or('name->>ko.ilike.%$query%,'
+              'name->>en.ilike.%$query%,'
+              'name->>ja.ilike.%$query%,'
+              'name->>zh.ilike.%$query%');
+        }
+
+        // 제외할 ID가 있는 경우
+        if (excludeIds.isNotEmpty) {
+          queryBuilder = queryBuilder.not('id', 'in', excludeIds);
+        }
+
+        // 정렬
+        queryBuilder = queryBuilder.order('name->>$language', ascending: true);
+
+        // 페이지네이션
+        final response = await queryBuilder
+            .limit(limit)
+            .range(page * limit, (page + 1) * limit - 1);
+
+        if (response == null) {
+          return <ArtistModel>[];
+        }
+
+        final results = (response as List<dynamic>)
+            .where((data) => data != null)
+            .map((data) {
+          final artistData = data as Map<String, dynamic>;
+          // 북마크 정보 확인 (artist_user_bookmark 배열이 비어있지 않으면 북마크됨)
+          final bookmarkData = artistData['artist_user_bookmark'] as List?;
+          final isBookmarked = bookmarkData != null && bookmarkData.isNotEmpty;
+
+          // 북마크 정보를 제거하고 아티스트 데이터만 추출
+          final cleanArtistData = Map<String, dynamic>.from(artistData);
+          cleanArtistData.remove('artist_user_bookmark');
+          cleanArtistData['isBookmarked'] = isBookmarked;
+
+          return ArtistModel.fromJson(cleanArtistData);
+        }).toList();
+
+        // 결과를 캐시에 저장
+        if (useCache && results.isNotEmpty) {
+          _cache.put(cacheKey, results);
+        }
+
+        return results;
+      }
+    } catch (e, s) {
+      logger.e('Error searching artists:', error: e, stackTrace: s);
+      Sentry.captureException(e, stackTrace: s);
+      rethrow;
+    }
   }
 
   /// 제네릭 검색 메서드 - 다른 엔티티 타입에서도 사용 가능
-  /// 
+  ///
   /// [T] 반환할 모델 타입
   /// [query] 검색어
   /// [table] 테이블 이름
@@ -63,7 +238,7 @@ class SearchService {
   /// [limit] 페이지당 결과 수
   /// [orderBy] 정렬 기준 필드
   /// [excludeIds] 제외할 ID 목록
-  /// 
+  ///
   /// Returns: 검색된 엔티티 목록
   static Future<List<T>> searchEntities<T>({
     required String query,
@@ -79,7 +254,7 @@ class SearchService {
     bool useCache = true,
   }) async {
     query = query.trim();
-    
+
     // 캐시 키 생성
     final cacheKey = generateCacheKey(
       query: query,
@@ -87,28 +262,28 @@ class SearchService {
       page: page,
       limit: limit,
     );
-    
+
     // 캐시에서 조회 시도
     if (useCache) {
       final cachedResult = _cache.get<List<T>>(cacheKey);
       if (cachedResult != null) {
-        logger.d('Returning cached search results for table $table, query: $query');
+        logger.d(
+            'Returning cached search results for table $table, query: $query');
         return cachedResult;
       }
     }
-    
+
     try {
       if (!isValidQuery(query) && query.isNotEmpty) {
         throw ArgumentError('Invalid search query: $query');
       }
-      
+
       dynamic queryBuilder = supabase.from(table).select(selectFields);
 
       // 검색어가 있는 경우 지정된 필드들에서 검색
       if (query.isNotEmpty && searchFields.isNotEmpty) {
-        final searchConditions = searchFields
-            .map((field) => '$field.ilike.%$query%')
-            .join(',');
+        final searchConditions =
+            searchFields.map((field) => '$field.ilike.%$query%').join(',');
         queryBuilder = queryBuilder.or(searchConditions);
       }
 
@@ -117,7 +292,7 @@ class SearchService {
         for (final entry in additionalFilters.entries) {
           final key = entry.key;
           final value = entry.value;
-          
+
           if (value is List) {
             if (key.startsWith('not_')) {
               final actualKey = key.substring(4); // 'not_' 제거
@@ -152,7 +327,7 @@ class SearchService {
       if (response == null) {
         return <T>[];
       }
-      
+
       final results = (response as List<dynamic>)
           .where((data) => data != null)
           .map((data) => fromJson(data as Map<String, dynamic>))
@@ -166,7 +341,8 @@ class SearchService {
 
       return results;
     } catch (e, s) {
-      logger.e('Error searching entities in table $table:', error: e, stackTrace: s);
+      logger.e('Error searching entities in table $table:',
+          error: e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);
       rethrow;
     }
@@ -243,7 +419,7 @@ class SearchService {
   }
 
   /// 고급 검색 메서드 - 복잡한 조인 쿼리와 커스텀 조건을 지원
-  /// 
+  ///
   /// [T] 반환할 모델 타입
   /// [query] 검색어
   /// [table] 메인 테이블 이름
@@ -255,7 +431,7 @@ class SearchService {
   /// [orderBy] 정렬 기준 필드 목록
   /// [filters] 필터 조건들
   /// [joinConditions] 조인 조건들
-  /// 
+  ///
   /// Returns: 검색된 엔티티 목록
   static Future<List<T>> searchEntitiesAdvanced<T>({
     required String query,
@@ -271,7 +447,7 @@ class SearchService {
     bool useCache = true,
   }) async {
     query = query.trim();
-    
+
     // 캐시 키 생성 (더 복잡한 쿼리를 위한 해시 기반)
     final cacheKey = _generateAdvancedCacheKey(
       query: query,
@@ -281,21 +457,22 @@ class SearchService {
       limit: limit,
       filters: filters,
     );
-    
+
     // 캐시에서 조회 시도
     if (useCache) {
       final cachedResult = _cache.get<List<T>>(cacheKey);
       if (cachedResult != null) {
-        logger.d('Returning cached advanced search results for table $table, query: $query');
+        logger.d(
+            'Returning cached advanced search results for table $table, query: $query');
         return cachedResult;
       }
     }
-    
+
     try {
       if (!isValidQuery(query) && query.isNotEmpty) {
         throw ArgumentError('Invalid search query: $query');
       }
-      
+
       dynamic queryBuilder = supabase.from(table).select(selectFields);
 
       // 검색어가 있는 경우 커스텀 검색 조건 적용
@@ -303,6 +480,7 @@ class SearchService {
         final formattedConditions = searchConditions
             .map((condition) => condition.replaceAll('{query}', query))
             .join(',');
+        // 괄호 없이 조건들을 직접 전달
         queryBuilder = queryBuilder.or(formattedConditions);
       }
 
@@ -316,7 +494,8 @@ class SearchService {
         for (final order in orderBy) {
           final parts = order.split(' ');
           final field = parts[0];
-          final ascending = parts.length > 1 ? parts[1].toLowerCase() != 'desc' : true;
+          final ascending =
+              parts.length > 1 ? parts[1].toLowerCase() != 'desc' : true;
           queryBuilder = queryBuilder.order(field, ascending: ascending);
         }
       }
@@ -329,7 +508,7 @@ class SearchService {
       if (response == null) {
         return <T>[];
       }
-      
+
       final results = (response as List<dynamic>)
           .where((data) => data != null)
           .map((data) => fromJson(data as Map<String, dynamic>))
@@ -343,18 +522,20 @@ class SearchService {
 
       return results;
     } catch (e, s) {
-      logger.e('Error in advanced search for table $table:', error: e, stackTrace: s);
+      logger.e('Error in advanced search for table $table:',
+          error: e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);
       rethrow;
     }
   }
 
   /// 필터 조건을 쿼리 빌더에 적용하는 헬퍼 메서드
-  static dynamic _applyFilters(dynamic queryBuilder, Map<String, dynamic> filters) {
+  static dynamic _applyFilters(
+      dynamic queryBuilder, Map<String, dynamic> filters) {
     for (final entry in filters.entries) {
       final key = entry.key;
       final value = entry.value;
-      
+
       if (value is List) {
         if (key.startsWith('not_in_')) {
           final actualKey = key.substring(7); // 'not_in_' 제거
@@ -410,7 +591,7 @@ class SearchService {
       limit.toString(),
       filters?.toString() ?? '',
     ];
-    
+
     // 간단한 해시 생성 (실제 프로덕션에서는 crypto 패키지 사용 권장)
     final combined = components.join('_');
     return 'advanced_${combined.hashCode.abs()}';
@@ -450,19 +631,19 @@ class SearchService {
     bool orderField = false,
   }) {
     final orderBy = <String>[];
-    
+
     if (nameField != null) {
       orderBy.add('$nameField->>$language asc');
     }
-    
+
     if (officialFirst) {
       orderBy.add('is_official desc');
     }
-    
+
     if (orderField) {
       orderBy.add('order asc');
     }
-    
+
     return orderBy;
   }
 
@@ -473,18 +654,18 @@ class SearchService {
     bool excludeZeroId = true,
   }) {
     final filters = <String, dynamic>{};
-    
+
     if (excludeZeroId || excludeIds.isNotEmpty) {
       final allExcludeIds = excludeZeroId ? [0, ...excludeIds] : excludeIds;
       if (allExcludeIds.isNotEmpty) {
         filters['not_in_id'] = allExcludeIds;
       }
     }
-    
+
     if (status != null) {
       filters['status'] = status;
     }
-    
+
     return filters;
   }
 
@@ -497,10 +678,10 @@ class SearchService {
     bool useCache = true,
   }) async {
     query = query.trim();
-    
+
     // 캐시 키 생성
     final cacheKey = 'boards_search_${query}_${page}_${limit}_$language';
-    
+
     // 캐시에서 조회 시도
     if (useCache) {
       final cachedResult = _cache.get<List<BoardModel>>(cacheKey);
@@ -509,12 +690,13 @@ class SearchService {
         return cachedResult;
       }
     }
-    
+
     try {
       // 직접 Supabase 쿼리 사용 (조인된 테이블 검색을 위해)
       final response = await supabase
           .from('boards')
-          .select('name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
+          .select(
+              'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
           .or('name->>ko.ilike.%$query%,'
               'name->>en.ilike.%$query%,'
               'name->>ja.ilike.%$query%,'
@@ -529,7 +711,7 @@ class SearchService {
       if (response == null) {
         return <BoardModel>[];
       }
-      
+
       final results = (response as List<dynamic>)
           .where((data) => data != null)
           .map((data) => BoardModel.fromJson(data as Map<String, dynamic>))
@@ -547,4 +729,4 @@ class SearchService {
       rethrow;
     }
   }
-} 
+}

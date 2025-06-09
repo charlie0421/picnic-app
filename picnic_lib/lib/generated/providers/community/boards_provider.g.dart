@@ -321,7 +321,7 @@ class _BoardsNotifierProviderElement
 }
 
 String _$boardsByArtistNameNotifierHash() =>
-    r'667361a10baf59e260d77f712dd9593f4af5a919';
+    r'7ab6bd1fd4f1a67708afb80f32bae6f46cd9e468';
 
 abstract class _$BoardsByArtistNameNotifier
     extends BuildlessAutoDisposeAsyncNotifier<List<BoardModel>?> {

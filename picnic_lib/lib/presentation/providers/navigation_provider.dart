@@ -313,18 +313,23 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setCurrentMyPage(Widget page) {
+    logger.i('🎯 setCurrentMyPage called with page: ${page.runtimeType}');
     final navigationStack = state.drawerNavigationStack;
 
     if (navigationStack?.peek() == page) {
+      logger.i('🎯 Page already on top of stack, skipping');
       return;
     }
 
+    logger.i('🎯 Pushing page to drawerNavigationStack');
     navigationStack?.push(page);
 
     state = state.copyWith(
         drawerNavigationStack: navigationStack,
         showTopMenu: true,
         showBottomNavigation: true);
+
+    logger.i('🎯 Navigation state updated successfully');
   }
 
   void setCurrentSignUpPage(Widget page) {
