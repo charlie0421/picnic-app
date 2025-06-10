@@ -28,7 +28,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
-import 'package:picnic_lib/presentation/widgets/vote/application/vote_application_dialog.dart';
+
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -36,6 +36,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
+import 'package:picnic_lib/presentation/widgets/vote/application/vote_application_dialog.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
@@ -939,7 +940,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           print('🔥 투표 신청 버튼 클릭됨!');
 
           if (supabase.isLogged) {
@@ -955,14 +956,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
             if (voteModel != null) {
               print('🔥 showVoteApplicationDialog 호출 시작');
-              showVoteApplicationDialog(
+              await showVoteApplicationDialog(
                 context: context,
                 voteModel: voteModel,
-              ).then((_) {
-                print('🔥 showVoteApplicationDialog 완료');
-              }).catchError((error) {
-                print('🔥 showVoteApplicationDialog 오류: $error');
-              });
+              );
+              print('🔥 showVoteApplicationDialog 완료');
             } else {
               print('🔥 voteModel이 null이어서 다이얼로그를 열 수 없음');
             }

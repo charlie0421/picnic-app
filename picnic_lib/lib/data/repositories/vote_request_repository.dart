@@ -86,9 +86,12 @@ class VoteRequestRepository {
     try {
       final response = await _supabase
           .from('vote_request_users')
-          .select('id')
-          .eq('vote_id', voteId)
+          .select('''
+            id,
+            vote_requests!inner(vote_id)
+          ''')
           .eq('user_id', userId)
+          .eq('vote_requests.vote_id', voteId)
           .maybeSingle();
 
       return response != null;
@@ -110,15 +113,27 @@ class VoteRequestRepository {
     }
 
     try {
-      // 트랜잭션을 사용하여 투표 요청과 사용자 정보를 함께 생성
-      final response =
-          await _supabase.rpc('create_vote_request_with_user', params: {
-        'request_data': request.toJson(),
+      // 1. 먼저 투표 요청 생성
+      final voteRequestResponse = await _supabase
+          .from('vote_requests')
+          .insert({
+            'vote_id': request.voteId,
+            'title': request.title,
+            'description': request.description,
+          })
+          .select()
+          .single();
+
+      final voteRequest = VoteRequest.fromJson(voteRequestResponse);
+
+      // 2. 사용자 정보 생성
+      await _supabase.from('vote_request_users').insert({
+        'vote_request_id': voteRequest.id,
         'user_id': userId,
-        'user_status': status,
+        'status': status,
       });
 
-      return VoteRequest.fromJson(response);
+      return voteRequest;
     } catch (e) {
       throw VoteRequestException('투표 요청 및 사용자 정보 생성 실패: $e');
     }
@@ -219,6 +234,112 @@ class VoteRequestRepository {
       return (response as List).length;
     } catch (e) {
       throw VoteRequestException('사용자 전체 신청 수 조회 실패: $e');
+    }
+  }
+
+  /// 특정 투표에서 특정 아티스트에 대한 신청 수를 조회합니다
+  Future<int> getArtistApplicationCount(
+      String voteId, String artistName) async {
+    try {
+      final response = await _supabase
+          .from('vote_requests')
+          .select('id')
+          .eq('vote_id', voteId)
+          .eq('title', artistName); // title 필드에 아티스트 이름이 저장됨
+
+      return (response as List).length;
+    } catch (e) {
+      throw VoteRequestException('아티스트 신청 수 조회 실패: $e');
+    }
+  }
+
+  /// 사용자의 특정 아티스트에 대한 신청 상태를 조회합니다
+  Future<VoteRequestUser?> getUserApplicationStatus(
+      String voteId, String userId, String artistName) async {
+    try {
+      final response = await _supabase
+          .from('vote_request_users')
+          .select('''
+            *,
+            vote_requests!inner(vote_id, title)
+          ''')
+          .eq('user_id', userId)
+          .eq('vote_requests.vote_id', voteId)
+          .eq('vote_requests.title', artistName)
+          .maybeSingle();
+
+      if (response != null) {
+        return VoteRequestUser.fromJson(response);
+      }
+      return null;
+    } catch (e) {
+      throw VoteRequestException('사용자 신청 상태 조회 실패: $e');
+    }
+  }
+
+  /// 현재 사용자의 특정 투표에 대한 모든 신청 내역을 조회합니다
+  Future<List<Map<String, dynamic>>> getCurrentUserApplicationsWithDetails(
+      String voteId, String userId) async {
+    try {
+      final response = await _supabase
+          .from('vote_request_users')
+          .select('''
+            *,
+            vote_requests!inner(vote_id, title, description)
+          ''')
+          .eq('user_id', userId)
+          .eq('vote_requests.vote_id', voteId)
+          .order('created_at', ascending: false);
+
+      return List<Map<String, dynamic>>.from(response as List);
+    } catch (e) {
+      throw VoteRequestException('사용자 신청 내역 조회 실패: $e');
+    }
+  }
+
+  /// 현재 사용자의 특정 투표에 대한 모든 신청 내역을 조회합니다 (기존 호환성)
+  Future<List<VoteRequestUser>> getCurrentUserApplications(
+      String voteId, String userId) async {
+    try {
+      final response = await _supabase
+          .from('vote_request_users')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      // vote_id로 필터링
+      final filtered = <Map<String, dynamic>>[];
+      for (final item in response as List) {
+        final voteRequestResponse = await _supabase
+            .from('vote_requests')
+            .select('vote_id')
+            .eq('id', item['vote_request_id'])
+            .eq('vote_id', voteId)
+            .maybeSingle();
+
+        if (voteRequestResponse != null) {
+          filtered.add(item);
+        }
+      }
+
+      return filtered.map((json) => VoteRequestUser.fromJson(json)).toList();
+    } catch (e) {
+      throw VoteRequestException('사용자 신청 내역 조회 실패: $e');
+    }
+  }
+
+  /// 특정 아티스트(제목)에 대한 총 신청 수를 조회합니다
+  Future<int> getApplicationCountByTitle(String voteId, String title) async {
+    try {
+      final response = await _supabase
+          .from('vote_requests')
+          .select('id')
+          .eq('vote_id', voteId)
+          .eq('title', title);
+
+      return (response as List).length;
+    } catch (e) {
+      throw VoteRequestException('제목별 신청 수 조회 실패: $e');
     }
   }
 }

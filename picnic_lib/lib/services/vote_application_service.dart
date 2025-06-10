@@ -32,7 +32,6 @@ class VoteApplicationService {
   /// [description] 신청 설명
   /// [artistName] 아티스트 이름 (선택사항)
   /// [groupName] 그룹 이름 (선택사항)
-  /// [reason] 신청 이유 (선택사항)
   Future<VoteRequest> submitApplication({
     required String voteId,
     required String userId,
@@ -40,7 +39,6 @@ class VoteApplicationService {
     required String description,
     String? artistName,
     String? groupName,
-    String? reason,
   }) async {
     final context = {
       'voteId': voteId,
@@ -48,7 +46,6 @@ class VoteApplicationService {
       'title': title,
       'hasArtistName': artistName != null,
       'hasGroupName': groupName != null,
-      'hasReason': reason != null,
     };
 
     try {
@@ -70,7 +67,6 @@ class VoteApplicationService {
         description: description,
         artistName: artistName,
         groupName: groupName,
-        reason: reason,
       );
 
       // 5. 투표 요청 객체 생성
@@ -82,7 +78,6 @@ class VoteApplicationService {
           description: description,
           artistName: artistName,
           groupName: groupName,
-          reason: reason,
         ),
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -224,7 +219,6 @@ class VoteApplicationService {
   /// [description] 신청 설명
   /// [artistName] 아티스트 이름
   /// [groupName] 그룹 이름
-  /// [reason] 신청 이유
   /// [strictMode] 엄격 모드 (기본값: true)
   ///
   /// Returns: [ValidationResult] 검증 결과
@@ -233,7 +227,6 @@ class VoteApplicationService {
     required String description,
     String? artistName,
     String? groupName,
-    String? reason,
     bool strictMode = true,
   }) {
     return _dataValidationService.validateVoteApplicationData(
@@ -241,7 +234,6 @@ class VoteApplicationService {
       description: description,
       artistName: artistName,
       groupName: groupName,
-      reason: reason,
       strictMode: strictMode,
     );
   }
@@ -314,12 +306,10 @@ class VoteApplicationService {
   /// [description] 기본 설명
   /// [artistName] 아티스트 이름
   /// [groupName] 그룹 이름
-  /// [reason] 신청 이유
   String _buildFullDescription({
     required String description,
     String? artistName,
     String? groupName,
-    String? reason,
   }) {
     final buffer = StringBuffer(description.trim());
 
@@ -329,10 +319,6 @@ class VoteApplicationService {
 
     if (groupName != null && groupName.trim().isNotEmpty) {
       buffer.write('\n그룹: ${groupName.trim()}');
-    }
-
-    if (reason != null && reason.trim().isNotEmpty) {
-      buffer.write('\n\n신청 이유: ${reason.trim()}');
     }
 
     return buffer.toString();

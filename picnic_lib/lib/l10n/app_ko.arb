@@ -1,0 +1,19 @@
+{
+  "@@locale": "ko",
+  "vote_application_button": "투표 신청하기",
+  "vote_item_request_new": "새 신청",
+  "vote_item_request_my_list": "내 신청",
+  "vote_item_request_reason": "신청 사유 (선택)",
+  "vote_item_request_reason_hint": "이 아티스트를 추천하는 이유를 적어주세요...",
+  "vote_item_request_submit": "신청하기",
+  "vote_item_request_success": "투표 신청이 완료되었습니다!",
+  "vote_item_request_error": "투표 신청 중 오류가 발생했습니다.",
+  "vote_item_request_no_applications": "아직 신청한 내역이 없습니다.",
+  "vote_item_request_status_approved": "승인됨",
+  "vote_item_request_status_rejected": "거부됨",
+  "vote_item_request_status_pending": "대기중",
+  "search_artist_hint": "아티스트나 그룹을 검색하세요",
+  "searching": "검색 중...",
+  "success": "성공",
+  "error": "오류"
+} 

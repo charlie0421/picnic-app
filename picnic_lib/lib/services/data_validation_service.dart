@@ -77,7 +77,6 @@ class DataValidationService {
   /// [description] 신청 설명
   /// [artistName] 아티스트 이름 (선택사항)
   /// [groupName] 그룹 이름 (선택사항)
-  /// [reason] 신청 이유 (선택사항)
   /// [strictMode] 엄격 모드 (기본값: true)
   ///
   /// Returns: [ValidationResult] 검증 결과
@@ -86,7 +85,6 @@ class DataValidationService {
     required String description,
     String? artistName,
     String? groupName,
-    String? reason,
     bool strictMode = true,
   }) {
     try {
@@ -147,27 +145,12 @@ class DataValidationService {
         warnings.addAll(groupResult.warnings);
       }
 
-      if (reason != null && reason.trim().isNotEmpty) {
-        final reasonResult = validateField(
-          value: reason,
-          rule: const FieldValidationRule(
-            fieldName: '신청 이유',
-            required: false,
-            minLength: 5,
-            maxLength: 500,
-          ),
-        );
-        if (!reasonResult.isValid) errors.addAll(reasonResult.errors);
-        warnings.addAll(reasonResult.warnings);
-      }
-
       // 3. 비즈니스 로직 검증
       final businessResult = _validateBusinessRules(
         title: title,
         description: description,
         artistName: artistName,
         groupName: groupName,
-        reason: reason,
         strictMode: strictMode,
       );
       if (!businessResult.isValid) errors.addAll(businessResult.errors);
@@ -335,7 +318,6 @@ class DataValidationService {
   /// [description] 신청 설명
   /// [artistName] 아티스트 이름
   /// [groupName] 그룹 이름
-  /// [reason] 신청 이유
   /// [strictMode] 엄격 모드
   ///
   /// Returns: [ValidationResult] 검증 결과
@@ -344,7 +326,6 @@ class DataValidationService {
     required String description,
     String? artistName,
     String? groupName,
-    String? reason,
     bool strictMode = true,
   }) {
     final errors = <String>[];
@@ -381,7 +362,7 @@ class DataValidationService {
     ];
 
     final allText =
-        '$title $description ${artistName ?? ''} ${groupName ?? ''} ${reason ?? ''}';
+        '$title $description ${artistName ?? ''} ${groupName ?? ''}';
     for (final pattern in spamPatterns) {
       if (pattern.hasMatch(allText)) {
         warnings.add('스팸성 내용이 포함되어 있을 수 있습니다.');
@@ -501,7 +482,6 @@ class DataValidationService {
   /// [description] 신청 설명
   /// [artistName] 아티스트 이름
   /// [groupName] 그룹 이름
-  /// [reason] 신청 이유
   ///
   /// Throws: [VoteRequestException] 검증 실패 시
   void validateAndThrow({
@@ -509,14 +489,12 @@ class DataValidationService {
     required String description,
     String? artistName,
     String? groupName,
-    String? reason,
   }) {
     final result = validateVoteApplicationData(
       title: title,
       description: description,
       artistName: artistName,
       groupName: groupName,
-      reason: reason,
     );
 
     if (!result.isValid) {

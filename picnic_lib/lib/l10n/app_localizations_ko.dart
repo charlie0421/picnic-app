@@ -4,9 +4,9 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for English (`en`).
-class AppLocalizationsEn extends AppLocalizations {
-  AppLocalizationsEn([String locale = 'en']) : super(locale);
+/// The translations for Korean (`ko`).
+class AppLocalizationsKo extends AppLocalizations {
+  AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
   String get appTitle => 'Picnic';
@@ -15,7 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vote_application_title => 'Vote Candidate Application';
 
   @override
-  String get vote_application_button => 'Apply for Vote Candidate';
+  String get vote_application_button => '투표 신청하기';
 
   @override
   String get artist_name_label => 'Artist Name';
@@ -39,14 +39,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get submit_application => 'Submit Application';
 
   @override
-  String get search_artist_hint => 'Search for artist or group';
+  String get search_artist_hint => '아티스트나 그룹을 검색하세요';
 
   @override
   String get application_success =>
       'Vote candidate application has been completed.';
 
   @override
-  String get success => 'Success';
+  String get success => '성공';
 
   @override
   String get vote_period => 'Vote Period';
@@ -59,7 +59,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Application reason is required';
 
   @override
-  String get searching => 'Searching...';
+  String get searching => '검색 중...';
 
   @override
   String get no_search_results => 'No search results found';

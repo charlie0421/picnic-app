@@ -764,7 +764,7 @@
           "id": 1,
           "title": "이미지 로딩 타임아웃 및 재시도 로직 구현",
           "description": "CachedNetworkImage에 타임아웃 설정을 추가하고 실패 시 재시도 메커니즘을 구현합니다",
-          "details": "현재 99-178초 걸리는 로딩 시간을 30초 이내로 제한하고, 실패 시 지수 백오프를 사용한 재시도 로직을 구현합니다.\n<info added on 2025-06-10T07:35:38.094Z>\n### 작업 시작: 이미지 로딩 타임아웃 및 재시도 로직 구현\n\n현재 PicnicCachedNetworkImage.dart 파일을 분석한 결과:\n\n**문제점:**\n1. CachedNetworkImage에 타임아웃 설정이 없어 99-178초 동안 무한정 대기\n2. 실패 시 재시도 메커니즘이 없음\n3. 네트워크 상태에 따른 적응적 로딩 전략 부재\n\n**구현 계획:**\n1. CachedNetworkImage에 connectTimeout과 receiveTimeout 파라미터 추가\n2. 실패 시 지수 백오프 재시도 로직 구현\n3. 네트워크 상태별 타임아웃 값 조정\n4. 사용자에게 로딩 실패 피드백 제공\n</info added on 2025-06-10T07:35:38.094Z>\n<info added on 2025-06-10T07:41:46.234Z>\n### 완료: 이미지 로딩 타임아웃 및 재시도 로직 구현\n\n**구현된 기능:**\n\n1. **타임아웃 설정**: \n   - 기본 30초 타임아웃 추가 (customizable)\n   - Timer를 사용하여 로딩 시간 제한\n   - 타임아웃 발생 시 자동으로 에러 처리\n\n2. **재시도 로직**:\n   - 지수 백오프를 사용한 재시도 메커니즘 (1초 -> 2초 -> 4초...)\n   - 최대 3회 재시도 (customizable)\n   - 재시도 가능한 에러 타입 필터링 (timeout, connection, network 등)\n   - 최근 1시간 내 같은 URL 실패 횟수 제한 (최대 10회)\n\n3. **HTTP 헤더 최적화**:\n   - Cache-Control에 immutable 플래그 추가\n   - User-Agent 헤더 추가\n   - 압축 요청 헤더 유지\n\n4. **개선된 에러 처리**:\n   - 재시도 중/실패 상태 구분 표시\n   - 타임아웃 발생 시 명확한 로그 메시지\n   - 실패 이력 관리 및 정리\n\n**기대 효과:**\n- 99-178초 걸리던 로딩이 최대 30초로 제한\n- 네트워크 오류 시 자동 재시도로 성공률 향상\n- 사용자에게 명확한 피드백 제공\n\n다음 서브태스크(HTTP 헤더 및 캐시 전략 최적화)로 진행할 준비가 완료되었습니다.\n</info added on 2025-06-10T07:41:46.234Z>",
+          "details": "현재 99-178초 걸리는 로딩 시간을 30초 이내로 제한하고, 실패 시 지수 백오프를 사용한 재시도 로직을 구현합니다.\n<info added on 2025-06-10T07:35:38.094Z>\n### 작업 시작: 이미지 로딩 타임아웃 및 재시도 로직 구현\n\n현재 PicnicCachedNetworkImage.dart 파일을 분석한 결과:\n\n**문제점:**\n1. CachedNetworkImage에 타임아웃 설정이 없어 99-178초 동안 무한정 대기\n2. 실패 시 재시도 메커니즘이 없음\n3. 네트워크 상태에 따른 적응적 로딩 전략 부재\n\n**구현 계획:**\n1. CachedNetworkImage에 connectTimeout과 receiveTimeout 파라미터 추가\n2. 실패 시 지수 백오프 재시도 로직 구현\n3. 네트워크 상태별 타임아웃 값 조정\n4. 사용자에게 로딩 실패 피드백 제공\n</info added on 2025-06-10T07:35:38.094Z>\n<info added on 2025-06-10T07:41:46.234Z>\n### 완료: 이미지 로딩 타임아웃 및 재시도 로직 구현\n\n**구현된 기능:**\n\n1. **타임아웃 설정**: \n   - 기본 30초 타임아웃 추가 (customizable)\n   - Timer를 사용하여 로딩 시간 제한\n   - 타임아웃 발생 시 자동으로 에러 처리\n\n2. **재시도 로직**:\n   - 지수 백오프를 사용한 재시도 메커니즘 (1초 -> 2초 -> 4초...)\n   - 최대 3회 재시도 (customizable)\n   - 재시도 가능한 에러 타입 필터링 (timeout, connection, network 등)\n   - 최근 1시간 내 같은 URL 실패 횟수 제한 (최대 10회)\n\n3. **HTTP 헤더 최적화**:\n   - Cache-Control에 immutable 플래그 추가\n   - User-Agent 헤더 추가\n   - 압축 요청 헤더 유지\n\n4. **개선된 에러 처리**:\n   - 재시도 중/실패 상태 구분 표시\n   - 타임아웃 발생 시 명확한 로그 메시지\n   - 실패 이력 관리 및 정리\n\n**기대 효과:**\n- 99-178초 걸리던 로딩이 최대 30초로 제한\n- 네트워크 오류 시 자동 재시도로 성공률 향상\n- 사용자에게 명확한 피드백 제공\n\n다음 서브태스크(HTTP 헤더 및 캐시 전략 최적화)로 진행할 준비가 완료되었습니다.\n</info added on 2025-06-10T07:41:46.234Z>\n<info added on 2025-06-10T10:14:38.629Z>\n### 빌드 오류 수정 완료\n\n**매개변수 불일치 오류 해결:**\n- `vote_detail_page.dart`에서 `showVoteApplicationDialog` 함수 호출 시 매개변수 불일치 수정\n- 잘못된 매개변수: `voteId`, `voteTitle` → 올바른 매개변수: `voteModel`로 변경\n- 디버그 메시지도 함수명에 맞게 수정 (`showVoteItemRequestDialog` → `showVoteApplicationDialog`)\n\n**현재 상태:**\n- 빌드 오류 완전 해결\n- 다이얼로그 크기 최적화 완료 (화면을 거의 채움)\n- 투표 신청 다이얼로그가 정상적으로 작동\n</info added on 2025-06-10T10:14:38.629Z>",
           "status": "done",
           "dependencies": [],
           "parentTaskId": 38
@@ -773,7 +773,7 @@
           "id": 2,
           "title": "HTTP 헤더 및 캐시 전략 최적화",
           "description": "이미지 로딩을 위한 HTTP 헤더를 최적화하고 효율적인 캐시 전략을 구현합니다",
-          "details": "gzip 압축, 적절한 Cache-Control 헤더 설정, ETag 활용 등을 통해 네트워크 성능을 개선합니다.\n<info added on 2025-06-10T07:45:56.883Z>\n### 구현 내용:\n\n1. **최적화된 캐시 관리자 (OptimizedCacheManager) 생성:**\n   - flutter_cache_manager 기반 커스텀 캐시 관리자\n   - RetryHttpClient와 통합하여 네트워크 안정성 향상\n   - 플랫폼별 최적화된 HTTP 헤더 자동 설정\n   - 30일 캐시 유지, 최대 1000개 객체 저장\n\n2. **고급 HTTP 헤더 최적화:**\n   - Accept: image/webp,image/avif,image/apng,image/*,*/*;q=0.8\n   - Accept-Encoding: gzip, deflate, br\n   - Cache-Control: public, max-age=31536000, immutable\n   - Pragma: public\n   - Connection: keep-alive (네이티브만)\n   - Keep-Alive: timeout=60, max=1000\n   - DNT: 1 (Do Not Track)\n   - CDN 특화 헤더들 (X-Forwarded-Proto, Sec-Fetch-* 등)\n\n3. **이미지 형식 및 압축 최적화:**\n   - WebP 지원 시 자동 변환 (PNG 대신)\n   - JPG를 기본 폴백으로 설정 (PNG보다 작은 파일 크기)\n   - 프로그레시브 JPEG 로딩 활성화\n   - 자동 압축 및 형식 최적화 매개변수 추가\n   - Device Pixel Ratio 고려한 이미지 크기 최적화\n\n4. **향상된 Progress Indicator:**\n   - 진행률이 있는 경우 정확한 퍼센트 표시\n   - 시각적으로 개선된 로딩 UI\n\n5. **플랫폼별 메모리 캐시 최적화:**\n   - 모바일: 100개 이미지, 50MB 제한\n   - 웹: 150개 이미지, 100MB 제한  \n   - 데스크톱: 200개 이미지, 200MB 제한\n   - 80% 임계점 도달 시 자동 캐시 정리\n\n### 기대 효과:\n- HTTP 헤더 최적화로 캐시 히트율 향상\n- 작은 파일 크기로 인한 빠른 다운로드\n- 재시도 로직으로 네트워크 오류 복구\n- 플랫폼별 메모리 사용량 최적화\n- 전반적인 이미지 로딩 성능 향상\n</info added on 2025-06-10T07:45:56.883Z>",
+          "details": "gzip 압축, 적절한 Cache-Control 헤더 설정, ETag 활용 등을 통해 네트워크 성능을 개선합니다.\n<info added on 2025-06-10T07:45:56.883Z>\n### 구현 내용:\n\n1. **최적화된 캐시 관리자 (OptimizedCacheManager) 생성:**\n   - flutter_cache_manager 기반 커스텀 캐시 관리자\n   - RetryHttpClient와 통합하여 네트워크 안정성 향상\n   - 플랫폼별 최적화된 HTTP 헤더 자동 설정\n   - 30일 캐시 유지, 최대 1000개 객체 저장\n\n2. **고급 HTTP 헤더 최적화:**\n   - Accept: image/webp,image/avif,image/apng,image/*,*/*;q=0.8\n   - Accept-Encoding: gzip, deflate, br\n   - Cache-Control: public, max-age=31536000, immutable\n   - Pragma: public\n   - Connection: keep-alive (네이티브만)\n   - Keep-Alive: timeout=60, max=1000\n   - DNT: 1 (Do Not Track)\n   - CDN 특화 헤더들 (X-Forwarded-Proto, Sec-Fetch-* 등)\n\n3. **이미지 형식 및 압축 최적화:**\n   - WebP 지원 시 자동 변환 (PNG 대신)\n   - JPG를 기본 폴백으로 설정 (PNG보다 작은 파일 크기)\n   - 프로그레시브 JPEG 로딩 활성화\n   - 자동 압축 및 형식 최적화 매개변수 추가\n   - Device Pixel Ratio 고려한 이미지 크기 최적화\n\n4. **향상된 Progress Indicator:**\n   - 진행률이 있는 경우 정확한 퍼센트 표시\n   - 시각적으로 개선된 로딩 UI\n\n5. **플랫폼별 메모리 캐시 최적화:**\n   - 모바일: 100개 이미지, 50MB 제한\n   - 웹: 150개 이미지, 100MB 제한  \n   - 데스크톱: 200개 이미지, 200MB 제한\n   - 80% 임계점 도달 시 자동 캐시 정리\n\n### 기대 효과:\n- HTTP 헤더 최적화로 캐시 히트율 향상\n- 작은 파일 크기로 인한 빠른 다운로드\n- 재시도 로직으로 네트워크 오류 복구\n- 플랫폼별 메모리 사용량 최적화\n- 전반적인 이미지 로딩 성능 향상\n</info added on 2025-06-10T07:45:56.883Z>\n<info added on 2025-06-10T10:13:12.151Z>\n### 추가 최적화 작업:\n\n1. **VoteApplicationDialog 크기 최적화:**\n   - 다이얼로그 크기를 화면을 거의 채우도록 수정\n   - `insetPadding`: 16w x 16h → 16w x 40h (상하 여백 증가)\n   - `height`: 고정 700h → `MediaQuery.of(context).size.height - 80.h` (동적 크기)\n   - 화면 크기에 따라 적응형으로 조정되어 더 많은 콘텐츠 표시 가능\n\n2. **로그 분석 결과:**\n   - `vote_login_required_title`, `vote_login_required_description` 번역 키 누락 오류 확인\n   - 해당 오류는 웹 컴포넌트(`VoteRankCard`)에서 발생하는 것으로 확인\n   - Flutter 앱이 아닌 웹사이트 부분의 번역 시스템 문제로 판단\n   - Flutter 앱 자체에는 영향 없음\n\n3. **다음 단계:**\n   - HTTP 헤더 최적화 및 캐시 전략 작업 계속 진행 필요\n</info added on 2025-06-10T10:13:12.151Z>",
           "status": "done",
           "dependencies": [],
           "parentTaskId": 38
@@ -811,6 +811,113 @@
             4
           ],
           "parentTaskId": 38
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "title": "투표 신청 다이얼로그 데이터베이스 마이그레이션 실행 및 오류 해결",
+      "description": "PostgreSQL 데이터베이스에 vote_requests 테이블을 생성하는 마이그레이션을 실행하여 투표 신청 다이얼로그에서 발생하는 \"relation does not exist\" 오류를 해결합니다. 또한 하드코딩된 상태 데이터를 실제 데이터베이스 연동으로 변경하고 개발 중 발생하는 키보드 이벤트 처리 오류에 대한 해결책도 포함합니다. 다이얼로그 UI 개선 및 최적화를 통해 사용자 경험을 향상시킵니다.",
+      "status": "pending",
+      "dependencies": [
+        27
+      ],
+      "priority": "high",
+      "details": "1. 마이그레이션 파일 검증 및 실행 (완료):\n   - vote_request_schema.sql 마이그레이션 실행 완료\n   - vote_requests 테이블 생성됨\n   - vote_request_users 테이블 생성됨\n   - 필요한 인덱스, RLS 정책, 권한 설정 적용됨\n\n2. 마이그레이션 후 테이블 검증:\n   - 테이블이 올바르게 생성되었는지 확인하는 SQL 쿼리 작성\n   ```sql\n   SELECT * FROM information_schema.tables WHERE table_name = 'vote_requests';\n   SELECT * FROM information_schema.tables WHERE table_name = 'vote_request_users';\n   ```\n   - 테이블 구조 확인\n   ```sql\n   \\d vote_requests\n   \\d vote_request_users\n   ```\n   - 인덱스 및 RLS 정책 확인\n   ```sql\n   SELECT * FROM pg_indexes WHERE tablename = 'vote_requests';\n   SELECT * FROM pg_policies WHERE tablename = 'vote_requests';\n   ```\n\n3. 애플리케이션 코드 수정 (완료):\n   - VoteRequestRepository 클래스에 다음 메서드 추가됨:\n     - `getArtistApplicationCount()`: 아티스트별 신청 수 조회\n     - `getUserApplicationStatus()`: 사용자의 특정 아티스트 신청 상태 조회\n     - `getCurrentUserApplications()`: 현재 사용자의 투표별 모든 신청 내역\n   - 하드코딩된 상태 데이터를 실제 데이터베이스 연동으로 변경 완료\n     - 기존: `['대기중', '승인됨', '거절됨'][(artistName.hashCode % 3)]` (하드코딩)\n     - 변경: 실제 데이터베이스에서 상태 조회 및 한글 변환\n\n4. UI 개선 (완료):\n   - 현재 신청 리스트: 사용자의 실제 신청 내역 표시\n   - 상태별 색상 코딩 (대기중: 오렌지, 승인: 초록, 거절: 빨강 등)\n   - 신청 날짜 표시\n   - 검색 결과: 실제 아티스트별 신청 수/상태 표시\n   - 다이얼로그 크기 확대: 높이 600h → 700h (100h 증가)\n   - 패딩 조정: vertical 24h → 16h (더 넓은 화면 활용)\n   - 검색 결과 제한 확대: 10개 → 50개 (5배 증가)\n\n5. 데이터 로딩 최적화 (완료):\n   - 초기 로딩 시 사용자 신청 내역 조회\n   - 검색 시 각 아티스트별 실시간 데이터 조회\n   - 오류 처리 및 기본값 설정\n\n6. 오류 처리 개선:\n   - 테이블이 존재하지 않을 때 더 명확한 오류 메시지를 제공하도록 코드 수정\n   - 개발 환경에서 자동으로 마이그레이션을 확인하고 필요시 실행하는 메커니즘 구현 검토\n\n7. 투표 신청 다이얼로그 테스트:\n   - 마이그레이션 후 투표 신청 다이얼로그가 정상적으로 작동하는지 확인\n   - 데이터 저장 및 조회 기능 테스트\n   - 실제 데이터베이스 연동 후 상태 표시 확인\n\n8. 키보드 이벤트 처리 오류 해결:\n   - 개발 중 발생하는 KeyUpEvent 및 HardwareKeyboard assertion 실패 문제 해결\n   - Backspace 키 이벤트 처리 시 physical key 상태 불일치 문제 해결\n   \n   a. 즉시 해결책 적용:\n      - Hot Restart 수행 (`R` 키)\n      - 앱 완전 종료 후 재시작\n      - 텍스트 필드 포커스 해제 후 재시도\n   \n   b. 근본적 해결책 구현:\n      - Flutter clean 실행: `flutter clean && flutter pub get`\n      - IDE 재시작 (VS Code/Android Studio)\n      - 필요시 Flutter SDK 업데이트 검토\n   \n   c. 임시 회피 방법 문서화:\n      - Backspace 대신 텍스트 선택 후 삭제\n      - 소프트웨어 키보드 사용\n      - 다른 텍스트 필드로 포커스 이동\n\n9. 신청 버튼 노출 조건 개선 (완료):\n   - 신청 버튼이 숨겨지는 경우:\n     * 거절됨 상태\n     * 이미 vote_item에 등록된 경우 (\"이미 등록됨\" 표시)\n     * 내가 이미 신청한 경우 (대기중, 승인됨, 진행중)\n   - 신청 버튼이 표시되는 경우: \"신청 가능\" 상태일 때만\n\n10. vote_item 등록 상태 확인 기능 (완료):\n    - `_checkIfArtistInVoteItems()` 메서드 구현\n    - vote_items 테이블에서 아티스트 등록 여부 실시간 확인\n    - `_artistAlreadyInVote` Map으로 상태 관리\n\n11. 상태별 시각적 개선 (완료):\n    - 색상 코딩: 각 상태별 고유 색상과 테두리\n      * 이미 등록됨: 파란색\n      * 대기중: 오렌지색\n      * 승인됨: 초록색\n      * 거절됨: 빨간색\n      * 진행중: 프라이머리 색상\n    - 버튼 텍스트: 상태에 맞는 적절한 텍스트 표시\n    - 비활성화 버튼: 신청 불가능한 경우 회색 비활성화 버튼",
+      "testStrategy": "1. 마이그레이션 실행 검증 (완료):\n   - 마이그레이션 스크립트가 성공적으로 실행됨\n   - vote_requests 및 vote_request_users 테이블이 생성됨\n   - 필요한 인덱스, RLS 정책, 권한 설정이 적용됨\n\n2. 테이블 구조 검증:\n   - 테이블이 올바르게 생성되었는지 확인\n   ```sql\n   SELECT EXISTS (\n     SELECT FROM information_schema.tables \n     WHERE table_schema = 'public' AND table_name = 'vote_requests'\n   );\n   SELECT EXISTS (\n     SELECT FROM information_schema.tables \n     WHERE table_schema = 'public' AND table_name = 'vote_request_users'\n   );\n   ```\n   - 테이블 구조가 예상대로인지 확인 (모든 필요한 컬럼이 존재하는지)\n   - RLS 정책이 올바르게 적용되었는지 확인\n\n3. 데이터베이스 연동 테스트:\n   - 추가된 VoteRequestRepository 메서드 테스트:\n     a. `getArtistApplicationCount()`: 아티스트별 신청 수가 정확히 반환되는지 확인\n     b. `getUserApplicationStatus()`: 사용자의 신청 상태가 올바르게 조회되는지 확인\n     c. `getCurrentUserApplications()`: 현재 사용자의 모든 신청 내역이 정확히 조회되는지 확인\n   - 하드코딩 제거 확인: 실제 데이터베이스 값이 UI에 반영되는지 검증\n\n4. UI 개선 테스트:\n   - 상태별 색상 코딩이 올바르게 적용되는지 확인\n   - 신청 날짜가 정확히 표시되는지 확인\n   - 검색 결과에 실제 아티스트별 신청 수와 상태가 정확히 표시되는지 확인\n   - 다이얼로그 크기가 700h로 정확히 확대되었는지 확인\n   - 패딩이 16h로 조정되어 화면이 효율적으로 활용되는지 확인\n   - 검색 결과가 50개까지 표시되는지 확인\n\n5. 애플리케이션 테스트:\n   - 개발 환경에서 투표 신청 다이얼로그를 열고 이전에 발생했던 오류가 해결되었는지 확인\n   - 다음 시나리오를 테스트:\n     a. 투표 신청 다이얼로그 열기\n     b. 필요한 정보 입력\n     c. 신청 제출\n     d. 신청 내역 조회\n     e. 상태 변경 시 UI 업데이트 확인\n\n6. 데이터 무결성 테스트:\n   - 투표 신청 데이터가 올바르게 저장되는지 확인\n   - 중복 신청 방지 로직이 제대로 작동하는지 확인\n   - 필수 필드 누락 시 적절한 오류 메시지가 표시되는지 확인\n\n7. 데이터 로딩 최적화 테스트:\n   - 초기 로딩 성능 측정\n   - 검색 시 응답 시간 측정\n   - 오류 상황에서 기본값이 올바르게 적용되는지 확인\n\n8. 오류 처리 테스트:\n   - 데이터베이스 연결 문제 시뮬레이션하여 오류 처리가 적절한지 확인\n   - 네트워크 지연 상황에서의 동작 테스트\n\n9. 회귀 테스트:\n   - 투표 신청 관련 다른 기능들이 정상적으로 작동하는지 확인\n   - 특히 Task 27에서 구현된 VoteRequest 및 VoteRequestUser 모델과의 통합이 올바르게 작동하는지 확인\n\n10. 키보드 이벤트 처리 오류 테스트:\n    - 각 해결책 적용 후 키보드 이벤트 처리가 정상화되었는지 확인\n    - 특히 Backspace 키 사용 시 발생하는 문제가 해결되었는지 테스트\n    - 다양한 텍스트 입력 필드에서 키보드 이벤트 테스트\n    - 개발 환경과 실제 배포 환경에서의 차이점 확인\n    - 다른 키보드 관련 기능에 영향이 없는지 확인\n\n11. 신청 버튼 노출 조건 테스트:\n    - 다양한 상태(거절됨, 이미 등록됨, 대기중, 승인됨, 진행중)에서 신청 버튼이 적절히 표시/숨겨지는지 확인\n    - \"신청 가능\" 상태에서만 신청 버튼이 활성화되는지 확인\n\n12. vote_item 등록 상태 확인 기능 테스트:\n    - `_checkIfArtistInVoteItems()` 메서드가 정확히 작동하는지 확인\n    - vote_items 테이블에 아티스트가 등록된 경우와 등록되지 않은 경우 모두 테스트\n    - `_artistAlreadyInVote` Map이 상태를 올바르게 관리하는지 확인\n\n13. 상태별 시각적 표현 테스트:\n    - 각 상태별 색상 코딩이 디자인 명세에 맞게 적용되는지 확인\n    - 버튼 텍스트가 상태에 맞게 표시되는지 확인\n    - 비활성화 버튼이 회색으로 표시되는지 확인",
+      "subtasks": [
+        {
+          "id": "39.1",
+          "title": "마이그레이션 파일 검증 및 실행",
+          "status": "done"
+        },
+        {
+          "id": "39.2",
+          "title": "테이블 생성 확인 및 애플리케이션 코드 수정",
+          "status": "done"
+        },
+        {
+          "id": "39.3",
+          "title": "투표 신청 다이얼로그 테스트",
+          "status": "pending"
+        },
+        {
+          "id": "39.4",
+          "title": "키보드 이벤트 처리 오류 해결 방법 구현",
+          "status": "pending"
+        },
+        {
+          "id": "39.5",
+          "title": "키보드 이벤트 오류 해결책 문서화",
+          "status": "pending"
+        },
+        {
+          "id": "39.6",
+          "title": "RLS 정책 및 권한 설정 검증",
+          "status": "pending"
+        },
+        {
+          "id": "39.7",
+          "title": "vote_request_users 테이블 연동 테스트",
+          "status": "pending"
+        },
+        {
+          "id": "39.8",
+          "title": "UI 상태 표시 개선 및 색상 코딩 검증",
+          "status": "done"
+        },
+        {
+          "id": "39.9",
+          "title": "데이터 로딩 최적화 성능 테스트",
+          "status": "pending"
+        },
+        {
+          "id": "39.10",
+          "title": "VoteRequestRepository 추가 메서드 단위 테스트",
+          "status": "pending"
+        },
+        {
+          "id": "39.11",
+          "title": "다이얼로그 크기 및 패딩 조정 구현",
+          "status": "done"
+        },
+        {
+          "id": "39.12",
+          "title": "검색 결과 제한 확대 (10개→50개) 구현",
+          "status": "done"
+        },
+        {
+          "id": "39.13",
+          "title": "신청 버튼 노출 조건 개선 구현",
+          "status": "done"
+        },
+        {
+          "id": "39.14",
+          "title": "vote_item 등록 상태 확인 기능 구현",
+          "status": "done"
+        },
+        {
+          "id": "39.15",
+          "title": "상태별 시각적 개선 테스트",
+          "status": "pending"
+        },
+        {
+          "id": 40.9,
+          "title": "신청 가능 상태 텍스트 제거 및 UI 간소화",
+          "description": "투표 신청 다이얼로그에서 불필요한 \"신청 가능\" 상태 텍스트를 제거하고 신청 버튼만 조건부 표시하도록 UI를 간소화합니다.",
+          "details": "사용자 피드백을 반영하여 불필요한 상태 텍스트 표시를 제거하고 더 직관적인 UI로 개선",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 39
+        },
+        {
+          "id": 41.9,
+          "title": "다이얼로그 크기 확대 및 화면 활용 최적화",
+          "description": "투표 신청 다이얼로그의 크기를 화면의 95%까지 확대하여 더 많은 정보를 한 번에 볼 수 있도록 개선합니다.",
+          "details": "사용자 피드백을 반영하여 다이얼로그 크기를 화면을 거의 채울 정도로 크게 만듦",
+          "status": "done",
+          "dependencies": [],
+          "parentTaskId": 39
         }
       ]
     }

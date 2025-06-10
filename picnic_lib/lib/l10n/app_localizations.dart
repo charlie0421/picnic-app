@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_ko.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,13 +93,118 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('ko'),
+  ];
 
   /// The title of the application
   ///
   /// In en, this message translates to:
   /// **'Picnic'**
   String get appTitle;
+
+  /// Title for vote application dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Vote Candidate Application'**
+  String get vote_application_title;
+
+  /// Button text for applying as vote candidate
+  ///
+  /// In en, this message translates to:
+  /// **'Apply for Vote Candidate'**
+  String get vote_application_button;
+
+  /// Label for artist name field
+  ///
+  /// In en, this message translates to:
+  /// **'Artist Name'**
+  String get artist_name_label;
+
+  /// Label for group name field
+  ///
+  /// In en, this message translates to:
+  /// **'Group Name'**
+  String get group_name_label;
+
+  /// Label for application reason field
+  ///
+  /// In en, this message translates to:
+  /// **'Application Reason'**
+  String get application_reason_label;
+
+  /// Hint text for artist name field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter artist name'**
+  String get artist_name_hint;
+
+  /// Hint text for group name field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter group name (optional)'**
+  String get group_name_hint;
+
+  /// Hint text for application reason field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter application reason (optional)'**
+  String get application_reason_hint;
+
+  /// Submit button text
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Application'**
+  String get submit_application;
+
+  /// Hint text for artist search field
+  ///
+  /// In en, this message translates to:
+  /// **'Search for artist or group'**
+  String get search_artist_hint;
+
+  /// Success message for application submission
+  ///
+  /// In en, this message translates to:
+  /// **'Vote candidate application has been completed.'**
+  String get application_success;
+
+  /// Success dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get success;
+
+  /// Label for vote period
+  ///
+  /// In en, this message translates to:
+  /// **'Vote Period'**
+  String get vote_period;
+
+  /// Error message when no artist is selected
+  ///
+  /// In en, this message translates to:
+  /// **'Please select an artist'**
+  String get error_artist_not_selected;
+
+  /// Error message when application reason is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Application reason is required'**
+  String get error_application_reason_required;
+
+  /// Text shown while searching
+  ///
+  /// In en, this message translates to:
+  /// **'Searching...'**
+  String get searching;
+
+  /// Text shown when no search results are found
+  ///
+  /// In en, this message translates to:
+  /// **'No search results found'**
+  String get no_search_results;
 }
 
 class _AppLocalizationsDelegate
@@ -112,7 +218,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['en', 'ko'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -123,6 +229,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'ko':
+      return AppLocalizationsKo();
   }
 
   throw FlutterError(
