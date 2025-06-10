@@ -14,8 +14,6 @@ _$VoteRequestImpl _$$VoteRequestImplFromJson(Map<String, dynamic> json) =>
         final val = _$VoteRequestImpl(
           id: $checkedConvert('id', (v) => v as String),
           voteId: $checkedConvert('vote_id', (v) => v as String),
-          title: $checkedConvert('title', (v) => v as String),
-          description: $checkedConvert('description', (v) => v as String),
           createdAt:
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
           updatedAt:
@@ -34,8 +32,6 @@ Map<String, dynamic> _$$VoteRequestImplToJson(_$VoteRequestImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'vote_id': instance.voteId,
-      'title': instance.title,
-      'description': instance.description,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
     };

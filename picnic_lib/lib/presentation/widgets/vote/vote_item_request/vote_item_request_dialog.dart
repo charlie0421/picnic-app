@@ -60,6 +60,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   List<Map<String, dynamic>> _currentUserApplicationsWithDetails = [];
   Map<String, int> _userApplicationCounts = {}; // 사용자 신청별 총 신청 수
   Set<String> _submittingArtists = {}; // 현재 신청 중인 아티스트들
+  Map<String, ArtistModel?> _artistCache = {}; // 아티스트 정보 캐시
 
   @override
   void initState() {
@@ -105,7 +106,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
               }
             }
           } catch (e) {
-            logger.w('신청 데이터 처리 실패: $e');
+            logger.w('Application data processing failed: $e');
           }
         }
 
@@ -119,9 +120,9 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       }
 
       logger.d(
-          '투표 신청 수 로딩 완료: 총 $totalCount개, 사용자 신청 ${_currentUserApplications.length}개');
+          'Vote application count loading completed: total $totalCount, user applications ${_currentUserApplications.length}');
     } catch (e) {
-      logger.e('신청 수 로딩 실패', error: e);
+      logger.e('Application count loading failed', error: e);
     }
   }
 
@@ -132,23 +133,36 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       setState(() {
         _searchResults = [];
         _isSearching = false;
+        // 검색 결과 초기화 시 관련 데이터도 정리
+        _artistApplicationCounts.clear();
+        _artistApplicationStatus.clear();
+        _artistAlreadyInVote.clear();
+        // 아티스트 캐시는 유지 (재사용 가능)
       });
       return;
     }
 
     setState(() {
       _isSearching = true;
+      // 새 검색 시작 시 이전 결과 정리
+      _searchResults.clear();
+      _artistApplicationCounts.clear();
+      _artistApplicationStatus.clear();
+      _artistAlreadyInVote.clear();
+      // 아티스트 캐시는 유지 (재사용 가능)
     });
 
     try {
+      // 검색 결과를 20개로 제한하여 성능 향상
       final results = await SearchService.searchArtists(
         query: query,
         page: 0,
-        limit: 50,
+        limit: 20, // 50 -> 20으로 감소
         supportKoreanInitials: true,
       );
 
-      if (mounted) {
+      if (mounted && _currentSearchQuery == query) {
+        // 검색어가 여전히 같은지 확인
         setState(() {
           _searchResults = results;
           _isSearching = false;
@@ -158,8 +172,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         _loadApplicationDataForResults(results);
       }
     } catch (e) {
-      logger.e('아티스트 검색 실패', error: e);
-      if (mounted) {
+      logger.e('Artist search failed', error: e);
+      if (mounted && _currentSearchQuery == query) {
         setState(() {
           _searchResults = [];
           _isSearching = false;
@@ -175,42 +189,70 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       final userInfo = userInfoAsync.value;
 
       for (final artist in artists) {
-        final artistName = getLocaleTextFromJson(artist.name);
+        final artistName = _getDisplayName(artist.name);
+        final koreanName = artist.name['ko'] as String? ?? '';
+        final englishName = artist.name['en'] as String? ?? '';
 
         try {
-          // 실제 신청 수 가져오기 (아티스트별)
-          final applicationCount = await voteRequestRepository
-              .getArtistApplicationCount(widget.vote.id.toString(), artistName);
+          // 실제 신청 수 가져오기 (아티스트별) - 한글 이름으로 먼저 시도
+          int applicationCount = 0;
+          if (koreanName.isNotEmpty) {
+            applicationCount =
+                await voteRequestRepository.getArtistApplicationCount(
+                    widget.vote.id.toString(), koreanName);
+          }
+          // 한글로 찾지 못했고 영어가 있으면 영어로 시도
+          if (applicationCount == 0 && englishName.isNotEmpty) {
+            applicationCount =
+                await voteRequestRepository.getArtistApplicationCount(
+                    widget.vote.id.toString(), englishName);
+          }
 
           // 아티스트가 이미 이 투표의 vote_item에 등록되었는지 확인
-          final isAlreadyInVote = await _checkIfArtistInVoteItems(artistName);
+          bool isAlreadyInVote = false;
+          if (koreanName.isNotEmpty) {
+            isAlreadyInVote = await _checkIfArtistInVoteItems(koreanName);
+          }
+          if (!isAlreadyInVote && englishName.isNotEmpty) {
+            isAlreadyInVote = await _checkIfArtistInVoteItems(englishName);
+          }
 
           // 현재 사용자의 해당 아티스트에 대한 신청 상태 가져오기
-          String applicationStatus = '신청 가능';
+          String applicationStatus = t('vote_item_request_can_apply');
           if (userInfo?.id != null) {
-            final userApplication =
-                await voteRequestRepository.getUserApplicationStatus(
-                    widget.vote.id.toString(), userInfo!.id!, artistName);
+            VoteRequestUser? userApplication;
+            // 한글 이름으로 먼저 확인
+            if (koreanName.isNotEmpty) {
+              userApplication =
+                  await voteRequestRepository.getUserApplicationStatus(
+                      widget.vote.id.toString(), userInfo!.id!, koreanName);
+            }
+            // 한글로 찾지 못했고 영어가 있으면 영어로 확인
+            if (userApplication == null && englishName.isNotEmpty) {
+              userApplication =
+                  await voteRequestRepository.getUserApplicationStatus(
+                      widget.vote.id.toString(), userInfo!.id!, englishName);
+            }
 
             if (userApplication != null) {
               switch (userApplication.status.toLowerCase()) {
                 case 'pending':
-                  applicationStatus = '대기중';
+                  applicationStatus = t('vote_item_request_status_pending');
                   break;
                 case 'approved':
-                  applicationStatus = '승인됨';
+                  applicationStatus = t('vote_item_request_status_approved');
                   break;
                 case 'rejected':
-                  applicationStatus = '거절됨';
+                  applicationStatus = t('vote_item_request_status_rejected');
                   break;
                 case 'in-progress':
-                  applicationStatus = '진행중';
+                  applicationStatus = t('vote_item_request_status_in_progress');
                   break;
                 case 'cancelled':
-                  applicationStatus = '취소됨';
+                  applicationStatus = t('vote_item_request_status_cancelled');
                   break;
                 default:
-                  applicationStatus = '신청 가능';
+                  applicationStatus = t('vote_item_request_can_apply');
               }
             }
           }
@@ -223,30 +265,80 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
             });
           }
         } catch (e) {
-          logger.w('아티스트 $artistName의 신청 데이터 로딩 실패: $e');
+          logger.w('Artist $artistName application data loading failed: $e');
           // 오류 발생 시 기본값 설정
           if (mounted) {
             setState(() {
               _artistApplicationCounts[artistName] = 0;
-              _artistApplicationStatus[artistName] = '신청 가능';
+              _artistApplicationStatus[artistName] =
+                  t('vote_item_request_can_apply');
               _artistAlreadyInVote[artistName] = false;
             });
           }
         }
       }
     } catch (e) {
-      logger.e('신청 데이터 로딩 실패', error: e);
+      logger.e('Application data loading failed', error: e);
       // 전체 오류 발생 시 기본값으로 설정
       for (final artist in artists) {
-        final artistName = getLocaleTextFromJson(artist.name);
+        final artistName = _getDisplayName(artist.name);
         if (mounted) {
           setState(() {
             _artistApplicationCounts[artistName] = 0;
-            _artistApplicationStatus[artistName] = '신청 가능';
+            _artistApplicationStatus[artistName] =
+                t('vote_item_request_can_apply');
             _artistAlreadyInVote[artistName] = false;
           });
         }
       }
+    }
+  }
+
+  // 아티스트 이름으로 아티스트 정보 검색 (캐시 포함)
+  Future<ArtistModel?> _getArtistByName(String artistName) async {
+    // 캐시에서 먼저 확인
+    if (_artistCache.containsKey(artistName)) {
+      return _artistCache[artistName];
+    }
+
+    try {
+      final results = await SearchService.searchArtists(
+        query: artistName,
+        page: 0,
+        limit: 5,
+        supportKoreanInitials: true,
+      );
+
+      ArtistModel? foundArtist;
+
+      // 정확히 일치하는 아티스트 찾기 (한글/영어 모두 확인)
+      for (final artist in results) {
+        final searchArtistName = _getDisplayName(artist.name);
+        final koreanName = artist.name['ko'] as String? ?? '';
+        final englishName = artist.name['en'] as String? ?? '';
+
+        // 전체 이름 또는 개별 언어 이름으로 매칭 확인
+        if (searchArtistName == artistName ||
+            koreanName == artistName ||
+            englishName == artistName) {
+          foundArtist = artist;
+          break;
+        }
+      }
+
+      // 정확히 일치하는 것이 없으면 첫 번째 결과 사용
+      if (foundArtist == null && results.isNotEmpty) {
+        foundArtist = results.first;
+      }
+
+      // 캐시에 저장
+      _artistCache[artistName] = foundArtist;
+      return foundArtist;
+    } catch (e) {
+      logger.w('Artist search by name failed: $e');
+      // 오류 시에도 캐시에 null 저장하여 반복 검색 방지
+      _artistCache[artistName] = null;
+      return null;
     }
   }
 
@@ -265,8 +357,14 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         for (final item in response) {
           if (item['artist'] != null) {
             final artistData = item['artist'];
-            final artistNameFromDb = getLocaleTextFromJson(artistData['name']);
-            if (artistNameFromDb == artistName) {
+            final nameMap = artistData['name'] as Map<String, dynamic>? ?? {};
+            final koreanNameFromDb = nameMap['ko'] as String? ?? '';
+            final englishNameFromDb = nameMap['en'] as String? ?? '';
+
+            // 한글, 영어 이름 중 하나라도 일치하면 등록된 것으로 간주
+            if (koreanNameFromDb == artistName ||
+                englishNameFromDb == artistName ||
+                _getDisplayName(nameMap) == artistName) {
               return true;
             }
           }
@@ -275,13 +373,15 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
       return false;
     } catch (e) {
-      logger.w('아티스트 등록 상태 확인 실패: $e');
+      logger.w('Artist registration status check failed: $e');
       return false; // 오류 시 등록되지 않은 것으로 간주
     }
   }
 
   Future<void> _submitApplication(ArtistModel artist) async {
-    final artistName = getLocaleTextFromJson(artist.name);
+    final artistName = _getDisplayName(artist.name);
+    final koreanName = artist.name['ko'] as String? ?? '';
+    final englishName = artist.name['en'] as String? ?? '';
 
     setState(() {
       _submittingArtists.add(artistName);
@@ -292,16 +392,24 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       final userInfoAsync = ref.read(userInfoProvider);
       final userInfo = userInfoAsync.value;
       if (userInfo?.id == null) {
-        throw Exception('사용자 정보를 찾을 수 없습니다.');
+        throw Exception(t('vote_item_request_user_info_not_found'));
       }
 
       final voteRequestService = ref.read(voteItemRequestServiceProvider);
 
       // 아티스트별 신청 상태 확인 (전체 투표 중복 체크 제거)
       final voteRequestRepository = ref.read(voteRequestRepositoryProvider);
-      final userApplication =
-          await voteRequestRepository.getUserApplicationStatus(
-              widget.vote.id.toString(), userInfo!.id!, artistName);
+      VoteRequestUser? userApplication;
+      // 한글 이름으로 먼저 확인
+      if (koreanName.isNotEmpty) {
+        userApplication = await voteRequestRepository.getUserApplicationStatus(
+            widget.vote.id.toString(), userInfo!.id!, koreanName);
+      }
+      // 한글로 찾지 못했고 영어가 있으면 영어로 확인
+      if (userApplication == null && englishName.isNotEmpty) {
+        userApplication = await voteRequestRepository.getUserApplicationStatus(
+            widget.vote.id.toString(), userInfo!.id!, englishName);
+      }
 
       if (userApplication != null) {
         final status = userApplication.status.toLowerCase();
@@ -310,7 +418,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
             status == 'in-progress') {
           if (mounted) {
             setState(() {
-              _errorMessage = '이미 해당 아티스트에 대해 신청하셨습니다.';
+              _errorMessage = t('vote_item_request_already_applied_artist');
             });
           }
           return;
@@ -318,15 +426,17 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       }
 
       final groupName = artist.artistGroup != null
-          ? getLocaleTextFromJson(artist.artistGroup!.name)
+          ? _getDisplayName(artist.artistGroup!.name)
           : null;
+
+      // 신청할 때는 한글 이름을 우선 사용 (없으면 영어)
+      final submitArtistName = koreanName.isNotEmpty ? koreanName : englishName;
 
       await voteRequestService.submitArtistApplication(
         voteId: widget.vote.id.toString(),
         userId: userInfo!.id!,
-        title: artistName,
-        description: '투표 아이템 추가 신청', // 10자 이상 조건 충족하는 간단한 설명
-        artistName: artistName,
+        title: submitArtistName,
+        artistName: submitArtistName,
         groupName: groupName,
       );
 
@@ -342,7 +452,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         );
       }
     } catch (e) {
-      logger.e('투표 신청 실패', error: e);
+      logger.e('Vote application failed', error: e);
       if (mounted) {
         setState(() {
           // VoteRequestException에서 사용자 친화적 메시지 추출
@@ -396,7 +506,6 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      print('닫기 버튼 클릭됨'); // 디버그용
                       Navigator.of(context).pop();
                     },
                     child: Container(
@@ -465,16 +574,16 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
           Padding(
             padding: EdgeInsets.all(16.r),
             child: Text(
-              '현재 신청 목록',
+              t('vote_item_request_current_item_request'),
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
           ),
           Container(
-            height: 120.h,
+            height: 140.h, // 이미지가 포함되어 높이 증가
             child: _currentUserApplications.isEmpty
                 ? Center(
                     child: Text(
-                      '아직 신청된 항목이 없습니다',
+                      t('vote_item_request_no_item_request_yet'),
                       style:
                           getTextStyle(AppTypo.caption12R, AppColors.grey500),
                     ),
@@ -482,6 +591,9 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
                 : ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 16.r),
                     itemCount: _currentUserApplications.length,
+                    addAutomaticKeepAlives: false,
+                    addRepaintBoundaries: false,
+                    physics: NeverScrollableScrollPhysics(), // 내부 스크롤 비활성화
                     itemBuilder: (context, index) {
                       final application = _currentUserApplications[index];
                       return _buildUserApplicationItem(application);
@@ -498,17 +610,17 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     String getStatusText(String status) {
       switch (status.toLowerCase()) {
         case 'pending':
-          return '대기중';
+          return t('vote_item_request_status_pending');
         case 'approved':
-          return '승인됨';
+          return t('vote_item_request_status_approved');
         case 'rejected':
-          return '거절됨';
+          return t('vote_item_request_status_rejected');
         case 'in-progress':
-          return '진행중';
+          return t('vote_item_request_status_in_progress');
         case 'cancelled':
-          return '취소됨';
+          return t('vote_item_request_status_cancelled');
         default:
-          return '알 수 없음';
+          return t('vote_item_request_status_unknown');
       }
     }
 
@@ -530,8 +642,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       }
     }
 
-    // 상세 데이터에서 아티스트명 추출
-    String getArtistName() {
+    // 상세 데이터에서 아티스트명과 그룹명 추출
+    Map<String, String?> getArtistInfo() {
       try {
         // _currentUserApplicationsWithDetails에서 해당 application과 매칭되는 데이터 찾기
         final detailData = _currentUserApplicationsWithDetails.firstWhere(
@@ -541,16 +653,32 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
         if (detailData.isNotEmpty && detailData['vote_requests'] != null) {
           final voteRequest = detailData['vote_requests'];
-          return voteRequest['title'] as String? ?? '아티스트명 없음';
+          final artistName = voteRequest['title'] as String? ??
+              t('vote_item_request_artist_name_missing');
+          final groupName =
+              voteRequest['description'] as String?; // description에서 그룹명 추출
+
+          return {
+            'artistName': artistName,
+            'groupName': groupName,
+          };
         }
-        return '아티스트명 없음';
+        return {
+          'artistName': t('vote_item_request_artist_name_missing'),
+          'groupName': null,
+        };
       } catch (e) {
-        logger.w('아티스트명 추출 실패: $e');
-        return '아티스트명 없음';
+        logger.w('Artist info extraction failed: $e');
+        return {
+          'artistName': t('vote_item_request_artist_name_missing'),
+          'groupName': null,
+        };
       }
     }
 
-    final artistName = getArtistName();
+    final artistInfo = getArtistInfo();
+    final artistName = artistInfo['artistName']!;
+    final groupName = artistInfo['groupName'];
     final applicationCount = _userApplicationCounts[application.id] ?? 0;
 
     return Container(
@@ -563,25 +691,118 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       ),
       child: Row(
         children: [
+          // 아티스트 이미지 (동적으로 검색해서 가져오기)
+          FutureBuilder<ArtistModel?>(
+            future: _getArtistByName(artistName),
+            builder: (context, snapshot) {
+              final artist = snapshot.data;
+              return Container(
+                width: 40.w,
+                height: 40.h,
+                child: ClipOval(
+                  child: artist?.image != null
+                      ? PicnicCachedNetworkImage(
+                          imageUrl: artist!.image!,
+                          fit: BoxFit.cover,
+                          width: 40.w,
+                          height: 40.h,
+                        )
+                      : Container(
+                          color: AppColors.grey200,
+                          child: Icon(
+                            Icons.person,
+                            color: AppColors.grey500,
+                            size: 20.r,
+                          ),
+                        ),
+                ),
+              );
+            },
+          ),
+          SizedBox(width: 12.w),
+
+          // 아티스트 정보
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 아티스트 이름 표시
-                Text(
-                  artistName,
-                  style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                // 아티스트 이름 표시 (한글/영어 조합)
+                FutureBuilder<ArtistModel?>(
+                  future: _getArtistByName(artistName),
+                  builder: (context, snapshot) {
+                    final artist = snapshot.data;
+                    final displayName = artist != null
+                        ? _getDisplayName(artist.name)
+                        : artistName;
+                    return Text(
+                      displayName,
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  },
+                ),
+                // 그룹명 표시 (한글/영어 조합)
+                FutureBuilder<ArtistModel?>(
+                  future: _getArtistByName(artistName),
+                  builder: (context, snapshot) {
+                    final artist = snapshot.data;
+                    if (artist?.artistGroup != null) {
+                      final displayGroupName =
+                          _getDisplayName(artist!.artistGroup!.name);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 2.h),
+                          Text(
+                            displayGroupName,
+                            style: getTextStyle(
+                                AppTypo.caption12R, AppColors.grey600),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      );
+                    } else if (groupName != null && groupName.isNotEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 2.h),
+                          Text(
+                            groupName,
+                            style: getTextStyle(
+                                AppTypo.caption12R, AppColors.grey600),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
                 ),
                 SizedBox(height: 4.h),
-                Text(
-                  '총 신청 ${applicationCount}개',
-                  style: getTextStyle(AppTypo.caption12M, AppColors.primary500),
+                // 신청수를 태그 형태로 표시
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary500.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4.r),
+                    border: Border.all(
+                      color: AppColors.primary500.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    _formatNumber(applicationCount),
+                    style:
+                        getTextStyle(AppTypo.caption10SB, AppColors.primary500),
+                  ),
                 ),
               ],
             ),
           ),
+
+          // 상태 표시
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -616,12 +837,12 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '아티스트 검색',
+            t('vote_item_request_search_artist'),
             style: getTextStyle(AppTypo.body16B, AppColors.grey900),
           ),
           SizedBox(height: 8.h),
           EnhancedSearchBox(
-            hintText: t('search_artist_hint'),
+            hintText: t('vote_item_request_search_artist_hint'),
             onSearchChanged: _onSearchChanged,
             showClearButton: true,
             showSearchIcon: true,
@@ -643,7 +864,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     if (_currentSearchQuery.isEmpty) {
       return Center(
         child: Text(
-          '아티스트명을 검색하여 신청해 보세요',
+          t('vote_item_request_search_artist_prompt'),
           style: getTextStyle(AppTypo.body14R, AppColors.grey500),
         ),
       );
@@ -652,7 +873,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     if (_searchResults.isEmpty) {
       return Center(
         child: Text(
-          '검색 결과가 없습니다',
+          t('vote_item_request_no_search_results'),
           style: getTextStyle(AppTypo.body14R, AppColors.grey500),
         ),
       );
@@ -661,20 +882,24 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16.r),
       itemCount: _searchResults.length,
+      addAutomaticKeepAlives: false, // 화면 밖의 위젯을 메모리에서 해제
+      addRepaintBoundaries: false, // 불필요한 RepaintBoundary 제거
+      cacheExtent: 200.0, // 캐시 범위 제한
       itemBuilder: (context, index) {
         final artist = _searchResults[index];
-        return _buildSearchResultItem(artist);
+        return _buildSearchResultItem(artist, index);
       },
     );
   }
 
-  Widget _buildSearchResultItem(ArtistModel artist) {
-    final artistName = getLocaleTextFromJson(artist.name);
+  Widget _buildSearchResultItem(ArtistModel artist, int index) {
+    final artistName = _getDisplayName(artist.name);
     final groupName = artist.artistGroup != null
-        ? getLocaleTextFromJson(artist.artistGroup!.name)
+        ? _getDisplayName(artist.artistGroup!.name)
         : '';
     final applicationCount = _artistApplicationCounts[artistName] ?? 0;
-    final status = _artistApplicationStatus[artistName] ?? '신청 가능';
+    final status = _artistApplicationStatus[artistName] ??
+        t('vote_item_request_can_apply');
     final isAlreadyInVote = _artistAlreadyInVote[artistName] ?? false;
     final isSubmittingThisArtist = _submittingArtists.contains(artistName);
 
@@ -685,7 +910,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     // 표시할 상태 텍스트 결정
     String displayStatus = status;
     if (isAlreadyInVote) {
-      displayStatus = '이미 등록됨';
+      displayStatus = t('vote_item_request_already_registered');
     }
 
     return Container(
@@ -710,11 +935,11 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
                 height: 50.h,
                 child: ClipOval(
                   child: artist.image != null
-                      ? PicnicCachedNetworkImage(
+                      ? _LazyImageWidget(
                           imageUrl: artist.image!,
-                          fit: BoxFit.cover,
                           width: 50.w,
                           height: 50.h,
+                          listIndex: index,
                         )
                       : Container(
                           color: AppColors.grey200,
@@ -762,10 +987,22 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '신청 ${applicationCount}개',
-                    style:
-                        getTextStyle(AppTypo.caption12M, AppColors.primary500),
+                  // 신청수를 태그 형태로 표시
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary500.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4.r),
+                      border: Border.all(
+                        color: AppColors.primary500.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Text(
+                      _formatNumber(applicationCount),
+                      style: getTextStyle(
+                          AppTypo.caption10SB, AppColors.primary500),
+                    ),
                   ),
                   SizedBox(height: 4.h),
                   // 신청 버튼 또는 상태 표시
@@ -792,8 +1029,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Text(
-                              '신청',
+                          : Text(
+                              t('vote_item_request_submit'),
                               style: TextStyle(fontSize: 12),
                             ),
                     )
@@ -805,29 +1042,29 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
                         color: Colors.grey[300],
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        '이미 등록됨',
+                      child: Text(
+                        t('vote_item_request_already_registered'),
                         style: TextStyle(
                           fontSize: 10,
                           color: Colors.black54,
                         ),
                       ),
                     )
-                  else if (status != '신청 가능')
+                  else if (status != t('vote_item_request_can_apply'))
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: status == '대기중'
+                        color: status == t('vote_item_request_status_pending')
                             ? Colors.orange.withValues(alpha: 0.1)
-                            : status == '승인됨'
+                            : status == t('vote_item_request_status_approved')
                                 ? Colors.green.withValues(alpha: 0.1)
                                 : Colors.grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: status == '대기중'
+                          color: status == t('vote_item_request_status_pending')
                               ? Colors.orange.withValues(alpha: 0.3)
-                              : status == '승인됨'
+                              : status == t('vote_item_request_status_approved')
                                   ? Colors.green.withValues(alpha: 0.3)
                                   : Colors.grey.withValues(alpha: 0.3),
                         ),
@@ -836,9 +1073,9 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
                         status,
                         style: TextStyle(
                           fontSize: 10,
-                          color: status == '대기중'
+                          color: status == t('vote_item_request_status_pending')
                               ? Colors.orange
-                              : status == '승인됨'
+                              : status == t('vote_item_request_status_approved')
                                   ? Colors.green
                                   : Colors.grey[600],
                         ),
@@ -855,18 +1092,125 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     );
   }
 
+  // 숫자에 3자리 콤마 포맷 적용
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
+  }
+
+  // 한글/영어 모두 표시하되 사용자 언어에 따라 순서 조정
+  String _getDisplayName(Map<String, dynamic> nameJson) {
+    if (nameJson.isEmpty) return '';
+
+    final currentLanguage = getLocaleLanguage();
+    final koreanName = nameJson['ko'] as String? ?? '';
+    final englishName = nameJson['en'] as String? ?? '';
+
+    // 둘 다 없으면 빈 문자열
+    if (koreanName.isEmpty && englishName.isEmpty) return '';
+
+    // 하나만 있으면 그것만 반환
+    if (koreanName.isEmpty) return englishName;
+    if (englishName.isEmpty) return koreanName;
+
+    // 둘 다 있으면 사용자 언어에 따라 순서 결정
+    if (currentLanguage == 'ko') {
+      // 한국어 사용자: 한글 먼저
+      return '$koreanName ($englishName)';
+    } else {
+      // 한국어 이외 사용자: 영어 먼저
+      return '$englishName ($koreanName)';
+    }
+  }
+
   // 신청 버튼을 표시할지 결정하는 조건
   bool _shouldShowApplicationButton(String status, bool isAlreadyInVote) {
     // 이미 투표에 등록된 경우
     if (isAlreadyInVote) return false;
 
     // 거절된 경우는 재신청 가능
-    if (status.toLowerCase() == '거절됨' || status == '취소됨') return true;
+    if (status == t('vote_item_request_status_rejected') ||
+        status == t('vote_item_request_status_cancelled')) return true;
 
     // 내가 이미 신청한 경우 (대기중, 승인됨, 진행중)
-    if (status == '대기중' || status == '승인됨' || status == '진행중') return false;
+    if (status == t('vote_item_request_status_pending') ||
+        status == t('vote_item_request_status_approved') ||
+        status == t('vote_item_request_status_in_progress')) return false;
 
     // 신청 가능한 경우만 true
-    return status == '신청 가능';
+    return status == t('vote_item_request_can_apply');
+  }
+}
+
+// 지연 로딩을 위한 이미지 위젯
+class _LazyImageWidget extends StatefulWidget {
+  final String imageUrl;
+  final double width;
+  final double height;
+  final int listIndex;
+
+  const _LazyImageWidget({
+    required this.imageUrl,
+    required this.width,
+    required this.height,
+    required this.listIndex,
+  });
+
+  @override
+  State<_LazyImageWidget> createState() => _LazyImageWidgetState();
+}
+
+class _LazyImageWidgetState extends State<_LazyImageWidget> {
+  bool _shouldLoadImage = false;
+  Timer? _loadTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // 리스트 상위 몇 개 항목은 즉시 로딩
+    if (widget.listIndex < 3) {
+      _shouldLoadImage = true;
+    } else {
+      // 나머지는 점진적으로 지연 후 로딩 (최대 500ms)
+      final delay = (widget.listIndex * 50).clamp(100, 500);
+      _loadTimer = Timer(Duration(milliseconds: delay), () {
+        if (mounted) {
+          setState(() {
+            _shouldLoadImage = true;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _loadTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: widget.width,
+      height: widget.height,
+      child: _shouldLoadImage
+          ? PicnicCachedNetworkImage(
+              imageUrl: widget.imageUrl,
+              fit: BoxFit.cover,
+              width: widget.width,
+              height: widget.height,
+            )
+          : Container(
+              color: AppColors.grey200,
+              child: Icon(
+                Icons.person,
+                color: AppColors.grey500,
+                size: 24.r,
+              ),
+            ),
+    );
   }
 }

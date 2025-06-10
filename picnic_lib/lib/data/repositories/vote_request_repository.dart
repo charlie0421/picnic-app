@@ -118,8 +118,6 @@ class VoteRequestRepository {
           .from('vote_requests')
           .insert({
             'vote_id': request.voteId,
-            'title': request.title,
-            'description': request.description,
           })
           .select()
           .single();
@@ -154,8 +152,6 @@ class VoteRequestRepository {
           .from('vote_requests')
           .insert({
             'vote_id': request.voteId,
-            'title': request.title,
-            'description': request.description,
           })
           .select()
           .single();

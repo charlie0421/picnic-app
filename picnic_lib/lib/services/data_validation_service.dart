@@ -73,16 +73,12 @@ class DataValidationService {
 
   /// 투표 신청 데이터 전체 검증
   ///
-  /// [title] 신청 제목
-  /// [description] 신청 설명
   /// [artistName] 아티스트 이름 (선택사항)
   /// [groupName] 그룹 이름 (선택사항)
   /// [strictMode] 엄격 모드 (기본값: true)
   ///
   /// Returns: [ValidationResult] 검증 결과
   ValidationResult validateVoteItemRequestData({
-    required String title,
-    required String description,
     String? artistName,
     String? groupName,
     bool strictMode = true,
@@ -93,7 +89,7 @@ class DataValidationService {
 
       // 1. 필수 필드 검증
       final titleResult = validateField(
-        value: title,
+        value: 'title',
         rule: const FieldValidationRule(
           fieldName: '신청 제목',
           required: true,
@@ -103,18 +99,6 @@ class DataValidationService {
       );
       if (!titleResult.isValid) errors.addAll(titleResult.errors);
       warnings.addAll(titleResult.warnings);
-
-      final descriptionResult = validateField(
-        value: description,
-        rule: const FieldValidationRule(
-          fieldName: '신청 설명',
-          required: true,
-          minLength: 10,
-          maxLength: 1000,
-        ),
-      );
-      if (!descriptionResult.isValid) errors.addAll(descriptionResult.errors);
-      warnings.addAll(descriptionResult.warnings);
 
       // 2. 선택적 필드 검증
       if (artistName != null && artistName.trim().isNotEmpty) {
@@ -147,8 +131,6 @@ class DataValidationService {
 
       // 3. 비즈니스 로직 검증
       final businessResult = _validateBusinessRules(
-        title: title,
-        description: description,
         artistName: artistName,
         groupName: groupName,
         strictMode: strictMode,
@@ -322,8 +304,6 @@ class DataValidationService {
   ///
   /// Returns: [ValidationResult] 검증 결과
   ValidationResult _validateBusinessRules({
-    required String title,
-    required String description,
     String? artistName,
     String? groupName,
     bool strictMode = true,
@@ -341,19 +321,7 @@ class DataValidationService {
       }
     }
 
-    // 2. 제목과 설명의 중복 내용 검증
-    final titleWords = title.toLowerCase().split(RegExp(r'\s+'));
-    final descriptionWords = description.toLowerCase().split(RegExp(r'\s+'));
-
-    final commonWords = titleWords
-        .where((word) => word.length > 2 && descriptionWords.contains(word))
-        .toList();
-
-    if (commonWords.length > titleWords.length * 0.7) {
-      warnings.add('제목과 설명이 너무 유사합니다. 더 구체적인 설명을 추가해주세요.');
-    }
-
-    // 3. 스팸성 내용 검증
+    // 2. 스팸성 내용 검증
     final spamPatterns = [
       RegExp(r'(.)\1{4,}'), // 같은 문자 5번 이상 반복
       RegExp(r'[!]{3,}'), // 느낌표 3개 이상
@@ -361,8 +329,7 @@ class DataValidationService {
       RegExp(r'[ㅋㅎ]{5,}'), // ㅋㅋㅋㅋㅋ, ㅎㅎㅎㅎㅎ 등
     ];
 
-    final allText =
-        '$title $description ${artistName ?? ''} ${groupName ?? ''}';
+    final allText = '${artistName ?? ''} ${groupName ?? ''}';
     for (final pattern in spamPatterns) {
       if (pattern.hasMatch(allText)) {
         warnings.add('스팸성 내용이 포함되어 있을 수 있습니다.');
@@ -485,14 +452,10 @@ class DataValidationService {
   ///
   /// Throws: [VoteRequestException] 검증 실패 시
   void validateAndThrow({
-    required String title,
-    required String description,
     String? artistName,
     String? groupName,
   }) {
     final result = validateVoteItemRequestData(
-      title: title,
-      description: description,
       artistName: artistName,
       groupName: groupName,
     );

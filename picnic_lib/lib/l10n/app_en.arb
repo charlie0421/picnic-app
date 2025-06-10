@@ -40,8 +40,8 @@
   "@submit_application": {
     "description": "Submit button text"
   },
-  "search_artist_hint": "Search for artist or group",
-  "@search_artist_hint": {
+  "vote_item_request_search_artist_hint": "Search for artist or group",
+  "@vote_item_request_search_artist_hint": {
     "description": "Hint text for artist search field"
   },
   "application_success": "Vote candidate application has been completed.",
@@ -70,6 +70,25 @@
   },
   "no_search_results": "No search results found",
   "@no_search_results": {
-    "description": "Text shown when no search results are found"
-  }
+  "description": "Text shown when no search results are found"
+  },
+  "vote_item_request_current_item_request": "Current Item Request",
+  "vote_item_request_no_item_request_yet": "No item request yet",
+  "vote_item_request_search_artist": "Search Artist",
+  "vote_item_request_search_artist_prompt": "Search for an artist to apply",
+  "vote_item_request_item_request_count": "{count} item requests",
+  "vote_item_request_total_item_requests": "Total {count} item requests",
+  "vote_item_request_submit": "Submit",
+  "vote_item_request_already_registered": "Already registered",
+  "vote_item_request_can_apply": "Can apply",
+  "vote_item_request_status_pending": "Pending",
+  "vote_item_request_status_approved": "Approved",
+  "vote_item_request_status_rejected": "Rejected",
+  "vote_item_request_status_in_progress": "In Progress",
+  "vote_item_request_status_cancelled": "Cancelled",
+  "vote_item_request_status_unknown": "Unknown",
+  "vote_item_request_artist_name_missing": "Artist name missing",
+  "vote_item_request_user_info_not_found": "User information not found.",
+  "vote_item_request_already_applied_artist": "You have already applied for this artist.",
+  "vote_item_request_addition_request": "Vote item addition request"
 }

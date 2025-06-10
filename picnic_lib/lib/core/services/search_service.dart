@@ -84,8 +84,9 @@ class SearchService {
       dynamic queryBuilder = supabase
           .from('artist')
           .select(
-              'id,name,image,gender,birth_date,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
-          .neq('id', 0); // artist id 0 제외
+              'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+          .neq('id', 0) // artist id 0 제외
+          .eq('is_kpop', true); // K-pop 아티스트만 검색
 
       // 한국어 초성 검색인 경우 모든 아티스트를 가져와서 로컬 필터링
       if (isKoreanInitials) {
@@ -180,8 +181,9 @@ class SearchService {
           var artistQuery = supabase
               .from('artist')
               .select(
-                  'id,name,image,gender,birth_date,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+                  'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
               .neq('id', 0)
+              .eq('is_kpop', true) // K-pop 아티스트만 검색
               .or('name->>ko.ilike.%$query%,'
                   'name->>en.ilike.%$query%,'
                   'name->>ja.ilike.%$query%,'
@@ -239,8 +241,9 @@ class SearchService {
                 var groupArtistQuery = supabase
                     .from('artist')
                     .select(
-                        'id,name,image,gender,birth_date,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+                        'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
                     .neq('id', 0)
+                    .eq('is_kpop', true) // K-pop 아티스트만 검색
                     .filter('artist_group_id', 'in', matchingGroupIds);
 
                 // 제외할 ID가 있는 경우

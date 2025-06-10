@@ -10,8 +10,6 @@ void main() {
       testVoteRequest = VoteRequest(
         id: 'test-id-123',
         voteId: 'vote-id-456',
-        title: '테스트 투표 요청',
-        description: '테스트용 투표 요청 설명입니다.',
         createdAt: DateTime.parse('2025-06-07T01:00:00.000Z'),
         updatedAt: DateTime.parse('2025-06-07T01:30:00.000Z'),
       );
@@ -19,8 +17,6 @@ void main() {
       testJson = {
         'id': 'test-id-123',
         'vote_id': 'vote-id-456',
-        'title': '테스트 투표 요청',
-        'description': '테스트용 투표 요청 설명입니다.',
         'created_at': '2025-06-07T01:00:00.000Z',
         'updated_at': '2025-06-07T01:30:00.000Z',
       };
@@ -29,10 +25,10 @@ void main() {
     test('VoteRequest 객체 생성 테스트', () {
       expect(testVoteRequest.id, equals('test-id-123'));
       expect(testVoteRequest.voteId, equals('vote-id-456'));
-      expect(testVoteRequest.title, equals('테스트 투표 요청'));
-      expect(testVoteRequest.description, equals('테스트용 투표 요청 설명입니다.'));
-      expect(testVoteRequest.createdAt, equals(DateTime.parse('2025-06-07T01:00:00.000Z')));
-      expect(testVoteRequest.updatedAt, equals(DateTime.parse('2025-06-07T01:30:00.000Z')));
+      expect(testVoteRequest.createdAt,
+          equals(DateTime.parse('2025-06-07T01:00:00.000Z')));
+      expect(testVoteRequest.updatedAt,
+          equals(DateTime.parse('2025-06-07T01:30:00.000Z')));
     });
 
     test('JSON에서 VoteRequest 객체로 변환 테스트 (fromJson)', () {
@@ -40,10 +36,10 @@ void main() {
 
       expect(voteRequest.id, equals('test-id-123'));
       expect(voteRequest.voteId, equals('vote-id-456'));
-      expect(voteRequest.title, equals('테스트 투표 요청'));
-      expect(voteRequest.description, equals('테스트용 투표 요청 설명입니다.'));
-      expect(voteRequest.createdAt, equals(DateTime.parse('2025-06-07T01:00:00.000Z')));
-      expect(voteRequest.updatedAt, equals(DateTime.parse('2025-06-07T01:30:00.000Z')));
+      expect(voteRequest.createdAt,
+          equals(DateTime.parse('2025-06-07T01:00:00.000Z')));
+      expect(voteRequest.updatedAt,
+          equals(DateTime.parse('2025-06-07T01:30:00.000Z')));
     });
 
     test('VoteRequest 객체에서 JSON으로 변환 테스트 (toJson)', () {
@@ -51,8 +47,6 @@ void main() {
 
       expect(json['id'], equals('test-id-123'));
       expect(json['vote_id'], equals('vote-id-456'));
-      expect(json['title'], equals('테스트 투표 요청'));
-      expect(json['description'], equals('테스트용 투표 요청 설명입니다.'));
       expect(json['created_at'], equals('2025-06-07T01:00:00.000Z'));
       expect(json['updated_at'], equals('2025-06-07T01:30:00.000Z'));
     });
@@ -65,15 +59,10 @@ void main() {
     });
 
     test('copyWith 메서드 테스트', () {
-      final updatedVoteRequest = testVoteRequest.copyWith(
-        title: '수정된 제목',
-        description: '수정된 설명',
-      );
+      final updatedVoteRequest = testVoteRequest.copyWith();
 
       expect(updatedVoteRequest.id, equals(testVoteRequest.id));
       expect(updatedVoteRequest.voteId, equals(testVoteRequest.voteId));
-      expect(updatedVoteRequest.title, equals('수정된 제목'));
-      expect(updatedVoteRequest.description, equals('수정된 설명'));
       expect(updatedVoteRequest.createdAt, equals(testVoteRequest.createdAt));
       expect(updatedVoteRequest.updatedAt, equals(testVoteRequest.updatedAt));
     });
@@ -82,8 +71,6 @@ void main() {
       final sameVoteRequest = VoteRequest(
         id: 'test-id-123',
         voteId: 'vote-id-456',
-        title: '테스트 투표 요청',
-        description: '테스트용 투표 요청 설명입니다.',
         createdAt: DateTime.parse('2025-06-07T01:00:00.000Z'),
         updatedAt: DateTime.parse('2025-06-07T01:30:00.000Z'),
       );
@@ -91,8 +78,6 @@ void main() {
       final differentVoteRequest = VoteRequest(
         id: 'different-id',
         voteId: 'vote-id-456',
-        title: '테스트 투표 요청',
-        description: '테스트용 투표 요청 설명입니다.',
         createdAt: DateTime.parse('2025-06-07T01:00:00.000Z'),
         updatedAt: DateTime.parse('2025-06-07T01:30:00.000Z'),
       );
@@ -105,8 +90,6 @@ void main() {
       final sameVoteRequest = VoteRequest(
         id: 'test-id-123',
         voteId: 'vote-id-456',
-        title: '테스트 투표 요청',
-        description: '테스트용 투표 요청 설명입니다.',
         createdAt: DateTime.parse('2025-06-07T01:00:00.000Z'),
         updatedAt: DateTime.parse('2025-06-07T01:30:00.000Z'),
       );
@@ -116,7 +99,7 @@ void main() {
 
     test('toString 메서드 테스트', () {
       final stringRepresentation = testVoteRequest.toString();
-      
+
       expect(stringRepresentation, contains('VoteRequest'));
       expect(stringRepresentation, contains('test-id-123'));
       expect(stringRepresentation, contains('vote-id-456'));
@@ -128,13 +111,12 @@ void main() {
         final incompleteJson = {
           'id': 'test-id-123',
           // vote_id 누락
-          'title': '테스트 투표 요청',
-          'description': '테스트용 투표 요청 설명입니다.',
           'created_at': '2025-06-07T01:00:00.000Z',
           'updated_at': '2025-06-07T01:30:00.000Z',
         };
 
-        expect(() => VoteRequest.fromJson(incompleteJson), throwsA(isA<Exception>()));
+        expect(() => VoteRequest.fromJson(incompleteJson),
+            throwsA(isA<Exception>()));
       });
 
       test('잘못된 날짜 형식 처리', () {
@@ -147,8 +129,9 @@ void main() {
           'updated_at': '2025-06-07T01:30:00.000Z',
         };
 
-        expect(() => VoteRequest.fromJson(invalidDateJson), throwsA(isA<Exception>()));
+        expect(() => VoteRequest.fromJson(invalidDateJson),
+            throwsA(isA<Exception>()));
       });
     });
   });
-} 
+}

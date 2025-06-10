@@ -24,10 +24,6 @@ mixin _$VoteRequest {
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'vote_id')
   String get voteId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'title')
-  String get title => throw _privateConstructorUsedError;
-  @JsonKey(name: 'description')
-  String get description => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
@@ -52,8 +48,6 @@ abstract class $VoteRequestCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') String id,
       @JsonKey(name: 'vote_id') String voteId,
-      @JsonKey(name: 'title') String title,
-      @JsonKey(name: 'description') String description,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt});
 }
@@ -75,8 +69,6 @@ class _$VoteRequestCopyWithImpl<$Res, $Val extends VoteRequest>
   $Res call({
     Object? id = null,
     Object? voteId = null,
-    Object? title = null,
-    Object? description = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -88,14 +80,6 @@ class _$VoteRequestCopyWithImpl<$Res, $Val extends VoteRequest>
       voteId: null == voteId
           ? _value.voteId
           : voteId // ignore: cast_nullable_to_non_nullable
-              as String,
-      title: null == title
-          ? _value.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
               as String,
       createdAt: null == createdAt
           ? _value.createdAt
@@ -120,8 +104,6 @@ abstract class _$$VoteRequestImplCopyWith<$Res>
   $Res call(
       {@JsonKey(name: 'id') String id,
       @JsonKey(name: 'vote_id') String voteId,
-      @JsonKey(name: 'title') String title,
-      @JsonKey(name: 'description') String description,
       @JsonKey(name: 'created_at') DateTime createdAt,
       @JsonKey(name: 'updated_at') DateTime updatedAt});
 }
@@ -141,8 +123,6 @@ class __$$VoteRequestImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? voteId = null,
-    Object? title = null,
-    Object? description = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -154,14 +134,6 @@ class __$$VoteRequestImplCopyWithImpl<$Res>
       voteId: null == voteId
           ? _value.voteId
           : voteId // ignore: cast_nullable_to_non_nullable
-              as String,
-      title: null == title
-          ? _value.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: null == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
               as String,
       createdAt: null == createdAt
           ? _value.createdAt
@@ -181,8 +153,6 @@ class _$VoteRequestImpl extends _VoteRequest {
   const _$VoteRequestImpl(
       {@JsonKey(name: 'id') required this.id,
       @JsonKey(name: 'vote_id') required this.voteId,
-      @JsonKey(name: 'title') required this.title,
-      @JsonKey(name: 'description') required this.description,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt})
       : super._();
@@ -197,12 +167,6 @@ class _$VoteRequestImpl extends _VoteRequest {
   @JsonKey(name: 'vote_id')
   final String voteId;
   @override
-  @JsonKey(name: 'title')
-  final String title;
-  @override
-  @JsonKey(name: 'description')
-  final String description;
-  @override
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
@@ -211,7 +175,7 @@ class _$VoteRequestImpl extends _VoteRequest {
 
   @override
   String toString() {
-    return 'VoteRequest(id: $id, voteId: $voteId, title: $title, description: $description, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'VoteRequest(id: $id, voteId: $voteId, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -221,9 +185,6 @@ class _$VoteRequestImpl extends _VoteRequest {
             other is _$VoteRequestImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.voteId, voteId) || other.voteId == voteId) &&
-            (identical(other.title, title) || other.title == title) &&
-            (identical(other.description, description) ||
-                other.description == description) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -232,8 +193,8 @@ class _$VoteRequestImpl extends _VoteRequest {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, voteId, title, description, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(runtimeType, id, voteId, createdAt, updatedAt);
 
   /// Create a copy of VoteRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -255,8 +216,6 @@ abstract class _VoteRequest extends VoteRequest {
   const factory _VoteRequest(
           {@JsonKey(name: 'id') required final String id,
           @JsonKey(name: 'vote_id') required final String voteId,
-          @JsonKey(name: 'title') required final String title,
-          @JsonKey(name: 'description') required final String description,
           @JsonKey(name: 'created_at') required final DateTime createdAt,
           @JsonKey(name: 'updated_at') required final DateTime updatedAt}) =
       _$VoteRequestImpl;
@@ -271,12 +230,6 @@ abstract class _VoteRequest extends VoteRequest {
   @override
   @JsonKey(name: 'vote_id')
   String get voteId;
-  @override
-  @JsonKey(name: 'title')
-  String get title;
-  @override
-  @JsonKey(name: 'description')
-  String get description;
   @override
   @JsonKey(name: 'created_at')
   DateTime get createdAt;

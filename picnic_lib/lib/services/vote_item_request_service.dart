@@ -29,14 +29,12 @@ class VoteItemRequestService {
   /// [voteId] 투표 ID
   /// [userId] 사용자 ID
   /// [title] 신청 제목
-  /// [description] 신청 설명
   /// [artistName] 아티스트 이름 (선택사항)
   /// [groupName] 그룹 이름 (선택사항)
   Future<VoteRequest> submitApplication({
     required String voteId,
     required String userId,
     required String title,
-    required String description,
     String? artistName,
     String? groupName,
   }) async {
@@ -63,8 +61,6 @@ class VoteItemRequestService {
 
       // 4. 입력 데이터 유효성 검사 (새로운 서비스 사용)
       _dataValidationService.validateAndThrow(
-        title: title,
-        description: description,
         artistName: artistName,
         groupName: groupName,
       );
@@ -73,12 +69,6 @@ class VoteItemRequestService {
       final voteRequest = VoteRequest(
         id: '', // 서버에서 생성됨
         voteId: voteId,
-        title: title,
-        description: _buildFullDescription(
-          description: description,
-          artistName: artistName,
-          groupName: groupName,
-        ),
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -121,7 +111,6 @@ class VoteItemRequestService {
   /// [voteId] 투표 ID
   /// [userId] 사용자 ID
   /// [title] 신청 제목 (일반적으로 아티스트 이름)
-  /// [description] 신청 설명
   /// [artistName] 아티스트 이름
   /// [groupName] 그룹 이름 (선택사항)
   ///
@@ -132,7 +121,6 @@ class VoteItemRequestService {
     required String voteId,
     required String userId,
     required String title,
-    required String description,
     String? artistName,
     String? groupName,
   }) async {
@@ -170,8 +158,6 @@ class VoteItemRequestService {
 
       // 3. 입력 데이터 유효성 검사
       _dataValidationService.validateAndThrow(
-        title: title,
-        description: description,
         artistName: artistName,
         groupName: groupName,
       );
@@ -180,12 +166,6 @@ class VoteItemRequestService {
       final voteRequest = VoteRequest(
         id: '', // 서버에서 생성됨
         voteId: voteId,
-        title: title,
-        description: _buildFullDescription(
-          description: description,
-          artistName: artistName,
-          groupName: groupName,
-        ),
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -336,8 +316,6 @@ class VoteItemRequestService {
     bool strictMode = true,
   }) {
     return _dataValidationService.validateVoteItemRequestData(
-      title: title,
-      description: description,
       artistName: artistName,
       groupName: groupName,
       strictMode: strictMode,
@@ -413,11 +391,10 @@ class VoteItemRequestService {
   /// [artistName] 아티스트 이름
   /// [groupName] 그룹 이름
   String _buildFullDescription({
-    required String description,
     String? artistName,
     String? groupName,
   }) {
-    final buffer = StringBuffer(description.trim());
+    final buffer = StringBuffer();
 
     if (artistName != null && artistName.trim().isNotEmpty) {
       buffer.write('\n\n아티스트: ${artistName.trim()}');
