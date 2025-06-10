@@ -117,7 +117,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.11.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.tapjoy:tapjoy-android-sdk:14.2.1"
-
+    implementation "androidx.concurrent:concurrent-futures:1.1.0"
     // Pincrux Offerwall
     implementation files('libs/pincrux_offerwall.aar')
 

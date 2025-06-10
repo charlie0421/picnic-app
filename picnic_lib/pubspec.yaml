@@ -39,7 +39,7 @@ dependencies:
   riverpod_annotation: ^2.3.3
   flutter_quill: ^11.4.1
   intl: ^0.20.2
-  camera: ^0.11.0+2
+  camera: ^0.11.1
   flutter_screenutil: ^5.9.3
   overlay_loading_progress: ^1.0.1
   reflectable: ^4.0.10
