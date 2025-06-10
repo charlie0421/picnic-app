@@ -12,10 +12,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appTitle => 'Picnic';
 
   @override
-  String get vote_application_title => 'Vote Candidate Application';
+  String get vote_item_request_title => 'Vote Candidate Application';
 
   @override
-  String get vote_application_button => '투표 신청하기';
+  String get vote_item_request_button => '투표 신청하기';
 
   @override
   String get artist_name_label => 'Artist Name';

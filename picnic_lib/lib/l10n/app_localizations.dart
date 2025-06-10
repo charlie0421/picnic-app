@@ -63,7 +63,7 @@ import 'app_localizations_ko.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,11 +86,11 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -108,13 +108,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Vote Candidate Application'**
-  String get vote_application_title;
+  String get vote_item_request_title;
 
   /// Button text for applying as vote candidate
   ///
   /// In en, this message translates to:
   /// **'Apply for Vote Candidate'**
-  String get vote_application_button;
+  String get vote_item_request_button;
 
   /// Label for artist name field
   ///

@@ -139,6 +139,42 @@ class VoteRequestRepository {
     }
   }
 
+  /// 아티스트별 투표 요청과 함께 사용자 정보를 생성합니다 (전체 투표 중복 체크 제외)
+  ///
+  /// 같은 투표에서 다른 아티스트에 대한 신청을 허용하되,
+  /// 아티스트별 중복 체크는 호출하는 곳에서 처리해야 합니다.
+  Future<VoteRequest> createArtistVoteRequestWithUser({
+    required VoteRequest request,
+    required String userId,
+    String status = 'pending',
+  }) async {
+    try {
+      // 1. 먼저 투표 요청 생성 (전체 투표 중복 체크 제외)
+      final voteRequestResponse = await _supabase
+          .from('vote_requests')
+          .insert({
+            'vote_id': request.voteId,
+            'title': request.title,
+            'description': request.description,
+          })
+          .select()
+          .single();
+
+      final voteRequest = VoteRequest.fromJson(voteRequestResponse);
+
+      // 2. 사용자 정보 생성
+      await _supabase.from('vote_request_users').insert({
+        'vote_request_id': voteRequest.id,
+        'user_id': userId,
+        'status': status,
+      });
+
+      return voteRequest;
+    } catch (e) {
+      throw VoteRequestException('아티스트별 투표 요청 및 사용자 정보 생성 실패: $e');
+    }
+  }
+
   /// 투표 요청 사용자 정보를 생성합니다
   Future<VoteRequestUser> createVoteRequestUser(
       VoteRequestUser requestUser) async {
@@ -210,7 +246,7 @@ class VoteRequestRepository {
   }
 
   /// 특정 투표의 총 신청 수를 조회합니다
-  Future<int> getVoteApplicationCount(String voteId) async {
+  Future<int> getVoteItemRequestCount(String voteId) async {
     try {
       final response = await _supabase
           .from('vote_requests')

@@ -110,7 +110,7 @@ class ErrorHandlingService {
   /// [context] 추가 컨텍스트 정보 (선택사항)
   ///
   /// Returns: [ErrorHandlingResult] 처리된 오류 정보
-  ErrorHandlingResult handleVoteApplicationError(
+  ErrorHandlingResult handleVoteItemRequestError(
     dynamic error, {
     StackTrace? stackTrace,
     Map<String, dynamic>? context,

@@ -9,14 +9,14 @@ import 'package:picnic_lib/services/error_handling_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 /// 투표 신청 비즈니스 로직을 처리하는 서비스 클래스
-class VoteApplicationService {
+class VoteItemRequestService {
   final VoteRequestRepository _voteRequestRepository;
   final DuplicatePreventionService _duplicatePreventionService;
   final VoteStatusValidationService _voteStatusValidationService;
   final DataValidationService _dataValidationService;
   final ErrorHandlingService _errorHandlingService;
 
-  VoteApplicationService(
+  VoteItemRequestService(
     this._voteRequestRepository,
     this._duplicatePreventionService,
     this._voteStatusValidationService,
@@ -97,7 +97,7 @@ class VoteApplicationService {
       return result;
     } catch (e, stackTrace) {
       // 포괄적인 오류 처리
-      final errorResult = _errorHandlingService.handleVoteApplicationError(
+      final errorResult = _errorHandlingService.handleVoteItemRequestError(
         e,
         stackTrace: stackTrace,
         context: context,
@@ -107,6 +107,112 @@ class VoteApplicationService {
       _errorHandlingService.logError(errorResult, e, context: context);
 
       logger.e('투표 신청 처리 실패 - ${errorResult.technicalMessage}', error: e);
+
+      // 사용자 친화적인 오류 메시지로 예외 재발생
+      throw VoteRequestException(errorResult.userMessage);
+    }
+  }
+
+  /// 아티스트별 투표 신청 (전체 투표 중복 체크 없이)
+  ///
+  /// 같은 투표에서 다른 아티스트에 대한 신청을 허용하되,
+  /// 같은 아티스트에 대한 중복 신청만 방지합니다.
+  ///
+  /// [voteId] 투표 ID
+  /// [userId] 사용자 ID
+  /// [title] 신청 제목 (일반적으로 아티스트 이름)
+  /// [description] 신청 설명
+  /// [artistName] 아티스트 이름
+  /// [groupName] 그룹 이름 (선택사항)
+  ///
+  /// Returns: 생성된 [VoteRequest] 객체
+  /// Throws: [DuplicateVoteRequestException] 같은 아티스트에 이미 신청한 경우
+  /// Throws: [VoteRequestException] 기타 처리 오류 시
+  Future<VoteRequest> submitArtistApplication({
+    required String voteId,
+    required String userId,
+    required String title,
+    required String description,
+    String? artistName,
+    String? groupName,
+  }) async {
+    final context = {
+      'voteId': voteId,
+      'userId': userId,
+      'title': title,
+      'artistName': artistName,
+      'hasArtistName': artistName != null,
+      'hasGroupName': groupName != null,
+    };
+
+    try {
+      logger.i(
+          '아티스트별 투표 신청 처리 시작 - voteId: $voteId, userId: $userId, artist: $artistName');
+
+      // 1. 아티스트별 중복 신청 확인 (전체 투표 중복 체크 제외)
+      if (artistName != null) {
+        final existingApplication = await _voteRequestRepository
+            .getUserApplicationStatus(voteId, userId, artistName);
+
+        if (existingApplication != null) {
+          final status = existingApplication.status.toLowerCase();
+          if (status == 'pending' ||
+              status == 'approved' ||
+              status == 'in-progress') {
+            throw const DuplicateVoteRequestException(
+                '이미 해당 아티스트에 대해 신청하셨습니다.');
+          }
+        }
+      }
+
+      // 2. 신청 제한 검증 (사용자당 신청 제한)
+      await _validateApplicationLimits(userId, voteId);
+
+      // 3. 입력 데이터 유효성 검사
+      _dataValidationService.validateAndThrow(
+        title: title,
+        description: description,
+        artistName: artistName,
+        groupName: groupName,
+      );
+
+      // 4. 투표 요청 객체 생성
+      final voteRequest = VoteRequest(
+        id: '', // 서버에서 생성됨
+        voteId: voteId,
+        title: title,
+        description: _buildFullDescription(
+          description: description,
+          artistName: artistName,
+          groupName: groupName,
+        ),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      // 5. 투표 요청 및 사용자 정보 생성 (전체 투표 중복 체크 우회)
+      final result =
+          await _voteRequestRepository.createArtistVoteRequestWithUser(
+        request: voteRequest,
+        userId: userId,
+        status: 'pending',
+      );
+
+      logger.i(
+          '아티스트별 투표 신청 처리 완료 - requestId: ${result.id}, artist: $artistName');
+      return result;
+    } catch (e, stackTrace) {
+      // 포괄적인 오류 처리
+      final errorResult = _errorHandlingService.handleVoteItemRequestError(
+        e,
+        stackTrace: stackTrace,
+        context: context,
+      );
+
+      // 오류 로깅
+      _errorHandlingService.logError(errorResult, e, context: context);
+
+      logger.e('아티스트별 투표 신청 처리 실패 - ${errorResult.technicalMessage}', error: e);
 
       // 사용자 친화적인 오류 메시지로 예외 재발생
       throw VoteRequestException(errorResult.userMessage);
@@ -129,7 +235,7 @@ class VoteApplicationService {
         forceRefresh: !useCache,
       );
     } catch (e, stackTrace) {
-      final errorResult = _errorHandlingService.handleVoteApplicationError(
+      final errorResult = _errorHandlingService.handleVoteItemRequestError(
         e,
         stackTrace: stackTrace,
         context: {'userId': userId, 'voteId': voteId, 'useCache': useCache},
@@ -229,7 +335,7 @@ class VoteApplicationService {
     String? groupName,
     bool strictMode = true,
   }) {
-    return _dataValidationService.validateVoteApplicationData(
+    return _dataValidationService.validateVoteItemRequestData(
       title: title,
       description: description,
       artistName: artistName,
@@ -248,7 +354,7 @@ class VoteApplicationService {
     dynamic error, {
     Map<String, dynamic>? context,
   }) {
-    return _errorHandlingService.handleVoteApplicationError(
+    return _errorHandlingService.handleVoteItemRequestError(
       error,
       context: context,
     );

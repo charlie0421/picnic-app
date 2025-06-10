@@ -6,23 +6,20 @@ import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
-import 'package:picnic_lib/data/models/vote/vote_request.dart';
 import 'package:picnic_lib/data/models/vote/vote_request_user.dart';
-import 'package:picnic_lib/data/repositories/vote_request_repository.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_request_provider.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/services/vote_application_service_provider.dart'
+import 'package:picnic_lib/services/vote_item_request_service_provider.dart'
     hide voteRequestRepositoryProvider;
 import 'package:picnic_lib/ui/style.dart';
-import 'package:picnic_lib/ui/common_gradient.dart';
 import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-Future showVoteApplicationDialog({
+Future showVoteItemRequestDialog({
   required BuildContext context,
   required VoteModel voteModel,
 }) {
@@ -30,29 +27,28 @@ Future showVoteApplicationDialog({
     context: context,
     barrierDismissible: true,
     builder: (context) {
-      return VoteApplicationDialog(
+      return VoteItemRequestDialog(
         vote: voteModel,
       );
     },
   );
 }
 
-class VoteApplicationDialog extends ConsumerStatefulWidget {
+class VoteItemRequestDialog extends ConsumerStatefulWidget {
   final VoteModel vote;
 
-  const VoteApplicationDialog({
+  const VoteItemRequestDialog({
     super.key,
     required this.vote,
   });
 
   @override
-  ConsumerState<VoteApplicationDialog> createState() {
-    return _VoteApplicationDialogState();
+  ConsumerState<VoteItemRequestDialog> createState() {
+    return _VoteItemRequestDialogState();
   }
 }
 
-class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
-  bool _isSubmitting = false;
+class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   bool _isSearching = false;
   String? _errorMessage;
   List<ArtistModel> _searchResults = [];
@@ -63,6 +59,7 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
   List<VoteRequestUser> _currentUserApplications = [];
   List<Map<String, dynamic>> _currentUserApplicationsWithDetails = [];
   Map<String, int> _userApplicationCounts = {}; // 사용자 신청별 총 신청 수
+  Set<String> _submittingArtists = {}; // 현재 신청 중인 아티스트들
 
   @override
   void initState() {
@@ -78,7 +75,7 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
 
       // 전체 투표 신청 수 조회
       final totalCount = await voteRequestRepository
-          .getVoteApplicationCount(widget.vote.id.toString());
+          .getVoteItemRequestCount(widget.vote.id.toString());
 
       // 현재 사용자의 신청 내역 조회
       if (userInfo?.id != null) {
@@ -284,8 +281,10 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
   }
 
   Future<void> _submitApplication(ArtistModel artist) async {
+    final artistName = getLocaleTextFromJson(artist.name);
+
     setState(() {
-      _isSubmitting = true;
+      _submittingArtists.add(artistName);
       _errorMessage = null;
     });
 
@@ -296,14 +295,33 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
         throw Exception('사용자 정보를 찾을 수 없습니다.');
       }
 
-      final voteApplicationService = ref.read(voteApplicationServiceProvider);
+      final voteRequestService = ref.read(voteItemRequestServiceProvider);
 
-      final artistName = getLocaleTextFromJson(artist.name);
+      // 아티스트별 신청 상태 확인 (전체 투표 중복 체크 제거)
+      final voteRequestRepository = ref.read(voteRequestRepositoryProvider);
+      final userApplication =
+          await voteRequestRepository.getUserApplicationStatus(
+              widget.vote.id.toString(), userInfo!.id!, artistName);
+
+      if (userApplication != null) {
+        final status = userApplication.status.toLowerCase();
+        if (status == 'pending' ||
+            status == 'approved' ||
+            status == 'in-progress') {
+          if (mounted) {
+            setState(() {
+              _errorMessage = '이미 해당 아티스트에 대해 신청하셨습니다.';
+            });
+          }
+          return;
+        }
+      }
+
       final groupName = artist.artistGroup != null
           ? getLocaleTextFromJson(artist.artistGroup!.name)
           : null;
 
-      await voteApplicationService.submitApplication(
+      await voteRequestService.submitArtistApplication(
         voteId: widget.vote.id.toString(),
         userId: userInfo!.id!,
         title: artistName,
@@ -312,7 +330,11 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
         groupName: groupName,
       );
 
+      // 신청 성공 후 상태 업데이트
       if (mounted) {
+        await _loadApplicationCounts(); // 현재 사용자 신청 목록 갱신
+        await _loadApplicationDataForResults(_searchResults); // 검색 결과 상태 갱신
+
         Navigator.of(context).pop();
         showSimpleDialog(
           title: t('success'),
@@ -323,13 +345,19 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
       logger.e('투표 신청 실패', error: e);
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString();
+          // VoteRequestException에서 사용자 친화적 메시지 추출
+          String errorMsg = e.toString();
+          if (errorMsg.contains('VoteRequestException:')) {
+            errorMsg =
+                errorMsg.replaceFirst('VoteRequestException:', '').trim();
+          }
+          _errorMessage = errorMsg;
         });
       }
     } finally {
       if (mounted) {
         setState(() {
-          _isSubmitting = false;
+          _submittingArtists.remove(artistName);
         });
       }
     }
@@ -361,7 +389,7 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
                 children: [
                   Expanded(
                     child: Text(
-                      t('vote_application_title'),
+                      t('vote_item_request_title'),
                       style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                       textAlign: TextAlign.center,
                     ),
@@ -648,6 +676,7 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
     final applicationCount = _artistApplicationCounts[artistName] ?? 0;
     final status = _artistApplicationStatus[artistName] ?? '신청 가능';
     final isAlreadyInVote = _artistAlreadyInVote[artistName] ?? false;
+    final isSubmittingThisArtist = _submittingArtists.contains(artistName);
 
     // 신청 버튼을 표시할지 결정하는 조건
     final shouldShowApplicationButton =
@@ -667,7 +696,7 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
         border: Border.all(color: AppColors.grey200),
       ),
       child: InkWell(
-        onTap: (shouldShowApplicationButton && !_isSubmitting)
+        onTap: (shouldShowApplicationButton && !isSubmittingThisArtist)
             ? () => _submitApplication(artist)
             : null,
         borderRadius: BorderRadius.circular(12.r),
@@ -743,7 +772,9 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
                   if (_shouldShowApplicationButton(
                       displayStatus, isAlreadyInVote))
                     ElevatedButton(
-                      onPressed: () => _submitApplication(artist),
+                      onPressed: (isSubmittingThisArtist)
+                          ? null
+                          : () => _submitApplication(artist),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -751,10 +782,20 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
                             horizontal: 12, vertical: 6),
                         minimumSize: const Size(60, 30),
                       ),
-                      child: const Text(
-                        '신청',
-                        style: TextStyle(fontSize: 12),
-                      ),
+                      child: isSubmittingThisArtist
+                          ? SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              '신청',
+                              style: TextStyle(fontSize: 12),
+                            ),
                     )
                   else if (isAlreadyInVote)
                     Container(
@@ -769,6 +810,37 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
                         style: TextStyle(
                           fontSize: 10,
                           color: Colors.black54,
+                        ),
+                      ),
+                    )
+                  else if (status != '신청 가능')
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: status == '대기중'
+                            ? Colors.orange.withValues(alpha: 0.1)
+                            : status == '승인됨'
+                                ? Colors.green.withValues(alpha: 0.1)
+                                : Colors.grey.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: status == '대기중'
+                              ? Colors.orange.withValues(alpha: 0.3)
+                              : status == '승인됨'
+                                  ? Colors.green.withValues(alpha: 0.3)
+                                  : Colors.grey.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        status,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: status == '대기중'
+                              ? Colors.orange
+                              : status == '승인됨'
+                                  ? Colors.green
+                                  : Colors.grey[600],
                         ),
                       ),
                     )
@@ -788,8 +860,8 @@ class _VoteApplicationDialogState extends ConsumerState<VoteApplicationDialog> {
     // 이미 투표에 등록된 경우
     if (isAlreadyInVote) return false;
 
-    // 거절된 경우
-    if (status.toLowerCase() == '거절됨') return false;
+    // 거절된 경우는 재신청 가능
+    if (status.toLowerCase() == '거절됨' || status == '취소됨') return true;
 
     // 내가 이미 신청한 경우 (대기중, 승인됨, 진행중)
     if (status == '대기중' || status == '승인됨' || status == '진행중') return false;

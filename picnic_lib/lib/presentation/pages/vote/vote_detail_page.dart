@@ -36,7 +36,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
-import 'package:picnic_lib/presentation/widgets/vote/application/vote_application_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
@@ -955,12 +955,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
             print('🔥 voteModel 상태: ${voteModel != null ? "존재함" : "null"}');
 
             if (voteModel != null) {
-              print('🔥 showVoteApplicationDialog 호출 시작');
-              await showVoteApplicationDialog(
+              print('🔥 showVoteItemRequestDialog 호출 시작');
+              await showVoteItemRequestDialog(
                 context: context,
                 voteModel: voteModel,
               );
-              print('🔥 showVoteApplicationDialog 완료');
+              print('🔥 showVoteItemRequestDialog 완료');
             } else {
               print('🔥 voteModel이 null이어서 다이얼로그를 열 수 없음');
             }
@@ -979,7 +979,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           ),
         ),
         child: Text(
-          t('vote_application_button'),
+          t('vote_item_request_button'),
           style: getTextStyle(AppTypo.body16B, AppColors.grey00),
         ),
       ),

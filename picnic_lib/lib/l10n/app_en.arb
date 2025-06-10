@@ -4,12 +4,12 @@
   "@appTitle": {
     "description": "The title of the application"
   },
-  "vote_application_title": "Vote Candidate Application",
-  "@vote_application_title": {
+  "vote_item_request_title": "Vote Candidate Application",
+  "@vote_item_request_title": {
     "description": "Title for vote application dialog"
   },
-  "vote_application_button": "Apply for Vote Candidate",
-  "@vote_application_button": {
+  "vote_item_request_button": "Apply for Vote Candidate",
+  "@vote_item_request_button": {
     "description": "Button text for applying as vote candidate"
   },
   "artist_name_label": "Artist Name",

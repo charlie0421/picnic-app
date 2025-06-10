@@ -1,6 +1,6 @@
 {
   "@@locale": "ko",
-  "vote_application_button": "투표 신청하기",
+  "vote_item_request_button": "투표 신청하기",
   "vote_item_request_new": "새 신청",
   "vote_item_request_my_list": "내 신청",
   "vote_item_request_reason": "신청 사유 (선택)",

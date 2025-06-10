@@ -80,7 +80,7 @@ class DataValidationService {
   /// [strictMode] 엄격 모드 (기본값: true)
   ///
   /// Returns: [ValidationResult] 검증 결과
-  ValidationResult validateVoteApplicationData({
+  ValidationResult validateVoteItemRequestData({
     required String title,
     required String description,
     String? artistName,
@@ -490,7 +490,7 @@ class DataValidationService {
     String? artistName,
     String? groupName,
   }) {
-    final result = validateVoteApplicationData(
+    final result = validateVoteItemRequestData(
       title: title,
       description: description,
       artistName: artistName,

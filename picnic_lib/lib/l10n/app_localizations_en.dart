@@ -12,10 +12,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Picnic';
 
   @override
-  String get vote_application_title => 'Vote Candidate Application';
+  String get vote_item_request_title => 'Vote Candidate Application';
 
   @override
-  String get vote_application_button => 'Apply for Vote Candidate';
+  String get vote_item_request_button => 'Apply for Vote Candidate';
 
   @override
   String get artist_name_label => 'Artist Name';

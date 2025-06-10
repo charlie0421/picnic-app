@@ -112,7 +112,7 @@ Picnic은 소셜 콘텐츠 플랫폼으로 투표, 사진 공유, 커뮤니티 �
 ## 주요 기능
 
 ### 1. 데이터베이스 스키마
-#### 1.1 투표 신청 테이블 (vote_applications)
+#### 1.1 투표 신청 테이블 (vote_item_requests)
 - Vote 테이블과 1:N 관계
 - 필드:
   - id (Primary Key)
@@ -124,14 +124,14 @@ Picnic은 소셜 콘텐츠 플랫폼으로 투표, 사진 공유, 커뮤니티 �
   - created_at (생성일시)
   - updated_at (수정일시)
 
-#### 1.2 투표 신청 유저 정보 테이블 (vote_application_users)
+#### 1.2 투표 신청 유저 정보 테이블 (vote_item_request_users)
 - 투표 신청 테이블과 1:N 관계
 - 필드:
   - id (Primary Key)
-  - vote_application_id (Foreign Key to vote_applications)
+  - vote_item_request_id (Foreign Key to vote_item_requests)
   - user_id (Foreign Key to users)
   - created_at (생성일시)
-- 제약조건: vote_application_id + user_id 복합 유니크 키 (유저당 한번의 신청)
+- 제약조건: vote_item_request_id + user_id 복합 유니크 키 (유저당 한번의 신청)
 
 ### 2. UI/UX 기능
 

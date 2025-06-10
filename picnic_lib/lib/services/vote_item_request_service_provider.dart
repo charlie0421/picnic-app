@@ -5,7 +5,7 @@ import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:picnic_lib/services/vote_status_validation_service.dart';
 import 'package:picnic_lib/services/data_validation_service.dart';
 import 'package:picnic_lib/services/error_handling_service.dart';
-import 'package:picnic_lib/services/vote_application_service.dart';
+import 'package:picnic_lib/services/vote_item_request_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
 /// VoteRequestRepository 프로바이더
@@ -36,8 +36,8 @@ final errorHandlingServiceProvider = Provider<ErrorHandlingService>((ref) {
   return ErrorHandlingService();
 });
 
-/// VoteApplicationService 프로바이더
-final voteApplicationServiceProvider = Provider<VoteApplicationService>((ref) {
+/// VoteItemRequestService 프로바이더
+final voteItemRequestServiceProvider = Provider<VoteItemRequestService>((ref) {
   final voteRequestRepository = ref.watch(voteRequestRepositoryProvider);
   final duplicatePreventionService =
       ref.watch(duplicatePreventionServiceProvider);
@@ -46,7 +46,7 @@ final voteApplicationServiceProvider = Provider<VoteApplicationService>((ref) {
   final dataValidationService = ref.watch(dataValidationServiceProvider);
   final errorHandlingService = ref.watch(errorHandlingServiceProvider);
 
-  return VoteApplicationService(
+  return VoteItemRequestService(
     voteRequestRepository,
     duplicatePreventionService,
     voteStatusValidationService,
