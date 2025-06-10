@@ -53,14 +53,14 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   String? _errorMessage;
   List<ArtistModel> _searchResults = [];
   String _currentSearchQuery = '';
-  Map<String, int> _artistApplicationCounts = {};
-  Map<String, String> _artistApplicationStatus = {};
-  Map<String, bool> _artistAlreadyInVote = {};
+  final Map<String, int> _artistApplicationCounts = {};
+  final Map<String, String> _artistApplicationStatus = {};
+  final Map<String, bool> _artistAlreadyInVote = {};
   List<VoteRequestUser> _currentUserApplications = [];
   List<Map<String, dynamic>> _currentUserApplicationsWithDetails = [];
   Map<String, int> _userApplicationCounts = {}; // 사용자 신청별 총 신청 수
-  Set<String> _submittingArtists = {}; // 현재 신청 중인 아티스트들
-  Map<String, ArtistModel?> _artistCache = {}; // 아티스트 정보 캐시
+  final Set<String> _submittingArtists = {}; // 현재 신청 중인 아티스트들
+  final Map<String, ArtistModel?> _artistCache = {}; // 아티스트 정보 캐시
 
   @override
   void initState() {
@@ -352,25 +352,23 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
             artist!inner(name)
           ''').eq('vote_id', widget.vote.id.toString());
 
-      if (response != null && response is List) {
-        // 모든 vote_item을 확인하여 아티스트 이름이 일치하는지 검사
-        for (final item in response) {
-          if (item['artist'] != null) {
-            final artistData = item['artist'];
-            final nameMap = artistData['name'] as Map<String, dynamic>? ?? {};
-            final koreanNameFromDb = nameMap['ko'] as String? ?? '';
-            final englishNameFromDb = nameMap['en'] as String? ?? '';
+      // 모든 vote_item을 확인하여 아티스트 이름이 일치하는지 검사
+      for (final item in response) {
+        if (item['artist'] != null) {
+          final artistData = item['artist'];
+          final nameMap = artistData['name'] as Map<String, dynamic>? ?? {};
+          final koreanNameFromDb = nameMap['ko'] as String? ?? '';
+          final englishNameFromDb = nameMap['en'] as String? ?? '';
 
-            // 한글, 영어 이름 중 하나라도 일치하면 등록된 것으로 간주
-            if (koreanNameFromDb == artistName ||
-                englishNameFromDb == artistName ||
-                _getDisplayName(nameMap) == artistName) {
-              return true;
-            }
+          // 한글, 영어 이름 중 하나라도 일치하면 등록된 것으로 간주
+          if (koreanNameFromDb == artistName ||
+              englishNameFromDb == artistName ||
+              _getDisplayName(nameMap) == artistName) {
+            return true;
           }
         }
       }
-
+    
       return false;
     } catch (e) {
       logger.w('Artist registration status check failed: $e');
@@ -578,7 +576,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
           ),
-          Container(
+          SizedBox(
             height: 140.h, // 이미지가 포함되어 높이 증가
             child: _currentUserApplications.isEmpty
                 ? Center(
@@ -696,7 +694,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
             future: _getArtistByName(artistName),
             builder: (context, snapshot) {
               final artist = snapshot.data;
-              return Container(
+              return SizedBox(
                 width: 40.w,
                 height: 40.h,
                 child: ClipOval(
@@ -930,7 +928,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
           child: Row(
             children: [
               // 아티스트 이미지
-              Container(
+              SizedBox(
                 width: 50.w,
                 height: 50.h,
                 child: ClipOval(
@@ -1132,12 +1130,16 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
     // 거절된 경우는 재신청 가능
     if (status == t('vote_item_request_status_rejected') ||
-        status == t('vote_item_request_status_cancelled')) return true;
+        status == t('vote_item_request_status_cancelled')) {
+      return true;
+    }
 
     // 내가 이미 신청한 경우 (대기중, 승인됨, 진행중)
     if (status == t('vote_item_request_status_pending') ||
         status == t('vote_item_request_status_approved') ||
-        status == t('vote_item_request_status_in_progress')) return false;
+        status == t('vote_item_request_status_in_progress')) {
+      return false;
+    }
 
     // 신청 가능한 경우만 true
     return status == t('vote_item_request_can_apply');
@@ -1193,7 +1195,7 @@ class _LazyImageWidgetState extends State<_LazyImageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: widget.width,
       height: widget.height,
       child: _shouldLoadImage

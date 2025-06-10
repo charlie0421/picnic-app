@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:picnic_lib/core/utils/retry_http_client.dart';
 import 'package:http/http.dart' as http;

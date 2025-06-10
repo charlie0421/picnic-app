@@ -95,7 +95,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ko'),
+    Locale('ko')
   ];
 
   /// The title of the application
@@ -162,7 +162,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Search for artist or group'**
-  String get search_artist_hint;
+  String get vote_item_request_search_artist_hint;
 
   /// Success message for application submission
   ///
@@ -205,6 +205,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No search results found'**
   String get no_search_results;
+
+  /// No description provided for @vote_item_request_current_item_request.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Item Request'**
+  String get vote_item_request_current_item_request;
+
+  /// No description provided for @vote_item_request_no_item_request_yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No item request yet'**
+  String get vote_item_request_no_item_request_yet;
+
+  /// No description provided for @vote_item_request_search_artist.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Artist'**
+  String get vote_item_request_search_artist;
+
+  /// No description provided for @vote_item_request_search_artist_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for an artist to apply'**
+  String get vote_item_request_search_artist_prompt;
+
+  /// No description provided for @vote_item_request_item_request_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} item requests'**
+  String vote_item_request_item_request_count(Object count);
+
+  /// No description provided for @vote_item_request_total_item_requests.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {count} item requests'**
+  String vote_item_request_total_item_requests(Object count);
+
+  /// No description provided for @vote_item_request_submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get vote_item_request_submit;
+
+  /// No description provided for @vote_item_request_already_registered.
+  ///
+  /// In en, this message translates to:
+  /// **'Already registered'**
+  String get vote_item_request_already_registered;
+
+  /// No description provided for @vote_item_request_can_apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Can apply'**
+  String get vote_item_request_can_apply;
+
+  /// No description provided for @vote_item_request_status_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get vote_item_request_status_pending;
+
+  /// No description provided for @vote_item_request_status_approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get vote_item_request_status_approved;
+
+  /// No description provided for @vote_item_request_status_rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get vote_item_request_status_rejected;
+
+  /// No description provided for @vote_item_request_status_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get vote_item_request_status_in_progress;
+
+  /// No description provided for @vote_item_request_status_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get vote_item_request_status_cancelled;
+
+  /// No description provided for @vote_item_request_status_unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get vote_item_request_status_unknown;
+
+  /// No description provided for @vote_item_request_artist_name_missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Artist name missing'**
+  String get vote_item_request_artist_name_missing;
+
+  /// No description provided for @vote_item_request_user_info_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'User information not found.'**
+  String get vote_item_request_user_info_not_found;
+
+  /// No description provided for @vote_item_request_already_applied_artist.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already applied for this artist.'**
+  String get vote_item_request_already_applied_artist;
+
+  /// No description provided for @vote_item_request_addition_request.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote item addition request'**
+  String get vote_item_request_addition_request;
 }
 
 class _AppLocalizationsDelegate
@@ -234,9 +348,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

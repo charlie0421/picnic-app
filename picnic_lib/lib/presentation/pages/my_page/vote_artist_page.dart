@@ -12,7 +12,6 @@ import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart'
 import 'package:picnic_lib/presentation/providers/my_page/vote_artist_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
@@ -194,12 +193,12 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
     final isBookmarked = item.isBookmarked == true;
 
     // 🔥🔥🔥 강력한 디버깅 로그 추가
-    print('🔥🔥🔥 _buildArtistItem 호출됨 - Index: $index');
-    print('🔥🔥🔥 Artist: ${getLocaleTextFromJson(item.name)}');
-    print('🔥🔥🔥 isBookmarked: $isBookmarked (raw: ${item.isBookmarked})');
-    print(
+    logger.d('🔥🔥🔥 _buildArtistItem 호출됨 - Index: $index');
+    logger.d('🔥🔥🔥 Artist: ${getLocaleTextFromJson(item.name)}');
+    logger.d('🔥🔥🔥 isBookmarked: $isBookmarked (raw: ${item.isBookmarked})');
+    logger.d(
         '🔥🔥🔥 _isFirstBookmarkItem($index): ${_isFirstBookmarkItem(index)}');
-    print(
+    logger.d(
         '🔥🔥🔥 _isFirstNonBookmarkItem($index): ${_isFirstNonBookmarkItem(index)}');
 
     // 상세한 디버깅 로그 추가
@@ -335,7 +334,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
   Widget _buildHighlightedName(ArtistModel item, String searchQuery) {
     if (searchQuery.isEmpty) {
       return Text(
-        getLocaleTextFromJson(item.name) ?? '',
+        getLocaleTextFromJson(item.name),
         style: getTextStyle(AppTypo.body14M, AppColors.grey900),
       );
     }
@@ -362,7 +361,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
 
     if (searchQuery.isEmpty) {
       return Text(
-        getLocaleTextFromJson(item.artistGroup!.name) ?? '',
+        getLocaleTextFromJson(item.artistGroup!.name),
         style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
       );
     }

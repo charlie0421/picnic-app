@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 /// 향상된 검색 박스 위젯
@@ -141,15 +142,15 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
     final currentText = _controller.text;
 
     // 디버깅 로그 추가
-    print(
+    logger.d(
         '🔥 [EnhancedSearchBox] _onTextChanged called with text: "$currentText"');
-    print('🔥 [EnhancedSearchBox] Previous text was: "$_previousText"');
+    logger.d('🔥 [EnhancedSearchBox] Previous text was: "$_previousText"');
 
     // 텍스트가 실제로 변경된 경우에만 처리
     if (currentText != _previousText) {
       _previousText = currentText;
 
-      print(
+      logger.d(
           '🔥 [EnhancedSearchBox] Text actually changed, starting debounce timer');
 
       // 기존 타이머 취소
@@ -157,12 +158,12 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
 
       // 새로운 타이머 시작
       _debounceTimer = Timer(widget.debounceTime, () {
-        print(
+        logger.d(
             '🔥 [EnhancedSearchBox] Debounce timer fired, calling onSearchChanged with: "$currentText"');
         if (mounted && widget.onSearchChanged != null) {
           widget.onSearchChanged!(currentText);
         } else {
-          print(
+          logger.d(
               '🔥 [EnhancedSearchBox] Widget not mounted or onSearchChanged is null');
         }
       });
@@ -170,7 +171,7 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
       // UI 업데이트 (클리어 버튼 표시/숨김)
       setState(() {});
     } else {
-      print('🔥 [EnhancedSearchBox] Text unchanged, skipping');
+      logger.d('🔥 [EnhancedSearchBox] Text unchanged, skipping');
     }
   }
 

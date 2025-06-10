@@ -39,7 +39,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get submit_application => 'Submit Application';
 
   @override
-  String get search_artist_hint => '아티스트나 그룹을 검색하세요';
+  String get vote_item_request_search_artist_hint =>
+      'Search for artist or group';
 
   @override
   String get application_success =>
@@ -63,4 +64,66 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get no_search_results => 'No search results found';
+
+  @override
+  String get vote_item_request_current_item_request => 'Current Item Request';
+
+  @override
+  String get vote_item_request_no_item_request_yet => 'No item request yet';
+
+  @override
+  String get vote_item_request_search_artist => '아티스트 검색';
+
+  @override
+  String get vote_item_request_search_artist_prompt => '아티스트명을 검색하여 신청해 보세요';
+
+  @override
+  String vote_item_request_item_request_count(Object count) {
+    return '$count item requests';
+  }
+
+  @override
+  String vote_item_request_total_item_requests(Object count) {
+    return 'Total $count item requests';
+  }
+
+  @override
+  String get vote_item_request_submit => '신청';
+
+  @override
+  String get vote_item_request_already_registered => '이미 등록됨';
+
+  @override
+  String get vote_item_request_can_apply => '신청 가능';
+
+  @override
+  String get vote_item_request_status_pending => '대기중';
+
+  @override
+  String get vote_item_request_status_approved => '승인됨';
+
+  @override
+  String get vote_item_request_status_rejected => '거절됨';
+
+  @override
+  String get vote_item_request_status_in_progress => '진행중';
+
+  @override
+  String get vote_item_request_status_cancelled => '취소됨';
+
+  @override
+  String get vote_item_request_status_unknown => '알 수 없음';
+
+  @override
+  String get vote_item_request_artist_name_missing => '아티스트명 없음';
+
+  @override
+  String get vote_item_request_user_info_not_found => '사용자 정보를 찾을 수 없습니다.';
+
+  @override
+  String get vote_item_request_already_applied_artist =>
+      '이미 해당 아티스트에 대해 신청하셨습니다.';
+
+  @override
+  String get vote_item_request_addition_request => '투표 아이템 추가 신청';
 }

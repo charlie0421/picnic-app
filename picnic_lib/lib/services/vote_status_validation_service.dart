@@ -296,11 +296,11 @@ class VoteStatusValidationService {
           final minutes = timeUntilStart.inMinutes % 60;
 
           if (days > 0) {
-            return '${days}일 후 시작';
+            return '$days일 후 시작';
           } else if (hours > 0) {
-            return '${hours}시간 후 시작';
+            return '$hours시간 후 시작';
           } else {
-            return '${minutes}분 후 시작';
+            return '$minutes분 후 시작';
           }
         }
         return '시작 예정';
@@ -312,11 +312,11 @@ class VoteStatusValidationService {
           final minutes = timeLeft.inMinutes % 60;
 
           if (days > 0) {
-            return '${days}일 남음';
+            return '$days일 남음';
           } else if (hours > 0) {
-            return '${hours}시간 남음';
+            return '$hours시간 남음';
           } else {
-            return '${minutes}분 남음';
+            return '$minutes분 남음';
           }
         }
         return '진행 중';

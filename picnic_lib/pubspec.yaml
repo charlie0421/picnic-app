@@ -120,6 +120,9 @@ dev_dependencies:
 flutter_intl:
   enabled: true
 
+dependency_overrides:
+  js: ^0.7.2
+
 flutter:
   generate: true
   uses-material-design: true

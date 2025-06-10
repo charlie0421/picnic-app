@@ -11,7 +11,6 @@ import 'package:picnic_lib/core/utils/memory_profiler.dart';
 import 'package:picnic_lib/core/utils/memory_profiler_provider.dart';
 import 'package:picnic_lib/core/utils/memory_profiling_hook.dart';
 import 'package:picnic_lib/core/utils/optimized_cache_manager.dart';
-import 'package:picnic_lib/core/utils/timeout_http_client.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -650,7 +649,7 @@ class _PicnicCachedNetworkImageState
     final delay = _calculateBackoffDelay(_retryCount);
 
     logger.i(
-        '이미지 로드 재시도 예정: $url (시도: $_retryCount/${effectiveMaxRetries}, 지연: ${delay.inSeconds}초)');
+        '이미지 로드 재시도 예정: $url (시도: $_retryCount/$effectiveMaxRetries, 지연: ${delay.inSeconds}초)');
 
     Future.delayed(delay, () {
       if (mounted) {
@@ -770,7 +769,7 @@ class _PicnicCachedNetworkImageState
               _snapshotCount++;
 
               logger.i(
-                  '메모리 스냅샷 생성됨 (${_snapshotCount}번째): $url - ${loadDuration.inSeconds}초');
+                  '메모리 스냅샷 생성됨 ($_snapshotCount번째): $url - ${loadDuration.inSeconds}초');
             } else {
               logger.d('메모리 압박으로 스냅샷 생성 건너뜀: $url');
             }

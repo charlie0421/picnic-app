@@ -82,7 +82,7 @@ class WeChatLogin implements SocialLogin {
       return await completer.future.timeout(
         const Duration(seconds: 30),
         onTimeout: () {
-          subscription?.cancel();
+          subscription.cancel();
           throw PicnicAuthExceptions.unknown();
         },
       );

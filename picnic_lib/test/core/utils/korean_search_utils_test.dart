@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/korean_search_utils.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 
 void main() {
   group('Korean Search Utils Tests', () {
@@ -8,7 +9,7 @@ void main() {
 
       // 정확한 초성 추출 테스트
       final initials = KoreanSearchUtils.extractKoreanInitials(text);
-      print('블랙핑크 초성: $initials');
+      logger.d('블랙핑크 초성: $initials');
 
       // 정확한 초성 매칭 테스트
       expect(KoreanSearchUtils.matchesKoreanInitials(text, 'ㅂㄹㅍㅋ'), true);

@@ -90,9 +90,9 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
     required String query,
     required String language,
   }) async {
-    print(
+    logger.d(
         '🔥🔥🔥 [VoteArtistListProvider] fetchArtists called with page: $page, query: "$query", language: $language');
-    logger.i(
+    logger.d(
         '🎯 [VoteArtistListProvider] fetchArtists called with page: $page, query: "$query", language: $language');
 
     try {
@@ -105,13 +105,13 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
         supportKoreanInitials: true, // 한국어 초성 검색 활성화
       );
 
-      print(
+      logger.d(
           '🔥🔥🔥 [VoteArtistListProvider] 서버 응답 받음 - 아이템 수: ${searchResponse.length}');
       logger.i(
           '🎯 [VoteArtistListProvider] Search response received with ${searchResponse.length} items');
 
       if (searchResponse.isEmpty) {
-        print('🔥🔥🔥 [VoteArtistListProvider] 서버에서 빈 결과 반환');
+        logger.d('🔥🔥🔥 [VoteArtistListProvider] 서버에서 빈 결과 반환');
         logger.w('🎯 [VoteArtistListProvider] Empty search result from server');
         return [];
       }
@@ -120,9 +120,9 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
       final bookmarkedArtists =
           await ref.read(asyncBookmarkedArtistsProvider.future);
       final bookmarkedArtistIds = bookmarkedArtists.map((a) => a.id).toSet();
-      print(
+      logger.d(
           '🔥🔥🔥 [VoteArtistListProvider] 북마크된 아티스트 수: ${bookmarkedArtistIds.length}');
-      print(
+      logger.d(
           '🔥🔥🔥 [VoteArtistListProvider] 북마크된 아티스트 ID들: $bookmarkedArtistIds');
       logger.i(
           '🎯 [VoteArtistListProvider] Bookmarked artists count: ${bookmarkedArtistIds.length}');
@@ -133,14 +133,14 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
         final updatedArtist = artist.copyWith(isBookmarked: isBookmarked);
 
         if (isBookmarked) {
-          print(
+          logger.d(
               '🔥🔥🔥 [VoteArtistListProvider] 북마크된 아티스트 발견: ${getLocaleTextFromJson(artist.name)} (ID: ${artist.id})');
         }
 
         return updatedArtist;
       }).toList();
 
-      print(
+      logger.d(
           '🔥🔥🔥 [VoteArtistListProvider] 검색 결과에서 발견된 북마크 아티스트 수: ${artistsWithBookmarks.where((a) => a.isBookmarked == true).length}');
 
       // 검색 결과에 포함되지 않은 북마크된 아티스트들 확인
@@ -152,7 +152,7 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
           bookmarkedArtistIds.difference(foundBookmarkedIds);
 
       if (missingBookmarkedIds.isNotEmpty) {
-        print(
+        logger.d(
             '🔥🔥🔥 [VoteArtistListProvider] 검색 결과에 없는 북마크된 아티스트 ID들: $missingBookmarkedIds');
 
         // 누락된 북마크 아티스트들을 bookmarkedArtists에서 찾아서 추가
@@ -161,13 +161,13 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
             .map((artist) => artist.copyWith(isBookmarked: true))
             .toList();
 
-        print(
+        logger.d(
             '🔥🔥🔥 [VoteArtistListProvider] 추가할 누락된 북마크 아티스트 수: ${missingBookmarkedArtists.length}');
 
         // 누락된 북마크 아티스트들을 리스트 앞쪽에 추가
         artistsWithBookmarks.insertAll(0, missingBookmarkedArtists);
 
-        print('🔥🔥🔥 [VoteArtistListProvider] 누락된 북마크 아티스트 추가 완료');
+        logger.d('🔥🔥🔥 [VoteArtistListProvider] 누락된 북마크 아티스트 추가 완료');
       }
 
       // 북마크된 아티스트를 상단으로 정렬
@@ -178,21 +178,21 @@ class AsyncVoteArtistList extends _$AsyncVoteArtistList {
         return 0;
       });
 
-      print('🔥🔥🔥 [VoteArtistListProvider] 정렬 후 첫 3개 아티스트:');
+      logger.d('🔥🔥🔥 [VoteArtistListProvider] 정렬 후 첫 3개 아티스트:');
       for (int i = 0; i < artistsWithBookmarks.length && i < 3; i++) {
         final artist = artistsWithBookmarks[i];
-        print(
+        logger.d(
             '🔥🔥🔥 [VoteArtistListProvider] [$i] ${getLocaleTextFromJson(artist.name)} (ID: ${artist.id}, 북마크: ${artist.isBookmarked})');
       }
 
-      print(
+      logger.d(
           '🔥🔥🔥 [VoteArtistListProvider] 정렬된 결과 수: ${artistsWithBookmarks.length}');
       logger.i(
           '🎯 [VoteArtistListProvider] Sorted results count: ${artistsWithBookmarks.length}');
 
       return artistsWithBookmarks;
     } catch (e, s) {
-      print('🔥🔥🔥 [VoteArtistListProvider] 에러 발생: $e');
+      logger.d('🔥🔥🔥 [VoteArtistListProvider] 에러 발생: $e');
       logger.e('🎯 [VoteArtistListProvider] Error occurred',
           error: e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);

@@ -11,6 +11,7 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/core/utils/korean_search_utils.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
@@ -248,7 +249,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       return List<int>.generate(data.length, (index) => index);
     }
 
-    print('🔍 검색어: "$query"');
+    logger.d('🔍 검색어: "$query"');
 
     return List<int>.generate(data.length, (index) => index).where((index) {
       final item = data[index]!;
@@ -257,13 +258,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       // 아티스트 이름 검색 (한국어 + 영어 + 초성)
       if (item.artist?.id != null && (item.artist?.id ?? 0) != 0) {
         // 한국어 아티스트 이름
-        final artistNameKo = item.artist?.name?['ko']?.toString() ?? '';
+        final artistNameKo = item.artist?.name['ko']?.toString() ?? '';
         // 영어 아티스트 이름
-        final artistNameEn = item.artist?.name?['en']?.toString() ?? '';
+        final artistNameEn = item.artist?.name['en']?.toString() ?? '';
 
-        print('👤 아티스트 (한국어): "$artistNameKo"');
-        print('👤 아티스트 (영어): "$artistNameEn"');
-        print(
+        logger.d('👤 아티스트 (한국어): "$artistNameKo"');
+        logger.d('👤 아티스트 (영어): "$artistNameEn"');
+        logger.d(
             '👤 아티스트 초성: "${KoreanSearchUtils.extractKoreanInitials(artistNameKo)}"');
 
         if ((artistNameKo.isNotEmpty &&
@@ -272,7 +273,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         artistNameKo, query))) ||
             (artistNameEn.isNotEmpty &&
                 artistNameEn.toLowerCase().contains(lowerQuery))) {
-          print('✅ 아티스트 이름 매칭: "$artistNameKo" / "$artistNameEn"');
+          logger.d('✅ 아티스트 이름 매칭: "$artistNameKo" / "$artistNameEn"');
           return true;
         }
 
@@ -283,9 +284,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           final artistGroupNameEn =
               item.artist!.artistGroup!.name['en']?.toString() ?? '';
 
-          print('🎵 아티스트의 그룹 (한국어): "$artistGroupNameKo"');
-          print('🎵 아티스트의 그룹 (영어): "$artistGroupNameEn"');
-          print(
+          logger.d('🎵 아티스트의 그룹 (한국어): "$artistGroupNameKo"');
+          logger.d('🎵 아티스트의 그룹 (영어): "$artistGroupNameEn"');
+          logger.d(
               '🎵 아티스트의 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(artistGroupNameKo)}"');
 
           if ((artistGroupNameKo.isNotEmpty &&
@@ -294,7 +295,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                           artistGroupNameKo, query))) ||
               (artistGroupNameEn.isNotEmpty &&
                   artistGroupNameEn.toLowerCase().contains(lowerQuery))) {
-            print(
+            logger.d(
                 '✅ 아티스트의 그룹명 매칭: "$artistGroupNameKo" / "$artistGroupNameEn"');
             return true;
           }
@@ -306,9 +307,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         final groupNameKo = item.artistGroup?.name['ko']?.toString() ?? '';
         final groupNameEn = item.artistGroup?.name['en']?.toString() ?? '';
 
-        print('🎭 직접 그룹 (한국어): "$groupNameKo"');
-        print('🎭 직접 그룹 (영어): "$groupNameEn"');
-        print(
+        logger.d('🎭 직접 그룹 (한국어): "$groupNameKo"');
+        logger.d('🎭 직접 그룹 (영어): "$groupNameEn"');
+        logger.d(
             '🎭 직접 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(groupNameKo)}"');
 
         if ((groupNameKo.isNotEmpty &&
@@ -317,7 +318,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         groupNameKo, query))) ||
             (groupNameEn.isNotEmpty &&
                 groupNameEn.toLowerCase().contains(lowerQuery))) {
-          print('✅ 직접 그룹명 매칭: "$groupNameKo" / "$groupNameEn"');
+          logger.d('✅ 직접 그룹명 매칭: "$groupNameKo" / "$groupNameEn"');
           return true;
         }
       }
@@ -487,7 +488,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   Widget _buildVoteItemList(BuildContext context) {
     final searchQuery = ref.watch(searchQueryProvider);
-    print('🔍 _buildVoteItemList에서 받은 검색어: "$searchQuery"');
+    logger.d('🔍 _buildVoteItemList에서 받은 검색어: "$searchQuery"');
     final dataAsync = ref.watch(asyncVoteItemListProvider(
         voteId: widget.voteId, votePortal: widget.votePortal));
 
@@ -941,10 +942,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       ),
       child: ElevatedButton(
         onPressed: () async {
-          print('🔥 투표 신청 버튼 클릭됨!');
+          logger.d('🔥 투표 신청 버튼 클릭됨!');
 
           if (supabase.isLogged) {
-            print('🔥 사용자 로그인 상태 확인됨');
+            logger.d('🔥 사용자 로그인 상태 확인됨');
 
             // 신청 다이얼로그 표시
             final voteModel = ref
@@ -952,20 +953,20 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                     voteId: widget.voteId, votePortal: widget.votePortal))
                 .value;
 
-            print('🔥 voteModel 상태: ${voteModel != null ? "존재함" : "null"}');
+            logger.d('🔥 voteModel 상태: ${voteModel != null ? "존재함" : "null"}');
 
             if (voteModel != null) {
-              print('🔥 showVoteItemRequestDialog 호출 시작');
+              logger.d('🔥 showVoteItemRequestDialog 호출 시작');
               await showVoteItemRequestDialog(
                 context: context,
                 voteModel: voteModel,
               );
-              print('🔥 showVoteItemRequestDialog 완료');
+              logger.d('🔥 showVoteItemRequestDialog 완료');
             } else {
-              print('🔥 voteModel이 null이어서 다이얼로그를 열 수 없음');
+              logger.d('🔥 voteModel이 null이어서 다이얼로그를 열 수 없음');
             }
           } else {
-            print('🔥 사용자 미로그인 상태 - 로그인 다이얼로그 표시');
+            logger.d('🔥 사용자 미로그인 상태 - 로그인 다이얼로그 표시');
             showRequireLoginDialog();
           }
         },
@@ -996,11 +997,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         child: EnhancedSearchBox(
           hintText: t('text_vote_where_is_my_bias'),
           onSearchChanged: (query) {
-            print('🔍 EnhancedSearchBox onSearchChanged 호출됨: "$query"');
+            logger.d('🔍 EnhancedSearchBox onSearchChanged 호출됨: "$query"');
             // 직접 searchQueryProvider 업데이트
             if (mounted) {
               ref.read(searchQueryProvider.notifier).state = query;
-              print('🔍 searchQueryProvider 직접 업데이트됨: "$query"');
+              logger.d('🔍 searchQueryProvider 직접 업데이트됨: "$query"');
             }
           },
           controller: _textEditingController,

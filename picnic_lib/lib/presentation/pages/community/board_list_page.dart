@@ -64,12 +64,12 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
 
     // 초기 데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      print('🔥 PostFrameCallback triggered');
+      logger.d('🔥 PostFrameCallback triggered');
       if (mounted) {
-        print('🔥 Triggering initial load');
+        logger.d('🔥 Triggering initial load');
         _loadData(isRefresh: true);
       } else {
-        print('🔥 Widget not mounted, skipping initial load');
+        logger.d('🔥 Widget not mounted, skipping initial load');
       }
     });
   }
@@ -80,7 +80,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
   List<BoardModel> _getFilteredBoards(List<BoardModel> boards, String query) {
     if (query.isEmpty) return boards;
 
-    print('🔍 보드 검색어: "$query"');
+    logger.d('🔍 보드 검색어: "$query"');
 
     return boards.where((board) {
       final lowerQuery = query.toLowerCase();
@@ -89,14 +89,14 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
       final boardNameKo = board.name['ko']?.toString() ?? '';
       final boardNameEn = board.name['en']?.toString() ?? '';
 
-      print('📋 보드 이름 (한국어): "$boardNameKo"');
-      print('📋 보드 이름 (영어): "$boardNameEn"');
-      print(
+      logger.d('📋 보드 이름 (한국어): "$boardNameKo"');
+      logger.d('📋 보드 이름 (영어): "$boardNameEn"');
+      logger.d(
           '📋 보드 이름 초성: "${KoreanSearchUtils.extractKoreanInitials(boardNameKo)}"');
 
       if (KoreanSearchUtils.matchesKoreanInitials(boardNameKo, query) ||
           boardNameEn.toLowerCase().contains(lowerQuery)) {
-        print('✅ 보드 이름 매칭: "$boardNameKo" / "$boardNameEn"');
+        logger.d('✅ 보드 이름 매칭: "$boardNameKo" / "$boardNameEn"');
         return true;
       }
 
@@ -105,14 +105,14 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
         final artistNameKo = board.artist!.name['ko']?.toString() ?? '';
         final artistNameEn = board.artist!.name['en']?.toString() ?? '';
 
-        print('👤 아티스트 (한국어): "$artistNameKo"');
-        print('👤 아티스트 (영어): "$artistNameEn"');
-        print(
+        logger.d('👤 아티스트 (한국어): "$artistNameKo"');
+        logger.d('👤 아티스트 (영어): "$artistNameEn"');
+        logger.d(
             '👤 아티스트 초성: "${KoreanSearchUtils.extractKoreanInitials(artistNameKo)}"');
 
         if (KoreanSearchUtils.matchesKoreanInitials(artistNameKo, query) ||
             artistNameEn.toLowerCase().contains(lowerQuery)) {
-          print('✅ 아티스트 이름 매칭: "$artistNameKo" / "$artistNameEn"');
+          logger.d('✅ 아티스트 이름 매칭: "$artistNameKo" / "$artistNameEn"');
           return true;
         }
       }

@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/optimized_cache_manager.dart';
