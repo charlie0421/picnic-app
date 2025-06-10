@@ -176,46 +176,49 @@ class SearchService {
         List<ArtistModel> artistResults = [];
         List<ArtistModel> groupResults = [];
 
+        // 1. 아티스트 이름으로 검색 (빈 검색어면 전체 검색)
+        var artistQuery = supabase
+            .from('artist')
+            .select(
+                'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+            .neq('id', 0)
+            .eq('is_kpop', true); // K-pop 아티스트만 검색
+
+        // 검색어가 있는 경우에만 필터 적용
         if (query.isNotEmpty) {
-          // 1. 아티스트 이름으로 검색
-          var artistQuery = supabase
-              .from('artist')
-              .select(
-                  'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
-              .neq('id', 0)
-              .eq('is_kpop', true) // K-pop 아티스트만 검색
-              .or('name->>ko.ilike.%$query%,'
-                  'name->>en.ilike.%$query%,'
-                  'name->>ja.ilike.%$query%,'
-                  'name->>zh.ilike.%$query%');
+          artistQuery = artistQuery.or('name->>ko.ilike.%$query%,'
+              'name->>en.ilike.%$query%,'
+              'name->>ja.ilike.%$query%,'
+              'name->>zh.ilike.%$query%');
+        }
 
-          // 제외할 ID가 있는 경우
-          if (excludeIds.isNotEmpty) {
-            artistQuery = artistQuery.not('id', 'in', excludeIds);
-          }
+        // 제외할 ID가 있는 경우
+        if (excludeIds.isNotEmpty) {
+          artistQuery = artistQuery.not('id', 'in', excludeIds);
+        }
 
-          // 아티스트 이름 검색 실행
-          final artistResponse = await artistQuery
-              .order('name->>$language', ascending: true)
-              .limit(limit)
-              .range(page * limit, (page + 1) * limit - 1);
+        // 아티스트 이름 검색 실행 - 페이지네이션 올바르게 적용
+        final artistResponse = await artistQuery
+            .order('name->>$language', ascending: true)
+            .range(page * limit, (page + 1) * limit - 1);
 
-          artistResults = (artistResponse as List<dynamic>)
-              .where((data) => data != null)
-              .map((data) {
-            final artistData = data as Map<String, dynamic>;
-            final bookmarkData = artistData['artist_user_bookmark'] as List?;
-            final isBookmarked =
-                bookmarkData != null && bookmarkData.isNotEmpty;
+        artistResults = (artistResponse as List<dynamic>)
+            .where((data) => data != null)
+            .map((data) {
+          final artistData = data as Map<String, dynamic>;
+          final bookmarkData = artistData['artist_user_bookmark'] as List?;
+          final isBookmarked =
+              bookmarkData != null && bookmarkData.isNotEmpty;
 
-            final cleanArtistData = Map<String, dynamic>.from(artistData);
-            cleanArtistData.remove('artist_user_bookmark');
-            cleanArtistData['isBookmarked'] = isBookmarked;
+          final cleanArtistData = Map<String, dynamic>.from(artistData);
+          cleanArtistData.remove('artist_user_bookmark');
+          cleanArtistData['isBookmarked'] = isBookmarked;
 
-            return ArtistModel.fromJson(cleanArtistData);
-          }).toList();
+          return ArtistModel.fromJson(cleanArtistData);
+        }).toList();
         
-          // 2. 그룹명으로 검색 (artist_group 테이블에서 직접 검색)
+        // 2. 그룹명으로 검색 (검색어가 있을 때만, 빈 검색어일 때는 이미 전체 결과가 있으므로 생략)
+        if (query.isNotEmpty) {
           try {
             var groupQuery = supabase
                 .from('artist_group')
@@ -241,7 +244,7 @@ class SearchService {
                       'id,name,image,gender,birth_date,is_kpop,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
                   .neq('id', 0)
                   .eq('is_kpop', true) // K-pop 아티스트만 검색
-                  .filter('artist_group_id', 'in', matchingGroupIds);
+                  .filter('artist_group.id', 'in', matchingGroupIds);
 
               // 제외할 ID가 있는 경우
               if (excludeIds.isNotEmpty) {
@@ -272,7 +275,7 @@ class SearchService {
                 }).toList();
               }
             }
-                    } catch (e) {
+          } catch (e) {
             logger.w('그룹명 검색 중 오류 발생: $e');
             // 그룹명 검색이 실패해도 아티스트 이름 검색 결과는 반환
           }
@@ -290,16 +293,19 @@ class SearchService {
           }
         }
 
-        // 그룹명 검색 결과 추가 (중복 제거)
-        for (final artist in groupResults) {
-          if (!seenIds.contains(artist.id)) {
-            allResults.add(artist);
-            seenIds.add(artist.id);
+        // 그룹명 검색 결과 추가 (중복 제거) - 빈 검색어일 때는 이미 모든 결과가 포함되므로 생략
+        if (query.isNotEmpty) {
+          for (final artist in groupResults) {
+            if (!seenIds.contains(artist.id)) {
+              allResults.add(artist);
+              seenIds.add(artist.id);
+            }
           }
         }
 
-        // 페이지네이션 적용 (이미 각 쿼리에서 적용되었지만 안전장치)
-        final results = allResults.take(limit).toList();
+        // 빈 검색어의 경우 페이지네이션이 이미 적용되었으므로 그대로 반환
+        // 검색어가 있는 경우에만 추가 페이지네이션 적용
+        final results = query.isEmpty ? allResults : allResults.take(limit).toList();
 
         // 결과를 캐시에 저장
         if (useCache && results.isNotEmpty) {

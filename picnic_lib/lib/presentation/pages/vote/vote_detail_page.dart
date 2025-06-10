@@ -639,12 +639,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     required String searchQuery,
   }) {
     // 검색어가 매칭된 언어의 텍스트 가져오기
-    final artistName = item.artist?.name != null
-        ? _getMatchingText(item.artist!.name, searchQuery)
-        : '';
-    final groupName = item.artistGroup?.name != null
-        ? _getMatchingText(item.artistGroup!.name, searchQuery)
-        : '';
 
     return RepaintBoundary(
       child: AnimatedContainer(

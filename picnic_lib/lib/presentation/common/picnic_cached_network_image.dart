@@ -56,8 +56,6 @@ class _PicnicCachedNetworkImageState
     extends ConsumerState<PicnicCachedNetworkImage> {
   bool _loading = true;
   bool _hasError = false;
-  bool _hasAttemptedLoad = false;
-  DateTime? _lastLoadAttempt;
   late final DateTime _loadStartTime = DateTime.now();
   int _retryCount = 0;
 
@@ -94,7 +92,6 @@ class _PicnicCachedNetworkImageState
     if (_loadedImages.containsKey(widget.imageUrl)) {
       setState(() {
         _loading = false;
-        _hasAttemptedLoad = true;
       });
     }
 
@@ -213,8 +210,6 @@ class _PicnicCachedNetworkImageState
       setState(() {
         _loading = true;
         _hasError = false;
-        _hasAttemptedLoad = _loadedImages.containsKey(widget.imageUrl);
-        _lastLoadAttempt = null;
       });
     }
   }
@@ -529,7 +524,7 @@ class _PicnicCachedNetworkImageState
             cacheManager: OptimizedCacheManager.instance,
             progressIndicatorBuilder: (context, url, progress) {
               // 진행률 정보가 있으면 더 정확한 로딩 표시
-              if (progress != null && progress.totalSize != null) {
+              if (progress.totalSize != null) {
                 final progressPercent =
                     progress.downloaded / progress.totalSize!;
                 return Container(

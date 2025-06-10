@@ -45,7 +45,7 @@ class Environment {
       case 'off':
         return Level.off;
       case 'verbose':
-        return Level.verbose;
+        return Level.trace;
       case 'debug':
         return Level.debug;
       case 'info':

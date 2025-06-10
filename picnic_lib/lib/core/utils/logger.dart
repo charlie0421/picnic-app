@@ -217,16 +217,6 @@ class LongMessagePrinter extends PrettyPrinter {
     messages.add('│ 🕒 $timestamp');
     messages.add('│ 📍 $callerInfo');
 
-    // 호출 스택 표시 (여러 레벨의 호출 경로)
-    if (callStack.isNotEmpty) {
-      messages.add('│ 🔗 Call Stack:');
-      for (int i = 0; i < callStack.length; i++) {
-        final isLast = i == callStack.length - 1;
-        final prefix = i == 0 ? '   ├─' : (isLast ? '   └─' : '   ├─');
-        messages.add('│ $prefix ${callStack[i]}');
-      }
-    }
-
     final formattedMessage = _formatMessage(event.message);
     final tag = className.isNotEmpty ? '[$className] ' : '';
     messages.addAll(

@@ -1,0 +1,426 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/services/search_service.dart';
+import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/data/models/vote/vote_request_user.dart';
+import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/providers/vote_request_provider.dart';
+import 'package:picnic_lib/services/vote_item_request_service_provider.dart'
+    hide voteRequestRepositoryProvider;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'vote_item_request_models.dart';
+
+/// 투표 항목 신청 서비스 클래스
+class VoteItemRequestService {
+  final WidgetRef ref;
+  final String voteId;
+
+  VoteItemRequestService({
+    required this.ref,
+    required this.voteId,
+  });
+
+  /// 신청 수 및 사용자 신청 내역 로드
+  Future<Map<String, dynamic>> loadApplicationCounts(String? userId) async {
+    try {
+      final voteRequestRepository = ref.read(voteRequestRepositoryProvider);
+
+      // 전체 투표 신청 수 조회
+      final totalCount = await voteRequestRepository.getVoteItemRequestCount(voteId);
+
+      List<VoteRequestUser> userApplications = [];
+      List<Map<String, dynamic>> userApplicationsWithDetails = [];
+      Map<String, int> applicationCounts = {};
+
+      // 현재 사용자의 신청 내역 조회
+      if (userId != null) {
+        userApplicationsWithDetails =
+            await voteRequestRepository.getCurrentUserApplicationsWithDetails(
+                voteId, userId);
+
+        // 각 사용자 신청에 대한 총 신청 수 조회
+        for (final applicationData in userApplicationsWithDetails) {
+          try {
+            // VoteRequestUser 객체 생성
+            final application = VoteRequestUser.fromJson(applicationData);
+            userApplications.add(application);
+
+            // vote_requests에서 제목 추출
+            final voteRequest = applicationData['vote_requests'];
+            if (voteRequest != null) {
+              final title = voteRequest['title'] as String?;
+              if (title != null) {
+                final count =
+                    await voteRequestRepository.getApplicationCountByTitle(
+                        voteId, title);
+                applicationCounts[application.id] = count;
+              }
+            }
+          } catch (e) {
+            logger.w('Application data processing failed: $e');
+          }
+        }
+      }
+
+      logger.d(
+          'Vote application count loading completed: total $totalCount, user applications ${userApplications.length}');
+
+      return {
+        'userApplications': userApplications,
+        'userApplicationsWithDetails': userApplicationsWithDetails,
+        'userApplicationCounts': applicationCounts,
+      };
+    } catch (e) {
+      logger.e('Application count loading failed', error: e);
+      return {
+        'userApplications': <VoteRequestUser>[],
+        'userApplicationsWithDetails': <Map<String, dynamic>>[],
+        'userApplicationCounts': <String, int>{},
+      };
+    }
+  }
+
+  /// 아티스트 검색
+  Future<List<ArtistModel>> searchArtists(String query) async {
+    try {
+      // 검색 결과를 20개로 제한하여 성능 향상
+      final results = await SearchService.searchArtists(
+        query: query,
+        page: 0,
+        limit: 20,
+        supportKoreanInitials: true,
+      );
+
+      return results;
+    } catch (e) {
+      logger.e('Artist search failed', error: e);
+      return [];
+    }
+  }
+
+  /// 페이지네이션을 지원하는 아티스트 검색
+  Future<Map<String, dynamic>> searchArtistsWithPagination(
+    String query, {
+    required int page,
+    required int pageSize,
+  }) async {
+    try {
+      // 단순히 SearchService의 기존 메서드 사용
+      final artists = await SearchService.searchArtists(
+        query: query,
+        page: page,
+        limit: pageSize,
+        supportKoreanInitials: true,
+      );
+
+      // 더 많은 결과가 있는지는 단순히 결과 개수로 판단
+      final hasMore = artists.length == pageSize;
+
+      return {
+        'artists': artists,
+        'hasMore': hasMore,
+        'currentPage': page,
+      };
+    } catch (e) {
+      logger.e('Artist search with pagination failed', error: e);
+      return {
+        'artists': <ArtistModel>[],
+        'hasMore': false,
+        'currentPage': page,
+      };
+    }
+  }
+
+  /// 검색 결과에 대한 신청 데이터 로드
+  Future<Map<String, ArtistApplicationInfo>> loadApplicationDataForResults(
+      List<ArtistModel> artists, String? userId) async {
+    final Map<String, ArtistApplicationInfo> applicationData = {};
+
+    try {
+      // 모든 아티스트 이름을 한번에 수집
+      final artistNames = <String>[];
+      
+      for (final artist in artists) {
+        final koreanName = artist.name['ko'] as String? ?? '';
+        final englishName = artist.name['en'] as String? ?? '';
+        
+        if (koreanName.isNotEmpty) {
+          artistNames.add(koreanName);
+        }
+        if (englishName.isNotEmpty) {
+          artistNames.add(englishName);
+        }
+      }
+
+      // 배치로 신청수 가져오기
+      Map<String, int> applicationCounts = {};
+      Map<String, bool> alreadyInVote = {};
+      Map<String, String> userApplicationStatuses = {};
+
+      if (artistNames.isNotEmpty) {
+        try {
+          // 모든 아티스트의 신청수를 한번에 가져오기
+          final supabase = Supabase.instance.client;
+          final applicationCountResponse = await supabase
+              .from('vote_request_user')
+              .select('requested_artist_name')
+              .eq('vote_id', voteId)
+              .filter('requested_artist_name', 'in', artistNames);
+
+          // 신청수 계산
+          for (final row in applicationCountResponse) {
+            final artistName = row['requested_artist_name'] as String;
+            applicationCounts[artistName] = (applicationCounts[artistName] ?? 0) + 1;
+          }
+
+          // 투표 아이템에 이미 등록된 아티스트 확인
+          final voteItemResponse = await supabase
+              .from('vote_item')
+              .select('artist!inner(name)')
+              .eq('vote_id', voteId);
+
+          for (final item in voteItemResponse) {
+            if (item['artist'] != null) {
+              final artistData = item['artist'] as Map<String, dynamic>;
+              final nameData = artistData['name'] as Map<String, dynamic>;
+              
+              final koreanName = nameData['ko'] as String? ?? '';
+              final englishName = nameData['en'] as String? ?? '';
+              
+              if (koreanName.isNotEmpty && artistNames.contains(koreanName)) {
+                alreadyInVote[koreanName] = true;
+              }
+              if (englishName.isNotEmpty && artistNames.contains(englishName)) {
+                alreadyInVote[englishName] = true;
+              }
+            }
+          }
+
+          // 현재 사용자의 신청 상태 확인 (userId가 있는 경우)
+          if (userId != null) {
+            final userApplicationResponse = await supabase
+                .from('vote_request_user')
+                .select('requested_artist_name, status')
+                .eq('vote_id', voteId)
+                .eq('user_id', userId)
+                .filter('requested_artist_name', 'in', artistNames);
+
+            for (final row in userApplicationResponse) {
+              final artistName = row['requested_artist_name'] as String;
+              final status = row['status'] as String;
+              userApplicationStatuses[artistName] = _getUserApplicationStatusText(status);
+            }
+          }
+        } catch (e) {
+          logger.e('배치 데이터 로딩 중 오류 발생: $e');
+        }
+      }
+
+      // 결과 조립
+      for (final artist in artists) {
+        final displayName = ArtistNameUtils.getDisplayName(artist.name);
+        final koreanName = artist.name['ko'] as String? ?? '';
+        final englishName = artist.name['en'] as String? ?? '';
+
+        // 신청수 계산 (한글과 영어 이름 모두 확인)
+        int totalApplicationCount = 0;
+        if (koreanName.isNotEmpty) {
+          totalApplicationCount += applicationCounts[koreanName] ?? 0;
+        }
+        if (englishName.isNotEmpty && englishName != koreanName) {
+          totalApplicationCount += applicationCounts[englishName] ?? 0;
+        }
+
+        // 투표에 이미 등록 여부 확인
+        bool isAlreadyInVote = false;
+        if (koreanName.isNotEmpty) {
+          isAlreadyInVote = alreadyInVote[koreanName] ?? false;
+        }
+        if (!isAlreadyInVote && englishName.isNotEmpty) {
+          isAlreadyInVote = alreadyInVote[englishName] ?? false;
+        }
+
+        // 사용자 신청 상태 확인
+        String applicationStatus = t('vote_item_request_can_apply');
+        if (userId != null) {
+          if (koreanName.isNotEmpty && userApplicationStatuses.containsKey(koreanName)) {
+            applicationStatus = userApplicationStatuses[koreanName]!;
+          } else if (englishName.isNotEmpty && userApplicationStatuses.containsKey(englishName)) {
+            applicationStatus = userApplicationStatuses[englishName]!;
+          }
+        }
+
+        applicationData[displayName] = ArtistApplicationInfo(
+          artistName: displayName,
+          applicationCount: totalApplicationCount,
+          applicationStatus: applicationStatus,
+          isAlreadyInVote: isAlreadyInVote,
+        );
+      }
+    } catch (e) {
+      logger.e('Application data loading failed', error: e);
+      // 전체 오류 발생 시 기본값으로 설정
+      for (final artist in artists) {
+        final artistName = ArtistNameUtils.getDisplayName(artist.name);
+        applicationData[artistName] = ArtistApplicationInfo(
+          artistName: artistName,
+          applicationCount: 0,
+          applicationStatus: t('vote_item_request_can_apply'),
+          isAlreadyInVote: false,
+        );
+      }
+    }
+
+    return applicationData;
+  }
+
+  /// 아티스트 이름으로 아티스트 정보 검색
+  Future<ArtistModel?> getArtistByName(String artistName, Map<String, ArtistModel?> cache) async {
+    // 캐시에서 먼저 확인
+    if (cache.containsKey(artistName)) {
+      return cache[artistName];
+    }
+
+    try {
+      final results = await SearchService.searchArtists(
+        query: artistName,
+        page: 0,
+        limit: 5,
+        supportKoreanInitials: true,
+      );
+
+      ArtistModel? foundArtist;
+
+      // 정확히 일치하는 아티스트 찾기 (한글/영어 모두 확인)
+      for (final artist in results) {
+        final searchArtistName = ArtistNameUtils.getDisplayName(artist.name);
+        final koreanName = artist.name['ko'] as String? ?? '';
+        final englishName = artist.name['en'] as String? ?? '';
+
+        // 전체 이름 또는 개별 언어 이름으로 매칭 확인
+        if (searchArtistName == artistName ||
+            koreanName == artistName ||
+            englishName == artistName) {
+          foundArtist = artist;
+          break;
+        }
+      }
+
+      // 정확히 일치하는 것이 없으면 첫 번째 결과 사용
+      if (foundArtist == null && results.isNotEmpty) {
+        foundArtist = results.first;
+      }
+
+      // 캐시에 저장
+      cache[artistName] = foundArtist;
+      return foundArtist;
+    } catch (e) {
+      logger.w('Artist search by name failed: $e');
+      // 오류 시에도 캐시에 null 저장하여 반복 검색 방지
+      cache[artistName] = null;
+      return null;
+    }
+  }
+
+  /// 아티스트가 이미 이 투표의 vote_item에 등록되었는지 확인
+  Future<bool> checkIfArtistInVoteItems(String artistName) async {
+    try {
+      // vote_item 테이블을 artist 테이블과 조인하여 아티스트 이름으로 확인
+      final supabase = Supabase.instance.client;
+      final response = await supabase.from('vote_item').select('''
+            id,
+            artist!inner(name)
+          ''').eq('vote_id', voteId);
+
+      // 모든 vote_item을 확인하여 아티스트 이름이 일치하는지 검사
+      for (final item in response) {
+        if (item['artist'] != null) {
+          final artistData = item['artist'];
+          final nameMap = artistData['name'] as Map<String, dynamic>? ?? {};
+          final koreanNameFromDb = nameMap['ko'] as String? ?? '';
+          final englishNameFromDb = nameMap['en'] as String? ?? '';
+
+          // 한글, 영어 이름 중 하나라도 일치하면 등록된 것으로 간주
+          if (koreanNameFromDb == artistName ||
+              englishNameFromDb == artistName ||
+              ArtistNameUtils.getDisplayName(nameMap) == artistName) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    } catch (e) {
+      logger.w('Artist registration status check failed: $e');
+      return false; // 오류 시 등록되지 않은 것으로 간주
+    }
+  }
+
+  /// 아티스트 신청 제출
+  Future<void> submitApplication(ArtistModel artist, String userId) async {
+    final koreanName = artist.name['ko'] as String? ?? '';
+    final englishName = artist.name['en'] as String? ?? '';
+
+    try {
+      // 아티스트별 신청 상태 확인 (전체 투표 중복 체크 제거)
+      final voteRequestRepository = ref.read(voteRequestRepositoryProvider);
+      VoteRequestUser? userApplication;
+      // 한글 이름으로 먼저 확인
+      if (koreanName.isNotEmpty) {
+        userApplication = await voteRequestRepository.getUserApplicationStatus(
+            voteId, userId, koreanName);
+      }
+      // 한글로 찾지 못했고 영어가 있으면 영어로 확인
+      if (userApplication == null && englishName.isNotEmpty) {
+        userApplication = await voteRequestRepository.getUserApplicationStatus(
+            voteId, userId, englishName);
+      }
+
+      if (userApplication != null) {
+        final status = userApplication.status.toLowerCase();
+        if (status == 'pending' ||
+            status == 'approved' ||
+            status == 'in-progress') {
+          throw Exception(t('vote_item_request_already_applied_artist'));
+        }
+      }
+
+      final groupName = artist.artistGroup != null
+          ? ArtistNameUtils.getDisplayName(artist.artistGroup!.name)
+          : null;
+
+      // 신청할 때는 한글 이름을 우선 사용 (없으면 영어)
+      final submitArtistName = koreanName.isNotEmpty ? koreanName : englishName;
+
+      final voteRequestService = ref.read(voteItemRequestServiceProvider);
+      await voteRequestService.submitArtistApplication(
+        voteId: voteId,
+        userId: userId,
+        title: submitArtistName,
+        artistName: submitArtistName,
+        groupName: groupName,
+      );
+    } catch (e) {
+      logger.e('Vote application failed', error: e);
+      rethrow;
+    }
+  }
+
+  /// 사용자 신청 상태를 한글 텍스트로 변환
+  String _getUserApplicationStatusText(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return t('vote_item_request_status_pending');
+      case 'approved':
+        return t('vote_item_request_status_approved');
+      case 'rejected':
+        return t('vote_item_request_status_rejected');
+      case 'in-progress':
+        return t('vote_item_request_status_in_progress');
+      case 'cancelled':
+        return t('vote_item_request_status_cancelled');
+      default:
+        return t('vote_item_request_can_apply');
+    }
+  }
+} 

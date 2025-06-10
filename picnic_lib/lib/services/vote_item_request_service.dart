@@ -385,27 +385,6 @@ class VoteItemRequestService {
         errorType, originalMessage);
   }
 
-  /// 전체 설명 구성
-  ///
-  /// [description] 기본 설명
-  /// [artistName] 아티스트 이름
-  /// [groupName] 그룹 이름
-  String _buildFullDescription({
-    String? artistName,
-    String? groupName,
-  }) {
-    final buffer = StringBuffer();
-
-    if (artistName != null && artistName.trim().isNotEmpty) {
-      buffer.write('\n\n아티스트: ${artistName.trim()}');
-    }
-
-    if (groupName != null && groupName.trim().isNotEmpty) {
-      buffer.write('\n그룹: ${groupName.trim()}');
-    }
-
-    return buffer.toString();
-  }
 
   /// 신청 제한 검증 (사용자당 한 번의 신청 제한 포함)
   ///

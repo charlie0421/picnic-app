@@ -10,7 +10,7 @@ class VoteRequestException implements Exception {
 
 /// 중복 투표 요청 예외
 class DuplicateVoteRequestException extends VoteRequestException {
-  const DuplicateVoteRequestException(String message) : super(message);
+  const DuplicateVoteRequestException(super.message);
   
   @override
   String toString() => 'DuplicateVoteRequestException: $message';
@@ -18,7 +18,7 @@ class DuplicateVoteRequestException extends VoteRequestException {
 
 /// 투표 요청을 찾을 수 없는 예외
 class VoteRequestNotFoundException extends VoteRequestException {
-  const VoteRequestNotFoundException(String message) : super(message);
+  const VoteRequestNotFoundException(super.message);
   
   @override
   String toString() => 'VoteRequestNotFoundException: $message';
@@ -26,7 +26,7 @@ class VoteRequestNotFoundException extends VoteRequestException {
 
 /// 투표 요청 상태 변경 불가 예외
 class InvalidVoteRequestStatusException extends VoteRequestException {
-  const InvalidVoteRequestStatusException(String message) : super(message);
+  const InvalidVoteRequestStatusException(super.message);
   
   @override
   String toString() => 'InvalidVoteRequestStatusException: $message';
