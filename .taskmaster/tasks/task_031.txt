@@ -1,6 +1,6 @@
 # Task ID: 31
 # Title: 투표 신청 비즈니스 로직 구현
-# Status: pending
+# Status: done
 # Dependencies: 27
 # Priority: high
 # Description: 중복 방지, 투표 상태에 따른 검증, 사용자당 투표별 한 번의 신청 제한, 저장 전 데이터 검증을 포함한 투표 신청의 비즈니스 로직을 구현합니다.
@@ -70,33 +70,292 @@
    - 신청부터 확인까지의 전체 사용자 흐름 테스트
 
 # Subtasks:
-## 1. 중복 방지 컴포넌트 구현 [pending]
+## 1. 중복 방지 컴포넌트 구현 [done]
 ### Dependencies: None
 ### Description: 중복 신청 또는 투표를 방지하는 컴포넌트 생성
 ### Details:
 동일한 사용자 또는 IP 주소에서 기존 신청이나 투표를 확인하는 로직을 개발합니다. 효율적인 중복 감지를 위한 데이터베이스 쿼리 및 캐싱 메커니즘을 구현합니다.
+<info added on 2025-06-10T03:10:29.126Z>
+## 구현 내용
 
-## 2. 투표 상태 검증 컴포넌트 개발 [pending]
+### 1. DuplicatePreventionService 생성
+- **파일**: `picnic_lib/lib/services/duplicate_prevention_service.dart`
+- **기능**: 
+  - 메모리 캐싱을 통한 효율적인 중복 감지
+  - 5분 캐시 만료 시간 설정
+  - 동시 요청 방지 메커니즘 (Completer 사용)
+  - 자동 캐시 정리 기능
+- **주요 메서드**:
+  - `hasUserRequestedVote()`: 캐시 우선 중복 확인
+  - `validateNoDuplicateRequest()`: 중복 방지 검증
+  - `markUserAsRequested()`: 신청 완료 후 캐시 업데이트
+  - `cleanupExpiredCache()`: 만료된 캐시 정리
+
+### 2. VoteApplicationService 업데이트
+- **파일**: `picnic_lib/lib/services/vote_application_service.dart`
+- **개선사항**:
+  - DuplicatePreventionService 의존성 주입
+  - 기존 `_checkDuplicateApplication` 메서드를 새로운 캐시 지원 메서드로 교체
+  - `hasUserApplied()`: 사용자 신청 여부 확인 (캐시 지원)
+  - `validateNoDuplicateApplication()`: 중복 방지 검증 (캐시 지원)
+  - 신청 완료 후 자동 캐시 업데이트
+
+### 3. 서비스 프로바이더 생성
+- **파일**: `picnic_lib/lib/services/vote_application_service_provider.dart`
+- **기능**:
+  - Riverpod을 통한 의존성 주입 관리
+  - VoteRequestRepository, DuplicatePreventionService, VoteApplicationService 프로바이더
+  - 주기적 캐시 정리를 위한 Timer 설정 (5분마다)
+
+### 4. 성능 최적화 특징
+- **메모리 캐싱**: 동일한 요청에 대한 반복 DB 조회 방지
+- **동시 요청 방지**: Completer를 사용하여 같은 요청이 동시에 처리되는 것을 방지
+- **자동 캐시 관리**: 만료된 캐시 자동 정리로 메모리 누수 방지
+- **에러 처리**: 네트워크 오류, DB 오류 등에 대한 포괄적인 예외 처리
+
+### 5. 빌드 테스트 결과
+- Flutter analyze 통과 (148개 이슈, 대부분 기존 코드 관련)
+- 새로 구현한 중복 방지 컴포넌트 관련 심각한 오류 없음
+- 컴파일 오류 없이 정상 빌드 가능
+</info added on 2025-06-10T03:10:29.126Z>
+
+## 2. 투표 상태 검증 컴포넌트 개발 [done]
 ### Dependencies: 31.1
 ### Description: 투표 상태를 검증하는 컴포넌트 생성
 ### Details:
 투표가 여전히 열려 있는지, 닫혔는지 또는 특정 단계에 있는지 확인하는 로직을 구현합니다. 시간 기반 유효성 검사 및 상태 전환을 포함합니다.
+<info added on 2025-06-10T03:16:21.263Z>
+## 구현 내용
 
-## 3. 신청 제한 컴포넌트 생성 [pending]
+### 1. VoteStatusValidationService 생성
+- **파일**: `picnic_lib/lib/services/vote_status_validation_service.dart`
+- **핵심 기능**:
+  - **VoteState 열거형**: 투표 상태를 명확히 정의 (notVisible, upcoming, ongoing, ended, unknown)
+  - **VoteStatusValidationResult 클래스**: 검증 결과를 구조화된 형태로 반환
+  - **시간 기반 상태 계산**: 서버 플래그와 실제 시간을 모두 고려한 정확한 상태 판단
+  - **조건부 신청/투표 가능 여부**: 각 상태별로 신청과 투표 가능 여부를 명확히 정의
+
+### 2. 주요 메서드 구현
+- **getCurrentVoteState()**: 투표의 현재 상태를 정확히 판단
+  - 필수 시간 정보 검증 (startAt, stopAt)
+  - 시간 순서 검증 (시작시간 < 종료시간)
+  - 공개 시간 확인 (visibleAt)
+  - 서버 플래그 우선 확인 후 시간 기반 계산
+- **validateVoteStatus()**: 종합적인 상태 검증 및 결과 반환
+- **validateCanApply()**: 신청 가능 여부 검증 (예외 발생)
+- **validateCanVote()**: 투표 가능 여부 검증 (예외 발생)
+- **getTimeUntilDeadline()**: 마감까지 남은 시간 계산
+- **getTimeUntilStart()**: 시작까지 남은 시간 계산
+- **isNearDeadline()**: 곧 마감되는지 확인 (기본 10분 임계값)
+- **getStatusSummary()**: 사용자 친화적인 상태 요약 문자열 생성
+
+### 3. VoteApplicationService 업데이트
+- **파일**: `picnic_lib/lib/services/vote_application_service.dart`
+- **개선사항**:
+  - VoteStatusValidationService 의존성 주입
+  - 기존 `validateVoteStatus()` 메서드를 새로운 서비스 사용으로 교체
+  - 추가 메서드 구현:
+    - `validateCanVote()`: 투표 참여 가능 여부 검증
+    - `getVoteStatusInfo()`: 투표 상태 정보 조회
+    - `getVoteStatusSummary()`: 투표 상태 요약 문자열 조회
+
+### 4. 서비스 프로바이더 업데이트
+- **파일**: `picnic_lib/lib/services/vote_application_service_provider.dart`
+- **추가사항**:
+  - `voteStatusValidationServiceProvider` 프로바이더 추가
+  - `voteApplicationServiceProvider`에 새로운 의존성 주입
+
+### 5. 비즈니스 로직 개선
+- **정책 정의**: 
+  - 예정된 투표: 신청 가능, 투표 불가능
+  - 진행 중인 투표: 신청 가능, 투표 가능 (정책에 따라 변경 가능)
+  - 종료된 투표: 신청 불가능, 투표 불가능
+  - 공개되지 않은 투표: 신청 불가능, 투표 불가능
+- **시간 기반 검증**: UTC 시간 기준으로 정확한 상태 계산
+- **오류 처리**: 데이터 누락이나 잘못된 설정에 대한 robust한 처리
+
+### 6. 빌드 테스트 결과
+- **Flutter analyze**: 154개 이슈 (기존 코드 경고 포함)
+- **새로운 컴포넌트 관련 오류**: 없음
+- **컴파일 성공**: 모든 새로운 서비스가 정상적으로 컴파일됨
+
+### 7. 테스트 가능성 향상
+- **currentTime 매개변수**: 모든 시간 관련 메서드에서 테스트용 시간 주입 가능
+- **구조화된 결과**: VoteStatusValidationResult를 통한 명확한 검증 결과
+- **로깅 지원**: 상태 변경 이력 추적 및 디버깅 지원
+</info added on 2025-06-10T03:16:21.263Z>
+
+## 3. 신청 제한 컴포넌트 생성 [done]
 ### Dependencies: 31.1
 ### Description: 신청 제한을 적용하는 컴포넌트 구현
 ### Details:
 사용자별, 시간 기간별 또는 다른 기준에 따라 신청 수를 추적하고 제한하는 로직을 개발합니다. 카운터 및 시간 기반 제한을 구현합니다.
+<info added on 2025-06-10T03:23:10.061Z>
+**구현 내용:**
+- `VoteApplicationService`에 신청 제한 기능을 직접 통합
+- 별도의 `ApplicationLimitService` 클래스 대신 서비스 내부 메서드로 구현
 
-## 4. 데이터 유효성 검사 컴포넌트 구현 [pending]
+**주요 기능:**
+1. `_validateApplicationLimits()`: 전체 신청 제한 검증 로직
+2. `_validateDailyApplicationLimit()`: 일일 신청 제한 (기본값: 10개)
+3. `_validateHourlyApplicationLimit()`: 시간당 신청 제한 (기본값: 3개)
+
+**제한 정책:**
+- 일일 제한: 하루에 최대 10개 신청
+- 시간당 제한: 시간당 최대 3개 신청
+- 사용자당 투표별 한 번 제한: 중복 방지 서비스에서 처리
+
+**기술적 구현:**
+- UTC 시간 기준으로 정확한 시간 계산
+- Repository의 `getUserApplicationCountSince()` 메서드 활용
+- 명확한 오류 메시지 제공
+- 로깅을 통한 디버깅 지원
+
+**빌드 테스트:** 성공 (154개 기존 이슈, 새로운 오류 없음)
+</info added on 2025-06-10T03:23:10.061Z>
+
+## 4. 데이터 유효성 검사 컴포넌트 구현 [done]
 ### Dependencies: None
 ### Description: 포괄적인 데이터 유효성 검사를 위한 컴포넌트 생성
 ### Details:
 형식 검사, 범위 유효성 검사 및 데이터 무결성 확인을 포함하여 모든 사용자 제출 데이터에 대한 입력 유효성 검사 로직을 개발합니다.
+<info added on 2025-06-10T03:32:36.188Z>
+# 데이터 유효성 검사 컴포넌트 구현 완료
 
-## 5. 오류 처리 컴포넌트 개발 [pending]
+## 구현 내용
+- `DataValidationService` 클래스 생성 (`picnic_lib/lib/services/data_validation_service.dart`)
+- 포괄적인 데이터 유효성 검사 시스템 구축
+
+## 주요 기능
+1. **ValidationResult 클래스**: 검증 결과를 구조화된 형태로 반환
+   - `isValid`: 검증 성공/실패 여부
+   - `errors`: 오류 메시지 목록
+   - `warnings`: 경고 메시지 목록
+   - 편의 메서드: `success`, `failure`, `successWithWarnings`
+
+2. **FieldValidationRule 클래스**: 필드별 검증 규칙 정의
+   - 필수 여부, 길이 제한, 정규식 패턴, 허용값 목록
+   - 보안 검증 활성화/비활성화 옵션
+
+3. **핵심 검증 메서드들**:
+   - `validateVoteApplicationData()`: 투표 신청 데이터 전체 검증
+   - `validateField()`: 개별 필드 검증
+   - `validateSecurity()`: XSS, SQL 인젝션 등 보안 위협 검증
+   - `_validateBusinessRules()`: 비즈니스 로직 검증
+
+4. **특화된 검증 메서드들**:
+   - `validateEmail()`: 이메일 형식 검증
+   - `validatePhoneNumber()`: 전화번호 형식 검증
+   - `validateUserId()`: 사용자 ID 형식 검증
+   - `validateVoteStatus()`: 투표 상태 검증
+
+5. **보안 검증 기능**:
+   - HTML 태그 및 스크립트 검증 (XSS 방지)
+   - SQL 인젝션 패턴 검증
+   - 의심스러운 패턴 감지 (경고)
+
+6. **비즈니스 로직 검증**:
+   - 아티스트/그룹 이름 필수 여부 (엄격 모드)
+   - 제목과 설명 중복 내용 검증
+   - 스팸성 내용 검증 (반복 문자, 과도한 특수문자)
+   - 부적절한 내용 검증 (기본적인 욕설 필터)
+
+## 통합 작업
+- `VoteApplicationService`에 `DataValidationService` 의존성 추가
+- 기존 `_validateApplicationData()` 메서드를 새로운 서비스로 대체
+- `validateAndThrow()` 메서드로 기존 코드와의 호환성 유지
+- 서비스 프로바이더에 `dataValidationServiceProvider` 추가
+
+## 기술적 특징
+- 구조화된 검증 결과 반환 (오류와 경고 분리)
+- 재사용 가능한 검증 규칙 시스템
+- 포괄적인 보안 검증
+- 확장 가능한 아키텍처
+
+## 빌드 테스트
+성공 (154개 기존 이슈, 새로운 오류 없음)
+</info added on 2025-06-10T03:32:36.188Z>
+
+## 5. 오류 처리 컴포넌트 개발 [done]
 ### Dependencies: 31.1, 31.2, 31.3, 31.4
 ### Description: 중앙 집중식 오류 처리 및 로깅 컴포넌트 생성
 ### Details:
 다른 모든 컴포넌트의 오류를 포착, 로깅 및 응답하는 시스템을 구현합니다. 오류 분류, 사용자 친화적인 오류 메시지 및 디버깅을 위한 상세한 로깅을 포함합니다.
+<info added on 2025-06-10T03:37:02.965Z>
+오류 처리 컴포넌트 개발이 완료되었습니다.
+
+**구현 내용:**
+- `ErrorHandlingService` 클래스 생성 (`picnic_lib/lib/services/error_handling_service.dart`)
+- 포괄적인 오류 처리 및 로깅 시스템 구축
+
+**주요 기능:**
+1. **오류 분류 시스템**:
+   - `ErrorType` 열거형: network, authentication, validation, business, server, client, unknown
+   - `ErrorSeverity` 열거형: info, warning, error, critical
+   - 체계적인 오류 유형 분류로 적절한 처리 방식 결정
+
+2. **ErrorHandlingResult 클래스**: 구조화된 오류 처리 결과
+   - `userMessage`: 사용자에게 표시할 친화적인 메시지
+   - `technicalMessage`: 개발자용 기술적 메시지
+   - `shouldRetry`: 재시도 가능 여부
+   - `retryDelay`: 재시도 지연 시간
+   - `additionalData`: 추가 컨텍스트 정보
+
+3. **핵심 오류 처리 메서드들**:
+   - `handleVoteApplicationError()`: 투표 신청 관련 오류 종합 처리
+   - `handleNetworkError()`: 네트워크 오류 전용 처리
+   - `handleServerError()`: HTTP 상태 코드별 서버 오류 처리
+   - `generateUserFriendlyMessage()`: 사용자 친화적 메시지 생성
+   - `logError()`: 심각도별 구조화된 로깅
+
+4. **특화된 예외 처리**:
+   - `VoteRequestException`: 비즈니스 로직 오류
+   - `DuplicateVoteRequestException`: 중복 신청 오류
+   - `InvalidVoteRequestStatusException`: 잘못된 투표 상태 오류
+   - `FormatException`, `TimeoutException`, `ArgumentError`: 일반적인 예외들
+   - 문자열 오류 메시지 패턴 분석 및 처리
+
+5. **HTTP 상태 코드별 처리**:
+   - 400 (Bad Request): 클라이언트 오류, 재시도 불가
+   - 401/403 (Unauthorized/Forbidden): 인증 오류, 재시도 불가
+   - 404 (Not Found): 리소스 없음, 재시도 불가
+   - 409 (Conflict): 충돌, 재시도 불가
+   - 429 (Too Many Requests): 요청 제한, 1분 후 재시도 가능
+   - 5xx (Server Errors): 서버 오류, 10초 후 재시도 가능
+
+6. **재시도 로직**:
+   - 네트워크 오류: 5초 후 재시도
+   - 타임아웃: 5초 후 재시도
+   - 서버 오류: 10초 후 재시도
+   - 요청 제한: 1분 후 재시도
+   - 비즈니스 로직 오류: 재시도 불가
+
+**VoteApplicationService 통합:**
+- `ErrorHandlingService` 의존성 주입
+- `submitApplication()` 메서드에 포괄적인 오류 처리 추가
+- 컨텍스트 정보 수집 및 전달
+- 구조화된 오류 로깅
+- 사용자 친화적 오류 메시지로 예외 재발생
+- `hasUserApplied()` 메서드에 안전한 오류 처리 (실패 시 false 반환)
+
+**유틸리티 메서드 추가:**
+- `handleError()`: 일반적인 오류 처리
+- `handleNetworkError()`: 네트워크 오류 처리
+- `handleServerError()`: 서버 오류 처리
+- `generateUserFriendlyMessage()`: 사용자 친화적 메시지 생성
+
+**서비스 프로바이더 업데이트:**
+- `errorHandlingServiceProvider` 추가
+- `voteApplicationServiceProvider`에 새로운 의존성 주입
+
+**기술적 특징:**
+- 중앙 집중식 오류 처리 아키텍처
+- 심각도별 로깅 시스템 (info, warning, error, critical)
+- 재시도 가능성 자동 판단
+- 컨텍스트 정보 보존 및 전달
+- 사용자 경험 최적화 (친화적 메시지)
+- 개발자 디버깅 지원 (기술적 메시지)
+
+**빌드 테스트:** 성공 (154개 기존 이슈, 새로운 오류 없음)
+</info added on 2025-06-10T03:37:02.965Z>
 

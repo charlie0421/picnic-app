@@ -76,7 +76,6 @@ class KoreanSearchUtils {
   /// KoreanSearchUtils.matchesKoreanInitials('방탄소년단', '방탄'); // true
   /// KoreanSearchUtils.matchesKoreanInitials('BTS', 'bt'); // true
   /// KoreanSearchUtils.matchesKoreanInitials('블랙핑크', 'ㅂㄹㅍㅋ'); // true
-  /// KoreanSearchUtils.matchesKoreanInitials('블랙핑크', 'ㅍㄹㅍㅋ'); // true (부분매칭)
   /// ```
   static bool matchesKoreanInitials(String text, String query) {
     if (text.isEmpty || query.isEmpty) return false;
@@ -89,16 +88,10 @@ class KoreanSearchUtils {
       return true;
     }
 
-    // 초성 검색 - 정확한 매칭
-    if (textInitials.contains(queryLower)) {
-      return true;
-    }
-
-    // 초성 검색 - 부분 매칭 (각 초성이 순서대로 포함되는지 확인)
-    if (_isKoreanInitials(queryLower) && textInitials.isNotEmpty) {
+    // 초성 검색인지 확인
+    if (_isKoreanInitials(queryLower)) {
       return _matchesPartialInitials(textInitials, queryLower);
     }
-
     return false;
   }
 
@@ -107,23 +100,28 @@ class KoreanSearchUtils {
     return text.split('').every((char) => _initials.contains(char));
   }
 
-  /// 부분 초성 매칭 확인 (순서 상관없이 모든 초성이 포함되어 있는지)
+  /// 부분 초성 매칭 확인 (정확한 순서와 연속성 확인)
   static bool _matchesPartialInitials(
       String textInitials, String queryInitials) {
-    // 검색어의 각 초성이 텍스트 초성에 포함되어 있는지 확인
-    final textChars = textInitials.split('');
-    final queryChars = queryInitials.split('');
-
-    // 유연한 매칭: 검색어 초성의 80% 이상이 매칭되면 true
-    int matchCount = 0;
-    for (final queryChar in queryChars) {
-      if (textChars.contains(queryChar)) {
-        matchCount++;
-      }
+    // 검색어의 초성이 텍스트의 초성에 정확히 순서대로 연속으로 포함되는지 확인
+    if (queryInitials.isEmpty || textInitials.isEmpty) {
+      return false;
     }
 
-    final matchRatio = matchCount / queryChars.length;
-    return matchRatio >= 0.8; // 80% 이상 매칭
+    // 검색어의 길이가 텍스트보다 긴 경우는 매칭 불가
+    if (queryInitials.length > textInitials.length) {
+      return false;
+    }
+
+    // 정확한 순서 매칭만 허용: 검색어 초성이 텍스트 초성에 연속으로 나타나는지 확인
+    // 예: "ㅁㅈ"는 "ㅁㅈㅎ"와 매칭, "ㅂㅈㅁ"와는 매칭되지 않음
+    for (int i = 0; i <= textInitials.length - queryInitials.length; i++) {
+      final substring = textInitials.substring(i, i + queryInitials.length);
+      if (substring == queryInitials) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// 검색어에 맞는 하이라이트된 TextSpan 리스트를 생성합니다.
@@ -157,7 +155,7 @@ class KoreanSearchUtils {
     final lowerText = text.toLowerCase();
     final lowerQuery = query.toLowerCase();
     final effectiveHighlightColor =
-        highlightColor ?? AppColors.primary500.withOpacity(0.3);
+        highlightColor ?? AppColors.primary500.withValues(alpha: 0.3);
 
     // 일반 텍스트 검색 시도
     int start = 0;

@@ -171,46 +171,135 @@ class SearchService {
 
         return results;
       } else {
-        // 일반 텍스트 검색
+        // 일반 텍스트 검색 (아티스트 이름과 그룹명 모두 검색)
+        List<ArtistModel> artistResults = [];
+        List<ArtistModel> groupResults = [];
+
         if (query.isNotEmpty) {
-          queryBuilder = queryBuilder.or('name->>ko.ilike.%$query%,'
-              'name->>en.ilike.%$query%,'
-              'name->>ja.ilike.%$query%,'
-              'name->>zh.ilike.%$query%');
+          // 1. 아티스트 이름으로 검색
+          var artistQuery = supabase
+              .from('artist')
+              .select(
+                  'id,name,image,gender,birth_date,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+              .neq('id', 0)
+              .or('name->>ko.ilike.%$query%,'
+                  'name->>en.ilike.%$query%,'
+                  'name->>ja.ilike.%$query%,'
+                  'name->>zh.ilike.%$query%');
+
+          // 제외할 ID가 있는 경우
+          if (excludeIds.isNotEmpty) {
+            artistQuery = artistQuery.not('id', 'in', excludeIds);
+          }
+
+          // 아티스트 이름 검색 실행
+          final artistResponse = await artistQuery
+              .order('name->>$language', ascending: true)
+              .limit(limit)
+              .range(page * limit, (page + 1) * limit - 1);
+
+          if (artistResponse != null) {
+            artistResults = (artistResponse as List<dynamic>)
+                .where((data) => data != null)
+                .map((data) {
+              final artistData = data as Map<String, dynamic>;
+              final bookmarkData = artistData['artist_user_bookmark'] as List?;
+              final isBookmarked =
+                  bookmarkData != null && bookmarkData.isNotEmpty;
+
+              final cleanArtistData = Map<String, dynamic>.from(artistData);
+              cleanArtistData.remove('artist_user_bookmark');
+              cleanArtistData['isBookmarked'] = isBookmarked;
+
+              return ArtistModel.fromJson(cleanArtistData);
+            }).toList();
+          }
+
+          // 2. 그룹명으로 검색 (artist_group 테이블에서 직접 검색)
+          try {
+            var groupQuery = supabase
+                .from('artist_group')
+                .select('id,name,image')
+                .or('name->>ko.ilike.%$query%,'
+                    'name->>en.ilike.%$query%,'
+                    'name->>ja.ilike.%$query%,'
+                    'name->>zh.ilike.%$query%');
+
+            final groupResponse =
+                await groupQuery.order('name->>$language', ascending: true);
+
+            if (groupResponse != null) {
+              final matchingGroupIds = (groupResponse as List<dynamic>)
+                  .where((data) => data != null)
+                  .map((data) => (data as Map<String, dynamic>)['id'] as int)
+                  .toList();
+
+              if (matchingGroupIds.isNotEmpty) {
+                // 매칭된 그룹의 아티스트들 가져오기
+                var groupArtistQuery = supabase
+                    .from('artist')
+                    .select(
+                        'id,name,image,gender,birth_date,artist_group(id,name,image),artist_user_bookmark!left(artist_id)')
+                    .neq('id', 0)
+                    .filter('artist_group_id', 'in', matchingGroupIds);
+
+                // 제외할 ID가 있는 경우
+                if (excludeIds.isNotEmpty) {
+                  groupArtistQuery =
+                      groupArtistQuery.not('id', 'in', excludeIds);
+                }
+
+                final groupArtistResponse = await groupArtistQuery
+                    .order('name->>$language', ascending: true);
+
+                if (groupArtistResponse != null) {
+                  groupResults = (groupArtistResponse as List<dynamic>)
+                      .where((data) => data != null)
+                      .map((data) {
+                    final artistData = data as Map<String, dynamic>;
+                    final bookmarkData =
+                        artistData['artist_user_bookmark'] as List?;
+                    final isBookmarked =
+                        bookmarkData != null && bookmarkData.isNotEmpty;
+
+                    final cleanArtistData =
+                        Map<String, dynamic>.from(artistData);
+                    cleanArtistData.remove('artist_user_bookmark');
+                    cleanArtistData['isBookmarked'] = isBookmarked;
+
+                    return ArtistModel.fromJson(cleanArtistData);
+                  }).toList();
+                }
+              }
+            }
+          } catch (e) {
+            logger.w('그룹명 검색 중 오류 발생: $e');
+            // 그룹명 검색이 실패해도 아티스트 이름 검색 결과는 반환
+          }
         }
 
-        // 제외할 ID가 있는 경우
-        if (excludeIds.isNotEmpty) {
-          queryBuilder = queryBuilder.not('id', 'in', excludeIds);
+        // 결과 합치기 (중복 제거)
+        final allResults = <ArtistModel>[];
+        final seenIds = <int>{};
+
+        // 아티스트 이름 검색 결과 추가
+        for (final artist in artistResults) {
+          if (!seenIds.contains(artist.id)) {
+            allResults.add(artist);
+            seenIds.add(artist.id);
+          }
         }
 
-        // 정렬
-        queryBuilder = queryBuilder.order('name->>$language', ascending: true);
-
-        // 페이지네이션
-        final response = await queryBuilder
-            .limit(limit)
-            .range(page * limit, (page + 1) * limit - 1);
-
-        if (response == null) {
-          return <ArtistModel>[];
+        // 그룹명 검색 결과 추가 (중복 제거)
+        for (final artist in groupResults) {
+          if (!seenIds.contains(artist.id)) {
+            allResults.add(artist);
+            seenIds.add(artist.id);
+          }
         }
 
-        final results = (response as List<dynamic>)
-            .where((data) => data != null)
-            .map((data) {
-          final artistData = data as Map<String, dynamic>;
-          // 북마크 정보 확인 (artist_user_bookmark 배열이 비어있지 않으면 북마크됨)
-          final bookmarkData = artistData['artist_user_bookmark'] as List?;
-          final isBookmarked = bookmarkData != null && bookmarkData.isNotEmpty;
-
-          // 북마크 정보를 제거하고 아티스트 데이터만 추출
-          final cleanArtistData = Map<String, dynamic>.from(artistData);
-          cleanArtistData.remove('artist_user_bookmark');
-          cleanArtistData['isBookmarked'] = isBookmarked;
-
-          return ArtistModel.fromJson(cleanArtistData);
-        }).toList();
+        // 페이지네이션 적용 (이미 각 쿼리에서 적용되었지만 안전장치)
+        final results = allResults.take(limit).toList();
 
         // 결과를 캐시에 저장
         if (useCache && results.isNotEmpty) {

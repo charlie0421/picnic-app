@@ -3,5 +3,73 @@
   "appTitle": "Picnic",
   "@appTitle": {
     "description": "The title of the application"
+  },
+  "vote_application_title": "Vote Candidate Application",
+  "@vote_application_title": {
+    "description": "Title for vote application dialog"
+  },
+  "vote_application_button": "Apply for Vote Candidate",
+  "@vote_application_button": {
+    "description": "Button text for applying as vote candidate"
+  },
+  "artist_name_label": "Artist Name",
+  "@artist_name_label": {
+    "description": "Label for artist name field"
+  },
+  "group_name_label": "Group Name",
+  "@group_name_label": {
+    "description": "Label for group name field"
+  },
+  "application_reason_label": "Application Reason",
+  "@application_reason_label": {
+    "description": "Label for application reason field"
+  },
+  "artist_name_hint": "Enter artist name",
+  "@artist_name_hint": {
+    "description": "Hint text for artist name field"
+  },
+  "group_name_hint": "Enter group name (optional)",
+  "@group_name_hint": {
+    "description": "Hint text for group name field"
+  },
+  "application_reason_hint": "Enter application reason (optional)",
+  "@application_reason_hint": {
+    "description": "Hint text for application reason field"
+  },
+  "submit_application": "Submit Application",
+  "@submit_application": {
+    "description": "Submit button text"
+  },
+  "search_artist_hint": "Search for artist or group",
+  "@search_artist_hint": {
+    "description": "Hint text for artist search field"
+  },
+  "application_success": "Vote candidate application has been completed.",
+  "@application_success": {
+    "description": "Success message for application submission"
+  },
+  "success": "Success",
+  "@success": {
+    "description": "Success dialog title"
+  },
+  "vote_period": "Vote Period",
+  "@vote_period": {
+    "description": "Label for vote period"
+  },
+  "error_artist_not_selected": "Please select an artist",
+  "@error_artist_not_selected": {
+    "description": "Error message when no artist is selected"
+  },
+  "error_application_reason_required": "Application reason is required",
+  "@error_application_reason_required": {
+    "description": "Error message when application reason is empty"
+  },
+  "searching": "Searching...",
+  "@searching": {
+    "description": "Text shown while searching"
+  },
+  "no_search_results": "No search results found",
+  "@no_search_results": {
+    "description": "Text shown when no search results are found"
   }
 }

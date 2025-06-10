@@ -28,6 +28,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/application/vote_application_dialog.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -922,47 +923,69 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildApplicationButton(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32.w),
-      child: Container(
-        width: double.infinity,
-        height: 48.h,
-        decoration: BoxDecoration(
-          gradient: commonGradient,
-          borderRadius: BorderRadius.circular(24.r),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary500.withOpacity(0.3),
-              offset: const Offset(0, 4),
-              blurRadius: 12,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(24.r),
-            onTap: () => _handleApplicationButtonTap(context),
-            child: Center(
-              child: Text(
-                t('button_apply_as_candidate'),
-                style: getTextStyle(AppTypo.body16B, AppColors.grey00),
-              ),
-            ),
+    return Container(
+      width: double.infinity,
+      height: 48,
+      margin: EdgeInsets.symmetric(horizontal: 32.w),
+      decoration: BoxDecoration(
+        gradient: commonGradient,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          print('🔥 투표 신청 버튼 클릭됨!');
+
+          if (supabase.isLogged) {
+            print('🔥 사용자 로그인 상태 확인됨');
+
+            // 신청 다이얼로그 표시
+            final voteModel = ref
+                .read(asyncVoteDetailProvider(
+                    voteId: widget.voteId, votePortal: widget.votePortal))
+                .value;
+
+            print('🔥 voteModel 상태: ${voteModel != null ? "존재함" : "null"}');
+
+            if (voteModel != null) {
+              print('🔥 showVoteApplicationDialog 호출 시작');
+              showVoteApplicationDialog(
+                context: context,
+                voteModel: voteModel,
+              ).then((_) {
+                print('🔥 showVoteApplicationDialog 완료');
+              }).catchError((error) {
+                print('🔥 showVoteApplicationDialog 오류: $error');
+              });
+            } else {
+              print('🔥 voteModel이 null이어서 다이얼로그를 열 수 없음');
+            }
+          } else {
+            print('🔥 사용자 미로그인 상태 - 로그인 다이얼로그 표시');
+            showRequireLoginDialog();
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+        child: Text(
+          t('vote_application_button'),
+          style: getTextStyle(AppTypo.body16B, AppColors.grey00),
         ),
       ),
     );
-  }
-
-  void _handleApplicationButtonTap(BuildContext context) {
-    if (supabase.isLogged) {
-      // TODO: 투표 신청 다이얼로그/페이지 표시 로직 구현
-      showSimpleDialog(content: '투표 신청 기능이 곧 제공됩니다.');
-    } else {
-      showRequireLoginDialog();
-    }
   }
 
   Widget _buildSearchBox() {

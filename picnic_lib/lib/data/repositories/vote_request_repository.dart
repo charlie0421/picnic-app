@@ -62,11 +62,15 @@ class VoteRequestRepository {
   }
 
   /// 투표 요청 상태를 업데이트합니다
-  Future<VoteRequest> updateVoteRequestStatus(String requestId, String status) async {
+  Future<VoteRequest> updateVoteRequestStatus(
+      String requestId, String status) async {
     try {
       final response = await _supabase
           .from('vote_requests')
-          .update({'status': status, 'updated_at': DateTime.now().toIso8601String()})
+          .update({
+            'status': status,
+            'updated_at': DateTime.now().toIso8601String()
+          })
           .eq('id', requestId)
           .select()
           .single();
@@ -107,7 +111,8 @@ class VoteRequestRepository {
 
     try {
       // 트랜잭션을 사용하여 투표 요청과 사용자 정보를 함께 생성
-      final response = await _supabase.rpc('create_vote_request_with_user', params: {
+      final response =
+          await _supabase.rpc('create_vote_request_with_user', params: {
         'request_data': request.toJson(),
         'user_id': userId,
         'user_status': status,
@@ -120,7 +125,8 @@ class VoteRequestRepository {
   }
 
   /// 투표 요청 사용자 정보를 생성합니다
-  Future<VoteRequestUser> createVoteRequestUser(VoteRequestUser requestUser) async {
+  Future<VoteRequestUser> createVoteRequestUser(
+      VoteRequestUser requestUser) async {
     try {
       final response = await _supabase
           .from('vote_request_users')
@@ -136,14 +142,12 @@ class VoteRequestRepository {
 
   /// 투표 요청 사용자 상태를 업데이트합니다
   Future<VoteRequestUser> updateVoteRequestUserStatus(
-    String requestUserId, 
-    String status
-  ) async {
+      String requestUserId, String status) async {
     try {
       final response = await _supabase
           .from('vote_request_users')
           .update({
-            'status': status, 
+            'status': status,
             'updated_at': DateTime.now().toIso8601String()
           })
           .eq('id', requestUserId)
@@ -157,7 +161,8 @@ class VoteRequestRepository {
   }
 
   /// 특정 투표 요청의 모든 사용자를 조회합니다
-  Future<List<VoteRequestUser>> getVoteRequestUsers(String voteRequestId) async {
+  Future<List<VoteRequestUser>> getVoteRequestUsers(
+      String voteRequestId) async {
     try {
       final response = await _supabase
           .from('vote_request_users')
@@ -172,4 +177,48 @@ class VoteRequestRepository {
       throw VoteRequestException('투표 요청 사용자 목록 조회 실패: $e');
     }
   }
-} 
+
+  /// 특정 시간 이후 사용자의 신청 수를 조회합니다
+  Future<int> getUserApplicationCountSince(
+      String userId, DateTime since) async {
+    try {
+      final response = await _supabase
+          .from('vote_request_users')
+          .select('id')
+          .eq('user_id', userId)
+          .gte('created_at', since.toIso8601String());
+
+      return (response as List).length;
+    } catch (e) {
+      throw VoteRequestException('사용자 신청 수 조회 실패: $e');
+    }
+  }
+
+  /// 특정 투표의 총 신청 수를 조회합니다
+  Future<int> getVoteApplicationCount(String voteId) async {
+    try {
+      final response = await _supabase
+          .from('vote_requests')
+          .select('id')
+          .eq('vote_id', voteId);
+
+      return (response as List).length;
+    } catch (e) {
+      throw VoteRequestException('투표 신청 수 조회 실패: $e');
+    }
+  }
+
+  /// 사용자의 전체 신청 수를 조회합니다
+  Future<int> getUserTotalApplicationCount(String userId) async {
+    try {
+      final response = await _supabase
+          .from('vote_request_users')
+          .select('id')
+          .eq('user_id', userId);
+
+      return (response as List).length;
+    } catch (e) {
+      throw VoteRequestException('사용자 전체 신청 수 조회 실패: $e');
+    }
+  }
+}
