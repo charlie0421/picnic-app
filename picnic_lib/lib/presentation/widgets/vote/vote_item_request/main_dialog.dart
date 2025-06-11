@@ -60,6 +60,9 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   bool _isLoadingMore = false;
   int _currentPage = 0;
   static const int _pageSize = 20;
+  
+  // 검색 취소를 위한 변수
+  String? _lastSearchToken;
 
   @override
   void initState() {
@@ -183,12 +186,17 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     }
   }
 
-  Future<void> _loadArtistsPage(String query, {required int page, bool isInitial = false}) async {
+  Future<void> _loadArtistsPage(String query, {required int page, bool isInitial = false, String? searchToken}) async {
     final results = await _service.searchArtistsWithPagination(
       query, 
       page: page, 
       pageSize: _pageSize,
     );
+    
+    // 검색 토큰이 유효하지 않으면 결과 무시 (이미 새로운 검색이 시작됨)
+    if (searchToken != null && _lastSearchToken != searchToken) {
+      return;
+    }
     
     if (mounted) {
       final userInfo = ref.read(userInfoProvider).value;
@@ -196,6 +204,11 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         results['artists'], 
         userInfo?.id,
       );
+      
+      // 다시 한번 토큰 검증 (긴 작업 후)
+      if (searchToken != null && _lastSearchToken != searchToken) {
+        return;
+      }
       
       // 신청수 기준으로 정렬 (많은 순서대로)
       final artists = results['artists'] as List<ArtistModel>;
@@ -287,6 +300,10 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   Future<void> _onSearchChanged(String query) async {
     _currentSearchQuery = query;
     
+    // 검색 토큰 생성 (동시 요청 방지)
+    final searchToken = DateTime.now().millisecondsSinceEpoch.toString();
+    _lastSearchToken = searchToken;
+    
     // 검색어가 비어있으면 초기 아티스트 목록 다시 로드
     if (query.isEmpty) {
       await _loadInitialArtists();
@@ -302,9 +319,12 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
     try {
       // 검색어가 있을 때는 첫 페이지부터 검색
-      await _loadArtistsPage(query, page: 0, isInitial: true);
+      await _loadArtistsPage(query, page: 0, isInitial: true, searchToken: searchToken);
     } catch (e) {
-      if (mounted) setState(() => _isSearching = false);
+      // 검색 토큰이 여전히 유효한 경우만 에러 상태 설정
+      if (mounted && _lastSearchToken == searchToken) {
+        setState(() => _isSearching = false);
+      }
     }
   }
 

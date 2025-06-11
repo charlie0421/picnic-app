@@ -137,126 +137,25 @@ class VoteItemRequestService {
     final Map<String, ArtistApplicationInfo> applicationData = {};
 
     try {
-      // 모든 아티스트 이름을 한번에 수집
-      final artistNames = <String>[];
-      
-      for (final artist in artists) {
-        final koreanName = artist.name['ko'] as String? ?? '';
-        final englishName = artist.name['en'] as String? ?? '';
+      // 배치 크기 제한 (한번에 너무 많은 데이터 처리 방지)
+      const maxBatchSize = 50;
+      if (artists.length > maxBatchSize) {
+        // 큰 배치는 작게 나누어 처리
+        final batches = <List<ArtistModel>>[];
+        for (int i = 0; i < artists.length; i += maxBatchSize) {
+          final end = (i + maxBatchSize > artists.length) ? artists.length : i + maxBatchSize;
+          batches.add(artists.sublist(i, end));
+        }
         
-        if (koreanName.isNotEmpty) {
-          artistNames.add(koreanName);
+        for (final batch in batches) {
+          final batchData = await _loadApplicationDataBatch(batch, userId);
+          applicationData.addAll(batchData);
         }
-        if (englishName.isNotEmpty) {
-          artistNames.add(englishName);
-        }
+        return applicationData;
       }
-
-      // 배치로 신청수 가져오기
-      Map<String, int> applicationCounts = {};
-      Map<String, bool> alreadyInVote = {};
-      Map<String, String> userApplicationStatuses = {};
-
-      if (artistNames.isNotEmpty) {
-        try {
-          // 모든 아티스트의 신청수를 한번에 가져오기
-          final supabase = Supabase.instance.client;
-          final applicationCountResponse = await supabase
-              .from('vote_request_user')
-              .select('requested_artist_name')
-              .eq('vote_id', voteId)
-              .filter('requested_artist_name', 'in', artistNames);
-
-          // 신청수 계산
-          for (final row in applicationCountResponse) {
-            final artistName = row['requested_artist_name'] as String;
-            applicationCounts[artistName] = (applicationCounts[artistName] ?? 0) + 1;
-          }
-
-          // 투표 아이템에 이미 등록된 아티스트 확인
-          final voteItemResponse = await supabase
-              .from('vote_item')
-              .select('artist!inner(name)')
-              .eq('vote_id', voteId);
-
-          for (final item in voteItemResponse) {
-            if (item['artist'] != null) {
-              final artistData = item['artist'] as Map<String, dynamic>;
-              final nameData = artistData['name'] as Map<String, dynamic>;
-              
-              final koreanName = nameData['ko'] as String? ?? '';
-              final englishName = nameData['en'] as String? ?? '';
-              
-              if (koreanName.isNotEmpty && artistNames.contains(koreanName)) {
-                alreadyInVote[koreanName] = true;
-              }
-              if (englishName.isNotEmpty && artistNames.contains(englishName)) {
-                alreadyInVote[englishName] = true;
-              }
-            }
-          }
-
-          // 현재 사용자의 신청 상태 확인 (userId가 있는 경우)
-          if (userId != null) {
-            final userApplicationResponse = await supabase
-                .from('vote_request_user')
-                .select('requested_artist_name, status')
-                .eq('vote_id', voteId)
-                .eq('user_id', userId)
-                .filter('requested_artist_name', 'in', artistNames);
-
-            for (final row in userApplicationResponse) {
-              final artistName = row['requested_artist_name'] as String;
-              final status = row['status'] as String;
-              userApplicationStatuses[artistName] = _getUserApplicationStatusText(status);
-            }
-          }
-        } catch (e) {
-          logger.e('배치 데이터 로딩 중 오류 발생: $e');
-        }
-      }
-
-      // 결과 조립
-      for (final artist in artists) {
-        final displayName = ArtistNameUtils.getDisplayName(artist.name);
-        final koreanName = artist.name['ko'] as String? ?? '';
-        final englishName = artist.name['en'] as String? ?? '';
-
-        // 신청수 계산 (한글과 영어 이름 모두 확인)
-        int totalApplicationCount = 0;
-        if (koreanName.isNotEmpty) {
-          totalApplicationCount += applicationCounts[koreanName] ?? 0;
-        }
-        if (englishName.isNotEmpty && englishName != koreanName) {
-          totalApplicationCount += applicationCounts[englishName] ?? 0;
-        }
-
-        // 투표에 이미 등록 여부 확인
-        bool isAlreadyInVote = false;
-        if (koreanName.isNotEmpty) {
-          isAlreadyInVote = alreadyInVote[koreanName] ?? false;
-        }
-        if (!isAlreadyInVote && englishName.isNotEmpty) {
-          isAlreadyInVote = alreadyInVote[englishName] ?? false;
-        }
-
-        // 사용자 신청 상태 확인
-        String applicationStatus = t('vote_item_request_can_apply');
-        if (userId != null) {
-          if (koreanName.isNotEmpty && userApplicationStatuses.containsKey(koreanName)) {
-            applicationStatus = userApplicationStatuses[koreanName]!;
-          } else if (englishName.isNotEmpty && userApplicationStatuses.containsKey(englishName)) {
-            applicationStatus = userApplicationStatuses[englishName]!;
-          }
-        }
-
-        applicationData[displayName] = ArtistApplicationInfo(
-          artistName: displayName,
-          applicationCount: totalApplicationCount,
-          applicationStatus: applicationStatus,
-          isAlreadyInVote: isAlreadyInVote,
-        );
-      }
+      
+      // 작은 배치는 한번에 처리
+      return await _loadApplicationDataBatch(artists, userId);
     } catch (e) {
       logger.e('Application data loading failed', error: e);
       // 전체 오류 발생 시 기본값으로 설정
@@ -269,6 +168,155 @@ class VoteItemRequestService {
           isAlreadyInVote: false,
         );
       }
+      return applicationData;
+    }
+  }
+
+  /// 배치 단위로 신청 데이터 로드
+  Future<Map<String, ArtistApplicationInfo>> _loadApplicationDataBatch(
+      List<ArtistModel> artists, String? userId) async {
+    final Map<String, ArtistApplicationInfo> applicationData = {};
+
+    // 모든 아티스트 이름을 한번에 수집
+    final artistNames = <String>[];
+    
+    for (final artist in artists) {
+      final koreanName = artist.name['ko'] as String? ?? '';
+      final englishName = artist.name['en'] as String? ?? '';
+      
+      if (koreanName.isNotEmpty) {
+        artistNames.add(koreanName);
+      }
+      if (englishName.isNotEmpty) {
+        artistNames.add(englishName);
+      }
+    }
+
+    // 배치로 신청수 가져오기
+    Map<String, int> applicationCounts = {};
+    Map<String, bool> alreadyInVote = {};
+    Map<String, String> userApplicationStatuses = {};
+
+    if (artistNames.isNotEmpty) {
+      try {
+        final supabase = Supabase.instance.client;
+        
+        // 타임아웃 설정으로 무한 대기 방지
+        final futures = <Future>[];
+        
+        // 1. 모든 아티스트의 신청수를 한번에 가져오기
+        futures.add(
+          supabase
+              .from('vote_request_user')
+              .select('requested_artist_name')
+              .eq('vote_id', voteId)
+              .filter('requested_artist_name', 'in', artistNames)
+              .timeout(Duration(seconds: 10))
+              .then((response) {
+            // 신청수 계산
+            for (final row in response) {
+              final artistName = row['requested_artist_name'] as String;
+              applicationCounts[artistName] = (applicationCounts[artistName] ?? 0) + 1;
+            }
+          })
+        );
+
+        // 2. 투표 아이템에 이미 등록된 아티스트 확인
+        futures.add(
+          supabase
+              .from('vote_item')
+              .select('artist!inner(name)')
+              .eq('vote_id', voteId)
+              .timeout(Duration(seconds: 10))
+              .then((response) {
+            for (final item in response) {
+              if (item['artist'] != null) {
+                final artistData = item['artist'] as Map<String, dynamic>;
+                final nameData = artistData['name'] as Map<String, dynamic>;
+                
+                final koreanName = nameData['ko'] as String? ?? '';
+                final englishName = nameData['en'] as String? ?? '';
+                
+                if (koreanName.isNotEmpty && artistNames.contains(koreanName)) {
+                  alreadyInVote[koreanName] = true;
+                }
+                if (englishName.isNotEmpty && artistNames.contains(englishName)) {
+                  alreadyInVote[englishName] = true;
+                }
+              }
+            }
+          })
+        );
+
+        // 3. 현재 사용자의 신청 상태 확인 (userId가 있는 경우)
+        if (userId != null) {
+          futures.add(
+            supabase
+                .from('vote_request_user')
+                .select('requested_artist_name, status')
+                .eq('vote_id', voteId)
+                .eq('user_id', userId)
+                .filter('requested_artist_name', 'in', artistNames)
+                .timeout(Duration(seconds: 10))
+                .then((response) {
+              for (final row in response) {
+                final artistName = row['requested_artist_name'] as String;
+                final status = row['status'] as String;
+                userApplicationStatuses[artistName] = _getUserApplicationStatusText(status);
+              }
+            })
+          );
+        }
+
+        // 모든 쿼리를 병렬로 실행하되 전체 타임아웃 설정
+        await Future.wait(futures).timeout(Duration(seconds: 30));
+        
+      } catch (e) {
+        logger.e('배치 데이터 로딩 중 오류 발생: $e');
+        // 타임아웃이나 기타 오류 시에도 기본값으로 계속 진행
+      }
+    }
+
+    // 결과 조립
+    for (final artist in artists) {
+      final displayName = ArtistNameUtils.getDisplayName(artist.name);
+      final koreanName = artist.name['ko'] as String? ?? '';
+      final englishName = artist.name['en'] as String? ?? '';
+
+      // 신청수 계산 (한글과 영어 이름 모두 확인)
+      int totalApplicationCount = 0;
+      if (koreanName.isNotEmpty) {
+        totalApplicationCount += applicationCounts[koreanName] ?? 0;
+      }
+      if (englishName.isNotEmpty && englishName != koreanName) {
+        totalApplicationCount += applicationCounts[englishName] ?? 0;
+      }
+
+      // 투표에 이미 등록 여부 확인
+      bool isAlreadyInVote = false;
+      if (koreanName.isNotEmpty) {
+        isAlreadyInVote = alreadyInVote[koreanName] ?? false;
+      }
+      if (!isAlreadyInVote && englishName.isNotEmpty) {
+        isAlreadyInVote = alreadyInVote[englishName] ?? false;
+      }
+
+      // 사용자 신청 상태 확인
+      String applicationStatus = t('vote_item_request_can_apply');
+      if (userId != null) {
+        if (koreanName.isNotEmpty && userApplicationStatuses.containsKey(koreanName)) {
+          applicationStatus = userApplicationStatuses[koreanName]!;
+        } else if (englishName.isNotEmpty && userApplicationStatuses.containsKey(englishName)) {
+          applicationStatus = userApplicationStatuses[englishName]!;
+        }
+      }
+
+      applicationData[displayName] = ArtistApplicationInfo(
+        artistName: displayName,
+        applicationCount: totalApplicationCount,
+        applicationStatus: applicationStatus,
+        isAlreadyInVote: isAlreadyInVote,
+      );
     }
 
     return applicationData;

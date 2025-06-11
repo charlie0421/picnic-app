@@ -39,6 +39,7 @@ class SearchAndResultsSection extends StatefulWidget {
 
 class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   final ScrollController _scrollController = ScrollController();
+  bool _isScrollLoading = false; // 스크롤 로딩 중복 방지
 
   @override
   void initState() {
@@ -53,7 +54,11 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   }
 
   void _onScroll() {
-    if (!widget.hasMoreResults || widget.isLoadingMore || widget.onLoadMore == null) {
+    // 중복 호출 방지
+    if (_isScrollLoading || 
+        !widget.hasMoreResults || 
+        widget.isLoadingMore || 
+        widget.onLoadMore == null) {
       return;
     }
 
@@ -62,7 +67,15 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
     
     // 80% 지점에 도달하면 추가 로드
     if (currentScroll >= maxScroll * 0.8) {
+      _isScrollLoading = true;
       widget.onLoadMore!();
+      
+      // 0.5초 후 다시 스크롤 로딩 허용
+      Future.delayed(Duration(milliseconds: 500), () {
+        if (mounted) {
+          _isScrollLoading = false;
+        }
+      });
     }
   }
 
