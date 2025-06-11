@@ -90,5 +90,9 @@
   "vote_item_request_artist_name_missing": "Artist name missing",
   "vote_item_request_user_info_not_found": "User information not found.",
   "vote_item_request_already_applied_artist": "You have already applied for this artist.",
-  "vote_item_request_addition_request": "Vote item addition request"
+  "vote_item_request_addition_request": "Vote item addition request",
+  "label_tabbar_vote_active": "Active",
+  "label_tabbar_vote_image": "Image Vote",
+  "label_tabbar_vote_end": "Ended",
+  "label_tabbar_vote_upcoming": "Upcoming"
 }

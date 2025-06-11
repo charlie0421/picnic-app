@@ -9,7 +9,7 @@ part '../../generated/providers/vote_list_provider.g.dart';
 
 enum VoteStatus { all, active, end, upcoming, activeAndUpcoming }
 
-enum VoteCategory { all, birthday, comeback, achieve }
+enum VoteCategory { all, birthday, comeback, achieve, birth, debut, image }
 
 enum VotePortal { vote, pic }
 
@@ -74,6 +74,11 @@ class AsyncVoteList extends _$AsyncVoteList {
       }
 
       query = query.filter('deleted_at', 'is', null);
+
+      // 카테고리 필터 적용 ('all'이 아닌 경우에만)
+      if (category != 'all') {
+        query = query.eq('vote_category', category);
+      }
 
       if (status == VoteStatus.active) {
         query = query

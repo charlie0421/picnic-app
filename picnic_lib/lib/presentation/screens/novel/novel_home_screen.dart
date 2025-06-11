@@ -2,8 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/navigator/bottom/common_bottom_navigation_bar.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
@@ -19,27 +18,13 @@ class NovelHomeScreen extends ConsumerWidget {
     final showBottomNavigation = ref.watch(
         navigationInfoProvider.select((value) => value.showBottomNavigation));
 
-    // 스크린 정보 직접 정의
-    final ScreenInfo screenInfo = ScreenInfo(
-      type: PortalType.novel,
-      color: novelMainColor,
-      pages: [
-        BottomNavigationItem(
-          title: 'nav_home',
-          assetPath: 'assets/icons/bottom/media.svg',
-          index: 0,
-          pageWidget: Container(),
-          needLogin: false,
-        ),
-      ],
-    );
-
     return Stack(
+      fit: StackFit.expand,
       children: [
         const PicnicAnimatedSwitcher(),
         if (showBottomNavigation == true)
           Positioned(
-            bottom: 0,
+            bottom: getBottomPadding(context),
             left: 0,
             right: 0,
             child: CommonBottomNavigationBar(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
+import 'package:picnic_lib/data/models/navigator/navigation_configs.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/extensions/portal_type_extension.dart';
 import 'package:picnic_lib/navigation_stack.dart';
@@ -27,6 +28,7 @@ class Navigation with _$Navigation {
     Widget? currentScreen,
     @Default(true) bool showPortal,
     @Default(true) bool showTopMenu,
+    @Default(true) bool showMyPoint,
     @Default(TopRightType.common) TopRightType topRightMenu,
     @Default(true) bool showBottomNavigation,
     @Default('') String pageTitle,
@@ -38,8 +40,13 @@ class Navigation with _$Navigation {
   }) = _Navigation;
 
   factory Navigation.initial() {
+    // 초기 투표 페이지는 인덱스 0에 해당하는 페이지를 로드
+    final initialVotePage =
+        NavigationConfigs.getPageWidget(PortalType.vote, 0) ??
+            const VoteHomePage();
+
     return Navigation(
-      voteNavigationStack: NavigationStack()..push(const VoteHomePage()),
+      voteNavigationStack: NavigationStack()..push(initialVotePage),
       drawerNavigationStack: NavigationStack()..push(const MyPage()),
       signUpNavigationStack: NavigationStack()..push(const LoginPage()),
     );
@@ -68,13 +75,18 @@ class Navigation with _$Navigation {
     int newNovelBottomNavigationIndex =
         int.parse(novelBottomNavigationIndexString!);
 
+    // 저장된 인덱스에 맞는 페이지를 로드
+    final savedVotePage = NavigationConfigs.getPageWidget(
+            PortalType.vote, newVoteBottomNavigationIndex) ??
+        const VoteHomePage();
+
     return Navigation(
       portalType: newPortalType,
       picBottomNavigationIndex: newPicBottomNavigationIndex,
       voteBottomNavigationIndex: newVoteBottomNavigationIndex,
       communityBottomNavigationIndex: newCommunityBottomNavigationIndex,
       novelBottomNavigationIndex: newNovelBottomNavigationIndex,
-      voteNavigationStack: NavigationStack()..push(const VoteHomePage()),
+      voteNavigationStack: NavigationStack()..push(savedVotePage),
       drawerNavigationStack: NavigationStack()..push(const MyPage()),
       signUpNavigationStack: NavigationStack()..push(const LoginPage()),
     );

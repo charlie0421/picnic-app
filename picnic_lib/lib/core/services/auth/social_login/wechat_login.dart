@@ -1,3 +1,7 @@
+// TODO: 위챗 로그인 임시 비활성화 - CI 에러 해결을 위해 전체 주석 처리
+// 긴급 배포 완료 후 주석을 제거하고 fluwx 패키지 에러를 해결해야 함
+
+/*
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:fluwx/fluwx.dart';
@@ -186,5 +190,24 @@ class WeChatLogin implements SocialLogin {
       logger.e('WeChat logout error', error: e, stackTrace: s);
       throw PicnicAuthExceptions.unknown(originalError: e);
     }
+  }
+}
+*/
+
+// 임시 더미 클래스 - 컴파일 에러 방지용
+import 'package:picnic_lib/core/services/auth/auth_service.dart';
+import 'package:picnic_lib/core/errors/auth_exception.dart';
+import 'package:picnic_lib/data/models/common/social_login_result.dart';
+
+class WeChatLogin implements SocialLogin {
+  @override
+  Future<SocialLoginResult> login() async {
+    throw PicnicAuthExceptions.unsupportedProvider(
+        'WeChat login temporarily disabled');
+  }
+
+  @override
+  Future<void> logout() async {
+    // 위챗 로그인이 비활성화되어 있으므로 아무것도 하지 않음
   }
 }

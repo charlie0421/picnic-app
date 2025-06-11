@@ -46,7 +46,7 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
             onTap: () {
               if (navigationInfo.drawerNavigationStack != null &&
                   navigationInfo.drawerNavigationStack!.length > 1) {
-                ref.read(navigationInfoProvider.notifier).goBackMy();
+                ref.read(navigationInfoProvider.notifier).goBackMyPage();
               } else {
                 Navigator.of(context).pop();
               }

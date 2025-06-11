@@ -2,21 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/data/models/navigator/bottom_navigation_item.dart';
+import 'package:picnic_lib/data/models/navigator/navigation_configs.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/navigation_stack.dart';
-import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
-import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
-import 'package:picnic_lib/presentation/pages/community/community_my_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
-import 'package:picnic_lib/presentation/pages/pic/gallery_page.dart';
-import 'package:picnic_lib/presentation/pages/pic/library_page.dart';
-import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/pic_chart_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_media_list_page.dart';
 import 'package:picnic_lib/presentation/screens/community/community_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_home_screen.dart';
@@ -27,77 +17,63 @@ part '../../generated/providers/navigation_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 class NavigationInfo extends _$NavigationInfo {
-  Navigation setting = Navigation.initial();
-
-  NavigationInfo() {
-    _loadInitialState();
-  }
-
-  Future<void> _loadInitialState() async {
-    await setting.load();
-  }
-
   @override
   Navigation build() {
-    return setting;
+    return Navigation.initial();
   }
 
-  setPortal(PortalType portalType) {
-    Widget currentScreen;
-    Widget currentPage;
+  Future<void> goBack() async {
+    final voteNavigationStack = state.voteNavigationStack;
 
-    switch (portalType) {
-      case PortalType.vote:
-        currentScreen = const VoteHomeScreen();
-        final pages = [
-          const VoteHomePage(),
-          PicChartPage(),
-          const VoteMediaListPage(),
-          const StorePage(),
-        ];
-        currentPage = pages[state.voteBottomNavigationIndex];
-        break;
-      case PortalType.pic:
-        currentScreen = const PicHomeScreen();
-        final pages = [
-          const PicHomePage(),
-          const GalleryPage(),
-          const LibraryPage(),
-        ];
-        currentPage = pages[state.picBottomNavigationIndex];
-        break;
-      case PortalType.community:
-        currentScreen = const CommunityHomeScreen();
-        final pages = [
-          const CommunityHomePage(),
-          const BoardListPage(),
-          const CommunityMyPage(),
-        ];
-        currentPage = pages[state.communityBottomNavigationIndex];
-        break;
-      case PortalType.novel:
-        currentScreen = const NovelHomeScreen();
-        final pages = [
-          Container(),
-        ];
-        currentPage = pages[state.novelBottomNavigationIndex];
-        break;
-      default:
-        currentScreen = const VoteHomeScreen();
-        final pages = [
-          const VoteHomePage(),
-          PicChartPage(),
-          const VoteMediaListPage(),
-          const StorePage(),
-        ];
-        currentPage = pages[state.voteBottomNavigationIndex];
+    if (voteNavigationStack != null && voteNavigationStack.length > 1) {
+      voteNavigationStack.pop();
+      state = state.copyWith(voteNavigationStack: voteNavigationStack);
+    } else {
+      logger.d('Cannot go back: stack has only one page or is null');
     }
+  }
 
-    state = state.copyWith(
-      portalType: portalType,
-      currentScreen: currentScreen,
-      voteNavigationStack: NavigationStack()..push(currentPage),
-    );
+  Future<void> goBackCommunity() async {
+    final communityNavigationStack = state.communityNavigationStack;
+
+    if (communityNavigationStack != null &&
+        communityNavigationStack.length > 1) {
+      communityNavigationStack.pop();
+      state =
+          state.copyWith(communityNavigationStack: communityNavigationStack);
+    } else {
+      logger.d('Cannot go back: stack has only one page or is null');
+    }
+  }
+
+  Future<void> goBackMyPage() async {
+    final drawerNavigationStack = state.drawerNavigationStack;
+
+    if (drawerNavigationStack != null && drawerNavigationStack.length > 1) {
+      drawerNavigationStack.pop();
+      state = state.copyWith(drawerNavigationStack: drawerNavigationStack);
+    } else {
+      logger.d('Cannot go back: stack has only one page or is null');
+    }
+  }
+
+  Widget getScreen() {
+    switch (state.portalType) {
+      case PortalType.vote:
+        return const VoteHomeScreen();
+      case PortalType.pic:
+        return const PicHomeScreen();
+      case PortalType.community:
+        return const CommunityHomeScreen();
+      case PortalType.novel:
+        return const NovelHomeScreen();
+      default:
+        return const VoteHomeScreen();
+    }
+  }
+
+  void setPortal(PortalType portalType) {
+    state = state.copyWith(portalType: portalType);
     globalStorage.saveData('portalString', portalType.name.toString());
   }
 
@@ -133,6 +109,7 @@ class NavigationInfo extends _$NavigationInfo {
     required bool showPortal,
     required bool showBottomNavigation,
     required bool showTopMenu,
+    bool? showMyPoint,
     TopRightType? topRightMenu,
     String? pageTitle,
   }) {
@@ -140,6 +117,7 @@ class NavigationInfo extends _$NavigationInfo {
       showPortal: showPortal,
       showBottomNavigation: showBottomNavigation,
       showTopMenu: showTopMenu,
+      showMyPoint: showMyPoint ?? true,
       topRightMenu: topRightMenu ?? TopRightType.common,
       pageTitle: pageTitle ?? '',
     );
@@ -154,125 +132,47 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   setPicBottomNavigationIndex(int index) {
-    final picPages = [
-      const BottomNavigationItem(
-        title: 'nav_home',
-        assetPath: 'assets/icons/bottom/home.svg',
-        index: 0,
-        pageWidget: PicHomePage(),
-        needLogin: false,
-      ),
-      const BottomNavigationItem(
-        title: 'nav_gallery',
-        assetPath: 'assets/icons/bottom/gallery.svg',
-        index: 1,
-        pageWidget: GalleryPage(),
-        needLogin: false,
-      ),
-      const BottomNavigationItem(
-        title: 'nav_library',
-        assetPath: 'assets/icons/bottom/library.svg',
-        index: 3,
-        pageWidget: LibraryPage(),
-        needLogin: false,
-      ),
-    ];
+    final pageWidget = NavigationConfigs.getPageWidget(PortalType.pic, index);
+    if (pageWidget == null) return;
 
     state = state.copyWith(
       picBottomNavigationIndex: index,
-    );
-    state = state.copyWith(
-      voteNavigationStack: NavigationStack()..push(picPages[index].pageWidget),
+      voteNavigationStack: NavigationStack()..push(pageWidget),
     );
     globalStorage.saveData('picBottomNavigationIndex', index.toString());
   }
 
   setVoteBottomNavigationIndex(int index) {
-    final votePages = [
-      const BottomNavigationItem(
-        title: 'nav_vote',
-        assetPath: 'assets/icons/bottom/vote.svg',
-        index: 0,
-        pageWidget: VoteHomePage(),
-        needLogin: false,
-      ),
-      BottomNavigationItem(
-        title: 'nav_picchart',
-        assetPath: 'assets/icons/bottom/pic_chart.svg',
-        index: 1,
-        pageWidget: PicChartPage(),
-        needLogin: false,
-      ),
-      const BottomNavigationItem(
-        title: 'nav_media',
-        assetPath: 'assets/icons/bottom/media.svg',
-        index: 2,
-        pageWidget: VoteMediaListPage(),
-        needLogin: false,
-      ),
-      const BottomNavigationItem(
-        title: 'nav_store',
-        assetPath: 'assets/icons/bottom/store.svg',
-        index: 3,
-        pageWidget: StorePage(),
-        needLogin: false,
-      ),
-    ];
+    final pageWidget = NavigationConfigs.getPageWidget(PortalType.vote, index);
+    if (pageWidget == null) return;
 
     state = state.copyWith(
-        voteBottomNavigationIndex: index,
-        voteNavigationStack: NavigationStack()
-          ..push(votePages[index].pageWidget));
+      voteBottomNavigationIndex: index,
+      voteNavigationStack: NavigationStack()..push(pageWidget),
+    );
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
   }
 
   setCommunityBottomNavigationIndex(int index) {
-    final communityPages = [
-      const BottomNavigationItem(
-        title: 'nav_home',
-        assetPath: 'assets/icons/bottom/media.svg',
-        index: 0,
-        pageWidget: CommunityHomePage(),
-        needLogin: false,
-      ),
-      const BottomNavigationItem(
-        title: 'nav_board',
-        assetPath: 'assets/icons/bottom/board.svg',
-        index: 1,
-        pageWidget: BoardListPage(),
-        needLogin: false,
-      ),
-      const BottomNavigationItem(
-        title: 'nav_my',
-        assetPath: 'assets/icons/bottom/my.svg',
-        index: 2,
-        pageWidget: CommunityMyPage(),
-        needLogin: true,
-      ),
-    ];
+    final pageWidget =
+        NavigationConfigs.getPageWidget(PortalType.community, index);
+    if (pageWidget == null) return;
 
     state = state.copyWith(
-        communityBottomNavigationIndex: index,
-        voteNavigationStack: NavigationStack()
-          ..push(communityPages[index].pageWidget));
+      communityBottomNavigationIndex: index,
+      voteNavigationStack: NavigationStack()..push(pageWidget),
+    );
     globalStorage.saveData('communityBottomNavigationIndex', index.toString());
   }
 
   setNovelBottomNavigationIndex(int index) {
-    final novelPages = [
-      BottomNavigationItem(
-        title: 'nav_home',
-        assetPath: 'assets/icons/bottom/media.svg',
-        index: 0,
-        pageWidget: Container(),
-        needLogin: false,
-      ),
-    ];
+    final pageWidget = NavigationConfigs.getPageWidget(PortalType.novel, index);
+    if (pageWidget == null) return;
 
     state = state.copyWith(
-        novelBottomNavigationIndex: index,
-        voteNavigationStack: NavigationStack()
-          ..push(novelPages[index].pageWidget));
+      novelBottomNavigationIndex: index,
+      voteNavigationStack: NavigationStack()..push(pageWidget),
+    );
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 
@@ -347,28 +247,14 @@ class NavigationInfo extends _$NavigationInfo {
         showBottomNavigation: true);
   }
 
-  goBack() {
-    final voteNavigationStack = state.voteNavigationStack;
+  void goBackSignUp() {
+    final signUpNavigationStack = state.signUpNavigationStack;
 
-    if (voteNavigationStack == null || voteNavigationStack.length <= 1) {
-      return;
+    if (signUpNavigationStack != null && signUpNavigationStack.length > 1) {
+      signUpNavigationStack.pop();
+      state = state.copyWith(signUpNavigationStack: signUpNavigationStack);
+    } else {
+      logger.d('Cannot go back: stack has only one page or is null');
     }
-    voteNavigationStack.pop();
-
-    state = state.copyWith(voteNavigationStack: voteNavigationStack);
-  }
-
-  goBackMy() {
-    final navigationStack = state.drawerNavigationStack;
-    navigationStack?.pop();
-
-    state = state.copyWith(drawerNavigationStack: navigationStack);
-  }
-
-  goBackSignUp() {
-    final navigationStack = state.signUpNavigationStack;
-    navigationStack?.pop();
-
-    state = state.copyWith(signUpNavigationStack: navigationStack);
   }
 }

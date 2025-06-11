@@ -4,17 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/navigator/bottom/common_bottom_navigation_bar.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
-import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:picnic_lib/data/models/navigator/screen_info.dart';
-import 'package:picnic_lib/data/models/navigator/bottom_navigation_item.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/pic_chart_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_media_list_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
 
 class VoteHomeScreen extends ConsumerStatefulWidget {
   const VoteHomeScreen({super.key});
@@ -26,44 +18,6 @@ class VoteHomeScreen extends ConsumerStatefulWidget {
 class _VoteHomeScreenState extends ConsumerState<VoteHomeScreen> {
   bool _isSwipeEnabled = true;
   Timer? _swipeTimer;
-
-  // 스크린 정보 직접 정의
-  final List<BottomNavigationItem> votePages = [
-    const BottomNavigationItem(
-      title: 'nav_vote',
-      assetPath: 'assets/icons/bottom/vote.svg',
-      index: 0,
-      pageWidget: VoteHomePage(),
-      needLogin: false,
-    ),
-    BottomNavigationItem(
-      title: 'nav_picchart',
-      assetPath: 'assets/icons/bottom/pic_chart.svg',
-      index: 1,
-      pageWidget: PicChartPage(),
-      needLogin: false,
-    ),
-    const BottomNavigationItem(
-      title: 'nav_media',
-      assetPath: 'assets/icons/bottom/media.svg',
-      index: 2,
-      pageWidget: VoteMediaListPage(),
-      needLogin: false,
-    ),
-    const BottomNavigationItem(
-      title: 'nav_store',
-      assetPath: 'assets/icons/bottom/store.svg',
-      index: 3,
-      pageWidget: StorePage(),
-      needLogin: false,
-    ),
-  ];
-
-  late final ScreenInfo screenInfo = ScreenInfo(
-    type: PortalType.vote,
-    color: voteMainColor,
-    pages: votePages,
-  );
 
   @override
   void didChangeDependencies() {

@@ -128,4 +128,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vote_item_request_addition_request => 'Vote item addition request';
+
+  @override
+  String get label_tabbar_vote_active => 'Active';
+
+  @override
+  String get label_tabbar_vote_image => 'Image Vote';
+
+  @override
+  String get label_tabbar_vote_end => 'Ended';
+
+  @override
+  String get label_tabbar_vote_upcoming => 'Upcoming';
 }

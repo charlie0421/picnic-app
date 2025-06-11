@@ -4,7 +4,9 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/video_info.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -28,6 +30,15 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(navigationInfoProvider.notifier).settingNavigation(
+            showPortal: true,
+            showTopMenu: true,
+            showMyPoint: false,
+            showBottomNavigation: true,
+            pageTitle: t('nav_media'),
+          );
+    });
     _pagingController = PagingController<int, VideoInfo>(
       getNextPageKey: (state) {
         if (state.items == null) return 1;

@@ -63,7 +63,7 @@ import 'app_localizations_ko.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ko')
+    Locale('ko'),
   ];
 
   /// The title of the application
@@ -319,6 +319,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vote item addition request'**
   String get vote_item_request_addition_request;
+
+  /// No description provided for @label_tabbar_vote_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get label_tabbar_vote_active;
+
+  /// No description provided for @label_tabbar_vote_image.
+  ///
+  /// In en, this message translates to:
+  /// **'Image Vote'**
+  String get label_tabbar_vote_image;
+
+  /// No description provided for @label_tabbar_vote_end.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get label_tabbar_vote_end;
+
+  /// No description provided for @label_tabbar_vote_upcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get label_tabbar_vote_upcoming;
 }
 
 class _AppLocalizationsDelegate
@@ -348,8 +372,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

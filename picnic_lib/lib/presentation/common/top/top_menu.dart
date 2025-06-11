@@ -108,7 +108,9 @@ class _TopState extends ConsumerState<TopMenu> {
                       ),
                     ),
                   )
-                : const CommonMyPoint(),
+                : navigationInfo.showMyPoint
+                    ? const CommonMyPoint()
+                    : Container(),
           ),
           Positioned(
             right: 0,

@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
-class VoteListPage extends ConsumerStatefulWidget {
-  const VoteListPage({super.key});
+class VotePicListPage extends ConsumerStatefulWidget {
+  const VotePicListPage({super.key});
 
   @override
-  ConsumerState<VoteListPage> createState() => _VoteListPageState();
+  ConsumerState<VotePicListPage> createState() => _VotePicListPageState();
 }
 
-class _VoteListPageState extends ConsumerState<VoteListPage>
+class _VotePicListPageState extends ConsumerState<VotePicListPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _pageStorageBucket = PageStorageBucket();
-  static const String _tabIndexKey = 'vote_list_tab_index';
+  static const String _tabIndexKey = 'vote_pic_list_tab_index';
 
   @override
   void initState() {
@@ -45,14 +44,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
       }
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: false,
-          showTopMenu: true,
-          showMyPoint: false,
-          showBottomNavigation: true,
-          pageTitle: t('page_title_vote_gather'));
-    });
+    // Navigation 설정은 부모 페이지(PicChartPage)에서 처리
   }
 
   @override
@@ -81,9 +73,10 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
               controller: _tabController,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                VoteList(VoteStatus.active, VoteCategory.all, area),
-                VoteList(VoteStatus.end, VoteCategory.all, area),
-                VoteList(VoteStatus.upcoming, VoteCategory.all, area),
+                // 모든 탭에서 image 카테고리만 표시
+                VoteList(VoteStatus.active, VoteCategory.image, area),
+                VoteList(VoteStatus.end, VoteCategory.image, area),
+                VoteList(VoteStatus.upcoming, VoteCategory.image, area),
               ],
             ),
           ),

@@ -97,7 +97,7 @@ dependencies:
   shorebird_code_push: ^2.0.3
   googleapis: ^14.0.0
   googleapis_auth: ^2.0.0
-  fluwx: ^5.5.4
+  # fluwx: ^5.5.4  # TODO: 위챗 로그인 임시 비활성화 - CI 에러 해결
 
 dev_dependencies:
   flutter_test:

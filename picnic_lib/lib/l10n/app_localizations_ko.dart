@@ -126,4 +126,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get vote_item_request_addition_request => '투표 아이템 추가 신청';
+
+  @override
+  String get label_tabbar_vote_active => 'Active';
+
+  @override
+  String get label_tabbar_vote_image => 'Image Vote';
+
+  @override
+  String get label_tabbar_vote_end => 'Ended';
+
+  @override
+  String get label_tabbar_vote_upcoming => 'Upcoming';
 }
