@@ -34,7 +34,8 @@ class SearchAndResultsSection extends StatefulWidget {
   });
 
   @override
-  State<SearchAndResultsSection> createState() => _SearchAndResultsSectionState();
+  State<SearchAndResultsSection> createState() =>
+      _SearchAndResultsSectionState();
 }
 
 class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
@@ -55,21 +56,21 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
 
   void _onScroll() {
     // 중복 호출 방지
-    if (_isScrollLoading || 
-        !widget.hasMoreResults || 
-        widget.isLoadingMore || 
+    if (_isScrollLoading ||
+        !widget.hasMoreResults ||
+        widget.isLoadingMore ||
         widget.onLoadMore == null) {
       return;
     }
 
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
-    
+
     // 80% 지점에 도달하면 추가 로드
     if (currentScroll >= maxScroll * 0.8) {
       _isScrollLoading = true;
       widget.onLoadMore!();
-      
+
       // 0.5초 후 다시 스크롤 로딩 허용
       Future.delayed(Duration(milliseconds: 500), () {
         if (mounted) {
@@ -96,7 +97,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
         children: [
           // 검색 헤더 및 입력 영역
           _buildSearchHeader(),
-          
+
           // 검색 결과 영역 (항상 표시)
           Expanded(child: _buildSearchResults()),
         ],
@@ -134,9 +135,9 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
               ),
             ],
           ),
-          
+
           SizedBox(height: 10.h),
-          
+
           // 검색 입력 박스
           SizedBox(
             height: 36.h,
@@ -236,28 +237,33 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
       controller: _scrollController,
       padding: EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 16.r),
       physics: BouncingScrollPhysics(),
-      itemCount: widget.searchResults.length + (widget.hasMoreResults && widget.isLoadingMore ? 1 : 0), // 아이템들 + 로딩 인디케이터
+      itemCount: widget.searchResults.length +
+          (widget.hasMoreResults && widget.isLoadingMore
+              ? 1
+              : 0), // 아이템들 + 로딩 인디케이터
       addAutomaticKeepAlives: false,
       addRepaintBoundaries: false,
       itemBuilder: (context, index) {
-        
         // 마지막 아이템이 로딩 인디케이터인지 확인
-        if (index == widget.searchResults.length && widget.hasMoreResults && widget.isLoadingMore) {
+        if (index == widget.searchResults.length &&
+            widget.hasMoreResults &&
+            widget.isLoadingMore) {
           return _buildLoadMoreIndicator();
         }
-        
+
         // 나머지는 아티스트 아이템
         final artistIndex = index;
         final artist = widget.searchResults[artistIndex];
-        final applicationInfo = widget.searchResultsInfo[artist.id.toString()] ?? 
-            ArtistApplicationInfo(
-              artistName: ArtistNameUtils.getDisplayName(artist.name),
-              applicationCount: 0,
-              applicationStatus: t('vote_item_request_can_apply'),
-              isAlreadyInVote: false,
-              isSubmitting: false,
-            );
-    
+        final applicationInfo =
+            widget.searchResultsInfo[artist.id.toString()] ??
+                ArtistApplicationInfo(
+                  artistName: ArtistNameUtils.getDisplayName(artist.name),
+                  applicationCount: 0,
+                  applicationStatus: t('vote_item_request_can_apply'),
+                  isAlreadyInVote: false,
+                  isSubmitting: false,
+                );
+
         return Container(
           margin: EdgeInsets.only(bottom: 2.h), // 간격 더 축소 (4.h -> 2.h)
           padding: EdgeInsets.all(6.r), // 패딩 더 축소 (8.r -> 6.r)
@@ -272,17 +278,17 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
           child: CommonArtistWidget(
             artist: artist,
             artistName: ArtistNameUtils.getDisplayName(artist.name),
-            groupName: artist.artistGroup?.name != null 
+            groupName: artist.artistGroup?.name != null
                 ? ArtistNameUtils.getDisplayName(artist.artistGroup!.name)
                 : null,
-            applicationCount: applicationInfo.applicationCount,
             width: 32.w, // 크기 더 축소 (36.w -> 32.w)
             height: 32.w, // 크기 더 축소 (36.w -> 32.w)
             currentSearchQuery: widget.currentSearchQuery,
             listIndex: artistIndex,
             trailing: SearchResultActionButton(
               shouldShowApplicationButton: !applicationInfo.isAlreadyInVote &&
-                  applicationInfo.applicationStatus == t('vote_item_request_can_apply'),
+                  applicationInfo.applicationStatus ==
+                      t('vote_item_request_can_apply'),
               isSubmitting: applicationInfo.isSubmitting,
               isAlreadyInVote: applicationInfo.isAlreadyInVote,
               status: applicationInfo.applicationStatus,
@@ -319,4 +325,4 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
       ),
     );
   }
-} 
+}

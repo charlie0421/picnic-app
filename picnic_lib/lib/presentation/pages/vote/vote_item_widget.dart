@@ -44,8 +44,8 @@ class VoteItemWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: rankChanged
               ? (rankUp
-                  ? Colors.blue.withOpacity(0.18)
-                  : Colors.red.withOpacity(0.18))
+                  ? Colors.blue.withValues(alpha: 0.18)
+                  : Colors.red.withValues(alpha: 0.18))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8.r),
         ),

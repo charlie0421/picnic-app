@@ -1,19 +1,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../data/models/vote/vote_request.dart';
+part of '../../../data/models/vote/vote_item_request.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$VoteRequestImpl _$$VoteRequestImplFromJson(Map<String, dynamic> json) =>
+_$VoteItemRequestImpl _$$VoteItemRequestImplFromJson(
+        Map<String, dynamic> json) =>
     $checkedCreate(
-      r'_$VoteRequestImpl',
+      r'_$VoteItemRequestImpl',
       json,
       ($checkedConvert) {
-        final val = _$VoteRequestImpl(
+        final val = _$VoteItemRequestImpl(
           id: $checkedConvert('id', (v) => v as String),
-          voteId: $checkedConvert('vote_id', (v) => v as String),
+          voteId: $checkedConvert('vote_id', (v) => (v as num).toInt()),
+          status: $checkedConvert('status', (v) => v as String),
           createdAt:
               $checkedConvert('created_at', (v) => DateTime.parse(v as String)),
           updatedAt:
@@ -28,10 +30,12 @@ _$VoteRequestImpl _$$VoteRequestImplFromJson(Map<String, dynamic> json) =>
       },
     );
 
-Map<String, dynamic> _$$VoteRequestImplToJson(_$VoteRequestImpl instance) =>
+Map<String, dynamic> _$$VoteItemRequestImplToJson(
+        _$VoteItemRequestImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'vote_id': instance.voteId,
+      'status': instance.status,
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
     };

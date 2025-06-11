@@ -5,14 +5,12 @@ import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'vote_item_request_models.dart';
-import 'application_count_tag.dart';
 
 /// 공통 아티스트 정보 위젯
 class CommonArtistWidget extends StatelessWidget {
   final ArtistModel? artist;
   final String artistName;
   final String? groupName;
-  final int applicationCount;
   final double width;
   final double height;
   final String? currentSearchQuery;
@@ -24,7 +22,6 @@ class CommonArtistWidget extends StatelessWidget {
     required this.artist,
     required this.artistName,
     this.groupName,
-    required this.applicationCount,
     this.width = 48.0,
     this.height = 48.0,
     this.currentSearchQuery,
@@ -40,9 +37,10 @@ class CommonArtistWidget extends StatelessWidget {
         ? ArtistNameUtils.getDisplayName(artist!.name)
         : safeArtistName;
 
-    final displayGroupName = artist?.artistGroup != null && artist!.artistGroup!.name.isNotEmpty
-        ? ArtistNameUtils.getDisplayName(artist!.artistGroup!.name)
-        : (groupName?.isNotEmpty == true ? groupName! : '');
+    final displayGroupName =
+        artist?.artistGroup != null && artist!.artistGroup!.name.isNotEmpty
+            ? ArtistNameUtils.getDisplayName(artist!.artistGroup!.name)
+            : (groupName?.isNotEmpty == true ? groupName! : '');
 
     return Row(
       children: [
@@ -68,16 +66,8 @@ class CommonArtistWidget extends StatelessWidget {
 
         // 오른쪽 trailing 위젯 (상태 또는 버튼)
         if (trailing != null) ...[
-          SizedBox(width: 6.w), // 간격 더 축소 (8.w -> 6.w)
-          Row( // Column 대신 Row로 변경해서 더 컴팩트하게
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 신청수 태그
-              ApplicationCountTag(applicationCount: applicationCount),
-              SizedBox(width: 4.w), // 간격 더 축소 (8.w -> 4.w)
-              trailing!,
-            ],
-          ),
+          SizedBox(width: 8.w),
+          trailing!,
         ],
       ],
     );
@@ -129,7 +119,7 @@ class CommonArtistWidget extends StatelessWidget {
   Widget _buildArtistName(String displayName) {
     // null 및 빈 문자열 안전 처리
     final safeName = displayName.isNotEmpty ? displayName : '알 수 없는 아티스트';
-    
+
     if (currentSearchQuery != null && currentSearchQuery!.isNotEmpty) {
       // 검색 결과에서는 하이라이트 적용
       return KoreanSearchUtils.buildConditionalHighlightText(
@@ -154,7 +144,7 @@ class CommonArtistWidget extends StatelessWidget {
   Widget _buildGroupInfo(String displayGroupName) {
     // null 및 빈 문자열 안전 처리
     final safeGroupName = displayGroupName.isNotEmpty ? displayGroupName : '';
-    
+
     return currentSearchQuery != null && currentSearchQuery!.isNotEmpty
         ? KoreanSearchUtils.buildConditionalHighlightText(
             safeGroupName,

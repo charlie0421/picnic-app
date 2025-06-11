@@ -222,11 +222,11 @@ class _PicnicCachedNetworkImageState
 
     if (kDebugMode && loadDuration.inSeconds > warningThreshold && mounted) {
       final disposeKey = "${widget.imageUrl}_dispose_${DateTime.now().hour}";
-      logger.throttledWarn(
-        '[${widget.runtimeType}] 이미지 로드 시간이 매우 오래 걸림: ${widget.imageUrl} - ${loadDuration.inMilliseconds}ms',
-        disposeKey,
-        throttleDuration: const Duration(hours: 1),
-      );
+      // logger.throttledWarn(
+      //   '[${widget.runtimeType}] 이미지 로드 시간이 매우 오래 걸림: ${widget.imageUrl} - ${loadDuration.inMilliseconds}ms',
+      //   disposeKey,
+      //   throttleDuration: const Duration(hours: 1),
+      // );
     }
     super.dispose();
   }
@@ -721,11 +721,11 @@ class _PicnicCachedNetworkImageState
 
     if (kDebugMode && loadDuration.inSeconds > warningThreshold) {
       final cacheKey = "${url}_${DateTime.now().hour}";
-      logger.throttledWarn(
-        '[${widget.runtimeType}] 이미지 로드 시간이 매우 오래 걸림: $url - ${loadDuration.inMilliseconds}ms',
-        cacheKey,
-        throttleDuration: const Duration(hours: 1),
-      );
+      // logger.throttledWarn(
+      //   '[${widget.runtimeType}] 이미지 로드 시간이 매우 오래 걸림: $url - ${loadDuration.inMilliseconds}ms',
+      //   cacheKey,
+      //   throttleDuration: const Duration(hours: 1),
+      // );
 
       // 메모리 스냅샷 최적화 - 더 엄격한 조건으로 제한
       if (loadDuration.inSeconds > errorThreshold &&

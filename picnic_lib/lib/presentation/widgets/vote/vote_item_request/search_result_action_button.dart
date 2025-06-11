@@ -119,19 +119,39 @@ class SearchResultActionButton extends StatelessWidget {
                     : AppColors.grey400.withValues(alpha: 0.3),
           ),
         ),
-        child: Text(
-          status,
-          style: getTextStyle(
-            AppTypo.caption12B,
-            status == t('vote_item_request_status_pending')
-                ? Colors.orange
-                : status == t('vote_item_request_status_approved')
-                    ? Colors.green
-                    : AppColors.grey600,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (status == t('vote_item_request_waiting')) ...[
+              Icon(
+                Icons.schedule_rounded,
+                size: 10.r,
+                color: Colors.orange,
+              ),
+              SizedBox(width: 3.w),
+            ] else if (status == t('vote_item_request_status_approved')) ...[
+              Icon(
+                Icons.check_circle_rounded,
+                size: 10.r,
+                color: Colors.green,
+              ),
+              SizedBox(width: 3.w),
+            ],
+            Text(
+              status,
+              style: getTextStyle(
+                AppTypo.caption12B,
+                status == t('vote_item_request_waiting')
+                    ? Colors.orange
+                    : status == t('vote_item_request_status_approved')
+                        ? Colors.green
+                        : AppColors.grey600,
+              ),
+            ),
+          ],
         ),
       );
     }
     return const SizedBox.shrink();
   }
-} 
+}

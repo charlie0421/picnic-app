@@ -35,5 +35,6 @@
   "vote_item_request_artist_name_missing": "아티스트명 없음",
   "vote_item_request_user_info_not_found": "사용자 정보를 찾을 수 없습니다.",
   "vote_item_request_already_applied_artist": "이미 해당 아티스트에 대해 신청하셨습니다.",
+  "vote_item_request_waiting": "대기중",
   "vote_item_request_addition_request": "투표 아이템 추가 신청"
 } 

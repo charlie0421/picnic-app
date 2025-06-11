@@ -714,8 +714,10 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
               tween: Tween(begin: 0, end: 1),
               duration: const Duration(seconds: 1),
               builder: (context, value, child) {
+                // opacity 값이 0.0~1.0 범위를 벗어나지 않도록 보장
+                final opacity = (1 - value).clamp(0.0, 1.0);
                 return Opacity(
-                  opacity: 1 - value,
+                  opacity: opacity,
                   child: Transform.translate(
                     offset: Offset(0, -10 * value),
                     child: Text(

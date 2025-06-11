@@ -114,16 +114,23 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _updateTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted) return;
       if (!_shouldShowAnimation) return; // 조건이 아닐 때는 점멸하지 않음
-      setState(() {
-        _isRedBackground = true;
-      });
-      ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (!mounted) return;
+
+      // 상태 변경을 한 번에 처리
+      if (mounted) {
         setState(() {
-          _isRedBackground = false;
+          _isRedBackground = true;
         });
-      });
+
+        final _ = ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
+
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            setState(() {
+              _isRedBackground = false;
+            });
+          }
+        });
+      }
     });
   }
 
@@ -242,16 +249,38 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     );
   }
 
+  // 메모이제이션을 위한 캐시
+  String _lastQuery = '';
+  List<VoteItemModel?> _lastData = [];
+  List<int> _cachedFilteredIndices = [];
+
+  void _updateCache(List<VoteItemModel?> data, String query, List<int> result) {
+    _lastData = List.from(data);
+    _lastQuery = query;
+    _cachedFilteredIndices = result;
+  }
+
   List<int> _getFilteredIndices(List<dynamic> args) {
     final List<VoteItemModel?> data = args[0];
     final String query = args[1];
+
+    // 캐시된 결과가 있는지 확인
+    if (query == _lastQuery &&
+        data.length == _lastData.length &&
+        _cachedFilteredIndices.isNotEmpty) {
+      return _cachedFilteredIndices;
+    }
+
     if (query.isEmpty) {
-      return List<int>.generate(data.length, (index) => index);
+      final result = List<int>.generate(data.length, (index) => index);
+      _updateCache(data, query, result);
+      return result;
     }
 
     logger.d('🔍 검색어: "$query"');
 
-    return List<int>.generate(data.length, (index) => index).where((index) {
+    final result =
+        List<int>.generate(data.length, (index) => index).where((index) {
       final item = data[index]!;
       final lowerQuery = query.toLowerCase();
 
@@ -325,6 +354,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
       return false;
     }).toList();
+
+    _updateCache(data, query, result);
+    return result;
   }
 
   // 다국어 텍스트에서 검색어가 포함된 언어의 텍스트를 반환 (초성 검색 포함)
@@ -382,7 +414,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                             child: Column(
                               children: [
                                 _buildVoteInfo(context, voteModel),
-                                SizedBox(height: 24),
+                                SizedBox(height: 12),
                                 if (_isSaving) _buildCaptureVoteList(context),
                               ],
                             ),
@@ -400,10 +432,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         ),
         if (_shouldShowAnimation)
           AnimatedOpacity(
-            opacity: _isRedBackground ? 1.0 : 0.0,
+            opacity: (_isRedBackground ? 1.0 : 0.0).clamp(0.0, 1.0),
             duration: const Duration(milliseconds: 300),
             child: Container(
-              color: AppColors.primary500.withOpacity(0.18),
+              color: AppColors.primary500.withValues(alpha: 0.18),
               width: double.infinity,
               height: double.infinity,
             ),
@@ -425,7 +457,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               memCacheWidth: width.toInt(),
             ),
           ),
-        const SizedBox(height: 36),
+        const SizedBox(height: 20),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 57.w),
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
@@ -463,12 +495,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           ),
         // 신청 버튼 추가 (예정된 투표와 진행 중인 투표에만 표시)
         if (!isEnded && !_isSaving)
-          Column(
-            children: [
-              const SizedBox(height: 20),
-              _buildApplicationButton(context),
-              const SizedBox(height: 12),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: _buildApplicationButton(context),
           ),
         if (isEnded && !_isSaving)
           Column(
@@ -647,8 +676,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         decoration: BoxDecoration(
           color: rankChanged
               ? (rankUp
-                  ? Colors.blue.withOpacity(0.18)
-                  : Colors.red.withOpacity(0.18))
+                  ? Colors.blue.withValues(alpha: 0.18)
+                  : Colors.red.withValues(alpha: 0.18))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8.r),
         ),
@@ -880,8 +909,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               tween: Tween(begin: 0, end: 1),
               duration: const Duration(seconds: 1),
               builder: (context, value, child) {
+                // opacity 값이 0.0~1.0 범위를 벗어나지 않도록 보장
+                final opacity = (1 - value).clamp(0.0, 1.0);
                 return Opacity(
-                  opacity: 1 - value,
+                  opacity: opacity,
                   child: Transform.translate(
                     offset: Offset(0, -10 * value),
                     child: Text(
@@ -919,63 +950,177 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildApplicationButton(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 48,
-      margin: EdgeInsets.symmetric(horizontal: 32.w),
-      decoration: BoxDecoration(
-        gradient: commonGradient,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: () async {
-          logger.d('🔥 투표 신청 버튼 클릭됨!');
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: EdgeInsets.only(right: 16.w),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.95, end: 1.0),
+          duration: const Duration(milliseconds: 1500),
+          curve: Curves.elasticOut,
+          builder: (context, scale, child) {
+            return Transform.scale(
+              scale: scale,
+              child: Container(
+                height: 36,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary500.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                      spreadRadius: 0,
+                    ),
+                    BoxShadow(
+                      color: AppColors.primary500.withValues(alpha: 0.2),
+                      blurRadius: 40,
+                      offset: const Offset(0, 16),
+                      spreadRadius: -8,
+                    ),
+                  ],
+                ),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  duration: const Duration(seconds: 2),
+                  curve: Curves.easeInOut,
+                  builder: (context, animationValue, child) {
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.primary500.withValues(alpha: 0.8),
+                            AppColors.primary500,
+                            AppColors.primary500.withValues(alpha: 0.9),
+                            Color.lerp(
+                                AppColors.primary500, Colors.black, 0.2)!,
+                          ],
+                          stops: [
+                            0.0 + (animationValue * 0.2),
+                            0.3 + (animationValue * 0.2),
+                            0.7 + (animationValue * 0.2),
+                            1.0,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: () async {
+                            logger.d('🔥 투표 신청 버튼 클릭됨!');
 
-          if (supabase.isLogged) {
-            logger.d('🔥 사용자 로그인 상태 확인됨');
+                            if (supabase.isLogged) {
+                              logger.d('🔥 사용자 로그인 상태 확인됨');
 
-            // 신청 다이얼로그 표시
-            final voteModel = ref
-                .read(asyncVoteDetailProvider(
-                    voteId: widget.voteId, votePortal: widget.votePortal))
-                .value;
+                              // 신청 다이얼로그 표시
+                              final voteModel = ref
+                                  .read(asyncVoteDetailProvider(
+                                      voteId: widget.voteId,
+                                      votePortal: widget.votePortal))
+                                  .value;
 
-            logger.d('🔥 voteModel 상태: ${voteModel != null ? "존재함" : "null"}');
+                              logger.d(
+                                  '🔥 voteModel 상태: ${voteModel != null ? "존재함" : "null"}');
 
-            if (voteModel != null) {
-              logger.d('🔥 showVoteItemRequestDialog 호출 시작');
-              await showVoteItemRequestDialog(
-                context: context,
-                voteModel: voteModel,
-              );
-              logger.d('🔥 showVoteItemRequestDialog 완료');
-            } else {
-              logger.d('🔥 voteModel이 null이어서 다이얼로그를 열 수 없음');
-            }
-          } else {
-            logger.d('🔥 사용자 미로그인 상태 - 로그인 다이얼로그 표시');
-            showRequireLoginDialog();
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-        ),
-        child: Text(
-          t('vote_item_request_button'),
-          style: getTextStyle(AppTypo.body16B, AppColors.grey00),
+                              if (voteModel != null) {
+                                logger.d('🔥 showVoteItemRequestDialog 호출 시작');
+                                await showVoteItemRequestDialog(
+                                  context: context,
+                                  voteModel: voteModel,
+                                );
+                                logger.d('🔥 showVoteItemRequestDialog 완료');
+                              } else {
+                                logger.d('🔥 voteModel이 null이어서 다이얼로그를 열 수 없음');
+                              }
+                            } else {
+                              logger.d('🔥 사용자 미로그인 상태 - 로그인 다이얼로그 표시');
+                              showRequireLoginDialog();
+                            }
+                          },
+                          child: Container(
+                            height: 36,
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TweenAnimationBuilder<double>(
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  duration: const Duration(milliseconds: 800),
+                                  curve: Curves.bounceOut,
+                                  builder: (context, iconScale, child) {
+                                    return Transform.scale(
+                                      scale: iconScale,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Icon(
+                                          Icons.how_to_vote_rounded,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                SizedBox(width: 8.w),
+                                TweenAnimationBuilder<double>(
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  duration: const Duration(milliseconds: 1200),
+                                  curve: Curves.easeOutBack,
+                                  builder: (context, textOpacity, child) {
+                                    // opacity 값이 0.0~1.0 범위를 벗어나지 않도록 보장
+                                    final safeOpacity =
+                                        textOpacity.clamp(0.0, 1.0);
+                                    return Opacity(
+                                      opacity: safeOpacity,
+                                      child: Text(
+                                        t('vote_item_request_button'),
+                                        style: getTextStyle(AppTypo.body14B,
+                                                AppColors.grey00)
+                                            .copyWith(
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.3,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.3),
+                                              offset: const Offset(0, 1),
+                                              blurRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -1012,100 +1157,211 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 200,
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeaderSkeleton(),
+                const SizedBox(height: 20),
+                _buildTitleSkeleton(),
+                const SizedBox(height: 12),
+                _buildDateSkeleton(),
+                const SizedBox(height: 12),
+                _buildButtonSkeleton(),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: _buildVoteListSkeleton(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderSkeleton() {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+    );
+  }
+
+  Widget _buildTitleSkeleton() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 57.w),
+      child: Column(
+        children: [
+          Container(
+            height: 24,
+            width: double.infinity,
+            decoration: BoxDecoration(
               color: Colors.white,
+              borderRadius: BorderRadius.circular(4.r),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 24,
+            width: 200.w,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4.r),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSkeleton() {
+    return Center(
+      child: Container(
+        height: 18,
+        width: 250.w,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4.r),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButtonSkeleton() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: EdgeInsets.only(right: 16.w),
+        child: Container(
+          width: 120.w,
+          height: 36,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18.r),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVoteListSkeleton() {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(top: 24, left: 16.w, right: 16.w),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!, width: 1.r),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(70.r),
+          topRight: Radius.circular(70.r),
+          bottomLeft: Radius.circular(40.r),
+          bottomRight: Radius.circular(40.r),
+        ),
+        color: Colors.white,
+      ),
+      child: Padding(
+        padding:
+            EdgeInsets.only(top: 56, left: 16.w, right: 16.w, bottom: 24).r,
+        child: Column(
+          children: [
+            // 검색박스 스켈레톤
+            Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(24.r),
+              ),
             ),
             const SizedBox(height: 24),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                height: 24,
-                width: 250.w,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                height: 16,
-                width: 200.w,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                height: 18,
-                width: 180.w,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                height: 16,
-                width: 150.w,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Center(
-              child: Container(
-                width: 280.w,
-                height: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24.r),
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            for (int i = 0; i < 5; i++) ...[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 45.w,
-                      height: 45,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(width: 16.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 16,
-                            width: 120.w,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            height: 14,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
+            // 투표 아이템들 스켈레톤
+            ...List.generate(5, (index) => _buildVoteItemSkeleton(index)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildVoteItemSkeleton(int index) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 36),
+      child: Row(
+        children: [
+          // 순위 영역
+          SizedBox(
+            width: 39,
+            child: Column(
+              children: [
+                if (index < 3)
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                const SizedBox(height: 4),
+                Container(
+                  width: 20,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8.w),
+          // 아티스트 이미지
+          Container(
+            width: 45,
+            height: 45,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(width: 8.w),
+          // 이름과 투표수 영역
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 16,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 16.w),
+          // 투표 아이콘
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4.r),
+            ),
+          ),
+        ],
       ),
     );
   }
