@@ -122,6 +122,8 @@ flutter_intl:
 
 dependency_overrides:
   js: ^0.7.2
+  # fluwx 패키지 완전 제거 (CI 빌드 에러 해결)
+  fluwx: null
 
 flutter:
   generate: true
