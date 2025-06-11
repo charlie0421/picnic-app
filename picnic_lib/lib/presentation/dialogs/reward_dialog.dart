@@ -45,18 +45,7 @@ class _RewardDialogState extends State<RewardDialog> {
           children: [
             _buildTopSection(),
             const SizedBox(height: 67),
-            ...RewardType.values.map((type) {
-              return Column(
-                children: [
-                  RewardSection(
-                    type: type,
-                    data: widget.data,
-                  ),
-                  if (type != RewardType.values.last)
-                    const SizedBox(height: 68),
-                ],
-              );
-            }),
+            ..._buildAvailableSections(),
           ],
         ),
       ),
@@ -102,6 +91,46 @@ class _RewardDialogState extends State<RewardDialog> {
       ),
     );
   }
+
+  List<Widget> _buildAvailableSections() {
+    List<Widget> sections = [];
+    
+    for (int i = 0; i < RewardType.values.length; i++) {
+      final type = RewardType.values[i];
+      final rewardSection = RewardSection(
+        type: type,
+        data: widget.data,
+      );
+      
+      // 섹션 내용이 있는 경우만 추가
+      if (rewardSection.hasContent()) {
+        sections.add(rewardSection);
+        
+        // 마지막 섹션이 아니고, 다음에 표시될 섹션이 있는 경우 간격 추가
+        if (i < RewardType.values.length - 1) {
+          // 다음 섹션들 중에 표시될 것이 있는지 확인
+          bool hasNextSection = false;
+          for (int j = i + 1; j < RewardType.values.length; j++) {
+            final nextType = RewardType.values[j];
+            final nextRewardSection = RewardSection(
+              type: nextType,
+              data: widget.data,
+            );
+            if (nextRewardSection.hasContent()) {
+              hasNextSection = true;
+              break;
+            }
+          }
+          
+          if (hasNextSection) {
+            sections.add(const SizedBox(height: 68));
+          }
+        }
+      }
+    }
+    
+    return sections;
+  }
 }
 
 class RewardSection extends StatelessWidget {
@@ -113,6 +142,26 @@ class RewardSection extends StatelessWidget {
     required this.type,
     required this.data,
   });
+
+  bool hasContent() {
+    final locale = PicnicLibL10n.getCurrentLocale().languageCode;
+    
+    switch (type) {
+      case RewardType.overview:
+        return data.overviewImages != null && data.overviewImages!.isNotEmpty;
+
+      case RewardType.location:
+        if (data.location?[locale] == null) return false;
+        final locationData = data.location![locale];
+        return (locationData['map'] != null && locationData['map'].isNotEmpty) ||
+               (locationData['address'] != null && locationData['address'].isNotEmpty) ||
+               (locationData['images'] != null && locationData['images'].isNotEmpty) ||
+               (locationData['desc'] != null && locationData['desc'].isNotEmpty);
+
+      case RewardType.sizeGuide:
+        return data.sizeGuide?[locale] != null && data.sizeGuide![locale].isNotEmpty;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
