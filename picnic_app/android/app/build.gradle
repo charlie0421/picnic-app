@@ -39,9 +39,7 @@ android {
         jvmTarget = '17'
         apiVersion = '1.7'
         languageVersion = '1.7'
-        freeCompilerArgs += [
-            "-Xskip-metadata-version-check"
-        ]
+        freeCompilerArgs += ["-Xskip-metadata-version-check"]
     }
 
     sourceSets {
@@ -54,10 +52,9 @@ android {
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        manifestPlaceholders += [
-            'sentryEnableCompose': 'false'
-        ]
-                externalNativeBuild {
+        manifestPlaceholders += ['sentryEnableCompose': 'false']
+
+        externalNativeBuild {
             cmake {
                 cppFlags ""
             }
@@ -102,44 +99,27 @@ android {
             enable = true
         }
     }
-
 }
 
 flutter {
     source '../..'
 }
 
-// Flutter가 기대하는 위치로 AAB 파일 복사하는 태스크
+// ✅ Flutter가 기대하는 위치로 AAB 복사
 task copyAabToFlutterBuild {
     description 'Flutter가 기대하는 위치로 AAB 파일 복사'
-    
+
     doLast {
-        // 프로젝트 루트에서 상대 경로로 안전하게 처리
         def projectRoot = project.rootProject.projectDir.parentFile
         def flutterBuildDir = new File(projectRoot, 'build/app/outputs/bundle')
-        
+
         println "프로젝트 루트: ${projectRoot.absolutePath}"
         println "Flutter 빌드 디렉토리: ${flutterBuildDir.absolutePath}"
-        
-        // Debug AAB 복사
-        def debugSource = new File(project.buildDir, 'outputs/bundle/debug')
-        if (debugSource.exists()) {
-            def debugTarget = new File(flutterBuildDir, 'debug')
-            debugTarget.mkdirs()
-            
-            debugSource.listFiles().findAll { it.name.endsWith('.aab') }.each { aabFile ->
-                def targetFile = new File(debugTarget, aabFile.name)
-                targetFile.bytes = aabFile.bytes
-                println "✓ Debug 복사 완료: ${aabFile.name} -> ${targetFile.absolutePath}"
-            }
-        }
-        
-        // Release AAB 복사
-        def releaseSource = new File(project.buildDir, 'outputs/bundle/release')  
+
+        def releaseSource = new File(project.buildDir, 'outputs/bundle/release')
         if (releaseSource.exists()) {
             def releaseTarget = new File(flutterBuildDir, 'release')
             releaseTarget.mkdirs()
-            
             releaseSource.listFiles().findAll { it.name.endsWith('.aab') }.each { aabFile ->
                 def targetFile = new File(releaseTarget, aabFile.name)
                 targetFile.bytes = aabFile.bytes
@@ -149,22 +129,42 @@ task copyAabToFlutterBuild {
     }
 }
 
-// 모든 bundle 태스크 완료 후 자동으로 복사
+// ✅ Shorebird용 .so 파일 복사
+task copySoToShorebirdArtifacts {
+    description = "Shorebird가 요구하는 위치로 .so 파일 복사"
+
+    doLast {
+        def srcDir = file("build/app/intermediates/merged_native_libs/release/out/lib")
+        def targetDir = file("build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib")
+        if (srcDir.exists()) {
+            copy {
+                from srcDir
+                into targetDir
+            }
+            println "✓ .so 파일 복사 완료: ${srcDir} → ${targetDir}"
+        } else {
+            println "⚠️ .so 파일 없음: ${srcDir}"
+        }
+    }
+}
+
+// ✅ Gradle 작업에 태스크 연결
 afterEvaluate {
     tasks.matching { it.name.startsWith('bundle') }.configureEach {
         finalizedBy copyAabToFlutterBuild
     }
+    tasks.named("mergeReleaseNativeLibs").configure {
+        finalizedBy copySoToShorebirdArtifacts
+    }
 }
 
 repositories {
-    // ✅ CDN 미러를 최우선으로
     maven { url "https://maven.aliyun.com/repository/public" }
     maven { url "https://artifact.bytedance.com/repository/pangle" }
     maven { url "https://artifact.bytedance.com/repository/pangle-global" }
     maven { url "https://jitpack.io" }
     google()
-    mavenCentral() // fallback
-    // jcenter() ❌ 제거
+    mavenCentral()
 }
 
 dependencies {
@@ -180,6 +180,4 @@ dependencies {
     implementation 'com.pangle.global:ads-sdk:6.5.0.5'
     implementation 'com.pangle.global:crash_monitor:1.3.8-rc.1'
     implementation 'com.pangle.global:gecko_pgl:1.0.0.1'
-
-    // Flutter 의존성은 Flutter Gradle 플러그인이 자동 처리
 }
