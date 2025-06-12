@@ -57,6 +57,17 @@ android {
         manifestPlaceholders += [
             'sentryEnableCompose': 'false'
         ]
+                externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
     }
 
     signingConfigs {
