@@ -96,19 +96,48 @@ flutter {
 }
 
 // Flutter가 기대하는 위치로 AAB 파일 복사하는 태스크
-task copyAabToFlutterBuild(type: Copy) {
-    from 'build/outputs/bundle/release'
-    into '../../build/app/outputs/bundle/release'
-    include '*.aab'
+task copyAabToFlutterBuild {
+    description 'Flutter가 기대하는 위치로 AAB 파일 복사'
     
-    doFirst {
-        mkdir '../../build/app/outputs/bundle/release'
+    doLast {
+        // 프로젝트 루트에서 상대 경로로 안전하게 처리
+        def projectRoot = project.rootProject.projectDir.parentFile
+        def flutterBuildDir = new File(projectRoot, 'build/app/outputs/bundle')
+        
+        println "프로젝트 루트: ${projectRoot.absolutePath}"
+        println "Flutter 빌드 디렉토리: ${flutterBuildDir.absolutePath}"
+        
+        // Debug AAB 복사
+        def debugSource = new File(project.buildDir, 'outputs/bundle/debug')
+        if (debugSource.exists()) {
+            def debugTarget = new File(flutterBuildDir, 'debug')
+            debugTarget.mkdirs()
+            
+            debugSource.listFiles().findAll { it.name.endsWith('.aab') }.each { aabFile ->
+                def targetFile = new File(debugTarget, aabFile.name)
+                targetFile.bytes = aabFile.bytes
+                println "✓ Debug 복사 완료: ${aabFile.name} -> ${targetFile.absolutePath}"
+            }
+        }
+        
+        // Release AAB 복사
+        def releaseSource = new File(project.buildDir, 'outputs/bundle/release')  
+        if (releaseSource.exists()) {
+            def releaseTarget = new File(flutterBuildDir, 'release')
+            releaseTarget.mkdirs()
+            
+            releaseSource.listFiles().findAll { it.name.endsWith('.aab') }.each { aabFile ->
+                def targetFile = new File(releaseTarget, aabFile.name)
+                targetFile.bytes = aabFile.bytes
+                println "✓ Release 복사 완료: ${aabFile.name} -> ${targetFile.absolutePath}"
+            }
+        }
     }
 }
 
-// bundleRelease 태스크 완료 후 자동으로 복사
+// 모든 bundle 태스크 완료 후 자동으로 복사
 afterEvaluate {
-    tasks.named('bundleRelease').configure {
+    tasks.matching { it.name.startsWith('bundle') }.configureEach {
         finalizedBy copyAabToFlutterBuild
     }
 }
