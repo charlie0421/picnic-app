@@ -8,6 +8,30 @@ import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+// 가상머신 체크 설정 (오탐 방지용)
+class VMDetectionConfig {
+  // 개별 체크 비활성화 옵션
+  static const bool enableBuildCheck = true;
+  static const bool enableHardwareCheck = true;
+  static const bool enableNetworkCheck = false; // 네트워크 체크는 오탐이 많아서 비활성화
+  static const bool enableSamsungStrictCheck = false; // 삼성 기기 엄격 체크 비활성화
+  static const bool enableSentryReport = true;
+
+  // 디버그 모드 설정
+  static const bool disableInDebugMode = true; // 디버그 모드에서 완전 비활성화
+
+  // 환경변수로 전체 가상머신 체크 비활성화
+  static bool get isVMCheckDisabled {
+    const envDisabled = String.fromEnvironment('DISABLE_VM_CHECK');
+    const envNoCheck = String.fromEnvironment('NO_VM_CHECK');
+    const envSkipCheck = String.fromEnvironment('SKIP_VM_CHECK');
+
+    return envDisabled == 'true' ||
+        envNoCheck == 'true' ||
+        envSkipCheck == 'true';
+  }
+}
+
 // 클래스들을 파일 상단으로 이동
 class KeywordMatch {
   final String keyword;
@@ -61,10 +85,16 @@ class VirtualMachineDetector {
   static Future<bool> detect(WidgetRef ref) async {
     if (!_isMobile()) return false;
 
+    // 환경변수로 전체 가상머신 체크 비활성화
+    if (VMDetectionConfig.isVMCheckDisabled) {
+      logger.i('환경변수에 의해 가상머신 체크가 비활성화됨');
+      return false;
+    }
+
     // 디버그 모드에서는 가상 머신 체크 건너뛰기
-    if (kDebugMode) {
+    if (kDebugMode && VMDetectionConfig.disableInDebugMode) {
       logger.d('디버그 모드: 가상 머신 체크 건너뛰기');
-      // return false;
+      return false;
     }
 
     try {
@@ -92,15 +122,27 @@ class VirtualMachineDetector {
         final hasSensors = await _checkSensors();
         // final processorCount = await _getCpuCores();
 
-        // 체크 수행
-        final buildInfo =
-            await _checkBuildValues(androidInfo, configs.sublist(0, 4));
-        final hardwareCheck =
-            _checkHardwareWithInfo(cpuInfo, hasSensors, configs[4]);
-        final networkCheck =
-            _checkNetworkWithInfo(ttl, macAddress, configs.sublist(5));
+        // 개별 체크 수행 (설정에 따라 활성화/비활성화)
+        final buildInfo = VMDetectionConfig.enableBuildCheck
+            ? await _checkBuildValues(androidInfo, configs.sublist(0, 4))
+            : false;
+        final hardwareCheck = VMDetectionConfig.enableHardwareCheck
+            ? _checkHardwareWithInfo(cpuInfo, hasSensors, configs[4])
+            : false;
+        final networkCheck = VMDetectionConfig.enableNetworkCheck
+            ? _checkNetworkWithInfo(ttl, macAddress, configs.sublist(5))
+            : false;
 
         final isEmulator = buildInfo || hardwareCheck || networkCheck;
+
+        // 체크 결과 로깅
+        logger.i('''
+가상머신 체크 결과:
+- Build 체크: ${VMDetectionConfig.enableBuildCheck ? buildInfo : '비활성화'}
+- Hardware 체크: ${VMDetectionConfig.enableHardwareCheck ? hardwareCheck : '비활성화'}  
+- Network 체크: ${VMDetectionConfig.enableNetworkCheck ? networkCheck : '비활성화'}
+- 최종 결과: $isEmulator
+        ''');
 
         if (isEmulator) {
           // 감지 결과 요약 로깅
@@ -178,18 +220,20 @@ class VirtualMachineDetector {
             });
           }
 
-          // Sentry에 상세 정보 전송
-          await _sendSentryReport(
-            androidInfo: androidInfo,
-            configs: configs,
-            cpuInfo: cpuInfo,
-            ttl: ttl,
-            macAddress: macAddress,
-            hasSensors: hasSensors,
-            buildInfo: buildInfo,
-            hardwareCheck: hardwareCheck,
-            networkCheck: networkCheck,
-          );
+          // Sentry에 상세 정보 전송 (설정에 따라)
+          if (VMDetectionConfig.enableSentryReport) {
+            await _sendSentryReport(
+              androidInfo: androidInfo,
+              configs: configs,
+              cpuInfo: cpuInfo,
+              ttl: ttl,
+              macAddress: macAddress,
+              hasSensors: hasSensors,
+              buildInfo: buildInfo,
+              hardwareCheck: hardwareCheck,
+              networkCheck: networkCheck,
+            );
+          }
         } else {
           logger.i('가상 머신 검사 결과: 정상 기기');
 
@@ -392,50 +436,30 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
         hardwareKeywords
             .any((keyword) => info.hardware.toLowerCase().contains(keyword));
 
-    // 삼성 기기 관련 의심스러운 패턴 체크 추가
-    final suspiciousSamsung = info.manufacturer.toLowerCase() == 'samsung' &&
-        info.model.toLowerCase().startsWith('sm-');
-
-    if (suspiciousSamsung) {
+    // 삼성 기기 관련 의심스러운 패턴 체크 (설정에 따라 활성화)
+    if (VMDetectionConfig.enableSamsungStrictCheck &&
+        info.manufacturer.toLowerCase() == 'samsung' &&
+        info.model.toLowerCase().startsWith('sm-')) {
       final suspiciousReasons = <String>[];
 
-      if (info.board.toLowerCase() != info.hardware.toLowerCase()) {
-        suspiciousReasons.add('보드/하드웨어 불일치: ${info.board} != ${info.hardware}');
-      }
-
-      if (!info.fingerprint.toLowerCase().contains('release-keys')) {
-        suspiciousReasons.add('릴리즈 키 누락: ${info.fingerprint}');
-      }
-
-      if (info.host.toLowerCase().contains('build')) {
-        suspiciousReasons.add('의심스러운 빌드 호스트: ${info.host}');
-      }
-
+      // 더 관대한 체크로 변경 (오탐 방지)
       if (info.bootloader.toLowerCase() == 'unknown') {
         suspiciousReasons.add('알 수 없는 부트로더');
       }
 
-      if (!info.systemFeatures.any((f) => f.contains('knox'))) {
+      // Knox 체크는 삼성 특정 모델에서만 적용
+      if (info.model.toLowerCase().contains('galaxy') &&
+          !info.systemFeatures.any((f) => f.contains('knox'))) {
         suspiciousReasons.add('Knox 보안 기능 누락');
-      }
-
-      if (!info.systemFeatures.any((f) => f.contains('samsung'))) {
-        suspiciousReasons.add('삼성 시스템 기능 누락');
       }
 
       if (suspiciousReasons.isNotEmpty) {
         logger.w('''
-            의심스러운 삼성 기기 감지:'
-            {
-              'device_info': {
-                'manufacturer': ${info.manufacturer},
-                'model': ${info.model},
-                'board': ${info.board},
-                'hardware': ${info.hardware},
-              },
-              'suspicious_reasons': ${suspiciousReasons.join(', ')} ,
-            }
-            ''');
+삼성 기기 의심 패턴 감지 (엄격 모드):
+- 제조사: ${info.manufacturer}
+- 모델: ${info.model}
+- 의심 이유: ${suspiciousReasons.join(', ')}
+        ''');
       }
     }
 
@@ -532,7 +556,33 @@ ${info.systemFeatures.take(10).map((f) => '- $f').join('\n')}
   }
 
   static Future<bool> _checkSensors() async {
-    return true; // 실제 구현 필요
+    try {
+      // 실제 센서 체크 구현 (간단 버전)
+      final androidInfo = await _deviceInfo.androidInfo;
+
+      // 물리적 기기 여부를 우선 체크
+      if (!androidInfo.isPhysicalDevice) {
+        return false; // 에뮬레이터로 확실히 감지됨
+      }
+
+      // systemFeatures에서 센서 관련 기능 체크
+      final sensorFeatures = [
+        'android.hardware.sensor.accelerometer',
+        'android.hardware.sensor.gyroscope',
+        'android.hardware.sensor.compass',
+        'android.hardware.touchscreen',
+      ];
+
+      final existingSensors = sensorFeatures
+          .where((feature) => androidInfo.systemFeatures.contains(feature))
+          .length;
+
+      // 센서가 2개 이상 있으면 정상 기기로 판단
+      return existingSensors >= 2;
+    } catch (e) {
+      logger.e('센서 체크 중 오류:', error: e);
+      return true; // 오류 시 정상 기기로 처리 (오탐 방지)
+    }
   }
 
   static Future<int?> _getTTL() async {
