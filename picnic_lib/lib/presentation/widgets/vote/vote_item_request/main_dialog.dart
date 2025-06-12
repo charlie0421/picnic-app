@@ -7,6 +7,7 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/current_applications_section.dart';
@@ -358,7 +359,11 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
       logger.d('submitApplication: $userInfo');
 
-      if (userInfo?.id == null) throw Exception('사용자 정보가 없습니다');
+      // 로그인되지 않은 경우 로그인 유도 다이얼로그 표시
+      if (userInfo?.id == null) {
+        showRequireLoginDialog();
+        return;
+      }
 
       // 신청 중 상태로 UI 업데이트
       setState(() {
@@ -480,6 +485,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       logger.e('전체 데이터 갱신 실패: $e');
     }
   }
+
+
 
   Widget _buildErrorMessage() {
     final isSuccess = _errorMessage!.startsWith('✅');

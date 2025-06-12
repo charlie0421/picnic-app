@@ -294,26 +294,26 @@ class CurrentApplicationsSection extends StatelessWidget {
     // 통합 상태 결정
     String statusLabel;
     Color statusColor;
-    bool showCount = true; // 숫자 표시 여부
+    int? displayCount; // 표시할 숫자
 
     if (totalCount == approvedCount && approvedCount > 0) {
       // 전체 승인
       statusLabel = t('vote_item_request_status_approved');
       statusColor = Colors.green;
+      displayCount = null; // 승인된 경우 숫자 숨김
     } else if (totalCount == rejectedCount && rejectedCount > 0) {
       // 전체 거절
       statusLabel = t('vote_item_request_status_rejected');
       statusColor = Colors.red;
-      showCount = false; // 거절인 경우 숫자 숨김
+      displayCount = null; // 거절인 경우 숫자 숨김
     } else {
       // 나머지 (대기중/혼합)
       statusLabel = t('vote_item_request_status_pending');
       statusColor = Colors.orange;
-      showCount = false; // 대기중인 경우 숫자 숨김
+      displayCount = totalCount; // 대기중인 경우 전체 건수 표시
     }
 
-    return _buildStatusCountBadge(
-        statusLabel, showCount ? totalCount : null, statusColor);
+    return _buildStatusCountBadge(statusLabel, displayCount, statusColor);
   }
 
   Widget _buildStatusCountBadge(String label, int? count, Color color) {
