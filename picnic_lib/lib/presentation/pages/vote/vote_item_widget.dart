@@ -53,29 +53,29 @@ class VoteItemWidget extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: Container(
-            constraints: BoxConstraints(minHeight: 45),
-            padding: EdgeInsets.symmetric(vertical: 4.h),
+            constraints:
+                BoxConstraints(minHeight: 55), // 45에서 55로 증가하여 오버플로우 해결
+            padding: EdgeInsets.symmetric(vertical: 6.h), // 패딩도 약간 증가
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   width: 39,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (actualRank <= 3)
-                        SvgPicture.asset(
-                          package: 'picnic_lib',
-                          'assets/icons/vote/crown$actualRank.svg',
-                        ),
-                      Text(
-                        rankText,
-                        style: getTextStyle(
-                            AppTypo.caption12B, AppColors.point900),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                  height: 45, // 높이를 다시 줄임 (크라운만 표시하므로)
+                  child: Center(
+                    child: actualRank <= 3
+                        ? SvgPicture.asset(
+                            package: 'picnic_lib',
+                            'assets/icons/vote/crown$actualRank.svg',
+                            height: 24, // 크라운 크기를 더 크게 하여 잘 보이게
+                            width: 24,
+                          )
+                        : Text(
+                            actualRank.toString(), // 4위 이하는 숫자만 표시
+                            style: getTextStyle(
+                                AppTypo.body16B, AppColors.point900), // 더 큰 폰트
+                            textAlign: TextAlign.center,
+                          ),
                   ),
                 ),
                 SizedBox(width: 8.w),
@@ -89,7 +89,7 @@ class VoteItemWidget extends StatelessWidget {
                     children: [
                       RichText(
                         overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
+                        maxLines: 1, // 2에서 1로 변경
                         text: TextSpan(
                             children: (item.artist?.id ?? 0) != 0
                                 ? [
@@ -99,16 +99,26 @@ class VoteItemWidget extends StatelessWidget {
                                       style: getTextStyle(
                                           AppTypo.body14B, AppColors.grey900),
                                     ),
-                                    const TextSpan(text: ' '),
-                                    TextSpan(
-                                      text: item.artist?.artistGroup?.name !=
-                                              null
-                                          ? getLocaleTextFromJson(
-                                              item.artist!.artistGroup!.name)
-                                          : '',
-                                      style: getTextStyle(AppTypo.caption10SB,
-                                          AppColors.grey600),
-                                    ),
+                                    // 그룹명을 괄호 안에 작게 표시
+                                    if (item.artist?.artistGroup?.name != null)
+                                      TextSpan(
+                                        text: ' (',
+                                        style: getTextStyle(AppTypo.caption10SB,
+                                            AppColors.grey600),
+                                      ),
+                                    if (item.artist?.artistGroup?.name != null)
+                                      TextSpan(
+                                        text: getLocaleTextFromJson(
+                                            item.artist!.artistGroup!.name),
+                                        style: getTextStyle(AppTypo.caption10SB,
+                                            AppColors.grey600),
+                                      ),
+                                    if (item.artist?.artistGroup?.name != null)
+                                      TextSpan(
+                                        text: ')',
+                                        style: getTextStyle(AppTypo.caption10SB,
+                                            AppColors.grey600),
+                                      ),
                                   ]
                                 : [
                                     TextSpan(
@@ -119,7 +129,7 @@ class VoteItemWidget extends StatelessWidget {
                                     ),
                                   ]),
                       ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 4.h), // 간격 유지
                       voteCountContainer,
                     ],
                   ),

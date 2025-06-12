@@ -590,7 +590,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                               key:
                                   ValueKey('vote_item_${item.id}_$searchQuery'),
                               child: Padding(
-                                padding: EdgeInsets.only(bottom: 36),
+                                padding: EdgeInsets.only(
+                                    bottom: 16), // 24에서 16으로 더 감소
                                 child: _buildVoteItemWithHighlight(
                                   item: item,
                                   index: itemIndex,
@@ -667,123 +668,154 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     required bool rankUp,
     required String searchQuery,
   }) {
-    // 검색어가 매칭된 언어의 텍스트 가져오기
+    try {
+      // 검색어가 매칭된 언어의 텍스트 가져오기
 
-    return RepaintBoundary(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeInOut,
-        decoration: BoxDecoration(
-          color: rankChanged
-              ? (rankUp
-                  ? Colors.blue.withValues(alpha: 0.18)
-                  : Colors.red.withValues(alpha: 0.18))
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _handleVoteItemTap(context, item, index),
-          child: Container(
-            constraints: BoxConstraints(minHeight: 45),
-            padding: EdgeInsets.symmetric(vertical: 4.h),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 39,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (actualRank <= 3)
-                        SvgPicture.asset(
-                          package: 'picnic_lib',
-                          'assets/icons/vote/crown$actualRank.svg',
-                        ),
-                      Text(
-                        _buildRankText(actualRank, item),
-                        style: getTextStyle(
-                            AppTypo.caption12B, AppColors.point900),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+      return RepaintBoundary(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+          decoration: BoxDecoration(
+            color: rankChanged
+                ? (rankUp
+                    ? Colors.blue.withValues(alpha: 0.18)
+                    : Colors.red.withValues(alpha: 0.18))
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _handleVoteItemTap(context, item, index),
+            child: Container(
+              constraints:
+                  BoxConstraints(minHeight: 55), // 45에서 55로 증가하여 오버플로우 해결
+              padding: EdgeInsets.symmetric(vertical: 6.h), // 패딩도 약간 증가
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 39,
+                    height: 45, // 높이를 다시 줄임 (크라운만 표시하므로)
+                    child: Center(
+                      child: actualRank <= 3
+                          ? SvgPicture.asset(
+                              package: 'picnic_lib',
+                              'assets/icons/vote/crown$actualRank.svg',
+                              height: 24, // 크라운 크기를 더 크게 하여 잘 보이게
+                              width: 24,
+                            )
+                          : Text(
+                              actualRank.toString(), // 4위 이하는 숫자만 표시
+                              style: getTextStyle(AppTypo.body16B,
+                                  AppColors.point900), // 더 큰 폰트
+                              textAlign: TextAlign.center,
+                            ),
+                    ),
                   ),
-                ),
-                SizedBox(width: 8.w),
-                _buildArtistImage(item, index),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 검색어 하이라이트가 적용된 이름 표시
-                      RichText(
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        text: TextSpan(
-                          style:
-                              getTextStyle(AppTypo.body14B, AppColors.grey900),
-                          children: (item.artist?.id ?? 0) != 0
-                              ? [
-                                  // 아티스트 이름에 하이라이트 적용
-                                  ...KoreanSearchUtils
-                                      .buildHighlightedTextSpans(
-                                    item.artist?.name != null
-                                        ? _getMatchingText(
-                                            item.artist!.name, searchQuery)
-                                        : '',
-                                    searchQuery,
-                                  ),
-                                  const TextSpan(text: ' '),
-                                  // 아티스트의 그룹명에도 하이라이트 적용
-                                  if (item.artist?.artistGroup?.name != null)
+                  SizedBox(width: 8.w),
+                  _buildArtistImage(item, index),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 검색어 하이라이트가 적용된 이름 표시 (한줄로 표시)
+                        RichText(
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1, // 2줄에서 1줄로 변경
+                          text: TextSpan(
+                            style: getTextStyle(
+                                AppTypo.body14B, AppColors.grey900),
+                            children: (item.artist?.id ?? 0) != 0
+                                ? [
+                                    // 아티스트 이름에 하이라이트 적용
                                     ...KoreanSearchUtils
                                         .buildHighlightedTextSpans(
-                                      _getMatchingText(
-                                          item.artist!.artistGroup!.name,
-                                          searchQuery),
+                                      item.artist?.name != null
+                                          ? _getMatchingText(
+                                              item.artist!.name, searchQuery)
+                                          : '',
                                       searchQuery,
-                                      baseStyle: getTextStyle(
-                                          AppTypo.caption10SB,
-                                          AppColors.grey600),
                                     ),
-                                ]
-                              : [
-                                  // 그룹명에 하이라이트 적용
-                                  ...KoreanSearchUtils
-                                      .buildHighlightedTextSpans(
-                                    item.artistGroup?.name != null
-                                        ? _getMatchingText(
-                                            item.artistGroup!.name, searchQuery)
-                                        : '',
-                                    searchQuery,
-                                  ),
-                                ],
+                                    // 아티스트의 그룹명을 괄호 안에 작게 표시
+                                    if (item.artist?.artistGroup?.name != null)
+                                      TextSpan(
+                                        text: ' (',
+                                        style: getTextStyle(AppTypo.caption10SB,
+                                            AppColors.grey600),
+                                      ),
+                                    if (item.artist?.artistGroup?.name != null)
+                                      ...KoreanSearchUtils
+                                          .buildHighlightedTextSpans(
+                                        _getMatchingText(
+                                            item.artist!.artistGroup!.name,
+                                            searchQuery),
+                                        searchQuery,
+                                        baseStyle: getTextStyle(
+                                            AppTypo.caption10SB,
+                                            AppColors.grey600),
+                                      ),
+                                    if (item.artist?.artistGroup?.name != null)
+                                      TextSpan(
+                                        text: ')',
+                                        style: getTextStyle(AppTypo.caption10SB,
+                                            AppColors.grey600),
+                                      ),
+                                  ]
+                                : [
+                                    // 그룹명에 하이라이트 적용
+                                    ...KoreanSearchUtils
+                                        .buildHighlightedTextSpans(
+                                      item.artistGroup?.name != null
+                                          ? _getMatchingText(
+                                              item.artistGroup!.name,
+                                              searchQuery)
+                                          : '',
+                                      searchQuery,
+                                    ),
+                                  ],
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4.h),
-                      _buildVoteCountContainer(item, voteCountDiff),
-                    ],
+                        SizedBox(height: 4.h), // 6.h에서 4.h로 감소
+                        _buildVoteCountContainer(item, voteCountDiff),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: 16.w),
-                if (!isEnded && !_isSaving)
-                  SizedBox(
-                    width: 24.w,
-                    height: 24,
-                    child: SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/star_candy_icon.svg'),
-                  ),
-              ],
+                  SizedBox(width: 16.w),
+                  if (!isEnded && !_isSaving)
+                    SizedBox(
+                      width: 24.w,
+                      height: 24,
+                      child: SvgPicture.asset(
+                          package: 'picnic_lib',
+                          'assets/icons/star_candy_icon.svg'),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      // 커스텀 하이라이트 위젯 빌드 에러 발생 시 기본 위젯으로 폴백
+      logger.e('커스텀 하이라이트 위젯 빌드 에러: $e');
+      return VoteItemWidget(
+        item: item,
+        index: index,
+        actualRank: actualRank,
+        voteCountDiff: voteCountDiff,
+        rankChanged: rankChanged,
+        rankUp: rankUp,
+        isEnded: isEnded,
+        isSaving: _isSaving,
+        onTap: () => _handleVoteItemTap(context, item, index),
+        artistImage: _buildArtistImage(item, index),
+        voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
+        rankText: _buildRankText(actualRank, item),
+      );
+    }
   }
 
   Widget _buildCaptureVoteList(BuildContext context) {
@@ -808,7 +840,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       children: [
                         for (int i = 0; i < 3 && i < data.length; i++)
                           Padding(
-                            padding: EdgeInsets.only(bottom: i < 2 ? 36 : 16),
+                            padding: EdgeInsets.only(
+                                bottom: i < 2 ? 16 : 16), // 36에서 16으로 감소
                             child: VoteItemWidget(
                               item: data[i]!,
                               index: i,
@@ -844,29 +877,83 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildArtistImage(VoteItemModel item, int index) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: index < 3
-            ? [goldGradient, silverGradient, bronzeGradient][index]
-            : null,
-        color: index >= 3 ? AppColors.grey200.withValues(alpha: 0.5) : null,
-        borderRadius: BorderRadius.circular(22.5),
-      ),
-      padding: const EdgeInsets.all(3),
-      width: 45,
-      height: 45,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(39),
-        child: PicnicCachedNetworkImage(
-          imageUrl: ((item.artist?.id ?? 0) != 0
-                  ? item.artist?.image
-                  : item.artistGroup?.image) ??
-              '',
-          fit: BoxFit.cover,
-          width: 80,
-          height: 80,
-          memCacheWidth: 80,
-          memCacheHeight: 80,
+    try {
+      // 이미지 URL을 안전하게 가져오기
+      final imageUrl = ((item.artist?.id ?? 0) != 0
+              ? item.artist?.image
+              : item.artistGroup?.image) ??
+          '';
+
+      // 빈 URL일 경우 기본 플레이스홀더 표시
+      final hasValidImageUrl = imageUrl.isNotEmpty;
+
+      return SizedBox(
+        width: 45,
+        height: 45,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: index < 3
+                ? [goldGradient, silverGradient, bronzeGradient][index]
+                : null,
+            color: index >= 3 ? AppColors.grey200.withValues(alpha: 0.5) : null,
+            borderRadius: BorderRadius.circular(22.5),
+          ),
+          padding: const EdgeInsets.all(3),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(19.5),
+            child: SizedBox(
+              width: 39, // 명시적 크기 지정
+              height: 39,
+              child: hasValidImageUrl
+                  ? RepaintBoundary(
+                      child: PicnicCachedNetworkImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.cover,
+                        width: 39,
+                        height: 39,
+                        memCacheWidth: 39, // 실제 크기와 일치
+                        memCacheHeight: 39,
+                        placeholder: _buildImagePlaceholder(),
+                      ),
+                    )
+                  : _buildImagePlaceholder(),
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      // 이미지 빌드 에러 발생 시 안전한 폴백 위젯 반환
+      logger.e('아티스트 이미지 빌드 에러: $e');
+      return SizedBox(
+        width: 45,
+        height: 45,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.grey200.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(22.5),
+          ),
+          padding: const EdgeInsets.all(3),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(19.5),
+            child: _buildImagePlaceholder(),
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildImagePlaceholder() {
+    return SizedBox(
+      width: 39,
+      height: 39,
+      child: Container(
+        width: 39,
+        height: 39,
+        color: AppColors.grey200,
+        child: Icon(
+          Icons.person,
+          size: 20,
+          color: AppColors.grey400,
         ),
       ),
     );
@@ -875,62 +962,69 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   Widget _buildVoteCountContainer(VoteItemModel item, int voteCountDiff) {
     final hasChanged = voteCountDiff != 0;
 
-    return Stack(
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 1000),
-          width: double.infinity,
-          height: 20,
-          decoration: BoxDecoration(
-            gradient: commonGradient,
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          key: ValueKey(hasChanged ? item.voteTotal : 'static'),
-        ),
-        Container(
-          width: double.infinity,
-          height: 20,
-          padding: EdgeInsets.only(right: 16.w, bottom: 3),
-          alignment: Alignment.centerRight,
-          child: hasChanged
-              ? AnimatedDigitWidget(
-                  value: item.voteTotal,
-                  enableSeparator: true,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  textStyle:
-                      getTextStyle(AppTypo.caption10SB, AppColors.grey00),
-                )
-              : Text(
-                  NumberFormat('#,###').format(item.voteTotal),
-                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
-                ),
-        ),
-        if (voteCountDiff > 0)
+    return SizedBox(
+      width: double.infinity,
+      height: voteCountDiff > 0 ? 30 : 20, // 애니메이션이 있을 때 높이를 30으로 적당히 조정
+      child: Stack(
+        clipBehavior: Clip.hardEdge, // 오버플로우를 방지하여 에러 해결
+        children: [
           Positioned(
-            right: 16.w,
-            top: -15,
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: 1),
-              duration: const Duration(seconds: 1),
-              builder: (context, value, child) {
-                // opacity 값이 0.0~1.0 범위를 벗어나지 않도록 보장
-                final opacity = (1 - value).clamp(0.0, 1.0);
-                return Opacity(
-                  opacity: opacity,
-                  child: Transform.translate(
-                    offset: Offset(0, -10 * value),
-                    child: Text(
-                      '+$voteCountDiff',
-                      style: getTextStyle(
-                          AppTypo.caption10SB, AppColors.primary500),
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 1000),
+              width: double.infinity,
+              height: 20,
+              decoration: BoxDecoration(
+                gradient: commonGradient,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              padding: EdgeInsets.only(right: 16.w, bottom: 3),
+              alignment: Alignment.centerRight,
+              key: ValueKey(hasChanged ? item.voteTotal : 'static'),
+              child: hasChanged
+                  ? AnimatedDigitWidget(
+                      value: item.voteTotal,
+                      enableSeparator: true,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                      textStyle:
+                          getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+                    )
+                  : Text(
+                      NumberFormat('#,###').format(item.voteTotal),
+                      style:
+                          getTextStyle(AppTypo.caption10SB, AppColors.grey00),
                     ),
-                  ),
-                );
-              },
             ),
           ),
-      ],
+          if (voteCountDiff > 0)
+            Positioned(
+              right: 16.w,
+              bottom: 18, // top: 0 대신 bottom을 사용하여 더 안정적인 위치 지정
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: const Duration(seconds: 1),
+                builder: (context, value, child) {
+                  // opacity 값이 0.0~1.0 범위를 벗어나지 않도록 보장
+                  final opacity = (1 - value).clamp(0.0, 1.0);
+                  return Opacity(
+                    opacity: opacity,
+                    child: Transform.translate(
+                      offset: Offset(0, -5 * value), // -10에서 -5로 줄여서 오버플로우 방지
+                      child: Text(
+                        '+$voteCountDiff',
+                        style: getTextStyle(
+                            AppTypo.caption10SB, AppColors.primary500),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 
