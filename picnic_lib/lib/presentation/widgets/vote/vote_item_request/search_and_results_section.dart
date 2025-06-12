@@ -108,7 +108,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
 
   Widget _buildSearchHeader() {
     return Padding(
-      padding: EdgeInsets.all(12.r),
+      padding: EdgeInsets.fromLTRB(12.r, 12.r, 12.r, 8.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -137,7 +137,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
             ],
           ),
 
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
 
           // 검색 입력 박스
           SizedBox(
@@ -179,7 +179,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   Widget _buildLoadingState() {
     return Flexible(
       child: ListView.builder(
-        padding: EdgeInsets.all(12.r),
+        padding: EdgeInsets.fromLTRB(12.r, 8.r, 12.r, 12.r),
         itemCount: 8, // 스켈레톤 아이템 개수
         physics: NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
@@ -319,7 +319,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   Widget _buildResultsList() {
     return ListView.builder(
       controller: _scrollController,
-      padding: EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 16.r),
+      padding: EdgeInsets.fromLTRB(16.r, 8.r, 16.r, 16.r),
       physics: BouncingScrollPhysics(),
       itemCount: widget.searchResults.length +
           (widget.hasMoreResults && widget.isLoadingMore
