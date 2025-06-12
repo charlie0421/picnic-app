@@ -15,12 +15,21 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 /// 이미지 복잡도 레벨
 enum ImageComplexity {
   low, // 작은 크기, 단순한 이미지
   medium, // 중간 크기 이미지
   high, // 큰 크기, 복잡한 이미지
+}
+
+/// Lazy Loading 전략
+enum LazyLoadingStrategy {
+  none, // Lazy Loading 비활성화
+  viewport, // 뷰포트에 들어올 때 로드
+  preload, // 뷰포트 근처에서 미리 로드
+  progressive, // 점진적 로딩 (저품질 → 고품질)
 }
 
 class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
@@ -34,6 +43,14 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final Duration? timeout;
   final int? maxRetries;
 
+  // Lazy Loading 관련 매개변수
+  final LazyLoadingStrategy lazyLoadingStrategy;
+  final double visibilityThreshold; // 가시성 임계값 (0.0 ~ 1.0)
+  final Duration? lazyLoadDelay; // 지연 로딩 딜레이
+  final Widget? placeholder; // 커스텀 플레이스홀더
+  final bool enablePreloading; // 미리 로딩 활성화
+  final double preloadDistance; // 미리 로딩 거리 (픽셀)
+
   const PicnicCachedNetworkImage({
     super.key,
     required this.imageUrl,
@@ -45,6 +62,12 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.borderRadius,
     this.timeout,
     this.maxRetries,
+    this.lazyLoadingStrategy = LazyLoadingStrategy.viewport,
+    this.visibilityThreshold = 0.1,
+    this.lazyLoadDelay,
+    this.placeholder,
+    this.enablePreloading = true,
+    this.preloadDistance = 200.0,
   });
 
   @override
@@ -56,8 +79,11 @@ class _PicnicCachedNetworkImageState
     extends ConsumerState<PicnicCachedNetworkImage> {
   bool _loading = true;
   bool _hasError = false;
+  bool _shouldLoadImage = false; // Lazy Loading 제어
+  bool _isVisible = false; // 가시성 상태
   late final DateTime _loadStartTime = DateTime.now();
   int _retryCount = 0;
+  Timer? _lazyLoadTimer;
 
   static const Duration _defaultTimeout = Duration(seconds: 30);
   static const int _defaultMaxRetries = 3;
@@ -89,6 +115,9 @@ class _PicnicCachedNetworkImageState
   void initState() {
     super.initState();
 
+    // Lazy Loading 전략에 따른 초기화
+    _initializeLazyLoading();
+
     if (_loadedImages.containsKey(widget.imageUrl)) {
       setState(() {
         _loading = false;
@@ -107,6 +136,75 @@ class _PicnicCachedNetworkImageState
         _prepareGifLoading();
       });
     }
+  }
+
+  /// Lazy Loading 초기화
+  void _initializeLazyLoading() {
+    switch (widget.lazyLoadingStrategy) {
+      case LazyLoadingStrategy.none:
+        _shouldLoadImage = true;
+        break;
+      case LazyLoadingStrategy.viewport:
+      case LazyLoadingStrategy.preload:
+      case LazyLoadingStrategy.progressive:
+        _shouldLoadImage = false;
+        break;
+    }
+  }
+
+  /// 가시성 변경 처리
+  void _onVisibilityChanged(VisibilityInfo info) {
+    // mounted 체크로 dispose된 위젯에서 setState 호출 방지
+    if (!mounted) return;
+
+    final isVisible = info.visibleFraction >= widget.visibilityThreshold;
+
+    if (isVisible != _isVisible) {
+      setState(() {
+        _isVisible = isVisible;
+      });
+
+      if (isVisible && !_shouldLoadImage) {
+        _triggerLazyLoad();
+      }
+    }
+  }
+
+  /// Lazy Loading 트리거
+  void _triggerLazyLoad() {
+    if (_shouldLoadImage || !mounted) return;
+
+    final delay = widget.lazyLoadDelay ?? Duration.zero;
+
+    if (delay > Duration.zero) {
+      _lazyLoadTimer?.cancel();
+      _lazyLoadTimer = Timer(delay, () {
+        if (mounted && !_shouldLoadImage) {
+          setState(() {
+            _shouldLoadImage = true;
+          });
+        }
+      });
+    } else {
+      if (mounted) {
+        setState(() {
+          _shouldLoadImage = true;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _lazyLoadTimer?.cancel();
+
+    final loadDuration = DateTime.now().difference(_loadStartTime);
+    final warningThreshold = Environment.imageLoadWarningThreshold;
+
+    if (kDebugMode && loadDuration.inSeconds > warningThreshold && mounted) {
+      final disposeKey = "${widget.imageUrl}_dispose_${DateTime.now().hour}";
+    }
+    super.dispose();
   }
 
   /// 이미지 캐시 최적화
@@ -206,29 +304,89 @@ class _PicnicCachedNetworkImageState
   void didUpdateWidget(PicnicCachedNetworkImage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.imageUrl != widget.imageUrl) {
+    if (oldWidget.imageUrl != widget.imageUrl && mounted) {
       setState(() {
         _loading = true;
         _hasError = false;
+        _shouldLoadImage =
+            widget.lazyLoadingStrategy == LazyLoadingStrategy.none;
       });
     }
   }
 
-  @override
-  void dispose() {
-    final loadDuration = DateTime.now().difference(_loadStartTime);
-
-    final warningThreshold = Environment.imageLoadWarningThreshold;
-
-    if (kDebugMode && loadDuration.inSeconds > warningThreshold && mounted) {
-      final disposeKey = "${widget.imageUrl}_dispose_${DateTime.now().hour}";
-      // logger.throttledWarn(
-      //   '[${widget.runtimeType}] 이미지 로드 시간이 매우 오래 걸림: ${widget.imageUrl} - ${loadDuration.inMilliseconds}ms',
-      //   disposeKey,
-      //   throttleDuration: const Duration(hours: 1),
-      // );
+  /// 플레이스홀더 위젯 빌드
+  Widget _buildPlaceholder() {
+    if (widget.placeholder != null) {
+      return widget.placeholder!;
     }
-    super.dispose();
+
+    // 기존 shimmer 로딩 오버레이 사용
+    return ClipRRect(
+      borderRadius: widget.borderRadius ?? BorderRadius.zero,
+      child: buildImageLoadingOverlay(),
+    );
+  }
+
+  /// 메인 위젯 빌드
+  Widget _buildMainWidget() {
+    final imageWidth = widget.width;
+    final imageHeight = widget.height;
+    final resolutionMultiplier = _getResolutionMultiplier(context);
+
+    // 진보적 로딩을 위한 URL 목록 생성
+    final urls = _getTransformedUrls(context, resolutionMultiplier);
+    final primaryUrl = urls.last; // 최고 품질 URL
+
+    return SizedBox(
+      width: imageWidth,
+      height: imageHeight,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (_loading)
+            ClipRRect(
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
+              child: buildImageLoadingOverlay(),
+            ),
+
+          // 진보적 이미지 로딩 구현
+          if (urls.length > 1 && !_hasError)
+            _buildProgressiveImageStack(urls, imageWidth, imageHeight),
+
+          // 단일 이미지 또는 최종 이미지
+          if (urls.length == 1 || _hasError)
+            ClipRRect(
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
+              child: _buildCachedNetworkImage(
+                  primaryUrl, imageWidth, imageHeight, 0),
+            ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Lazy Loading이 비활성화된 경우 바로 이미지 렌더링
+    if (widget.lazyLoadingStrategy == LazyLoadingStrategy.none) {
+      return _buildMainWidget();
+    }
+
+    // 이미지 로드가 필요하지 않은 경우 플레이스홀더 표시
+    if (!_shouldLoadImage) {
+      return VisibilityDetector(
+        key: Key('lazy_image_${widget.imageUrl}'),
+        onVisibilityChanged: _onVisibilityChanged,
+        child: _buildPlaceholder(),
+      );
+    }
+
+    // 이미지 로드
+    return VisibilityDetector(
+      key: Key('lazy_image_${widget.imageUrl}'),
+      onVisibilityChanged: _onVisibilityChanged,
+      child: _buildMainWidget(),
+    );
   }
 
   double _getResolutionMultiplier(BuildContext context) {
@@ -363,44 +521,6 @@ class _PicnicCachedNetworkImageState
     }
 
     return uri.replace(queryParameters: queryParameters).toString();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final imageWidth = widget.width;
-    final imageHeight = widget.height;
-    final resolutionMultiplier = _getResolutionMultiplier(context);
-
-    // 진보적 로딩을 위한 URL 목록 생성
-    final urls = _getTransformedUrls(context, resolutionMultiplier);
-    final primaryUrl = urls.last; // 최고 품질 URL
-
-    return SizedBox(
-      width: imageWidth,
-      height: imageHeight,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (_loading)
-            ClipRRect(
-              borderRadius: widget.borderRadius ?? BorderRadius.zero,
-              child: buildImageLoadingOverlay(),
-            ),
-
-          // 진보적 이미지 로딩 구현
-          if (urls.length > 1 && !_hasError)
-            _buildProgressiveImageStack(urls, imageWidth, imageHeight),
-
-          // 단일 이미지 또는 최종 이미지
-          if (urls.length == 1 || _hasError)
-            ClipRRect(
-              borderRadius: widget.borderRadius ?? BorderRadius.zero,
-              child: _buildCachedNetworkImage(
-                  primaryUrl, imageWidth, imageHeight, 0),
-            ),
-        ],
-      ),
-    );
   }
 
   /// 진보적 이미지 로딩 스택 구성
@@ -721,11 +841,6 @@ class _PicnicCachedNetworkImageState
 
     if (kDebugMode && loadDuration.inSeconds > warningThreshold) {
       final cacheKey = "${url}_${DateTime.now().hour}";
-      // logger.throttledWarn(
-      //   '[${widget.runtimeType}] 이미지 로드 시간이 매우 오래 걸림: $url - ${loadDuration.inMilliseconds}ms',
-      //   cacheKey,
-      //   throttleDuration: const Duration(hours: 1),
-      // );
 
       // 메모리 스냅샷 최적화 - 더 엄격한 조건으로 제한
       if (loadDuration.inSeconds > errorThreshold &&

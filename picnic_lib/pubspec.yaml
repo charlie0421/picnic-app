@@ -46,6 +46,7 @@ dependencies:
   cached_network_image: ^3.4.1
   card_swiper: ^3.0.1
   infinite_scroll_pagination: ^5.0.0
+  visibility_detector: ^0.4.0+2
   flutter_keyboard_visibility: ^6.0.0
   font_awesome_flutter: ^10.8.0
   overlay_support: ^2.1.0

@@ -90,11 +90,12 @@ class CurrentApplicationsSection extends StatelessWidget {
   }
 
   Widget _buildLoadingSkeleton() {
-    return Flexible(
+    return Expanded(
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(12.r, 0, 12.r, 12.r),
         itemCount: 5, // 스켈레톤 아이템 개수
         physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
         itemBuilder: (context, index) {
           return Container(
             margin: EdgeInsets.only(bottom: 4.h),
@@ -205,13 +206,14 @@ class CurrentApplicationsSection extends StatelessWidget {
       return _buildEmptyState();
     }
 
-    return Flexible(
+    return Expanded(
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(12.r, 0, 12.r, 12.r),
         itemCount: artistApplicationSummaries.length,
         addAutomaticKeepAlives: false,
         addRepaintBoundaries: false,
         physics: BouncingScrollPhysics(),
+        shrinkWrap: true,
         itemBuilder: (context, index) {
           final summary = artistApplicationSummaries[index];
           return _buildArtistSummaryItem(summary, index);

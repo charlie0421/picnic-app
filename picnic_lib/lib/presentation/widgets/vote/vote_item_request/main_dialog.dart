@@ -350,35 +350,161 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
       if (userInfo?.id == null) throw Exception('사용자 정보가 없습니다');
 
+      // 신청 중 상태로 UI 업데이트
+      setState(() {
+        final artistId = artist.id.toString();
+        if (_searchResultsInfo.containsKey(artistId)) {
+          _searchResultsInfo[artistId] = _searchResultsInfo[artistId]!.copyWith(
+            isSubmitting: true,
+          );
+        }
+        _errorMessage = null; // 기존 에러 메시지 제거
+      });
+
       await _service.submitApplication(artist, userInfo!.id!);
 
       if (mounted) {
-        Navigator.of(context).pop();
-        showSimpleDialog(
-          title: '성공',
-          content: '신청이 완료되었습니다',
-        );
+        // 신청 성공 즉시 해당 아티스트 상태 업데이트
+        setState(() {
+          final artistId = artist.id.toString();
+          if (_searchResultsInfo.containsKey(artistId)) {
+            _searchResultsInfo[artistId] =
+                _searchResultsInfo[artistId]!.copyWith(
+              isSubmitting: false,
+              applicationStatus:
+                  t('vote_item_request_status_pending'), // 대기중으로 변경
+              applicationCount:
+                  _searchResultsInfo[artistId]!.applicationCount + 1, // 신청수 증가
+            );
+          }
+        });
+
+        // 상단 섹션만 백그라운드에서 갱신 (하단은 이미 즉시 업데이트됨)
+        _loadAllApplicationData();
+
+        // 성공 메시지를 다이얼로그 내부에 표시
+        setState(() {
+          _errorMessage = '✅ 신청이 완료되었습니다!';
+        });
+
+        // 3초 후 성공 메시지 제거
+        Future.delayed(Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _errorMessage = null;
+            });
+          }
+        });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _errorMessage = e.toString();
+
+          // 신청 실패 시 submitting 상태 해제
+          final artistId = artist.id.toString();
+          if (_searchResultsInfo.containsKey(artistId)) {
+            _searchResultsInfo[artistId] =
+                _searchResultsInfo[artistId]!.copyWith(
+              isSubmitting: false,
+            );
+          }
         });
       }
     }
   }
 
+  /// 모든 데이터를 새로고침하는 메서드
+  Future<void> _refreshAllData() async {
+    try {
+      // 상단 섹션 데이터 갱신
+      await _loadAllApplicationData();
+
+      // 하단 검색 결과 데이터 갱신 - 기존 검색 결과를 유지하면서 신청 정보만 업데이트
+      if (_currentSearchQuery.isNotEmpty && _searchResults.isNotEmpty) {
+        logger.d('Refreshing application data for existing search results');
+
+        // 기존 검색 결과에 대한 신청 정보만 다시 로드
+        final userInfo = ref.read(userInfoProvider).value;
+        final applicationData = await _service.loadApplicationDataForResults(
+          _searchResults,
+          userInfo?.id,
+        );
+
+        if (mounted) {
+          setState(() {
+            // 기존 검색 결과는 유지하고 신청 정보만 업데이트
+            _searchResultsInfo.clear();
+            _searchResultsInfo.addAll(applicationData);
+          });
+        }
+      } else if (_currentSearchQuery.isEmpty) {
+        // 초기 아티스트 목록 갱신 (검색어가 없는 경우만)
+        logger.d('Refreshing initial artists list');
+        await _loadInitialArtists();
+      }
+
+      logger.d('Data refresh completed successfully');
+    } catch (e) {
+      logger.e('Failed to refresh data', error: e);
+      // 갱신 실패 시에도 기본적인 신청 정보는 업데이트
+      if (_searchResults.isNotEmpty) {
+        final userInfo = ref.read(userInfoProvider).value;
+        try {
+          final applicationData = await _service.loadApplicationDataForResults(
+            _searchResults,
+            userInfo?.id,
+          );
+
+          if (mounted) {
+            setState(() {
+              _searchResultsInfo.clear();
+              _searchResultsInfo.addAll(applicationData);
+            });
+          }
+        } catch (fallbackError) {
+          logger.e('Fallback data refresh also failed', error: fallbackError);
+        }
+      }
+    }
+  }
+
   Widget _buildErrorMessage() {
+    final isSuccess = _errorMessage!.startsWith('✅');
+
     return Container(
       margin: EdgeInsets.all(20.r),
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.1),
+        color: isSuccess
+            ? Colors.green.withValues(alpha: 0.1)
+            : Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: isSuccess
+              ? Colors.green.withValues(alpha: 0.3)
+              : Colors.red.withValues(alpha: 0.3),
+          width: 1,
+        ),
       ),
-      child: Text(
-        _errorMessage!,
-        style: getTextStyle(AppTypo.body14R, Colors.red),
+      child: Row(
+        children: [
+          Icon(
+            isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
+            color: isSuccess ? Colors.green : Colors.red,
+            size: 20.r,
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              _errorMessage!,
+              style: getTextStyle(
+                AppTypo.body14R,
+                isSuccess ? Colors.green : Colors.red,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
