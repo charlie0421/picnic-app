@@ -5,9 +5,9 @@ platform :ios, '13.0'
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 # 소스 저장소
-source 'https://github.com/CocoaPods/Specs.git'
+source 'https://cdn.cocoapods.org/' # ✅ 최우선 등록
 source 'https://github.com/bytedance/cocoapods_sdk_source_repo.git'
-source 'https://github.com/getsentry/sentry-cocoa.git' # Sentry 저장소 추가
+source 'https://github.com/getsentry/sentry-cocoa.git'
 
 project 'Runner', {
   'Debug' => :debug,
@@ -63,3 +63,5 @@ post_install do |installer|
     end
   end
 end
+
+install! 'cocoapods', warn_for_unused_master_specs_repo: false
