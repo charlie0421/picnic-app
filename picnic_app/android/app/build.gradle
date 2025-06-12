@@ -95,6 +95,24 @@ flutter {
     source '../..'
 }
 
+// Flutter가 기대하는 위치로 AAB 파일 복사하는 태스크
+task copyAabToFlutterBuild(type: Copy) {
+    from 'build/outputs/bundle/release'
+    into '../../build/app/outputs/bundle/release'
+    include '*.aab'
+    
+    doFirst {
+        mkdir '../../build/app/outputs/bundle/release'
+    }
+}
+
+// bundleRelease 태스크 완료 후 자동으로 복사
+afterEvaluate {
+    tasks.named('bundleRelease').configure {
+        finalizedBy copyAabToFlutterBuild
+    }
+}
+
 repositories {
     // ✅ CDN 미러를 최우선으로
     maven { url "https://maven.aliyun.com/repository/public" }
