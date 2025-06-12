@@ -178,7 +178,7 @@ class AppInitializer {
 
     logger.i('Initializing Tapjoy...');
     final Map<String, dynamic> optionFlags = {};
-    await Tapjoy.setDebugEnabled(true);
+    await Tapjoy.setLoggingLevel(TJLoggingLevel.debug);
     await Tapjoy.connect(
       sdkKey: isIOS()
           ? Environment.tapjoyIosSdkKey!

@@ -46,9 +46,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   late VoteItemRequestService _service;
 
   // 현재 사용자 신청 관련 (하단 구간용)
-  List<VoteItemRequestUser> _currentUserApplications = [];
-  List<Map<String, dynamic>> _currentUserApplicationsWithDetails = [];
-  Map<String, int> _userApplicationCounts = {};
+  final List<Map<String, dynamic>> _currentUserApplicationsWithDetails = [];
 
   // 모든 사용자 신청 관련 (상단 구간용)
   List<Map<String, dynamic>> _artistApplicationSummaries = [];
@@ -57,7 +55,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
   // 검색 관련
   List<ArtistModel> _searchResults = [];
-  Map<String, ArtistApplicationInfo> _searchResultsInfo = {};
+  final Map<String, ArtistApplicationInfo> _searchResultsInfo = {};
   String _currentSearchQuery = '';
   bool _isSearching = false;
   bool _hasMoreResults = false;

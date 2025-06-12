@@ -330,7 +330,7 @@ class _PicnicCachedNetworkImageState
 
         logger.d(
             '이미지 캐시 부분 정리됨: ${previousSizeMB}MB/${(maxSizeBytes ~/ (1024 * 1024))}MB → ${newSizeMB}MB, '
-            '이미지 수: ${previousImageCount}개 → ${newImageCount}개');
+            '이미지 수: $previousImageCount개 → $newImageCount개');
 
         // 메모리 프로파일링 훅 호출
         MemoryProfilingHook.onImageCacheCleared(
