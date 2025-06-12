@@ -5,8 +5,11 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/navigator/navigation_configs.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/navigation_stack.dart';
+import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
+import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/presentation/screens/community/community_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/novel/novel_home_screen.dart';
 import 'package:picnic_lib/presentation/screens/pic/pic_home_screen.dart';
@@ -19,7 +22,9 @@ part '../../generated/providers/navigation_provider.g.dart';
 class NavigationInfo extends _$NavigationInfo {
   @override
   Navigation build() {
-    return Navigation.initial();
+    final navigation = Navigation.initial();
+    // 초기 화면을 설정
+    return navigation.copyWith(currentScreen: const VoteHomeScreen());
   }
 
   Future<void> goBack() async {
@@ -27,7 +32,11 @@ class NavigationInfo extends _$NavigationInfo {
 
     if (voteNavigationStack != null && voteNavigationStack.length > 1) {
       voteNavigationStack.pop();
-      state = state.copyWith(voteNavigationStack: voteNavigationStack);
+      final currentPage = voteNavigationStack.peek();
+      state = state.copyWith(
+        voteNavigationStack: voteNavigationStack,
+        currentScreen: currentPage,
+      );
     } else {
       logger.d('Cannot go back: stack has only one page or is null');
     }
@@ -39,8 +48,11 @@ class NavigationInfo extends _$NavigationInfo {
     if (communityNavigationStack != null &&
         communityNavigationStack.length > 1) {
       communityNavigationStack.pop();
-      state =
-          state.copyWith(communityNavigationStack: communityNavigationStack);
+      final currentPage = communityNavigationStack.peek();
+      state = state.copyWith(
+        communityNavigationStack: communityNavigationStack,
+        currentScreen: currentPage,
+      );
     } else {
       logger.d('Cannot go back: stack has only one page or is null');
     }
@@ -73,7 +85,72 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   void setPortal(PortalType portalType) {
+    // 먼저 포털 타입을 변경
     state = state.copyWith(portalType: portalType);
+
+    // 포털에 따라 기본 페이지를 해당 NavigationStack에 설정
+    switch (portalType) {
+      case PortalType.vote:
+        final votePage = NavigationConfigs.getPageWidget(PortalType.vote, 0) ??
+            const VoteHomePage();
+        if (state.voteNavigationStack == null ||
+            state.voteNavigationStack!.isEmpty) {
+          state = state.copyWith(
+            voteNavigationStack: NavigationStack()..push(votePage),
+            currentScreen: const VoteHomeScreen(),
+          );
+        } else {
+          state = state.copyWith(currentScreen: const VoteHomeScreen());
+        }
+        break;
+
+      case PortalType.community:
+        final communityPage =
+            NavigationConfigs.getPageWidget(PortalType.community, 0) ??
+                const CommunityHomePage();
+        if (state.communityNavigationStack == null ||
+            state.communityNavigationStack!.isEmpty) {
+          state = state.copyWith(
+            communityNavigationStack: NavigationStack()..push(communityPage),
+            currentScreen: const CommunityHomeScreen(),
+          );
+        } else {
+          state = state.copyWith(currentScreen: const CommunityHomeScreen());
+        }
+        break;
+
+      case PortalType.pic:
+        final picPage = NavigationConfigs.getPageWidget(PortalType.pic, 0) ??
+            const PicHomePage();
+        if (state.voteNavigationStack == null ||
+            state.voteNavigationStack!.isEmpty) {
+          state = state.copyWith(
+            voteNavigationStack: NavigationStack()..push(picPage),
+            currentScreen: const PicHomeScreen(),
+          );
+        } else {
+          state = state.copyWith(currentScreen: const PicHomeScreen());
+        }
+        break;
+
+      case PortalType.novel:
+        final novelPage =
+            NavigationConfigs.getPageWidget(PortalType.novel, 0) ?? Container();
+        if (state.voteNavigationStack == null ||
+            state.voteNavigationStack!.isEmpty) {
+          state = state.copyWith(
+            voteNavigationStack: NavigationStack()..push(novelPage),
+            currentScreen: const NovelHomeScreen(),
+          );
+        } else {
+          state = state.copyWith(currentScreen: const NovelHomeScreen());
+        }
+        break;
+
+      default:
+        state = state.copyWith(currentScreen: const VoteHomeScreen());
+    }
+
     globalStorage.saveData('portalString', portalType.name.toString());
   }
 
@@ -138,6 +215,7 @@ class NavigationInfo extends _$NavigationInfo {
     state = state.copyWith(
       picBottomNavigationIndex: index,
       voteNavigationStack: NavigationStack()..push(pageWidget),
+      currentScreen: pageWidget,
     );
     globalStorage.saveData('picBottomNavigationIndex', index.toString());
   }
@@ -149,6 +227,7 @@ class NavigationInfo extends _$NavigationInfo {
     state = state.copyWith(
       voteBottomNavigationIndex: index,
       voteNavigationStack: NavigationStack()..push(pageWidget),
+      currentScreen: pageWidget,
     );
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
   }
@@ -160,7 +239,8 @@ class NavigationInfo extends _$NavigationInfo {
 
     state = state.copyWith(
       communityBottomNavigationIndex: index,
-      voteNavigationStack: NavigationStack()..push(pageWidget),
+      communityNavigationStack: NavigationStack()..push(pageWidget),
+      currentScreen: pageWidget,
     );
     globalStorage.saveData('communityBottomNavigationIndex', index.toString());
   }
@@ -172,6 +252,7 @@ class NavigationInfo extends _$NavigationInfo {
     state = state.copyWith(
       novelBottomNavigationIndex: index,
       voteNavigationStack: NavigationStack()..push(pageWidget),
+      currentScreen: pageWidget,
     );
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
@@ -184,20 +265,22 @@ class NavigationInfo extends _$NavigationInfo {
     state = state.copyWith(
       voteNavigationStack: voteNavigationStack,
       showBottomNavigation: showBottomNavigation,
+      currentScreen: page,
     );
   }
 
   setCommunityCurrentPage(Widget page,
       {bool showTopMenu = false, bool showBottomNavigation = true}) {
-    final communityNavigationStack = state.voteNavigationStack;
+    final communityNavigationStack = state.communityNavigationStack;
 
     communityNavigationStack?.push(page);
-    logger.d('voteNavigationStack: $communityNavigationStack');
+    logger.d('communityNavigationStack: $communityNavigationStack');
     state = state.copyWith(
-      voteNavigationStack: communityNavigationStack,
+      communityNavigationStack: communityNavigationStack,
       showBottomNavigation: showBottomNavigation,
+      currentScreen: page,
     );
-    logger.d('voteNavigationStack: $communityNavigationStack');
+    logger.d('communityNavigationStack: $communityNavigationStack');
   }
 
   setResetStackMyPage() {

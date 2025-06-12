@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 
 class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
@@ -38,7 +39,27 @@ class _PicnicAnimatedSwitcherState
   @override
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
-    final currentTopWidget = navigationInfo.voteNavigationStack?.peek();
+
+    // 현재 포털 타입에 따라 해당하는 NavigationStack을 선택
+    Widget? currentTopWidget;
+    switch (navigationInfo.portalType) {
+      case PortalType.vote:
+        currentTopWidget = navigationInfo.voteNavigationStack?.peek();
+        break;
+      case PortalType.community:
+        currentTopWidget = navigationInfo.communityNavigationStack?.peek();
+        break;
+      case PortalType.pic:
+        currentTopWidget = navigationInfo.voteNavigationStack
+            ?.peek(); // pic은 아직 별도 스택이 없어서 vote 스택 사용
+        break;
+      case PortalType.novel:
+        currentTopWidget = navigationInfo.voteNavigationStack
+            ?.peek(); // novel도 아직 별도 스택이 없어서 vote 스택 사용
+        break;
+      default:
+        currentTopWidget = navigationInfo.voteNavigationStack?.peek();
+    }
 
     // 스택의 최상위 위젯이 변경될 때마다 애니메이션을 트리거합니다.
     WidgetsBinding.instance.addPostFrameCallback((_) {

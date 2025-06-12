@@ -112,7 +112,7 @@ class _PicnicCachedNetworkImageState
 
   // 동시 로딩 제어 (CachedNetworkImage와 별개로 앱 레벨에서 제어)
   static int _currentLoadingCount = 0;
-  static const int _maxConcurrentLoads = 6;
+  static const int _maxConcurrentLoads = 8;
   static final List<Completer<void>> _loadingQueue = [];
 
   // 성능 모니터링용 (CachedNetworkImage 캐시와는 별개)
@@ -286,10 +286,13 @@ class _PicnicCachedNetworkImageState
       imageCache.maximumSizeBytes = 150 * 1024 * 1024; // 150MB
       imageCache.maximumSize = 300; // 최대 300개 이미지
     } else {
-      // 모바일에서는 더 여유있는 설정
-      imageCache.maximumSizeBytes = 200 * 1024 * 1024; // 200MB (기존 80MB에서 증가)
-      imageCache.maximumSize = 500; // 최대 500개 이미지 (기존 300개에서 증가)
+      // 모바일에서는 더 여유있는 설정 - 안정성 개선
+      imageCache.maximumSizeBytes = 250 * 1024 * 1024; // 250MB (기존 200MB에서 증가)
+      imageCache.maximumSize = 600; // 최대 600개 이미지 (기존 500개에서 증가)
     }
+
+    // 캐시 정리 임계값을 더 높게 설정하여 빈번한 정리 방지
+    imageCache.pendingImageCount;
   }
 
   /// 부분적 이미지 캐시 정리 (더 스마트한 정리)
@@ -300,22 +303,23 @@ class _PicnicCachedNetworkImageState
       final maxSizeBytes = imageCache.maximumSizeBytes;
       final currentImageCount = imageCache.liveImageCount;
 
-      // 85% 초과 시에만 정리 (기존 80%에서 상향)
-      if (currentSizeBytes > maxSizeBytes * 0.85) {
+      // 90% 초과 시에만 정리 (기존 85%에서 상향) - 더 관대한 임계값
+      if (currentSizeBytes > maxSizeBytes * 0.90) {
         final previousSizeBytes = currentSizeBytes;
         final previousImageCount = currentImageCount;
 
-        // 30%만 정리 (기존 100% 정리에서 개선)
-        final targetSize = (maxSizeBytes * 0.6).round();
-        imageCache.clear();
+        // 20%만 정리 (기존 30%에서 감소) - 더 보수적인 정리
+        final targetSize = (maxSizeBytes * 0.7).round();
 
-        // 새로운 임시 제한 설정으로 점진적 정리
+        // 더 부드러운 캐시 정리를 위한 배치 처리
         final originalMaxSize = imageCache.maximumSizeBytes;
         imageCache.maximumSizeBytes = targetSize;
 
-        // 원래 제한으로 복구
-        Future.delayed(Duration(milliseconds: 100), () {
-          imageCache.maximumSizeBytes = originalMaxSize;
+        // 원래 제한으로 복구 (지연 시간 증가)
+        Future.delayed(Duration(milliseconds: 200), () {
+          if (mounted) {
+            imageCache.maximumSizeBytes = originalMaxSize;
+          }
         });
 
         final newSizeBytes = imageCache.currentSizeBytes;
@@ -871,6 +875,7 @@ class _PicnicCachedNetworkImageState
     if (_retryCount >= effectiveMaxRetries) return false;
 
     final errorString = error.toString().toLowerCase();
+    // 더 포괄적인 재시도 가능한 에러 목록
     final retryableErrors = [
       'timeout',
       'connection',
@@ -878,6 +883,11 @@ class _PicnicCachedNetworkImageState
       'socket',
       'handshake',
       'host',
+      'resolve', // DNS 해결 실패
+      'unreachable', // 네트워크 도달 불가
+      'interrupted', // 연결 중단
+      'refused', // 연결 거부
+      'reset', // 연결 재설정
     ];
 
     final isRetryableError = retryableErrors.any(
@@ -886,7 +896,8 @@ class _PicnicCachedNetworkImageState
 
     final recentFailures = _failureHistory[url]?.length ?? 0;
 
-    return isRetryableError && recentFailures < 10;
+    // 더 관대한 재시도 조건 (기존 10회에서 15회로 증가)
+    return isRetryableError && recentFailures < 15;
   }
 
   // 재시도 스케줄링

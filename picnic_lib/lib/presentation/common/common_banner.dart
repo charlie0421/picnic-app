@@ -61,7 +61,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   Widget _buildBannerItem(BannerModel item) {
     String title = getLocaleTextFromJson(item.title);
     String imageUrl = getLocaleTextFromJson(item.image);
-    imageUrl.toLowerCase().endsWith('.gif');
+    final isGif = imageUrl.toLowerCase().endsWith('.gif');
 
     return GestureDetector(
       onTap: () {
@@ -72,11 +72,23 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // key를 추가하여 위젯을 강제로 리빌드
+          // 베너는 항상 고우선순위로 처리
           PicnicCachedNetworkImage(
-            key: ValueKey('${item.id}_$_currentIndex'),
+            key: ValueKey('banner_${item.id}_$_currentIndex'),
             imageUrl: imageUrl,
             fit: BoxFit.cover,
+            // 베너 최적화 설정
+            priority: ImagePriority.high, // 베너는 높은 우선순위
+            enableMemoryOptimization: true,
+            enableProgressiveLoading: !isGif, // GIF가 아닌 경우만 점진적 로딩
+            lazyLoadingStrategy: LazyLoadingStrategy.none, // 베너는 즉시 로딩
+            timeout: const Duration(seconds: 12), // 베너는 조금 더 긴 타임아웃
+            maxRetries: 3, // 베너는 더 많은 재시도
+            // 베너 크기에 맞는 메모리 캐시 설정
+            memCacheWidth: MediaQuery.of(context).size.width.toInt(),
+            memCacheHeight:
+                (MediaQuery.of(context).size.width / widget.aspectRatio)
+                    .toInt(),
           ),
           if (title.isNotEmpty)
             Positioned(
