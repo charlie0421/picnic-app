@@ -684,9 +684,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => _handleVoteItemTap(context, item, index),
-          child: SizedBox(
-            height: 45,
+          child: Container(
+            constraints: BoxConstraints(minHeight: 45),
+            padding: EdgeInsets.symmetric(vertical: 4.h),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   width: 39,
@@ -713,12 +715,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       // 검색어 하이라이트가 적용된 이름 표시
                       RichText(
                         overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
                         text: TextSpan(
                           style:
                               getTextStyle(AppTypo.body14B, AppColors.grey900),
@@ -760,6 +764,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                 ],
                         ),
                       ),
+                      SizedBox(height: 4.h),
                       _buildVoteCountContainer(item, voteCountDiff),
                     ],
                   ),

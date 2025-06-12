@@ -52,9 +52,11 @@ class VoteItemWidget extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: SizedBox(
-            height: 45,
+          child: Container(
+            constraints: BoxConstraints(minHeight: 45),
+            padding: EdgeInsets.symmetric(vertical: 4.h),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   width: 39,
@@ -81,11 +83,13 @@ class VoteItemWidget extends StatelessWidget {
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       RichText(
                         overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
                         text: TextSpan(
                             children: (item.artist?.id ?? 0) != 0
                                 ? [
@@ -115,6 +119,7 @@ class VoteItemWidget extends StatelessWidget {
                                     ),
                                   ]),
                       ),
+                      SizedBox(height: 4.h),
                       voteCountContainer,
                     ],
                   ),
