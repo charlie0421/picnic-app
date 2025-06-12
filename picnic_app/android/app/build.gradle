@@ -151,7 +151,7 @@ task copyAabToFlutterBuild {
     }
 }
 
-// ✅ Shorebird용 .so 파일이 없을 경우 더미 생성
+// ✅ Shorebird용 더미 .so 파일 생성 (libapp.so 등 실제 이름으로 생성)
 task generateDummySoFiles {
     description = "Shorebird 빌드 에러 방지를 위한 더미 .so 파일 생성"
 
@@ -159,11 +159,11 @@ task generateDummySoFiles {
         def abis = ['armeabi-v7a', 'arm64-v8a', 'x86_64']
         abis.each { abi ->
             def dir = file("build/app/intermediates/merged_native_libs/release/out/lib/${abi}")
-            def dummy = new File(dir, "libdummy.so")
+            def dummy = new File(dir, "libapp.so") // ✅ 핵심 변경점: libdummy.so → libapp.so
             if (!dummy.exists()) {
                 dir.mkdirs()
                 dummy.bytes = new byte[1]
-                println "✓ Dummy .so 생성됨: ${dummy.path}"
+                println "✓ Dummy libapp.so 생성됨: ${dummy.path}"
             }
         }
     }
