@@ -207,31 +207,57 @@ class _PicnicCachedNetworkImageState
     super.dispose();
   }
 
-  /// 이미지 캐시 최적화
+  // 전역 캐시 최적화 상태 추적
+  static DateTime? _lastCacheOptimization;
+  static const Duration _cacheOptimizationInterval = Duration(minutes: 5);
+
+  /// 이미지 캐시 최적화 (개선된 버전)
   void _optimizeImageCache() {
     try {
       final imageCache = PaintingBinding.instance.imageCache;
+      final now = DateTime.now();
 
-      // 플랫폼별 메모리 제한 설정
-      if (UniversalPlatform.isMobile) {
-        // 모바일: 보수적인 메모리 사용
-        imageCache.maximumSize = 100; // 최대 100개 이미지
-        imageCache.maximumSizeBytes = 50 * 1024 * 1024; // 50MB
-      } else if (UniversalPlatform.isWeb) {
-        // 웹: 중간 정도 메모리 사용
-        imageCache.maximumSize = 150;
-        imageCache.maximumSizeBytes = 100 * 1024 * 1024; // 100MB
-      } else {
-        // 데스크톱: 더 많은 메모리 사용 가능
-        imageCache.maximumSize = 200;
-        imageCache.maximumSizeBytes = 200 * 1024 * 1024; // 200MB
+      // 캐시 최적화 빈도 제한 (5분에 1회)
+      if (_lastCacheOptimization != null &&
+          now.difference(_lastCacheOptimization!).inMinutes < 5) {
+        return;
       }
 
+      // 플랫폼별 메모리 제한 설정 (모바일/데스크톱만)
+      int maxSizeBytes;
+      int maxSize;
+
+      if (UniversalPlatform.isMobile) {
+        // 모바일: 보수적인 메모리 사용
+        maxSize = 100; // 최대 100개 이미지
+        maxSizeBytes = 50 * 1024 * 1024; // 50MB
+      } else {
+        // 데스크톱: 더 많은 메모리 사용 가능
+        maxSize = 200;
+        maxSizeBytes = 200 * 1024 * 1024; // 200MB
+      }
+
+      // 캐시 제한 설정 (한 번만 설정)
+      if (imageCache.maximumSizeBytes != maxSizeBytes) {
+        imageCache.maximumSize = maxSize;
+        imageCache.maximumSizeBytes = maxSizeBytes;
+      }
+
+      final currentSizeBytes = imageCache.currentSizeBytes;
+      final currentSizeMB = currentSizeBytes ~/ (1024 * 1024);
+      final maxSizeMB = maxSizeBytes ~/ (1024 * 1024);
+      final thresholdBytes = (maxSizeBytes * 0.8).toInt();
+      final thresholdMB = thresholdBytes ~/ (1024 * 1024);
+
       // 현재 캐시 크기가 제한을 초과하면 정리
-      if (imageCache.currentSizeBytes > imageCache.maximumSizeBytes * 0.8) {
+      if (currentSizeBytes > thresholdBytes && currentSizeBytes > 0) {
+        final beforeClearCount = imageCache.liveImageCount;
         imageCache.clear();
+        _lastCacheOptimization = now;
+
         logger.i(
-            '이미지 캐시 정리됨: 메모리 사용량 ${imageCache.currentSizeBytes ~/ 1024 ~/ 1024}MB 초과');
+            '이미지 캐시 정리됨: ${currentSizeMB}MB/${maxSizeMB}MB (임계값: ${thresholdMB}MB), '
+            '이미지 수: ${beforeClearCount}개 → 0개');
       }
     } catch (e) {
       logger.e('이미지 캐시 최적화 중 오류: $e');
@@ -240,17 +266,24 @@ class _PicnicCachedNetworkImageState
 
   void _prepareGifLoading() {
     try {
-      if (PaintingBinding.instance.imageCache.currentSizeBytes >
-          100 * 1024 * 1024) {
-        final previousSizeBytes =
-            PaintingBinding.instance.imageCache.currentSizeBytes;
+      final currentSizeBytes =
+          PaintingBinding.instance.imageCache.currentSizeBytes;
+      final sizeMB = currentSizeBytes ~/ (1024 * 1024);
+
+      // GIF 로딩 전 메모리 사용량이 100MB를 초과하는 경우에만 정리
+      if (currentSizeBytes > 100 * 1024 * 1024) {
+        final previousSizeBytes = currentSizeBytes;
+        final previousImageCount =
+            PaintingBinding.instance.imageCache.liveImageCount;
 
         _clearUnusedCache();
 
+        logger.d(
+            'GIF 로딩을 위한 캐시 정리: ${sizeMB}MB → 0MB, 이미지 수: ${previousImageCount}개 → 0개');
+
         MemoryProfilingHook.onImageCacheCleared(
           previousSizeBytes: previousSizeBytes,
-          previousImageCount:
-              PaintingBinding.instance.imageCache.liveImageCount,
+          previousImageCount: previousImageCount,
           ref: ref,
         );
       }
@@ -294,7 +327,10 @@ class _PicnicCachedNetworkImageState
         _loadedImages.remove(key);
       }
 
-      logger.i('이미지 캐시 정리 완료: ${keysToRemove.length}개 항목 제거');
+      // 로그 레벨을 debug로 변경하여 빈도 감소
+      if (keysToRemove.isNotEmpty) {
+        logger.d('이미지 캐시 정리 완료: ${keysToRemove.length}개 항목 제거');
+      }
     } catch (e) {
       logger.e('캐시 정리 중 오류: $e');
     }
@@ -396,10 +432,6 @@ class _PicnicCachedNetworkImageState
     // 네트워크 상태에 따른 적응형 해상도 조정
     final isLowBandwidth = _isLowBandwidthConnection();
 
-    if (UniversalPlatform.isWeb) {
-      return isLowBandwidth ? 1.5 : math.min(devicePixelRatio * 1.2, 3.0);
-    }
-
     if (UniversalPlatform.isAndroid) {
       return isLowBandwidth ? 1.0 : math.min(devicePixelRatio * 1.1, 2.5);
     }
@@ -424,21 +456,7 @@ class _PicnicCachedNetworkImageState
     final isLowBandwidth = _isLowBandwidthConnection();
     final imageSize = _estimateImageComplexity();
 
-    if (UniversalPlatform.isWeb) {
-      if (isLowBandwidth || imageSize == ImageComplexity.high) {
-        // 웹에서 저대역폭이거나 복잡한 이미지의 경우 단계적 로딩
-        return [
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.3, 30),
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.7, 60),
-          _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 85),
-        ];
-      }
-      return [
-        _getTransformedUrl(widget.imageUrl, resolutionMultiplier, 90),
-      ];
-    }
-
-    // 모바일에서 적응형 로딩
+    // 모바일/데스크톱에서 적응형 로딩
     if (isLowBandwidth) {
       return [
         _getTransformedUrl(widget.imageUrl, resolutionMultiplier * 0.4, 25),
@@ -447,7 +465,7 @@ class _PicnicCachedNetworkImageState
       ];
     }
 
-    // 일반적인 경우
+    // 일반적인 경우 (이미지 복잡도에 따른 로딩)
     switch (imageSize) {
       case ImageComplexity.low:
         return [
@@ -495,11 +513,10 @@ class _PicnicCachedNetworkImageState
     };
 
     if (!isGif) {
-      final supportsWebP = UniversalPlatform.isWeb ||
-          (WebPSupportChecker.instance.supportInfo != null &&
-              WebPSupportChecker.instance.supportInfo!.webp);
+      final supportsWebP = WebPSupportChecker.instance.supportInfo != null &&
+          WebPSupportChecker.instance.supportInfo!.webp;
 
-      // 최적화된 이미지 형식 선택
+      // 최적화된 이미지 형식 선택 (모바일/데스크톱)
       if (supportsWebP) {
         queryParameters['f'] = 'webp';
       } else {
