@@ -80,6 +80,9 @@ android {
             signingConfig System.getenv()["CI"] ? signingConfigs.release : signingConfigs.debug
             minifyEnabled false
             shrinkResources false
+            ndk {
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+            }
         }
     }
 
