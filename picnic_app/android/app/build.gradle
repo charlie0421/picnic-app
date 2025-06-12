@@ -6,7 +6,6 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 def localProperties = new Properties()
@@ -83,6 +82,13 @@ android {
             shrinkResources false
         }
     }
+
+    bundle {
+        storeArchive {
+            enable = true
+        }
+    }
+
 }
 
 flutter {

@@ -200,26 +200,37 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
 
   Future<void> _loadArtistsPage(String query,
       {required int page, bool isInitial = false, String? searchToken}) async {
+    logger.d(
+        '📋 _loadArtistsPage 시작 - 검색어: "$query", 페이지: $page, 초기로드: $isInitial');
+
     final results = await _service.searchArtistsWithPagination(
       query,
       page: page,
       pageSize: _pageSize,
     );
 
+    logger.d('📋 검색 서비스 결과: ${results['artists']?.length ?? 0}개 아티스트');
+
     // 검색 토큰이 유효하지 않으면 결과 무시 (이미 새로운 검색이 시작됨)
     if (searchToken != null && _lastSearchToken != searchToken) {
+      logger.d('📋 검색 토큰 불일치로 결과 무시');
       return;
     }
 
     if (mounted) {
       final userInfo = ref.read(userInfoProvider).value;
+      logger.d('📋 사용자 정보: ${userInfo?.id}');
+
       final applicationData = await _service.loadApplicationDataForResults(
         results['artists'],
         userInfo?.id,
       );
 
+      logger.d('📋 신청 정보 로드 완료: ${applicationData.length}개');
+
       // 다시 한번 토큰 검증 (긴 작업 후)
       if (searchToken != null && _lastSearchToken != searchToken) {
+        logger.d('📋 긴 작업 후 토큰 불일치로 결과 무시');
         return;
       }
 
@@ -231,18 +242,26 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
         return bCount.compareTo(aCount); // 내림차순
       });
 
+      logger.d('📋 정렬 완료: ${artists.length}개 아티스트');
+
       setState(() {
         if (isInitial) {
           _searchResults = artists;
           _searchResultsInfo.clear();
+          logger.d('📋 초기 로드 - 검색 결과 교체: ${artists.length}개');
         } else {
           _searchResults.addAll(artists);
+          logger.d(
+              '📋 추가 로드 - 검색 결과 추가: ${artists.length}개 (총 ${_searchResults.length}개)');
         }
         _searchResultsInfo.addAll(applicationData);
         _currentPage = page;
         _hasMoreResults = results['hasMore'] ?? false;
         _isSearching = false;
       });
+
+      logger.d(
+          '📋 UI 업데이트 완료 - 최종 검색 결과: ${_searchResults.length}개, 더보기: $_hasMoreResults');
     }
   }
 
@@ -311,34 +330,27 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   }
 
   Future<void> _onSearchChanged(String query) async {
-    _currentSearchQuery = query;
+    logger.d('🔍 검색 시작: "$query" (이전: "$_currentSearchQuery")');
 
-    // 검색 토큰 생성 (동시 요청 방지)
+    // 검색 토큰 생성 (중복 요청 방지)
     final searchToken = DateTime.now().millisecondsSinceEpoch.toString();
     _lastSearchToken = searchToken;
 
-    // 검색어가 비어있으면 초기 아티스트 목록 다시 로드
-    if (query.isEmpty) {
-      await _loadInitialArtists();
-      return;
-    }
-
     setState(() {
+      _currentSearchQuery = query;
       _isSearching = true;
       _currentPage = 0;
-      _searchResults.clear();
-      _searchResultsInfo.clear();
     });
 
-    try {
-      // 검색어가 있을 때는 첫 페이지부터 검색
+    // 디바운싱 처리 (300ms 지연)
+    await Future.delayed(Duration(milliseconds: 300));
+
+    if (_lastSearchToken == searchToken && mounted) {
+      logger.d('🔍 디바운싱 후 실제 검색 실행: "$query"');
       await _loadArtistsPage(query,
           page: 0, isInitial: true, searchToken: searchToken);
-    } catch (e) {
-      // 검색 토큰이 여전히 유효한 경우만 에러 상태 설정
-      if (mounted && _lastSearchToken == searchToken) {
-        setState(() => _isSearching = false);
-      }
+    } else {
+      logger.d('🔍 검색 토큰 불일치로 검색 취소: "$query"');
     }
   }
 
@@ -379,8 +391,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
           }
         });
 
-        // 상단 섹션만 백그라운드에서 갱신 (하단은 이미 즉시 업데이트됨)
-        _loadAllApplicationData();
+        // 전체 데이터 완전 갱신 (상단/하단 모두)
+        await _refreshAllData();
 
         // 성공 메시지를 다이얼로그 내부에 표시
         setState(() {
@@ -399,9 +411,6 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString();
-
-          // 신청 실패 시 submitting 상태 해제
           final artistId = artist.id.toString();
           if (_searchResultsInfo.containsKey(artistId)) {
             _searchResultsInfo[artistId] =
@@ -409,27 +418,45 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
               isSubmitting: false,
             );
           }
+          _errorMessage = e.toString().contains('already_applied')
+              ? '이미 신청한 아티스트입니다'
+              : '신청 중 오류가 발생했습니다: ${e.toString()}';
+        });
+
+        // 3초 후 에러 메시지 제거
+        Future.delayed(Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _errorMessage = null;
+            });
+          }
         });
       }
+      logger.e('신청 실패', error: e);
     }
   }
 
-  /// 모든 데이터를 새로고침하는 메서드
+  /// 전체 데이터 갱신 (상단/하단 모두)
   Future<void> _refreshAllData() async {
     try {
-      // 상단 섹션 데이터 갱신
+      logger.d(
+          '🔄 _refreshAllData 시작 - 현재 검색어: "$_currentSearchQuery", 검색 결과: ${_searchResults.length}개');
+
+      // 1. 상단 섹션 데이터 갱신
       await _loadAllApplicationData();
 
-      // 하단 검색 결과 데이터 갱신 - 기존 검색 결과를 유지하면서 신청 정보만 업데이트
-      if (_currentSearchQuery.isNotEmpty && _searchResults.isNotEmpty) {
-        logger.d('Refreshing application data for existing search results');
+      // 2. 하단 섹션 데이터 갱신 - 현재 검색 상태 유지
+      if (_searchResults.isNotEmpty) {
+        // 기존 검색 결과가 있으면 신청 정보만 갱신
+        logger.d('🔄 기존 검색 결과 유지하고 신청 정보만 갱신: ${_searchResults.length}개');
 
-        // 기존 검색 결과에 대한 신청 정보만 다시 로드
         final userInfo = ref.read(userInfoProvider).value;
         final applicationData = await _service.loadApplicationDataForResults(
           _searchResults,
           userInfo?.id,
         );
+
+        logger.d('🔄 신청 정보 갱신 완료: ${applicationData.length}개');
 
         if (mounted) {
           setState(() {
@@ -437,35 +464,22 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
             _searchResultsInfo.clear();
             _searchResultsInfo.addAll(applicationData);
           });
+          logger.d(
+              '🔄 UI 상태 업데이트 완료 - 검색 결과: ${_searchResults.length}개, 정보: ${_searchResultsInfo.length}개');
         }
-      } else if (_currentSearchQuery.isEmpty) {
-        // 초기 아티스트 목록 갱신 (검색어가 없는 경우만)
-        logger.d('Refreshing initial artists list');
+      } else if (_currentSearchQuery.isNotEmpty) {
+        // 검색어가 있지만 결과가 없으면 검색 다시 실행
+        logger.d('🔄 검색어가 있지만 결과가 없음 - 검색 다시 실행: "$_currentSearchQuery"');
+        await _onSearchChanged(_currentSearchQuery);
+      } else {
+        // 검색어도 없고 결과도 없으면 초기 목록 로드
+        logger.d('🔄 검색어도 없고 결과도 없음 - 초기 아티스트 목록 갱신');
         await _loadInitialArtists();
       }
 
-      logger.d('Data refresh completed successfully');
+      logger.d('🔄 _refreshAllData 완료');
     } catch (e) {
-      logger.e('Failed to refresh data', error: e);
-      // 갱신 실패 시에도 기본적인 신청 정보는 업데이트
-      if (_searchResults.isNotEmpty) {
-        final userInfo = ref.read(userInfoProvider).value;
-        try {
-          final applicationData = await _service.loadApplicationDataForResults(
-            _searchResults,
-            userInfo?.id,
-          );
-
-          if (mounted) {
-            setState(() {
-              _searchResultsInfo.clear();
-              _searchResultsInfo.addAll(applicationData);
-            });
-          }
-        } catch (fallbackError) {
-          logger.e('Fallback data refresh also failed', error: fallbackError);
-        }
-      }
+      logger.e('전체 데이터 갱신 실패: $e');
     }
   }
 

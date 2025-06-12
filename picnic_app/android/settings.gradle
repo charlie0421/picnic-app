@@ -32,7 +32,7 @@ dependencyResolutionManagement {
         maven { url 'https://artifact.bytedance.com/repository/pangle-global' }
         google()
         mavenCentral()
-    }
+    } 
 }
 
 include ":app"

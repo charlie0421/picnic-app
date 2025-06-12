@@ -42,6 +42,7 @@ dependencies:
     crowdin_sdk: ^0.7.0
     shorebird_code_push: ^2.0.3
     stack_trace: ^1.11.1
+    flutter_native_splash: ^2.4.6
     
 dev_dependencies:
     build_runner: ^2.4.13
@@ -53,13 +54,11 @@ dev_dependencies:
     riverpod_generator: ^2.6.3
     riverpod_lint: ^2.6.3
     flutter_launcher_icons: ^0.14.2
-    flutter_native_splash: ^2.4.4
 
 flutter_intl:
     enabled: false
 
 dependency_overrides:
-    js: ^0.7.2
 
 flutter:
     uses-material-design: true

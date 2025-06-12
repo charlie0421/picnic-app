@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
@@ -159,6 +160,15 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   }
 
   Widget _buildSearchResults() {
+    final searchResultsCount = widget.searchResults.length;
+    final isSearching = widget.isSearching;
+    final isEmpty = widget.searchResults.isEmpty;
+
+    logger.d(
+        '🔍 SearchResults State: isSearching=$isSearching, isEmpty=$isEmpty, count=$searchResultsCount');
+    logger.d(
+        '🔍 SearchResults 첫 번째 아티스트: ${searchResultsCount > 0 ? widget.searchResults.first.name : "없음"}');
+
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -301,7 +311,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
             ),
             SizedBox(height: 12.h),
             Text(
-              '검색 결과가 없습니다',
+              t('vote_item_request_no_search_results'),
               style: getTextStyle(AppTypo.body14B, AppColors.grey600),
             ),
             SizedBox(height: 4.h),
@@ -349,6 +359,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
                 );
 
         return Container(
+          key: ValueKey('search_result_${artist.id}'),
           margin: EdgeInsets.only(bottom: 2.h), // 간격 더 축소 (4.h -> 2.h)
           padding: EdgeInsets.all(6.r), // 패딩 더 축소 (8.r -> 6.r)
           decoration: BoxDecoration(

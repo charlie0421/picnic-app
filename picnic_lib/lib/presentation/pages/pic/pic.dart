@@ -3,6 +3,8 @@ import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/presentation/common/optimized_image_list.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -98,10 +100,15 @@ class _PicPageState extends ConsumerState<PicPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(70),
-                      child: Image.network(
-                        data?[index - 1].thumbnail ?? '',
+                      child: OptimizedListImage(
+                        imageUrl: data?[index - 1].thumbnail ?? '',
                         width: 60.w,
                         height: 60,
+                        fit: BoxFit.cover,
+                        priority: ImagePriority.high, // 아티스트 이미지는 높은 우선순위
+                        borderRadius: BorderRadius.circular(70),
+                        useOptimizedCacheManager:
+                            true, // 아티스트 이미지는 최적화된 캐시 매니저 사용
                       ),
                     ),
                     const SizedBox(height: 4),

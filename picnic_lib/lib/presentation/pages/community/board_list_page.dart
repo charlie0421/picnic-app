@@ -408,6 +408,11 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
                       imageUrl: artist.image ?? '',
                       width: 32,
                       height: 32,
+                      priority: ImagePriority.normal,
+                      lazyLoadingStrategy: LazyLoadingStrategy.viewport,
+                      enableMemoryOptimization: true,
+                      borderRadius: BorderRadius.circular(32.r),
+                      useOptimizedCacheManager: false, // 작은 아이콘은 기본 캐시 매니저 사용
                     ),
                   ),
                   SizedBox(width: 8.w),

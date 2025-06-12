@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'common_artist_widget.dart';
@@ -80,7 +81,7 @@ class CurrentApplicationsSection extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    '모든 신청 현황 (총 $totalApplications건)',
+                    t('vote_item_request_status'),
                     style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                   ),
           ),
@@ -287,24 +288,35 @@ class CurrentApplicationsSection extends StatelessWidget {
 
   Widget _buildStatusCounts(
       int pendingCount, int approvedCount, int rejectedCount) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (pendingCount > 0)
-          _buildStatusCountBadge('대기', pendingCount, Colors.orange),
-        if (approvedCount > 0) ...[
-          if (pendingCount > 0) SizedBox(width: 4.w),
-          _buildStatusCountBadge('승인', approvedCount, Colors.green),
-        ],
-        if (rejectedCount > 0) ...[
-          if (pendingCount > 0 || approvedCount > 0) SizedBox(width: 4.w),
-          _buildStatusCountBadge('거절', rejectedCount, Colors.red),
-        ],
-      ],
-    );
+    // 전체 신청 수
+    final totalCount = pendingCount + approvedCount + rejectedCount;
+
+    // 통합 상태 결정
+    String statusLabel;
+    Color statusColor;
+    bool showCount = true; // 숫자 표시 여부
+
+    if (totalCount == approvedCount && approvedCount > 0) {
+      // 전체 승인
+      statusLabel = t('vote_item_request_status_approved');
+      statusColor = Colors.green;
+    } else if (totalCount == rejectedCount && rejectedCount > 0) {
+      // 전체 거절
+      statusLabel = t('vote_item_request_status_rejected');
+      statusColor = Colors.red;
+      showCount = false; // 거절인 경우 숫자 숨김
+    } else {
+      // 나머지 (대기중/혼합)
+      statusLabel = t('vote_item_request_status_pending');
+      statusColor = Colors.orange;
+      showCount = false; // 대기중인 경우 숫자 숨김
+    }
+
+    return _buildStatusCountBadge(
+        statusLabel, showCount ? totalCount : null, statusColor);
   }
 
-  Widget _buildStatusCountBadge(String label, int count, Color color) {
+  Widget _buildStatusCountBadge(String label, int? count, Color color) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
       decoration: BoxDecoration(
@@ -316,7 +328,7 @@ class CurrentApplicationsSection extends StatelessWidget {
         ),
       ),
       child: Text(
-        '$label $count',
+        count != null ? '$label $count' : label,
         style: getTextStyle(
           AppTypo.caption12B,
           color,

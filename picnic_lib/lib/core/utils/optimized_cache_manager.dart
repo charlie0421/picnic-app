@@ -6,10 +6,19 @@ import 'package:universal_platform/universal_platform.dart';
 /// PicnicApp에 최적화된 캐시 관리자
 ///
 /// 특징:
-/// - 향상된 HTTP 헤더로 캐싱 최적화
+/// - 향상된 HTTP 헤더로 캐싱 최적화 (WebP/AVIF 지원)
 /// - 재시도 로직이 포함된 HTTP 클라이언트 사용
 /// - 플랫폼별 캐시 설정 최적화
-/// - 메모리 및 디스크 캐시 크기 조정
+/// - CDN 특화 헤더 추가
+///
+/// 사용 시기:
+/// - 중요한 이미지 (아티스트 프로필, 메인 이미지)
+/// - 큰 이미지나 고품질이 필요한 경우
+/// - 네트워크 안정성이 중요한 경우
+///
+/// 기본 CachedNetworkImage 캐시 매니저로 충분한 경우:
+/// - 작은 아이콘이나 썸네일
+/// - 일반적인 리스트 이미지
 class OptimizedCacheManager extends CacheManager with ImageCacheManager {
   static const String _cacheKey = 'picnic_optimized_cache';
 

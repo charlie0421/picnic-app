@@ -92,24 +92,39 @@ class CommonArtistWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(24.r),
         child: artist?.image != null
             ? PicnicCachedNetworkImage(
+                key: ValueKey('artist_${artist!.id}'),
                 imageUrl: artist!.image!,
                 fit: BoxFit.cover,
                 width: width,
                 height: height,
-              )
-            : Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary500.withValues(alpha: 0.2),
-                      AppColors.primary500.withValues(alpha: 0.1),
-                    ],
+                borderRadius: BorderRadius.circular(24.r),
+                placeholder: Container(
+                  width: width,
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: AppColors.grey100,
+                    borderRadius: BorderRadius.circular(24.r),
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    size: width * 0.4,
+                    color: AppColors.grey400,
                   ),
                 ),
+                enableProgressiveLoading: false, // 진보적 로딩 비활성화
+                lazyLoadingStrategy: LazyLoadingStrategy.none, // 지연 로딩 비활성화
+              )
+            : Container(
+                width: width,
+                height: height,
+                decoration: BoxDecoration(
+                  color: AppColors.grey100,
+                  borderRadius: BorderRadius.circular(24.r),
+                ),
                 child: Icon(
-                  Icons.person_rounded,
-                  color: AppColors.primary500,
-                  size: 16.r,
+                  Icons.person,
+                  size: width * 0.4,
+                  color: AppColors.grey400,
                 ),
               ),
       ),
