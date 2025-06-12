@@ -131,20 +131,27 @@ class VoteCardColumnVertical extends StatelessWidget {
                         Text(
                           getLocaleTextFromJson(voteItem.artist?.name ?? {}),
                           style: getTextStyle(
-                            AppTypo.body14B,
+                            AppTypo.caption12B,
                             AppColors.grey900,
                           ),
                           textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         if (voteItem.artist?.artistGroup?.name != null)
-                          Text(
-                            getLocaleTextFromJson(
-                                voteItem.artist!.artistGroup!.name),
-                            style: getTextStyle(
-                              AppTypo.caption10SB,
-                              AppColors.grey00,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              getLocaleTextFromJson(
+                                  voteItem.artist!.artistGroup!.name),
+                              style: getTextStyle(
+                                AppTypo.caption10SB,
+                                AppColors.grey600,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                       ]
                     : (voteItem.artistGroup?.id ?? 0) != 0
@@ -153,10 +160,12 @@ class VoteCardColumnVertical extends StatelessWidget {
                               getLocaleTextFromJson(
                                   voteItem.artistGroup?.name ?? {}),
                               style: getTextStyle(
-                                AppTypo.body14B,
+                                AppTypo.caption12B,
                                 AppColors.grey900,
                               ),
                               textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ]
                         : [],
