@@ -4,6 +4,7 @@ import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:shimmer/shimmer.dart';
 import 'vote_item_request_models.dart';
 import 'common_artist_widget.dart';
 import 'search_result_action_button.dart';
@@ -176,23 +177,106 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   }
 
   Widget _buildLoadingState() {
-    return SizedBox(
-      height: 120.h,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(
-              color: AppColors.primary500,
-              strokeWidth: 2,
+    return Expanded(
+      child: ListView.builder(
+        padding: EdgeInsets.all(12.r),
+        itemCount: 8, // 스켈레톤 아이템 개수
+        physics: NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          return Container(
+            margin: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.all(12.r),
+            decoration: BoxDecoration(
+              color: AppColors.grey00,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: AppColors.grey200.withValues(alpha: 0.3),
+                width: 1,
+              ),
             ),
-            SizedBox(height: 12.h),
-            Text(
-              '아티스트를 검색하고 있습니다...',
-              style: getTextStyle(AppTypo.body14R, AppColors.grey500),
+            child: Row(
+              children: [
+                // 아티스트 이미지 스켈레톤
+                Shimmer.fromColors(
+                  baseColor: AppColors.grey300,
+                  highlightColor: AppColors.grey100,
+                  child: Container(
+                    width: 40.w,
+                    height: 40.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                // 아티스트 정보 스켈레톤
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 아티스트 이름 (메인)
+                      Shimmer.fromColors(
+                        baseColor: AppColors.grey300,
+                        highlightColor: AppColors.grey100,
+                        child: Container(
+                          height: 14.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(7.r),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      // 그룹명
+                      Shimmer.fromColors(
+                        baseColor: AppColors.grey300,
+                        highlightColor: AppColors.grey100,
+                        child: Container(
+                          height: 12.h,
+                          width: 100.w,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 3.h),
+                      // 신청 수 정보
+                      Shimmer.fromColors(
+                        baseColor: AppColors.grey300,
+                        highlightColor: AppColors.grey100,
+                        child: Container(
+                          height: 10.h,
+                          width: 70.w,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5.r),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                // 액션 버튼 스켈레톤
+                Shimmer.fromColors(
+                  baseColor: AppColors.grey300,
+                  highlightColor: AppColors.grey100,
+                  child: Container(
+                    width: 50.w,
+                    height: 24.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -301,28 +385,88 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   }
 
   Widget _buildLoadMoreIndicator() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 16.h),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 16.w,
-              height: 16.w,
-              child: CircularProgressIndicator(
-                color: AppColors.primary500,
-                strokeWidth: 2,
+    return Column(
+      children: List.generate(3, (index) {
+        return Container(
+          margin: EdgeInsets.only(bottom: 8.h),
+          padding: EdgeInsets.all(12.r),
+          decoration: BoxDecoration(
+            color: AppColors.grey00,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: AppColors.grey200.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              // 아티스트 이미지 스켈레톤
+              Shimmer.fromColors(
+                baseColor: AppColors.grey300,
+                highlightColor: AppColors.grey100,
+                child: Container(
+                  width: 32.w,
+                  height: 32.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(width: 8.w),
-            Text(
-              '더 많은 아티스트를 불러오는 중...',
-              style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
-            ),
-          ],
-        ),
-      ),
+              SizedBox(width: 12.w),
+              // 아티스트 정보 스켈레톤
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 아티스트 이름
+                    Shimmer.fromColors(
+                      baseColor: AppColors.grey300,
+                      highlightColor: AppColors.grey100,
+                      child: Container(
+                        height: 12.h,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 3.h),
+                    // 그룹명
+                    Shimmer.fromColors(
+                      baseColor: AppColors.grey300,
+                      highlightColor: AppColors.grey100,
+                      child: Container(
+                        height: 10.h,
+                        width: 80.w,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.r),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 12.w),
+              // 액션 버튼 스켈레톤
+              Shimmer.fromColors(
+                baseColor: AppColors.grey300,
+                highlightColor: AppColors.grey100,
+                child: Container(
+                  width: 45.w,
+                  height: 20.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

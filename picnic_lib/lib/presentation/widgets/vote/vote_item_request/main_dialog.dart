@@ -53,6 +53,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   // 모든 사용자 신청 관련 (상단 구간용)
   List<Map<String, dynamic>> _artistApplicationSummaries = [];
   int _totalApplications = 0;
+  bool _isLoadingApplications = true; // 상단 섹션 로딩 상태
 
   // 검색 관련
   List<ArtistModel> _searchResults = [];
@@ -108,6 +109,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
                     child: CurrentApplicationsSection(
                       artistApplicationSummaries: _artistApplicationSummaries,
                       totalApplications: _totalApplications,
+                      isLoading: _isLoadingApplications,
                     ),
                   ),
                   // 검색 및 결과 섹션 - 하단
@@ -138,16 +140,26 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   // 모든 사용자 신청 데이터 로딩 (상단 섹션용)
   Future<void> _loadAllApplicationData() async {
     try {
+      setState(() {
+        _isLoadingApplications = true;
+      });
+
       final result = await _service.loadAllApplicationsByArtist();
 
       if (mounted) {
         setState(() {
           _artistApplicationSummaries = result['artistApplicationSummaries'];
           _totalApplications = result['totalApplications'];
+          _isLoadingApplications = false;
         });
       }
     } catch (e) {
       logger.e('모든 신청 데이터 로딩 실패', error: e);
+      if (mounted) {
+        setState(() {
+          _isLoadingApplications = false;
+        });
+      }
     }
   }
 
@@ -163,7 +175,11 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       // 첫 페이지 로드 (빈 문자열로 검색하여 전체 아티스트 목록을 가져옴)
       await _loadArtistsPage('', page: 0, isInitial: true);
     } catch (e) {
-      if (mounted) setState(() => _isSearching = false);
+      if (mounted) {
+        setState(() {
+          _isSearching = false;
+        });
+      }
       logger.e('Failed to load initial artists', error: e);
     }
   }

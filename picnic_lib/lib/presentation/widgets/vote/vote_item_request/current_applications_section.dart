@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:shimmer/shimmer.dart';
 import 'common_artist_widget.dart';
 
 /// 모든 사용자의 신청을 아티스트별로 표시하는 섹션
 class CurrentApplicationsSection extends StatelessWidget {
   final List<Map<String, dynamic>> artistApplicationSummaries;
   final int totalApplications;
+  final bool isLoading;
 
   const CurrentApplicationsSection({
     super.key,
     required this.artistApplicationSummaries,
     required this.totalApplications,
+    this.isLoading = false,
   });
 
   @override
@@ -38,7 +41,7 @@ class CurrentApplicationsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          _buildContent(),
+          isLoading ? _buildLoadingSkeleton() : _buildContent(),
         ],
       ),
     );
@@ -63,12 +66,136 @@ class CurrentApplicationsSection extends StatelessWidget {
           ),
           SizedBox(width: 8.w),
           Expanded(
-            child: Text(
-              '모든 신청 현황 (총 $totalApplications건)',
-              style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-            ),
+            child: isLoading
+                ? Shimmer.fromColors(
+                    baseColor: AppColors.grey300,
+                    highlightColor: AppColors.grey100,
+                    child: Container(
+                      height: 16.h,
+                      width: 150.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                    ),
+                  )
+                : Text(
+                    '모든 신청 현황 (총 $totalApplications건)',
+                    style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                  ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingSkeleton() {
+    return Expanded(
+      child: ListView.builder(
+        padding: EdgeInsets.fromLTRB(12.r, 0, 12.r, 12.r),
+        itemCount: 5, // 스켈레톤 아이템 개수
+        physics: NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          return Container(
+            margin: EdgeInsets.only(bottom: 4.h),
+            padding: EdgeInsets.all(8.r),
+            decoration: BoxDecoration(
+              color: AppColors.grey00,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: AppColors.grey200.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                // 아티스트 이미지 스켈레톤
+                Shimmer.fromColors(
+                  baseColor: AppColors.grey300,
+                  highlightColor: AppColors.grey100,
+                  child: Container(
+                    width: 32.w,
+                    height: 32.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                // 아티스트 이름 스켈레톤
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 아티스트 이름 (메인)
+                      Shimmer.fromColors(
+                        baseColor: AppColors.grey300,
+                        highlightColor: AppColors.grey100,
+                        child: Container(
+                          height: 12.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 3.h),
+                      // 그룹명 (서브)
+                      Shimmer.fromColors(
+                        baseColor: AppColors.grey300,
+                        highlightColor: AppColors.grey100,
+                        child: Container(
+                          height: 10.h,
+                          width: 60.w,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5.r),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                // 상태 배지 스켈레톤들 - 개별적으로 분리
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 첫 번째 배지
+                    Shimmer.fromColors(
+                      baseColor: AppColors.grey300,
+                      highlightColor: AppColors.grey100,
+                      child: Container(
+                        width: 35.w,
+                        height: 18.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(9.r),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 3.w),
+                    // 두 번째 배지
+                    Shimmer.fromColors(
+                      baseColor: AppColors.grey300,
+                      highlightColor: AppColors.grey100,
+                      child: Container(
+                        width: 35.w,
+                        height: 18.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(9.r),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
