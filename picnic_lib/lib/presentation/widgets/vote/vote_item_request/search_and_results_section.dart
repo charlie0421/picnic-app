@@ -177,7 +177,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   }
 
   Widget _buildLoadingState() {
-    return Expanded(
+    return Flexible(
       child: ListView.builder(
         padding: EdgeInsets.all(12.r),
         itemCount: 8, // 스켈레톤 아이템 개수

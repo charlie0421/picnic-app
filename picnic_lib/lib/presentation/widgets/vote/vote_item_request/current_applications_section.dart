@@ -90,7 +90,7 @@ class CurrentApplicationsSection extends StatelessWidget {
   }
 
   Widget _buildLoadingSkeleton() {
-    return Expanded(
+    return Flexible(
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(12.r, 0, 12.r, 12.r),
         itemCount: 5, // 스켈레톤 아이템 개수
@@ -205,7 +205,7 @@ class CurrentApplicationsSection extends StatelessWidget {
       return _buildEmptyState();
     }
 
-    return Expanded(
+    return Flexible(
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(12.r, 0, 12.r, 12.r),
         itemCount: artistApplicationSummaries.length,
