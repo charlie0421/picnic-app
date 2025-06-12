@@ -11,7 +11,7 @@ pluginManagement {
     includeBuild("${settings.ext.flutterSdkPath}/packages/flutter_tools/gradle")
 
     repositories {
-        maven { url 'https://maven.aliyun.com/repository/public' } // Aliyun public mirror
+        maven { url 'https://maven.aliyun.com/repository/public' } // ✅ 안정화
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -21,22 +21,18 @@ pluginManagement {
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
     id "com.android.application" version '8.7.2' apply false
-    // START: FlutterFire Configuration
     id "com.google.gms.google-services" version "4.3.15" apply false
-    // END: FlutterFire Configuration
     id "org.jetbrains.kotlin.android" version "2.1.0" apply false
 }
 
 dependencyResolutionManagement {
     repositories {
-        maven {
-            url 'https://artifact.bytedance.com/repository/pangle'
-        }
-        maven {
-            url 'https://artifact.bytedance.com/repository/pangle-global'
-        }
+        maven { url 'https://maven.aliyun.com/repository/public' } // ✅ 여기도 추가
+        maven { url 'https://artifact.bytedance.com/repository/pangle' }
+        maven { url 'https://artifact.bytedance.com/repository/pangle-global' }
         google()
         mavenCentral()
     }
 }
+
 include ":app"
