@@ -85,7 +85,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   // 프로필
                   data != null ? _buildProfile() : _buildNonLogin(),
                   // 캔디 정보
-                  supabase.isLogged
+                  isSupabaseLoggedSafely
                       ? const Align(
                           alignment: Alignment.centerLeft,
                           child: StarCandyInfoText(
@@ -251,7 +251,7 @@ class _MyPageState extends ConsumerState<MyPage> {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         logger.i('🎯 나의 아티스트 탭 clicked');
-        if (!supabase.isLogged) {
+        if (!isSupabaseLoggedSafely) {
           logger.i('🎯 User not logged in, navigating to signup');
           Navigator.of(context).pushNamed(SignUpScreen.routeName);
         } else {
@@ -292,7 +292,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             ),
           ),
           const SizedBox(height: 16),
-          supabase.isLogged
+          isSupabaseLoggedSafely
               ? SizedBox(
                   height: 80,
                   child: bookmarkedArtists.when(

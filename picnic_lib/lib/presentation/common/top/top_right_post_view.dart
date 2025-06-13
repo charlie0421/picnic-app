@@ -32,7 +32,7 @@ class _TopRightPostViewState extends ConsumerState<TopRightPostView> {
         child: InkWell(
           borderRadius: BorderRadius.circular(15),
           onTap: () {
-            if (!supabase.isLogged) {
+            if (!isSupabaseLoggedSafely) {
               showRequireLoginDialog();
               return;
             }

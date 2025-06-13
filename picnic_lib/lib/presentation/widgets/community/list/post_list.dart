@@ -49,7 +49,7 @@ class _PostListState extends ConsumerState<PostList> {
         children: [
           InkWell(
             onTap: () async {
-              if (!supabase.isLogged) {
+              if (!isSupabaseLoggedSafely) {
                 showRequireLoginDialog();
                 return;
               }
@@ -91,7 +91,7 @@ class _PostListState extends ConsumerState<PostList> {
           ),
           InkWell(
             onTap: () {
-              if (supabase.isLogged) {
+              if (isSupabaseLoggedSafely) {
                 navigationInfoNotifier.setCurrentPage(
                     CompatibilityListPage(artistId: currentArtist?.id));
               } else {
@@ -142,7 +142,7 @@ class _PostListState extends ConsumerState<PostList> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  if (!supabase.isLogged) {
+                                  if (!isSupabaseLoggedSafely) {
                                     showRequireLoginDialog();
                                     return;
                                   }
@@ -222,4 +222,5 @@ class _PostListState extends ConsumerState<PostList> {
       return Container();
     }
   }
+
 }

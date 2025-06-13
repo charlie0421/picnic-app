@@ -15,6 +15,11 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
 
   Future<List<ArtistModel>> _fetchBookmarkedArtists() async {
     try {
+      if (!isSupabaseLoggedSafely) {
+        logger.d('User not logged in, returning empty list');
+        return [];
+      }
+
       final response = await supabase.from('artist_user_bookmark').select(
           'artist_id, artist(id, name, image, gender, birth_date, artist_group(id, name, image))');
 
@@ -25,15 +30,22 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
         return artist.copyWith(isBookmarked: true);
       }).toList();
 
+      logger.d('Successfully fetched ${bookmarkedArtists.length} bookmarked artists');
       return bookmarkedArtists;
     } catch (e, s) {
-      logger.e('error', error: e, stackTrace: s);
+      logger.e('Error fetching bookmarked artists', error: e, stackTrace: s);
       Sentry.captureException(e, stackTrace: s);
       return [];
     }
   }
 
   Future<void> refreshBookmarkedArtists() async {
+    if (!isSupabaseLoggedSafely) {
+      logger.d('User not logged in, skipping refresh');
+      state = const AsyncValue.data([]);
+      return;
+    }
+    
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _fetchBookmarkedArtists());
   }

@@ -511,7 +511,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
   }
 
   void _openCommentsModal(PostModel post) {
-    if (!supabase.isLogged) {
+    if (!isSupabaseLoggedSafely) {
       showRequireLoginDialog();
       return;
     }

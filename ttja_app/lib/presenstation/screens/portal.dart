@@ -55,7 +55,7 @@ class _PortalState extends ConsumerState<Portal> {
                   width: 36,
                   height: 36,
                   alignment: Alignment.center,
-                  child: supabase.isLogged
+                  child: isSupabaseLoggedSafely
                       ? userInfoState.when(
                           data: (data) => data != null
                               ? GestureDetector(

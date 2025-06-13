@@ -57,7 +57,7 @@ class _PortalState extends ConsumerState<Portal> {
                   width: 36,
                   height: 36,
                   alignment: Alignment.center,
-                  child: supabase.isLogged
+                  child: isSupabaseLoggedSafely
                       ? userInfoState.when(
                           data: (data) => data != null
                               ? GestureDetector(
@@ -107,7 +107,7 @@ class _PortalState extends ConsumerState<Portal> {
                       Text(Environment.currentEnvironment),
                     const PortalMenuItem(portalType: PortalType.vote),
                     const PortalMenuItem(portalType: PortalType.community),
-                    if (supabase.isLogged)
+                    if (isSupabaseLoggedSafely)
                       userInfoState.when(
                         data: (userInfo) {
                           if (userInfo != null && (userInfo.isAdmin ?? false)) {

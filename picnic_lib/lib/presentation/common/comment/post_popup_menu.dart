@@ -37,13 +37,13 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (!supabase.isLogged) {
+        if (!isSupabaseLoggedSafely) {
           showRequireLoginDialog();
         }
       },
       child: PopupMenuButton<String>(
         padding: EdgeInsets.zero,
-        enabled: supabase.isLogged,
+        enabled: isSupabaseLoggedSafely,
         child: SvgPicture.asset(
           package: 'picnic_lib',
           'assets/icons/more_style=line.svg',

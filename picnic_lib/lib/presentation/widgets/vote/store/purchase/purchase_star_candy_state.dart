@@ -122,7 +122,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) async {
-    if (!supabase.isLogged) {
+    if (!isSupabaseLoggedSafely) {
       showRequireLoginDialog();
       return;
     }
@@ -180,7 +180,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: ListView(
         children: [
-          if (supabase.isLogged) ...[
+          if (isSupabaseLoggedSafely) ...[
             const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerRight,

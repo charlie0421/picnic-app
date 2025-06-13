@@ -33,7 +33,7 @@ class MenuItem extends ConsumerWidget {
       height: 52,
       child: InkWell(
         onTap: () {
-          if ((needLogin ?? false) && !supabase.isLogged) {
+          if ((needLogin ?? false) && !isSupabaseLoggedSafely) {
             showRequireLoginDialog();
             return;
           }

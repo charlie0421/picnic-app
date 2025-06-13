@@ -77,7 +77,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             const SizedBox(height: 4),
             buildValidationMsg(context),
             const SizedBox(height: 26),
-            if (supabase.isLogged)
+            if (isSupabaseLoggedSafely)
               PicnicListItem(
                 leading: t('label_mypage_picnic_id'),
                 title: Padding(

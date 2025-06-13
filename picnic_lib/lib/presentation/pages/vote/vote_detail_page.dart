@@ -1034,7 +1034,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     } else if (isUpcoming) {
       showSimpleDialog(content: t('message_vote_is_upcoming'));
     } else {
-      supabase.isLogged
+      isSupabaseLoggedSafely
           ? showVotingDialog(
               context: context,
               voteModel: ref
@@ -1112,7 +1112,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       onTap: () async {
                         logger.d('🔥 투표 신청 버튼 클릭됨!');
 
-                        if (supabase.isLogged) {
+                        if (isSupabaseLoggedSafely) {
                           logger.d('🔥 사용자 로그인 상태 확인됨');
 
                           // 신청 다이얼로그 표시

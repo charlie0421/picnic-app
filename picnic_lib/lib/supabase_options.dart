@@ -19,8 +19,24 @@ Future<void> initializeSupabase() async {
   );
 }
 
-// 클라이언트 인스턴스 가져오기
-final supabase = Supabase.instance.client;
+// 안전한 클라이언트 인스턴스 getter
+SupabaseClient get supabase {
+  try {
+    return Supabase.instance.client;
+  } catch (e) {
+    throw StateError('Supabase not initialized. Call initializeSupabase() first. Error: $e');
+  }
+}
+
+// 안전한 로그인 상태 확인 함수
+bool get isSupabaseLoggedSafely {
+  try {
+    return supabase.auth.currentUser != null;
+  } catch (e) {
+    // Supabase가 초기화되지 않았거나 에러가 발생한 경우 false 반환
+    return false;
+  }
+}
 
 final supabaseStorage = SupabaseClient(
   Environment.supabaseStorageUrl,

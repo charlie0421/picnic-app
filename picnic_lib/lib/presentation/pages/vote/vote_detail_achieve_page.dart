@@ -742,7 +742,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     } else if (voteDetail.isUpcoming!) {
       showSimpleDialog(content: t('message_vote_is_upcoming'));
     } else {
-      supabase.isLogged
+      isSupabaseLoggedSafely
           ? showVotingDialog(
               context: context,
               voteModel: voteDetail,

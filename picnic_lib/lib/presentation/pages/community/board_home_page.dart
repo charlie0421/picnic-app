@@ -219,7 +219,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
   Widget _buildOpenRequestItem(int index) {
     return GestureDetector(
       onTap: () {
-        if (!supabase.isLogged) {
+        if (!isSupabaseLoggedSafely) {
           showRequireLoginDialog();
           return;
         }

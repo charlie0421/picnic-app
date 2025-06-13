@@ -21,7 +21,7 @@ class UserInfo extends _$UserInfo {
 
   @override
   Future<UserProfilesModel?> build() async {
-    if (!supabase.isLogged) {
+    if (!isSupabaseLoggedSafely) {
       logger.i('User is not logged in');
       return null;
     }
@@ -37,7 +37,7 @@ class UserInfo extends _$UserInfo {
   }
 
   Future<UserProfilesModel?> getUserProfiles() async {
-    if (!supabase.isLogged) {
+    if (!isSupabaseLoggedSafely) {
       logger.i('User is not logged in');
       return null;
     }
@@ -86,7 +86,7 @@ class UserInfo extends _$UserInfo {
   }) async {
     logger.i('Updating profile - gender: $gender, birthDate: $birthDate');
     try {
-      if (!supabase.isLogged) {
+      if (!isSupabaseLoggedSafely) {
         logger.w('Cannot update profile: user not logged in');
         return;
       }

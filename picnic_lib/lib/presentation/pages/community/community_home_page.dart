@@ -73,7 +73,7 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
             style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
       ),
       const SizedBox(height: 16),
-      supabase.isLogged
+      isSupabaseLoggedSafely
           ? Container(
               child: bookmarkedArtists.when(
                 data: (artists) {
