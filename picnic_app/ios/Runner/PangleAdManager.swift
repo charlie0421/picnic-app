@@ -92,20 +92,32 @@ class PangleAdManager: NSObject {
 
         PAGRewardedAd.load(withSlotID: placementId, request: request) {
             [weak self] rewardedAd, error in
-            if let error = error {
-                print("리워드 광고 로드 실패: \(error.localizedDescription)")
-                result(false)
-                return
+            
+            // 메인 스레드에서 안전하게 처리
+            DispatchQueue.main.async {
+                guard let strongSelf = self else {
+                    print("PangleAdManager가 해제되었습니다.")
+                    result(false)
+                    return
+                }
+                
+                if let error = error {
+                    print("리워드 광고 로드 실패: \(error.localizedDescription)")
+                    result(false)
+                    return
+                }
+                
+                guard let ad = rewardedAd else {
+                    print("광고 객체가 nil입니다.")
+                    result(false)
+                    return
+                }
+                
+                strongSelf.rewardedAd = ad
+                strongSelf.rewardedAd?.delegate = strongSelf
+                print("리워드 광고 로드 성공! - delegate 설정됨: \(String(describing: type(of: strongSelf)))")
+                result(true)
             }
-            guard let strongSelf = self, let ad = rewardedAd else {
-                print("광고 객체가 nil입니다.")
-                result(false)
-                return
-            }
-            strongSelf.rewardedAd = ad
-            strongSelf.rewardedAd?.delegate = strongSelf
-            print("리워드 광고 로드 성공! - delegate 설정됨: \(String(describing: type(of: strongSelf)))")
-            result(true)
         }
     }
 
@@ -160,17 +172,21 @@ extension PangleAdManager: PAGRewardedAdDelegate {
         print("기기: \(UIDevice.current.model), iOS \(UIDevice.current.systemVersion)")
         print("\n\n")
 
-        DispatchQueue.main.async {
-            if let channel = self.channel {
-                let timestamp = Date().timeIntervalSince1970
-                let simpleArgs: [String: Any] = ["timestamp": timestamp]
+        // 안전한 스레드 처리와 메모리 참조 확인
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self, let channel = strongSelf.channel else {
+                print("⚠️ PangleAdManager 또는 channel이 해제되었습니다.")
+                return
+            }
+            
+            let timestamp = Date().timeIntervalSince1970
+            let simpleArgs: [String: Any] = ["timestamp": timestamp]
 
-                channel.invokeMethod("onAdShown", arguments: simpleArgs) { error in
-                    if let error = error {
-                        print("⚠️ 이벤트 전송 실패: \(error)")
-                    } else {
-                        print("✅ onAdShown 이벤트가 성공적으로 전송됨!")
-                    }
+            channel.invokeMethod("onAdShown", arguments: simpleArgs) { error in
+                if let error = error {
+                    print("⚠️ 이벤트 전송 실패: \(error)")
+                } else {
+                    print("✅ onAdShown 이벤트가 성공적으로 전송됨!")
                 }
             }
         }
@@ -184,17 +200,20 @@ extension PangleAdManager: PAGRewardedAdDelegate {
         print("시간: \(Date())")
         print("\n\n")
 
-        DispatchQueue.main.async {
-            if let channel = self.channel {
-                let timestamp = Date().timeIntervalSince1970
-                let simpleArgs: [String: Any] = ["timestamp": timestamp]
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self, let channel = strongSelf.channel else {
+                print("⚠️ PangleAdManager 또는 channel이 해제되었습니다.")
+                return
+            }
+            
+            let timestamp = Date().timeIntervalSince1970
+            let simpleArgs: [String: Any] = ["timestamp": timestamp]
 
-                channel.invokeMethod("onAdClicked", arguments: simpleArgs) { error in
-                    if let error = error {
-                        print("⚠️ 이벤트 전송 실패: \(error)")
-                    } else {
-                        print("✅ onAdClicked 이벤트가 성공적으로 전송됨!")
-                    }
+            channel.invokeMethod("onAdClicked", arguments: simpleArgs) { error in
+                if let error = error {
+                    print("⚠️ 이벤트 전송 실패: \(error)")
+                } else {
+                    print("✅ onAdClicked 이벤트가 성공적으로 전송됨!")
                 }
             }
         }
@@ -209,57 +228,58 @@ extension PangleAdManager: PAGRewardedAdDelegate {
         print("기기: \(UIDevice.current.model), iOS \(UIDevice.current.systemVersion)")
         print("\n\n")
 
+        // 재시도 상태를 클래스 외부에서 관리하여 메모리 안전성 확보
         var retryCount = 0
         let maxRetries = 3
 
         func sendDismissEvent() {
-            DispatchQueue.main.async {
-                if let channel = self.channel {
-                    let timestamp = Date().timeIntervalSince1970
-                    let simpleArgs: [String: Any] = [
-                        "timestamp": timestamp,
-                        "success": true,
-                    ]
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self, let channel = strongSelf.channel else {
+                    print("⚠️ PangleAdManager 또는 channel이 해제되었습니다.")
+                    return
+                }
+                
+                let timestamp = Date().timeIntervalSince1970
+                let simpleArgs: [String: Any] = [
+                    "timestamp": timestamp,
+                    "success": true,
+                ]
 
-                    channel.invokeMethod("onAdDismissed", arguments: simpleArgs) { error in
-                        if let error = error {
-                            print("⚠️ 이벤트 전송 실패: \(error)")
+                channel.invokeMethod("onAdDismissed", arguments: simpleArgs) { error in
+                    if let error = error {
+                        print("⚠️ 이벤트 전송 실패: \(error)")
 
-                            retryCount += 1
-                            if retryCount < maxRetries {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    sendDismissEvent()
-                                }
-                            } else {
-                                print("최대 재시도 횟수 초과. 이벤트 전송 실패")
-
-                                channel.invokeMethod("onAdClosed", arguments: simpleArgs) { error in
-                                    if let error = error {
-                                        print("⚠️ 대체 이벤트도 전송 실패: \(error)")
-                                    } else {
-                                        print("✅ 대체 이벤트 전송 성공")
-                                    }
-                                }
+                        retryCount += 1
+                        if retryCount < maxRetries {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                sendDismissEvent()
                             }
                         } else {
-                            print("✅ onAdDismissed 이벤트가 성공적으로 전송됨!")
+                            print("최대 재시도 횟수 초과. 대체 이벤트 전송 시도")
+                            
+                            // 대체 이벤트 전송
+                            channel.invokeMethod("onAdClosed", arguments: simpleArgs) { error in
+                                if let error = error {
+                                    print("⚠️ 대체 이벤트도 전송 실패: \(error)")
+                                } else {
+                                    print("✅ 대체 이벤트 전송 성공")
+                                }
+                            }
                         }
+                    } else {
+                        print("✅ onAdDismissed 이벤트가 성공적으로 전송됨!")
                     }
                 }
             }
         }
 
+        // 첫 번째 시도
         sendDismissEvent()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            if retryCount < maxRetries {
-                if self.channel != nil {
-                    sendDismissEvent()
-                }
-            }
+        
+        // 광고 객체 정리
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.rewardedAd = nil
         }
-
-        self.rewardedAd = nil
     }
 
     func rewardedAd(_ rewardedAd: PAGRewardedAd, userDidEarnReward rewardModel: PAGRewardModel) {
@@ -271,20 +291,23 @@ extension PangleAdManager: PAGRewardedAdDelegate {
         print("보상 이름: \(rewardModel.rewardName ?? ""), 수량: \(rewardModel.rewardAmount)")
         print("\n\n")
 
-        DispatchQueue.main.async {
-            if let channel = self.channel {
-                let arguments: [String: Any] = [
-                    "rewardName": rewardModel.rewardName ?? "",
-                    "rewardAmount": rewardModel.rewardAmount,
-                    "timestamp": Date().timeIntervalSince1970,
-                ]
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self, let channel = strongSelf.channel else {
+                print("⚠️ PangleAdManager 또는 channel이 해제되었습니다.")
+                return
+            }
+            
+            let arguments: [String: Any] = [
+                "rewardName": rewardModel.rewardName ?? "",
+                "rewardAmount": rewardModel.rewardAmount,
+                "timestamp": Date().timeIntervalSince1970,
+            ]
 
-                channel.invokeMethod("onRewardEarned", arguments: arguments) { error in
-                    if let error = error {
-                        print("⚠️ 이벤트 전송 실패: \(error)")
-                    } else {
-                        print("✅ onRewardEarned 이벤트가 성공적으로 전송됨!")
-                    }
+            channel.invokeMethod("onRewardEarned", arguments: arguments) { error in
+                if let error = error {
+                    print("⚠️ 이벤트 전송 실패: \(error)")
+                } else {
+                    print("✅ onRewardEarned 이벤트가 성공적으로 전송됨!")
                 }
             }
         }
@@ -300,19 +323,22 @@ extension PangleAdManager: PAGRewardedAdDelegate {
         print("에러 상세: \(error)")
         print("\n\n")
 
-        DispatchQueue.main.async {
-            if let channel = self.channel {
-                let arguments: [String: Any] = [
-                    "errorMessage": error.localizedDescription,
-                    "timestamp": Date().timeIntervalSince1970,
-                ]
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self, let channel = strongSelf.channel else {
+                print("⚠️ PangleAdManager 또는 channel이 해제되었습니다.")
+                return
+            }
+            
+            let arguments: [String: Any] = [
+                "errorMessage": error.localizedDescription,
+                "timestamp": Date().timeIntervalSince1970,
+            ]
 
-                channel.invokeMethod("onRewardFailed", arguments: arguments) { error in
-                    if let error = error {
-                        print("⚠️ 이벤트 전송 실패: \(error)")
-                    } else {
-                        print("✅ onRewardFailed 이벤트가 성공적으로 전송됨!")
-                    }
+            channel.invokeMethod("onRewardFailed", arguments: arguments) { error in
+                if let error = error {
+                    print("⚠️ 이벤트 전송 실패: \(error)")
+                } else {
+                    print("✅ onRewardFailed 이벤트가 성공적으로 전송됨!")
                 }
             }
         }
