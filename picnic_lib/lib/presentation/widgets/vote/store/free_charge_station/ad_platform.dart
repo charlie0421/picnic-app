@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/common_utils.dart';
@@ -235,6 +236,15 @@ abstract class AdPlatform {
   void logAdLoadFailure(String platform, dynamic error, String adId,
       String message, StackTrace? stackTrace) {
     logger.e(message, error: error);
+
+    // AdMob No Fill 에러 (코드 3)는 Sentry에 보고하지 않음
+    if (platform == 'AdMob' && 
+        error is LoadAdError && 
+        error.code == 3 &&
+        error.message.contains('No fill')) {
+      logger.i('AdMob No Fill 에러는 Sentry 보고에서 제외됨');
+      return;
+    }
 
     Sentry.captureException(
       error,
