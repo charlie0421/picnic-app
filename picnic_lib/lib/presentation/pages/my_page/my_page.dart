@@ -409,19 +409,25 @@ class _MyPageState extends ConsumerState<MyPage> {
                     return;
                   }
 
-                  // 바텀시트 닫기
-                  Navigator.of(context).pop();
-
-                  // 약간의 지연 후 작업 수행
-                  Future.delayed(const Duration(milliseconds: 50), () {
-                    // 언어 변경 및 앱 재시작
+                  // 바텀시트를 닫지 않고 바로 언어 변경 및 재시작
+                  try {
+                    // 언어 변경
                     ref.read(appSettingProvider.notifier).setLanguage(langCode);
                     PicnicLibL10n.setCurrentLocale(langCode);
-                    if (context.mounted) {
-                      Phoenix.rebirth(context);
-                    }
+                    
+                    // 앱 재시작 (바텀시트는 자동으로 사라짐)
+                    Phoenix.rebirth(context);
                     logger.i('⭐ 언어 변경 완료: $langCode');
-                  });
+                  } catch (e, stackTrace) {
+                    logger.e('언어 변경 중 오류 발생', error: e, stackTrace: stackTrace);
+                    // 오류 발생 시에만 바텀시트 닫기
+                    Navigator.of(context).pop();
+                    if (mounted && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('언어 변경 중 오류가 발생했습니다.')),
+                      );
+                    }
+                  }
                 }
 
                 return Column(
