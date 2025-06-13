@@ -85,9 +85,7 @@ class PanglePlatform extends AdPlatform {
       }
     } else {
       logAdLoadFailure('Pangle', '광고 로드 실패', 'rewarded', '광고 로드 실패', null);
-      if (context.mounted && !isDisposed) {
-        commonUtils.showErrorDialog(t('label_ads_load_fail'));
-      }
+      // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
       stopAllAnimations();
     }
     endPerformanceLog('광고 로드');
@@ -107,6 +105,7 @@ class PanglePlatform extends AdPlatform {
       _loadTimeoutTimer?.cancel();
       _loadTimeoutTimer = Timer(const Duration(seconds: 5), () {
         if (!completer.isCompleted) {
+          // 타임아웃은 no fill로 간주하므로 일반 로그만 남김
           logAdLoadFailure(
               'Pangle', '광고 로드 시간 초과', 'rewarded', '광고 로드 시간 초과', null);
           completer.complete(false);
@@ -125,12 +124,12 @@ class PanglePlatform extends AdPlatform {
     } catch (e, s) {
       logAdLoadFailure('Pangle', e, 'rewarded', 'Pangle 광고 로드 실패', s);
       _loadTimeoutTimer?.cancel();
-      if (context.mounted && !isDisposed) {
-        throw Exception('Pangle 광고 로드 실패');
-      }
+      // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
       return false;
     }
   }
+
+
 
   @override
   Future<void> handleError(error, StackTrace? stackTrace) async {

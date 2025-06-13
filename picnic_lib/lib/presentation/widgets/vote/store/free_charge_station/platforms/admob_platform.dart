@@ -83,10 +83,7 @@ class AdmobPlatform extends AdPlatform {
           onAdFailedToLoad: (LoadAdError error) {
             logAdLoadFailure('AdMob', error, _adUnitId, error.toString(), null);
             stopAllAnimations();
-            if (context.mounted && !isDisposed) {
-              commonUtils.showErrorDialog(t('label_ads_load_fail'),
-                  error: error.toString());
-            }
+            // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
           },
         ),
       );

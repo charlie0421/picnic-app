@@ -237,12 +237,14 @@ abstract class AdPlatform {
       String message, StackTrace? stackTrace) {
     logger.e(message, error: error);
 
-    // AdMob No Fill 에러 (코드 3)는 Sentry에 보고하지 않음
-    if (platform == 'AdMob' && 
-        error is LoadAdError && 
-        error.code == 3 &&
-        error.message.contains('No fill')) {
-      logger.i('AdMob No Fill 에러는 Sentry 보고에서 제외됨');
+    // No Fill 에러 감지 및 처리
+    if (_isNoFillError(platform, error, message)) {
+      logger.i('$platform No Fill 에러는 Sentry 보고에서 제외됨');
+      
+      // No Fill 에러 시 사용자에게 다이얼로그 표시
+      if (context.mounted && !isDisposed) {
+        _showNoFillDialog();
+      }
       return;
     }
 
@@ -257,6 +259,46 @@ abstract class AdPlatform {
         scope.setTag('error_type', error.runtimeType.toString());
         scope.setTag('error_string', error.toString());
       },
+    );
+  }
+
+  // No Fill 에러 감지 메서드
+  bool _isNoFillError(String platform, dynamic error, String message) {
+    final lowercaseMessage = message.toLowerCase();
+    
+    // AdMob의 경우 - 특정 조건
+    if (platform == 'AdMob' && 
+        error is LoadAdError && 
+        error.code == 3 &&
+        error.message.contains('No fill')) {
+      return true;
+    }
+    
+    // 모든 플랫폼의 공통 no fill 에러 메시지들
+    final noFillKeywords = [
+      'no fill',
+      'nofill',
+      'no ad',
+      'ad not available',
+      'inventory unavailable',
+      'no ads available',
+      'not_ready',         // Unity 특화
+      'not ready',         // Unity 특화
+      'request failed',    // Pangle 특화
+      'load failed',       // Pangle 특화
+      '광고 없음',
+      '광고 없습니다',
+      '광고가 없습니다',
+    ];
+    
+    return noFillKeywords.any((keyword) => lowercaseMessage.contains(keyword));
+  }
+
+  // No Fill 에러 시 표시할 간단한 다이얼로그
+  void _showNoFillDialog() {
+    showSimpleDialog(
+      title: t('dialog_title_ads_exhausted'),
+      content: t('dialog_content_ads_exhausted')
     );
   }
 
