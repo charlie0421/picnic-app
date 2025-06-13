@@ -31,7 +31,6 @@ import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/me
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/youtube_embed_builder.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
   const PostViewPage(this.postId, {super.key});

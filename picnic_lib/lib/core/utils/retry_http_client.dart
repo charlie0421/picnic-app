@@ -6,7 +6,6 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 class NetworkError extends Error {
   final String message;
@@ -30,7 +29,6 @@ class RetryHttpClient extends http.BaseClient {
   // Connection pool 관리를 위한 변수들
   final Map<String, DateTime> _connectionPool = {};
   final Duration _connectionMaxAge = Duration(minutes: 5);
-  static const int _maxConcurrentConnections = 6;
   final Random _random = Random();
 
   RetryHttpClient(
@@ -72,16 +70,16 @@ class RetryHttpClient extends http.BaseClient {
           if (_shouldResetConnection(e as Exception)) {
             _resetConnection(hostKey);
           }
-          throw e;
+          rethrow;
         }
         
       } catch (e) {
         lastException = e is Exception ? e : Exception(e.toString());
         
-        final detailedLog = _createDetailedErrorLog(lastException!, attempt, request.url);
+        final detailedLog = _createDetailedErrorLog(lastException, attempt, request.url);
         logger.w(detailedLog);
 
-        if (attempt == maxAttempts || !_shouldRetry(lastException!)) {
+        if (attempt == maxAttempts || !_shouldRetry(lastException)) {
           break;
         }
 
@@ -103,27 +101,6 @@ class RetryHttpClient extends http.BaseClient {
     _connectionPool.remove(hostKey);
   }
 
-  void _setOptimizedHeaders(http.BaseRequest request) {
-    // 웹 환경에서는 브라우저가 제한하는 헤더를 설정하지 않음
-    if (UniversalPlatform.isWeb) {
-      // 웹에서 안전한 헤더만 설정
-      final webSafeHeaders = {
-        'X-DNS-Prefetch-Control': 'on',
-        // 다른 안전한 헤더가 필요하면 여기에 추가
-      };
-      request.headers.addAll(webSafeHeaders);
-    } else {
-      // 네이티브 환경에서는 모든 최적화 헤더 사용
-      final optimizedHeaders = {
-        'Connection': 'keep-alive',
-        'Keep-Alive': 'timeout=${keepAlive.inSeconds}',
-        'Accept-Encoding': 'gzip, deflate',
-        'Accept-Charset': 'utf-8',
-        'X-DNS-Prefetch-Control': 'on',
-      };
-      request.headers.addAll(optimizedHeaders);
-    }
-  }
 
   Future<http.StreamedResponse> _sendWithTimeout(http.BaseRequest request) async {
     try {
@@ -167,48 +144,6 @@ class RetryHttpClient extends http.BaseClient {
     }
   }
 
-  Future<http.StreamedResponse> _optimizeResponseStream(
-      http.StreamedResponse response, http.BaseRequest request) async {
-    final optimizedStream =
-        response.stream.transform(utf8.decoder).transform(utf8.encoder).timeout(
-      timeout,
-      onTimeout: (EventSink<List<int>> sink) {
-        sink.addError(TimeoutException(
-          'Stream processing timed out',
-          timeout,
-        ));
-        sink.close();
-      },
-    ).handleError((error, StackTrace stackTrace) {
-      // 에러 로깅 추가
-      logger.e('Stream processing error', error: error, stackTrace: stackTrace);
-
-      final errorMessage = error.toString().toLowerCase();
-      if (NetworkError.isRetryableError(errorMessage)) {
-        throw NetworkError(
-          'Stream processing error: $error',
-          isRetryable: true,
-        );
-      }
-      // 재시도 불가능한 에러는 그대로 전파
-      throw error;
-    });
-
-    return http.StreamedResponse(
-      optimizedStream,
-      response.statusCode,
-      contentLength: null,
-      // chunked transfer encoding 사용
-      request: request,
-      headers: {
-        ...response.headers,
-        'Transfer-Encoding': 'chunked',
-      },
-      isRedirect: response.isRedirect,
-      persistentConnection: true,
-      reasonPhrase: response.reasonPhrase,
-    );
-  }
 
   String _createDetailedErrorLog(Exception error, int attempt, Uri url) {
     return '''

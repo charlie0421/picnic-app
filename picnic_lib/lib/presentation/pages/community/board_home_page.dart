@@ -15,7 +15,6 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/list/post_list.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class BoardHomePage extends ConsumerStatefulWidget {
   const BoardHomePage(this.artistId, {super.key});

@@ -8,7 +8,6 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class PostPopupMenu extends ConsumerStatefulWidget {
   final BuildContext context;

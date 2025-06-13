@@ -4,9 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
@@ -47,7 +45,6 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
   late VoteItemRequestService _service;
 
   // 현재 사용자 신청 관련 (하단 구간용)
-  final List<Map<String, dynamic>> _currentUserApplicationsWithDetails = [];
 
   // 모든 사용자 신청 관련 (상단 구간용)
   List<Map<String, dynamic>> _artistApplicationSummaries = [];

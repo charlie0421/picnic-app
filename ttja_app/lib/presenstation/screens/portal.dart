@@ -14,7 +14,6 @@ import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/fixed_width_layout.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class Portal extends ConsumerStatefulWidget {
   static const String routeName = '/landing';

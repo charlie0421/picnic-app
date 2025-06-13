@@ -37,16 +37,16 @@ class CompatibilityResultContent extends ConsumerStatefulWidget {
 
 class _CompatibilityResultContentState
     extends ConsumerState<CompatibilityResultContent> {
-  late final ExpansionTileController _styleController;
-  late final ExpansionTileController _activityController;
-  late final ExpansionTileController _tipController;
+  late final ExpansibleController _styleController;
+  late final ExpansibleController _activityController;
+  late final ExpansibleController _tipController;
 
   @override
   void initState() {
     super.initState();
-    _styleController = ExpansionTileController();
-    _activityController = ExpansionTileController();
-    _tipController = ExpansionTileController();
+    _styleController = ExpansibleController();
+    _activityController = ExpansibleController();
+    _tipController = ExpansibleController();
   }
 
   @override

@@ -10,7 +10,6 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class LikeButton extends ConsumerStatefulWidget {
   final String postId;

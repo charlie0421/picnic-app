@@ -41,10 +41,10 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   bool _isSaving = false;
 
   // ExpansionTile Controllers
-  final overallController = ExpansionTileController();
-  final luckyController = ExpansionTileController();
-  final adviceController = ExpansionTileController();
-  final Map<int, ExpansionTileController> monthControllers = {};
+  final overallController = ExpansibleController();
+  final luckyController = ExpansibleController();
+  final adviceController = ExpansibleController();
+  final Map<int, ExpansibleController> monthControllers = {};
   bool _wasOverallExpanded = false;
   bool _wasLuckyExpanded = false;
   bool _wasAdviceExpanded = false;
@@ -55,7 +55,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     super.initState();
     // Initialize monthly controllers
     for (int i = 1; i <= 12; i++) {
-      monthControllers[i] = ExpansionTileController();
+      monthControllers[i] = ExpansibleController();
     }
   }
 

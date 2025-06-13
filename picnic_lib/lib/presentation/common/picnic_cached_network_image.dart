@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -274,8 +272,6 @@ class _PicnicCachedNetworkImageState
   }
 
   // 전역 캐시 최적화 상태 추적
-  static DateTime? _lastCacheOptimization;
-  static const Duration _cacheOptimizationInterval = Duration(minutes: 10);
 
   /// Flutter ImageCache 설정 최적화
   static void _optimizeImageCache() {

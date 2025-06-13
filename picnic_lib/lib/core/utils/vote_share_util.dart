@@ -70,10 +70,12 @@ class ShareUtils {
       final shareText = '$message\n $hashtag $finalDownloadLink     ';
 
       // share_plus를 사용한 공유
-      final result = await Share.shareXFiles(
-        [capturedFile],
-        text: shareText,
-        subject: message,
+      final result = await SharePlus.share(
+        ShareParams(
+          text: shareText,
+          subject: message,
+          files: [capturedFile],
+        ),
       );
 
       // 공유 결과 확인

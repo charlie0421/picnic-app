@@ -11,7 +11,6 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 part '../../generated/providers/user_info_provider.g.dart';
 

@@ -8,7 +8,6 @@ import 'package:picnic_lib/presentation/pages/community/post_write_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class TopRightPost extends ConsumerStatefulWidget {
   const TopRightPost({

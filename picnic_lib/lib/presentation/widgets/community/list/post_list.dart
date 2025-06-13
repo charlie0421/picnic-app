@@ -19,7 +19,6 @@ import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 enum PostListType { artist, board }
 

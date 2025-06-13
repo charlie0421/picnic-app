@@ -29,7 +29,6 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class VoteDetailAchievePage extends ConsumerStatefulWidget {
   final int voteId;

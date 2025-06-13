@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/retry_http_client.dart';
 import 'package:picnic_lib/data/storage/supabase_pkce_async_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,12 +22,11 @@ Future<void> initializeSupabase() async {
     
     // 초기화 완료 후 클라이언트 상태 확인
     final client = Supabase.instance.client;
-    print('Supabase 초기화 완료 - URL: ${Environment.supabaseUrl}');
-    
+    logger.d('Supabase 초기화 완료 - URL: ${Environment.supabaseUrl}');
   } catch (e) {
-    print('Supabase 초기화 실패: $e');
-    print('URL: ${Environment.supabaseUrl}');
-    print('Key length: ${Environment.supabaseAnonKey.length}');
+    logger.d('Supabase 초기화 실패: $e');
+    logger.d('URL: ${Environment.supabaseUrl}');
+    logger.d('Key length: ${Environment.supabaseAnonKey.length}');
     rethrow;
   }
 }

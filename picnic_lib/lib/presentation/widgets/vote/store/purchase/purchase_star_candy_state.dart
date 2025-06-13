@@ -22,7 +22,6 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_t
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {

@@ -8,7 +8,6 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/rotate_image.dart';
 import 'package:picnic_lib/presentation/widgets/ui/bounce_red_dot.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:supabase_extensions/supabase_extensions.dart';
 
 class TopRightCommunity extends ConsumerStatefulWidget {
   const TopRightCommunity({

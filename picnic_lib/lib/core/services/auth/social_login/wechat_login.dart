@@ -202,12 +202,11 @@ import 'package:picnic_lib/data/models/common/social_login_result.dart';
 class WeChatLogin implements SocialLogin {
   @override
   Future<SocialLoginResult> login() async {
-    throw PicnicAuthExceptions.unsupportedProvider(
-        'WeChat login temporarily disabled');
+    throw PicnicAuthExceptions.unsupportedProvider('WeChat login is temporarily disabled');
   }
 
   @override
   Future<void> logout() async {
-    // 위챗 로그인이 비활성화되어 있으므로 아무것도 하지 않음
+    // No operation - WeChat login is disabled
   }
-}
+} 
