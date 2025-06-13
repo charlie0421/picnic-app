@@ -10,6 +10,7 @@ import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/memory_profiler.dart';
+import 'package:picnic_lib/core/utils/supabase_health_check.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -59,6 +60,11 @@ class MainInitializer {
 
         // Supabase 초기화
         await initializeSupabase();
+
+        // Supabase 헬스체크 실행 (개발 환경에서만)
+        if (kDebugMode) {
+          await SupabaseHealthCheck.runHealthCheckOnAppStart();
+        }
 
         // 모바일 전용 초기화 로직
         if (UniversalPlatform.isMobile) {

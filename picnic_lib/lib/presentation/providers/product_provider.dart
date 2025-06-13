@@ -18,6 +18,12 @@ class ServerProducts extends _$ServerProducts {
 
   Future<List<Map<String, dynamic>>> _fetchProductsFromSupabase() async {
     try {
+      // Supabase 초기화 상태 확인
+      if (!isSupabaseLoggedSafely && supabase.auth.currentUser == null) {
+        // Supabase가 초기화되지 않은 경우 잠시 대기 후 재시도
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
       final response = await supabase
           .from('products')
           .select()
@@ -36,7 +42,18 @@ class ServerProducts extends _$ServerProducts {
 
       return products;
     } catch (e, s) {
-      logger.e('error', error: e, stackTrace: s);
+      logger.e('Supabase products fetch error', error: e, stackTrace: s);
+      
+      // Supabase 초기화 문제인지 확인
+      if (e.toString().contains('Project not specified') || 
+          e.toString().contains('not initialized')) {
+        logger.w('Supabase 초기화 문제 감지. 재시도 예약...');
+        // 상태 리셋하여 재시도 트리거
+        Future.delayed(const Duration(seconds: 2), () {
+          ref.invalidateSelf();
+        });
+      }
+      
       throw Exception('Error fetching products: $e');
     }
   }
