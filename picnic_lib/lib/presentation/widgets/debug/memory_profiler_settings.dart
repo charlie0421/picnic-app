@@ -228,9 +228,11 @@ class MemoryProfilerSettings extends ConsumerWidget {
 
                       if (reportPath != null) {
                         // 보고서 공유
-                        await Share.shareXFiles(
-                          [XFile(reportPath)],
-                          text: '메모리 프로파일링 보고서',
+                        await SharePlus.instance.share(
+                          ShareParams(
+                            text: '메모리 프로파일링 보고서',
+                            files: [XFile(reportPath)],
+                          ),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('보고서가 생성되었습니다')),

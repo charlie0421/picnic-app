@@ -228,7 +228,7 @@ class SearchResultCard extends StatelessWidget {
         color: AppColors.grey00,
         borderRadius: BorderRadius.circular(8.r),
         elevation: 1,
-        shadowColor: AppColors.grey900.withOpacity(0.1),
+        shadowColor: AppColors.grey900.withValues(alpha:0.1),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(8.r),

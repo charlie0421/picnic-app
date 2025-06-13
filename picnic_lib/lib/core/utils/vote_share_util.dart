@@ -70,7 +70,7 @@ class ShareUtils {
       final shareText = '$message\n $hashtag $finalDownloadLink     ';
 
       // share_plus를 사용한 공유
-      final result = await SharePlus.share(
+      final result = await SharePlus.instance.share(
         ShareParams(
           text: shareText,
           subject: message,

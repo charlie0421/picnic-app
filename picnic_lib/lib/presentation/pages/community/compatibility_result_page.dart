@@ -48,9 +48,9 @@ class _CompatibilityResultPageState
     extends ConsumerState<CompatibilityResultPage> {
   final GlobalKey _saveKey = GlobalKey();
   final GlobalKey _shareKey = GlobalKey();
-  final styleController = ExpansionTileController();
-  final activityController = ExpansionTileController();
-  final tipController = ExpansionTileController();
+  final styleController = ExpansibleController();
+  final activityController = ExpansibleController();
+  final tipController = ExpansibleController();
   late final PurchaseService _purchaseService;
   bool _isSaving = false;
   bool _isSharing = false;

@@ -21,7 +21,7 @@ Future<void> initializeSupabase() async {
     );
     
     // 초기화 완료 후 클라이언트 상태 확인
-    final client = Supabase.instance.client;
+    Supabase.instance.client;
     logger.d('Supabase 초기화 완료 - URL: ${Environment.supabaseUrl}');
   } catch (e) {
     logger.d('Supabase 초기화 실패: $e');

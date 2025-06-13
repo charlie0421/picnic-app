@@ -175,7 +175,7 @@ class ArtistSearchResultItem extends StatelessWidget {
       spans.add(TextSpan(
         text: text.substring(index, index + query.length),
         style: getTextStyle(typo, color).copyWith(
-          backgroundColor: AppColors.primary500.withOpacity(0.3),
+          backgroundColor: AppColors.primary500.withValues(alpha:0.3),
           fontWeight: FontWeight.bold,
         ),
       ));
