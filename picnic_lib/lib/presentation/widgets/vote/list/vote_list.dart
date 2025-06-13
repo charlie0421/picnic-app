@@ -31,8 +31,15 @@ class _VoteListState extends ConsumerState<VoteList> {
     _fetchVotes();
   }
 
+  // setState 호출을 안전하게 하기 위한 헬퍼 메서드
+  void _setStateIfMounted(VoidCallback fn) {
+    if (mounted) {
+      setState(fn);
+    }
+  }
+
   Future<void> _fetchVotes() async {
-    setState(() {
+    _setStateIfMounted(() {
       _isLoading = true;
     });
     try {
@@ -46,7 +53,7 @@ class _VoteListState extends ConsumerState<VoteList> {
         category: widget.category,
       ).future);
 
-      setState(() {
+      _setStateIfMounted(() {
         _items.addAll(newItems);
         _isLoading = false;
         _isFetchingMore = false;
@@ -55,7 +62,7 @@ class _VoteListState extends ConsumerState<VoteList> {
         }
       });
     } catch (e) {
-      setState(() {
+      _setStateIfMounted(() {
         _isLoading = false;
         _isFetchingMore = false;
       });
@@ -65,7 +72,7 @@ class _VoteListState extends ConsumerState<VoteList> {
   void _onPageChanged(int index) {
     // 마지막 아이템에 도달하면 추가 fetch
     if (!_isFetchingMore && index == _items.length - 1) {
-      setState(() {
+      _setStateIfMounted(() {
         _isFetchingMore = true;
       });
       _fetchVotes();

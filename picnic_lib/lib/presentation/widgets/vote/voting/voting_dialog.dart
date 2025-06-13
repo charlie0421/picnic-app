@@ -84,12 +84,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   void _validateVote() {
     final voteAmount = _getVoteAmount();
     final myStarCandy = _getMyStarCandy();
-    setState(() {
-      _canVote = voteAmount > 0 &&
-          voteAmount <= myStarCandy &&
-          voteAmount <= maxVoteAmount;
-      _hasValue = voteAmount > 0;
-    });
+    if (mounted) {
+      setState(() {
+        _canVote = voteAmount > 0 &&
+            voteAmount <= myStarCandy &&
+            voteAmount <= maxVoteAmount;
+        _hasValue = voteAmount > 0;
+      });
+    }
   }
 
   int _getVoteAmount() =>
@@ -223,20 +225,24 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     newText = newText.replaceFirst(RegExp(r'^0+'), '');
 
                     if (newText.isEmpty) {
-                      setState(() {
-                        _hasValue = false;
-                        _checkAll = false;
-                      });
+                      if (mounted) {
+                        setState(() {
+                          _hasValue = false;
+                          _checkAll = false;
+                        });
+                      }
                       return const TextEditingValue(text: '');
                     }
 
                     final voteAmount = int.parse(newText);
                     if (voteAmount == 0) return oldValue;
 
-                    setState(() {
-                      _hasValue = true;
-                      _checkAll = false;
-                    });
+                    if (mounted) {
+                      setState(() {
+                        _hasValue = true;
+                        _checkAll = false;
+                      });
+                    }
 
                     final formattedText = formatNumberWithComma(newText);
                     return TextEditingValue(
@@ -404,18 +410,20 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       onTap: () {
         FocusScope.of(context).unfocus();
 
-        setState(() {
-          _checkAll = !_checkAll;
-          _hasValue = _checkAll;
-          if (_checkAll) {
-            final amount = _getMyStarCandy();
-            final limitedAmount =
-                amount > maxVoteAmount ? maxVoteAmount : amount;
-            _textEditingController.text = formatNumberWithComma(limitedAmount);
-          } else {
-            _textEditingController.clear();
-          }
-        });
+        if (mounted) {
+          setState(() {
+            _checkAll = !_checkAll;
+            _hasValue = _checkAll;
+            if (_checkAll) {
+              final amount = _getMyStarCandy();
+              final limitedAmount =
+                  amount > maxVoteAmount ? maxVoteAmount : amount;
+              _textEditingController.text = formatNumberWithComma(limitedAmount);
+            } else {
+              _textEditingController.clear();
+            }
+          });
+        }
         _validateVote();
       },
       child: SizedBox(
@@ -453,10 +461,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         _textEditingController.clear();
-        setState(() {
-          _hasValue = false;
-          _checkAll = false;
-        });
+        if (mounted) {
+          setState(() {
+            _hasValue = false;
+            _checkAll = false;
+          });
+        }
         _validateVote();
 
         _focusNode.requestFocus();

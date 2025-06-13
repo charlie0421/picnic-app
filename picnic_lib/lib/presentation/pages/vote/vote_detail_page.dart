@@ -224,11 +224,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           '${Environment.appLinkPrefix}/vote/detail/${widget.voteId}'),
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
-        setState(() => _isSaving = true);
+        if (mounted) {
+          setState(() => _isSaving = true);
+        }
       },
       onComplete: () {
         OverlayLoadingProgress.stop();
-        setState(() => _isSaving = false);
+        if (mounted) {
+          setState(() => _isSaving = false);
+        }
       },
     );
   }
@@ -240,11 +244,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       _captureKey,
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
-        setState(() => _isSaving = true);
+        if (mounted) {
+          setState(() => _isSaving = true);
+        }
       },
       onComplete: () {
         OverlayLoadingProgress.stop();
-        setState(() => _isSaving = false);
+        if (mounted) {
+          setState(() => _isSaving = false);
+        }
       },
     );
   }

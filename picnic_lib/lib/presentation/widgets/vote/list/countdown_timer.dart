@@ -42,15 +42,17 @@ class _CountdownTimerState extends State<CountdownTimer> {
     _updateColor();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _timeLeft = widget.endTime.difference(DateTime.now().toUtc());
-        if (_timeLeft.isNegative) {
-          _timeLeft = Duration.zero;
-          _timer?.cancel();
-        }
-        _updateColor();
-        // widget.onRefresh?.call();
-      });
+      if (mounted) {
+        setState(() {
+          _timeLeft = widget.endTime.difference(DateTime.now().toUtc());
+          if (_timeLeft.isNegative) {
+            _timeLeft = Duration.zero;
+            _timer?.cancel();
+          }
+          _updateColor();
+          // widget.onRefresh?.call();
+        });
+      }
     });
   }
 
