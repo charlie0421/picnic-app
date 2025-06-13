@@ -248,6 +248,7 @@ abstract class AdPlatform {
       return;
     }
 
+    // 일반 에러는 Sentry에 보고
     Sentry.captureException(
       error,
       stackTrace: stackTrace,
@@ -260,6 +261,11 @@ abstract class AdPlatform {
         scope.setTag('error_string', error.toString());
       },
     );
+
+    // 일반 에러 시 사용자에게 에러 다이얼로그 표시
+    if (context.mounted && !isDisposed) {
+      _commonUtils.showErrorDialog(t('label_ads_load_fail'), error: message);
+    }
   }
 
   // No Fill 에러 감지 메서드
