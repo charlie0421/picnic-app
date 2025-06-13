@@ -84,7 +84,7 @@ class PanglePlatform extends AdPlatform {
         throw Exception('Pangle 광고 표시 실패');
       }
     } else {
-      logAdLoadFailure('Pangle', '광고 로드 실패', 'rewarded', '광고 로드 실패', null);
+      logAdLoadFailure('Pangle', '광고 로드 실패', 'rewarded', '광고 로드 실패', StackTrace.current);
       // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
       stopAllAnimations();
     }

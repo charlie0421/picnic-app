@@ -274,18 +274,15 @@ abstract class AdPlatform {
       return true;
     }
     
-    // 모든 플랫폼의 공통 no fill 에러 메시지들
+    // 명확한 no fill 에러 메시지들만 감지
     final noFillKeywords = [
       'no fill',
       'nofill',
-      'no ad',
-      'ad not available',
-      'inventory unavailable',
+      'no ad available',
+      'inventory unavailable', 
       'no ads available',
       'not_ready',         // Unity 특화
       'not ready',         // Unity 특화
-      'request failed',    // Pangle 특화
-      'load failed',       // Pangle 특화
       '광고 없음',
       '광고 없습니다',
       '광고가 없습니다',
@@ -305,10 +302,11 @@ abstract class AdPlatform {
   // 공통 로직: 광고 표시 실패 로깅
   void logAdShowFailure(String platform, dynamic error, String adId,
       String message, StackTrace? stackTrace) {
-    logger.e(message, error: error);
+    logger.e(message, error: error, stackTrace: stackTrace);
 
-    Sentry.captureMessage(
+    Sentry.captureException(
       error,
+      stackTrace: stackTrace,
       withScope: (scope) {
         scope.setTag('platform', platform);
         scope.setTag('ad_type', 'show');

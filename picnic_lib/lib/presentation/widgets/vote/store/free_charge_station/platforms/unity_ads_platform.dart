@@ -79,7 +79,7 @@ class UnityAdsPlatform extends AdPlatform {
           await _showLoadedAd(placementId);
         },
         onFailed: (placementId, error, message) {
-          logAdLoadFailure('Unity', error, placementId, message, null);
+          logAdLoadFailure('Unity', error, placementId, message, StackTrace.current);
           stopAllAnimations();
           // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
         },
@@ -111,7 +111,7 @@ class UnityAdsPlatform extends AdPlatform {
           commonUtils.refreshUserProfile();
         },
         onFailed: (placementId, error, message) {
-          logAdShowFailure('Unity', error, placementId, message, null);
+          logAdShowFailure('Unity', error, placementId, message, StackTrace.current);
           stopAllAnimations();
           if (context.mounted && !isDisposed) {
             commonUtils.showErrorDialog(t('label_ads_show_fail'),

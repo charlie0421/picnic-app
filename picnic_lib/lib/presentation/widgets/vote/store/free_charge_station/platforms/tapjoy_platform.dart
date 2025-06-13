@@ -51,7 +51,7 @@ class TapjoyPlatform extends AdPlatform {
         endPerformanceLog('사용자 설정');
       },
       onSetUserIDFailure: (error) {
-        logAdLoadFailure('Tapjoy', error, 'mission', error.toString(), null);
+        logAdLoadFailure('Tapjoy', error, 'mission', error.toString(), StackTrace.current);
         if (!isDisposed) {
           stopAllAnimations();
         }
@@ -67,7 +67,7 @@ class TapjoyPlatform extends AdPlatform {
         logInfo('플레이스먼트 요청 성공');
       },
       onRequestFailure: (placement, error) {
-        logAdLoadFailure('Tapjoy', error, 'mission', error.toString(), null);
+        logAdLoadFailure('Tapjoy', error, 'mission', error.toString(), StackTrace.current);
         _handleAdFailure(error);
       },
       onContentReady: (placement) {
@@ -93,7 +93,7 @@ class TapjoyPlatform extends AdPlatform {
       await _currentPlacement!.requestContent();
     } else {
       logAdLoadFailure(
-          'Tapjoy', '플레이스먼트 생성 실패', 'mission', '플레이스먼트 생성 실패', null);
+          'Tapjoy', '플레이스먼트 생성 실패', 'mission', '플레이스먼트 생성 실패', StackTrace.current);
     }
   }
 
