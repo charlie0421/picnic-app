@@ -10,6 +10,8 @@ workflows:
         - google_play
       flutter: 3.32.0
       java: 17
+      vars:
+        PATH: $PATH:$HOME/.shorebird/bin
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -26,6 +28,18 @@ workflows:
           else
             keytool -genkey -v -keystore "$keystore_path" -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
+      - name: Install Shorebird CLI
+        script: |
+          echo "=== Shorebird CLI 설치 시작 ==="
+          # Shorebird CLI 설치
+          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          
+          # PATH에 추가
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          
+          # 설치 확인
+          shorebird --version || echo "Shorebird 설치 실패"
+          
       - name: Get Flutter packages
         script: |
           cd picnic_app
@@ -58,7 +72,13 @@ workflows:
           fi
       - name: Shorebird Build
         script: |
+          # Shorebird PATH 설정
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          
           cd picnic_app
+          echo "=== Shorebird 버전 확인 ==="
+          shorebird --version
+          
           echo "=== Shorebird용 파일 경로 확인 ==="
           # 파일이 올바른 위치에 있는지 확인
           ls -la build/app/outputs/bundle/release/ || echo "Release directory not found"
