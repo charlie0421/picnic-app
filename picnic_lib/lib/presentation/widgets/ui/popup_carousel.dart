@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/ui/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:picnic_lib/presentation/providers/popup_provider.dart';
 import 'package:picnic_lib/data/models/common/popup.dart';
@@ -222,6 +223,9 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
               final maxWidth = constraints.maxWidth * 0.9 > 400
                   ? 400.0
                   : constraints.maxWidth * 0.9;
+              final maxHeight = constraints.maxHeight * 0.9 > 500
+                  ? 500.0
+                  : constraints.maxHeight * 0.9;
               return Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
@@ -231,7 +235,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                 child: Container(
                   constraints: BoxConstraints(
                     maxWidth: maxWidth,
-                    maxHeight: 400, // 팝업 높이 고정 (원하는 값으로 조정)
+                    maxHeight: maxHeight, // 팝업 높이 고정 (원하는 값으로 조정)
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -254,28 +258,30 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        popup.title[lang] ?? popup.title['en'] ?? '',
-                        style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5),
-                        textAlign: TextAlign.center,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          popup.title[lang] ?? popup.title['en'] ?? '',
+                          style:
+                              getTextStyle(AppTypo.body16B, AppColors.grey900),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: SingleChildScrollView(
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               popup.content[lang] ?? popup.content['en'] ?? '',
-                              style: const TextStyle(fontSize: 15, height: 1.5),
+                              style: getTextStyle(
+                                  AppTypo.body14R, AppColors.grey900),
                               textAlign: TextAlign.start,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 16),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
