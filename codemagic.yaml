@@ -43,10 +43,33 @@ workflows:
           
           echo "=== 빌드 결과 확인 ==="
           find . -name "*.aab" -type f
-          ls -la build/app/outputs/bundle/release/ || echo "Release directory not found"
+          
+          echo "=== 파일 경로 수정 ==="
+          # Flutter가 예상하는 경로에 디렉토리 생성
+          mkdir -p build/app/outputs/bundle/release/
+          
+          # AAB 파일을 올바른 경로로 복사
+          if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+            cp android/app/build/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/
+            echo "AAB 파일을 올바른 경로로 복사했습니다"
+            ls -la build/app/outputs/bundle/release/
+          else
+            echo "AAB 파일을 찾을 수 없습니다"
+          fi
       - name: Shorebird Build
         script: |
           cd picnic_app
+          echo "=== Shorebird용 파일 경로 확인 ==="
+          # 파일이 올바른 위치에 있는지 확인
+          ls -la build/app/outputs/bundle/release/ || echo "Release directory not found"
+          
+          # 만약 파일이 여전히 없다면 다시 복사
+          if [ ! -f "build/app/outputs/bundle/release/app-release.aab" ] && [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+            mkdir -p build/app/outputs/bundle/release/
+            cp android/app/build/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/
+            echo "Shorebird용 AAB 파일 복사 완료"
+          fi
+          
           echo "=== Shorebird 빌드 시작 ==="
           shorebird release android --flutter-version 3.32.0 --dart-define=ENVIRONMENT=prod --verbose
     artifacts:
