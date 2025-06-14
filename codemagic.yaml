@@ -7,7 +7,6 @@ workflows:
       android_signing:
         - picnic_keystore
       groups:
-        - google_play
         - shorebird-config
       flutter: 3.32.0
       java: 17
