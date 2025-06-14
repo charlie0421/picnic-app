@@ -5,7 +5,7 @@ workflows:
     max_build_duration: 120
     environment:
       android_signing:
-        - keystore_reference
+        - picnic_keystore
       groups:
         - google_play
       flutter: 3.32.0
