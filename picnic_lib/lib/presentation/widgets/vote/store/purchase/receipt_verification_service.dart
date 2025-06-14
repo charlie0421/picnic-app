@@ -8,10 +8,30 @@ class ReceiptVerificationService {
   static const String _sandboxEnvironment = 'sandbox';
   static const String _productionEnvironment = 'production';
 
+  // 중복 검증 방지를 위한 플래그
+  bool _isVerifying = false;
+
   Future<void> verifyReceipt(String receipt, String productId, String userId,
       String environment) async {
+    // 이미 검증 중이면 중복 실행 방지
+    if (_isVerifying) {
+      print('🚨 Receipt verification already in progress, skipping');
+      return;
+    }
+
+    _isVerifying = true;
+    try {
+      await _verifyReceiptWithRetry(receipt, productId, userId, environment);
+    } finally {
+      _isVerifying = false;
+    }
+  }
+
+  Future<void> _verifyReceiptWithRetry(
+      String receipt, String productId, String userId, String environment,
+      {bool isRetry = false}) async {
     // 디버그 정보 로깅
-    print('🔍 Receipt verification details:');
+    print('🔍 Receipt verification details ${isRetry ? '(RETRY)' : ''}:');
     print('   Platform: ${Platform.isIOS ? 'iOS' : 'Android'}');
     print('   Environment: $environment');
     print('   ProductId: $productId');
@@ -31,26 +51,45 @@ class ReceiptVerificationService {
       print('🔍 Verification response: ${response.status}, ${response.data}');
 
       if (response.status != 200 || response.data['success'] != true) {
-        // 21002 오류 상세 분석
+        // 21002 오류 상세 분석 - 단 한 번만 재시도
         final errorData = response.data;
         if (errorData != null && errorData['error'] != null) {
           final errorMessage = errorData['error'].toString();
           print('🚨 Verification error details: $errorMessage');
 
-          if (errorMessage.contains('21002')) {
-            print('🚨 21002 Error Analysis:');
+          // 21002 에러이고 첫 번째 시도인 경우에만 재시도
+          if (errorMessage.contains('21002') && !isRetry) {
+            print('🚨 21002 Error - Environment mismatch detected');
             print('   Current environment: $environment');
-            print('   This usually means environment mismatch');
-            print(
-                '   TestFlight should use sandbox, App Store should use production');
 
-            // 21002 오류에 대한 구체적인 예외 던지기
-            throw Exception(
-                'Environment mismatch error (21002): Receipt was sent to wrong Apple server environment. Current: $environment');
+            final alternativeEnvironment =
+                getAlternativeEnvironment(environment);
+            print(
+                '🔄 Retrying with alternative environment: $alternativeEnvironment');
+
+            try {
+              await _verifyReceiptWithRetry(
+                  receipt, productId, userId, alternativeEnvironment,
+                  isRetry: true);
+              return; // 성공하면 리턴
+            } catch (retryError) {
+              print(
+                  '🚨 Retry with alternative environment failed: $retryError');
+              // 재시도 실패 시 명확한 에러 메시지로 원래 오류 던지기
+              throw Exception(
+                  '구매 검증 실패: 환경 설정 오류 (21002). TestFlight와 App Store 환경이 일치하지 않습니다.');
+            }
           }
         }
 
         throw Exception('Receipt verification failed: ${response.data}');
+      }
+
+      if (isRetry) {
+        print(
+            '✅ Receipt verification succeeded with alternative environment: $environment');
+      } else {
+        print('✅ Receipt verification succeeded');
       }
     } catch (e) {
       print('🚨 Receipt verification exception: $e');
@@ -65,45 +104,39 @@ class ReceiptVerificationService {
     print('   Debug mode: $kDebugMode');
     print('   Installer store: ${packageInfo.installerStore}');
     print('   Package name: ${packageInfo.packageName}');
-    print('   App name: ${packageInfo.appName}');
-    print('   Build number: ${packageInfo.buildNumber}');
 
     if (Platform.isIOS) {
-      // iOS 환경 감지 - 더 정확한 로직
-      final installer = packageInfo.installerStore;
       String environment;
 
-      // 개발/테스트 환경에서는 무조건 샌드박스
+      // 디버그 모드에서는 무조건 샌드박스
       if (kDebugMode) {
         environment = _sandboxEnvironment;
-        print('   Debug mode detected - using sandbox');
-      } else if (installer == 'com.apple.testflight') {
-        environment = _sandboxEnvironment;
-        print('   TestFlight detected - using sandbox');
-      } else if (installer == 'com.apple.AppStore') {
-        environment = _productionEnvironment;
-        print('   App Store detected - using production');
-      } else if (installer == null || installer.isEmpty) {
-        // TestFlight에서 때때로 installer가 null일 수 있음
-        // 추가 검증 로직
-        if (packageInfo.packageName.contains('.debug') ||
-            packageInfo.packageName.contains('.dev') ||
-            packageInfo.buildNumber.contains('beta') ||
-            packageInfo.buildNumber.contains('test')) {
-          environment = _sandboxEnvironment;
-          print('   Development indicators found - using sandbox');
-        } else {
-          // 확실하지 않은 경우 sandbox로 안전하게 처리
-          environment = _sandboxEnvironment;
-          print('   Null installer - defaulting to sandbox for safety');
-        }
+        print('   ✅ Debug mode - using sandbox');
       } else {
-        // 알 수 없는 경우 샌드박스로 안전하게 처리
-        environment = _sandboxEnvironment;
-        print('   Unknown installer ($installer) - defaulting to sandbox');
+        final installer = packageInfo.installerStore;
+
+        // TestFlight 감지 로직 단순화
+        bool isTestFlight = false;
+
+        // 1. 가장 확실한 방법: installer store 체크
+        if (installer == 'com.apple.testflight') {
+          isTestFlight = true;
+          print('   ✅ TestFlight installer detected');
+        }
+        // 2. App Store가 아닌 경우 TestFlight로 간주 (안전한 기본값)
+        else if (installer != 'com.apple.AppStore') {
+          isTestFlight = true;
+          print(
+              '   ⚠️ Non-AppStore installer: $installer - treating as TestFlight');
+        }
+
+        environment =
+            isTestFlight ? _sandboxEnvironment : _productionEnvironment;
+
+        print(
+            '   🎯 Final environment: $environment (${isTestFlight ? 'TestFlight' : 'App Store'})');
       }
 
-      print('   Final iOS environment: $environment');
       return environment;
     } else if (Platform.isAndroid) {
       final installer = packageInfo.installerStore;
@@ -111,19 +144,17 @@ class ReceiptVerificationService {
 
       if (kDebugMode) {
         environment = _sandboxEnvironment;
-      } else if (installer == null || installer == 'com.android.vending') {
-        environment = _productionEnvironment;
       } else if (installer == 'com.google.android.apps.internal.testing') {
-        environment = _sandboxEnvironment;
+        environment = _sandboxEnvironment; // Internal testing
       } else {
-        environment = _sandboxEnvironment;
+        environment = _productionEnvironment; // Google Play Store
       }
 
-      print('   Final Android environment: $environment');
+      print('   🎯 Final Android environment: $environment');
       return environment;
     }
 
-    print('   Unknown platform, defaulting to sandbox');
+    print('   🎯 Unknown platform, defaulting to sandbox');
     return _sandboxEnvironment;
   }
 
