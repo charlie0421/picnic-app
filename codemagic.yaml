@@ -7,12 +7,12 @@ workflows:
       android_signing:
         - picnic_keystore
       groups:
+        - google_play
         - shorebird-config
       flutter: 3.32.0
       java: 17
       vars:
         PATH: $PATH:$HOME/.shorebird/bin
-        SHOREBIRD_TOKEN: $SHOREBIRD_TOKEN
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
