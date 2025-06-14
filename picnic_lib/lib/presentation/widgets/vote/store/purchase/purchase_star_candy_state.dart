@@ -15,7 +15,7 @@ import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/in_app_purchase_service.dart';
+
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
@@ -37,17 +37,20 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     );
     _purchaseService = PurchaseService(
       ref: ref,
-      inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),
-      onPurchaseUpdate: _handlePurchaseUpdated,
     );
+
+    // UI 콜백 설정
+    _purchaseService.setOnPurchaseUpdate(_handlePurchaseUpdated);
   }
+
+  // 기존 구매 정리는 이제 PurchaseService에서 자동으로 처리됨
 
   @override
   void dispose() {
     _rotationController.dispose();
-    _purchaseService.inAppPurchaseService.dispose();
+    _purchaseService.dispose();
     super.dispose();
   }
 
@@ -62,18 +65,21 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           continue;
         }
 
-        // 구매 상태가 청구 가능일 때 영수증 검증 및 처리 진행
-        if (purchaseDetails.status == PurchaseStatus.purchased) {
+        // Flutter 공식 권장: purchased와 restored를 완전히 동일하게 처리
+        if (purchaseDetails.status == PurchaseStatus.purchased ||
+            purchaseDetails.status == PurchaseStatus.restored) {
+          logger.i(
+              'UI processing purchase: ${purchaseDetails.productID} (${purchaseDetails.status})');
           await _purchaseService.handlePurchase(
             purchaseDetails,
-            () async {
+            onSuccess: () async {
               await ref.read(userInfoProvider.notifier).getUserProfiles();
               if (mounted) {
                 OverlayLoadingProgress.stop();
                 await _showSuccessDialog();
               }
             },
-            (error) async {
+            onError: (error) async {
               if (mounted) {
                 OverlayLoadingProgress.stop();
                 await _showErrorDialog(t('dialog_message_purchase_failed'));
@@ -92,19 +98,14 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             }
           }
         } else if (purchaseDetails.status == PurchaseStatus.canceled) {
-          // 구매 취소 시 구매 정보 정리하고 로딩바만 숨김
+          // 구매 취소 시 로딩바만 숨김 (다이얼로그 없음, 완료 처리는 in_app_purchase_service에서 처리)
           if (mounted) {
-            await _purchaseService.inAppPurchaseService
-                .completePurchase(purchaseDetails);
             OverlayLoadingProgress.stop();
+            logger.i('Purchase canceled by user: ${purchaseDetails.productID}');
           }
         }
 
-        // 모든 상태 처리 후 구매 완료 처리
-        if (purchaseDetails.pendingCompletePurchase) {
-          await _purchaseService.inAppPurchaseService
-              .completePurchase(purchaseDetails);
-        }
+        // pendingCompletePurchase 처리는 이미 in_app_purchase_service에서 처리되므로 제거
       }
     } catch (e, s) {
       logger.e('Error handling purchase update', error: e, stackTrace: s);
@@ -127,8 +128,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     }
 
     try {
-      // 이전 구매 상태 초기화
-      await _purchaseService.inAppPurchaseService.clearTransactions();
+      // 이전 구매 상태 초기화 제거 (새 구매 방해 방지)
+      // await _purchaseService.inAppPurchaseService.clearTransactions();
 
       if (!context.mounted) return;
       OverlayLoadingProgress.start(
@@ -137,6 +138,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         color: AppColors.primary500,
       );
 
+      // 타임아웃 추가 (30초)
       final purchaseInitiated = await _purchaseService.initiatePurchase(
         serverProduct['id'],
         onSuccess: () async {
@@ -144,6 +146,16 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         },
         onError: (message) async {
           await _showErrorDialog(message);
+        },
+      ).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          logger.w('Purchase timeout after 30 seconds');
+          if (mounted) {
+            OverlayLoadingProgress.stop();
+            _showErrorDialog(t('dialog_message_purchase_timeout'));
+          }
+          return false;
         },
       );
 

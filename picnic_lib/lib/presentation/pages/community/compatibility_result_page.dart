@@ -26,7 +26,7 @@ import 'package:picnic_lib/presentation/widgets/community/compatibility/compatib
 // ignore: unused_import
 import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/in_app_purchase_service.dart';
+
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/receipt_verification_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -66,11 +66,12 @@ class _CompatibilityResultPageState
     super.initState();
     _purchaseService = PurchaseService(
       ref: ref,
-      inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),
-      onPurchaseUpdate: _handlePurchaseUpdated,
     );
+
+    // UI 콜백 설정
+    _purchaseService.setOnPurchaseUpdate(_handlePurchaseUpdated);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
@@ -98,13 +99,13 @@ class _CompatibilityResultPageState
         if (purchaseDetails.status == PurchaseStatus.purchased) {
           await _purchaseService.handlePurchase(
             purchaseDetails,
-            () async {
+            onSuccess: () async {
               if (mounted) {
                 OverlayLoadingProgress.stop();
                 _openCompatibility(widget.compatibility.id);
               }
             },
-            (error) async {
+            onError: (error) async {
               if (mounted) {
                 OverlayLoadingProgress.stop();
                 await _showErrorDialog(t('dialog_message_purchase_failed'));
@@ -124,19 +125,13 @@ class _CompatibilityResultPageState
             }
           }
         } else if (purchaseDetails.status == PurchaseStatus.canceled) {
-          // 구매 취소 시 구매 정보 정리하고 로딩바만 숨김
+          // 구매 취소 시 로딩바만 숨김 (완료 처리는 PurchaseService에서 자동 처리)
           if (mounted) {
-            await _purchaseService.inAppPurchaseService
-                .completePurchase(purchaseDetails);
             OverlayLoadingProgress.stop();
           }
         }
 
-        // 모든 상태 처리 후 구매 완료 처리
-        if (purchaseDetails.pendingCompletePurchase) {
-          await _purchaseService.inAppPurchaseService
-              .completePurchase(purchaseDetails);
-        }
+        // pendingCompletePurchase 처리는 PurchaseService에서 자동으로 처리됨
       }
     } catch (e, s) {
       logger.e('Error handling purchase update', error: e, stackTrace: s);
@@ -150,8 +145,7 @@ class _CompatibilityResultPageState
 
   Future<bool> _buyProduct(Map<String, dynamic> product) async {
     try {
-      // 이전 구매 상태 초기화
-      await _purchaseService.inAppPurchaseService.clearTransactions();
+      // 구매 상태 초기화는 PurchaseService에서 자동으로 처리됨
 
       // 구매 시작 시 로딩바 표시
       if (mounted) {
