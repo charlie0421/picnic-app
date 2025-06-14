@@ -33,8 +33,15 @@ class PurchaseService {
     Function(String) onError,
   ) async {
     try {
+      logger.i('=== Purchase Handling Started ===');
       logger.i(
           'Processing purchase: ${purchaseDetails.productID} with status: ${purchaseDetails.status}');
+      logger.i('Purchase ID: ${purchaseDetails.purchaseID}');
+      logger.i('Pending complete: ${purchaseDetails.pendingCompletePurchase}');
+
+      // 환경 정보 미리 확인
+      final environment = await receiptVerificationService.getEnvironment();
+      logger.i('Current environment: $environment');
 
       switch (purchaseDetails.status) {
         case PurchaseStatus.pending:
@@ -64,8 +71,12 @@ class PurchaseService {
       }
 
       if (purchaseDetails.pendingCompletePurchase) {
+        logger.i('Completing pending purchase...');
         await inAppPurchaseService.completePurchase(purchaseDetails);
+        logger.i('Purchase completion finished');
       }
+
+      logger.i('=== Purchase Handling Completed ===');
     } catch (e, s) {
       logger.e('Error handling purchase: $e', stackTrace: s);
       onError('구매 처리 중 오류가 발생했습니다.');
@@ -111,28 +122,67 @@ class PurchaseService {
     Function(String) onError,
   ) async {
     try {
-      final storeProducts = await ref.read(storeProductsProvider.future);
-      final environment = await receiptVerificationService.getEnvironment();
+      logger.i('Starting successful purchase handling...');
+      logger.i('Purchase ID: ${purchaseDetails.productID}');
+      logger.i('Purchase Status: ${purchaseDetails.status}');
+      logger.i('Transaction ID: ${purchaseDetails.purchaseID}');
 
+      final storeProducts = await ref.read(storeProductsProvider.future);
+      logger.i('Store products loaded: ${storeProducts.length} products');
+
+      final environment = await receiptVerificationService.getEnvironment();
+      logger.i('Environment determined: $environment');
+
+      // 영수증 데이터 로그
+      final receiptData =
+          purchaseDetails.verificationData.serverVerificationData;
+      logger.i('Receipt data available: ${receiptData.isNotEmpty}');
+      logger.i('Receipt data length: ${receiptData.length}');
+
+      // 사용자 정보 확인
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser == null) {
+        logger.e('No authenticated user found');
+        throw Exception('사용자 인증이 필요합니다');
+      }
+      logger.i('User authenticated: ${currentUser.id}');
+
+      // 영수증 검증 시작
+      logger.i('Starting receipt verification...');
       await receiptVerificationService.verifyReceipt(
-        purchaseDetails.verificationData.serverVerificationData,
+        receiptData,
         purchaseDetails.productID,
-        supabase.auth.currentUser!.id,
+        currentUser.id,
         environment,
       );
+      logger.i('Receipt verification completed successfully');
 
       final productDetails = storeProducts.firstWhere(
         (product) => product.id == purchaseDetails.productID,
         orElse: () => throw Exception('구매한 상품을 찾을 수 없습니다'),
       );
+      logger.i('Product details found: ${productDetails.id}');
 
+      logger.i('Logging analytics event...');
       await analyticsService.logPurchaseEvent(productDetails);
-      onSuccess();
+      logger.i('Analytics event logged successfully');
 
+      onSuccess();
       logger.i('Purchase successfully completed: ${purchaseDetails.productID}');
     } catch (e, s) {
       logger.e('Error in handleSuccessfulPurchase: $e', stackTrace: s);
-      onError('구매 검증 중 오류가 발생했습니다');
+
+      // 더 구체적인 에러 메시지 제공
+      String errorMessage = '구매 검증 중 오류가 발생했습니다';
+      if (e.toString().contains('Receipt verification failed')) {
+        errorMessage = '영수증 검증에 실패했습니다. 잠시 후 다시 시도해주세요.';
+      } else if (e.toString().contains('사용자 인증')) {
+        errorMessage = '사용자 인증이 필요합니다. 다시 로그인해주세요.';
+      } else if (e.toString().contains('구매한 상품을 찾을 수 없습니다')) {
+        errorMessage = '구매한 상품 정보를 찾을 수 없습니다.';
+      }
+
+      onError(errorMessage);
       rethrow;
     }
   }

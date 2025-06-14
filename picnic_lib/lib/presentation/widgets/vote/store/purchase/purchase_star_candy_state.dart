@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -27,6 +28,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
   late final PurchaseService _purchaseService;
   late final AnimationController _rotationController;
+  String? _pendingProductId; // 복원 구매 후 재시도할 상품 ID
 
   @override
   void initState() {
@@ -59,6 +61,20 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
         // pending 상태일 때는 계속 로딩바 유지
         if (purchaseDetails.status == PurchaseStatus.pending) {
+          continue;
+        }
+
+        // 복원된 구매는 조용히 처리하고 완료
+        if (purchaseDetails.status == PurchaseStatus.restored) {
+          logger.d('복원된 구매 감지됨. 조용히 완료 처리: ${purchaseDetails.productID}');
+          await _purchaseService.inAppPurchaseService
+              .completePurchase(purchaseDetails);
+
+          // 복원 구매 감지 시 로딩바 중단
+          if (mounted) {
+            _pendingProductId = null; // 대기 상품 초기화
+            OverlayLoadingProgress.stop();
+          }
           continue;
         }
 
@@ -127,6 +143,9 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     }
 
     try {
+      // 구매할 상품 ID 저장 (복원 구매 시 재시도용)
+      _pendingProductId = serverProduct['id'];
+
       // 이전 구매 상태 초기화
       await _purchaseService.inAppPurchaseService.clearTransactions();
 
@@ -140,14 +159,17 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       final purchaseInitiated = await _purchaseService.initiatePurchase(
         serverProduct['id'],
         onSuccess: () async {
+          _pendingProductId = null; // 성공 시 대기 상품 초기화
           await _showSuccessDialog();
         },
         onError: (message) async {
+          _pendingProductId = null; // 실패 시 대기 상품 초기화
           await _showErrorDialog(message);
         },
       );
 
       if (!purchaseInitiated) {
+        _pendingProductId = null; // 실패 시 대기 상품 초기화
         if (mounted) {
           OverlayLoadingProgress.stop();
           await _showErrorDialog(t('dialog_message_purchase_failed'));
@@ -155,6 +177,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       }
     } catch (e, s) {
       logger.e('Error starting purchase', error: e, stackTrace: s);
+      _pendingProductId = null; // 예외 시 대기 상품 초기화
       if (mounted) {
         OverlayLoadingProgress.stop();
         await _showErrorDialog(t('dialog_message_purchase_failed'));
@@ -165,7 +188,40 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
   Future<void> _showErrorDialog(String message) async {
     if (!mounted) return;
-    showSimpleErrorDialog(context, message, type: DialogType.error);
+
+    // 디버그 모드 또는 테스트플라이트에서만 디버깅 정보 표시
+    try {
+      final envInfo = await _purchaseService.receiptVerificationService
+          .getEnvironmentInfo();
+
+      // 디버그 모드이거나 테스트플라이트 환경인 경우에만 디버깅 정보 표시
+      final isTestFlight = envInfo['environment'] == 'sandbox' &&
+          !envInfo['isDebugMode'] &&
+          (envInfo['installerStore'] == 'com.apple.testflight' ||
+              envInfo['installerStore'] == null);
+      final shouldShowDebugInfo = kDebugMode || isTestFlight;
+
+      if (shouldShowDebugInfo) {
+        final debugInfo = '''
+환경: ${envInfo['environment']}
+플랫폼: ${envInfo['platform']}
+설치 스토어: ${envInfo['installerStore'] ?? 'null'}
+앱 이름: ${envInfo['appName']}
+버전: ${envInfo['version']} (${envInfo['buildNumber']})
+디버그 모드: ${envInfo['isDebugMode']}
+
+오류: $message
+''';
+
+        showSimpleErrorDialog(context, debugInfo, type: DialogType.error);
+      } else {
+        // 프로덕션 환경에서는 기본 에러 메시지만 표시
+        showSimpleErrorDialog(context, message, type: DialogType.error);
+      }
+    } catch (e) {
+      // 환경 정보 가져오기 실패 시 기본 에러 메시지만 표시
+      showSimpleErrorDialog(context, message, type: DialogType.error);
+    }
   }
 
   Future<void> _showSuccessDialog() async {

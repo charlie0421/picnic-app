@@ -36,10 +36,7 @@ class InAppPurchaseService {
         return false;
       }
 
-      // iOS의 경우 pending 구매를 먼저 처리
-      if (Platform.isIOS) {
-        await _handlePendingPurchases();
-      }
+      // iOS pending 구매 처리 제거 (복원 구매 방지)
 
       _lastPurchaseAttempt = now;
       _pendingPurchases.add(productDetails.id);
@@ -78,17 +75,14 @@ class InAppPurchaseService {
 
   Future<void> completePurchase(PurchaseDetails purchaseDetails) async {
     try {
-      if (Platform.isAndroid && purchaseDetails is GooglePlayPurchaseDetails) {
-        await _inAppPurchase.completePurchase(purchaseDetails);
-      } else if (Platform.isIOS && purchaseDetails is AppStorePurchaseDetails) {
-        await _inAppPurchase.completePurchase(purchaseDetails);
-      } else {
-        logger.w('Skipping completePurchase for unsupported platform/type');
-      }
+      // 플랫폼에 관계없이 항상 completePurchase 호출
+      await _inAppPurchase.completePurchase(purchaseDetails);
       _pendingPurchases.remove(purchaseDetails.productID);
       logger.i('Purchase completed successfully: ${purchaseDetails.productID}');
     } catch (e, stack) {
       logger.e('Error completing purchase', error: e, stackTrace: stack);
+      // 에러가 발생해도 pending에서는 제거
+      _pendingPurchases.remove(purchaseDetails.productID);
       rethrow;
     }
   }
@@ -121,18 +115,12 @@ class InAppPurchaseService {
       },
     );
 
-    // 초기화시 pending 구매 처리
-    _handlePendingPurchases();
+    // 초기화시 pending 구매 처리 제거 (복원 구매 방지)
   }
 
   /// 진행 중인 구매 트랜잭션을 정리합니다.
   Future<void> clearTransactions() async {
     try {
-      // iOS의 경우만 restore 호출
-      if (Platform.isIOS) {
-        await _inAppPurchase.restorePurchases();
-      }
-
       // pending 상태의 구매 목록 초기화
       _pendingPurchases.clear();
       _lastPurchaseAttempt = null;
