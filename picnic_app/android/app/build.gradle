@@ -28,7 +28,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "io.iconcasting.picnic.app"
     compileSdk flutter.compileSdkVersion
-    ndkVersion = "25.1.8937393"
+    // ndkVersion = "27.0.12077973"  // 자동 선택 사용
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
