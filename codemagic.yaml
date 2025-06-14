@@ -1,0 +1,62 @@
+workflows:
+  android-workflow:
+    name: Android Workflow
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    environment:
+      android_signing:
+        - keystore_reference
+      groups:
+        - google_play
+      flutter: 3.32.0
+      java: 17
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.gradle/caches
+        - $HOME/Library/Caches/CocoaPods
+    scripts:
+      - name: Set up debug keystore
+        script: |
+          set -e
+          set -x
+          keystore_path="/tmp/keystore.keystore"
+          if [ -f "$keystore_path" ]; then
+            echo "Keystore already exists"
+          else
+            keytool -genkey -v -keystore "$keystore_path" -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
+      - name: Get Flutter packages
+        script: |
+          cd picnic_app
+          flutter packages pub get
+      - name: Test Flutter Build (Debug)
+        script: |
+          cd picnic_app
+          echo "=== Flutter 버전 확인 ==="
+          flutter --version
+          
+          echo "=== 일반 Flutter 빌드 테스트 ==="
+          flutter clean
+          flutter pub get
+          flutter build appbundle --release --target-platform=android-arm,android-arm64,android-x64 --dart-define=ENVIRONMENT=prod
+          
+          echo "=== 빌드 결과 확인 ==="
+          find . -name "*.aab" -type f
+          ls -la build/app/outputs/bundle/release/ || echo "Release directory not found"
+      - name: Shorebird Build
+        script: |
+          cd picnic_app
+          echo "=== Shorebird 빌드 시작 ==="
+          shorebird release android --flutter-version 3.32.0 --dart-define=ENVIRONMENT=prod --verbose
+    artifacts:
+      - picnic_app/build/**/outputs/**/*.aab
+      - picnic_app/build/**/outputs/**/mapping.txt
+      - picnic_app/flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - ironlove77@gmail.com
+        notify:
+          success: true
+          failure: true 
