@@ -67,8 +67,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   bool _isSaving = false;
-  bool _isRedBackground = false; // 배경색 점멸용 변수 추가
-  bool _shouldShowAnimation = false; // 애니메이션 표시 조건 변수 추가
 
   @override
   void initState() {
@@ -112,24 +110,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   void _setupUpdateTimer() {
     _updateTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted) return;
-      if (!_shouldShowAnimation) return; // 조건이 아닐 때는 점멸하지 않음
 
-      // 상태 변경을 한 번에 처리
-      if (mounted) {
-        setState(() {
-          _isRedBackground = true;
-        });
-
-        final _ = ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
-
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) {
-            setState(() {
-              _isRedBackground = false;
-            });
-          }
-        });
-      }
+      final _ = ref.refresh(asyncVoteItemListProvider(voteId: widget.voteId));
     });
   }
 
@@ -402,13 +384,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   if (voteModel == null) return const SizedBox.shrink();
                   isEnded = voteModel.isEnded!;
                   isUpcoming = voteModel.isUpcoming!;
-                  final now = DateTime.now();
-                  final stopAt = voteModel.stopAt!;
-                  final isOngoing = !isEnded && !isUpcoming;
-                  final isLessThan10MinutesLeft =
-                      stopAt.difference(now).inMinutes <= 10 &&
-                          stopAt.isAfter(now);
-                  _shouldShowAnimation = isOngoing && isLessThan10MinutesLeft;
 
                   return GestureDetector(
                     onTap: () => _focusNode.unfocus(),
@@ -437,16 +412,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                     error: error.toString(), stackTrace: stackTrace),
               ),
         ),
-        if (_shouldShowAnimation)
-          AnimatedOpacity(
-            opacity: (_isRedBackground ? 1.0 : 0.0).clamp(0.0, 1.0),
-            duration: const Duration(milliseconds: 300),
-            child: Container(
-              color: AppColors.primary500.withValues(alpha: 0.18),
-              width: double.infinity,
-              height: double.infinity,
-            ),
-          ),
       ],
     );
   }
