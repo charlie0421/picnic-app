@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 class InAppPurchaseService {
@@ -63,7 +60,6 @@ class InAppPurchaseService {
     }
   }
 
-  // 완료되지 않은 구매 처리
   Future<void> _handlePendingPurchases() async {
     try {
       await _inAppPurchase.restorePurchases();

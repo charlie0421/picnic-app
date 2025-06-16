@@ -9,7 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/memory_profiler.dart';
+
 import 'package:picnic_lib/core/utils/supabase_health_check.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -34,7 +34,6 @@ class MainInitializer {
     required Widget Function() appBuilder,
     required Future<void> Function(Locale) loadGeneratedTranslations,
     required Function() reflectableInitializer,
-    bool enableMemoryProfiler = false,
   }) async {
     await runZonedGuarded(() async {
       try {
@@ -50,13 +49,6 @@ class MainInitializer {
         await AppInitializer.initializeBasics();
         await AppInitializer.initializeEnvironment(environment);
         await AppInitializer.initializeSentry();
-
-        // 메모리 프로파일러 초기화 (조건부)
-        if (enableMemoryProfiler || kDebugMode) {
-          logger.i('메모리 프로파일러 초기화 중...');
-          MemoryProfiler.instance.initialize(enabled: true);
-          logger.i('메모리 프로파일러 초기화 완료');
-        }
 
         // Supabase 초기화
         await initializeSupabase();
@@ -131,9 +123,9 @@ class MainInitializer {
       const designSize = Size(393, 852);
 
       // 화면 크기를 미리 계산하여 로깅 목적으로 사용
-      final window = WidgetsBinding.instance.window;
-      final physicalSize = window.physicalSize;
-      final devicePixelRatio = window.devicePixelRatio;
+      final view = WidgetsBinding.instance.platformDispatcher.views.first;
+      final physicalSize = view.physicalSize;
+      final devicePixelRatio = view.devicePixelRatio;
       final logicalSize = Size(
         physicalSize.width / devicePixelRatio,
         physicalSize.height / devicePixelRatio,

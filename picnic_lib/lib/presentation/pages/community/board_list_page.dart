@@ -412,7 +412,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
                       lazyLoadingStrategy: LazyLoadingStrategy.viewport,
                       enableMemoryOptimization: true,
                       borderRadius: BorderRadius.circular(32.r),
-                      useOptimizedCacheManager: false, // 작은 아이콘은 기본 캐시 매니저 사용
+
                     ),
                   ),
                   SizedBox(width: 8.w),

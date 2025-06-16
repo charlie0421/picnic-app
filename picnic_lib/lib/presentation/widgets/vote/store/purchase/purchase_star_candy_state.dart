@@ -213,14 +213,14 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 오류: $message
 ''';
 
-        showSimpleErrorDialog(context, debugInfo, type: DialogType.error);
+        showSimpleDialog(content: debugInfo.toString(), type: DialogType.error);
       } else {
         // 프로덕션 환경에서는 기본 에러 메시지만 표시
-        showSimpleErrorDialog(context, message, type: DialogType.error);
+        showSimpleDialog(content: message, type: DialogType.error);
       }
     } catch (e) {
       // 환경 정보 가져오기 실패 시 기본 에러 메시지만 표시
-      showSimpleErrorDialog(context, message, type: DialogType.error);
+      showSimpleDialog(content: message, type: DialogType.error);
     }
   }
 

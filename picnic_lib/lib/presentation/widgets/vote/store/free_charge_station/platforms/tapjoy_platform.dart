@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
@@ -100,8 +101,7 @@ class TapjoyPlatform extends AdPlatform {
   void _handleAdFailure(String? error) {
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
-      commonUtils.showErrorDialog(t('label_ads_load_fail'),
-          error: error ?? 'Unknown error');
+      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
     }
   }
 
@@ -110,8 +110,7 @@ class TapjoyPlatform extends AdPlatform {
     logError('오류 발생', error: error, stackTrace: stackTrace);
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
-      commonUtils.showErrorDialog(t('label_ads_load_fail'),
-          error: error.toString());
+      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
     }
   }
 

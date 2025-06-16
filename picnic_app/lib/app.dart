@@ -286,7 +286,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       ],
       supportedLocales: _supportedLocales,
       locale: currentLocale,
-      enableMemoryProfiler: true,
       enableScreenProtector: isScreenProtector,
     );
   }

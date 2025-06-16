@@ -7,10 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/memory_profiler.dart';
-import 'package:picnic_lib/core/utils/memory_profiler_provider.dart';
-import 'package:picnic_lib/core/utils/memory_profiling_hook.dart';
-import 'package:picnic_lib/core/utils/optimized_cache_manager.dart';
+
+
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -63,7 +61,7 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final bool enableMemoryOptimization; // 메모리 최적화 활성화
   final bool enableProgressiveLoading; // 점진적 로딩 활성화
   final int? maxConcurrentLoads; // 최대 동시 로딩 수
-  final bool useOptimizedCacheManager; // 최적화된 캐시 매니저 사용 여부
+
 
   const PicnicCachedNetworkImage({
     super.key,
@@ -86,7 +84,7 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.enableMemoryOptimization = true,
     this.enableProgressiveLoading = true,
     this.maxConcurrentLoads,
-    this.useOptimizedCacheManager = false, // 기본값은 false로 설정
+
   });
 
   @override
@@ -328,12 +326,7 @@ class _PicnicCachedNetworkImageState
             '이미지 캐시 부분 정리됨: ${previousSizeMB}MB/${(maxSizeBytes ~/ (1024 * 1024))}MB → ${newSizeMB}MB, '
             '이미지 수: $previousImageCount개 → $newImageCount개');
 
-        // 메모리 프로파일링 훅 호출
-        MemoryProfilingHook.onImageCacheCleared(
-          previousSizeBytes: previousSizeBytes,
-          previousImageCount: previousImageCount,
-          ref: ref,
-        );
+
       }
     } catch (e) {
       logger.e('이미지 캐시 정리 오류: $e');
@@ -347,20 +340,14 @@ class _PicnicCachedNetworkImageState
 
       // GIF 로딩 전 메모리 사용량이 150MB를 초과하는 경우에만 정리
       if (currentSizeBytes > 150 * 1024 * 1024) {
-        final previousSizeBytes = currentSizeBytes;
-        final previousImageCount =
-            PaintingBinding.instance.imageCache.liveImageCount;
+
 
         _clearPartialImageCache();
 
         logger.d(
             'GIF 로딩을 위한 부분 캐시 정리: ${currentSizeBytes ~/ (1024 * 1024)}MB → ${PaintingBinding.instance.imageCache.currentSizeBytes ~/ (1024 * 1024)}MB');
 
-        MemoryProfilingHook.onImageCacheCleared(
-          previousSizeBytes: previousSizeBytes,
-          previousImageCount: previousImageCount,
-          ref: ref,
-        );
+
       }
     } catch (e) {
       logger.e('GIF 로딩 준비 오류: $e');
@@ -666,9 +653,7 @@ class _PicnicCachedNetworkImageState
       width: width,
       height: height,
       fit: widget.fit,
-      cacheManager: widget.useOptimizedCacheManager
-          ? OptimizedCacheManager.instance
-          : null,
+      cacheManager: null,
       memCacheWidth: isLowQuality
           ? ((widget.memCacheWidth ?? (width?.toInt() ?? 400)) * 0.5).toInt()
           : (widget.memCacheWidth ?? (width?.toInt() ?? 400)),
@@ -739,9 +724,7 @@ class _PicnicCachedNetworkImageState
             width: width,
             height: height,
             fit: widget.fit,
-            cacheManager: widget.useOptimizedCacheManager
-                ? OptimizedCacheManager.instance
-                : null,
+            cacheManager: null,
             memCacheWidth: widget.memCacheWidth ?? (width?.toInt() ?? 400),
             memCacheHeight: widget.memCacheHeight ?? (height?.toInt() ?? 400),
             maxWidthDiskCache: 2000,
@@ -1003,26 +986,14 @@ class _PicnicCachedNetworkImageState
             final isMemoryPressured = await _checkMemoryPressure();
 
             if (!isMemoryPressured || loadDuration.inSeconds > 300) {
-              final profiler = ref.read(memoryProfilerProvider.notifier);
-              profiler.takeSnapshot(
-                'slow_image_load_${DateTime.now().millisecondsSinceEpoch}',
-                level: MemoryProfiler.snapshotLevelLow,
-                metadata: {
-                  'url': url,
-                  'duration_ms': loadDuration.inMilliseconds,
-                  'retry_count': _retryCount,
-                  'memory_pressured': isMemoryPressured,
-                },
-              );
-
               _lastSnapshotTimes[url] = now;
               _lastGlobalSnapshot = now;
               _snapshotCount++;
 
               logger.i(
-                  '메모리 스냅샷 생성됨 ($_snapshotCount번째): $url - ${loadDuration.inSeconds}초');
+                  '느린 이미지 로딩 감지됨 ($_snapshotCount번째): $url - ${loadDuration.inSeconds}초');
             } else {
-              logger.d('메모리 압박으로 스냅샷 생성 건너뜀: $url');
+              logger.d('메모리 압박으로 로깅 건너뜀: $url');
             }
           }
         }

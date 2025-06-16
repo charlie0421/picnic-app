@@ -21,7 +21,7 @@ void main() async {
     appBuilder: () => const App(),
     loadGeneratedTranslations: S.load,
     reflectableInitializer: initializeReflectable,
-    enableMemoryProfiler: kDebugMode,
+    
   );
 }
 ```

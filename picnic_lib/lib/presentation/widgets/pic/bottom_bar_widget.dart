@@ -7,10 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/memory_profiler.dart';
-import 'package:picnic_lib/core/utils/memory_profiler_provider.dart';
-import 'package:picnic_lib/core/utils/memory_profiling_hook.dart'
-    as profiling_hook;
+
 import 'package:picnic_lib/presentation/pages/pic/pic_camera_view_page.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -60,62 +57,33 @@ class BottomBarWidget extends ConsumerWidget {
             onTap: () async {
               final ImagePicker picker = ImagePicker();
 
-              // 이미지 선택 작업 프로파일링
-              final XFile? image = await profiling_hook.MemoryProfilingHook
-                  .profileImageLoading<XFile?>(
-                imageUrl: 'gallery_picker',
-                loadFunction: () =>
-                    picker.pickImage(source: ImageSource.gallery),
-                ref: ref,
-              );
+              // 이미지 선택
+              final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
               if (image != null && context.mounted) {
-                // 이미지 크롭 작업 프로파일링
-                final aspectRatio =
-                    const CropAspectRatio(ratioX: 5.5, ratioY: 8.5);
-                final croppedFile = await profiling_hook.MemoryProfilingHook
-                    .profileImageCropping<CroppedFile?>(
+                // 이미지 크롭
+                final aspectRatio = const CropAspectRatio(ratioX: 5.5, ratioY: 8.5);
+                final croppedFile = await ImageCropper().cropImage(
                   sourcePath: image.path,
-                  aspectRatio:
-                      profiling_hook.CropAspectRatio(ratioX: 5.5, ratioY: 8.5),
-                  cropFunction: () => ImageCropper().cropImage(
-                    sourcePath: image.path,
-                    aspectRatio: aspectRatio,
-                    uiSettings: [
-                      AndroidUiSettings(
-                        toolbarTitle: 'Cropping',
-                        toolbarColor: Colors.pinkAccent,
-                        toolbarWidgetColor: Colors.white,
-                        lockAspectRatio: true,
-                      ),
-                      IOSUiSettings(
-                        title: 'Cropping',
-                        aspectRatioLockEnabled: true,
-                      ),
-                      WebUiSettings(
-                        context: context,
-                      ),
-                    ],
-                  ),
-                  ref: ref,
+                  aspectRatio: aspectRatio,
+                  uiSettings: [
+                    AndroidUiSettings(
+                      toolbarTitle: 'Cropping',
+                      toolbarColor: Colors.pinkAccent,
+                      toolbarWidgetColor: Colors.white,
+                      lockAspectRatio: true,
+                    ),
+                    IOSUiSettings(
+                      title: 'Cropping',
+                      aspectRatioLockEnabled: true,
+                    ),
+                    WebUiSettings(
+                      context: context,
+                    ),
+                  ],
                 );
 
                 if (croppedFile != null) {
-                  // 이미지 처리 결과 스냅샷 생성
-                  final profiler = ref.read(memoryProfilerProvider.notifier);
-                  final isEnabled = ref.read(memoryProfilerProvider).isEnabled;
-                  if (isEnabled) {
-                    profiler.takeSnapshot(
-                      'image_crop_complete_${DateTime.now().millisecondsSinceEpoch}',
-                      metadata: {
-                        'type': 'image_crop_complete',
-                        'sourcePath': image.path,
-                        'resultPath': croppedFile.path,
-                      },
-                      level: MemoryProfiler.snapshotLevelMedium,
-                    );
-                  }
-
                   // 결과 이미지 전달
                   onImagePicked(File(croppedFile.path));
 

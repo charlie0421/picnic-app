@@ -15,7 +15,7 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
-import 'package:picnic_lib/core/utils/memory_profiler.dart';
+
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -43,6 +43,5 @@ void main() async {
     ),
     loadGeneratedTranslations: S.load,
     reflectableInitializer: initializeReflectable,
-    enableMemoryProfiler: kDebugMode,
   );
 }

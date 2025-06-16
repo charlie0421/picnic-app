@@ -29,7 +29,6 @@ void main() async {
     ),
     loadGeneratedTranslations: S.load,
     reflectableInitializer: initializeReflectable,
-    enableMemoryProfiler: kDebugMode,
   );
 }
 
