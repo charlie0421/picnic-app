@@ -37,6 +37,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'dart:async';
 
 class MyPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_mypage';
@@ -409,19 +410,19 @@ class _MyPageState extends ConsumerState<MyPage> {
                     return;
                   }
 
-                  // 바텀시트를 닫지 않고 바로 언어 변경 및 재시작
+                  // 바텀시트를 닫고 언어 변경만 수행 (재시작은 App.dart에서 처리)
                   try {
-                    // 언어 변경
+                    // 바텀시트 먼저 닫기
+                    Navigator.of(context).pop();
+
+                    // 언어 변경 - App.dart의 ref.listen이 감지하여 재시작 처리
                     ref.read(appSettingProvider.notifier).setLanguage(langCode);
                     PicnicLibL10n.setCurrentLocale(langCode);
-                    
-                    // 앱 재시작 (바텀시트는 자동으로 사라짐)
-                    Phoenix.rebirth(context);
-                    logger.i('⭐ 언어 변경 완료: $langCode');
+
+                    logger.i('⭐ 언어 변경 완료: $langCode (재시작은 App.dart에서 처리)');
                   } catch (e, stackTrace) {
                     logger.e('언어 변경 중 오류 발생', error: e, stackTrace: stackTrace);
-                    // 오류 발생 시에만 바텀시트 닫기
-                    Navigator.of(context).pop();
+
                     if (mounted && context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('언어 변경 중 오류가 발생했습니다.')),

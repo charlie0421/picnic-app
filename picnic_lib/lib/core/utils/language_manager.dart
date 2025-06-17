@@ -5,6 +5,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'dart:async';
 
 /// 전역 언어 상태 변수 업데이트를 위한 콜백 타입
 typedef UpdateLanguageCallback = void Function(
@@ -67,18 +68,53 @@ class LanguageManager {
 
   /// 앱 리로드 처리
   ///
-  /// [context] BuildContext - Phoenix를 통한 앱 리로드에 사용
+  /// [context] BuildContext - Phoenix 리로드에 사용
   ///
-  /// 플랫폼별로 적절한 방식으로 앱을 리로드합니다.
+  /// Phoenix를 사용하여 앱을 안전하게 리로드합니다.
+  /// 실패 시 폴백 메커니즘을 제공합니다.
   static void _reloadApp(BuildContext context) {
     try {
       // Phoenix를 사용하여 앱 리로드 (정상적인 상태 리셋)
       if (context.mounted) {
         logger.i('Phoenix를 통한 앱 리로드 시작');
-        Phoenix.rebirth(context);
+
+        // 컨텍스트 유효성 재확인 및 최상위 컨텍스트 사용
+        final navigatorContext =
+            Navigator.of(context, rootNavigator: true).context;
+
+        // 비동기 처리로 현재 프레임 완료 후 재시작
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (navigatorContext.mounted) {
+            try {
+              // Phoenix.rebirth 실행 전 상태 확인
+              logger.i('Phoenix.rebirth 실행 - 컨텍스트 유효성 확인됨');
+
+              Phoenix.rebirth(navigatorContext);
+              logger.i('Phoenix.rebirth 성공적으로 호출됨');
+
+              // 성공 시에는 앱이 재시작되므로 이후 코드는 실행되지 않음
+            } catch (e) {
+              logger.e('Phoenix.rebirth 호출 실패: $e');
+              _fallbackReload();
+            }
+          } else {
+            logger.w('Navigator 컨텍스트가 더 이상 유효하지 않음');
+            _fallbackReload();
+          }
+        });
+
+        // Phoenix.rebirth 실패 감지를 위한 타이머 (더 짧은 시간으로 조정)
+        Timer(const Duration(milliseconds: 1500), () {
+          // 만약 이 코드가 실행되면 Phoenix.rebirth가 제대로 작동하지 않은 것일 수 있음
+          logger.w('Phoenix.rebirth 후 1.5초가 지났음 - 재시작이 실패했을 가능성');
+          logger.w('앱이 여전히 실행 중입니다. 사용자에게 수동 재시작을 안내할 수 있습니다.');
+        });
+      } else {
+        logger.e('앱 리로드 요청 시 컨텍스트가 유효하지 않음');
+        _fallbackReload();
       }
-    } catch (e) {
-      logger.e('앱 리로드 중 오류 발생', error: e);
+    } catch (e, stackTrace) {
+      logger.e('앱 리로드 중 오류 발생', error: e, stackTrace: stackTrace);
       // 오류 발생 시 기본 리로드 메커니즘으로 폴백
       _fallbackReload();
     }

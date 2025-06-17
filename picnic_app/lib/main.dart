@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_app/generated/l10n.dart';
@@ -37,8 +38,7 @@ void main() async {
   await MainInitializer.initializeApp(
     environment: 'prod',
     firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-    appBuilder: () => ProviderScope(
-      observers: [LoggingObserver()],
+    appBuilder: () => Phoenix(
       child: const App(),
     ),
     loadGeneratedTranslations: S.load,

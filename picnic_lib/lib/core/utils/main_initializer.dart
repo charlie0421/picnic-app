@@ -9,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/logging_observer.dart';
 
 import 'package:picnic_lib/core/utils/supabase_health_check.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -96,6 +97,7 @@ class MainInitializer {
         logger.i('앱 시작 중...');
         // 앱 위젯 생성 후 ProviderScope으로 래핑
         final appWidget = ProviderScope(
+          observers: [LoggingObserver()],
           child: appBuilder(),
         );
 

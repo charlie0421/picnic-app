@@ -307,16 +307,16 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
           main_file.currentLanguage = language;
           logger.i('main.dart 전역 변수 업데이트: $language');
         },
-        shouldReload: false, // 직접 UI 상태를 관리하므로 자동 리로드는 비활성화
+        shouldReload: true, // Phoenix.rebirth를 통한 앱 재시작 활성화
       );
 
-      // 마운트 상태 재확인 후 UI 업데이트
+      // Phoenix.rebirth가 성공하면 여기까지 실행되지 않음
+      // 실패한 경우에만 UI 상태 복구
       if (!mounted) return;
 
-      // UI 상태 업데이트 - 메인 화면 표시
       setState(() {
         _isAppInitialized = true;
-        logger.i('언어 변경 완료 후 UI 상태 복원');
+        logger.i('Phoenix.rebirth 실패 - UI 상태 복원');
       });
     } catch (e) {
       logger.e('언어 변경 중 오류 발생', error: e);

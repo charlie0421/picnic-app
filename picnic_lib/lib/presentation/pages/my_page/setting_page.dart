@@ -70,9 +70,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     ref.watch(platformInfoProvider);
     final userInfoState = ref.watch(userInfoProvider);
     final updateChecker = ref.watch(checkUpdateProvider);
-    final isAdmin =
-        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
-            false;
 
     return userInfoState.when(
         data: (data) => Container(
@@ -196,7 +193,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion})${isAdmin ? ' 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}' : ''}',
+                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                 ),
@@ -212,7 +209,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion})${isAdmin ? ' 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}' : ''}',
+                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
@@ -234,7 +231,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion})${isAdmin ? ' 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}' : ''}',
+                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
@@ -256,7 +253,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version_up_to_date')}${isAdmin ? ' 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}' : ''}',
+                                  '${t('label_setting_recent_version_up_to_date')} 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}',
                                   style: getTextStyle(AppTypo.caption12B,
                                       AppColors.secondary500),
                                   textAlign: TextAlign.start,
@@ -269,22 +266,21 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       },
                       loading: () => ui.buildLoadingOverlay(),
                       error: (_, __) => Container()),
-                  if (isAdmin)
-                    PicnicListItem(
-                      leading: 'Patch',
-                      title: Container(
-                        margin: EdgeInsets.only(right: 8.w),
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          _patchInfo,
-                          style: getTextStyle(
-                              AppTypo.caption12B, AppColors.secondary500),
-                          textAlign: TextAlign.start,
-                        ),
+                  PicnicListItem(
+                    leading: 'Patch',
+                    title: Container(
+                      margin: EdgeInsets.only(right: 8.w),
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        _patchInfo,
+                        style: getTextStyle(
+                            AppTypo.caption12B, AppColors.secondary500),
+                        textAlign: TextAlign.start,
                       ),
-                      assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      tailing: SizedBox.shrink(),
                     ),
+                    assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    tailing: SizedBox.shrink(),
+                  ),
                 ],
               ),
             ),
@@ -294,18 +290,47 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   Future<void> _fetchPatchInfo() async {
     try {
+      logger.i('패치 정보 가져오기 시작');
+
+      // 기본 패치 정보
       final patch = await ShorebirdUtils.checkPatch();
       logger.i('패치 정보: $patch');
+
+      // 상세 상태 정보 (패치가 있는 경우에만)
+      String detailedInfo = '';
+      if (isPatched) {
+        final detailedStatus = await ShorebirdUtils.getDetailedStatus();
+        logger.i('상세 상태: $detailedStatus');
+
+        if (detailedStatus.containsKey('error')) {
+          detailedInfo = '\n오류: ${detailedStatus['error']}';
+        } else {
+          detailedInfo = '\n상태: ${detailedStatus['updateStatus']}';
+          if (detailedStatus['isRestartRequired'] == true) {
+            detailedInfo += '\n⚠️ 재시작 필요';
+          }
+          if (detailedStatus['isOutdated'] == true) {
+            detailedInfo += '\n📦 업데이트 가능';
+          }
+        }
+      }
+
       setState(() {
         if (patch != null) {
-          _patchInfo = "Current Patch: ${patch.number}";
+          patchVersion = patch.number.toString();
+          isPatched = true;
+          _patchInfo = "Current Patch: ${patch.number}$detailedInfo";
         } else {
-          _patchInfo = "No patch";
+          _patchInfo = "No patch$detailedInfo";
         }
       });
-    } catch (e) {
+
+      logger.i('패치 정보 업데이트 완료: $_patchInfo');
+    } catch (e, stackTrace) {
+      logger.e('패치 정보 가져오기 실패', error: e, stackTrace: stackTrace);
       setState(() {
-        _patchInfo = "Failed to load patch info";
+        _patchInfo =
+            "Failed to load patch info: ${e.toString().substring(0, 50)}...";
       });
     }
   }
