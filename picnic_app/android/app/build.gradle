@@ -83,9 +83,13 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig true
+    }
+    
     buildTypes {
         release {
-            signingConfig System.getenv()["CI"] ? signingConfigs.release : signingConfigs.debug
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
             minifyEnabled false
             shrinkResources false
             ndk {
@@ -97,6 +101,17 @@ android {
     bundle {
         storeArchive {
             enable = true
+        }
+    }
+    
+    // Ensure Flutter can find the generated files
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def fileName = outputFile.name.replace("app", "app")
+                output.outputFileName = fileName
+            }
         }
     }
 }
@@ -119,7 +134,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'com.tapjoy:tapjoy-android-sdk:14.3.1'
+    implementation 'com.tapjoy:tapjoy-android-sdk:14.4.0'
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation files('libs/pincrux_offerwall.aar')
     implementation 'com.pangle.global:ads-sdk:6.5.0.5'

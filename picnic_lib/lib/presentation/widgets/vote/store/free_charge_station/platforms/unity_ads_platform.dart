@@ -6,6 +6,7 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
@@ -63,8 +64,7 @@ class UnityAdsPlatform extends AdPlatform {
       logger.e('[$id] placementId가 설정되지 않음');
       stopAllAnimations();
       if (context.mounted && !isDisposed) {
-        commonUtils.showErrorDialog(t('label_ads_load_fail'),
-            error: 'placementId가 설정되지 않음');
+        showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
       }
       return;
     }
@@ -114,8 +114,7 @@ class UnityAdsPlatform extends AdPlatform {
           logAdShowFailure('Unity', error, placementId, message, StackTrace.current);
           stopAllAnimations();
           if (context.mounted && !isDisposed) {
-            commonUtils.showErrorDialog(t('label_ads_show_fail'),
-                error: message);
+            showSimpleDialog(content: t('label_ads_show_fail'), type: DialogType.error);
           }
         },
       );
@@ -123,8 +122,7 @@ class UnityAdsPlatform extends AdPlatform {
       logAdShowFailure('Unity', e, placementId, 'Unity 광고 표시 실패', s);
       stopAllAnimations();
       if (context.mounted && !isDisposed) {
-        commonUtils.showErrorDialog(t('label_ads_show_fail'),
-            error: e.toString());
+        showSimpleDialog(content: t('label_ads_show_fail'), type: DialogType.error);
       }
       rethrow;
     }
@@ -138,8 +136,7 @@ class UnityAdsPlatform extends AdPlatform {
     setLoading(false);
     stopAllAnimations();
     if (context.mounted && !isDisposed) {
-      commonUtils.showErrorDialog(t('label_ads_load_fail'),
-          error: error.toString());
+      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
     }
   }
 

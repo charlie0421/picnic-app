@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/presentation/widgets/debug/memory_profiler_overlay.dart';
+
 import 'package:picnic_lib/services/localization_service.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -25,7 +25,6 @@ class AppBuilder {
   /// [supportedLocales] 지원하는 언어 로케일 목록
   /// [localizationsDelegates] 국제화 델리게이트 목록
   /// [locale] 현재 언어 로케일
-  /// [enableMemoryProfiler] 메모리 프로파일러 활성화 여부
   static Widget buildApp({
     required GlobalKey<NavigatorState> navigatorKey,
     required GlobalKey<ScaffoldMessengerState> scaffoldKey,
@@ -36,7 +35,6 @@ class AppBuilder {
     required List<LocalizationsDelegate<dynamic>> localizationsDelegates,
     required List<Locale> supportedLocales,
     required Locale locale,
-    bool enableMemoryProfiler = false,
     bool enableScreenProtector = false,
   }) {
     // ScreenUtil 초기화 문제를 해결하기 위한 개선된 구현
@@ -49,7 +47,6 @@ class AppBuilder {
         // child가 null인 경우에도 안전하게 처리
         final safeChild = child ??
             _buildOverlaySupport(
-              enableMemoryProfiler: enableMemoryProfiler,
               navigatorKey: navigatorKey,
               scaffoldKey: scaffoldKey,
               routes: routes,
@@ -66,7 +63,6 @@ class AppBuilder {
       },
       // 기본 child도 설정하여 이중으로 보호
       child: _buildOverlaySupport(
-        enableMemoryProfiler: enableMemoryProfiler,
         navigatorKey: navigatorKey,
         scaffoldKey: scaffoldKey,
         routes: routes,
@@ -83,7 +79,6 @@ class AppBuilder {
 
   /// OverlaySupport 설정 및 이후 위젯 구성을 위한 헬퍼 메서드
   static Widget _buildOverlaySupport({
-    required bool enableMemoryProfiler,
     required GlobalKey<NavigatorState> navigatorKey,
     required GlobalKey<ScaffoldMessengerState> scaffoldKey,
     required Map<String, WidgetBuilder> routes,
@@ -97,7 +92,6 @@ class AppBuilder {
   }) {
     return OverlaySupport.global(
       child: _buildMaterialApp(
-        enableMemoryProfiler: enableMemoryProfiler,
         navigatorKey: navigatorKey,
         scaffoldKey: scaffoldKey,
         routes: routes,
@@ -114,7 +108,6 @@ class AppBuilder {
 
   /// MaterialApp 기본 구성 생성
   static Widget _buildMaterialApp({
-    required bool enableMemoryProfiler,
     required GlobalKey<NavigatorState> navigatorKey,
     required GlobalKey<ScaffoldMessengerState> scaffoldKey,
     required Map<String, WidgetBuilder> routes,
@@ -126,13 +119,8 @@ class AppBuilder {
     required Locale locale,
     bool enableScreenProtector = false,
   }) {
-    // home 위젯을 메모리 프로파일러와 화면 보호기로 래핑
+    // home 위젯을 화면 보호기로 래핑
     Widget wrappedHome = _wrapWithScreenProtector(home, enableScreenProtector);
-
-    // 메모리 프로파일러가 활성화된 경우 MaterialApp 내부에서 래핑
-    if (enableMemoryProfiler) {
-      wrappedHome = MemoryProfilerOverlay(child: wrappedHome);
-    }
 
     return MaterialApp(
       navigatorKey: navigatorKey,

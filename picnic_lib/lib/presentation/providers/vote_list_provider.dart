@@ -1,5 +1,5 @@
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/memory_profiler.dart';
+
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -122,11 +122,7 @@ class AsyncVoteList extends _$AsyncVoteList {
       final result =
           optimizedResponse.map((e) => VoteModel.fromJson(e)).toList();
 
-      // 메모리 프로파일링 완료
-      MemoryProfiler.instance.takeSnapshot(
-        'vote_list_fetch_end_$page',
-        level: MemoryProfiler.snapshotLevelLow,
-      );
+
 
       return result;
     } catch (e, s) {

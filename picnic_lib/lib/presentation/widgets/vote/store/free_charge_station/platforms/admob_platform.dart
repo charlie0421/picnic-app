@@ -4,6 +4,7 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
@@ -91,8 +92,7 @@ class AdmobPlatform extends AdPlatform {
       logAdLoadFailure('AdMob', e, _adUnitId, 'AdMob 광고 로드 실패', s);
       stopAllAnimations();
       if (context.mounted && !isDisposed) {
-        commonUtils.showErrorDialog(t('label_ads_load_fail'),
-            error: e.toString());
+        showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
       }
       rethrow;
     }
@@ -117,8 +117,7 @@ class AdmobPlatform extends AdPlatform {
         stopAllAnimations();
         _disposeCurrentAd();
         if (context.mounted && !isDisposed) {
-          commonUtils.showErrorDialog(t('label_ads_show_fail'),
-              error: error.toString());
+          showSimpleDialog(content: t('label_ads_show_fail'), type: DialogType.error);
         }
       },
       onAdImpression: (RewardedAd ad) {
@@ -159,8 +158,7 @@ class AdmobPlatform extends AdPlatform {
     setLoading(false);
     stopAllAnimations();
     if (context.mounted && !isDisposed) {
-      commonUtils.showErrorDialog(t('label_ads_load_fail'),
-          error: error.toString());
+      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
     }
   }
 

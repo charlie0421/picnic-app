@@ -154,7 +154,7 @@ abstract class AdPlatform {
     } catch (e, s) {
       logger.e('Error in checkAdsLimit', error: e, stackTrace: s);
       if (context.mounted && !isDisposed) {
-        _commonUtils.showErrorDialog(t('label_ads_load_fail'));
+        showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
       }
       return false;
     }
@@ -264,7 +264,7 @@ abstract class AdPlatform {
 
     // 일반 에러 시 사용자에게 에러 다이얼로그 표시
     if (context.mounted && !isDisposed) {
-      _commonUtils.showErrorDialog(t('label_ads_load_fail'), error: message);
+      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
     }
   }
 

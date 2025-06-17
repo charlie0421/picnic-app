@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/utils/pangle_ads.dart';
@@ -43,8 +44,7 @@ class PanglePlatform extends AdPlatform {
     } catch (e, s) {
       logError('초기화 실패', error: e, stackTrace: s);
       if (context.mounted && !isDisposed) {
-        commonUtils.showErrorDialog(t('label_ads_sdk_init_fail'),
-            error: e.toString());
+        showSimpleDialog(content: t('label_ads_sdk_init_fail'), type: DialogType.error);
       }
       rethrow;
     }
@@ -136,8 +136,7 @@ class PanglePlatform extends AdPlatform {
     logError('오류 발생', error: error, stackTrace: stackTrace);
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
-      commonUtils.showErrorDialog(t('label_ads_load_fail'),
-          error: error.toString());
+      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
     }
   }
 

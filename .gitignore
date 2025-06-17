@@ -44,3 +44,4 @@ tasks.json
 tasks/
 # Allow .taskmaster directory to be tracked
 !.taskmaster/ 
+picnic_app/key.properties

@@ -225,7 +225,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       ],
       supportedLocales: _supportedLocales,
       locale: Locale(appSettingState.language),
-      enableMemoryProfiler: kDebugMode, // 디버그 모드에서만 메모리 프로파일러 활성화
       enableScreenProtector: isScreenProtector,
     );
   }
