@@ -194,8 +194,8 @@ class PurchaseService {
 
       logger.i('✅ 실제 구매 검증 완료');
     } on ReusedPurchaseException catch (e) {
-      logger.w('🔄 이미 처리된 구매: ${e.message}');
-      onError(PurchaseConstants.duplicatePurchaseError);
+      logger.w('🔄 JWT 재사용 감지 - StoreKit 캐시 문제: ${e.message}');
+      onError('StoreKit 캐시 문제로 인한 중복 영수증. 잠시 후 다시 시도해주세요.');
     }
   }
 
@@ -210,8 +210,8 @@ class PurchaseService {
     try {
       await _handleSuccessfulPurchase(purchaseDetails, onSuccess, onError);
     } on ReusedPurchaseException catch (e) {
-      logger.i('🔄 이미 처리된 복원 구매: ${e.message}');
-      onError(PurchaseConstants.duplicatePurchaseError);
+      logger.w('🔄 복원 구매에서 JWT 재사용 감지: ${e.message}');
+      onError('복원 과정에서 중복 영수증 감지. 이미 처리된 구매입니다.');
     }
   }
 

@@ -133,10 +133,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     super.dispose();
   }
 
-  Future<void> _onPurchaseUpdate(
-      List<PurchaseDetails> purchaseDetailsList) async {
-    logger.d(
-        'Purchase update received: ${purchaseDetailsList.length} transactions');
+  void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {
     logger.d(
         'Active purchasing: $_isActivePurchasing, Transactions cleared: $_transactionsCleared');
 
@@ -151,28 +148,30 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           continue;
         }
 
-        // 초기화 기간 중의 restored 구매 처리
+        // ⭐ 개선된 초기화 기간 중의 restored 구매 처리
         if (!_isActivePurchasing && !_transactionsCleared) {
           if (purchaseDetails.status == PurchaseStatus.restored) {
             logger.i(
                 '🔄 [INIT] Restored purchase detected during initialization: ${purchaseDetails.productID}');
-            logger.i('   → Processing silently without popup or verification');
+            logger.i('   → ⭐ COMPLETELY IGNORING - NO PROCESSING AT ALL');
 
-            // 초기화 시 복원된 구매는 완전히 조용히 처리
-            try {
-              await _purchaseService.inAppPurchaseService
-                  .completePurchase(purchaseDetails);
-              logger.i('✅ [INIT] Restored purchase completed silently');
-            } catch (e) {
-              logger.w('⚠️ [INIT] Error completing restored purchase: $e');
-            }
+            // ⭐ 초기화 시 복원된 구매는 아예 처리하지 않음 (완료도 하지 않음)
+            // 이미 처리된 구매일 가능성이 매우 높으므로 모든 처리를 생략
+            // 단순히 무시하고 완료 처리도 하지 않음 (중복 검증 방지)
+            logger.i(
+                '✅ [INIT] Restored purchase completely ignored (no processing, no completion)');
             continue;
           }
 
-          // 초기화 기간 중 예상치 못한 purchased 상태는 로그만 남기고 무시
+          // 초기화 기간 중 예상치 못한 purchased 상태도 완전히 무시
           if (purchaseDetails.status == PurchaseStatus.purchased) {
             logger.w(
                 '⚠️ [INIT] Unexpected purchased status during initialization: ${purchaseDetails.productID}');
+            logger.w('   → ⭐ COMPLETELY IGNORING - NO PROCESSING AT ALL');
+
+            // ⭐ 예상치 못한 purchased도 아예 처리하지 않음 (완료도 하지 않음)
+            logger.i(
+                '✅ [INIT] Unexpected purchase completely ignored (no processing, no completion)');
             continue;
           }
         }
@@ -209,40 +208,38 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
                 await ref.read(userInfoProvider.notifier).getUserProfiles();
 
                 if (mounted) {
-                  _isActivePurchasing = false;
-                  _pendingProductId = null;
+                  setState(() {
+                    _isActivePurchasing = false;
+                    _pendingProductId = null;
+                    _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
+                  });
                   OverlayLoadingProgress.stop();
                   logger.i('🎉 성공 다이얼로그 표시');
                   await _showSuccessDialog();
                 }
               },
               (error) async {
-                logger.e('❌ 구매 오류: $error');
-
                 if (mounted) {
-                  _isActivePurchasing = false;
-                  _pendingProductId = null;
+                  setState(() {
+                    _isActivePurchasing = false;
+                    _pendingProductId = null;
+                    _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
+                  });
                   OverlayLoadingProgress.stop();
 
-                  // 이미 처리된 구매인지 확인
-                  if (error.contains('이미 처리된 구매')) {
-                    logger.i('🔄 이미 처리된 구매 - 사용자에게 안내');
+                  // ⭐ 서버 측 오류 메시지 확인 및 처리
+                  if (error.contains('StoreKit 캐시 문제') ||
+                      error.contains('중복 영수증') ||
+                      error.contains('이미 처리된 구매') ||
+                      error.contains('Duplicate') ||
+                      error.toLowerCase().contains('reused')) {
+                    logger.w('🔄 예상치 못한 중복 감지 - 서버 처리 실패 가능성');
 
-                    // Apple 테스트 환경에서는 앱 재시작 권장 (한 번만)
-                    final isTestEnv = await _isTestEnvironment();
-                    if (isTestEnv && !_testDialogAlreadyShown) {
-                      await _showTestEnvironmentRestartDialog();
-                      await _saveTestDialogState(); // 표시 상태 저장
-                    } else {
-                      // 이미 다이얼로그를 본 경우 또는 프로덕션 환경
-                      if (isTestEnv && _testDialogAlreadyShown) {
-                        await _showErrorDialog(
-                            '$error\n\n💡 앱을 재시작하면 새로운 구매가 가능합니다.');
-                      } else {
-                        await _showErrorDialog('$error\n새로운 구매를 시도해주세요.');
-                      }
-                    }
+                    // 서버 중복 검사 완화에도 불구하고 여전히 중복 에러가 발생한 경우
+                    await _showUnexpectedDuplicateDialog();
                   } else {
+                    // 실제 에러 처리
+                    logger.e('❌ 구매 오류: $error');
                     await _showErrorDialog(error);
                   }
                 }
@@ -256,8 +253,11 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         if (purchaseDetails.status == PurchaseStatus.error) {
           logger.e('❌ Purchase error: ${purchaseDetails.error?.message}');
           if (mounted) {
-            _isActivePurchasing = false;
-            _pendingProductId = null;
+            setState(() {
+              _isActivePurchasing = false;
+              _pendingProductId = null;
+              _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
+            });
             OverlayLoadingProgress.stop();
 
             // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
@@ -271,8 +271,11 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         } else if (purchaseDetails.status == PurchaseStatus.canceled) {
           logger.i('❌ Purchase canceled: ${purchaseDetails.productID}');
           if (mounted) {
-            _isActivePurchasing = false;
-            _pendingProductId = null;
+            setState(() {
+              _isActivePurchasing = false;
+              _pendingProductId = null;
+              _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
+            });
             OverlayLoadingProgress.stop();
           }
         }
@@ -286,8 +289,11 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     } catch (e, s) {
       logger.e('Error handling purchase update', error: e, stackTrace: s);
       if (mounted) {
-        _isActivePurchasing = false;
-        _pendingProductId = null;
+        setState(() {
+          _isActivePurchasing = false;
+          _pendingProductId = null;
+          _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
+        });
         OverlayLoadingProgress.stop();
         await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
@@ -345,34 +351,14 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         color: AppColors.primary500,
       );
 
-      // ⭐ 이전 구매 상태 즉시 초기화 (JWT 재사용 방지)
-      logger.i('🔥 Clearing all previous purchase states...');
+      // 🍬 소모성 상품용 기본 캐시 클리어 (서버에서 중복 검사 완화됨)
+      logger.i('🍬 소모성 상품용 기본 캐시 클리어 - 서버에서 JWT 재사용 허용됨');
+
+      // 기본 트랜잭션 클리어
       await _purchaseService.inAppPurchaseService.clearTransactions();
-
-      // ⭐ Apple StoreKit 복원 처리로 이전 구매 정리
-      logger.i('🍎 Apple StoreKit 복원으로 이전 구매 정리...');
-      try {
-        await _purchaseService.inAppPurchaseService.restorePurchases();
-        await Future.delayed(Duration(seconds: 2));
-        logger.i('✅ Apple StoreKit 복원 완료 - 이전 구매 상태 정리됨');
-      } catch (e) {
-        logger.w('⚠️ Apple StoreKit 복원 중 일부 오류 (계속 진행): $e');
-      }
-
-      // ⭐ 더욱 강력한 캐시 무효화 (5초 대기 + 다중 클리어)
-      logger.i('⏳ Performing aggressive cache invalidation...');
-      await Future.delayed(Duration(seconds: 2));
-
-      // 🔄 추가 캐시 클리어 라운드
-      await _purchaseService.inAppPurchaseService.refreshStoreKitCache();
       await Future.delayed(Duration(seconds: 1));
 
-      // 🔄 최종 캐시 클리어
-      await _purchaseService.inAppPurchaseService.clearTransactions();
-      await Future.delayed(Duration(seconds: 2));
-
-      logger
-          .i('✅ Aggressive cache invalidation completed - JWT should be fresh');
+      logger.i('✅ 기본 캐시 클리어 완료 - 서버에서 소모성 상품 재사용 허용됨');
 
       // 실제 구매 시작 플래그 설정
       _isActivePurchasing = true;
@@ -391,10 +377,10 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         },
         onError: (message) async {
           logger.e('❌ [PURCHASE] Purchase error callback: $message');
-          _isActivePurchasing = false;
-          _pendingProductId = null;
-          // 🔄 구매 상태 리셋
+          // 🔄 구매 상태 완전 리셋
           setState(() {
+            _isActivePurchasing = false;
+            _pendingProductId = null;
             _isPurchasing = false;
           });
           if (mounted) {
@@ -405,10 +391,10 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       );
 
       if (!purchaseInitiated) {
-        _isActivePurchasing = false;
-        _pendingProductId = null;
-        // 🔄 구매 상태 리셋
+        // 🔄 구매 상태 완전 리셋
         setState(() {
+          _isActivePurchasing = false;
+          _pendingProductId = null;
           _isPurchasing = false;
         });
         if (mounted) {
@@ -423,10 +409,10 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         Timer(Duration(seconds: 30), () {
           if (_isActivePurchasing && mounted) {
             logger.w('⏰ [PURCHASE] Purchase timeout - stopping loading');
-            _isActivePurchasing = false;
-            _pendingProductId = null;
-            // 🔄 구매 상태 리셋
+            // 🔄 구매 상태 완전 리셋
             setState(() {
+              _isActivePurchasing = false;
+              _pendingProductId = null;
               _isPurchasing = false;
             });
             OverlayLoadingProgress.stop();
@@ -436,10 +422,10 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       }
     } catch (e, s) {
       logger.e('Error starting purchase', error: e, stackTrace: s);
-      _isActivePurchasing = false;
-      _pendingProductId = null;
-      // 🔄 구매 상태 리셋
+      // 🔄 구매 상태 완전 리셋
       setState(() {
+        _isActivePurchasing = false;
+        _pendingProductId = null;
         _isPurchasing = false;
       });
       if (mounted) {
@@ -608,6 +594,268 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     }
   }
 
+  /// Apple 테스트 환경에서 중복 구매 시 표시하는 다이얼로그
+  Future<void> _showTestEnvironmentDuplicateDialog() async {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text('🍎 Apple 테스트 환경'),
+        content: Text('''이미 처리된 구매입니다.
+
+Apple 테스트 환경에서는 영수증이 재사용될 수 있습니다.
+
+✅ 스타캔디가 이미 지급되었는지 확인해주세요.
+💡 새로운 구매를 원하시면 앱을 재시작해주세요.'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 예상치 못한 중복 감지 다이얼로그
+  Future<void> _showUnexpectedDuplicateDialog() async {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text('🔧 서버 처리 중 문제 발생'),
+        content: Text('''서버에서 소모성 상품 중복 검사를 완화했지만 여전히 오류가 발생했습니다.
+
+🚨 가능한 원인:
+1. 서버 배포가 아직 완전히 적용되지 않음
+2. 다른 종류의 네트워크 오류
+3. 잠시 후 다시 시도하면 해결될 가능성
+
+💡 해결 방법:
+1. 1-2분 후 다시 시도 (서버 배포 완료 대기)
+2. 그래도 안 되면 앱 재시작
+3. 문제가 지속되면 고객지원 문의
+
+⭐ 소모성 상품이므로 중복 구매가 정상적으로 허용되어야 합니다.'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// StoreKit 캐시 문제로 인한 중복 영수증 다이얼로그 (레거시)
+  Future<void> _showStoreKitCacheErrorDialog() async {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text('⚠️ StoreKit 캐시 문제'),
+        content: Text('''iOS StoreKit에서 이전 영수증을 재사용하고 있습니다.
+
+🎯 개선된 해결 방법:
+1. 서버에서 소모성 상품 중복 검사 완화 적용됨
+2. 그래도 안 되면: 앱 완전 종료 → 재시작
+3. 최후 수단: 기기 재시작
+
+💡 소모성 상품(스타캔디)은 반복 구매가 가능해야 하므로 매번 새로운 영수증이 필요합니다.
+
+⏰ 이제 서버에서 JWT 재사용을 허용하므로 문제가 해결될 것입니다.'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 일반적인 중복 구매 시 표시하는 다이얼로그
+  Future<void> _showDuplicatePurchaseDialog() async {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text('이미 처리된 구매'),
+        content: Text('''이 구매는 이미 처리되었습니다.
+
+✅ 스타캔디가 이미 지급되었는지 확인해주세요.
+💡 새로운 구매를 원하시면 잠시 후 다시 시도해주세요.'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 구매 복원 처리 메서드
+  Future<void> _handleRestorePurchases() async {
+    if (_isActivePurchasing || _isPurchasing) {
+      logger.w('⚠️ 구매 진행 중에는 복원할 수 없습니다');
+      showSimpleDialog(content: '구매가 진행 중입니다. 완료 후 다시 시도해주세요.');
+      return;
+    }
+
+    // 확인 다이얼로그 표시
+    final shouldRestore = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('구매 복원'),
+        content: Text('''이전에 구매한 상품을 복원하시겠습니까?
+
+⚠️ 주의사항:
+• 이미 처리된 구매는 중복으로 지급되지 않습니다
+• 복원 과정에서 일시적으로 알림이 나타날 수 있습니다
+• 스타캔디가 누락된 경우에만 사용해주세요'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('복원'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldRestore != true) return;
+
+    try {
+      logger.i('🔄 사용자 요청으로 구매 복원 시작');
+
+      if (!context.mounted) return;
+      OverlayLoadingProgress.start(
+        context,
+        barrierDismissible: false,
+        color: AppColors.primary500,
+      );
+
+      // 복원 실행
+      await _purchaseService.inAppPurchaseService.restorePurchases();
+
+      // 사용자 프로필 새로고침
+      await ref.read(userInfoProvider.notifier).getUserProfiles();
+
+      logger.i('✅ 구매 복원 완료');
+
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        showSimpleDialog(
+          content: '구매 복원이 완료되었습니다.\n스타캔디 잔액을 확인해주세요.',
+        );
+      }
+    } catch (e) {
+      logger.e('❌ 구매 복원 실패: $e');
+
+      if (mounted) {
+        OverlayLoadingProgress.stop();
+        showSimpleDialog(
+          content: '구매 복원 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.',
+          type: DialogType.error,
+        );
+      }
+    }
+  }
+
+  /// 🚨 디버그용 강제 상태 리셋 메서드
+  Future<void> _handleForceReset() async {
+    if (!kDebugMode) return;
+
+    final shouldReset = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('🚨 디버그: 강제 상태 리셋'),
+        content: Text('''모든 구매 관련 상태를 강제로 리셋합니다.
+
+⚠️ 주의: 이 기능은 디버그 모드에서만 사용 가능합니다.
+
+리셋할 항목:
+• 구매 진행 상태
+• 트랜잭션 캐시
+• 로딩 상태
+• 에러 상태'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('강제 리셋', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldReset != true) return;
+
+    try {
+      logger.w('🚨 [DEBUG] 강제 상태 리셋 시작');
+
+      // 모든 구매 관련 상태 강제 리셋
+      setState(() {
+        _isActivePurchasing = false;
+        _isPurchasing = false;
+        _isInitializing = false;
+        _pendingProductId = null;
+        _transactionsCleared = true;
+        _lastPurchaseAttempt = null;
+      });
+
+      // 로딩 상태 강제 중지
+      try {
+        OverlayLoadingProgress.stop();
+      } catch (e) {
+        logger.d('로딩 상태 중지 시 에러 (무시): $e');
+      }
+
+      // StoreKit 캐시 및 트랜잭션 강제 클리어
+      try {
+        await _purchaseService.inAppPurchaseService.clearTransactions();
+        await Future.delayed(Duration(seconds: 1));
+        await _purchaseService.inAppPurchaseService.refreshStoreKitCache();
+        await Future.delayed(Duration(seconds: 1));
+        await _purchaseService.inAppPurchaseService.clearTransactions();
+      } catch (e) {
+        logger.w('StoreKit 캐시 클리어 중 에러: $e');
+      }
+
+      logger.w('✅ [DEBUG] 강제 상태 리셋 완료');
+
+      if (mounted) {
+        showSimpleDialog(
+          content: '🚨 디버그: 모든 구매 상태가 리셋되었습니다.\n이제 새로운 구매를 시도할 수 있습니다.',
+        );
+      }
+    } catch (e) {
+      logger.e('❌ [DEBUG] 강제 상태 리셋 실패: $e');
+
+      if (mounted) {
+        showSimpleDialog(
+          content: '강제 리셋 중 오류가 발생했습니다: $e',
+          type: DialogType.error,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -641,6 +889,75 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
                 ),
               ),
             ),
+            const SizedBox(width: 8),
+            // 🐛 디버그 모드에서만 구매복원 버튼 표시
+            if (kDebugMode)
+              GestureDetector(
+                onTap: _handleRestorePurchases,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary500.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                        color: AppColors.primary500.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.restore,
+                        size: 16,
+                        color: AppColors.primary500,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        '구매복원',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.primary500,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            // ⭐ 디버그용 상태 리셋 버튼 추가 (디버그 모드에서만 표시)
+            if (kDebugMode) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _handleForceReset,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border:
+                        Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.refresh,
+                        size: 16,
+                        color: Colors.red,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        '상태리셋',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 8),
             StorePointInfo(
               title: t('label_star_candy_pouch'),
@@ -748,7 +1065,17 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
   Widget _buildProductItem(
       Map<String, dynamic> serverProduct, List<ProductDetails> storeProducts) {
-    final isButtonEnabled = !_isInitializing;
+    // 🔄 초기화 중이거나 구매 진행 중일 때 버튼 비활성화
+    final isButtonEnabled = !_isInitializing && !_isPurchasing;
+
+    String buttonText;
+    if (_isInitializing) {
+      buttonText = '초기화 중...';
+    } else if (_isPurchasing) {
+      buttonText = '구매 진행 중...';
+    } else {
+      buttonText = '${serverProduct['price']} \$';
+    }
 
     return StoreListTile(
       icon: Image.asset(
@@ -769,7 +1096,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           ],
         ),
       ),
-      buttonText: _isInitializing ? '초기화 중...' : '${serverProduct['price']} \$',
+      buttonText: buttonText,
       buttonOnPressed: isButtonEnabled
           ? () => _handleBuyButtonPressed(context, serverProduct, storeProducts)
           : null, // 버튼 비활성화

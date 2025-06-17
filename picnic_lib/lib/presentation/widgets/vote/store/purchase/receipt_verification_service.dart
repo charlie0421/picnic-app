@@ -156,15 +156,47 @@ class ReceiptVerificationService {
         logger.i(
             '$verificationType verification attempt $attempt/${PurchaseConstants.maxRetries}');
 
+        // ⭐ 요청 데이터 로깅 (디버그용)
+        if (kDebugMode) {
+          logger.d('🔍 [DEBUG] Request body: ${json.encode(requestBody)}');
+        }
+
         final response = await supabase.functions
             .invoke('verify_receipt', body: requestBody)
             .timeout(PurchaseConstants.verificationTimeout);
 
-        logger.i('Verification successful');
+        // ⭐ 서버 응답 상세 로깅
+        logger.i('📡 Server response received');
+        logger.i('📊 Response status: ${response.status}');
 
-        // 재사용 검증 우선 확인
+        if (kDebugMode) {
+          logger.d(
+              '🔍 [DEBUG] Full response data: ${json.encode(response.data)}');
+        }
+
+        // 응답 상태 코드 확인
+        if (response.status != 200) {
+          logger.e('❌ Server returned non-200 status: ${response.status}');
+          if (response.data != null) {
+            logger.e('❌ Error response: ${response.data}');
+          }
+          throw Exception(
+              'Server error: ${response.status} - ${response.data}');
+        }
+
+        // 응답 데이터 존재 확인
+        if (response.data == null) {
+          logger.e('❌ Server returned null response data');
+          throw Exception('Server returned empty response');
+        }
+
+        // ⭐ 재사용 검증 우선 확인 (더 상세한 로깅)
+        logger.i('🔍 Checking for reused purchase...');
         if (_isReusedPurchase(response.data)) {
+          logger.w('⚠️ Reused purchase detected!');
           final reusedInfo = _extractReusedInfo(response.data);
+          logger.w('📋 Reused info: $reusedInfo');
+
           throw ReusedPurchaseException(
             message: reusedInfo['message'] ??
                 PurchaseConstants.duplicatePurchaseError,
@@ -172,7 +204,18 @@ class ReceiptVerificationService {
           );
         }
 
-        // 성공 시 즉시 반환
+        // ⭐ 서버 성공 응답 확인
+        final serverSuccess = response.data['success'] == true;
+        logger.i('✅ Server success status: $serverSuccess');
+
+        if (!serverSuccess) {
+          logger.e('❌ Server returned success: false');
+          final errorData = response.data['data'] ?? response.data;
+          logger.e('❌ Server error data: $errorData');
+          throw Exception('Server verification failed: $errorData');
+        }
+
+        logger.i('✅ Verification successful - receipt is valid');
         return;
       } catch (error) {
         lastException =
@@ -180,24 +223,37 @@ class ReceiptVerificationService {
 
         // ReusedPurchaseException은 재시도하지 않음
         if (error is ReusedPurchaseException) {
+          logger.w('🔄 ReusedPurchaseException detected - not retrying');
           rethrow;
         }
 
         logger.w(
-            '$verificationType verification attempt $attempt failed: $error');
+            '⚠️ $verificationType verification attempt $attempt failed: $error');
+
+        // ⭐ 에러 타입별 상세 로깅
+        if (error.toString().contains('TimeoutException')) {
+          logger.e('⏰ Timeout error - server took too long to respond');
+        } else if (error.toString().contains('SocketException')) {
+          logger.e('🌐 Network error - check internet connection');
+        } else if (error.toString().contains('FormatException')) {
+          logger.e('📄 Data format error - invalid response format');
+        } else {
+          logger.e('❓ Unknown error type: ${error.runtimeType}');
+        }
 
         // 마지막 시도가 아니면 재시도
         if (attempt < PurchaseConstants.maxRetries) {
           final delay = PurchaseConstants.baseRetryDelay * attempt;
-          logger.i('Retrying in ${delay}s...');
+          logger.i('🔄 Retrying in ${delay}s...');
           await Future.delayed(Duration(seconds: delay));
         }
       }
     }
 
     // 모든 시도 실패 시 예외 발생
-    logger.e('All $verificationType verification attempts failed');
-    throw lastException ?? Exception('영수증 검증 실패');
+    logger.e('❌ All $verificationType verification attempts failed');
+    logger.e('❌ Last exception: $lastException');
+    throw lastException ?? Exception('영수증 검증 실패 - 모든 재시도 소진');
   }
 
   /// 재사용된 구매인지 확인
