@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_constants.dart';
+import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:http/http.dart' as http;
 

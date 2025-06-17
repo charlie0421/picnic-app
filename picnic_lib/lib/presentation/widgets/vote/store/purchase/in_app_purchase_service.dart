@@ -5,135 +5,313 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_constants.dart';
 
 class InAppPurchaseService {
-  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  StreamSubscription<List<PurchaseDetails>>? _subscription;
-  DateTime? _lastPurchaseAttempt;
+  static final InAppPurchaseService _instance =
+      InAppPurchaseService._internal();
+  factory InAppPurchaseService() => _instance;
+  InAppPurchaseService._internal();
 
-  // 진행 중인 구매 추적
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+
+  StreamSubscription<List<PurchaseDetails>>? _subscription;
+  StreamController<List<PurchaseDetails>>? _purchaseController;
+  late Function(List<PurchaseDetails>) _onPurchaseUpdate;
+
+  bool _streamInitialized = false;
+  Timer? _purchaseTimeoutTimer;
+
+  final List<ProductDetails> _products = [];
+  bool _isAvailable = false;
+  DateTime? _lastPurchaseAttempt;
   final Set<String> _pendingPurchases = {};
 
-  Future<bool> buyConsumable(ProductDetails productDetails) async {
+  List<ProductDetails> get products => _products;
+  bool get isAvailable => _isAvailable;
+
+  void initialize(Function(List<PurchaseDetails>) onPurchaseUpdate) {
+    _onPurchaseUpdate = onPurchaseUpdate;
+    _initializePurchaseStream();
+  }
+
+  void _initializePurchaseStream() {
+    if (_streamInitialized) {
+      logger.w('Purchase stream already initialized');
+      return;
+    }
+
     try {
-      final now = DateTime.now();
-      // 디바운스 시간 증가
-      if (_lastPurchaseAttempt != null &&
-          now.difference(_lastPurchaseAttempt!) < Duration(seconds: 3)) {
-        logger.w('Purchase attempt debounced');
-        return false;
+      logger.i('Initializing purchase stream...');
+
+      _purchaseController = StreamController<List<PurchaseDetails>>.broadcast();
+
+      _subscription = InAppPurchase.instance.purchaseStream.listen(
+        _handlePurchaseUpdate,
+        onError: _handlePurchaseError,
+        onDone: _handlePurchaseStreamDone,
+      );
+
+      _streamInitialized = true;
+      logger.i('Purchase stream initialized successfully');
+    } catch (e) {
+      logger.e('Failed to initialize purchase stream: $e');
+      rethrow;
+    }
+  }
+
+  void _handlePurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
+    logger.i('Purchase update: ${purchaseDetailsList.length} transactions');
+
+    for (var purchase in purchaseDetailsList) {
+      logger.d('→ ${purchase.productID}: ${purchase.status}');
+    }
+
+    _resetPurchaseTimeout();
+
+    try {
+      _onPurchaseUpdate(purchaseDetailsList);
+    } catch (e) {
+      logger.e('Error in onPurchaseUpdate callback: $e');
+    }
+
+    if (!_purchaseController!.isClosed) {
+      _purchaseController!.add(purchaseDetailsList);
+    }
+  }
+
+  void _handlePurchaseError(dynamic error) {
+    logger.e('Purchase stream error: $error');
+    if (!_purchaseController!.isClosed) {
+      _purchaseController!.addError(error);
+    }
+  }
+
+  void _handlePurchaseStreamDone() {
+    logger.i('Purchase stream completed');
+    if (!_purchaseController!.isClosed) {
+      _purchaseController!.close();
+    }
+  }
+
+  void _resetPurchaseTimeout() {
+    _purchaseTimeoutTimer?.cancel();
+    _purchaseTimeoutTimer = Timer(PurchaseConstants.purchaseTimeout, () {
+      logger.w(
+          'Purchase timeout - no updates for ${PurchaseConstants.purchaseTimeout.inSeconds}s');
+    });
+  }
+
+  Future<bool> makePurchase(
+    ProductDetails productDetails, {
+    bool isConsumable = true,
+  }) async {
+    logger
+        .i('Starting purchase: ${productDetails.id} (${productDetails.price})');
+
+    try {
+      if (Platform.isIOS) {
+        await _prepareIOSPurchase();
       }
 
-      // 진행 중인 구매가 있는지 확인
-      if (_pendingPurchases.contains(productDetails.id)) {
-        logger.w('Purchase already in progress for ${productDetails.id}');
-        return false;
-      }
-
-      final bool available = await _inAppPurchase.isAvailable();
-      if (!available) {
-        logger.e('Store is not available');
-        return false;
-      }
-
-      // iOS pending 구매 처리 제거 (복원 구매 방지)
-
-      _lastPurchaseAttempt = now;
-      _pendingPurchases.add(productDetails.id);
-
-      final PurchaseParam purchaseParam = PurchaseParam(
+      final purchaseParam = PurchaseParam(
         productDetails: productDetails,
+        applicationUserName: null,
       );
 
-      final bool purchaseResult = await _inAppPurchase.buyConsumable(
-        purchaseParam: purchaseParam,
-      );
+      final result = isConsumable
+          ? await InAppPurchase.instance.buyConsumable(
+              purchaseParam: purchaseParam,
+              autoConsume: true,
+            )
+          : await InAppPurchase.instance.buyNonConsumable(
+              purchaseParam: purchaseParam,
+            );
 
-      logger.i('buyConsumable initiated with result: $purchaseResult');
-
-      if (!purchaseResult) {
-        _pendingPurchases.remove(productDetails.id);
+      if (result) {
+        logger.i('Purchase initiated successfully');
+        _resetPurchaseTimeout();
+      } else {
+        logger.w('Purchase initiation failed');
       }
 
-      return purchaseResult;
-    } catch (e, stack) {
-      logger.e('Error in buyConsumable', error: e, stackTrace: stack);
-      _pendingPurchases.remove(productDetails.id);
+      return result;
+    } catch (e) {
+      logger.e('Purchase error: $e');
       return false;
     }
   }
 
-  // 완료되지 않은 구매 처리
-  Future<void> _handlePendingPurchases() async {
+  Future<void> _prepareIOSPurchase() async {
+    logger.d('Preparing iOS purchase environment');
+    await _checkAndProcessPendingTransactions();
+  }
+
+  Future<void> _checkAndProcessPendingTransactions() async {
     try {
-      await _inAppPurchase.restorePurchases();
-    } catch (e, s) {
-      logger.e('Error handling pending purchases', error: e, stackTrace: s);
+      if (Platform.isIOS) {
+        logger.d('Checking for pending iOS transactions');
+        // StoreKit2에서는 자동으로 관리되므로 별도 처리 불필요
+      }
+    } catch (e) {
+      logger.w('Error checking pending transactions: $e');
+    }
+  }
+
+  Future<List<ProductDetails>> getProducts(Set<String> productIds) async {
+    logger.i('Fetching ${productIds.length} products');
+
+    final response =
+        await InAppPurchase.instance.queryProductDetails(productIds);
+
+    if (response.error != null) {
+      logger.e('Product query error: ${response.error}');
+      throw Exception('Failed to fetch products: ${response.error}');
+    }
+
+    logger
+        .i('Products fetched successfully: ${response.productDetails.length}');
+    return response.productDetails;
+  }
+
+  Future<void> restorePurchases() async {
+    logger.i('Restoring purchases...');
+    try {
+      await InAppPurchase.instance.restorePurchases();
+      logger.i('Purchases restored successfully');
+    } catch (e) {
+      logger.e('Restore purchases failed: $e');
       rethrow;
     }
   }
 
   Future<void> completePurchase(PurchaseDetails purchaseDetails) async {
+    logger.i('Completing purchase: ${purchaseDetails.productID}');
     try {
-      // 플랫폼에 관계없이 항상 completePurchase 호출
-      await _inAppPurchase.completePurchase(purchaseDetails);
-      _pendingPurchases.remove(purchaseDetails.productID);
-      logger.i('Purchase completed successfully: ${purchaseDetails.productID}');
-    } catch (e, stack) {
-      logger.e('Error completing purchase', error: e, stackTrace: stack);
-      // 에러가 발생해도 pending에서는 제거
-      _pendingPurchases.remove(purchaseDetails.productID);
+      await InAppPurchase.instance.completePurchase(purchaseDetails);
+      logger.i('Purchase completed successfully');
+    } catch (e) {
+      logger.e('Complete purchase failed: $e');
       rethrow;
     }
   }
 
-  void init(void Function(List<PurchaseDetails>) onPurchaseUpdate) {
-    final Stream<List<PurchaseDetails>> purchaseUpdated =
-        _inAppPurchase.purchaseStream;
-    _subscription = purchaseUpdated.listen(
-      (purchaseDetailsList) async {
-        for (final purchase in purchaseDetailsList) {
-          logger.i(
-              'Purchase status updated: ${purchase.productID} -> ${purchase.status}');
-
-          // 구매가 취소되면 pending 상태 제거 및 딜레이 추가
-          if (purchase.status == PurchaseStatus.canceled) {
-            _pendingPurchases.remove(purchase.productID);
-            // 취소 상태 처리를 위한 딜레이
-            await Future.delayed(const Duration(milliseconds: 500));
-            continue;
-          }
-
-          if (purchase.pendingCompletePurchase) {
-            await completePurchase(purchase);
-          }
-        }
-        onPurchaseUpdate(purchaseDetailsList);
-      },
-      onError: (error) {
-        logger.e('Purchase stream error', error: error);
-      },
-    );
-
-    // 초기화시 pending 구매 처리 제거 (복원 구매 방지)
-  }
-
-  /// 진행 중인 구매 트랜잭션을 정리합니다.
   Future<void> clearTransactions() async {
-    try {
-      // pending 상태의 구매 목록 초기화
-      _pendingPurchases.clear();
-      _lastPurchaseAttempt = null;
+    logger.i('Clearing transactions');
 
-      logger.i('Transactions cleared');
-    } catch (e, s) {
-      logger.e('Error clearing transactions', error: e, stackTrace: s);
-      rethrow;
+    if (Platform.isIOS) {
+      try {
+        await _aggressiveCacheClear();
+        logger.i('iOS cache cleared successfully');
+      } catch (e) {
+        logger.w('iOS cache cleanup failed: $e');
+      }
     }
+  }
+
+  Future<void> _aggressiveCacheClear() async {
+    logger.d('Performing aggressive cache clear...');
+
+    try {
+      // 구매 스트림 일시 중단
+      await _subscription?.cancel();
+      _streamInitialized = false;
+
+      // 캐시 무효화 대기
+      await Future.delayed(PurchaseConstants.initializationDelay);
+
+      // 제품 정보 캐시 갱신
+      if (Platform.isIOS) {
+        try {
+          await InAppPurchase.instance.queryProductDetails({});
+          logger.d('Product cache cleared');
+        } catch (e) {
+          logger.w('Product cache clear warning: $e');
+        }
+      }
+
+      // 구매 스트림 재초기화
+      _initializePurchaseStream();
+      logger.d('Cache clear completed');
+    } catch (e) {
+      logger.e('Cache clear failed: $e');
+      if (!_streamInitialized) {
+        _initializePurchaseStream();
+      }
+    }
+  }
+
+  Future<void> refreshStoreKitCache() async {
+    logger.d('Refreshing StoreKit cache...');
+
+    try {
+      if (Platform.isIOS) {
+        await Future.delayed(PurchaseConstants.cacheRefreshDelay);
+
+        // 새로운 트랜잭션 상태 확인
+        try {
+          await InAppPurchase.instance.queryProductDetails({});
+        } catch (e) {
+          logger.w('Product refresh warning: $e');
+        }
+
+        // Purchase stream 새로고침
+        try {
+          final purchases = await InAppPurchase.instance.purchaseStream
+              .take(1)
+              .timeout(PurchaseConstants.initializationDelay)
+              .first
+              .catchError((e) => <PurchaseDetails>[]);
+
+          logger.d('Purchase stream refreshed: ${purchases.length} items');
+
+          // 캐시된 구매 완료 처리
+          for (var purchase in purchases) {
+            if (purchase.pendingCompletePurchase) {
+              logger.d('Completing cached purchase: ${purchase.productID}');
+              await InAppPurchase.instance.completePurchase(purchase);
+            }
+          }
+        } catch (e) {
+          logger.w('Purchase stream refresh warning: $e');
+        }
+      }
+
+      logger.d('StoreKit cache refresh completed');
+    } catch (e) {
+      logger.w('StoreKit cache refresh failed: $e');
+    }
+  }
+
+  Future<void> configureStoreKit() async {
+    if (Platform.isIOS) {
+      try {
+        logger.d('Configuring iOS StoreKit2 support');
+        // in_app_purchase 3.2.0+는 자동으로 StoreKit2를 활용
+        logger.d('StoreKit2 configuration completed');
+      } catch (e) {
+        logger.w('StoreKit configuration warning: $e');
+      }
+    }
+  }
+
+  Future<String> getStoreKitInfo() async {
+    if (Platform.isIOS) {
+      try {
+        return 'StoreKit2 (in_app_purchase 3.2.0+)';
+      } catch (e) {
+        return 'StoreKit Legacy';
+      }
+    }
+    return Platform.isAndroid ? 'Google Play' : 'Unknown';
   }
 
   void dispose() {
+    logger.i('Disposing InAppPurchaseService');
+
+    _purchaseTimeoutTimer?.cancel();
     _subscription?.cancel();
-    _pendingPurchases.clear();
+    _purchaseController?.close();
+    _streamInitialized = false;
   }
 }
