@@ -14,10 +14,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  crowdin_sdk: ^0.7.0
+  crowdin_sdk: ^0.8.0
   flutter_gen: ^5.3.1
   shimmer: ^3.0.0
-  sentry_flutter: ^8.13.2
+  sentry_flutter: ^9.0.0
   universal_platform: ^1.1.0
   url_launcher: ^6.3.1
   flutter_cache_manager: ^3.4.1
@@ -103,7 +103,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   json_serializable: ^6.9.0
   riverpod_generator: ^2.3.9
   intl_utils: ^2.8.7
