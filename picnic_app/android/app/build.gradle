@@ -70,11 +70,22 @@ android {
     signingConfigs {
         release {
             if (System.getenv()["CI"]) {
-                storeFile file(System.getenv()["CM_KEYSTORE_PATH"])
-                storePassword System.getenv()["CM_KEYSTORE_PASSWORD"]
-                keyAlias System.getenv()["CM_KEY_ALIAS"]
-                keyPassword System.getenv()["CM_KEY_PASSWORD"]
+                // CodeMagic CI 환경에서 환경변수 사용
+                def cmKeystorePath = System.getenv()["CM_KEYSTORE_PATH"]
+                def cmKeystorePassword = System.getenv()["CM_KEYSTORE_PASSWORD"]
+                def cmKeyAlias = System.getenv()["CM_KEY_ALIAS"]
+                def cmKeyPassword = System.getenv()["CM_KEY_PASSWORD"]
+                
+                if (cmKeystorePath && cmKeystorePassword && cmKeyAlias && cmKeyPassword) {
+                    storeFile file(cmKeystorePath)
+                    storePassword cmKeystorePassword
+                    keyAlias cmKeyAlias
+                    keyPassword cmKeyPassword
+                } else {
+                    throw new Exception("CodeMagic keystore environment variables not set properly")
+                }
             } else {
+                // 로컬 개발 환경에서 key.properties 파일 사용
                 keyAlias keystoreProperties['keyAlias']
                 keyPassword keystoreProperties['keyPassword']
                 storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
@@ -89,7 +100,8 @@ android {
     
     buildTypes {
         release {
-            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
+            // CodeMagic 환경에서는 무조건 release 서명 사용
+            signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
             ndk {
