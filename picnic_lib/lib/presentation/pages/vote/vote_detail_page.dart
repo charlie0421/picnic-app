@@ -910,6 +910,37 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     return t('text_vote_rank', {'rank': rank.toString()});
   }
 
+  /// 상대 경로를 절대 경로로 변환하는 메서드
+  String _makeFullImageUrl(String imageUrl) {
+    if (imageUrl.isEmpty) {
+      return imageUrl;
+    }
+
+    // 이미 절대 경로인 경우 그대로 반환
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+
+    // 상대 경로인 경우 CDN URL과 결합
+    try {
+      final cdnUrl = Environment.cdnUrl;
+      // CDN URL 끝의 슬래시 제거
+      final cleanCdnUrl = cdnUrl.endsWith('/')
+          ? cdnUrl.substring(0, cdnUrl.length - 1)
+          : cdnUrl;
+      // 이미지 URL 앞의 슬래시 제거
+      final cleanImageUrl =
+          imageUrl.startsWith('/') ? imageUrl.substring(1) : imageUrl;
+
+      final fullUrl = '$cleanCdnUrl/$cleanImageUrl';
+      logger.d('🔗 URL 변환: "$imageUrl" -> "$fullUrl"');
+      return fullUrl;
+    } catch (e) {
+      logger.e('🔗 URL 변환 실패: $e');
+      return imageUrl;
+    }
+  }
+
   Widget _buildArtistImage(VoteItemModel item, int index) {
     logger.d('🖼️ _buildArtistImage 호출됨 - ID: ${item.id}, index: $index');
 
@@ -919,6 +950,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       final groupUrl = item.artistGroup?.image ?? '';
       final imageUrl = ((item.artist?.id ?? 0) != 0 ? artistUrl : groupUrl);
 
+      // 상대 경로를 절대 경로로 변환
+      final fullImageUrl = _makeFullImageUrl(imageUrl);
+
       // 상세 디버깅용 로그
       logger.d('🖼️ 이미지 빌드 상세 정보:');
       logger.d('   - Item ID: ${item.id}');
@@ -926,16 +960,19 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       logger.d('   - Artist Image: $artistUrl');
       logger.d('   - Group ID: ${item.artistGroup?.id}');
       logger.d('   - Group Image: $groupUrl');
-      logger.d('   - 최종 URL: $imageUrl');
+      logger.d('   - 원본 URL: $imageUrl');
+      logger.d('   - 전체 URL: $fullImageUrl');
 
       // URL 유효성 검사 강화
-      final hasValidImageUrl = imageUrl.isNotEmpty &&
-          (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'));
+      final hasValidImageUrl = fullImageUrl.isNotEmpty &&
+          (fullImageUrl.startsWith('http://') ||
+              fullImageUrl.startsWith('https://'));
 
       logger.d('🖼️ URL 유효성 검사 결과: $hasValidImageUrl');
 
       if (!hasValidImageUrl) {
-        logger.w('🖼️ 유효하지 않은 이미지 URL - ID: ${item.id}, URL: "$imageUrl"');
+        logger.w(
+            '🖼️ 유효하지 않은 이미지 URL - ID: ${item.id}, 원본: "$imageUrl", 전체: "$fullImageUrl"');
       }
 
       return SizedBox(
@@ -956,7 +993,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               width: 39, // 명시적 크기 지정
               height: 39,
               child: hasValidImageUrl
-                  ? _buildNetworkImage(imageUrl, item.id, index)
+                  ? _buildNetworkImage(fullImageUrl, item.id, index)
                   : _buildImagePlaceholder(),
             ),
           ),
