@@ -414,6 +414,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       onTap: () => _focusNode.unfocus(),
                       child: CustomScrollView(
                         controller: _scrollController,
+                        physics:
+                            const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
                         keyboardDismissBehavior:
                             ScrollViewKeyboardDismissBehavior.onDrag,
                         slivers: [
@@ -548,7 +550,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   ),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.only(top: 56, left: 16.w, right: 16.w).r,
+                  padding: EdgeInsets.only(
+                          top: 56, left: 16.w, right: 16.w, bottom: 100)
+                      .r, // 하단 패딩 추가로 스크롤 여백 확보
                   child: filteredIndices.isEmpty && _searchQuery.isNotEmpty
                       ? SizedBox(
                           height: 200,
