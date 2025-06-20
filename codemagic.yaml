@@ -781,8 +781,12 @@ workflows:
           
           # 프로비저닝 프로파일 설정
           sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER = /d; /DEVELOPMENT_TEAM = /a\\
-			PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";" Runner.xcodeproj/project.pbxproj
+          
+          # PROVISIONING_PROFILE_SPECIFIER 추가 (존재하지 않는 경우)
+          if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj; then
+            sed -i '' '/DEVELOPMENT_TEAM = /a\
+          PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
+          fi
           
           # Development Team 설정 유지
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
