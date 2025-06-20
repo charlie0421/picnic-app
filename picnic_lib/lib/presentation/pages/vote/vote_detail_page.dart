@@ -39,8 +39,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
-
 class VoteDetailPage extends ConsumerStatefulWidget {
   final int voteId;
   final VotePortal votePortal;
@@ -68,6 +66,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   bool _isSaving = false;
+
+  // 로컬 검색어 상태 - 프로바이더 대신 사용
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -394,47 +395,52 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          color: AppColors.grey00,
-          child: ref
-              .watch(asyncVoteDetailProvider(
-                  voteId: widget.voteId, votePortal: widget.votePortal))
-              .when(
-                data: (voteModel) {
-                  if (voteModel == null) return const SizedBox.shrink();
-                  isEnded = voteModel.isEnded!;
-                  isUpcoming = voteModel.isUpcoming!;
+    return Scaffold(
+      resizeToAvoidBottomInset: true, // 키보드가 올라올 때 화면 크기 조정
+      body: Stack(
+        children: [
+          Container(
+            color: AppColors.grey00,
+            child: ref
+                .watch(asyncVoteDetailProvider(
+                    voteId: widget.voteId, votePortal: widget.votePortal))
+                .when(
+                  data: (voteModel) {
+                    if (voteModel == null) return const SizedBox.shrink();
+                    isEnded = voteModel.isEnded!;
+                    isUpcoming = voteModel.isUpcoming!;
 
-                  return GestureDetector(
-                    onTap: () => _focusNode.unfocus(),
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: RepaintBoundary(
-                            key: _captureKey,
-                            child: Column(
-                              children: [
-                                _buildVoteInfo(context, voteModel),
-                                SizedBox(height: 12),
-                                if (_isSaving) _buildCaptureVoteList(context),
-                              ],
+                    return GestureDetector(
+                      onTap: () => _focusNode.unfocus(),
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: RepaintBoundary(
+                              key: _captureKey,
+                              child: Column(
+                                children: [
+                                  _buildVoteInfo(context, voteModel),
+                                  SizedBox(height: 12),
+                                  if (_isSaving) _buildCaptureVoteList(context),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        if (!_isSaving) _buildVoteItemList(context),
-                      ],
-                    ),
-                  );
-                },
-                loading: () => _buildLoadingShimmer(),
-                error: (error, stackTrace) => buildErrorView(context,
-                    error: error.toString(), stackTrace: stackTrace),
-              ),
-        ),
-      ],
+                          if (!_isSaving) _buildVoteItemList(context),
+                        ],
+                      ),
+                    );
+                  },
+                  loading: () => _buildLoadingShimmer(),
+                  error: (error, stackTrace) => buildErrorView(context,
+                      error: error.toString(), stackTrace: stackTrace),
+                ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -510,8 +516,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildVoteItemList(BuildContext context) {
-    final searchQuery = ref.watch(searchQueryProvider);
-    logger.d('🔍 _buildVoteItemList 호출됨 - 검색어: "$searchQuery"');
+    logger.d('🔍 _buildVoteItemList 호출됨 - 검색어: "$_searchQuery"');
     final dataAsync = ref.watch(asyncVoteItemListProvider(
         voteId: widget.voteId, votePortal: widget.votePortal));
 
@@ -524,7 +529,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         }
 
         _updateRanks(data);
-        final filteredIndices = _getFilteredIndices([data, searchQuery]);
+        final filteredIndices = _getFilteredIndices([data, _searchQuery]);
         logger.d('📊 필터링 결과 - 표시할 아이템 수: ${filteredIndices.length}');
 
         return SliverToBoxAdapter(
@@ -544,7 +549,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 ),
                 child: Padding(
                   padding: EdgeInsets.only(top: 56, left: 16.w, right: 16.w).r,
-                  child: filteredIndices.isEmpty && searchQuery.isNotEmpty
+                  child: filteredIndices.isEmpty && _searchQuery.isNotEmpty
                       ? SizedBox(
                           height: 200,
                           child: Center(
@@ -612,7 +617,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                   voteCountDiff: voteCountDiff,
                                   rankChanged: rankChanged,
                                   rankUp: previousRank > actualRank,
-                                  searchQuery: searchQuery,
+                                  searchQuery: _searchQuery,
                                 ),
                               ),
                             );
@@ -1364,10 +1369,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           hintText: t('text_vote_where_is_my_bias'),
           onSearchChanged: (query) {
             logger.d('🔍 EnhancedSearchBox onSearchChanged 호출됨: "$query"');
-            // 직접 searchQueryProvider 업데이트
+            // 로컬 상태 업데이트
             if (mounted) {
-              ref.read(searchQueryProvider.notifier).state = query;
-              logger.d('🔍 searchQueryProvider 직접 업데이트됨: "$query"');
+              setState(() {
+                _searchQuery = query;
+              });
+              logger.d('🔍 _searchQuery 로컬 상태 업데이트됨: "$query"');
             }
           },
           controller: _textEditingController,
