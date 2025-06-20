@@ -711,14 +711,24 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                           : '',
                                       searchQuery,
                                     ),
-                                    // 아티스트의 그룹명을 괄호 안에 작게 표시
-                                    if (item.artist?.artistGroup?.name != null)
+                                    // 아티스트의 그룹명을 괄호 안에 작게 표시 (그룹명이 실제로 존재할 때만)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        _getMatchingText(
+                                                item.artist!.artistGroup!.name,
+                                                searchQuery)
+                                            .isNotEmpty)
                                       TextSpan(
                                         text: ' (',
                                         style: getTextStyle(AppTypo.caption10SB,
                                             AppColors.grey600),
                                       ),
-                                    if (item.artist?.artistGroup?.name != null)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        _getMatchingText(
+                                                item.artist!.artistGroup!.name,
+                                                searchQuery)
+                                            .isNotEmpty)
                                       ...KoreanSearchUtils
                                           .buildHighlightedTextSpans(
                                         _getMatchingText(
@@ -729,7 +739,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                             AppTypo.caption10SB,
                                             AppColors.grey600),
                                       ),
-                                    if (item.artist?.artistGroup?.name != null)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        _getMatchingText(
+                                                item.artist!.artistGroup!.name,
+                                                searchQuery)
+                                            .isNotEmpty)
                                       TextSpan(
                                         text: ')',
                                         style: getTextStyle(AppTypo.caption10SB,
