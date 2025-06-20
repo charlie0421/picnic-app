@@ -845,10 +845,17 @@ workflows:
           
           # 패치 결과 확인 및 적절한 처리
           if [ $PATCH_EXIT_CODE -eq 0 ]; then
-            if echo "$PATCH_RESULT" | grep -i "successfully\|completed\|deployed"; then
+            if echo "$PATCH_RESULT" | grep -i "successfully\|completed\|deployed\|published patch"; then
               echo "=== Shorebird iOS 패치 성공 ==="
               echo "✅ iOS 패치가 Shorebird를 통해 성공적으로 배포되었습니다"
               echo "🚀 사용자들은 앱을 재시작하면 자동으로 패치가 적용됩니다"
+              
+              # 패치 정보 추출 및 표시
+              if echo "$PATCH_RESULT" | grep -i "published patch"; then
+                echo ""
+                echo "📱 패치 배포 정보:"
+                echo "$PATCH_RESULT" | grep -A 5 -i "ready to publish\|published patch" | tail -6
+              fi
             else
               echo "=== Shorebird iOS 패치 불완전 ==="
               echo "⚠️ 패치 명령어는 성공했지만 결과가 불분명합니다"
@@ -1034,10 +1041,17 @@ workflows:
           
           # 패치 결과 확인 및 적절한 처리
           if [ $PATCH_EXIT_CODE -eq 0 ]; then
-            if echo "$PATCH_RESULT" | grep -i "successfully\|completed\|deployed"; then
+            if echo "$PATCH_RESULT" | grep -i "successfully\|completed\|deployed\|published patch"; then
               echo "=== Shorebird Android 패치 성공 ==="
               echo "✅ Android 패치가 Shorebird를 통해 성공적으로 배포되었습니다"
               echo "🚀 사용자들은 앱을 재시작하면 자동으로 패치가 적용됩니다"
+              
+              # 패치 정보 추출 및 표시
+              if echo "$PATCH_RESULT" | grep -i "published patch"; then
+                echo ""
+                echo "📱 패치 배포 정보:"
+                echo "$PATCH_RESULT" | grep -A 5 -i "ready to publish\|published patch" | tail -6
+              fi
             else
               echo "=== Shorebird Android 패치 불완전 ==="
               echo "⚠️ 패치 명령어는 성공했지만 결과가 불분명합니다"
