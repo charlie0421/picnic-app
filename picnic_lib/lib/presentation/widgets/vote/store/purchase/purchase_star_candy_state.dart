@@ -135,6 +135,74 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     super.dispose();
   }
 
+  /// 🔍 구매 취소 여부를 정확하게 감지합니다.
+  bool _isPurchaseCanceled(PurchaseDetails purchaseDetails) {
+    // 1. 상태가 명시적으로 canceled인 경우
+    if (purchaseDetails.status == PurchaseStatus.canceled) {
+      return true;
+    }
+
+    // 2. 에러 상태이지만 메시지가 취소를 나타내는 경우
+    if (purchaseDetails.status == PurchaseStatus.error) {
+      final errorMessage = purchaseDetails.error?.message?.toLowerCase() ?? '';
+      final errorCode = purchaseDetails.error?.code ?? '';
+
+      // 다양한 취소 관련 키워드 확인
+      final cancelKeywords = [
+        'cancel',
+        'cancelled',
+        'canceled',
+        'user cancel',
+        'user cancelled',
+        'user canceled',
+        'payment cancel',
+        'payment cancelled',
+        'payment canceled',
+        'transaction cancel',
+        'transaction cancelled',
+        'transaction canceled',
+        'purchase cancel',
+        'purchase cancelled',
+        'purchase canceled',
+        'abort',
+        'aborted',
+        'dismiss',
+        'dismissed',
+      ];
+
+      // iOS 및 Android의 취소 관련 에러 코드
+      final cancelErrorCodes = [
+        'PAYMENT_CANCELED',
+        'USER_CANCELED',
+        'PAYMENT_CANCELLED',
+        'USER_CANCELLED',
+        '2', // iOS StoreKit의 사용자 취소 코드
+        'SKErrorPaymentCancelled',
+        'BILLING_RESPONSE_USER_CANCELED',
+      ];
+
+      // 메시지에서 취소 키워드 검색
+      for (final keyword in cancelKeywords) {
+        if (errorMessage.contains(keyword)) {
+          logger.i('🔍 취소 키워드 감지: "$keyword" in "$errorMessage"');
+          return true;
+        }
+      }
+
+      // 에러 코드에서 취소 코드 검색
+      for (final code in cancelErrorCodes) {
+        if (errorCode.contains(code)) {
+          logger.i('🔍 취소 에러 코드 감지: "$code" in "$errorCode"');
+          return true;
+        }
+      }
+
+      logger.d('🔍 취소 아님 - 메시지: "$errorMessage", 코드: "$errorCode"');
+    }
+
+    return false;
+  }
+
   void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) async {
     logger.d(
         'Active purchasing: $_isActivePurchasing, Transactions cleared: $_transactionsCleared');
@@ -334,6 +402,10 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         // 공통 에러 및 취소 처리
         if (purchaseDetails.status == PurchaseStatus.error) {
           logger.e('❌ Purchase error: ${purchaseDetails.error?.message}');
+
+          // 🔍 취소 여부를 더 정확하게 감지
+          final isCanceled = _isPurchaseCanceled(purchaseDetails);
+
           if (mounted) {
             setState(() {
               _isActivePurchasing = false;
@@ -342,15 +414,15 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             });
 
             // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
-            if (purchaseDetails.error?.message
-                    .toLowerCase()
-                    .contains('canceled') !=
-                true) {
+            if (!isCanceled) {
+              logger.e('💥 실제 구매 오류 발생 - 에러 다이얼로그 표시');
               await _showErrorDialog(t('dialog_message_purchase_failed'));
+            } else {
+              logger.i('✅ 구매 취소 감지됨 - 에러 다이얼로그 표시하지 않음');
             }
           }
         } else if (purchaseDetails.status == PurchaseStatus.canceled) {
-          logger.i('❌ Purchase canceled: ${purchaseDetails.productID}');
+          logger.i('✅ Purchase canceled: ${purchaseDetails.productID}');
           if (mounted) {
             setState(() {
               _isActivePurchasing = false;
