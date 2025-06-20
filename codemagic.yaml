@@ -131,15 +131,43 @@ workflows:
           cd ..
           echo ""
           
-          # Flutter IPA 빌드 (Automatic Signing)
+          # Flutter IPA 빌드 (Manual Signing)
           echo "=== Flutter IPA 빌드 시작 ==="
-          echo "CodeMagic Automatic Signing으로 빌드합니다."
+          echo "Manual Signing으로 빌드합니다."
           
-          echo "🚀 Automatic Signing IPA 빌드"
+          # Manual Signing용 ExportOptions.plist 생성
+          echo "📝 Manual Signing용 ExportOptions.plist 생성..."
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > ios/ExportOptions.plist
+          echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> ios/ExportOptions.plist
+          echo '<plist version="1.0">' >> ios/ExportOptions.plist
+          echo '<dict>' >> ios/ExportOptions.plist
+          echo '    <key>method</key>' >> ios/ExportOptions.plist
+          echo '    <string>app-store</string>' >> ios/ExportOptions.plist
+          echo '    <key>teamID</key>' >> ios/ExportOptions.plist
+          echo '    <string>24SL34R9HR</string>' >> ios/ExportOptions.plist
+          echo '    <key>signingStyle</key>' >> ios/ExportOptions.plist
+          echo '    <string>manual</string>' >> ios/ExportOptions.plist
+          echo '    <key>signingCertificate</key>' >> ios/ExportOptions.plist
+          echo '    <string>Apple Distribution</string>' >> ios/ExportOptions.plist
+          echo '    <key>provisioningProfiles</key>' >> ios/ExportOptions.plist
+          echo '    <dict>' >> ios/ExportOptions.plist
+          echo '        <key>io.iconcasting.picnic.app</key>' >> ios/ExportOptions.plist
+          echo '        <string>picnic_app_profile_2025</string>' >> ios/ExportOptions.plist
+          echo '    </dict>' >> ios/ExportOptions.plist
+          echo '    <key>stripSwiftSymbols</key>' >> ios/ExportOptions.plist
+          echo '    <true/>' >> ios/ExportOptions.plist
+          echo '    <key>uploadBitcode</key>' >> ios/ExportOptions.plist
+          echo '    <false/>' >> ios/ExportOptions.plist
+          echo '    <key>uploadSymbols</key>' >> ios/ExportOptions.plist
+          echo '    <true/>' >> ios/ExportOptions.plist
+          echo '</dict>' >> ios/ExportOptions.plist
+          echo '</plist>' >> ios/ExportOptions.plist
+          
+          echo "🚀 Manual Signing IPA 빌드"
           flutter build ipa \
             --release \
             --dart-define=ENVIRONMENT=prod \
-            --export-method=app-store
+            --export-options-plist=ios/ExportOptions.plist
           
           BUILD_RESULT=$?
           
@@ -739,26 +767,32 @@ workflows:
             exit 1
           fi
 
-      - name: Configure Xcode Project for Automatic Signing
+      - name: Configure Xcode Project for Manual Signing
         script: |
           cd picnic_app/ios
           
-          echo "=== Xcode 프로젝트 Automatic Signing 설정 ==="
-          # Automatic Signing 강제 설정
-          echo "📝 Automatic Signing 강제 활성화..."
-          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"Apple Distribution\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"iPhone Developer\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER = /d" Runner.xcodeproj/project.pbxproj
+          echo "=== Xcode 프로젝트 Manual Signing 설정 ==="
+          # Manual Signing 강제 설정 (Distribution 인증서 사용)
+          echo "📝 Manual Signing 강제 활성화..."
+          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          
+          # 프로비저닝 프로파일 설정
+          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER = /d; /DEVELOPMENT_TEAM = /a\\
+			PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";" Runner.xcodeproj/project.pbxproj
           
           # Development Team 설정 유지
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          echo "✅ Automatic Signing 설정 완료"
-          echo "- CODE_SIGN_STYLE: Automatic"  
+          echo "✅ Manual Signing 설정 완료"
+          echo "- CODE_SIGN_STYLE: Manual"  
           echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- CODE_SIGN_IDENTITY: (자동)"
+          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
 
       - name: Shorebird iOS Patch
         script: |
