@@ -240,6 +240,75 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           return const Center(child: Text('No vote items available'));
         }
 
+        // null이 아닌 실제 아이템들만 필터링
+        final nonNullItems = voteItems
+            .where((item) => item != null)
+            .cast<VoteItemModel>()
+            .toList();
+
+        // 2개 아이템인 경우 특별 처리
+        if (nonNullItems.length == 2) {
+          return Container(
+            width: ref.watch(globalMediaQueryProvider).size.width,
+            height: 260,
+            padding:
+                const EdgeInsets.only(left: 16, right: 16, top: 16), // 좌우 패딩 줄임
+            margin: const EdgeInsets.only(top: 24),
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(40),
+              border: Border.all(
+                color: AppColors.primary500,
+                width: 1.5.w,
+              ),
+            ),
+            child: SlideTransition(
+              position: _offsetAnimation,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24.0), // 좌우 패딩 추가
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // 1위 카드
+                    VoteCardColumnVertical(
+                      rank: 1,
+                      voteItem: nonNullItems[0],
+                      opacityAnimation: _opacityAnimation,
+                      status: widget.status,
+                    ),
+
+                    // VS 텍스트
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 60),
+                      child: FadeTransition(
+                        opacity: _opacityAnimation,
+                        child: Text(
+                          'VS',
+                          style: getTextStyle(
+                                  AppTypo.caption12B, AppColors.primary500)
+                              .copyWith(fontSize: 16.sp),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+
+                    // 2위 카드
+                    VoteCardColumnVertical(
+                      rank: 2,
+                      voteItem: nonNullItems[1],
+                      opacityAnimation: _opacityAnimation,
+                      status: widget.status,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        // 3개 이상인 경우 기존 로직 (패딩으로 3개 맞추기)
         final paddedItems = [...voteItems];
         while (paddedItems.length < 3) {
           paddedItems.add(null);
