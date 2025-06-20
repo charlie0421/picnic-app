@@ -10,7 +10,7 @@ workflows:
         - google_play
         - shorebird-config
         - picnic_env
-      flutter: 3.32.0
+      flutter: 3.32.4
       java: 17
       vars:
         PATH: $PATH:$HOME/.shorebird/bin
@@ -264,7 +264,7 @@ workflows:
         - app_store_connect
         - shorebird-config
         - picnic_env
-      flutter: 3.32.0
+      flutter: 3.32.4
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
