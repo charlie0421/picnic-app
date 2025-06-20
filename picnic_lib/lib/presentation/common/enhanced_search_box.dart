@@ -201,6 +201,7 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
         color: widget.backgroundColor ?? AppColors.grey00,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center, // 세로 중앙 정렬 추가
         children: [
           // 검색 아이콘 또는 커스텀 prefix 아이콘
           if (widget.showSearchIcon || widget.prefixIcon != null)
@@ -215,6 +216,7 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
               maxLength: widget.maxLength,
               textInputAction: widget.textInputAction,
               keyboardType: widget.keyboardType,
+              textAlignVertical: TextAlignVertical.center, // 텍스트 세로 중앙 정렬
               style: widget.style ??
                   getTextStyle(AppTypo.body16R, AppColors.grey900),
               decoration: InputDecoration(
@@ -223,8 +225,10 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
                     getTextStyle(AppTypo.body16R, AppColors.grey300),
                 border: InputBorder.none,
                 contentPadding: widget.contentPadding ??
-                    EdgeInsets.symmetric(vertical: 12.h),
+                    EdgeInsets.symmetric(
+                        vertical: 0.h, horizontal: 0.w), // 세로 패딩을 0으로 조정
                 counterText: '', // 글자 수 카운터 숨김
+                isDense: true, // 컴팩트한 높이를 위해 추가
               ),
               onSubmitted: _onSubmitted,
             ),
