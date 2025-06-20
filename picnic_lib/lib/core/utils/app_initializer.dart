@@ -88,10 +88,9 @@ class AppInitializer {
         options.tracesSampleRate = Environment.sentryTraceSampleRate;
         options.profilesSampleRate = Environment.sentryProfileSampleRate;
         options.enableAutoSessionTracking = !kDebugMode;
-        options.experimental.replay.sessionSampleRate =
-            Environment.sentrySessionSampleRate;
-        options.experimental.replay.onErrorSampleRate =
-            Environment.sentryErrorSampleRate;
+        // Session replay는 Sentry 9.0.0에서 API가 변경됨 - 추후 업데이트 필요
+        // options.experimental.replay.sessionSampleRate = Environment.sentrySessionSampleRate;
+        // options.experimental.replay.onErrorSampleRate = Environment.sentryErrorSampleRate;
         options.debug = kDebugMode;
         options.maxBreadcrumbs = 50;
         options.attachStacktrace = true;
