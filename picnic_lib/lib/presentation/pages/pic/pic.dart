@@ -50,7 +50,7 @@ class _PicPageState extends ConsumerState<PicPage> {
     );
   }
 
-  _buildPicCard(int index) {
+  Widget _buildPicCard(int index) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -79,7 +79,7 @@ class _PicPageState extends ConsumerState<PicPage> {
     );
   }
 
-  _buildSelectArtist() {
+  Widget _buildSelectArtist() {
     final asyncCelebListState = ref.watch(asyncCelebListProvider);
 
     return asyncCelebListState.when(
@@ -106,7 +106,6 @@ class _PicPageState extends ConsumerState<PicPage> {
                         fit: BoxFit.cover,
                         priority: ImagePriority.high, // 아티스트 이미지는 높은 우선순위
                         borderRadius: BorderRadius.circular(70),
-
                       ),
                     ),
                     const SizedBox(height: 4),

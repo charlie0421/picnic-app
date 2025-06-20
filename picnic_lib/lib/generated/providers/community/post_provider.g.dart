@@ -6,7 +6,7 @@ part of '../../../presentation/providers/community/post_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$postsByArtistHash() => r'131ffa957f6bc58ced14492598b43ea04f5898a4';
+String _$postsByArtistHash() => r'6f4ea1afa9585e1d4dd941ae5b26d28233fc139f';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -1454,7 +1454,7 @@ class _ScrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
   String get postId => (origin as ScrapPostProvider).postId;
 }
 
-String _$unscrapPostHash() => r'a5f031214c35bf97124f41695a0a9a6787472b71';
+String _$unscrapPostHash() => r'4030912f54313496bad8d6ac19dad85033205c62';
 
 /// See also [unscrapPost].
 @ProviderFor(unscrapPost)

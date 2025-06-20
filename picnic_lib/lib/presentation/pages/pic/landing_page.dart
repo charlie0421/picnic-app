@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/data/models/pic/celeb.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/celeb_search_provider.dart';
@@ -38,7 +39,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
         loading: () => buildLoadingOverlay());
   }
 
-  _dataView(myCelebList, celebList) {
+  Widget _dataView(List<CelebModel>? myCelebList, List<CelebModel>? celebList) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(36.0),
@@ -54,10 +55,10 @@ class _LandingPageState extends ConsumerState<LandingPage> {
                   .headlineMedium
                   ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          if (myCelebList.length == 0)
+          if (myCelebList?.isEmpty ?? true)
             const NoBookmarkCeleb()
           else
-            ...myCelebList.map((item) {
+            ...myCelebList!.map((item) {
               return CelebListItem(
                 item: item,
                 type: 'my',
@@ -104,7 +105,7 @@ class _LandingPageState extends ConsumerState<LandingPage> {
             ),
           ),
           const SizedBox(height: 16),
-          ...celebList?.map((item) {
+          ...celebList!.map((item) {
             return CelebListItem(
               item: item,
               type: 'find',

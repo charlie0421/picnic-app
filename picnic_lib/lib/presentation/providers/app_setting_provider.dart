@@ -25,7 +25,7 @@ class AppSetting extends _$AppSetting {
     state = loadedSetting;
   }
 
-  setThemeMode(String modeStr) {
+  void setThemeMode(String modeStr) {
     state = state.copyWith(themeMode: parseThemeMode(modeStr));
     globalStorage.saveData('themeMode', modeStr);
   }

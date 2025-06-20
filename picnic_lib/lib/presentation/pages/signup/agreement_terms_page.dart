@@ -43,9 +43,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
         loading: () => buildLoadingOverlay());
   }
 
-  _buildTerms(
-    PolicyModel data,
-  ) {
+  Widget _buildTerms(PolicyModel data) {
     ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
     return Column(

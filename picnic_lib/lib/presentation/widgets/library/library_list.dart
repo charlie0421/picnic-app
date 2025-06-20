@@ -95,7 +95,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
         loading: () => const LoadingView());
   }
 
-  _showAddAlbum() {
+  Future<void> _showAddAlbum() {
     return showDialog(
       context: context,
       builder: (context) {

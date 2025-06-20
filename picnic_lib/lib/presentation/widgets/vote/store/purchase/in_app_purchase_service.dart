@@ -11,8 +11,6 @@ class InAppPurchaseService {
   factory InAppPurchaseService() => _instance;
   InAppPurchaseService._internal();
 
-  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   StreamController<List<PurchaseDetails>>? _purchaseController;
   late Function(List<PurchaseDetails>) _onPurchaseUpdate;
@@ -21,9 +19,7 @@ class InAppPurchaseService {
   Timer? _purchaseTimeoutTimer;
 
   final List<ProductDetails> _products = [];
-  bool _isAvailable = false;
-  DateTime? _lastPurchaseAttempt;
-  final Set<String> _pendingPurchases = {};
+  final bool _isAvailable = false;
 
   List<ProductDetails> get products => _products;
   bool get isAvailable => _isAvailable;

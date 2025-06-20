@@ -41,7 +41,7 @@ class AsyncCelebGalleryList extends _$AsyncCelebGalleryList {
     return _fetchGalleryList(celebId);
   }
 
-  Future<List<GalleryModel>> _fetchGalleryList(celebId) async {
+  Future<List<GalleryModel>> _fetchGalleryList(int celebId) async {
     final response = await supabase
         .from('gallery')
         .select()

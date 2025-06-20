@@ -24,15 +24,12 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:async';
-import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
   late final PurchaseService _purchaseService;
   late final AnimationController _rotationController;
   String? _pendingProductId; // 복원 구매 후 재시도할 상품 ID
-  bool _purchaseInProgress = false;
 
   // 🔄 Transaction clear 이후 플래그
   bool _transactionsCleared = false;
@@ -46,10 +43,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   bool _isPurchasing = false;
   DateTime? _lastPurchaseAttempt;
   static const Duration _purchaseCooldown = Duration(seconds: 2);
-
-  // 테스트 환경 다이얼로그 표시 상태 추적
-  static const String _testDialogShownKey = 'test_environment_dialog_shown';
-  bool _testDialogAlreadyShown = false;
 
   @override
   void initState() {
@@ -72,7 +65,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeWithLoading();
     });
-    _loadTestDialogState(); // 다이얼로그 표시 상태 로드
   }
 
   /// 로딩바와 함께 초기화를 수행합니다.
@@ -262,7 +254,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
             // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
             if (purchaseDetails.error?.message
-                    ?.toLowerCase()
+                    .toLowerCase()
                     .contains('canceled') !=
                 true) {
               await _showErrorDialog(t('dialog_message_purchase_failed'));
@@ -486,139 +478,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     logger.i('✅ Success dialog displayed');
   }
 
-  /// Apple 테스트 환경인지 확인
-  Future<bool> _isTestEnvironment() async {
-    try {
-      final envInfo = await _purchaseService.receiptVerificationService
-          .getEnvironmentInfo();
-      final environment = envInfo['environment'];
-      final isDebugMode = envInfo['isDebugMode'];
-      final installerStore = envInfo['installerStore'];
-
-      // Sandbox 환경이거나 TestFlight 환경이면 테스트 환경으로 판단
-      return environment == 'sandbox' ||
-          isDebugMode == true ||
-          installerStore == 'com.apple.testflight';
-    } catch (e) {
-      logger.w('⚠️ 환경 정보 확인 실패: $e');
-      return false; // 기본값으로 프로덕션 환경으로 가정
-    }
-  }
-
-  /// Apple 테스트 환경에서 앱 재시작을 권장하는 다이얼로그
-  Future<void> _showTestEnvironmentRestartDialog() async {
-    if (!mounted) return;
-
-    final shouldRestart = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('🍎 Apple 테스트 환경 감지'),
-        content: Text('''Apple 테스트 환경에서는 구매 영수증이 재사용될 수 있습니다.
-
-새로운 구매를 시도하려면:
-1. 앱을 완전히 종료 후 재시작
-2. 또는 기다리신 후 다시 시도
-
-앱을 지금 종료하시겠습니까?'''),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('나중에'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('앱 종료'),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldRestart == true) {
-      logger.i('🔄 사용자 요청으로 앱 종료 중...');
-      // iOS에서는 exit(0)를 사용하지 않는 것이 권장되므로
-      // 백그라운드로 이동하는 방식 사용
-      if (Platform.isIOS) {
-        // iOS에서는 앱을 백그라운드로 보냄
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: Text('앱 종료'),
-            content: Text('홈 버튼을 눌러 앱을 종료한 후\n앱 스위처에서 앱을 완전히 종료해주세요.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('확인'),
-              ),
-            ],
-          ),
-        );
-      } else {
-        // Android에서는 앱 종료
-        exit(0);
-      }
-    }
-  }
-
-  /// 테스트 다이얼로그 표시 상태 로드
-  Future<void> _loadTestDialogState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      _testDialogAlreadyShown = prefs.getBool(_testDialogShownKey) ?? false;
-    } catch (e) {
-      logger.w('⚠️ 테스트 다이얼로그 상태 로드 실패: $e');
-    }
-  }
-
-  /// 테스트 다이얼로그 표시 상태 저장
-  Future<void> _saveTestDialogState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_testDialogShownKey, true);
-      _testDialogAlreadyShown = true;
-    } catch (e) {
-      logger.w('⚠️ 테스트 다이얼로그 상태 저장 실패: $e');
-    }
-  }
-
-  /// 테스트 다이얼로그 상태 리셋 (개발자용)
-  Future<void> _resetTestDialogState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_testDialogShownKey);
-      _testDialogAlreadyShown = false;
-      logger.i('🔄 테스트 다이얼로그 상태 리셋됨');
-    } catch (e) {
-      logger.w('⚠️ 테스트 다이얼로그 상태 리셋 실패: $e');
-    }
-  }
-
-  /// Apple 테스트 환경에서 중복 구매 시 표시하는 다이얼로그
-  Future<void> _showTestEnvironmentDuplicateDialog() async {
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('🍎 Apple 테스트 환경'),
-        content: Text('''이미 처리된 구매입니다.
-
-Apple 테스트 환경에서는 영수증이 재사용될 수 있습니다.
-
-✅ 스타캔디가 이미 지급되었는지 확인해주세요.
-💡 새로운 구매를 원하시면 앱을 재시작해주세요.'''),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// 예상치 못한 중복 감지 다이얼로그
   Future<void> _showUnexpectedDuplicateDialog() async {
     if (!mounted) return;
@@ -641,58 +500,6 @@ Apple 테스트 환경에서는 영수증이 재사용될 수 있습니다.
 3. 문제가 지속되면 고객지원 문의
 
 ⭐ 소모성 상품이므로 중복 구매가 정상적으로 허용되어야 합니다.'''),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// StoreKit 캐시 문제로 인한 중복 영수증 다이얼로그 (레거시)
-  Future<void> _showStoreKitCacheErrorDialog() async {
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('⚠️ StoreKit 캐시 문제'),
-        content: Text('''iOS StoreKit에서 이전 영수증을 재사용하고 있습니다.
-
-🎯 개선된 해결 방법:
-1. 서버에서 소모성 상품 중복 검사 완화 적용됨
-2. 그래도 안 되면: 앱 완전 종료 → 재시작
-3. 최후 수단: 기기 재시작
-
-💡 소모성 상품(스타캔디)은 반복 구매가 가능해야 하므로 매번 새로운 영수증이 필요합니다.
-
-⏰ 이제 서버에서 JWT 재사용을 허용하므로 문제가 해결될 것입니다.'''),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 일반적인 중복 구매 시 표시하는 다이얼로그
-  Future<void> _showDuplicatePurchaseDialog() async {
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('이미 처리된 구매'),
-        content: Text('''이 구매는 이미 처리되었습니다.
-
-✅ 스타캔디가 이미 지급되었는지 확인해주세요.
-💡 새로운 구매를 원하시면 잠시 후 다시 시도해주세요.'''),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

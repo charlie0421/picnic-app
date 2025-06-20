@@ -239,7 +239,7 @@ final sortOptionProvider =
 );
 
 typedef _$SortOption = AutoDisposeNotifier<SortOptionType>;
-String _$commentCountHash() => r'1521c9af9aeb5ffa1bd95002f50392867e7179fc';
+String _$commentCountHash() => r'5687d5fee456a37c642c76eefe393e1d11162b55';
 
 abstract class _$CommentCount extends BuildlessAutoDisposeAsyncNotifier<int> {
   late final int articleId;

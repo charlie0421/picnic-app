@@ -27,7 +27,7 @@ class _GalleryDetailScreenState extends ConsumerState<GalleryDetailPage>
     return _buildGalleryTab(ref);
   }
 
-  Widget _buildGalleryTab(ref) {
+  Widget _buildGalleryTab(WidgetRef ref) {
     return ArticlePage(galleryId: widget.galleryId);
   }
 }

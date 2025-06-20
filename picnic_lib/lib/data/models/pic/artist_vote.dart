@@ -54,7 +54,7 @@ class MyStarMemberModel with _$MyStarMemberModel {
     @JsonKey(name: 'mystar_group') MyStarGroupModel? mystarGroup,
   }) = _MyStarMemberModel;
 
-  getTitle() {
+  String getTitle() {
     String title = '';
     if (getLocaleLanguage() == 'ko') {
       title = nameKo;
@@ -64,7 +64,7 @@ class MyStarMemberModel with _$MyStarMemberModel {
     return title;
   }
 
-  getGroupTitle() {
+  String getGroupTitle() {
     return mystarGroup?.getTitle() ?? '';
   }
 

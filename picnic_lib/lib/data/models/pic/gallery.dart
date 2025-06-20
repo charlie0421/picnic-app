@@ -17,7 +17,7 @@ class GalleryModel with _$GalleryModel {
     @JsonKey(name: 'celeb') required CelebModel? celeb,
   }) = _GalleryModel;
 
-  getTitle() {
+  String getTitle() {
     switch (getLocaleLanguage()) {
       case 'ko':
         return titleKo;

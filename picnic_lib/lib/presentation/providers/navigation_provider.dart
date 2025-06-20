@@ -154,11 +154,11 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('portalString', portalType.name.toString());
   }
 
-  setShowBottomNavigation(bool showBottomNavigation) {
+  void setShowBottomNavigation(bool showBottomNavigation) {
     state = state.copyWith(showBottomNavigation: showBottomNavigation);
   }
 
-  getBottomNavigationIndex() {
+  int getBottomNavigationIndex() {
     if (state.portalType == PortalType.vote) {
       return state.voteBottomNavigationIndex;
     } else if (state.portalType == PortalType.pic) {
@@ -167,10 +167,12 @@ class NavigationInfo extends _$NavigationInfo {
       return state.communityBottomNavigationIndex;
     } else if (state.portalType == PortalType.novel) {
       return state.novelBottomNavigationIndex;
+    } else {
+      return 0;
     }
   }
 
-  setBottomNavigationIndex(int index) {
+  void setBottomNavigationIndex(int index) {
     if (state.portalType == PortalType.vote) {
       setVoteBottomNavigationIndex(index);
     } else if (state.portalType == PortalType.pic) {
@@ -208,7 +210,7 @@ class NavigationInfo extends _$NavigationInfo {
     state = state.copyWith(myPageTitle: pageTitle);
   }
 
-  setPicBottomNavigationIndex(int index) {
+  void setPicBottomNavigationIndex(int index) {
     final pageWidget = NavigationConfigs.getPageWidget(PortalType.pic, index);
     if (pageWidget == null) return;
 
@@ -220,7 +222,7 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('picBottomNavigationIndex', index.toString());
   }
 
-  setVoteBottomNavigationIndex(int index) {
+  void setVoteBottomNavigationIndex(int index) {
     final pageWidget = NavigationConfigs.getPageWidget(PortalType.vote, index);
     if (pageWidget == null) return;
 
@@ -232,7 +234,7 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('voteBottomNavigationIndex', index.toString());
   }
 
-  setCommunityBottomNavigationIndex(int index) {
+  void setCommunityBottomNavigationIndex(int index) {
     final pageWidget =
         NavigationConfigs.getPageWidget(PortalType.community, index);
     if (pageWidget == null) return;
@@ -245,7 +247,7 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('communityBottomNavigationIndex', index.toString());
   }
 
-  setNovelBottomNavigationIndex(int index) {
+  void setNovelBottomNavigationIndex(int index) {
     final pageWidget = NavigationConfigs.getPageWidget(PortalType.novel, index);
     if (pageWidget == null) return;
 
@@ -257,7 +259,7 @@ class NavigationInfo extends _$NavigationInfo {
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 
-  setCurrentPage(Widget page,
+  void setCurrentPage(Widget page,
       {bool showTopMenu = false, bool showBottomNavigation = true}) {
     final voteNavigationStack = state.voteNavigationStack;
 
@@ -269,7 +271,7 @@ class NavigationInfo extends _$NavigationInfo {
     );
   }
 
-  setCommunityCurrentPage(Widget page,
+  void setCommunityCurrentPage(Widget page,
       {bool showTopMenu = false, bool showBottomNavigation = true}) {
     final communityNavigationStack = state.communityNavigationStack;
 
@@ -283,19 +285,19 @@ class NavigationInfo extends _$NavigationInfo {
     logger.d('communityNavigationStack: $communityNavigationStack');
   }
 
-  setResetStackMyPage() {
+  void setResetStackMyPage() {
     state = state.copyWith(
       drawerNavigationStack: NavigationStack()..push(const MyPage()),
     );
   }
 
-  setResetStackSignUp() {
+  void setResetStackSignUp() {
     state = state.copyWith(
       signUpNavigationStack: NavigationStack()..push(const LoginPage()),
     );
   }
 
-  setCurrentMyPage(Widget page) {
+  void setCurrentMyPage(Widget page) {
     logger.i('🎯 setCurrentMyPage called with page: ${page.runtimeType}');
     final navigationStack = state.drawerNavigationStack;
 

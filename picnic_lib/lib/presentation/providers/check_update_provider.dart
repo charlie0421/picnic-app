@@ -1,3 +1,5 @@
+// ignore_for_file: strict_top_level_inference
+
 import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';

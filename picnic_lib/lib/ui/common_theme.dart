@@ -63,7 +63,7 @@ DialogThemeData commonDialogTheme = const DialogThemeData(
   backgroundColor: AppColors.grey00,
 );
 
-getElevatedButtonThemeData(
+ElevatedButtonThemeData getElevatedButtonThemeData(
     {Color? backgroundColor,
     Color? borderColor,
     AppTypo? appTypo,

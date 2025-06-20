@@ -161,15 +161,15 @@ class CommentCount extends _$CommentCount {
     return 0;
   }
 
-  setCount(int count) {
+  void setCount(int count) {
     state = AsyncValue.data(count);
   }
 
-  increment() {
+  void increment() {
     state = AsyncValue.data(state.value! + 1);
   }
 
-  decrement() {
+  void decrement() {
     state = AsyncValue.data(state.value! - 1);
   }
 }

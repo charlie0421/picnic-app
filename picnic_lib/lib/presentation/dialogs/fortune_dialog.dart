@@ -16,7 +16,7 @@ import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/fortune_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-showFortuneDialog(int artistId, int year) {
+Future<void> showFortuneDialog(int artistId, int year) {
   final context = navigatorKey.currentContext;
   return showFullScreenDialog(
     context: context!,

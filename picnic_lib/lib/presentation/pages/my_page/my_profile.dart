@@ -194,7 +194,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     }
   }
 
-  _showWithdrawalModal() {
+  Future<void> _showWithdrawalModal() async {
     DateTime now = DateTime.now();
 
     // 30일을 더합니다

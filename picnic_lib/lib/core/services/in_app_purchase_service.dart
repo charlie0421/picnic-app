@@ -2,19 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 
 class InAppPurchaseService {
-  static final InAppPurchaseService _instance =
-      InAppPurchaseService._internal();
+  static final InAppPurchaseService _instance = InAppPurchaseService._internal();
   factory InAppPurchaseService() => _instance;
   InAppPurchaseService._internal();
-
-  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-
+  
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   StreamController<List<PurchaseDetails>>? _purchaseController;
   late Function(List<PurchaseDetails>) _onPurchaseUpdate;
@@ -23,9 +18,7 @@ class InAppPurchaseService {
   Timer? _purchaseTimeoutTimer;
 
   final List<ProductDetails> _products = [];
-  bool _isAvailable = false;
-  DateTime? _lastPurchaseAttempt;
-  final Set<String> _pendingPurchases = {};
+  final bool _isAvailable = false;
 
   List<ProductDetails> get products => _products;
   bool get isAvailable => _isAvailable;

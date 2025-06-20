@@ -24,10 +24,6 @@ class ReusedPurchaseException implements Exception {
 class ReceiptVerificationService {
   static const String _sandboxEnvironment = 'sandbox';
   static const String _productionEnvironment = 'production';
-  static const String _appleVerifyUrl =
-      'https://buy.itunes.apple.com/verifyReceipt';
-  static const String _appleSandboxUrl =
-      'https://sandbox.itunes.apple.com/verifyReceipt';
 
   /// 디버깅용 환경 정보 반환
   Future<Map<String, dynamic>> getEnvironmentInfo() async {

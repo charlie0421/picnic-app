@@ -18,7 +18,6 @@
 		C8328E1195361F730B70AEC9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2A6D182D2D57ED5035F0D45E /* GoogleService-Info.plist */; };
 		E103A5D52D9521CC00AF5F40 /* PincruxOfferwallManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E103A5D42D9521CC00AF5F40 /* PincruxOfferwallManager.swift */; };
 		E185CAB52D94F3730026357C /* PangleAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E185CAB42D94F3730026357C /* PangleAdManager.swift */; };
-
 		E1B64F7B2C2CAA51009CE725 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F792C2CAA51009CE725 /* InfoPlist.strings */; };
 		E1F5FA1F2D958EA0006749C8 /* PincruxOfferwall.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */; };
 		E1F5FA202D958EA0006749C8 /* PincruxOfferwall.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -236,6 +235,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				616437C89D23CF177FB3A7A2 /* [CP] Embed Pods Frameworks */,
 				0AF50FDD641810C92612DBF3 /* [CP] Copy Pods Resources */,
+				685C3382ECE8D0F061CE5857 /* [firebase_crashlytics] Crashlytics Upload Symbols */,
 			);
 			buildRules = (
 			);
@@ -299,8 +299,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1B64F6F2C2CA13F009CE725 /* LaunchScreen.storyboard in Resources */,
-				E1B64F702C2CA13F009CE725 /* Main.storyboard in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
@@ -362,6 +360,29 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		685C3382ECE8D0F061CE5857 /* [firebase_crashlytics] Crashlytics Upload Symbols */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"",
+				"\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/\"",
+				"\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist\"",
+				"\"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)\"",
+				"\"$(PROJECT_DIR)/firebase_app_id_file.json\"",
+			);
+			name = "[firebase_crashlytics] Crashlytics Upload Symbols";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$PODS_ROOT/FirebaseCrashlytics/upload-symbols\" --flutter-project \"$PROJECT_DIR/firebase_app_id_file.json\" ";
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;

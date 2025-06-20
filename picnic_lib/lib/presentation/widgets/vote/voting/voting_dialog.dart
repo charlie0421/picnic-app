@@ -262,7 +262,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-  _buildBubble() {
+  Widget _buildBubble() {
     return BubbleBox(
       shape: BubbleShapeBorder(
         border: BubbleBoxBorder(
@@ -418,7 +418,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               final amount = _getMyStarCandy();
               final limitedAmount =
                   amount > maxVoteAmount ? maxVoteAmount : amount;
-              _textEditingController.text = formatNumberWithComma(limitedAmount);
+              _textEditingController.text =
+                  formatNumberWithComma(limitedAmount);
             } else {
               _textEditingController.clear();
             }

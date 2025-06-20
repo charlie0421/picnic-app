@@ -1,4 +1,3 @@
-/// 구매 관련 공통 상수 및 타입 정의
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 /// 구매 처리 상수

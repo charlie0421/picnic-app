@@ -18,7 +18,7 @@ class RewardDialogConstants {
 
 enum RewardType { overview, location, sizeGuide }
 
-showRewardDialog(BuildContext context, RewardModel data) {
+Future<void> showRewardDialog(BuildContext context, RewardModel data) {
   return showFullScreenDialog(
     context: context,
     builder: (context) => RewardDialog(data: data),
@@ -94,18 +94,18 @@ class _RewardDialogState extends State<RewardDialog> {
 
   List<Widget> _buildAvailableSections() {
     List<Widget> sections = [];
-    
+
     for (int i = 0; i < RewardType.values.length; i++) {
       final type = RewardType.values[i];
       final rewardSection = RewardSection(
         type: type,
         data: widget.data,
       );
-      
+
       // 섹션 내용이 있는 경우만 추가
       if (rewardSection.hasContent()) {
         sections.add(rewardSection);
-        
+
         // 마지막 섹션이 아니고, 다음에 표시될 섹션이 있는 경우 간격 추가
         if (i < RewardType.values.length - 1) {
           // 다음 섹션들 중에 표시될 것이 있는지 확인
@@ -121,14 +121,14 @@ class _RewardDialogState extends State<RewardDialog> {
               break;
             }
           }
-          
+
           if (hasNextSection) {
             sections.add(const SizedBox(height: 68));
           }
         }
       }
     }
-    
+
     return sections;
   }
 }
@@ -145,7 +145,7 @@ class RewardSection extends StatelessWidget {
 
   bool hasContent() {
     final locale = PicnicLibL10n.getCurrentLocale().languageCode;
-    
+
     switch (type) {
       case RewardType.overview:
         return data.overviewImages != null && data.overviewImages!.isNotEmpty;
@@ -153,13 +153,17 @@ class RewardSection extends StatelessWidget {
       case RewardType.location:
         if (data.location?[locale] == null) return false;
         final locationData = data.location![locale];
-        return (locationData['map'] != null && locationData['map'].isNotEmpty) ||
-               (locationData['address'] != null && locationData['address'].isNotEmpty) ||
-               (locationData['images'] != null && locationData['images'].isNotEmpty) ||
-               (locationData['desc'] != null && locationData['desc'].isNotEmpty);
+        return (locationData['map'] != null &&
+                locationData['map'].isNotEmpty) ||
+            (locationData['address'] != null &&
+                locationData['address'].isNotEmpty) ||
+            (locationData['images'] != null &&
+                locationData['images'].isNotEmpty) ||
+            (locationData['desc'] != null && locationData['desc'].isNotEmpty);
 
       case RewardType.sizeGuide:
-        return data.sizeGuide?[locale] != null && data.sizeGuide![locale].isNotEmpty;
+        return data.sizeGuide?[locale] != null &&
+            data.sizeGuide![locale].isNotEmpty;
     }
   }
 

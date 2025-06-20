@@ -751,7 +751,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     }
   }
 
-  Widget _buildRewardInfo(achievements, int rewardIndex, bool isAchieved) {
+  Widget _buildRewardInfo(
+      List<VoteAchieve> achievements, int rewardIndex, bool isAchieved) {
     return GestureDetector(
       onTap: () {
         showRewardDialog(context, achievements[rewardIndex].reward);

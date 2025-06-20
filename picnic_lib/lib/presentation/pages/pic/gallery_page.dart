@@ -41,7 +41,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
     );
   }
 
-  _buildData(List<GalleryModel> galleryList) {
+  Widget _buildData(List<GalleryModel> galleryList) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(

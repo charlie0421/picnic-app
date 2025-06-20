@@ -1,3 +1,5 @@
+// ignore_for_file: strict_top_level_inference
+
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
@@ -25,7 +27,7 @@ Future<List<PostModel>?> postsByArtist(
           .isFilter('deleted_at', null);
     }
 
-    final blockedUserIds =
+    final List<String> blockedUserIds =
         blockedResponse.map((row) => row['blocked_user_id'] as String).toList();
 
     // 2. 게시글 조회 시 차단된 사용자의 게시글 제외
@@ -389,7 +391,7 @@ Future<void> unscrapPost(ref, String postId, String userId) async {
         .from('post_scraps')
         .delete()
         .eq('post_id', postId)
-        .eq('user_id', supabase.auth.currentUser!.id);
+        .eq('user_id', userId);
   } catch (e, s) {
     logger.e('Error unscrapping post:', error: e, stackTrace: s);
     return Future.error(e);

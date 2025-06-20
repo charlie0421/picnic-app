@@ -49,7 +49,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
         loading: () => buildLoadingOverlay());
   }
 
-  _buildPrivacy(PolicyModel data) {
+  Widget _buildPrivacy(PolicyModel data) {
     ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.read(navigationInfoProvider.notifier);
 
