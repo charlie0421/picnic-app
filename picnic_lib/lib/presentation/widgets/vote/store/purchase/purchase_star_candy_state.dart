@@ -40,6 +40,12 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   // 초기화 중 로딩 상태
   bool _isInitializing = true;
 
+  // 사용자가 명시적으로 구매 복원을 요청했는지 플래그
+  bool _isUserRequestedRestore = false;
+
+  // 초기화 완료 시점 (복원 구매 무시 기간 제한용)
+  DateTime? _initializationCompletedAt;
+
   bool _isPurchasing = false;
   DateTime? _lastPurchaseAttempt;
   static const Duration _purchaseCooldown = Duration(seconds: 2);
@@ -67,7 +73,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     });
   }
 
-  /// 로딩바와 함께 초기화를 수행합니다.
+  /// 로딩바와 함께 빠른 초기화를 수행합니다.
   Future<void> _initializeWithLoading() async {
     if (!mounted) return;
 
@@ -79,26 +85,30 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         color: AppColors.primary500,
       );
 
-      logger.i('🎬 구매 페이지 초기화 시작 - 로딩바 표시');
+      logger.i('🎬 구매 페이지 초기화 시작 - 로딩바 표시 (빠른 초기화)');
 
-      // pending 구매 클리어
+      // pending 구매 클리어 (동기적으로 완료 대기)
       await _clearPendingPurchases();
 
-      // 초기화 완료 후 잠시 대기하여 초기 복원 구매들이 먼저 처리되도록 함
-      await Future.delayed(Duration(seconds: 2));
+      // 🚀 최적화된 대기: 0.5초로 단축 (대부분의 복원 구매는 즉시 발생)
+      // 백그라운드 처리보다 안전한 순차 처리
+      logger.i('⏳ 초기 복원 구매 대기 중 (0.5초) - 안전한 순차 처리');
+      await Future.delayed(Duration(milliseconds: 500));
 
       if (mounted) {
         setState(() {
           _isInitializing = false;
+          _initializationCompletedAt = DateTime.now(); // 🕐 초기화 완료 시점 기록
         });
         OverlayLoadingProgress.stop();
-        logger.i('🎯 구매 페이지 초기화 완료 - 구매 준비됨');
+        logger.i('🎯 구매 페이지 초기화 완료 - 구매 준비됨 (총 소요시간: ~0.5초)');
       }
     } catch (e) {
       logger.e('❌ 구매 페이지 초기화 실패: $e');
       if (mounted) {
         setState(() {
           _isInitializing = false;
+          _initializationCompletedAt = DateTime.now();
         });
         OverlayLoadingProgress.stop();
       }
@@ -134,9 +144,31 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         logger.d(
             'Purchase updated: ${purchaseDetails.status} for ${purchaseDetails.productID}');
 
-        // pending 상태일 때는 로딩 상태 유지
-        if (purchaseDetails.status == PurchaseStatus.pending) {
-          logger.i('📋 Purchase pending for ${purchaseDetails.productID}');
+        // ⭐ 초기화 중에는 모든 pending 구매를 강제로 완료 처리하여 삭제
+        if (!_isActivePurchasing && !_transactionsCleared) {
+          if (purchaseDetails.status == PurchaseStatus.pending) {
+            logger.i(
+                '🧹 [INIT] Pending purchase detected during initialization: ${purchaseDetails.productID}');
+            logger.i('   → FORCING COMPLETION TO DELETE PENDING PURCHASE');
+
+            // pending 구매를 강제로 완료 처리하여 삭제
+            try {
+              await _purchaseService.inAppPurchaseService
+                  .completePurchase(purchaseDetails);
+              logger.i(
+                  '✅ [INIT] Pending purchase forcefully completed and deleted');
+            } catch (e) {
+              logger.e('❌ [INIT] Failed to complete pending purchase: $e');
+            }
+            continue;
+          }
+        }
+
+        // 실제 구매 중이 아닐 때 pending 상태는 로딩 상태 유지
+        if (purchaseDetails.status == PurchaseStatus.pending &&
+            !_isActivePurchasing) {
+          logger.i(
+              '📋 Purchase pending for ${purchaseDetails.productID} (not during active purchase)');
           continue;
         }
 
@@ -168,8 +200,68 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           }
         }
 
-        // Transaction clear 이후 또는 실제 구매 중인 경우
-        if (_transactionsCleared || _isActivePurchasing) {
+        // ⭐ 초기화 완료 후 실제 구매 중이 아닐 때 들어오는 복원된 구매 처리
+        if (_transactionsCleared && !_isActivePurchasing) {
+          if (purchaseDetails.status == PurchaseStatus.restored) {
+            // 사용자가 명시적으로 구매 복원을 요청했거나, 초기화 완료 후 충분한 시간이 지났으면 처리
+            final timeSinceInit = _initializationCompletedAt != null
+                ? DateTime.now()
+                    .difference(_initializationCompletedAt!)
+                    .inSeconds
+                : 0;
+
+            if (_isUserRequestedRestore || timeSinceInit > 10) {
+              logger.i(
+                  '🔄 [POST-INIT] Restored purchase - processing (user requested: $_isUserRequestedRestore, time since init: ${timeSinceInit}s): ${purchaseDetails.productID}');
+
+              // 정상적인 복원 구매로 처리
+              await _purchaseService.handleOptimizedPurchase(
+                purchaseDetails,
+                () async {
+                  logger.i('🎯 복원 구매 성공 - 스타 캔디 지급 완료');
+                  await ref.read(userInfoProvider.notifier).getUserProfiles();
+
+                  // 사용자 요청 복원 플래그 리셋
+                  _isUserRequestedRestore = false;
+                },
+                (error) async {
+                  logger.e('❌ 복원 구매 오류: $error');
+                  // 사용자 요청 복원 플래그 리셋
+                  _isUserRequestedRestore = false;
+                },
+                isActualPurchase: false, // 복원된 구매이므로 false
+              );
+            } else {
+              logger.i(
+                  '🚫 [POST-INIT] Restored purchase ignored - too soon after initialization (${timeSinceInit}s): ${purchaseDetails.productID}');
+              logger.i('   → IGNORING - NO PROCESSING');
+            }
+            continue;
+          }
+
+          // 예상치 못한 purchased 상태는 초기화 직후에만 무시
+          if (purchaseDetails.status == PurchaseStatus.purchased) {
+            final timeSinceInit = _initializationCompletedAt != null
+                ? DateTime.now()
+                    .difference(_initializationCompletedAt!)
+                    .inSeconds
+                : 0;
+
+            if (timeSinceInit <= 10) {
+              logger.w(
+                  '⚠️ [POST-INIT] Unexpected purchased status ignored - too soon after initialization (${timeSinceInit}s): ${purchaseDetails.productID}');
+              logger.w('   → IGNORING - NO PROCESSING');
+              continue;
+            } else {
+              logger.i(
+                  '🔄 [POST-INIT] Purchased status after sufficient time (${timeSinceInit}s) - processing: ${purchaseDetails.productID}');
+              // 충분한 시간이 지났으면 정상 처리하도록 아래 로직으로 진행
+            }
+          }
+        }
+
+        // ⭐ 실제 구매 중일 때만 구매 처리
+        if (_isActivePurchasing) {
           logger.i(
               '🎯 [ACTIVE] Processing purchase during active session: ${purchaseDetails.productID} - ${purchaseDetails.status}');
 
@@ -205,7 +297,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
                     _pendingProductId = null;
                     _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
                   });
-                  OverlayLoadingProgress.stop();
                   logger.i('🎉 성공 다이얼로그 표시');
                   await _showSuccessDialog();
                 }
@@ -217,7 +308,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
                     _pendingProductId = null;
                     _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
                   });
-                  OverlayLoadingProgress.stop();
 
                   // ⭐ 서버 측 오류 메시지 확인 및 처리
                   if (error.contains('StoreKit 캐시 문제') ||
@@ -250,7 +340,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
               _pendingProductId = null;
               _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
             });
-            OverlayLoadingProgress.stop();
 
             // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
             if (purchaseDetails.error?.message
@@ -268,7 +357,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
               _pendingProductId = null;
               _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
             });
-            OverlayLoadingProgress.stop();
           }
         }
 
@@ -286,7 +374,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           _pendingProductId = null;
           _isPurchasing = false; // 🔄 구매 상태도 완전히 리셋
         });
-        OverlayLoadingProgress.stop();
         await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
       rethrow;
@@ -335,13 +422,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       logger.i(
           '🎯 [PURCHASE] Starting actual purchase for: ${serverProduct['id']}');
 
-      // ⭐ 먼저 로딩 표시
+      // ⭐ 구매 시에는 버튼 내 로딩바만 사용 (전체 화면 로딩바 제거)
       if (!context.mounted) return;
-      OverlayLoadingProgress.start(
-        context,
-        barrierDismissible: false,
-        color: AppColors.primary500,
-      );
 
       // 🍬 소모성 상품용 기본 캐시 클리어 (서버에서 중복 검사 완화됨)
       logger.i('🍬 소모성 상품용 기본 캐시 클리어 - 서버에서 JWT 재사용 허용됨');
@@ -376,7 +458,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
             _isPurchasing = false;
           });
           if (mounted) {
-            OverlayLoadingProgress.stop();
             await _showErrorDialog(message);
           }
         },
@@ -390,7 +471,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           _isPurchasing = false;
         });
         if (mounted) {
-          OverlayLoadingProgress.stop();
           await _showErrorDialog(t('dialog_message_purchase_failed'));
         }
       } else {
@@ -407,7 +487,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
               _pendingProductId = null;
               _isPurchasing = false;
             });
-            OverlayLoadingProgress.stop();
             _showErrorDialog('구매 시간이 초과되었습니다. 다시 시도해주세요.');
           }
         });
@@ -421,7 +500,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         _isPurchasing = false;
       });
       if (mounted) {
-        OverlayLoadingProgress.stop();
         await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
       rethrow;
@@ -547,6 +625,11 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     try {
       logger.i('🔄 사용자 요청으로 구매 복원 시작');
 
+      // 🔄 사용자가 명시적으로 구매 복원을 요청했음을 표시
+      setState(() {
+        _isUserRequestedRestore = true;
+      });
+
       if (!context.mounted) return;
       OverlayLoadingProgress.start(
         context,
@@ -567,9 +650,23 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         showSimpleDialog(
           content: '구매 복원이 완료되었습니다.\n스타캔디 잔액을 확인해주세요.',
         );
+
+        // 🔄 복원 완료 후 5초 뒤 플래그 리셋 (복원된 구매들이 모두 처리될 시간 확보)
+        Timer(Duration(seconds: 5), () {
+          if (mounted) {
+            setState(() {
+              _isUserRequestedRestore = false;
+            });
+          }
+        });
       }
     } catch (e) {
       logger.e('❌ 구매 복원 실패: $e');
+
+      // 🔄 복원 실패 시 플래그 리셋
+      setState(() {
+        _isUserRequestedRestore = false;
+      });
 
       if (mounted) {
         OverlayLoadingProgress.stop();
@@ -624,6 +721,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         _pendingProductId = null;
         _transactionsCleared = true;
         _lastPurchaseAttempt = null;
+        _isUserRequestedRestore = false; // 🔄 추가된 플래그도 리셋
+        _initializationCompletedAt = DateTime.now(); // 🕐 초기화 시점 갱신
       });
 
       // 로딩 상태 강제 중지
@@ -697,8 +796,9 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
               ),
             ),
             const SizedBox(width: 8),
-            // 🐛 디버그 모드에서만 구매복원 버튼 표시
-            if (kDebugMode)
+            // 🔧 설정에 따라 구매복원 버튼 표시 (기본: 디버그 모드만)
+            // 프로덕션에서 필요시 showRestoreButton을 true로 변경
+            if (kDebugMode || false) // TODO: 필요시 두 번째 조건을 true로 변경
               GestureDetector(
                 onTap: _handleRestorePurchases,
                 child: Container(
@@ -719,7 +819,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
                       ),
                       SizedBox(width: 4),
                       Text(
-                        '구매복원',
+                        kDebugMode ? '구매복원' : '구매 내역 확인',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.primary500,
@@ -874,15 +974,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       Map<String, dynamic> serverProduct, List<ProductDetails> storeProducts) {
     // 🔄 초기화 중이거나 구매 진행 중일 때 버튼 비활성화
     final isButtonEnabled = !_isInitializing && !_isPurchasing;
-
-    String buttonText;
-    if (_isInitializing) {
-      buttonText = '초기화 중...';
-    } else if (_isPurchasing) {
-      buttonText = '구매 진행 중...';
-    } else {
-      buttonText = '${serverProduct['price']} \$';
-    }
+    final isLoading = _isInitializing || _isPurchasing;
 
     return StoreListTile(
       icon: Image.asset(
@@ -903,7 +995,9 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           ],
         ),
       ),
-      buttonText: buttonText,
+      // 🔄 버튼 내 로딩바 표시 (StoreListTile의 기본 기능 사용)
+      isLoading: isLoading,
+      buttonText: '${serverProduct['price']} \$',
       buttonOnPressed: isButtonEnabled
           ? () => _handleBuyButtonPressed(context, serverProduct, storeProducts)
           : null, // 버튼 비활성화
