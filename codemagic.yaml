@@ -576,202 +576,201 @@ workflows:
           success: true
           failure: true
 
-  # =================== TTJA APP Android (비활성화) ===================
-  # ttja-app-android:
-  #   name: TTJA App - Android
-  #   instance_type: mac_mini_m2
-  #   max_build_duration: 120
-  #   environment:
-  #     android_signing:
-  #       - ttja_keystore
-  #     groups:
-  #       - google_play
-  #       - ttja_env
-  #     flutter: 3.32.0
-  #     java: 17
-  #     vars:
-  #       APP_NAME: "ttja_app"
-  #   cache:
-  #     cache_paths:
-  #       - $FLUTTER_ROOT/.pub-cache
-  #       - $HOME/.gradle/caches
-  #       - $HOME/Library/Caches/CocoaPods
-  #   triggering:
-  #     events:
-  #       - push
-  #     # TTJA는 태그로만 트리거 (브랜치 트리거 제거)
-  #     tag_patterns:
-  #       - pattern: 'ttja-v*'
-  #         include: true
-  #     cancel_previous_builds: true
-  #   scripts:
-  #     - name: Set up debug keystore
-  #       script: |
-  #         set -e
-  #         set -x
-  #         keystore_path="/tmp/keystore.keystore"
-  #         if [ -f "$keystore_path" ]; then
-  #           echo "Keystore already exists"
-  #         else
-  #           keytool -genkey -v -keystore "$keystore_path" -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-  #         fi
+  # =================== PICNIC APP Shorebird Patch ===================
+  picnic-app-patch-android:
+    name: Picnic App - Android Patch (Shorebird)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      android_signing:
+        - picnic_keystore
+      groups:
+        - shorebird-config
+        - picnic_env
+      flutter: 3.32.4
+      java: 17
+      vars:
+        PATH: $PATH:$HOME/.shorebird/bin
+        APP_NAME: "picnic_app"
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.gradle/caches
+        - $HOME/.gradle/wrapper
+        - $HOME/.android/build-cache
+        - picnic_app/.dart_tool
+        - picnic_app/android/.gradle
+    triggering:
+      events:
+        - push
+        - tag
+      # hotfix, patch 브랜치와 patch 태그로 트리거
+      branch_patterns:
+        - pattern: 'hotfix/*'
+          include: true
+        - pattern: 'patch/*'
+          include: true
+      tag_patterns:
+        - pattern: 'picnic-patch-*'
+          include: true
+      cancel_previous_builds: true
+    scripts:
+      - name: Install Shorebird CLI
+        script: |
+          echo "=== Shorebird CLI 설치 시작 ==="
+          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          shorebird --version || echo "Shorebird 설치 실패"
 
-  #     - name: Get Flutter packages
-  #       script: |
-  #         cd ttja_app
-  #         flutter packages pub get
+      - name: Get Flutter packages
+        script: |
+          cd picnic_app
+          flutter packages pub get
 
-  #     - name: Build AAB and APK for Distribution
-  #       script: |
-  #         cd ttja_app
-  #         flutter clean
-  #         flutter pub get
+      - name: Shorebird Android Patch
+        script: |
+          cd picnic_app
+          export PATH="$HOME/.shorebird/bin:$PATH"
 
-  #         echo "=== AAB 빌드 시작 ==="
-  #         flutter build appbundle --release --dart-define=ENVIRONMENT=prod
+          echo "=== Shorebird Android 패치 시작 ==="
+          echo "Shorebird 버전 확인:"
+          shorebird --version
 
-  #         echo "=== APK 빌드 시작 ==="
-  #         flutter build apk --release --dart-define=ENVIRONMENT=prod
+          echo "=== Shorebird 인증 확인 ==="
+          if [ -z "$SHOREBIRD_TOKEN" ]; then
+            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
+            exit 1
+          else
+            echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
+          fi
 
-  #         echo "=== 빌드 경로 설정 ==="
-  #         # Flutter가 예상하는 경로에 디렉토리 생성
-  #         mkdir -p build/app/outputs/bundle/release/
-  #         mkdir -p build/app/outputs/apk/release/
-  #         mkdir -p build/app/outputs/flutter-apk/
+          echo "=== 사용 가능한 릴리즈 확인 ==="
+          shorebird releases list --platform android || echo "릴리즈 목록 확인 실패"
 
-  #         # 실제 생성된 파일을 Flutter가 찾는 경로로 복사
-  #         if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
-  #           cp android/app/build/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/
-  #           echo "✅ AAB 파일을 올바른 경로로 복사됨"
-  #         fi
+          echo "=== Shorebird Android 패치 생성 및 배포 ==="
+          # 패치 생성 (가장 최신 릴리즈에 대한 패치)
+          shorebird patch android \
+            --flutter-version 3.32.0 \
+            --dart-define=ENVIRONMENT=prod
 
-  #         if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
-  #           cp android/app/build/outputs/apk/release/app-release.apk build/app/outputs/apk/release/
-  #           cp android/app/build/outputs/apk/release/app-release.apk build/app/outputs/flutter-apk/
-  #           echo "✅ APK 파일을 올바른 경로로 복사됨"
-  #         fi
+          echo "=== Shorebird Android 패치 완료 ==="
+          echo "✅ Android 패치가 Shorebird를 통해 성공적으로 배포되었습니다"
+          echo "🚀 사용자들은 앱을 재시작하면 자동으로 패치가 적용됩니다"
 
-  #         echo "=== 빌드 결과 확인 ==="
-  #         find build/app/outputs/ -name "*.aab" -o -name "*.apk" | head -10
-  #         find android/app/build/outputs/ -name "*.aab" -o -name "*.apk" | head -10
+    artifacts:
+      - picnic_app/flutter_drive.log
 
-  #   artifacts:
-  #     - ttja_app/build/**/outputs/**/*.aab
-  #     - ttja_app/build/**/outputs/**/*.apk
-  #     - ttja_app/build/**/outputs/**/mapping.txt
-  #     - ttja_app/flutter_drive.log
+    publishing:
+      slack:
+        channel: '#codemagic-picnic'
+        notify_on_build_start: true
+        notify:
+          success: true
+          failure: true
+      email:
+        recipients:
+          - ironlove77@gmail.com
+        notify:
+          success: true
+          failure: true
 
-  #   publishing:
-  #     google_play:
-  #       credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-  #       track: internal
-  #       submit_as_draft: true
-  #     slack:
-  #       channel: '#codemagic-ttja'
-  #       notify_on_build_start: true
-  #       notify:
-  #         success: true
-  #         failure: true
-  #     email:
-  #       recipients:
-  #         - ironlove77@gmail.com
-  #       notify:
-  #         success: true
-  #         failure: true
+  picnic-app-patch-ios:
+    name: Picnic App - iOS Patch (Shorebird)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      groups:
+        - shorebird-config
+        - picnic_env
+      flutter: 3.32.4
+      vars:
+        APP_NAME: "picnic_app"
+        BUNDLE_ID: "io.iconcasting.picnic.app"
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/.gradle/caches
+        - $HOME/Library/Caches/CocoaPods
+    triggering:
+      events:
+        - push
+        - tag
+      # hotfix, patch 브랜치와 patch 태그로 트리거
+      branch_patterns:
+        - pattern: 'hotfix/*'
+          include: true
+        - pattern: 'patch/*'
+          include: true
+      tag_patterns:
+        - pattern: 'picnic-patch-*'
+          include: true
+      cancel_previous_builds: true
+    scripts:
+      - name: Install Shorebird CLI
+        script: |
+          echo "=== Shorebird CLI 설치 시작 ==="
+          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          shorebird --version || echo "Shorebird 설치 실패"
 
-  # =================== TTJA APP iOS (비활성화) ===================
-  # ttja-app-ios:
-  #   name: TTJA App - iOS
-  #   instance_type: mac_mini_m2
-  #   max_build_duration: 120
-  #   integrations:
-  #     app_store_connect: codemagic-picnic
-  #   environment:
-  #     ios_signing:
-  #       distribution_type: app_store
-  #       bundle_identifier: com.fasoo.TTJA
-  #       # CodeMagic이 자동으로 프로비저닝 프로파일을 생성하도록 설정
-  #     groups:
-  #       - app_store_connect
-  #       - ttja_env
-  #     flutter: 3.32.0
-  #     vars:
-  #       APP_NAME: "ttja_app"
-  #       BUNDLE_ID: "com.fasoo.TTJA"
-  #   cache:
-  #     cache_paths:
-  #       - $FLUTTER_ROOT/.pub-cache
-  #       - $HOME/.gradle/caches
-  #       - $HOME/Library/Caches/CocoaPods
-  #   triggering:
-  #     events:
-  #       - push
-  #     # TTJA는 태그로만 트리거 (브랜치 트리거 제거)
-  #     tag_patterns:
-  #       - pattern: 'ttja-v*'
-  #         include: true
-  #     cancel_previous_builds: true
-  #   scripts:
-  #     - name: Get Flutter packages
-  #       script: |
-  #         cd ttja_app
-  #         flutter packages pub get
+      - name: Get Flutter packages and prepare iOS
+        script: |
+          cd picnic_app
+          echo "=== Flutter 패키지 설치 ==="
+          flutter packages pub get
+          
+          echo "=== Flutter iOS 설정 생성 ==="
+          flutter precache --ios
+          flutter build ios --config-only
 
-  #     - name: Install CocoaPods dependencies
-  #       script: |
-  #         cd ttja_app/ios
-  #         pod install
+      - name: Install CocoaPods dependencies
+        script: |
+          cd picnic_app/ios
+          pod install
 
-  #     - name: Build iOS Archive
-  #       script: |
-  #         cd ttja_app
-  #         flutter clean
-  #         flutter pub get
+      - name: Shorebird iOS Patch
+        script: |
+          cd picnic_app
+          export PATH="$HOME/.shorebird/bin:$PATH"
 
-  #         echo "=== iOS Archive 빌드 시작 ==="
-  #         flutter build ipa --release --dart-define=ENVIRONMENT=prod
+          echo "=== Shorebird iOS 패치 시작 ==="
+          echo "Shorebird 버전 확인:"
+          shorebird --version
 
-  #         echo "=== iOS 빌드 경로 설정 ==="
-  #         # Flutter가 예상하는 경로에 디렉토리 생성
-  #         mkdir -p build/ios/archive/Runner/
-  #         mkdir -p build/ios/ipa/
+          echo "=== Shorebird 인증 확인 ==="
+          if [ -z "$SHOREBIRD_TOKEN" ]; then
+            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
+            exit 1
+          else
+            echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
+          fi
 
-  #         # 실제 생성된 IPA 파일을 Flutter가 찾는 경로로 복사
-  #         if [ -f "build/ios/ipa/ttja_app.ipa" ]; then
-  #           echo "✅ IPA 파일이 이미 올바른 경로에 있습니다"
-  #         else
-  #           # IPA 파일 찾기 및 복사
-  #           IPA_FILE=$(find . -name "*.ipa" -type f | head -1)
-  #           if [ -n "$IPA_FILE" ]; then
-  #             cp "$IPA_FILE" build/ios/ipa/ttja_app.ipa
-  #             echo "✅ IPA 파일을 올바른 경로로 복사됨: $IPA_FILE"
-  #           fi
-  #         fi
+          echo "=== 사용 가능한 릴리즈 확인 ==="
+          shorebird releases list --platform ios || echo "릴리즈 목록 확인 실패"
 
-  #         echo "=== 빌드 결과 확인 ==="
-  #         find build/ios/ -name "*.ipa" | head -10
-  #         find . -name "*.ipa" 2>/dev/null | head -10
+          echo "=== Shorebird iOS 패치 생성 및 배포 ==="
+          # 패치 생성 (가장 최신 릴리즈에 대한 패치)
+          shorebird patch ios \
+            --flutter-version 3.32.0 \
+            --dart-define=ENVIRONMENT=prod
 
-  #   artifacts:
-  #     - ttja_app/build/ios/ipa/*.ipa
-  #     - ttja_app/build/ios/archive/Runner.xcarchive
-  #     - ttja_app/flutter_drive.log
+          echo "=== Shorebird iOS 패치 완료 ==="
+          echo "✅ iOS 패치가 Shorebird를 통해 성공적으로 배포되었습니다"
+          echo "🚀 사용자들은 앱을 재시작하면 자동으로 패치가 적용됩니다"
 
-  #   publishing:
-  #     app_store_connect:
-  #       auth: integration
-  #       submit_to_testflight: true
-  #       beta_groups:
-  #         - App Store Connect Users
-  #     slack:
-  #       channel: '#codemagic-ttja'
-  #       notify_on_build_start: true
-  #       notify:
-  #         success: true
-  #         failure: true
-  #     email:
-  #       recipients:
-  #         - ironlove77@gmail.com
-  #       notify:
-  #         success: true
-  #         failure: true
+    artifacts:
+      - picnic_app/flutter_drive.log
+
+    publishing:
+      slack:
+        channel: '#codemagic-picnic'
+        notify_on_build_start: true
+        notify:
+          success: true
+          failure: true
+      email:
+        recipients:
+          - ironlove77@gmail.com
+        notify:
+          success: true
+          failure: true
