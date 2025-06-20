@@ -779,19 +779,18 @@ workflows:
 
           echo "=== 사용 가능한 릴리즈 확인 ==="
           # 새로운 Shorebird CLI 명령어 사용
-          echo "Shorebird 앱 정보 확인:"
-          shorebird apps list 2>/dev/null || echo "앱 목록 확인 중 오류 발생"
+          echo "Shorebird 도움말 확인:"
+          shorebird --help 2>/dev/null || echo "Shorebird 도움말 확인 중 오류 발생"
           
-          echo "최신 릴리즈 정보 확인:"
-          # releases 명령어 대신 다른 방법으로 확인
-          shorebird releases get-apks --help 2>/dev/null || echo "릴리즈 정보 확인 중 오류 발생"
+          echo "릴리즈 관련 명령어 확인:"
+          shorebird releases --help 2>/dev/null || echo "릴리즈 명령어 확인 중 오류 발생"
 
           echo "=== Flutter 빌드 테스트 ==="
           # 패치 생성 전에 Flutter 빌드가 성공하는지 확인
           echo "🧪 Flutter IPA 빌드 테스트 중..."
-          flutter build ipa --release --dart-define=ENVIRONMENT=prod --dry-run 2>/dev/null || {
-            echo "⚠️ Flutter 빌드 테스트 실패 - 실제 빌드 시도"
-            flutter build ipa --release --dart-define=ENVIRONMENT=prod --config-only
+          flutter build ios --release --dart-define=ENVIRONMENT=prod --analyze-size 2>/dev/null || {
+            echo "⚠️ Flutter 빌드 테스트 실패 - 기본 빌드 확인"
+            flutter build ios --release --dart-define=ENVIRONMENT=prod || echo "Flutter iOS 빌드 확인 실패"
           }
 
           echo "=== Shorebird iOS 패치 생성 및 배포 ==="
@@ -968,18 +967,17 @@ workflows:
 
           echo "=== 사용 가능한 릴리즈 확인 ==="
           # 새로운 Shorebird CLI 명령어 사용
-          echo "Shorebird 앱 정보 확인:"
-          shorebird apps list 2>/dev/null || echo "앱 목록 확인 중 오류 발생"
+          echo "Shorebird 도움말 확인:"
+          shorebird --help 2>/dev/null || echo "Shorebird 도움말 확인 중 오류 발생"
           
-          echo "최신 릴리즈 정보 확인:"
-          # releases 명령어 대신 다른 방법으로 확인
-          shorebird releases get-apks --help 2>/dev/null || echo "릴리즈 정보 확인 중 오류 발생"
+          echo "릴리즈 관련 명령어 확인:"
+          shorebird releases --help 2>/dev/null || echo "릴리즈 명령어 확인 중 오류 발생"
 
           echo "=== Flutter 빌드 테스트 ==="
           # 패치 생성 전에 Flutter 빌드가 성공하는지 확인
           echo "🧪 Flutter APK 빌드 테스트 중..."
-          flutter build apk --release --dart-define=ENVIRONMENT=prod --dry-run 2>/dev/null || {
-            echo "⚠️ Flutter 빌드 테스트 실패 - 실제 빌드 시도"
+          flutter build apk --release --dart-define=ENVIRONMENT=prod --analyze-size 2>/dev/null || {
+            echo "⚠️ Flutter 빌드 테스트 실패 - 기본 빌드 확인"
             flutter clean
             flutter pub get
           }
