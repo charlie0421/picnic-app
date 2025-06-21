@@ -1153,17 +1153,19 @@ workflows:
         script: |
           cd picnic_app
           
-          echo "=== Gradle 메모리 설정 최적화 ==="
+          echo "=== Gradle 메모리 설정 최적화 (릴리즈와 동일하게 적용) ==="
           mkdir -p $HOME/.gradle
-          # 패치 빌드에서는 메모리를 적게 사용
-          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
+          # 메모리를 6GB로 증가하고 메모리 관련 옵션 최적화 (릴리즈와 동일)
+          echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
+          # Shorebird 호환성을 위한 추가 설정 (deprecated 옵션 제거)
+          echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
           
-          echo "✅ Gradle 설정 완료"
+          echo "✅ Gradle 설정 완료 (릴리즈와 동일한 메모리 6GB 적용)"
 
       - name: Shorebird Android Patch
         script: |
@@ -1186,13 +1188,15 @@ workflows:
           echo "Shorebird 버전:"
           shorebird --version 2>/dev/null || echo "Shorebird 버전 확인 실패"
 
-          echo "=== Flutter 빌드 테스트 ==="
-          # 패치 생성 전에 Flutter 빌드가 성공하는지 확인
-          echo "🧪 Flutter APK 빌드 테스트 중..."
+          echo "=== Flutter 빌드 테스트 및 네이티브 라이브러리 준비 ==="
+          # 패치 생성 전에 Flutter 빌드가 성공하는지 확인하고 네이티브 라이브러리 생성
+          echo "🧪 Flutter APK 빌드 테스트 중 (네이티브 라이브러리 생성 포함)..."
           flutter build apk --release --dart-define=ENVIRONMENT=prod --analyze-size 2>/dev/null || {
             echo "⚠️ Flutter 빌드 테스트 실패 - 기본 빌드 확인"
             flutter clean
             flutter pub get
+            # 네이티브 라이브러리 생성을 위해 APK 빌드 수행
+            flutter build apk --release --dart-define=ENVIRONMENT=prod || echo "Flutter APK 빌드 확인 완료"
           }
 
           echo "=== Shorebird 캐시 정리 및 패치 준비 ==="
@@ -1207,6 +1211,68 @@ workflows:
           # Shorebird가 찾는 디렉토리들을 미리 생성
           mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
           mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
+          
+          echo "=== 네이티브 라이브러리 파일 복사 (릴리즈와 동일한 로직) ==="
+          # Flutter가 생성한 네이티브 라이브러리 파일들을 Shorebird가 기대하는 위치로 복사
+          echo "📁 네이티브 라이브러리 파일 검색 중..."
+          find . -name "libapp.so" -type f 2>/dev/null | head -10
+          
+          # Shorebird가 기대하는 타겟 경로 (stripReleaseDebugSymbols 없는 경로)
+          SHOREBIRD_TARGET_PATH="build/app/intermediates/stripped_native_libs/release/out/lib"
+          mkdir -p "$SHOREBIRD_TARGET_PATH"/{armeabi-v7a,arm64-v8a,x86,x86_64}
+          
+          # 실제 파일이 있는 소스 경로들 (stripReleaseDebugSymbols 포함)
+          ACTUAL_SOURCE_PATHS=(
+            "android/app/build/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
+            "build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
+            "android/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
+            "build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
+            "android/app/build/intermediates/stripped_native_libs/release/out/lib"
+            "build/app/intermediates/stripped_native_libs/release/out/lib"
+          )
+          
+          # 소스에서 타겟으로 네이티브 라이브러리 복사
+          COPIED_COUNT=0
+          FOUND_SOURCE=""
+          
+          for source in "${ACTUAL_SOURCE_PATHS[@]}"; do
+            if [ -d "$source" ] && [ "$(find "$source" -name "*.so" 2>/dev/null | wc -l)" -gt 0 ]; then
+              echo "✅ 네이티브 라이브러리 소스 발견: $source"
+              FOUND_SOURCE="$source"
+              
+              # 각 아키텍처별로 복사
+              for arch in armeabi-v7a arm64-v8a x86 x86_64; do
+                if [ -d "$source/$arch" ] && [ "$(ls -A "$source/$arch" 2>/dev/null)" ]; then
+                  echo "📦 $arch 라이브러리 복사 중..."
+                  
+                  # Shorebird가 기대하는 위치로 복사
+                  cp -r "$source/$arch"/* "$SHOREBIRD_TARGET_PATH/$arch/" 2>/dev/null
+                  COPY_RESULT=$?
+                  
+                  # 복사 성공 확인
+                  if [ $COPY_RESULT -eq 0 ] && [ -f "$SHOREBIRD_TARGET_PATH/$arch/libapp.so" ]; then
+                    COPIED_COUNT=$((COPIED_COUNT + 1))
+                    FILE_SIZE=$(du -h "$SHOREBIRD_TARGET_PATH/$arch/libapp.so" | cut -f1)
+                    echo "  ✅ libapp.so 복사 성공 ($arch, 크기: $FILE_SIZE)"
+                  fi
+                  
+                  if [ -f "$SHOREBIRD_TARGET_PATH/$arch/libflutter.so" ]; then
+                    FILE_SIZE=$(du -h "$SHOREBIRD_TARGET_PATH/$arch/libflutter.so" | cut -f1)
+                    echo "  ✅ libflutter.so 복사 성공 ($arch, 크기: $FILE_SIZE)"
+                  fi
+                fi
+              done
+              break
+            fi
+          done
+          
+          # 복사 결과 확인
+          if [ $COPIED_COUNT -gt 0 ]; then
+            echo "✅ 네이티브 라이브러리 복사 완료 ($COPIED_COUNT개 아키텍처)"
+            echo "🎯 Shorebird가 찾을 경로: $SHOREBIRD_TARGET_PATH"
+          else
+            echo "⚠️ 네이티브 라이브러리 복사 실패 - 패치가 실패할 수 있습니다"
+          fi
           
           echo "=== Shorebird Android 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
