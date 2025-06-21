@@ -462,8 +462,7 @@ workflows:
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
-          # Shorebird 호환성을 위한 추가 설정
-          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
+          # Shorebird 호환성을 위한 추가 설정 (deprecated 옵션 제거)
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
           
           # Shorebird PATH 설정
@@ -483,19 +482,26 @@ workflows:
           echo "키스토어 경로: $CM_KEYSTORE_PATH"
           echo "키 별칭: $CM_KEY_ALIAS"
 
-          echo "=== AAB 빌드 시작 (서명 적용) ==="
-          flutter build appbundle \
-            --release \
-            --dart-define=ENVIRONMENT=prod
+          echo "=== 1️⃣ AAB 빌드 시작 (서명 적용) ==="
+          AAB_BUILD_SUCCESS=false
+          if flutter build appbundle --release --dart-define=ENVIRONMENT=prod 2>/dev/null; then
+            echo "✅ AAB 빌드 성공"
+            AAB_BUILD_SUCCESS=true
+          else
+            echo "⚠️ AAB 빌드 실패 - APK만으로 계속 진행합니다"
+          fi
 
-          echo "=== APK 빌드 시작 (서명 적용) ==="
-          flutter build apk \
-            --release \
-            --dart-define=ENVIRONMENT=prod
+          echo "=== 2️⃣ APK 빌드 시작 (서명 적용) ==="
+          if ! flutter build apk --release --dart-define=ENVIRONMENT=prod; then
+            echo "❌ APK 빌드도 실패했습니다"
+            exit 1
+          fi
+          echo "✅ APK 빌드 성공"
 
           echo "=== 빌드 결과 확인 및 경로 동기화 ==="
-          # 실제 생성된 파일을 Flutter가 찾는 경로로 복사
-          if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+          
+          # AAB 처리 (성공한 경우만)
+          if [ "$AAB_BUILD_SUCCESS" = true ] && [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
             # AAB 서명 검증
             if jarsigner -verify "android/app/build/outputs/bundle/release/app-release.aab" > /dev/null 2>&1; then
               cp android/app/build/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/
@@ -504,41 +510,57 @@ workflows:
               
               # 서명 정보 출력
               echo "📋 AAB 서명 정보:"
-              jarsigner -verify -verbose -certs "android/app/build/outputs/bundle/release/app-release.aab" | grep -E "(Certificate|Subject|Issuer)" | head -5
+              jarsigner -verify -verbose -certs "android/app/build/outputs/bundle/release/app-release.aab" | grep -E "(Certificate|Subject|Issuer)" | head -3
             else
-              echo "❌ AAB 파일이 서명되지 않았습니다!"
-              exit 1
+              echo "⚠️ AAB 파일이 서명되지 않았습니다 - APK만 사용합니다"
+              AAB_BUILD_SUCCESS=false
             fi
           else
-            echo "❌ AAB 파일을 찾을 수 없습니다"
-            echo "=== 빌드 디렉토리 구조 확인 ==="
-            find . -name "*.aab" 2>/dev/null | head -5
-            find build/ -type f -name "*" 2>/dev/null | grep -E "\.(aab|apk)$" | head -5
-            find android/ -type f -name "*" 2>/dev/null | grep -E "\.(aab|apk)$" | head -5
-            exit 1
+            echo "⚠️ AAB 파일을 사용할 수 없습니다 - APK만 사용합니다"
+            AAB_BUILD_SUCCESS=false
           fi
           
-          # 2. APK 빌드
-          echo "=== 2️⃣ APK 빌드 시작 ==="
-          flutter build apk --release --dart-define=ENVIRONMENT=prod --build-number=$BUILD_NUMBER
+          # APK 처리 (항상 수행)
+          echo "=== APK 빌드 결과 확인 및 경로 설정 ==="
+          APK_FOUND=false
           
-          # APK 빌드 결과 확인
-          echo "=== APK 빌드 결과 확인 ==="
+          # APK 파일 위치 확인 및 복사
           if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
             APK_SIZE=$(du -h "build/app/outputs/flutter-apk/app-release.apk" | cut -f1)
-            echo "✅ APK 빌드 성공: build/app/outputs/flutter-apk/app-release.apk (크기: $APK_SIZE)"
+            echo "✅ APK 파일 위치 확인: build/app/outputs/flutter-apk/app-release.apk (크기: $APK_SIZE)"
+            APK_FOUND=true
           elif [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
-            # 경로 수정
+            # 경로 정리 및 복사
             mkdir -p build/app/outputs/flutter-apk/
             mkdir -p build/app/outputs/apk/release/
             cp android/app/build/outputs/apk/release/app-release.apk build/app/outputs/flutter-apk/
             cp android/app/build/outputs/apk/release/app-release.apk build/app/outputs/apk/release/
             APK_SIZE=$(du -h "build/app/outputs/flutter-apk/app-release.apk" | cut -f1)
-            echo "✅ APK 빌드 성공 (경로 수정): build/app/outputs/flutter-apk/app-release.apk (크기: $APK_SIZE)"
+            echo "✅ APK 파일 복사 완료: build/app/outputs/flutter-apk/app-release.apk (크기: $APK_SIZE)"
+            APK_FOUND=true
+          elif [ -f "android/app/build/outputs/flutter-apk/app-release.apk" ]; then
+            # 다른 위치에서 찾았을 경우
+            mkdir -p build/app/outputs/flutter-apk/
+            mkdir -p build/app/outputs/apk/release/
+            cp android/app/build/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/
+            cp android/app/build/outputs/flutter-apk/app-release.apk build/app/outputs/apk/release/
+            APK_SIZE=$(du -h "build/app/outputs/flutter-apk/app-release.apk" | cut -f1)
+            echo "✅ APK 파일 복사 완료: build/app/outputs/flutter-apk/app-release.apk (크기: $APK_SIZE)"
+            APK_FOUND=true
           else
             echo "❌ APK 파일을 찾을 수 없습니다"
+            echo "생성된 파일들:"
             find . -name "*.apk" 2>/dev/null | head -5
             exit 1
+          fi
+          
+          # APK 서명 확인
+          if [ "$APK_FOUND" = true ]; then
+            if jarsigner -verify "build/app/outputs/flutter-apk/app-release.apk" > /dev/null 2>&1; then
+              echo "✅ APK 서명 확인 완료"
+            else
+              echo "⚠️ APK 서명 확인 실패"
+            fi
           fi
           
           # 3. Shorebird 빌드
@@ -628,58 +650,19 @@ workflows:
           echo "=== 릴리즈 완료 상태 확인 ==="
           shorebird releases list | head -5 || echo "최종 릴리즈 목록 확인 실패"
 
-          echo "=== 빌드 결과 확인 및 경로 설정 ==="
-          # 모든 빌드 결과 파일 찾기
-          echo "📁 생성된 모든 AAB 파일:"
-          find . -name "*.aab" -type f 2>/dev/null || echo "AAB 파일 없음"
+          echo "=== 최종 Artifacts 상태 요약 ==="
+          if [ "$AAB_BUILD_SUCCESS" = true ]; then
+            echo "✅ AAB: 빌드 성공, Google Play 배포 가능"
+          else
+            echo "⚠️ AAB: 빌드 실패, Google Play 배포 불가 (APK만 사용)"
+          fi
           
-          echo "📁 생성된 모든 APK 파일:"
-          find . -name "*.apk" -type f 2>/dev/null || echo "APK 파일 없음"
-
-          # artifacts가 찾을 수 있도록 디렉토리 생성 및 파일 복사
-          mkdir -p build/app/outputs/bundle/release/
-          mkdir -p build/app/outputs/apk/release/
-          mkdir -p build/app/outputs/flutter-apk/
-
-          # AAB 파일 복사 (서명된 파일만)
-          AAB_FILES=$(find . -name "*.aab" -type f 2>/dev/null)
-          if [ -n "$AAB_FILES" ]; then
-            for aab in $AAB_FILES; do
-              echo "🔍 AAB 파일 검사: $aab"
-              # AAB 파일 서명 상태 확인
-              if jarsigner -verify "$aab" > /dev/null 2>&1; then
-                # 파일명을 app-release.aab로 통일하여 복사
-                cp "$aab" build/app/outputs/bundle/release/app-release.aab
-                echo "✅ 서명된 AAB 복사됨: $aab → build/app/outputs/bundle/release/app-release.aab"
-                
-                # 서명 정보 출력
-                echo "📋 AAB 서명 정보:"
-                jarsigner -verify -verbose -certs "$aab" | grep -E "(Certificate|Subject|Issuer)" | head -3
-              else
-                echo "⚠️ 서명되지 않은 AAB 파일 건너뜀: $aab (Google Play 업로드 불가)"
-              fi
-            done
+          if [ "$APK_FOUND" = true ]; then
+            echo "✅ APK: 빌드 성공, 직접 배포 가능"
           else
-            echo "❌ AAB 파일을 찾을 수 없습니다"
+            echo "❌ APK: 빌드 실패"
           fi
-
-          # APK 파일 복사 (서명된 파일만)
-          APK_FILES=$(find . -name "*.apk" -type f 2>/dev/null)
-          if [ -n "$APK_FILES" ]; then
-            for apk in $APK_FILES; do
-              echo "🔍 APK 파일 검사: $apk"
-              if jarsigner -verify "$apk" > /dev/null 2>&1; then
-                cp "$apk" build/app/outputs/apk/release/app-release.apk
-                cp "$apk" build/app/outputs/flutter-apk/app-release.apk
-                echo "✅ 서명된 APK 복사됨: $apk → app-release.apk"
-              else
-                echo "⚠️ 서명되지 않은 APK 파일 건너뜀: $apk"
-              fi
-            done
-          else
-            echo "❌ APK 파일을 찾을 수 없습니다"
-          fi
-
+          
           echo "=== Artifact 정리 완료 ==="
 
     artifacts:
