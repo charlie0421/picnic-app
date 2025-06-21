@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:animated_digit/animated_digit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -38,8 +39,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart';
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
-
 class VoteDetailPage extends ConsumerStatefulWidget {
   final int voteId;
   final VotePortal votePortal;
@@ -67,6 +66,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
   bool _isSaving = false;
+
+  // 로컬 검색어 상태 - 프로바이더 대신 사용
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -249,14 +251,35 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _cachedFilteredIndices = result;
   }
 
+  bool _areDataListsEqual(
+      List<VoteItemModel?> list1, List<VoteItemModel?> list2) {
+    if (list1.length != list2.length) return false;
+
+    for (int i = 0; i < list1.length; i++) {
+      final item1 = list1[i];
+      final item2 = list2[i];
+
+      if (item1 == null && item2 == null) continue;
+      if (item1 == null || item2 == null) return false;
+
+      // ID와 투표수가 같은지 확인 (주요 변화 감지)
+      if (item1.id != item2.id || item1.voteTotal != item2.voteTotal) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   List<int> _getFilteredIndices(List<dynamic> args) {
     final List<VoteItemModel?> data = args[0];
     final String query = args[1];
 
-    // 캐시된 결과가 있는지 확인
+    // 캐시된 결과가 있는지 확인 (데이터 동일성 검사 강화)
     if (query == _lastQuery &&
         data.length == _lastData.length &&
-        _cachedFilteredIndices.isNotEmpty) {
+        _cachedFilteredIndices.isNotEmpty &&
+        _areDataListsEqual(data, _lastData)) {
       return _cachedFilteredIndices;
     }
 
@@ -372,47 +395,54 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          color: AppColors.grey00,
-          child: ref
-              .watch(asyncVoteDetailProvider(
-                  voteId: widget.voteId, votePortal: widget.votePortal))
-              .when(
-                data: (voteModel) {
-                  if (voteModel == null) return const SizedBox.shrink();
-                  isEnded = voteModel.isEnded!;
-                  isUpcoming = voteModel.isUpcoming!;
+    return Scaffold(
+      resizeToAvoidBottomInset: true, // 키보드가 올라올 때 화면 크기 조정
+      body: Stack(
+        children: [
+          Container(
+            color: AppColors.grey00,
+            child: ref
+                .watch(asyncVoteDetailProvider(
+                    voteId: widget.voteId, votePortal: widget.votePortal))
+                .when(
+                  data: (voteModel) {
+                    if (voteModel == null) return const SizedBox.shrink();
+                    isEnded = voteModel.isEnded!;
+                    isUpcoming = voteModel.isUpcoming!;
 
-                  return GestureDetector(
-                    onTap: () => _focusNode.unfocus(),
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: RepaintBoundary(
-                            key: _captureKey,
-                            child: Column(
-                              children: [
-                                _buildVoteInfo(context, voteModel),
-                                SizedBox(height: 12),
-                                if (_isSaving) _buildCaptureVoteList(context),
-                              ],
+                    return GestureDetector(
+                      onTap: () => _focusNode.unfocus(),
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics:
+                            const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: RepaintBoundary(
+                              key: _captureKey,
+                              child: Column(
+                                children: [
+                                  _buildVoteInfo(context, voteModel),
+                                  SizedBox(height: 12),
+                                  if (_isSaving) _buildCaptureVoteList(context),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        if (!_isSaving) _buildVoteItemList(context),
-                      ],
-                    ),
-                  );
-                },
-                loading: () => _buildLoadingShimmer(),
-                error: (error, stackTrace) => buildErrorView(context,
-                    error: error.toString(), stackTrace: stackTrace),
-              ),
-        ),
-      ],
+                          if (!_isSaving) _buildVoteItemList(context),
+                        ],
+                      ),
+                    );
+                  },
+                  loading: () => _buildLoadingShimmer(),
+                  error: (error, stackTrace) => buildErrorView(context,
+                      error: error.toString(), stackTrace: stackTrace),
+                ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -488,15 +518,22 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildVoteItemList(BuildContext context) {
-    final searchQuery = ref.watch(searchQueryProvider);
-    logger.d('🔍 _buildVoteItemList에서 받은 검색어: "$searchQuery"');
+    logger.d('🔍 _buildVoteItemList 호출됨 - 검색어: "$_searchQuery"');
     final dataAsync = ref.watch(asyncVoteItemListProvider(
         voteId: widget.voteId, votePortal: widget.votePortal));
 
     return dataAsync.when(
       data: (data) {
+        logger.d('📊 투표 아이템 데이터 받음 - 개수: ${data.length}');
+        if (data.isNotEmpty) {
+          logger.d(
+              '📊 첫 번째 아이템: ID=${data[0]?.id}, Artist ID=${data[0]?.artist?.id}, Group ID=${data[0]?.artistGroup?.id}');
+        }
+
         _updateRanks(data);
-        final filteredIndices = _getFilteredIndices([data, searchQuery]);
+        final filteredIndices = _getFilteredIndices([data, _searchQuery]);
+        logger.d('📊 필터링 결과 - 표시할 아이템 수: ${filteredIndices.length}');
+
         return SliverToBoxAdapter(
           child: Stack(
             children: [
@@ -513,8 +550,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   ),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.only(top: 56, left: 16.w, right: 16.w).r,
-                  child: filteredIndices.isEmpty && searchQuery.isNotEmpty
+                  padding: EdgeInsets.only(
+                          top: 56, left: 16.w, right: 16.w, bottom: 100)
+                      .r, // 하단 패딩 추가로 스크롤 여백 확보
+                  child: filteredIndices.isEmpty && _searchQuery.isNotEmpty
                       ? SizedBox(
                           height: 200,
                           child: Center(
@@ -526,20 +565,31 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: filteredIndices.length,
                           itemBuilder: (context, index) {
+                            logger.d(
+                                '📋 ListView.builder 아이템 빌드 - index: $index');
+
                             // 안전성 체크 추가
                             if (index >= filteredIndices.length) {
+                              logger.w(
+                                  '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}');
                               return const SizedBox.shrink();
                             }
 
                             final itemIndex = filteredIndices[index];
                             if (itemIndex >= data.length) {
+                              logger.w(
+                                  '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}');
                               return const SizedBox.shrink();
                             }
 
                             final item = data[itemIndex];
                             if (item == null) {
+                              logger.w('📋 null 아이템 - itemIndex: $itemIndex');
                               return const SizedBox.shrink();
                             }
+
+                            logger.d(
+                                '📋 아이템 빌드 준비 - Item ID: ${item.id}, originalIndex: $itemIndex, listIndex: $index');
 
                             final previousVoteCount =
                                 _previousVoteCounts[item.id] ?? item.voteTotal;
@@ -559,8 +609,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                             });
 
                             return RepaintBoundary(
-                              key:
-                                  ValueKey('vote_item_${item.id}_$searchQuery'),
+                              key: ValueKey(
+                                  'vote_item_${item.id}'), // 검색어 제거하여 안정적인 키 사용
                               child: Padding(
                                 padding: EdgeInsets.only(
                                     bottom: 16), // 24에서 16으로 더 감소
@@ -571,7 +621,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                   voteCountDiff: voteCountDiff,
                                   rankChanged: rankChanged,
                                   rankUp: previousRank > actualRank,
-                                  searchQuery: searchQuery,
+                                  searchQuery: _searchQuery,
                                 ),
                               ),
                             );
@@ -584,11 +634,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           ),
         );
       },
-      loading: () => SliverToBoxAdapter(child: _buildLoadingShimmer()),
-      error: (error, stackTrace) => SliverToBoxAdapter(
-        child: buildErrorView(context,
-            error: error.toString(), stackTrace: stackTrace),
-      ),
+      loading: () {
+        logger.d('⏳ 투표 아이템 로딩 중...');
+        return SliverToBoxAdapter(child: _buildLoadingShimmer());
+      },
+      error: (error, stackTrace) {
+        logger.e('❌ 투표 아이템 로딩 실패: $error');
+        return SliverToBoxAdapter(
+          child: buildErrorView(context,
+              error: error.toString(), stackTrace: stackTrace),
+        );
+      },
     );
   }
 
@@ -711,14 +767,24 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                           : '',
                                       searchQuery,
                                     ),
-                                    // 아티스트의 그룹명을 괄호 안에 작게 표시
-                                    if (item.artist?.artistGroup?.name != null)
+                                    // 아티스트의 그룹명을 괄호 안에 작게 표시 (그룹명이 실제로 존재할 때만)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        _getMatchingText(
+                                                item.artist!.artistGroup!.name,
+                                                searchQuery)
+                                            .isNotEmpty)
                                       TextSpan(
                                         text: ' (',
                                         style: getTextStyle(AppTypo.caption10SB,
                                             AppColors.grey600),
                                       ),
-                                    if (item.artist?.artistGroup?.name != null)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        _getMatchingText(
+                                                item.artist!.artistGroup!.name,
+                                                searchQuery)
+                                            .isNotEmpty)
                                       ...KoreanSearchUtils
                                           .buildHighlightedTextSpans(
                                         _getMatchingText(
@@ -729,7 +795,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                             AppTypo.caption10SB,
                                             AppColors.grey600),
                                       ),
-                                    if (item.artist?.artistGroup?.name != null)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        _getMatchingText(
+                                                item.artist!.artistGroup!.name,
+                                                searchQuery)
+                                            .isNotEmpty)
                                       TextSpan(
                                         text: ')',
                                         style: getTextStyle(AppTypo.caption10SB,
@@ -848,16 +919,70 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     return t('text_vote_rank', {'rank': rank.toString()});
   }
 
+  /// 상대 경로를 절대 경로로 변환하는 메서드
+  String _makeFullImageUrl(String imageUrl) {
+    if (imageUrl.isEmpty) {
+      return imageUrl;
+    }
+
+    // 이미 절대 경로인 경우 그대로 반환
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+
+    // 상대 경로인 경우 CDN URL과 결합
+    try {
+      final cdnUrl = Environment.cdnUrl;
+      // CDN URL 끝의 슬래시 제거
+      final cleanCdnUrl = cdnUrl.endsWith('/')
+          ? cdnUrl.substring(0, cdnUrl.length - 1)
+          : cdnUrl;
+      // 이미지 URL 앞의 슬래시 제거
+      final cleanImageUrl =
+          imageUrl.startsWith('/') ? imageUrl.substring(1) : imageUrl;
+
+      final fullUrl = '$cleanCdnUrl/$cleanImageUrl';
+      logger.d('🔗 URL 변환: "$imageUrl" -> "$fullUrl"');
+      return fullUrl;
+    } catch (e) {
+      logger.e('🔗 URL 변환 실패: $e');
+      return imageUrl;
+    }
+  }
+
   Widget _buildArtistImage(VoteItemModel item, int index) {
+    logger.d('🖼️ _buildArtistImage 호출됨 - ID: ${item.id}, index: $index');
+
     try {
       // 이미지 URL을 안전하게 가져오기
-      final imageUrl = ((item.artist?.id ?? 0) != 0
-              ? item.artist?.image
-              : item.artistGroup?.image) ??
-          '';
+      final artistUrl = item.artist?.image ?? '';
+      final groupUrl = item.artistGroup?.image ?? '';
+      final imageUrl = ((item.artist?.id ?? 0) != 0 ? artistUrl : groupUrl);
 
-      // 빈 URL일 경우 기본 플레이스홀더 표시
-      final hasValidImageUrl = imageUrl.isNotEmpty;
+      // 상대 경로를 절대 경로로 변환
+      final fullImageUrl = _makeFullImageUrl(imageUrl);
+
+      // 상세 디버깅용 로그
+      logger.d('🖼️ 이미지 빌드 상세 정보:');
+      logger.d('   - Item ID: ${item.id}');
+      logger.d('   - Artist ID: ${item.artist?.id}');
+      logger.d('   - Artist Image: $artistUrl');
+      logger.d('   - Group ID: ${item.artistGroup?.id}');
+      logger.d('   - Group Image: $groupUrl');
+      logger.d('   - 원본 URL: $imageUrl');
+      logger.d('   - 전체 URL: $fullImageUrl');
+
+      // URL 유효성 검사 강화
+      final hasValidImageUrl = fullImageUrl.isNotEmpty &&
+          (fullImageUrl.startsWith('http://') ||
+              fullImageUrl.startsWith('https://'));
+
+      logger.d('🖼️ URL 유효성 검사 결과: $hasValidImageUrl');
+
+      if (!hasValidImageUrl) {
+        logger.w(
+            '🖼️ 유효하지 않은 이미지 URL - ID: ${item.id}, 원본: "$imageUrl", 전체: "$fullImageUrl"');
+      }
 
       return SizedBox(
         width: 45,
@@ -877,17 +1002,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               width: 39, // 명시적 크기 지정
               height: 39,
               child: hasValidImageUrl
-                  ? RepaintBoundary(
-                      child: PicnicCachedNetworkImage(
-                        imageUrl: imageUrl,
-                        fit: BoxFit.cover,
-                        width: 39,
-                        height: 39,
-                        memCacheWidth: 39, // 실제 크기와 일치
-                        memCacheHeight: 39,
-                        placeholder: _buildImagePlaceholder(),
-                      ),
-                    )
+                  ? _buildNetworkImage(fullImageUrl, item.id, index)
                   : _buildImagePlaceholder(),
             ),
           ),
@@ -896,22 +1011,81 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     } catch (e) {
       // 이미지 빌드 에러 발생 시 안전한 폴백 위젯 반환
       logger.e('아티스트 이미지 빌드 에러: $e');
-      return SizedBox(
-        width: 45,
-        height: 45,
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.grey200.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(22.5),
-          ),
-          padding: const EdgeInsets.all(3),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(19.5),
-            child: _buildImagePlaceholder(),
-          ),
-        ),
-      );
+      return _buildErrorFallbackImage();
     }
+  }
+
+  Widget _buildNetworkImage(String imageUrl, int itemId, int index) {
+    logger.d('🖼️ 네트워크 이미지 생성 - ID: $itemId, URL: $imageUrl');
+
+    // 안정적인 키 사용
+    return RepaintBoundary(
+      key: ValueKey('image_${itemId}'),
+      child: Container(
+        width: 39,
+        height: 39,
+        child: _buildImageWithFallback(imageUrl),
+      ),
+    );
+  }
+
+  Widget _buildImageWithFallback(String imageUrl) {
+    // 먼저 기본 CachedNetworkImage로 시도
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      width: 39,
+      height: 39,
+      memCacheWidth: 78,
+      memCacheHeight: 78,
+      placeholder: (context, url) {
+        logger.d('🖼️ 이미지 로딩 중: $url');
+        return _buildImagePlaceholder();
+      },
+      errorWidget: (context, url, error) {
+        logger.e('🖼️ 이미지 로딩 실패: $url, 에러: $error');
+        // 에러 발생 시 PicnicCachedNetworkImage로 fallback
+        return _buildPicnicImageFallback(imageUrl);
+      },
+      fadeInDuration: const Duration(milliseconds: 200),
+      fadeOutDuration: const Duration(milliseconds: 100),
+    );
+  }
+
+  Widget _buildPicnicImageFallback(String imageUrl) {
+    logger.d('🖼️ PicnicCachedNetworkImage fallback 시도: $imageUrl');
+
+    return PicnicCachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      width: 39,
+      height: 39,
+      memCacheWidth: 78,
+      memCacheHeight: 78,
+      placeholder: _buildImagePlaceholder(),
+      lazyLoadingStrategy: LazyLoadingStrategy.none,
+      priority: ImagePriority.high,
+      timeout: const Duration(seconds: 10),
+      maxRetries: 2,
+    );
+  }
+
+  Widget _buildErrorFallbackImage() {
+    return SizedBox(
+      width: 45,
+      height: 45,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.grey200.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(22.5),
+        ),
+        padding: const EdgeInsets.all(3),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(19.5),
+          child: _buildImagePlaceholder(),
+        ),
+      ),
+    );
   }
 
   Widget _buildImagePlaceholder() {
@@ -1199,10 +1373,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           hintText: t('text_vote_where_is_my_bias'),
           onSearchChanged: (query) {
             logger.d('🔍 EnhancedSearchBox onSearchChanged 호출됨: "$query"');
-            // 직접 searchQueryProvider 업데이트
+            // 로컬 상태 업데이트
             if (mounted) {
-              ref.read(searchQueryProvider.notifier).state = query;
-              logger.d('🔍 searchQueryProvider 직접 업데이트됨: "$query"');
+              setState(() {
+                _searchQuery = query;
+              });
+              logger.d('🔍 _searchQuery 로컬 상태 업데이트됨: "$query"');
             }
           },
           controller: _textEditingController,
