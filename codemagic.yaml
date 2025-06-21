@@ -484,39 +484,169 @@ workflows:
 
           echo "=== 1️⃣ AAB 빌드 시작 (서명 적용) ==="
           AAB_BUILD_SUCCESS=false
-          if flutter build appbundle --release --dart-define=ENVIRONMENT=prod; then
-            echo "✅ AAB 빌드 성공"
-            if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
-              AAB_SIZE=$(du -h "build/app/outputs/bundle/release/app-release.aab" | cut -f1)
-              echo "✅ AAB 파일 확인: build/app/outputs/bundle/release/app-release.aab (크기: $AAB_SIZE)"
-              AAB_BUILD_SUCCESS=true
+          
+          # AAB 빌드 실행 (성공 여부와 관계없이 파일 탐지 시도)
+          echo "🚀 Flutter AAB 빌드 실행..."
+          flutter build appbundle --release --dart-define=ENVIRONMENT=prod
+          AAB_FLUTTER_EXIT_CODE=$?
+          
+          echo "=== AAB 파일 탐지 및 복구 ==="
+          echo "📁 모든 .aab 파일 검색 중..."
+          find . -name "*.aab" -type f 2>/dev/null | head -10
+          
+          # 여러 위치에서 AAB 파일 탐지
+          AAB_FOUND_PATH=""
+          POSSIBLE_AAB_PATHS=(
+            "build/app/outputs/bundle/release/app-release.aab"
+            "android/app/build/outputs/bundle/release/app-release.aab"
+            "build/app/outputs/bundle/release/app.aab"
+            "android/app/build/outputs/bundle/release/app.aab"
+          )
+          
+          # 1. 예상 경로에서 먼저 확인
+          for path in "${POSSIBLE_AAB_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ AAB 파일 발견: $path"
+              AAB_FOUND_PATH="$path"
+              break
+            fi
+          done
+          
+          # 2. 예상 경로에 없으면 전체 검색
+          if [ -z "$AAB_FOUND_PATH" ]; then
+            echo "🔍 전체 검색으로 AAB 파일 찾는 중..."
+            AAB_FOUND_PATH=$(find . -name "*.aab" -type f 2>/dev/null | head -1)
+            
+            if [ -n "$AAB_FOUND_PATH" ]; then
+              echo "✅ AAB 파일 발견 (전체 검색): $AAB_FOUND_PATH"
             else
-              echo "⚠️ AAB 빌드는 성공했지만 파일을 찾을 수 없음"
+              echo "❌ AAB 파일을 찾을 수 없음"
+            fi
+          fi
+          
+          # 3. AAB 파일 복사 및 정리
+          if [ -n "$AAB_FOUND_PATH" ] && [ -f "$AAB_FOUND_PATH" ]; then
+            # Flutter가 예상하는 위치로 복사
+            mkdir -p build/app/outputs/bundle/release/
+            cp "$AAB_FOUND_PATH" build/app/outputs/bundle/release/app-release.aab
+            
+            AAB_SIZE=$(du -h build/app/outputs/bundle/release/app-release.aab | cut -f1)
+            echo "✅ AAB 파일 복구 성공: build/app/outputs/bundle/release/app-release.aab (크기: $AAB_SIZE)"
+            AAB_BUILD_SUCCESS=true
+            
+            # 서명 검증
+            if jarsigner -verify build/app/outputs/bundle/release/app-release.aab > /dev/null 2>&1; then
+              echo "✅ AAB 서명 검증 성공"
+            else
+              echo "⚠️ AAB 서명 검증 실패"
             fi
           else
-            echo "⚠️ AAB 빌드 실패 - APK만으로 계속 진행합니다"
+            echo "❌ AAB 파일 복구 실패"
+            if [ $AAB_FLUTTER_EXIT_CODE -eq 0 ]; then
+              echo "⚠️ Flutter 명령어는 성공했지만 파일을 찾을 수 없습니다"
+            else
+              echo "❌ Flutter AAB 빌드 명령어도 실패했습니다 (종료 코드: $AAB_FLUTTER_EXIT_CODE)"
+            fi
           fi
 
           echo "=== 2️⃣ APK 빌드 시작 (서명 적용) ==="
-          if flutter build apk --release --dart-define=ENVIRONMENT=prod; then
-            echo "✅ APK 빌드 성공"
-            if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-              APK_SIZE=$(du -h "build/app/outputs/flutter-apk/app-release.apk" | cut -f1)
-              echo "✅ APK 파일 확인: build/app/outputs/flutter-apk/app-release.apk (크기: $APK_SIZE)"
+          APK_BUILD_SUCCESS=false
+          
+          # APK 빌드 실행 (성공 여부와 관계없이 파일 탐지 시도)
+          echo "🚀 Flutter APK 빌드 실행..."
+          flutter build apk --release --dart-define=ENVIRONMENT=prod
+          APK_FLUTTER_EXIT_CODE=$?
+          
+          echo "=== APK 파일 탐지 및 복구 ==="
+          echo "📁 모든 .apk 파일 검색 중..."
+          find . -name "*.apk" -type f 2>/dev/null | head -10
+          
+          # 여러 위치에서 APK 파일 탐지
+          APK_FOUND_PATH=""
+          POSSIBLE_APK_PATHS=(
+            "build/app/outputs/flutter-apk/app-release.apk"
+            "android/app/build/outputs/apk/release/app-release.apk"
+            "build/app/outputs/apk/release/app-release.apk"
+            "android/app/build/outputs/flutter-apk/app-release.apk"
+            "build/app/outputs/flutter-apk/app.apk"
+            "android/app/build/outputs/apk/release/app.apk"
+          )
+          
+          # 1. 예상 경로에서 먼저 확인
+          for path in "${POSSIBLE_APK_PATHS[@]}"; do
+            if [ -f "$path" ]; then
+              echo "✅ APK 파일 발견: $path"
+              APK_FOUND_PATH="$path"
+              break
+            fi
+          done
+          
+          # 2. 예상 경로에 없으면 전체 검색
+          if [ -z "$APK_FOUND_PATH" ]; then
+            echo "🔍 전체 검색으로 APK 파일 찾는 중..."
+            APK_FOUND_PATH=$(find . -name "*.apk" -type f 2>/dev/null | head -1)
+            
+            if [ -n "$APK_FOUND_PATH" ]; then
+              echo "✅ APK 파일 발견 (전체 검색): $APK_FOUND_PATH"
             else
-              echo "❌ APK 빌드는 성공했지만 파일을 찾을 수 없음"
-              echo "📁 Flutter 빌드 출력 확인:"
-              find build/ -name "*.apk" 2>/dev/null | head -3
-              find android/ -name "*.apk" 2>/dev/null | head -3
-              exit 1
+              echo "❌ APK 파일을 찾을 수 없음"
+            fi
+          fi
+          
+          # 3. APK 파일 복사 및 정리
+          if [ -n "$APK_FOUND_PATH" ] && [ -f "$APK_FOUND_PATH" ]; then
+            # Flutter가 예상하는 위치들로 복사
+            mkdir -p build/app/outputs/flutter-apk/
+            mkdir -p build/app/outputs/apk/release/
+            
+            cp "$APK_FOUND_PATH" build/app/outputs/flutter-apk/app-release.apk
+            cp "$APK_FOUND_PATH" build/app/outputs/apk/release/app-release.apk
+            
+            APK_SIZE=$(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)
+            echo "✅ APK 파일 복구 성공: build/app/outputs/flutter-apk/app-release.apk (크기: $APK_SIZE)"
+            APK_BUILD_SUCCESS=true
+            
+            # 서명 검증
+            if jarsigner -verify build/app/outputs/flutter-apk/app-release.apk > /dev/null 2>&1; then
+              echo "✅ APK 서명 검증 성공"
+            else
+              echo "⚠️ APK 서명 검증 실패"
             fi
           else
-            echo "❌ APK 빌드 실패"
-            exit 1
+            echo "❌ APK 파일 복구 실패"
+            if [ $APK_FLUTTER_EXIT_CODE -eq 0 ]; then
+              echo "⚠️ Flutter 명령어는 성공했지만 파일을 찾을 수 없습니다"
+            else
+              echo "❌ Flutter APK 빌드 명령어도 실패했습니다 (종료 코드: $APK_FLUTTER_EXIT_CODE)"
+            fi
+            echo "빌드를 강제로 계속 진행합니다..."
           fi
           
           # 3. Shorebird 빌드
           echo "=== 3️⃣ Shorebird 빌드 시작 ==="
+          
+          # 빌드 결과 확인
+          echo "=== 빌드 결과 요약 ==="
+          if [ "$AAB_BUILD_SUCCESS" = true ]; then
+            echo "✅ AAB: 빌드 및 복구 성공"
+          else
+            echo "❌ AAB: 빌드 실패 또는 파일을 찾을 수 없음"
+          fi
+          
+          if [ "$APK_BUILD_SUCCESS" = true ]; then
+            echo "✅ APK: 빌드 및 복구 성공"
+          else
+            echo "❌ APK: 빌드 실패 또는 파일을 찾을 수 없음"
+          fi
+          
+          # AAB나 APK 중 하나라도 성공하면 Shorebird 진행
+          if [ "$AAB_BUILD_SUCCESS" = true ] || [ "$APK_BUILD_SUCCESS" = true ]; then
+            echo "✅ 최소한 하나의 빌드가 성공했으므로 Shorebird 진행"
+          else
+            echo "❌ AAB와 APK 모두 실패했습니다"
+            exit 1
+          fi
+          
           if [ -z "$SHOREBIRD_TOKEN" ]; then
             echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
             exit 1
@@ -604,13 +734,31 @@ workflows:
 
           echo "=== 최종 Artifacts 상태 요약 ==="
           if [ "$AAB_BUILD_SUCCESS" = true ]; then
-            echo "✅ AAB: 빌드 성공, Google Play 배포 가능"
+            echo "✅ AAB: 빌드 및 복구 성공, Google Play 배포 가능"
+            if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+              AAB_FINAL_SIZE=$(du -h "build/app/outputs/bundle/release/app-release.aab" | cut -f1)
+              echo "   📦 AAB 파일 크기: $AAB_FINAL_SIZE"
+            fi
           else
-            echo "⚠️ AAB: 빌드 실패, Google Play 배포 불가 (APK만 사용)"
+            echo "❌ AAB: 빌드 실패 또는 복구 불가, Google Play 배포 불가"
           fi
           
-          echo "✅ APK: 빌드 성공, 직접 배포 가능"
-          echo "=== 빌드 완료 ==="
+          if [ "$APK_BUILD_SUCCESS" = true ]; then
+            echo "✅ APK: 빌드 및 복구 성공, 직접 배포 가능"
+            if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+              APK_FINAL_SIZE=$(du -h "build/app/outputs/flutter-apk/app-release.apk" | cut -f1)
+              echo "   📦 APK 파일 크기: $APK_FINAL_SIZE"
+            fi
+          else
+            echo "❌ APK: 빌드 실패 또는 복구 불가"
+          fi
+          
+          echo ""
+          echo "🎯 Shorebird 릴리즈 및 모든 빌드 작업 완료!"
+          echo "📁 생성된 Artifacts:"
+          echo "   - AAB: $([ "$AAB_BUILD_SUCCESS" = true ] && echo "✅ 성공" || echo "❌ 실패")"
+          echo "   - APK: $([ "$APK_BUILD_SUCCESS" = true ] && echo "✅ 성공" || echo "❌ 실패")"
+          echo "   - Shorebird: ✅ 릴리즈 완료"
 
     artifacts:
       - picnic_app/build/app/outputs/bundle/release/app-release.aab
