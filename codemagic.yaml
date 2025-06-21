@@ -1233,6 +1233,24 @@ workflows:
           if [ $AAB_TEST_EXIT_CODE -eq 0 ]; then
             echo "✅ Flutter AAB 빌드 테스트 성공!"
             echo "🎯 Shorebird 패치에서도 AAB 빌드가 성공할 가능성이 높습니다"
+            
+            # 성공한 빌드의 AAB 파일을 Shorebird가 예상하는 위치로 복사
+            echo "📦 표준 Flutter 빌드 결과물 준비..."
+            
+            # AAB 파일 탐지 및 복사
+            if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+              AAB_SIZE=$(du -h "build/app/outputs/bundle/release/app-release.aab" | cut -f1)
+              echo "✅ AAB 파일 확인됨: build/app/outputs/bundle/release/app-release.aab (크기: $AAB_SIZE)"
+            elif [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+              # 다른 위치에 있으면 표준 위치로 복사
+              mkdir -p build/app/outputs/bundle/release/
+              cp "android/app/build/outputs/bundle/release/app-release.aab" "build/app/outputs/bundle/release/app-release.aab"
+              AAB_SIZE=$(du -h "build/app/outputs/bundle/release/app-release.aab" | cut -f1)
+              echo "✅ AAB 파일 복사 완료: build/app/outputs/bundle/release/app-release.aab (크기: $AAB_SIZE)"
+            else
+              echo "⚠️ AAB 파일을 예상 위치에서 찾을 수 없음"
+            fi
+            
           else
             echo "❌ Flutter AAB 빌드 테스트 실패"
             echo "🔍 AAB 빌드 실패 원인 분석:"
@@ -1385,7 +1403,7 @@ workflows:
           fi
           
           echo "=== Shorebird Android 패치 생성 및 배포 (강화된 메모리 설정) ==="
-          echo "🚀 Android 패치 시작 (최적화된 AAB 빌드 환경)..."
+          echo "🚀 Android 패치 시작 (사전 빌드 완료된 환경)..."
           
           # 최종 메모리 설정 확인
           echo "메모리 설정 상태:"
@@ -1393,6 +1411,11 @@ workflows:
           echo "- _JAVA_OPTIONS: $_JAVA_OPTIONS"
           echo "- JAVA_OPTS: $JAVA_OPTS"
           
+          # Shorebird 작업 디렉토리 최적화
+          echo "🔧 Shorebird 환경 최적화..."
+          
+          # 1차 시도: 표준 패치 명령어
+          echo "📱 1차 시도: 표준 Shorebird 패치..."
           PATCH_RESULT=$(shorebird patch android \
             --release-version=latest \
             --no-confirm \
@@ -1422,31 +1445,64 @@ workflows:
               exit 1
             fi
           else
-            echo "=== Shorebird Android 패치 실패 ==="
-            echo "❌ Android 패치 생성/배포에 실패했습니다 (종료 코드: $PATCH_EXIT_CODE)"
+            echo "=== Shorebird Android 패치 1차 실패 ==="
+            echo "❌ 1차 패치 시도 실패 (종료 코드: $PATCH_EXIT_CODE)"
             
-            # 실패 원인 분석
-            if echo "$PATCH_RESULT" | grep -i "keystore\|signing"; then
-              echo "🔍 서명 관련 문제로 보입니다:"
-              echo "- CodeMagic Android 키스토어 설정을 확인하세요"
-              echo "- 키스토어 파일과 비밀번호를 확인하세요"
-            elif echo "$PATCH_RESULT" | grep -i "flutter.*build.*fail\|gradle.*fail"; then
-              echo "🔍 빌드 문제로 보입니다:"
-              echo "- AAB 빌드 자체가 실패했습니다"
-              echo "- 메모리 설정: 12GB (최대)"
-              echo "- 현재 Gradle 최적화 설정 적용됨"
-              echo "- 추가 최적화가 필요할 수 있습니다"
-            elif echo "$PATCH_RESULT" | grep -i "no.*release"; then
-              echo "🔍 기존 릴리즈가 없는 문제로 보입니다:"
-              echo "- 먼저 전체 릴리즈를 배포한 후 패치를 시도하세요"
-            elif echo "$PATCH_RESULT" | grep -i "java.*heap\|out.*of.*memory"; then
-              echo "🔍 메모리 부족 문제입니다:"
-              echo "- 현재 설정: 12GB Heap + G1GC + ZGC"
-              echo "- 이미 최대 메모리 설정이 적용되었습니다"
-              echo "- 빌드 복잡도 또는 시스템 한계일 수 있습니다"
+            # AAB 파일 찾기 문제인지 확인
+            if echo "$PATCH_RESULT" | grep -i "failed.*produce.*aab\|couldn.*find.*aab"; then
+              echo "🔍 AAB 파일 탐지 실패 문제로 판단됨"
+              echo "📦 2차 시도: 수동 AAB 파일 배치 후 재시도..."
+              
+              # 모든 가능한 위치에서 AAB 파일 찾기
+              echo "🔍 시스템 전체에서 AAB 파일 검색..."
+              find /Users/builder/clone/picnic_app -name "*.aab" -type f 2>/dev/null | head -10
+              
+              AAB_FOUND=$(find /Users/builder/clone/picnic_app -name "*.aab" -type f 2>/dev/null | head -1)
+              if [ -n "$AAB_FOUND" ]; then
+                echo "✅ AAB 파일 발견: $AAB_FOUND"
+                
+                # 여러 위치에 복사하여 Shorebird가 찾을 수 있도록 함
+                mkdir -p build/app/outputs/bundle/release/
+                mkdir -p android/app/build/outputs/bundle/release/
+                
+                cp "$AAB_FOUND" build/app/outputs/bundle/release/app-release.aab
+                cp "$AAB_FOUND" android/app/build/outputs/bundle/release/app-release.aab
+                
+                echo "🔄 2차 패치 시도 (AAB 파일 배치 완료)..."
+                PATCH_RESULT_2=$(shorebird patch android \
+                  --release-version=latest \
+                  --no-confirm \
+                  --dart-define=ENVIRONMENT=prod 2>&1)
+                PATCH_EXIT_CODE_2=$?
+                
+                if [ $PATCH_EXIT_CODE_2 -eq 0 ]; then
+                  echo "✅ 2차 시도 성공! AAB 파일 배치로 문제 해결됨"
+                  echo "$PATCH_RESULT_2"
+                else
+                  echo "❌ 2차 시도도 실패 (종료 코드: $PATCH_EXIT_CODE_2)"
+                  echo "$PATCH_RESULT_2"
+                  exit 1
+                fi
+              else
+                echo "❌ 시스템에서 AAB 파일을 찾을 수 없음"
+                exit 1
+              fi
+            else
+              echo "🔍 다른 종류의 빌드 문제로 보입니다:"
+              
+              # 실패 원인 분석
+              if echo "$PATCH_RESULT" | grep -i "keystore\|signing"; then
+                echo "- 서명 관련 문제"
+              elif echo "$PATCH_RESULT" | grep -i "flutter.*build.*fail\|gradle.*fail"; then
+                echo "- Flutter/Gradle 빌드 문제"
+              elif echo "$PATCH_RESULT" | grep -i "no.*release"; then
+                echo "- 기존 릴리즈 없음"
+              elif echo "$PATCH_RESULT" | grep -i "java.*heap\|out.*of.*memory"; then
+                echo "- 메모리 부족"
+              fi
+              
+              exit 1
             fi
-            
-            exit 1
           fi
 
     artifacts:
