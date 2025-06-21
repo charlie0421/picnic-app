@@ -72,26 +72,20 @@ workflows:
           export PATH="$HOME/.shorebird/bin:$PATH"
           shorebird --version || echo "Shorebird 설치 실패"
 
-      - name: Build iOS IPA (CodeMagic Automatic Signing)
+      - name: Verify iOS Signing Configuration
         script: |
-          cd picnic_app
-          
-          echo "=== CodeMagic Automatic Signing IPA 빌드 ==="
-          echo "✅ CodeMagic 자동 서명 환경 최적화"
-          echo "✅ Bundle ID: io.iconcasting.picnic.app"
-          echo "✅ Distribution Type: App Store"
-          echo ""
-          
-          # CodeMagic 서명 환경 확인
-          echo "=== CodeMagic 서명 환경 확인 ==="
+          echo "=== iOS 서명 환경 확인 ==="
           echo "DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM:-'24SL34R9HR'}"
           
           # Distribution Certificate 정보 확인
           DIST_CERT_INFO=$(security find-identity -v -p codesigning | grep -i distribution | head -1)
           if [ -n "$DIST_CERT_INFO" ]; then
-            echo "Distribution 인증서: $DIST_CERT_INFO"
+            echo "✅ Distribution 인증서: $DIST_CERT_INFO"
           else
-            echo "⚠️ Distribution 인증서를 찾을 수 없음"
+            echo "❌ Distribution 인증서를 찾을 수 없음"
+            echo "사용 가능한 인증서들:"
+            security find-identity -v -p codesigning
+            exit 1
           fi
           
           # Provisioning Profile 정보 확인
@@ -99,41 +93,56 @@ workflows:
           echo "설치된 프로비저닝 프로파일 개수: $PROFILE_COUNT개"
           
           if [ "$PROFILE_COUNT" -gt 0 ]; then
-            echo "프로비저닝 프로파일 목록:"
+            echo "✅ 프로비저닝 프로파일 목록:"
             find "$HOME/Library/MobileDevice/Provisioning Profiles" -name "*.mobileprovision" 2>/dev/null | while read profile; do
               PROFILE_NAME=$(security cms -D -i "$profile" 2>/dev/null | grep -A1 "<key>Name</key>" | tail -1 | sed 's/.*<string>\(.*\)<\/string>.*/\1/' | tr -d '\n')
               echo "  - $(basename "$profile" .mobileprovision): $PROFILE_NAME"
             done
+          else
+            echo "❌ 프로비저닝 프로파일을 찾을 수 없음"
+            exit 1
           fi
-          echo ""
+
+      - name: Configure Xcode Project for Manual Signing
+        script: |
+          cd picnic_app/ios
           
-          # Xcode 프로젝트가 Automatic Signing을 사용하도록 확인
-          echo "=== Xcode 프로젝트 Automatic Signing 설정 확인 ==="
-          cd ios
+          echo "=== Xcode 프로젝트 Manual Signing 설정 ==="
+          # Manual Signing 강제 설정 (Distribution 인증서 사용)
+          echo "📝 Manual Signing 강제 활성화..."
+          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Automatic Signing 강제 설정 (CodeMagic 환경에 최적화)
-          echo "📝 Automatic Signing 강제 활성화..."
-          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"Apple Distribution\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"iPhone Developer\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER = /d" Runner.xcodeproj/project.pbxproj
+          # 프로비저닝 프로파일 설정
+          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Development Team 설정은 유지
+          # PROVISIONING_PROFILE_SPECIFIER 추가 (존재하지 않는 경우)
+          if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj; then
+            sed -i '' '/DEVELOPMENT_TEAM = /a\
+          PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
+          fi
+          
+          # Development Team 설정 유지
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          echo "✅ Automatic Signing 설정 완료"
-          echo "- CODE_SIGN_STYLE: Automatic"
+          echo "✅ Manual Signing 설정 완료"
+          echo "- CODE_SIGN_STYLE: Manual"  
           echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- CODE_SIGN_IDENTITY: (자동)"
-          echo "- PROVISIONING_PROFILE: (자동)"
+          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+
+      - name: Build iOS IPA (Manual Signing)
+        script: |
+          cd picnic_app
           
-          cd ..
+          echo "=== iOS IPA 빌드 시작 (Manual Signing) ==="
+          echo "✅ Manual Signing 환경으로 빌드합니다"
+          echo "✅ Bundle ID: io.iconcasting.picnic.app"
+          echo "✅ Distribution Type: App Store"
           echo ""
-          
-          # Flutter IPA 빌드 (Manual Signing)
-          echo "=== Flutter IPA 빌드 시작 ==="
-          echo "Manual Signing으로 빌드합니다."
           
           # Manual Signing용 ExportOptions.plist 생성
           echo "📝 Manual Signing용 ExportOptions.plist 생성..."
@@ -201,54 +210,6 @@ workflows:
                 echo "📦 Archive가 발견되어 수동 IPA export를 시도합니다..."
                 echo "Archive 경로: $XCARCHIVE_PATH"
                 
-                # 설치된 프로비저닝 프로파일 정보 가져오기
-                PROFILE_PATH=$(find "$HOME/Library/MobileDevice/Provisioning Profiles" -name "*.mobileprovision" | head -1)
-                PROFILE_UUID=$(basename "$PROFILE_PATH" .mobileprovision)
-                
-                # 프로비저닝 프로파일에서 실제 이름 추출
-                PROFILE_NAME=$(security cms -D -i "$PROFILE_PATH" 2>/dev/null | grep -A1 "<key>Name</key>" | tail -1 | sed 's/.*<string>\(.*\)<\/string>.*/\1/' | tr -d '\n\t ')
-                
-                echo "프로비저닝 프로파일 경로: $PROFILE_PATH"
-                echo "프로비저닝 프로파일 UUID: $PROFILE_UUID"
-                echo "프로비저닝 프로파일 실제 이름: $PROFILE_NAME"
-                
-                # 실제 이름이 있으면 사용, 없으면 UUID 사용
-                if [ -n "$PROFILE_NAME" ] && [ "$PROFILE_NAME" != "" ]; then
-                  PROFILE_IDENTIFIER="$PROFILE_NAME"
-                  echo "사용할 식별자: 실제 이름 ($PROFILE_NAME)"
-                else
-                  PROFILE_IDENTIFIER="$PROFILE_UUID"
-                  echo "사용할 식별자: UUID ($PROFILE_UUID)"
-                fi
-                
-                # Manual Signing용 ExportOptions.plist 생성
-                echo "📝 Manual Signing용 ExportOptions.plist 생성..."
-                echo '<?xml version="1.0" encoding="UTF-8"?>' > ios/ExportOptions.plist
-                echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> ios/ExportOptions.plist
-                echo '<plist version="1.0">' >> ios/ExportOptions.plist
-                echo '<dict>' >> ios/ExportOptions.plist
-                echo '    <key>method</key>' >> ios/ExportOptions.plist
-                echo '    <string>app-store-connect</string>' >> ios/ExportOptions.plist
-                echo '    <key>teamID</key>' >> ios/ExportOptions.plist
-                echo '    <string>24SL34R9HR</string>' >> ios/ExportOptions.plist
-                echo '    <key>signingStyle</key>' >> ios/ExportOptions.plist
-                echo '    <string>manual</string>' >> ios/ExportOptions.plist
-                echo '    <key>signingCertificate</key>' >> ios/ExportOptions.plist
-                echo '    <string>Apple Distribution</string>' >> ios/ExportOptions.plist
-                echo '    <key>provisioningProfiles</key>' >> ios/ExportOptions.plist
-                echo '    <dict>' >> ios/ExportOptions.plist
-                echo '        <key>io.iconcasting.picnic.app</key>' >> ios/ExportOptions.plist
-                echo "        <string>$PROFILE_IDENTIFIER</string>" >> ios/ExportOptions.plist
-                echo '    </dict>' >> ios/ExportOptions.plist
-                echo '    <key>stripSwiftSymbols</key>' >> ios/ExportOptions.plist
-                echo '    <true/>' >> ios/ExportOptions.plist
-                echo '    <key>uploadBitcode</key>' >> ios/ExportOptions.plist
-                echo '    <false/>' >> ios/ExportOptions.plist
-                echo '    <key>uploadSymbols</key>' >> ios/ExportOptions.plist
-                echo '    <true/>' >> ios/ExportOptions.plist
-                echo '</dict>' >> ios/ExportOptions.plist
-                echo '</plist>' >> ios/ExportOptions.plist
-                
                 echo "🚀 Manual Signing으로 IPA export 시도..."
                 cd ios
                 xcodebuild -exportArchive \
@@ -282,7 +243,7 @@ workflows:
             fi
             
             echo ""
-            echo "🎉 CodeMagic Automatic Signing IPA 빌드 완료!"
+            echo "🎉 Manual Signing IPA 빌드 완료!"
           else
             echo "❌ Flutter IPA 빌드 실패 (종료 코드: $BUILD_RESULT)"
             echo ""
