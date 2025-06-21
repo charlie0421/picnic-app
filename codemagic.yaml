@@ -1153,19 +1153,26 @@ workflows:
         script: |
           cd picnic_app
           
-          echo "=== Gradle 메모리 설정 최적화 (릴리즈와 동일하게 적용) ==="
+          echo "=== Gradle 메모리 설정 최적화 (패치용 강화) ==="
           mkdir -p $HOME/.gradle
-          # 메모리를 6GB로 증가하고 메모리 관련 옵션 최적화 (릴리즈와 동일)
-          echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
+          
+          # 기존 gradle.properties 정리 (중복 방지)
+          rm -f $HOME/.gradle/gradle.properties
+          
+          # 패치용 더 강화된 메모리 설정 (8GB)
+          echo "org.gradle.jvmargs=-Xmx8192m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:+UseG1GC" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
+          echo "org.gradle.configureondemand=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
-          # Shorebird 호환성을 위한 추가 설정 (deprecated 옵션 제거)
+          # Shorebird 호환성을 위한 추가 설정
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+          echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
+          echo "android.enableIncrementalDesugaring=false" >> $HOME/.gradle/gradle.properties
           
-          echo "✅ Gradle 설정 완료 (릴리즈와 동일한 메모리 6GB 적용)"
+          echo "✅ Gradle 설정 완료 (패치용 메모리 8GB + 추가 최적화)"
 
       - name: Shorebird Android Patch
         script: |
@@ -1275,14 +1282,44 @@ workflows:
           fi
           
           echo "=== Shorebird Android 패치 생성 및 배포 ==="
-          # 패치 생성 (가장 최신 릴리즈에 대한 패치)
-          echo "🚀 Android 패치 생성 시작 (자동 Flutter 버전 감지)..."
+          # AAB 빌드가 계속 실패하므로 APK 패치로 시도
+          echo "🚀 Android APK 패치 생성 시작 (AAB 빌드 문제 우회)..."
+          
+          # 1차 시도: APK 아티팩트로 패치 생성
+          echo "📱 APK 아티팩트로 패치 생성 시도..."
           PATCH_RESULT=$(shorebird patch android \
+            --artifact=apk \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod \
             --verbose 2>&1)
           PATCH_EXIT_CODE=$?
+          
+          # APK 패치가 실패하면 더 강력한 정리 후 AAB 재시도
+          if [ $PATCH_EXIT_CODE -ne 0 ]; then
+            echo "⚠️ APK 패치 실패 - 강력한 정리 후 AAB 재시도..."
+            
+            # 더 강력한 캐시 및 빌드 디렉토리 정리
+            echo "🧹 강력한 정리 작업..."
+            shorebird cache clean
+            flutter clean
+            rm -rf build/
+            rm -rf android/app/build/
+            rm -rf android/.gradle/
+            rm -rf $HOME/.gradle/caches/
+            
+            # Flutter 캐시 재구성
+            flutter pub get
+            flutter pub upgrade
+            
+            echo "🔄 AAB 패치 재시도..."
+            PATCH_RESULT=$(shorebird patch android \
+              --release-version=latest \
+              --no-confirm \
+              --dart-define=ENVIRONMENT=prod \
+              --verbose 2>&1)
+                         PATCH_EXIT_CODE=$?
+           fi
           
           echo "패치 결과 출력:"
           echo "$PATCH_RESULT"
