@@ -462,6 +462,9 @@ workflows:
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
+          # Shorebird 호환성을 위한 추가 설정
+          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
+          echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
           
           # Shorebird PATH 설정
           export PATH="$HOME/.shorebird/bin:$PATH"
@@ -552,31 +555,74 @@ workflows:
           # 불완전한 릴리즈가 있는 경우 다시 실행하여 완료
           echo "불완전한 Android 릴리즈가 있다면 다시 실행하여 완료합니다..."
 
-          echo "=== Shorebird 빌드 시작 ==="
-          # 첫 번째 시도
-          echo "🚀 Android 릴리즈 첫 번째 시도..."
-          RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
-          RELEASE_EXIT_CODE=$?
+          echo "=== Shorebird 캐시 정리 및 빌드 준비 ==="
+          # Shorebird 캐시 정리 (아티팩트 문제 해결)
+          shorebird cache clean
           
-          echo "릴리즈 결과: $RELEASE_RESULT"
+          # Flutter 캐시도 정리
+          flutter clean
+          flutter pub get
           
-          # "incomplete" 메시지가 있거나 실패한 경우 재시도
-          if [[ $RELEASE_EXIT_CODE -ne 0 ]] || echo "$RELEASE_RESULT" | grep -i "incomplete\|re-run"; then
-            echo "⚠️ 불완전한 릴리즈 감지 또는 실패 - 재시도합니다..."
-            sleep 5
+          echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
+          # Shorebird가 찾는 디렉토리들을 미리 생성
+          mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
+          mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
+          
+          echo "=== Shorebird 전용 AAB 빌드 ==="
+          # Shorebird 전용으로 AAB를 다시 빌드 (네이티브 라이브러리 포함)
+          echo "🔧 Shorebird 호환 AAB 빌드 중..."
+          shorebird build appbundle \
+            --release \
+            --dart-define=ENVIRONMENT=prod \
+            --verbose
+          
+          SHOREBIRD_BUILD_EXIT_CODE=$?
+          
+          if [ $SHOREBIRD_BUILD_EXIT_CODE -eq 0 ]; then
+            echo "✅ Shorebird AAB 빌드 성공!"
             
-            echo "🔄 Android 릴리즈 재시도..."
-            shorebird release android --dart-define=ENVIRONMENT=prod
+            echo "=== Shorebird 릴리즈 업로드 ==="
+            # 첫 번째 시도
+            echo "🚀 Android 릴리즈 첫 번째 시도..."
+            RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
+            RELEASE_EXIT_CODE=$?
             
-            RETRY_EXIT_CODE=$?
-            if [ $RETRY_EXIT_CODE -eq 0 ]; then
-              echo "✅ 재시도 성공!"
+            echo "릴리즈 결과: $RELEASE_RESULT"
+            
+            # "incomplete" 메시지가 있거나 실패한 경우 재시도
+            if [[ $RELEASE_EXIT_CODE -ne 0 ]] || echo "$RELEASE_RESULT" | grep -i "incomplete\|re-run"; then
+              echo "⚠️ 불완전한 릴리즈 감지 또는 실패 - 재시도합니다..."
+              sleep 5
+              
+              echo "🔄 Android 릴리즈 재시도..."
+              shorebird release android --dart-define=ENVIRONMENT=prod
+              
+              RETRY_EXIT_CODE=$?
+              if [ $RETRY_EXIT_CODE -eq 0 ]; then
+                echo "✅ 재시도 성공!"
+              else
+                echo "❌ 재시도도 실패했습니다."
+                exit 1
+              fi
             else
-              echo "❌ 재시도도 실패했습니다."
-              exit 1
+              echo "✅ 첫 번째 시도 성공!"
             fi
           else
-            echo "✅ 첫 번째 시도 성공!"
+            echo "❌ Shorebird AAB 빌드 실패 - 표준 Flutter 빌드로 폴백"
+            echo "표준 Flutter AAB를 사용하여 릴리즈를 시도합니다..."
+            
+            # 표준 Flutter 빌드가 이미 완료되었으므로 바로 릴리즈 시도
+            echo "🚀 Android 릴리즈 (표준 빌드) 시도..."
+            RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
+            RELEASE_EXIT_CODE=$?
+            
+            if [ $RELEASE_EXIT_CODE -ne 0 ]; then
+              echo "❌ 표준 빌드로도 릴리즈 실패"
+              echo "릴리즈 결과: $RELEASE_RESULT"
+              exit 1
+            else
+              echo "✅ 표준 빌드로 릴리즈 성공!"
+            fi
           fi
 
           echo "=== 릴리즈 완료 상태 확인 ==="
@@ -831,13 +877,27 @@ workflows:
             flutter build ios --release --dart-define=ENVIRONMENT=prod || echo "Flutter iOS 빌드 확인 실패"
           }
 
+          echo "=== Shorebird 캐시 정리 및 iOS 패치 준비 ==="
+          # Shorebird 캐시 정리
+          shorebird cache clean
+          
+          # Flutter 캐시 정리
+          flutter clean
+          flutter pub get
+          
+          echo "=== iOS 빌드 디렉토리 준비 ==="
+          # iOS 빌드 디렉토리 미리 생성
+          mkdir -p build/ios/iphoneos
+          mkdir -p build/ios/Release-iphoneos
+          
           echo "=== Shorebird iOS 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
           echo "🚀 iOS 패치 생성 시작..."
           PATCH_RESULT=$(shorebird patch ios \
             --release-version=latest \
             --no-confirm \
-            --dart-define=ENVIRONMENT=prod 2>&1)
+            --dart-define=ENVIRONMENT=prod \
+            --verbose 2>&1)
           PATCH_EXIT_CODE=$?
           
           echo "패치 결과 출력:"
@@ -1027,13 +1087,27 @@ workflows:
             flutter pub get
           }
 
+          echo "=== Shorebird 캐시 정리 및 패치 준비 ==="
+          # Shorebird 캐시 정리 (아티팩트 문제 해결)
+          shorebird cache clean
+          
+          # Flutter 캐시 정리
+          flutter clean
+          flutter pub get
+          
+          echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
+          # Shorebird가 찾는 디렉토리들을 미리 생성
+          mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
+          mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
+          
           echo "=== Shorebird Android 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
           echo "🚀 Android 패치 생성 시작..."
           PATCH_RESULT=$(shorebird patch android \
             --release-version=latest \
             --no-confirm \
-            --dart-define=ENVIRONMENT=prod 2>&1)
+            --dart-define=ENVIRONMENT=prod \
+            --verbose 2>&1)
           PATCH_EXIT_CODE=$?
           
           echo "패치 결과 출력:"
