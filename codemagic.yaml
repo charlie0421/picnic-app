@@ -635,57 +635,53 @@ workflows:
           mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
           mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
           
-          echo "=== 네이티브 라이브러리 파일 복사 ==="
+          echo "=== 네이티브 라이브러리 파일 복사 (Shorebird Issue #1798 해결) ==="
           # Flutter가 생성한 네이티브 라이브러리 파일들을 Shorebird가 기대하는 위치로 복사
           echo "📁 네이티브 라이브러리 파일 검색 중..."
           find . -name "libapp.so" -type f 2>/dev/null | head -10
-          find . -name "libflutter.so" -type f 2>/dev/null | head -5
           
-          # 실제 생성된 네이티브 라이브러리 파일들 찾기
-          NATIVE_LIB_SOURCES=(
-            "build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/out/lib"
-            "build/app/intermediates/stripped_native_libs/release/out/lib"
-            "android/app/build/intermediates/stripped_native_libs/stripReleaseDebugSymbols/out/lib"
+          # Shorebird가 기대하는 타겟 경로 (stripReleaseDebugSymbols 없는 경로)
+          SHOREBIRD_TARGET_PATH="build/app/intermediates/stripped_native_libs/release/out/lib"
+          mkdir -p "$SHOREBIRD_TARGET_PATH"/{armeabi-v7a,arm64-v8a,x86,x86_64}
+          
+          # 실제 파일이 있는 소스 경로들 (stripReleaseDebugSymbols 포함)
+          ACTUAL_SOURCE_PATHS=(
+            "android/app/build/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
+            "build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
+            "android/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
+            "build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
             "android/app/build/intermediates/stripped_native_libs/release/out/lib"
-            "build/app/intermediates/merged_native_libs/release/out/lib"
-            "android/app/build/intermediates/merged_native_libs/release/out/lib"
-          )
-          
-          NATIVE_LIB_TARGETS=(
-            "build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib"
             "build/app/intermediates/stripped_native_libs/release/out/lib"
           )
-          
-          # 아키텍처별 디렉토리 생성
-          for target in "${NATIVE_LIB_TARGETS[@]}"; do
-            mkdir -p "$target/armeabi-v7a"
-            mkdir -p "$target/arm64-v8a"
-            mkdir -p "$target/x86"
-            mkdir -p "$target/x86_64"
-          done
           
           # 소스에서 타겟으로 네이티브 라이브러리 복사
           COPIED_COUNT=0
-          for source in "${NATIVE_LIB_SOURCES[@]}"; do
-            if [ -d "$source" ]; then
+          FOUND_SOURCE=""
+          
+          for source in "${ACTUAL_SOURCE_PATHS[@]}"; do
+            if [ -d "$source" ] && [ "$(find "$source" -name "*.so" 2>/dev/null | wc -l)" -gt 0 ]; then
               echo "✅ 네이티브 라이브러리 소스 발견: $source"
+              FOUND_SOURCE="$source"
               
               # 각 아키텍처별로 복사
               for arch in armeabi-v7a arm64-v8a x86 x86_64; do
-                if [ -d "$source/$arch" ]; then
+                if [ -d "$source/$arch" ] && [ "$(ls -A "$source/$arch" 2>/dev/null)" ]; then
                   echo "📦 $arch 라이브러리 복사 중..."
                   
-                  for target in "${NATIVE_LIB_TARGETS[@]}"; do
-                    cp -r "$source/$arch"/* "$target/$arch/" 2>/dev/null || true
-                  done
+                  # Shorebird가 기대하는 위치로 복사
+                  cp -r "$source/$arch"/* "$SHOREBIRD_TARGET_PATH/$arch/" 2>/dev/null
+                  COPY_RESULT=$?
                   
-                  # 복사된 파일들 확인
-                  if [ -f "$source/$arch/libapp.so" ]; then
+                  # 복사 성공 확인
+                  if [ $COPY_RESULT -eq 0 ] && [ -f "$SHOREBIRD_TARGET_PATH/$arch/libapp.so" ]; then
                     COPIED_COUNT=$((COPIED_COUNT + 1))
-                    echo "  ✅ libapp.so 복사됨 ($arch)"
+                    FILE_SIZE=$(du -h "$SHOREBIRD_TARGET_PATH/$arch/libapp.so" | cut -f1)
+                    echo "  ✅ libapp.so 복사 성공 ($arch, 크기: $FILE_SIZE)"
                   fi
-                  if [ -f "$source/$arch/libflutter.so" ]; then
-                    echo "  ✅ libflutter.so 복사됨 ($arch)"
+                  
+                  if [ -f "$SHOREBIRD_TARGET_PATH/$arch/libflutter.so" ]; then
+                    FILE_SIZE=$(du -h "$SHOREBIRD_TARGET_PATH/$arch/libflutter.so" | cut -f1)
+                    echo "  ✅ libflutter.so 복사 성공 ($arch, 크기: $FILE_SIZE)"
                   fi
                 fi
               done
@@ -693,14 +689,30 @@ workflows:
             fi
           done
           
+          # 복사 결과 확인
           if [ $COPIED_COUNT -gt 0 ]; then
             echo "✅ 네이티브 라이브러리 복사 완료 ($COPIED_COUNT개 아키텍처)"
-          else
-            echo "⚠️ 네이티브 라이브러리를 찾을 수 없음 - Shorebird가 실패할 수 있습니다"
+            echo "🎯 Shorebird가 찾을 경로: $SHOREBIRD_TARGET_PATH"
             
-            # 디버깅을 위한 추가 정보
-            echo "📁 현재 빌드 구조:"
-            find build/app/intermediates -name "*.so" 2>/dev/null | head -10 || echo "네이티브 라이브러리 파일 없음"
+            # 최종 확인
+            echo "📋 복사된 파일 확인:"
+            find "$SHOREBIRD_TARGET_PATH" -name "*.so" 2>/dev/null | while read file; do
+              SIZE=$(du -h "$file" | cut -f1)
+              echo "  - $file (크기: $SIZE)"
+            done
+          else
+            echo "❌ 네이티브 라이브러리 복사 실패"
+            echo "🔍 검색한 소스 경로들:"
+            for source in "${ACTUAL_SOURCE_PATHS[@]}"; do
+              if [ -d "$source" ]; then
+                FILE_COUNT=$(find "$source" -name "*.so" 2>/dev/null | wc -l)
+                echo "  - $source (*.so 파일 $FILE_COUNT개)"
+              else
+                echo "  - $source (디렉토리 없음)"
+              fi
+            done
+            
+            echo "⚠️ Shorebird 릴리즈가 실패할 수 있습니다"
           fi
           
           echo "=== 표준 Flutter 빌드 결과로 Shorebird 릴리즈 실행 ==="
