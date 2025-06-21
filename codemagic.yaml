@@ -626,6 +626,15 @@ workflows:
             echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
           fi
           
+          echo "=== Shorebird 캐시 정리 및 네이티브 라이브러리 디렉토리 준비 ==="
+          # Shorebird 캐시 정리 (아티팩트 문제 해결)
+          shorebird cache clean
+          
+          echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
+          # Shorebird가 찾는 디렉토리들을 미리 생성
+          mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
+          mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
+          
           echo "=== 표준 Flutter 빌드 결과로 Shorebird 릴리즈 실행 ==="
           # 이미 Flutter로 빌드된 AAB/APK를 사용하여 Shorebird 릴리즈
           echo "🚀 Android 릴리즈 시작 (최신 Flutter 3.32.4 명시 지정)..."
