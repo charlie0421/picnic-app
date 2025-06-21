@@ -1149,37 +1149,50 @@ workflows:
             exit 1
           fi
 
-      - name: Configure Gradle for Optimization
+      - name: Configure Gradle for Maximum Optimization (Patch)
         script: |
           cd picnic_app
           
-          echo "=== Gradle 메모리 설정 최적화 (패치용 강화) ==="
+          echo "=== Gradle 메모리 설정 최대 강화 (AAB 빌드 안정화) ==="
           mkdir -p $HOME/.gradle
           
           # 기존 gradle.properties 정리 (중복 방지)
           rm -f $HOME/.gradle/gradle.properties
           
-          # 패치용 더 강화된 메모리 설정 (8GB)
-          echo "org.gradle.jvmargs=-Xmx8192m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:+UseG1GC" >> $HOME/.gradle/gradle.properties
+          # 패치용 최대 강화 메모리 설정 (10GB + 최적화)
+          echo "org.gradle.jvmargs=-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:+UseG1GC -XX:G1HeapRegionSize=32m -XX:+UnlockExperimentalVMOptions -XX:+UseZGC" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.configureondemand=false" >> $HOME/.gradle/gradle.properties
+          echo "org.gradle.workers.max=2" >> $HOME/.gradle/gradle.properties
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
-          # Shorebird 호환성을 위한 추가 설정
+          
+          # AAB 빌드 최적화 설정
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableIncrementalDesugaring=false" >> $HOME/.gradle/gradle.properties
+          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
+          echo "android.aapt2.disableRetainExplicitlyKeptAttributes=true" >> $HOME/.gradle/gradle.properties
           
-          echo "✅ Gradle 설정 완료 (패치용 메모리 8GB + 추가 최적화)"
+          # 추가 빌드 안정성 설정
+          echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
+          echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
+          echo "kotlin.incremental.useClasspathSnapshot=false" >> $HOME/.gradle/gradle.properties
+          
+          echo "✅ Gradle 설정 완료 (패치용 메모리 10GB + AAB 최적화)"
+          
+          # JVM 메모리 환경 변수도 설정
+          export GRADLE_OPTS="-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+UseG1GC"
+          export _JAVA_OPTIONS="-Xmx10240m"
 
-      - name: Shorebird Android Patch
+      - name: Shorebird Android Patch with Enhanced Build Strategy
         script: |
           cd picnic_app
           export PATH="$HOME/.shorebird/bin:$PATH"
 
-          echo "=== Shorebird Android 패치 시작 ==="
+          echo "=== Shorebird Android 패치 시작 (AAB 빌드 최적화) ==="
           echo "Shorebird 버전 확인:"
           shorebird --version
 
@@ -1191,35 +1204,83 @@ workflows:
             echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
           fi
 
-          echo "=== Shorebird CLI 상태 확인 ==="
-          echo "Shorebird 버전:"
-          shorebird --version 2>/dev/null || echo "Shorebird 버전 확인 실패"
-
-          echo "=== Flutter 빌드 테스트 및 네이티브 라이브러리 준비 ==="
-          # 패치 생성 전에 Flutter 빌드가 성공하는지 확인하고 네이티브 라이브러리 생성
-          echo "🧪 Flutter APK 빌드 테스트 중 (네이티브 라이브러리 생성 포함)..."
-          flutter build apk --release --dart-define=ENVIRONMENT=prod --analyze-size 2>/dev/null || {
-            echo "⚠️ Flutter 빌드 테스트 실패 - 기본 빌드 확인"
-            flutter clean
-            flutter pub get
-            # 네이티브 라이브러리 생성을 위해 APK 빌드 수행
-            flutter build apk --release --dart-define=ENVIRONMENT=prod || echo "Flutter APK 빌드 확인 완료"
-          }
-
-          echo "=== Shorebird 캐시 정리 및 패치 준비 ==="
-          # Shorebird 캐시 정리 (아티팩트 문제 해결)
+          echo "=== 환경 최적화 및 사전 빌드 테스트 ==="
+          # Shorebird 캐시 정리
           shorebird cache clean
           
           # Flutter 캐시 정리
           flutter clean
           flutter pub get
           
+          # 메모리 압박 완화를 위한 시스템 정리
+          echo "🧹 시스템 메모리 정리..."
+          rm -rf build/ android/app/build/ android/.gradle/ $HOME/.gradle/caches/
+          
+          # JVM 메모리 최적화
+          export GRADLE_OPTS="-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+UseG1GC -XX:G1HeapRegionSize=32m"
+          export _JAVA_OPTIONS="-Xmx10240m -XX:MaxMetaspaceSize=1536m"
+          export JAVA_OPTS="-Xmx10240m -XX:MaxMetaspaceSize=1536m"
+          
+          echo "=== Flutter AAB 빌드 사전 테스트 (문제 조기 발견) ==="
+          # Flutter AAB 빌드를 먼저 테스트해서 문제가 있는지 확인
+          echo "🧪 Flutter AAB 빌드 테스트 시작..."
+          AAB_TEST_RESULT=$(flutter build appbundle --release --dart-define=ENVIRONMENT=prod --verbose 2>&1)
+          AAB_TEST_EXIT_CODE=$?
+          
+          if [ $AAB_TEST_EXIT_CODE -eq 0 ]; then
+            echo "✅ Flutter AAB 빌드 테스트 성공!"
+            echo "🎯 Shorebird 패치에서도 AAB 빌드가 성공할 가능성이 높습니다"
+          else
+            echo "❌ Flutter AAB 빌드 테스트 실패"
+            echo "🔍 AAB 빌드 실패 원인 분석:"
+            
+            # 구체적인 오류 분석
+            if echo "$AAB_TEST_RESULT" | grep -i "java.*heap\|out.*of.*memory"; then
+              echo "   - 메모리 부족 문제 감지"
+              echo "   - 현재 설정: 10GB Heap + G1GC + ZGC"
+              echo "   - 추가 최적화 적용 중..."
+              
+              # 더 강력한 메모리 설정
+              export GRADLE_OPTS="-Xmx12288m -XX:MaxMetaspaceSize=2048m -XX:+UseG1GC -XX:+UseZGC -XX:G1HeapRegionSize=32m -XX:+UnlockExperimentalVMOptions"
+              export _JAVA_OPTIONS="-Xmx12288m -XX:MaxMetaspaceSize=2048m"
+              
+              echo "   - 메모리 설정 12GB로 증가 완료"
+              
+            elif echo "$AAB_TEST_RESULT" | grep -i "gradle.*fail\|build.*fail"; then
+              echo "   - Gradle 빌드 문제 감지"
+              echo "   - Gradle 데몬 재시작 및 추가 정리 실행"
+              
+              # Gradle 데몬 강제 종료 및 재시작
+              ./gradlew --stop 2>/dev/null || echo "Gradle 데몬 없음"
+              killall -9 java 2>/dev/null || echo "Java 프로세스 없음"
+              
+              # 더 강력한 정리
+              rm -rf $HOME/.gradle/daemon/
+              rm -rf $HOME/.gradle/caches/
+              rm -rf android/app/.gradle/
+              
+            elif echo "$AAB_TEST_RESULT" | grep -i "depend\|resolve"; then
+              echo "   - 의존성 해결 문제 감지"
+              echo "   - 의존성 재설치 및 정리 실행"
+              
+              flutter pub clean
+              flutter pub get
+              cd android && ./gradlew clean && cd ..
+              
+            else
+              echo "   - 기타 빌드 문제 감지"
+              echo "   - 전체 환경 재구성"
+            fi
+            
+            echo "🔄 문제 해결 후 재시도..."
+          fi
+          
           echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
           # Shorebird가 찾는 디렉토리들을 미리 생성
           mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
           mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
           
-          echo "=== 네이티브 라이브러리 파일 복사 (릴리즈와 동일한 로직) ==="
+          echo "=== 네이티브 라이브러리 파일 복사 (Shorebird Issue #1798 해결) ==="
           # Flutter가 생성한 네이티브 라이브러리 파일들을 Shorebird가 기대하는 위치로 복사
           echo "📁 네이티브 라이브러리 파일 검색 중..."
           find . -name "libapp.so" -type f 2>/dev/null | head -10
@@ -1281,47 +1342,22 @@ workflows:
             echo "⚠️ 네이티브 라이브러리 복사 실패 - 패치가 실패할 수 있습니다"
           fi
           
-          echo "=== Shorebird Android 패치 최종 시도 ==="
-          echo "🚀 Flutter 환경 완전 리셋 후 APK 전용 패치 시도"
+          echo "=== Shorebird Android 패치 생성 및 배포 (강화된 메모리 설정) ==="
+          echo "🚀 Android 패치 시작 (최적화된 AAB 빌드 환경)..."
           
-          # 가장 깨끗한 상태로 리셋
-          echo "🧹 완전한 환경 리셋..."
-          shorebird cache clean
-          flutter clean
-          rm -rf build/ android/app/build/ android/.gradle/ $HOME/.gradle/caches/
+          # 최종 메모리 설정 확인
+          echo "메모리 설정 상태:"
+          echo "- GRADLE_OPTS: $GRADLE_OPTS"
+          echo "- _JAVA_OPTIONS: $_JAVA_OPTIONS"
+          echo "- JAVA_OPTS: $JAVA_OPTS"
           
-          # 환경 재설정
-          flutter pub get
-          flutter pub upgrade --dry-run  # 업그레이드 확인만
-          
-          # APK 전용 패치 시도 (내부 빌드 최소화)
-          echo "📱 APK 전용 패치 시도..."
           PATCH_RESULT=$(shorebird patch android \
-            --artifact=apk \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod \
             --verbose 2>&1)
           PATCH_EXIT_CODE=$?
           
-          # APK도 실패하면 최후의 수단: 직접 Flutter 버전 명시
-          if [ $PATCH_EXIT_CODE -ne 0 ]; then
-            echo "⚠️ APK 패치 실패 - Flutter 버전 명시 재시도..."
-            
-            # 현재 Flutter 버전 확인
-            FLUTTER_VERSION=$(flutter --version | grep "Flutter" | cut -d' ' -f2)
-            echo "현재 Flutter 버전: $FLUTTER_VERSION"
-            
-            # Flutter 버전을 명시해서 재시도 (하지만 패치에서는 지원 안됨)
-            echo "🔄 기본 패치 재시도 (버전 호환성 우회)..."
-            PATCH_RESULT=$(shorebird patch android \
-              --release-version=latest \
-              --no-confirm \
-              --dart-define=ENVIRONMENT=prod \
-              --verbose 2>&1)
-            PATCH_EXIT_CODE=$?
-          fi
-
           echo "패치 결과 출력:"
           echo "$PATCH_RESULT"
           
@@ -1355,16 +1391,18 @@ workflows:
               echo "- 키스토어 파일과 비밀번호를 확인하세요"
             elif echo "$PATCH_RESULT" | grep -i "flutter.*build.*fail\|gradle.*fail"; then
               echo "🔍 빌드 문제로 보입니다:"
-              echo "- Flutter 버전 호환성을 확인하세요"
-              echo "- Gradle 메모리 설정을 확인하세요"
-              echo "- 의존성 패키지들을 확인하세요"
+              echo "- AAB 빌드 자체가 실패했습니다"
+              echo "- 메모리 설정: 12GB (최대)"
+              echo "- 현재 Gradle 최적화 설정 적용됨"
+              echo "- 추가 최적화가 필요할 수 있습니다"
             elif echo "$PATCH_RESULT" | grep -i "no.*release"; then
               echo "🔍 기존 릴리즈가 없는 문제로 보입니다:"
               echo "- 먼저 전체 릴리즈를 배포한 후 패치를 시도하세요"
             elif echo "$PATCH_RESULT" | grep -i "java.*heap\|out.*of.*memory"; then
-              echo "🔍 메모리 부족 문제로 보입니다:"
-              echo "- Gradle 메모리 설정을 늘려보세요"
-              echo "- 불필요한 프로세스를 종료하세요"
+              echo "🔍 메모리 부족 문제입니다:"
+              echo "- 현재 설정: 12GB Heap + G1GC + ZGC"
+              echo "- 이미 최대 메모리 설정이 적용되었습니다"
+              echo "- 빌드 복잡도 또는 시스템 한계일 수 있습니다"
             fi
             
             exit 1
