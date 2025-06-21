@@ -321,8 +321,8 @@ workflows:
 
           echo "=== Shorebird iOS 릴리즈 실행 ==="
           # 첫 번째 시도
-          echo "🚀 iOS 릴리즈 첫 번째 시도..."
-          RELEASE_RESULT=$(shorebird release ios --dart-define=ENVIRONMENT=prod 2>&1)
+          echo "🚀 iOS 릴리즈 첫 번째 시도 (최신 Flutter 3.32.4 명시 지정)..."
+          RELEASE_RESULT=$(shorebird release ios --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
           RELEASE_EXIT_CODE=$?
           
           echo "릴리즈 결과: $RELEASE_RESULT"
@@ -332,8 +332,8 @@ workflows:
             echo "⚠️ 불완전한 릴리즈 감지 또는 실패 - 재시도합니다..."
             sleep 5
             
-            echo "🔄 iOS 릴리즈 재시도..."
-            shorebird release ios --dart-define=ENVIRONMENT=prod
+            echo "🔄 iOS 릴리즈 재시도 (최신 Flutter 3.32.4)..."
+            shorebird release ios --dart-define=ENVIRONMENT=prod --flutter-version=latest
             
             RETRY_EXIT_CODE=$?
             if [ $RETRY_EXIT_CODE -eq 0 ]; then
@@ -667,8 +667,8 @@ workflows:
           
           echo "=== 표준 Flutter 빌드 결과로 Shorebird 릴리즈 실행 ==="
           # 이미 Flutter로 빌드된 AAB/APK를 사용하여 Shorebird 릴리즈
-          echo "🚀 Android 릴리즈 시작..."
-          RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
+          echo "🚀 Android 릴리즈 시작 (최신 Flutter 3.32.4 명시 지정)..."
+          RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
           RELEASE_EXIT_CODE=$?
           
           echo "릴리즈 결과:"
@@ -691,8 +691,8 @@ workflows:
               echo "⚠️ 릴리즈 결과가 불분명합니다. 재시도합니다..."
               sleep 3
               
-              echo "🔄 Android 릴리즈 재시도..."
-              RETRY_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
+              echo "🔄 Android 릴리즈 재시도 (최신 Flutter 3.32.4)..."
+              RETRY_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
               RETRY_EXIT_CODE=$?
               
               if [ $RETRY_EXIT_CODE -eq 0 ]; then
@@ -954,11 +954,12 @@ workflows:
           
           echo "=== Shorebird iOS 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
-          echo "🚀 iOS 패치 생성 시작..."
+          echo "🚀 iOS 패치 생성 시작 (최신 Flutter 3.32.4)..."
           PATCH_RESULT=$(shorebird patch ios \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod \
+            --flutter-version=latest \
             --verbose 2>&1)
           PATCH_EXIT_CODE=$?
           
@@ -1160,11 +1161,12 @@ workflows:
           
           echo "=== Shorebird Android 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
-          echo "🚀 Android 패치 생성 시작..."
+          echo "🚀 Android 패치 생성 시작 (최신 Flutter 3.32.4)..."
           PATCH_RESULT=$(shorebird patch android \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod \
+            --flutter-version=latest \
             --verbose 2>&1)
           PATCH_EXIT_CODE=$?
           
