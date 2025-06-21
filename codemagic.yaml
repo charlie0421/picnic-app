@@ -233,7 +233,7 @@ workflows:
                     cp "build/ios/ipa/Runner.ipa" "build/ios/ipa/picnic_app.ipa"
                     echo "✅ picnic_app.ipa로 복사 완료"
                   else
-                    echo "⚠️ Export는 성공했지만 IPA 파일을 찾을 수 없음"
+                    echo "⚠️ 빌드 명령어는 성공했지만 IPA 파일을 찾을 수 없음"
                     ls -la build/ios/ipa/ 2>/dev/null || echo "IPA 디렉토리 없음"
                   fi
                 else
@@ -1160,7 +1160,7 @@ workflows:
           rm -f $HOME/.gradle/gradle.properties
           
           # 패치용 최대 강화 메모리 설정 (10GB + 최적화)
-          echo "org.gradle.jvmargs=-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:+UseG1GC -XX:G1HeapRegionSize=32m -XX:+UnlockExperimentalVMOptions -XX:+UseZGC" >> $HOME/.gradle/gradle.properties
+          echo "org.gradle.jvmargs=-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
@@ -1169,7 +1169,8 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           
-          # AAB 빌드 최적화 설정
+          # AAB 빌드 최적화 설정 (더 보수적 접근)
+          echo "android.enableR8=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableIncrementalDesugaring=false" >> $HOME/.gradle/gradle.properties
@@ -1180,6 +1181,8 @@ workflows:
           echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
           echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
           echo "kotlin.incremental.useClasspathSnapshot=false" >> $HOME/.gradle/gradle.properties
+          echo "org.gradle.unsafe.configuration-cache=false" >> $HOME/.gradle/gradle.properties
+          echo "android.experimental.enableSourceSetPathsMap=false" >> $HOME/.gradle/gradle.properties
           
           echo "✅ Gradle 설정 완료 (패치용 메모리 10GB + AAB 최적화)"
           
@@ -1224,7 +1227,7 @@ workflows:
           echo "=== Flutter AAB 빌드 사전 테스트 (문제 조기 발견) ==="
           # Flutter AAB 빌드를 먼저 테스트해서 문제가 있는지 확인
           echo "🧪 Flutter AAB 빌드 테스트 시작..."
-          AAB_TEST_RESULT=$(flutter build appbundle --release --dart-define=ENVIRONMENT=prod --verbose 2>&1)
+          AAB_TEST_RESULT=$(flutter build appbundle --release --dart-define=ENVIRONMENT=prod 2>&1)
           AAB_TEST_EXIT_CODE=$?
           
           if [ $AAB_TEST_EXIT_CODE -eq 0 ]; then
@@ -1273,6 +1276,45 @@ workflows:
             fi
             
             echo "🔄 문제 해결 후 재시도..."
+            
+            # 극단적 해결책: APK로 우회 후 수동 AAB 생성
+            echo "📱 AAB 빌드 실패 시 APK 빌드 테스트..."
+            APK_TEST_RESULT=$(flutter build apk --release --dart-define=ENVIRONMENT=prod 2>&1)
+            APK_TEST_EXIT_CODE=$?
+            
+            if [ $APK_TEST_EXIT_CODE -eq 0 ]; then
+              echo "✅ APK 빌드는 성공함 - AAB 관련 문제로 판단"
+              echo "⚠️ Shorebird 패치에서 AAB 문제가 발생할 수 있습니다"
+            else
+              echo "❌ APK 빌드도 실패 - 근본적인 Flutter 빌드 문제"
+              echo "🚨 Shorebird 패치 실패 가능성 높음"
+              
+              # 최후의 수단: 완전한 시스템 리셋
+              echo "🔥 극단적 해결책: 완전한 빌드 환경 리셋"
+              
+              # 모든 캐시와 빌드 결과물 완전 삭제
+              rm -rf build/
+              rm -rf android/app/build/
+              rm -rf android/.gradle/
+              rm -rf $HOME/.gradle/
+              rm -rf $HOME/.android/build-cache/
+              rm -rf .dart_tool/
+              
+              # Flutter 캐시도 완전 정리
+              flutter clean
+              flutter pub cache clean --force 2>/dev/null || echo "pub cache clean 무시"
+              flutter pub get
+              
+              # 최소한의 Gradle 설정으로 재구성
+              mkdir -p $HOME/.gradle
+              echo "org.gradle.jvmargs=-Xmx8192m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8" > $HOME/.gradle/gradle.properties
+              echo "org.gradle.daemon=false" >> $HOME/.gradle/gradle.properties
+              echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
+              echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
+              echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
+              
+              echo "🔄 최소 설정으로 재구성 완료"
+            fi
           fi
           
           echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
@@ -1354,8 +1396,7 @@ workflows:
           PATCH_RESULT=$(shorebird patch android \
             --release-version=latest \
             --no-confirm \
-            --dart-define=ENVIRONMENT=prod \
-            --verbose 2>&1)
+            --dart-define=ENVIRONMENT=prod 2>&1)
           PATCH_EXIT_CODE=$?
           
           echo "패치 결과 출력:"
