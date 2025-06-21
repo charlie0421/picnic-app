@@ -1164,10 +1164,15 @@ workflows:
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
-          echo "org.gradle.configureondemand=false" >> $HOME/.gradle/gradle.properties
-          echo "org.gradle.workers.max=2" >> $HOME/.gradle/gradle.properties
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
+          # Shorebird 호환성을 위한 추가 설정 (deprecated 옵션 제거)
+          echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+          
+          # TODO: 향후 DEX 일관성을 위해 패치 워크플로우와 동일한 설정 사용 고려
+          # echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
+          # echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
+          # echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
           
           # AAB 빌드 최적화 설정 (더 보수적 접근)
           echo "android.enableR8=true" >> $HOME/.gradle/gradle.properties
