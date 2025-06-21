@@ -652,85 +652,73 @@ workflows:
             exit 1
           fi
 
-          echo "=== Shorebird 릴리즈 상태 확인 ==="
-          shorebird releases list || echo "릴리즈 목록 확인 실패"
+          echo "=== 표준 Flutter 빌드 기반 Shorebird 릴리즈 ==="
+          echo "사용자 요청: 플러터 기본 명령어 사용으로 빌드 속도 최적화"
+          echo "✅ AAB/APK 파일이 성공적으로 복구되었으므로 바로 릴리즈 진행합니다"
           
-          echo "=== 기존 불완전한 릴리즈 정리 ==="
-          # 불완전한 릴리즈가 있는 경우 다시 실행하여 완료
-          echo "불완전한 Android 릴리즈가 있다면 다시 실행하여 완료합니다..."
-
-          echo "=== Shorebird 캐시 정리 및 빌드 준비 ==="
-          # Shorebird 캐시 정리 (아티팩트 문제 해결)
-          shorebird cache clean
+          # Shorebird 인증 확인
+          echo "=== Shorebird 인증 확인 ==="
+          if [ -z "$SHOREBIRD_TOKEN" ]; then
+            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
+            exit 1
+          else
+            echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
+          fi
           
-          # Flutter 캐시도 정리
-          flutter clean
-          flutter pub get
+          echo "=== 표준 Flutter 빌드 결과로 Shorebird 릴리즈 실행 ==="
+          # 이미 Flutter로 빌드된 AAB/APK를 사용하여 Shorebird 릴리즈
+          echo "🚀 Android 릴리즈 시작..."
+          RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
+          RELEASE_EXIT_CODE=$?
           
-          echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
-          # Shorebird가 찾는 디렉토리들을 미리 생성
-          mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
-          mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
+          echo "릴리즈 결과:"
+          echo "$RELEASE_RESULT"
           
-          echo "=== Shorebird 전용 AAB 빌드 ==="
-          # Shorebird 전용으로 AAB를 다시 빌드 (네이티브 라이브러리 포함)
-          echo "🔧 Shorebird 호환 AAB 빌드 중..."
-          shorebird build appbundle \
-            --release \
-            --dart-define=ENVIRONMENT=prod \
-            --verbose
-          
-          SHOREBIRD_BUILD_EXIT_CODE=$?
-          
-          if [ $SHOREBIRD_BUILD_EXIT_CODE -eq 0 ]; then
-            echo "✅ Shorebird AAB 빌드 성공!"
-            
-            echo "=== Shorebird 릴리즈 업로드 ==="
-            # 첫 번째 시도
-            echo "🚀 Android 릴리즈 첫 번째 시도..."
-            RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
-            RELEASE_EXIT_CODE=$?
-            
-            echo "릴리즈 결과: $RELEASE_RESULT"
-            
-            # "incomplete" 메시지가 있거나 실패한 경우 재시도
-            if [[ $RELEASE_EXIT_CODE -ne 0 ]] || echo "$RELEASE_RESULT" | grep -i "incomplete\|re-run"; then
-              echo "⚠️ 불완전한 릴리즈 감지 또는 실패 - 재시도합니다..."
-              sleep 5
+          # 릴리즈 결과 확인
+          if [ $RELEASE_EXIT_CODE -eq 0 ]; then
+            if echo "$RELEASE_RESULT" | grep -i "successfully\|completed\|deployed\|published\|release.*created"; then
+              echo "=== Shorebird Android 릴리즈 성공 ==="
+              echo "✅ Android 릴리즈가 Shorebird를 통해 성공적으로 배포되었습니다"
               
-              echo "🔄 Android 릴리즈 재시도..."
-              shorebird release android --dart-define=ENVIRONMENT=prod
-              
-              RETRY_EXIT_CODE=$?
-              if [ $RETRY_EXIT_CODE -eq 0 ]; then
-                echo "✅ 재시도 성공!"
-              else
-                echo "❌ 재시도도 실패했습니다."
-                exit 1
+              # 릴리즈 정보 추출 및 표시
+              if echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version"; then
+                echo ""
+                echo "📱 릴리즈 정보:"
+                echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version" | head -3
               fi
             else
-              echo "✅ 첫 번째 시도 성공!"
+              echo "=== Shorebird Android 릴리즈 재시도 필요 ==="
+              echo "⚠️ 릴리즈 결과가 불분명합니다. 재시도합니다..."
+              sleep 3
+              
+              echo "🔄 Android 릴리즈 재시도..."
+              RETRY_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
+              RETRY_EXIT_CODE=$?
+              
+              if [ $RETRY_EXIT_CODE -eq 0 ]; then
+                echo "✅ 재시도 성공!"
+                echo "$RETRY_RESULT"
+              else
+                echo "❌ 재시도도 실패했습니다."
+                echo "$RETRY_RESULT"
+                exit 1
+              fi
             fi
           else
-            echo "❌ Shorebird AAB 빌드 실패 - 표준 Flutter 빌드로 폴백"
-            echo "표준 Flutter AAB를 사용하여 릴리즈를 시도합니다..."
+            echo "=== Shorebird Android 릴리즈 실패 ==="
+            echo "❌ Android 릴리즈에 실패했습니다 (종료 코드: $RELEASE_EXIT_CODE)"
             
-            # 표준 Flutter 빌드가 이미 완료되었으므로 바로 릴리즈 시도
-            echo "🚀 Android 릴리즈 (표준 빌드) 시도..."
-            RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod 2>&1)
-            RELEASE_EXIT_CODE=$?
-            
-            if [ $RELEASE_EXIT_CODE -ne 0 ]; then
-              echo "❌ 표준 빌드로도 릴리즈 실패"
-              echo "릴리즈 결과: $RELEASE_RESULT"
-              exit 1
-            else
-              echo "✅ 표준 빌드로 릴리즈 성공!"
+            # 실패 원인 분석
+            if echo "$RELEASE_RESULT" | grep -i "keystore\|signing"; then
+              echo "🔍 서명 관련 문제로 보입니다"
+            elif echo "$RELEASE_RESULT" | grep -i "flutter.*build.*fail"; then
+              echo "🔍 Flutter 빌드 문제로 보입니다"
+            elif echo "$RELEASE_RESULT" | grep -i "no.*release\|app.*not.*found"; then
+              echo "🔍 앱 등록 문제로 보입니다"
             fi
+            
+            exit 1
           fi
-
-          echo "=== 릴리즈 완료 상태 확인 ==="
-          shorebird releases list | head -5 || echo "최종 릴리즈 목록 확인 실패"
 
           echo "=== 최종 Artifacts 상태 요약 ==="
           if [ "$AAB_BUILD_SUCCESS" = true ]; then
@@ -939,13 +927,9 @@ workflows:
             echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
           fi
 
-          echo "=== 사용 가능한 릴리즈 확인 ==="
-          # 새로운 Shorebird CLI 명령어 사용
-          echo "Shorebird 도움말 확인:"
-          shorebird --help 2>/dev/null || echo "Shorebird 도움말 확인 중 오류 발생"
-          
-          echo "릴리즈 관련 명령어 확인:"
-          shorebird releases --help 2>/dev/null || echo "릴리즈 명령어 확인 중 오류 발생"
+          echo "=== Shorebird CLI 상태 확인 ==="
+          echo "Shorebird 버전:"
+          shorebird --version 2>/dev/null || echo "Shorebird 버전 확인 실패"
 
           echo "=== Flutter 빌드 테스트 ==="
           # 패치 생성 전에 Flutter 빌드가 성공하는지 확인
@@ -1148,13 +1132,9 @@ workflows:
             echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
           fi
 
-          echo "=== 사용 가능한 릴리즈 확인 ==="
-          # 새로운 Shorebird CLI 명령어 사용
-          echo "Shorebird 도움말 확인:"
-          shorebird --help 2>/dev/null || echo "Shorebird 도움말 확인 중 오류 발생"
-          
-          echo "릴리즈 관련 명령어 확인:"
-          shorebird releases --help 2>/dev/null || echo "릴리즈 명령어 확인 중 오류 발생"
+          echo "=== Shorebird CLI 상태 확인 ==="
+          echo "Shorebird 버전:"
+          shorebird --version 2>/dev/null || echo "Shorebird 버전 확인 실패"
 
           echo "=== Flutter 빌드 테스트 ==="
           # 패치 생성 전에 Flutter 빌드가 성공하는지 확인
