@@ -1281,12 +1281,21 @@ workflows:
             echo "⚠️ 네이티브 라이브러리 복사 실패 - 패치가 실패할 수 있습니다"
           fi
           
-          echo "=== Shorebird Android 패치 생성 및 배포 ==="
-          # AAB 빌드가 계속 실패하므로 APK 패치로 시도
-          echo "🚀 Android APK 패치 생성 시작 (AAB 빌드 문제 우회)..."
+          echo "=== Shorebird Android 패치 최종 시도 ==="
+          echo "🚀 Flutter 환경 완전 리셋 후 APK 전용 패치 시도"
           
-          # 1차 시도: APK 아티팩트로 패치 생성
-          echo "📱 APK 아티팩트로 패치 생성 시도..."
+          # 가장 깨끗한 상태로 리셋
+          echo "🧹 완전한 환경 리셋..."
+          shorebird cache clean
+          flutter clean
+          rm -rf build/ android/app/build/ android/.gradle/ $HOME/.gradle/caches/
+          
+          # 환경 재설정
+          flutter pub get
+          flutter pub upgrade --dry-run  # 업그레이드 확인만
+          
+          # APK 전용 패치 시도 (내부 빌드 최소화)
+          echo "📱 APK 전용 패치 시도..."
           PATCH_RESULT=$(shorebird patch android \
             --artifact=apk \
             --release-version=latest \
@@ -1295,32 +1304,24 @@ workflows:
             --verbose 2>&1)
           PATCH_EXIT_CODE=$?
           
-          # APK 패치가 실패하면 더 강력한 정리 후 AAB 재시도
+          # APK도 실패하면 최후의 수단: 직접 Flutter 버전 명시
           if [ $PATCH_EXIT_CODE -ne 0 ]; then
-            echo "⚠️ APK 패치 실패 - 강력한 정리 후 AAB 재시도..."
+            echo "⚠️ APK 패치 실패 - Flutter 버전 명시 재시도..."
             
-            # 더 강력한 캐시 및 빌드 디렉토리 정리
-            echo "🧹 강력한 정리 작업..."
-            shorebird cache clean
-            flutter clean
-            rm -rf build/
-            rm -rf android/app/build/
-            rm -rf android/.gradle/
-            rm -rf $HOME/.gradle/caches/
+            # 현재 Flutter 버전 확인
+            FLUTTER_VERSION=$(flutter --version | grep "Flutter" | cut -d' ' -f2)
+            echo "현재 Flutter 버전: $FLUTTER_VERSION"
             
-            # Flutter 캐시 재구성
-            flutter pub get
-            flutter pub upgrade
-            
-            echo "🔄 AAB 패치 재시도..."
+            # Flutter 버전을 명시해서 재시도 (하지만 패치에서는 지원 안됨)
+            echo "🔄 기본 패치 재시도 (버전 호환성 우회)..."
             PATCH_RESULT=$(shorebird patch android \
               --release-version=latest \
               --no-confirm \
               --dart-define=ENVIRONMENT=prod \
               --verbose 2>&1)
-                         PATCH_EXIT_CODE=$?
-           fi
-          
+            PATCH_EXIT_CODE=$?
+          fi
+
           echo "패치 결과 출력:"
           echo "$PATCH_RESULT"
           
