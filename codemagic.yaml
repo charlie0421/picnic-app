@@ -635,6 +635,74 @@ workflows:
           mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
           mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
           
+          echo "=== 네이티브 라이브러리 파일 복사 ==="
+          # Flutter가 생성한 네이티브 라이브러리 파일들을 Shorebird가 기대하는 위치로 복사
+          echo "📁 네이티브 라이브러리 파일 검색 중..."
+          find . -name "libapp.so" -type f 2>/dev/null | head -10
+          find . -name "libflutter.so" -type f 2>/dev/null | head -5
+          
+          # 실제 생성된 네이티브 라이브러리 파일들 찾기
+          NATIVE_LIB_SOURCES=(
+            "build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/out/lib"
+            "build/app/intermediates/stripped_native_libs/release/out/lib"
+            "android/app/build/intermediates/stripped_native_libs/stripReleaseDebugSymbols/out/lib"
+            "android/app/build/intermediates/stripped_native_libs/release/out/lib"
+            "build/app/intermediates/merged_native_libs/release/out/lib"
+            "android/app/build/intermediates/merged_native_libs/release/out/lib"
+          )
+          
+          NATIVE_LIB_TARGETS=(
+            "build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib"
+            "build/app/intermediates/stripped_native_libs/release/out/lib"
+          )
+          
+          # 아키텍처별 디렉토리 생성
+          for target in "${NATIVE_LIB_TARGETS[@]}"; do
+            mkdir -p "$target/armeabi-v7a"
+            mkdir -p "$target/arm64-v8a"
+            mkdir -p "$target/x86"
+            mkdir -p "$target/x86_64"
+          done
+          
+          # 소스에서 타겟으로 네이티브 라이브러리 복사
+          COPIED_COUNT=0
+          for source in "${NATIVE_LIB_SOURCES[@]}"; do
+            if [ -d "$source" ]; then
+              echo "✅ 네이티브 라이브러리 소스 발견: $source"
+              
+              # 각 아키텍처별로 복사
+              for arch in armeabi-v7a arm64-v8a x86 x86_64; do
+                if [ -d "$source/$arch" ]; then
+                  echo "📦 $arch 라이브러리 복사 중..."
+                  
+                  for target in "${NATIVE_LIB_TARGETS[@]}"; do
+                    cp -r "$source/$arch"/* "$target/$arch/" 2>/dev/null || true
+                  done
+                  
+                  # 복사된 파일들 확인
+                  if [ -f "$source/$arch/libapp.so" ]; then
+                    COPIED_COUNT=$((COPIED_COUNT + 1))
+                    echo "  ✅ libapp.so 복사됨 ($arch)"
+                  fi
+                  if [ -f "$source/$arch/libflutter.so" ]; then
+                    echo "  ✅ libflutter.so 복사됨 ($arch)"
+                  fi
+                fi
+              done
+              break
+            fi
+          done
+          
+          if [ $COPIED_COUNT -gt 0 ]; then
+            echo "✅ 네이티브 라이브러리 복사 완료 ($COPIED_COUNT개 아키텍처)"
+          else
+            echo "⚠️ 네이티브 라이브러리를 찾을 수 없음 - Shorebird가 실패할 수 있습니다"
+            
+            # 디버깅을 위한 추가 정보
+            echo "📁 현재 빌드 구조:"
+            find build/app/intermediates -name "*.so" 2>/dev/null | head -10 || echo "네이티브 라이브러리 파일 없음"
+          fi
+          
           echo "=== 표준 Flutter 빌드 결과로 Shorebird 릴리즈 실행 ==="
           # 이미 Flutter로 빌드된 AAB/APK를 사용하여 Shorebird 릴리즈
           echo "🚀 Android 릴리즈 시작 (최신 Flutter 3.32.4 명시 지정)..."
