@@ -992,12 +992,11 @@ workflows:
           
           echo "=== Shorebird iOS 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
-          echo "🚀 iOS 패치 생성 시작 (최신 Flutter 3.32.4)..."
+          echo "🚀 iOS 패치 생성 시작 (자동 Flutter 버전 감지)..."
           PATCH_RESULT=$(shorebird patch ios \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod \
-            --flutter-version=latest \
             --verbose 2>&1)
           PATCH_EXIT_CODE=$?
           
@@ -1199,12 +1198,11 @@ workflows:
           
           echo "=== Shorebird Android 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
-          echo "🚀 Android 패치 생성 시작 (최신 Flutter 3.32.4)..."
+          echo "🚀 Android 패치 생성 시작 (자동 Flutter 버전 감지)..."
           PATCH_RESULT=$(shorebird patch android \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod \
-            --flutter-version=latest \
             --verbose 2>&1)
           PATCH_EXIT_CODE=$?
           
