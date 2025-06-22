@@ -865,11 +865,64 @@ workflows:
       - name: Install Shorebird CLI
         script: |
           echo "=== Shorebird CLI 설치 시작 ==="
-          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          export PATH="$HOME/.shorebird/bin:$PATH"
           
-          echo "Shorebird 버전 확인:"
-          shorebird --version || echo "Shorebird 설치 실패"
+          # 기존 설치 확인
+          if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+            echo "✅ Shorebird CLI가 이미 설치되어 있습니다"
+            "$HOME/.shorebird/bin/shorebird" --version
+          else
+            echo "🔄 Shorebird CLI 새로 설치..."
+            
+            # 설치 스크립트 다운로드 및 실행
+            curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+            
+            # 설치 완료 확인
+            if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+              echo "✅ Shorebird CLI 설치 성공"
+              "$HOME/.shorebird/bin/shorebird" --version
+            else
+              echo "❌ Shorebird CLI 설치 실패"
+              
+              # 대체 설치 방법 시도
+              echo "🔄 대체 설치 방법 시도..."
+              
+              # 직접 바이너리 다운로드
+              mkdir -p "$HOME/.shorebird/bin"
+              PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+              ARCH=$(uname -m)
+              
+              if [ "$ARCH" = "x86_64" ]; then
+                ARCH="x64"
+              elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+                ARCH="arm64"
+              fi
+              
+              echo "플랫폼: $PLATFORM, 아키텍처: $ARCH"
+              
+              # GitHub releases에서 바이너리 다운로드 시도
+              DOWNLOAD_URL="https://github.com/shorebirdtech/shorebird/releases/latest/download/shorebird-${PLATFORM}-${ARCH}"
+              echo "다운로드 URL: $DOWNLOAD_URL"
+              
+              curl -L "$DOWNLOAD_URL" -o "$HOME/.shorebird/bin/shorebird" --fail --silent --show-error || {
+                echo "❌ GitHub 다운로드 실패"
+                exit 1
+              }
+              
+              chmod +x "$HOME/.shorebird/bin/shorebird"
+              
+              if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+                echo "✅ 대체 방법으로 Shorebird CLI 설치 성공"
+                "$HOME/.shorebird/bin/shorebird" --version
+              else
+                echo "❌ 모든 설치 방법 실패"
+                exit 1
+              fi
+            fi
+          fi
+          
+          # PATH 설정을 환경 파일로 저장 (다음 단계에서 사용)
+          echo "export PATH=\"$HOME/.shorebird/bin:\$PATH\"" > /tmp/shorebird_env.sh
+          echo "✅ Shorebird CLI 설치 및 환경 설정 완료"
 
       - name: Get Flutter packages and prepare iOS
         script: |
@@ -963,11 +1016,31 @@ workflows:
       - name: Shorebird iOS Patch
         script: |
           cd picnic_app
+          
+          # 환경 파일에서 PATH 설정 로드
+          if [ -f "/tmp/shorebird_env.sh" ]; then
+            source /tmp/shorebird_env.sh
+          fi
+          
+          # PATH를 명시적으로 설정
           export PATH="$HOME/.shorebird/bin:$PATH"
+          
+          # Shorebird CLI 존재 확인
+          if [ ! -f "$HOME/.shorebird/bin/shorebird" ]; then
+            echo "❌ Shorebird CLI가 설치되지 않았습니다"
+            echo "설치 단계를 다시 확인해주세요"
+            exit 1
+          fi
 
           echo "=== Shorebird iOS 패치 시작 ==="
           echo "Shorebird 버전 확인:"
-          shorebird --version
+          "$HOME/.shorebird/bin/shorebird" --version || {
+            echo "⚠️ 직접 경로로 Shorebird 실행 실패, PATH 확인 중..."
+            echo "PATH: $PATH"
+            echo "which shorebird: $(which shorebird || echo 'not found')"
+            echo "Shorebird 파일 확인: $(ls -la $HOME/.shorebird/bin/shorebird 2>/dev/null || echo 'not found')"
+            exit 1
+          }
 
           echo "=== Shorebird 인증 확인 ==="
           if [ -z "$SHOREBIRD_TOKEN" ]; then
@@ -979,7 +1052,7 @@ workflows:
 
           echo "=== Shorebird CLI 상태 확인 ==="
           echo "Shorebird 버전:"
-          shorebird --version 2>/dev/null || echo "Shorebird 버전 확인 실패"
+          "$HOME/.shorebird/bin/shorebird" --version 2>/dev/null || echo "Shorebird 버전 확인 실패"
 
           echo "=== Flutter 빌드 테스트 ==="
           # 패치 생성 전에 Flutter 빌드가 성공하는지 확인
@@ -991,7 +1064,7 @@ workflows:
 
           echo "=== Shorebird 캐시 정리 및 iOS 패치 준비 ==="
           # Shorebird 캐시 정리
-          shorebird cache clean
+          "$HOME/.shorebird/bin/shorebird" cache clean
           
           # Flutter 캐시 정리
           flutter clean
@@ -1005,7 +1078,7 @@ workflows:
           echo "=== Shorebird iOS 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
           echo "🚀 iOS 패치 생성 시작 (자동 Flutter 버전 감지)..."
-          PATCH_RESULT=$(shorebird patch ios \
+          PATCH_RESULT=$("$HOME/.shorebird/bin/shorebird" patch ios \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod \
@@ -1115,11 +1188,30 @@ workflows:
       - name: Install Shorebird CLI
         script: |
           echo "=== Shorebird CLI 설치 시작 ==="
-          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          export PATH="$HOME/.shorebird/bin:$PATH"
           
-          echo "Shorebird 버전 확인:"
-          shorebird --version || echo "Shorebird 설치 실패"
+          # 기존 설치 확인
+          if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+            echo "✅ Shorebird CLI가 이미 설치되어 있습니다"
+            "$HOME/.shorebird/bin/shorebird" --version
+          else
+            echo "🔄 Shorebird CLI 새로 설치..."
+            
+            # 설치 스크립트 다운로드 및 실행
+            curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+            
+            # 설치 완료 확인
+            if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+              echo "✅ Shorebird CLI 설치 성공"
+              "$HOME/.shorebird/bin/shorebird" --version
+            else
+              echo "❌ Shorebird CLI 설치 실패"
+              exit 1
+            fi
+          fi
+          
+          # PATH 설정을 환경 파일로 저장 (다음 단계에서 사용)
+          echo "export PATH=\"$HOME/.shorebird/bin:\$PATH\"" > /tmp/shorebird_env.sh
+          echo "✅ Shorebird CLI 설치 및 환경 설정 완료"
 
       - name: Get Flutter packages
         script: |
@@ -1149,60 +1241,45 @@ workflows:
             exit 1
           fi
 
-      - name: Configure Gradle for Maximum Optimization (Patch)
+      - name: Configure Gradle Consistent with Release (Patch)
         script: |
           cd picnic_app
           
-          echo "=== Gradle 메모리 설정 최대 강화 (AAB 빌드 안정화) ==="
+          echo "=== Gradle 메모리 설정 (릴리즈와 동일하게 6GB) ==="
           mkdir -p $HOME/.gradle
           
           # 기존 gradle.properties 정리 (중복 방지)
           rm -f $HOME/.gradle/gradle.properties
           
-          # 패치용 최대 강화 메모리 설정 (10GB + 최적화)
-          echo "org.gradle.jvmargs=-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
+          # 릴리즈와 완전히 동일한 메모리 설정 (6GB)
+          echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
-          # Shorebird 호환성을 위한 추가 설정 (deprecated 옵션 제거)
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
           
-          # TODO: 향후 DEX 일관성을 위해 패치 워크플로우와 동일한 설정 사용 고려
-          # echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
-          # echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
-          # echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
+          echo "✅ Gradle 설정 완료 (릴리즈와 동일한 6GB 설정)"
           
-          # AAB 빌드 최적화 설정 (더 보수적 접근)
-          echo "android.enableR8=true" >> $HOME/.gradle/gradle.properties
-          echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
-          echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
-          echo "android.enableIncrementalDesugaring=false" >> $HOME/.gradle/gradle.properties
-          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
-          echo "android.aapt2.disableRetainExplicitlyKeptAttributes=true" >> $HOME/.gradle/gradle.properties
-          
-          # 추가 빌드 안정성 설정
-          echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
-          echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
-          echo "kotlin.incremental.useClasspathSnapshot=false" >> $HOME/.gradle/gradle.properties
-          echo "org.gradle.unsafe.configuration-cache=false" >> $HOME/.gradle/gradle.properties
-          echo "android.experimental.enableSourceSetPathsMap=false" >> $HOME/.gradle/gradle.properties
-          
-          echo "✅ Gradle 설정 완료 (패치용 메모리 10GB + AAB 최적화)"
-          
-          # JVM 메모리 환경 변수도 설정
-          export GRADLE_OPTS="-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+UseG1GC"
-          export _JAVA_OPTIONS="-Xmx10240m"
+          # JVM 메모리 환경 변수도 릴리즈와 동일하게 설정
+          export GRADLE_OPTS="-Xmx6144m -XX:MaxMetaspaceSize=512m"
+          export _JAVA_OPTIONS="-Xmx6144m"
 
       - name: Shorebird Android Patch with Enhanced Build Strategy
         script: |
           cd picnic_app
+          
+          # 환경 파일에서 PATH 설정 로드
+          if [ -f "/tmp/shorebird_env.sh" ]; then
+            source /tmp/shorebird_env.sh
+          fi
+          
           export PATH="$HOME/.shorebird/bin:$PATH"
 
-          echo "=== Shorebird Android 패치 시작 (AAB 빌드 최적화) ==="
+          echo "=== Shorebird Android 패치 시작 (릴리즈와 동일한 환경) ==="
           echo "Shorebird 버전 확인:"
-          shorebird --version
+          "$HOME/.shorebird/bin/shorebird" --version
 
           echo "=== Shorebird 인증 확인 ==="
           if [ -z "$SHOREBIRD_TOKEN" ]; then
@@ -1214,20 +1291,18 @@ workflows:
 
           echo "=== 환경 최적화 및 사전 빌드 테스트 ==="
           # Shorebird 캐시 정리
-          shorebird cache clean
+          "$HOME/.shorebird/bin/shorebird" cache clean
           
           # Flutter 캐시 정리
           flutter clean
           flutter pub get
           
-          # 메모리 압박 완화를 위한 시스템 정리
-          echo "🧹 시스템 메모리 정리..."
-          rm -rf build/ android/app/build/ android/.gradle/ $HOME/.gradle/caches/
+          # 시스템 정리 (릴리즈와 동일한 수준)
+          echo "🧹 시스템 정리..."
           
-          # JVM 메모리 최적화
-          export GRADLE_OPTS="-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+UseG1GC -XX:G1HeapRegionSize=32m"
-          export _JAVA_OPTIONS="-Xmx10240m -XX:MaxMetaspaceSize=1536m"
-          export JAVA_OPTS="-Xmx10240m -XX:MaxMetaspaceSize=1536m"
+          # JVM 메모리 최적화 (릴리즈와 동일)
+          export GRADLE_OPTS="-Xmx6144m -XX:MaxMetaspaceSize=512m"
+          export _JAVA_OPTIONS="-Xmx6144m"
           
           echo "=== Flutter AAB 빌드 사전 테스트 (문제 조기 발견) ==="
           # Flutter AAB 빌드를 먼저 테스트해서 문제가 있는지 확인
@@ -1260,84 +1335,7 @@ workflows:
             echo "❌ Flutter AAB 빌드 테스트 실패"
             echo "🔍 AAB 빌드 실패 원인 분석:"
             
-            # 구체적인 오류 분석
-            if echo "$AAB_TEST_RESULT" | grep -i "java.*heap\|out.*of.*memory"; then
-              echo "   - 메모리 부족 문제 감지"
-              echo "   - 현재 설정: 10GB Heap + G1GC + ZGC"
-              echo "   - 추가 최적화 적용 중..."
-              
-              # 더 강력한 메모리 설정
-              export GRADLE_OPTS="-Xmx12288m -XX:MaxMetaspaceSize=2048m -XX:+UseG1GC -XX:+UseZGC -XX:G1HeapRegionSize=32m -XX:+UnlockExperimentalVMOptions"
-              export _JAVA_OPTIONS="-Xmx12288m -XX:MaxMetaspaceSize=2048m"
-              
-              echo "   - 메모리 설정 12GB로 증가 완료"
-              
-            elif echo "$AAB_TEST_RESULT" | grep -i "gradle.*fail\|build.*fail"; then
-              echo "   - Gradle 빌드 문제 감지"
-              echo "   - Gradle 데몬 재시작 및 추가 정리 실행"
-              
-              # Gradle 데몬 강제 종료 및 재시작
-              ./gradlew --stop 2>/dev/null || echo "Gradle 데몬 없음"
-              killall -9 java 2>/dev/null || echo "Java 프로세스 없음"
-              
-              # 더 강력한 정리
-              rm -rf $HOME/.gradle/daemon/
-              rm -rf $HOME/.gradle/caches/
-              rm -rf android/app/.gradle/
-              
-            elif echo "$AAB_TEST_RESULT" | grep -i "depend\|resolve"; then
-              echo "   - 의존성 해결 문제 감지"
-              echo "   - 의존성 재설치 및 정리 실행"
-              
-              flutter pub clean
-              flutter pub get
-              cd android && ./gradlew clean && cd ..
-              
-            else
-              echo "   - 기타 빌드 문제 감지"
-              echo "   - 전체 환경 재구성"
-            fi
-            
-            echo "🔄 문제 해결 후 재시도..."
-            
-            # 극단적 해결책: APK로 우회 후 수동 AAB 생성
-            echo "📱 AAB 빌드 실패 시 APK 빌드 테스트..."
-            APK_TEST_RESULT=$(flutter build apk --release --dart-define=ENVIRONMENT=prod 2>&1)
-            APK_TEST_EXIT_CODE=$?
-            
-            if [ $APK_TEST_EXIT_CODE -eq 0 ]; then
-              echo "✅ APK 빌드는 성공함 - AAB 관련 문제로 판단"
-              echo "⚠️ Shorebird 패치에서 AAB 문제가 발생할 수 있습니다"
-            else
-              echo "❌ APK 빌드도 실패 - 근본적인 Flutter 빌드 문제"
-              echo "🚨 Shorebird 패치 실패 가능성 높음"
-              
-              # 최후의 수단: 완전한 시스템 리셋
-              echo "🔥 극단적 해결책: 완전한 빌드 환경 리셋"
-              
-              # 모든 캐시와 빌드 결과물 완전 삭제
-              rm -rf build/
-              rm -rf android/app/build/
-              rm -rf android/.gradle/
-              rm -rf $HOME/.gradle/
-              rm -rf $HOME/.android/build-cache/
-              rm -rf .dart_tool/
-              
-              # Flutter 캐시도 완전 정리
-              flutter clean
-              flutter pub cache clean --force 2>/dev/null || echo "pub cache clean 무시"
-              flutter pub get
-              
-              # 최소한의 Gradle 설정으로 재구성
-              mkdir -p $HOME/.gradle
-              echo "org.gradle.jvmargs=-Xmx8192m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8" > $HOME/.gradle/gradle.properties
-              echo "org.gradle.daemon=false" >> $HOME/.gradle/gradle.properties
-              echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
-              echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
-              echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
-              
-              echo "🔄 최소 설정으로 재구성 완료"
-            fi
+            echo "🔄 릴리즈와 동일한 환경으로 빌드 재시도..."
           fi
           
           echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
@@ -1421,7 +1419,7 @@ workflows:
           
           # 1차 시도: 표준 패치 명령어
           echo "📱 1차 시도: 표준 Shorebird 패치..."
-          PATCH_RESULT=$(shorebird patch android \
+          PATCH_RESULT=$("$HOME/.shorebird/bin/shorebird" patch android \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod 2>&1)
@@ -1474,7 +1472,7 @@ workflows:
                 cp "$AAB_FOUND" android/app/build/outputs/bundle/release/app-release.aab
                 
                 echo "🔄 2차 패치 시도 (AAB 파일 배치 완료)..."
-                PATCH_RESULT_2=$(shorebird patch android \
+                PATCH_RESULT_2=$("$HOME/.shorebird/bin/shorebird" patch android \
                   --release-version=latest \
                   --no-confirm \
                   --dart-define=ENVIRONMENT=prod 2>&1)
