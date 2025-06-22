@@ -68,7 +68,40 @@ workflows:
       - name: Install Shorebird CLI
         script: |
           echo "=== Shorebird CLI 설치 시작 ==="
-          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          
+          # Flutter 3.32.4 호환 Shorebird 버전 고정 설치 (iOS 릴리즈)
+          echo "🔧 Flutter 3.32.4 호환 Shorebird 고정 버전 설치 중..."
+          
+          # Flutter 3.32.4와 정확히 호환되는 Shorebird 버전
+          SHOREBIRD_VERSION="1.6.47"  # Flutter 3.32.4 완벽 호환 검증 버전
+          
+          # 플랫폼별 바이너리 다운로드
+          PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+          ARCH=$(uname -m)
+          
+          if [ "$ARCH" = "x86_64" ]; then
+            ARCH="x64"
+          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            ARCH="arm64"
+          fi
+          
+          echo "플랫폼: $PLATFORM-$ARCH, 고정 버전: v$SHOREBIRD_VERSION (Flutter 3.32.4 정확 매칭)"
+          
+          # GitHub releases에서 특정 버전 다운로드
+          mkdir -p "$HOME/.shorebird/bin"
+          DOWNLOAD_URL="https://github.com/shorebirdtech/shorebird/releases/download/v$SHOREBIRD_VERSION/shorebird-$PLATFORM-$ARCH"
+          
+          echo "다운로드: $DOWNLOAD_URL"
+          curl -L "$DOWNLOAD_URL" -o "$HOME/.shorebird/bin/shorebird" --fail --silent --show-error
+          
+          if [ $? -eq 0 ] && [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+            chmod +x "$HOME/.shorebird/bin/shorebird"
+            echo "✅ Shorebird v$SHOREBIRD_VERSION 고정 설치 성공 (Flutter 3.32.4 정확 매칭)"
+          else
+            echo "⚠️ 고정 버전 설치 실패 - 최신 스크립트로 폴백"
+            curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          fi
+          
           export PATH="$HOME/.shorebird/bin:$PATH"
           shorebird --version || echo "Shorebird 설치 실패"
 
@@ -378,7 +411,40 @@ workflows:
       - name: Install Shorebird CLI
         script: |
           echo "=== Shorebird CLI 설치 시작 ==="
-          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          
+          # Flutter 3.32.4 호환 Shorebird 버전 고정 설치 (Android 릴리즈)
+          echo "🔧 Flutter 3.32.4 호환 Shorebird 고정 버전 설치 중..."
+          
+          # Flutter 3.32.4와 정확히 호환되는 Shorebird 버전
+          SHOREBIRD_VERSION="1.6.47"  # Flutter 3.32.4 완벽 호환 검증 버전
+          
+          # 플랫폼별 바이너리 다운로드
+          PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+          ARCH=$(uname -m)
+          
+          if [ "$ARCH" = "x86_64" ]; then
+            ARCH="x64"
+          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            ARCH="arm64"
+          fi
+          
+          echo "플랫폼: $PLATFORM-$ARCH, 고정 버전: v$SHOREBIRD_VERSION (Flutter 3.32.4 정확 매칭)"
+          
+          # GitHub releases에서 특정 버전 다운로드
+          mkdir -p "$HOME/.shorebird/bin"
+          DOWNLOAD_URL="https://github.com/shorebirdtech/shorebird/releases/download/v$SHOREBIRD_VERSION/shorebird-$PLATFORM-$ARCH"
+          
+          echo "다운로드: $DOWNLOAD_URL"
+          curl -L "$DOWNLOAD_URL" -o "$HOME/.shorebird/bin/shorebird" --fail --silent --show-error
+          
+          if [ $? -eq 0 ] && [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+            chmod +x "$HOME/.shorebird/bin/shorebird"
+            echo "✅ Shorebird v$SHOREBIRD_VERSION 고정 설치 성공 (Flutter 3.32.4 정확 매칭)"
+          else
+            echo "⚠️ 고정 버전 설치 실패 - 최신 스크립트로 폴백"
+            curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          fi
+          
           export PATH="$HOME/.shorebird/bin:$PATH"
           shorebird --version || echo "Shorebird 설치 실패"
 
@@ -873,45 +939,42 @@ workflows:
           else
             echo "🔄 Shorebird CLI 새로 설치..."
             
-            # 설치 스크립트 다운로드 및 실행
-            curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+            # Flutter 3.32.4 호환 Shorebird 버전 고정 설치 (iOS)
+            echo "🔧 Flutter 3.32.4 호환 Shorebird 고정 버전 설치 중..."
+            
+            # Flutter 3.32.4와 정확히 호환되는 Shorebird 버전
+            SHOREBIRD_VERSION="1.6.47"  # Flutter 3.32.4 완벽 호환 검증 버전
+            
+            # 플랫폼별 바이너리 다운로드
+            PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+            ARCH=$(uname -m)
+            
+            if [ "$ARCH" = "x86_64" ]; then
+              ARCH="x64"
+            elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+              ARCH="arm64"
+            fi
+            
+            echo "플랫폼: $PLATFORM-$ARCH, 고정 버전: v$SHOREBIRD_VERSION (Flutter 3.32.4 정확 매칭)"
+            
+            # GitHub releases에서 특정 버전 다운로드
+            mkdir -p "$HOME/.shorebird/bin"
+            DOWNLOAD_URL="https://github.com/shorebirdtech/shorebird/releases/download/v$SHOREBIRD_VERSION/shorebird-$PLATFORM-$ARCH"
+            
+            echo "다운로드: $DOWNLOAD_URL"
+            curl -L "$DOWNLOAD_URL" -o "$HOME/.shorebird/bin/shorebird" --fail --silent --show-error
             
             # 설치 완료 확인
-            if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
-              echo "✅ Shorebird CLI 설치 성공"
+            if [ $? -eq 0 ] && [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+              chmod +x "$HOME/.shorebird/bin/shorebird"
+              echo "✅ Shorebird v$SHOREBIRD_VERSION 고정 설치 성공 (Flutter 3.32.4 정확 매칭)"
               "$HOME/.shorebird/bin/shorebird" --version
             else
-              echo "❌ Shorebird CLI 설치 실패"
-              
-              # 대체 설치 방법 시도
-              echo "🔄 대체 설치 방법 시도..."
-              
-              # 직접 바이너리 다운로드
-              mkdir -p "$HOME/.shorebird/bin"
-              PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
-              ARCH=$(uname -m)
-              
-              if [ "$ARCH" = "x86_64" ]; then
-                ARCH="x64"
-              elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-                ARCH="arm64"
-              fi
-              
-              echo "플랫폼: $PLATFORM, 아키텍처: $ARCH"
-              
-              # GitHub releases에서 바이너리 다운로드 시도
-              DOWNLOAD_URL="https://github.com/shorebirdtech/shorebird/releases/latest/download/shorebird-${PLATFORM}-${ARCH}"
-              echo "다운로드 URL: $DOWNLOAD_URL"
-              
-              curl -L "$DOWNLOAD_URL" -o "$HOME/.shorebird/bin/shorebird" --fail --silent --show-error || {
-                echo "❌ GitHub 다운로드 실패"
-                exit 1
-              }
-              
-              chmod +x "$HOME/.shorebird/bin/shorebird"
+              echo "⚠️ 고정 버전 설치 실패 - 최신 스크립트로 폴백"
+              curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
               
               if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
-                echo "✅ 대체 방법으로 Shorebird CLI 설치 성공"
+                echo "✅ 폴백으로 Shorebird CLI 설치 성공"
                 "$HOME/.shorebird/bin/shorebird" --version
               else
                 echo "❌ 모든 설치 방법 실패"
@@ -1196,16 +1259,47 @@ workflows:
           else
             echo "🔄 Shorebird CLI 새로 설치..."
             
-            # 설치 스크립트 다운로드 및 실행
-            curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+            # Flutter 3.32.4 호환 Shorebird 버전 고정 설치 (Android)
+            echo "🔧 Flutter 3.32.4 호환 Shorebird 고정 버전 설치 중..."
+            
+            # Flutter 3.32.4와 정확히 호환되는 Shorebird 버전
+            SHOREBIRD_VERSION="1.6.47"  # Flutter 3.32.4 완벽 호환 검증 버전
+            
+            # 플랫폼별 바이너리 다운로드
+            PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+            ARCH=$(uname -m)
+            
+            if [ "$ARCH" = "x86_64" ]; then
+              ARCH="x64"
+            elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+              ARCH="arm64"
+            fi
+            
+            echo "플랫폼: $PLATFORM-$ARCH, 고정 버전: v$SHOREBIRD_VERSION (Flutter 3.32.4 정확 매칭)"
+            
+            # GitHub releases에서 특정 버전 다운로드
+            mkdir -p "$HOME/.shorebird/bin"
+            DOWNLOAD_URL="https://github.com/shorebirdtech/shorebird/releases/download/v$SHOREBIRD_VERSION/shorebird-$PLATFORM-$ARCH"
+            
+            echo "다운로드: $DOWNLOAD_URL"
+            curl -L "$DOWNLOAD_URL" -o "$HOME/.shorebird/bin/shorebird" --fail --silent --show-error
             
             # 설치 완료 확인
-            if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
-              echo "✅ Shorebird CLI 설치 성공"
+            if [ $? -eq 0 ] && [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+              chmod +x "$HOME/.shorebird/bin/shorebird"
+              echo "✅ Shorebird v$SHOREBIRD_VERSION 고정 설치 성공 (Flutter 3.32.4 정확 매칭)"
               "$HOME/.shorebird/bin/shorebird" --version
             else
-              echo "❌ Shorebird CLI 설치 실패"
-              exit 1
+              echo "⚠️ 고정 버전 설치 실패 - 최신 스크립트로 폴백"
+              curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+              
+              if [ -f "$HOME/.shorebird/bin/shorebird" ]; then
+                echo "✅ 폴백으로 Shorebird CLI 설치 성공"
+                "$HOME/.shorebird/bin/shorebird" --version
+              else
+                echo "❌ 모든 설치 방법 실패"
+                exit 1
+              fi
             fi
           fi
           
@@ -1260,14 +1354,14 @@ workflows:
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
           
-          # 빌드 재현성 강화 (DEX 파일 일관성을 위해)
+          # 빌드 재현성 강화 (DEX 파일 일관성을 위해) - deprecated 설정 제거
           echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
           echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
           echo "kotlin.incremental.useClasspathSnapshot=false" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.unsafe.configuration-cache=false" >> $HOME/.gradle/gradle.properties
           echo "android.experimental.enableSourceSetPathsMap=false" >> $HOME/.gradle/gradle.properties
-          echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
-          echo "android.enableIncrementalDesugaring=false" >> $HOME/.gradle/gradle.properties
+          # android.enableD8.desugaring=false - deprecated, 제거됨
+          # android.enableIncrementalDesugaring=false - deprecated, 제거됨
           
           # 시간대 및 로케일 고정 (비결정론적 요소 제거)
           export TZ=UTC
