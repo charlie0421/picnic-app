@@ -1251,7 +1251,7 @@ workflows:
           # 기존 gradle.properties 정리 (중복 방지)
           rm -f $HOME/.gradle/gradle.properties
           
-          # 릴리즈와 완전히 동일한 메모리 설정 (6GB)
+          # 릴리즈와 완전히 동일한 메모리 설정 (6GB) + 빌드 재현성 강화
           echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
@@ -1259,6 +1259,20 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+          
+          # 빌드 재현성 강화 (DEX 파일 일관성을 위해)
+          echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
+          echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
+          echo "kotlin.incremental.useClasspathSnapshot=false" >> $HOME/.gradle/gradle.properties
+          echo "org.gradle.unsafe.configuration-cache=false" >> $HOME/.gradle/gradle.properties
+          echo "android.experimental.enableSourceSetPathsMap=false" >> $HOME/.gradle/gradle.properties
+          echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
+          echo "android.enableIncrementalDesugaring=false" >> $HOME/.gradle/gradle.properties
+          
+          # 시간대 및 로케일 고정 (비결정론적 요소 제거)
+          export TZ=UTC
+          export LANG=en_US.UTF-8
+          export LC_ALL=en_US.UTF-8
           
           echo "✅ Gradle 설정 완료 (릴리즈와 동일한 6GB 설정)"
           
@@ -1299,6 +1313,15 @@ workflows:
           
           # 시스템 정리 (릴리즈와 동일한 수준)
           echo "🧹 시스템 정리..."
+          
+          # 완전한 빌드 환경 정리 (비결정적 요소 제거)
+          rm -rf build/ android/app/build/ android/.gradle/ $HOME/.gradle/caches/ $HOME/.gradle/daemon/
+          
+          # 환경 변수 고정 (빌드 재현성 극대화)
+          export TZ=UTC
+          export LANG=en_US.UTF-8
+          export LC_ALL=en_US.UTF-8
+          export SOURCE_DATE_EPOCH=1577836800  # 2020-01-01 고정
           
           # JVM 메모리 최적화 (릴리즈와 동일)
           export GRADLE_OPTS="-Xmx6144m -XX:MaxMetaspaceSize=512m"
@@ -1417,8 +1440,21 @@ workflows:
           # Shorebird 작업 디렉토리 최적화
           echo "🔧 Shorebird 환경 최적화..."
           
-          # 1차 시도: 표준 패치 명령어
-          echo "📱 1차 시도: 표준 Shorebird 패치..."
+          # 1차 시도: 표준 패치 명령어 (환경 고정)
+          echo "📱 1차 시도: 표준 Shorebird 패치 (빌드 재현성 극대화)..."
+          
+          # 환경 변수 재확인 및 고정
+          export TZ=UTC
+          export LANG=en_US.UTF-8  
+          export LC_ALL=en_US.UTF-8
+          export SOURCE_DATE_EPOCH=1577836800
+          
+          echo "빌드 환경 상태:"
+          echo "- TZ: $TZ"
+          echo "- LANG: $LANG"
+          echo "- SOURCE_DATE_EPOCH: $SOURCE_DATE_EPOCH"
+          echo "- _JAVA_OPTIONS: $_JAVA_OPTIONS"
+          
           PATCH_RESULT=$("$HOME/.shorebird/bin/shorebird" patch android \
             --release-version=latest \
             --no-confirm \
