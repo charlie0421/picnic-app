@@ -410,18 +410,14 @@ workflows:
             exit 1
           fi
 
-      - name: Build AAB and APK for Distribution (Enhanced Memory & Consistency)
+      - name: Build AAB and APK for Distribution
         script: |
           cd picnic_app
           
-          echo "=== Gradle 메모리 설정 최대 강화 (패치 워크플로우와 동일) ==="
+          echo "=== Gradle 메모리 설정 최적화 (Java Heap Space 에러 해결) ==="
           mkdir -p $HOME/.gradle
-          
-          # 기존 gradle.properties 정리 (중복 방지)
-          rm -f $HOME/.gradle/gradle.properties
-          
-          # 패치와 동일한 최대 강화 메모리 설정 (10GB + 최적화)
-          echo "org.gradle.jvmargs=-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
+          # 메모리를 6GB로 증가하고 메모리 관련 옵션 최적화
+          echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
@@ -430,34 +426,8 @@ workflows:
           # Shorebird 호환성을 위한 추가 설정 (deprecated 옵션 제거)
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
           
-          # AAB 빌드 최적화 설정 (패치와 동일)
-          echo "android.enableR8=true" >> $HOME/.gradle/gradle.properties
-          echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
-          echo "android.enableD8.desugaring=false" >> $HOME/.gradle/gradle.properties
-          echo "android.enableIncrementalDesugaring=false" >> $HOME/.gradle/gradle.properties
-          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
-          echo "android.aapt2.disableRetainExplicitlyKeptAttributes=true" >> $HOME/.gradle/gradle.properties
-          
-          # 추가 빌드 안정성 설정 (패치와 동일)
-          echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
-          echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
-          echo "kotlin.incremental.useClasspathSnapshot=false" >> $HOME/.gradle/gradle.properties
-          echo "org.gradle.unsafe.configuration-cache=false" >> $HOME/.gradle/gradle.properties
-          echo "android.experimental.enableSourceSetPathsMap=false" >> $HOME/.gradle/gradle.properties
-          
-          echo "✅ Gradle 설정 완료 (릴리즈용 메모리 10GB + AAB 최적화, 패치와 동일)"
-          
-          # JVM 메모리 환경 변수도 패치와 동일하게 설정
-          export GRADLE_OPTS="-Xmx10240m -XX:MaxMetaspaceSize=1536m -XX:+UseG1GC -XX:G1HeapRegionSize=32m"
-          export _JAVA_OPTIONS="-Xmx10240m -XX:MaxMetaspaceSize=1536m"
-          export JAVA_OPTS="-Xmx10240m -XX:MaxMetaspaceSize=1536m"
-          
           # Shorebird PATH 설정
           export PATH="$HOME/.shorebird/bin:$PATH"
-          
-          echo "=== 시스템 메모리 정리 (패치와 동일) ==="
-          # 메모리 압박 완화를 위한 시스템 정리
-          rm -rf build/ android/app/build/ android/.gradle/ $HOME/.gradle/caches/
           
           # 깨끗한 빌드 환경
           flutter clean
