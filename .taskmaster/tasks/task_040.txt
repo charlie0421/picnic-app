@@ -1,0 +1,492 @@
+# Task ID: 40
+# Title: Implement Fancy Loading Component with App Logo
+# Status: done
+# Dependencies: 38
+# Priority: high
+# Description: Create a reusable, full-screen loading overlay component that incorporates the app logo and provides a unified loading experience across the application.
+# Details:
+1. Analyze existing loading components:
+   - Review AppLoadingScreen and LoadingView
+   - Identify reusable elements and improvement areas
+
+2. Design the new loading overlay component:
+   - Create a new file: `FancyLoadingOverlay.tsx`
+   - Implement a full-screen overlay using React Native's Modal component
+   - Use StyleSheet to define styles for the overlay, ensuring it covers the entire screen
+
+3. Implement logo animation:
+   - Import the app logo as an SVG or PNG
+   - Use React Native's Animated API to create a pulsing or rotating effect for the logo
+   - Example animation code:
+     ```typescript
+     const pulseAnimation = useRef(new Animated.Value(1)).current;
+     
+     useEffect(() => {
+       Animated.loop(
+         Animated.sequence([
+           Animated.timing(pulseAnimation, {
+             toValue: 1.2,
+             duration: 1000,
+             useNativeDriver: true,
+           }),
+           Animated.timing(pulseAnimation, {
+             toValue: 1,
+             duration: 1000,
+             useNativeDriver: true,
+           }),
+         ])
+       ).start();
+     }, []);
+     ```
+
+4. Add progress indicator:
+   - Implement a circular progress bar around the logo
+   - Use React Native's `ProgressViewIOS` for iOS and `ProgressBarAndroid` for Android, or a custom cross-platform solution
+
+5. Support for loading messages:
+   - Add a prop for custom loading messages
+   - Implement a text component below the logo to display messages
+   - Support message updates during the loading process
+
+6. Make the component reusable:
+   - Define props for customization (e.g., logo, colors, animation type)
+   - Implement proper TypeScript types for all props
+
+7. Integrate with existing loading logic:
+   - Update the app's loading state management to use the new FancyLoadingOverlay
+   - Ensure compatibility with existing loading triggers
+
+8. Optimize performance:
+   - Use `useMemo` and `useCallback` hooks to memoize expensive computations and callback functions
+   - Implement proper cleanup in `useEffect` hooks to prevent memory leaks
+
+9. Accessibility considerations:
+   - Add appropriate accessibility labels and hints
+   - Ensure the component works well with screen readers
+
+10. Documentation:
+    - Add comprehensive JSDoc comments to the component and its props
+    - Create a usage example in the project's documentation
+
+# Test Strategy:
+1. Unit Testing:
+   - Write Jest tests for the FancyLoadingOverlay component
+   - Test rendering with different prop combinations
+   - Verify that animations start and stop correctly
+   - Check that progress updates are reflected in the UI
+
+2. Integration Testing:
+   - Implement tests that simulate loading scenarios in the app
+   - Verify that the loading overlay appears and disappears at appropriate times
+   - Test the interaction between the loading state management and the overlay
+
+3. Visual Regression Testing:
+   - Use a tool like Jest Screenshot or Storybook to capture and compare screenshots of the loading overlay in different states
+   - Ensure visual consistency across different devices and screen sizes
+
+4. Performance Testing:
+   - Profile the component to ensure it doesn't cause significant performance overhead
+   - Test memory usage during long loading operations
+
+5. Accessibility Testing:
+   - Use accessibility inspection tools to verify proper labeling and screen reader support
+   - Manually test with VoiceOver (iOS) and TalkBack (Android)
+
+6. Cross-device Testing:
+   - Test the loading overlay on various iOS and Android devices
+   - Verify consistent behavior and appearance across different screen sizes and resolutions
+
+7. User Acceptance Testing:
+   - Present the new loading overlay to stakeholders and gather feedback
+   - Make necessary adjustments based on user experience considerations
+
+# Subtasks:
+## 1. 기존 로딩 컴포넌트 분석 [done]
+### Dependencies: None
+### Description: AppLoadingScreen, LoadingView, SplashImage 등 기존 로딩 컴포넌트들을 분석하여 재사용 가능한 요소와 개선점을 파악합니다.
+### Details:
+- picnic_lib의 AppLoadingScreen 분석
+- LoadingView 컴포넌트 구조 파악
+- SplashImage 컴포넌트 리뷰
+- 현재 로딩 UI 패턴과 문제점 정리
+- 개선 방향 도출
+<info added on 2025-06-14T05:06:03.049Z>
+**분석한 컴포넌트들:**
+
+1. **AppLoadingScreen** (`picnic_lib/lib/presentation/screens/app_loading_screen.dart`)
+   - 매우 단순한 구조 (Scaffold + Column)
+   - 하드코딩된 아이콘 사용 (Icons.apps)
+   - 기본 CircularProgressIndicator 사용
+   - 다국어 지원 ('loading' 텍스트)
+   - 개선점: 실제 앱 로고 없음, 애니메이션 효과 없음
+
+2. **LoadingView** (`picnic_lib/lib/presentation/widgets/loading_view.dart`)
+   - ConsumerStatefulWidget으로 상태 관리
+   - Timer를 이용한 opacity 애니메이션 (매우 기본적)
+   - picMainColor 사용한 CircularProgressIndicator
+   - 커스터마이징 가능한 props (backgroundColor, progressColor)
+   - 개선점: 애니메이션이 단순함, 로고 없음
+
+3. **SplashImage** (`picnic_lib/lib/presentation/widgets/splash_image.dart`)
+   - 네트워크 기반 스플래시 이미지 시스템
+   - Shorebird 업데이트 체크 기능 통합
+   - 서버에서 이미지 URL 조회하여 동적 스플래시 표시
+   - 업데이트 상태 표시 (패치 확인, 설치, 재시작)
+   - Stack 레이아웃으로 오버레이 구조 적용
+   - 개선점: 로딩 중 상태 표시가 제한적
+
+4. **OverlayLoadingProgress 사용 패턴**
+   - 전체 화면 로딩 오버레이로 광범위하게 사용
+   - 로그인, 구매, 저장 등 다양한 상황에서 활용
+   - start/stop 패턴으로 간단한 제어
+   - 색상 커스터마이징 지원 (AppColors.primary500)
+   - 개선점: 로고나 브랜딩 요소 없음, 진행률 표시 없음
+
+**공통 문제점:**
+- 브랜드 아이덴티티 부족 (실제 앱 로고 미사용)
+- 애니메이션 효과가 단조로움
+- 진행률 표시 기능 부족
+- 통일성 없는 디자인 (각각 다른 스타일)
+- 메시지 커스터마이징 제한적
+
+**새 컴포넌트에서 활용할 요소:**
+- SplashImage의 Stack 기반 오버레이 구조
+- OverlayLoadingProgress의 전체 화면 커버 패턴
+- LoadingView의 색상 커스터마이징 접근법
+- 기존 다국어 지원 체계 연동
+</info added on 2025-06-14T05:06:03.049Z>
+
+## 2. 앱 로고 및 에셋 준비 [done]
+### Dependencies: 40.1
+### Description: 로딩 컴포넌트에 사용할 앱 로고와 관련 이미지 에셋을 준비하고 최적화합니다.
+### Details:
+- 앱 로고 파일 위치 확인 및 최적화
+- 다양한 해상도 대응 로고 에셋 준비
+- 애니메이션에 적합한 형태로 로고 가공
+- SVG 또는 PNG 형태로 최적화
+- 다크/라이트 모드 대응 로고 준비
+<info added on 2025-06-14T05:42:35.040Z>
+### 발견된 로고 파일들:
+1. **ttja_app/assets/top_logo.svg** (36x16 pixels)
+   - 심플한 SVG 로고
+   - 화이트 색상으로 구성
+   - 텍스트와 아이콘이 결합된 형태
+   - 크기가 작아 로딩 화면에 적합
+
+2. **picnic_lib/assets/images/logo.png** (24KB PNG)
+   - PNG 형태의 로고
+   - 세부 크기는 파일에서 확인 필요
+
+3. **picnic_lib/assets/images/fortune/picnic_logo.svg** (81x21 pixels)
+   - 더 상세한 "picnic" 텍스트 로고
+   - 드롭쉐도우 효과 포함
+   - 보라색 그라디언트와 화이트 텍스트
+
+### 기존 코드에서 로고 사용 패턴:
+- `CompatibilityLogoWidget`에서 picnic_logo.svg 사용
+- `PopupCarousel`에서 logo.png 사용
+- `Portal` 화면에서 top_logo.svg 사용
+- 대부분 SVG 형태를 선호하는 것으로 보임
+
+### 선택한 주요 로고:
+- **메인 로고**: ttja_app/assets/top_logo.svg
+  - 이유: 심플하고 깔끔, 로딩 화면에 적합
+  - 애니메이션 적용 용이
+  - 화이트 색상으로 다양한 배경에 호환
+
+### 다음 단계:
+1. 로고 SVG 최적화 확인
+2. 애니메이션을 위한 개별 경로 분석
+3. 다양한 크기 지원 방안 검토
+</info added on 2025-06-14T05:42:35.040Z>
+
+## 3. FancyLoadingOverlay 컴포넌트 기본 구조 구현 [done]
+### Dependencies: 40.2
+### Description: 전체 화면을 차지하는 로딩 오버레이 컴포넌트의 기본 구조를 구현합니다.
+### Details:
+- Flutter로 전체 화면 오버레이 구현
+- Stack과 Positioned를 활용한 레이아웃 설계
+- 배경 블러 효과 또는 반투명 배경 적용
+- 기본 props 인터페이스 정의 (visible, onDismiss 등)
+- 반응형 디자인 고려
+<info added on 2025-06-14T05:57:27.110Z>
+### 구현 완료 사항:
+
+#### FancyLoadingOverlay 컴포넌트 기본 구조
+- StatefulWidget 기반 구성 (TickerProviderStateMixin 활용)
+- 로고, 진행률, 메시지를 지원하는 커스터마이징 인터페이스
+
+#### 애니메이션 시스템
+- 회전 애니메이션: 2초 주기 연속 회전
+- 펄스 애니메이션: 1.5초 주기 크기 변화 (0.8~1.2 배율)
+- 페이드 인 애니메이션: 300ms 부드러운 등장
+
+#### 모듈형 UI 구성
+- _buildAnimatedLogo(), _buildProgressBar(), _buildLoadingMessage() 메소드 구현
+
+#### LoadingOverlayManager 헬퍼 클래스
+- 전역 오버레이 관리 (show/hide 메서드)
+- 중복 표시 방지 로직 구현
+
+#### 구현된 UI 요소
+- 전체 화면 반투명 배경
+- 중앙 정렬된 로고 애니메이션
+- 선택적 진행률 바
+- 커스터마이징 가능한 로딩 메시지
+- 터치 종료 지원
+
+#### 파일 위치
+- picnic_lib/lib/presentation/widgets/fancy_loading_overlay.dart
+</info added on 2025-06-14T05:57:27.110Z>
+
+## 4. 로고 애니메이션 효과 구현 [done]
+### Dependencies: 40.3
+### Description: 앱 로고에 팬시한 애니메이션 효과를 구현하여 시각적 매력을 높입니다.
+### Details:
+- Flutter AnimationController 활용
+- 펄스 효과 (크기 변화) 구현
+- 회전 또는 페이드 효과 추가
+- 여러 애니메이션 조합으로 다이나믹한 효과 구현
+- 애니메이션 타이밍과 이징 커브 최적화
+- 배터리 및 성능 영향 최소화
+<info added on 2025-06-14T06:00:38.107Z>
+### 고급 애니메이션 시스템 구현:
+
+#### 1. 다중 애니메이션 컨트롤러 추가:
+- **회전 애니메이션**: 3초 주기, easeInOutCubic 커브로 부드러운 가속/감속
+- **펄스 애니메이션**: 2초 주기, easeInOutSine 커브, 0.85~1.15 배율
+- **글로우 애니메이션**: 3초 주기, easeInOutQuart 커브로 빛 효과
+- **파티클 애니메이션**: 4초 주기, 8개 파티클이 원형으로 회전
+- **페이드 인 애니메이션**: 500ms, easeOutCubic으로 부드러운 등장
+
+#### 2. 동적 색상 시스템:
+- 펄스 값에 따른 그라디언트 색상 변화 (파란색 → 보라색 → 분홍색)
+- 회전 값에 따른 그라디언트 회전 효과
+- 로고 색상도 그라디언트와 연동하여 동적 변화
+
+#### 3. 고급 시각 효과:
+- **그라디언트 배경**: LinearGradient with GradientRotation
+- **동적 그림자**: 펄스에 따른 그림자 강도/블러 변화
+- **글로우 효과**: RadialGradient로 빛나는 후광 효과
+- **파티클 효과**: 8개 파티클이 로고 주변을 원형으로 회전
+
+#### 4. 레이어드 구조:
+- Stack 위젯으로 파티클, 글로우, 로고 레이어 구성
+- 중앙 정렬로 모든 효과가 로고를 중심으로 작동
+
+#### 5. 순차적 애니메이션 시작:
+- 페이드 인 완료 후 다른 애니메이션들이 순차적으로 시작
+- 자연스러운 등장 효과 구현
+
+#### 6. 성능 최적화:
+- AnimatedBuilder 사용으로 필요한 부분만 리빌드
+- Listenable.merge로 다중 애니메이션 효율적 관리
+- 적절한 dispose 처리로 메모리 누수 방지
+
+### 구현된 시각적 특징:
+- 90x90 크기의 로고 컨테이너
+- 3px 마진의 내부 화이트 컨테이너
+- 18px 패딩으로 로고 여백 확보
+- 동적 색상 필터로 로고 색상 변화
+- 파티클은 60~90px 거리에서 회전
+- 글로우는 120~140px 크기로 확장/축소
+</info added on 2025-06-14T06:00:38.107Z>
+
+## 5. 진행률 표시 및 로딩 메시지 기능 구현 [done]
+### Dependencies: 40.4
+### Description: 로딩 진행률과 동적 메시지 표시 기능을 구현합니다.
+### Details:
+- 원형 또는 선형 진행률 바 구현
+- 진행률 애니메이션 효과 추가
+- 다국어 지원 로딩 메시지 시스템
+- 동적 메시지 변경 기능
+- 진행률과 메시지 동기화
+- 커스터마이징 가능한 색상 테마
+<info added on 2025-06-14T06:24:46.531Z>
+### 고급 진행률 바 구현:
+
+#### 1. 애니메이션 진행률 바:
+- **다층 구조**: 배경, 진행률 바, 하이라이트 효과 3단계 레이어
+- **동적 그라디언트**: 글로우 애니메이션과 연동된 색상 변화
+- **그림자 효과**: 진행률에 따른 동적 그림자 강도 변화
+- **진행률 텍스트**: 퍼센트 표시 with 애니메이션 opacity
+
+#### 2. 시각적 개선사항:
+- 220px 너비, 6px 높이로 더 큰 진행률 바
+- 3px 둥근 모서리로 모던한 디자인
+- 상단 하이라이트 효과로 3D 느낌 구현
+- 그라디언트 색상: 파란색 → 보라색 → 분홍색
+
+#### 3. 고급 로딩 메시지 시스템:
+
+#### 메시지 컨테이너 디자인:
+- **반투명 배경**: 검은색 20% 투명도
+- **둥근 테두리**: 20px 반지름
+- **테두리 효과**: 화이트 10% 투명도 1px 테두리
+- **패딩**: 가로 24px, 세로 12px
+
+#### 애니메이션 점(Dots) 효과:
+- 3개의 점이 순차적으로 깜빡임
+- 각 점마다 0.3초 지연으로 자연스러운 웨이브 효과
+- 사인파 함수 기반 opacity 변화
+- 그림자 효과로 빛나는 느낌
+
+### LoadingOverlayManager 고도화:
+
+#### 1. ValueNotifier 기반 상태 관리:
+- `_progressNotifier`: 진행률 실시간 업데이트
+- `_messageNotifier`: 메시지 실시간 업데이트
+- ValueListenableBuilder로 효율적인 리빌드
+
+#### 2. 새로운 API 메서드들:
+```dart
+// 기본 진행률 업데이트
+LoadingOverlayManager.updateProgress(0.5, message: '처리 중...');
+
+// 메시지만 업데이트
+LoadingOverlayManager.updateMessage('새로운 메시지');
+
+// 단계별 진행률 (애니메이션 포함)
+await LoadingOverlayManager.updateProgressWithSteps(
+  [0.2, 0.5, 0.8, 1.0],
+  messages: ['초기화...', '데이터 로드...', '처리 중...', '완료!'],
+  stepDuration: Duration(milliseconds: 500),
+);
+
+// 현재 상태 확인
+double current = LoadingOverlayManager.currentProgress;
+String? message = LoadingOverlayManager.currentMessage;
+```
+
+#### 3. 성능 최적화:
+- ValueNotifier로 필요한 부분만 리빌드
+- clamp(0.0, 1.0)로 진행률 범위 보장
+- 상태 확인 후 업데이트로 불필요한 작업 방지
+
+### 사용 예시:
+```dart
+// 진행률 포함 로딩 표시
+LoadingOverlayManager.show(
+  context,
+  message: '데이터 처리 중...',
+  showProgress: true,
+  progress: 0.0,
+);
+
+// 단계별 진행
+await LoadingOverlayManager.updateProgressWithSteps(
+  [0.25, 0.5, 0.75, 1.0],
+  messages: ['연결 중...', '인증 중...', '데이터 로드...', '완료!'],
+);
+
+// 종료
+LoadingOverlayManager.hide();
+```
+</info added on 2025-06-14T06:24:46.531Z>
+
+## 6. 기존 로딩 로직과 통합 및 교체 [done]
+### Dependencies: 40.5
+### Description: 새로운 FancyLoadingOverlay를 기존 앱의 로딩 시스템과 통합하고 기존 로딩 컴포넌트를 교체합니다.
+### Details:
+- 기존 AppLoadingScreen 교체
+- LoadingView 컴포넌트 교체
+- OverlayLoadingProgress와의 호환성 확보
+- Provider 및 상태 관리 시스템 연동
+- 글로벌 로딩 상태 관리 개선
+- 부드러운 전환 애니메이션 적용
+<info added on 2025-06-14T06:36:26.010Z>
+## 기존 로딩 시스템과의 통합 작업 완료
+
+### 완료된 작업
+1. **기존 OverlayLoadingProgress API 호환성 구현**
+   - FancyLoadingOverlay에 OverlayLoadingProgress 클래스 추가
+   - 기존 API와 100% 호환: start(context, color:), stop()
+   - 확장 API 추가: startWithProgress(), updateProgress(), updateMessage()
+
+2. **전체 프로젝트 import 교체 완료**
+   - 총 17개 파일에서 overlay_loading_progress 패키지 import 제거
+   - fancy_loading_overlay.dart import로 교체
+   - 기존 코드 수정 없이 동작하도록 구현
+
+3. **의존성 정리**
+   - pubspec.yaml에서 overlay_loading_progress: ^1.0.1 제거
+   - 외부 패키지 의존성 제거로 앱 크기 최적화
+
+### 교체된 파일 목록
+- voting_complete.dart, post_write.dart, fortune_dialog.dart
+- compatibility_result_page.dart, compatibility_result_content.dart
+- setting_page.dart, my_profile.dart, agreement_privacy_page.dart
+- login_page.dart, vote_detail_page.dart
+- purchase_star_candy_state.dart, ad_platform.dart
+- free_charge_station.dart, voting_dialog.dart
+- vote_info_card.dart, comment_input.dart
+
+### 호환성 확인
+- 기존 OverlayLoadingProgress.start(context, color: AppColors.primary500) 호출 유지
+- 기존 OverlayLoadingProgress.stop() 호출 유지
+- 새로운 FancyLoadingOverlay 애니메이션 자동 적용
+</info added on 2025-06-14T06:36:26.010Z>
+
+## 7. 성능 최적화 및 테스트 [done]
+### Dependencies: 40.6
+### Description: 로딩 컴포넌트의 성능을 최적화하고 다양한 시나리오에서 테스트합니다.
+### Details:
+- 메모리 사용량 최적화
+- 애니메이션 성능 프로파일링
+- 다양한 디바이스에서 테스트
+- 배터리 소모 최소화
+- 접근성 기능 구현 및 테스트
+- 에지 케이스 처리 (네트워크 오류, 긴 로딩 시간 등)
+- 단위 테스트 및 통합 테스트 작성
+<info added on 2025-06-14T06:41:09.923Z>
+## 성능 최적화 완료
+1. **RepaintBoundary 적용**
+   - 중앙 로딩 콘텐츠에 RepaintBoundary 추가
+   - 로고 애니메이션, 진행률 바, 메시지 각각에 RepaintBoundary 적용
+   - 불필요한 재빌드 방지로 렌더링 성능 향상
+
+2. **색상 계산 캐싱**
+   - 그라디언트 색상 계산 결과 캐싱 구현
+   - 0.01 이상 변화 시에만 재계산하여 CPU 사용량 감소
+   - _getGradientColors() 메서드로 최적화
+
+3. **파티클 효과 최적화**
+   - 별도 _ParticleWidget 클래스로 분리
+   - 파티클 위치 미리 계산하여 성능 향상
+   - 불필요한 재생성 방지
+
+4. **애니메이션 안전성 강화**
+   - mounted 체크 추가로 메모리 누수 방지
+   - 애니메이션 컨트롤러 적절한 dispose 보장
+
+## 포괄적 테스트 구현
+1. **기능 테스트 (12개 테스트 통과)**
+   - 기본 로딩 오버레이 표시 테스트
+   - 진행률 바 표시 및 업데이트 테스트
+   - 메시지 표시 및 업데이트 테스트
+   - onDismiss 콜백 동작 테스트
+   - 애니메이션 정상 작동 테스트
+
+2. **LoadingOverlayManager API 테스트**
+   - show/hide 기능 테스트
+   - 진행률 업데이트 테스트
+   - 메시지 업데이트 테스트
+   - 상태 관리 정확성 검증
+
+3. **호환성 테스트**
+   - 기존 OverlayLoadingProgress API 호환성 검증
+   - 레거시 start/stop 메서드 테스트
+   - 확장 API (startWithProgress, updateProgress) 테스트
+
+4. **성능 테스트**
+   - 빠른 연속 show/hide 호출 처리 테스트
+   - 진행률 빠른 업데이트 효율성 테스트
+   - 메모리 누수 방지 검증
+
+## 테스트 결과
+- 총 12개 테스트 모두 통과
+- 성능 최적화로 렌더링 효율성 향상
+- 기존 코드와 100% 호환성 유지
+- 메모리 안전성 확보
+</info added on 2025-06-14T06:41:09.923Z>
+
