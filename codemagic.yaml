@@ -196,24 +196,6 @@ workflows:
           echo "릴리즈 결과:"
           echo "$RELEASE_RESULT"
           
-          # Shorebird 릴리즈 성공 후 CodeMagic용 IPA 파일 생성
-          if [ $RELEASE_EXIT_CODE -eq 0 ]; then
-            echo "=== CodeMagic용 IPA 파일 생성 ==="
-            echo "🔧 App Store Connect 업로드를 위한 IPA 파일 생성 중..."
-            
-            # Flutter로 IPA 빌드 (Archive 생성)
-            flutter build ipa --release --dart-define=ENVIRONMENT=prod --export-options-plist=ios/ExportOptions.plist
-            
-            # IPA 파일 위치 확인
-            if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
-              echo "✅ IPA 파일 생성 성공: build/ios/ipa/picnic_app.ipa"
-              ls -la build/ios/ipa/picnic_app.ipa
-            else
-              echo "⚠️ IPA 파일을 찾을 수 없습니다. 대체 위치 확인 중..."
-              find build/ios -name "*.ipa" -type f | head -5
-            fi
-          fi
-          
           # 릴리즈 결과 확인
           if [ $RELEASE_EXIT_CODE -eq 0 ]; then
             if echo "$RELEASE_RESULT" | grep -i "successfully\|completed\|deployed\|published\|release.*created"; then
