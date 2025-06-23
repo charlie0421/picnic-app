@@ -4,12 +4,12 @@ import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityResultContent extends ConsumerStatefulWidget {
@@ -40,6 +40,8 @@ class _CompatibilityResultContentState
   late final ExpansibleController _styleController;
   late final ExpansibleController _activityController;
   late final ExpansibleController _tipController;
+  final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
+      GlobalKey<LoadingOverlayWithIconState>();
 
   @override
   void initState() {
@@ -78,175 +80,186 @@ class _CompatibilityResultContentState
     final activities = localizedResult.details?.activities;
     final tips = localizedResult.tips;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!(widget.compatibility.isPaid ?? false))
-          Stack(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Column(
-                  children: [
-                    if (style != null) _buildStyleSection(style),
-                    SizedBox(height: 36),
-                    if (activities != null) _buildActivitiesSection(activities),
-                    SizedBox(height: 36),
-                    if (tips.isNotEmpty) _buildTipsSection(tips),
-                    if (!widget.isSaving)
-                      ShareSection(
-                        saveButtonText: t('save'),
-                        shareButtonText: t('share'),
-                        onSave: () => widget.onSave(widget.compatibility),
-                        onShare: () => widget.onShare(widget.compatibility),
-                      ),
-                    SizedBox(height: 16),
-                  ],
+    return LoadingOverlayWithIcon(
+      key: _loadingKey,
+      iconAssetPath: 'assets/app_icon_128.png',
+      enableScale: true,
+      enableFade: true,
+      enableRotation: false,
+      minScale: 0.98,
+      maxScale: 1.02,
+      showProgressIndicator: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!(widget.compatibility.isPaid ?? false))
+            Stack(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Column(
+                    children: [
+                      if (style != null) _buildStyleSection(style),
+                      SizedBox(height: 36),
+                      if (activities != null)
+                        _buildActivitiesSection(activities),
+                      SizedBox(height: 36),
+                      if (tips.isNotEmpty) _buildTipsSection(tips),
+                      if (!widget.isSaving)
+                        ShareSection(
+                          saveButtonText: t('save'),
+                          shareButtonText: t('share'),
+                          onSave: () => widget.onSave(widget.compatibility),
+                          onShare: () => widget.onShare(widget.compatibility),
+                        ),
+                      SizedBox(height: 16),
+                    ],
+                  ),
                 ),
-              ),
-              Positioned.fill(
-                child: ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                Positioned.fill(
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                       child: Container(
-                        padding: const EdgeInsets.all(8),
-                        child: Column(
-                          children: [
-                            BubbleBox(
-                              backgroundColor: AppColors.grey00,
-                              elevation: 2,
-                              shape: BubbleShapeBorder(
-                                border: BubbleBoxBorder(
-                                  color: AppColors.grey300,
-                                  width: 1.5,
-                                  style: BubbleBoxBorderStyle.solid,
-                                ),
-                                radius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                position: const BubblePosition.center(0),
-                                direction: BubbleDirection.bottom,
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 0,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    package: 'picnic_lib',
-                                    'assets/icons/store/star_100.png',
-                                    width: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            children: [
+                              BubbleBox(
+                                backgroundColor: AppColors.grey00,
+                                elevation: 2,
+                                shape: BubbleShapeBorder(
+                                  border: BubbleBoxBorder(
+                                    color: AppColors.grey300,
+                                    width: 1.5,
+                                    style: BubbleBoxBorderStyle.solid,
                                   ),
-                                  Text(
-                                    '100',
-                                    style: getTextStyle(
-                                      AppTypo.body16B,
-                                      AppColors.grey900,
+                                  radius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  position: const BubblePosition.center(0),
+                                  direction: BubbleDirection.bottom,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 0,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      package: 'picnic_lib',
+                                      'assets/icons/store/star_100.png',
+                                      width: 36,
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Container(
-                              constraints: BoxConstraints(
-                                minWidth: 240,
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  OverlayLoadingProgress.start(context);
-                                  widget.onOpenCompatibility(
-                                      widget.compatibility.id);
-                                  OverlayLoadingProgress.stop();
-                                },
-                                child:
-                                    Text(t('fortune_purchase_by_star_candy')),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            Container(
-                              constraints: BoxConstraints(
-                                minWidth: 240,
-                              ),
-                              child: ElevatedButton(
-                                style: ButtonStyle(
-                                  padding: WidgetStateProperty.all(
-                                    EdgeInsets.symmetric(
-                                        horizontal: 32, vertical: 0),
-                                  ),
-                                  backgroundColor: WidgetStateProperty.all(
-                                      AppColors.secondary500),
-                                  foregroundColor: WidgetStateProperty.all(
-                                      AppColors.grey900),
-                                  shape: WidgetStateProperty.all(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                      side: BorderSide(
-                                        color: AppColors.primary500,
-                                        width: 1,
-                                        style: BorderStyle.solid,
+                                    Text(
+                                      '100',
+                                      style: getTextStyle(
+                                        AppTypo.body16B,
+                                        AppColors.grey900,
                                       ),
                                     ),
-                                  ),
-                                  textStyle: WidgetStateProperty.all(
-                                    getTextStyle(
-                                      AppTypo.caption12B,
-                                      AppColors.grey00,
-                                    ),
-                                  ),
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                onPressed: () async {
-                                  OverlayLoadingProgress.start(context);
-                                  final productDetail = ref
-                                      .read(serverProductsProvider.notifier)
-                                      .getProductDetailById('STAR100');
-
-                                  if (productDetail != null) {
-                                    await widget.onBuyProduct(productDetail);
-                                  }
-                                  OverlayLoadingProgress.stop();
-                                },
-                                child: Text(
-                                  t('fortune_purchase_by_one_click'),
+                                  ],
                                 ),
                               ),
-                            ),
-                          ],
+                              SizedBox(height: 8),
+                              Container(
+                                constraints: BoxConstraints(
+                                  minWidth: 240,
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    _loadingKey.currentState?.show();
+                                    widget.onOpenCompatibility(
+                                        widget.compatibility.id);
+                                    _loadingKey.currentState?.hide();
+                                  },
+                                  child:
+                                      Text(t('fortune_purchase_by_star_candy')),
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              Container(
+                                constraints: BoxConstraints(
+                                  minWidth: 240,
+                                ),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    padding: WidgetStateProperty.all(
+                                      EdgeInsets.symmetric(
+                                          horizontal: 32, vertical: 0),
+                                    ),
+                                    backgroundColor: WidgetStateProperty.all(
+                                        AppColors.secondary500),
+                                    foregroundColor: WidgetStateProperty.all(
+                                        AppColors.grey900),
+                                    shape: WidgetStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: BorderSide(
+                                          color: AppColors.primary500,
+                                          width: 1,
+                                          style: BorderStyle.solid,
+                                        ),
+                                      ),
+                                    ),
+                                    textStyle: WidgetStateProperty.all(
+                                      getTextStyle(
+                                        AppTypo.caption12B,
+                                        AppColors.grey00,
+                                      ),
+                                    ),
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  onPressed: () async {
+                                    _loadingKey.currentState?.show();
+                                    final productDetail = ref
+                                        .read(serverProductsProvider.notifier)
+                                        .getProductDetailById('STAR100');
+
+                                    if (productDetail != null) {
+                                      await widget.onBuyProduct(productDetail);
+                                    }
+                                    _loadingKey.currentState?.hide();
+                                  },
+                                  child: Text(
+                                    t('fortune_purchase_by_one_click'),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
+              ],
+            )
+          else ...[
+            if (style != null) _buildStyleSection(style),
+            SizedBox(height: 36),
+            if (activities != null) _buildActivitiesSection(activities),
+            SizedBox(height: 36),
+            if (tips.isNotEmpty) _buildTipsSection(tips),
+            if (!widget.isSaving)
+              ShareSection(
+                saveButtonText: t('save'),
+                shareButtonText: t('share'),
+                onSave: () => widget.onSave(widget.compatibility),
+                onShare: () => widget.onShare(widget.compatibility),
               ),
-            ],
-          )
-        else ...[
-          if (style != null) _buildStyleSection(style),
-          SizedBox(height: 36),
-          if (activities != null) _buildActivitiesSection(activities),
-          SizedBox(height: 36),
-          if (tips.isNotEmpty) _buildTipsSection(tips),
-          if (!widget.isSaving)
-            ShareSection(
-              saveButtonText: t('save'),
-              shareButtonText: t('share'),
-              onSave: () => widget.onSave(widget.compatibility),
-              onShare: () => widget.onShare(widget.compatibility),
-            ),
-          SizedBox(height: 16),
+            SizedBox(height: 16),
+          ],
         ],
-      ],
+      ),
     );
   }
 

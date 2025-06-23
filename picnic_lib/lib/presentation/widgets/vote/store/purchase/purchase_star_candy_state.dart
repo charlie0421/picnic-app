@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -13,6 +12,7 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
@@ -29,6 +29,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
   late final PurchaseService _purchaseService;
   late final AnimationController _rotationController;
+  final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
+      GlobalKey<LoadingOverlayWithIconState>();
 
   // 상태 관리
   String? _pendingProductId;
@@ -78,11 +80,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     if (!mounted) return;
 
     try {
-      OverlayLoadingProgress.start(
-        context,
-        barrierDismissible: false,
-        color: AppColors.primary500,
-      );
+      _loadingKey.currentState?.show();
 
       // 즉시 완료 - 백그라운드에서만 정리
       logger.i(
@@ -99,7 +97,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           _initializationCompletedAt = DateTime.now();
           _transactionsCleared = true;
         });
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
       }
     } catch (e) {
       logger.e('[PurchaseStarCandyState] Initialization failed: $e');
@@ -109,7 +107,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
           _initializationCompletedAt = DateTime.now();
           _transactionsCleared = true;
         });
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
       }
     }
   }
@@ -183,7 +181,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       logger.e('[PurchaseStarCandyState] Error handling purchase update: $e',
           error: e, stackTrace: s);
       _resetPurchaseState();
-      OverlayLoadingProgress.stop();
+      _loadingKey.currentState?.hide();
       await _showErrorDialog(t('dialog_message_purchase_failed'));
       rethrow;
     }
@@ -355,14 +353,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
         if (mounted) {
           _resetPurchaseState();
-          OverlayLoadingProgress.stop();
+          _loadingKey.currentState?.hide();
           await _showSuccessDialog();
         }
       },
       (error) async {
         if (mounted) {
           _resetPurchaseState();
-          OverlayLoadingProgress.stop();
+          _loadingKey.currentState?.hide();
 
           if (_isDuplicateError(error)) {
             await _showUnexpectedDuplicateDialog();
@@ -386,7 +384,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
       if (mounted) {
         _resetPurchaseState();
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
 
         if (!isCanceled) {
           logger.e(
@@ -402,7 +400,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           '[PurchaseStarCandyState] Purchase canceled: ${purchaseDetails.productID}');
       if (mounted) {
         _resetPurchaseState();
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
       }
     }
   }
@@ -454,11 +452,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       final purchaseStartTime = DateTime.now();
 
       if (!context.mounted) return;
-      OverlayLoadingProgress.start(
-        context,
-        barrierDismissible: false,
-        color: AppColors.primary500,
-      );
+      _loadingKey.currentState?.show();
 
       // 즉시 구매 시작
       logger.i(
@@ -483,7 +477,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               .e('[PurchaseStarCandyState] Purchase error callback: $message');
           _resetPurchaseState();
           if (mounted) {
-            OverlayLoadingProgress.stop();
+            _loadingKey.currentState?.hide();
             await _showErrorDialog(message);
           }
         },
@@ -495,7 +489,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           error: e, stackTrace: s);
       _resetPurchaseState();
       if (mounted) {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
         await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
       rethrow;
@@ -535,7 +529,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     if (!purchaseInitiated) {
       _resetPurchaseState();
       if (mounted) {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
         await _showErrorDialog(t('dialog_message_purchase_failed'));
       }
     } else {
@@ -546,7 +540,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         if (_isActivePurchasing && mounted) {
           logger.w('[PurchaseStarCandyState] Purchase timeout');
           _resetPurchaseState();
-          OverlayLoadingProgress.stop();
+          _loadingKey.currentState?.hide();
           _showErrorDialog('구매 시간이 초과되었습니다. 다시 시도해주세요.');
         }
       });
@@ -646,11 +640,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       setState(() => _isUserRequestedRestore = true);
 
       if (!context.mounted) return;
-      OverlayLoadingProgress.start(
-        context,
-        barrierDismissible: false,
-        color: AppColors.primary500,
-      );
+      _loadingKey.currentState?.show();
 
       await _purchaseService.inAppPurchaseService.restorePurchases();
       await ref.read(userInfoProvider.notifier).getUserProfiles();
@@ -658,7 +648,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       logger.i('[PurchaseStarCandyState] Purchase restoration completed');
 
       if (mounted) {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
         showSimpleDialog(content: '구매 복원이 완료되었습니다.\n스타캔디 잔액을 확인해주세요.');
 
         Timer(_restoreResetDelay, () {
@@ -673,7 +663,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       setState(() => _isUserRequestedRestore = false);
 
       if (mounted) {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
         showSimpleDialog(
           content: '구매 복원 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.',
           type: DialogType.error,
@@ -713,24 +703,20 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     try {
       logger.i('[PurchaseStarCandyState] Checking pending cleanup status');
 
-      OverlayLoadingProgress.start(
-        context,
-        barrierDismissible: false,
-        color: AppColors.primary500,
-      );
+      _loadingKey.currentState?.show();
 
       final status =
           await _purchaseService.inAppPurchaseService.getPendingCleanupStatus();
 
       if (mounted) {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
         await _showPendingStatusDialog(status);
       }
     } catch (e) {
       logger.e('[PurchaseStarCandyState] Failed to check pending status: $e');
 
       if (mounted) {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
         showSimpleDialog(
           content: 'Pending 상태 확인 중 오류가 발생했습니다: $e',
           type: DialogType.error,
@@ -810,7 +796,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       });
 
       try {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
       } catch (e) {
         logger.d('Loading state stop error (ignored): $e');
       }
@@ -872,27 +858,37 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: ListView(
-        children: [
-          if (isSupabaseLoggedSafely) ...[
-            const SizedBox(height: 16),
-            _buildHeaderSection(),
-            const SizedBox(height: 8),
-            StorePointInfo(
-              title: t('label_star_candy_pouch'),
-              width: double.infinity,
-              height: 80,
-            ),
+    return LoadingOverlayWithIcon(
+      key: _loadingKey,
+      iconAssetPath: 'assets/app_icon_128.png',
+      enableScale: true,
+      enableFade: true,
+      enableRotation: false,
+      minScale: 0.98,
+      maxScale: 1.02,
+      showProgressIndicator: false,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: ListView(
+          children: [
+            if (isSupabaseLoggedSafely) ...[
+              const SizedBox(height: 16),
+              _buildHeaderSection(),
+              const SizedBox(height: 8),
+              StorePointInfo(
+                title: t('label_star_candy_pouch'),
+                width: double.infinity,
+                height: 80,
+              ),
+            ],
+            const SizedBox(height: 12),
+            const Divider(color: AppColors.grey200, height: 32),
+            _buildProductsList(),
+            const Divider(color: AppColors.grey200, height: 32),
+            _buildFooterSection(),
+            const SizedBox(height: 36),
           ],
-          const SizedBox(height: 12),
-          const Divider(color: AppColors.grey200, height: 32),
-          _buildProductsList(),
-          const Divider(color: AppColors.grey200, height: 32),
-          _buildFooterSection(),
-          const SizedBox(height: 36),
-        ],
+        ),
       ),
     );
   }

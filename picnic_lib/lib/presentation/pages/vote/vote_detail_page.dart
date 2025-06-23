@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
@@ -30,6 +29,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
 
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
@@ -65,6 +65,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   final Map<int, int> _currentRanks = {};
 
   final GlobalKey _captureKey = GlobalKey(); // 캡쳐 영역을 위한 새 키
+  final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
+      GlobalKey<LoadingOverlayWithIconState>(); // 로딩 오버레이 키
   bool _isSaving = false;
 
   // 로컬 검색어 상태 - 프로바이더 대신 사용
@@ -206,13 +208,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               .title),
           '${Environment.appLinkPrefix}/vote/detail/${widget.voteId}'),
       onStart: () {
-        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        _loadingKey.currentState?.show();
         if (mounted) {
           setState(() => _isSaving = true);
         }
       },
       onComplete: () {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
         if (mounted) {
           setState(() => _isSaving = false);
         }
@@ -226,13 +228,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       context: context,
       _captureKey,
       onStart: () {
-        OverlayLoadingProgress.start(context, color: AppColors.primary500);
+        _loadingKey.currentState?.show();
         if (mounted) {
           setState(() => _isSaving = true);
         }
       },
       onComplete: () {
-        OverlayLoadingProgress.stop();
+        _loadingKey.currentState?.hide();
         if (mounted) {
           setState(() => _isSaving = false);
         }
@@ -395,53 +397,68 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true, // 키보드가 올라올 때 화면 크기 조정
-      body: Stack(
-        children: [
-          Container(
-            color: AppColors.grey00,
-            child: ref
-                .watch(asyncVoteDetailProvider(
-                    voteId: widget.voteId, votePortal: widget.votePortal))
-                .when(
-                  data: (voteModel) {
-                    if (voteModel == null) return const SizedBox.shrink();
-                    isEnded = voteModel.isEnded!;
-                    isUpcoming = voteModel.isUpcoming!;
+    return LoadingOverlayWithIcon(
+      key: _loadingKey,
+      enableRotation: false, // 회전 비활성화
+      enableScale: true, // pulse 효과를 위한 스케일
+      enableFade: true, // pulse 효과를 위한 페이드
+      loadingMessage: null, // 텍스트 제거
+      iconAssetPath: 'assets/app_icon_128.png', // 커스텀 앱 아이콘 사용
+      // pulse 효과를 위한 커스텀 설정
+      scaleDuration: Duration(milliseconds: 800), // 더 빠른 pulse
+      fadeDuration: Duration(milliseconds: 800), // 스케일과 동기화
+      minScale: 0.98, // 매우 미묘한 변화
+      maxScale: 1.02, // 매우 미묘한 변화
+      showProgressIndicator: false, // 하단 로딩바 제거
+      child: Scaffold(
+        resizeToAvoidBottomInset: true, // 키보드가 올라올 때 화면 크기 조정
+        body: Stack(
+          children: [
+            Container(
+              color: AppColors.grey00,
+              child: ref
+                  .watch(asyncVoteDetailProvider(
+                      voteId: widget.voteId, votePortal: widget.votePortal))
+                  .when(
+                    data: (voteModel) {
+                      if (voteModel == null) return const SizedBox.shrink();
+                      isEnded = voteModel.isEnded!;
+                      isUpcoming = voteModel.isUpcoming!;
 
-                    return GestureDetector(
-                      onTap: () => _focusNode.unfocus(),
-                      child: CustomScrollView(
-                        controller: _scrollController,
-                        physics:
-                            const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        slivers: [
-                          SliverToBoxAdapter(
-                            child: RepaintBoundary(
-                              key: _captureKey,
-                              child: Column(
-                                children: [
-                                  _buildVoteInfo(context, voteModel),
-                                  SizedBox(height: 12),
-                                  if (_isSaving) _buildCaptureVoteList(context),
-                                ],
+                      return GestureDetector(
+                        onTap: () => _focusNode.unfocus(),
+                        child: CustomScrollView(
+                          controller: _scrollController,
+                          physics:
+                              const AlwaysScrollableScrollPhysics(), // 데이터가 적어도 항상 스크롤 가능하게
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          slivers: [
+                            SliverToBoxAdapter(
+                              child: RepaintBoundary(
+                                key: _captureKey,
+                                child: Column(
+                                  children: [
+                                    _buildVoteInfo(context, voteModel),
+                                    SizedBox(height: 12),
+                                    if (_isSaving)
+                                      _buildCaptureVoteList(context),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          if (!_isSaving) _buildVoteItemList(context),
-                        ],
-                      ),
-                    );
-                  },
-                  loading: () => _buildLoadingShimmer(),
-                  error: (error, stackTrace) => buildErrorView(context,
-                      error: error.toString(), stackTrace: stackTrace),
-                ),
-          ),
-        ],
+                            if (!_isSaving) _buildVoteItemList(context),
+                          ],
+                        ),
+                      );
+                    },
+                    loading: () => _buildLoadingShimmer(),
+                    error: (error, stackTrace) => buildErrorView(context,
+                        error: error.toString(), stackTrace: stackTrace),
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
