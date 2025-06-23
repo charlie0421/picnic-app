@@ -212,19 +212,19 @@ workflows:
             else
               echo "=== Shorebird iOS 릴리즈 재시도 필요 ==="
               echo "⚠️ 릴리즈 결과가 불분명합니다. 재시도합니다..."
-              sleep 5
-              
+            sleep 5
+            
               echo "🔄 iOS 릴리즈 재시도 (최신 Flutter)..."
               RETRY_RESULT=$(shorebird release ios --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
-              RETRY_EXIT_CODE=$?
+            RETRY_EXIT_CODE=$?
               
-              if [ $RETRY_EXIT_CODE -eq 0 ]; then
-                echo "✅ 재시도 성공!"
+            if [ $RETRY_EXIT_CODE -eq 0 ]; then
+              echo "✅ 재시도 성공!"
                 echo "$RETRY_RESULT"
-              else
-                echo "❌ 재시도도 실패했습니다."
+            else
+              echo "❌ 재시도도 실패했습니다."
                 echo "$RETRY_RESULT"
-                exit 1
+              exit 1
               fi
             fi
           else
@@ -496,20 +496,20 @@ workflows:
             else
               echo "=== Shorebird Android 릴리즈 재시도 필요 ==="
               echo "⚠️ 릴리즈 결과가 불분명합니다. 재시도합니다..."
-              sleep 5
-              
+            sleep 5
+            
               echo "🔄 Android 릴리즈 재시도 (최신 Flutter)..."
               RETRY_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
-              RETRY_EXIT_CODE=$?
+            RETRY_EXIT_CODE=$?
               
-              if [ $RETRY_EXIT_CODE -eq 0 ]; then
-                echo "✅ 재시도 성공!"
+            if [ $RETRY_EXIT_CODE -eq 0 ]; then
+              echo "✅ 재시도 성공!"
                 echo "$RETRY_RESULT"
-              else
-                echo "❌ 재시도도 실패했습니다."
+            else
+              echo "❌ 재시도도 실패했습니다."
                 echo "$RETRY_RESULT"
-                exit 1
-              fi
+              exit 1
+            fi
             fi
           else
             echo "=== Shorebird Android 릴리즈 실패 ==="
@@ -779,7 +779,7 @@ workflows:
           # iOS 빌드 디렉토리 미리 생성
           mkdir -p build/ios/iphoneos
           mkdir -p build/ios/Release-iphoneos
-          
+
           echo "=== Shorebird iOS 패치 생성 및 배포 ==="
           # 패치 생성 (가장 최신 릴리즈에 대한 패치)
           echo "🚀 iOS 패치 생성 시작 (자동 Flutter 버전 감지)..."
@@ -1013,13 +1013,13 @@ workflows:
             echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
           fi
 
-          echo "=== 환경 최적화 및 사전 빌드 테스트 ==="
+          echo "=== 환경 최적화 및 빌드 준비 ==="
           # Shorebird 캐시 정리
           "$HOME/.shorebird/bin/shorebird" cache clean
           
           # Flutter 캐시 정리
-          flutter clean
-          flutter pub get
+            flutter clean
+            flutter pub get
           
           # 시스템 정리 (릴리즈와 동일한 수준)
           echo "🧹 시스템 정리..."
@@ -1037,136 +1037,60 @@ workflows:
           export GRADLE_OPTS="-Xmx6144m -XX:MaxMetaspaceSize=512m"
           export _JAVA_OPTIONS="-Xmx6144m"
           
-          echo "=== Flutter AAB 빌드 사전 테스트 (문제 조기 발견) ==="
-          # Flutter AAB 빌드를 먼저 테스트해서 문제가 있는지 확인
-          echo "🧪 Flutter AAB 빌드 테스트 시작..."
-          AAB_TEST_RESULT=$(flutter build appbundle --release --dart-define=ENVIRONMENT=prod 2>&1)
-          AAB_TEST_EXIT_CODE=$?
+          echo "=== 사전 Flutter 빌드 (네이티브 라이브러리 생성) ==="
+          # Shorebird 실행 전에 Flutter 빌드로 네이티브 라이브러리 생성
+          echo "🔧 Flutter AAB 빌드를 통한 네이티브 라이브러리 생성..."
+          flutter build appbundle --release --dart-define=ENVIRONMENT=prod || {
+            echo "⚠️ Flutter 빌드 실패 - 계속 진행"
+          }
           
-          if [ $AAB_TEST_EXIT_CODE -eq 0 ]; then
-            echo "✅ Flutter AAB 빌드 테스트 성공!"
-            echo "🎯 Shorebird 패치에서도 AAB 빌드가 성공할 가능성이 높습니다"
-            
-            # 성공한 빌드의 AAB 파일을 Shorebird가 예상하는 위치로 복사
-            echo "📦 표준 Flutter 빌드 결과물 준비..."
-            
-            # AAB 파일 탐지 및 복사
-            if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
-              AAB_SIZE=$(du -h "build/app/outputs/bundle/release/app-release.aab" | cut -f1)
-              echo "✅ AAB 파일 확인됨: build/app/outputs/bundle/release/app-release.aab (크기: $AAB_SIZE)"
-            elif [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
-              # 다른 위치에 있으면 표준 위치로 복사
-              mkdir -p build/app/outputs/bundle/release/
-              cp "android/app/build/outputs/bundle/release/app-release.aab" "build/app/outputs/bundle/release/app-release.aab"
-              AAB_SIZE=$(du -h "build/app/outputs/bundle/release/app-release.aab" | cut -f1)
-              echo "✅ AAB 파일 복사 완료: build/app/outputs/bundle/release/app-release.aab (크기: $AAB_SIZE)"
-            else
-              echo "⚠️ AAB 파일을 예상 위치에서 찾을 수 없음"
-            fi
-            
-          else
-            echo "❌ Flutter AAB 빌드 테스트 실패"
-            echo "🔍 AAB 빌드 실패 원인 분석:"
-            
-            echo "🔄 릴리즈와 동일한 환경으로 빌드 재시도..."
-          fi
-          
-          echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
-          # Shorebird가 찾는 디렉토리들을 미리 생성
-          mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
-          mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
-          
-          echo "=== 네이티브 라이브러리 파일 복사 (Shorebird Issue #1798 해결) ==="
-          # Flutter가 생성한 네이티브 라이브러리 파일들을 Shorebird가 기대하는 위치로 복사
-          echo "📁 네이티브 라이브러리 파일 검색 중..."
-          find . -name "libapp.so" -type f 2>/dev/null | head -10
-          
-          # Shorebird가 기대하는 타겟 경로 (stripReleaseDebugSymbols 없는 경로)
-          SHOREBIRD_TARGET_PATH="build/app/intermediates/stripped_native_libs/release/out/lib"
-          mkdir -p "$SHOREBIRD_TARGET_PATH"/{armeabi-v7a,arm64-v8a,x86,x86_64}
-          
-          # 실제 파일이 있는 소스 경로들 (stripReleaseDebugSymbols 포함)
-          ACTUAL_SOURCE_PATHS=(
+          echo "=== 네이티브 라이브러리 사전 복사 (Shorebird 호환) ==="
+          # 실제 네이티브 라이브러리 위치들 (여러 가능한 경로)
+          POSSIBLE_NATIVE_PATHS=(
             "android/app/build/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
-            "build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
-            "android/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
-            "build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
             "android/app/build/intermediates/stripped_native_libs/release/out/lib"
-            "build/app/intermediates/stripped_native_libs/release/out/lib"
+            "android/app/build/intermediates/merged_native_libs/release/out/lib"
           )
           
-          # 소스에서 타겟으로 네이티브 라이브러리 복사
-          COPIED_COUNT=0
-          FOUND_SOURCE=""
+          # Shorebird가 찾는 위치들
+          EXPECTED_PATHS=(
+            "build/app/intermediates/stripped_native_libs/release/out/lib"
+            "build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib"
+          )
           
-          for source in "${ACTUAL_SOURCE_PATHS[@]}"; do
-            if [ -d "$source" ] && [ "$(find "$source" -name "*.so" 2>/dev/null | wc -l)" -gt 0 ]; then
-              echo "✅ 네이티브 라이브러리 소스 발견: $source"
-              FOUND_SOURCE="$source"
+          NATIVE_FOUND=false
+          for REAL_NATIVE_PATH in "${POSSIBLE_NATIVE_PATHS[@]}"; do
+            if [ -d "$REAL_NATIVE_PATH" ]; then
+              echo "✅ 네이티브 라이브러리 발견: $REAL_NATIVE_PATH"
+              ls -la "$REAL_NATIVE_PATH" 2>/dev/null || echo "디렉토리 내용 확인 불가"
+              NATIVE_FOUND=true
               
-              # 각 아키텍처별로 복사
-              for arch in armeabi-v7a arm64-v8a x86 x86_64; do
-                if [ -d "$source/$arch" ] && [ "$(ls -A "$source/$arch" 2>/dev/null)" ]; then
-                  echo "📦 $arch 라이브러리 복사 중..."
-                  
-                  # Shorebird가 기대하는 위치로 복사
-                  cp -r "$source/$arch"/* "$SHOREBIRD_TARGET_PATH/$arch/" 2>/dev/null
-                  COPY_RESULT=$?
-                  
-                  # 복사 성공 확인
-                  if [ $COPY_RESULT -eq 0 ] && [ -f "$SHOREBIRD_TARGET_PATH/$arch/libapp.so" ]; then
-                    COPIED_COUNT=$((COPIED_COUNT + 1))
-                    FILE_SIZE=$(du -h "$SHOREBIRD_TARGET_PATH/$arch/libapp.so" | cut -f1)
-                    echo "  ✅ libapp.so 복사 성공 ($arch, 크기: $FILE_SIZE)"
-                  fi
-                  
-                  if [ -f "$SHOREBIRD_TARGET_PATH/$arch/libflutter.so" ]; then
-                    FILE_SIZE=$(du -h "$SHOREBIRD_TARGET_PATH/$arch/libflutter.so" | cut -f1)
-                    echo "  ✅ libflutter.so 복사 성공 ($arch, 크기: $FILE_SIZE)"
-                  fi
+              for EXPECTED_PATH in "${EXPECTED_PATHS[@]}"; do
+                echo "📁 사전 복사: $REAL_NATIVE_PATH -> $EXPECTED_PATH"
+                mkdir -p "$(dirname "$EXPECTED_PATH")"
+                cp -r "$REAL_NATIVE_PATH" "$(dirname "$EXPECTED_PATH")/"
+                
+                if [ -d "$EXPECTED_PATH" ]; then
+                  echo "✅ 사전 복사 성공: $EXPECTED_PATH"
+                  find "$EXPECTED_PATH" -name "*.so" | head -3
+                else
+                  echo "❌ 사전 복사 실패: $EXPECTED_PATH"
                 fi
               done
               break
             fi
           done
           
-          # 복사 결과 확인
-          if [ $COPIED_COUNT -gt 0 ]; then
-            echo "✅ 네이티브 라이브러리 복사 완료 ($COPIED_COUNT개 아키텍처)"
-            echo "🎯 Shorebird가 찾을 경로: $SHOREBIRD_TARGET_PATH"
-          else
-            echo "⚠️ 네이티브 라이브러리 복사 실패 - 패치가 실패할 수 있습니다"
+          if [ "$NATIVE_FOUND" = false ]; then
+            echo "⚠️ 네이티브 라이브러리를 찾을 수 없음"
+            echo "📋 가능한 위치들 확인:"
+            find android/app/build/intermediates/ -name "*.so" -type f 2>/dev/null | head -5 || echo "네이티브 라이브러리 파일 없음"
           fi
           
-          echo "=== Shorebird Android 패치 생성 및 배포 (강화된 메모리 설정) ==="
-          echo "🚀 Android 패치 시작 (사전 빌드 완료된 환경)..."
-          
-          # 최종 메모리 설정 확인
-          echo "메모리 설정 상태:"
-          echo "- GRADLE_OPTS: $GRADLE_OPTS"
-          echo "- _JAVA_OPTIONS: $_JAVA_OPTIONS"
-          echo "- JAVA_OPTS: $JAVA_OPTS"
-          
-          # Shorebird 작업 디렉토리 최적화
-          echo "🔧 Shorebird 환경 최적화..."
-          
-          # 1차 시도: 표준 패치 명령어 (환경 고정)
-          echo "📱 1차 시도: 표준 Shorebird 패치 (빌드 재현성 극대화)..."
-          
-          # 환경 변수 재확인 및 고정
-          export TZ=UTC
-          export LANG=en_US.UTF-8  
-          export LC_ALL=en_US.UTF-8
-          export SOURCE_DATE_EPOCH=1577836800
-          
-          echo "빌드 환경 상태:"
-          echo "- TZ: $TZ"
-          echo "- LANG: $LANG"
-          echo "- SOURCE_DATE_EPOCH: $SOURCE_DATE_EPOCH"
-          echo "- _JAVA_OPTIONS: $_JAVA_OPTIONS"
-          
-          echo "📋 패치 빌드 전 디렉토리 상태 확인..."
-          ls -la build/ 2>/dev/null || echo "build 디렉토리 없음"
+          echo "=== Shorebird Android 패치 실행 ==="
+          echo "🚀 Shorebird로 Android 패치 생성 및 배포..."
+          echo "📋 빌드 전 디렉토리 상태 확인..."
+          ls -la build/ || echo "build 디렉토리 없음"
           
           PATCH_RESULT=$("$HOME/.shorebird/bin/shorebird" patch android \
             --release-version=latest \
@@ -1174,15 +1098,15 @@ workflows:
             --dart-define=ENVIRONMENT=prod 2>&1)
           PATCH_EXIT_CODE=$?
           
-          echo "📋 패치 빌드 후 디렉토리 상태 확인..."
+          echo "📋 빌드 후 디렉토리 상태 확인..."
           find build/ -name "*.aab" -type f 2>/dev/null || echo "AAB 파일 없음"
           echo "📋 Gradle 태스크로 AAB 파일 위치 수정 확인..."
           ls -la build/app/outputs/bundle/release/ 2>/dev/null || echo "예상 위치에 AAB 없음"
           
-          echo "패치 결과 출력:"
+          echo "패치 결과:"
           echo "$PATCH_RESULT"
           
-          # 패치 결과 확인 및 적절한 처리
+          # 패치 결과 확인
           if [ $PATCH_EXIT_CODE -eq 0 ]; then
             if echo "$PATCH_RESULT" | grep -i "successfully\|completed\|deployed\|published patch"; then
               echo "=== Shorebird Android 패치 성공 ==="
@@ -1193,80 +1117,45 @@ workflows:
               if echo "$PATCH_RESULT" | grep -i "published patch"; then
                 echo ""
                 echo "📱 패치 배포 정보:"
-                echo "$PATCH_RESULT" | grep -A 5 -i "ready to publish\|published patch" | tail -6
+                echo "$PATCH_RESULT" | grep -i "published patch" | head -3
               fi
             else
-              echo "=== Shorebird Android 패치 불완전 ==="
-              echo "⚠️ 패치 명령어는 성공했지만 결과가 불분명합니다"
-              echo "패치 결과를 다시 확인해주세요"
+              echo "=== Shorebird Android 패치 재시도 필요 ==="
+              echo "⚠️ 패치 결과가 불분명합니다. 재시도합니다..."
+              sleep 5
+              
+              echo "🔄 Android 패치 재시도..."
+              RETRY_RESULT=$("$HOME/.shorebird/bin/shorebird" patch android \
+                --release-version=latest \
+                --no-confirm \
+                --dart-define=ENVIRONMENT=prod 2>&1)
+              RETRY_EXIT_CODE=$?
+              
+              if [ $RETRY_EXIT_CODE -eq 0 ]; then
+                echo "✅ 재시도 성공!"
+                echo "$RETRY_RESULT"
+              else
+                echo "❌ 재시도도 실패했습니다."
+                echo "$RETRY_RESULT"
               exit 1
+              fi
             fi
           else
-            echo "=== Shorebird Android 패치 1차 실패 ==="
-            echo "❌ 1차 패치 시도 실패 (종료 코드: $PATCH_EXIT_CODE)"
+            echo "=== Shorebird Android 패치 실패 ==="
+            echo "❌ Android 패치에 실패했습니다 (종료 코드: $PATCH_EXIT_CODE)"
             
-            # AAB 파일 찾기 문제인지 확인
-            if echo "$PATCH_RESULT" | grep -i "failed.*produce.*aab\|couldn.*find.*aab"; then
-              echo "🔍 AAB 파일 탐지 실패 문제로 판단됨"
-              echo "📦 2차 시도: 수동 AAB 파일 배치 후 재시도..."
-              
-              # 모든 가능한 위치에서 AAB 파일 찾기
-              echo "🔍 시스템 전체에서 AAB 파일 검색..."
-              find /Users/builder/clone/picnic_app -name "*.aab" -type f 2>/dev/null | head -10
-              
-              AAB_FOUND=$(find /Users/builder/clone/picnic_app -name "*.aab" -type f 2>/dev/null | head -1)
-              if [ -n "$AAB_FOUND" ]; then
-                echo "✅ AAB 파일 발견: $AAB_FOUND"
-                
-                # 여러 위치에 복사하여 Shorebird가 찾을 수 있도록 함
-                mkdir -p build/app/outputs/bundle/release/
-                mkdir -p android/app/build/outputs/bundle/release/
-                
-                cp "$AAB_FOUND" build/app/outputs/bundle/release/app-release.aab
-                cp "$AAB_FOUND" android/app/build/outputs/bundle/release/app-release.aab
-                
-                echo "🔄 2차 패치 시도 (AAB 파일 배치 완료)..."
-                echo "📋 2차 시도 전 AAB 파일 배치 확인..."
-                ls -la build/app/outputs/bundle/release/ 2>/dev/null || echo "표준 위치 확인 불가"
-                ls -la android/app/build/outputs/bundle/release/ 2>/dev/null || echo "Android 위치 확인 불가"
-                
-                PATCH_RESULT_2=$("$HOME/.shorebird/bin/shorebird" patch android \
-                  --release-version=latest \
-                  --no-confirm \
-                  --dart-define=ENVIRONMENT=prod 2>&1)
-                PATCH_EXIT_CODE_2=$?
-                
-                echo "📋 2차 시도 후 상태 확인..."
-                find build/ -name "*.aab" -type f 2>/dev/null || echo "빌드 후 AAB 파일 없음"
-                
-                if [ $PATCH_EXIT_CODE_2 -eq 0 ]; then
-                  echo "✅ 2차 시도 성공! AAB 파일 배치로 문제 해결됨"
-                  echo "$PATCH_RESULT_2"
-                else
-                  echo "❌ 2차 시도도 실패 (종료 코드: $PATCH_EXIT_CODE_2)"
-                  echo "$PATCH_RESULT_2"
-                  exit 1
-                fi
-              else
-                echo "❌ 시스템에서 AAB 파일을 찾을 수 없음"
-                exit 1
-              fi
-            else
-              echo "🔍 다른 종류의 빌드 문제로 보입니다:"
-              
-              # 실패 원인 분석
-              if echo "$PATCH_RESULT" | grep -i "keystore\|signing"; then
-                echo "- 서명 관련 문제"
-              elif echo "$PATCH_RESULT" | grep -i "flutter.*build.*fail\|gradle.*fail"; then
-                echo "- Flutter/Gradle 빌드 문제"
-              elif echo "$PATCH_RESULT" | grep -i "no.*release"; then
-                echo "- 기존 릴리즈 없음"
-              elif echo "$PATCH_RESULT" | grep -i "java.*heap\|out.*of.*memory"; then
-                echo "- 메모리 부족"
-              fi
-              
-              exit 1
+            # 실패 원인 분석
+            if echo "$PATCH_RESULT" | grep -i "keystore\|signing"; then
+              echo "🔍 서명 관련 문제로 보입니다"
+            elif echo "$PATCH_RESULT" | grep -i "flutter.*build.*fail\|gradle.*fail"; then
+              echo "🔍 Flutter/Gradle 빌드 문제로 보입니다"
+            elif echo "$PATCH_RESULT" | grep -i "no.*release\|app.*not.*found"; then
+              echo "🔍 기존 릴리즈 없음 문제로 보입니다"
+            elif echo "$PATCH_RESULT" | grep -i "cannot.*find.*artifacts"; then
+              echo "🔍 빌드 아티팩트 문제로 보입니다"
             fi
+            
+            exit 1
           fi
 
     artifacts:
