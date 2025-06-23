@@ -427,6 +427,37 @@ workflows:
           echo "📋 Gradle 태스크로 AAB 파일 위치 수정 확인..."
           ls -la build/app/outputs/bundle/release/ 2>/dev/null || echo "예상 위치에 AAB 없음"
           
+          echo "=== 네이티브 라이브러리 복사 (Shorebird 호환) ==="
+          # 실제 네이티브 라이브러리 위치
+          REAL_NATIVE_PATH="android/app/build/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
+          # Shorebird가 찾는 위치들
+          EXPECTED_PATHS=(
+            "build/app/intermediates/stripped_native_libs/release/out/lib"
+            "build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib"
+          )
+          
+          if [ -d "$REAL_NATIVE_PATH" ]; then
+            echo "✅ 네이티브 라이브러리 발견: $REAL_NATIVE_PATH"
+            ls -la "$REAL_NATIVE_PATH" 2>/dev/null || echo "디렉토리 내용 확인 불가"
+            
+            for EXPECTED_PATH in "${EXPECTED_PATHS[@]}"; do
+              echo "📁 네이티브 라이브러리 복사: $REAL_NATIVE_PATH -> $EXPECTED_PATH"
+              mkdir -p "$(dirname "$EXPECTED_PATH")"
+              cp -r "$REAL_NATIVE_PATH" "$(dirname "$EXPECTED_PATH")/"
+              
+              if [ -d "$EXPECTED_PATH" ]; then
+                echo "✅ 복사 성공: $EXPECTED_PATH"
+                find "$EXPECTED_PATH" -name "*.so" | head -5
+              else
+                echo "❌ 복사 실패: $EXPECTED_PATH"
+              fi
+            done
+          else
+            echo "⚠️ 네이티브 라이브러리 없음: $REAL_NATIVE_PATH"
+            echo "📋 가능한 위치들 확인:"
+            find android/app/build/intermediates/ -name "*.so" -type f 2>/dev/null | head -5 || echo "네이티브 라이브러리 파일 없음"
+          fi
+          
           echo "릴리즈 결과:"
           echo "$RELEASE_RESULT"
           
