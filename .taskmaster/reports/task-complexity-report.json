@@ -1,333 +1,341 @@
 {
-  "meta": {
-    "generatedAt": "2025-06-06T15:47:41.902Z",
-    "tasksAnalyzed": 11,
-    "totalTasks": 11,
-    "analysisCount": 40,
-    "thresholdScore": 5,
-    "projectName": "Taskmaster",
-    "usedResearch": true
-  },
-  "complexityAnalysis": [
-    {
-      "taskId": 37,
-      "taskTitle": "Supabase Direct Integration and Optimization",
-      "complexityScore": 9,
-      "recommendedSubtasks": 8,
-      "expansionPrompt": "Break down into subtasks such as: auditing current architecture, refactoring database operations, updating authentication/storage, optimizing real-time subscriptions, enhancing offline support, performance monitoring, error handling, and documentation.",
-      "reasoning": "Direct integration with Supabase across data, auth, storage, and real-time features is a major architectural overhaul with high complexity and risk."
-    },
-    {
-      "taskId": 38,
-      "taskTitle": "Implement Supabase Real-time Feature Extensions",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Expand into subtasks like: implementing real-time chat, building notification system, enabling live content updates, optimizing performance, integrating with state management, updating UI, and documenting event patterns.",
-      "reasoning": "Extending real-time features across chat, notifications, and content updates requires deep integration and performance optimization, making it highly complex."
-    },
-    {
-      "taskId": 39,
-      "taskTitle": "Implement Supabase Edge Functions for Serverless Processing",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Decompose into subtasks such as: setting up Edge Functions, migrating processing logic, integrating with client, handling external APIs, implementing image processing, ensuring security, and optimizing performance.",
-      "reasoning": "Migrating to serverless edge functions for processing, API integration, and image handling is a major architectural change with high complexity."
-    },
-    {
-      "taskId": 40,
-      "taskTitle": "Implement WeChat Social Login Integration with Supabase Authentication",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down into subtasks such as: setting up WeChat developer account, integrating SDKs, implementing authentication flow, synchronizing user profiles, handling errors/edge cases, China-specific compliance, and documentation.",
-      "reasoning": "Integrating WeChat login with Supabase involves multi-platform SDK integration, OAuth flows, user profile sync, and China-specific compliance, making it highly complex."
-    },
-    {
-      "taskId": 1,
-      "taskTitle": "Remove Web-related Code",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down the process of removing web-specific code from a Flutter project into subtasks such as identifying web-only files, updating conditional imports, removing web dependencies, updating build configurations, and verifying mobile-only functionality.",
-      "reasoning": "This task involves codebase-wide changes, dependency management, and build configuration updates. While not algorithmically complex, it requires careful attention to avoid breaking mobile functionality and to ensure all web-specific code is removed."
-    },
-    {
-      "taskId": 2,
-      "taskTitle": "Optimize Memory Usage for Large Images",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Expand this task into subtasks covering image caching setup, lazy loading implementation, image resizing/compression, cache management, memory profiling, and comprehensive testing.",
-      "reasoning": "Optimizing memory for large images requires integrating multiple packages, handling asynchronous operations, and thorough testing to prevent leaks and performance issues."
-    },
-    {
-      "taskId": 3,
-      "taskTitle": "Improve App Startup Time",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Divide this task into subtasks such as profiling current startup, implementing lazy loading, optimizing asset loading, refactoring initialization code, integrating splash screen improvements, and measuring results.",
-      "reasoning": "Startup optimization involves both code and asset management, deferred loading, and performance measurement, requiring coordination across several app layers."
-    },
-    {
-      "taskId": 4,
-      "taskTitle": "Optimize Scroll and Transition Animations",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down into subtasks for animation package integration, list optimization, repaint boundary implementation, custom scroll physics, and performance testing.",
-      "reasoning": "Animation and scroll optimization require both UI and performance engineering, but leverage existing Flutter tools and patterns."
-    },
-    {
-      "taskId": 5,
-      "taskTitle": "Implement Efficient Data Request Caching",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Expand into subtasks for caching interceptor setup, custom cache logic, offline detection, cache invalidation, unit/integration testing, and documentation.",
-      "reasoning": "Data caching involves network, storage, and offline logic, requiring careful design to ensure consistency and efficiency."
-    },
-    {
-      "taskId": 6,
-      "taskTitle": "Optimize Battery Usage",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Divide into subtasks for background task optimization, geofencing setup, notification efficiency, Bluetooth optimization, battery profiling, and testing.",
-      "reasoning": "Battery optimization spans multiple system services and requires both code changes and real-device testing."
-    },
-    {
-      "taskId": 7,
-      "taskTitle": "Enhance Offline Mode Functionality",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down into subtasks for local database integration, offline-first architecture, sync logic, retry mechanisms, conflict resolution, offline testing, and documentation.",
-      "reasoning": "Offline mode requires robust data handling, synchronization, and error management, making it a complex, multi-layered task."
-    },
-    {
-      "taskId": 8,
-      "taskTitle": "Improve Multilingual Support",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Expand into subtasks for localization package setup, translation key management, formatting integration, translation review automation, and locale testing.",
-      "reasoning": "Localization involves both code and process improvements, but leverages established packages and workflows."
-    },
-    {
-      "taskId": 9,
-      "taskTitle": "Enhance Accessibility Features",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Divide into subtasks for semantics integration, keyboard navigation, text-to-speech setup, accessibility testing, and user feedback collection.",
-      "reasoning": "Accessibility improvements require UI updates and testing, but are well-supported by Flutter's built-in tools."
-    },
-    {
-      "taskId": 10,
-      "taskTitle": "Complete Dark Mode Implementation",
-      "complexityScore": 5,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down into subtasks for theme data setup, theme switcher implementation, widget compatibility checks, and visual testing.",
-      "reasoning": "Dark mode is a UI-focused task with moderate complexity, mainly requiring thorough testing across screens."
-    },
-    {
-      "taskId": 11,
-      "taskTitle": "Implement Customizable Push Notifications",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Expand into subtasks for push notification integration, preference UI, server-side logic, notification display, user settings persistence, testing, and compliance checks.",
-      "reasoning": "Customizable notifications require cross-platform integration, UI, backend logic, and compliance, making it a complex feature."
-    },
-    {
-      "taskId": 12,
-      "taskTitle": "Integrate Supabase Real-time Features",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Divide into subtasks for Supabase setup, real-time subscription implementation, stream management, optimistic UI updates, testing, load testing, and documentation.",
-      "reasoning": "Real-time features involve backend integration, reactive programming, and performance considerations, increasing complexity."
-    },
-    {
-      "taskId": 13,
-      "taskTitle": "Implement WeChat Login",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Break down into subtasks for SDK integration, login flow implementation, secure token storage, compliance review, testing on Chinese devices, and documentation.",
-      "reasoning": "WeChat login requires third-party SDK integration, security, and regulatory compliance, with additional testing requirements."
-    },
-    {
-      "taskId": 14,
-      "taskTitle": "Refactor Code Architecture",
-      "complexityScore": 9,
-      "recommendedSubtasks": 8,
-      "expansionPrompt": "Expand into subtasks for architecture planning, dependency injection setup, state management refactor, code modularization, migration of features, testing, static analysis, and documentation.",
-      "reasoning": "Refactoring architecture is a large-scale, high-impact task affecting the entire codebase, requiring careful planning and staged execution."
-    },
-    {
-      "taskId": 15,
-      "taskTitle": "Implement Global Error Handling System",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Divide into subtasks for error service implementation, network error interception, custom error classes, UI integration, testing, and user feedback review.",
-      "reasoning": "Global error handling requires both backend and frontend changes, with a focus on consistency and user experience."
-    },
-    {
-      "taskId": 16,
-      "taskTitle": "Enhance Code Documentation",
-      "complexityScore": 4,
-      "recommendedSubtasks": 3,
-      "expansionPrompt": "Break down into subtasks for documentation style definition, codebase annotation, and documentation generation/validation.",
-      "reasoning": "Documentation is straightforward but time-consuming, with low technical complexity."
-    },
-    {
-      "taskId": 17,
-      "taskTitle": "Optimize State Management",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Expand into subtasks for state management audit, Riverpod integration, widget lifecycle optimization, state disposal, migration of features, testing, and performance monitoring.",
-      "reasoning": "Standardizing state management across a large app is complex, requiring code migration, testing, and performance tuning."
-    },
-    {
-      "taskId": 18,
-      "taskTitle": "Optimize Supabase Integration",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Divide into subtasks for direct SDK integration, repository pattern implementation, offline support setup, error handling, testing, and documentation.",
-      "reasoning": "Refactoring data access to use Supabase directly involves architectural changes and thorough testing."
-    },
-    {
-      "taskId": 19,
-      "taskTitle": "Expand Unit Test Coverage",
-      "complexityScore": 8,
-      "recommendedSubtasks": 7,
-      "expansionPrompt": "Break down into subtasks for test coverage analysis, test writing for core logic, parameterized and mutation testing, CI integration, and coverage reporting.",
-      "reasoning": "Achieving high test coverage is labor-intensive and requires coordination across modules, but is essential for code quality."
-    },
-    {
-      "taskId": 20,
-      "taskTitle": "Implement Automated UI Testing",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Expand into subtasks for test framework setup, page object model implementation, writing main flow tests, visual regression setup, CI integration, and manual test planning.",
-      "reasoning": "Automated UI testing involves both technical setup and comprehensive test case development."
-    },
-    {
-      "taskId": 21,
-      "taskTitle": "Implement Device Compatibility Testing",
-      "complexityScore": 6,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Divide into subtasks for test matrix definition, responsive design checks, device simulation setup, screenshot testing, and manual verification.",
-      "reasoning": "Device compatibility testing is process-driven, requiring setup and validation across multiple device types."
-    },
-    {
-      "taskId": 22,
-      "taskTitle": "Implement Performance Testing Framework",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Break down into subtasks for performance test setup, metric definition, benchmark implementation, regression detection, CI integration, and manual audits.",
-      "reasoning": "Performance testing requires both technical setup and ongoing maintenance to ensure regressions are caught early."
-    },
-    {
-      "taskId": 23,
-      "taskTitle": "Implement Test Data Management System",
-      "complexityScore": 5,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Expand into subtasks for test data generation logic, seeding system implementation, data factory setup, and test integration.",
-      "reasoning": "Test data management is moderately complex, focusing on tooling and integration with existing tests."
-    },
-    {
-      "taskId": 24,
-      "taskTitle": "Implement Supabase Edge Functions",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Divide into subtasks for Edge Function development, deployment setup, API integration, error handling, testing, and load testing.",
-      "reasoning": "Edge Functions require backend development, deployment, and integration with the main app, with a focus on performance and reliability."
-    },
-    {
-      "taskId": 25,
-      "taskTitle": "Implement Supabase Row Level Security",
-      "complexityScore": 7,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Break down into subtasks for RLS policy definition, policy implementation, role-based access setup, client query updates, security testing, and audits.",
-      "reasoning": "Implementing RLS involves both database and client-side changes, with a strong emphasis on security and correctness."
-    },
-    {
-      "taskId": 26,
-      "taskTitle": "Design Database Schema and Create Migration for Vote Candidate Application",
-      "complexityScore": 8,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down the database schema design and migration creation process into detailed steps, including table creation, index implementation, RLS policy setup, and API integration.",
-      "reasoning": "This task involves complex database design, security considerations with RLS, and integration with existing systems, warranting a high complexity score and multiple subtasks."
-    },
-    {
-      "taskId": 27,
-      "taskTitle": "Implement Vote Application Data Models and Repository",
-      "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Divide the implementation of data models and repository into separate steps for each model, repository methods, and integration with Supabase.",
-      "reasoning": "This task requires creating multiple data models, implementing repository methods, and integrating with Supabase, which adds complexity and justifies multiple subtasks."
-    },
-    {
-      "taskId": 28,
-      "taskTitle": "Implement Artist Search Functionality",
-      "complexityScore": 6,
-      "recommendedSubtasks": 3,
-      "expansionPrompt": "Break down the artist search functionality into UI component creation, backend search implementation, and real-time update integration.",
-      "reasoning": "The task involves both frontend and backend work, including real-time updates, which adds moderate complexity and requires multiple components."
-    },
-    {
-      "taskId": 29,
-      "taskTitle": "Add Application Button to Vote Detail Page",
-      "complexityScore": 4,
-      "recommendedSubtasks": 2,
-      "expansionPrompt": "Separate the UI implementation and logic integration for the application button on the vote detail page.",
-      "reasoning": "This task is relatively straightforward but involves UI changes and logic integration, warranting a few subtasks."
-    },
-    {
-      "taskId": 30,
-      "taskTitle": "Implement Artist Application Page UI",
-      "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down the artist application page UI implementation into components for existing applications, artist search, application form, and responsive design.",
-      "reasoning": "The task involves creating a complex UI with multiple sections and responsive design, justifying a higher complexity score and multiple subtasks."
-    },
-    {
-      "taskId": 31,
-      "taskTitle": "Implement Vote Application Business Logic",
-      "complexityScore": 8,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Divide the business logic implementation into separate components for duplicate prevention, vote status validation, application limits, data validation, and error handling.",
-      "reasoning": "This task involves complex business rules and validations, requiring careful implementation and extensive testing, thus warranting a high complexity score and multiple subtasks."
-    },
-    {
-      "taskId": 32,
-      "taskTitle": "Implement Vote Application API Endpoints",
-      "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down the API endpoint implementation into separate tasks for each endpoint, including authentication/authorization, request/response handling, and documentation.",
-      "reasoning": "Implementing multiple API endpoints with proper security and documentation is a complex task that requires careful planning and execution."
-    },
-    {
-      "taskId": 33,
-      "taskTitle": "Implement Vote Application State Management Provider",
-      "complexityScore": 6,
-      "recommendedSubtasks": 3,
-      "expansionPrompt": "Divide the state management implementation into creating the provider class, implementing state update methods, and integrating real-time updates.",
-      "reasoning": "State management with real-time updates adds moderate complexity, justifying multiple subtasks for proper implementation and testing."
-    },
-    {
-      "taskId": 34,
-      "taskTitle": "Implement Comprehensive Testing for Vote Application Feature",
-      "complexityScore": 9,
-      "recommendedSubtasks": 6,
-      "expansionPrompt": "Break down the testing implementation into unit tests, integration tests, UI tests, database tests, end-to-end tests, and performance tests.",
-      "reasoning": "Comprehensive testing across multiple layers of the application is a complex and critical task, requiring a high complexity score and numerous subtasks."
-    },
-    {
-      "taskId": 35,
-      "taskTitle": "Optimize Performance and Enhance Security for Vote Application Feature",
-      "complexityScore": 8,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Separate the optimization and security enhancements into tasks for database optimization, API rate limiting, caching implementation, security auditing, and performance monitoring.",
-      "reasoning": "Performance optimization and security enhancements involve complex systems and require careful implementation and testing, justifying a high complexity score and multiple subtasks."
-    },
-    {
-      "taskId": 36,
-      "taskTitle": "Document and Prepare Vote Application Feature for Deployment",
-      "complexityScore": 7,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down the documentation and deployment preparation into tasks for API documentation, user guide creation, final code review, and deployment checklist creation.",
-      "reasoning": "While not as technically complex as implementation tasks, thorough documentation and deployment preparation are crucial and time-consuming, warranting a moderately high complexity score and multiple subtasks."
-    }
-  ]
+	"meta": {
+		"generatedAt": "2025-06-23T03:16:18.815Z",
+		"tasksAnalyzed": 9,
+		"totalTasks": 16,
+		"analysisCount": 41,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 38,
+			"taskTitle": "Implement Supabase Real-time Feature Extensions",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand into subtasks like: implementing real-time chat, building notification system, enabling live content updates, optimizing performance, integrating with state management, updating UI, and documenting event patterns.",
+			"reasoning": "Extending real-time features across chat, notifications, and content updates requires deep integration and performance optimization, making it highly complex."
+		},
+		{
+			"taskId": 1,
+			"taskTitle": "Remove Web-related Code",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the process of removing web-specific code from a Flutter project into subtasks such as identifying web-only files, updating conditional imports, removing web dependencies, updating build configurations, and verifying mobile-only functionality.",
+			"reasoning": "This task involves codebase-wide changes, dependency management, and build configuration updates. While not algorithmically complex, it requires careful attention to avoid breaking mobile functionality and to ensure all web-specific code is removed."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Optimize Memory Usage for Large Images",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand this task into subtasks covering image caching setup, lazy loading implementation, image resizing/compression, cache management, memory profiling, and comprehensive testing.",
+			"reasoning": "Optimizing memory for large images requires integrating multiple packages, handling asynchronous operations, and thorough testing to prevent leaks and performance issues."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Improve App Startup Time",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Divide this task into subtasks such as profiling current startup, implementing lazy loading, optimizing asset loading, refactoring initialization code, integrating splash screen improvements, and measuring results.",
+			"reasoning": "Startup optimization involves both code and asset management, deferred loading, and performance measurement, requiring coordination across several app layers."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Optimize Scroll and Transition Animations",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down into subtasks for animation package integration, list optimization, repaint boundary implementation, custom scroll physics, and performance testing.",
+			"reasoning": "Animation and scroll optimization require both UI and performance engineering, but leverage existing Flutter tools and patterns."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Implement Efficient Data Request Caching",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand into subtasks for caching interceptor setup, custom cache logic, offline detection, cache invalidation, unit/integration testing, and documentation.",
+			"reasoning": "Data caching involves network, storage, and offline logic, requiring careful design to ensure consistency and efficiency."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Optimize Battery Usage",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Divide into subtasks for background task optimization, geofencing setup, notification efficiency, Bluetooth optimization, battery profiling, and testing.",
+			"reasoning": "Battery optimization spans multiple system services and requires both code changes and real-device testing."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Enhance Offline Mode Functionality",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Break down into subtasks for local database integration, offline-first architecture, sync logic, retry mechanisms, conflict resolution, offline testing, and documentation.",
+			"reasoning": "Offline mode requires robust data handling, synchronization, and error management, making it a complex, multi-layered task."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Improve Multilingual Support",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Expand into subtasks for localization package setup, translation key management, formatting integration, translation review automation, and locale testing.",
+			"reasoning": "Localization involves both code and process improvements, but leverages established packages and workflows."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Enhance Accessibility Features",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Divide into subtasks for semantics integration, keyboard navigation, text-to-speech setup, accessibility testing, and user feedback collection.",
+			"reasoning": "Accessibility improvements require UI updates and testing, but are well-supported by Flutter's built-in tools."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Complete Dark Mode Implementation",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down into subtasks for theme data setup, theme switcher implementation, widget compatibility checks, and visual testing.",
+			"reasoning": "Dark mode is a UI-focused task with moderate complexity, mainly requiring thorough testing across screens."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Implement Customizable Push Notifications",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand into subtasks for push notification integration, preference UI, server-side logic, notification display, user settings persistence, testing, and compliance checks.",
+			"reasoning": "Customizable notifications require cross-platform integration, UI, backend logic, and compliance, making it a complex feature."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Integrate Supabase Real-time Features",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Divide into subtasks for Supabase setup, real-time subscription implementation, stream management, optimistic UI updates, testing, load testing, and documentation.",
+			"reasoning": "Real-time features involve backend integration, reactive programming, and performance considerations, increasing complexity."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "Implement WeChat Login",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down into subtasks for SDK integration, login flow implementation, secure token storage, compliance review, testing on Chinese devices, and documentation.",
+			"reasoning": "WeChat login requires third-party SDK integration, security, and regulatory compliance, with additional testing requirements."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "Refactor Code Architecture",
+			"complexityScore": 9,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Expand into subtasks for architecture planning, dependency injection setup, state management refactor, code modularization, migration of features, testing, static analysis, and documentation.",
+			"reasoning": "Refactoring architecture is a large-scale, high-impact task affecting the entire codebase, requiring careful planning and staged execution."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "Implement Global Error Handling System",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Divide into subtasks for error service implementation, network error interception, custom error classes, UI integration, testing, and user feedback review.",
+			"reasoning": "Global error handling requires both backend and frontend changes, with a focus on consistency and user experience."
+		},
+		{
+			"taskId": 16,
+			"taskTitle": "Enhance Code Documentation",
+			"complexityScore": 4,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down into subtasks for documentation style definition, codebase annotation, and documentation generation/validation.",
+			"reasoning": "Documentation is straightforward but time-consuming, with low technical complexity."
+		},
+		{
+			"taskId": 17,
+			"taskTitle": "Optimize State Management",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand into subtasks for state management audit, Riverpod integration, widget lifecycle optimization, state disposal, migration of features, testing, and performance monitoring.",
+			"reasoning": "Standardizing state management across a large app is complex, requiring code migration, testing, and performance tuning."
+		},
+		{
+			"taskId": 18,
+			"taskTitle": "Optimize Supabase Integration",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Divide into subtasks for direct SDK integration, repository pattern implementation, offline support setup, error handling, testing, and documentation.",
+			"reasoning": "Refactoring data access to use Supabase directly involves architectural changes and thorough testing."
+		},
+		{
+			"taskId": 19,
+			"taskTitle": "Expand Unit Test Coverage",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Break down into subtasks for test coverage analysis, test writing for core logic, parameterized and mutation testing, CI integration, and coverage reporting.",
+			"reasoning": "Achieving high test coverage is labor-intensive and requires coordination across modules, but is essential for code quality."
+		},
+		{
+			"taskId": 20,
+			"taskTitle": "Implement Automated UI Testing",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand into subtasks for test framework setup, page object model implementation, writing main flow tests, visual regression setup, CI integration, and manual test planning.",
+			"reasoning": "Automated UI testing involves both technical setup and comprehensive test case development."
+		},
+		{
+			"taskId": 21,
+			"taskTitle": "Implement Device Compatibility Testing",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Divide into subtasks for test matrix definition, responsive design checks, device simulation setup, screenshot testing, and manual verification.",
+			"reasoning": "Device compatibility testing is process-driven, requiring setup and validation across multiple device types."
+		},
+		{
+			"taskId": 22,
+			"taskTitle": "Implement Performance Testing Framework",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down into subtasks for performance test setup, metric definition, benchmark implementation, regression detection, CI integration, and manual audits.",
+			"reasoning": "Performance testing requires both technical setup and ongoing maintenance to ensure regressions are caught early."
+		},
+		{
+			"taskId": 23,
+			"taskTitle": "Implement Test Data Management System",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Expand into subtasks for test data generation logic, seeding system implementation, data factory setup, and test integration.",
+			"reasoning": "Test data management is moderately complex, focusing on tooling and integration with existing tests."
+		},
+		{
+			"taskId": 24,
+			"taskTitle": "Implement Supabase Edge Functions",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Divide into subtasks for Edge Function development, deployment setup, API integration, error handling, testing, and load testing.",
+			"reasoning": "Edge Functions require backend development, deployment, and integration with the main app, with a focus on performance and reliability."
+		},
+		{
+			"taskId": 25,
+			"taskTitle": "Implement Supabase Row Level Security",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down into subtasks for RLS policy definition, policy implementation, role-based access setup, client query updates, security testing, and audits.",
+			"reasoning": "Implementing RLS involves both database and client-side changes, with a strong emphasis on security and correctness."
+		},
+		{
+			"taskId": 26,
+			"taskTitle": "Design Database Schema and Create Migration for Vote Candidate Application",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down the database schema design and migration creation process into detailed steps, including table creation, index implementation, RLS policy setup, and API integration.",
+			"reasoning": "This task involves complex database design, security considerations with RLS, and integration with existing systems, warranting a high complexity score and multiple subtasks."
+		},
+		{
+			"taskId": 27,
+			"taskTitle": "Implement Vote Application Data Models and Repository",
+			"complexityScore": 7,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Divide the implementation of data models and repository into separate steps for each model, repository methods, and integration with Supabase.",
+			"reasoning": "This task requires creating multiple data models, implementing repository methods, and integrating with Supabase, which adds complexity and justifies multiple subtasks."
+		},
+		{
+			"taskId": 28,
+			"taskTitle": "Implement Artist Search Functionality",
+			"complexityScore": 6,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down the artist search functionality into UI component creation, backend search implementation, and real-time update integration.",
+			"reasoning": "The task involves both frontend and backend work, including real-time updates, which adds moderate complexity and requires multiple components."
+		},
+		{
+			"taskId": 29,
+			"taskTitle": "Add Application Button to Vote Detail Page",
+			"complexityScore": 4,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Separate the UI implementation and logic integration for the application button on the vote detail page.",
+			"reasoning": "This task is relatively straightforward but involves UI changes and logic integration, warranting a few subtasks."
+		},
+		{
+			"taskId": 30,
+			"taskTitle": "Implement Artist Application Page UI",
+			"complexityScore": 7,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down the artist application page UI implementation into components for existing applications, artist search, application form, and responsive design.",
+			"reasoning": "The task involves creating a complex UI with multiple sections and responsive design, justifying a higher complexity score and multiple subtasks."
+		},
+		{
+			"taskId": 31,
+			"taskTitle": "Implement Vote Application Business Logic",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Divide the business logic implementation into separate components for duplicate prevention, vote status validation, application limits, data validation, and error handling.",
+			"reasoning": "This task involves complex business rules and validations, requiring careful implementation and extensive testing, thus warranting a high complexity score and multiple subtasks."
+		},
+		{
+			"taskId": 32,
+			"taskTitle": "투표 신청 API 엔드포인트 구현",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Expand on the implementation details for each API endpoint, including request/response formats, authentication mechanisms, and error handling strategies.",
+			"reasoning": "This task involves implementing multiple API endpoints with complex business logic, authentication, and database interactions. It requires careful consideration of security, data validation, and error handling across different scenarios."
+		},
+		{
+			"taskId": 33,
+			"taskTitle": "투표 신청 상태 관리 프로바이더 구현",
+			"complexityScore": 7,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Detail the state management architecture, including the structure of the state object, methods for updating state, and integration with real-time updates.",
+			"reasoning": "Implementing a state management provider involves complex logic for handling various application states, real-time updates, and error handling. It requires a good understanding of state management patterns and asynchronous programming."
+		},
+		{
+			"taskId": 34,
+			"taskTitle": "투표 신청 기능 종합 테스트 구현",
+			"complexityScore": 9,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Elaborate on the testing strategies for each component of the voting application system, including unit tests, integration tests, and end-to-end tests.",
+			"reasoning": "Comprehensive testing of a complex feature like vote application requires a wide range of test types, from unit tests to integration and UI tests. It involves setting up test environments, mocking dependencies, and ensuring coverage across various scenarios."
+		},
+		{
+			"taskId": 35,
+			"taskTitle": "투표 신청 기능 성능 최적화 및 보안 강화",
+			"complexityScore": 9,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Provide detailed steps for optimizing database queries, implementing caching strategies, and enhancing security measures for the vote application feature.",
+			"reasoning": "Performance optimization and security enhancement are complex tasks that require deep understanding of the system architecture, database design, and security best practices. It involves analyzing and improving various aspects of the application."
+		},
+		{
+			"taskId": 36,
+			"taskTitle": "투표 신청 기능 문서화 및 배포 준비",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Detail the process of creating comprehensive API documentation, user guides, and preparing for production deployment, including necessary checks and procedures.",
+			"reasoning": "While less technically complex than implementation tasks, thorough documentation and deployment preparation require attention to detail, clear communication, and consideration of various user and developer perspectives."
+		},
+		{
+			"taskId": 37,
+			"taskTitle": "통합 로깅 시스템 도입 (AppLogger)",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Expand on the design and implementation of the AppLogger system, including log level management, integration with external logging services, and performance considerations.",
+			"reasoning": "Implementing a comprehensive logging system involves designing a flexible architecture, handling different logging backends, and ensuring performance across various environments. It requires careful consideration of scalability and configurability."
+		},
+		{
+			"taskId": 39,
+			"taskTitle": "투표 신청 다이얼로그 데이터베이스 마이그레이션 실행 및 오류 해결",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Detail the steps for executing the database migration, verifying the new schema, updating application code to use the new structure, and resolving any migration-related errors.",
+			"reasoning": "This task involves database schema changes, code refactoring, and error resolution, which can be complex and risky. It requires careful planning, testing, and potential rollback strategies."
+		},
+		{
+			"taskId": 40,
+			"taskTitle": "전체화면 로딩바 공통 컴포넌트 개발",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Expand on the design and implementation of the loading overlay component, including customization options, state management, and integration with the existing application architecture.",
+			"reasoning": "While creating a reusable UI component is moderately complex, ensuring it's flexible, performant, and easily integratable across the application requires careful design and consideration of various use cases."
+		},
+		{
+			"taskId": 41,
+			"taskTitle": "앱 아이콘 중앙 배치 및 애니메이션 효과 구현",
+			"complexityScore": 7,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Detail the implementation of various animation effects for the app icon, including rotation, fade, and scaling animations, as well as performance optimization strategies.",
+			"reasoning": "Implementing smooth, performant animations can be challenging, especially when combining multiple effects. It requires a good understanding of Flutter's animation system and performance considerations."
+		}
+	]
 }

@@ -40,8 +40,10 @@ node_modules/
 
 # Added by Task Master AI
 # Task files (excluding .taskmaster directory)
-tasks.json
-tasks/
 # Allow .taskmaster directory to be tracked
 !.taskmaster/ 
 picnic_app/key.properties
+
+# Task files
+# tasks.json
+# tasks/ 
