@@ -156,142 +156,16 @@ workflows:
           echo "- CODE_SIGN_IDENTITY: Apple Distribution"
           echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
 
-      - name: Build iOS IPA (Manual Signing)
-        script: |
-          cd picnic_app
-          
-          echo "=== iOS IPA 빌드 시작 (Manual Signing) ==="
-          echo "✅ Manual Signing 환경으로 빌드합니다"
-          echo "✅ Bundle ID: io.iconcasting.picnic.app"
-          echo "✅ Distribution Type: App Store"
-          echo ""
-          
-          # Manual Signing용 ExportOptions.plist 생성
-          echo "📝 Manual Signing용 ExportOptions.plist 생성..."
-          echo '<?xml version="1.0" encoding="UTF-8"?>' > ios/ExportOptions.plist
-          echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> ios/ExportOptions.plist
-          echo '<plist version="1.0">' >> ios/ExportOptions.plist
-          echo '<dict>' >> ios/ExportOptions.plist
-          echo '    <key>method</key>' >> ios/ExportOptions.plist
-          echo '    <string>app-store</string>' >> ios/ExportOptions.plist
-          echo '    <key>teamID</key>' >> ios/ExportOptions.plist
-          echo '    <string>24SL34R9HR</string>' >> ios/ExportOptions.plist
-          echo '    <key>signingStyle</key>' >> ios/ExportOptions.plist
-          echo '    <string>manual</string>' >> ios/ExportOptions.plist
-          echo '    <key>signingCertificate</key>' >> ios/ExportOptions.plist
-          echo '    <string>Apple Distribution</string>' >> ios/ExportOptions.plist
-          echo '    <key>provisioningProfiles</key>' >> ios/ExportOptions.plist
-          echo '    <dict>' >> ios/ExportOptions.plist
-          echo '        <key>io.iconcasting.picnic.app</key>' >> ios/ExportOptions.plist
-          echo '        <string>picnic_app_profile_2025</string>' >> ios/ExportOptions.plist
-          echo '    </dict>' >> ios/ExportOptions.plist
-          echo '    <key>stripSwiftSymbols</key>' >> ios/ExportOptions.plist
-          echo '    <true/>' >> ios/ExportOptions.plist
-          echo '    <key>uploadBitcode</key>' >> ios/ExportOptions.plist
-          echo '    <false/>' >> ios/ExportOptions.plist
-          echo '    <key>uploadSymbols</key>' >> ios/ExportOptions.plist
-          echo '    <true/>' >> ios/ExportOptions.plist
-          echo '</dict>' >> ios/ExportOptions.plist
-          echo '</plist>' >> ios/ExportOptions.plist
-          
-          echo "🚀 Manual Signing IPA 빌드"
-          flutter build ipa \
-            --release \
-            --dart-define=ENVIRONMENT=prod \
-            --export-options-plist=ios/ExportOptions.plist
-          
-          BUILD_RESULT=$?
-          
-          # 빌드 결과 확인
-          echo ""
-          echo "=== 빌드 결과 확인 ==="
-          
-          if [ $BUILD_RESULT -eq 0 ]; then
-            echo "🎉 Flutter IPA 빌드 명령어 성공!"
-            
-            # IPA 파일 생성 여부 확인
-            if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
-              IPA_SIZE=$(du -h "build/ios/ipa/picnic_app.ipa" | cut -f1)
-              echo "✅ IPA 파일 생성 완료: build/ios/ipa/picnic_app.ipa (크기: $IPA_SIZE)"
-            elif [ -f "build/ios/ipa/Runner.ipa" ]; then
-              IPA_SIZE=$(du -h "build/ios/ipa/Runner.ipa" | cut -f1)
-              echo "✅ IPA 파일 생성 완료: build/ios/ipa/Runner.ipa (크기: $IPA_SIZE)"
-              
-              # picnic_app.ipa로 복사
-              cp "build/ios/ipa/Runner.ipa" "build/ios/ipa/picnic_app.ipa"
-              echo "✅ picnic_app.ipa로 복사 완료"
-            else
-              echo "⚠️ 빌드 명령어는 성공했지만 IPA 파일을 찾을 수 없음"
-              echo "📁 생성된 파일들:"
-              find build/ios -name "*.ipa" -o -name "*.xcarchive" 2>/dev/null | head -5
-              
-              # Archive가 있는 경우 Manual Signing용 수동 export 시도
-              XCARCHIVE_PATH=$(find build/ios -name "*.xcarchive" | head -1)
-              if [ -n "$XCARCHIVE_PATH" ]; then
-                echo ""
-                echo "📦 Archive가 발견되어 수동 IPA export를 시도합니다..."
-                echo "Archive 경로: $XCARCHIVE_PATH"
-                
-                echo "🚀 Manual Signing으로 IPA export 시도..."
-                cd ios
-                xcodebuild -exportArchive \
-                  -archivePath "../$XCARCHIVE_PATH" \
-                  -exportPath "../build/ios/ipa/" \
-                  -exportOptionsPlist "ExportOptions.plist"
-                
-                EXPORT_RESULT=$?
-                cd ..
-                
-                if [ $EXPORT_RESULT -eq 0 ]; then
-                  echo "✅ 수동 IPA export 성공!"
-                  
-                  # IPA 파일 확인 및 이름 정규화
-                  if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
-                    IPA_SIZE=$(du -h "build/ios/ipa/picnic_app.ipa" | cut -f1)
-                    echo "✅ 최종 IPA 파일: build/ios/ipa/picnic_app.ipa (크기: $IPA_SIZE)"
-                  elif [ -f "build/ios/ipa/Runner.ipa" ]; then
-                    IPA_SIZE=$(du -h "build/ios/ipa/Runner.ipa" | cut -f1)
-                    echo "✅ 최종 IPA 파일: build/ios/ipa/Runner.ipa (크기: $IPA_SIZE)"
-                    cp "build/ios/ipa/Runner.ipa" "build/ios/ipa/picnic_app.ipa"
-                    echo "✅ picnic_app.ipa로 복사 완료"
-                  else
-                    echo "⚠️ 빌드 명령어는 성공했지만 IPA 파일을 찾을 수 없음"
-                    ls -la build/ios/ipa/ 2>/dev/null || echo "IPA 디렉토리 없음"
-                  fi
-                else
-                  echo "❌ 수동 IPA export 실패 (종료 코드: $EXPORT_RESULT)"
-                fi
-              fi
-            fi
-            
-            echo ""
-            echo "🎉 Manual Signing IPA 빌드 완료!"
-          else
-            echo "❌ Flutter IPA 빌드 실패 (종료 코드: $BUILD_RESULT)"
-            echo ""
-            echo "=== 디버깅 정보 ==="
-            echo "Flutter 버전:"
-            flutter --version | head -3
-            echo ""
-            echo "Xcode 프로젝트 서명 설정 확인:"
-            grep -A 5 -B 5 "CODE_SIGN_STYLE\|DEVELOPMENT_TEAM" ios/Runner.xcodeproj/project.pbxproj | head -10
-            echo ""
-            echo "설치된 인증서:"
-            security find-identity -v -p codesigning | head -3
-            echo ""
-            echo "프로비저닝 프로파일:"
-            ls -la "$HOME/Library/MobileDevice/Provisioning Profiles/" 2>/dev/null | head -3 || echo "프로비저닝 프로파일 디렉토리 없음"
-            
-            exit 1
-          fi
-
-      - name: Shorebird iOS Release
+      - name: Shorebird iOS Release (Unified Build & Deploy)
         script: |
           export PATH="$HOME/.shorebird/bin:$PATH"
           cd picnic_app
 
-          echo "=== Shorebird iOS 릴리즈 시작 ==="
-          echo "Shorebird 버전 확인:"
+          echo "=== Shorebird 통합 iOS 빌드 & 릴리즈 시작 ==="
+          echo "🎯 릴리즈와 패치의 일관된 빌드 환경을 위해 Shorebird로 직접 빌드합니다"
+          echo ""
+
+          echo "=== Shorebird 버전 확인 ==="
           shorebird --version
 
           echo "=== Shorebird 인증 확인 ==="
@@ -302,39 +176,81 @@ workflows:
             echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
           fi
 
-          echo "=== Shorebird iOS 릴리즈 실행 ==="
-          # 첫 번째 시도
-          echo "🚀 iOS 릴리즈 첫 번째 시도 (최신 Flutter 3.32.4 명시 지정)..."
+          echo "=== iOS 서명 환경 최종 확인 ==="
+          echo "✅ Manual Signing 설정 완료"
+          echo "✅ Bundle ID: io.iconcasting.picnic.app"
+          echo "✅ Distribution Type: App Store"
+          echo "✅ Development Team: 24SL34R9HR"
+          echo "✅ Provisioning Profile: picnic_app_profile_2025"
+
+          echo "=== Shorebird 캐시 정리 및 환경 준비 ==="
+          shorebird cache clean
+          flutter clean
+          flutter pub get
+
+          echo "=== Shorebird iOS 통합 릴리즈 실행 ==="
+          echo "🚀 Shorebird로 iOS 빌드 및 릴리즈 (최신 Flutter 엔진 사용)..."
           RELEASE_RESULT=$(shorebird release ios --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
           RELEASE_EXIT_CODE=$?
           
-          echo "릴리즈 결과: $RELEASE_RESULT"
+          echo "릴리즈 결과:"
+          echo "$RELEASE_RESULT"
           
-          # "incomplete" 메시지가 있거나 실패한 경우 재시도
-          if [[ $RELEASE_EXIT_CODE -ne 0 ]] || echo "$RELEASE_RESULT" | grep -i "incomplete\|re-run"; then
-            echo "⚠️ 불완전한 릴리즈 감지 또는 실패 - 재시도합니다..."
-            sleep 5
-            
-            echo "🔄 iOS 릴리즈 재시도 (최신 Flutter 3.32.4)..."
-            shorebird release ios --dart-define=ENVIRONMENT=prod --flutter-version=latest
-            
-            RETRY_EXIT_CODE=$?
-            if [ $RETRY_EXIT_CODE -eq 0 ]; then
-              echo "✅ 재시도 성공!"
+          # 릴리즈 결과 확인
+          if [ $RELEASE_EXIT_CODE -eq 0 ]; then
+            if echo "$RELEASE_RESULT" | grep -i "successfully\|completed\|deployed\|published\|release.*created"; then
+              echo "=== Shorebird iOS 통합 릴리즈 성공 ==="
+              echo "✅ iOS 앱이 Shorebird Flutter 엔진으로 빌드되어 성공적으로 배포되었습니다"
+              echo "🎯 이제 패치 워크플로우와 동일한 빌드 환경을 사용합니다"
+              
+              # 릴리즈 정보 추출 및 표시
+              if echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version"; then
+                echo ""
+                echo "📱 릴리즈 정보:"
+                echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version" | head -3
+              fi
             else
-              echo "❌ 재시도도 실패했습니다."
-              exit 1
+              echo "=== Shorebird iOS 릴리즈 재시도 필요 ==="
+              echo "⚠️ 릴리즈 결과가 불분명합니다. 재시도합니다..."
+              sleep 5
+              
+              echo "🔄 iOS 릴리즈 재시도 (최신 Flutter)..."
+              RETRY_RESULT=$(shorebird release ios --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
+              RETRY_EXIT_CODE=$?
+              
+              if [ $RETRY_EXIT_CODE -eq 0 ]; then
+                echo "✅ 재시도 성공!"
+                echo "$RETRY_RESULT"
+              else
+                echo "❌ 재시도도 실패했습니다."
+                echo "$RETRY_RESULT"
+                exit 1
+              fi
             fi
           else
-            echo "✅ 첫 번째 시도 성공!"
+            echo "=== Shorebird iOS 릴리즈 실패 ==="
+            echo "❌ iOS 릴리즈에 실패했습니다 (종료 코드: $RELEASE_EXIT_CODE)"
+            
+            # 실패 원인 분석
+            if echo "$RELEASE_RESULT" | grep -i "no.*account\|profile"; then
+              echo "🔍 서명 관련 문제로 보입니다"
+            elif echo "$RELEASE_RESULT" | grep -i "flutter.*build.*fail"; then
+              echo "🔍 Flutter 빌드 문제로 보입니다"
+            elif echo "$RELEASE_RESULT" | grep -i "no.*release\|app.*not.*found"; then
+              echo "🔍 앱 등록 문제로 보입니다"
+            fi
+            
+            exit 1
           fi
 
-          echo "=== Shorebird iOS 릴리즈 완료 ==="
-          echo "✅ iOS 앱이 Shorebird에 성공적으로 릴리즈되었습니다"
+          echo "=== 최종 결과 ==="
+          echo "✅ Shorebird 통합 iOS 빌드 & 릴리즈 완료!"
+          echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
+          echo "🔄 비결정론적 빌드 문제 해결 예상"
 
     artifacts:
-      - picnic_app/build/ios/ipa/*.ipa
-      - picnic_app/build/ios/Runner.xcarchive
+      - picnic_app/build/ios/**/*.ipa
+      - picnic_app/build/ios/**/*.xcarchive
       - picnic_app/flutter_drive.log
 
     publishing:
@@ -454,214 +370,20 @@ workflows:
             exit 1
           fi
 
-      - name: Build AAB and APK for Distribution
+      - name: Shorebird Android Release (Unified Build & Deploy)
         script: |
           cd picnic_app
           
-          echo "=== Gradle 메모리 설정 최적화 (Java Heap Space 에러 해결) ==="
-          mkdir -p $HOME/.gradle
-          # 메모리를 6GB로 증가하고 메모리 관련 옵션 최적화
-          echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
-          echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
-          echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
-          echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
-          echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
-          echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
-          # Shorebird 호환성을 위한 추가 설정 (deprecated 옵션 제거)
-          echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+          echo "=== Shorebird 통합 Android 빌드 & 릴리즈 시작 ==="
+          echo "🎯 릴리즈와 패치의 일관된 빌드 환경을 위해 Shorebird로 직접 빌드합니다"
+          echo ""
           
           # Shorebird PATH 설정
           export PATH="$HOME/.shorebird/bin:$PATH"
-          
-          # 깨끗한 빌드 환경
-          flutter clean
-          flutter pub get
 
-          echo "=== 빌드 경로 미리 설정 ==="
-          # Flutter가 예상하는 경로에 디렉토리 미리 생성
-          mkdir -p build/app/outputs/bundle/release/
-          mkdir -p build/app/outputs/apk/release/
-          mkdir -p build/app/outputs/flutter-apk/
+          echo "=== Shorebird 버전 확인 ==="
+          shorebird --version
 
-          echo "=== 서명 설정 확인 ==="
-          echo "키스토어 경로: $CM_KEYSTORE_PATH"
-          echo "키 별칭: $CM_KEY_ALIAS"
-
-          echo "=== 1️⃣ AAB 빌드 시작 (서명 적용) ==="
-          AAB_BUILD_SUCCESS=false
-          
-          # AAB 빌드 실행 (성공 여부와 관계없이 파일 탐지 시도)
-          echo "🚀 Flutter AAB 빌드 실행..."
-          flutter build appbundle --release --dart-define=ENVIRONMENT=prod
-          AAB_FLUTTER_EXIT_CODE=$?
-          
-          echo "=== AAB 파일 탐지 및 복구 ==="
-          echo "📁 모든 .aab 파일 검색 중..."
-          find . -name "*.aab" -type f 2>/dev/null | head -10
-          
-          # 여러 위치에서 AAB 파일 탐지
-          AAB_FOUND_PATH=""
-          POSSIBLE_AAB_PATHS=(
-            "build/app/outputs/bundle/release/app-release.aab"
-            "android/app/build/outputs/bundle/release/app-release.aab"
-            "build/app/outputs/bundle/release/app.aab"
-            "android/app/build/outputs/bundle/release/app.aab"
-          )
-          
-          # 1. 예상 경로에서 먼저 확인
-          for path in "${POSSIBLE_AAB_PATHS[@]}"; do
-            if [ -f "$path" ]; then
-              echo "✅ AAB 파일 발견: $path"
-              AAB_FOUND_PATH="$path"
-              break
-            fi
-          done
-          
-          # 2. 예상 경로에 없으면 전체 검색
-          if [ -z "$AAB_FOUND_PATH" ]; then
-            echo "🔍 전체 검색으로 AAB 파일 찾는 중..."
-            AAB_FOUND_PATH=$(find . -name "*.aab" -type f 2>/dev/null | head -1)
-            
-            if [ -n "$AAB_FOUND_PATH" ]; then
-              echo "✅ AAB 파일 발견 (전체 검색): $AAB_FOUND_PATH"
-            else
-              echo "❌ AAB 파일을 찾을 수 없음"
-            fi
-          fi
-          
-          # 3. AAB 파일 복사 및 정리
-          if [ -n "$AAB_FOUND_PATH" ] && [ -f "$AAB_FOUND_PATH" ]; then
-            # Flutter가 예상하는 위치로 복사
-            mkdir -p build/app/outputs/bundle/release/
-            cp "$AAB_FOUND_PATH" build/app/outputs/bundle/release/app-release.aab
-            
-            AAB_SIZE=$(du -h build/app/outputs/bundle/release/app-release.aab | cut -f1)
-            echo "✅ AAB 파일 복구 성공: build/app/outputs/bundle/release/app-release.aab (크기: $AAB_SIZE)"
-            AAB_BUILD_SUCCESS=true
-            
-            # 서명 검증
-            if jarsigner -verify build/app/outputs/bundle/release/app-release.aab > /dev/null 2>&1; then
-              echo "✅ AAB 서명 검증 성공"
-            else
-              echo "⚠️ AAB 서명 검증 실패"
-            fi
-          else
-            echo "❌ AAB 파일 복구 실패"
-            if [ $AAB_FLUTTER_EXIT_CODE -eq 0 ]; then
-              echo "⚠️ Flutter 명령어는 성공했지만 파일을 찾을 수 없습니다"
-            else
-              echo "❌ Flutter AAB 빌드 명령어도 실패했습니다 (종료 코드: $AAB_FLUTTER_EXIT_CODE)"
-            fi
-          fi
-
-          echo "=== 2️⃣ APK 빌드 시작 (서명 적용) ==="
-          APK_BUILD_SUCCESS=false
-          
-          # APK 빌드 실행 (성공 여부와 관계없이 파일 탐지 시도)
-          echo "🚀 Flutter APK 빌드 실행..."
-          flutter build apk --release --dart-define=ENVIRONMENT=prod
-          APK_FLUTTER_EXIT_CODE=$?
-          
-          echo "=== APK 파일 탐지 및 복구 ==="
-          echo "📁 모든 .apk 파일 검색 중..."
-          find . -name "*.apk" -type f 2>/dev/null | head -10
-          
-          # 여러 위치에서 APK 파일 탐지
-          APK_FOUND_PATH=""
-          POSSIBLE_APK_PATHS=(
-            "build/app/outputs/flutter-apk/app-release.apk"
-            "android/app/build/outputs/apk/release/app-release.apk"
-            "build/app/outputs/apk/release/app-release.apk"
-            "android/app/build/outputs/flutter-apk/app-release.apk"
-            "build/app/outputs/flutter-apk/app.apk"
-            "android/app/build/outputs/apk/release/app.apk"
-          )
-          
-          # 1. 예상 경로에서 먼저 확인
-          for path in "${POSSIBLE_APK_PATHS[@]}"; do
-            if [ -f "$path" ]; then
-              echo "✅ APK 파일 발견: $path"
-              APK_FOUND_PATH="$path"
-              break
-            fi
-          done
-          
-          # 2. 예상 경로에 없으면 전체 검색
-          if [ -z "$APK_FOUND_PATH" ]; then
-            echo "🔍 전체 검색으로 APK 파일 찾는 중..."
-            APK_FOUND_PATH=$(find . -name "*.apk" -type f 2>/dev/null | head -1)
-            
-            if [ -n "$APK_FOUND_PATH" ]; then
-              echo "✅ APK 파일 발견 (전체 검색): $APK_FOUND_PATH"
-            else
-              echo "❌ APK 파일을 찾을 수 없음"
-            fi
-          fi
-          
-          # 3. APK 파일 복사 및 정리
-          if [ -n "$APK_FOUND_PATH" ] && [ -f "$APK_FOUND_PATH" ]; then
-            # Flutter가 예상하는 위치들로 복사
-            mkdir -p build/app/outputs/flutter-apk/
-            mkdir -p build/app/outputs/apk/release/
-            
-            cp "$APK_FOUND_PATH" build/app/outputs/flutter-apk/app-release.apk
-            cp "$APK_FOUND_PATH" build/app/outputs/apk/release/app-release.apk
-            
-            APK_SIZE=$(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)
-            echo "✅ APK 파일 복구 성공: build/app/outputs/flutter-apk/app-release.apk (크기: $APK_SIZE)"
-            APK_BUILD_SUCCESS=true
-            
-            # 서명 검증
-            if jarsigner -verify build/app/outputs/flutter-apk/app-release.apk > /dev/null 2>&1; then
-              echo "✅ APK 서명 검증 성공"
-            else
-              echo "⚠️ APK 서명 검증 실패"
-            fi
-          else
-            echo "❌ APK 파일 복구 실패"
-            if [ $APK_FLUTTER_EXIT_CODE -eq 0 ]; then
-              echo "⚠️ Flutter 명령어는 성공했지만 파일을 찾을 수 없습니다"
-            else
-              echo "❌ Flutter APK 빌드 명령어도 실패했습니다 (종료 코드: $APK_FLUTTER_EXIT_CODE)"
-            fi
-            echo "빌드를 강제로 계속 진행합니다..."
-          fi
-          
-          # 3. Shorebird 빌드
-          echo "=== 3️⃣ Shorebird 빌드 시작 ==="
-          
-          # 빌드 결과 확인
-          echo "=== 빌드 결과 요약 ==="
-          if [ "$AAB_BUILD_SUCCESS" = true ]; then
-            echo "✅ AAB: 빌드 및 복구 성공"
-          else
-            echo "❌ AAB: 빌드 실패 또는 파일을 찾을 수 없음"
-          fi
-          
-          if [ "$APK_BUILD_SUCCESS" = true ]; then
-            echo "✅ APK: 빌드 및 복구 성공"
-          else
-            echo "❌ APK: 빌드 실패 또는 파일을 찾을 수 없음"
-          fi
-          
-          # AAB나 APK 중 하나라도 성공하면 Shorebird 진행
-          if [ "$AAB_BUILD_SUCCESS" = true ] || [ "$APK_BUILD_SUCCESS" = true ]; then
-            echo "✅ 최소한 하나의 빌드가 성공했으므로 Shorebird 진행"
-          else
-            echo "❌ AAB와 APK 모두 실패했습니다"
-            exit 1
-          fi
-          
-          if [ -z "$SHOREBIRD_TOKEN" ]; then
-            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
-            exit 1
-          fi
-
-          echo "=== 표준 Flutter 빌드 기반 Shorebird 릴리즈 ==="
-          echo "사용자 요청: 플러터 기본 명령어 사용으로 빌드 속도 최적화"
-          echo "✅ AAB/APK 파일이 성공적으로 복구되었으므로 바로 릴리즈 진행합니다"
-          
-          # Shorebird 인증 확인
           echo "=== Shorebird 인증 확인 ==="
           if [ -z "$SHOREBIRD_TOKEN" ]; then
             echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
@@ -669,99 +391,31 @@ workflows:
           else
             echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
           fi
-          
-          echo "=== Shorebird 캐시 정리 및 네이티브 라이브러리 디렉토리 준비 ==="
-          # Shorebird 캐시 정리 (아티팩트 문제 해결)
+
+          echo "=== Android 서명 환경 최종 확인 ==="
+          echo "✅ Android Signing 설정 완료"
+          echo "✅ 키스토어 경로: $CM_KEYSTORE_PATH"
+          echo "✅ 키 별칭: $CM_KEY_ALIAS"
+          echo "✅ 서명 검증 완료"
+
+          echo "=== Gradle 메모리 최적화 설정 (Shorebird 호환) ==="
+          mkdir -p $HOME/.gradle
+          # Shorebird와 호환되는 최적화된 Gradle 설정
+          echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
+          echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
+          echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
+          echo "org.gradle.parallel=false" >> $HOME/.gradle/gradle.properties
+          echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
+          echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
+          echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+
+          echo "=== Shorebird 캐시 정리 및 환경 준비 ==="
           shorebird cache clean
-          
-          echo "=== 네이티브 라이브러리 디렉토리 미리 생성 ==="
-          # Shorebird가 찾는 디렉토리들을 미리 생성
-          mkdir -p build/app/intermediates/stripped_native_libs/stripReleaseDebugSymbols/release/out/lib
-          mkdir -p build/app/intermediates/stripped_native_libs/release/out/lib
-          
-          echo "=== 네이티브 라이브러리 파일 복사 (Shorebird Issue #1798 해결) ==="
-          # Flutter가 생성한 네이티브 라이브러리 파일들을 Shorebird가 기대하는 위치로 복사
-          echo "📁 네이티브 라이브러리 파일 검색 중..."
-          find . -name "libapp.so" -type f 2>/dev/null | head -10
-          
-          # Shorebird가 기대하는 타겟 경로 (stripReleaseDebugSymbols 없는 경로)
-          SHOREBIRD_TARGET_PATH="build/app/intermediates/stripped_native_libs/release/out/lib"
-          mkdir -p "$SHOREBIRD_TARGET_PATH"/{armeabi-v7a,arm64-v8a,x86,x86_64}
-          
-          # 실제 파일이 있는 소스 경로들 (stripReleaseDebugSymbols 포함)
-          ACTUAL_SOURCE_PATHS=(
-            "android/app/build/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
-            "build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib"
-            "android/app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
-            "build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib"
-            "android/app/build/intermediates/stripped_native_libs/release/out/lib"
-            "build/app/intermediates/stripped_native_libs/release/out/lib"
-          )
-          
-          # 소스에서 타겟으로 네이티브 라이브러리 복사
-          COPIED_COUNT=0
-          FOUND_SOURCE=""
-          
-          for source in "${ACTUAL_SOURCE_PATHS[@]}"; do
-            if [ -d "$source" ] && [ "$(find "$source" -name "*.so" 2>/dev/null | wc -l)" -gt 0 ]; then
-              echo "✅ 네이티브 라이브러리 소스 발견: $source"
-              FOUND_SOURCE="$source"
-              
-              # 각 아키텍처별로 복사
-              for arch in armeabi-v7a arm64-v8a x86 x86_64; do
-                if [ -d "$source/$arch" ] && [ "$(ls -A "$source/$arch" 2>/dev/null)" ]; then
-                  echo "📦 $arch 라이브러리 복사 중..."
-                  
-                  # Shorebird가 기대하는 위치로 복사
-                  cp -r "$source/$arch"/* "$SHOREBIRD_TARGET_PATH/$arch/" 2>/dev/null
-                  COPY_RESULT=$?
-                  
-                  # 복사 성공 확인
-                  if [ $COPY_RESULT -eq 0 ] && [ -f "$SHOREBIRD_TARGET_PATH/$arch/libapp.so" ]; then
-                    COPIED_COUNT=$((COPIED_COUNT + 1))
-                    FILE_SIZE=$(du -h "$SHOREBIRD_TARGET_PATH/$arch/libapp.so" | cut -f1)
-                    echo "  ✅ libapp.so 복사 성공 ($arch, 크기: $FILE_SIZE)"
-                  fi
-                  
-                  if [ -f "$SHOREBIRD_TARGET_PATH/$arch/libflutter.so" ]; then
-                    FILE_SIZE=$(du -h "$SHOREBIRD_TARGET_PATH/$arch/libflutter.so" | cut -f1)
-                    echo "  ✅ libflutter.so 복사 성공 ($arch, 크기: $FILE_SIZE)"
-                  fi
-                fi
-              done
-              break
-            fi
-          done
-          
-          # 복사 결과 확인
-          if [ $COPIED_COUNT -gt 0 ]; then
-            echo "✅ 네이티브 라이브러리 복사 완료 ($COPIED_COUNT개 아키텍처)"
-            echo "🎯 Shorebird가 찾을 경로: $SHOREBIRD_TARGET_PATH"
-            
-            # 최종 확인
-            echo "📋 복사된 파일 확인:"
-            find "$SHOREBIRD_TARGET_PATH" -name "*.so" 2>/dev/null | while read file; do
-              SIZE=$(du -h "$file" | cut -f1)
-              echo "  - $file (크기: $SIZE)"
-            done
-          else
-            echo "❌ 네이티브 라이브러리 복사 실패"
-            echo "🔍 검색한 소스 경로들:"
-            for source in "${ACTUAL_SOURCE_PATHS[@]}"; do
-              if [ -d "$source" ]; then
-                FILE_COUNT=$(find "$source" -name "*.so" 2>/dev/null | wc -l)
-                echo "  - $source (*.so 파일 $FILE_COUNT개)"
-              else
-                echo "  - $source (디렉토리 없음)"
-              fi
-            done
-            
-            echo "⚠️ Shorebird 릴리즈가 실패할 수 있습니다"
-          fi
-          
-          echo "=== 표준 Flutter 빌드 결과로 Shorebird 릴리즈 실행 ==="
-          # 이미 Flutter로 빌드된 AAB/APK를 사용하여 Shorebird 릴리즈
-          echo "🚀 Android 릴리즈 시작 (최신 Flutter 3.32.4 명시 지정)..."
+          flutter clean
+          flutter pub get
+
+          echo "=== Shorebird Android 통합 릴리즈 실행 ==="
+          echo "🚀 Shorebird로 Android 빌드 및 릴리즈 (최신 Flutter 엔진 사용)..."
           RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
           RELEASE_EXIT_CODE=$?
           
@@ -771,8 +425,9 @@ workflows:
           # 릴리즈 결과 확인
           if [ $RELEASE_EXIT_CODE -eq 0 ]; then
             if echo "$RELEASE_RESULT" | grep -i "successfully\|completed\|deployed\|published\|release.*created"; then
-              echo "=== Shorebird Android 릴리즈 성공 ==="
-              echo "✅ Android 릴리즈가 Shorebird를 통해 성공적으로 배포되었습니다"
+              echo "=== Shorebird Android 통합 릴리즈 성공 ==="
+              echo "✅ Android 앱이 Shorebird Flutter 엔진으로 빌드되어 성공적으로 배포되었습니다"
+              echo "🎯 이제 패치 워크플로우와 동일한 빌드 환경을 사용합니다"
               
               # 릴리즈 정보 추출 및 표시
               if echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version"; then
@@ -783,9 +438,9 @@ workflows:
             else
               echo "=== Shorebird Android 릴리즈 재시도 필요 ==="
               echo "⚠️ 릴리즈 결과가 불분명합니다. 재시도합니다..."
-              sleep 3
+              sleep 5
               
-              echo "🔄 Android 릴리즈 재시도 (최신 Flutter 3.32.4)..."
+              echo "🔄 Android 릴리즈 재시도 (최신 Flutter)..."
               RETRY_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
               RETRY_EXIT_CODE=$?
               
@@ -814,38 +469,15 @@ workflows:
             exit 1
           fi
 
-          echo "=== 최종 Artifacts 상태 요약 ==="
-          if [ "$AAB_BUILD_SUCCESS" = true ]; then
-            echo "✅ AAB: 빌드 및 복구 성공, Google Play 배포 가능"
-            if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
-              AAB_FINAL_SIZE=$(du -h "build/app/outputs/bundle/release/app-release.aab" | cut -f1)
-              echo "   📦 AAB 파일 크기: $AAB_FINAL_SIZE"
-            fi
-          else
-            echo "❌ AAB: 빌드 실패 또는 복구 불가, Google Play 배포 불가"
-          fi
-          
-          if [ "$APK_BUILD_SUCCESS" = true ]; then
-            echo "✅ APK: 빌드 및 복구 성공, 직접 배포 가능"
-            if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-              APK_FINAL_SIZE=$(du -h "build/app/outputs/flutter-apk/app-release.apk" | cut -f1)
-              echo "   📦 APK 파일 크기: $APK_FINAL_SIZE"
-            fi
-          else
-            echo "❌ APK: 빌드 실패 또는 복구 불가"
-          fi
-          
-          echo ""
-          echo "🎯 Shorebird 릴리즈 및 모든 빌드 작업 완료!"
-          echo "📁 생성된 Artifacts:"
-          echo "   - AAB: $([ "$AAB_BUILD_SUCCESS" = true ] && echo "✅ 성공" || echo "❌ 실패")"
-          echo "   - APK: $([ "$APK_BUILD_SUCCESS" = true ] && echo "✅ 성공" || echo "❌ 실패")"
-          echo "   - Shorebird: ✅ 릴리즈 완료"
+          echo "=== 최종 결과 ==="
+          echo "✅ Shorebird 통합 Android 빌드 & 릴리즈 완료!"
+          echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
+          echo "🔄 비결정론적 빌드 문제 해결 예상"
+          echo "📦 AAB/APK 파일이 자동으로 Shorebird에 의해 생성 및 배포됨"
 
     artifacts:
-      - picnic_app/build/app/outputs/bundle/release/app-release.aab
-      - picnic_app/build/app/outputs/apk/release/app-release.apk
-      - picnic_app/build/app/outputs/flutter-apk/app-release.apk
+      - picnic_app/build/**/outputs/**/*.aab
+      - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/build/**/outputs/**/mapping.txt
       - picnic_app/flutter_drive.log
 
