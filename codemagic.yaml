@@ -951,17 +951,13 @@ workflows:
             exit 1
           fi
 
-      - name: Configure Gradle Consistent with Release (Patch)
+      - name: Configure Gradle Environment (Identical to Release)
         script: |
           cd picnic_app
           
-          echo "=== Gradle 메모리 설정 (릴리즈와 동일하게 6GB) ==="
+          echo "=== Gradle 메모리 최적화 설정 (Shorebird 호환) ==="
           mkdir -p $HOME/.gradle
-          
-          # 기존 gradle.properties 정리 (중복 방지)
-          rm -f $HOME/.gradle/gradle.properties
-          
-          # 릴리즈와 완전히 동일한 메모리 설정 (6GB) + 빌드 재현성 강화
+          # Shorebird와 호환되는 최적화된 Gradle 설정
           echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
@@ -969,28 +965,8 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
-          
-          # 빌드 재현성 강화 (DEX 파일 일관성을 위해) - deprecated 설정 제거
-          echo "org.gradle.vfs.watch=false" >> $HOME/.gradle/gradle.properties
-          echo "kotlin.incremental=false" >> $HOME/.gradle/gradle.properties
-          echo "kotlin.incremental.useClasspathSnapshot=false" >> $HOME/.gradle/gradle.properties
-          echo "org.gradle.unsafe.configuration-cache=false" >> $HOME/.gradle/gradle.properties
-          echo "android.experimental.enableSourceSetPathsMap=false" >> $HOME/.gradle/gradle.properties
-          # android.enableD8.desugaring=false - deprecated, 제거됨
-          # android.enableIncrementalDesugaring=false - deprecated, 제거됨
-          
-          # 시간대 및 로케일 고정 (비결정론적 요소 제거)
-          export TZ=UTC
-          export LANG=en_US.UTF-8
-          export LC_ALL=en_US.UTF-8
-          
-          echo "✅ Gradle 설정 완료 (릴리즈와 동일한 6GB 설정)"
-          
-          # JVM 메모리 환경 변수도 릴리즈와 동일하게 설정
-          export GRADLE_OPTS="-Xmx6144m -XX:MaxMetaspaceSize=512m"
-          export _JAVA_OPTIONS="-Xmx6144m"
 
-      - name: Shorebird Android Patch with Enhanced Build Strategy
+      - name: Shorebird Android Patch (Identical to Release)
         script: |
           cd picnic_app
           
@@ -1013,29 +989,10 @@ workflows:
             echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
           fi
 
-          echo "=== 환경 최적화 및 빌드 준비 ==="
-          # Shorebird 캐시 정리
+          echo "=== Shorebird 캐시 정리 및 환경 준비 ==="
           "$HOME/.shorebird/bin/shorebird" cache clean
-          
-          # Flutter 캐시 정리
-            flutter clean
-            flutter pub get
-          
-          # 시스템 정리 (릴리즈와 동일한 수준)
-          echo "🧹 시스템 정리..."
-          
-          # 완전한 빌드 환경 정리 (비결정적 요소 제거)
-          rm -rf build/ android/app/build/ android/.gradle/ $HOME/.gradle/caches/ $HOME/.gradle/daemon/
-          
-          # 환경 변수 고정 (빌드 재현성 극대화)
-          export TZ=UTC
-          export LANG=en_US.UTF-8
-          export LC_ALL=en_US.UTF-8
-          export SOURCE_DATE_EPOCH=1577836800  # 2020-01-01 고정
-          
-          # JVM 메모리 최적화 (릴리즈와 동일)
-          export GRADLE_OPTS="-Xmx6144m -XX:MaxMetaspaceSize=512m"
-          export _JAVA_OPTIONS="-Xmx6144m"
+          flutter clean
+          flutter pub get
           
           echo "=== 사전 Flutter 빌드 (네이티브 라이브러리 생성) ==="
           # Shorebird 실행 전에 Flutter 빌드로 네이티브 라이브러리 생성
@@ -1089,19 +1046,12 @@ workflows:
           
           echo "=== Shorebird Android 패치 실행 ==="
           echo "🚀 Shorebird로 Android 패치 생성 및 배포..."
-          echo "📋 빌드 전 디렉토리 상태 확인..."
-          ls -la build/ || echo "build 디렉토리 없음"
           
           PATCH_RESULT=$("$HOME/.shorebird/bin/shorebird" patch android \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod 2>&1)
           PATCH_EXIT_CODE=$?
-          
-          echo "📋 빌드 후 디렉토리 상태 확인..."
-          find build/ -name "*.aab" -type f 2>/dev/null || echo "AAB 파일 없음"
-          echo "📋 Gradle 태스크로 AAB 파일 위치 수정 확인..."
-          ls -la build/app/outputs/bundle/release/ 2>/dev/null || echo "예상 위치에 AAB 없음"
           
           echo "패치 결과:"
           echo "$PATCH_RESULT"
@@ -1137,7 +1087,7 @@ workflows:
               else
                 echo "❌ 재시도도 실패했습니다."
                 echo "$RETRY_RESULT"
-              exit 1
+                exit 1
               fi
             fi
           else
