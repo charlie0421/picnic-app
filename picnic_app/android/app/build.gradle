@@ -134,29 +134,41 @@ tasks.register('copyAABForShorebird') {
     doLast {
         println "🔍 Looking for AAB files to copy for Shorebird compatibility..."
         
-        // 모든 가능한 AAB 파일 위치를 확인
+        // 프로젝트 루트 디렉토리 계산 (android/app에서 2단계 위로)
+        def projectRoot = project.rootDir.parentFile
+        println "🔍 Project root: ${projectRoot.absolutePath}"
+        println "🔍 Current build dir: ${buildDir.absolutePath}"
+        
+        // AAB 파일을 찾을 모든 가능한 위치
         def searchDirs = [
+            // 현재 앱 모듈의 빌드 디렉토리
             file("$buildDir/outputs/bundle/release"),
             file("$buildDir/outputs/bundle/releaseRelease"),
             file("$buildDir/outputs/bundle/prodRelease"),
             file("$buildDir/outputs/bundle"),
+            // 프로젝트 루트의 빌드 디렉토리들
+            file("${projectRoot}/build/app/outputs/bundle/release"),
+            file("${projectRoot}/build/outputs/bundle/release"),
+            file("${projectRoot}/android/app/build/outputs/bundle/release"),
         ]
         
-        def expectedDir = file("$buildDir/outputs/bundle/release")
-        def targetFiles = [
-            new File(expectedDir, "app.aab"),
-            new File(expectedDir, "app-release.aab")
+        // Flutter/Shorebird가 찾을 수 있는 모든 가능한 위치
+        def targetDirs = [
+            file("${projectRoot}/build/app/outputs/bundle/release"),
+            file("${projectRoot}/build/outputs/bundle/release"),
+            file("$buildDir/outputs/bundle/release"),
         ]
         
         def foundAAB = null
         
         // AAB 파일 찾기
         searchDirs.each { dir ->
+            println "🔍 Searching: ${dir.absolutePath} (exists: ${dir.exists()})"
             if (dir.exists()) {
                 dir.listFiles()?.each { file ->
                     if (file.name.endsWith('.aab') && foundAAB == null) {
                         foundAAB = file
-                        println "✅ Found AAB file: ${file.absolutePath}"
+                        println "✅ Found AAB file: ${file.absolutePath} (${file.length()} bytes)"
                     }
                 }
                 
@@ -166,7 +178,7 @@ tasks.register('copyAABForShorebird') {
                         subDir.listFiles()?.each { file ->
                             if (file.name.endsWith('.aab') && foundAAB == null) {
                                 foundAAB = file
-                                println "✅ Found AAB file in subdirectory: ${file.absolutePath}"
+                                println "✅ Found AAB file in subdirectory: ${file.absolutePath} (${file.length()} bytes)"
                             }
                         }
                     }
@@ -175,22 +187,41 @@ tasks.register('copyAABForShorebird') {
         }
         
         if (foundAAB != null) {
-            // 예상 디렉토리 생성
-            expectedDir.mkdirs()
-            
-            // 두 가지 이름으로 복사 (Flutter가 찾는 이름들)
-            targetFiles.each { targetFile ->
-                copy {
-                    from foundAAB
-                    into expectedDir
-                    rename { targetFile.name }
+            // 모든 타겟 디렉토리에 복사
+            targetDirs.each { targetDir ->
+                targetDir.mkdirs()
+                println "📁 Created target directory: ${targetDir.absolutePath}"
+                
+                // 두 가지 이름으로 복사 (Flutter/Shorebird 호환성)
+                ['app.aab', 'app-release.aab'].each { targetName ->
+                    def targetFile = new File(targetDir, targetName)
+                    targetFile.bytes = foundAAB.bytes
+                    println "📦 Copied AAB: ${foundAAB.name} -> ${targetFile.absolutePath} (${targetFile.length()} bytes)"
                 }
-                println "📦 Copied AAB: ${foundAAB.name} -> ${targetFile.absolutePath}"
+            }
+            
+            // 최종 검증
+            println "🔍 Final verification of all target locations:"
+            targetDirs.each { dir ->
+                if (dir.exists()) {
+                    dir.listFiles()?.each { file ->
+                        if (file.name.endsWith('.aab')) {
+                            println "✅ Verified: ${file.absolutePath} (${file.length()} bytes)"
+                        }
+                    }
+                } else {
+                    println "❌ Target directory not created: ${dir.absolutePath}"
+                }
             }
         } else {
-            println "⚠️ No AAB file found in any of the expected locations"
+            println "⚠️ No AAB file found in any of the expected locations:"
             searchDirs.each { dir ->
-                println "   Searched: ${dir.absolutePath}"
+                println "   ❌ ${dir.absolutePath} (exists: ${dir.exists()})"
+                if (dir.exists() && dir.listFiles()) {
+                    dir.listFiles().each { file ->
+                        println "      - ${file.name}"
+                    }
+                }
             }
         }
     }
