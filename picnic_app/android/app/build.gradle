@@ -128,6 +128,88 @@ android {
     }
 }
 
+// AAB 파일을 Shorebird/Flutter가 예상하는 위치로 복사하는 태스크
+tasks.register('copyAABForShorebird') {
+    description = 'Copy AAB file to location expected by Shorebird/Flutter'
+    doLast {
+        println "🔍 Looking for AAB files to copy for Shorebird compatibility..."
+        
+        // 모든 가능한 AAB 파일 위치를 확인
+        def searchDirs = [
+            file("$buildDir/outputs/bundle/release"),
+            file("$buildDir/outputs/bundle/releaseRelease"),
+            file("$buildDir/outputs/bundle/prodRelease"),
+            file("$buildDir/outputs/bundle"),
+        ]
+        
+        def expectedDir = file("$buildDir/outputs/bundle/release")
+        def targetFiles = [
+            new File(expectedDir, "app.aab"),
+            new File(expectedDir, "app-release.aab")
+        ]
+        
+        def foundAAB = null
+        
+        // AAB 파일 찾기
+        searchDirs.each { dir ->
+            if (dir.exists()) {
+                dir.listFiles()?.each { file ->
+                    if (file.name.endsWith('.aab') && foundAAB == null) {
+                        foundAAB = file
+                        println "✅ Found AAB file: ${file.absolutePath}"
+                    }
+                }
+                
+                // 하위 디렉토리도 검색
+                dir.listFiles()?.each { subDir ->
+                    if (subDir.isDirectory()) {
+                        subDir.listFiles()?.each { file ->
+                            if (file.name.endsWith('.aab') && foundAAB == null) {
+                                foundAAB = file
+                                println "✅ Found AAB file in subdirectory: ${file.absolutePath}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (foundAAB != null) {
+            // 예상 디렉토리 생성
+            expectedDir.mkdirs()
+            
+            // 두 가지 이름으로 복사 (Flutter가 찾는 이름들)
+            targetFiles.each { targetFile ->
+                copy {
+                    from foundAAB
+                    into expectedDir
+                    rename { targetFile.name }
+                }
+                println "📦 Copied AAB: ${foundAAB.name} -> ${targetFile.absolutePath}"
+            }
+        } else {
+            println "⚠️ No AAB file found in any of the expected locations"
+            searchDirs.each { dir ->
+                println "   Searched: ${dir.absolutePath}"
+            }
+        }
+    }
+}
+
+// Bundle 태스크들이 완료된 후 자동으로 복사
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith('bundle') && task.name.contains('Release')) {
+        task.finalizedBy 'copyAABForShorebird'
+    }
+}
+
+// Assemble 태스크에도 연결
+android.applicationVariants.all { variant ->
+    if (variant.name.toLowerCase().contains('release')) {
+        variant.assemble.finalizedBy 'copyAABForShorebird'
+    }
+}
+
 flutter {
     source '../..'
 }

@@ -416,8 +416,16 @@ workflows:
 
           echo "=== Shorebird Android 통합 릴리즈 실행 ==="
           echo "🚀 Shorebird로 Android 빌드 및 릴리즈 (최신 Flutter 엔진 사용)..."
+          echo "📋 빌드 전 디렉토리 상태 확인..."
+          ls -la build/ || echo "build 디렉토리 없음"
+          
           RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
           RELEASE_EXIT_CODE=$?
+          
+          echo "📋 빌드 후 디렉토리 상태 확인..."
+          find build/ -name "*.aab" -type f 2>/dev/null || echo "AAB 파일 없음"
+          echo "📋 Gradle 태스크로 AAB 파일 위치 수정 확인..."
+          ls -la build/app/outputs/bundle/release/ 2>/dev/null || echo "예상 위치에 AAB 없음"
           
           echo "릴리즈 결과:"
           echo "$RELEASE_RESULT"
@@ -1107,11 +1115,19 @@ workflows:
           echo "- SOURCE_DATE_EPOCH: $SOURCE_DATE_EPOCH"
           echo "- _JAVA_OPTIONS: $_JAVA_OPTIONS"
           
+          echo "📋 패치 빌드 전 디렉토리 상태 확인..."
+          ls -la build/ 2>/dev/null || echo "build 디렉토리 없음"
+          
           PATCH_RESULT=$("$HOME/.shorebird/bin/shorebird" patch android \
             --release-version=latest \
             --no-confirm \
             --dart-define=ENVIRONMENT=prod 2>&1)
           PATCH_EXIT_CODE=$?
+          
+          echo "📋 패치 빌드 후 디렉토리 상태 확인..."
+          find build/ -name "*.aab" -type f 2>/dev/null || echo "AAB 파일 없음"
+          echo "📋 Gradle 태스크로 AAB 파일 위치 수정 확인..."
+          ls -la build/app/outputs/bundle/release/ 2>/dev/null || echo "예상 위치에 AAB 없음"
           
           echo "패치 결과 출력:"
           echo "$PATCH_RESULT"
@@ -1160,11 +1176,18 @@ workflows:
                 cp "$AAB_FOUND" android/app/build/outputs/bundle/release/app-release.aab
                 
                 echo "🔄 2차 패치 시도 (AAB 파일 배치 완료)..."
+                echo "📋 2차 시도 전 AAB 파일 배치 확인..."
+                ls -la build/app/outputs/bundle/release/ 2>/dev/null || echo "표준 위치 확인 불가"
+                ls -la android/app/build/outputs/bundle/release/ 2>/dev/null || echo "Android 위치 확인 불가"
+                
                 PATCH_RESULT_2=$("$HOME/.shorebird/bin/shorebird" patch android \
                   --release-version=latest \
                   --no-confirm \
                   --dart-define=ENVIRONMENT=prod 2>&1)
                 PATCH_EXIT_CODE_2=$?
+                
+                echo "📋 2차 시도 후 상태 확인..."
+                find build/ -name "*.aab" -type f 2>/dev/null || echo "빌드 후 AAB 파일 없음"
                 
                 if [ $PATCH_EXIT_CODE_2 -eq 0 ]; then
                   echo "✅ 2차 시도 성공! AAB 파일 배치로 문제 해결됨"
