@@ -141,7 +141,7 @@ workflows:
         script: |
           cd picnic_app/ios
           
-          echo "=== Xcode 프로젝트 Automatic Signing 설정 ==="
+          echo "=== Xcode 프로젝트 Release Distribution Signing 설정 ==="
           
           # Automatic Signing 강제 설정 (App Store Connect Integration 사용)
           echo "📝 Automatic Signing 활성화..."
@@ -152,15 +152,28 @@ workflows:
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Manual Signing 관련 설정 제거 (Automatic에서는 불필요)
-          sed -i '' "/CODE_SIGN_IDENTITY.*=.*Apple/d" Runner.xcodeproj/project.pbxproj
-          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER/d" Runner.xcodeproj/project.pbxproj
+          # Release 구성에서 Distribution 인증서 강제 설정
+          echo "📝 Release 구성 Distribution 강제 설정..."
+          sed -i '' '/\"Release\" = {/,/};/{
+            s/CODE_SIGN_IDENTITY = \"\"/CODE_SIGN_IDENTITY = \"Apple Distribution\"/g
+            s/CODE_SIGN_IDENTITY = \"Apple Development\"/CODE_SIGN_IDENTITY = \"Apple Distribution\"/g
+          }' Runner.xcodeproj/project.pbxproj
           
-          echo "✅ Automatic Signing 설정 완료"
+          # Archive 빌드가 Release 구성을 사용하도록 강제
+          if [ -f "Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" ]; then
+            echo "📝 Archive 스킴 Release 구성 강제..."
+            sed -i '' 's/buildConfiguration = \"Debug\"/buildConfiguration = \"Release\"/g' Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+          fi
+          
+          # Manual Signing 관련 Development 설정만 제거
+          sed -i '' "/CODE_SIGN_IDENTITY.*=.*iPhone Developer/d" Runner.xcodeproj/project.pbxproj
+          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER.*=.*Development/d" Runner.xcodeproj/project.pbxproj
+          
+          echo "✅ Release Distribution Signing 설정 완료"
           echo "- CODE_SIGN_STYLE: Automatic"
           echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- App Store Connect Integration: 프로비저닝 프로파일 자동 생성"
-          echo "- Entitlements: Associated Domains, Push Notifications, Sign in with Apple 자동 포함"
+          echo "- Release 구성: Apple Distribution 강제"
+          echo "- Archive 스킴: Release 구성 사용"
 
       - name: Shorebird iOS Release (Unified Build & Deploy)
         script: |
@@ -197,7 +210,9 @@ workflows:
 
           echo "=== Shorebird iOS 통합 릴리즈 실행 ==="
           echo "🚀 Shorebird로 iOS 빌드 및 릴리즈 (최신 Flutter 엔진 사용)..."
-          RELEASE_RESULT=$(shorebird release ios --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
+          RELEASE_RESULT=$(shorebird release ios \
+            --dart-define=ENVIRONMENT=prod \
+            --flutter-version=latest 2>&1)
           RELEASE_EXIT_CODE=$?
           
           echo "릴리즈 결과:"
