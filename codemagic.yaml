@@ -141,26 +141,30 @@ workflows:
         script: |
           cd picnic_app/ios
           
-          echo "=== Xcode 프로젝트 서명 전략 설정 ==="
+          echo "=== Xcode 프로젝트 Manual Distribution Signing 설정 ==="
           
-          # 먼저 Automatic Signing 시도 (App Store Connect Integration으로 프로파일 자동 생성)
-          echo "📝 Automatic Signing 활성화 (App Store Connect Integration)..."
-          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
+          # Manual Signing 설정 (Distribution 전용)
+          echo "📝 Manual Distribution Signing 활성화..."
+          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
           
-          # Development Team 설정 유지
+          # Distribution 인증서 및 프로파일 설정
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          
+          # Development Team 설정
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Manual 설정들 제거 (Automatic에서는 불필요)
+          # PROVISIONING_PROFILE_SPECIFIER 제거 (CodeMagic이 자동으로 선택하도록)
           sed -i '' "/PROVISIONING_PROFILE_SPECIFIER/d" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"\";/g" Runner.xcodeproj/project.pbxproj
           
-          echo "✅ Automatic Signing 설정 완료"
-          echo "- CODE_SIGN_STYLE: Automatic"  
+          echo "✅ Manual Distribution Signing 설정 완료"
+          echo "- CODE_SIGN_STYLE: Manual"  
           echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- App Store Connect Integration을 통한 자동 프로파일 생성"
-          echo "- 필요한 Entitlements 자동 포함 예상"
+          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "- PROVISIONING_PROFILE_SPECIFIER: CodeMagic 자동 선택"
 
       - name: Shorebird iOS Release (Unified Build & Deploy)
         script: |
@@ -183,12 +187,12 @@ workflows:
           fi
 
           echo "=== iOS 서명 환경 최종 확인 ==="
-          echo "✅ Automatic Signing 설정 완료"
+          echo "✅ Manual Distribution Signing 설정 완료"
           echo "✅ Bundle ID: io.iconcasting.picnic.app"
           echo "✅ Distribution Type: App Store"
           echo "✅ Development Team: 24SL34R9HR"
-          echo "✅ App Store Connect Integration을 통한 자동 프로파일 생성"
-          echo "✅ 필요한 Entitlements 자동 포함 예상"
+          echo "✅ CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "✅ PROVISIONING_PROFILE_SPECIFIER: CodeMagic 자동 선택"
 
           echo "=== Shorebird 캐시 정리 및 환경 준비 ==="
           shorebird cache clean
@@ -663,6 +667,35 @@ workflows:
           cd ios
           pod install
 
+      - name: Install Shorebird CLI
+        script: |
+          echo "=== Shorebird CLI 설치 시작 ==="
+          
+          # 기존 Shorebird 설치 강제 제거 (충돌 방지)
+          echo "🧹 기존 Shorebird 설치 정리 중..."
+          if [ -d "$HOME/.shorebird" ]; then
+            rm -rf "$HOME/.shorebird"
+            echo "✅ 기존 Shorebird 디렉토리 제거 완료"
+          fi
+          
+          # 최신 안정 버전 사용 (v1.6.48)
+          echo "🔧 Shorebird v1.6.48 최신 안정 버전 설치 중..."
+          
+          # 공식 GitHub 설치 스크립트 사용 (가장 안정적)
+          echo "📥 공식 설치 스크립트로 최신 Shorebird 설치..."
+          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+          
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          
+          echo "=== Shorebird 설치 확인 ==="
+          if command -v shorebird >/dev/null 2>&1; then
+            shorebird --version
+            echo "✅ Shorebird 설치 및 설정 완료"
+          else
+            echo "❌ Shorebird 설치 실패"
+            exit 1
+          fi
+
       - name: Verify iOS Signing Configuration
         script: |
           echo "=== iOS 서명 환경 확인 ==="
@@ -710,26 +743,30 @@ workflows:
         script: |
           cd picnic_app/ios
           
-          echo "=== Xcode 프로젝트 서명 전략 설정 ==="
+          echo "=== Xcode 프로젝트 Manual Distribution Signing 설정 ==="
           
-          # 먼저 Automatic Signing 시도 (App Store Connect Integration으로 프로파일 자동 생성)
-          echo "📝 Automatic Signing 활성화 (App Store Connect Integration)..."
-          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
+          # Manual Signing 설정 (Distribution 전용)
+          echo "📝 Manual Distribution Signing 활성화..."
+          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
           
-          # Development Team 설정 유지
+          # Distribution 인증서 및 프로파일 설정
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          
+          # Development Team 설정
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Manual 설정들 제거 (Automatic에서는 불필요)
+          # PROVISIONING_PROFILE_SPECIFIER 제거 (CodeMagic이 자동으로 선택하도록)
           sed -i '' "/PROVISIONING_PROFILE_SPECIFIER/d" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"\";/g" Runner.xcodeproj/project.pbxproj
           
-          echo "✅ Automatic Signing 설정 완료"
-          echo "- CODE_SIGN_STYLE: Automatic"  
+          echo "✅ Manual Distribution Signing 설정 완료"
+          echo "- CODE_SIGN_STYLE: Manual"  
           echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- App Store Connect Integration을 통한 자동 프로파일 생성"
-          echo "- 필요한 Entitlements 자동 포함 예상"
+          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "- PROVISIONING_PROFILE_SPECIFIER: CodeMagic 자동 선택"
 
       - name: Shorebird iOS Patch
         script: |
@@ -840,8 +877,7 @@ workflows:
               echo "- Flutter 버전 호환성을 확인하세요"
               echo "- 의존성 패키지들을 확인하세요"
             elif echo "$PATCH_RESULT" | grep -i "no.*release"; then
-              echo "🔍 기존 릴리즈가 없는 문제로 보입니다:"
-              echo "- 먼저 전체 릴리즈를 배포한 후 패치를 시도하세요"
+              echo "🔍 기존 릴리즈가 없는 문제로 보입니다"
             fi
             
             exit 1
