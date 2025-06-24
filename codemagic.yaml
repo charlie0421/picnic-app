@@ -303,11 +303,58 @@ workflows:
           echo "=== TestFlight용 전통적인 iOS IPA 빌드 시작 ==="
           echo "🎯 하이브리드 배포: Shorebird + TestFlight 모두 지원"
           
-          echo "=== Flutter iOS Archive 빌드 ==="
+          echo "=== TestFlight용 iOS 서명 설정 재적용 ==="
+          cd ios
+          
+          # Manual Signing 설정 강제 재적용 (Shorebird 빌드 후 초기화 방지)
+          echo "📝 Manual Distribution Signing 재활성화..."
+          perl -i -pe 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/CODE_SIGN_STYLE = "Automatic";/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/CODE_SIGN_IDENTITY = "";/CODE_SIGN_IDENTITY = "Apple Distribution";/g' Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/PROVISIONING_PROFILE_SPECIFIER = "";/PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";/g' Runner.xcodeproj/project.pbxproj
+          
+          echo "✅ TestFlight용 Manual Distribution Signing 재설정 완료"
+          echo "- CODE_SIGN_STYLE: Manual (강제)"
+          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          
+          cd ..
+          
+          echo "=== ExportOptions.plist 생성 (TestFlight 최적화) ==="
+          cat > ios/ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>24SL34R9HR</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>io.iconcasting.picnic.app</key>
+                  <string>picnic_app_profile_2025</string>
+              </dict>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>uploadBitcode</key>
+              <false/>
+              <key>uploadSymbols</key>
+              <true/>
+              <key>compileBitcode</key>
+              <false/>
+          </dict>
+          </plist>
+          EOF
+          
+          echo "✅ ExportOptions.plist 생성 완료"
+          cat ios/ExportOptions.plist
+          
+          echo "=== Flutter iOS Archive 빌드 (Manual Signing 사용) ==="
           flutter build ipa \
             --release \
             --dart-define=ENVIRONMENT=prod \
-            --export-method=app-store
+            --export-options-plist=ios/ExportOptions.plist
           
           echo "=== IPA 파일 확인 ==="
           IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -1)
@@ -323,7 +370,31 @@ workflows:
             echo "빌드 디렉토리 확인:"
             find build/ios -name "*.ipa" 2>/dev/null || echo "IPA 파일 없음"
             find build/ios -name "*.xcarchive" 2>/dev/null || echo "xcarchive 파일 없음"
-            exit 1
+            
+            # xcarchive가 있는 경우 수동으로 export 시도
+            XCARCHIVE_PATH=$(find build/ios -name "*.xcarchive" | head -1)
+            if [ -n "$XCARCHIVE_PATH" ] && [ -d "$XCARCHIVE_PATH" ]; then
+              echo "⚠️ xcarchive는 존재함: $XCARCHIVE_PATH"
+              echo "🔄 xcodebuild로 수동 export 시도..."
+              
+              xcodebuild -exportArchive \
+                -archivePath "$XCARCHIVE_PATH" \
+                -exportPath build/ios/ipa \
+                -exportOptionsPlist ios/ExportOptions.plist
+              
+              # 수동 export 결과 확인
+              IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -1)
+              if [ -n "$IPA_PATH" ] && [ -f "$IPA_PATH" ]; then
+                echo "✅ 수동 export 성공: $IPA_PATH"
+                ls -la "$IPA_PATH"
+              else
+                echo "❌ 수동 export도 실패"
+                exit 1
+              fi
+            else
+              echo "❌ xcarchive도 없음 - 완전한 빌드 실패"
+              exit 1
+            fi
           fi
           
           echo "=== 하이브리드 배포 준비 완료 ==="
