@@ -316,11 +316,6 @@ workflows:
         notify:
           success: true
           failure: true
-        message: |
-          ✅ **Shorebird iOS 릴리즈 완료**
-          🎯 **배포 방식**: Shorebird 전용 (IPA 없이 직접 배포)
-          📱 **사용자 업데이트**: 앱 재시작시 자동 적용
-          🔗 **Shorebird 대시보드**: https://console.shorebird.dev
       email:
         recipients:
           - ironlove77@gmail.com
@@ -608,11 +603,6 @@ workflows:
         notify:
           success: true
           failure: true
-        message: |
-          ✅ **Shorebird Android 릴리즈 완료**
-          🎯 **배포 방식**: Shorebird 전용 (AAB 없이 직접 배포)
-          📱 **사용자 업데이트**: 앱 재시작시 자동 적용
-          🔗 **Shorebird 대시보드**: https://console.shorebird.dev
       email:
         recipients:
           - ironlove77@gmail.com
