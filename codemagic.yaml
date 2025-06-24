@@ -297,22 +297,30 @@ workflows:
           echo "🔄 비결정론적 빌드 문제 해결 예상"
 
     artifacts:
-      - picnic_app/build/ios/**/*.ipa
-      - picnic_app/build/ios/**/*.xcarchive
+      # Shorebird 전용 아티팩트 (IPA/xcarchive 제외)
+      - picnic_app/shorebird.yaml
+      - picnic_app/build/shorebird/**/*
       - picnic_app/flutter_drive.log
+      - picnic_app/build/ios/**/Runner.app
 
     publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
-        beta_groups:
-          - App Store Connect Users
+      # App Store Connect 발행 비활성화 - Shorebird 전용 배포 사용
+      # app_store_connect:
+      #   auth: integration
+      #   submit_to_testflight: true
+      #   beta_groups:
+      #     - App Store Connect Users
       slack:
         channel: '#codemagic-picnic'
         notify_on_build_start: true
         notify:
           success: true
           failure: true
+        message: |
+          ✅ **Shorebird iOS 릴리즈 완료**
+          🎯 **배포 방식**: Shorebird 전용 (IPA 없이 직접 배포)
+          📱 **사용자 업데이트**: 앱 재시작시 자동 적용
+          🔗 **Shorebird 대시보드**: https://console.shorebird.dev
       email:
         recipients:
           - ironlove77@gmail.com
@@ -582,22 +590,29 @@ workflows:
           echo "📦 AAB/APK 파일이 자동으로 Shorebird에 의해 생성 및 배포됨"
 
     artifacts:
-      - picnic_app/build/**/outputs/**/*.aab
-      - picnic_app/build/**/outputs/**/*.apk
-      - picnic_app/build/**/outputs/**/mapping.txt
+      # Shorebird 전용 아티팩트 (AAB/APK 제외)
+      - picnic_app/shorebird.yaml
+      - picnic_app/build/shorebird/**/*
       - picnic_app/flutter_drive.log
+      - picnic_app/build/app/outputs/**/mapping.txt
 
     publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: true
+      # Google Play 발행 비활성화 - Shorebird 전용 배포 사용
+      # google_play:
+      #   credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+      #   track: internal
+      #   submit_as_draft: true
       slack:
         channel: '#codemagic-picnic'
         notify_on_build_start: true
         notify:
           success: true
           failure: true
+        message: |
+          ✅ **Shorebird Android 릴리즈 완료**
+          🎯 **배포 방식**: Shorebird 전용 (AAB 없이 직접 배포)
+          📱 **사용자 업데이트**: 앱 재시작시 자동 적용
+          🔗 **Shorebird 대시보드**: https://console.shorebird.dev
       email:
         recipients:
           - ironlove77@gmail.com
