@@ -178,11 +178,28 @@ workflows:
           sed -i '' "/CODE_SIGN_IDENTITY.*=.*Apple Development/d" Runner.xcodeproj/project.pbxproj
           sed -i '' "/PROVISIONING_PROFILE_SPECIFIER.*=.*Development/d" Runner.xcodeproj/project.pbxproj
           
-          echo "✅ Manual Distribution Signing 설정 완료"
-          echo "- CODE_SIGN_STYLE: Manual"
+          # 추가 강력 설정 - perl을 사용한 더 정확한 치환
+          echo "📝 추가 강력 설정 적용..."
+          perl -i -pe 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/CODE_SIGN_STYLE = "Automatic";/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/CODE_SIGN_IDENTITY = "";/CODE_SIGN_IDENTITY = "Apple Distribution";/g' Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/PROVISIONING_PROFILE_SPECIFIER = "";/PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";/g' Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/PROVISIONING_PROFILE_SPECIFIER = "match AppStore.*";/PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";/g' Runner.xcodeproj/project.pbxproj
+          
+          # Debug 구성도 Manual로 변경 (혹시 모를 경우를 위해)
+          perl -i -pe '/Debug.*= {/,/};/{
+            s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g;
+            s/CODE_SIGN_IDENTITY = "";/CODE_SIGN_IDENTITY = "Apple Distribution";/g;
+          }' Runner.xcodeproj/project.pbxproj
+          
+          echo "📋 설정 후 확인:"
+          grep -n "CODE_SIGN_STYLE\|Apple Distribution\|picnic_app_profile_2025" Runner.xcodeproj/project.pbxproj | head -10
+          
+          echo "✅ Manual Distribution Signing 강력 설정 완료"
+          echo "- CODE_SIGN_STYLE: Manual (강제)"
           echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
-          echo "- PROVISIONING_PROFILE_SPECIFIER: match AppStore io.iconcasting.picnic.app"
+          echo "- CODE_SIGN_IDENTITY: Apple Distribution (강제)"
+          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025 (성공했던 설정)"
 
       - name: Shorebird iOS Release (Unified Build & Deploy)
         script: |
