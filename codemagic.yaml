@@ -307,8 +307,7 @@ workflows:
           flutter build ipa \
             --release \
             --dart-define=ENVIRONMENT=prod \
-            --export-method=app-store \
-            --export-options-plist=ios/ExportOptions.plist
+            --export-method=app-store
           
           echo "=== IPA 파일 확인 ==="
           IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -1)
