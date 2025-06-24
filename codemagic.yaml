@@ -296,20 +296,57 @@ workflows:
           echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
           echo "🔄 비결정론적 빌드 문제 해결 예상"
 
+      - name: Build Traditional iOS IPA for TestFlight
+        script: |
+          cd picnic_app
+          
+          echo "=== TestFlight용 전통적인 iOS IPA 빌드 시작 ==="
+          echo "🎯 하이브리드 배포: Shorebird + TestFlight 모두 지원"
+          
+          echo "=== Flutter iOS Archive 빌드 ==="
+          flutter build ipa \
+            --release \
+            --dart-define=ENVIRONMENT=prod \
+            --export-method=app-store \
+            --export-options-plist=ios/ExportOptions.plist
+          
+          echo "=== IPA 파일 확인 ==="
+          IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -1)
+          if [ -n "$IPA_PATH" ] && [ -f "$IPA_PATH" ]; then
+            echo "✅ IPA 파일 생성 성공: $IPA_PATH"
+            ls -la "$IPA_PATH"
+            
+            # IPA 파일 크기 확인
+            IPA_SIZE=$(du -h "$IPA_PATH" | cut -f1)
+            echo "📦 IPA 파일 크기: $IPA_SIZE"
+          else
+            echo "❌ IPA 파일 생성 실패"
+            echo "빌드 디렉토리 확인:"
+            find build/ios -name "*.ipa" 2>/dev/null || echo "IPA 파일 없음"
+            find build/ios -name "*.xcarchive" 2>/dev/null || echo "xcarchive 파일 없음"
+            exit 1
+          fi
+          
+          echo "=== 하이브리드 배포 준비 완료 ==="
+          echo "✅ Shorebird 배포: 완료 (즉시 사용자에게 전달)"
+          echo "✅ TestFlight IPA: 생성 완료 (App Store Connect 승인 대기)"
+
     artifacts:
-      # Shorebird 전용 아티팩트 (IPA/xcarchive 제외)
+      # 하이브리드 아티팩트: TestFlight + Shorebird 모두
+      - picnic_app/build/ios/**/*.ipa
+      - picnic_app/build/ios/**/*.xcarchive
       - picnic_app/shorebird.yaml
       - picnic_app/build/shorebird/**/*
       - picnic_app/flutter_drive.log
       - picnic_app/build/ios/**/Runner.app
 
     publishing:
-      # App Store Connect 발행 비활성화 - Shorebird 전용 배포 사용
-      # app_store_connect:
-      #   auth: integration
-      #   submit_to_testflight: true
-      #   beta_groups:
-      #     - App Store Connect Users
+      # 하이브리드 배포: TestFlight + Shorebird 모두 사용
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        beta_groups:
+          - App Store Connect Users
       slack:
         channel: '#codemagic-picnic'
         notify_on_build_start: true
@@ -582,21 +619,59 @@ workflows:
           echo "✅ Shorebird 통합 Android 빌드 & 릴리즈 완료!"
           echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
           echo "🔄 비결정론적 빌드 문제 해결 예상"
-          echo "📦 AAB/APK 파일이 자동으로 Shorebird에 의해 생성 및 배포됨"
+
+      - name: Build Traditional Android AAB for Google Play
+        script: |
+          cd picnic_app
+          
+          echo "=== Google Play용 전통적인 Android AAB 빌드 시작 ==="
+          echo "🎯 하이브리드 배포: Shorebird + Google Play 모두 지원"
+          
+          echo "=== Flutter Android AAB 빌드 ==="
+          flutter build appbundle \
+            --release \
+            --dart-define=ENVIRONMENT=prod
+          
+          echo "=== AAB 파일 확인 ==="
+          AAB_PATH=$(find build/app/outputs/bundle/release -name "*.aab" | head -1)
+          if [ -n "$AAB_PATH" ] && [ -f "$AAB_PATH" ]; then
+            echo "✅ AAB 파일 생성 성공: $AAB_PATH"
+            ls -la "$AAB_PATH"
+            
+            # AAB 파일 크기 확인
+            AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1)
+            echo "📦 AAB 파일 크기: $AAB_SIZE"
+            
+            # AAB 파일을 표준 위치로 복사 (CodeMagic이 찾기 쉽도록)
+            mkdir -p build/app/outputs/bundle/release
+            cp "$AAB_PATH" build/app/outputs/bundle/release/ 2>/dev/null || echo "AAB 복사 생략 (이미 올바른 위치)"
+          else
+            echo "❌ AAB 파일 생성 실패"
+            echo "빌드 디렉토리 확인:"
+            find build/app/outputs -name "*.aab" 2>/dev/null || echo "AAB 파일 없음"
+            find build/app/outputs -name "*.apk" 2>/dev/null || echo "APK 파일 없음"
+            exit 1
+          fi
+          
+          echo "=== 하이브리드 배포 준비 완료 ==="
+          echo "✅ Shorebird 배포: 완료 (즉시 사용자에게 전달)"
+          echo "✅ Google Play AAB: 생성 완료 (Google Play Console 승인 대기)"
 
     artifacts:
-      # Shorebird 전용 아티팩트 (AAB/APK 제외)
+      # 하이브리드 아티팩트: Google Play + Shorebird 모두
+      - picnic_app/build/**/outputs/**/*.aab
+      - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/shorebird.yaml
       - picnic_app/build/shorebird/**/*
       - picnic_app/flutter_drive.log
       - picnic_app/build/app/outputs/**/mapping.txt
 
     publishing:
-      # Google Play 발행 비활성화 - Shorebird 전용 배포 사용
-      # google_play:
-      #   credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-      #   track: internal
-      #   submit_as_draft: true
+      # 하이브리드 배포: Google Play + Shorebird 모두 사용
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
       slack:
         channel: '#codemagic-picnic'
         notify_on_build_start: true
