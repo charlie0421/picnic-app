@@ -164,7 +164,7 @@ workflows:
           # PROVISIONING_PROFILE_SPECIFIER 추가 (존재하지 않는 경우)
           if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj; then
             sed -i '' '/DEVELOPMENT_TEAM = /a\
-				PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
+                PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
           fi
           
           # Archive 빌드가 Release 구성을 사용하도록 강제
@@ -802,7 +802,7 @@ workflows:
           # PROVISIONING_PROFILE_SPECIFIER 추가 (존재하지 않는 경우)
           if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj; then
             sed -i '' '/DEVELOPMENT_TEAM = /a\
-				PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
+                PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
           fi
           
           echo "✅ Manual Distribution Signing 설정 완료"
