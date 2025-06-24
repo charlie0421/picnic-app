@@ -3,24 +3,25 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>app-store-connect</string>
+    <string>app-store</string>
     <key>uploadBitcode</key>
     <false/>
     <key>uploadSymbols</key>
     <true/>
     <key>compileBitcode</key>
     <false/>
-    <key>teamID</key>
-    <string>24SL34R9HR</string>
-    <key>signingStyle</key>
-    <string>automatic</string>
-    <key>destination</key>
-    <string>export</string>
     <key>stripSwiftSymbols</key>
     <true/>
-    <key>thinning</key>
-    <string>&lt;none&gt;</string>
-    <key>manageAppVersionAndBuildNumber</key>
-    <true/>
+    <key>teamID</key>
+    <string>24SL34R9HR</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>io.iconcasting.picnic.app</key>
+        <string>picnic_app_profile_2025</string>
+    </dict>
+    <key>signingStyle</key>
+    <string>manual</string>
+    <key>destination</key>
+    <string>export</string>
 </dict>
 </plist> 
