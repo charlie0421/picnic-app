@@ -119,42 +119,48 @@ workflows:
             find "$HOME/Library/MobileDevice/Provisioning Profiles" -name "*.mobileprovision" 2>/dev/null | while read profile; do
               PROFILE_NAME=$(security cms -D -i "$profile" 2>/dev/null | grep -A1 "<key>Name</key>" | tail -1 | sed 's/.*<string>\(.*\)<\/string>.*/\1/' | tr -d '\n')
               echo "  - $(basename "$profile" .mobileprovision): $PROFILE_NAME"
+              
+              # 프로비저닝 프로파일의 Entitlements 확인
+              if [[ "$PROFILE_NAME" == *"picnic"* ]]; then
+                echo "    🔍 Picnic 프로파일 Entitlements 확인 중..."
+                ENTITLEMENTS=$(security cms -D -i "$profile" 2>/dev/null | grep -A 20 "<key>Entitlements</key>" | grep -E "(aps-environment|com.apple.developer.associated-domains|com.apple.developer.applesignin)")
+                if [ -n "$ENTITLEMENTS" ]; then
+                  echo "    ✅ 필요한 Entitlements 발견:"
+                  echo "$ENTITLEMENTS" | head -5
+                else
+                  echo "    ⚠️ 필요한 Entitlements가 누락됨 (Associated Domains, Push Notifications, Sign in with Apple)"
+                fi
+              fi
             done
           else
             echo "❌ 프로비저닝 프로파일을 찾을 수 없음"
             exit 1
           fi
 
-      - name: Configure Xcode Project for Manual Signing
+      - name: Configure Xcode Project Signing Strategy
         script: |
           cd picnic_app/ios
           
-          echo "=== Xcode 프로젝트 Manual Signing 설정 ==="
-          # Manual Signing 강제 설정 (Distribution 인증서 사용)
-          echo "📝 Manual Signing 강제 활성화..."
-          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          echo "=== Xcode 프로젝트 서명 전략 설정 ==="
           
-          # 프로비저닝 프로파일 설정
-          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/g" Runner.xcodeproj/project.pbxproj
-          
-          # PROVISIONING_PROFILE_SPECIFIER 추가 (존재하지 않는 경우)
-          if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj; then
-            sed -i '' '/DEVELOPMENT_TEAM = /a\
-          PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
-          fi
+          # 먼저 Automatic Signing 시도 (App Store Connect Integration으로 프로파일 자동 생성)
+          echo "📝 Automatic Signing 활성화 (App Store Connect Integration)..."
+          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
           
           # Development Team 설정 유지
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          echo "✅ Manual Signing 설정 완료"
-          echo "- CODE_SIGN_STYLE: Manual"  
+          # Manual 설정들 제거 (Automatic에서는 불필요)
+          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER/d" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"\";/g" Runner.xcodeproj/project.pbxproj
+          
+          echo "✅ Automatic Signing 설정 완료"
+          echo "- CODE_SIGN_STYLE: Automatic"  
           echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
-          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          echo "- App Store Connect Integration을 통한 자동 프로파일 생성"
+          echo "- 필요한 Entitlements 자동 포함 예상"
 
       - name: Shorebird iOS Release (Unified Build & Deploy)
         script: |
@@ -177,11 +183,12 @@ workflows:
           fi
 
           echo "=== iOS 서명 환경 최종 확인 ==="
-          echo "✅ Manual Signing 설정 완료"
+          echo "✅ Automatic Signing 설정 완료"
           echo "✅ Bundle ID: io.iconcasting.picnic.app"
           echo "✅ Distribution Type: App Store"
           echo "✅ Development Team: 24SL34R9HR"
-          echo "✅ Provisioning Profile: picnic_app_profile_2025"
+          echo "✅ App Store Connect Integration을 통한 자동 프로파일 생성"
+          echo "✅ 필요한 Entitlements 자동 포함 예상"
 
           echo "=== Shorebird 캐시 정리 및 환경 준비 ==="
           shorebird cache clean
@@ -681,42 +688,48 @@ workflows:
             find "$HOME/Library/MobileDevice/Provisioning Profiles" -name "*.mobileprovision" 2>/dev/null | while read profile; do
               PROFILE_NAME=$(security cms -D -i "$profile" 2>/dev/null | grep -A1 "<key>Name</key>" | tail -1 | sed 's/.*<string>\(.*\)<\/string>.*/\1/' | tr -d '\n')
               echo "  - $(basename "$profile" .mobileprovision): $PROFILE_NAME"
+              
+              # 프로비저닝 프로파일의 Entitlements 확인
+              if [[ "$PROFILE_NAME" == *"picnic"* ]]; then
+                echo "    🔍 Picnic 프로파일 Entitlements 확인 중..."
+                ENTITLEMENTS=$(security cms -D -i "$profile" 2>/dev/null | grep -A 20 "<key>Entitlements</key>" | grep -E "(aps-environment|com.apple.developer.associated-domains|com.apple.developer.applesignin)")
+                if [ -n "$ENTITLEMENTS" ]; then
+                  echo "    ✅ 필요한 Entitlements 발견:"
+                  echo "$ENTITLEMENTS" | head -5
+                else
+                  echo "    ⚠️ 필요한 Entitlements가 누락됨 (Associated Domains, Push Notifications, Sign in with Apple)"
+                fi
+              fi
             done
           else
             echo "❌ 프로비저닝 프로파일을 찾을 수 없음"
             exit 1
           fi
 
-      - name: Configure Xcode Project for Manual Signing
+      - name: Configure Xcode Project Signing Strategy
         script: |
           cd picnic_app/ios
           
-          echo "=== Xcode 프로젝트 Manual Signing 설정 ==="
-          # Manual Signing 강제 설정 (Distribution 인증서 사용)
-          echo "📝 Manual Signing 강제 활성화..."
-          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          echo "=== Xcode 프로젝트 서명 전략 설정 ==="
           
-          # 프로비저닝 프로파일 설정
-          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/g" Runner.xcodeproj/project.pbxproj
-          
-          # PROVISIONING_PROFILE_SPECIFIER 추가 (존재하지 않는 경우)
-          if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj; then
-            sed -i '' '/DEVELOPMENT_TEAM = /a\
-          PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
-          fi
+          # 먼저 Automatic Signing 시도 (App Store Connect Integration으로 프로파일 자동 생성)
+          echo "📝 Automatic Signing 활성화 (App Store Connect Integration)..."
+          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
           
           # Development Team 설정 유지
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          echo "✅ Manual Signing 설정 완료"
-          echo "- CODE_SIGN_STYLE: Manual"  
+          # Manual 설정들 제거 (Automatic에서는 불필요)
+          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER/d" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"\";/g" Runner.xcodeproj/project.pbxproj
+          
+          echo "✅ Automatic Signing 설정 완료"
+          echo "- CODE_SIGN_STYLE: Automatic"  
           echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
-          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          echo "- App Store Connect Integration을 통한 자동 프로파일 생성"
+          echo "- 필요한 Entitlements 자동 포함 예상"
 
       - name: Shorebird iOS Patch
         script: |
