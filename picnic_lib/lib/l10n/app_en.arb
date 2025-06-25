@@ -94,5 +94,10 @@
   "label_tabbar_vote_active": "Active",
   "label_tabbar_vote_image": "Image Vote",
   "label_tabbar_vote_end": "Ended",
-  "label_tabbar_vote_upcoming": "Upcoming"
+  "label_tabbar_vote_upcoming": "Upcoming",
+  "message_login_in_progress": "Logging in...",
+  "message_checking_user_info": "Checking user information...",
+  "message_apple_login_in_progress": "Apple login in progress...",
+  "message_google_login_in_progress": "Google login in progress...",
+  "message_kakao_login_in_progress": "Kakao login in progress..."
 }
