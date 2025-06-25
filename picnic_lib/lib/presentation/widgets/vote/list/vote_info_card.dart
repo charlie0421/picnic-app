@@ -21,8 +21,7 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_upcoming.dart';
-import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_active.dart';
-import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_end.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_active_and_end.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
@@ -162,10 +161,10 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         return const VoteCardSkeletonUpcoming();
       case VoteStatus.active:
         // 활성 투표: 헤더 + 투표 아이템이 있는 스켈레톤
-        return const VoteCardSkeletonActive();
+        return const VoteCardSkeletonActiveAndEnd();
       case VoteStatus.end:
         // 종료된 투표: 결과 표시에 특화된 컴팩트 스켈레톤
-        return const VoteCardSkeletonEnd();
+        return const VoteCardSkeletonActiveAndEnd();
       default:
         return const VoteCardSkeleton();
     }

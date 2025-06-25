@@ -3,9 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-/// Active/End 투표 상태용 스켈레톤 위젯 (헤더 + 투표 아이템)
-class VoteCardSkeletonActive extends StatelessWidget {
-  const VoteCardSkeletonActive({super.key});
+/// End 투표 상태용 스켈레톤 위젯 (헤더 + 결과 표시)
+class VoteCardSkeletonActiveAndEnd extends StatelessWidget {
+  const VoteCardSkeletonActiveAndEnd({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +42,10 @@ class VoteCardSkeletonActive extends StatelessWidget {
                     ),
                     SizedBox(height: 10.h),
                     
-                    // 시간 정보 영역
+                    // 투표 종료 상태
                     Container(
                       height: 16.h,
-                      width: double.infinity * 0.5,
+                      width: 60.w,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8.r),
@@ -57,10 +57,9 @@ class VoteCardSkeletonActive extends StatelessWidget {
               
               SizedBox(height: 12.h),
               
-              // 투표 아이템 영역 스켈레톤
+              // 투표 결과 영역 스켈레톤 (더 컴팩트)
               Container(
                 width: double.infinity,
-                height: 120.h,
                 padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -68,15 +67,36 @@ class VoteCardSkeletonActive extends StatelessWidget {
                   border: Border.all(color: Colors.grey[300]!, width: 1.r),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    // 2위 스켈레톤
-                    _buildRankSkeleton(height: 40.h),
-                    // 1위 스켈레톤 (가장 높음)
-                    _buildRankSkeleton(height: 55.h),
-                    // 3위 스켈레톤
-                    _buildRankSkeleton(height: 30.h),
+                    // 2위 (왼쪽)
+                    _buildRankingSkeleton(
+                      imageSize: 45.w,
+                      nameWidth: 60.w,
+                      groupWidth: 40.w,
+                      voteWidth: 50.w,
+                      rankHeight: 12.h,
+                    ),
+                    
+                    // 1위 (중앙, 가장 크게)
+                    _buildRankingSkeleton(
+                      imageSize: 60.w,
+                      nameWidth: 70.w,
+                      groupWidth: 50.w,
+                      voteWidth: 60.w,
+                      rankHeight: 14.h,
+                      isWinner: true,
+                    ),
+                    
+                    // 3위 (오른쪽)
+                    _buildRankingSkeleton(
+                      imageSize: 45.w,
+                      nameWidth: 60.w,
+                      groupWidth: 40.w,
+                      voteWidth: 50.w,
+                      rankHeight: 12.h,
+                    ),
                   ],
                 ),
               ),
@@ -112,50 +132,69 @@ class VoteCardSkeletonActive extends StatelessWidget {
     );
   }
 
-  Widget _buildRankSkeleton({required double height}) {
+  Widget _buildRankingSkeleton({
+    required double imageSize,
+    required double nameWidth,
+    required double groupWidth,
+    required double voteWidth,
+    required double rankHeight,
+    bool isWinner = false,
+  }) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        // 아티스트 이미지
+        // 투표수 (상단)
         Container(
-          width: 35.w,
-          height: 35.w,
+          width: voteWidth,
+          height: rankHeight,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(rankHeight / 2),
+          ),
+        ),
+        SizedBox(height: 6.h),
+        
+        // 순위 표시
+        Container(
+          width: 24.w,
+          height: 12.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6.r),
+          ),
+        ),
+        SizedBox(height: 6.h),
+        
+        // 아티스트 이미지 (원형)
+        Container(
+          width: imageSize,
+          height: imageSize,
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
+            border: isWinner ? Border.all(color: Colors.white, width: 2.r) : null,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        
+        // 아티스트 이름
+        Container(
+          width: nameWidth,
+          height: 12.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6.r),
           ),
         ),
         SizedBox(height: 4.h),
         
-        // 아티스트 이름
+        // 그룹명
         Container(
-          width: 50.w,
+          width: groupWidth,
           height: 10.h,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(5.r),
-          ),
-        ),
-        SizedBox(height: 4.h),
-        
-        // 투표 바
-        Container(
-          width: 50.w,
-          height: height,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25.r),
-          ),
-        ),
-        SizedBox(height: 3.h),
-        
-        // 투표 수
-        Container(
-          width: 40.w,
-          height: 8.h,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4.r),
           ),
         ),
       ],
