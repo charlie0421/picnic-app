@@ -42,6 +42,7 @@ import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:universal_platform/universal_platform.dart';
 import 'package:logger/logger.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
 class AppInitializer {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
@@ -706,4 +707,175 @@ class AppInitializer {
       logger.e('딥링크 처리 중 오류:', error: e, stackTrace: s);
     }
   }
+
+  /// Shorebird 패치 체크를 포함한 통합 초기화
+  static Future<bool> initializeWithPatchCheck({
+    Function(String)? onStatusUpdate,
+  }) async {
+    try {
+      logger.i('Shorebird 패치 체크 통합 초기화 시작');
+      onStatusUpdate?.call('Checking for updates...');
+      
+      // 1. 패치 상태 체크
+      final patchCheckResult = await _checkShorebirdPatch(
+        onStatusUpdate: onStatusUpdate,
+      );
+      
+      if (patchCheckResult['needsRestart'] == true) {
+        logger.w('패치 적용 후 재시작이 필요함');
+        onStatusUpdate?.call('Update applied, restarting app...');
+        return false; // 재시작 필요를 알림
+      }
+      
+      if (patchCheckResult['updateApplied'] == true) {
+        logger.i('패치가 성공적으로 적용됨');
+        onStatusUpdate?.call('Update applied successfully');
+      } else {
+        onStatusUpdate?.call('Update check completed');
+      }
+      
+      logger.i('패치 체크 완료, 앱 초기화 계속 진행');
+      return true;
+      
+    } catch (e, stackTrace) {
+      logger.e('패치 체크 통합 초기화 중 오류 발생: $e', stackTrace: stackTrace);
+      onStatusUpdate?.call('Update check failed');
+      // 패치 체크 실패해도 앱은 계속 실행
+      return true;
+    }
+  }
+
+  /// Shorebird 패치 체크 내부 로직
+  static Future<Map<String, dynamic>> _checkShorebirdPatch({
+    Function(String)? onStatusUpdate,
+  }) async {
+    final result = <String, dynamic>{
+      'updateApplied': false,
+      'needsRestart': false,
+      'error': null,
+    };
+    
+    try {
+      final updater = shorebird.ShorebirdUpdater();
+      final status = await updater.checkForUpdate();
+      
+      logger.i('패치 상태 확인: $status');
+      
+      if (status == shorebird.UpdateStatus.outdated) {
+        logger.i('새로운 패치 발견, 업데이트 시작');
+        onStatusUpdate?.call('New update found, downloading...');
+        
+        // 업데이트 전 패치 정보
+        final patchBefore = await updater.readCurrentPatch();
+        logger.i('업데이트 전 패치: ${patchBefore?.number}');
+        
+        // 패치 다운로드 및 적용
+        onStatusUpdate?.call('Applying update...');
+        await updater.update();
+        
+        // 업데이트 후 패치 정보
+        final patchAfter = await updater.readCurrentPatch();
+        logger.i('업데이트 후 패치: ${patchAfter?.number}');
+        
+        if (patchBefore?.number != patchAfter?.number) {
+          logger.i('패치가 성공적으로 적용됨');
+          result['updateApplied'] = true;
+          result['needsRestart'] = true;
+        } else {
+          logger.w('패치 업데이트가 완료되었지만 패치 번호가 변경되지 않음');
+        }
+        
+      } else if (status == shorebird.UpdateStatus.restartRequired) {
+        logger.w('재시작이 필요한 상태 감지');
+        onStatusUpdate?.call('App restart required');
+        result['needsRestart'] = true;
+        
+      } else {
+        logger.i('패치 업데이트 불필요 (최신 상태)');
+        onStatusUpdate?.call('App is up to date');
+      }
+      
+    } catch (e) {
+      logger.e('패치 체크 중 오류 발생: $e');
+      result['error'] = e.toString();
+      onStatusUpdate?.call('Update check error');
+    }
+    
+    return result;
+  }
+
+  /// 백그라운드 패치 체크 (재시작 없이)
+  static Future<Map<String, dynamic>> checkPatchInBackground({
+    Function(String)? onStatusUpdate,
+  }) async {
+    try {
+      logger.i('백그라운드 패치 체크 시작');
+      onStatusUpdate?.call('Checking for updates...');
+      
+      // Shorebird 패치 체크
+      final updater = shorebird.ShorebirdUpdater();
+      final status = await updater.checkForUpdate();
+      
+      logger.i('패치 상태 확인: $status');
+      
+      if (status == shorebird.UpdateStatus.outdated) {
+        logger.i('새로운 패치 발견, 백그라운드 다운로드 시작');
+        onStatusUpdate?.call('New update found, downloading...');
+        
+        // 패치 다운로드 전 현재 패치 정보 확인
+        final currentPatch = await updater.readCurrentPatch();
+        logger.i('현재 패치 번호: ${currentPatch?.number}');
+        
+        // 백그라운드에서 다운로드만 수행 (재시작 안 함)
+        await updater.update();
+        
+        // 다운로드된 패치 정보 확인
+        final newPatch = await updater.readCurrentPatch();
+        logger.i('다운로드된 패치 번호: ${newPatch?.number}');
+        
+        onStatusUpdate?.call('Update downloaded');
+        logger.i('패치 다운로드 완료, 재시작 대기 상태');
+        
+        return {
+          'updateAvailable': true,
+          'updateDownloaded': true,
+          'needsRestart': true,
+          'currentPatch': currentPatch?.number,
+          'newPatch': newPatch?.number,
+        };
+        
+      } else if (status == shorebird.UpdateStatus.restartRequired) {
+        logger.w('이미 다운로드된 패치가 재시작 대기 중');
+        
+        return {
+          'updateAvailable': true,
+          'updateDownloaded': true,
+          'needsRestart': true,
+        };
+        
+      } else {
+        logger.i('패치 업데이트 불필요 (최신 상태)');
+        onStatusUpdate?.call('App is up to date');
+        
+        return {
+          'updateAvailable': false,
+          'updateDownloaded': false,
+          'needsRestart': false,
+        };
+      }
+      
+    } catch (e) {
+      logger.e('백그라운드 패치 체크 중 오류 발생: $e');
+      onStatusUpdate?.call('Update check error');
+      
+      return {
+        'updateAvailable': false,
+        'updateDownloaded': false,
+        'needsRestart': false,
+        'error': e.toString(),
+      };
+    }
+  }
+
+
 }
