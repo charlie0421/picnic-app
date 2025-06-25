@@ -86,7 +86,7 @@ class _VoteListState extends ConsumerState<VoteList> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const VoteCardSkeleton(),
+          // const VoteCardSkeleton(),
         ],
       );
     }

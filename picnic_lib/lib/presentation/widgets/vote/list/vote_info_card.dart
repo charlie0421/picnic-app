@@ -20,6 +20,9 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_upcoming.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_active.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_end.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
@@ -151,6 +154,23 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     super.dispose();
   }
 
+  /// status에 따른 로딩 스켈레톤 생성
+  Widget _buildLoadingSkeleton() {
+    switch (widget.status) {
+      case VoteStatus.upcoming:
+        // 예정된 투표: 헤더만 있는 스켈레톤 (투표 아이템 없음)
+        return const VoteCardSkeletonUpcoming();
+      case VoteStatus.active:
+        // 활성 투표: 헤더 + 투표 아이템이 있는 스켈레톤
+        return const VoteCardSkeletonActive();
+      case VoteStatus.end:
+        // 종료된 투표: 결과 표시에 특화된 컴팩트 스켈레톤
+        return const VoteCardSkeletonEnd();
+      default:
+        return const VoteCardSkeleton();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncVoteDetail = ref.watch(asyncVoteDetailProvider(
@@ -162,7 +182,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       color: AppColors.grey00,
       child: asyncVoteDetail.when(
         data: (vote) => _buildCard(context, vote, asyncVoteItemList),
-        loading: () => const VoteCardSkeleton(),
+        loading: () => _buildLoadingSkeleton(),
         error: (error, stack) => Text('Error: $error'),
       ),
     );
@@ -359,7 +379,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           ),
         );
       },
-      loading: () => const VoteCardSkeleton(),
+      loading: () => _buildLoadingSkeleton(),
       error: (error, stack) => Text('Error: $error'),
     );
   }
@@ -408,7 +428,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           },
         ),
       ),
-      loading: () => const SizedBox.shrink(),
+      loading: () => _buildLoadingSkeleton(),
       error: (error, stack) => Text('Error: $error'),
     );
   }
