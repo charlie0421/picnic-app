@@ -20,6 +20,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
@@ -359,7 +360,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           ),
         );
       },
-      loading: () => const CircularProgressIndicator(),
+      loading: () => const MediumPulseLoadingIndicator(),
       error: (error, stack) => Text('Error: $error'),
     );
   }

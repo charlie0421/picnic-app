@@ -4,6 +4,7 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class VoteList extends ConsumerStatefulWidget {
   final VoteStatus status;
@@ -82,7 +83,7 @@ class _VoteListState extends ConsumerState<VoteList> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _items.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: LargePulseLoadingIndicator());
     }
     if (_items.isEmpty) {
       return VoteNoItem(status: widget.status, context: context);
@@ -113,7 +114,7 @@ class _VoteListState extends ConsumerState<VoteList> {
             bottom: 16,
             left: 0,
             right: 0,
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: MediumPulseLoadingIndicator()),
           ),
       ],
     );
