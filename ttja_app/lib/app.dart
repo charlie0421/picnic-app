@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
-import 'package:picnic_lib/core/utils/language_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
@@ -186,17 +185,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     // 화면 보호기 설정 업데이트
     AppBuilder.updateScreenProtector(isScreenProtector);
 
-    // 언어 변경 감지 및 적용 로직
-    ref.listen<Setting>(
-      appSettingProvider,
-      (previous, current) {
-        if (previous?.language != current.language) {
-          logger.i('언어 변경 감지: ${previous?.language} -> ${current.language}');
-          _applyLanguageChange(current.language);
-        }
-      },
-    );
-
     // 내비게이션 관련 프로바이더 구독
     ref.watch(navigationInfoProvider);
     ref.watch(globalMediaQueryProvider);
@@ -282,51 +270,4 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   // 언어 변경 적용 - 번역을 즉시 로드하고 UI를 업데이트하는 강화된 메서드
-  Future<void> _applyLanguageChange(String language) async {
-    try {
-      logger.i('언어 변경 시작: $language');
-
-      // mounted 상태 확인 및 UI 상태 변경
-      if (!mounted) return;
-
-      // UI 상태 업데이트 - 로딩 화면 표시
-      setState(() {
-        _isAppInitialized = false;
-        logger.i('언어 변경 중 일시적으로 화면 초기화');
-      });
-
-      // LanguageManager를 사용하여 언어 변경 및 앱 리로드 처리
-      await LanguageManager.changeAppLanguage(
-        ref,
-        context,
-        language,
-        S.load,
-        callback: (isInitialized, language) {
-          // main.dart의 전역 변수 업데이트
-          main_file.isLanguageInitialized = isInitialized;
-          main_file.currentLanguage = language;
-          logger.i('main.dart 전역 변수 업데이트: $language');
-        },
-        shouldReload: true, // Phoenix.rebirth를 통한 앱 재시작 활성화
-      );
-
-      // Phoenix.rebirth가 성공하면 여기까지 실행되지 않음
-      // 실패한 경우에만 UI 상태 복구
-      if (!mounted) return;
-
-      setState(() {
-        _isAppInitialized = true;
-        logger.i('Phoenix.rebirth 실패 - UI 상태 복원');
-      });
-    } catch (e) {
-      logger.e('언어 변경 중 오류 발생', error: e);
-
-      // 오류 발생 시에도 UI 상태 복구
-      if (mounted) {
-        setState(() {
-          _isAppInitialized = true;
-        });
-      }
-    }
-  }
 }

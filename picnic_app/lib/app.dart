@@ -9,7 +9,6 @@ import 'package:picnic_app/presentation/screens/portal.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
-import 'package:picnic_lib/core/utils/language_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
@@ -311,19 +310,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final initState = ref.watch(appInitializationProvider);
     final appSettingState = ref.watch(appSettingProvider);
 
-    // 언어 변경 감지 리스너
-    ref.listen<Setting>(
-      appSettingProvider,
-      (previous, current) {
-        if (previous?.language != current.language) {
-          logger.i('언어 변경 감지: ${previous?.language} -> ${current.language}');
-
-          // LanguageManager를 사용하여 언어 변경 처리
-          _applyLanguageChange(current.language);
-        }
-      },
-    );
-
     // 화면 보호기 상태 감지 및 처리
     final isScreenProtector = false; // 필요한 경우 Provider 추가
     AppBuilder.updateScreenProtector(isScreenProtector);
@@ -410,53 +396,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _applyLanguageChange(String language) async {
-    try {
-      logger.i('언어 변경 시작: $language');
-
-      // mounted 상태 확인 및 UI 상태 변경
-      if (!mounted) return;
-
-      // UI 상태 업데이트 - 로딩 화면 표시
-      setState(() {
-        _isAppInitialized = false;
-        logger.i('언어 변경 중 일시적으로 스플래시 화면으로 전환');
-      });
-
-      // LanguageManager를 사용하여 언어 변경 및 앱 리로드 처리
-      await LanguageManager.changeAppLanguage(
-        ref,
-        context,
-        language,
-        S.load,
-        callback: (isInitialized, language) {
-          // main.dart의 전역 변수 업데이트
-          main_file.isLanguageInitialized = isInitialized;
-          main_file.currentLanguage = language;
-          logger.i('main.dart 전역 변수 업데이트: $language');
-        },
-        shouldReload: true, // Phoenix.rebirth를 통한 앱 재시작 활성화
-      );
-
-      // Phoenix.rebirth가 성공하면 여기까지 실행되지 않음
-      // 실패한 경우에만 UI 상태 복구
-      if (!mounted) return;
-
-      setState(() {
-        _isAppInitialized = true;
-        logger.i('Phoenix.rebirth 실패 - UI 상태 복원');
-      });
-    } catch (e) {
-      logger.e('언어 변경 중 오류 발생', error: e);
-
-      // 오류 발생 시에도 UI 상태 복구
-      if (mounted) {
-        setState(() {
-          _isAppInitialized = true;
-        });
-      }
-    }
-  }
 
   /// 업데이트 적용 스케줄링
   void _scheduleUpdateApplication() {
