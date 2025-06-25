@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/widgets/celeb_list_item.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/no_bookmark_celeb.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -270,7 +271,13 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           shrinkWrap: true,
           builderDelegate: PagedChildBuilderDelegate<VoteModel>(
             firstPageProgressIndicatorBuilder: (context) =>
-                SizedBox(height: 400, child: ui.buildLoadingOverlay()),
+                const Column(
+                  children: [
+                    VoteCardSkeleton(),
+                    VoteCardSkeleton(),
+                    VoteCardSkeleton(),
+                  ],
+                ),
             itemBuilder: (context, vote, index) {
               final now = DateTime.now().toUtc();
               final status = vote.startAt!.isAfter(now)

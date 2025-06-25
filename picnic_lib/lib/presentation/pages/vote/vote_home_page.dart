@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
@@ -154,7 +155,13 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         shrinkWrap: true,
         builderDelegate: PagedChildBuilderDelegate<VoteModel>(
           firstPageProgressIndicatorBuilder: (context) =>
-              SizedBox(height: 400, child: ui.buildLoadingOverlay()),
+              const Column(
+                children: [
+                  VoteCardSkeleton(),
+                  VoteCardSkeleton(),
+                  VoteCardSkeleton(),
+                ],
+              ),
           noItemsFoundIndicatorBuilder: (context) =>
               VoteNoItem(status: VoteStatus.active, context: context),
           itemBuilder: (context, vote, index) {
