@@ -36,10 +36,5 @@
   "vote_item_request_user_info_not_found": "사용자 정보를 찾을 수 없습니다.",
   "vote_item_request_already_applied_artist": "이미 해당 아티스트에 대해 신청하셨습니다.",
   "vote_item_request_waiting": "대기중",
-  "vote_item_request_addition_request": "투표 아이템 추가 신청",
-  "message_login_in_progress": "로그인 진행 중...",
-  "message_checking_user_info": "사용자 정보 확인 중...",
-  "message_apple_login_in_progress": "Apple 로그인 진행 중...",
-  "message_google_login_in_progress": "Google 로그인 진행 중...",
-  "message_kakao_login_in_progress": "Kakao 로그인 진행 중..."
+  "vote_item_request_addition_request": "투표 아이템 추가 신청"
 } 
