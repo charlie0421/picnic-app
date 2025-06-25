@@ -154,12 +154,17 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         shrinkWrap: true,
         builderDelegate: PagedChildBuilderDelegate<VoteModel>(
           firstPageProgressIndicatorBuilder: (context) =>
-              const Column(
-                children: [
-                  VoteCardSkeleton(),
-                  VoteCardSkeleton(),
-                  VoteCardSkeleton(),
-                ],
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: const SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      VoteCardSkeleton(),
+                      VoteCardSkeleton(),
+                      VoteCardSkeleton(),
+                    ],
+                  ),
+                ),
               ),
           newPageProgressIndicatorBuilder: (context) =>
               const Padding(

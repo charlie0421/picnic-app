@@ -20,14 +20,26 @@ class VoteCardSkeleton extends StatelessWidget {
           border: Border.all(color: Colors.grey[300]!, width: 1.r),
         ),
         child: Padding(
-          padding: EdgeInsets.all(16.r),
+          padding: EdgeInsets.all(12.r),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 제목 스켈레톤
+              // 제목 스켈레톤 (크기 축소)
               Container(
-                height: 24.h,
+                height: 18.h,
                 width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+              ),
+              SizedBox(height: 8.h),
+              
+              // 날짜 정보 스켈레톤 (크기 축소)
+              Container(
+                height: 14.h,
+                width: 150.w,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(4.r),
@@ -35,19 +47,8 @@ class VoteCardSkeleton extends StatelessWidget {
               ),
               SizedBox(height: 12.h),
               
-              // 날짜 정보 스켈레톤
-              Container(
-                height: 16.h,
-                width: 200.w,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-              ),
-              SizedBox(height: 16.h),
-              
-              // 투표 아이템들 스켈레톤 (3개)
-              ...List.generate(3, (index) => _buildVoteItemSkeleton()),
+              // 투표 아이템들 스켈레톤 (2개로 축소)
+              ...List.generate(2, (index) => _buildVoteItemSkeleton()),
             ],
           ),
         ),
@@ -57,72 +58,69 @@ class VoteCardSkeleton extends StatelessWidget {
 
   Widget _buildVoteItemSkeleton() {
     return Padding(
-      padding: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.only(bottom: 10.h),
       child: Row(
         children: [
-          // 순위 영역
+          // 순위 영역 (크기 축소)
           SizedBox(
-            width: 39.w,
-            child: Column(
-              children: [
-                Container(
-                  width: 20.w,
-                  height: 20.h,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                ),
-              ],
+            width: 30.w,
+            child: Container(
+              width: 16.w,
+              height: 16.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4.r),
+              ),
             ),
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 6.w),
           
-          // 아티스트 이미지 스켈레톤
+          // 아티스트 이미지 스켈레톤 (크기 축소)
           Container(
-            width: 45.w,
-            height: 45.h,
+            width: 35.w,
+            height: 35.h,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,
             ),
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 6.w),
           
           // 이름과 투표수 영역
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // 아티스트 이름 스켈레톤
+                // 아티스트 이름 스켈레톤 (크기 축소)
                 Container(
-                  height: 16.h,
+                  height: 14.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 4.h),
                 
-                // 투표수 스켈레톤
+                // 투표수 스켈레톤 (크기 축소)
                 Container(
-                  height: 20.h,
+                  height: 16.h,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.r),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 12.w),
           
-          // 투표 아이콘 스켈레톤
+          // 투표 아이콘 스켈레톤 (크기 축소)
           Container(
-            width: 24.w,
-            height: 24.h,
+            width: 20.w,
+            height: 20.h,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(4.r),
