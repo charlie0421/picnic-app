@@ -106,7 +106,7 @@
 /// - 데이터 동기화
 /// - 이미지 저장/공유
 /// - 복잡한 계산 작업
-library loading_overlay_widgets;
+library;
 
 // 기본 위젯
 export 'loading_overlay.dart';
