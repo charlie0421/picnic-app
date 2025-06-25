@@ -78,7 +78,7 @@ class CommentActions extends StatelessWidget {
 
   Widget _buildTranslateButton(BuildContext context) {
     if (isTranslating) {
-      return const SizedBox(
+      return SizedBox(
         width: 12,
         height: 12,
         child: SmallPulseLoadingIndicator(

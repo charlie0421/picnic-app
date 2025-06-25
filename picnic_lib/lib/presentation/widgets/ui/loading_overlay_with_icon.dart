@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 /// # LoadingOverlayWithIcon
 ///
@@ -727,15 +728,8 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
 
   /// 로딩 인디케이터 위젯 구성
   Widget _buildLoadingIndicator() {
-    return SizedBox(
-      width: 24,
-      height: 24,
-      child: CircularProgressIndicator(
-        strokeWidth: 2,
-        valueColor: AlwaysStoppedAnimation<Color>(
-          Theme.of(context).primaryColor,
-        ),
-      ),
+    return SmallPulseLoadingIndicator(
+      iconColor: Theme.of(context).primaryColor,
     );
   }
 

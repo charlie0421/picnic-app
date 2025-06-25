@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 /// 전체화면을 덮는 로딩 오버레이 위젯
 ///
@@ -169,8 +170,8 @@ class LoadingOverlayState extends State<LoadingOverlay>
       child: Center(
         child: RepaintBoundary(
           child: widget.loadingWidget ??
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              const MediumPulseLoadingIndicator(
+                iconColor: Colors.white,
               ),
         ),
       ),

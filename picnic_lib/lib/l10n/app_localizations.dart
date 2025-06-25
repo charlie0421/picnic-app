@@ -63,7 +63,7 @@ import 'app_localizations_ko.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ko'),
+    Locale('ko')
   ];
 
   /// The title of the application
@@ -343,6 +343,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upcoming'**
   String get label_tabbar_vote_upcoming;
+
+  /// No description provided for @label_reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get label_reply;
+
+  /// No description provided for @post_comment_action_show_translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Translation'**
+  String get post_comment_action_show_translation;
+
+  /// No description provided for @post_comment_action_show_original.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Original'**
+  String get post_comment_action_show_original;
+
+  /// No description provided for @post_comment_action_translate.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate'**
+  String get post_comment_action_translate;
+
+  /// No description provided for @post_comment_reported_comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported Comment'**
+  String get post_comment_reported_comment;
+
+  /// No description provided for @post_comment_deleted_comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted Comment'**
+  String get post_comment_deleted_comment;
+
+  /// No description provided for @post_comment_content_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Show More'**
+  String get post_comment_content_more;
+
+  /// No description provided for @post_comment_translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Translated'**
+  String get post_comment_translated;
+
+  /// No description provided for @post_my_written_reply.
+  ///
+  /// In en, this message translates to:
+  /// **'My Comments'**
+  String get post_my_written_reply;
+
+  /// No description provided for @post_comment_delete_fail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete comment.'**
+  String get post_comment_delete_fail;
+
+  /// No description provided for @post_comment_loading_fail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load comments.'**
+  String get post_comment_loading_fail;
+
+  /// No description provided for @common_retry_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get common_retry_label;
+
+  /// No description provided for @error_action_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Action failed.'**
+  String get error_action_failed;
+
+  /// No description provided for @label_article_comment_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet.'**
+  String get label_article_comment_empty;
+
+  /// No description provided for @error_loading_more_comments.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load more comments.'**
+  String get error_loading_more_comments;
+
+  /// No description provided for @label_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get label_retry;
+
+  /// No description provided for @label_hint_comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment'**
+  String get label_hint_comment;
+
+  /// No description provided for @dialog_caution.
+  ///
+  /// In en, this message translates to:
+  /// **'Caution'**
+  String get dialog_caution;
+
+  /// No description provided for @post_flagged.
+  ///
+  /// In en, this message translates to:
+  /// **'This post has been reported.'**
+  String get post_flagged;
+
+  /// No description provided for @post_comment_registered_comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment has been posted.'**
+  String get post_comment_registered_comment;
+
+  /// No description provided for @post_comment_register_fail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to post comment.'**
+  String get post_comment_register_fail;
+
+  /// No description provided for @post_comment_translate_fail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to translate comment.'**
+  String get post_comment_translate_fail;
+
+  /// No description provided for @label_read_more_comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Read More Comments'**
+  String get label_read_more_comment;
+
+  /// No description provided for @popup_label_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get popup_label_delete;
+
+  /// No description provided for @post_comment_delete_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this comment?'**
+  String get post_comment_delete_confirm;
+
+  /// No description provided for @label_title_report.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get label_title_report;
 }
 
 class _AppLocalizationsDelegate
@@ -372,9 +528,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

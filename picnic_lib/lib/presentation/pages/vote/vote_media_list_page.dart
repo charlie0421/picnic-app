@@ -9,6 +9,7 @@ import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:googleapis/youtube/v3.dart' as youtube;
 import 'package:googleapis_auth/auth_io.dart';
@@ -174,6 +175,12 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
               channelId: item.channelId,
               channelThumbnail: item.channelThumbnail,
               onTap: () {},
+            ),
+            firstPageProgressIndicatorBuilder: (context) => const Center(
+              child: MediumPulseLoadingIndicator(),
+            ),
+            newPageProgressIndicatorBuilder: (context) => const Center(
+              child: MediumPulseLoadingIndicator(),
             ),
             firstPageErrorIndicatorBuilder: (context) {
               return buildErrorView(

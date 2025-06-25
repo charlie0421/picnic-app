@@ -13,6 +13,7 @@ import 'package:picnic_lib/presentation/providers/my_page/vote_artist_list_provi
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -146,10 +147,10 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
               return _buildArtistItem(item, index, searchQuery);
             },
             firstPageProgressIndicatorBuilder: (context) {
-              return _buildShimmerLoading();
+              return const Center(child: MediumPulseLoadingIndicator());
             },
             newPageProgressIndicatorBuilder: (context) {
-              return _buildShimmerLoading();
+              return const Center(child: MediumPulseLoadingIndicator());
             },
             noItemsFoundIndicatorBuilder: (context) {
               return NoItemContainer(

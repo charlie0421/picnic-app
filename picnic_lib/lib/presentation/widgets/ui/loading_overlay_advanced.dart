@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'loading_overlay_manager.dart';
 
 /// 고급 기능이 포함된 LoadingOverlay 위젯
@@ -251,9 +252,8 @@ class _AdvancedLoadingOverlayState extends ConsumerState<AdvancedLoadingOverlay>
               // 로딩 위젯
               state.customWidget ??
                   widget.loadingWidget ??
-                  CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(themeData.progressColor),
+                  MediumPulseLoadingIndicator(
+                    iconColor: themeData.progressColor,
                   ),
 
               // 메시지 표시
