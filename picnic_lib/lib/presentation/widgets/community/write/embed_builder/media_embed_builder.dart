@@ -35,15 +35,10 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
       future: _uploadImage(imageUrl),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 10),
-                Text('Uploading...'),
-              ],
-            ),
+          return Container(
+            width: double.infinity,
+            height: 200,
+            child: buildLoadingOverlay(),
           );
         } else if (snapshot.hasError) {
           logger.i('Error in FutureBuilder: ${snapshot.error}');
