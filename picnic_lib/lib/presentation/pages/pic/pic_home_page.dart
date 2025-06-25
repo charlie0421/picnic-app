@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/widgets/celeb_list_item.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/no_bookmark_celeb.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 import '../../providers/celeb_list_provider.dart';
@@ -111,7 +112,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     loading: () => SizedBox(
                       width: ui.getPlatformScreenSize(context).width,
                       height: ui.getPlatformScreenSize(context).width * .5,
-                      child: const Center(child: CircularProgressIndicator()),
+                      child: const Center(child: MediumPulseLoadingIndicator()),
                     ),
                     error: (error, stackTrace) => SizedBox(
                       width: ui.getPlatformScreenSize(context).width,

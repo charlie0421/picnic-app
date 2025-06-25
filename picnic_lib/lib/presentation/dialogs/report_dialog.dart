@@ -8,6 +8,7 @@ import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 enum ReportType { comment, post }
@@ -299,10 +300,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
+                      child: SmallPulseLoadingIndicator(iconColor: Colors.white),
                     )
                   : Text(
                       t('post_report_label'),

@@ -30,6 +30,7 @@ import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class CompatibilityResultPage extends ConsumerStatefulWidget {
   const CompatibilityResultPage({
@@ -527,8 +528,8 @@ class _CompatibilityResultPageState
 
   Widget _buildLoadingIndicator() {
     return Center(
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
+      child: MediumPulseLoadingIndicator(
+        iconColor: AppColors.primary500,
       ),
     );
   }

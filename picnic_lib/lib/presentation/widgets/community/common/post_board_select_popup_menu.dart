@@ -6,6 +6,7 @@ import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class PostBoardSelectPopupMenu extends ConsumerStatefulWidget {
@@ -64,18 +65,9 @@ class _PostBoardSelectPopupMenuState
               },
             );
           },
-          loading: () => const SizedBox(
-            height: 26,
-            width: 120,
-            child: Center(
-              child: SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ),
-              ),
-            ),
+          loading: () => const Padding(
+            padding: EdgeInsets.all(20),
+            child: MediumPulseLoadingIndicator(),
           ),
           error: (error, stackTrace) {
             logger.e('Error loading boards:',

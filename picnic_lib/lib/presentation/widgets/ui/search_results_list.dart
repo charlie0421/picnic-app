@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 /// 검색 결과를 표시하는 재사용 가능한 위젯
@@ -120,8 +121,8 @@ class SearchResultsList<T> extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
-              color: AppColors.primary500,
+            MediumPulseLoadingIndicator(
+              iconColor: AppColors.primary500,
             ),
             SizedBox(height: 16.h),
             Text(
@@ -192,13 +193,8 @@ class SearchResultsList<T> extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.h),
       child: Center(
-        child: SizedBox(
-          width: 24.w,
-          height: 24.w,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: AppColors.primary500,
-          ),
+        child: SmallPulseLoadingIndicator(
+          iconColor: AppColors.primary500,
         ),
       ),
     );

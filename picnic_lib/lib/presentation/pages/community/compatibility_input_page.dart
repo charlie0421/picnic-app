@@ -17,6 +17,7 @@ import 'package:picnic_lib/presentation/widgets/community/compatibility/compatib
 import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
 import 'package:picnic_lib/presentation/widgets/stroked_text.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityInputPage extends ConsumerStatefulWidget {
@@ -776,11 +777,8 @@ class _CompatibilityInputScreenState
                   ? const SizedBox(
                       width: 24,
                       height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.grey500,
-                        ),
+                      child: SmallPulseLoadingIndicator(
+                        iconColor: AppColors.grey500,
                       ),
                     )
                   : Row(

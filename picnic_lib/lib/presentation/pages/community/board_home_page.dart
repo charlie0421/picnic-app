@@ -15,6 +15,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/list/post_list.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class BoardHomePage extends ConsumerStatefulWidget {
   const BoardHomePage(this.artistId, {super.key});
@@ -117,7 +118,7 @@ class _PostListPageState extends ConsumerState<BoardHomePage>
               ],
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: MediumPulseLoadingIndicator()),
           error: (error, stackTrace) {
             logger.e('Error fetching boards:',
                 error: error, stackTrace: stackTrace);

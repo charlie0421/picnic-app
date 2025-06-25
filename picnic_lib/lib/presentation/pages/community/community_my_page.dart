@@ -11,6 +11,7 @@ import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CommunityMyPage extends ConsumerStatefulWidget {
@@ -73,7 +74,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
                       ],
                     );
                   },
-                  loading: () => const CircularProgressIndicator(),
+                  loading: () => const SmallPulseLoadingIndicator(),
                   error: (error, stack) => Text('error: $error'),
                 ),
           const SizedBox(height: 24),

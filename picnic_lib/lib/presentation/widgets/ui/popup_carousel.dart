@@ -9,6 +9,8 @@ import 'package:picnic_lib/presentation/providers/popup_provider.dart';
 import 'package:picnic_lib/data/models/common/popup.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class PopupCarousel extends ConsumerStatefulWidget {
   const PopupCarousel({super.key});
@@ -95,7 +97,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
             future: _filterHiddenPopups(popups),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: MediumPulseLoadingIndicator());
               }
               _filteredPopups = List.from(snapshot.data!);
               _lastPopupIds = List.from(currentIds);
@@ -108,7 +110,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
         if (_filteredPopups.isEmpty) return const SizedBox.shrink();
         return _buildPopupContent(lang);
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: MediumPulseLoadingIndicator()),
       error: (e, stack) {
         logger.e('PopupProvider error: $e');
         return const SizedBox.shrink();

@@ -13,6 +13,7 @@ import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/common/post_list_item.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -237,10 +238,10 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
                   );
                 },
                 firstPageProgressIndicatorBuilder: (_) => const Center(
-                  child: CircularProgressIndicator(),
+                  child: MediumPulseLoadingIndicator(),
                 ),
                 newPageProgressIndicatorBuilder: (_) => const Center(
-                  child: CircularProgressIndicator(),
+                  child: MediumPulseLoadingIndicator(),
                 ),
                 noItemsFoundIndicatorBuilder: (_) => SingleChildScrollView(
                   child: Column(

@@ -13,6 +13,7 @@ import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -299,7 +300,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
     // 첫 로딩 상태
     if (boardsCopy.isEmpty && _isLoading) {
       return const Center(
-        child: CircularProgressIndicator(),
+        child: MediumPulseLoadingIndicator(),
       );
     }
 
@@ -337,7 +338,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
           return const Center(
             child: Padding(
               padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
+              child: MediumPulseLoadingIndicator(),
             ),
           );
         }

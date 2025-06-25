@@ -10,6 +10,8 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class CommentPopupMenu extends ConsumerStatefulWidget {
   final String postId;
@@ -109,13 +111,13 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
   @override
   Widget build(BuildContext context) {
     if (_isProcessing) {
-      return const SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-        ),
-      );
+              return SizedBox(
+          width: 20,
+          height: 20,
+          child: SmallPulseLoadingIndicator(
+            iconColor: AppColors.primary500,
+          ),
+        );
     }
 
     return GestureDetector(

@@ -5,6 +5,7 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/comment/like_button.dart';
 import 'package:picnic_lib/presentation/common/comment/reply_button.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class CommentActions extends StatelessWidget {
   final CommentModel item;
@@ -80,9 +81,8 @@ class CommentActions extends StatelessWidget {
       return const SizedBox(
         width: 12,
         height: 12,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.grey500),
+        child: SmallPulseLoadingIndicator(
+          iconColor: AppColors.primary500,
         ),
       );
     }

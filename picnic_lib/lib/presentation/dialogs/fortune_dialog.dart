@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart'
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/fortune_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 Future<void> showFortuneDialog(int artistId, int year) {
@@ -161,8 +162,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     return FullScreenDialog(
       child: fortuneAsync.when(
         loading: () => const Center(
-            child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.pink))),
+            child: MediumPulseLoadingIndicator(iconColor: Colors.pink)),
         error: (error, stackTrace) => _buildError(error),
         data: (fortune) => DefaultTabController(
           length: 2,
