@@ -14,7 +14,7 @@ class VoteCardSkeletonUpcoming extends StatelessWidget {
       highlightColor: AppColors.grey100,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
-        margin: EdgeInsets.only(top: 4, bottom: 8),
+        margin: EdgeInsets.only(top: 4, bottom: 6),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -22,7 +22,7 @@ class VoteCardSkeletonUpcoming extends StatelessWidget {
               // 헤더 부분 스켈레톤
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(20.r),
+                padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(40.r),
@@ -33,35 +33,35 @@ class VoteCardSkeletonUpcoming extends StatelessWidget {
                   children: [
                     // 제목 영역
                     Container(
-                      height: 24.h,
-                      width: double.infinity * 0.8,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    
-                    // 시간 정보 영역
-                    Container(
                       height: 20.h,
-                      width: double.infinity * 0.6,
+                      width: double.infinity * 0.7,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10.r),
+                      ),
+                    ),
+                    SizedBox(height: 10.h),
+                    
+                    // 시간 정보 영역
+                    Container(
+                      height: 16.h,
+                      width: double.infinity * 0.5,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                     ),
                   ],
                 ),
               ),
               
-              SizedBox(height: 16.h),
+              SizedBox(height: 12.h),
               
               // 시작 예정 메시지 영역
               Container(
                 width: double.infinity,
-                height: 80.h,
-                padding: EdgeInsets.all(20.r),
+                height: 60.h,
+                padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(40.r),
@@ -72,48 +72,48 @@ class VoteCardSkeletonUpcoming extends StatelessWidget {
                   children: [
                     // 시작 예정 텍스트 스켈레톤
                     Container(
-                      height: 16.h,
-                      width: double.infinity * 0.6,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    
-                    // 시작 시간 스켈레톤
-                    Container(
                       height: 14.h,
-                      width: double.infinity * 0.4,
+                      width: double.infinity * 0.5,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(7.r),
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    
+                    // 시작 시간 스켈레톤
+                    Container(
+                      height: 12.h,
+                      width: double.infinity * 0.3,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6.r),
                       ),
                     ),
                   ],
                 ),
               ),
               
-              SizedBox(height: 12.h),
+              SizedBox(height: 10.h),
               
               // 공유 버튼 영역
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Container(
-                    height: 36.h,
-                    width: 100.w,
+                    height: 32.h,
+                    width: 90.w,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(18.r),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                   ),
                   Container(
-                    height: 36.h,
-                    width: 100.w,
+                    height: 32.h,
+                    width: 90.w,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(18.r),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                   ),
                 ],

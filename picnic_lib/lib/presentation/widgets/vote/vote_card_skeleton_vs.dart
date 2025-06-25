@@ -14,7 +14,7 @@ class VoteCardSkeletonVS extends StatelessWidget {
       highlightColor: AppColors.grey100,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
-        margin: EdgeInsets.only(top: 4, bottom: 8),
+        margin: EdgeInsets.only(top: 4, bottom: 6),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -22,7 +22,7 @@ class VoteCardSkeletonVS extends StatelessWidget {
               // 헤더 부분 스켈레톤
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(20.r),
+                padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(40.r),
@@ -33,39 +33,39 @@ class VoteCardSkeletonVS extends StatelessWidget {
                   children: [
                     // 제목 영역
                     Container(
-                      height: 24.h,
-                      width: double.infinity * 0.8,
+                      height: 20.h,
+                      width: double.infinity * 0.7,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 12.h),
                     
-                    // 타이머 영역 (02 D 16 : 11 : 03 형태)
+                    // 타이머 영역 (더 작게)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildTimerBox(), // 0
-                        SizedBox(width: 4.w),
+                        SizedBox(width: 2.w),
                         _buildTimerBox(), // 2
-                        SizedBox(width: 8.w),
+                        SizedBox(width: 6.w),
                         _buildTimerText(), // D
-                        SizedBox(width: 8.w),
+                        SizedBox(width: 6.w),
                         _buildTimerBox(), // 1
-                        SizedBox(width: 4.w),
+                        SizedBox(width: 2.w),
                         _buildTimerBox(), // 6
-                        SizedBox(width: 8.w),
+                        SizedBox(width: 6.w),
                         _buildTimerColon(), // :
-                        SizedBox(width: 8.w),
+                        SizedBox(width: 6.w),
                         _buildTimerBox(), // 1
-                        SizedBox(width: 4.w),
+                        SizedBox(width: 2.w),
                         _buildTimerBox(), // 1
-                        SizedBox(width: 8.w),
+                        SizedBox(width: 6.w),
                         _buildTimerColon(), // :
-                        SizedBox(width: 8.w),
+                        SizedBox(width: 6.w),
                         _buildTimerBox(), // 0
-                        SizedBox(width: 4.w),
+                        SizedBox(width: 2.w),
                         _buildTimerBox(), // 3
                       ],
                     ),
@@ -73,12 +73,12 @@ class VoteCardSkeletonVS extends StatelessWidget {
                 ),
               ),
               
-              SizedBox(height: 16.h),
+              SizedBox(height: 12.h),
               
-              // VS 투표 아이템 영역 스켈레톤
+              // VS 투표 아이템 영역 스켈레톤 (높이 줄임)
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(24.r),
+                padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(40.r),
@@ -92,11 +92,11 @@ class VoteCardSkeletonVS extends StatelessWidget {
                     
                     // VS 텍스트
                     Container(
-                      width: 40.w,
-                      height: 24.h,
+                      width: 30.w,
+                      height: 18.h,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12.r),
+                        borderRadius: BorderRadius.circular(9.r),
                       ),
                     ),
                     
@@ -106,26 +106,26 @@ class VoteCardSkeletonVS extends StatelessWidget {
                 ),
               ),
               
-              SizedBox(height: 16.h),
+              SizedBox(height: 10.h),
               
-              // 공유 버튼 영역
+              // 공유 버튼 영역 (크기 줄임)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Container(
-                    height: 48.h,
-                    width: 120.w,
+                    height: 36.h,
+                    width: 100.w,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(24.r),
+                      borderRadius: BorderRadius.circular(18.r),
                     ),
                   ),
                   Container(
-                    height: 48.h,
-                    width: 120.w,
+                    height: 36.h,
+                    width: 100.w,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(24.r),
+                      borderRadius: BorderRadius.circular(18.r),
                     ),
                   ),
                 ],
@@ -139,8 +139,19 @@ class VoteCardSkeletonVS extends StatelessWidget {
 
   Widget _buildTimerBox() {
     return Container(
-      width: 32.w,
-      height: 32.h,
+      width: 24.w,
+      height: 24.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6.r),
+      ),
+    );
+  }
+
+  Widget _buildTimerText() {
+    return Container(
+      width: 16.w,
+      height: 16.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
@@ -148,24 +159,13 @@ class VoteCardSkeletonVS extends StatelessWidget {
     );
   }
 
-  Widget _buildTimerText() {
-    return Container(
-      width: 20.w,
-      height: 20.h,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-    );
-  }
-
   Widget _buildTimerColon() {
     return Container(
-      width: 8.w,
-      height: 20.h,
+      width: 6.w,
+      height: 16.h,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(4.r),
+        borderRadius: BorderRadius.circular(3.r),
       ),
     );
   }
@@ -176,45 +176,45 @@ class VoteCardSkeletonVS extends StatelessWidget {
       children: [
         // 순위 표시 (상단)
         Container(
-          width: 30.w,
-          height: 16.h,
+          width: 24.w,
+          height: 12.h,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-        ),
-        SizedBox(height: 12.h),
-        
-        // 아티스트 이미지 (원형)
-        Container(
-          width: 80.w,
-          height: 80.w,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            border: isFirst ? Border.all(color: Colors.white, width: 3.r) : null,
-          ),
-        ),
-        SizedBox(height: 16.h),
-        
-        // 아티스트 이름
-        Container(
-          width: 90.w,
-          height: 18.h,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(9.r),
+            borderRadius: BorderRadius.circular(6.r),
           ),
         ),
         SizedBox(height: 8.h),
         
-        // 그룹명
+        // 아티스트 이미지 (원형, 크기 줄임)
+        Container(
+          width: 60.w,
+          height: 60.w,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: isFirst ? Border.all(color: Colors.white, width: 2.r) : null,
+          ),
+        ),
+        SizedBox(height: 10.h),
+        
+        // 아티스트 이름
         Container(
           width: 70.w,
           height: 14.h,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(7.r),
+          ),
+        ),
+        SizedBox(height: 6.h),
+        
+        // 그룹명
+        Container(
+          width: 60.w,
+          height: 12.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6.r),
           ),
         ),
       ],
