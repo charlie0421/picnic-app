@@ -50,9 +50,7 @@ class StoreListTile extends StatelessWidget {
                   ? SizedBox(
                       width: 16.w,
                       height: 16,
-                      child: const SmallPulseLoadingIndicator(
-                        iconColor: AppColors.grey00,
-                      ),
+                      child: const SmallPulseLoadingIndicator(),
                     )
                   : Text(
                       buttonText,

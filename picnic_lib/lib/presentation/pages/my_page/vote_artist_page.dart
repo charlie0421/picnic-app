@@ -15,7 +15,6 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:shimmer/shimmer.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
@@ -413,51 +412,5 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
     } catch (e) {
       logger.e('북마크 토글 실패', error: e);
     }
-  }
-
-  Widget _buildShimmerLoading() {
-    return Shimmer.fromColors(
-      baseColor: AppColors.grey300,
-      highlightColor: AppColors.grey100,
-      child: Column(
-        children: List.generate(
-          10,
-          (index) => Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.h),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 16,
-                        width: double.infinity,
-                        color: Colors.white,
-                      ),
-                      SizedBox(height: 4.h),
-                      Container(
-                        height: 12,
-                        width: 120.w,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

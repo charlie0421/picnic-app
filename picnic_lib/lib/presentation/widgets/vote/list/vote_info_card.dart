@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -20,7 +19,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
@@ -163,7 +162,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       color: AppColors.grey00,
       child: asyncVoteDetail.when(
         data: (vote) => _buildCard(context, vote, asyncVoteItemList),
-        loading: () => buildLoadingOverlay(),
+        loading: () => const VoteCardSkeleton(),
         error: (error, stack) => Text('Error: $error'),
       ),
     );
@@ -360,7 +359,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           ),
         );
       },
-      loading: () => const MediumPulseLoadingIndicator(),
+      loading: () => const VoteCardSkeleton(),
       error: (error, stack) => Text('Error: $error'),
     );
   }

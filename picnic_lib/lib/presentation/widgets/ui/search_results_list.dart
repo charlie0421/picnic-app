@@ -4,7 +4,7 @@ import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart'
 import 'package:picnic_lib/ui/style.dart';
 
 /// 검색 결과를 표시하는 재사용 가능한 위젯
-/// 
+///
 /// [T] 검색 결과 아이템의 타입
 class SearchResultsList<T> extends StatelessWidget {
   const SearchResultsList({
@@ -25,37 +25,37 @@ class SearchResultsList<T> extends StatelessWidget {
 
   /// 검색 결과 아이템 목록
   final List<T> items;
-  
+
   /// 각 아이템을 빌드하는 함수
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
-  
+
   /// 로딩 상태
   final bool isLoading;
-  
+
   /// 에러 상태
   final bool hasError;
-  
+
   /// 에러 메시지
   final String? errorMessage;
-  
+
   /// 빈 결과일 때 표시할 메시지
   final String? emptyMessage;
-  
+
   /// 재시도 콜백
   final VoidCallback? onRetry;
-  
+
   /// 더 많은 결과 로드 콜백
   final VoidCallback? onLoadMore;
-  
+
   /// 더 많은 결과가 있는지 여부
   final bool hasMore;
-  
+
   /// 스크롤 컨트롤러
   final ScrollController? scrollController;
-  
+
   /// 패딩
   final EdgeInsetsGeometry? padding;
-  
+
   /// 아이템 간 구분자 빌더
   final Widget Function(BuildContext context, int index)? separatorBuilder;
 
@@ -121,9 +121,7 @@ class SearchResultsList<T> extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            MediumPulseLoadingIndicator(
-              iconColor: AppColors.primary500,
-            ),
+            MediumPulseLoadingIndicator(),
             SizedBox(height: 16.h),
             Text(
               '검색 중...',
@@ -175,14 +173,14 @@ class SearchResultsList<T> extends StatelessWidget {
         controller: scrollController,
         padding: padding ?? EdgeInsets.all(16.w),
         itemCount: items.length + (isLoading ? 1 : 0),
-        separatorBuilder: separatorBuilder ?? 
-            (context, index) => SizedBox(height: 8.h),
+        separatorBuilder:
+            separatorBuilder ?? (context, index) => SizedBox(height: 8.h),
         itemBuilder: (context, index) {
           // 로딩 인디케이터 표시
           if (index == items.length) {
             return _buildLoadMoreIndicator();
           }
-          
+
           return itemBuilder(context, items[index], index);
         },
       ),
@@ -193,9 +191,7 @@ class SearchResultsList<T> extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.h),
       child: Center(
-        child: SmallPulseLoadingIndicator(
-          iconColor: AppColors.primary500,
-        ),
+        child: SmallPulseLoadingIndicator(),
       ),
     );
   }
@@ -224,7 +220,7 @@ class SearchResultCard extends StatelessWidget {
         color: AppColors.grey00,
         borderRadius: BorderRadius.circular(8.r),
         elevation: 1,
-        shadowColor: AppColors.grey900.withValues(alpha:0.1),
+        shadowColor: AppColors.grey900.withValues(alpha: 0.1),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(8.r),
@@ -236,4 +232,4 @@ class SearchResultCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

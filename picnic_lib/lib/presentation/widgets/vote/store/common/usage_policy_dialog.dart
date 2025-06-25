@@ -88,8 +88,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                         //   ],
                         // );
                       } else {
-                        return MediumPulseLoadingIndicator(
-                            iconColor: AppColors.primary500);
+                        return MediumPulseLoadingIndicator();
                       }
                     }),
                 const SizedBox(height: 24),

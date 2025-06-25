@@ -35,7 +35,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
       future: _uploadImage(imageUrl),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Container(
+          return SizedBox(
             width: double.infinity,
             height: 200,
             child: buildLoadingOverlay(),
@@ -59,7 +59,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
           return PicnicCachedNetworkImage(
             imageUrl: snapshot.data!,
             fit: BoxFit.contain,
-            placeholder: Container(
+            placeholder: SizedBox(
               width: double.infinity,
               height: 200,
               child: buildLoadingOverlay(),

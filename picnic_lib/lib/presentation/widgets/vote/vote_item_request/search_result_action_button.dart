@@ -58,9 +58,7 @@ class SearchResultActionButton extends StatelessWidget {
               ? SizedBox(
                   width: 12.w,
                   height: 12.h,
-                  child: SmallPulseLoadingIndicator(
-                    iconColor: Colors.white,
-                  ),
+                  child: SmallPulseLoadingIndicator(),
                 )
               : Row(
                   mainAxisSize: MainAxisSize.min,

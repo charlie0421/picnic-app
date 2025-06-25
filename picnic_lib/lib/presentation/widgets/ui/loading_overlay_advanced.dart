@@ -252,9 +252,7 @@ class _AdvancedLoadingOverlayState extends ConsumerState<AdvancedLoadingOverlay>
               // 로딩 위젯
               state.customWidget ??
                   widget.loadingWidget ??
-                  MediumPulseLoadingIndicator(
-                    iconColor: themeData.progressColor,
-                  ),
+                  MediumPulseLoadingIndicator(),
 
               // 메시지 표시
               if (state.message != null || widget.message != null) ...[

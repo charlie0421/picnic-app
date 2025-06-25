@@ -8,7 +8,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
@@ -162,6 +161,25 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                   VoteCardSkeleton(),
                 ],
               ),
+          newPageProgressIndicatorBuilder: (context) =>
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: VoteCardSkeleton(),
+              ),
+          firstPageErrorIndicatorBuilder: (context) => 
+              buildErrorView(
+                context,
+                error: _pagingController.error,
+                retryFunction: () => _pagingController.refresh(),
+                stackTrace: null,
+              ),
+          newPageErrorIndicatorBuilder: (context) => 
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: VoteCardSkeleton(),
+              ),
+          noMoreItemsIndicatorBuilder: (context) => 
+              const SizedBox.shrink(),
           noItemsFoundIndicatorBuilder: (context) =>
               VoteNoItem(status: VoteStatus.active, context: context),
           itemBuilder: (context, vote, index) {

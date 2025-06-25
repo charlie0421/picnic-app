@@ -16,16 +16,12 @@ class PulseLoadingIndicator extends StatefulWidget {
   /// 최대 스케일 값 (기본: 1.02)
   final double maxScale;
   
-  /// 아이콘 색상 (기본: null, 앱 아이콘 원본 색상 사용)
-  final Color? iconColor;
-
   const PulseLoadingIndicator({
     super.key,
     this.size = 40,
     this.duration = const Duration(milliseconds: 800),
     this.minScale = 0.98,
     this.maxScale = 1.02,
-    this.iconColor,
   });
 
   @override
@@ -112,8 +108,6 @@ class _PulseLoadingIndicatorState extends State<PulseLoadingIndicator>
                     width: widget.size.w,
                     height: widget.size.w,
                     fit: BoxFit.cover,
-                    color: widget.iconColor,
-                    colorBlendMode: widget.iconColor != null ? BlendMode.srcIn : null,
                   ),
                 ),
               ),
@@ -127,50 +121,45 @@ class _PulseLoadingIndicatorState extends State<PulseLoadingIndicator>
 
 /// 작은 크기의 pulse 로딩 인디케이터 (24px)
 class SmallPulseLoadingIndicator extends StatelessWidget {
-  final Color? iconColor;
   
   const SmallPulseLoadingIndicator({
     super.key,
-    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return PulseLoadingIndicator(
       size: 24,
-      duration: const Duration(milliseconds: 600),
-      minScale: 0.95,
-      maxScale: 1.05,
-      iconColor: iconColor,
+      duration: const Duration(milliseconds: 1000),
+      minScale: 0.96,
+      maxScale: 1.04,
     );
   }
 }
 
 /// 중간 크기의 pulse 로딩 인디케이터 (40px) - 기본값
 class MediumPulseLoadingIndicator extends StatelessWidget {
-  final Color? iconColor;
   
   const MediumPulseLoadingIndicator({
     super.key,
-    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return PulseLoadingIndicator(
       size: 40,
-      iconColor: iconColor,
+      duration: const Duration(milliseconds: 1000),
+      minScale: 0.96,
+      maxScale: 1.04,
     );
   }
 }
 
 /// 큰 크기의 pulse 로딩 인디케이터 (60px)
 class LargePulseLoadingIndicator extends StatelessWidget {
-  final Color? iconColor;
   
   const LargePulseLoadingIndicator({
     super.key,
-    this.iconColor,
   });
 
   @override
@@ -180,7 +169,6 @@ class LargePulseLoadingIndicator extends StatelessWidget {
       duration: const Duration(milliseconds: 1000),
       minScale: 0.96,
       maxScale: 1.04,
-      iconColor: iconColor,
     );
   }
 } 

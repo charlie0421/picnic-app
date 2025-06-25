@@ -22,7 +22,6 @@ import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/no_bookmark_celeb.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 import '../../providers/celeb_list_provider.dart';
@@ -113,7 +112,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     loading: () => SizedBox(
                       width: ui.getPlatformScreenSize(context).width,
                       height: ui.getPlatformScreenSize(context).width * .5,
-                      child: const Center(child: MediumPulseLoadingIndicator()),
+                      child: const VoteCardSkeleton(),
                     ),
                     error: (error, stackTrace) => SizedBox(
                       width: ui.getPlatformScreenSize(context).width,
@@ -139,7 +138,13 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             ],
           );
         },
-        loading: () => ui.buildLoadingOverlay(),
+        loading: () => const Column(
+          children: [
+            VoteCardSkeleton(),
+            VoteCardSkeleton(),
+            VoteCardSkeleton(),
+          ],
+        ),
         error: (error, stackTrace) {
           return buildErrorView(
             context,
@@ -191,7 +196,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 ref.read(asyncGalleryListProvider.notifier).build(),
           );
         },
-        loading: () => ui.buildLoadingOverlay());
+        loading: () => const VoteCardSkeleton());
   }
 
   Widget _buildGalleryList(List<GalleryModel> data) {
@@ -278,6 +283,25 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     VoteCardSkeleton(),
                   ],
                 ),
+            newPageProgressIndicatorBuilder: (context) =>
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: VoteCardSkeleton(),
+                ),
+            firstPageErrorIndicatorBuilder: (context) => 
+                buildErrorView(
+                  context,
+                  error: _pagingController.error,
+                  retryFunction: () => _pagingController.refresh(),
+                  stackTrace: null,
+                ),
+            newPageErrorIndicatorBuilder: (context) => 
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: VoteCardSkeleton(),
+                ),
+            noMoreItemsIndicatorBuilder: (context) => 
+                const SizedBox.shrink(),
             itemBuilder: (context, vote, index) {
               final now = DateTime.now().toUtc();
               final status = vote.startAt!.isAfter(now)

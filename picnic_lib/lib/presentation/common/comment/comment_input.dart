@@ -138,9 +138,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   Widget _buildSendButton() {
     if (_isLoading) {
-      return SmallPulseLoadingIndicator(
-        iconColor: AppColors.grey00,
-      );
+      return SmallPulseLoadingIndicator();
     }
 
     return GestureDetector(

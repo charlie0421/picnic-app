@@ -9,7 +9,6 @@ import 'package:picnic_lib/presentation/providers/popup_provider.dart';
 import 'package:picnic_lib/data/models/common/popup.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class PopupCarousel extends ConsumerStatefulWidget {

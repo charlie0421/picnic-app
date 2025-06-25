@@ -306,9 +306,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
               _buildCommentContent(),
               SizedBox(width: 10.w),
               if (_isProcessing)
-                SmallPulseLoadingIndicator(
-                  iconColor: AppColors.primary500,
-                )
+                SmallPulseLoadingIndicator()
               else
                 CommentPopupMenu(
                   postId: widget.postId,

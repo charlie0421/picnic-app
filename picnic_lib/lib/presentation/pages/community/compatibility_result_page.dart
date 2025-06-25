@@ -528,9 +528,7 @@ class _CompatibilityResultPageState
 
   Widget _buildLoadingIndicator() {
     return Center(
-      child: MediumPulseLoadingIndicator(
-        iconColor: AppColors.primary500,
-      ),
+      child: MediumPulseLoadingIndicator(),
     );
   }
 

@@ -728,9 +728,7 @@ class LoadingOverlayWithIconState extends State<LoadingOverlayWithIcon>
 
   /// 로딩 인디케이터 위젯 구성
   Widget _buildLoadingIndicator() {
-    return SmallPulseLoadingIndicator(
-      iconColor: Theme.of(context).primaryColor,
-    );
+    return SmallPulseLoadingIndicator();
   }
 
   /// 성능 디버그 정보 위젯

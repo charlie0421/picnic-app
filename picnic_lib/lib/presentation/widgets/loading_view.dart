@@ -42,9 +42,7 @@ class _LoadingViewState extends ConsumerState<LoadingView> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      child: MediumPulseLoadingIndicator(
-        iconColor: widget.progressColor,
-      ),
+      child: MediumPulseLoadingIndicator(),
     );
   }
 }

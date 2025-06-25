@@ -169,10 +169,7 @@ class LoadingOverlayState extends State<LoadingOverlay>
       label: widget.semanticsLabel,
       child: Center(
         child: RepaintBoundary(
-          child: widget.loadingWidget ??
-              const MediumPulseLoadingIndicator(
-                iconColor: Colors.white,
-              ),
+          child: widget.loadingWidget ?? const MediumPulseLoadingIndicator(),
         ),
       ),
     );

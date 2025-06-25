@@ -777,9 +777,7 @@ class _CompatibilityInputScreenState
                   ? const SizedBox(
                       width: 24,
                       height: 24,
-                      child: SmallPulseLoadingIndicator(
-                        iconColor: AppColors.grey500,
-                      ),
+                      child: SmallPulseLoadingIndicator(),
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -161,8 +161,8 @@ class _FortunePageState extends ConsumerState<FortunePage> {
 
     return FullScreenDialog(
       child: fortuneAsync.when(
-        loading: () => const Center(
-            child: MediumPulseLoadingIndicator(iconColor: Colors.pink)),
+        loading: () => Center(
+            child: MediumPulseLoadingIndicator()),
         error: (error, stackTrace) => _buildError(error),
         data: (fortune) => DefaultTabController(
           length: 2,

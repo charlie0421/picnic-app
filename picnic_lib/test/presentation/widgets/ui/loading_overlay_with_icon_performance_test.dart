@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
 
 void main() {
@@ -322,8 +323,8 @@ void main() {
       nonOptimizedStopwatch.stop();
 
       // 결과 출력 (정보성)
-      print('최적화된 버전: ${optimizedStopwatch.elapsedMilliseconds}ms');
-      print('비최적화 버전: ${nonOptimizedStopwatch.elapsedMilliseconds}ms');
+      logger.i('최적화된 버전: ${optimizedStopwatch.elapsedMilliseconds}ms');
+      logger.i('비최적화 버전: ${nonOptimizedStopwatch.elapsedMilliseconds}ms');
 
       // 최적화된 버전이 비최적화 버전보다 느리지 않아야 함
       expect(

@@ -115,7 +115,7 @@ class _YouTubeEmbedContent extends StatelessWidget {
                         width: maxWidth,
                         height: thumbnailHeight,
                         fit: BoxFit.cover,
-                        placeholder: Container(
+                        placeholder: SizedBox(
                           width: maxWidth,
                           height: thumbnailHeight,
                           child: buildLoadingOverlay(),

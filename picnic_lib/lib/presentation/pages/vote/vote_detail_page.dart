@@ -1037,8 +1037,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
     // 안정적인 키 사용
     return RepaintBoundary(
-      key: ValueKey('image_${itemId}'),
-      child: Container(
+      key: ValueKey('image_$itemId'),
+      child: SizedBox(
         width: 39,
         height: 39,
         child: _buildImageWithFallback(imageUrl),

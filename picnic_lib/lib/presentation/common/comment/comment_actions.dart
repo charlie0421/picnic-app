@@ -81,9 +81,7 @@ class CommentActions extends StatelessWidget {
       return SizedBox(
         width: 12,
         height: 12,
-        child: SmallPulseLoadingIndicator(
-          iconColor: AppColors.primary500,
-        ),
+        child: SmallPulseLoadingIndicator(),
       );
     }
 

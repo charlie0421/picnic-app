@@ -300,7 +300,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: SmallPulseLoadingIndicator(iconColor: Colors.white),
+                      child: SmallPulseLoadingIndicator(),
                     )
                   : Text(
                       t('post_report_label'),

@@ -22,7 +22,7 @@ class SplashImageData {
 
 class SplashImage extends ConsumerStatefulWidget {
   final String? statusMessage; // 패치 상태 메시지를 받을 수 있는 파라미터 추가
-  
+
   const SplashImage({
     super.key,
     this.statusMessage,
@@ -141,9 +141,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
                     const SizedBox(
                       width: 16,
                       height: 16,
-                      child: SmallPulseLoadingIndicator(
-                        iconColor: Colors.white,
-                      ),
+                      child: SmallPulseLoadingIndicator(),
                     ),
                   ],
                 ),
