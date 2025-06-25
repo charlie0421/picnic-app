@@ -160,7 +160,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   // 컨텍스트가 필요한 초기화 작업 (동기적으로 실행)
   void _initializeAppWithContext() {
-    if (!mounted) return;
 
     // 앱 초기화 (필요한 경우 Future.microtask로 래핑)
     Future.microtask(() async {
