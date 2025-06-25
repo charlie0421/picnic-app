@@ -12,6 +12,7 @@ import 'package:picnic_lib/presentation/providers/community_navigation_provider.
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityListPage extends ConsumerStatefulWidget {
@@ -133,7 +134,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
-                                child: CircularProgressIndicator(),
+                                child: MediumPulseLoadingIndicator(),
                               ),
                             );
                           }

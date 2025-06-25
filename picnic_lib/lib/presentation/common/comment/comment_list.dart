@@ -16,6 +16,7 @@ import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/bottom_sheet_header.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 final commentsPageProvider = FutureProvider.autoDispose
     .family<List<CommentModel>, CommentsPageParams>((ref, params) async {
@@ -257,13 +258,13 @@ class _CommentListState extends ConsumerState<CommentList> {
                 firstPageProgressIndicatorBuilder: (_) => const Center(
                   child: Padding(
                     padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
+                    child: MediumPulseLoadingIndicator(),
                   ),
                 ),
                 newPageProgressIndicatorBuilder: (_) => const Center(
                   child: Padding(
                     padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
+                    child: MediumPulseLoadingIndicator(),
                   ),
                 ),
                 firstPageErrorIndicatorBuilder: (context) => buildErrorView(

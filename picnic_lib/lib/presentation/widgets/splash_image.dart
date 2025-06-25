@@ -4,6 +4,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -276,9 +277,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
                     const SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 4,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      child: SmallPulseLoadingIndicator(
+                        iconColor: Colors.white,
                       ),
                     ),
                   ],

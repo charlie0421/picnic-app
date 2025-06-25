@@ -29,6 +29,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/youtube_embed_builder.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -187,7 +188,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: LargePulseLoadingIndicator(),
           );
         }
 
@@ -366,7 +367,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       );
     }
     if (_quillController == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: MediumPulseLoadingIndicator());
     }
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 100),
@@ -401,7 +402,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
             children: [
               const SizedBox(height: 16),
               if (_isLoadingComments)
-                const Center(child: CircularProgressIndicator())
+                const Center(child: MediumPulseLoadingIndicator())
               else if (_comments == null || _comments!.isEmpty)
                 _buildEmptyComments(post)
               else
