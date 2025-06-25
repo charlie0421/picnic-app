@@ -53,7 +53,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
   /// 로그인 프로세스 중 로딩 상태를 안전하게 관리하는 유틸리티 메서드
   Future<T> _executeWithLoading<T>(
-    String message,
     Future<T> Function() operation,
   ) async {
     try {
@@ -68,18 +67,18 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     return LoadingOverlayWithIcon(
       key: _loadingKey,
-      // 앱 아이콘 애니메이션 설정
+      // 구매와 동일한 pulse 애니메이션 설정
       iconAssetPath: 'assets/app_icon_128.png',
-      enableRotation: true,
-      enableScale: true,
-      enableFade: true,
-      rotationDuration: const Duration(seconds: 2),
-      scaleDuration: const Duration(milliseconds: 1000),
-      fadeDuration: const Duration(milliseconds: 600),
-      minScale: 0.95,
-      maxScale: 1.05,
-      // 기본 로딩 메시지
-      loadingMessage: t('message_login_in_progress'),
+      enableRotation: false, // 회전 비활성화
+      enableScale: true, // pulse 효과를 위한 스케일
+      enableFade: true, // pulse 효과를 위한 페이드
+      loadingMessage: null, // 하단 텍스트 제거
+      // pulse 효과를 위한 커스텀 설정
+      scaleDuration: const Duration(milliseconds: 800), // 더 빠른 pulse
+      fadeDuration: const Duration(milliseconds: 800), // 스케일과 동기화
+      minScale: 0.98, // 매우 미묘한 변화
+      maxScale: 1.02, // 매우 미묘한 변화
+      showProgressIndicator: false, // 하단 로딩바 제거
       child: Container(
         decoration: BoxDecoration(gradient: commonGradient),
         child: Center(
@@ -292,7 +291,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   void _handleSuccessfulLogin() async {
     try {
       await _executeWithLoading(
-        t('message_checking_user_info'),
         () async {
           final user = supabase.auth.currentUser;
           if (user == null) {
@@ -344,9 +342,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-              await _executeWithLoading(
-                t('message_apple_login_in_progress'),
-                () async {
+                             await _executeWithLoading(
+                 () async {
                   if (kIsWeb) {
                     await supabase.auth.signInWithOAuth(
                       OAuthProvider.apple,
@@ -424,9 +421,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-              await _executeWithLoading(
-                t('message_google_login_in_progress'),
-                () async {
+                             await _executeWithLoading(
+                 () async {
                   if (kIsWeb) {
                     await supabase.auth.signInWithOAuth(
                       OAuthProvider.google,
@@ -504,9 +500,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-              await _executeWithLoading(
-                t('message_kakao_login_in_progress'),
-                () async {
+                             await _executeWithLoading(
+                 () async {
                   if (kIsWeb) {
                     await supabase.auth.signInWithOAuth(
                       OAuthProvider.kakao,
