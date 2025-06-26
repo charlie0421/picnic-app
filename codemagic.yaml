@@ -751,8 +751,8 @@ workflows:
           fi
 
     artifacts:
-      # Shorebird AAB 파일 (Google Play 업로드용)
-      - picnic_app/build/**/outputs/**/*.aab
+      # Shorebird AAB 파일만 지정 (중복 업로드 방지)
+      - picnic_app/build/app/outputs/bundle/release/app-release.aab
       - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/shorebird.yaml
       - picnic_app/build/shorebird/**/*
@@ -760,7 +760,7 @@ workflows:
       - picnic_app/build/app/outputs/**/mapping.txt
 
     publishing:
-      # Shorebird 배포 + Google Play 업로드 (단일 AAB 파일)
+      # 조건부 Google Play 배포 (환경변수로 제어)
       google_play:
         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
