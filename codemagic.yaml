@@ -690,45 +690,68 @@ workflows:
           echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
           echo "🔄 비결정론적 빌드 문제 해결 예상"
 
-      - name: Build Traditional Android AAB for Google Play
+      - name: Prepare AAB for Google Play Upload  
         script: |
           cd picnic_app
           
-          echo "=== Google Play용 전통적인 Android AAB 빌드 시작 ==="
-          echo "🎯 하이브리드 배포: Shorebird + Google Play 모두 지원"
+          echo "=== Google Play 업로드용 AAB 파일 준비 ==="
+          echo "🎯 Shorebird에서 생성된 AAB 파일을 Google Play 업로드용으로 준비"
           
-          echo "=== Flutter Android AAB 빌드 ==="
-          flutter build appbundle \
-            --release \
-            --dart-define=ENVIRONMENT=prod
+          # Shorebird가 생성한 AAB 파일 찾기
+          echo "=== Shorebird 생성 AAB 파일 검색 ==="
+          SHOREBIRD_AAB=""
           
-          echo "=== AAB 파일 확인 ==="
-          AAB_PATH=$(find build/app/outputs/bundle/release -name "*.aab" | head -1)
-          if [ -n "$AAB_PATH" ] && [ -f "$AAB_PATH" ]; then
-            echo "✅ AAB 파일 생성 성공: $AAB_PATH"
-            ls -la "$AAB_PATH"
+          # 가능한 Shorebird AAB 위치들
+          POSSIBLE_AAB_PATHS=(
+            "build/app/outputs/bundle/release/app-release.aab"
+            "build/app/outputs/bundle/release/*.aab"
+            "build/shorebird/*.aab"
+            "build/outputs/bundle/release/*.aab"
+          )
+          
+          for AAB_PATTERN in "${POSSIBLE_AAB_PATHS[@]}"; do
+            AAB_FILES=$(find . -path "*$AAB_PATTERN" -type f 2>/dev/null | head -1)
+            if [ -n "$AAB_FILES" ] && [ -f "$AAB_FILES" ]; then
+              SHOREBIRD_AAB="$AAB_FILES"
+              echo "✅ Shorebird AAB 파일 발견: $SHOREBIRD_AAB"
+              break
+            fi
+          done
+          
+          # Shorebird AAB가 없으면 전통적인 빌드로 폴백
+          if [ -z "$SHOREBIRD_AAB" ] || [ ! -f "$SHOREBIRD_AAB" ]; then
+            echo "⚠️ Shorebird AAB 파일을 찾을 수 없음. 전통적인 빌드로 폴백..."
             
-            # AAB 파일 크기 확인
-            AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1)
-            echo "📦 AAB 파일 크기: $AAB_SIZE"
+            flutter build appbundle \
+              --release \
+              --dart-define=ENVIRONMENT=prod
             
-            # AAB 파일을 표준 위치로 복사 (CodeMagic이 찾기 쉽도록)
-            mkdir -p build/app/outputs/bundle/release
-            cp "$AAB_PATH" build/app/outputs/bundle/release/ 2>/dev/null || echo "AAB 복사 생략 (이미 올바른 위치)"
-          else
-            echo "❌ AAB 파일 생성 실패"
-            echo "빌드 디렉토리 확인:"
-            find build/app/outputs -name "*.aab" 2>/dev/null || echo "AAB 파일 없음"
-            find build/app/outputs -name "*.apk" 2>/dev/null || echo "APK 파일 없음"
-            exit 1
+            SHOREBIRD_AAB=$(find build/app/outputs/bundle/release -name "*.aab" | head -1)
           fi
           
-          echo "=== 하이브리드 배포 준비 완료 ==="
-          echo "✅ Shorebird 배포: 완료 (즉시 사용자에게 전달)"
-          echo "✅ Google Play AAB: 생성 완료 (Google Play Console 승인 대기)"
+          # 최종 AAB 파일 확인
+          if [ -n "$SHOREBIRD_AAB" ] && [ -f "$SHOREBIRD_AAB" ]; then
+            echo "✅ Google Play 업로드용 AAB 파일: $SHOREBIRD_AAB"
+            ls -la "$SHOREBIRD_AAB"
+            
+            # AAB 파일 크기 확인
+            AAB_SIZE=$(du -h "$SHOREBIRD_AAB" | cut -f1)
+            echo "📦 AAB 파일 크기: $AAB_SIZE"
+            
+            # 표준 위치로 복사 (CodeMagic Google Play 업로드용)
+            mkdir -p build/app/outputs/bundle/release
+            cp "$SHOREBIRD_AAB" build/app/outputs/bundle/release/app-release.aab
+            
+            echo "✅ Google Play 업로드 준비 완료"
+          else
+            echo "❌ AAB 파일을 찾을 수 없습니다"
+            echo "🔍 사용 가능한 빌드 파일들:"
+            find build/ -name "*.aab" -o -name "*.apk" 2>/dev/null || echo "빌드 파일 없음"
+            exit 1
+          fi
 
     artifacts:
-      # 하이브리드 아티팩트: Google Play + Shorebird 모두
+      # Shorebird AAB 파일 (Google Play 업로드용)
       - picnic_app/build/**/outputs/**/*.aab
       - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/shorebird.yaml
@@ -737,7 +760,7 @@ workflows:
       - picnic_app/build/app/outputs/**/mapping.txt
 
     publishing:
-      # 하이브리드 배포: Google Play + Shorebird 모두 사용
+      # Shorebird 배포 + Google Play 업로드 (단일 AAB 파일)
       google_play:
         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
