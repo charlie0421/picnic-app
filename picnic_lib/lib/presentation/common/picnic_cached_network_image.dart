@@ -742,45 +742,7 @@ class _PicnicCachedNetworkImageState
                 });
               }
 
-              if (progress.totalSize != null) {
-                final progressPercent =
-                    progress.downloaded / progress.totalSize!;
-                return SizedBox(
-                  width: width,
-                  height: height,
-                  child: Container(
-                    color: const Color.fromRGBO(158, 158, 158, 0.05),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min, // Column 크기 최소화
-                        children: [
-                          SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              value: progressPercent,
-                              strokeWidth: 2.0,
-                              backgroundColor: Colors.grey[300],
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.blue[400]!,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '${(progressPercent * 100).toInt()}%',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }
+              // 진행률에 관계없이 항상 스켈레톤 표시
               return SizedBox(
                 width: width,
                 height: height,

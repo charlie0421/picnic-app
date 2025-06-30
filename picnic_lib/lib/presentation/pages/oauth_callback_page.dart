@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class OAuthCallbackPage extends ConsumerStatefulWidget {
   final Uri callbackUri;
@@ -73,7 +74,7 @@ class _OAuthCallbackPageState extends ConsumerState<OAuthCallbackPage> {
     return const Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        CircularProgressIndicator(),
+        MediumPulseLoadingIndicator(),
         SizedBox(height: 16),
         Text(
           '로그인 처리중...',

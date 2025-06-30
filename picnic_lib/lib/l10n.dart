@@ -248,11 +248,63 @@ class PicnicLibL10n {
         }
       }
 
+      // Crowdin에서 찾지 못한 경우 기본 번역으로 폴백
+      final fallbackText = _getFallbackTranslation(key, languageCode);
+      if (fallbackText != null) {
+        logger.d('기본 번역 사용: $key -> $fallbackText');
+        return _formatTranslation(fallbackText, args);
+      }
+
       return _formatTranslation(key, args);
     } catch (e, s) {
       logger.e('번역 과정에서 오류 발생: $key', error: e, stackTrace: s);
       return _formatTranslation(key, args);
     }
+  }
+
+  /// 기본 번역 제공 (Crowdin 실패 시 사용)
+  static String? _getFallbackTranslation(String key, String languageCode) {
+    // 한국어 기본 번역
+    if (languageCode == 'ko') {
+      switch (key) {
+        case 'label_reply': return '답글';
+        case 'post_comment_action_show_translation': return '번역 보기';
+        case 'post_comment_action_show_original': return '원문 보기';
+        case 'post_comment_action_translate': return '번역하기';
+        case 'post_comment_reported_comment': return '신고된 댓글';
+        case 'post_comment_deleted_comment': return '삭제된 댓글';
+        case 'post_comment_content_more': return '더보기';
+        case 'post_comment_translated': return '번역됨';
+        case 'error_action_failed': return '작업이 실패했습니다.';
+        case 'label_hint_comment': return '댓글을 입력하세요';
+        case 'common_retry_label': return '다시 시도';
+        case 'label_retry': return '다시 시도';
+        case 'popup_label_delete': return '삭제';
+        case 'label_title_report': return '신고';
+        case 'dialog_caution': return '주의';
+      }
+    }
+    
+    // 영어 기본 번역
+    switch (key) {
+      case 'label_reply': return 'Reply';
+      case 'post_comment_action_show_translation': return 'Show Translation';
+      case 'post_comment_action_show_original': return 'Show Original';
+      case 'post_comment_action_translate': return 'Translate';
+      case 'post_comment_reported_comment': return 'Reported Comment';
+      case 'post_comment_deleted_comment': return 'Deleted Comment';
+      case 'post_comment_content_more': return 'Show More';
+      case 'post_comment_translated': return 'Translated';
+      case 'error_action_failed': return 'Action failed';
+      case 'label_hint_comment': return 'Write a comment';
+      case 'common_retry_label': return 'Retry';
+      case 'label_retry': return 'Retry';
+      case 'popup_label_delete': return 'Delete';
+      case 'label_title_report': return 'Report';
+      case 'dialog_caution': return 'Caution';
+    }
+    
+    return null;
   }
 }
 

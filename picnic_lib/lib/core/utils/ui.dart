@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
@@ -41,12 +42,8 @@ Widget buildPlaceholderImage() {
 }
 
 Widget buildLoadingOverlay() {
-  return Shimmer.fromColors(
-    baseColor: AppColors.grey300,
-    highlightColor: AppColors.grey100,
-    child: Container(
-      color: AppColors.grey00,
-    ),
+  return const Center(
+    child: MediumPulseLoadingIndicator(),
   );
 }
 

@@ -138,4 +138,82 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
+
+  @override
+  String get label_reply => '답글';
+
+  @override
+  String get post_comment_action_show_translation => '번역 보기';
+
+  @override
+  String get post_comment_action_show_original => '원문 보기';
+
+  @override
+  String get post_comment_action_translate => '번역하기';
+
+  @override
+  String get post_comment_reported_comment => '신고된 댓글';
+
+  @override
+  String get post_comment_deleted_comment => '삭제된 댓글';
+
+  @override
+  String get post_comment_content_more => '더보기';
+
+  @override
+  String get post_comment_translated => '번역됨';
+
+  @override
+  String get post_my_written_reply => '내가 쓴 댓글';
+
+  @override
+  String get post_comment_delete_fail => '댓글 삭제에 실패했습니다.';
+
+  @override
+  String get post_comment_loading_fail => '댓글 로딩에 실패했습니다.';
+
+  @override
+  String get common_retry_label => '다시 시도';
+
+  @override
+  String get error_action_failed => '작업이 실패했습니다.';
+
+  @override
+  String get label_article_comment_empty => '댓글이 없습니다.';
+
+  @override
+  String get error_loading_more_comments => '댓글을 더 불러오는데 실패했습니다.';
+
+  @override
+  String get label_retry => '다시 시도';
+
+  @override
+  String get label_hint_comment => '댓글을 입력하세요';
+
+  @override
+  String get dialog_caution => '주의';
+
+  @override
+  String get post_flagged => '이 게시물은 신고되었습니다.';
+
+  @override
+  String get post_comment_registered_comment => '댓글이 등록되었습니다.';
+
+  @override
+  String get post_comment_register_fail => '댓글 등록에 실패했습니다.';
+
+  @override
+  String get post_comment_translate_fail => '댓글 번역에 실패했습니다.';
+
+  @override
+  String get label_read_more_comment => '댓글 더보기';
+
+  @override
+  String get popup_label_delete => '삭제';
+
+  @override
+  String get post_comment_delete_confirm => '댓글을 삭제하시겠습니까?';
+
+  @override
+  String get label_title_report => '신고';
 }

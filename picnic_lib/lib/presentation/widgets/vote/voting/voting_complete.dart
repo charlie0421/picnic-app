@@ -196,20 +196,22 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                     children: [
                       Container(
                         padding: EdgeInsets.only(
-                            top: 2, bottom: 2, left: 24.w, right: 24.w),
+                            top: 8, bottom: 8, left: 24.w, right: 24.w),
                         alignment: Alignment.center,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Text(
-                              getLocaleTextFromJson(widget.voteModel.title),
-                              style: getTextStyle(
-                                AppTypo.caption12B,
-                                AppColors.grey900,
+                            Expanded(
+                              child: Text(
+                                getLocaleTextFromJson(widget.voteModel.title),
+                                style: getTextStyle(
+                                  AppTypo.caption12B,
+                                  AppColors.grey900,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
                             ),
                           ],
                         ),

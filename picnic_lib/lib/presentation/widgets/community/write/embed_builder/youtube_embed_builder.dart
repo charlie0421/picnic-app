@@ -6,6 +6,7 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/youtube_service.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -108,37 +109,18 @@ class _YouTubeEmbedContent extends StatelessWidget {
                   onTap: () => _launchYouTubeVideo(videoInfo.id),
                   child: Stack(
                     children: [
-                      // 썸네일 이미지 (고품질)
-                      Image.network(
-                        getThumbnailUrl(videoInfo.id, highQuality: true),
+                      // 썸네일 이미지 (고품질) - PicnicCachedNetworkImage 사용
+                      PicnicCachedNetworkImage(
+                        imageUrl: getThumbnailUrl(videoInfo.id, highQuality: true),
                         width: maxWidth,
                         height: thumbnailHeight,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          // 고품질 썸네일 로드 실패시 저품질 썸네일 시도
-                          return Image.network(
-                            getThumbnailUrl(videoInfo.id, highQuality: false),
-                            width: maxWidth,
-                            height: thumbnailHeight,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              // 모든 썸네일 로드 실패시 플레이스홀더 표시
-                              return Container(
-                                width: maxWidth,
-                                height: thumbnailHeight,
-                                color: Colors.grey[300],
-                                child: const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.error_outline),
-                                    SizedBox(height: 8),
-                                    Text('Thumbnail not available'),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        },
+                        placeholder: SizedBox(
+                          width: maxWidth,
+                          height: thumbnailHeight,
+                          child: buildLoadingOverlay(),
+                        ),
+                        // 고품질 실패시 저품질로 fallback은 PicnicCachedNetworkImage 내부에서 처리
                       ),
                       // 플레이 버튼 오버레이
                       Positioned.fill(

@@ -5,6 +5,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class BoardRequest extends ConsumerStatefulWidget {
@@ -116,7 +117,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
     return boardRequestState.when(
       data: (pendingRequest) {
         if (_isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: MediumPulseLoadingIndicator());
         }
 
         if (_error != null) {
@@ -205,7 +206,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: MediumPulseLoadingIndicator()),
       error: (error, stackTrace) => Center(
         child: Text('Error: ${error.toString()}'),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 /// 검색 결과 액션 버튼 위젯
@@ -57,10 +58,7 @@ class SearchResultActionButton extends StatelessWidget {
               ? SizedBox(
                   width: 12.w,
                   height: 12.h,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 1.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
+                  child: SmallPulseLoadingIndicator(),
                 )
               : Row(
                   mainAxisSize: MainAxisSize.min,

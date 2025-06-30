@@ -95,7 +95,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
             future: _filterHiddenPopups(popups),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+                return const SizedBox.shrink();
               }
               _filteredPopups = List.from(snapshot.data!);
               _lastPopupIds = List.from(currentIds);
@@ -108,7 +108,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
         if (_filteredPopups.isEmpty) return const SizedBox.shrink();
         return _buildPopupContent(lang);
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const SizedBox.shrink(),
       error: (e, stack) {
         logger.e('PopupProvider error: $e');
         return const SizedBox.shrink();

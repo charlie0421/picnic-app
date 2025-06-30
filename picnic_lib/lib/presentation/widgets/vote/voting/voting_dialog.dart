@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
@@ -19,6 +18,7 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -63,6 +63,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   final GlobalKey _inputFieldKey = GlobalKey();
+  final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
+      GlobalKey<LoadingOverlayWithIconState>();
   bool _checkAll = false;
   bool _hasValue = false;
   bool _canVote = false;
@@ -115,32 +117,42 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final userId =
         ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
 
-    return AlertDialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
-      contentPadding: EdgeInsets.zero,
-      content: LargePopupWidget(
-        showCloseButton: false,
-        content: Container(
-          padding:
-              EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 8),
-              _buildMemberInfo(),
-              _buildStarCandyInfo(myStarCandy),
-              const SizedBox(height: 8),
-              _buildCheckAllOption(),
-              const SizedBox(height: 8),
-              _buildVoteAmountInput(context),
-              const SizedBox(height: 8),
-              _buildErrorMessage(),
-              _buildBubble(),
-              const SizedBox(height: 9),
-              _buildVoteButton(myStarCandy, userId),
-            ],
+    return LoadingOverlayWithIcon(
+      key: _loadingKey,
+      iconAssetPath: 'assets/app_icon_128.png',
+      enableScale: true,
+      enableFade: true,
+      enableRotation: false,
+      minScale: 0.98,
+      maxScale: 1.02,
+      showProgressIndicator: false,
+      child: AlertDialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
+        contentPadding: EdgeInsets.zero,
+        content: LargePopupWidget(
+          showCloseButton: false,
+          content: Container(
+            padding:
+                EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 8),
+                _buildMemberInfo(),
+                _buildStarCandyInfo(myStarCandy),
+                const SizedBox(height: 8),
+                _buildCheckAllOption(),
+                const SizedBox(height: 8),
+                _buildVoteAmountInput(context),
+                const SizedBox(height: 8),
+                _buildErrorMessage(),
+                _buildBubble(),
+                const SizedBox(height: 9),
+                _buildVoteButton(myStarCandy, userId),
+              ],
+            ),
           ),
         ),
       ),
@@ -554,8 +566,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
     FocusScope.of(context).unfocus();
 
-    OverlayLoadingProgress.start(context,
-        color: AppColors.primary500, barrierDismissible: false);
+    _loadingKey.currentState?.show();
 
     _performVoting(voteAmount, userId);
   }
@@ -581,7 +592,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
           .fetch(voteId: widget.voteModel.id);
 
-      OverlayLoadingProgress.stop();
+      _loadingKey.currentState?.hide();
 
       if (!mounted) return;
 
@@ -597,7 +608,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       _showVotingCompleteDialog(result);
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
-      OverlayLoadingProgress.stop();
+      _loadingKey.currentState?.hide();
       Navigator.of(context).pop();
 
       _showVotingFailDialog();

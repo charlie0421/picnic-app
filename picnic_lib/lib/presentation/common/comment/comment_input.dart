@@ -13,6 +13,7 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class CommentInput extends ConsumerStatefulWidget {
   const CommentInput({
@@ -137,14 +138,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
 
   Widget _buildSendButton() {
     if (_isLoading) {
-      return SizedBox(
-        width: 24,
-        height: 24,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.primary500,
-        ),
-      );
+      return SmallPulseLoadingIndicator();
     }
 
     return GestureDetector(

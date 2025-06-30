@@ -35,15 +35,10 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
       future: _uploadImage(imageUrl),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 10),
-                Text('Uploading...'),
-              ],
-            ),
+          return SizedBox(
+            width: double.infinity,
+            height: 200,
+            child: buildLoadingOverlay(),
           );
         } else if (snapshot.hasError) {
           logger.i('Error in FutureBuilder: ${snapshot.error}');
@@ -61,23 +56,14 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
           );
         } else if (snapshot.hasData) {
           logger.i('Network URL received: ${snapshot.data}');
-          return Image.network(
-            snapshot.data!,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                      : null,
-                ),
-              );
-            },
-            errorBuilder: (context, error, stackTrace) {
-              logger.i('Error loading image: $error');
-              return Text('Error loading image: $error');
-            },
+          return PicnicCachedNetworkImage(
+            imageUrl: snapshot.data!,
+            fit: BoxFit.contain,
+            placeholder: SizedBox(
+              width: double.infinity,
+              height: 200,
+              child: buildLoadingOverlay(),
+            ),
           );
         } else {
           return const SizedBox.shrink();

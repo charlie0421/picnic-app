@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -70,9 +71,7 @@ class VideoListItem extends StatelessWidget {
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  placeholder: (context, url) => buildLoadingOverlay(),
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
                 const Icon(

@@ -17,6 +17,7 @@ import 'package:picnic_lib/presentation/common/comment/comment_header.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class CommentItem extends ConsumerStatefulWidget {
   const CommentItem({
@@ -305,13 +306,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
               _buildCommentContent(),
               SizedBox(width: 10.w),
               if (_isProcessing)
-                const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
-                )
+                SmallPulseLoadingIndicator()
               else
                 CommentPopupMenu(
                   postId: widget.postId,

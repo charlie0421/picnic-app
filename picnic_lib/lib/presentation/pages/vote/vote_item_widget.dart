@@ -99,21 +99,33 @@ class VoteItemWidget extends StatelessWidget {
                                       style: getTextStyle(
                                           AppTypo.body14B, AppColors.grey900),
                                     ),
-                                    // 그룹명을 괄호 안에 작게 표시
-                                    if (item.artist?.artistGroup?.name != null)
+                                    // 그룹명을 괄호 안에 작게 표시 (그룹명이 실제로 존재할 때만)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        getLocaleTextFromJson(
+                                                item.artist!.artistGroup!.name)
+                                            .isNotEmpty)
                                       TextSpan(
                                         text: ' (',
                                         style: getTextStyle(AppTypo.caption10SB,
                                             AppColors.grey600),
                                       ),
-                                    if (item.artist?.artistGroup?.name != null)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        getLocaleTextFromJson(
+                                                item.artist!.artistGroup!.name)
+                                            .isNotEmpty)
                                       TextSpan(
                                         text: getLocaleTextFromJson(
                                             item.artist!.artistGroup!.name),
                                         style: getTextStyle(AppTypo.caption10SB,
                                             AppColors.grey600),
                                       ),
-                                    if (item.artist?.artistGroup?.name != null)
+                                    if (item.artist?.artistGroup?.name !=
+                                            null &&
+                                        getLocaleTextFromJson(
+                                                item.artist!.artistGroup!.name)
+                                            .isNotEmpty)
                                       TextSpan(
                                         text: ')',
                                         style: getTextStyle(AppTypo.caption10SB,

@@ -15,6 +15,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/platform_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -33,6 +34,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   String? patchVersion;
   bool isPatched = false;
   String _patchInfo = "Loading...";
+  bool _isRestartingApp = false;
 
   Future<bool> _getFuture1() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -70,6 +72,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     ref.watch(platformInfoProvider);
     final userInfoState = ref.watch(userInfoProvider);
     final updateChecker = ref.watch(checkUpdateProvider);
+    final patchInfo = ref.watch(patchInfoProvider);
 
     return userInfoState.when(
         data: (data) => Container(
@@ -266,20 +269,42 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       },
                       loading: () => ui.buildLoadingOverlay(),
                       error: (_, __) => Container()),
+                  // 패치 정보 및 수동 재시작
                   PicnicListItem(
-                    leading: 'Patch',
+                    leading: 'Patch Status',
                     title: Container(
                       margin: EdgeInsets.only(right: 8.w),
                       alignment: Alignment.centerRight,
-                      child: Text(
-                        _patchInfo,
-                        style: getTextStyle(
-                            AppTypo.caption12B, AppColors.secondary500),
-                        textAlign: TextAlign.start,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            patchInfo.displayInfo,
+                            style: getTextStyle(
+                              AppTypo.caption12B, 
+                              patchInfo.canRestart 
+                                ? AppColors.primary500 
+                                : AppColors.secondary500
+                            ),
+                            textAlign: TextAlign.end,
+                          ),
+                          if (patchInfo.lastChecked != null)
+                            Text(
+                              'Last checked: ${_formatTime(patchInfo.lastChecked!)}',
+                              style: getTextStyle(
+                                AppTypo.caption10SB, 
+                                AppColors.grey500
+                              ),
+                              textAlign: TextAlign.end,
+                            ),
+                        ],
                       ),
                     ),
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    tailing: SizedBox.shrink(),
+                    tailing: patchInfo.canRestart 
+                      ? _buildRestartButton(context, patchInfo)
+                      : const SizedBox.shrink(),
                   ),
                 ],
               ),
@@ -334,4 +359,116 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       });
     }
   }
+
+  /// 시간 포맷팅 (HH:mm 형식)
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+    
+    if (difference.inMinutes < 1) {
+      return 'just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else {
+      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    }
+  }
+
+  /// 수동 재시작 버튼 위젯
+  Widget _buildRestartButton(BuildContext context, PatchInfo patchInfo) {
+    return Container(
+      margin: EdgeInsets.only(left: 8.w),
+      child: _isRestartingApp
+          ? SizedBox(
+              width: 20.w,
+              height: 20.w,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
+              ),
+            )
+          : GestureDetector(
+              onTap: () => _handleManualRestart(context, patchInfo),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.w),
+                decoration: BoxDecoration(
+                  color: AppColors.primary500,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary500.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'Restart',
+                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+                ),
+              ),
+            ),
+    );
+  }
+
+  /// 수동 재시작 처리
+  Future<void> _handleManualRestart(BuildContext context, PatchInfo patchInfo) async {
+    if (!patchInfo.canRestart || _isRestartingApp) return;
+
+    // 확인 다이얼로그 표시
+    final shouldRestart = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Restart App',
+          style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+        ),
+        content: Text(
+          'A new update is ready. The app will restart to apply the changes.\n\nContinue?',
+          style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: getTextStyle(AppTypo.body14M, AppColors.grey600),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              'Restart',
+              style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldRestart == true && mounted) {
+      setState(() {
+        _isRestartingApp = true;
+      });
+
+      try {
+        // 짧은 지연 후 재시작 실행
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (mounted) {
+          await ref.read(patchInfoProvider.notifier).performManualRestart(context);
+        }
+      } catch (e) {
+        logger.e('수동 재시작 실행 중 오류: $e');
+        if (mounted) {
+          setState(() {
+            _isRestartingApp = false;
+          });
+        }
+      }
+    }
+  }
+
+
 }

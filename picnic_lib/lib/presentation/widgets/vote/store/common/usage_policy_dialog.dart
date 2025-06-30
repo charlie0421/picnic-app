@@ -5,6 +5,7 @@ import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/bullet_point.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
@@ -87,8 +88,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                         //   ],
                         // );
                       } else {
-                        return CircularProgressIndicator(
-                            color: AppColors.primary500);
+                        return MediumPulseLoadingIndicator();
                       }
                     }),
                 const SizedBox(height: 24),

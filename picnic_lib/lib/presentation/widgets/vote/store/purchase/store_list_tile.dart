@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class StoreListTile extends StatelessWidget {
@@ -49,11 +50,7 @@ class StoreListTile extends StatelessWidget {
                   ? SizedBox(
                       width: 16.w,
                       height: 16,
-                      child: const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(AppColors.grey00),
-                      ),
+                      child: const SmallPulseLoadingIndicator(),
                     )
                   : Text(
                       buttonText,

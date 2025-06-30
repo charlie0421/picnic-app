@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:picnic_lib/core/services/link_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/deletable_embed_builder.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -198,7 +199,7 @@ class _ReadOnlyLinkPreviewWidgetState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (isLoading)
-                            const Center(child: CircularProgressIndicator())
+                            buildLoadingOverlay()
                           else ...[
                             if (errorMessage != null)
                               Padding(
@@ -412,7 +413,7 @@ class _EditableLinkPreviewWidgetState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (isLoading)
-                            const Center(child: CircularProgressIndicator())
+                            buildLoadingOverlay()
                           else ...[
                             if (errorMessage != null)
                               Padding(

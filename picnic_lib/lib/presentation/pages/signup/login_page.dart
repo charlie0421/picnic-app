@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
@@ -21,10 +20,10 @@ import 'package:picnic_lib/presentation/pages/signup/agreement_terms_page.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -39,6 +38,7 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginPage> {
   final AuthService _authService = AuthService();
+  final GlobalKey<LoadingOverlayWithIconState> _loadingKey = GlobalKey<LoadingOverlayWithIconState>();
 
   String? lastProvider;
 
@@ -51,48 +51,75 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     });
   }
 
+  /// 로그인 프로세스 중 로딩 상태를 안전하게 관리하는 유틸리티 메서드
+  Future<T> _executeWithLoading<T>(
+    Future<T> Function() operation,
+  ) async {
+    try {
+      _loadingKey.currentState?.show();
+      return await operation();
+    } finally {
+      _loadingKey.currentState?.hide();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(gradient: commonGradient),
-      child: Center(
-        child: Container(
-          color: voteMainColor,
-          constraints: BoxConstraints(
-            maxWidth: UniversalPlatform.isWeb
-                ? Constants.webWidth
-                : getPlatformScreenSize(context).width,
-          ),
-          child: Scaffold(
-            body: SafeArea(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () {
-                          if (Navigator.of(context).canPop()) {
-                            Navigator.of(context).pop();
-                          }
-                        },
-                        child: SvgPicture.asset(
-                          package: 'picnic_lib',
-                          'assets/icons/arrow_left_style=line.svg',
-                          width: 24.w,
-                          height: 24,
-                          colorFilter: const ColorFilter.mode(
-                              AppColors.grey900, BlendMode.srcIn),
+    return LoadingOverlayWithIcon(
+      key: _loadingKey,
+      // 구매와 동일한 pulse 애니메이션 설정
+      iconAssetPath: 'assets/app_icon_128.png',
+      enableRotation: false, // 회전 비활성화
+      enableScale: true, // pulse 효과를 위한 스케일
+      enableFade: true, // pulse 효과를 위한 페이드
+      loadingMessage: null, // 하단 텍스트 제거
+      // pulse 효과를 위한 커스텀 설정
+      scaleDuration: const Duration(milliseconds: 800), // 더 빠른 pulse
+      fadeDuration: const Duration(milliseconds: 800), // 스케일과 동기화
+      minScale: 0.98, // 매우 미묘한 변화
+      maxScale: 1.02, // 매우 미묘한 변화
+      showProgressIndicator: false, // 하단 로딩바 제거
+      child: Container(
+        decoration: BoxDecoration(gradient: commonGradient),
+        child: Center(
+          child: Container(
+            color: voteMainColor,
+            constraints: BoxConstraints(
+              maxWidth: UniversalPlatform.isWeb
+                  ? Constants.webWidth
+                  : getPlatformScreenSize(context).width,
+            ),
+            child: Scaffold(
+              body: SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                          child: SvgPicture.asset(
+                            package: 'picnic_lib',
+                            'assets/icons/arrow_left_style=line.svg',
+                            width: 24.w,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(
+                                AppColors.grey900, BlendMode.srcIn),
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(child: _buildSwiper()),
-                    const SizedBox(height: 24),
-                    _buildLanguageSelector(context, ref),
-                    const SizedBox(height: 24),
-                    _buildLoginButton(context, ref),
-                  ],
+                      Expanded(child: _buildSwiper()),
+                      const SizedBox(height: 24),
+                      _buildLanguageSelector(context, ref),
+                      const SizedBox(height: 24),
+                      _buildLoginButton(context, ref),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -263,43 +290,41 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
 
   void _handleSuccessfulLogin() async {
     try {
-      OverlayLoadingProgress.start(context,
-          color: AppColors.primary500, barrierDismissible: false);
+      await _executeWithLoading(
+        () async {
+          final user = supabase.auth.currentUser;
+          if (user == null) {
+            throw Exception('Failed to get current user');
+          }
 
-      final user = supabase.auth.currentUser;
-      if (user == null) {
-        throw Exception('Failed to get current user');
-      }
+          final userProfile =
+              await ref.read(userInfoProvider.notifier).getUserProfiles();
 
-      final userProfile =
-          await ref.read(userInfoProvider.notifier).getUserProfiles();
-
-      OverlayLoadingProgress.stop();
-
-      if (userProfile == null) {
-        ref
-            .read(navigationInfoProvider.notifier)
-            .setCurrentSignUpPage(const AgreementTermsPage());
-        Navigator.of(navigatorKey.currentContext!).pop();
-      } else if (userProfile.deletedAt != null) {
-        showSimpleDialog(
-            content: t('error_message_withdrawal'),
-            onOk: () {
-              ref.read(userInfoProvider.notifier).logout();
-              Navigator.of(navigatorKey.currentContext!).pop();
-            });
-      } else if (userProfile.userAgreement == null) {
-        ref
-            .read(navigationInfoProvider.notifier)
-            .setCurrentSignUpPage(const AgreementTermsPage());
-        Navigator.of(navigatorKey.currentContext!).pop();
-      } else {
-        ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
-        Navigator.of(navigatorKey.currentContext!).pop();
-        Navigator.of(navigatorKey.currentContext!).pop();
-      }
+          if (userProfile == null) {
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCurrentSignUpPage(const AgreementTermsPage());
+            Navigator.of(navigatorKey.currentContext!).pop();
+          } else if (userProfile.deletedAt != null) {
+            showSimpleDialog(
+                content: t('error_message_withdrawal'),
+                onOk: () {
+                  ref.read(userInfoProvider.notifier).logout();
+                  Navigator.of(navigatorKey.currentContext!).pop();
+                });
+          } else if (userProfile.userAgreement == null) {
+            ref
+                .read(navigationInfoProvider.notifier)
+                .setCurrentSignUpPage(const AgreementTermsPage());
+            Navigator.of(navigatorKey.currentContext!).pop();
+          } else {
+            ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
+            Navigator.of(navigatorKey.currentContext!).pop();
+            Navigator.of(navigatorKey.currentContext!).pop();
+          }
+        },
+      );
     } catch (e, s) {
-      OverlayLoadingProgress.stop();
       logger.e('error', error: e, stackTrace: s);
       showSimpleDialog(
           title: t('error_title'),
@@ -312,95 +337,42 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildAppleLogin(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          width: 240,
-          height: 44,
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: SignInWithAppleButton(
-            height: 44,
-            onPressed: () async {
-              try {
-                OverlayLoadingProgress.start(context,
-                    color: AppColors.primary500, barrierDismissible: false);
-                final user =
-                    await _authService.signInWithProvider(OAuthProvider.apple);
-
-                if (user != null) {
-                  _handleSuccessfulLogin();
-                }
-              } on PicnicAuthException catch (e, s) {
-                logger.e(
-                    'Apple login PicnicAuthException: $e (originalError: ${e.originalError})',
-                    error: e,
-                    stackTrace: s);
-
-                if (e.code == 'canceled') {
-                  return;
-                }
-
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: t('error_title'),
-                    content: e.message,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              } catch (e, s) {
-                OverlayLoadingProgress.stop();
-                logger.e('Error signing in with Apple: $e', stackTrace: s);
-
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: t('error_title'),
-                    content: t('error_message_login_failed'),
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-                rethrow;
-              } finally {
-                OverlayLoadingProgress.stop();
-              }
-            },
-            style: SignInWithAppleButtonStyle.black,
-          ),
-        ),
-        if (lastProvider == 'apple') LastProvider()
-      ],
-    );
-  }
-
-  Widget _buildGoogleLogin(BuildContext context) {
-    return Stack(
-      children: [
+    return LayoutBuilder(builder: (context, constraints) {
+      return Stack(children: [
         GestureDetector(
           onTap: () async {
             try {
-              OverlayLoadingProgress.start(context,
-                  color: AppColors.primary500, barrierDismissible: false);
-
-              if (kIsWeb) {
-                await supabase.auth.signInWithOAuth(
-                  OAuthProvider.google,
-                  redirectTo: '${Environment.webDomain}/auth/callback',
-                  scopes: 'email profile',
-                );
-              } else {
-                final user =
-                    await _authService.signInWithProvider(OAuthProvider.google);
-                if (user != null) {
-                  _handleSuccessfulLogin();
-                }
+                             await _executeWithLoading(
+                 () async {
+                  if (kIsWeb) {
+                    await supabase.auth.signInWithOAuth(
+                      OAuthProvider.apple,
+                      redirectTo: '${Environment.webDomain}/auth/callback',
+                    );
+                  } else {
+                    final user = await _authService
+                        .signInWithProvider(OAuthProvider.apple);
+                    if (user != null) {
+                      _handleSuccessfulLogin();
+                    }
+                  }
+                },
+              );
+            } on PicnicAuthException catch (e) {
+              if (e.code == 'canceled') {
+                return; // 사용자가 취소한 경우 아무것도 하지 않음
               }
+
+              showSimpleDialog(
+                  type: DialogType.error,
+                  title: t('error_title'),
+                  content: e.message,
+                  onOk: () {
+                    Navigator.of(navigatorKey.currentContext!).pop();
+                  });
             } catch (e, s) {
-              logger.e('Error signing in with Google: $e', stackTrace: s);
+              logger.e('Error signing in with Apple: $e', stackTrace: s);
 
-              if (e is PicnicAuthException) {
-                if (e.code == 'canceled') {
-                  return;
-                }
-              }
               showSimpleDialog(
                   type: DialogType.error,
                   title: t('error_title'),
@@ -409,18 +381,96 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
               rethrow;
-            } finally {
-              OverlayLoadingProgress.stop();
             }
           },
           child: Center(
             child: Container(
+              width: 240,
+              height: 44,
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.grey400, width: 1),
                 borderRadius: BorderRadius.circular(12),
+                color: Colors.black,
               ),
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                      package: 'picnic_lib',
+                      'assets/icons/login/apple.svg',
+                      width: 20.w,
+                      height: 20),
+                  SizedBox(width: 8.w),
+                  Text('Login with Apple',
+                      style: getTextStyle(AppTypo.body14M, AppColors.grey00)),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (lastProvider == 'apple') const LastProvider(),
+      ]);
+    });
+  }
+
+  Widget _buildGoogleLogin(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      return Stack(children: [
+        GestureDetector(
+          onTap: () async {
+            try {
+                             await _executeWithLoading(
+                 () async {
+                  if (kIsWeb) {
+                    await supabase.auth.signInWithOAuth(
+                      OAuthProvider.google,
+                      redirectTo: '${Environment.webDomain}/auth/callback',
+                    );
+                  } else {
+                    final user = await _authService
+                        .signInWithProvider(OAuthProvider.google);
+                    if (user != null) {
+                      _handleSuccessfulLogin();
+                    }
+                  }
+                },
+              );
+            } on PicnicAuthException catch (e) {
+              if (e.code == 'canceled') {
+                return; // 사용자가 취소한 경우 아무것도 하지 않음
+              }
+
+              showSimpleDialog(
+                  type: DialogType.error,
+                  title: t('error_title'),
+                  content: e.message,
+                  onOk: () {
+                    Navigator.of(navigatorKey.currentContext!).pop();
+                  });
+            } catch (e, s) {
+              logger.e('Error signing in with Google: $e', stackTrace: s);
+
+              showSimpleDialog(
+                  type: DialogType.error,
+                  title: t('error_title'),
+                  content: t('error_message_login_failed'),
+                  onOk: () {
+                    Navigator.of(navigatorKey.currentContext!).pop();
+                  });
+              rethrow;
+            }
+          },
+          child: Center(
+            child: Container(
               width: 240,
               height: 44,
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.grey400, width: 1),
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+              ),
               margin: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -432,16 +482,16 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       width: 20.w,
                       height: 20),
                   SizedBox(width: 8.w),
-                  Text('Sign in with Google',
+                  Text('Login with Google',
                       style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
                 ],
               ),
             ),
           ),
         ),
-        if (lastProvider == 'google') LastProvider()
-      ],
-    );
+        if (lastProvider == 'google') const LastProvider(),
+      ]);
+    });
   }
 
   Widget _buildKakaoLogin(BuildContext context) {
@@ -450,24 +500,26 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-              OverlayLoadingProgress.start(context,
-                  color: AppColors.primary500, barrierDismissible: false);
-              if (kIsWeb) {
-                await supabase.auth.signInWithOAuth(
-                  OAuthProvider.kakao,
-                  redirectTo: '${Environment.webDomain}/auth/callback',
-                  scopes: 'account_email profile_image profile_nickname',
-                );
-              } else {
-                final user =
-                    await _authService.signInWithProvider(OAuthProvider.kakao);
-                if (user != null) {
-                  _handleSuccessfulLogin();
-                }
-              }
+                             await _executeWithLoading(
+                 () async {
+                  if (kIsWeb) {
+                    await supabase.auth.signInWithOAuth(
+                      OAuthProvider.kakao,
+                      redirectTo: '${Environment.webDomain}/auth/callback',
+                      scopes: 'account_email profile_image profile_nickname',
+                    );
+                  } else {
+                    final user = await _authService
+                        .signInWithProvider(OAuthProvider.kakao);
+                    if (user != null) {
+                      _handleSuccessfulLogin();
+                    }
+                  }
+                },
+              );
             } on PicnicAuthException catch (e) {
               if (e.code == 'canceled') {
-                return;
+                return; // 사용자가 취소한 경우 아무것도 하지 않음
               }
 
               showSimpleDialog(
@@ -478,7 +530,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
             } catch (e, s) {
-              OverlayLoadingProgress.stop();
               logger.e('Error signing in with Kakao: $e', stackTrace: s);
 
               showSimpleDialog(
@@ -489,8 +540,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
               rethrow;
-            } finally {
-              OverlayLoadingProgress.stop();
             }
           },
           child: Center(
@@ -520,7 +569,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             ),
           ),
         ),
-        if (lastProvider == 'kakao') LastProvider(),
+        if (lastProvider == 'kakao') const LastProvider(),
       ]);
     });
   }

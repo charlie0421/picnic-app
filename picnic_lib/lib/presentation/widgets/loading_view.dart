@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/core/constatns/constants.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class LoadingView extends ConsumerStatefulWidget {
   final bool? viewer;
@@ -42,9 +42,7 @@ class _LoadingViewState extends ConsumerState<LoadingView> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(picMainColor),
-      ),
+      child: MediumPulseLoadingIndicator(),
     );
   }
 }

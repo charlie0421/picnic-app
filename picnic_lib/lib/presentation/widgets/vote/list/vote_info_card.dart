@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -20,6 +19,9 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_upcoming.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_active_and_end.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
@@ -151,6 +153,23 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
     super.dispose();
   }
 
+  /// status에 따른 로딩 스켈레톤 생성
+  Widget _buildLoadingSkeleton() {
+    switch (widget.status) {
+      case VoteStatus.upcoming:
+        // 예정된 투표: 헤더만 있는 스켈레톤 (투표 아이템 없음)
+        return const VoteCardSkeletonUpcoming();
+      case VoteStatus.active:
+        // 활성 투표: 헤더 + 투표 아이템이 있는 스켈레톤
+        return const VoteCardSkeletonActiveAndEnd();
+      case VoteStatus.end:
+        // 종료된 투표: 결과 표시에 특화된 컴팩트 스켈레톤
+        return const VoteCardSkeletonActiveAndEnd();
+      default:
+        return const VoteCardSkeleton();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncVoteDetail = ref.watch(asyncVoteDetailProvider(
@@ -162,7 +181,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       color: AppColors.grey00,
       child: asyncVoteDetail.when(
         data: (vote) => _buildCard(context, vote, asyncVoteItemList),
-        loading: () => buildLoadingOverlay(),
+        loading: () => _buildLoadingSkeleton(),
         error: (error, stack) => Text('Error: $error'),
       ),
     );
@@ -240,6 +259,75 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           return const Center(child: Text('No vote items available'));
         }
 
+        // null이 아닌 실제 아이템들만 필터링
+        final nonNullItems = voteItems
+            .where((item) => item != null)
+            .cast<VoteItemModel>()
+            .toList();
+
+        // 2개 아이템인 경우 특별 처리
+        if (nonNullItems.length == 2) {
+          return Container(
+            width: ref.watch(globalMediaQueryProvider).size.width,
+            height: 260,
+            padding:
+                const EdgeInsets.only(left: 16, right: 16, top: 16), // 좌우 패딩 줄임
+            margin: const EdgeInsets.only(top: 24),
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(40),
+              border: Border.all(
+                color: AppColors.primary500,
+                width: 1.5.w,
+              ),
+            ),
+            child: SlideTransition(
+              position: _offsetAnimation,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24.0), // 좌우 패딩 추가
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // 1위 카드
+                    VoteCardColumnVertical(
+                      rank: 1,
+                      voteItem: nonNullItems[0],
+                      opacityAnimation: _opacityAnimation,
+                      status: widget.status,
+                    ),
+
+                    // VS 텍스트
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 60),
+                      child: FadeTransition(
+                        opacity: _opacityAnimation,
+                        child: Text(
+                          'VS',
+                          style: getTextStyle(
+                                  AppTypo.caption12B, AppColors.primary500)
+                              .copyWith(fontSize: 16.sp),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+
+                    // 2위 카드
+                    VoteCardColumnVertical(
+                      rank: 2,
+                      voteItem: nonNullItems[1],
+                      opacityAnimation: _opacityAnimation,
+                      status: widget.status,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        // 3개 이상인 경우 기존 로직 (패딩으로 3개 맞추기)
         final paddedItems = [...voteItems];
         while (paddedItems.length < 3) {
           paddedItems.add(null);
@@ -290,7 +378,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           ),
         );
       },
-      loading: () => const CircularProgressIndicator(),
+      loading: () => _buildLoadingSkeleton(),
       error: (error, stack) => Text('Error: $error'),
     );
   }
@@ -339,7 +427,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           },
         ),
       ),
-      loading: () => const SizedBox.shrink(),
+      loading: () => _buildLoadingSkeleton(),
       error: (error, stack) => Text('Error: $error'),
     );
   }

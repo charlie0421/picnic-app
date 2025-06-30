@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class AppLoadingScreen extends StatelessWidget {
   const AppLoadingScreen({super.key});
@@ -29,7 +30,7 @@ class AppLoadingScreen extends StatelessWidget {
             const SizedBox(height: 40),
 
             // 로딩 인디케이터
-            const CircularProgressIndicator(),
+            const LargePulseLoadingIndicator(),
             const SizedBox(height: 24),
 
             // 로딩 텍스트

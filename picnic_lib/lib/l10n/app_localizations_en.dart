@@ -140,4 +140,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
+
+  @override
+  String get label_reply => 'Reply';
+
+  @override
+  String get post_comment_action_show_translation => 'Show Translation';
+
+  @override
+  String get post_comment_action_show_original => 'Show Original';
+
+  @override
+  String get post_comment_action_translate => 'Translate';
+
+  @override
+  String get post_comment_reported_comment => 'Reported Comment';
+
+  @override
+  String get post_comment_deleted_comment => 'Deleted Comment';
+
+  @override
+  String get post_comment_content_more => 'Show More';
+
+  @override
+  String get post_comment_translated => 'Translated';
+
+  @override
+  String get post_my_written_reply => 'My Comments';
+
+  @override
+  String get post_comment_delete_fail => 'Failed to delete comment.';
+
+  @override
+  String get post_comment_loading_fail => 'Failed to load comments.';
+
+  @override
+  String get common_retry_label => 'Retry';
+
+  @override
+  String get error_action_failed => 'Action failed.';
+
+  @override
+  String get label_article_comment_empty => 'No comments yet.';
+
+  @override
+  String get error_loading_more_comments => 'Failed to load more comments.';
+
+  @override
+  String get label_retry => 'Retry';
+
+  @override
+  String get label_hint_comment => 'Write a comment';
+
+  @override
+  String get dialog_caution => 'Caution';
+
+  @override
+  String get post_flagged => 'This post has been reported.';
+
+  @override
+  String get post_comment_registered_comment => 'Comment has been posted.';
+
+  @override
+  String get post_comment_register_fail => 'Failed to post comment.';
+
+  @override
+  String get post_comment_translate_fail => 'Failed to translate comment.';
+
+  @override
+  String get label_read_more_comment => 'Read More Comments';
+
+  @override
+  String get popup_label_delete => 'Delete';
+
+  @override
+  String get post_comment_delete_confirm =>
+      'Are you sure you want to delete this comment?';
+
+  @override
+  String get label_title_report => 'Report';
 }
