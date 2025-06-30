@@ -491,21 +491,8 @@ class PurchaseService {
     return PurchaseConstants.purchaseFailedError;
   }
 
-  /// 구매 진행 상태 완료 처리 (단순화)
-  void _completeProcessing(String productId, {required bool success}) {
-    _processingProducts.remove(productId);
-    logger.i(success ? '✅ 구매 완료: $productId' : '❌ 구매 실패: $productId');
-  }
 
-  /// 구매 성공 처리 (단순화)
-  void _markPurchaseGuardSuccess(String productId) {
-    _completeProcessing(productId, success: true);
-  }
 
-  /// 구매 실패 처리 (단순화)
-  void _markPurchaseGuardFailure(String productId) {
-    _completeProcessing(productId, success: false);
-  }
 
   /// 서비스 해제 시 모든 진행 상태 정리
   void dispose() {
@@ -613,6 +600,6 @@ class PurchaseService {
   /// 🧪 현재 디버그 상태와 진행 중인 구매 상태 출력
   void printDebugStatus() {
     logger.i(
-        '🧪 === 구매 디버그 상태 ===\n🧪 디버그 모드: ${inAppPurchaseService.debugMode ? "활성화" : "비활성화"}\n🧪 타임아웃 모드: ${inAppPurchaseService.debugTimeoutMode}\n🧪 구매 지연: ${inAppPurchaseService.simulateSlowPurchase ? "활성화" : "비활성화"}\n🎯 강제 타임아웃: ${inAppPurchaseService.forceTimeoutSimulation ? "활성화" : "비활성화"}\n🧪 진행 중인 구매: ${_processingProducts.length}개${_processingProducts.isNotEmpty ? '\n' + _processingProducts.map((productId) => '🧪   → $productId').join('\n') : ''}\n🧪 ========================');
+        '🧪 === 구매 디버그 상태 ===\n🧪 디버그 모드: ${inAppPurchaseService.debugMode ? "활성화" : "비활성화"}\n🧪 타임아웃 모드: ${inAppPurchaseService.debugTimeoutMode}\n🧪 구매 지연: ${inAppPurchaseService.simulateSlowPurchase ? "활성화" : "비활성화"}\n🎯 강제 타임아웃: ${inAppPurchaseService.forceTimeoutSimulation ? "활성화" : "비활성화"}\n🧪 진행 중인 구매: ${_processingProducts.length}개${_processingProducts.isNotEmpty ? '\n${_processingProducts.map((productId) => '🧪   → $productId').join('\n')}' : ''}\n🧪 ========================');
   }
 }

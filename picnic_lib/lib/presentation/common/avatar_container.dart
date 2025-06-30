@@ -66,10 +66,36 @@ class ProfileImageContainer extends StatelessWidget {
     }
 
     return PicnicCachedNetworkImage(
+      key: ValueKey('avatar_${avatarUrl!}_${width}_$height'), // ✅ 유니크 키로 캐시 최적화
       imageUrl: avatarUrl!,
       width: width,
       height: height,
       fit: BoxFit.cover,
+      priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
+      lazyLoadingStrategy: LazyLoadingStrategy.viewport, // ✅ 뷰포트 기반 지연로딩
+      enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
+      enableProgressiveLoading: true, // ✅ 점진적 로딩으로 빠른 표시
+      memCacheWidth: width?.toInt() ?? 48, // ✅ 메모리 캐시 크기 지정
+      memCacheHeight: height?.toInt() ?? 48, // ✅ 메모리 캐시 크기 지정
+      timeout: const Duration(seconds: 10), // ✅ 타임아웃 설정
+      maxRetries: 2, // ✅ 재시도 횟수 설정
+      borderRadius:
+          borderRadius != null ? BorderRadius.circular(borderRadius!) : null,
+      placeholder: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: AppColors.grey100,
+          borderRadius: borderRadius != null
+              ? BorderRadius.circular(borderRadius!)
+              : null,
+        ),
+        child: Icon(
+          Icons.person,
+          size: ((width ?? 48) * 0.4),
+          color: AppColors.grey400,
+        ),
+      ),
     );
   }
 }

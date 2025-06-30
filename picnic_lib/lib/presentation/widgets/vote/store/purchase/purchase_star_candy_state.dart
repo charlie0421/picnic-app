@@ -7,6 +7,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 // 🔥 복잡한 가드 시스템 제거됨
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -76,6 +77,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),
+      duplicatePreventionService: DuplicatePreventionService(ref),
       onPurchaseUpdate: _onPurchaseUpdate,
     );
 
@@ -1275,87 +1277,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     );
   }
 
-  Future<void> _handleForceReset() async {
-    if (!kDebugMode) return;
-
-    final shouldReset = await _showForceResetDialog();
-    if (shouldReset != true) return;
-
-    try {
-      logger.w('[PurchaseStarCandyState] Force reset initiated');
-
-      setState(() {
-        _isActivePurchasing = false;
-        _isPurchasing = false;
-        _isInitializing = false;
-        _pendingProductId = null;
-        _transactionsCleared = true;
-        _lastPurchaseAttempt = null;
-        _isUserRequestedRestore = false;
-        _initializationCompletedAt = DateTime.now();
-      });
-
-      try {
-        _loadingKey.currentState?.hide();
-      } catch (e) {
-        logger.d('Loading state stop error (ignored): $e');
-      }
-
-      try {
-        await _purchaseService.inAppPurchaseService.clearTransactions();
-        await Future.delayed(Duration(seconds: 1));
-        await _purchaseService.inAppPurchaseService.refreshStoreKitCache();
-        await Future.delayed(Duration(seconds: 1));
-        await _purchaseService.inAppPurchaseService.clearTransactions();
-      } catch (e) {
-        logger.w('StoreKit cache clear error: $e');
-      }
-
-      logger.w('[PurchaseStarCandyState] Force reset completed');
-
-      if (mounted) {
-        showSimpleDialog(content: '모든 구매 상태가 리셋되었습니다.\n이제 새로운 구매를 시도할 수 있습니다.');
-      }
-    } catch (e) {
-      logger.e('[PurchaseStarCandyState] Force reset failed: $e');
-
-      if (mounted) {
-        showSimpleDialog(
-          content: '강제 리셋 중 오류가 발생했습니다: $e',
-          type: DialogType.error,
-        );
-      }
-    }
-  }
-
-  Future<bool?> _showForceResetDialog() async {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('디버그: 강제 상태 리셋'),
-        content: Text('''모든 구매 관련 상태를 강제로 리셋합니다.
-
-주의: 이 기능은 디버그 모드에서만 사용 가능합니다.
-
-리셋할 항목:
-• 구매 진행 상태
-• 트랜잭션 캐시
-• 로딩 상태
-• 에러 상태'''),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('강제 리셋', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return LoadingOverlayWithIcon(
@@ -1553,7 +1474,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.1),
+        color: Colors.orange.withValues(alpha: 0.1),
         border: Border.all(color: Colors.orange),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -1568,7 +1489,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           Container(
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
               border: Border.all(color: Colors.red),
               borderRadius: BorderRadius.circular(6),
             ),

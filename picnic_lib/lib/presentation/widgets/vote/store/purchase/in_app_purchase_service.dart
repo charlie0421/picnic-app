@@ -21,6 +21,11 @@ class InAppPurchaseService {
   final List<ProductDetails> _products = [];
   final bool _isAvailable = false;
 
+  // 🛡️ 타임아웃 콜백과 취소 상태 추적
+  void Function(String productId)? onPurchaseTimeout;
+  bool lastPurchaseWasCancelled = false;
+  String? _currentPurchaseProductId;
+
   List<ProductDetails> get products => _products;
   bool get isAvailable => _isAvailable;
 
@@ -59,6 +64,11 @@ class InAppPurchaseService {
 
     for (var purchase in purchaseDetailsList) {
       logger.d('→ ${purchase.productID}: ${purchase.status}');
+
+      // 🛡️ 현재 구매 제품에 대한 업데이트인 경우 처리
+      if (purchase.productID == _currentPurchaseProductId) {
+        _handleCurrentPurchaseUpdate(purchase);
+      }
     }
 
     _resetPurchaseTimeout();
@@ -71,6 +81,34 @@ class InAppPurchaseService {
 
     if (!_purchaseController!.isClosed) {
       _purchaseController!.add(purchaseDetailsList);
+    }
+  }
+
+  /// 🛡️ 현재 구매에 대한 업데이트 처리
+  void _handleCurrentPurchaseUpdate(PurchaseDetails purchase) {
+    switch (purchase.status) {
+      case PurchaseStatus.canceled:
+        lastPurchaseWasCancelled = true;
+        _currentPurchaseProductId = null;
+        _purchaseTimeoutTimer?.cancel();
+        logger.i('🚫 구매 취소 감지: ${purchase.productID}');
+        break;
+      case PurchaseStatus.error:
+        _determineCancellationFromError(purchase.error);
+        _currentPurchaseProductId = null;
+        _purchaseTimeoutTimer?.cancel();
+        break;
+      case PurchaseStatus.purchased:
+      case PurchaseStatus.restored:
+        lastPurchaseWasCancelled = false;
+        _currentPurchaseProductId = null;
+        _purchaseTimeoutTimer?.cancel();
+        logger.i('✅ 구매 성공 감지: ${purchase.productID}');
+        break;
+      case PurchaseStatus.pending:
+        // 계속 진행 중
+        logger.d('⏳ 구매 진행 중: ${purchase.productID}');
+        break;
     }
   }
 
@@ -96,12 +134,63 @@ class InAppPurchaseService {
     });
   }
 
+  /// 🛡️ 구매 타임아웃 시작 (제품별)
+  void _startPurchaseTimeout(String productId) {
+    _purchaseTimeoutTimer?.cancel();
+    _purchaseTimeoutTimer = Timer(PurchaseConstants.purchaseTimeout, () {
+      logger.w(
+          '🚨 구매 타임아웃 발생: $productId (${PurchaseConstants.purchaseTimeout.inSeconds}초)');
+
+      // 타임아웃 콜백 호출
+      if (onPurchaseTimeout != null) {
+        onPurchaseTimeout!(productId);
+      }
+
+      _currentPurchaseProductId = null;
+    });
+  }
+
+  /// 🛡️ 에러로부터 취소 여부 판단
+  void _determineCancellationFromError(dynamic error) {
+    final errorString = error.toString().toLowerCase();
+
+    // 취소 관련 키워드 확인
+    final cancelKeywords = [
+      'cancel',
+      'cancelled',
+      'canceled',
+      'user cancel',
+      'abort',
+      'touch id',
+      'face id',
+      'authentication',
+      'biometric',
+      'passcode',
+      'user denied',
+      'permission denied',
+      'operation was cancelled',
+    ];
+
+    lastPurchaseWasCancelled =
+        cancelKeywords.any((keyword) => errorString.contains(keyword));
+
+    if (lastPurchaseWasCancelled) {
+      logger.i('🚫 에러에서 취소 감지: $error');
+    } else {
+      logger.w('❌ 일반 에러 (취소 아님): $error');
+    }
+  }
+
   Future<bool> makePurchase(
     ProductDetails productDetails, {
     bool isConsumable = true,
   }) async {
     logger
         .i('Starting purchase: ${productDetails.id} (${productDetails.price})');
+
+    // 🛡️ 현재 구매 제품 추적
+    _currentPurchaseProductId = productDetails.id;
+    lastPurchaseWasCancelled = false;
 
     try {
       if (Platform.isIOS) {
@@ -124,14 +213,20 @@ class InAppPurchaseService {
 
       if (result) {
         logger.i('Purchase initiated successfully');
-        _resetPurchaseTimeout();
+        _startPurchaseTimeout(productDetails.id);
       } else {
         logger.w('Purchase initiation failed');
+        // 🛡️ 실패 시 취소로 간주 (사용자가 인증을 거부했을 가능성)
+        lastPurchaseWasCancelled = true;
+        _currentPurchaseProductId = null;
       }
 
       return result;
     } catch (e) {
       logger.e('Purchase error: $e');
+      // 🛡️ 에러 발생 시 취소 여부 판단
+      _determineCancellationFromError(e);
+      _currentPurchaseProductId = null;
       return false;
     }
   }
@@ -307,5 +402,10 @@ class InAppPurchaseService {
     _subscription?.cancel();
     _purchaseController?.close();
     _streamInitialized = false;
+
+    // 🛡️ 추적 상태 정리
+    _currentPurchaseProductId = null;
+    lastPurchaseWasCancelled = false;
+    onPurchaseTimeout = null;
   }
 }

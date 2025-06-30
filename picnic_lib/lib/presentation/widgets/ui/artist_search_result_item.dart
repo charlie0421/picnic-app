@@ -32,14 +32,14 @@ class ArtistSearchResultItem extends StatelessWidget {
         children: [
           // 아티스트 이미지
           _buildArtistImage(),
-          
+
           SizedBox(width: 12.w),
-          
+
           // 아티스트 정보
           Expanded(
             child: _buildArtistInfo(context),
           ),
-          
+
           // 북마크 버튼
           if (showBookmarkButton) _buildBookmarkButton(),
         ],
@@ -51,10 +51,33 @@ class ArtistSearchResultItem extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24.r),
       child: PicnicCachedNetworkImage(
+        key: ValueKey('artist_${artist.id}_${artist.name}'), // ✅ 유니크 키로 캐시 최적화
         width: 48.w,
         height: 48.w,
         imageUrl: 'artist/${artist.id}/image.png',
+        fit: BoxFit.cover, // ✅ 이미지 맞춤 최적화
+        priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
+        lazyLoadingStrategy: LazyLoadingStrategy.viewport, // ✅ 뷰포트 기반 지연로딩
+        enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
+        enableProgressiveLoading: true, // ✅ 점진적 로딩으로 빠른 표시
+        memCacheWidth: 48, // ✅ 메모리 캐시 크기 지정
+        memCacheHeight: 48, // ✅ 메모리 캐시 크기 지정
+        timeout: const Duration(seconds: 10), // ✅ 타임아웃 설정
+        maxRetries: 2, // ✅ 재시도 횟수 설정
         borderRadius: BorderRadius.circular(24.r),
+        placeholder: Container(
+          width: 48.w,
+          height: 48.w,
+          decoration: BoxDecoration(
+            color: AppColors.grey100,
+            borderRadius: BorderRadius.circular(24.r),
+          ),
+          child: Icon(
+            Icons.person,
+            size: 48 * 0.4, // 다른 파일과 동일한 비율
+            color: AppColors.grey400,
+          ),
+        ),
       ),
     );
   }
@@ -74,9 +97,9 @@ class ArtistSearchResultItem extends StatelessWidget {
             ),
           ),
         ),
-        
+
         SizedBox(height: 2.h),
-        
+
         // 그룹명 (하이라이트 적용)
         if (artist.artistGroup != null)
           RichText(
@@ -89,7 +112,7 @@ class ArtistSearchResultItem extends StatelessWidget {
               ),
             ),
           ),
-        
+
         // 추가 정보 (성별, 생년월일 등)
         if (artist.gender != null || artist.birthDate != null)
           Padding(
@@ -126,15 +149,15 @@ class ArtistSearchResultItem extends StatelessWidget {
 
   String _buildAdditionalInfo() {
     final List<String> infoParts = [];
-    
+
     if (artist.gender != null) {
       infoParts.add(artist.gender!);
     }
-    
+
     if (artist.formattedBirthDate != null) {
       infoParts.add(artist.formattedBirthDate!);
     }
-    
+
     return infoParts.join(' • ');
   }
 
@@ -175,7 +198,7 @@ class ArtistSearchResultItem extends StatelessWidget {
       spans.add(TextSpan(
         text: text.substring(index, index + query.length),
         style: getTextStyle(typo, color).copyWith(
-          backgroundColor: AppColors.primary500.withValues(alpha:0.3),
+          backgroundColor: AppColors.primary500.withValues(alpha: 0.3),
           fontWeight: FontWeight.bold,
         ),
       ));
@@ -225,7 +248,7 @@ class ArtistSearchResultsList extends StatelessWidget {
       isLoading: isLoading,
       hasError: hasError,
       errorMessage: errorMessage,
-      emptyMessage: searchQuery.isEmpty 
+      emptyMessage: searchQuery.isEmpty
           ? '검색어를 입력해주세요'
           : '"$searchQuery"에 대한 검색 결과가 없습니다',
       onRetry: onRetry,
@@ -238,10 +261,11 @@ class ArtistSearchResultsList extends StatelessWidget {
           searchQuery: searchQuery,
           showBookmarkButton: showBookmarkButton,
           onTap: onArtistTap != null ? () => onArtistTap!(artist) : null,
-          onBookmarkTap: onBookmarkTap != null ? () => onBookmarkTap!(artist) : null,
+          onBookmarkTap:
+              onBookmarkTap != null ? () => onBookmarkTap!(artist) : null,
         );
       },
       separatorBuilder: (context, index) => SizedBox(height: 8.h),
     );
   }
-} 
+}

@@ -406,14 +406,35 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(32.r),
                     child: PicnicCachedNetworkImage(
+                      key: ValueKey(
+                          'artist_${artist.id}_${artist.name}'), // ✅ 유니크 키로 캐시 최적화
                       imageUrl: artist.image ?? '',
                       width: 32,
                       height: 32,
-                      priority: ImagePriority.normal,
-                      lazyLoadingStrategy: LazyLoadingStrategy.viewport,
-                      enableMemoryOptimization: true,
+                      fit: BoxFit.cover, // ✅ 이미지 맞춤 최적화
+                      priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
+                      lazyLoadingStrategy:
+                          LazyLoadingStrategy.viewport, // ✅ 뷰포트 기반 지연로딩
+                      enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
+                      enableProgressiveLoading: true, // ✅ 점진적 로딩으로 빠른 표시
+                      memCacheWidth: 32, // ✅ 메모리 캐시 크기 지정
+                      memCacheHeight: 32, // ✅ 메모리 캐시 크기 지정
+                      timeout: const Duration(seconds: 10), // ✅ 타임아웃 설정
+                      maxRetries: 2, // ✅ 재시도 횟수 설정
                       borderRadius: BorderRadius.circular(32.r),
-
+                      placeholder: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.grey100,
+                          borderRadius: BorderRadius.circular(32.r),
+                        ),
+                        child: Icon(
+                          Icons.person,
+                          size: 32 * 0.4, // 다른 파일과 동일한 비율
+                          color: AppColors.grey400,
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(width: 8.w),

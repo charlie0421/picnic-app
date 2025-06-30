@@ -139,12 +139,12 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           );
         },
         loading: () => const Column(
-          children: [
-            VoteCardSkeleton(),
-            VoteCardSkeleton(),
-            VoteCardSkeleton(),
-          ],
-        ),
+              children: [
+                VoteCardSkeleton(),
+                VoteCardSkeleton(),
+                VoteCardSkeleton(),
+              ],
+            ),
         error: (error, stackTrace) {
           return buildErrorView(
             context,
@@ -215,7 +215,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
               onTap: () {
                 ref
                     .read(navigationInfoProvider.notifier)
-                    .setCurrentPage(GalleryDetailPage(
+                    .setPicCurrentPage(GalleryDetailPage(
                       galleryId: data[index].id,
                       galleryName: data[index].titleEn,
                     ));
@@ -275,33 +275,28 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-            firstPageProgressIndicatorBuilder: (context) =>
-                const Column(
-                  children: [
-                    VoteCardSkeleton(),
-                    VoteCardSkeleton(),
-                    VoteCardSkeleton(),
-                  ],
-                ),
-            newPageProgressIndicatorBuilder: (context) =>
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: VoteCardSkeleton(),
-                ),
-            firstPageErrorIndicatorBuilder: (context) => 
-                buildErrorView(
-                  context,
-                  error: _pagingController.error,
-                  retryFunction: () => _pagingController.refresh(),
-                  stackTrace: null,
-                ),
-            newPageErrorIndicatorBuilder: (context) => 
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: VoteCardSkeleton(),
-                ),
-            noMoreItemsIndicatorBuilder: (context) => 
-                const SizedBox.shrink(),
+            firstPageProgressIndicatorBuilder: (context) => const Column(
+              children: [
+                VoteCardSkeleton(),
+                VoteCardSkeleton(),
+                VoteCardSkeleton(),
+              ],
+            ),
+            newPageProgressIndicatorBuilder: (context) => const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: VoteCardSkeleton(),
+            ),
+            firstPageErrorIndicatorBuilder: (context) => buildErrorView(
+              context,
+              error: _pagingController.error,
+              retryFunction: () => _pagingController.refresh(),
+              stackTrace: null,
+            ),
+            newPageErrorIndicatorBuilder: (context) => const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: VoteCardSkeleton(),
+            ),
+            noMoreItemsIndicatorBuilder: (context) => const SizedBox.shrink(),
             itemBuilder: (context, vote, index) {
               final now = DateTime.now().toUtc();
               final status = vote.startAt!.isAfter(now)

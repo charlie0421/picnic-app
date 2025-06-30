@@ -236,7 +236,19 @@ class PicnicLibL10n {
       // Crowdin에서 직접 가져오기
       String? translatedText = Crowdin.getText(languageCode, key);
       if (translatedText != null && translatedText.isNotEmpty) {
-        return _formatTranslation(translatedText, args);
+        // 디버깅: compatibility 관련 키의 경우 로그 출력
+        if (key.contains('compatibility')) {
+          logger
+              .d('🌟 Crowdin 번역 로드됨: [$languageCode] $key -> $translatedText');
+          if (args != null && args.isNotEmpty) {
+            logger.d('🌟 매개변수: $args');
+          }
+        }
+        final result = _formatTranslation(translatedText, args);
+        if (key.contains('compatibility') && args != null && args.isNotEmpty) {
+          logger.d('🌟 최종 결과: $result');
+        }
+        return result;
       }
 
       // 기본 영어로 시도
@@ -255,6 +267,11 @@ class PicnicLibL10n {
         return _formatTranslation(fallbackText, args);
       }
 
+      // 모든 번역이 실패한 경우
+      if (key.contains('compatibility')) {
+        logger.w('🚨 Compatibility 키가 어디서도 찾아지지 않음: [$languageCode] $key');
+      }
+
       return _formatTranslation(key, args);
     } catch (e, s) {
       logger.e('번역 과정에서 오류 발생: $key', error: e, stackTrace: s);
@@ -267,43 +284,85 @@ class PicnicLibL10n {
     // 한국어 기본 번역
     if (languageCode == 'ko') {
       switch (key) {
-        case 'label_reply': return '답글';
-        case 'post_comment_action_show_translation': return '번역 보기';
-        case 'post_comment_action_show_original': return '원문 보기';
-        case 'post_comment_action_translate': return '번역하기';
-        case 'post_comment_reported_comment': return '신고된 댓글';
-        case 'post_comment_deleted_comment': return '삭제된 댓글';
-        case 'post_comment_content_more': return '더보기';
-        case 'post_comment_translated': return '번역됨';
-        case 'error_action_failed': return '작업이 실패했습니다.';
-        case 'label_hint_comment': return '댓글을 입력하세요';
-        case 'common_retry_label': return '다시 시도';
-        case 'label_retry': return '다시 시도';
-        case 'popup_label_delete': return '삭제';
-        case 'label_title_report': return '신고';
-        case 'dialog_caution': return '주의';
+        case 'compatibility_purchase_message':
+          return '나와 {artistName}의 궁합 점수가 궁금하다면? 🎯';
+        case 'compatibility_empty_state_title':
+          return '아직 궁합을 확인하지 않았어요';
+        case 'compatibility_empty_state_subtitle':
+          return '좋아하는 아티스트와의 궁합을 확인해보세요!';
+        case 'label_reply':
+          return '답글';
+        case 'post_comment_action_show_translation':
+          return '번역 보기';
+        case 'post_comment_action_show_original':
+          return '원문 보기';
+        case 'post_comment_action_translate':
+          return '번역하기';
+        case 'post_comment_reported_comment':
+          return '신고된 댓글';
+        case 'post_comment_deleted_comment':
+          return '삭제된 댓글';
+        case 'post_comment_content_more':
+          return '더보기';
+        case 'post_comment_translated':
+          return '번역됨';
+        case 'error_action_failed':
+          return '작업이 실패했습니다.';
+        case 'label_hint_comment':
+          return '댓글을 입력하세요';
+        case 'common_retry_label':
+          return '다시 시도';
+        case 'label_retry':
+          return '다시 시도';
+        case 'popup_label_delete':
+          return '삭제';
+        case 'label_title_report':
+          return '신고';
+        case 'dialog_caution':
+          return '주의';
       }
     }
-    
+
     // 영어 기본 번역
     switch (key) {
-      case 'label_reply': return 'Reply';
-      case 'post_comment_action_show_translation': return 'Show Translation';
-      case 'post_comment_action_show_original': return 'Show Original';
-      case 'post_comment_action_translate': return 'Translate';
-      case 'post_comment_reported_comment': return 'Reported Comment';
-      case 'post_comment_deleted_comment': return 'Deleted Comment';
-      case 'post_comment_content_more': return 'Show More';
-      case 'post_comment_translated': return 'Translated';
-      case 'error_action_failed': return 'Action failed';
-      case 'label_hint_comment': return 'Write a comment';
-      case 'common_retry_label': return 'Retry';
-      case 'label_retry': return 'Retry';
-      case 'popup_label_delete': return 'Delete';
-      case 'label_title_report': return 'Report';
-      case 'dialog_caution': return 'Caution';
+      case 'compatibility_purchase_message':
+        return 'Curious about compatibility score with {artistName}? 🎯';
+      case 'compatibility_empty_state_title':
+        return 'No compatibility checked yet';
+      case 'compatibility_empty_state_subtitle':
+        return 'Check compatibility with your favorite artist!';
+      case 'label_reply':
+        return 'Reply';
+      case 'post_comment_action_show_translation':
+        return 'Show Translation';
+      case 'post_comment_action_show_original':
+        return 'Show Original';
+      case 'post_comment_action_translate':
+        return 'Translate';
+      case 'post_comment_reported_comment':
+        return 'Reported Comment';
+      case 'post_comment_deleted_comment':
+        return 'Deleted Comment';
+      case 'post_comment_content_more':
+        return 'Show More';
+      case 'post_comment_translated':
+        return 'Translated';
+      case 'error_action_failed':
+        return 'Action failed';
+      case 'label_hint_comment':
+        return 'Write a comment';
+      case 'common_retry_label':
+        return 'Retry';
+      case 'label_retry':
+        return 'Retry';
+      case 'popup_label_delete':
+        return 'Delete';
+      case 'label_title_report':
+        return 'Report';
+      case 'dialog_caution':
+        return 'Caution';
     }
-    
+
     return null;
   }
 }
@@ -333,11 +392,28 @@ String _formatTranslation(String text, Map<String, String>? args) {
 
   String result = text;
 
+  // 디버깅: compatibility 관련일 때 로그 출력
+  if (text.contains('compatibility') || text.contains('궁합')) {
+    logger.d('🔄 포맷팅 시작: "$text" with args: $args');
+  }
+
   // Map 타입 처리 (이름 기반 플레이스홀더)
   args.forEach((key, value) {
     final placeholder = '{$key}';
+    final beforeReplace = result;
     result = result.replaceAll(placeholder, value);
+
+    // 디버깅: compatibility 관련일 때 각 치환 과정 로그
+    if (text.contains('compatibility') || text.contains('궁합')) {
+      logger.d(
+          '🔄 치환: "$placeholder" -> "$value" | "$beforeReplace" -> "$result"');
+    }
   });
+
+  // 디버깅: 최종 결과
+  if (text.contains('compatibility') || text.contains('궁합')) {
+    logger.d('🔄 포맷팅 완료: "$result"');
+  }
 
   return result;
 }

@@ -18,7 +18,7 @@ class VoteItemRequestService {
   VoteItemRequestRepository get _repository =>
       _ref.read(voteItemRequestRepositoryProvider);
   DuplicatePreventionService get _duplicateService =>
-      DuplicatePreventionService(_ref);
+      DuplicatePreventionService(_ref as WidgetRef);
 
   /// 투표 아이템 신청
   Future<bool> submitVoteItemRequest({

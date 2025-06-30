@@ -41,7 +41,7 @@ class CompatibilityScoreWidget extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         t('compatibility_purchase_message', {
-                          'count': getLocaleTextFromJson(
+                          'artistName': getLocaleTextFromJson(
                               compatibility?.artist.name ?? {})
                         }),
                         style: getTextStyle(AppTypo.body14B, AppColors.grey00),

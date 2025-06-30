@@ -76,7 +76,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                   onTap: () {
                     ref
                         .read(navigationInfoProvider.notifier)
-                        .setCurrentPage(GalleryDetailPage(
+                        .setPicCurrentPage(GalleryDetailPage(
                           galleryId: gallery.id,
                           galleryName: gallery.titleEn,
                         ));

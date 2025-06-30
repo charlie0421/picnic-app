@@ -30,7 +30,8 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
         GestureDetector(
           onTap: () {
             if (isSupabaseLoggedSafely) {
-              navigationInfoNotifier.setCurrentPage(const PostWritePage());
+              navigationInfoNotifier
+                  .setCommunityCurrentPage(const PostWritePage());
             } else {
               showRequireLoginDialog();
             }
@@ -51,7 +52,8 @@ class _TopRightPostState extends ConsumerState<TopRightPost> {
         ),
         GestureDetector(
           onTap: () {
-            navigationInfoNotifier.setCurrentPage(const PostSearchPage());
+            navigationInfoNotifier
+                .setCommunityCurrentPage(const PostSearchPage());
           },
           child: Stack(
             children: [

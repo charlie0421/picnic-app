@@ -38,6 +38,40 @@ class _TopState extends ConsumerState<TopMenu> {
     return currentPage is VoteHomePage || currentPage is VoteListPage;
   }
 
+  bool _shouldShowBackButton(Navigation navigationInfo) {
+    switch (navigationInfo.portalType) {
+      case PortalType.vote:
+      case PortalType.pic:
+      case PortalType.novel:
+        return navigationInfo.voteNavigationStack != null &&
+            navigationInfo.voteNavigationStack!.length > 1;
+      case PortalType.community:
+        return navigationInfo.communityNavigationStack != null &&
+            navigationInfo.communityNavigationStack!.length > 1;
+      default:
+        return false;
+    }
+  }
+
+  void _handleBackButtonTap(Navigation navigationInfo, navigationInfoNotifier) {
+    switch (navigationInfo.portalType) {
+      case PortalType.vote:
+        navigationInfoNotifier.goBack();
+        break;
+      case PortalType.pic:
+        navigationInfoNotifier.goBackPic();
+        break;
+      case PortalType.novel:
+        navigationInfoNotifier.goBackNovel();
+        break;
+      case PortalType.community:
+        navigationInfoNotifier.goBackCommunity();
+        break;
+      default:
+        navigationInfoNotifier.goBack();
+    }
+  }
+
   Widget _buildTopRightMenu(Navigation navigationInfo) {
     if (navigationInfo.topRightMenu == TopRightType.none) {
       return Container();
@@ -90,12 +124,12 @@ class _TopState extends ConsumerState<TopMenu> {
             left: 0,
             top: 0,
             bottom: 0,
-            child: (navigationInfo.voteNavigationStack != null &&
-                    navigationInfo.voteNavigationStack!.length > 1)
+            child: _shouldShowBackButton(navigationInfo)
                 ? GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
-                      navigationInfoNotifier.goBack();
+                      _handleBackButtonTap(
+                          navigationInfo, navigationInfoNotifier);
                     },
                     child: SizedBox(
                       width: 24.w,

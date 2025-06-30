@@ -91,7 +91,7 @@ class _PostListState extends ConsumerState<PostList> {
           InkWell(
             onTap: () {
               if (isSupabaseLoggedSafely) {
-                navigationInfoNotifier.setCurrentPage(
+                navigationInfoNotifier.setCommunityCurrentPage(
                     CompatibilityListPage(artistId: currentArtist?.id));
               } else {
                 showRequireLoginDialog();
@@ -147,7 +147,7 @@ class _PostListState extends ConsumerState<PostList> {
                                   }
                                   ref
                                       .read(navigationInfoProvider.notifier)
-                                      .setCurrentPage(
+                                      .setCommunityCurrentPage(
                                         const PostWritePage(),
                                       );
                                 },
@@ -221,5 +221,4 @@ class _PostListState extends ConsumerState<PostList> {
       return Container();
     }
   }
-
 }

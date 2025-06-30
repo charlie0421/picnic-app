@@ -426,7 +426,7 @@ class _CompatibilityInputScreenState
   }
 
   void _navigateToResult(CompatibilityModel compatibility) {
-    ref.read(navigationInfoProvider.notifier).setCurrentPage(
+    ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
           CompatibilityLoadingPage(
             compatibility: compatibility,
           ),

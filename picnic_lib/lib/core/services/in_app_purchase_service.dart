@@ -181,39 +181,8 @@ class InAppPurchaseService {
     logger.d('Purchase stream initialized successfully');
   }
 
-  void _handlePurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
-    logger.i('Purchase update: ${purchaseDetailsList.length} transactions');
 
-    for (var purchase in purchaseDetailsList) {
-      logger.d('→ ${purchase.productID}: ${purchase.status}');
-    }
 
-    _resetPurchaseTimeout();
-
-    try {
-      _onPurchaseUpdate(purchaseDetailsList);
-    } catch (e) {
-      logger.e('Error in onPurchaseUpdate callback: $e');
-    }
-
-    if (!_purchaseController!.isClosed) {
-      _purchaseController!.add(purchaseDetailsList);
-    }
-  }
-
-  void _handlePurchaseError(dynamic error) {
-    logger.e('Purchase stream error: $error');
-    if (!_purchaseController!.isClosed) {
-      _purchaseController!.addError(error);
-    }
-  }
-
-  void _handlePurchaseStreamDone() {
-    logger.i('Purchase stream completed');
-    if (!_purchaseController!.isClosed) {
-      _purchaseController!.close();
-    }
-  }
 
   void _resetPurchaseTimeout() {
     _purchaseTimeoutTimer?.cancel();

@@ -31,7 +31,7 @@ class _PostListItemState extends ConsumerState<PostListItem> {
 
         ref
             .read(navigationInfoProvider.notifier)
-            .setCurrentPage(PostViewPage(widget.post.postId));
+            .setCommunityCurrentPage(PostViewPage(widget.post.postId));
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),

@@ -33,12 +33,53 @@ class NavigationInfo extends _$NavigationInfo {
     if (voteNavigationStack != null && voteNavigationStack.length > 1) {
       voteNavigationStack.pop();
       final currentPage = voteNavigationStack.peek();
+      logger.d('📱 Going back to page: ${currentPage.runtimeType}');
+      logger.d('📱 Stack length after pop: ${voteNavigationStack.length}');
+
       state = state.copyWith(
         voteNavigationStack: voteNavigationStack,
         currentScreen: currentPage,
       );
     } else {
-      logger.d('Cannot go back: stack has only one page or is null');
+      logger.d('📱 Cannot go back: stack has only one page or is null');
+    }
+  }
+
+  Future<void> goBackPic() async {
+    // PIC은 현재 vote 스택을 사용
+    final voteNavigationStack = state.voteNavigationStack;
+
+    if (voteNavigationStack != null && voteNavigationStack.length > 1) {
+      voteNavigationStack.pop();
+      final currentPage = voteNavigationStack.peek();
+      logger.d('🖼️ Going back to PIC page: ${currentPage.runtimeType}');
+      logger.d('🖼️ Stack length after pop: ${voteNavigationStack.length}');
+
+      state = state.copyWith(
+        voteNavigationStack: voteNavigationStack,
+        currentScreen: currentPage,
+      );
+    } else {
+      logger.d('🖼️ Cannot go back: PIC stack has only one page or is null');
+    }
+  }
+
+  Future<void> goBackNovel() async {
+    // NOVEL도 현재 vote 스택을 사용
+    final voteNavigationStack = state.voteNavigationStack;
+
+    if (voteNavigationStack != null && voteNavigationStack.length > 1) {
+      voteNavigationStack.pop();
+      final currentPage = voteNavigationStack.peek();
+      logger.d('📚 Going back to NOVEL page: ${currentPage.runtimeType}');
+      logger.d('📚 Stack length after pop: ${voteNavigationStack.length}');
+
+      state = state.copyWith(
+        voteNavigationStack: voteNavigationStack,
+        currentScreen: currentPage,
+      );
+    } else {
+      logger.d('📚 Cannot go back: NOVEL stack has only one page or is null');
     }
   }
 
@@ -49,12 +90,15 @@ class NavigationInfo extends _$NavigationInfo {
         communityNavigationStack.length > 1) {
       communityNavigationStack.pop();
       final currentPage = communityNavigationStack.peek();
+      logger.d('🔙 Going back to page: ${currentPage.runtimeType}');
+      logger.d('🔙 Stack length after pop: ${communityNavigationStack.length}');
+
       state = state.copyWith(
         communityNavigationStack: communityNavigationStack,
         currentScreen: currentPage,
       );
     } else {
-      logger.d('Cannot go back: stack has only one page or is null');
+      logger.d('🔙 Cannot go back: stack has only one page or is null');
     }
   }
 
@@ -85,73 +129,82 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   void setPortal(PortalType portalType) {
+    logger.d('🎯 Portal switching from ${state.portalType} to $portalType');
+
     // 먼저 포털 타입을 변경
     state = state.copyWith(portalType: portalType);
+    logger.d('🎯 Portal type updated successfully');
 
     // 포털에 따라 기본 페이지를 해당 NavigationStack에 설정
     switch (portalType) {
       case PortalType.vote:
         final votePage = NavigationConfigs.getPageWidget(PortalType.vote, 0) ??
             const VoteHomePage();
-        if (state.voteNavigationStack == null ||
-            state.voteNavigationStack!.isEmpty) {
-          state = state.copyWith(
-            voteNavigationStack: NavigationStack()..push(votePage),
-            currentScreen: const VoteHomeScreen(),
-          );
-        } else {
-          state = state.copyWith(currentScreen: const VoteHomeScreen());
-        }
+        logger
+            .d('📱 Setting VOTE portal, page widget: ${votePage.runtimeType}');
+
+        // VOTE 포털로 전환 시 항상 새로운 스택으로 초기화
+        state = state.copyWith(
+          voteBottomNavigationIndex: 0, // 첫 번째 탭으로 초기화
+          voteNavigationStack: NavigationStack()..push(votePage),
+          currentScreen: const VoteHomeScreen(),
+        );
+        logger.d('📱 VOTE portal set successfully with fresh stack');
         break;
 
       case PortalType.community:
         final communityPage =
             NavigationConfigs.getPageWidget(PortalType.community, 0) ??
                 const CommunityHomePage();
-        if (state.communityNavigationStack == null ||
-            state.communityNavigationStack!.isEmpty) {
-          state = state.copyWith(
-            communityNavigationStack: NavigationStack()..push(communityPage),
-            currentScreen: const CommunityHomeScreen(),
-          );
-        } else {
-          state = state.copyWith(currentScreen: const CommunityHomeScreen());
-        }
+        logger.d(
+            '🏘️ Setting COMMUNITY portal, page widget: ${communityPage.runtimeType}');
+
+        // COMMUNITY 포털로 전환 시 항상 새로운 스택으로 초기화
+        state = state.copyWith(
+          communityBottomNavigationIndex: 0, // 첫 번째 탭으로 초기화
+          communityNavigationStack: NavigationStack()..push(communityPage),
+          currentScreen: const CommunityHomeScreen(),
+        );
+        logger.d('🏘️ COMMUNITY portal set successfully with fresh stack');
         break;
 
       case PortalType.pic:
         final picPage = NavigationConfigs.getPageWidget(PortalType.pic, 0) ??
             const PicHomePage();
-        if (state.voteNavigationStack == null ||
-            state.voteNavigationStack!.isEmpty) {
-          state = state.copyWith(
-            voteNavigationStack: NavigationStack()..push(picPage),
-            currentScreen: const PicHomeScreen(),
-          );
-        } else {
-          state = state.copyWith(currentScreen: const PicHomeScreen());
-        }
+        logger.d('🖼️ Setting PIC portal, page widget: ${picPage.runtimeType}');
+
+        // PIC 포털로 전환 시 항상 새로운 스택으로 초기화
+        state = state.copyWith(
+          picBottomNavigationIndex: 0, // 첫 번째 탭으로 초기화
+          voteNavigationStack: NavigationStack()..push(picPage),
+          currentScreen: const PicHomeScreen(),
+        );
+        logger.d('🖼️ PIC portal set successfully with fresh stack');
         break;
 
       case PortalType.novel:
         final novelPage =
             NavigationConfigs.getPageWidget(PortalType.novel, 0) ?? Container();
-        if (state.voteNavigationStack == null ||
-            state.voteNavigationStack!.isEmpty) {
-          state = state.copyWith(
-            voteNavigationStack: NavigationStack()..push(novelPage),
-            currentScreen: const NovelHomeScreen(),
-          );
-        } else {
-          state = state.copyWith(currentScreen: const NovelHomeScreen());
-        }
+        logger.d(
+            '📚 Setting NOVEL portal, page widget: ${novelPage.runtimeType}');
+
+        // NOVEL 포털로 전환 시 항상 새로운 스택으로 초기화
+        state = state.copyWith(
+          novelBottomNavigationIndex: 0, // 첫 번째 탭으로 초기화
+          voteNavigationStack: NavigationStack()..push(novelPage),
+          currentScreen: const NovelHomeScreen(),
+        );
+        logger.d('📚 NOVEL portal set successfully with fresh stack');
         break;
 
       default:
+        logger.d(
+            '⚠️ Unknown portal type: $portalType, falling back to VoteHomeScreen');
         state = state.copyWith(currentScreen: const VoteHomeScreen());
     }
 
     globalStorage.saveData('portalString', portalType.name.toString());
+    logger.d('🎯 Portal switching completed successfully to $portalType');
   }
 
   void setShowBottomNavigation(bool showBottomNavigation) {
@@ -173,6 +226,9 @@ class NavigationInfo extends _$NavigationInfo {
   }
 
   void setBottomNavigationIndex(int index) {
+    logger.d(
+        '🎯 Setting bottom navigation index: $index for portal: ${state.portalType}');
+
     if (state.portalType == PortalType.vote) {
       setVoteBottomNavigationIndex(index);
     } else if (state.portalType == PortalType.pic) {
@@ -182,6 +238,8 @@ class NavigationInfo extends _$NavigationInfo {
     } else if (state.portalType == PortalType.novel) {
       setNovelBottomNavigationIndex(index);
     }
+
+    logger.d('🎯 Bottom navigation index set successfully');
   }
 
   void settingNavigation({
@@ -214,11 +272,16 @@ class NavigationInfo extends _$NavigationInfo {
     final pageWidget = NavigationConfigs.getPageWidget(PortalType.pic, index);
     if (pageWidget == null) return;
 
+    logger.d('🖼️ Setting PIC bottom navigation index: $index');
+    logger.d('🖼️ Page widget: ${pageWidget.runtimeType}');
+
     state = state.copyWith(
       picBottomNavigationIndex: index,
       voteNavigationStack: NavigationStack()..push(pageWidget),
-      currentScreen: pageWidget,
+      currentScreen: const PicHomeScreen(), // Screen으로 설정
     );
+
+    logger.d('🖼️ PIC navigation index updated successfully');
     globalStorage.saveData('picBottomNavigationIndex', index.toString());
   }
 
@@ -251,38 +314,94 @@ class NavigationInfo extends _$NavigationInfo {
     final pageWidget = NavigationConfigs.getPageWidget(PortalType.novel, index);
     if (pageWidget == null) return;
 
+    logger.d('📚 Setting NOVEL bottom navigation index: $index');
+    logger.d('📚 Page widget: ${pageWidget.runtimeType}');
+
     state = state.copyWith(
       novelBottomNavigationIndex: index,
       voteNavigationStack: NavigationStack()..push(pageWidget),
-      currentScreen: pageWidget,
+      currentScreen: const NovelHomeScreen(), // Screen으로 설정
     );
+
+    logger.d('📚 NOVEL navigation index updated successfully');
     globalStorage.saveData('novelBottomNavigationIndex', index.toString());
   }
 
   void setCurrentPage(Widget page,
       {bool showTopMenu = false, bool showBottomNavigation = true}) {
-    final voteNavigationStack = state.voteNavigationStack;
+    final voteNavigationStack = state.voteNavigationStack ?? NavigationStack();
 
-    voteNavigationStack?.push(page);
+    voteNavigationStack.push(page);
+    logger.d('📱 Pushing page to voteNavigationStack: ${page.runtimeType}');
+    logger.d('📱 Stack length after push: ${voteNavigationStack.length}');
+
     state = state.copyWith(
       voteNavigationStack: voteNavigationStack,
       showBottomNavigation: showBottomNavigation,
       currentScreen: page,
     );
+
+    logger.d(
+        '📱 Vote navigation state updated with new page: ${page.runtimeType}');
+  }
+
+  void setPicCurrentPage(Widget page,
+      {bool showTopMenu = false, bool showBottomNavigation = true}) {
+    // PIC은 현재 vote 스택을 사용
+    final voteNavigationStack = state.voteNavigationStack ?? NavigationStack();
+
+    voteNavigationStack.push(page);
+    logger.d(
+        '🖼️ Pushing page to PIC navigation (vote stack): ${page.runtimeType}');
+    logger.d('🖼️ Stack length after push: ${voteNavigationStack.length}');
+
+    state = state.copyWith(
+      voteNavigationStack: voteNavigationStack,
+      showBottomNavigation: showBottomNavigation,
+      currentScreen: page,
+    );
+
+    logger.d(
+        '🖼️ PIC navigation state updated with new page: ${page.runtimeType}');
+  }
+
+  void setNovelCurrentPage(Widget page,
+      {bool showTopMenu = false, bool showBottomNavigation = true}) {
+    // NOVEL도 현재 vote 스택을 사용
+    final voteNavigationStack = state.voteNavigationStack ?? NavigationStack();
+
+    voteNavigationStack.push(page);
+    logger.d(
+        '📚 Pushing page to NOVEL navigation (vote stack): ${page.runtimeType}');
+    logger.d('📚 Stack length after push: ${voteNavigationStack.length}');
+
+    state = state.copyWith(
+      voteNavigationStack: voteNavigationStack,
+      showBottomNavigation: showBottomNavigation,
+      currentScreen: page,
+    );
+
+    logger.d(
+        '📚 NOVEL navigation state updated with new page: ${page.runtimeType}');
   }
 
   void setCommunityCurrentPage(Widget page,
       {bool showTopMenu = false, bool showBottomNavigation = true}) {
-    final communityNavigationStack = state.communityNavigationStack;
+    final communityNavigationStack =
+        state.communityNavigationStack ?? NavigationStack();
 
-    communityNavigationStack?.push(page);
-    logger.d('communityNavigationStack: $communityNavigationStack');
+    communityNavigationStack.push(page);
+    logger
+        .d('🚀 Pushing page to communityNavigationStack: ${page.runtimeType}');
+    logger.d('🚀 Stack length after push: ${communityNavigationStack.length}');
+
     state = state.copyWith(
       communityNavigationStack: communityNavigationStack,
       showBottomNavigation: showBottomNavigation,
       currentScreen: page,
     );
-    logger.d('communityNavigationStack: $communityNavigationStack');
+
+    logger.d('🚀 Navigation state updated with new page: ${page.runtimeType}');
   }
 
   void setResetStackMyPage() {

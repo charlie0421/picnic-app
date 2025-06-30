@@ -117,10 +117,10 @@ class _CompatibilityLoadingPageState
                 'is_ads': true,
               }).eq('id', widget.compatibility.id);
 
-              ref.read(navigationInfoProvider.notifier).goBack();
+              ref.read(navigationInfoProvider.notifier).goBackCommunity();
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(CompatibilityResultPage(
+                  .setCommunityCurrentPage(CompatibilityResultPage(
                     compatibility: widget.compatibility,
                   ));
             });

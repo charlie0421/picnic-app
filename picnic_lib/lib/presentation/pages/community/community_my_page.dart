@@ -97,7 +97,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             onTap: () {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(const CommunityMyWriten());
+                  .setCommunityCurrentPage(const CommunityMyWriten());
             },
           ),
           PicnicListItem(
@@ -106,7 +106,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             onTap: () {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(const CommunityMyScraps());
+                  .setCommunityCurrentPage(const CommunityMyScraps());
             },
           ),
           PicnicListItem(
@@ -115,7 +115,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             onTap: () {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(const CommunityMyComment());
+                  .setCommunityCurrentPage(const CommunityMyComment());
             },
           ),
           PicnicListItem(
@@ -124,7 +124,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             onTap: () {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(const CompatibilityListPage());
+                  .setCommunityCurrentPage(const CompatibilityListPage());
             },
           ),
         ],
