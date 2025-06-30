@@ -28,6 +28,8 @@ workflows:
         - push
         - tag
       branch_patterns:
+        - pattern: 'main'
+          include: true
         - pattern: 'production'
           include: true
       tag_patterns:
@@ -462,8 +464,9 @@ workflows:
       events:
         - push
         - tag
-      # production 브랜치 푸시 및 태그로 트리거
       branch_patterns:
+        - pattern: 'main'
+          include: true
         - pattern: 'production'
           include: true
       tag_patterns:
@@ -806,7 +809,6 @@ workflows:
       events:
         - push
         - tag
-      # hotfix, patch 브랜치와 patch 태그로 트리거
       branch_patterns:
         - pattern: 'hotfix/*'
           include: true
@@ -1151,7 +1153,6 @@ workflows:
       events:
         - push
         - tag
-      # hotfix, patch 브랜치와 patch 태그로 트리거
       branch_patterns:
         - pattern: 'hotfix/*'
           include: true
