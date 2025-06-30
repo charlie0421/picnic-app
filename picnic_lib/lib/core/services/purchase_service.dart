@@ -12,6 +12,7 @@ import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 // 🔥 복잡한 가드 시스템 제거 - 단순 중복 방지만 사용
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 
 class PurchaseService {
   PurchaseService({
@@ -19,6 +20,7 @@ class PurchaseService {
     required this.inAppPurchaseService,
     required this.receiptVerificationService,
     required this.analyticsService,
+    required this.duplicatePreventionService,
     required void Function(List<PurchaseDetails>) onPurchaseUpdate,
   }) {
     inAppPurchaseService.initialize(onPurchaseUpdate);
@@ -26,15 +28,17 @@ class PurchaseService {
     // 🚨 타임아웃 콜백 설정
     inAppPurchaseService.onPurchaseTimeout = handlePurchaseTimeout;
 
-    logger.i('✅ PurchaseService 초기화 완료 - 타임아웃 콜백 설정됨');
+    logger.i('✅ PurchaseService 초기화 완료 - 강화된 중복 방지 시스템 활성화');
   }
 
   final WidgetRef ref;
   final InAppPurchaseService inAppPurchaseService;
   final ReceiptVerificationService receiptVerificationService;
   final AnalyticsService analyticsService;
+  final DuplicatePreventionService duplicatePreventionService;
+
   // 🔥 단순화: 복잡한 가드 시스템 제거
-  // 기본적인 제품별 구매 진행 상태만 추적
+  // 기본적인 제품별 구매 진행 상태만 추적 (백업용)
   final Set<String> _processingProducts = {};
 
   // 🧹 UI 리셋 콜백 (타임아웃 시 UI 상태 정리용)
@@ -111,52 +115,68 @@ class PurchaseService {
     }
   }
 
-  /// 구매 시작 (단순화) - 취소와 에러를 구분하여 반환
+  /// 구매 시작 (강화된 중복 방지) - 취소와 에러를 구분하여 반환
   Future<Map<String, dynamic>> initiatePurchase(
     String productId, {
     required VoidCallback onSuccess,
     required Function(String) onError,
   }) async {
+    final currentUser = supabase.auth.currentUser;
+    if (currentUser == null) {
+      onError('로그인이 필요합니다');
+      return {
+        'success': false,
+        'wasCancelled': false,
+        'errorMessage': '로그인이 필요합니다'
+      };
+    }
+
     try {
-      // 🔥 단순 중복 방지: 동일 제품 구매 진행 중 체크
-      if (_processingProducts.contains(productId)) {
-        logger.w('🚫 이미 구매 진행 중: $productId');
-        onError('해당 제품 구매가 이미 진행 중입니다');
+      // 🛡️ 1. 강화된 중복 방지 검증
+      final validation =
+          await duplicatePreventionService.validatePurchaseAttempt(
+        productId,
+        currentUser.id,
+      );
+
+      if (!validation.allowed) {
+        logger.w('🚫 구매 중복 방지 검증 실패: ${validation.reason}');
+        onError(validation.reason!);
         return {
           'success': false,
           'wasCancelled': false,
-          'errorMessage': '해당 제품 구매가 이미 진행 중입니다'
+          'errorMessage': validation.reason,
+          'denyType': validation.type?.toString(),
         };
       }
 
       logger.i('💳 구매 프로세스 시작 - Touch ID/Face ID 인증이 요청될 수 있습니다');
 
-      // 1. 사용자 인증 확인
-      final currentUser = supabase.auth.currentUser;
-      if (currentUser == null) {
-        onError('로그인이 필요합니다');
-        return {
-          'success': false,
-          'wasCancelled': false,
-          'errorMessage': '로그인이 필요합니다'
-        };
-      }
+      // 🛡️ 2. 구매 시도 등록 (중복 방지 서비스에)
+      duplicatePreventionService.registerPurchaseAttempt(
+          productId, currentUser.id);
 
-      // 2. 제품 정보 확인
+      // 3. 제품 정보 확인
       final storeProducts = await ref.read(storeProductsProvider.future);
       final serverProduct = ref
           .read(serverProductsProvider.notifier)
           .getProductDetailById(productId);
 
       if (serverProduct == null) {
+        duplicatePreventionService.completePurchase(productId, currentUser.id,
+            success: false);
         throw Exception('서버에서 상품 정보를 찾을 수 없습니다');
       }
 
-      // 3. 구매 진행 상태 등록
+      // 4. 구매 진행 상태 등록 (백업용)
       _processingProducts.add(productId);
       logger.i('✅ 구매 시작: $productId');
 
-      // 4. 실제 구매 시작
+      // 🛡️ 5. Touch ID/Face ID 인증 시작 등록
+      duplicatePreventionService.registerAuthenticationStart(
+          productId, currentUser.id);
+
+      // 6. 실제 구매 시작
       final productDetails = _findProductDetails(storeProducts, serverProduct);
       logger.i('🚀 StoreKit 구매 프로세스 시작 (Touch ID/Face ID 인증 포함)');
 
@@ -168,11 +188,15 @@ class PurchaseService {
         if (inAppPurchaseService.lastPurchaseWasCancelled) {
           logger.i('🚫 구매 취소: $productId');
           _processingProducts.remove(productId);
+          duplicatePreventionService.completePurchase(productId, currentUser.id,
+              success: false);
           // 취소는 에러가 아니므로 onError 호출하지 않음
           return {'success': false, 'wasCancelled': true, 'errorMessage': null};
         } else {
           logger.w('❌ 구매 요청 시작 실패: $productId');
           _processingProducts.remove(productId);
+          duplicatePreventionService.completePurchase(productId, currentUser.id,
+              success: false);
           const errorMessage = '구매 요청을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.';
           onError(errorMessage);
           return {
@@ -189,6 +213,8 @@ class PurchaseService {
     } catch (e, s) {
       logger.e('Error during purchase initiation: $e', stackTrace: s);
       _processingProducts.remove(productId);
+      duplicatePreventionService.completePurchase(productId, currentUser.id,
+          success: false);
 
       // 사용자 친화적 오류 메시지
       String userMessage = '구매 시작 중 오류가 발생했습니다';
@@ -295,15 +321,41 @@ class PurchaseService {
       // 🔥 구매 완료 시 진행 상태 제거
       _processingProducts.remove(purchaseDetails.productID);
 
+      // 🛡️ 중복 방지 서비스에 성공 알림
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser != null) {
+        duplicatePreventionService.completePurchase(
+            purchaseDetails.productID, currentUser.id,
+            success: true);
+      }
+
       onSuccess();
       logger.i('✅ 실제 구매 검증 완료');
     } on ReusedPurchaseException catch (e) {
       logger.w('🔄 JWT 재사용 감지 - StoreKit 캐시 문제: ${e.message}');
       _processingProducts.remove(purchaseDetails.productID);
+
+      // 🛡️ 중복 방지 서비스에 실패 알림
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser != null) {
+        duplicatePreventionService.completePurchase(
+            purchaseDetails.productID, currentUser.id,
+            success: false);
+      }
+
       onError('StoreKit 캐시 문제로 인한 중복 영수증. 잠시 후 다시 시도해주세요.');
     } catch (e, s) {
       logger.e('❌ 실제 구매 처리 중 오류: $e', stackTrace: s);
       _processingProducts.remove(purchaseDetails.productID);
+
+      // 🛡️ 중복 방지 서비스에 실패 알림
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser != null) {
+        duplicatePreventionService.completePurchase(
+            purchaseDetails.productID, currentUser.id,
+            success: false);
+      }
+
       onError(_getDetailedErrorMessage(e));
       rethrow;
     }
@@ -459,6 +511,10 @@ class PurchaseService {
   void dispose() {
     logger.i('🧹 PurchaseService 해제: ${_processingProducts.length}개 진행 상태 정리');
     _processingProducts.clear();
+
+    // 🛡️ 중복 방지 서비스 데이터 정리
+    duplicatePreventionService.cleanupExpiredData();
+
     logger.i('✅ PurchaseService 해제 완료');
   }
 
@@ -468,6 +524,13 @@ class PurchaseService {
   /// 타임아웃 발생 시 구매 상태 정리 (InAppPurchaseService에서 호출)
   void handlePurchaseTimeout(String productId) {
     logger.w('⏰ 구매 타임아웃으로 인한 상태 정리: $productId');
+
+    final currentUser = supabase.auth.currentUser;
+    if (currentUser != null) {
+      // 🛡️ 중복 방지 서비스에서 백그라운드 구매로 전환
+      duplicatePreventionService.handlePurchaseTimeout(
+          productId, currentUser.id);
+    }
 
     if (_processingProducts.contains(productId)) {
       _processingProducts.remove(productId);

@@ -43,6 +43,11 @@ class _CompatibilityResultContentState
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
       GlobalKey<LoadingOverlayWithIconState>();
 
+  // 🔧 연타 방지만 - 단순화
+  DateTime? _lastStarPurchaseTime;
+  DateTime? _lastOneClickPurchaseTime;
+  static const Duration _purchaseCooldown = Duration(milliseconds: 300);
+
   @override
   void initState() {
     super.initState();
@@ -175,10 +180,23 @@ class _CompatibilityResultContentState
                                 ),
                                 child: ElevatedButton(
                                   onPressed: () async {
+                                    // 연타 방지
+                                    if (_lastStarPurchaseTime != null) {
+                                      final timeSince = DateTime.now()
+                                          .difference(_lastStarPurchaseTime!);
+                                      if (timeSince < _purchaseCooldown) {
+                                        return;
+                                      }
+                                    }
+                                    _lastStarPurchaseTime = DateTime.now();
+
                                     _loadingKey.currentState?.show();
-                                    widget.onOpenCompatibility(
-                                        widget.compatibility.id);
-                                    _loadingKey.currentState?.hide();
+                                    try {
+                                      widget.onOpenCompatibility(
+                                          widget.compatibility.id);
+                                    } finally {
+                                      _loadingKey.currentState?.hide();
+                                    }
                                   },
                                   child:
                                       Text(t('fortune_purchase_by_star_candy')),
@@ -219,15 +237,30 @@ class _CompatibilityResultContentState
                                         MaterialTapTargetSize.shrinkWrap,
                                   ),
                                   onPressed: () async {
-                                    _loadingKey.currentState?.show();
-                                    final productDetail = ref
-                                        .read(serverProductsProvider.notifier)
-                                        .getProductDetailById('STAR100');
-
-                                    if (productDetail != null) {
-                                      await widget.onBuyProduct(productDetail);
+                                    // 연타 방지
+                                    if (_lastOneClickPurchaseTime != null) {
+                                      final timeSince = DateTime.now()
+                                          .difference(
+                                              _lastOneClickPurchaseTime!);
+                                      if (timeSince < _purchaseCooldown) {
+                                        return;
+                                      }
                                     }
-                                    _loadingKey.currentState?.hide();
+                                    _lastOneClickPurchaseTime = DateTime.now();
+
+                                    _loadingKey.currentState?.show();
+                                    try {
+                                      final productDetail = ref
+                                          .read(serverProductsProvider.notifier)
+                                          .getProductDetailById('STAR100');
+
+                                      if (productDetail != null && mounted) {
+                                        await widget
+                                            .onBuyProduct(productDetail);
+                                      }
+                                    } finally {
+                                      _loadingKey.currentState?.hide();
+                                    }
                                   },
                                   child: Text(
                                     t('fortune_purchase_by_one_click'),

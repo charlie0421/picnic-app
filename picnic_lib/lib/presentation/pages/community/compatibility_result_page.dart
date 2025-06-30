@@ -28,6 +28,7 @@ import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -59,11 +60,23 @@ class _CompatibilityResultPageState
       ScrollController(); // Add ScrollController
   static const _animationDuration = Duration(milliseconds: 300);
   static const _scrollCurve = Curves.easeOut;
-  late final _shareMessage = t('compatibility_share_message',
-      {'artistName': getLocaleTextFromJson(widget.compatibility.artist.name)});
+
+  // 🔧 연타 방지만 - 단순화
+  DateTime? _lastPurchaseTime;
+  static const Duration _purchaseCooldown = Duration(milliseconds: 300);
 
   // 🔄 Transaction clear 이후 플래그
   bool _transactionsCleared = false;
+
+  // late final에서 getter로 변경하여 항상 최신 아티스트 정보 사용
+  String get _shareMessage {
+    final artistName = getLocaleTextFromJson(widget.compatibility.artist.name);
+    logger.d('🎯 아티스트 이름: "$artistName"');
+    final message =
+        t('compatibility_share_message', {'artistName': artistName});
+    logger.d('🎯 공유 메시지: "$message"');
+    return message;
+  }
 
   @override
   void initState() {
@@ -75,6 +88,7 @@ class _CompatibilityResultPageState
       inAppPurchaseService: InAppPurchaseService(),
       receiptVerificationService: ReceiptVerificationService(),
       analyticsService: AnalyticsService(),
+      duplicatePreventionService: DuplicatePreventionService(ref),
       onPurchaseUpdate: _handlePurchaseUpdated,
     );
 
@@ -88,7 +102,7 @@ class _CompatibilityResultPageState
 
   @override
   void dispose() {
-    _scrollController.dispose(); // Dispose the ScrollController
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -103,90 +117,125 @@ class _CompatibilityResultPageState
           continue;
         }
 
-        // 🔄 Transaction clear 이후에는 모든 구매(restored 포함)를 신규 구매로 처리
-        if (_transactionsCleared) {
-          logger.i(
-              '🎯 Transaction clear 이후 구매 감지: ${purchaseDetails.productID} - ${purchaseDetails.status}');
-          logger.i('   → 신규 구매로 간주하여 영수증 검증 수행');
+        try {
+          // 🔄 Transaction clear 이후에는 모든 구매(restored 포함)를 신규 구매로 처리
+          if (_transactionsCleared) {
+            logger.i(
+                '🎯 Transaction clear 이후 구매 감지: ${purchaseDetails.productID} - ${purchaseDetails.status}');
+            logger.i('   → 신규 구매로 간주하여 영수증 검증 수행');
 
-          if (purchaseDetails.status == PurchaseStatus.purchased ||
-              purchaseDetails.status == PurchaseStatus.restored) {
-            await _purchaseService.handlePurchase(
-              purchaseDetails,
-              () async {
-                if (mounted) {
-                  OverlayLoadingProgress.stop();
-                  _openCompatibility(widget.compatibility.id);
-                }
-              },
-              (error) async {
-                if (mounted) {
-                  OverlayLoadingProgress.stop();
-                  await _showErrorDialog(t('dialog_message_purchase_failed'));
-                }
-              },
-            );
-          }
-        } else {
-          // Transaction clear 이전의 구매들은 기존 로직 유지
+            if (purchaseDetails.status == PurchaseStatus.purchased ||
+                purchaseDetails.status == PurchaseStatus.restored) {
+              // handlePurchase 호출 전 mounted 체크
+              if (!mounted) return;
 
-          // 복원된 구매는 조용히 처리하고 완료
-          if (purchaseDetails.status == PurchaseStatus.restored) {
-            logger.d('복원된 구매 감지됨. 조용히 완료 처리: ${purchaseDetails.productID}');
-            await _purchaseService.inAppPurchaseService
-                .completePurchase(purchaseDetails);
-            // 복원된 구매는 영수증 검증 없이 조용히 처리
-            continue;
-          }
+              await _purchaseService.handlePurchase(
+                purchaseDetails,
+                () async {
+                  if (mounted) {
+                    OverlayLoadingProgress.stop();
+                    _openCompatibility(widget.compatibility.id);
+                  }
+                },
+                (error) async {
+                  if (mounted) {
+                    OverlayLoadingProgress.stop();
+                    await _showErrorDialog(t('dialog_message_purchase_failed'));
+                  }
+                },
+              );
 
-          // 신규 구매만 영수증 검증 수행
-          if (purchaseDetails.status == PurchaseStatus.purchased) {
-            logger.d('신규 구매 감지: ${purchaseDetails.productID} - 영수증 검증 시작');
+              // handlePurchase 호출 후 mounted 체크
+              if (!mounted) return;
+            }
+          } else {
+            // Transaction clear 이전의 구매들은 기존 로직 유지
 
-            await _purchaseService.handlePurchase(
-              purchaseDetails,
-              () async {
-                if (mounted) {
-                  OverlayLoadingProgress.stop();
-                  _openCompatibility(widget.compatibility.id);
-                }
-              },
-              (error) async {
-                if (mounted) {
-                  OverlayLoadingProgress.stop();
-                  await _showErrorDialog(t('dialog_message_purchase_failed'));
-                }
-              },
-            );
-          }
-        }
+            // 복원된 구매는 조용히 처리하고 완료
+            if (purchaseDetails.status == PurchaseStatus.restored) {
+              logger.d('복원된 구매 감지됨. 조용히 완료 처리: ${purchaseDetails.productID}');
 
-        // 공통 에러 및 취소 처리
-        if (purchaseDetails.status == PurchaseStatus.error) {
-          if (mounted) {
-            OverlayLoadingProgress.stop();
-            // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
-            if (purchaseDetails.error?.message
-                    .toLowerCase()
-                    .contains('canceled') !=
-                true) {
-              await _showErrorDialog(purchaseDetails.error?.message ??
-                  t('dialog_message_purchase_failed'));
+              // completePurchase 호출 전 mounted 체크
+              if (!mounted) return;
+
+              await _purchaseService.inAppPurchaseService
+                  .completePurchase(purchaseDetails);
+
+              // completePurchase 호출 후 mounted 체크
+              if (!mounted) return;
+
+              // 복원된 구매는 영수증 검증 없이 조용히 처리
+              continue;
+            }
+
+            // 신규 구매만 영수증 검증 수행
+            if (purchaseDetails.status == PurchaseStatus.purchased) {
+              logger.d('신규 구매 감지: ${purchaseDetails.productID} - 영수증 검증 시작');
+
+              // handlePurchase 호출 전 mounted 체크
+              if (!mounted) return;
+
+              await _purchaseService.handlePurchase(
+                purchaseDetails,
+                () async {
+                  if (mounted) {
+                    OverlayLoadingProgress.stop();
+                    _openCompatibility(widget.compatibility.id);
+                  }
+                },
+                (error) async {
+                  if (mounted) {
+                    OverlayLoadingProgress.stop();
+                    await _showErrorDialog(t('dialog_message_purchase_failed'));
+                  }
+                },
+              );
+
+              // handlePurchase 호출 후 mounted 체크
+              if (!mounted) return;
             }
           }
-        } else if (purchaseDetails.status == PurchaseStatus.canceled) {
-          // 구매 취소 시 구매 정보 정리하고 로딩바만 숨김
-          if (mounted) {
+
+          // 공통 에러 및 취소 처리
+          if (purchaseDetails.status == PurchaseStatus.error) {
+            if (mounted) {
+              OverlayLoadingProgress.stop();
+              // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
+              if (purchaseDetails.error?.message
+                      .toLowerCase()
+                      .contains('canceled') !=
+                  true) {
+                await _showErrorDialog(purchaseDetails.error?.message ??
+                    t('dialog_message_purchase_failed'));
+              }
+            }
+          } else if (purchaseDetails.status == PurchaseStatus.canceled) {
+            // 구매 취소 시 구매 정보 정리하고 로딩바만 숨김
+            if (mounted) {
+              await _purchaseService.inAppPurchaseService
+                  .completePurchase(purchaseDetails);
+
+              // completePurchase 호출 후 mounted 체크
+              if (!mounted) return;
+
+              OverlayLoadingProgress.stop();
+            }
+          }
+
+          // 모든 상태 처리 후 구매 완료 처리
+          if (purchaseDetails.pendingCompletePurchase) {
+            // pendingCompletePurchase 호출 전 mounted 체크
+            if (!mounted) return;
+
             await _purchaseService.inAppPurchaseService
                 .completePurchase(purchaseDetails);
-            OverlayLoadingProgress.stop();
-          }
-        }
 
-        // 모든 상태 처리 후 구매 완료 처리
-        if (purchaseDetails.pendingCompletePurchase) {
-          await _purchaseService.inAppPurchaseService
-              .completePurchase(purchaseDetails);
+            // pendingCompletePurchase 호출 후 mounted 체크
+            if (!mounted) return;
+          }
+        } finally {
+          // 구매 처리 완료
+          logger.d('🔄 구매 처리 완료: ${purchaseDetails.productID}');
         }
       }
     } catch (e, s) {
@@ -200,52 +249,60 @@ class _CompatibilityResultPageState
   }
 
   Future<bool> _buyProduct(Map<String, dynamic> product) async {
+    // 연타 방지
+    if (_lastPurchaseTime != null) {
+      final timeSince = DateTime.now().difference(_lastPurchaseTime!);
+      if (timeSince < _purchaseCooldown) {
+        return false; // 연타 차단
+      }
+    }
+    _lastPurchaseTime = DateTime.now();
+
     try {
       // 이전 구매 상태 초기화
       await _purchaseService.inAppPurchaseService.clearTransactions();
+      if (!mounted) return false;
 
       // 구매 시작 시 로딩바 표시
-      if (mounted) {
-        OverlayLoadingProgress.start(
-          context,
-          barrierDismissible: false,
-          color: AppColors.primary500,
-        );
-      }
+      OverlayLoadingProgress.start(
+        context,
+        barrierDismissible: false,
+        color: AppColors.primary500,
+      );
 
       final purchaseResult = await _purchaseService.initiatePurchase(
         product['id'],
         onSuccess: () {
-          // 성공 콜백에서는 로딩바를 숨기지 않음 (_handlePurchaseUpdated에서 처리)
-          _openCompatibility(widget.compatibility.id);
+          if (mounted) {
+            _openCompatibility(widget.compatibility.id);
+          }
         },
         onError: (message) {
-          // 에러 콜백에서는 로딩바를 숨기지 않음 (_handlePurchaseUpdated에서 처리)
-          _showErrorDialog(message);
+          if (mounted) {
+            _showErrorDialog(message);
+          }
         },
       );
+
+      if (!mounted) {
+        OverlayLoadingProgress.stop();
+        return false;
+      }
 
       final success = purchaseResult['success'] as bool;
       final wasCancelled = purchaseResult['wasCancelled'] as bool;
       final errorMessage = purchaseResult['errorMessage'] as String?;
 
       if (wasCancelled) {
-        // 🚫 구매 취소 - 조용히 처리 (에러 팝업 없음)
-        if (mounted) {
-          OverlayLoadingProgress.stop();
-        }
+        OverlayLoadingProgress.stop();
         return false;
       } else if (!success) {
-        // ❌ 실제 에러 - 에러 팝업 표시
-        if (mounted) {
-          OverlayLoadingProgress.stop();
-          await _showErrorDialog(
-              errorMessage ?? t('dialog_message_purchase_failed'));
-        }
+        OverlayLoadingProgress.stop();
+        await _showErrorDialog(
+            errorMessage ?? t('dialog_message_purchase_failed'));
         return false;
       }
 
-      // ✅ 구매 시작 성공
       return true;
     } catch (e, s) {
       logger.e('Error buying product', error: e, stackTrace: s);
@@ -275,6 +332,9 @@ class _CompatibilityResultPageState
           .read(compatibilityProvider.notifier)
           .loadCompatibility(widget.compatibility.id, forceRefresh: true);
 
+      // 비동기 작업 후 mounted 체크
+      if (!mounted) return;
+
       if (widget.compatibility.isPending) {
         ref.read(compatibilityLoadingProvider.notifier).state = true;
       }
@@ -294,6 +354,9 @@ class _CompatibilityResultPageState
       await ref
           .read(compatibilityProvider.notifier)
           .loadCompatibility(widget.compatibility.id, forceRefresh: true);
+
+      // 비동기 작업 후 mounted 체크
+      if (!mounted) return;
     } catch (e, stack) {
       logger.e('Error refreshing compatibility data',
           error: e, stackTrace: stack);
@@ -302,21 +365,22 @@ class _CompatibilityResultPageState
 
   void _updateNavigation() {
     Future(() {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-            showPortal: true,
-            showTopMenu: true,
-            topRightMenu: TopRightType.board,
-            showBottomNavigation: false,
-            pageTitle: t('compatibility_page_title'),
-          );
+      // Future 콜백 내에서 mounted 체크
+      if (mounted) {
+        ref.read(navigationInfoProvider.notifier).settingNavigation(
+              showPortal: true,
+              showTopMenu: true,
+              topRightMenu: TopRightType.board,
+              showBottomNavigation: false,
+              pageTitle: t('compatibility_page_title'),
+            );
+      }
     });
   }
 
-  Widget _buildResultContent() {
-    final compatibility = ref.read(compatibilityProvider).value;
-
+  Widget _buildResultContent(CompatibilityModel compatibility) {
     return CompatibilityResultContent(
-      compatibility: compatibility!,
+      compatibility: compatibility,
       isSaving: _isSaving,
       onSave: _handleSave,
       onShare: _handleShare,
@@ -328,47 +392,65 @@ class _CompatibilityResultPageState
   void _openCompatibility(String compatibilityId) async {
     try {
       // 호환성 결과 열기 전에 로딩바 표시
-      if (mounted) {
-        OverlayLoadingProgress.start(
-          context,
-          barrierDismissible: false,
-          color: AppColors.primary500,
-        );
+      if (!mounted) return;
+
+      OverlayLoadingProgress.start(
+        context,
+        barrierDismissible: false,
+        color: AppColors.primary500,
+      );
+
+      // 첫 번째 비동기 작업 전 mounted 체크
+      if (!mounted) {
+        OverlayLoadingProgress.stop();
+        return;
       }
 
       final userProfile =
           await ref.read(userInfoProvider.notifier).getUserProfiles();
 
+      // 첫 번째 비동기 작업 후 mounted 체크
+      if (!mounted) {
+        OverlayLoadingProgress.stop();
+        return;
+      }
+
       if (userProfile == null) {
-        if (mounted) {
-          OverlayLoadingProgress.stop();
-          showSimpleDialog(
-            content: t('message_error_occurred'),
-            onOk: () {
+        OverlayLoadingProgress.stop();
+        showSimpleDialog(
+          content: t('message_error_occurred'),
+          onOk: () {
+            if (mounted) {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(StorePage());
+                  .setCommunityCurrentPage(StorePage());
               Navigator.of(context).pop();
-            },
-          );
-        }
+            }
+          },
+        );
         return;
       }
 
       if ((userProfile.starCandy ?? 0) < 100) {
-        if (mounted) {
-          OverlayLoadingProgress.stop();
-          showSimpleDialog(
-            title: t('fortune_lack_of_star_candy_title'),
-            content: t('fortune_lack_of_star_candy_message'),
-            onOk: () {
+        OverlayLoadingProgress.stop();
+        showSimpleDialog(
+          title: t('fortune_lack_of_star_candy_title'),
+          content: t('fortune_lack_of_star_candy_message'),
+          onOk: () {
+            if (mounted) {
               ref
                   .read(navigationInfoProvider.notifier)
-                  .setCurrentPage(StorePage());
+                  .setCommunityCurrentPage(StorePage());
               Navigator.of(context).pop();
-            },
-          );
-        }
+            }
+          },
+        );
+        return;
+      }
+
+      // Supabase 함수 호출 전 mounted 체크
+      if (!mounted) {
+        OverlayLoadingProgress.stop();
         return;
       }
 
@@ -377,38 +459,55 @@ class _CompatibilityResultPageState
         'compatibilityId': compatibilityId,
       });
 
+      // Supabase 함수 호출 후 mounted 체크
+      if (!mounted) {
+        OverlayLoadingProgress.stop();
+        return;
+      }
+
       final updatedProfile =
           await ref.read(userInfoProvider.notifier).getUserProfiles();
+
+      // 두 번째 getUserProfiles 호출 후 mounted 체크
+      if (!mounted) {
+        OverlayLoadingProgress.stop();
+        return;
+      }
+
       if (updatedProfile == null) {
         throw Exception('Failed to get updated user profile');
       }
 
       await _refreshData();
 
-      if (mounted) {
+      // 모든 비동기 작업 완료 후 mounted 체크
+      if (!mounted) {
         OverlayLoadingProgress.stop();
-        showSimpleDialog(
-          contentWidget: Column(
-            children: [
-              Text(t('compatibility_remain_star_candy')),
-              SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                      package: 'picnic_lib',
-                      'assets/icons/store/star_100.png',
-                      width: 36),
-                  Text(
-                    '${updatedProfile.starCandy}',
-                    style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
+        return;
       }
+
+      OverlayLoadingProgress.stop();
+      showSimpleDialog(
+        contentWidget: Column(
+          children: [
+            Text(t('compatibility_remain_star_candy')),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                    package: 'picnic_lib',
+                    'assets/icons/store/star_100.png',
+                    width: 36),
+                Text(
+                  '${updatedProfile.starCandy}',
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
     } catch (e, s) {
       logger.e('Error opening compatibility', error: e, stackTrace: s);
       if (mounted) {
@@ -509,7 +608,7 @@ class _CompatibilityResultPageState
                                       t('error_unknown'),
                                 )
                               else if (compatibility.isCompleted)
-                                _buildResultContent()
+                                _buildResultContent(compatibility)
                             ],
                           ),
                         ),
@@ -578,11 +677,15 @@ class _CompatibilityResultPageState
 
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
     logger.i('Share to Twitter');
+    final artistName = getLocaleTextFromJson(compatibility.artist.name);
+    final hashtag =
+        t('compatibility_share_hashtag', {'artistName': artistName});
+    logger.d('🎯 해시태그 - 아티스트 이름: "$artistName", 결과: "$hashtag"');
+
     return ShareUtils.shareToSocial(
       _shareKey,
       message: _shareMessage,
-      hashtag: t('compatibility_share_hashtag',
-          {'artistName': getLocaleTextFromJson(compatibility.artist.name)}),
+      hashtag: hashtag,
       downloadLink: await createBranchLink(
           getLocaleTextFromJson(compatibility.artist.name),
           '${Environment.appLinkPrefix}/community/compatibility/${compatibility.artist.id}'),

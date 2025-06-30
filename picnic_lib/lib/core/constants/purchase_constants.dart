@@ -2,8 +2,9 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 
 /// 구매 처리 상수
 class PurchaseConstants {
-  // 타임아웃 관련
-  static const Duration purchaseTimeout = Duration(seconds: 30);
+  // 타임아웃 관련 - Touch ID/Face ID 인증 고려 (실용적인 시간으로 설정)
+  static const Duration purchaseTimeout =
+      Duration(seconds: 30); // 30초 - 실용적인 시간
   static const Duration debugPurchaseTimeout =
       Duration(seconds: 3); // 🧪 디버그용 짧은 타임아웃
   static const Duration ultraFastTimeout =
@@ -11,11 +12,19 @@ class PurchaseConstants {
   static const Duration instantTimeout =
       Duration(milliseconds: 100); // 🧪 거의 즉시 타임아웃 (0.1초)
   static const Duration verificationTimeout =
-      Duration(seconds: 60); // Production 환경 타임아웃 (서버 검증용)
+      Duration(seconds: 30); // Production 환경 타임아웃 (서버 검증용)
   static const Duration sandboxVerificationTimeout =
-      Duration(seconds: 120); // Sandbox 환경 타임아웃
-  // authenticationTimeout 제거 - 단순한 동기적 체크로 변경
-  static const Duration cooldownPeriod = Duration(seconds: 2);
+      Duration(seconds: 60); // Sandbox 환경 타임아웃 (개발환경은 조금 더 여유)
+
+  // 🔧 연타 방지 수준으로 단순화
+  static const Duration authenticationGracePeriod =
+      Duration(milliseconds: 300); // 연타 방지용
+  static const Duration backgroundPurchaseWindow =
+      Duration(milliseconds: 300); // 연타 방지용
+  static const Duration purchaseBlockingPeriod =
+      Duration(milliseconds: 300); // 연타 방지용
+
+  static const Duration cooldownPeriod = Duration(milliseconds: 300); // 연타 방지용
   static const Duration initializationDelay = Duration(seconds: 2);
   static const Duration cacheRefreshDelay = Duration(seconds: 1);
 
@@ -55,11 +64,24 @@ class PurchaseConstants {
   static const String requestIdDuplicateError = '이미 처리된 요청입니다.';
   static const String guardSystemError = '구매 보안 시스템 오류가 발생했습니다.';
 
+  // 🛡️ 새로운 강화된 중복 방지 메시지
+  static const String authenticationInProgressError =
+      'Touch ID/Face ID 인증이 진행 중입니다. 잠시만 기다려주세요.';
+  static const String backgroundPurchaseDetectedError =
+      '백그라운드에서 구매가 처리 중입니다. 잠시만 기다려주세요.';
+  static const String recentPurchaseAttemptError =
+      '최근 구매 시도 후 아직 충분한 시간이 지나지 않았습니다.';
+
   // 성공 메시지
   static const String purchaseSuccessMessage = '구매가 완료되었습니다';
 
   // SharedPreferences 키
   static const String testDialogShownKey = 'test_environment_dialog_shown';
+
+  // 🛡️ 구매 상태 추적 키
+  static const String lastPurchaseAttemptKey = 'last_purchase_attempt_';
+  static const String authenticationStartKey = 'authentication_start_';
+  static const String backgroundPurchaseKey = 'background_purchase_';
 }
 
 /// 구매 처리 결과 타입

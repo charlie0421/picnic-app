@@ -14,6 +14,8 @@ import 'package:picnic_lib/presentation/widgets/community/compatibility/compatib
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'dart:async';
+import 'package:picnic_lib/core/utils/logger.dart';
 
 class CompatibilityListPage extends ConsumerStatefulWidget {
   const CompatibilityListPage({super.key, this.artistId});
@@ -31,6 +33,10 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
   // 성능 최적화를 위한 const 상수 활용
   static const _scrollThreshold = 0.8;
   static const _padding = EdgeInsets.fromLTRB(16, 24, 16, 80);
+
+  // 🔧 연타 방지만 - 스크롤 관련 복잡한 로직 제거
+  DateTime? _lastTapTime;
+  static const Duration _tapCooldown = Duration(milliseconds: 300); // 연타 방지용
 
   @override
   void initState() {
@@ -58,7 +64,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
     super.dispose();
   }
 
-  // 스크롤 성능 최적화
+  // 단순한 스크롤 처리 - 페이지네이션만
   void _onScroll() {
     if (!_scrollController.hasClients) return;
 
@@ -75,8 +81,33 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
   void _onNewCompatibilityTap() {
     final currentArtist = ref.read(communityStateInfoProvider).currentArtist;
     if (currentArtist != null) {
-      ref.read(navigationInfoProvider.notifier).setCurrentPage(
+      ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
             CompatibilityInputPage(artist: currentArtist),
+          );
+    }
+  }
+
+  // 🔧 연타 방지만 - 단순화
+  void _onCompatibilityCardTap(CompatibilityModel item) {
+    // 연타 방지 (300ms)
+    if (_lastTapTime != null) {
+      final timeSinceTap = DateTime.now().difference(_lastTapTime!);
+      if (timeSinceTap < _tapCooldown) {
+        return; // 연타 차단
+      }
+    }
+
+    // 연타 방지 시간 갱신
+    _lastTapTime = DateTime.now();
+
+    // 페이지 이동
+    if (item.status == CompatibilityStatus.completed && item.isAds == true) {
+      ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
+            CompatibilityResultPage(compatibility: item),
+          );
+    } else {
+      ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
+            CompatibilityLoadingPage(compatibility: item),
           );
     }
   }
@@ -87,11 +118,33 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(
-            package: 'picnic_lib',
-            'assets/images/fortune/no_item_${getLocaleLanguage()}.svg',
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: AppColors.grey00.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(60),
+            ),
+            child: Icon(
+              Icons.favorite_border,
+              size: 60,
+              color: AppColors.grey00.withValues(alpha: 0.7),
+            ),
           ),
-          const SizedBox(height: 64),
+          const SizedBox(height: 24),
+          Text(
+            t('compatibility_empty_state_title'),
+            style: getTextStyle(AppTypo.title18B, AppColors.grey00),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            t('compatibility_empty_state_subtitle'),
+            style: getTextStyle(
+                AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
           _buildNewCompatibilityButton(),
         ],
       ),
@@ -144,22 +197,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
                           return Column(
                             children: [
                               InkWell(
-                                onTap: () {
-                                  item.status ==
-                                              CompatibilityStatus.completed &&
-                                          item.isAds == true
-                                      ? ref
-                                          .read(navigationInfoProvider.notifier)
-                                          .setCurrentPage(
-                                              CompatibilityResultPage(
-                                                  compatibility: item))
-                                      : ref
-                                          .read(navigationInfoProvider.notifier)
-                                          .setCurrentPage(
-                                            CompatibilityLoadingPage(
-                                                compatibility: item),
-                                          );
-                                },
+                                onTap: () => _onCompatibilityCardTap(item),
                                 child: Column(
                                   children: [
                                     CompatibilityCard(

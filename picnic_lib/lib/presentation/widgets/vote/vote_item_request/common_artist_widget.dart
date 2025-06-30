@@ -92,11 +92,18 @@ class CommonArtistWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(24.r),
         child: artist?.image != null
             ? PicnicCachedNetworkImage(
-                key: ValueKey('artist_${artist!.id}'),
+                key: ValueKey(
+                    'artist_${artist!.id}_${artist!.name}'), // ✅ 더 유니크한 키로 캐시 최적화
                 imageUrl: artist!.image!,
                 fit: BoxFit.cover,
                 width: width,
                 height: height,
+                priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
+                enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
+                memCacheWidth: width.toInt(), // ✅ 메모리 캐시 크기 지정
+                memCacheHeight: height.toInt(), // ✅ 메모리 캐시 크기 지정
+                timeout: const Duration(seconds: 10), // ✅ 타임아웃 설정
+                maxRetries: 2, // ✅ 재시도 횟수 설정
                 borderRadius: BorderRadius.circular(24.r),
                 placeholder: Container(
                   width: width,
@@ -111,8 +118,10 @@ class CommonArtistWidget extends StatelessWidget {
                     color: AppColors.grey400,
                   ),
                 ),
-                enableProgressiveLoading: false, // 진보적 로딩 비활성화
-                lazyLoadingStrategy: LazyLoadingStrategy.none, // 지연 로딩 비활성화
+                enableProgressiveLoading:
+                    false, // 진보적 로딩 비활성화 (투표 기능 특성상 즉시 로딩 필요)
+                lazyLoadingStrategy:
+                    LazyLoadingStrategy.none, // 지연 로딩 비활성화 (투표 기능 특성상 즉시 로딩 필요)
               )
             : Container(
                 width: width,
