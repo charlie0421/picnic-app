@@ -25,13 +25,7 @@ workflows:
         - $HOME/Library/Caches/CocoaPods
     triggering:
       events:
-        - push
         - tag
-      branch_patterns:
-        - pattern: 'main'
-          include: true
-        - pattern: 'production'
-          include: true
       tag_patterns:
         - pattern: 'picnic-v*'
           include: true
@@ -462,13 +456,7 @@ workflows:
         - picnic_app/android/.gradle
     triggering:
       events:
-        - push
         - tag
-      branch_patterns:
-        - pattern: 'main'
-          include: true
-        - pattern: 'production'
-          include: true
       tag_patterns:
         - pattern: 'picnic-v*'
           include: true
@@ -807,13 +795,7 @@ workflows:
         - $HOME/Library/Caches/CocoaPods
     triggering:
       events:
-        - push
         - tag
-      branch_patterns:
-        - pattern: 'hotfix/*'
-          include: true
-        - pattern: 'patch/*'
-          include: true
       tag_patterns:
         - pattern: 'picnic-patch-*'
           include: true
@@ -1151,13 +1133,7 @@ workflows:
         - picnic_app/android/.gradle
     triggering:
       events:
-        - push
         - tag
-      branch_patterns:
-        - pattern: 'hotfix/*'
-          include: true
-        - pattern: 'patch/*'
-          include: true
       tag_patterns:
         - pattern: 'picnic-patch-*'
           include: true
