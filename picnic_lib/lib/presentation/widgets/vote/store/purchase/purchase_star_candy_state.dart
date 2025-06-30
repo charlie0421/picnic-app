@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
+// 🔥 복잡한 가드 시스템 제거됨
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
@@ -40,14 +41,25 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   bool _isUserRequestedRestore = false;
   bool _isPurchasing = false;
 
+  // 🛡️ 구매 가드 토큰 관리는 PurchaseService에서 처리
+
   // 시간 관리
   DateTime? _initializationCompletedAt;
   DateTime? _lastPurchaseAttempt;
 
+  // 🛡️ 안전망 타이머 관리
+  Timer? _safetyTimer;
+
+  // 🛡️ 안전망 발동 후 늦은 구매 성공 감지용
+  bool _safetyTimeoutTriggered = false;
+  DateTime? _safetyTimeoutTime;
+
   // 성능 최적화 상수
   static const Duration _purchaseCooldown = Duration(seconds: 2);
-  static const Duration _purchaseTimeout = Duration(seconds: 30);
   static const Duration _restoreResetDelay = Duration(seconds: 5);
+
+  // 🛡️ 안전망 타임아웃: Touch ID/Face ID 인증 시간 충분히 고려 (90초)
+  static const Duration _safetyTimeout = Duration(seconds: 90);
 
   @override
   void initState() {
@@ -67,9 +79,17 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       onPurchaseUpdate: _onPurchaseUpdate,
     );
 
+    // 🧹 타임아웃 시 UI 상태 리셋 콜백 설정
+    _purchaseService.onTimeoutUIReset = _handleTimeoutUIReset;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializePage();
     });
+
+    // 🧪 디버그 모드에서만 보이는 디버그 기능 활성화
+    if (kDebugMode) {
+      logger.i('🧪 디버그 모드에서 타임아웃 테스트 기능 활성화');
+    }
   }
 
   /// 페이지 초기화 (즉시 완료)
@@ -114,9 +134,61 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
   @override
   void dispose() {
+    // 🛡️ 안전망 타이머 정리
+    _safetyTimer?.cancel();
+    _safetyTimer = null;
+
     _rotationController.dispose();
     _purchaseService.inAppPurchaseService.dispose();
     super.dispose();
+  }
+
+  /// 🧹 타임아웃 발생 시 UI 상태 리셋
+  void _handleTimeoutUIReset() {
+    logger.w('🧹 타임아웃으로 인한 UI 상태 리셋 시작');
+
+    if (!mounted) {
+      logger.w('🧹 Widget이 dispose된 상태 - UI 리셋 건너뛰기');
+      return;
+    }
+
+    try {
+      // 1. 로딩 오버레이 숨기기
+      _loadingKey.currentState?.hide();
+      logger.i('🧹 로딩 오버레이 숨김 완료');
+
+      // 2. 구매 상태 리셋
+      _resetPurchaseState();
+      logger.i('🧹 구매 상태 리셋 완료');
+
+      // 3. 안전망 타이머 정리
+      _safetyTimer?.cancel();
+      _safetyTimer = null;
+      logger.i('🧹 안전망 타이머 정리 완료');
+
+      // 4. 타임아웃 에러 다이얼로그 표시 (비동기로 실행하여 블로킹 방지)
+      Future.delayed(Duration(milliseconds: 500), () {
+        if (mounted) {
+          _showTimeoutErrorDialog();
+        }
+      });
+
+      logger.w('🧹 타임아웃 UI 상태 리셋 완료');
+    } catch (e) {
+      logger.e('🧹 타임아웃 UI 상태 리셋 중 오류 발생: $e');
+    }
+  }
+
+  /// 🧹 타임아웃 에러 다이얼로그 표시
+  Future<void> _showTimeoutErrorDialog() async {
+    logger.w('🧹 타임아웃 에러 다이얼로그 표시');
+
+    const timeoutMessage = '''구매 처리 시간이 초과되었습니다.
+
+네트워크 상태를 확인한 후 다시 시도해주세요.
+만약 결제가 완료되었다면 잠시 후 자동으로 반영됩니다.''';
+
+    await _showErrorDialog(timeoutMessage);
   }
 
   /// 구매 취소 감지
@@ -135,32 +207,114 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
         'canceled',
         'user cancel',
         'abort',
-        'dismiss'
+        'dismiss',
+        // iOS 인증 관련 취소 키워드 추가
+        'authentication',
+        'touch id',
+        'face id',
+        'biometric',
+        'passcode',
+        'unauthorized',
+        'permission denied',
+        'operation was cancelled',
+        'user cancelled',
+        'user denied',
+        'authentication failed',
+        'authentication cancelled',
+        'user interaction required',
+        'interaction not allowed',
+        // 추가 일반적인 취소 키워드
+        'declined',
+        'rejected',
+        'stopped',
+        'interrupted',
+        'terminated',
+        'aborted',
+        // StoreKit 2 취소 메시지들 추가
+        'transaction has been cancelled',
+        'cancelled by the user',
+        'purchase was cancelled',
+        'user has cancelled',
+        'transaction cancelled',
+        'purchase cancelled',
+        'payment cancelled',
+        'cancelled transaction',
+        'user cancellation',
+        'cancelled by user'
       ];
 
       final cancelErrorCodes = [
         'PAYMENT_CANCELED',
         'USER_CANCELED',
-        '2',
+        '2', // SKErrorPaymentCancelled
         'SKErrorPaymentCancelled',
-        'BILLING_RESPONSE_USER_CANCELED'
+        'BILLING_RESPONSE_USER_CANCELED',
+        // iOS 추가 에러 코드들
+        '-1000', // SKErrorUnknown
+        '-1001', // SKErrorClientInvalid
+        '-1002', // SKErrorPaymentCancelled
+        '-1003', // SKErrorPaymentInvalid
+        '-1004', // SKErrorPaymentNotAllowed
+        '-1005', // SKErrorStoreProductNotAvailable
+        '-1006', // SKErrorCloudServicePermissionDenied
+        '-1007', // SKErrorCloudServiceNetworkConnectionFailed
+        '-1008', // SKErrorCloudServiceRevoked
+        // LocalAuthentication 에러 코드들
+        '-1', // LAErrorAuthenticationFailed
+        '-2', // LAErrorUserCancel
+        '-3', // LAErrorUserFallback
+        '-4', // LAErrorSystemCancel
+        '-5', // LAErrorPasscodeNotSet
+        '-6', // LAErrorBiometryNotAvailable
+        '-7', // LAErrorBiometryNotEnrolled
+        '-8', // LAErrorBiometryLockout
+        '-9', // LAErrorAppCancel
+        '-10', // LAErrorInvalidContext
+        '-11', // LAErrorBiometryDisconnected
+        '-1001', // LAErrorNotInteractive
+        '2', '4', '5', '6', '7', '8', '9', '10', '11', // 문자열 버전
+        'SKError2', 'SKError1002', // SKError 변형들
+        'LAError2', 'LAError4', 'LAError5', 'LAError8', // LAError 변형들
+        // StoreKit 2 취소 관련 에러 코드들 추가
+        'storekit2_purchase_cancelled',
+        'storekit2_user_cancelled',
+        'storekit2_cancelled',
+        'purchase_cancelled',
+        'transaction_cancelled',
+        'user_cancelled_purchase',
+        'cancelled_by_user',
+        // Platform Exception 관련 취소 코드들
+        'platform_cancelled',
+        'platform_user_cancelled',
+        'ios_purchase_cancelled',
+        'ios_user_cancelled'
       ];
 
+      // 키워드 검사
       for (final keyword in cancelKeywords) {
         if (errorMessage.contains(keyword)) {
-          logger
-              .i('[PurchaseStarCandyState] Cancel keyword detected: $keyword');
+          logger.i(
+              '[PurchaseStarCandyState] Cancel keyword detected: $keyword in "$errorMessage"');
           return true;
         }
       }
 
+      // 에러 코드 검사
       for (final code in cancelErrorCodes) {
-        if (errorCode.contains(code)) {
-          logger
-              .i('[PurchaseStarCandyState] Cancel error code detected: $code');
+        if (errorCode.contains(code) || errorMessage.contains(code)) {
+          logger.i(
+              '[PurchaseStarCandyState] Cancel error code detected: $code (errorCode: "$errorCode", errorMessage: "$errorMessage")');
           return true;
         }
       }
+
+      // 🚨 디버그: 감지되지 않은 에러 로깅 (취소 감지 개선용)
+      logger.w(
+          '''[PurchaseStarCandyState] ⚠️ UNDETECTED ERROR - Please check if this should be treated as cancellation:
+Error Code: "$errorCode"
+Error Message: "$errorMessage"
+Full Error: ${purchaseDetails.error}
+''');
     }
 
     return false;
@@ -289,9 +443,35 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 활성 구매 처리 여부 확인
   bool _shouldProcessActivePurchase(PurchaseDetails purchaseDetails) {
-    return _isActivePurchasing &&
+    // 🛡️ 일반 활성 구매 처리
+    if (_isActivePurchasing &&
         (purchaseDetails.status == PurchaseStatus.purchased ||
-            purchaseDetails.status == PurchaseStatus.restored);
+            purchaseDetails.status == PurchaseStatus.restored)) {
+      return true;
+    }
+
+    // 🛡️ 늦은 구매 성공 감지 (안전망 발동 후 2분 이내 구매 성공)
+    if (_safetyTimeoutTriggered &&
+        _safetyTimeoutTime != null &&
+        !_isActivePurchasing &&
+        (purchaseDetails.status == PurchaseStatus.purchased ||
+            purchaseDetails.status == PurchaseStatus.restored)) {
+      final timeSinceTimeout = DateTime.now().difference(_safetyTimeoutTime!);
+
+      // 안전망 발동 후 2분 이내의 구매 성공은 늦은 성공으로 처리
+      if (timeSinceTimeout.inMinutes <= 2) {
+        logger.w(
+            '🛡️ 늦은 구매 성공 감지! 안전망 발동 후 ${timeSinceTimeout.inSeconds}초 만에 구매 완료: ${purchaseDetails.productID}');
+
+        // 늦은 구매 성공 상태 리셋
+        _safetyTimeoutTriggered = false;
+        _safetyTimeoutTime = null;
+
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /// 초기화 중 pending 구매 강제 완료
@@ -342,22 +522,38 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     final isActualPurchase =
         _isActivePurchasing && purchaseDetails.productID == _pendingProductId;
 
+    // 🛡️ 늦은 구매 성공 감지
+    final isLatePurchase = !_isActivePurchasing &&
+        _safetyTimeoutTriggered &&
+        _safetyTimeoutTime != null;
+
     logger.i(
-        '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase)');
+        '[PurchaseStarCandyState] Processing active purchase: ${purchaseDetails.productID} (actual: $isActualPurchase, late: $isLatePurchase)');
 
     await _purchaseService.handleOptimizedPurchase(
       purchaseDetails,
       () async {
         logger.i('[PurchaseStarCandyState] Purchase successful');
+
+        // 🛡️ 구매 성공 처리는 PurchaseService에서 자동 관리
+
         await ref.read(userInfoProvider.notifier).getUserProfiles();
 
         if (mounted) {
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
-          await _showSuccessDialog();
+
+          // 🛡️ 늦은 구매 성공 시 특별한 안내
+          if (isLatePurchase) {
+            await _showLatePurchaseSuccessDialog();
+          } else {
+            await _showSuccessDialog();
+          }
         }
       },
       (error) async {
+        // 🛡️ 구매 실패 처리는 PurchaseService에서 자동 관리
+
         if (mounted) {
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
@@ -416,10 +612,20 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 구매 상태 리셋
   void _resetPurchaseState() {
+    // 🛡️ 토큰 관리는 PurchaseService에서 처리하므로 UI는 상태만 리셋
+
+    // 🛡️ 안전망 타이머 취소
+    _safetyTimer?.cancel();
+    _safetyTimer = null;
+
     setState(() {
       _isActivePurchasing = false;
       _pendingProductId = null;
       _isPurchasing = false;
+
+      // 🛡️ 늦은 구매 감지 상태 리셋 (새로운 구매 시작 시)
+      _safetyTimeoutTriggered = false;
+      _safetyTimeoutTime = null;
     });
   }
 
@@ -466,7 +672,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       _pendingProductId = serverProduct['id'];
       _transactionsCleared = true;
 
-      final purchaseInitiated = await _purchaseService.initiatePurchase(
+      final purchaseResult = await _purchaseService.initiatePurchase(
         serverProduct['id'],
         onSuccess: () async {
           logger.i('[PurchaseStarCandyState] Purchase success callback');
@@ -483,7 +689,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         },
       );
 
-      await _handlePurchaseResult(purchaseInitiated);
+      await _handlePurchaseResult(purchaseResult);
     } catch (e, s) {
       logger.e('[PurchaseStarCandyState] Error starting purchase: $e',
           error: e, stackTrace: s);
@@ -524,26 +730,54 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     });
   }
 
-  /// 구매 결과 처리
-  Future<void> _handlePurchaseResult(bool purchaseInitiated) async {
-    if (!purchaseInitiated) {
+  /// 구매 결과 처리 - 취소와 에러를 구분
+  Future<void> _handlePurchaseResult(
+      Map<String, dynamic> purchaseResult) async {
+    final success = purchaseResult['success'] as bool;
+    final wasCancelled = purchaseResult['wasCancelled'] as bool;
+    final errorMessage = purchaseResult['errorMessage'] as String?;
+
+    if (wasCancelled) {
+      // 🚫 구매 취소 - 조용히 처리 (에러 팝업 없음)
+      logger.i('[PurchaseStarCandyState] Purchase was cancelled by user');
       _resetPurchaseState();
       if (mounted) {
         _loadingKey.currentState?.hide();
-        await _showErrorDialog(t('dialog_message_purchase_failed'));
+      }
+    } else if (!success) {
+      // ❌ 실제 에러 - 에러 팝업 표시
+      logger.e('[PurchaseStarCandyState] Purchase failed: $errorMessage');
+      _resetPurchaseState();
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        await _showErrorDialog(
+            errorMessage ?? t('dialog_message_purchase_failed'));
       }
     } else {
+      // ✅ 구매 시작 성공
       logger.i('[PurchaseStarCandyState] Purchase initiated successfully');
 
-      // 타임아웃 설정
-      Timer(_purchaseTimeout, () {
-        if (_isActivePurchasing && mounted) {
-          logger.w('[PurchaseStarCandyState] Purchase timeout');
+      // 🛡️ 안전망 타이머 설정: 무한 로딩 방지용 (InAppPurchaseService 타임아웃이 로그만 출력하는 경우 대비)
+      _safetyTimer?.cancel();
+      _safetyTimer = Timer(_safetyTimeout, () {
+        if (_isActivePurchasing && mounted && _safetyTimer != null) {
+          logger.w(
+              '[PurchaseStarCandyState] 🛡️ Safety timeout triggered after ${_safetyTimeout.inSeconds}s');
+          logger.w(
+              'InAppPurchaseService timeout detected but no proper handling - applying safety net');
+
+          // 🛡️ 안전망 발동 기록 (늦은 구매 성공 감지용)
+          _safetyTimeoutTriggered = true;
+          _safetyTimeoutTime = DateTime.now();
+
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
-          _showErrorDialog('구매 시간이 초과되었습니다. 다시 시도해주세요.');
+          _showErrorDialog('구매 처리 시간이 너무 오래 걸리고 있습니다.\n잠시 후 다시 시도해주세요.');
         }
       });
+
+      logger.i(
+          '[PurchaseStarCandyState] Safety timeout set for ${_safetyTimeout.inSeconds}s (infinite loading prevention)');
     }
   }
 
@@ -589,6 +823,38 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     logger.i('[PurchaseStarCandyState] Showing success dialog');
     final message = t('dialog_message_purchase_success');
     showSimpleDialog(content: message);
+  }
+
+  Future<void> _showLatePurchaseSuccessDialog() async {
+    if (!mounted) {
+      logger.w(
+          '[PurchaseStarCandyState] Cannot show late purchase success dialog - widget not mounted');
+      return;
+    }
+
+    logger.i('[PurchaseStarCandyState] Showing late purchase success dialog');
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text('🎉 구매 완료'),
+        content: Text('''구매가 성공적으로 완료되었습니다!
+
+⏰ 인증이 예상보다 오래 걸려서 타임아웃 안내가 표시되었지만, 실제로는 정상적으로 구매가 처리되었습니다.
+
+✅ 스타캔디가 정상적으로 지급되었습니다
+✅ 구매 내역이 서버에 기록되었습니다
+
+이는 Touch ID/Face ID 인증 시 발생할 수 있는 정상적인 상황입니다.'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showUnexpectedDuplicateDialog() async {
@@ -701,7 +967,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     if (!kDebugMode) return;
 
     try {
-      logger.i('[PurchaseStarCandyState] Checking pending cleanup status');
+      logger.i('[PurchaseStarCandyState] Pending 상태 확인 시작');
 
       _loadingKey.currentState?.show();
 
@@ -713,7 +979,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         await _showPendingStatusDialog(status);
       }
     } catch (e) {
-      logger.e('[PurchaseStarCandyState] Failed to check pending status: $e');
+      logger.e('[PurchaseStarCandyState] Pending 상태 확인 실패: $e');
 
       if (mounted) {
         _loadingKey.currentState?.hide();
@@ -769,6 +1035,240 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleSandboxAuthReset() async {
+    if (!kDebugMode) return;
+
+    final shouldReset = await _showSandboxAuthResetDialog();
+    if (shouldReset != true) return;
+
+    try {
+      logger.w('[PurchaseStarCandyState] Sandbox 인증창 초기화 시작');
+
+      _loadingKey.currentState?.show();
+
+      // Sandbox 인증창 강제 초기화 실행
+      await _purchaseService.inAppPurchaseService.forceSandboxAuthReset();
+
+      logger.w('[PurchaseStarCandyState] Sandbox 인증창 초기화 완료');
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        showSimpleDialog(
+          content: '''Sandbox 인증창 초기화가 완료되었습니다!
+
+다음 구매 시도 시:
+• Touch ID/Face ID 인증창이 다시 표시됩니다
+• 이전 인증 상태가 모두 리셋되었습니다
+• 모든 pending 구매가 정리되었습니다''',
+        );
+      }
+    } catch (e) {
+      logger.e('[PurchaseStarCandyState] Sandbox 인증창 초기화 실패: $e');
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        showSimpleDialog(
+          content: 'Sandbox 인증창 초기화 중 오류가 발생했습니다: $e',
+          type: DialogType.error,
+        );
+      }
+    }
+  }
+
+  Future<void> _handleSandboxDiagnosis() async {
+    if (!kDebugMode) return;
+
+    try {
+      logger.i('[PurchaseStarCandyState] Sandbox 환경 진단 시작');
+
+      _loadingKey.currentState?.show();
+
+      final diagnosis = await _purchaseService.inAppPurchaseService
+          .diagnoseSandboxEnvironment();
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        await _showSandboxDiagnosisDialog(diagnosis);
+      }
+    } catch (e) {
+      logger.e('[PurchaseStarCandyState] Sandbox 진단 실패: $e');
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        showSimpleDialog(
+          content: 'Sandbox 진단 중 오류가 발생했습니다: $e',
+          type: DialogType.error,
+        );
+      }
+    }
+  }
+
+  Future<void> _handleNuclearReset() async {
+    if (!kDebugMode) return;
+
+    final shouldReset = await _showNuclearResetDialog();
+    if (shouldReset != true) return;
+
+    try {
+      logger.w('[PurchaseStarCandyState] 핵폭탄급 리셋 시작');
+
+      _loadingKey.currentState?.show();
+
+      // 핵폭탄급 Sandbox 인증 시스템 완전 리셋 실행
+      await _purchaseService.inAppPurchaseService.nuclearSandboxReset();
+
+      logger.w('[PurchaseStarCandyState] 핵폭탄급 리셋 완료');
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        showSimpleDialog(
+          content: '''💥 핵폭탄급 Sandbox 리셋 완료!
+
+실행된 작업:
+• 모든 StoreKit 연결 완전 끊기 (5초 대기)
+• 시스템 캐시 완전 무효화 (10회 시도)
+• 핵폭탄급 pending 구매 정리 (5라운드)
+• 긴 시스템 안정화 대기 (10초)
+• 완전 새로운 구매 스트림 생성
+
+이제 구매를 다시 시도해보세요!''',
+        );
+      }
+    } catch (e) {
+      logger.e('[PurchaseStarCandyState] 핵폭탄급 리셋 실패: $e');
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        showSimpleDialog(
+          content: '핵폭탄급 리셋 중 오류가 발생했습니다: $e',
+          type: DialogType.error,
+        );
+      }
+    }
+  }
+
+  Future<void> _showSandboxDiagnosisDialog(
+      Map<String, dynamic> diagnosis) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('🏥 Sandbox 환경 진단 결과'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('진단 시간: ${diagnosis['timestamp'] ?? 'Unknown'}'),
+              SizedBox(height: 8),
+              Text('🔍 시스템 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('• 플랫폼: ${diagnosis['platform'] ?? 'Unknown'}'),
+              Text('• 디버그 모드: ${diagnosis['isDebugMode'] ?? 'Unknown'}'),
+              Text(
+                  '• StoreKit 사용 가능: ${diagnosis['storeKitAvailable'] ?? 'Unknown'}'),
+              SizedBox(height: 8),
+              Text('📱 구매 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                  '• 현재 pending 구매: ${diagnosis['currentPendingCount'] ?? 'Unknown'}개'),
+              Text(
+                  '• 총 구매 업데이트: ${diagnosis['totalPurchaseUpdates'] ?? 'Unknown'}개'),
+              Text(
+                  '• 제품 쿼리 성공: ${diagnosis['productQuerySuccessful'] ?? 'Unknown'}'),
+              SizedBox(height: 8),
+              Text('🔄 스트림 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                  '• 스트림 초기화됨: ${diagnosis['streamInitialized'] ?? 'Unknown'}'),
+              Text(
+                  '• 구매 컨트롤러 활성: ${diagnosis['purchaseControllerActive'] ?? 'Unknown'}'),
+              if (diagnosis['error'] != null) ...[
+                SizedBox(height: 8),
+                Text('❌ 에러:',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.red)),
+                Text('${diagnosis['error']}',
+                    style: TextStyle(color: Colors.red)),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _showNuclearResetDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('💥 핵폭탄급 Sandbox 리셋'),
+        content: Text('''⚠️ 최후의 수단입니다! ⚠️
+
+이 기능은 모든 StoreKit 시스템을 완전히 리셋합니다.
+
+실행할 작업:
+💥 모든 StoreKit 연결 완전 끊기 (5초 대기)
+💥 시스템 캐시 완전 무효화 (10회 시도)
+💥 핵폭탄급 pending 구매 정리 (5라운드)
+💥 긴 시스템 안정화 대기 (10초)
+💥 완전 새로운 구매 스트림 생성
+
+주의사항:
+• 이 과정은 최대 30초 소요됩니다
+• 모든 기존 구매 상태가 완전히 리셋됩니다
+• 일반 초기화로 해결되지 않는 경우에만 사용하세요
+
+정말로 실행하시겠습니까?'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('💥 핵리셋', style: TextStyle(color: Colors.purple)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _showSandboxAuthResetDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Sandbox 인증창 초기화'),
+        content: Text('''Sandbox 환경에서 인증창이 생략되는 문제를 해결합니다.
+
+실행할 작업:
+🔄 StoreKit 캐시 완전 초기화 (3회 시도)
+🧹 모든 pending 구매 강제 완료
+⏰ 시스템 안정화 대기
+🔄 구매 스트림 재시작
+
+효과:
+✅ Touch ID/Face ID 인증창 재활성화
+✅ 이전 인증 상태 완전 리셋
+✅ 구매 프로세스 정상화
+
+주의: Sandbox 환경에서만 사용하세요.'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('초기화', style: TextStyle(color: Colors.orange)),
           ),
         ],
       ),
@@ -887,6 +1387,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             const Divider(color: AppColors.grey200, height: 32),
             _buildFooterSection(),
             const SizedBox(height: 36),
+            _buildDebugButtons(),
           ],
         ),
       ),
@@ -898,14 +1399,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _buildRefreshButton(),
-        if (kDebugMode) ...[
-          const SizedBox(width: 8),
-          _buildRestoreButton(),
-          const SizedBox(width: 8),
-          _buildForceResetButton(),
-          const SizedBox(width: 8),
-          _buildPendingCheckButton(),
-        ],
       ],
     );
   }
@@ -926,94 +1419,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           width: 24,
           height: 24,
           colorFilter: ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRestoreButton() {
-    return GestureDetector(
-      onTap: _handleRestorePurchases,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.primary500.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border:
-              Border.all(color: AppColors.primary500.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.restore, size: 16, color: AppColors.primary500),
-            SizedBox(width: 4),
-            Text(
-              '구매복원',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.primary500,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildForceResetButton() {
-    return GestureDetector(
-      onTap: _handleForceReset,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.red.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.refresh, size: 16, color: Colors.red),
-            SizedBox(width: 4),
-            Text(
-              '상태리셋',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.red,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPendingCheckButton() {
-    return GestureDetector(
-      onTap: _handleCheckPendingStatus,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.blue.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.analytics, size: 16, color: Colors.blue),
-            SizedBox(width: 4),
-            Text(
-              'Pending확인',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.blue,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -1137,6 +1542,483 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       buttonOnPressed: isButtonEnabled
           ? () => _handleBuyButtonPressed(context, serverProduct, storeProducts)
           : null,
+    );
+  }
+
+  // 🧪 디버그 기능들 (kDebugMode에서만 활성화)
+  Widget _buildDebugButtons() {
+    if (!kDebugMode) return SizedBox.shrink();
+
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.1),
+        border: Border.all(color: Colors.orange),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('🧪 디버그 및 시뮬레이션 도구',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 12),
+
+          // 🎯 강제 타임아웃 (가장 확실한 방법)
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.1),
+              border: Border.all(color: Colors.red),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('🎯 강제 타임아웃 (100% 확실)',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.red[700])),
+                SizedBox(height: 8),
+                Text('실제 구매 요청을 보내지 않고 3초 후 무조건 타임아웃만 발생시킵니다:',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[600]),
+                      onPressed: () {
+                        _purchaseService.enableForceTimeout();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                '🎯 강제 타임아웃 ON - 이제 구매하면 3초 후 100% 타임아웃 발생!'),
+                            backgroundColor: Colors.red[600],
+                          ),
+                        );
+                      },
+                      child: Text('강제 타임아웃 ON',
+                          style: TextStyle(fontSize: 12, color: Colors.white)),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[600]),
+                      onPressed: () {
+                        _purchaseService.disableForceTimeout();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('🎯 강제 타임아웃 OFF - 정상 구매 진행')),
+                        );
+                      },
+                      child: Text('강제 타임아웃 OFF',
+                          style: TextStyle(fontSize: 12, color: Colors.white)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 12),
+
+          // 일반 타임아웃 모드들
+          Text('⏰ 타임아웃 시간 설정', style: TextStyle(fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          Text('실제 구매를 진행하되 타임아웃 시간을 조절합니다:',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+          SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  _purchaseService.setTimeoutMode('instant');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('⏰ 즉시 타임아웃 (100ms)')),
+                  );
+                },
+                child: Text('100ms', style: TextStyle(fontSize: 12)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepOrange),
+                onPressed: () {
+                  _purchaseService.setTimeoutMode('ultrafast');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('⏰ 초고속 타임아웃 (500ms)')),
+                  );
+                },
+                child: Text('500ms', style: TextStyle(fontSize: 12)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                onPressed: () {
+                  _purchaseService.setTimeoutMode('debug');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('⏰ 디버그 타임아웃 (3초)')),
+                  );
+                },
+                child: Text('3초', style: TextStyle(fontSize: 12)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                onPressed: () {
+                  _purchaseService.setTimeoutMode('normal');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('⏰ 정상 타임아웃 (30초)')),
+                  );
+                },
+                child: Text('30초', style: TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 12),
+
+          // 구매 지연 시뮬레이션
+          Text('🐌 구매 지연 시뮬레이션', style: TextStyle(fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          Text('구매 요청 자체를 지연시켜서 타임아웃을 유도합니다:',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+          SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+                onPressed: () {
+                  _purchaseService.enableSlowPurchase();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('🐌 구매 지연 ON - 5초 지연')),
+                  );
+                },
+                child: Text('지연 ON', style: TextStyle(fontSize: 12)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                onPressed: () {
+                  _purchaseService.disableSlowPurchase();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('🐌 구매 지연 OFF')),
+                  );
+                },
+                child: Text('지연 OFF', style: TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 12),
+
+          // 구매 상태 관리
+          Text('🎮 구매 상태 관리', style: TextStyle(fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary500.withValues(alpha: 0.9),
+                ),
+                onPressed: _handleRestorePurchases,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.restore, size: 16, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text('구매복원',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                onPressed: _handleSandboxAuthReset,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.fingerprint, size: 16, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text('인증초기화',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                onPressed: _handleSandboxDiagnosis,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.healing, size: 16, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text('진단',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+                onPressed: _handleNuclearReset,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.dangerous, size: 16, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text('핵리셋',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                onPressed: _handleCheckPendingStatus,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.analytics, size: 16, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text('Pending확인',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 12),
+
+          // 🔍 인증 문제 해결 (새로운 섹션)
+          Text('🔍 인증 문제 해결', style: TextStyle(fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          Text('인증창이 나타나지 않는 문제를 해결합니다:',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+          SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+                onPressed: _handleAuthenticationDiagnosis,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.search, size: 16, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text('인증 진단',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.red[800]),
+                onPressed: _handleUltimateAuthReset,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.warning, size: 16, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text('궁극 복구',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 🔍 새로운 인증 상태 진단 기능
+  Future<void> _handleAuthenticationDiagnosis() async {
+    if (!kDebugMode) return;
+
+    try {
+      logger.i('[PurchaseStarCandyState] 인증 상태 진단 시작');
+
+      _loadingKey.currentState?.show();
+
+      final diagnosis = await _purchaseService.inAppPurchaseService
+          .diagnoseAuthenticationState();
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        await _showAuthenticationDiagnosisDialog(diagnosis);
+      }
+    } catch (e) {
+      logger.e('[PurchaseStarCandyState] 인증 상태 진단 실패: $e');
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        showSimpleDialog(
+          content: '인증 상태 진단 중 오류가 발생했습니다: $e',
+          type: DialogType.error,
+        );
+      }
+    }
+  }
+
+  /// 🔥 궁극적인 인증창 복구 (최후의 수단)
+  Future<void> _handleUltimateAuthReset() async {
+    if (!kDebugMode) return;
+
+    final shouldReset = await _showUltimateAuthResetDialog();
+    if (shouldReset != true) return;
+
+    try {
+      logger.w('[PurchaseStarCandyState] 궁극적인 인증창 복구 시작');
+
+      _loadingKey.currentState?.show();
+
+      // 궁극적인 인증창 복구 실행
+      await _purchaseService.inAppPurchaseService.ultimateAuthenticationReset();
+
+      logger.w('[PurchaseStarCandyState] 궁극적인 인증창 복구 완료');
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        showSimpleDialog(
+          content: '''🔥 궁극적인 인증창 복구 완료!
+
+실행된 작업:
+• 모든 StoreKit 연결 완전 해제 (5초 대기)
+• 시스템 레벨 캐시 완전 무효화 (10회 시도)
+• 완전히 새로운 구매 환경 재구성
+• 최대 20초간의 안정화 과정
+
+⚠️ 이제 다음을 시도해보세요:
+1. 앱을 완전 재시작하거나
+2. iOS 설정 > App Store 로그아웃/재로그인하거나
+3. 디바이스 재부팅 후 테스트
+
+이 방법으로도 안 되면 iOS 시스템 레벨 이슈입니다.''',
+        );
+      }
+    } catch (e) {
+      logger.e('[PurchaseStarCandyState] 궁극적인 인증창 복구 실패: $e');
+
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+        showSimpleDialog(
+          content: '궁극적인 인증창 복구 중 오류가 발생했습니다: $e',
+          type: DialogType.error,
+        );
+      }
+    }
+  }
+
+  /// 🔍 인증 상태 진단 결과 다이얼로그
+  Future<void> _showAuthenticationDiagnosisDialog(
+      Map<String, dynamic> diagnosis) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('🔍 인증 상태 진단 결과'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('진단 시간: ${diagnosis['timestamp'] ?? 'Unknown'}'),
+              SizedBox(height: 12),
+              Text('🔍 시스템 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('• 플랫폼: ${diagnosis['platform'] ?? 'Unknown'}'),
+              Text('• 디버그 모드: ${diagnosis['isDebugMode'] ?? 'Unknown'}'),
+              Text(
+                  '• StoreKit 사용 가능: ${diagnosis['storeKitAvailable'] ?? 'Unknown'}'),
+              SizedBox(height: 8),
+              Text('📱 구매 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                  '• 현재 pending: ${diagnosis['currentPendingCount'] ?? 'Unknown'}개'),
+              Text('• 총 업데이트: ${diagnosis['totalUpdatesCount'] ?? 'Unknown'}개'),
+              SizedBox(height: 8),
+              Text('🔍 제품 쿼리:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('• 쿼리 성공: ${diagnosis['productQuerySuccess'] ?? 'Unknown'}'),
+              Text('• 제품 개수: ${diagnosis['productCount'] ?? 'Unknown'}개'),
+              SizedBox(height: 8),
+              Text('🔄 스트림 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('• 스트림 초기화: ${diagnosis['streamInitialized'] ?? 'Unknown'}'),
+              Text('• 컨트롤러 활성: ${diagnosis['controllerActive'] ?? 'Unknown'}'),
+              if (diagnosis['error'] != null) ...[
+                SizedBox(height: 8),
+                Text('❌ 오류:',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.red)),
+                Text('${diagnosis['error']}',
+                    style: TextStyle(color: Colors.red, fontSize: 12)),
+              ],
+              if (diagnosis['recommendedSolutions'] != null) ...[
+                SizedBox(height: 12),
+                Text('💡 권장 해결책:',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.blue)),
+                ...((diagnosis['recommendedSolutions'] as List<String>))
+                    .map((solution) => Padding(
+                          padding: EdgeInsets.only(left: 8, top: 2),
+                          child: Text('• $solution',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.blue[700])),
+                        )),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 🔥 궁극적인 인증창 복구 확인 다이얼로그
+  Future<bool?> _showUltimateAuthResetDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('🔥 궁극적인 인증창 복구'),
+        content: Text('''⚠️ 최후의 수단입니다! ⚠️
+
+이것은 모든 StoreKit 시스템을 완전히 리셋하는 가장 강력한 방법입니다.
+
+실행할 작업:
+🔥 모든 StoreKit 연결 완전 해제 (5초 대기)
+🔥 시스템 레벨 캐시 완전 무효화 (10회 시도, 총 10초)
+🔥 완전히 새로운 구매 환경 재구성 (3초 안정화)
+🔥 최종 검증 (1초)
+
+⏰ 총 소요 시간: 약 20초
+
+주의사항:
+• 가장 강력한 인증 상태 리셋입니다
+• 이 과정은 최대 20초 소요됩니다
+• 모든 기존 구매 상태가 완전히 리셋됩니다
+• 일반 방법으로 해결되지 않는 경우에만 사용하세요
+
+완료 후 권장사항:
+1. 앱 완전 재시작
+2. iOS 설정 > App Store 로그아웃/재로그인
+3. 디바이스 재부팅
+
+정말로 실행하시겠습니까?'''),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('🔥 궁극 복구', style: TextStyle(color: Colors.red[700])),
+          ),
+        ],
+      ),
     );
   }
 }

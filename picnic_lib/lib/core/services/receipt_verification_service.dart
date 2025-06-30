@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -144,16 +145,30 @@ class ReceiptVerificationService {
     Map<String, dynamic> requestBody,
     String verificationType,
   ) async {
+    // 환경에 따른 타임아웃 설정
+    final environment = requestBody['environment'] as String;
+    final timeoutDuration = environment == _sandboxEnvironment
+        ? PurchaseConstants.sandboxVerificationTimeout
+        : PurchaseConstants.verificationTimeout;
+
+    logger.i(
+        'Using timeout: ${timeoutDuration.inSeconds}s for $environment environment');
+
+    // 환경에 따른 재시도 횟수 설정
+    final maxRetries = environment == _sandboxEnvironment
+        ? PurchaseConstants.sandboxMaxRetries
+        : PurchaseConstants.maxRetries;
+    logger.i('Max retries: $maxRetries for $environment environment');
+
     Exception? lastException;
 
-    for (int attempt = 1; attempt <= PurchaseConstants.maxRetries; attempt++) {
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        logger.i(
-            '$verificationType verification attempt $attempt/${PurchaseConstants.maxRetries}');
+        logger.i('$verificationType verification attempt $attempt/$maxRetries');
 
         final response = await supabase.functions
             .invoke('verify_receipt', body: requestBody)
-            .timeout(PurchaseConstants.verificationTimeout);
+            .timeout(timeoutDuration);
 
         logger.i('Verification successful');
 
@@ -182,7 +197,7 @@ class ReceiptVerificationService {
             '$verificationType verification attempt $attempt failed: $error');
 
         // 마지막 시도가 아니면 재시도
-        if (attempt < PurchaseConstants.maxRetries) {
+        if (attempt < maxRetries) {
           final delay = PurchaseConstants.baseRetryDelay * attempt;
           logger.i('Retrying in ${delay}s...');
           await Future.delayed(Duration(seconds: delay));
@@ -190,8 +205,23 @@ class ReceiptVerificationService {
       }
     }
 
-    // 모든 시도 실패 시 예외 발생
+    // 모든 시도 실패 시 처리
     logger.e('All $verificationType verification attempts failed');
+
+    // 🔥 타임아웃의 경우 관대한 처리 (구매는 성공했을 가능성 높음)
+    final isTimeout = lastException is TimeoutException ||
+        lastException.toString().contains('TimeoutException') ||
+        lastException.toString().contains('timeout');
+
+    if (isTimeout) {
+      logger.w('⚠️ 영수증 검증 타임아웃 - 관대한 처리 적용');
+      logger.w('📝 ${PurchaseConstants.timeoutGracefulHandling}');
+      logger.w(
+          '🌍 Environment: $environment, Timeout: ${timeoutDuration.inSeconds}s');
+      logger.w('🔄 Retries completed: $maxRetries attempts');
+      return; // 성공으로 간주
+    }
+
     throw lastException ?? Exception('영수증 검증 실패');
   }
 

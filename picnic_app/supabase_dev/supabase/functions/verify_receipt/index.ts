@@ -550,110 +550,134 @@ async function createGoogleJWT() {
 
 async function grantReward(userId, productId, transactionId) {
   try {
-    const rewardMap = {
-      'star100': {
-        star_candy: 100,
-        star_candy_bonus: 0
-      },
-      'star200': {
-        star_candy: 200,
-        star_candy_bonus: 25
-      },
-      'star600': {
-        star_candy: 600,
-        star_candy_bonus: 85
-      },
-      'star1000': {
-        star_candy: 1000,
-        star_candy_bonus: 150
-      },
-      'star2000': {
-        star_candy: 2000,
-        star_candy_bonus: 320
-      },
-      'star3000': {
-        star_candy: 3000,
-        star_candy_bonus: 540
-      },
-      'star4000': {
-        star_candy: 4000,
-        star_candy_bonus: 760
-      },
-      'star5000': {
-        star_candy: 5000,
-        star_candy_bonus: 1000
-      },
-      'STAR100': {
-        star_candy: 100,
-        star_candy_bonus: 0
-      },
-      'STAR200': {
-        star_candy: 200,
-        star_candy_bonus: 25
-      },
-      'STAR600': {
-        star_candy: 600,
-        star_candy_bonus: 85
-      },
-      'STAR1000': {
-        star_candy: 1000,
-        star_candy_bonus: 150
-      },
-      'STAR2000': {
-        star_candy: 2000,
-        star_candy_bonus: 320
-      },
-      'STAR3000': {
-        star_candy: 3000,
-        star_candy_bonus: 540
-      },
-      'STAR4000': {
-        star_candy: 4000,
-        star_candy_bonus: 760
-      },
-      'STAR5000': {
-        star_candy: 5000,
-        star_candy_bonus: 1000
-      }
-    };
-    const reward = rewardMap[productId];
-    if (!reward) {
-      console.error(`Unknown product ID: ${productId}`);
-      return;
+    console.log(`🎯 리워드 지급 시작 - 사용자: ${userId}, 상품: ${productId}, 트랜잭션: ${transactionId}`);
+    
+    // 1. products 테이블에서 상품 정보 조회
+    const { data: productData, error: productError } = await supabase
+      .from('products')
+      .select('id, star_candy, star_candy_bonus')
+      .eq('id', productId)
+      .lt('start_at', 'now()')
+      .gt('end_at', 'now()')
+      .single();
+
+    if (productError) {
+      console.error('❌ 상품 정보 조회 실패:', productError);
+      throw new Error(`상품 정보 조회 실패: ${productError.message}`);
     }
-    const { star_candy, star_candy_bonus } = reward;
+
+    if (!productData) {
+      console.error(`❌ 상품을 찾을 수 없거나 판매 기간이 아닙니다: ${productId}`);
+      
+      // 판매 기간과 관계없이 상품이 존재하는지 확인
+      const { data: anyProductData, error: anyProductError } = await supabase
+        .from('products')
+        .select('id, start_at, end_at')
+        .eq('id', productId)
+        .single();
+
+      if (anyProductError || !anyProductData) {
+        throw new Error(`존재하지 않는 상품 ID: ${productId}`);
+      } else {
+        console.error(`상품은 존재하지만 판매 기간 밖: ${productId}`);
+        console.error(`판매 기간: ${anyProductData.start_at} ~ ${anyProductData.end_at}`);
+        throw new Error(`판매 기간이 아닌 상품: ${productId}`);
+      }
+    }
+
+    console.log(`🎯 상품 정보 조회 성공:`, productData);
+    
+    const { star_candy, star_candy_bonus } = productData;
     const now = new Date();
     const expireDate = new Date(now.getFullYear(), now.getMonth() + 1, 15);
-    const { data: profileData, error: profileError } = await supabase.from('user_profiles').select('star_candy, star_candy_bonus').eq('id', userId).single();
-    if (profileError) throw profileError;
-    const updatedStarCandy = (profileData.star_candy || 0) + star_candy;
-    const updatedStarCandyBonus = (profileData.star_candy_bonus || 0) + star_candy_bonus;
-    const { error: updateError } = await supabase.from('user_profiles').update({
-      star_candy: updatedStarCandy,
-      star_candy_bonus: updatedStarCandyBonus
-    }).eq('id', userId);
-    if (updateError) throw updateError;
-    const { error: historyError } = await supabase.from('star_candy_history').insert({
-      user_id: userId,
-      amount: star_candy,
-      type: 'PURCHASE',
-      transaction_id: transactionId
-    });
-    if (historyError) throw historyError;
-    if (star_candy_bonus > 0) {
-      const { error: bonusHistoryError } = await supabase.from('star_candy_bonus_history').insert({
-        user_id: userId,
-        amount: star_candy_bonus,
-        type: 'PURCHASE',
-        expired_dt: expireDate.toISOString(),
-        transaction_id: transactionId,
-        remain_amount: star_candy_bonus
-      });
-      if (bonusHistoryError) throw bonusHistoryError;
+    
+    console.log(`💰 지급할 리워드 - 기본 스타캔디: ${star_candy}, 보너스: ${star_candy_bonus || 0}`);
+    console.log(`📅 보너스 만료일: ${expireDate.toISOString()}`);
+    
+    // 2. 현재 사용자 프로필 조회
+    const { data: profileData, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('star_candy, star_candy_bonus')
+      .eq('id', userId)
+      .single();
+      
+    if (profileError) {
+      console.error('❌ 사용자 프로필 조회 실패:', profileError);
+      throw profileError;
     }
-    console.log(`Reward granted for user ${userId}: ${JSON.stringify(reward)}, Expiry: ${expireDate.toISOString()}`);
+    
+    console.log(`📊 현재 보유량 - 스타캔디: ${profileData.star_candy || 0}, 보너스: ${profileData.star_candy_bonus || 0}`);
+    
+    // 3. 업데이트할 수량 계산
+    const updatedStarCandy = (profileData.star_candy || 0) + star_candy;
+    const updatedStarCandyBonus = (profileData.star_candy_bonus || 0) + (star_candy_bonus || 0);
+    
+    console.log(`📈 업데이트 후 - 스타캔디: ${updatedStarCandy}, 보너스: ${updatedStarCandyBonus}`);
+    
+    // 4. 사용자 프로필 업데이트
+    const { error: updateError } = await supabase
+      .from('user_profiles')
+      .update({
+        star_candy: updatedStarCandy,
+        star_candy_bonus: updatedStarCandyBonus
+      })
+      .eq('id', userId);
+      
+    if (updateError) {
+      console.error('❌ 사용자 프로필 업데이트 실패:', updateError);
+      throw updateError;
+    }
+    
+    console.log('✅ 사용자 프로필 업데이트 성공');
+    
+    // 5. 기본 스타캔디 히스토리 저장
+    const { error: historyError } = await supabase
+      .from('star_candy_history')
+      .insert({
+        user_id: userId,
+        amount: star_candy,
+        type: 'PURCHASE',
+        transaction_id: transactionId
+      });
+      
+    if (historyError) {
+      console.error('❌ 스타캔디 히스토리 삽입 실패:', historyError);
+      throw historyError;
+    }
+    
+    console.log('✅ 스타캔디 히스토리 저장 성공');
+    
+    // 6. 보너스 스타캔디 히스토리 저장 (있는 경우)
+    if (star_candy_bonus && star_candy_bonus > 0) {
+      const { error: bonusHistoryError } = await supabase
+        .from('star_candy_bonus_history')
+        .insert({
+          user_id: userId,
+          amount: star_candy_bonus,
+          type: 'PURCHASE',
+          expired_dt: expireDate.toISOString(),
+          transaction_id: transactionId,
+          remain_amount: star_candy_bonus
+        });
+        
+      if (bonusHistoryError) {
+        console.error('❌ 보너스 캔디 히스토리 삽입 실패:', bonusHistoryError);
+        throw bonusHistoryError;
+      }
+      
+      console.log('✅ 보너스 캔디 히스토리 저장 성공');
+    }
+    
+    console.log(`🎉 리워드 지급 완료!`);
+    console.log(`   - 사용자: ${userId}`);
+    console.log(`   - 상품: ${productData.title} (${productId})`);
+    console.log(`   - 트랜잭션: ${transactionId}`);
+    console.log(`   - 기본 스타캔디: ${star_candy}`);
+    console.log(`   - 보너스 캔디: ${star_candy_bonus || 0}`);
+    console.log(`   - 보너스 만료일: ${expireDate.toISOString()}`);
+    
   } catch (error) {
-    console.error(`Error granting reward for user ${userId}:`, error);
+    console.error(`❌ 리워드 지급 실패 - 사용자: ${userId}, 상품: ${productId}:`, error);
     throw error;
   }
 }

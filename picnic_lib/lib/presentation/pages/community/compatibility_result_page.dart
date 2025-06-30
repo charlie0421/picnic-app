@@ -213,7 +213,7 @@ class _CompatibilityResultPageState
         );
       }
 
-      final purchaseInitiated = await _purchaseService.initiatePurchase(
+      final purchaseResult = await _purchaseService.initiatePurchase(
         product['id'],
         onSuccess: () {
           // 성공 콜백에서는 로딩바를 숨기지 않음 (_handlePurchaseUpdated에서 처리)
@@ -225,13 +225,28 @@ class _CompatibilityResultPageState
         },
       );
 
-      // 구매 시도 자체가 실패한 경우에만 여기서 로딩바 숨김
-      if (!purchaseInitiated && mounted) {
-        OverlayLoadingProgress.stop();
-        await _showErrorDialog(t('dialog_message_purchase_failed'));
+      final success = purchaseResult['success'] as bool;
+      final wasCancelled = purchaseResult['wasCancelled'] as bool;
+      final errorMessage = purchaseResult['errorMessage'] as String?;
+
+      if (wasCancelled) {
+        // 🚫 구매 취소 - 조용히 처리 (에러 팝업 없음)
+        if (mounted) {
+          OverlayLoadingProgress.stop();
+        }
+        return false;
+      } else if (!success) {
+        // ❌ 실제 에러 - 에러 팝업 표시
+        if (mounted) {
+          OverlayLoadingProgress.stop();
+          await _showErrorDialog(
+              errorMessage ?? t('dialog_message_purchase_failed'));
+        }
+        return false;
       }
 
-      return purchaseInitiated;
+      // ✅ 구매 시작 성공
+      return true;
     } catch (e, s) {
       logger.e('Error buying product', error: e, stackTrace: s);
       if (mounted) {
