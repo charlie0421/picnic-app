@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/config/environment.dart';
-import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
@@ -25,10 +23,6 @@ import 'package:picnic_lib/presentation/widgets/community/compatibility/compatib
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart';
 // ignore: unused_import
 import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
-import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
-import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
-import 'package:picnic_lib/core/services/receipt_verification_service.dart';
-import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -53,20 +47,12 @@ class _CompatibilityResultPageState
   final styleController = ExpansibleController();
   final activityController = ExpansibleController();
   final tipController = ExpansibleController();
-  late final PurchaseService _purchaseService;
   bool _isSaving = false;
   bool _isSharing = false;
   final ScrollController _scrollController =
       ScrollController(); // Add ScrollController
   static const _animationDuration = Duration(milliseconds: 300);
   static const _scrollCurve = Curves.easeOut;
-
-  // 🔧 연타 방지만 - 단순화
-  DateTime? _lastPurchaseTime;
-  static const Duration _purchaseCooldown = Duration(milliseconds: 300);
-
-  // 🔄 Transaction clear 이후 플래그
-  bool _transactionsCleared = false;
 
   // late final에서 getter로 변경하여 항상 최신 아티스트 정보 사용
   String get _shareMessage {
@@ -83,18 +69,6 @@ class _CompatibilityResultPageState
     super.initState();
     logger.d('CompatibilityResultPage initState called');
 
-    _purchaseService = PurchaseService(
-      ref: ref,
-      inAppPurchaseService: InAppPurchaseService(),
-      receiptVerificationService: ReceiptVerificationService(),
-      analyticsService: AnalyticsService(),
-      duplicatePreventionService: DuplicatePreventionService(ref),
-      onPurchaseUpdate: _handlePurchaseUpdated,
-    );
-
-    // 🔄 구매 페이지 초기화 시 pending 구매 클리어
-    _clearPendingPurchases();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
@@ -104,214 +78,6 @@ class _CompatibilityResultPageState
   void dispose() {
     _scrollController.dispose();
     super.dispose();
-  }
-
-  Future<void> _handlePurchaseUpdated(
-      List<PurchaseDetails> purchaseDetailsList) async {
-    try {
-      for (final purchaseDetails in purchaseDetailsList) {
-        logger.d('Purchase updated: ${purchaseDetails.status}');
-
-        // pending 상태일 때는 계속 로딩바 유지
-        if (purchaseDetails.status == PurchaseStatus.pending) {
-          continue;
-        }
-
-        try {
-          // 🔄 Transaction clear 이후에는 모든 구매(restored 포함)를 신규 구매로 처리
-          if (_transactionsCleared) {
-            logger.i(
-                '🎯 Transaction clear 이후 구매 감지: ${purchaseDetails.productID} - ${purchaseDetails.status}');
-            logger.i('   → 신규 구매로 간주하여 영수증 검증 수행');
-
-            if (purchaseDetails.status == PurchaseStatus.purchased ||
-                purchaseDetails.status == PurchaseStatus.restored) {
-              // handlePurchase 호출 전 mounted 체크
-              if (!mounted) return;
-
-              await _purchaseService.handlePurchase(
-                purchaseDetails,
-                () async {
-                  if (mounted) {
-                    OverlayLoadingProgress.stop();
-                    _openCompatibility(widget.compatibility.id);
-                  }
-                },
-                (error) async {
-                  if (mounted) {
-                    OverlayLoadingProgress.stop();
-                    await _showErrorDialog(t('dialog_message_purchase_failed'));
-                  }
-                },
-              );
-
-              // handlePurchase 호출 후 mounted 체크
-              if (!mounted) return;
-            }
-          } else {
-            // Transaction clear 이전의 구매들은 기존 로직 유지
-
-            // 복원된 구매는 조용히 처리하고 완료
-            if (purchaseDetails.status == PurchaseStatus.restored) {
-              logger.d('복원된 구매 감지됨. 조용히 완료 처리: ${purchaseDetails.productID}');
-
-              // completePurchase 호출 전 mounted 체크
-              if (!mounted) return;
-
-              await _purchaseService.inAppPurchaseService
-                  .completePurchase(purchaseDetails);
-
-              // completePurchase 호출 후 mounted 체크
-              if (!mounted) return;
-
-              // 복원된 구매는 영수증 검증 없이 조용히 처리
-              continue;
-            }
-
-            // 신규 구매만 영수증 검증 수행
-            if (purchaseDetails.status == PurchaseStatus.purchased) {
-              logger.d('신규 구매 감지: ${purchaseDetails.productID} - 영수증 검증 시작');
-
-              // handlePurchase 호출 전 mounted 체크
-              if (!mounted) return;
-
-              await _purchaseService.handlePurchase(
-                purchaseDetails,
-                () async {
-                  if (mounted) {
-                    OverlayLoadingProgress.stop();
-                    _openCompatibility(widget.compatibility.id);
-                  }
-                },
-                (error) async {
-                  if (mounted) {
-                    OverlayLoadingProgress.stop();
-                    await _showErrorDialog(t('dialog_message_purchase_failed'));
-                  }
-                },
-              );
-
-              // handlePurchase 호출 후 mounted 체크
-              if (!mounted) return;
-            }
-          }
-
-          // 공통 에러 및 취소 처리
-          if (purchaseDetails.status == PurchaseStatus.error) {
-            if (mounted) {
-              OverlayLoadingProgress.stop();
-              // 취소가 아닌 실제 오류일 때만 에러 다이얼로그 표시
-              if (purchaseDetails.error?.message
-                      .toLowerCase()
-                      .contains('canceled') !=
-                  true) {
-                await _showErrorDialog(purchaseDetails.error?.message ??
-                    t('dialog_message_purchase_failed'));
-              }
-            }
-          } else if (purchaseDetails.status == PurchaseStatus.canceled) {
-            // 구매 취소 시 구매 정보 정리하고 로딩바만 숨김
-            if (mounted) {
-              await _purchaseService.inAppPurchaseService
-                  .completePurchase(purchaseDetails);
-
-              // completePurchase 호출 후 mounted 체크
-              if (!mounted) return;
-
-              OverlayLoadingProgress.stop();
-            }
-          }
-
-          // 모든 상태 처리 후 구매 완료 처리
-          if (purchaseDetails.pendingCompletePurchase) {
-            // pendingCompletePurchase 호출 전 mounted 체크
-            if (!mounted) return;
-
-            await _purchaseService.inAppPurchaseService
-                .completePurchase(purchaseDetails);
-
-            // pendingCompletePurchase 호출 후 mounted 체크
-            if (!mounted) return;
-          }
-        } finally {
-          // 구매 처리 완료
-          logger.d('🔄 구매 처리 완료: ${purchaseDetails.productID}');
-        }
-      }
-    } catch (e, s) {
-      logger.e('Error handling purchase update', error: e, stackTrace: s);
-      if (mounted) {
-        OverlayLoadingProgress.stop();
-        await _showErrorDialog(t('dialog_message_purchase_failed'));
-      }
-      rethrow;
-    }
-  }
-
-  Future<bool> _buyProduct(Map<String, dynamic> product) async {
-    // 연타 방지
-    if (_lastPurchaseTime != null) {
-      final timeSince = DateTime.now().difference(_lastPurchaseTime!);
-      if (timeSince < _purchaseCooldown) {
-        return false; // 연타 차단
-      }
-    }
-    _lastPurchaseTime = DateTime.now();
-
-    try {
-      // 이전 구매 상태 초기화
-      await _purchaseService.inAppPurchaseService.clearTransactions();
-      if (!mounted) return false;
-
-      // 구매 시작 시 로딩바 표시
-      OverlayLoadingProgress.start(
-        context,
-        barrierDismissible: false,
-        color: AppColors.primary500,
-      );
-
-      final purchaseResult = await _purchaseService.initiatePurchase(
-        product['id'],
-        onSuccess: () {
-          if (mounted) {
-            _openCompatibility(widget.compatibility.id);
-          }
-        },
-        onError: (message) {
-          if (mounted) {
-            _showErrorDialog(message);
-          }
-        },
-      );
-
-      if (!mounted) {
-        OverlayLoadingProgress.stop();
-        return false;
-      }
-
-      final success = purchaseResult['success'] as bool;
-      final wasCancelled = purchaseResult['wasCancelled'] as bool;
-      final errorMessage = purchaseResult['errorMessage'] as String?;
-
-      if (wasCancelled) {
-        OverlayLoadingProgress.stop();
-        return false;
-      } else if (!success) {
-        OverlayLoadingProgress.stop();
-        await _showErrorDialog(
-            errorMessage ?? t('dialog_message_purchase_failed'));
-        return false;
-      }
-
-      return true;
-    } catch (e, s) {
-      logger.e('Error buying product', error: e, stackTrace: s);
-      if (mounted) {
-        OverlayLoadingProgress.stop();
-        await _showErrorDialog(t('message_error_occurred'));
-      }
-      return false;
-    }
   }
 
   Future<void> _showErrorDialog(String message) async {
@@ -385,7 +151,6 @@ class _CompatibilityResultPageState
       onSave: _handleSave,
       onShare: _handleShare,
       onOpenCompatibility: _openCompatibility,
-      onBuyProduct: _buyProduct,
     );
   }
 
@@ -709,18 +474,5 @@ class _CompatibilityResultPageState
         });
       },
     );
-  }
-
-  /// 구매 페이지 시작 시 pending 상태의 구매들을 모두 클리어합니다.
-  /// 이후 발생하는 모든 구매는 신규 구매로 간주됩니다.
-  Future<void> _clearPendingPurchases() async {
-    try {
-      logger.i('🧹 구매 페이지 초기화: pending 구매 클리어 시작');
-      await _purchaseService.inAppPurchaseService.clearTransactions();
-      logger.i('✅ pending 구매 클리어 완료');
-      _transactionsCleared = true;
-    } catch (e) {
-      logger.e('❌ pending 구매 클리어 실패: $e');
-    }
   }
 }

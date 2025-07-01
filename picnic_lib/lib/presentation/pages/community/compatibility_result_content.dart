@@ -8,7 +8,7 @@ import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
-import 'package:picnic_lib/presentation/providers/product_provider.dart';
+import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -20,7 +20,6 @@ class CompatibilityResultContent extends ConsumerStatefulWidget {
     required this.onSave,
     required this.onShare,
     required this.onOpenCompatibility,
-    required this.onBuyProduct,
   });
 
   final CompatibilityModel compatibility;
@@ -28,7 +27,6 @@ class CompatibilityResultContent extends ConsumerStatefulWidget {
   final Future<Future<bool>> Function(CompatibilityModel) onSave;
   final Future<Future<bool>> Function(CompatibilityModel) onShare;
   final Function(String) onOpenCompatibility;
-  final Future<bool> Function(Map<String, dynamic>) onBuyProduct;
 
   @override
   ConsumerState<CompatibilityResultContent> createState() =>
@@ -43,10 +41,10 @@ class _CompatibilityResultContentState
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
       GlobalKey<LoadingOverlayWithIconState>();
 
-  // 🔧 연타 방지만 - 단순화
+  // 🔧 스크롤 중 우발적 구매 방지 - 강화된 연타 방지
   DateTime? _lastStarPurchaseTime;
-  DateTime? _lastOneClickPurchaseTime;
-  static const Duration _purchaseCooldown = Duration(milliseconds: 300);
+  static const Duration _purchaseCooldown =
+      Duration(seconds: 1); // 300ms -> 1초로 증가
 
   @override
   void initState() {
@@ -54,6 +52,66 @@ class _CompatibilityResultContentState
     _styleController = ExpansibleController();
     _activityController = ExpansibleController();
     _tipController = ExpansibleController();
+  }
+
+  // 🔒 구매 확인 다이얼로그 - 우발적 구매 방지
+  Future<void> _showPurchaseConfirmDialog() async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Text(
+                t('compatibility_purchase_confirm_title'),
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+            ],
+          ),
+          content: Text(
+            t('compatibility_purchase_confirm_message'),
+            style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                t('cancel'),
+                style: getTextStyle(AppTypo.body14R, AppColors.grey500),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary500,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                t('confirm'),
+                style: getTextStyle(AppTypo.body14B, Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      _processPurchase();
+    }
+  }
+
+  // 🎯 실제 구매 처리 로직
+  Future<void> _processPurchase() async {
+    _loadingKey.currentState?.show();
+    try {
+      widget.onOpenCompatibility(widget.compatibility.id);
+    } finally {
+      if (mounted) {
+        _loadingKey.currentState?.hide();
+      }
+    }
   }
 
   @override
@@ -180,7 +238,7 @@ class _CompatibilityResultContentState
                                 ),
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    // 연타 방지
+                                    // 🔧 강화된 연타 방지
                                     if (_lastStarPurchaseTime != null) {
                                       final timeSince = DateTime.now()
                                           .difference(_lastStarPurchaseTime!);
@@ -190,81 +248,11 @@ class _CompatibilityResultContentState
                                     }
                                     _lastStarPurchaseTime = DateTime.now();
 
-                                    _loadingKey.currentState?.show();
-                                    try {
-                                      widget.onOpenCompatibility(
-                                          widget.compatibility.id);
-                                    } finally {
-                                      _loadingKey.currentState?.hide();
-                                    }
+                                    // 🔒 구매 확인 다이얼로그 표시
+                                    await _showPurchaseConfirmDialog();
                                   },
                                   child:
                                       Text(t('fortune_purchase_by_star_candy')),
-                                ),
-                              ),
-                              SizedBox(height: 16),
-                              Container(
-                                constraints: BoxConstraints(
-                                  minWidth: 240,
-                                ),
-                                child: ElevatedButton(
-                                  style: ButtonStyle(
-                                    padding: WidgetStateProperty.all(
-                                      EdgeInsets.symmetric(
-                                          horizontal: 32, vertical: 0),
-                                    ),
-                                    backgroundColor: WidgetStateProperty.all(
-                                        AppColors.secondary500),
-                                    foregroundColor: WidgetStateProperty.all(
-                                        AppColors.grey900),
-                                    shape: WidgetStateProperty.all(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                        side: BorderSide(
-                                          color: AppColors.primary500,
-                                          width: 1,
-                                          style: BorderStyle.solid,
-                                        ),
-                                      ),
-                                    ),
-                                    textStyle: WidgetStateProperty.all(
-                                      getTextStyle(
-                                        AppTypo.caption12B,
-                                        AppColors.grey00,
-                                      ),
-                                    ),
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  onPressed: () async {
-                                    // 연타 방지
-                                    if (_lastOneClickPurchaseTime != null) {
-                                      final timeSince = DateTime.now()
-                                          .difference(
-                                              _lastOneClickPurchaseTime!);
-                                      if (timeSince < _purchaseCooldown) {
-                                        return;
-                                      }
-                                    }
-                                    _lastOneClickPurchaseTime = DateTime.now();
-
-                                    _loadingKey.currentState?.show();
-                                    try {
-                                      final productDetail = ref
-                                          .read(serverProductsProvider.notifier)
-                                          .getProductDetailById('STAR100');
-
-                                      if (productDetail != null && mounted) {
-                                        await widget
-                                            .onBuyProduct(productDetail);
-                                      }
-                                    } finally {
-                                      _loadingKey.currentState?.hide();
-                                    }
-                                  },
-                                  child: Text(
-                                    t('fortune_purchase_by_one_click'),
-                                  ),
                                 ),
                               ),
                             ],
