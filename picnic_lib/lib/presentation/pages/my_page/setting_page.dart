@@ -6,7 +6,6 @@ import 'package:load_switch/load_switch.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
@@ -31,9 +30,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   bool value1 = false;
   bool value2 = false;
   String buildNumber = '';
-  String? patchVersion;
-  bool isPatched = false;
-  String _patchInfo = "Loading...";
   bool _isRestartingApp = false;
 
   Future<bool> _getFuture1() async {
@@ -54,7 +50,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   @override
   void initState() {
     super.initState();
-    _fetchPatchInfo();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getBuildNumber().then((value) {
         buildNumber = value;
@@ -196,7 +191,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}',
+                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                 ),
@@ -212,7 +207,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}',
+                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
@@ -234,7 +229,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}',
+                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
@@ -256,7 +251,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version_up_to_date')} 빌드: $buildNumber${isPatched ? ' / 패치: $patchVersion' : ''}',
+                                  '${t('label_setting_recent_version_up_to_date')} 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
                                   style: getTextStyle(AppTypo.caption12B,
                                       AppColors.secondary500),
                                   textAlign: TextAlign.start,
@@ -282,29 +277,26 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           Text(
                             patchInfo.displayInfo,
                             style: getTextStyle(
-                              AppTypo.caption12B, 
-                              patchInfo.canRestart 
-                                ? AppColors.primary500 
-                                : AppColors.secondary500
-                            ),
+                                AppTypo.caption12B,
+                                patchInfo.canRestart
+                                    ? AppColors.primary500
+                                    : AppColors.secondary500),
                             textAlign: TextAlign.end,
                           ),
                           if (patchInfo.lastChecked != null)
                             Text(
                               'Last checked: ${_formatTime(patchInfo.lastChecked!)}',
                               style: getTextStyle(
-                                AppTypo.caption10SB, 
-                                AppColors.grey500
-                              ),
+                                  AppTypo.caption10SB, AppColors.grey500),
                               textAlign: TextAlign.end,
                             ),
                         ],
                       ),
                     ),
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    tailing: patchInfo.canRestart 
-                      ? _buildRestartButton(context, patchInfo)
-                      : const SizedBox.shrink(),
+                    tailing: patchInfo.canRestart
+                        ? _buildRestartButton(context, patchInfo)
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),
@@ -313,58 +305,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         error: (error, stackTrace) => Container());
   }
 
-  Future<void> _fetchPatchInfo() async {
-    try {
-      logger.i('패치 정보 가져오기 시작');
-
-      // 기본 패치 정보
-      final patch = await ShorebirdUtils.checkPatch();
-      logger.i('패치 정보: $patch');
-
-      // 상세 상태 정보 (패치가 있는 경우에만)
-      String detailedInfo = '';
-      if (isPatched) {
-        final detailedStatus = await ShorebirdUtils.getDetailedStatus();
-        logger.i('상세 상태: $detailedStatus');
-
-        if (detailedStatus.containsKey('error')) {
-          detailedInfo = '\n오류: ${detailedStatus['error']}';
-        } else {
-          detailedInfo = '\n상태: ${detailedStatus['updateStatus']}';
-          if (detailedStatus['isRestartRequired'] == true) {
-            detailedInfo += '\n⚠️ 재시작 필요';
-          }
-          if (detailedStatus['isOutdated'] == true) {
-            detailedInfo += '\n📦 업데이트 가능';
-          }
-        }
-      }
-
-      setState(() {
-        if (patch != null) {
-          patchVersion = patch.number.toString();
-          isPatched = true;
-          _patchInfo = "Current Patch: ${patch.number}$detailedInfo";
-        } else {
-          _patchInfo = "No patch$detailedInfo";
-        }
-      });
-
-      logger.i('패치 정보 업데이트 완료: $_patchInfo');
-    } catch (e, stackTrace) {
-      logger.e('패치 정보 가져오기 실패', error: e, stackTrace: stackTrace);
-      setState(() {
-        _patchInfo =
-            "Failed to load patch info: ${e.toString().substring(0, 50)}...";
-      });
-    }
-  }
-
   /// 시간 포맷팅 (HH:mm 형식)
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inMinutes < 1) {
       return 'just now';
     } else if (difference.inMinutes < 60) {
@@ -414,7 +359,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   }
 
   /// 수동 재시작 처리
-  Future<void> _handleManualRestart(BuildContext context, PatchInfo patchInfo) async {
+  Future<void> _handleManualRestart(
+      BuildContext context, PatchInfo patchInfo) async {
     if (!patchInfo.canRestart || _isRestartingApp) return;
 
     // 확인 다이얼로그 표시
@@ -457,7 +403,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         // 짧은 지연 후 재시작 실행
         await Future.delayed(const Duration(milliseconds: 300));
         if (mounted) {
-          await ref.read(patchInfoProvider.notifier).performManualRestart(context);
+          await ref
+              .read(patchInfoProvider.notifier)
+              .performManualRestart(context);
         }
       } catch (e) {
         logger.e('수동 재시작 실행 중 오류: $e');
@@ -469,6 +417,4 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       }
     }
   }
-
-
 }

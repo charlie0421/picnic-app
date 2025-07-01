@@ -40,7 +40,7 @@ class DuplicatePreventionService {
       {}; // userId -> interaction timestamps
   static const Duration _rapidInteractionWindow =
       Duration(milliseconds: 500); // 2초 → 0.5초로 단축 (매우 빠른 클릭만 차단)
-  static const int _maxInteractionCount = 10; // 5회 → 10회로 증가 (매우 관대하게)
+// 5회 → 10회로 증가 (매우 관대하게)
 
   DuplicatePreventionService(this._ref);
 
@@ -231,39 +231,6 @@ class DuplicatePreventionService {
     logger.w('⏰ 구매 타임아웃 → 백그라운드 추적으로 전환: $key');
   }
 
-  /// 로컬 저장소에서 최근 구매 이력 확인
-  Future<PurchaseValidationResult> _checkRecentPurchaseHistory(
-    String productId,
-    String userId,
-  ) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final key = '${productId}_$userId';
-
-      // 최근 구매 시도 확인
-      final lastAttemptTimestamp =
-          prefs.getInt('${PurchaseConstants.lastPurchaseAttemptKey}$key');
-      if (lastAttemptTimestamp != null) {
-        final lastAttempt =
-            DateTime.fromMillisecondsSinceEpoch(lastAttemptTimestamp);
-        final timeSinceLastAttempt = DateTime.now().difference(lastAttempt);
-
-        if (timeSinceLastAttempt < PurchaseConstants.purchaseBlockingPeriod) {
-          logger.w('🚫 로컬 저장소에서 최근 구매 이력 발견: $key');
-          return PurchaseValidationResult(
-            allowed: false,
-            reason: PurchaseConstants.recentPurchaseAttemptError,
-            type: PurchaseDenyType.recentPurchase,
-          );
-        }
-      }
-
-      return PurchaseValidationResult(allowed: true, reason: null, type: null);
-    } catch (e) {
-      logger.e('로컬 저장소 구매 이력 확인 실패: $e');
-      return PurchaseValidationResult(allowed: true, reason: null, type: null);
-    }
-  }
 
   /// 구매 시도를 로컬 저장소에 저장
   Future<void> _savePurchaseAttemptToStorage(

@@ -17,6 +17,7 @@ import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
+import 'package:picnic_lib/presentation/widgets/splash_image.dart';
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
 import 'package:picnic_lib/ui/novel_theme.dart';
@@ -192,7 +193,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     // 앱 홈 화면 결정
     Widget homeWidget = _isAppInitialized
         ? const Portal() // Portal 위젯으로 변경
-        : const SizedBox.shrink(); // 초기화 중에는 빈 위젯 표시 (스플래시는 AppBuilder에서 처리)
+        : const SplashImage(
+            enablePatchCheck: true); // 패치 체크 기능이 활성화된 SplashImage 사용
 
     // 라우트 처리
     final routes = RouteManager.mergeRoutes(_appSpecificRoutes);

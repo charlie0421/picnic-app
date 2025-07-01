@@ -15,7 +15,6 @@ import 'package:picnic_lib/presentation/widgets/community/compatibility/compatib
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'dart:async';
-import 'package:picnic_lib/core/utils/logger.dart';
 
 class CompatibilityListPage extends ConsumerStatefulWidget {
   const CompatibilityListPage({super.key, this.artistId});

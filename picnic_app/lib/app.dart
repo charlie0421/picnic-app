@@ -21,7 +21,6 @@ import 'package:picnic_lib/presentation/providers/app_initialization_provider.da
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
-import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
@@ -32,8 +31,6 @@ import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/services/localization_service.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:picnic_lib/ui/style.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -49,25 +46,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   // 앱이 이미 초기화되었는지 여부를 추적하는 플래그
   bool _isAppInitialized = false;
-  
-  // 패치 상태 메시지
-  String? _patchStatusMessage;
-  
-  // 업데이트 정보
-  Map<String, dynamic>? _updateInfo;
-  
-  // 업데이트 다이얼로그 표시 여부
-  bool _updateDialogShown = false;
-  
-  // 업데이트 적용 대기 시간 (밀리초)
-  Timer? _updateTimer;
-  
-  // 앱 비활성 상태 추적
-  bool _isAppInactive = false;
-  DateTime? _lastUserInteraction;
-  
-  // 현재 화면이 Portal(메인 화면)인지 추적
-  bool _isOnMainScreen = false;
 
   // 스캐폴드 메신저 키
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
@@ -160,7 +138,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   // 컨텍스트가 필요한 초기화 작업 (동기적으로 실행)
   void _initializeAppWithContext() {
-
     // 앱 초기화 (필요한 경우 Future.microtask로 래핑)
     Future.microtask(() async {
       try {
@@ -170,29 +147,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         // 이 경고를 무시하는 이유: Future.microtask 내부에서 사용되는 context는
         // 하위 위젯 빌드 없이 초기화 목적으로만 사용되며, mounted 체크를 통해 안전하게 관리됨
         if (mounted) {
-          // 1. 백그라운드에서 패치 체크 수행
-          final updateInfo = await AppInitializer.checkPatchInBackground(
-            onStatusUpdate: (message) {
-              if (mounted) {
-                setState(() {
-                  _patchStatusMessage = message;
-                });
-              }
-            },
-          );
-          
-          // 패치 체크 완료 후 메시지 초기화 및 Provider 업데이트
-          if (mounted) {
-            setState(() {
-              _patchStatusMessage = null;
-              _updateInfo = updateInfo;
-            });
-            
-            // 패치 정보 Provider 업데이트
-            ref.read(patchInfoProvider.notifier).updatePatchInfo(updateInfo);
-          }
-          
-          // 2. 일반 앱 초기화 진행
+          // 일반 앱 초기화 진행 (패치 체크는 SplashImage에서 담당)
           await AppInitializer.initializeAppWithSplash(context, ref);
         }
 
@@ -219,40 +174,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     });
   }
 
-  /// 앱 재시작 처리 로직
-  Future<void> _performAppRestart() async {
-    if (!mounted) return;
-
-    try {
-      logger.i('Phoenix.rebirth를 통한 앱 재시작 시도');
-
-      // 현재 컨텍스트 유효성 확인
-      if (!context.mounted) {
-        logger.e('Phoenix.rebirth 시도 시 컨텍스트가 유효하지 않음');
-        return;
-      }
-
-      // 최상위 네비게이터 컨텍스트 사용
-      final navigatorContext = Navigator.of(context, rootNavigator: true).context;
-
-      // 현재 프레임 완료 후 재시작 실행
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (navigatorContext.mounted && mounted) {
-          try {
-            Phoenix.rebirth(navigatorContext);
-            logger.i('Phoenix.rebirth 성공적으로 호출됨');
-          } catch (e) {
-            logger.e('Phoenix.rebirth 실행 중 오류: $e');
-          }
-        } else {
-          logger.w('Phoenix.rebirth 시도 시 네비게이터 컨텍스트가 유효하지 않음');
-        }
-      });
-
-    } catch (e) {
-      logger.e('앱 재시작 처리 중 오류: $e');
-    }
-  }
 
   // 언어 초기화를 위한 별도 메서드
   Future<void> _initializeLanguage() async {
@@ -303,9 +224,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // 사용자 상호작용 추적
-    _lastUserInteraction = DateTime.now();
-    
     final initState = ref.watch(appInitializationProvider);
     final appSettingState = ref.watch(appSettingProvider);
 
@@ -315,37 +233,21 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     Widget currentScreen;
     if (!_isAppInitialized) {
-      logger.i('앱이 초기화되지 않음 - 스플래시 화면 표시');
-      currentScreen = SplashImage(statusMessage: _patchStatusMessage);
-      _isOnMainScreen = false;
+      logger.i('앱이 초기화되지 않음 - 스플래시 화면 표시 (패치 체크 포함)');
+      // 패치 체크 기능이 활성화된 SplashImage 사용
+      currentScreen = const SplashImage(enablePatchCheck: true);
     } else if (!initState.hasNetwork) {
       logger.i('네트워크 오류 - 네트워크 오류 화면 표시');
       currentScreen = NetworkErrorScreen(onRetry: _retryConnection);
-      _isOnMainScreen = false;
     } else if (initState.isBanned) {
       logger.i('밴 상태 - 밴 화면 표시');
       currentScreen = const BanScreen();
-      _isOnMainScreen = false;
     } else if (initState.updateInfo?.status == UpdateStatus.updateRequired) {
       logger.i('업데이트 필요 - 업데이트 화면 표시');
       currentScreen = ForceUpdateOverlay(updateInfo: initState.updateInfo!);
-      _isOnMainScreen = false;
     } else {
       logger.i('정상 상태 - 포털 화면 표시');
       currentScreen = const Portal();
-      
-      // 메인 화면 상태 업데이트
-      if (!_isOnMainScreen) {
-        _isOnMainScreen = true;
-        logger.i('메인 화면(Portal) 진입 감지');
-      }
-      
-      // 메인 화면에서만 업데이트 적용 스케줄링
-      if (_updateInfo?['needsRestart'] == true && !_updateDialogShown) {
-        _updateDialogShown = true;
-        logger.i('메인 화면에서 업데이트 스케줄링 시작');
-        _scheduleUpdateApplication();
-      }
     }
 
     // 현재 언어 정보 로깅
@@ -395,111 +297,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     }
   }
 
-
-  /// 업데이트 적용 스케줄링
-  void _scheduleUpdateApplication() {
-    if (!mounted) return;
-    
-    logger.i('업데이트 스케줄링 시작 - 안정된 시점에 자동 적용');
-    // 모든 패치를 안정된 시점에 적용
-    _scheduleStableUpdate();
-  }
-
-  /// 안정된 시점에 업데이트 스케줄링
-  void _scheduleStableUpdate() {
-    if (!mounted) return;
-    
-    logger.i('업데이트 스케줄링 시작 - 15초 후 안정된 시점 체크');
-    
-    // 사용자 상호작용 추적 시작
-    _lastUserInteraction = DateTime.now();
-    
-    // 15초 후 첫 번째 시도 (30초 → 15초로 단축)
-    _updateTimer = Timer(const Duration(seconds: 15), () {
-      _attemptStableUpdate();
-    });
-  }
-
-  /// 안정된 시점에 업데이트 시도
-  void _attemptStableUpdate() {
-    if (!mounted) return;
-    
-    // 메인 화면이 아니면 업데이트 적용하지 않음
-    if (!_isOnMainScreen) {
-      logger.i('메인 화면이 아님 - 업데이트 적용 대기 중 (5초 후 재시도)');
-      _updateTimer = Timer(const Duration(seconds: 5), () {
-        _attemptStableUpdate();
-      });
-      return;
-    }
-    
-    final now = DateTime.now();
-    final timeSinceLastInteraction = _lastUserInteraction != null
-        ? now.difference(_lastUserInteraction!)
-        : Duration.zero;
-    
-    // 조건 확인: 
-    // 1. 앱이 백그라운드 상태이거나
-    // 2. 10초 이상 사용자 상호작용이 없었거나 (15초 → 10초로 단축)
-    // 3. 앱이 비활성 상태일 때
-    // 4. 메인 화면(Portal)일 때만
-    if (_isAppInactive || 
-        timeSinceLastInteraction.inSeconds > 10 ||
-        WidgetsBinding.instance.lifecycleState == AppLifecycleState.paused) {
-      
-      logger.i('메인 화면에서 안정된 시점 감지됨 (비활성 ${timeSinceLastInteraction.inSeconds}초), 업데이트 적용');
-      _showUpdateNotification();
-      
-      // 3초 후 재시작
-      Timer(const Duration(seconds: 3), () {
-        if (mounted) {
-          _applyUpdateAndRestart();
-        }
-      });
-      
-    } else {
-      // 아직 안정되지 않았으면 5초 후 다시 시도 (10초 → 5초로 단축)
-      logger.i('메인 화면이지만 아직 안정되지 않음 (비활성 ${timeSinceLastInteraction.inSeconds}초 < 10초), 5초 후 재시도');
-      _updateTimer = Timer(const Duration(seconds: 5), () {
-        _attemptStableUpdate();
-      });
-    }
-  }
-
-  /// 업데이트 노티피케이션 표시
-  void _showUpdateNotification() {
-    if (!mounted) return;
-    
-    _scaffoldKey.currentState?.showSnackBar(
-      SnackBar(
-        content: const Text('📱 App update applying in 3 seconds...'),
-        duration: const Duration(seconds: 3),
-        backgroundColor: AppColors.primary500,
-      ),
-    );
-  }
-
-  /// 업데이트 적용 및 재시작
-  Future<void> _applyUpdateAndRestart() async {
-    if (!mounted) return;
-    
-    // 재시작 진행 중임을 표시
-    setState(() {
-      _patchStatusMessage = 'Applying update...';
-      _isAppInitialized = false; // 스플래시 화면으로 전환
-    });
-    
-    // 잠시 대기 후 재시작
-    await Future.delayed(const Duration(milliseconds: 500));
-    await _performAppRestart();
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-
-    // 업데이트 타이머 정리
-    _updateTimer?.cancel();
 
     // 앱 리스너 정리
     AppLifecycleInitializer.disposeAppListeners(
@@ -517,27 +317,19 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         // 앱이 포그라운드로 돌아올 때
-        _isAppInactive = false;
-        _lastUserInteraction = DateTime.now();
+        logger.i('앱이 포그라운드로 복귀');
         break;
       case AppLifecycleState.inactive:
         // 앱이 비활성화될 때
-        _isAppInactive = true;
+        logger.i('앱이 비활성화됨');
         break;
       case AppLifecycleState.paused:
         // 앱이 백그라운드로 전환될 때
-        _isAppInactive = true;
-        // 메인 화면에서만 백그라운드 상태에서 업데이트 적용 시도
-        if (_updateInfo?['needsRestart'] == true && _isOnMainScreen) {
-          logger.i('메인 화면에서 백그라운드 전환 - 업데이트 적용 시도');
-          _attemptStableUpdate();
-        } else if (_updateInfo?['needsRestart'] == true) {
-          logger.i('메인 화면이 아닌 상태에서 백그라운드 전환 - 업데이트 적용 대기');
-        }
+        logger.i('앱이 백그라운드로 전환됨');
         break;
       case AppLifecycleState.detached:
         // 앱이 분리될 때
-        _isAppInactive = true;
+        logger.i('앱이 분리됨');
         break;
       default:
         break;
