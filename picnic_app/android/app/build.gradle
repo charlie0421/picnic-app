@@ -116,16 +116,7 @@ android {
         }
     }
     
-    // Ensure Flutter can find the generated files
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            def outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                def fileName = outputFile.name.replace("app", "app")
-                output.outputFileName = fileName
-            }
-        }
-    }
+
 }
 
 // AAB 파일을 Shorebird/Flutter가 예상하는 위치로 복사하는 태스크
