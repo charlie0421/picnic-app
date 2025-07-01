@@ -363,7 +363,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               height: 26,
               alignment: Alignment.topLeft,
               child: Text(
-                myStarCandy.toString(),
+                formatNumberWithComma(myStarCandy),
                 style: getTextStyle(AppTypo.body16B, AppColors.primary500),
               ),
             ),
