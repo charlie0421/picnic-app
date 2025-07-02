@@ -521,8 +521,48 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   /// 활성 구매 처리
   Future<void> _processActivePurchase(PurchaseDetails purchaseDetails) async {
-    final isActualPurchase =
-        _isActivePurchasing && purchaseDetails.productID == _pendingProductId;
+    // 🤖 안드로이드 구매 판별 로직 개선
+    bool isActualPurchase;
+
+    // 기본 조건: 현재 구매 진행 중이고 상품 ID 일치
+    final basicMatch = _isActivePurchasing &&
+        _pendingProductId != null &&
+        purchaseDetails.productID.toLowerCase() ==
+            _pendingProductId!.toLowerCase();
+
+    // 🤖 안드로이드 추가 조건: 최근 구매 시도와 연관성 있음
+    final recentPurchaseMatch = _lastPurchaseAttempt != null &&
+        DateTime.now().difference(_lastPurchaseAttempt!).inSeconds <= 15 &&
+        _pendingProductId != null &&
+        purchaseDetails.productID.toLowerCase() ==
+            _pendingProductId!.toLowerCase() &&
+        purchaseDetails.status == PurchaseStatus.purchased &&
+        !_isUserRequestedRestore;
+
+    isActualPurchase = basicMatch || recentPurchaseMatch;
+
+    logger.i('[PurchaseStarCandyState] 🤖 구매 판별 상세:');
+    logger.i('  - 기본 조건 (활성 + ID 일치): $basicMatch');
+    logger.i('    → _isActivePurchasing: $_isActivePurchasing');
+    logger.i('    → _pendingProductId: $_pendingProductId');
+    logger.i('    → purchaseDetails.productID: ${purchaseDetails.productID}');
+    logger.i('  - 최근 구매 조건: $recentPurchaseMatch');
+    if (_lastPurchaseAttempt != null) {
+      final timeDiff =
+          DateTime.now().difference(_lastPurchaseAttempt!).inSeconds;
+      logger.i(
+          '    → _lastPurchaseAttempt: $_lastPurchaseAttempt (${timeDiff}초 전)');
+      logger.i('    → 시간 조건 (≤15초): ${timeDiff <= 15}');
+    } else {
+      logger.i('    → _lastPurchaseAttempt: null');
+    }
+    logger.i(
+        '    → 상품 ID 일치: ${_pendingProductId != null && purchaseDetails.productID.toLowerCase() == _pendingProductId!.toLowerCase()} (${purchaseDetails.productID} vs $_pendingProductId)');
+    logger.i('    → 구매 상태: ${purchaseDetails.status}');
+    logger.i(
+        '    → 구매 상태 매치: ${purchaseDetails.status == PurchaseStatus.purchased}');
+    logger.i('    → 복원 요청 아님: ${!_isUserRequestedRestore}');
+    logger.i('  - 최종 판별 결과: $isActualPurchase');
 
     // 🛡️ 늦은 구매 성공 감지
     final isLatePurchase = !_isActivePurchasing &&

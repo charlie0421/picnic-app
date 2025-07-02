@@ -556,7 +556,7 @@ async function grantReward(userId, productId, transactionId) {
     const { data: productData, error: productError } = await supabase
       .from('products')
       .select('id, star_candy, star_candy_bonus')
-      .eq('id', productId)
+      .eq('id', productId.toUpperCase())
       .lt('start_at', 'now()')
       .gt('end_at', 'now()')
       .single();

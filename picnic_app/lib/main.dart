@@ -34,9 +34,13 @@ bool isLanguageInitialized = false;
 String currentLanguage = 'ko'; // 기본값은 한국어
 
 void main() async {
+  // ENVIRONMENT dart-define 값을 동적으로 읽기 (기본값: dev)
+  const environment =
+      String.fromEnvironment('ENVIRONMENT', defaultValue: 'dev');
+
   // MainInitializer를 사용하여 앱 초기화
   await MainInitializer.initializeApp(
-    environment: 'prod',
+    environment: environment, // 동적 환경값 사용
     firebaseOptions: DefaultFirebaseOptions.currentPlatform,
     appBuilder: () => Phoenix(
       child: const App(),
