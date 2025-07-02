@@ -123,17 +123,39 @@ android {
                 merge '**/lib/armeabi-v7a/*.so'
                 merge '**/lib/x86_64/*.so'
                 
-                // Debug symbol 파일 제외 (strip 문제 방지)
-                exclude '**/lib/**/libc++_shared.so.dbg'
-                exclude '**/lib/**/libflutter.so.dbg' 
+                // Debug symbol 파일들 완전 제외
+                exclude '**/lib/**/libflutter.so.dbg'
                 exclude '**/lib/**/libflutter.so.sym'
                 exclude '**/lib/**/libapp.so.dbg'
+                exclude '**/lib/**/libapp.so.sym'
+                exclude '**/*.dbg'
+                exclude '**/*.sym'
+                
+                // DWARF debug 정보 제거
+                exclude '**/lib/**/libc++_shared.so.debug'
+                exclude '**/lib/**/*.debug'
             }
             
-            // NDK 설정으로 debug symbol 생성 제어
+            // NDK 설정 강화
             ndk {
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
-                debugSymbolLevel 'NONE'  // Debug symbol 생성 비활성화
+                debugSymbolLevel 'NONE'
+                
+                // 추가 디버그 심볼 비활성화
+                def ndkArgs = [
+                    '--strip-debug',
+                    '--strip-unneeded'
+                ]
+            }
+            
+            // 추가 빌드 옵션으로 디버그 심볼 생성 방지
+            buildConfigField 'boolean', 'STRIP_DEBUG_SYMBOLS', 'true'
+            
+            // Android App Bundle 특정 설정
+            bundle {
+                storeArchive {
+                    enable = false
+                }
             }
             
             // Shorebird 호환성을 위한 빌드 출력 설정

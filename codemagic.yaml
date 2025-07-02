@@ -427,7 +427,8 @@ workflows:
           flutter build appbundle \
             --release \
             --dart-define=ENVIRONMENT=prod \
-            --target-platform android-arm,android-arm64,android-x64
+            --target-platform android-arm,android-arm64,android-x64 \
+            --split-debug-info=build/debug-info
           
           BUILD_EXIT_CODE=$?
           
@@ -896,7 +897,8 @@ workflows:
           flutter build appbundle \
             --release \
             --dart-define=ENVIRONMENT=prod \
-            --target-platform android-arm,android-arm64,android-x64
+            --target-platform android-arm,android-arm64,android-x64 \
+            --split-debug-info=build/debug-info
           
           BUILD_EXIT_CODE=$?
           
