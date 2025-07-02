@@ -414,6 +414,8 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+          echo "android.enableDexingArtifactTransform=false" >> $HOME/.gradle/gradle.properties
+          echo "android.defaults.buildfeatures.buildconfig=true" >> $HOME/.gradle/gradle.properties
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
@@ -425,8 +427,7 @@ workflows:
           flutter build appbundle \
             --release \
             --dart-define=ENVIRONMENT=prod \
-            --target-platform android-arm,android-arm64,android-x64 \
-            --verbose
+            --target-platform android-arm,android-arm64,android-x64
           
           BUILD_EXIT_CODE=$?
           
@@ -444,17 +445,18 @@ workflows:
             fi
           else
             echo "=== Flutter Android 빌드 실패 ==="
-            echo "❌ AAB 빌드에 실패했습니다 (종료 코드: $BUILD_EXIT_CODE)"
+            echo "❌ AAB 빌드 실패 (종료 코드: $BUILD_EXIT_CODE)"
             
-            echo "🔍 가능한 원인:"
-            echo "- Android NDK 설정 문제"
-            echo "- Native library symbol strip 문제"
-            echo "- Gradle 빌드 환경 문제"
+            echo "🔍 마지막 빌드 로그 확인 중..."
+            if [ -f "build/app/reports/lint-results.html" ]; then
+              echo "📄 Lint 보고서가 생성됨"
+            fi
             
-            echo "💡 해결 방법:"
-            echo "1. flutter doctor -v 실행하여 Android 툴체인 확인"
-            echo "2. Android NDK 버전 확인"
-            echo "3. build.gradle 설정 검토"
+            echo "💡 일반적인 해결 방법:"
+            echo "1. flutter clean && flutter pub get 후 재시도"
+            echo "2. Android NDK/SDK 버전 확인"
+            echo "3. Gradle 캐시 정리: rm -rf ~/.gradle/caches"
+            echo "4. MultiDex 설정 확인"
             
             exit 1
           fi
@@ -763,8 +765,7 @@ workflows:
           PATCH_RESULT=$("$HOME/.shorebird/bin/shorebird" patch ios \
             --release-version=latest \
             --no-confirm \
-            --dart-define=ENVIRONMENT=prod \
-            --verbose 2>&1)
+            --dart-define=ENVIRONMENT=prod)
           PATCH_EXIT_CODE=$?
           
           echo "패치 결과 출력:"
@@ -882,6 +883,8 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+          echo "android.enableDexingArtifactTransform=false" >> $HOME/.gradle/gradle.properties
+          echo "android.defaults.buildfeatures.buildconfig=true" >> $HOME/.gradle/gradle.properties
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
@@ -893,8 +896,7 @@ workflows:
           flutter build appbundle \
             --release \
             --dart-define=ENVIRONMENT=prod \
-            --target-platform android-arm,android-arm64,android-x64 \
-            --verbose
+            --target-platform android-arm,android-arm64,android-x64
           
           BUILD_EXIT_CODE=$?
           
@@ -912,17 +914,18 @@ workflows:
             fi
           else
             echo "=== Flutter Android 빌드 실패 ==="
-            echo "❌ AAB 빌드에 실패했습니다 (종료 코드: $BUILD_EXIT_CODE)"
+            echo "❌ AAB 빌드 실패 (종료 코드: $BUILD_EXIT_CODE)"
             
-            echo "🔍 가능한 원인:"
-            echo "- Android NDK 설정 문제"
-            echo "- Native library symbol strip 문제"
-            echo "- Gradle 빌드 환경 문제"
+            echo "🔍 마지막 빌드 로그 확인 중..."
+            if [ -f "build/app/reports/lint-results.html" ]; then
+              echo "📄 Lint 보고서가 생성됨"
+            fi
             
-            echo "💡 해결 방법:"
-            echo "1. flutter doctor -v 실행하여 Android 툴체인 확인"
-            echo "2. Android NDK 버전 확인"
-            echo "3. build.gradle 설정 검토"
+            echo "💡 일반적인 해결 방법:"
+            echo "1. flutter clean && flutter pub get 후 재시도"
+            echo "2. Android NDK/SDK 버전 확인"
+            echo "3. Gradle 캐시 정리: rm -rf ~/.gradle/caches"
+            echo "4. MultiDex 설정 확인"
             
             exit 1
           fi
