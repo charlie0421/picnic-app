@@ -425,7 +425,6 @@ workflows:
           
           flutter build appbundle \
             --release \
-            --no-strip \
             --dart-define=ENVIRONMENT=prod \
             --target-platform android-arm,android-arm64,android-x64 \
             --verbose
@@ -895,7 +894,6 @@ workflows:
           
           flutter build appbundle \
             --release \
-            --no-strip \
             --dart-define=ENVIRONMENT=prod \
             --target-platform android-arm,android-arm64,android-x64 \
             --verbose
