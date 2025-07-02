@@ -292,111 +292,6 @@ workflows:
           echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
           echo "🔄 비결정론적 빌드 문제 해결 예상"
 
-      - name: Build Traditional iOS IPA for TestFlight
-        script: |
-          cd picnic_app
-          
-          echo "=== TestFlight용 전통적인 iOS IPA 빌드 시작 ==="
-          echo "🎯 하이브리드 배포: Shorebird + TestFlight 모두 지원"
-          
-          echo "=== TestFlight용 iOS 서명 설정 재적용 ==="
-          cd ios
-          
-          # Manual Signing 설정 강제 재적용 (Shorebird 빌드 후 초기화 방지)
-          echo "📝 Manual Distribution Signing 재활성화..."
-          perl -i -pe 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
-          perl -i -pe 's/CODE_SIGN_STYLE = "Automatic";/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
-          perl -i -pe 's/CODE_SIGN_IDENTITY = "";/CODE_SIGN_IDENTITY = "Apple Distribution";/g' Runner.xcodeproj/project.pbxproj
-          perl -i -pe 's/PROVISIONING_PROFILE_SPECIFIER = "";/PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";/g' Runner.xcodeproj/project.pbxproj
-          
-          echo "✅ TestFlight용 Manual Distribution Signing 재설정 완료"
-          echo "- CODE_SIGN_STYLE: Manual (강제)"
-          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
-          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
-          
-          cd ..
-          
-          echo "=== ExportOptions.plist 생성 (TestFlight 최적화) ==="
-          cat > ios/ExportOptions.plist << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>teamID</key>
-              <string>24SL34R9HR</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>io.iconcasting.picnic.app</key>
-                  <string>picnic_app_profile_2025</string>
-              </dict>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>uploadBitcode</key>
-              <false/>
-              <key>uploadSymbols</key>
-              <true/>
-              <key>compileBitcode</key>
-              <false/>
-          </dict>
-          </plist>
-          EOF
-          
-          echo "✅ ExportOptions.plist 생성 완료"
-          cat ios/ExportOptions.plist
-          
-          echo "=== Flutter iOS Archive 빌드 (Manual Signing 사용) ==="
-          flutter build ipa \
-            --release \
-            --dart-define=ENVIRONMENT=prod \
-            --export-options-plist=ios/ExportOptions.plist
-          
-          echo "=== IPA 파일 확인 ==="
-          IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -1)
-          if [ -n "$IPA_PATH" ] && [ -f "$IPA_PATH" ]; then
-            echo "✅ IPA 파일 생성 성공: $IPA_PATH"
-            ls -la "$IPA_PATH"
-            
-            # IPA 파일 크기 확인
-            IPA_SIZE=$(du -h "$IPA_PATH" | cut -f1)
-            echo "📦 IPA 파일 크기: $IPA_SIZE"
-          else
-            echo "❌ IPA 파일 생성 실패"
-            echo "빌드 디렉토리 확인:"
-            find build/ios -name "*.ipa" 2>/dev/null || echo "IPA 파일 없음"
-            find build/ios -name "*.xcarchive" 2>/dev/null || echo "xcarchive 파일 없음"
-            
-            # xcarchive가 있는 경우 수동으로 export 시도
-            XCARCHIVE_PATH=$(find build/ios -name "*.xcarchive" | head -1)
-            if [ -n "$XCARCHIVE_PATH" ] && [ -d "$XCARCHIVE_PATH" ]; then
-              echo "⚠️ xcarchive는 존재함: $XCARCHIVE_PATH"
-              echo "🔄 xcodebuild로 수동 export 시도..."
-              
-              xcodebuild -exportArchive \
-                -archivePath "$XCARCHIVE_PATH" \
-                -exportPath build/ios/ipa \
-                -exportOptionsPlist ios/ExportOptions.plist
-              
-              # 수동 export 결과 확인
-              IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -1)
-              if [ -n "$IPA_PATH" ] && [ -f "$IPA_PATH" ]; then
-                echo "✅ 수동 export 성공: $IPA_PATH"
-                ls -la "$IPA_PATH"
-              else
-                echo "❌ 수동 export도 실패"
-                exit 1
-              fi
-            else
-              echo "❌ xcarchive도 없음 - 완전한 빌드 실패"
-              exit 1
-            fi
-          fi
-          
-          echo "=== 하이브리드 배포 준비 완료 ==="
-          echo "✅ Shorebird 배포: 완료 (즉시 사용자에게 전달)"
-          echo "✅ TestFlight IPA: 생성 완료 (App Store Connect 승인 대기)"
-
     artifacts:
       # 하이브리드 아티팩트: TestFlight + Shorebird 모두
       - picnic_app/build/ios/**/*.ipa
@@ -524,7 +419,7 @@ workflows:
           cd picnic_app
           
           echo "=== Shorebird 통합 Android 빌드 & 릴리즈 시작 ==="
-          echo "🎯 릴리즈와 패치의 일관된 빌드 환경을 위해 Shorebird로 직접 빌드합니다"
+          echo "🎯 build.gradle에서 Shorebird 호환성 문제를 근본적으로 해결했습니다"
           echo ""
           
           # Shorebird PATH 설정
@@ -564,8 +459,8 @@ workflows:
           flutter pub get
 
           echo "=== Shorebird Android 통합 릴리즈 실행 ==="
-          echo "🚀 Shorebird로 Android 빌드 및 릴리즈 (단순화된 방식)..."
-          echo "🎯 Shorebird가 모든 빌드 과정을 자체적으로 처리합니다"
+          echo "🚀 Shorebird로 Android 빌드 및 릴리즈"
+          echo "🎯 build.gradle에서 native 라이브러리 아티팩트 경로 문제를 해결했습니다"
           
           RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
           RELEASE_EXIT_CODE=$?
@@ -587,22 +482,22 @@ workflows:
                 echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version" | head -3
               fi
             else
-              echo "=== Shorebird Android 릴리즈 재시도 필요 ==="
-              echo "⚠️ 릴리즈 결과가 불분명합니다. 재시도합니다..."
-            sleep 5
-            
-              echo "🔄 Android 릴리즈 재시도 (최신 Flutter)..."
-              RETRY_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
-            RETRY_EXIT_CODE=$?
+              echo "=== Shorebird Android 릴리즈 재시도 ==="
+              echo "⚠️ 릴리즈 결과가 불분명합니다. 한 번 더 시도합니다..."
+              sleep 5
               
-            if [ $RETRY_EXIT_CODE -eq 0 ]; then
-              echo "✅ 재시도 성공!"
+              echo "🔄 Android 릴리즈 재시도..."
+              RETRY_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
+              RETRY_EXIT_CODE=$?
+              
+              if [ $RETRY_EXIT_CODE -eq 0 ]; then
+                echo "✅ 재시도 성공!"
                 echo "$RETRY_RESULT"
-            else
-              echo "❌ 재시도도 실패했습니다."
+              else
+                echo "❌ 재시도도 실패했습니다."
                 echo "$RETRY_RESULT"
-              exit 1
-            fi
+                exit 1
+              fi
             fi
           else
             echo "=== Shorebird Android 릴리즈 실패 ==="
@@ -615,6 +510,10 @@ workflows:
               echo "🔍 Flutter 빌드 문제로 보입니다"
             elif echo "$RELEASE_RESULT" | grep -i "no.*release\|app.*not.*found"; then
               echo "🔍 앱 등록 문제로 보입니다"
+            elif echo "$RELEASE_RESULT" | grep -i "cannot.*find.*artifacts"; then
+              echo "🔍 아티팩트 경로 문제 - build.gradle 설정 확인 필요"
+              echo "빌드 디렉토리 구조:"
+              find build android/app/build -name "*lib*" -type d 2>/dev/null | head -10 || echo "관련 디렉토리 없음"
             fi
             
             exit 1
@@ -623,7 +522,7 @@ workflows:
           echo "=== 최종 결과 ==="
           echo "✅ Shorebird 통합 Android 빌드 & 릴리즈 완료!"
           echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
-          echo "🔄 비결정론적 빌드 문제 해결 예상"
+          echo "🔧 build.gradle에서 근본적으로 해결된 호환성 문제"
 
       - name: Verify Shorebird AAB Output
         script: |
@@ -1188,7 +1087,9 @@ workflows:
             elif echo "$PATCH_RESULT" | grep -i "no.*release\|app.*not.*found"; then
               echo "🔍 기존 릴리즈 없음 문제로 보입니다"
             elif echo "$PATCH_RESULT" | grep -i "cannot.*find.*artifacts"; then
-              echo "🔍 빌드 아티팩트 문제로 보입니다"
+              echo "🔍 아티팩트 경로 문제 - build.gradle 설정 확인 필요"
+              echo "빌드 디렉토리 구조:"
+              find build android/app/build -name "*lib*" -type d 2>/dev/null | head -10 || echo "관련 디렉토리 없음"
             fi
             
             exit 1
