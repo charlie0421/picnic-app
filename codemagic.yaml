@@ -414,6 +414,7 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
@@ -424,6 +425,7 @@ workflows:
           
           flutter build appbundle \
             --release \
+            --no-strip \
             --dart-define=ENVIRONMENT=prod \
             --target-platform android-arm,android-arm64,android-x64 \
             --verbose
@@ -882,6 +884,7 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
+          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
@@ -892,6 +895,7 @@ workflows:
           
           flutter build appbundle \
             --release \
+            --no-strip \
             --dart-define=ENVIRONMENT=prod \
             --target-platform android-arm,android-arm64,android-x64 \
             --verbose

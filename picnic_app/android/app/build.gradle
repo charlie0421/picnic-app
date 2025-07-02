@@ -105,6 +105,12 @@ android {
             minifyEnabled false
             shrinkResources false
             
+            // Debug symbol strip 문제 해결
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
+            zipAlignEnabled true
+            
             // Shorebird 호환성을 위한 native 라이브러리 처리 설정
             packagingOptions {
                 // native 라이브러리 중복 제거 및 정리
@@ -116,18 +122,18 @@ android {
                 merge '**/lib/arm64-v8a/*.so'
                 merge '**/lib/armeabi-v7a/*.so'
                 merge '**/lib/x86_64/*.so'
+                
+                // Debug symbol 파일 제외 (strip 문제 방지)
+                exclude '**/lib/**/libc++_shared.so.dbg'
+                exclude '**/lib/**/libflutter.so.dbg' 
+                exclude '**/lib/**/libflutter.so.sym'
+                exclude '**/lib/**/libapp.so.dbg'
             }
             
-            // Shorebird가 기대하는 디버그 심볼 처리 활성화
-            debuggable false
-            jniDebuggable false
-            renderscriptDebuggable false
-            zipAlignEnabled true
-            
+            // NDK 설정으로 debug symbol 생성 제어
             ndk {
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
-                // Shorebird 호환성을 위한 디버그 심볼 유지
-                debugSymbolLevel 'SYMBOL_TABLE'
+                debugSymbolLevel 'NONE'  // Debug symbol 생성 비활성화
             }
             
             // Shorebird 호환성을 위한 빌드 출력 설정
