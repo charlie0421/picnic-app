@@ -414,7 +414,6 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
-          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
@@ -883,7 +882,6 @@ workflows:
           echo "android.enableJetifier=true" >> $HOME/.gradle/gradle.properties
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
-          echo "android.bundle.enableUncompressedNativeLibs=false" >> $HOME/.gradle/gradle.properties
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
