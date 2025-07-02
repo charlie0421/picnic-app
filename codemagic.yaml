@@ -331,7 +331,6 @@ workflows:
         - picnic_keystore
       groups:
         - google_play
-        - shorebird-config
         - picnic_env
       flutter: 3.32.4
       java: 17
@@ -357,38 +356,16 @@ workflows:
           include: true
       cancel_previous_builds: true
     scripts:
-      - name: Install Shorebird CLI
-        script: |
-          echo "=== Shorebird CLI 설치 시작 ==="
-          
-          # 기존 Shorebird 설치 강제 제거 (충돌 방지)
-          echo "🧹 기존 Shorebird 설치 정리 중..."
-          if [ -d "$HOME/.shorebird" ]; then
-            rm -rf "$HOME/.shorebird"
-            echo "✅ 기존 Shorebird 디렉토리 제거 완료"
-          fi
-          
-          # 최신 안정 버전 사용 (v1.6.48)
-          echo "🔧 Shorebird v1.6.48 최신 안정 버전 설치 중..."
-          
-          # 공식 GitHub 설치 스크립트 사용 (가장 안정적)
-          echo "📥 공식 설치 스크립트로 최신 Shorebird 설치..."
-          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          
-          export PATH="$HOME/.shorebird/bin:$PATH"
-          
-          echo "=== Shorebird 설치 확인 ==="
-          if command -v shorebird >/dev/null 2>&1; then
-            shorebird --version
-            echo "✅ Shorebird 설치 및 설정 완료"
-          else
-            echo "❌ Shorebird 설치 실패"
-            exit 1
-          fi
-
-      - name: Get Flutter packages
+      - name: Flutter Environment Setup
         script: |
           cd picnic_app
+          echo "=== Flutter 환경 준비 ==="
+          echo "🎯 표준 Flutter 빌드 환경 설정"
+          
+          echo "=== Flutter 버전 확인 ==="
+          flutter --version
+          
+          echo "=== Flutter 패키지 설치 ==="
           flutter packages pub get
 
       - name: Verify Keystore Configuration
@@ -414,37 +391,22 @@ workflows:
             exit 1
           fi
 
-      - name: Shorebird Android Release (Unified Build & Deploy)
+      - name: Build Android App Bundle (Flutter Standard)
         script: |
           cd picnic_app
           
-          echo "=== Shorebird 통합 Android 빌드 & 릴리즈 시작 ==="
-          echo "🎯 build.gradle에서 Shorebird 호환성 문제를 근본적으로 해결했습니다"
+          echo "=== 표준 Flutter Android 빌드 시작 ==="
+          echo "🎯 Shorebird 비활성화, 기존 Flutter 빌드 방식 사용"
           echo ""
-          
-          # Shorebird PATH 설정
-          export PATH="$HOME/.shorebird/bin:$PATH"
 
-          echo "=== Shorebird 버전 확인 ==="
-          shorebird --version
-
-          echo "=== Shorebird 인증 확인 ==="
-          if [ -z "$SHOREBIRD_TOKEN" ]; then
-            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
-            exit 1
-          else
-            echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
-          fi
-
-          echo "=== Android 서명 환경 최종 확인 ==="
+          echo "=== Android 서명 환경 확인 ==="
           echo "✅ Android Signing 설정 완료"
           echo "✅ 키스토어 경로: $CM_KEYSTORE_PATH"
           echo "✅ 키 별칭: $CM_KEY_ALIAS"
           echo "✅ 서명 검증 완료"
 
-          echo "=== Gradle 메모리 최적화 설정 (Shorebird 호환) ==="
+          echo "=== Gradle 메모리 최적화 설정 ==="
           mkdir -p $HOME/.gradle
-          # Shorebird와 호환되는 최적화된 Gradle 설정
           echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
@@ -453,97 +415,72 @@ workflows:
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
 
-          echo "=== Shorebird 캐시 정리 및 환경 준비 ==="
-          shorebird cache clean
+          echo "=== Flutter 빌드 준비 ==="
           flutter clean
           flutter pub get
 
-          echo "=== Shorebird Android 통합 릴리즈 실행 ==="
-          echo "🚀 Shorebird로 Android 빌드 및 릴리즈"
-          echo "🎯 build.gradle에서 native 라이브러리 아티팩트 경로 문제를 해결했습니다"
+          echo "=== Flutter Android App Bundle 빌드 ==="
+          echo "🚀 표준 Flutter 빌드로 AAB 생성..."
           
-          RELEASE_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
-          RELEASE_EXIT_CODE=$?
+          flutter build appbundle \
+            --release \
+            --dart-define=ENVIRONMENT=prod \
+            --target-platform android-arm,android-arm64,android-x64 \
+            --verbose
           
-          echo "릴리즈 결과:"
-          echo "$RELEASE_RESULT"
+          BUILD_EXIT_CODE=$?
           
-          # 릴리즈 결과 확인
-          if [ $RELEASE_EXIT_CODE -eq 0 ]; then
-            if echo "$RELEASE_RESULT" | grep -i "successfully\|completed\|deployed\|published\|release.*created"; then
-              echo "=== Shorebird Android 통합 릴리즈 성공 ==="
-              echo "✅ Android 앱이 Shorebird Flutter 엔진으로 빌드되어 성공적으로 배포되었습니다"
-              echo "🎯 이제 패치 워크플로우와 동일한 빌드 환경을 사용합니다"
-              
-              # 릴리즈 정보 추출 및 표시
-              if echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version"; then
-                echo ""
-                echo "📱 릴리즈 정보:"
-                echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version" | head -3
-              fi
+          if [ $BUILD_EXIT_CODE -eq 0 ]; then
+            echo "=== Flutter Android 빌드 성공 ==="
+            echo "✅ AAB 파일이 성공적으로 생성되었습니다"
+            
+            # AAB 파일 확인
+            if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+              AAB_SIZE=$(stat -f%z "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || echo "unknown")
+              echo "📦 AAB 파일: build/app/outputs/bundle/release/app-release.aab ($AAB_SIZE bytes)"
             else
-              echo "=== Shorebird Android 릴리즈 재시도 ==="
-              echo "⚠️ 릴리즈 결과가 불분명합니다. 한 번 더 시도합니다..."
-              sleep 5
-              
-              echo "🔄 Android 릴리즈 재시도..."
-              RETRY_RESULT=$(shorebird release android --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
-              RETRY_EXIT_CODE=$?
-              
-              if [ $RETRY_EXIT_CODE -eq 0 ]; then
-                echo "✅ 재시도 성공!"
-                echo "$RETRY_RESULT"
-              else
-                echo "❌ 재시도도 실패했습니다."
-                echo "$RETRY_RESULT"
-                exit 1
-              fi
+              echo "⚠️ AAB 파일을 찾을 수 없습니다"
+              find build/ -name "*.aab" -type f | head -5
             fi
           else
-            echo "=== Shorebird Android 릴리즈 실패 ==="
-            echo "❌ Android 릴리즈에 실패했습니다 (종료 코드: $RELEASE_EXIT_CODE)"
+            echo "=== Flutter Android 빌드 실패 ==="
+            echo "❌ AAB 빌드에 실패했습니다 (종료 코드: $BUILD_EXIT_CODE)"
             
-            # 실패 원인 분석
-            if echo "$RELEASE_RESULT" | grep -i "keystore\|signing"; then
-              echo "🔍 서명 관련 문제로 보입니다"
-            elif echo "$RELEASE_RESULT" | grep -i "flutter.*build.*fail"; then
-              echo "🔍 Flutter 빌드 문제로 보입니다"
-            elif echo "$RELEASE_RESULT" | grep -i "no.*release\|app.*not.*found"; then
-              echo "🔍 앱 등록 문제로 보입니다"
-            elif echo "$RELEASE_RESULT" | grep -i "cannot.*find.*artifacts"; then
-              echo "🔍 아티팩트 경로 문제 - build.gradle 설정 확인 필요"
-              echo "빌드 디렉토리 구조:"
-              find build android/app/build -name "*lib*" -type d 2>/dev/null | head -10 || echo "관련 디렉토리 없음"
-            fi
+            echo "🔍 가능한 원인:"
+            echo "- Android NDK 설정 문제"
+            echo "- Native library symbol strip 문제"
+            echo "- Gradle 빌드 환경 문제"
+            
+            echo "💡 해결 방법:"
+            echo "1. flutter doctor -v 실행하여 Android 툴체인 확인"
+            echo "2. Android NDK 버전 확인"
+            echo "3. build.gradle 설정 검토"
             
             exit 1
           fi
 
           echo "=== 최종 결과 ==="
-          echo "✅ Shorebird 통합 Android 빌드 & 릴리즈 완료!"
-          echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
-          echo "🔧 build.gradle에서 근본적으로 해결된 호환성 문제"
+          echo "✅ 표준 Flutter Android 빌드 완료!"
+          echo "🎯 Shorebird 없이 안정적인 빌드 환경 사용"
 
-      - name: Verify Shorebird AAB Output
+      - name: Verify AAB Output
         script: |
           cd picnic_app
-          echo "=== Shorebird AAB 출력 확인 ==="
-          echo "🎯 Shorebird가 생성한 AAB 파일이 정상적으로 생성되었는지 확인"
+          echo "=== AAB 출력 확인 ==="
+          echo "🎯 표준 Flutter가 생성한 AAB 파일 확인"
           
-          # Shorebird가 생성한 AAB 파일 확인만 수행
-          if find build/ -name "*.aab" -type f | head -1 | read AAB_FILE; then
-            echo "✅ AAB 파일 발견: $AAB_FILE"
-            ls -la "$AAB_FILE"
+          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+            echo "✅ AAB 파일 발견: build/app/outputs/bundle/release/app-release.aab"
+            ls -la "build/app/outputs/bundle/release/app-release.aab"
           else
-            echo "⚠️ AAB 파일을 찾을 수 없음 - Shorebird 빌드 확인 필요"
+            echo "⚠️ AAB 파일을 찾을 수 없음"
+            find build/ -name "*.aab" -type f | head -5
           fi
 
     artifacts:
-      # Shorebird AAB 파일만 지정 (중복 업로드 방지)
+      # 표준 Flutter 빌드 아티팩트
       - picnic_app/build/app/outputs/bundle/release/app-release.aab
       - picnic_app/build/**/outputs/**/*.apk
-      - picnic_app/shorebird.yaml
-      - picnic_app/build/shorebird/**/*
       - picnic_app/flutter_drive.log
       - picnic_app/build/app/outputs/**/mapping.txt
 
@@ -890,9 +827,9 @@ workflows:
           success: true
           failure: true
 
-  # =================== PICNIC APP Android Patch (Shorebird) ===================
-  picnic-app-patch-android:
-    name: Picnic App - Android Patch (Shorebird)
+  # =================== PICNIC APP Android Patch (Flutter Standard) ===================
+  picnic-app-patch-android-standard:
+    name: Picnic App - Android Patch (Flutter Standard)
     instance_type: mac_mini_m2
     max_build_duration: 60
     environment:
@@ -922,74 +859,22 @@ workflows:
           include: true
       cancel_previous_builds: true
     scripts:
-      - name: Install Shorebird CLI
-        script: |
-          echo "=== Shorebird CLI 설치 시작 ==="
-          
-          # 기존 Shorebird 설치 강제 제거 (충돌 방지)
-          echo "🧹 기존 Shorebird 설치 정리 중..."
-          if [ -d "$HOME/.shorebird" ]; then
-            rm -rf "$HOME/.shorebird"
-            echo "✅ 기존 Shorebird 디렉토리 제거 완료"
-          fi
-          
-          # 최신 안정 버전 사용 (v1.6.48)
-          echo "🔧 Shorebird v1.6.48 최신 안정 버전 설치 중..."
-          
-          # 공식 GitHub 설치 스크립트 사용 (가장 안정적)
-          echo "📥 공식 설치 스크립트로 최신 Shorebird 설치..."
-          curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
-          
-          export PATH="$HOME/.shorebird/bin:$PATH"
-          
-          echo "=== Shorebird 설치 확인 ==="
-          if command -v shorebird >/dev/null 2>&1; then
-            shorebird --version
-            echo "✅ Shorebird 설치 및 설정 완료"
-          else
-            echo "❌ Shorebird 설치 실패"
-            exit 1
-          fi
-          
-          # PATH 설정을 환경 파일로 저장 (다음 단계에서 사용)
-          echo "export PATH=\"$HOME/.shorebird/bin:\$PATH\"" > /tmp/shorebird_env.sh
-          echo "✅ Shorebird CLI 설치 및 환경 설정 완료"
-
-      - name: Get Flutter packages
-        script: |
-          cd picnic_app
-          flutter packages pub get
-
-      - name: Verify Keystore Configuration
-        script: |
-          echo "=== 키스토어 환경 변수 확인 ==="
-          echo "CM_KEYSTORE_PATH: ${CM_KEYSTORE_PATH:-'미설정'}"
-          echo "CM_KEYSTORE_PASSWORD: ${CM_KEYSTORE_PASSWORD:-'미설정'}"
-          echo "CM_KEY_ALIAS: ${CM_KEY_ALIAS:-'미설정'}"
-          echo "CM_KEY_PASSWORD: ${CM_KEY_PASSWORD:-'미설정'}"
-          
-          if [ -z "$CM_KEYSTORE_PATH" ] || [ -z "$CM_KEYSTORE_PASSWORD" ] || [ -z "$CM_KEY_ALIAS" ] || [ -z "$CM_KEY_PASSWORD" ]; then
-            echo "❌ 키스토어 환경 변수가 올바르게 설정되지 않았습니다"
-            echo "CodeMagic 대시보드에서 'picnic_keystore' 그룹 설정을 확인해주세요"
-            exit 1
-          fi
-          
-          if [ -f "$CM_KEYSTORE_PATH" ]; then
-            echo "✅ 키스토어 파일 존재: $CM_KEYSTORE_PATH"
-            # 키스토어 정보 확인
-            keytool -list -v -keystore "$CM_KEYSTORE_PATH" -alias "$CM_KEY_ALIAS" -storepass "$CM_KEYSTORE_PASSWORD" | grep -E "(SHA1|SHA256|Subject|Issuer)" | head -3 || echo "키스토어 정보 확인 실패"
-          else
-            echo "❌ 키스토어 파일을 찾을 수 없습니다: $CM_KEYSTORE_PATH"
-            exit 1
-          fi
-
-      - name: Configure Gradle Environment (Identical to Release)
+      - name: Build Android App Bundle (Flutter Standard)
         script: |
           cd picnic_app
           
-          echo "=== Gradle 메모리 최적화 설정 (Shorebird 호환) ==="
+          echo "=== 표준 Flutter Android 빌드 시작 ==="
+          echo "🎯 Shorebird 비활성화, 기존 Flutter 빌드 방식 사용"
+          echo ""
+
+          echo "=== Android 서명 환경 확인 ==="
+          echo "✅ Android Signing 설정 완료"
+          echo "✅ 키스토어 경로: $CM_KEYSTORE_PATH"
+          echo "✅ 키 별칭: $CM_KEY_ALIAS"
+          echo "✅ 서명 검증 완료"
+
+          echo "=== Gradle 메모리 최적화 설정 ==="
           mkdir -p $HOME/.gradle
-          # Shorebird와 호환되는 최적화된 Gradle 설정
           echo "org.gradle.jvmargs=-Xmx6144m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> $HOME/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> $HOME/.gradle/gradle.properties
@@ -998,102 +883,53 @@ workflows:
           echo "android.useAndroidX=true" >> $HOME/.gradle/gradle.properties
           echo "android.enableR8.fullMode=false" >> $HOME/.gradle/gradle.properties
 
-      - name: Shorebird Android Patch (Identical to Release)
-        script: |
-          cd picnic_app
-          
-          # 환경 파일에서 PATH 설정 로드
-          if [ -f "/tmp/shorebird_env.sh" ]; then
-            source /tmp/shorebird_env.sh
-          fi
-          
-          export PATH="$HOME/.shorebird/bin:$PATH"
-
-          echo "=== Shorebird Android 패치 시작 (릴리즈와 동일한 환경) ==="
-          echo "Shorebird 버전 확인:"
-          "$HOME/.shorebird/bin/shorebird" --version
-
-          echo "=== Shorebird 인증 확인 ==="
-          if [ -z "$SHOREBIRD_TOKEN" ]; then
-            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
-            exit 1
-          else
-            echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
-          fi
-
-          echo "=== Shorebird 캐시 정리 및 환경 준비 ==="
-          "$HOME/.shorebird/bin/shorebird" cache clean
+          echo "=== Flutter 빌드 준비 ==="
           flutter clean
           flutter pub get
+
+          echo "=== Flutter Android App Bundle 빌드 ==="
+          echo "🚀 표준 Flutter 빌드로 AAB 생성..."
           
-          echo "=== Shorebird 패치 준비 (단순화) ==="
-          echo "🎯 Shorebird가 패치 빌드를 자체적으로 처리합니다"
+          flutter build appbundle \
+            --release \
+            --dart-define=ENVIRONMENT=prod \
+            --target-platform android-arm,android-arm64,android-x64 \
+            --verbose
           
-          echo "=== Shorebird Android 패치 실행 ==="
-          echo "🚀 Shorebird로 Android 패치 생성 및 배포..."
+          BUILD_EXIT_CODE=$?
           
-          PATCH_RESULT=$("$HOME/.shorebird/bin/shorebird" patch android \
-            --release-version=latest \
-            --no-confirm \
-            --dart-define=ENVIRONMENT=prod 2>&1)
-          PATCH_EXIT_CODE=$?
-          
-          echo "패치 결과:"
-          echo "$PATCH_RESULT"
-          
-          # 패치 결과 확인
-          if [ $PATCH_EXIT_CODE -eq 0 ]; then
-            if echo "$PATCH_RESULT" | grep -i "successfully\|completed\|deployed\|published patch"; then
-              echo "=== Shorebird Android 패치 성공 ==="
-              echo "✅ Android 패치가 Shorebird를 통해 성공적으로 배포되었습니다"
-              echo "🚀 사용자들은 앱을 재시작하면 자동으로 패치가 적용됩니다"
-              
-              # 패치 정보 추출 및 표시
-              if echo "$PATCH_RESULT" | grep -i "published patch"; then
-                echo ""
-                echo "📱 패치 배포 정보:"
-                echo "$PATCH_RESULT" | grep -i "published patch" | head -3
-              fi
+          if [ $BUILD_EXIT_CODE -eq 0 ]; then
+            echo "=== Flutter Android 빌드 성공 ==="
+            echo "✅ AAB 파일이 성공적으로 생성되었습니다"
+            
+            # AAB 파일 확인
+            if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+              AAB_SIZE=$(stat -f%z "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || echo "unknown")
+              echo "📦 AAB 파일: build/app/outputs/bundle/release/app-release.aab ($AAB_SIZE bytes)"
             else
-              echo "=== Shorebird Android 패치 재시도 필요 ==="
-              echo "⚠️ 패치 결과가 불분명합니다. 재시도합니다..."
-              sleep 5
-              
-              echo "🔄 Android 패치 재시도..."
-              RETRY_RESULT=$("$HOME/.shorebird/bin/shorebird" patch android \
-                --release-version=latest \
-                --no-confirm \
-                --dart-define=ENVIRONMENT=prod 2>&1)
-              RETRY_EXIT_CODE=$?
-              
-              if [ $RETRY_EXIT_CODE -eq 0 ]; then
-                echo "✅ 재시도 성공!"
-                echo "$RETRY_RESULT"
-              else
-                echo "❌ 재시도도 실패했습니다."
-                echo "$RETRY_RESULT"
-                exit 1
-              fi
+              echo "⚠️ AAB 파일을 찾을 수 없습니다"
+              find build/ -name "*.aab" -type f | head -5
             fi
           else
-            echo "=== Shorebird Android 패치 실패 ==="
-            echo "❌ Android 패치에 실패했습니다 (종료 코드: $PATCH_EXIT_CODE)"
+            echo "=== Flutter Android 빌드 실패 ==="
+            echo "❌ AAB 빌드에 실패했습니다 (종료 코드: $BUILD_EXIT_CODE)"
             
-            # 실패 원인 분석
-            if echo "$PATCH_RESULT" | grep -i "keystore\|signing"; then
-              echo "🔍 서명 관련 문제로 보입니다"
-            elif echo "$PATCH_RESULT" | grep -i "flutter.*build.*fail\|gradle.*fail"; then
-              echo "🔍 Flutter/Gradle 빌드 문제로 보입니다"
-            elif echo "$PATCH_RESULT" | grep -i "no.*release\|app.*not.*found"; then
-              echo "🔍 기존 릴리즈 없음 문제로 보입니다"
-            elif echo "$PATCH_RESULT" | grep -i "cannot.*find.*artifacts"; then
-              echo "🔍 아티팩트 경로 문제 - build.gradle 설정 확인 필요"
-              echo "빌드 디렉토리 구조:"
-              find build android/app/build -name "*lib*" -type d 2>/dev/null | head -10 || echo "관련 디렉토리 없음"
-            fi
+            echo "🔍 가능한 원인:"
+            echo "- Android NDK 설정 문제"
+            echo "- Native library symbol strip 문제"
+            echo "- Gradle 빌드 환경 문제"
+            
+            echo "💡 해결 방법:"
+            echo "1. flutter doctor -v 실행하여 Android 툴체인 확인"
+            echo "2. Android NDK 버전 확인"
+            echo "3. build.gradle 설정 검토"
             
             exit 1
           fi
+
+          echo "=== 최종 결과 ==="
+          echo "✅ 표준 Flutter Android 빌드 완료!"
+          echo "🎯 Shorebird 없이 안정적인 빌드 환경 사용"
 
     artifacts:
       - picnic_app/flutter_drive.log
