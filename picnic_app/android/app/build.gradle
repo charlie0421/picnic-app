@@ -28,7 +28,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "io.iconcasting.picnic.app"
     compileSdk flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -38,8 +38,6 @@ android {
     kotlinOptions {
         jvmTarget = '17'
         apiVersion = '1.7'
-        languageVersion = '1.7'
-        freeCompilerArgs += ["-Xskip-metadata-version-check"]
     }
 
     sourceSets {
@@ -48,387 +46,59 @@ android {
 
     defaultConfig {
         applicationId "io.iconcasting.picnic.app"
-        minSdkVersion 23
-        targetSdkVersion 35
+        minSdk 23
+        targetSdk flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        manifestPlaceholders += ['sentryEnableCompose': 'false']
-
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
     }
 
     signingConfigs {
         release {
-            if (System.getenv()["CI"]) {
-                // CodeMagic CI 환경에서 환경변수 사용
-                def cmKeystorePath = System.getenv()["CM_KEYSTORE_PATH"]
-                def cmKeystorePassword = System.getenv()["CM_KEYSTORE_PASSWORD"]
-                def cmKeyAlias = System.getenv()["CM_KEY_ALIAS"]
-                def cmKeyPassword = System.getenv()["CM_KEY_PASSWORD"]
-                
-                if (cmKeystorePath && cmKeystorePassword && cmKeyAlias && cmKeyPassword) {
-                    storeFile file(cmKeystorePath)
-                    storePassword cmKeystorePassword
-                    keyAlias cmKeyAlias
-                    keyPassword cmKeyPassword
-                } else {
-                    throw new Exception("CodeMagic keystore environment variables not set properly")
-                }
-            } else {
-                // 로컬 개발 환경에서 key.properties 파일 사용
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-                storePassword keystoreProperties['storePassword']
-            }
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
         }
     }
 
-    buildFeatures {
-        buildConfig true
-    }
-    
     buildTypes {
         release {
-            // CodeMagic 환경에서는 무조건 release 서명 사용
             signingConfig signingConfigs.release
-            minifyEnabled false
-            shrinkResources false
-            
-            // Debug symbol strip 문제 해결
-            debuggable false
-            jniDebuggable false
-            renderscriptDebuggable false
-            zipAlignEnabled true
-            
-            // Shorebird 호환성을 위한 native 라이브러리 처리 설정
-            packagingOptions {
-                // native 라이브러리 중복 제거 및 정리
-                pickFirst '**/libc++_shared.so'
-                pickFirst '**/libflutter.so'
-                pickFirst '**/libapp.so'
-                
-                // 모든 native 라이브러리를 포함하도록 보장
-                merge '**/lib/arm64-v8a/*.so'
-                merge '**/lib/armeabi-v7a/*.so'
-                merge '**/lib/x86_64/*.so'
-                
-                // Debug symbol 파일들 완전 제외
-                exclude '**/lib/**/libflutter.so.dbg'
-                exclude '**/lib/**/libflutter.so.sym'
-                exclude '**/lib/**/libapp.so.dbg'
-                exclude '**/lib/**/libapp.so.sym'
-                exclude '**/*.dbg'
-                exclude '**/*.sym'
-                
-                // DWARF debug 정보 제거
-                exclude '**/lib/**/libc++_shared.so.debug'
-                exclude '**/lib/**/*.debug'
-            }
-            
-            // NDK 설정 강화
-            ndk {
-                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
-                debugSymbolLevel 'NONE'
-                
-                // 추가 디버그 심볼 비활성화
-                def ndkArgs = [
-                    '--strip-debug',
-                    '--strip-unneeded'
-                ]
-            }
-            
-            // 추가 빌드 옵션으로 디버그 심볼 생성 방지
-            buildConfigField 'boolean', 'STRIP_DEBUG_SYMBOLS', 'true'
-            
-            // Android App Bundle 특정 설정
-            bundle {
-                storeArchive {
-                    enable = false
-                }
-            }
-            
-            // Shorebird 호환성을 위한 빌드 출력 설정
-            buildConfigField "boolean", "SHOREBIRD_ENABLED", "true"
-        }
-        
-        debug {
-            // 디버그에서는 Shorebird 비활성화
-            buildConfigField "boolean", "SHOREBIRD_ENABLED", "false"
-        }
-    }
-
-    // Shorebird 호환성을 위한 추가 빌드 설정
-    packagingOptions {
-        // native 라이브러리 처리 옵션
-        doNotStrip '*/armeabi-v7a/*.so'
-        doNotStrip '*/arm64-v8a/*.so'
-        doNotStrip '*/x86_64/*.so'
-        
-        // 중복 파일 처리
-        pickFirst '**/libc++_shared.so'
-        pickFirst '**/libflutter.so'
-        pickFirst '**/libapp.so'
-        
-        // META-INF 파일 제외 (빌드 충돌 방지)
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-    }
-
-    // Shorebird가 찾는 native 라이브러리 아티팩트 생성을 위한 설정
-    android.applicationVariants.all { variant ->
-        if (variant.buildType.name == 'release') {
-            variant.outputs.all { output ->
-                // Gradle 태스크 실행 순서 보장
-                output.processResources.doLast {
-                    ensureShorebirdArtifacts(variant)
-                }
-            }
-        }
-    }
-
-    bundle {
-        storeArchive {
-            enable = true
-        }
-        // Shorebird 호환성을 위한 번들 설정
-        density {
-            enableSplit false
-        }
-        abi {
-            enableSplit false
-        }
-    }
-    
-
-}
-
-// Shorebird가 찾는 native 라이브러리 아티팩트 생성 함수
-def ensureShorebirdArtifacts(variant) {
-    println "🔧 Ensuring Shorebird artifacts for variant: ${variant.name}"
-    
-    def buildDir = project.buildDir
-    def intermediatesDir = new File(buildDir, "intermediates")
-    
-    // Shorebird가 찾는 디렉토리 구조 생성
-    def shorebirdPaths = [
-        "stripped_native_libs/stripReleaseDebugSymbols/release/out/lib",
-        "stripped_native_libs/release/out/lib",
-        "merged_native_libs/release/out/lib"
-    ]
-    
-    shorebirdPaths.each { path ->
-        def targetDir = new File(intermediatesDir, path)
-        targetDir.mkdirs()
-        println "📁 Created Shorebird directory: ${targetDir.absolutePath}"
-    }
-}
-
-// Shorebird 호환성을 위한 native 라이브러리 아티팩트 복사 태스크
-tasks.register('prepareShorebirdArtifacts') {
-    description = 'Prepare native library artifacts for Shorebird'
-    group = 'shorebird'
-    
-    doLast {
-        println "🔧 Preparing Shorebird native library artifacts..."
-        
-        def intermediatesDir = file("$buildDir/intermediates")
-        def mergedNativeLibsDir = file("$buildDir/intermediates/merged_native_libs/release/out/lib")
-        def transformedLibsDir = file("$buildDir/intermediates/transforms")
-        
-        // Shorebird가 찾는 모든 경로 생성
-        def shorebirdTargetPaths = [
-            "stripped_native_libs/stripReleaseDebugSymbols/release/out/lib",
-            "stripped_native_libs/release/out/lib",
-            "merged_native_libs/release/out/lib"
-        ]
-        
-        // 실제 native 라이브러리가 있는 곳 찾기
-        def sourceDirs = []
-        
-        // 일반적인 Flutter 빌드 출력 위치들
-        def searchPaths = [
-            "$buildDir/intermediates/merged_native_libs/release/out/lib",
-            "$buildDir/intermediates/transforms/mergeNativeLibs/release/0/lib",
-            "$buildDir/intermediates/transforms/stripDebugSymbols/release/0/lib",
-            "$buildDir/intermediates/library_jni/release/jni",
-            "$buildDir/tmp/kotlin-classes/release"
-        ]
-        
-        searchPaths.each { searchPath ->
-            def sourceDir = file(searchPath)
-            if (sourceDir.exists() && sourceDir.listFiles()?.length > 0) {
-                sourceDirs.add(sourceDir)
-                println "✅ Found native libs source: ${sourceDir.absolutePath}"
-            }
-        }
-        
-        if (sourceDirs.isEmpty()) {
-            println "⚠️ No native library sources found, creating placeholder structure"
-            
-            // 최소한의 구조라도 생성
-            shorebirdTargetPaths.each { targetPath ->
-                def targetDir = new File(intermediatesDir, targetPath)
-                targetDir.mkdirs()
-                
-                // ABI별 디렉토리 생성
-                ['armeabi-v7a', 'arm64-v8a', 'x86_64'].each { abi ->
-                    def abiDir = new File(targetDir, abi)
-                    abiDir.mkdirs()
-                    println "📁 Created ABI directory: ${abiDir.absolutePath}"
-                }
-            }
-        } else {
-            // 실제 라이브러리들을 Shorebird 경로로 복사
-            sourceDirs.each { sourceDir ->
-                shorebirdTargetPaths.each { targetPath ->
-                    def targetDir = new File(intermediatesDir, targetPath)
-                    targetDir.mkdirs()
-                    
-                    println "📦 Copying from ${sourceDir.absolutePath} to ${targetDir.absolutePath}"
-                    
-                    // 디렉토리 내용 복사
-                    sourceDir.listFiles()?.each { file ->
-                        if (file.isDirectory()) {
-                            def targetSubDir = new File(targetDir, file.name)
-                            targetSubDir.mkdirs()
-                            
-                            file.listFiles()?.each { subFile ->
-                                if (subFile.name.endsWith('.so')) {
-                                    def targetFile = new File(targetSubDir, subFile.name)
-                                    targetFile.bytes = subFile.bytes
-                                    println "  📄 Copied: ${subFile.name} -> ${targetFile.absolutePath}"
-                                }
-                            }
-                        } else if (file.name.endsWith('.so')) {
-                            def targetFile = new File(targetDir, file.name)
-                            targetFile.bytes = file.bytes
-                            println "  📄 Copied: ${file.name} -> ${targetFile.absolutePath}"
-                        }
-                    }
-                }
-            }
-        }
-        
-        // 최종 검증
-        println "🔍 Final verification of Shorebird artifact paths:"
-        shorebirdTargetPaths.each { targetPath ->
-            def targetDir = new File(intermediatesDir, targetPath)
-            if (targetDir.exists()) {
-                println "✅ Created: ${targetDir.absolutePath}"
-                targetDir.listFiles()?.each { file ->
-                    if (file.isDirectory()) {
-                        println "  📁 ABI: ${file.name} (${file.listFiles()?.length ?: 0} files)"
-                    }
-                }
-            } else {
-                println "❌ Missing: ${targetDir.absolutePath}"
-            }
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
 
-// AAB 파일을 Shorebird/Flutter가 예상하는 위치로 복사하는 태스크
+// AAB 빌드 후 Flutter와 Shorebird가 기대하는 파일들을 생성하는 태스크
 tasks.register('copyAABForShorebird') {
-    description = 'Copy AAB file to location expected by Shorebird/Flutter'
-    group = 'shorebird'
-    
     doLast {
-        println "🔍 Looking for AAB files to copy for Shorebird compatibility..."
-        
-        // 프로젝트 루트 디렉토리 계산 (android/app에서 2단계 위로)
         def projectRoot = project.rootDir.parentFile
-        println "🔍 Project root: ${projectRoot.absolutePath}"
-        println "🔍 Current build dir: ${buildDir.absolutePath}"
+        def sourceFile = file("$buildDir/outputs/bundle/release/app-release.aab")
+        def targetDir = file("${projectRoot}/build/app/outputs/bundle/release")
+        def flutterFile = new File(targetDir, "app.aab")
+        def shorebirdFile = new File(targetDir, "app-release.aab")
         
-        // AAB 파일을 찾을 모든 가능한 위치
-        def searchDirs = [
-            file("$buildDir/outputs/bundle/release"),
-            file("$buildDir/outputs/bundle/releaseRelease"),
-            file("$buildDir/outputs/bundle/prodRelease"),
-            file("$buildDir/outputs/bundle")
-        ]
+        // 타겟 디렉토리 생성
+        targetDir.mkdirs()
         
-        // Flutter/Shorebird가 찾을 수 있는 위치
-        def targetDirs = [
-            file("${projectRoot}/build/app/outputs/bundle/release"),
-            file("${projectRoot}/build/outputs/bundle/release")
-        ]
-        
-        def foundAAB = null
-        
-        // AAB 파일 찾기
-        searchDirs.each { dir ->
-            if (dir.exists() && foundAAB == null) {
-                dir.listFiles()?.each { file ->
-                    if (file.name.endsWith('.aab')) {
-                        foundAAB = file
-                        println "✅ Found AAB file: ${file.absolutePath} (${file.length()} bytes)"
-                    }
-                }
-            }
-        }
-        
-        if (foundAAB != null) {
-            // 모든 타겟 디렉토리에 복사
-            targetDirs.each { targetDir ->
-                targetDir.mkdirs()
-                println "📁 Created target directory: ${targetDir.absolutePath}"
-                
-                // 두 가지 이름으로 복사 (Flutter/Shorebird 호환성)
-                ['app.aab', 'app-release.aab'].each { targetName ->
-                    def targetFile = new File(targetDir, targetName)
-                    targetFile.bytes = foundAAB.bytes
-                    println "📦 Copied AAB: ${foundAAB.name} -> ${targetFile.absolutePath} (${targetFile.length()} bytes)"
-                }
-            }
+        if (sourceFile.exists()) {
+            // Flutter용 app.aab 파일 생성
+            flutterFile.bytes = sourceFile.bytes
+            println "✅ Created app.aab for Flutter: ${flutterFile.absolutePath}"
             
-            // 최종 검증
-            println "🔍 Final verification of AAB target locations:"
-            targetDirs.each { dir ->
-                if (dir.exists()) {
-                    dir.listFiles()?.each { file ->
-                        if (file.name.endsWith('.aab')) {
-                            println "✅ Verified: ${file.absolutePath} (${file.length()} bytes)"
-                        }
-                    }
-                }
-            }
+            // Shorebird용 app-release.aab 파일 생성
+            shorebirdFile.bytes = sourceFile.bytes
+            println "✅ Created app-release.aab for Shorebird: ${shorebirdFile.absolutePath}"
         } else {
-            println "⚠️ No AAB file found - will be created during bundle task"
+            println "⚠️ Source AAB file not found: ${sourceFile.absolutePath}"
         }
     }
 }
 
-// 전체 빌드 태스크 순서 조정
-tasks.whenTaskAdded { task ->
-    // Bundle/Assemble 태스크 전에 Shorebird 아티팩트 준비
-    if (task.name.startsWith('bundle') && task.name.contains('Release')) {
-        task.dependsOn 'prepareShorebirdArtifacts'
-        task.finalizedBy 'copyAABForShorebird'
-    }
-    if (task.name.startsWith('assemble') && task.name.contains('Release')) {
-        task.dependsOn 'prepareShorebirdArtifacts'
-        task.finalizedBy 'copyAABForShorebird'
-    }
-    
-    // Transform 태스크 후에 Shorebird 아티팩트 준비
-    if (task.name.contains('mergeNativeLibs') || task.name.contains('stripDebugSymbols')) {
-        task.finalizedBy 'prepareShorebirdArtifacts'
-    }
+// Flutter 빌드 완료 후 자동으로 파일명 복사 실행
+afterEvaluate {
+    tasks.findByName('bundleRelease')?.finalizedBy('copyAABForShorebird')
 }
 
 flutter {
@@ -455,4 +125,6 @@ dependencies {
     implementation 'com.pangle.global:ads-sdk:6.5.0.5'
     implementation 'com.pangle.global:crash_monitor:1.3.8-rc.1'
     implementation 'com.pangle.global:gecko_pgl:1.0.0.1'
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-crashlytics'
 }

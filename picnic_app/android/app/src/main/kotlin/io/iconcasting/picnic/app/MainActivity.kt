@@ -8,6 +8,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.util.Locale
 import pangle.custom.PangleNativeHandler
+import com.pincrux.offerwall.PincruxOfferwall
 
 class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,8 +44,9 @@ class MainActivity : FlutterActivity() {
         // Pangle 네이티브 핸들러 등록
         flutterEngine.plugins.add(PangleNativeHandler())
         
-        // Pincrux 플러그인 등록
-        flutterEngine.plugins.add(PincruxPlugin())
+        // Pincrux 오퍼월 초기화 (플러그인 등록 대신 초기화만)
+        // PincruxOfferwall는 Flutter 플러그인이 아니라 네이티브 SDK이므로 
+        // 별도 초기화가 필요한 경우 여기서 처리
     }
 
     // 문제가 있는 MediaTek 기기 감지

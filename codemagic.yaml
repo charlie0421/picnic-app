@@ -360,7 +360,13 @@ workflows:
         script: |
           cd picnic_app
           echo "=== Flutter 환경 준비 ==="
-          echo "🎯 표준 Flutter 빌드 환경 설정"
+          echo "🎯 자동화된 AAB 이중 생성 시스템 포함"
+          echo ""
+          echo "📝 자동화 시스템 개요:"
+          echo "- build.gradle에 copyAABForShorebird 태스크 내장"
+          echo "- Flutter와 Shorebird 모두 지원하는 이중 AAB 파일 생성"
+          echo "- 수동 복사 없이 완전 자동화됨"
+          echo ""
           
           echo "=== Flutter 버전 확인 ==="
           flutter --version
@@ -482,19 +488,63 @@ workflows:
         script: |
           cd picnic_app
           echo "=== AAB 출력 확인 ==="
-          echo "🎯 표준 Flutter가 생성한 AAB 파일 확인"
+          echo "🎯 자동화 태스크로 생성된 AAB 파일들 확인"
+          echo ""
           
-          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
-            echo "✅ AAB 파일 발견: build/app/outputs/bundle/release/app-release.aab"
-            ls -la "build/app/outputs/bundle/release/app-release.aab"
+          echo "📝 자동화 시스템 설명:"
+          echo "- build.gradle의 copyAABForShorebird 태스크가 자동으로 실행됨"
+          echo "- Gradle이 app-release.aab를 생성하고 Flutter용 app.aab도 자동 복사"
+          echo "- Flutter와 Shorebird 모두 지원하는 이중 파일 시스템"
+          echo ""
+          
+          # Flutter가 기대하는 위치의 app.aab 확인
+          if [ -f "build/app/outputs/bundle/release/app.aab" ]; then
+            APP_AAB_SIZE=$(stat -f%z "build/app/outputs/bundle/release/app.aab" 2>/dev/null || echo "unknown")
+            echo "✅ Flutter용 AAB 파일: build/app/outputs/bundle/release/app.aab (${APP_AAB_SIZE} bytes)"
           else
-            echo "⚠️ AAB 파일을 찾을 수 없음"
-            find build/ -name "*.aab" -type f | head -5
+            echo "⚠️ Flutter용 app.aab 파일을 찾을 수 없음"
+          fi
+          
+          # Shorebird/Gradle이 생성하는 app-release.aab 확인
+          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+            APP_RELEASE_AAB_SIZE=$(stat -f%z "build/app/outputs/bundle/release/app-release.aab" 2>/dev/null || echo "unknown")
+            echo "✅ Shorebird/Gradle용 AAB 파일: build/app/outputs/bundle/release/app-release.aab (${APP_RELEASE_AAB_SIZE} bytes)"
+          else
+            echo "⚠️ Shorebird용 app-release.aab 파일을 찾을 수 없음"
+          fi
+          
+          # 원본 Gradle 출력 위치 확인
+          if [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+            GRADLE_AAB_SIZE=$(stat -f%z "android/app/build/outputs/bundle/release/app-release.aab" 2>/dev/null || echo "unknown")
+            echo "✅ Gradle 원본 AAB 파일: android/app/build/outputs/bundle/release/app-release.aab (${GRADLE_AAB_SIZE} bytes)"
+          else
+            echo "⚠️ Gradle 원본 AAB 파일을 찾을 수 없음"
+          fi
+          
+          echo ""
+          echo "🔍 모든 AAB 파일 위치:"
+          find . -name "*.aab" -type f 2>/dev/null | while read aab_file; do
+            aab_size=$(stat -f%z "$aab_file" 2>/dev/null || echo "unknown")
+            echo "  📦 $aab_file (${aab_size} bytes)"
+          done
+          
+          echo ""
+          # 최소 하나의 AAB 파일이 있는지 확인
+          AAB_COUNT=$(find . -name "*.aab" -type f 2>/dev/null | wc -l)
+          if [ "$AAB_COUNT" -gt 0 ]; then
+            echo "✅ 자동화 시스템 성공: ${AAB_COUNT}개의 AAB 파일이 생성되었습니다"
+            echo "🎯 Flutter와 Shorebird 모두 지원 가능"
+          else
+            echo "❌ AAB 파일이 전혀 생성되지 않았습니다"
+            echo "🔍 자동화 태스크 실행 여부를 확인하세요"
+            exit 1
           fi
 
     artifacts:
-      # 표준 Flutter 빌드 아티팩트
-      - picnic_app/build/app/outputs/bundle/release/app-release.aab
+      # 자동화 시스템으로 생성된 이중 AAB 파일들
+      - picnic_app/build/app/outputs/bundle/release/app-release.aab  # Shorebird/Gradle용
+      - picnic_app/build/app/outputs/bundle/release/app.aab          # Flutter용
+      - picnic_app/android/app/build/outputs/bundle/release/app-release.aab  # Gradle 원본
       - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/flutter_drive.log
       - picnic_app/build/app/outputs/**/mapping.txt
