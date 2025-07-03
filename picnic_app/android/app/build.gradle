@@ -96,9 +96,40 @@ tasks.register('copyAABForShorebird') {
     }
 }
 
+// APK 빌드 후 Flutter가 기대하는 위치로 복사하는 태스크
+tasks.register('copyAPKForFlutter') {
+    doLast {
+        def projectRoot = project.rootDir.parentFile
+        def debugSourceFile = file("$buildDir/outputs/apk/debug/app-debug.apk")
+        def releaseSourceFile = file("$buildDir/outputs/apk/release/app-release.apk")
+        def debugTargetDir = file("${projectRoot}/build/app/outputs/flutter-apk")
+        def releaseTargetDir = file("${projectRoot}/build/app/outputs/flutter-apk")
+        
+        // 타겟 디렉토리 생성
+        debugTargetDir.mkdirs()
+        releaseTargetDir.mkdirs()
+        
+        // Debug APK 복사
+        if (debugSourceFile.exists()) {
+            def debugTargetFile = new File(debugTargetDir, "app-debug.apk")
+            debugTargetFile.bytes = debugSourceFile.bytes
+            println "✅ Created app-debug.apk for Flutter: ${debugTargetFile.absolutePath}"
+        }
+        
+        // Release APK 복사 (있는 경우)
+        if (releaseSourceFile.exists()) {
+            def releaseTargetFile = new File(releaseTargetDir, "app-release.apk")
+            releaseTargetFile.bytes = releaseSourceFile.bytes
+            println "✅ Created app-release.apk for Flutter: ${releaseTargetFile.absolutePath}"
+        }
+    }
+}
+
 // Flutter 빌드 완료 후 자동으로 파일명 복사 실행
 afterEvaluate {
     tasks.findByName('bundleRelease')?.finalizedBy('copyAABForShorebird')
+    tasks.findByName('assembleDebug')?.finalizedBy('copyAPKForFlutter')
+    tasks.findByName('assembleRelease')?.finalizedBy('copyAPKForFlutter')
 }
 
 flutter {
