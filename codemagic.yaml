@@ -14,7 +14,7 @@ workflows:
         - app_store_connect
         - shorebird-config
         - picnic_env
-      flutter: 3.32.4
+      flutter: 3.32.5
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
@@ -72,8 +72,8 @@ workflows:
             echo "✅ 기존 Shorebird 디렉토리 제거 완료"
           fi
           
-          # 최신 안정 버전 사용 (v1.6.48)
-          echo "🔧 Shorebird v1.6.48 최신 안정 버전 설치 중..."
+          # 최신 안정 버전 사용 (v1.6.49)
+          echo "🔧 Shorebird v1.6.49 최신 안정 버전 설치 중..."
           
           # 공식 GitHub 설치 스크립트 사용 (가장 안정적)
           echo "📥 공식 설치 스크립트로 최신 Shorebird 설치..."
@@ -332,7 +332,7 @@ workflows:
       groups:
         - google_play
         - picnic_env
-      flutter: 3.32.4
+      flutter: 3.32.5
       java: 17
       vars:
         PATH: $PATH:$HOME/.shorebird/bin
@@ -583,7 +583,7 @@ workflows:
         - app_store_connect
         - shorebird-config
         - picnic_env
-      flutter: 3.32.4
+      flutter: 3.32.5
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
@@ -611,8 +611,8 @@ workflows:
             echo "✅ 기존 Shorebird 디렉토리 제거 완료"
           fi
           
-          # 최신 안정 버전 사용 (v1.6.48)
-          echo "🔧 Shorebird v1.6.48 최신 안정 버전 설치 중..."
+          # 최신 안정 버전 사용 (v1.6.49)
+          echo "🔧 Shorebird v1.6.49 최신 안정 버전 설치 중..."
           
           # 공식 GitHub 설치 스크립트 사용 (가장 안정적)
           echo "📥 공식 설치 스크립트로 최신 Shorebird 설치..."
@@ -671,8 +671,8 @@ workflows:
             echo "✅ 기존 Shorebird 디렉토리 제거 완료"
           fi
           
-          # 최신 안정 버전 사용 (v1.6.48)
-          echo "🔧 Shorebird v1.6.48 최신 안정 버전 설치 중..."
+          # 최신 안정 버전 사용 (v1.6.49)
+          echo "🔧 Shorebird v1.6.49 최신 안정 버전 설치 중..."
           
           # 공식 GitHub 설치 스크립트 사용 (가장 안정적)
           echo "📥 공식 설치 스크립트로 최신 Shorebird 설치..."
@@ -902,7 +902,7 @@ workflows:
       groups:
         - shorebird-config
         - picnic_env
-      flutter: 3.32.4
+      flutter: 3.32.5
       java: 17
       vars:
         PATH: $PATH:$HOME/.shorebird/bin

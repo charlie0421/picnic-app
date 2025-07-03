@@ -551,7 +551,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       final timeDiff =
           DateTime.now().difference(_lastPurchaseAttempt!).inSeconds;
       logger.i(
-          '    → _lastPurchaseAttempt: $_lastPurchaseAttempt (${timeDiff}초 전)');
+          '    → _lastPurchaseAttempt: $_lastPurchaseAttempt ($timeDiff초 전)');
       logger.i('    → 시간 조건 (≤15초): ${timeDiff <= 15}');
     } else {
       logger.i('    → _lastPurchaseAttempt: null');
