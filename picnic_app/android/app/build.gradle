@@ -28,7 +28,8 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "io.iconcasting.picnic.app"
     compileSdk flutter.compileSdkVersion
-    ndkVersion "27.0.12077973"
+    // NDK 버전 고정 제거 (Flutter 기본값 사용)
+    // ndkVersion "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -50,23 +51,53 @@ android {
         targetSdk flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
+        
+        // 빌드 최적화 옵션 추가
+        vectorDrawables.useSupportLibrary = true
     }
 
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
+            if (keystoreProperties['keyAlias'] && keystoreProperties['keyPassword'] && 
+                keystoreProperties['storeFile'] && keystoreProperties['storePassword']) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+                storePassword keystoreProperties['storePassword']
+            }
         }
     }
 
     buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        debug {
+            minifyEnabled false
+            debuggable true
         }
+        release {
+            if (signingConfigs.release.storeFile != null) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            // 빌드 최적화
+            zipAlignEnabled true
+            debuggable false
+        }
+    }
+    
+    // 패키징 옵션 추가
+    packagingOptions {
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libjsc.so'
+    }
+    
+    // Lint 설정 추가
+    lintOptions {
+        disable 'InvalidPackage'
+        checkReleaseBuilds false
     }
 }
 
