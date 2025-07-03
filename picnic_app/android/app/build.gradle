@@ -19,10 +19,26 @@ if (localPropertiesFile.exists()) {
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
 def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
+// Codemagic 환경변수 우선, 로컬 key.properties 백업
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
+
+// Codemagic 환경변수 확인
+def useCodemagicSigning = System.getenv("CM_KEYSTORE_PATH") != null
+
+if (useCodemagicSigning) {
+    // Codemagic 환경변수 사용
+    keystoreProperties['keyAlias'] = System.getenv("CM_KEY_ALIAS")
+    keystoreProperties['keyPassword'] = System.getenv("CM_KEY_PASSWORD")
+    keystoreProperties['storeFile'] = System.getenv("CM_KEYSTORE_PATH")
+    keystoreProperties['storePassword'] = System.getenv("CM_KEYSTORE_PASSWORD")
+    println "✅ Codemagic 환경변수 서명 설정 사용"
+} else if (keystorePropertiesFile.exists()) {
+    // 로컬 key.properties 파일 사용
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    println "✅ 로컬 key.properties 파일 서명 설정 사용"
+} else {
+    println "⚠️ 서명 설정을 찾을 수 없습니다 (Codemagic 환경변수 또는 key.properties 파일 필요)"
 }
 
 android {
@@ -61,10 +77,29 @@ android {
         release {
             if (keystoreProperties['keyAlias'] && keystoreProperties['keyPassword'] && 
                 keystoreProperties['storeFile'] && keystoreProperties['storePassword']) {
+                
                 keyAlias keystoreProperties['keyAlias']
                 keyPassword keystoreProperties['keyPassword']
-                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+                
+                // storeFile 처리 (문자열인 경우 파일로 변환)
+                if (keystoreProperties['storeFile'] instanceof String) {
+                    storeFile file(keystoreProperties['storeFile'])
+                } else {
+                    storeFile keystoreProperties['storeFile']
+                }
+                
                 storePassword keystoreProperties['storePassword']
+                
+                println "✅ 릴리즈 서명 설정 완료:"
+                println "  - Key Alias: ${keystoreProperties['keyAlias']}"
+                println "  - Store File: ${keystoreProperties['storeFile']}"
+                println "  - Signing Ready: true"
+            } else {
+                println "❌ 릴리즈 서명 설정 실패 - 필수 정보 누락:"
+                println "  - Key Alias: ${keystoreProperties['keyAlias'] ?: 'NULL'}"
+                println "  - Key Password: ${keystoreProperties['keyPassword'] ? 'SET' : 'NULL'}"
+                println "  - Store File: ${keystoreProperties['storeFile'] ?: 'NULL'}"
+                println "  - Store Password: ${keystoreProperties['storePassword'] ? 'SET' : 'NULL'}"
             }
         }
     }
