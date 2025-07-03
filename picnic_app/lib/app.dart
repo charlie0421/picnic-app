@@ -31,12 +31,15 @@ import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/services/localization_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:picnic_lib/core/utils/device_debug_info.dart';
+import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
 
   @override
-  createState() => _AppState();
+  ConsumerState<App> createState() => _AppState();
 }
 
 class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
@@ -75,6 +78,19 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     // 라우트 설정
     AppLifecycleInitializer.setupAppRoutes(ref, _appSpecificRoutes);
+
+    // 디버그 모드에서 디바이스 정보 로깅
+    if (kDebugMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        DeviceDebugInfo.logDeviceInfo();
+        DeviceDebugInfo.logSafeAreaInfo(context);
+        DeviceDebugInfo.isGalaxyS25Like(context);
+      });
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppInitializer.initializeAppWithSplash(context, ref);
+    });
 
     // 기존 코드의 나머지 부분은 유지
     WidgetsBinding.instance.addObserver(this);
@@ -174,7 +190,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     });
   }
 
-
   // 언어 초기화를 위한 별도 메서드
   Future<void> _initializeLanguage() async {
     logger.i('언어 초기화 시작 (picnic_app)');
@@ -224,7 +239,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final initState = ref.watch(appInitializationProvider);
+    ref.watch(globalMediaQueryProvider);
+
+    final appInitState = ref.watch(appInitializationProvider);
     final appSettingState = ref.watch(appSettingProvider);
 
     // 화면 보호기 상태 감지 및 처리
@@ -236,15 +253,15 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       logger.i('앱이 초기화되지 않음 - 스플래시 화면 표시 (패치 체크 포함)');
       // 패치 체크 기능이 활성화된 SplashImage 사용
       currentScreen = const SplashImage(enablePatchCheck: true);
-    } else if (!initState.hasNetwork) {
+    } else if (!appInitState.hasNetwork) {
       logger.i('네트워크 오류 - 네트워크 오류 화면 표시');
       currentScreen = NetworkErrorScreen(onRetry: _retryConnection);
-    } else if (initState.isBanned) {
+    } else if (appInitState.isBanned) {
       logger.i('밴 상태 - 밴 화면 표시');
       currentScreen = const BanScreen();
-    } else if (initState.updateInfo?.status == UpdateStatus.updateRequired) {
+    } else if (appInitState.updateInfo?.status == UpdateStatus.updateRequired) {
       logger.i('업데이트 필요 - 업데이트 화면 표시');
-      currentScreen = ForceUpdateOverlay(updateInfo: initState.updateInfo!);
+      currentScreen = ForceUpdateOverlay(updateInfo: appInitState.updateInfo!);
     } else {
       logger.i('정상 상태 - 포털 화면 표시');
       currentScreen = const Portal();

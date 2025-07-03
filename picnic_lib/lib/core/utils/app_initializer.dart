@@ -522,7 +522,20 @@ class AppInitializer {
           );
 
           // Android 버전별 SystemUiMode 설정
-          if (androidSdkVersion >= 30) {
+          if (androidSdkVersion >= 35) {
+            // Android 15+ (갤럭시 S25 등 최신 기기)
+            await SystemChrome.setEnabledSystemUIMode(
+              SystemUiMode.edgeToEdge,
+            );
+
+            SystemChrome.setSystemUIOverlayStyle(
+              const SystemUiOverlayStyle(
+                systemNavigationBarContrastEnforced: false,
+                // 최신 기기에서 gesture navigation 지원
+                systemNavigationBarIconBrightness: Brightness.dark,
+              ),
+            );
+          } else if (androidSdkVersion >= 30) {
             await SystemChrome.setEnabledSystemUIMode(
               SystemUiMode.manual,
               overlays: [
@@ -729,7 +742,6 @@ class AppInitializer {
       return true; // 패치 체크 실패해도 앱은 계속 실행
     }
   }
-
 
   /// 백그라운드 패치 체크 (재시작 없이)
   /// ⚠️ DEPRECATED: 이제 SplashImage에서 패치 체크를 담당합니다.
