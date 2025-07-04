@@ -541,10 +541,8 @@ workflows:
           fi
 
     artifacts:
-      # 자동화 시스템으로 생성된 이중 AAB 파일들
-      - picnic_app/build/app/outputs/bundle/release/app-release.aab  # Shorebird/Gradle용
-      - picnic_app/build/app/outputs/bundle/release/app.aab          # Flutter용
-      - picnic_app/android/app/build/outputs/bundle/release/app-release.aab  # Gradle 원본
+      # Google Play 배포용 AAB 파일 (중복 제거하여 단일 파일만)
+      - picnic_app/build/app/outputs/bundle/release/app-release.aab  # 메인 배포용
       - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/flutter_drive.log
       - picnic_app/build/app/outputs/**/mapping.txt
