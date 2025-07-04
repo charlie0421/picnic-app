@@ -112,7 +112,8 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     loading: () => SizedBox(
                       width: ui.getPlatformScreenSize(context).width,
                       height: ui.getPlatformScreenSize(context).width * .5,
-                      child: const VoteCardSkeleton(),
+                      child: const VoteCardSkeleton(
+                          status: VoteCardStatus.ongoing),
                     ),
                     error: (error, stackTrace) => SizedBox(
                       width: ui.getPlatformScreenSize(context).width,
@@ -140,9 +141,9 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
         },
         loading: () => const Column(
               children: [
-                VoteCardSkeleton(),
-                VoteCardSkeleton(),
-                VoteCardSkeleton(),
+                VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                VoteCardSkeleton(status: VoteCardStatus.ongoing),
               ],
             ),
         error: (error, stackTrace) {
@@ -196,7 +197,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                 ref.read(asyncGalleryListProvider.notifier).build(),
           );
         },
-        loading: () => const VoteCardSkeleton());
+        loading: () => const VoteCardSkeleton(status: VoteCardStatus.ongoing));
   }
 
   Widget _buildGalleryList(List<GalleryModel> data) {
@@ -277,14 +278,14 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
           builderDelegate: PagedChildBuilderDelegate<VoteModel>(
             firstPageProgressIndicatorBuilder: (context) => const Column(
               children: [
-                VoteCardSkeleton(),
-                VoteCardSkeleton(),
-                VoteCardSkeleton(),
+                VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                VoteCardSkeleton(status: VoteCardStatus.ongoing),
               ],
             ),
             newPageProgressIndicatorBuilder: (context) => const Padding(
               padding: EdgeInsets.all(16.0),
-              child: VoteCardSkeleton(),
+              child: VoteCardSkeleton(status: VoteCardStatus.ongoing),
             ),
             firstPageErrorIndicatorBuilder: (context) => buildErrorView(
               context,
@@ -294,7 +295,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
             ),
             newPageErrorIndicatorBuilder: (context) => const Padding(
               padding: EdgeInsets.all(16.0),
-              child: VoteCardSkeleton(),
+              child: VoteCardSkeleton(status: VoteCardStatus.ongoing),
             ),
             noMoreItemsIndicatorBuilder: (context) => const SizedBox.shrink(),
             itemBuilder: (context, vote, index) {

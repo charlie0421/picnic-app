@@ -157,16 +157,13 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   Widget _buildLoadingSkeleton() {
     switch (widget.status) {
       case VoteStatus.upcoming:
-        // 예정된 투표: 헤더만 있는 스켈레톤 (투표 아이템 없음)
-        return const VoteCardSkeletonUpcoming();
+        return const VoteCardSkeleton(status: VoteCardStatus.upcoming);
       case VoteStatus.active:
-        // 활성 투표: 헤더 + 투표 아이템이 있는 스켈레톤
-        return const VoteCardSkeletonActiveAndEnd();
+        return const VoteCardSkeleton(status: VoteCardStatus.ongoing);
       case VoteStatus.end:
-        // 종료된 투표: 결과 표시에 특화된 컴팩트 스켈레톤
-        return const VoteCardSkeletonActiveAndEnd();
+        return const VoteCardSkeleton(status: VoteCardStatus.ended);
       default:
-        return const VoteCardSkeleton();
+        return const VoteCardSkeleton(status: VoteCardStatus.ongoing);
     }
   }
 
@@ -378,7 +375,16 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           ),
         );
       },
-      loading: () => _buildLoadingSkeleton(),
+      loading: () => Container(
+        width: ref.watch(globalMediaQueryProvider).size.width,
+        height: 260,
+        margin: const EdgeInsets.only(top: 24),
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
+          ),
+        ),
+      ),
       error: (error, stack) => Text('Error: $error'),
     );
   }
@@ -427,7 +433,16 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           },
         ),
       ),
-      loading: () => _buildLoadingSkeleton(),
+      loading: () => Container(
+        width: ref.watch(globalMediaQueryProvider).size.width,
+        height: 260,
+        margin: const EdgeInsets.only(top: 24),
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary500),
+          ),
+        ),
+      ),
       error: (error, stack) => Text('Error: $error'),
     );
   }

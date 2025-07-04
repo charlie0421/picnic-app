@@ -153,38 +153,33 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         builderDelegate: PagedChildBuilderDelegate<VoteModel>(
-          firstPageProgressIndicatorBuilder: (context) =>
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: const SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      VoteCardSkeleton(),
-                      VoteCardSkeleton(),
-                      VoteCardSkeleton(),
-                    ],
-                  ),
-                ),
+          firstPageProgressIndicatorBuilder: (context) => SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: const SingleChildScrollView(
+              child: Column(
+                children: [
+                  VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                  VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                  VoteCardSkeleton(status: VoteCardStatus.ongoing),
+                ],
               ),
-          newPageProgressIndicatorBuilder: (context) =>
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: VoteCardSkeleton(),
-              ),
-          firstPageErrorIndicatorBuilder: (context) => 
-              buildErrorView(
-                context,
-                error: _pagingController.error,
-                retryFunction: () => _pagingController.refresh(),
-                stackTrace: null,
-              ),
-          newPageErrorIndicatorBuilder: (context) => 
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: VoteCardSkeleton(),
-              ),
-          noMoreItemsIndicatorBuilder: (context) => 
-              const SizedBox.shrink(),
+            ),
+          ),
+          newPageProgressIndicatorBuilder: (context) => const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: VoteCardSkeleton(status: VoteCardStatus.ongoing),
+          ),
+          firstPageErrorIndicatorBuilder: (context) => buildErrorView(
+            context,
+            error: _pagingController.error,
+            retryFunction: () => _pagingController.refresh(),
+            stackTrace: null,
+          ),
+          newPageErrorIndicatorBuilder: (context) => const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: VoteCardSkeleton(status: VoteCardStatus.ongoing),
+          ),
+          noMoreItemsIndicatorBuilder: (context) => const SizedBox.shrink(),
           noItemsFoundIndicatorBuilder: (context) =>
               VoteNoItem(status: VoteStatus.active, context: context),
           itemBuilder: (context, vote, index) {

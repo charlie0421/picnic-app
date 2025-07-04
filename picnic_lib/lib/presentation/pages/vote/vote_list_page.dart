@@ -81,14 +81,33 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
               controller: _tabController,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                VoteList(VoteStatus.active, VoteCategory.all, area),
-                VoteList(VoteStatus.end, VoteCategory.all, area),
-                VoteList(VoteStatus.upcoming, VoteCategory.all, area),
+                _buildTabContent(VoteStatus.active, area, 0),
+                _buildTabContent(VoteStatus.end, area, 1),
+                _buildTabContent(VoteStatus.upcoming, area, 2),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// 탭별 컨텐츠를 lazy loading으로 빌드
+  Widget _buildTabContent(VoteStatus status, String area, int tabIndex) {
+    // 현재 선택된 탭만 로딩
+    return AnimatedBuilder(
+      animation: _tabController,
+      builder: (context, child) {
+        // 현재 탭이거나 인접한 탭만 빌드 (성능 최적화)
+        final currentIndex = _tabController.index;
+        final shouldBuild = (currentIndex - tabIndex).abs() <= 1;
+
+        if (!shouldBuild) {
+          return const SizedBox.shrink();
+        }
+
+        return VoteList(status, VoteCategory.all, area);
+      },
     );
   }
 

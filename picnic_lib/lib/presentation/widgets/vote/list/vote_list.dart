@@ -80,13 +80,26 @@ class _VoteListState extends ConsumerState<VoteList> {
     }
   }
 
+  VoteCardStatus _getSkeletonStatus() {
+    switch (widget.status) {
+      case VoteStatus.upcoming:
+        return VoteCardStatus.upcoming;
+      case VoteStatus.active:
+        return VoteCardStatus.ongoing;
+      case VoteStatus.end:
+        return VoteCardStatus.ended;
+      default:
+        return VoteCardStatus.ongoing;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _items.isEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // const VoteCardSkeleton(),
+          VoteCardSkeleton(status: _getSkeletonStatus()),
         ],
       );
     }
@@ -115,13 +128,13 @@ class _VoteListState extends ConsumerState<VoteList> {
           },
         ),
         if (_isFetchingMore)
-          const Positioned(
+          Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Padding(
               padding: EdgeInsets.all(16.0),
-              child: VoteCardSkeleton(),
+              child: VoteCardSkeleton(status: _getSkeletonStatus()),
             ),
           ),
       ],
