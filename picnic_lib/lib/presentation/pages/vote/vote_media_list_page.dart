@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/video_info.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -12,8 +11,6 @@ import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item.dart'
 import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item_skeleton.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:googleapis/youtube/v3.dart' as youtube;
-import 'package:googleapis_auth/auth_io.dart';
 
 class VoteMediaListPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_vote_gather';
@@ -26,7 +23,6 @@ class VoteMediaListPage extends ConsumerStatefulWidget {
 
 class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
   static const _pageSize = 10;
-  final Map<String, Map<String, dynamic>> _videoStatsCache = {};
   late final PagingController<int, VideoInfo> _pagingController;
 
   @override
@@ -55,68 +51,21 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
   @override
   void dispose() {
     _pagingController.dispose();
-    _videoStatsCache.clear();
     super.dispose();
   }
 
-  Future<Map<String, dynamic>> _fetchVideoStats(String videoId) async {
-    if (_videoStatsCache.containsKey(videoId)) {
-      return _videoStatsCache[videoId]!;
-    }
-
-    final apiKey = Environment.youtubeApiKey;
-    if (apiKey.isEmpty) {
-      logger.e('YouTube API key is not configured');
-      return _getDefaultStats();
-    }
-
-    try {
-      final authClient = clientViaApiKey(apiKey);
-      final youtubeApi = youtube.YouTubeApi(authClient);
-
-      final videoResponse = await youtubeApi.videos.list(
-        ['snippet'],
-        id: [videoId],
-      );
-
-      if (videoResponse.items == null || videoResponse.items!.isEmpty) {
-        return _getDefaultStats();
-      }
-
-      final video = videoResponse.items!.first;
-      final channelId = video.snippet?.channelId ?? '';
-
-      final channelResponse = await youtubeApi.channels.list(
-        ['snippet'],
-        id: [channelId],
-      );
-
-      String channelThumbnail = '';
-      if (channelResponse.items != null && channelResponse.items!.isNotEmpty) {
-        channelThumbnail =
-            channelResponse.items!.first.snippet?.thumbnails?.default_?.url ??
-                '';
-      }
-
-      final stats = {
-        'channelId': channelId,
-        'channelTitle': video.snippet?.channelTitle ?? '',
-        'channelThumbnail': channelThumbnail,
-      };
-
-      _videoStatsCache[videoId] = stats;
-      return stats;
-    } catch (e, s) {
-      logger.e('Error fetching video stats', error: e, stackTrace: s);
-      return _getDefaultStats();
-    }
+  // 비디오 ID에서 썸네일 URL 생성
+  String _getThumbnailUrl(String videoId) {
+    return 'https://img.youtube.com/vi/$videoId/maxresdefault.jpg';
   }
 
-  Map<String, dynamic> _getDefaultStats() {
+  // 기본 채널 정보 반환
+  Map<String, String> _getDefaultChannelInfo() {
     return {
-      'channelId': '',
-      'channelTitle': '',
-      'channelThumbnail': '',
+      'channelTitle': '피크닠! - Picnic!',
+      'channelId': '@Picnic_official',
+      'channelThumbnail':
+          'https://yt3.googleusercontent.com/g5g-oUMkvOCzQS4cCsLGGR9s5dRngFqlj93cznJiw_HHAwZ-U_opeZokZb_2MHYUBKeb0IvmCrs=s160-c-k-c0x00ffffff-no-rj',
     };
   }
 
@@ -129,24 +78,24 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
           .order('id', ascending: false)
           .range((pageKey - 1) * _pageSize, pageKey * _pageSize - 1);
 
-      final newItems = await Future.wait(response.map((data) async {
+      final newItems = response.map((data) {
         final videoId = data['video_id']?.toString() ?? '';
-        final stats = await _fetchVideoStats(videoId);
+        final channelInfo = _getDefaultChannelInfo();
 
         return VideoInfo(
           id: data['id'] as int,
           videoId: videoId,
           videoUrl: data['video_url']?.toString() ?? '',
           title: Map<String, String>.from(data['title'] as Map),
-          thumbnailUrl: 'https://img.youtube.com/vi/$videoId/maxresdefault.jpg',
+          thumbnailUrl: _getThumbnailUrl(videoId),
           createdAt: data['created_at'] != null
               ? DateTime.parse(data['created_at'].toString())
               : null,
-          channelTitle: stats['channelTitle'] as String,
-          channelId: stats['channelId'] as String,
-          channelThumbnail: stats['channelThumbnail'] as String,
+          channelTitle: channelInfo['channelTitle']!,
+          channelId: channelInfo['channelId']!,
+          channelThumbnail: channelInfo['channelThumbnail']!,
         );
-      }));
+      }).toList();
 
       return newItems;
     } catch (e, s) {
