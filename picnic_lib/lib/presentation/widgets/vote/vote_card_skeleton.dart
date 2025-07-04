@@ -29,7 +29,7 @@ class VoteCardSkeleton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 상단 헤더 카드 (제목, 시간 정보)
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Padding(
               padding: EdgeInsets.all(16.r),

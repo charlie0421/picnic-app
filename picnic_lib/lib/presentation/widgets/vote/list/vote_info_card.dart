@@ -20,8 +20,6 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
-import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_upcoming.dart';
-import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton_active_and_end.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
