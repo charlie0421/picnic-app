@@ -533,16 +533,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         // 🛡️ 구매 세션 완료 기록으로 중복 방지
         _safetyManager.completePurchaseSession(purchaseDetails.productID);
 
-        // 🧹 구매 완료 후 클린 작업 수행
-        final transactionId = purchaseDetails.purchaseID ??
+        // 🧹 구매 완료 후 클린 작업 수행 (동기 처리로 완전성 보장)
+        final transactionId = purchaseDetails.purchaseID ?? 
             '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
-
-        // 🧹 비동기로 클린 작업 실행 (UI 블로킹 방지)
-        unawaited(_safetyManager.performPostPurchaseCleanup(
+        
+        // 🧹 동기로 클린 작업 실행 - 완료까지 기다림 (확실성 우선)
+        await _safetyManager.performPostPurchaseCleanup(
           productId: purchaseDetails.productID,
           transactionId: transactionId,
           completedPurchase: purchaseDetails,
-        ));
+        );
 
         await ref.read(userInfoProvider.notifier).getUserProfiles();
 
