@@ -40,11 +40,12 @@ Map<String, String> countryMap = {
 };
 
 Map<String, String> languageMap = {
-  'ko': '한국어',
+  // TODO: i18n - 국제화 적용 필요
+  'ko': 'Korean',
   'en': 'English',
-  'ja': '日本語',
-  'zh': '中文',
-  'id': 'Indonesia',
+  'ja': 'Japanese',
+  'zh': 'Chinese',
+  'id': 'Indonesian',
 };
 
 const Size webDesignSize = Size(600, 800);

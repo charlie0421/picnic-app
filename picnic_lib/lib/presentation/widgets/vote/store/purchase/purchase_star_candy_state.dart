@@ -97,7 +97,10 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     _safetyManager.onTimeoutUIReset = () {
       if (mounted) {
         _resetPurchaseState();
-        showSimpleDialog(content: '구매 처리 시간이 초과되었습니다.\n잠시 후 다시 시도해주세요.');
+        // TODO: i18n - 국제화 적용 필요
+        showSimpleDialog(
+            content:
+                'Purchase processing time exceeded.\nPlease try again later.');
       }
     };
 
@@ -699,7 +702,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');
       if (mounted) {
         showSimpleDialog(
-          content: '구매 준비 중입니다. 잠시 후 다시 시도해주세요.',
+          content: 'Purchase preparation in progress. Please try again later.',
         );
       }
       return;
@@ -1001,7 +1004,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('디버그 및 시뮬레이션 도구',
+          Text('Debug & Simulation Tools',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           SizedBox(height: 12),
           Container(
@@ -1014,11 +1017,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('강제 타임아웃 (100% 확실)',
+                Text('Force Timeout (100% Guaranteed)',
                     style: TextStyle(
                         fontWeight: FontWeight.bold, color: Colors.red[700])),
                 SizedBox(height: 8),
-                Text('실제 구매 요청을 보내지 않고 3초 후 무조건 타임아웃만 발생시킵니다:',
+                Text(
+                    'Does not send actual purchase request, only triggers timeout after 3 seconds:',
                     style: TextStyle(fontSize: 12, color: Colors.grey[700])),
                 SizedBox(height: 8),
                 Wrap(
@@ -1031,13 +1035,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                         _purchaseService.enableForceTimeout();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content:
-                                Text('강제 타임아웃 ON - 이제 구매하면 3초 후 100% 타임아웃 발생!'),
+                            content: Text(
+                                'Force Timeout ON - Purchase will now timeout after 3 seconds!'),
                             backgroundColor: Colors.red[600],
                           ),
                         );
                       },
-                      child: Text('강제 타임아웃 ON',
+                      child: Text('Force Timeout ON',
                           style: TextStyle(fontSize: 12, color: Colors.white)),
                     ),
                     ElevatedButton(
@@ -1046,10 +1050,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                       onPressed: () {
                         _purchaseService.disableForceTimeout();
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('강제 타임아웃 OFF - 정상 구매 진행')),
+                          SnackBar(
+                              content: Text(
+                                  'Force Timeout OFF - Normal purchase process')),
                         );
                       },
-                      child: Text('강제 타임아웃 OFF',
+                      child: Text('Force Timeout OFF',
                           style: TextStyle(fontSize: 12, color: Colors.white)),
                     ),
                   ],
@@ -1058,9 +1064,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             ),
           ),
           SizedBox(height: 12),
-          Text('타임아웃 시간 설정', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('Timeout Settings',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(height: 8),
-          Text('실제 구매를 진행하되 타임아웃 시간을 조절합니다:',
+          Text('Proceed with actual purchase but adjust timeout duration:',
               style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           SizedBox(height: 8),
           Wrap(
@@ -1072,7 +1079,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 onPressed: () {
                   _purchaseService.setTimeoutMode('instant');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('즉시 타임아웃 (100ms)')),
+                    // TODO: i18n - 국제화 적용 필요
+                    SnackBar(content: Text('Instant Timeout (100ms)')),
                   );
                 },
                 child: Text('100ms', style: TextStyle(fontSize: 12)),
@@ -1083,7 +1091,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 onPressed: () {
                   _purchaseService.setTimeoutMode('ultrafast');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('초고속 타임아웃 (500ms)')),
+                    // TODO: i18n - 국제화 적용 필요
+                    SnackBar(content: Text('Ultra Fast Timeout (500ms)')),
                   );
                 },
                 child: Text('500ms', style: TextStyle(fontSize: 12)),
@@ -1093,27 +1102,30 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 onPressed: () {
                   _purchaseService.setTimeoutMode('debug');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('디버그 타임아웃 (3초)')),
+                    // TODO: i18n - 국제화 적용 필요
+                    SnackBar(content: Text('Debug Timeout (3 seconds)')),
                   );
                 },
-                child: Text('3초', style: TextStyle(fontSize: 12)),
+                child: Text('3sec', style: TextStyle(fontSize: 12)),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('normal');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('정상 타임아웃 (30초)')),
+                    // TODO: i18n - 국제화 적용 필요
+                    SnackBar(content: Text('Normal Timeout (30 seconds)')),
                   );
                 },
-                child: Text('30초', style: TextStyle(fontSize: 12)),
+                child: Text('30sec', style: TextStyle(fontSize: 12)),
               ),
             ],
           ),
           SizedBox(height: 12),
-          Text('구매 지연 시뮬레이션', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('Purchase Delay Simulation',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(height: 8),
-          Text('구매 요청 자체를 지연시켜서 타임아웃을 유도합니다:',
+          Text('Delay the purchase request itself to induce timeout:',
               style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           SizedBox(height: 8),
           Wrap(
@@ -1124,25 +1136,31 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 onPressed: () {
                   _purchaseService.enableSlowPurchase();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('구매 지연 ON - 5초 지연')),
+                    // TODO: i18n - 국제화 적용 필요
+                    SnackBar(
+                        content: Text('Purchase Delay ON - 5 second delay')),
                   );
                 },
-                child: Text('지연 ON', style: TextStyle(fontSize: 12)),
+                // TODO: i18n - 국제화 적용 필요
+                child: Text('Delay ON', style: TextStyle(fontSize: 12)),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                 onPressed: () {
                   _purchaseService.disableSlowPurchase();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('구매 지연 OFF')),
+                    // TODO: i18n - 국제화 적용 필요
+                    SnackBar(content: Text('Purchase Delay OFF')),
                   );
                 },
-                child: Text('지연 OFF', style: TextStyle(fontSize: 12)),
+                // TODO: i18n - 국제화 적용 필요
+                child: Text('Delay OFF', style: TextStyle(fontSize: 12)),
               ),
             ],
           ),
           SizedBox(height: 12),
-          Text('구매 상태 관리', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('Purchase State Management',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -1166,8 +1184,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   if (kDebugMode) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content:
-                            Text('$platformEmoji ${platform.name}: 복원 무시됨'),
+                        content: Text(
+                            '$platformEmoji ${platform.name}: Restore Ignored'),
                         duration: Duration(seconds: 1),
                       ),
                     );
@@ -1178,7 +1196,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.visibility_off, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('복원무시',
+                    Text('Ignore Restore',
                         style: TextStyle(fontSize: 12, color: Colors.white)),
                   ],
                 ),
@@ -1191,7 +1209,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.fingerprint, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('인증초기화',
+                    Text('Auth Reset',
                         style: TextStyle(fontSize: 12, color: Colors.white)),
                   ],
                 ),
@@ -1204,7 +1222,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.healing, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('진단',
+                    Text('Diagnosis',
                         style: TextStyle(fontSize: 12, color: Colors.white)),
                   ],
                 ),
@@ -1217,7 +1235,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.dangerous, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('핵리셋',
+                    Text('Nuclear Reset',
                         style: TextStyle(fontSize: 12, color: Colors.white)),
                   ],
                 ),
@@ -1230,7 +1248,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.analytics, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('Pending확인',
+                    Text('Check Pending',
                         style: TextStyle(fontSize: 12, color: Colors.white)),
                   ],
                 ),
@@ -1238,9 +1256,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             ],
           ),
           SizedBox(height: 12),
-          Text('인증 문제 해결', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('Authentication Troubleshooting',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(height: 8),
-          Text('인증창이 나타나지 않는 문제를 해결합니다:',
+          Text('Solve issues where authentication dialog does not appear:',
               style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           SizedBox(height: 8),
           Wrap(
@@ -1255,7 +1274,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.search, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('인증 진단',
+                    Text('Auth Diagnosis',
                         style: TextStyle(fontSize: 12, color: Colors.white)),
                   ],
                 ),
@@ -1269,7 +1288,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                   children: [
                     Icon(Icons.warning, size: 16, color: Colors.white),
                     SizedBox(width: 4),
-                    Text('궁극 복구',
+                    Text('Ultimate Reset',
                         style: TextStyle(fontSize: 12, color: Colors.white)),
                   ],
                 ),

@@ -24,22 +24,25 @@ class DebugDialogHandler {
     return showDialog(
       context: _context,
       builder: (context) => AlertDialog(
-        title: Text('Pending 구매 정리 상태'),
+        title: Text('Pending Purchase Cleanup Status'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('통계 정보:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('Statistics:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              Text('• 현재 pending: ${status['currentPendingCount']}개'),
-              Text('• 총 발견한 pending: ${status['totalPendingFound']}개'),
-              Text('• 총 정리한 pending: ${status['totalPendingCleared']}개'),
-              Text('• 마지막 정리: ${status['lastCleanupTime'] ?? '없음'}'),
+              Text('• Current pending: ${status['currentPendingCount']} items'),
+              Text(
+                  '• Total pending found: ${status['totalPendingFound']} items'),
+              Text(
+                  '• Total pending cleared: ${status['totalPendingCleared']} items'),
+              Text('• Last cleanup: ${status['lastCleanupTime'] ?? 'None'}'),
               SizedBox(height: 12),
               if (status['currentPendingItems'] != null &&
                   (status['currentPendingItems'] as List).isNotEmpty) ...[
-                Text('현재 pending 구매들:',
+                Text('Current pending purchases:',
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
                 ...(status['currentPendingItems'] as List).map(
@@ -50,20 +53,20 @@ class DebugDialogHandler {
                   ),
                 ),
               ] else ...[
-                Text('현재 pending 구매 없음',
+                Text('No pending purchases currently',
                     style: TextStyle(
                         color: Colors.green, fontWeight: FontWeight.bold)),
               ],
               SizedBox(height: 12),
               Text(
-                  '정리 성공률: ${status['totalPendingFound'] > 0 ? ((status['totalPendingCleared'] / status['totalPendingFound'] * 100).toStringAsFixed(1)) : '0'}%'),
+                  'Cleanup success rate: ${status['totalPendingFound'] > 0 ? ((status['totalPendingCleared'] / status['totalPendingFound'] * 100).toStringAsFixed(1)) : '0'}%'),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
+            child: Text('OK'),
           ),
         ],
       ),
@@ -76,36 +79,39 @@ class DebugDialogHandler {
     return showDialog(
       context: _context,
       builder: (context) => AlertDialog(
-        title: Text('🏥 Sandbox 환경 진단 결과'),
+        title: Text('🏥 Sandbox Environment Diagnosis Results'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('진단 시간: ${diagnosis['timestamp'] ?? 'Unknown'}'),
+              Text('Diagnosis time: ${diagnosis['timestamp'] ?? 'Unknown'}'),
               SizedBox(height: 8),
-              Text('🔍 시스템 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('• 플랫폼: ${diagnosis['platform'] ?? 'Unknown'}'),
-              Text('• 디버그 모드: ${diagnosis['isDebugMode'] ?? 'Unknown'}'),
+              Text('🔍 System Status:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('• Platform: ${diagnosis['platform'] ?? 'Unknown'}'),
+              Text('• Debug mode: ${diagnosis['isDebugMode'] ?? 'Unknown'}'),
               Text(
-                  '• StoreKit 사용 가능: ${diagnosis['storeKitAvailable'] ?? 'Unknown'}'),
+                  '• StoreKit available: ${diagnosis['storeKitAvailable'] ?? 'Unknown'}'),
               SizedBox(height: 8),
-              Text('📱 구매 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('📱 Purchase Status:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               Text(
-                  '• 현재 pending 구매: ${diagnosis['currentPendingCount'] ?? 'Unknown'}개'),
+                  '• Current pending purchases: ${diagnosis['currentPendingCount'] ?? 'Unknown'} items'),
               Text(
-                  '• 총 구매 업데이트: ${diagnosis['totalPurchaseUpdates'] ?? 'Unknown'}개'),
+                  '• Total purchase updates: ${diagnosis['totalPurchaseUpdates'] ?? 'Unknown'} items'),
               Text(
-                  '• 제품 쿼리 성공: ${diagnosis['productQuerySuccessful'] ?? 'Unknown'}'),
+                  '• Product query successful: ${diagnosis['productQuerySuccessful'] ?? 'Unknown'}'),
               SizedBox(height: 8),
-              Text('🔄 스트림 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('🔄 Stream Status:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               Text(
-                  '• 스트림 초기화됨: ${diagnosis['streamInitialized'] ?? 'Unknown'}'),
+                  '• Stream initialized: ${diagnosis['streamInitialized'] ?? 'Unknown'}'),
               Text(
-                  '• 구매 컨트롤러 활성: ${diagnosis['purchaseControllerActive'] ?? 'Unknown'}'),
+                  '• Purchase controller active: ${diagnosis['purchaseControllerActive'] ?? 'Unknown'}'),
               if (diagnosis['error'] != null) ...[
                 SizedBox(height: 8),
-                Text('❌ 에러:',
+                Text('❌ Error:',
                     style: TextStyle(
                         fontWeight: FontWeight.bold, color: Colors.red)),
                 Text('${diagnosis['error']}',
@@ -117,7 +123,7 @@ class DebugDialogHandler {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
+            child: Text('OK'),
           ),
         ],
       ),
@@ -129,32 +135,33 @@ class DebugDialogHandler {
     return showDialog<bool>(
       context: _context,
       builder: (context) => AlertDialog(
-        title: Text('💥 핵폭탄급 Sandbox 리셋'),
-        content: Text('''⚠️ 최후의 수단입니다! ⚠️
+        title: Text('💥 Nuclear-level Sandbox Reset'),
+        content: Text('''⚠️ This is the last resort! ⚠️
 
-이 기능은 모든 StoreKit 시스템을 완전히 리셋합니다.
+This function completely resets all StoreKit systems.
 
-실행할 작업:
-💥 모든 StoreKit 연결 완전 끊기 (5초 대기)
-💥 시스템 캐시 완전 무효화 (10회 시도)
-💥 핵폭탄급 pending 구매 정리 (5라운드)
-💥 긴 시스템 안정화 대기 (10초)
-💥 완전 새로운 구매 스트림 생성
+Actions to be performed:
+💥 Completely disconnect all StoreKit connections (5 second wait)
+💥 Complete system cache invalidation (10 attempts)
+💥 Nuclear-level pending purchase cleanup (5 rounds)
+💥 Long system stabilization wait (10 seconds)
+💥 Create completely new purchase stream
 
-주의사항:
-• 이 과정은 최대 30초 소요됩니다
-• 모든 기존 구매 상태가 완전히 리셋됩니다
-• 일반 초기화로 해결되지 않는 경우에만 사용하세요
+Precautions:
+• This process takes up to 30 seconds
+• All existing purchase states will be completely reset
+• Only use when general initialization doesn't solve the problem
 
-정말로 실행하시겠습니까?'''),
+Do you really want to proceed?'''),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('취소'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text('💥 핵리셋', style: TextStyle(color: Colors.purple)),
+            child: Text('💥 Nuclear Reset',
+                style: TextStyle(color: Colors.purple)),
           ),
         ],
       ),
@@ -166,29 +173,30 @@ class DebugDialogHandler {
     return showDialog<bool>(
       context: _context,
       builder: (context) => AlertDialog(
-        title: Text('Sandbox 인증창 초기화'),
-        content: Text('''Sandbox 환경에서 인증창이 생략되는 문제를 해결합니다.
+        title: Text('Sandbox Authentication Reset'),
+        content: Text(
+            '''Resolves the issue where authentication dialogs are skipped in Sandbox environment.
 
-실행할 작업:
-🔄 StoreKit 캐시 완전 초기화 (3회 시도)
-🧹 모든 pending 구매 강제 완료
-⏰ 시스템 안정화 대기
-🔄 구매 스트림 재시작
+Actions to be performed:
+🔄 Complete StoreKit cache initialization (3 attempts)
+🧹 Force complete all pending purchases
+⏰ System stabilization wait
+🔄 Restart purchase stream
 
-효과:
-✅ Touch ID/Face ID 인증창 재활성화
-✅ 이전 인증 상태 완전 리셋
-✅ 구매 프로세스 정상화
+Effects:
+✅ Reactivate Touch ID/Face ID authentication dialog
+✅ Complete reset of previous authentication state
+✅ Normalize purchase process
 
-주의: Sandbox 환경에서만 사용하세요.'''),
+Note: Use only in Sandbox environment.'''),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('취소'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text('초기화', style: TextStyle(color: Colors.orange)),
+            child: Text('Reset', style: TextStyle(color: Colors.orange)),
           ),
         ],
       ),
@@ -201,33 +209,38 @@ class DebugDialogHandler {
     return showDialog(
       context: _context,
       builder: (context) => AlertDialog(
-        title: Text('🔐 인증 시스템 진단 결과'),
+        title: Text('🔐 Authentication System Diagnosis Results'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('진단 시간: ${diagnosis['timestamp'] ?? 'Unknown'}'),
+              Text('Diagnosis time: ${diagnosis['timestamp'] ?? 'Unknown'}'),
               SizedBox(height: 8),
-              Text('🔍 인증 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('🔍 Authentication Status:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               Text(
-                  '• Touch ID 사용 가능: ${diagnosis['touchIdAvailable'] ?? 'Unknown'}'),
+                  '• Touch ID available: ${diagnosis['touchIdAvailable'] ?? 'Unknown'}'),
               Text(
-                  '• Face ID 사용 가능: ${diagnosis['faceIdAvailable'] ?? 'Unknown'}'),
-              Text('• 패스코드 설정됨: ${diagnosis['passcodeSet'] ?? 'Unknown'}'),
+                  '• Face ID available: ${diagnosis['faceIdAvailable'] ?? 'Unknown'}'),
+              Text('• Passcode set: ${diagnosis['passcodeSet'] ?? 'Unknown'}'),
               SizedBox(height: 8),
-              Text('🛡️ 보안 설정:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('• 생체인증 활성화: ${diagnosis['biometricEnabled'] ?? 'Unknown'}'),
-              Text('• 인증 정책: ${diagnosis['authPolicy'] ?? 'Unknown'}'),
-              Text('• 최대 시도 횟수: ${diagnosis['maxAttempts'] ?? 'Unknown'}'),
+              Text('🛡️ Security Settings:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                  '• Biometric enabled: ${diagnosis['biometricEnabled'] ?? 'Unknown'}'),
+              Text(
+                  '• Authentication policy: ${diagnosis['authPolicy'] ?? 'Unknown'}'),
+              Text('• Max attempts: ${diagnosis['maxAttempts'] ?? 'Unknown'}'),
               SizedBox(height: 8),
-              Text('📱 시스템 상태:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('• iOS 버전: ${diagnosis['iosVersion'] ?? 'Unknown'}'),
-              Text('• 디바이스 모델: ${diagnosis['deviceModel'] ?? 'Unknown'}'),
+              Text('📱 System Status:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('• iOS version: ${diagnosis['iosVersion'] ?? 'Unknown'}'),
+              Text('• Device model: ${diagnosis['deviceModel'] ?? 'Unknown'}'),
               if (diagnosis['warnings'] != null &&
                   (diagnosis['warnings'] as List).isNotEmpty) ...[
                 SizedBox(height: 8),
-                Text('⚠️ 경고사항:',
+                Text('⚠️ Warnings:',
                     style: TextStyle(
                         fontWeight: FontWeight.bold, color: Colors.orange)),
                 ...(diagnosis['warnings'] as List).map(
@@ -237,7 +250,7 @@ class DebugDialogHandler {
               ],
               if (diagnosis['error'] != null) ...[
                 SizedBox(height: 8),
-                Text('❌ 에러:',
+                Text('❌ Error:',
                     style: TextStyle(
                         fontWeight: FontWeight.bold, color: Colors.red)),
                 Text('${diagnosis['error']}',
@@ -249,7 +262,7 @@ class DebugDialogHandler {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
+            child: Text('OK'),
           ),
         ],
       ),
@@ -261,33 +274,34 @@ class DebugDialogHandler {
     return showDialog<bool>(
       context: _context,
       builder: (context) => AlertDialog(
-        title: Text('⚡ 궁극 인증 시스템 리셋'),
-        content: Text('''🚨 최종 해결책입니다! 🚨
+        title: Text('⚡ Ultimate Authentication System Reset'),
+        content: Text('''🚨 This is the final solution! 🚨
 
-이 기능은 모든 인증 관련 시스템을 완전히 리셋합니다.
+This function completely resets all authentication-related systems.
 
-실행할 작업:
-⚡ LocalAuthentication 완전 리셋
-⚡ Keychain 인증 데이터 완전 삭제
-⚡ StoreKit 인증 캐시 완전 무효화
-⚡ 시스템 생체인증 상태 재확인
-⚡ 모든 인증 정책 초기화
+Actions to be performed:
+⚡ Complete LocalAuthentication reset
+⚡ Complete deletion of Keychain authentication data
+⚡ Complete invalidation of StoreKit authentication cache
+⚡ Re-verify system biometric authentication status
+⚡ Initialize all authentication policies
 
-주의사항:
-• 이 과정은 최대 15초 소요됩니다
-• 모든 저장된 인증 데이터가 삭제됩니다
-• Touch ID/Face ID 설정이 초기화될 수 있습니다
-• 다른 앱의 인증에도 영향을 줄 수 있습니다
+Precautions:
+• This process takes up to 15 seconds
+• All stored authentication data will be deleted
+• Touch ID/Face ID settings may be reset
+• May affect authentication in other apps
 
-정말로 실행하시겠습니까?'''),
+Do you really want to proceed?'''),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('취소'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text('⚡ 궁극리셋', style: TextStyle(color: Colors.red)),
+            child:
+                Text('⚡ Ultimate Reset', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -315,7 +329,7 @@ class DebugDialogHandler {
 
       _loadingKey.currentState?.hide();
       showSimpleDialog(
-        content: 'Pending 상태 확인 중 오류가 발생했습니다: $e',
+        content: 'Error occurred while checking pending status: $e',
         type: DialogType.error,
       );
     }
@@ -340,7 +354,7 @@ class DebugDialogHandler {
 
       _loadingKey.currentState?.hide();
       showSimpleDialog(
-        content: 'Sandbox 진단 중 오류가 발생했습니다: $e',
+        content: 'Error occurred during sandbox diagnosis: $e',
         type: DialogType.error,
       );
     }
@@ -365,23 +379,23 @@ class DebugDialogHandler {
 
       _loadingKey.currentState?.hide();
       showSimpleDialog(
-        content: '''💥 핵폭탄급 Sandbox 리셋 완료!
+        content: '''💥 Nuclear-level Sandbox reset completed!
 
-실행된 작업:
-• 모든 StoreKit 연결 완전 끊기 (5초 대기)
-• 시스템 캐시 완전 무효화 (10회 시도)
-• 핵폭탄급 pending 구매 정리 (5라운드)
-• 긴 시스템 안정화 대기 (10초)
-• 완전 새로운 구매 스트림 생성
+Actions performed:
+• Completely disconnected all StoreKit connections (5 second wait)
+• Complete system cache invalidation (10 attempts)
+• Nuclear-level pending purchase cleanup (5 rounds)
+• Long system stabilization wait (10 seconds)
+• Create completely new purchase stream
 
-이제 구매를 다시 시도해보세요!''',
+You can now try purchasing again!''',
       );
     } catch (e) {
       logger.e('[DebugDialogHandler] 핵폭탄급 리셋 실패: $e');
 
       _loadingKey.currentState?.hide();
       showSimpleDialog(
-        content: '핵폭탄급 리셋 중 오류가 발생했습니다: $e',
+        content: 'Error occurred during nuclear reset: $e',
         type: DialogType.error,
       );
     }
@@ -406,19 +420,19 @@ class DebugDialogHandler {
 
       _loadingKey.currentState?.hide();
       showSimpleDialog(
-        content: '''Sandbox 인증창 초기화가 완료되었습니다!
+        content: '''Sandbox authentication reset completed!
 
-다음 구매 시도 시:
-• Touch ID/Face ID 인증창이 다시 표시됩니다
-• 이전 인증 상태가 모두 리셋되었습니다
-• 모든 pending 구매가 정리되었습니다''',
+For next purchase attempt:
+• Touch ID/Face ID authentication dialog will be displayed again
+• All previous authentication states have been reset
+• All pending purchases have been cleared''',
       );
     } catch (e) {
       logger.e('[DebugDialogHandler] Sandbox 인증창 초기화 실패: $e');
 
       _loadingKey.currentState?.hide();
       showSimpleDialog(
-        content: 'Sandbox 인증창 초기화 중 오류가 발생했습니다: $e',
+        content: 'Error occurred during sandbox authentication reset: $e',
         type: DialogType.error,
       );
     }
@@ -433,7 +447,7 @@ class DebugDialogHandler {
     _loadingKey.currentState?.hide();
 
     showSimpleDialog(
-      content: '인증 진단 기능은 개발 중입니다.',
+      content: 'Authentication diagnosis feature is under development.',
     );
   }
 
@@ -449,7 +463,7 @@ class DebugDialogHandler {
     _loadingKey.currentState?.hide();
 
     showSimpleDialog(
-      content: '궁극 인증 리셋 기능은 개발 중입니다.',
+      content: 'Ultimate authentication reset feature is under development.',
     );
   }
 }

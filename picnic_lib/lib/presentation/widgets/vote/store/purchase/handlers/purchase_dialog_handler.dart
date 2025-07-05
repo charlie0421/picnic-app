@@ -264,19 +264,19 @@ class PurchaseDialogHandler {
       context: _context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('🎉 구매 완료'),
-        content: Text('''구매가 성공적으로 완료되었습니다!
+        title: Text('🎉 Purchase Completed'),
+        content: Text('''Your purchase has been completed successfully!
 
-⏰ 인증이 예상보다 오래 걸려서 타임아웃 안내가 표시되었지만, 실제로는 정상적으로 구매가 처리되었습니다.
+⏰ Authentication took longer than expected and a timeout message was displayed, but your purchase was actually processed normally.
 
-✅ 스타캔디가 정상적으로 지급되었습니다
-✅ 구매 내역이 서버에 기록되었습니다
+✅ Star Candy has been added to your account
+✅ Purchase history has been recorded on the server
 
-이는 Touch ID/Face ID 인증 시 발생할 수 있는 정상적인 상황입니다.'''),
+This is a normal situation that can occur during Touch ID/Face ID authentication.'''),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
+            child: Text('OK'),
           ),
         ],
       ),
@@ -289,24 +289,25 @@ class PurchaseDialogHandler {
       context: _context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text('서버 처리 중 문제 발생'),
-        content: Text('''서버에서 소모성 상품 중복 검사를 완화했지만 여전히 오류가 발생했습니다.
+        title: Text('Server Processing Issue'),
+        content: Text(
+            '''An error occurred even though the server has relaxed duplicate checks for consumable products.
 
-가능한 원인:
-1. 서버 배포가 아직 완전히 적용되지 않음
-2. 다른 종류의 네트워크 오류
-3. 잠시 후 다시 시도하면 해결될 가능성
+Possible causes:
+1. Server deployment not fully applied yet
+2. Other types of network errors
+3. May be resolved by trying again later
 
-해결 방법:
-1. 1-2분 후 다시 시도 (서버 배포 완료 대기)
-2. 그래도 안 되면 앱 재시작
-3. 문제가 지속되면 고객지원 문의
+Solutions:
+1. Try again in 1-2 minutes (wait for server deployment completion)
+2. If it still doesn't work, restart the app
+3. Contact customer support if the problem persists
 
-소모성 상품이므로 중복 구매가 정상적으로 허용되어야 합니다.'''),
+Duplicate purchases should be normally allowed for consumable products.'''),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('확인'),
+            child: Text('OK'),
           ),
         ],
       ),
