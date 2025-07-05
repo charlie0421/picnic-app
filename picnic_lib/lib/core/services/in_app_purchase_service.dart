@@ -749,6 +749,9 @@ class InAppPurchaseService {
     logger.i('🧹 적극적 백그라운드 정리 시작 (사용자 대기 없음)');
 
     try {
+      // 🔥 0단계: 구매 완료 타이머 정리 (새로 추가!)
+      _cleanupPurchaseTimersOnSuccess();
+
       // 🔥 1단계: 빠른 pending 처리
       await _quickPendingClear().timeout(_pendingProcessTimeout);
 
@@ -765,6 +768,33 @@ class InAppPurchaseService {
       logger.w('🧹 백그라운드 정리 중 오류 (무시): $e');
       // 백그라운드 작업이므로 실패해도 계속 진행
     }
+  }
+
+  /// 🧹 구매 완료 시 타이머 정리 (새로 추가)
+  void _cleanupPurchaseTimersOnSuccess() {
+    logger.i('🧹 구매 완료 타이머 정리 시작');
+
+    // 1️⃣ 구매 타임아웃 타이머 정리
+    if (_purchaseTimeoutTimer?.isActive == true) {
+      _purchaseTimeoutTimer?.cancel();
+      _purchaseTimeoutTimer = null;
+      logger.i('✅ 구매 타임아웃 타이머 정리 완료');
+    }
+
+    // 2️⃣ 백그라운드 클린업 타이머 정리 (중복 방지)
+    if (_backgroundCleanupTimer?.isActive == true) {
+      _backgroundCleanupTimer?.cancel();
+      _backgroundCleanupTimer = null;
+      logger.i('✅ 백그라운드 클린업 타이머 정리 완료');
+    }
+
+    // 3️⃣ 현재 구매 ID 정리
+    if (_currentPurchasingProductId != null) {
+      logger.i('🧹 현재 구매 ID 정리: $_currentPurchasingProductId');
+      _currentPurchasingProductId = null;
+    }
+
+    logger.i('🧹 모든 구매 타이머 정리 완료');
   }
 
   /// 🔥 적극적 백그라운드 캐시 정리
@@ -1406,7 +1436,7 @@ class InAppPurchaseService {
         await Future.delayed(Duration(seconds: 5));
 
         // 4. StoreKit 시스템 레벨 캐시 강제 무효화 (10회 시도)
-        logger.i('�� StoreKit 시스템 레벨 캐시 강제 무효화 (10회)');
+        logger.i('🧹 StoreKit 시스템 레벨 캐시 강제 무효화 (10회)');
         for (int i = 0; i < 10; i++) {
           try {
             await Future.delayed(Duration(seconds: 1)); // 1초씩 대기
@@ -1448,9 +1478,12 @@ class InAppPurchaseService {
 
   /// 🧹 정상 구매 완료 시 타이머 정리
   void cleanupTimersOnPurchaseSuccess(String productId) {
+    logger.i('🧹 ✅ InAppPurchaseService 타이머 정리 시작: $productId (정상 구매 성공 시)');
+
+    // 🧹 통합 타이머 정리 메서드 호출
+    _cleanupPurchaseTimersOnSuccess();
+
     logger.i('🧹 ✅ InAppPurchaseService 타이머 정리 완료: $productId (정상 구매 성공 시)');
-    // 현재 이 InAppPurchaseService에는 정리할 특별한 타이머가 없음
-    // 하지만 일관성을 위해 메서드 제공
   }
 
   void dispose() {
