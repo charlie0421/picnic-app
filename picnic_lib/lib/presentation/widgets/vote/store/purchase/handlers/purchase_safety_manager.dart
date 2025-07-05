@@ -12,8 +12,14 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   final VoidCallback _resetPurchaseState;
 
   static const Duration _safetyTimeout = Duration(seconds: 90);
-  static const Duration _purchaseCooldown =
-      Duration(seconds: 5); // 🎯 심플한 5초 쿨다운
+  static const Duration _basePurchaseCooldown =
+      Duration(seconds: 8); // 🎯 기본 8초로 증가
+  static const Duration _consecutivePurchaseCooldown =
+      Duration(seconds: 15); // 🔄 연속 구매 시 15초
+
+  // 🔄 연속 구매 추적
+  int _consecutivePurchaseCount = 0;
+  DateTime? _firstPurchaseInSession;
 
   Timer? _safetyTimer;
   bool _safetyTimeoutTriggered = false;
@@ -74,7 +80,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     onTimeoutUIReset?.call();
   }
 
-  /// 🎯 심플 구매 가능 체크 (1줄로 해결!)
+  /// 🎯 심플 구매 가능 체크 + 연속 구매 보호 (적응형 쿨다운)
   @override
   bool canAttemptPurchase() {
     if (_isPurchaseInProgress) {
@@ -84,9 +90,14 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
     if (_lastPurchaseTime != null) {
       final elapsed = DateTime.now().difference(_lastPurchaseTime!);
-      if (elapsed < _purchaseCooldown) {
-        final remaining = _purchaseCooldown - elapsed;
-        logger.w('🛡️ 구매 쿨다운: ${remaining.inMilliseconds}ms 남음');
+
+      // 🔄 연속 구매 감지 및 적응형 쿨다운 적용
+      final requiredCooldown = _getAdaptiveCooldown();
+
+      if (elapsed < requiredCooldown) {
+        final remaining = requiredCooldown - elapsed;
+        final cooldownType = _consecutivePurchaseCount >= 2 ? '연속구매' : '기본';
+        logger.w('🛡️ 구매 쿨다운 ($cooldownType): ${remaining.inSeconds}초 남음');
         return false;
       }
     }
@@ -94,11 +105,38 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     return true;
   }
 
-  /// 🎯 심플 구매 시작 (3줄로 해결!)
+  /// 🔄 적응형 쿨다운 시간 계산
+  Duration _getAdaptiveCooldown() {
+    // 🔄 연속 구매 세션 감지 (10분 내 구매들)
+    if (_firstPurchaseInSession != null) {
+      final sessionElapsed =
+          DateTime.now().difference(_firstPurchaseInSession!);
+      if (sessionElapsed.inMinutes > 10) {
+        // 세션 리셋
+        _consecutivePurchaseCount = 0;
+        _firstPurchaseInSession = null;
+      }
+    }
+
+    // 🔄 연속 구매 횟수에 따른 적응형 쿨다운
+    if (_consecutivePurchaseCount >= 2) {
+      logger.w('🔄 연속 구매 감지 ($_consecutivePurchaseCount회) - 확장된 쿨다운 적용');
+      return _consecutivePurchaseCooldown; // 15초
+    }
+
+    return _basePurchaseCooldown; // 8초
+  }
+
+  /// 🎯 심플 구매 시작 + 연속 구매 추적 (3줄로 해결!)
   void recordPurchaseAttempt({String? productId}) {
     _isPurchaseInProgress = true;
     _lastPurchaseTime = DateTime.now();
-    logger.i('🎯 구매 시작: $productId');
+
+    // 🔄 연속 구매 세션 추적
+    _firstPurchaseInSession ??= _lastPurchaseTime;
+    _consecutivePurchaseCount++;
+
+    logger.i('🎯 구매 시작: $productId (연속 $_consecutivePurchaseCount회째)');
   }
 
   /// 🎯 심플 구매 완료 (3줄로 해결!)
@@ -110,13 +148,16 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     logger.i('🎯 구매 완료: $transactionId');
   }
 
-  /// 🧹 구매 완료 후 클린 작업 - 시스템 상태 완전 정리
+  /// 🧹 구매 완료 후 클린 작업 - 연속 구매 최적화
   Future<void> performPostPurchaseCleanup({
     required String productId,
     required String transactionId,
     PurchaseDetails? completedPurchase,
   }) async {
-    logger.i('🧹 구매 완료 후 클린 작업 시작: $productId');
+    final isConsecutivePurchase = _consecutivePurchaseCount >= 2;
+    final cleanupType = isConsecutivePurchase ? '간소화' : '전체';
+
+    logger.i('🧹 구매 완료 후 클린 작업 시작: $productId ($cleanupType)');
 
     try {
       // 1️⃣ 완료된 구매의 completePurchase 재확인
@@ -129,16 +170,20 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       _lastProcessedTransactionId = transactionId;
       logger.i('🧹 2️⃣ 성공 구매 기록 완료: $transactionId');
 
-      // 3️⃣ 플랫폼별 캐시 정리
-      await _performPlatformSpecificCleanup(productId);
+      // 3️⃣ 플랫폼별 캐시 정리 (연속 구매 시 간소화)
+      if (isConsecutivePurchase) {
+        await _performLightweightCleanup(productId);
+      } else {
+        await _performPlatformSpecificCleanup(productId);
+      }
 
       // 4️⃣ 내부 상태 완전 정리
       _cleanupInternalTransactionState();
 
-      // 5️⃣ 다음 구매를 위한 환경 준비
-      await _prepareForNextPurchase();
+      // 5️⃣ 다음 구매를 위한 환경 준비 (연속 구매 시 단축)
+      await _prepareForNextPurchase(isConsecutivePurchase);
 
-      logger.i('🧹 ✅ 구매 완료 후 클린 작업 성공적으로 완료');
+      logger.i('🧹 ✅ 구매 완료 후 클린 작업 성공적으로 완료 ($cleanupType)');
     } catch (e) {
       logger.e('🧹 ❌ 구매 완료 후 클린 작업 중 오류: $e');
       // 클린 작업 실패해도 구매는 이미 성공했으므로 계속 진행
@@ -154,18 +199,37 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     }
   }
 
-  /// 🍎 iOS 전용 클린 작업
+  /// 🚀 간소화된 클린 작업 (연속 구매 시)
+  Future<void> _performLightweightCleanup(String productId) async {
+    logger.i('🚀 간소화된 클린 작업 시작 (연속 구매 최적화)');
+
+    try {
+      if (Platform.isIOS) {
+        // iOS: 최소한의 대기만 (StoreKit 안정화)
+        await Future.delayed(Duration(milliseconds: 100));
+        logger.i('🚀 🍎 iOS 간소화 클린 완료');
+      } else if (Platform.isAndroid) {
+        // Android: 매우 짧은 대기
+        await Future.delayed(Duration(milliseconds: 50));
+        logger.i('🚀 🤖 Android 간소화 클린 완료');
+      }
+    } catch (e) {
+      logger.w('🚀 간소화 클린 작업 경고: $e');
+    }
+  }
+
+  /// 🍎 iOS 전용 클린 작업 (최적화)
   Future<void> _performIOSCleanup(String productId) async {
     logger.i('🧹 🍎 iOS StoreKit 클린 작업');
 
     try {
-      // StoreKit 트랜잭션 큐 정리를 위한 짧은 대기
-      await Future.delayed(Duration(milliseconds: 500));
+      // StoreKit 트랜잭션 큐 정리를 위한 짧은 대기 (최적화: 500ms → 300ms)
+      await Future.delayed(Duration(milliseconds: 300));
 
-      // 현재 트랜잭션들 확인 및 완료 처리
+      // 현재 트랜잭션들 확인 및 완료 처리 (최적화: 2초 → 1초)
       final recentPurchases = await InAppPurchase.instance.purchaseStream
           .take(1)
-          .timeout(Duration(seconds: 2))
+          .timeout(Duration(seconds: 1))
           .first
           .catchError((e) => <PurchaseDetails>[]);
 
@@ -183,18 +247,18 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     }
   }
 
-  /// 🤖 Android 전용 클린 작업
+  /// 🤖 Android 전용 클린 작업 (최적화)
   Future<void> _performAndroidCleanup(String productId) async {
     logger.i('🧹 🤖 Android Play Billing 클린 작업');
 
     try {
-      // Play Billing 처리 완료를 위한 짧은 대기
-      await Future.delayed(Duration(milliseconds: 300));
+      // Play Billing 처리 완료를 위한 짧은 대기 (최적화: 300ms → 200ms)
+      await Future.delayed(Duration(milliseconds: 200));
 
-      // 미완료 트랜잭션들 확인
+      // 미완료 트랜잭션들 확인 (최적화: 1초 → 500ms)
       final recentPurchases = await InAppPurchase.instance.purchaseStream
           .take(1)
-          .timeout(Duration(seconds: 1))
+          .timeout(Duration(milliseconds: 500))
           .first
           .catchError((e) => <PurchaseDetails>[]);
 
@@ -220,11 +284,12 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   }
 
   /// 🧹 다음 구매를 위한 환경 준비
-  Future<void> _prepareForNextPurchase() async {
+  Future<void> _prepareForNextPurchase(bool isConsecutivePurchase) async {
     // 쿨다운 시간 설정은 유지 (중복 구매 방지)
     // 시스템이 안정화될 시간을 줌
-    await Future.delayed(Duration(milliseconds: 200));
-    logger.i('🧹 다음 구매 환경 준비 완료');
+    final waitTime = isConsecutivePurchase ? 100 : 200; // 연속 구매 시 더 짧게
+    await Future.delayed(Duration(milliseconds: waitTime));
+    logger.i('🧹 다음 구매 환경 준비 완료 (${waitTime}ms)');
   }
 
   /// 🚨 취소/에러 시 내부 상태 완전 리셋 (중요!)
@@ -232,6 +297,14 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _isPurchaseInProgress = false;
     _lastPurchaseTime = null;
     _lastProcessedTransactionId = null;
+
+    // 🔄 연속 구매 세션도 리셋 (에러/취소 시)
+    if (reason.contains('취소') || reason.contains('실패')) {
+      _consecutivePurchaseCount = 0;
+      _firstPurchaseInSession = null;
+      logger.i('🔄 연속 구매 세션 리셋: $reason');
+    }
+
     logger.i('🔄 내부 상태 완전 리셋: $reason');
   }
 
