@@ -6,11 +6,19 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 
+// PurchaseSafetyManager 타입 선언 (순환 import 방지)
+abstract class PurchaseSafetyManagerInterface {
+  bool canAttemptPurchase();
+}
+
 /// 🧹 복원 구매 전용 핸들러 - 예방적 정리 및 차단 기능
 class RestorePurchaseHandler {
   final PurchaseService _purchaseService;
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey;
   final BuildContext _context;
+
+  // 🎯 활성 구매 확인을 위한 안전망 참조
+  PurchaseSafetyManagerInterface? _safetyManager;
 
   bool _isProactiveCleanupMode = false;
   bool _isProactiveCleanupCompleted = false;
@@ -25,6 +33,11 @@ class RestorePurchaseHandler {
   })  : _purchaseService = purchaseService,
         _loadingKey = loadingKey,
         _context = context;
+
+  /// 🎯 안전망 매니저 설정 (순환 의존성 방지)
+  void setSafetyManager(PurchaseSafetyManagerInterface safetyManager) {
+    _safetyManager = safetyManager;
+  }
 
   /// 페이지 진입 시 예방적 복원 정리 실행
   Future<void> performProactiveCleanup() async {
@@ -112,10 +125,21 @@ class RestorePurchaseHandler {
   /// 🍎 iOS 전용 복원 처리 판별 - 정상 구매 보호
   bool _shouldProcessRestoredIOS(
       PurchaseDetails purchaseDetails, String platform) {
-    // 🍎 1단계: 정리 완료 후 순수 복원 신호는 차단
+    // 🎯 연속 구매 보호: 현재 구매 진행 중이면 복원 신호도 정상 구매 가능성!
+    final isActivePurchasing = _safetyManager?.canAttemptPurchase() ==
+        false; // canAttemptPurchase() == false는 구매 진행 중을 의미
+
+    // 🍎 1단계: 정리 완료 후 순수 복원 신호는 차단 (단, 활성 구매 중이면 허용!)
     if (_isProactiveCleanupCompleted &&
         purchaseDetails.status == PurchaseStatus.restored) {
-      logger.w('[iOS] 🛡️ 정리 완료 후 복원 신호 무시: ${purchaseDetails.productID}');
+      // 🎯 활성 구매 진행 중이면 복원 신호라도 정상 구매로 처리!
+      if (isActivePurchasing) {
+        logger.i('[iOS] 🎯 연속 구매 보호: 활성 구매 중인 restored 신호 → 정상 구매로 처리');
+        return false; // false = 복원 처리 안함, 활성 구매 검증으로 넘어감
+      }
+
+      // 활성 구매가 아닌 순수 복원 신호는 차단
+      logger.w('[iOS] 🛡️ 정리 완료 후 순수 복원 신호 무시: ${purchaseDetails.productID}');
       return false;
     }
 

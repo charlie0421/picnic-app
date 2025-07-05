@@ -90,6 +90,9 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       loadingKey: _loadingKey,
     );
 
+    // 🎯 복원 핸들러와 안전망 매니저 연결 (연속 구매 보호)
+    _restoreHandler.setSafetyManager(_safetyManager);
+
     // 🎯 심플 타임아웃 처리: 직접 콜백 설정
     _safetyManager.onTimeoutUIReset = () {
       if (mounted) {

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/restore_purchase_handler.dart';
 
 /// 🎯 심플 구매 안전망 - 3-State 솔루션 (Simple is Better!)
-class PurchaseSafetyManager {
+class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey;
   final VoidCallback _resetPurchaseState;
 
@@ -74,6 +75,7 @@ class PurchaseSafetyManager {
   }
 
   /// 🎯 심플 구매 가능 체크 (1줄로 해결!)
+  @override
   bool canAttemptPurchase() {
     if (_isPurchaseInProgress) {
       logger.w('🛡️ 구매 진행 중 - 추가 구매 차단');
