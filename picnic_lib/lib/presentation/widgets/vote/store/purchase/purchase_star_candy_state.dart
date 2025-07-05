@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,7 +26,6 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_t
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:async';
 
 class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     with SingleTickerProviderStateMixin {
@@ -39,13 +39,24 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   bool _transactionsCleared = false;
   bool _isActivePurchasing = false;
   bool _isInitializing = true;
-  bool _isUserRequestedRestore = false;
   bool _isPurchasing = false;
+
+  // 🧹 예방적 정리 모드 (페이지 진입 시 조용히 복원 처리)
+  bool _isProactiveCleanupMode = false;
+
+  // 🛡️ 예방적 정리 완료 플래그 (이후 복원 신호 무시용)
+  bool _isProactiveCleanupCompleted = false;
+
+  // 🔄 펄스 로딩 제어용
+  Timer? _pulseLoadingTimer;
+
+  // 📊 복원 정리 추적용
+  int _restoredPurchaseCount = 0;
+  bool _isWaitingForRestoreCompletion = false;
 
   // 🛡️ 구매 가드 토큰 관리는 PurchaseService에서 처리
 
   // 시간 관리
-  DateTime? _initializationCompletedAt;
   DateTime? _lastPurchaseAttempt;
 
   // 🛡️ 안전망 타이머 관리
@@ -57,7 +68,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
   // 성능 최적화 상수
   static const Duration _purchaseCooldown = Duration(seconds: 2);
-  static const Duration _restoreResetDelay = Duration(seconds: 5);
 
   // 🛡️ 안전망 타임아웃: Touch ID/Face ID 인증 시간 충분히 고려 (90초)
   static const Duration _safetyTimeout = Duration(seconds: 90);
@@ -94,29 +104,30 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     }
   }
 
-  /// 페이지 초기화 (즉시 완료)
+  /// 페이지 초기화 (복원 구매 예방적 정리 포함)
   Future<void> _initializePage() async {
     final initStartTime = DateTime.now();
-    logger.i('[PurchaseStarCandyState] Starting fast initialization');
+    final platform = Theme.of(context).platform;
+    logger.i(
+        '[PurchaseStarCandyState] Starting initialization with proactive restore cleanup (${platform.name})');
 
     if (!mounted) return;
 
     try {
+      // 🔄 초기 로딩 표시 (일반 초기화)
       _loadingKey.currentState?.show();
 
-      // 즉시 완료 - 백그라운드에서만 정리
-      logger.i(
-          '[PurchaseStarCandyState] Skipping initialization cleanup - background only');
+      // 🧹 예방적 복원 구매 정리 (펄스 로딩바와 함께)
+      await _proactiveRestoreCleanupWithPulse();
 
       final initEndTime = DateTime.now();
       final initDuration = initEndTime.difference(initStartTime);
       logger.i(
-          '[PurchaseStarCandyState] Initialization completed - Duration: ${initDuration.inMilliseconds}ms');
+          '[PurchaseStarCandyState] Initialization with restore cleanup completed - Duration: ${initDuration.inMilliseconds}ms');
 
       if (mounted) {
         setState(() {
           _isInitializing = false;
-          _initializationCompletedAt = DateTime.now();
           _transactionsCleared = true;
         });
         _loadingKey.currentState?.hide();
@@ -126,7 +137,6 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
       if (mounted) {
         setState(() {
           _isInitializing = false;
-          _initializationCompletedAt = DateTime.now();
           _transactionsCleared = true;
         });
         _loadingKey.currentState?.hide();
@@ -134,11 +144,115 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     }
   }
 
+  /// 🧹 예방적 복원 구매 정리 (펄스 로딩바와 함께) - 실제 완료까지 대기
+  Future<void> _proactiveRestoreCleanupWithPulse() async {
+    final platform = Theme.of(context).platform;
+    final startTime = DateTime.now();
+
+    try {
+      logger.i('🧹 예방적 복원 구매 정리 시작 with 펄스 로딩 (${platform.name})');
+
+      // 📊 복원 추적 변수 초기화
+      _restoredPurchaseCount = 0;
+      _isWaitingForRestoreCompletion = true;
+
+      // 🔄 펄스 로딩 시작 - 복원 정리 중임을 시각적으로 표시
+      _showPulseLoadingForRestoreCleanup();
+
+      // 🤫 조용한 복원 모드 활성화 (실제 혜택 없이 시스템 정리만)
+      _isProactiveCleanupMode = true;
+
+      // 🧹 복원 구매 트리거하여 기존 복원 가능한 구매들을 모두 수집
+      logger.i('🧹 복원 구매 트리거 중 - 조용히 처리 모드 활성화');
+      await _purchaseService.inAppPurchaseService.restorePurchases();
+
+      // 🕒 복원 구매들이 실제로 처리될 때까지 스마트 대기 (최대 10초)
+      final maxWaitTime = DateTime.now().add(Duration(seconds: 10));
+      int lastProcessedCount = 0;
+      DateTime? lastProcessTime = DateTime.now();
+
+      while (DateTime.now().isBefore(maxWaitTime) &&
+          _isWaitingForRestoreCompletion) {
+        await Future.delayed(Duration(milliseconds: 300));
+
+        final elapsed = DateTime.now().difference(startTime);
+
+        // 복원 구매가 새로 처리되었는지 확인
+        if (_restoredPurchaseCount > lastProcessedCount) {
+          lastProcessedCount = _restoredPurchaseCount;
+          lastProcessTime = DateTime.now();
+          logger.d('🧹 새로운 복원 처리 감지: $_restoredPurchaseCount개 (펄스 지속)');
+        }
+
+        // 종료 조건 체크
+        if (elapsed.inMilliseconds > 2000) {
+          // 최소 2초 대기
+          final timeSinceLastProcess =
+              DateTime.now().difference(lastProcessTime!);
+
+          if (timeSinceLastProcess.inMilliseconds > 1000) {
+            // 1초 동안 새로운 복원 없음
+            logger.i('🧹 복원 처리 완료 감지 - 1초 동안 새로운 복원 없음 (펄스 종료)');
+            _isWaitingForRestoreCompletion = false;
+          }
+        }
+      }
+
+      // 🤫 조용한 복원 모드 비활성화
+      _isProactiveCleanupMode = false;
+      _isWaitingForRestoreCompletion = false;
+
+      // 🛡️ 예방적 정리 완료 플래그 설정 (이후 복원 신호 무시)
+      _isProactiveCleanupCompleted = true;
+
+      final duration = DateTime.now().difference(startTime);
+      logger.i(
+          '🧹 예방적 복원 구매 정리 완료 - 소요시간: ${duration.inMilliseconds}ms, 처리된 복원: $_restoredPurchaseCount개');
+    } catch (e) {
+      logger.e('🧹 예방적 복원 구매 정리 중 오류: $e');
+      _isProactiveCleanupMode = false;
+      _isWaitingForRestoreCompletion = false;
+      _isProactiveCleanupCompleted = true; // 오류가 나도 정리 완료로 처리
+    }
+  }
+
+  /// 🔄 복원 정리를 위한 펄스 로딩 표시
+  void _showPulseLoadingForRestoreCleanup() {
+    final platform = Theme.of(context).platform;
+    final platformEmoji = platform == TargetPlatform.iOS
+        ? '📱'
+        : platform == TargetPlatform.android
+            ? '🤖'
+            : '🖥️';
+
+    logger.i('🔄 펄스 로딩 시작: $platformEmoji 복원 구매 정리 중');
+
+    // 기존 로딩을 숨기고 펄스 로딩으로 전환
+    _loadingKey.currentState?.hide();
+
+    // 펄스 로딩 재시작 (복원 정리 전용 메시지와 함께)
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (mounted) {
+        _loadingKey.currentState?.show();
+        logger.d('🔄 펄스 로딩 활성화: 복원 구매 정리 진행 중');
+      }
+    });
+  }
+
+
   @override
   void dispose() {
     // 🛡️ 안전망 타이머 정리
     _safetyTimer?.cancel();
     _safetyTimer = null;
+
+    // 🔄 펄스 로딩 타이머 정리
+    _pulseLoadingTimer?.cancel();
+    _pulseLoadingTimer = null;
+
+    // 📊 복원 추적 변수 정리
+    _isWaitingForRestoreCompletion = false;
+    _restoredPurchaseCount = 0;
 
     _rotationController.dispose();
     _purchaseService.inAppPurchaseService.dispose();
@@ -150,7 +264,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     logger.w('🧹 타임아웃으로 인한 UI 상태 리셋 시작');
 
     if (!mounted) {
-      logger.w('🧹 Widget이 dispose된 상태 - UI 리셋 건너뛰기');
+      logger.w('�� Widget이 dispose된 상태 - UI 리셋 건너뛰기');
       return;
     }
 
@@ -427,20 +541,30 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             purchaseDetails.status == PurchaseStatus.purchased);
   }
 
-  /// 복원 구매 처리 여부 확인
+  /// 복원 구매 처리 여부 확인 - 🚫 원천 차단 (플랫폼별 안전 처리)
   bool _shouldProcessRestored(PurchaseDetails purchaseDetails) {
-    if (purchaseDetails.status != PurchaseStatus.restored ||
-        _isActivePurchasing) {
+    // 🛡️ 이미 예방적 정리 완료된 경우 모든 복원 신호 무시
+    if (_isProactiveCleanupCompleted &&
+        purchaseDetails.status == PurchaseStatus.restored) {
+      logger.i('🛡️ 예방적 정리 완료됨 - 복원 신호 무시: ${purchaseDetails.productID}');
       return false;
     }
 
-    if (!_transactionsCleared) return false;
+    // 🚫 복원 구매를 완전히 차단하되 플랫폼별 시스템 무결성 유지
+    if (purchaseDetails.status == PurchaseStatus.restored) {
+      final platform = Theme.of(context).platform;
+      logger.w('🚫 복원 구매 차단됨 (${platform.name}): ${purchaseDetails.productID}');
 
-    final timeSinceInit = _initializationCompletedAt != null
-        ? DateTime.now().difference(_initializationCompletedAt!).inSeconds
-        : 0;
+      // 플랫폼별 로깅으로 동작 모니터링
+      if (platform == TargetPlatform.iOS) {
+        logger.w('📱 iOS: StoreKit 복원 요청 무시');
+      } else if (platform == TargetPlatform.android) {
+        logger.w('🤖 Android: Play Billing 복원 요청 무시');
+      }
 
-    return _isUserRequestedRestore || timeSinceInit > 10;
+      return false;
+    }
+    return false;
   }
 
   /// 활성 구매 처리 여부 확인
@@ -495,28 +619,62 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
   }
 
-  /// 복원 구매 처리
+  /// 복원 구매 처리 - 🚫 플랫폼별 안전 차단
   Future<void> _processRestoredPurchase(PurchaseDetails purchaseDetails) async {
-    final timeSinceInit = _initializationCompletedAt != null
-        ? DateTime.now().difference(_initializationCompletedAt!).inSeconds
-        : 0;
+    final platform = Theme.of(context).platform;
 
-    logger.i(
-        '[PurchaseStarCandyState] Processing restored purchase (user requested: $_isUserRequestedRestore, time since init: ${timeSinceInit}s): ${purchaseDetails.productID}');
+    // 🧹 예방적 정리 모드에서는 더욱 조용하게 처리
+    if (_isProactiveCleanupMode) {
+      _restoredPurchaseCount++; // 📊 처리된 복원 구매 수 증가
+      logger.i(
+          '🧹 예방적 정리 모드: 복원 구매 조용히 완료 처리 (${platform.name}): ${purchaseDetails.productID} [$_restoredPurchaseCount개째]');
 
-    await _purchaseService.handleOptimizedPurchase(
-      purchaseDetails,
-      () async {
-        logger.i('[PurchaseStarCandyState] Restored purchase successful');
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
-        _isUserRequestedRestore = false;
-      },
-      (error) async {
-        logger.e('[PurchaseStarCandyState] Restored purchase error: $error');
-        _isUserRequestedRestore = false;
-      },
-      isActualPurchase: false,
-    );
+      // 시스템 무결성만 유지하고 로깅 최소화
+      if (purchaseDetails.pendingCompletePurchase) {
+        await _purchaseService.inAppPurchaseService
+            .completePurchase(purchaseDetails);
+      }
+
+      logger.d('🧹 예방적 정리: ${purchaseDetails.productID} 완료 처리됨');
+      return;
+    }
+
+    // 일반 모드에서의 복원 차단 로직
+    logger
+        .w('🚫 복원 구매 처리 차단됨 (${platform.name}): ${purchaseDetails.productID}');
+
+    // 플랫폼별 안전한 처리 방식
+    if (platform == TargetPlatform.iOS) {
+      // 📱 iOS: StoreKit과의 호환성을 위해 완료 처리는 수행하되 실제 혜택은 차단
+      logger.w('📱 iOS: StoreKit 무결성 유지 - 완료 처리만 수행');
+      if (purchaseDetails.pendingCompletePurchase) {
+        await _purchaseService.inAppPurchaseService
+            .completePurchase(purchaseDetails);
+      }
+      // ✋ 실제 복원 혜택(스타캔디 지급 등)은 차단
+      logger.i('📱 iOS: 복원 혜택 차단됨 - 시스템 완료만 처리');
+    } else if (platform == TargetPlatform.android) {
+      // 🤖 Android: Play Billing과의 호환성을 위해 acknowledge만 수행
+      logger.w('🤖 Android: Play Billing 무결성 유지 - 완료 처리만 수행');
+      if (purchaseDetails.pendingCompletePurchase) {
+        await _purchaseService.inAppPurchaseService
+            .completePurchase(purchaseDetails);
+      }
+      // ✋ 실제 복원 혜택(스타캔디 지급 등)은 차단
+      logger.i('🤖 Android: 복원 혜택 차단됨 - 시스템 완료만 처리');
+    } else {
+      // 🖥️ 기타 플랫폼: 기본 처리
+      logger.w('🖥️ ${platform.name}: 기본 복원 차단 처리');
+      if (purchaseDetails.pendingCompletePurchase) {
+        await _purchaseService.inAppPurchaseService
+            .completePurchase(purchaseDetails);
+      }
+    }
+
+    // 🚫 PurchaseService의 실제 복원 처리는 호출하지 않음
+    // 이로써 스타캔디 지급, 사용자 프로필 업데이트 등 실제 혜택은 차단됨
+    logger.i('🚫 복원 혜택 차단 완료 - 시스템 무결성만 유지');
+    return;
   }
 
   /// 활성 구매 처리
@@ -536,8 +694,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         _pendingProductId != null &&
         purchaseDetails.productID.toLowerCase() ==
             _pendingProductId!.toLowerCase() &&
-        purchaseDetails.status == PurchaseStatus.purchased &&
-        !_isUserRequestedRestore;
+        purchaseDetails.status == PurchaseStatus.purchased;
+    // 🚫 복원 관련 조건 제거: && !_isUserRequestedRestore;
 
     isActualPurchase = basicMatch || recentPurchaseMatch;
 
@@ -561,7 +719,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     logger.i('    → 구매 상태: ${purchaseDetails.status}');
     logger.i(
         '    → 구매 상태 매치: ${purchaseDetails.status == PurchaseStatus.purchased}');
-    logger.i('    → 복원 요청 아님: ${!_isUserRequestedRestore}');
+    // 🚫 복원 관련 로깅 제거: logger.i('    → 복원 요청 아님: ${!_isUserRequestedRestore}');
     logger.i('  - 최종 판별 결과: $isActualPurchase');
 
     // 🛡️ 늦은 구매 성공 감지
@@ -907,11 +1065,22 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) async {
+    // 🛡️ 복원 정리 완료 대기 가드
+    if (!_isProactiveCleanupCompleted) {
+      logger.w('🛡️ 복원 정리가 아직 완료되지 않음 - 구매 차단');
+      if (mounted) {
+        showSimpleDialog(
+          content: '구매 준비 중입니다. 잠시 후 다시 시도해주세요.',
+        );
+      }
+      return;
+    }
+
     _setPurchaseStartState();
 
     try {
       logger.i(
-          '[PurchaseStarCandyState] Starting purchase for: ${serverProduct['id']}');
+          '[PurchaseStarCandyState] Starting purchase for: ${serverProduct['id']} (복원 정리 완료 확인됨)');
       final purchaseStartTime = DateTime.now();
 
       if (!context.mounted) return;
@@ -1145,80 +1314,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     );
   }
 
-  Future<void> _handleRestorePurchases() async {
-    if (_isActivePurchasing || _isPurchasing) {
-      logger
-          .w('[PurchaseStarCandyState] Cannot restore during active purchase');
-      showSimpleDialog(content: t('purchase_restore_wait_message'));
-      return;
-    }
 
-    final shouldRestore = await _showRestoreConfirmationDialog();
-    if (shouldRestore != true) return;
-
-    try {
-      logger.i(
-          '[PurchaseStarCandyState] Starting user-requested purchase restoration');
-
-      setState(() => _isUserRequestedRestore = true);
-
-      if (!context.mounted) return;
-      _loadingKey.currentState?.show();
-
-      await _purchaseService.inAppPurchaseService.restorePurchases();
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
-
-      logger.i('[PurchaseStarCandyState] Purchase restoration completed');
-
-      if (mounted) {
-        _loadingKey.currentState?.hide();
-        showSimpleDialog(content: t('purchase_restore_success_message'));
-
-        Timer(_restoreResetDelay, () {
-          if (mounted) {
-            setState(() => _isUserRequestedRestore = false);
-          }
-        });
-      }
-    } catch (e) {
-      logger.e('[PurchaseStarCandyState] Purchase restoration failed: $e');
-
-      setState(() => _isUserRequestedRestore = false);
-
-      if (mounted) {
-        _loadingKey.currentState?.hide();
-        showSimpleDialog(
-          content: '구매 복원 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.',
-          type: DialogType.error,
-        );
-      }
-    }
-  }
-
-  Future<bool?> _showRestoreConfirmationDialog() async {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('구매 복원'),
-        content: Text('''이전에 구매한 상품을 복원하시겠습니까?
-
-주의사항:
-• 이미 처리된 구매는 중복으로 지급되지 않습니다
-• 복원 과정에서 일시적으로 알림이 나타날 수 있습니다
-• 스타캔디가 누락된 경우에만 사용해주세요'''),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('복원'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> _handleCheckPendingStatus() async {
     if (!kDebugMode) return;
@@ -1894,6 +1990,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             spacing: 8,
             runSpacing: 4,
             children: [
+              // 🚫 복원 구매 버튼 제거
+              /*
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary500.withValues(alpha: 0.9),
@@ -1905,6 +2003,44 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                     Icon(Icons.restore, size: 16, color: Colors.white),
                     SizedBox(width: 4),
                     Text('구매복원',
+                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                  ],
+                ),
+              ),
+              */
+              // 🤫 복원 기능 조용히 무시 - 플랫폼별 디버그 확인
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[400],
+                ),
+                onPressed: () {
+                  final platform = Theme.of(context).platform;
+                  final platformEmoji = platform == TargetPlatform.iOS
+                      ? '📱'
+                      : platform == TargetPlatform.android
+                          ? '🤖'
+                          : '🖥️';
+
+                  logger.d(
+                      '🤫 복원 디버그 버튼 눌림 ($platformEmoji ${platform.name}) - 조용히 무시');
+
+                  // 🔍 디버그 모드에서는 플랫폼 정보를 간단히 표시
+                  if (kDebugMode) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content:
+                            Text('$platformEmoji ${platform.name}: 복원 무시됨'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  }
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.visibility_off, size: 16, color: Colors.white),
+                    SizedBox(width: 4),
+                    Text('복원무시',
                         style: TextStyle(fontSize: 12, color: Colors.white)),
                   ],
                 ),
