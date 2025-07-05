@@ -126,7 +126,11 @@ class ReceiptVerificationService {
     String userId,
     String environment,
   ) async {
-    logger.i('Android receipt verification');
+    logger.i('🤖 Android 영수증 검증 시작');
+    logger.i('  - Product ID: $productId');
+    logger.i('  - User ID: $userId');
+    logger.i('  - Environment: $environment');
+    logger.i('  - Receipt length: ${receipt.length}');
 
     final requestBody = {
       'receipt': receipt,
@@ -137,7 +141,9 @@ class ReceiptVerificationService {
       'format': 'google_play',
     };
 
+    logger.i('🚀 Android 서버 검증 호출 시작');
     await _callVerificationFunction(requestBody, 'Android');
+    logger.i('✅ Android 영수증 검증 완료');
   }
 
   /// 검증 함수 호출 (재시도 로직 포함)

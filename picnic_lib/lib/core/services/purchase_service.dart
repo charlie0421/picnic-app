@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -305,16 +306,25 @@ class PurchaseService {
     VoidCallback onSuccess,
     Function(String) onError,
   ) async {
-    logger.i('🎯 실제 구매 처리 - 영수증 검증');
+    final platform = Platform.isIOS ? 'iOS' : 'Android';
+    logger.i('🎯 실제 구매 처리 시작 ($platform) - 영수증 검증');
+    logger.i('  - Product ID: ${purchaseDetails.productID}');
+    logger.i('  - Transaction ID: ${purchaseDetails.purchaseID}');
+    logger.i('  - Status: ${purchaseDetails.status}');
 
     try {
       _validateUserAuthentication();
+
       final environment = await receiptVerificationService.getEnvironment();
-      logger.i('🌍 Environment detected: $environment');
+      logger.i('🌍 Environment detected: $environment ($platform)');
+
       await _validateReceiptData(purchaseDetails);
+      logger.i('✅ 영수증 데이터 검증 완료 ($platform)');
 
       // 🔥 영수증 검증 (서버 검증 단계만 - 타임아웃 있음)
+      logger.i('🔍 서버 영수증 검증 시작 ($platform)');
       await _verifyReceipt(purchaseDetails, environment);
+      logger.i('✅ 서버 영수증 검증 완료 ($platform)');
 
       await _logPurchaseAnalytics(purchaseDetails);
 
@@ -330,9 +340,9 @@ class PurchaseService {
       }
 
       onSuccess();
-      logger.i('✅ 실제 구매 검증 완료');
+      logger.i('✅ 실제 구매 검증 완료 ($platform)');
     } on ReusedPurchaseException catch (e) {
-      logger.w('🔄 JWT 재사용 감지 - StoreKit 캐시 문제: ${e.message}');
+      logger.w('🔄 JWT 재사용 감지 ($platform) - StoreKit 캐시 문제: ${e.message}');
       _processingProducts.remove(purchaseDetails.productID);
 
       // 🛡️ 중복 방지 서비스에 실패 알림
@@ -345,7 +355,7 @@ class PurchaseService {
 
       onError('StoreKit 캐시 문제로 인한 중복 영수증. 잠시 후 다시 시도해주세요.');
     } catch (e, s) {
-      logger.e('❌ 실제 구매 처리 중 오류: $e', stackTrace: s);
+      logger.e('❌ 실제 구매 처리 중 오류 ($platform): $e', stackTrace: s);
       _processingProducts.remove(purchaseDetails.productID);
 
       // 🛡️ 중복 방지 서비스에 실패 알림
@@ -389,11 +399,20 @@ class PurchaseService {
 
   /// 영수증 데이터 검증
   Future<void> _validateReceiptData(PurchaseDetails purchaseDetails) async {
+    final platform = Platform.isIOS ? 'iOS' : 'Android';
     final receiptData = purchaseDetails.verificationData.serverVerificationData;
+
+    logger.i('🔍 영수증 데이터 검증 시작 ($platform)');
+    logger.i('  - Receipt length: ${receiptData.length} characters');
+    logger.i(
+        '  - Receipt preview: ${receiptData.length > 50 ? "${receiptData.substring(0, 50)}..." : receiptData}');
+
     if (receiptData.isEmpty) {
+      logger.e('❌ 영수증 데이터가 비어있음 ($platform)');
       throw Exception('영수증 데이터가 비어있습니다');
     }
-    logger.i('영수증 데이터 검증 완료 - 길이: ${receiptData.length}');
+
+    logger.i('✅ 영수증 데이터 검증 완료 ($platform) - 길이: ${receiptData.length}');
   }
 
   /// 영수증 검증 (단순화 - 서비스에 위임)
@@ -490,9 +509,6 @@ class PurchaseService {
 
     return PurchaseConstants.purchaseFailedError;
   }
-
-
-
 
   /// 서비스 해제 시 모든 진행 상태 정리
   void dispose() {
