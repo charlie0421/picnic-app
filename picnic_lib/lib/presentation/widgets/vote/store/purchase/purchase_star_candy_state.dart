@@ -671,6 +671,211 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     });
   }
 
+  // 🔒 구매 확인 다이얼로그 - 우발적 구매 방지
+  Future<void> _showPurchaseConfirmDialog(
+    BuildContext context,
+    Map<String, dynamic> serverProduct,
+    List<ProductDetails> storeProducts,
+  ) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Image.asset(
+                package: 'picnic_lib',
+                'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
+                width: 24,
+                height: 24,
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  t('purchase_confirm_title'),
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                t('purchase_confirm_message'),
+                style: getTextStyle(AppTypo.body14R, AppColors.grey700),
+              ),
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary500.withValues(alpha: 0.08),
+                      AppColors.primary500.withValues(alpha: 0.04),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.primary500.withValues(alpha: 0.2),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary500.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // 스타캔디 아이콘 - 더 크고 매력적으로
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary500
+                                    .withValues(alpha: 0.15),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Image.asset(
+                            package: 'picnic_lib',
+                            'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
+                            width: 48,
+                            height: 48,
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                serverProduct['id'],
+                                style: getTextStyle(
+                                    AppTypo.body16B, AppColors.grey900),
+                              ),
+                              SizedBox(height: 6),
+                              // 상품 설명을 파싱해서 메인 설명과 보너스 분리
+                              ...(() {
+                                final fullDescription = getLocaleTextFromJson(
+                                    serverProduct['description']);
+
+                                // '+' 기호를 기준으로 분리
+                                if (fullDescription.contains('+')) {
+                                  final parts = fullDescription.split('+');
+                                  final mainDescription = parts[0].trim();
+                                  final bonusDescription =
+                                      '+${parts.sublist(1).join('+').trim()}';
+
+                                  return [
+                                    Text(
+                                      mainDescription,
+                                      style: getTextStyle(AppTypo.caption12R,
+                                          AppColors.grey600),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      bonusDescription,
+                                      style: getTextStyle(AppTypo.caption12B,
+                                          AppColors.point900),
+                                    ),
+                                  ];
+                                } else {
+                                  // '+' 기호가 없는 경우 전체를 메인 설명으로 표시
+                                  return [
+                                    Text(
+                                      fullDescription,
+                                      style: getTextStyle(AppTypo.caption12R,
+                                          AppColors.grey600),
+                                    ),
+                                  ];
+                                }
+                              })(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    // 구분선
+                    Container(
+                      height: 1,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            AppColors.primary500.withValues(alpha: 0.3),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    // 가격 정보 - 더 강조해서 표시
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          t('purchase_payment_amount'),
+                          style:
+                              getTextStyle(AppTypo.body14M, AppColors.grey600),
+                        ),
+                        Text(
+                          '${serverProduct['price']} \$',
+                          style: getTextStyle(
+                              AppTypo.body16B, AppColors.primary500),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                t('cancel'),
+                style: getTextStyle(AppTypo.body14R, AppColors.grey500),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary500,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                t('purchase_confirm_button'),
+                style: getTextStyle(AppTypo.body14B, Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      await _processPurchase(context, serverProduct, storeProducts);
+    }
+  }
+
   Future<void> _handleBuyButtonPressed(
     BuildContext context,
     Map<String, dynamic> serverProduct,
@@ -684,7 +889,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     if (_isInitializing) {
       logger
           .w('[PurchaseStarCandyState] Purchase blocked during initialization');
-      showSimpleDialog(content: '초기화 중입니다. 잠시 후 다시 시도해주세요.');
+      showSimpleDialog(content: t('purchase_initializing_message'));
       return;
     }
 
@@ -692,6 +897,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
+    // 🔒 구매 확인 다이얼로그 표시
+    await _showPurchaseConfirmDialog(context, serverProduct, storeProducts);
+  }
+
+  // 🎯 실제 구매 처리 로직
+  Future<void> _processPurchase(
+    BuildContext context,
+    Map<String, dynamic> serverProduct,
+    List<ProductDetails> storeProducts,
+  ) async {
     _setPurchaseStartState();
 
     try {
@@ -750,14 +965,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
     if (_isPurchasing) {
       logger.w('[PurchaseStarCandyState] Purchase already in progress');
-      showSimpleDialog(content: '구매가 진행 중입니다. 잠시만 기다려주세요.');
+      showSimpleDialog(content: t('purchase_in_progress_message'));
       return false;
     }
 
     if (_lastPurchaseAttempt != null &&
         now.difference(_lastPurchaseAttempt!) < _purchaseCooldown) {
       logger.w('[PurchaseStarCandyState] Purchase cooldown active');
-      showSimpleDialog(content: '잠시 후 다시 시도해주세요.');
+      showSimpleDialog(content: t('purchase_cooldown_message'));
       return false;
     }
 
@@ -814,7 +1029,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
-          _showErrorDialog('구매 처리 시간이 너무 오래 걸리고 있습니다.\n잠시 후 다시 시도해주세요.');
+          _showErrorDialog(t('purchase_timeout_message'));
         }
       });
 
@@ -934,7 +1149,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     if (_isActivePurchasing || _isPurchasing) {
       logger
           .w('[PurchaseStarCandyState] Cannot restore during active purchase');
-      showSimpleDialog(content: '구매가 진행 중입니다. 완료 후 다시 시도해주세요.');
+      showSimpleDialog(content: t('purchase_restore_wait_message'));
       return;
     }
 
@@ -957,7 +1172,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
       if (mounted) {
         _loadingKey.currentState?.hide();
-        showSimpleDialog(content: '구매 복원이 완료되었습니다.\n스타캔디 잔액을 확인해주세요.');
+        showSimpleDialog(content: t('purchase_restore_success_message'));
 
         Timer(_restoreResetDelay, () {
           if (mounted) {

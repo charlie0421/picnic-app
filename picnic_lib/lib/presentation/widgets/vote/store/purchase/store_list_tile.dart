@@ -28,7 +28,7 @@ class StoreListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48,
+      height: subtitle != null ? 64 : 48, // subtitle이 있으면 높이 증가
       width: buttonScale,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -37,9 +37,15 @@ class StoreListTile extends StatelessWidget {
           SizedBox(width: 16.w),
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center, // center로 변경
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [title, if (subtitle != null) subtitle!],
+              children: [
+                title, 
+                if (subtitle != null) ...[
+                  SizedBox(height: 4), // 간격 추가
+                  subtitle!
+                ]
+              ],
             ),
           ),
           SizedBox(
