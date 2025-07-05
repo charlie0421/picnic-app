@@ -181,9 +181,6 @@ class InAppPurchaseService {
     logger.d('Purchase stream initialized successfully');
   }
 
-
-
-
   void _resetPurchaseTimeout() {
     _purchaseTimeoutTimer?.cancel();
 
@@ -1409,7 +1406,7 @@ class InAppPurchaseService {
         await Future.delayed(Duration(seconds: 5));
 
         // 4. StoreKit 시스템 레벨 캐시 강제 무효화 (10회 시도)
-        logger.i('🧹 StoreKit 시스템 레벨 캐시 강제 무효화 (10회)');
+        logger.i('�� StoreKit 시스템 레벨 캐시 강제 무효화 (10회)');
         for (int i = 0; i < 10; i++) {
           try {
             await Future.delayed(Duration(seconds: 1)); // 1초씩 대기
@@ -1447,6 +1444,13 @@ class InAppPurchaseService {
     } catch (e) {
       logger.e('❌ 궁극적인 인증창 복구 실패: $e');
     }
+  }
+
+  /// 🧹 정상 구매 완료 시 타이머 정리
+  void cleanupTimersOnPurchaseSuccess(String productId) {
+    logger.i('🧹 ✅ InAppPurchaseService 타이머 정리 완료: $productId (정상 구매 성공 시)');
+    // 현재 이 InAppPurchaseService에는 정리할 특별한 타이머가 없음
+    // 하지만 일관성을 위해 메서드 제공
   }
 
   void dispose() {

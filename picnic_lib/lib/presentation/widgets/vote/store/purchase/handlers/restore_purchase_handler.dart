@@ -202,6 +202,18 @@ class RestorePurchaseHandler {
     _isWaitingForRestoreCompletion = false;
   }
 
+  /// 🧹 모든 타이머 정리 (정상 구매 완료 시)
+  void cleanupTimersOnPurchaseSuccess() {
+    // 1️⃣ 펄스 로딩 타이머 정리
+    _pulseLoadingTimer?.cancel();
+    _pulseLoadingTimer = null;
+
+    // 2️⃣ 대기 상태 정리
+    _isWaitingForRestoreCompletion = false;
+
+    logger.i('🧹 ✅ RestoreHandler 타이머 정리 완료 (정상 구매 성공 시)');
+  }
+
   void dispose() {
     _pulseLoadingTimer?.cancel();
     _cleanupState();

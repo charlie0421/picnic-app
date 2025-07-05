@@ -395,6 +395,21 @@ class InAppPurchaseService {
     return Platform.isAndroid ? 'Google Play' : 'Unknown';
   }
 
+  /// 🧹 정상 구매 완료 시 타이머 정리
+  void cleanupTimersOnPurchaseSuccess(String productId) {
+    // 1️⃣ 구매 타임아웃 타이머 정리
+    _purchaseTimeoutTimer?.cancel();
+    _purchaseTimeoutTimer = null;
+
+    // 2️⃣ 현재 구매 상품 ID 정리
+    _currentPurchaseProductId = null;
+
+    // 3️⃣ 취소 상태 정리
+    lastPurchaseWasCancelled = false;
+
+    logger.i('🧹 ✅ InAppPurchaseService 타이머 정리 완료: $productId (정상 구매 성공 시)');
+  }
+
   void dispose() {
     logger.i('Disposing InAppPurchaseService');
 

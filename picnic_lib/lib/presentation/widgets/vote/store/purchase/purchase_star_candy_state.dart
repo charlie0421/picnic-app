@@ -533,13 +533,16 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       () async {
         logger.i('[PurchaseStarCandyState] Purchase successful');
 
-        // 🛡️ 구매 세션 완료 기록으로 중복 방지
+        // 🛡️ 구매 세션 완료 기록으로 중복 방지 (이미 내부적으로 안전망 타이머 정리함)
         _safetyManager.completePurchaseSession(purchaseDetails.productID);
 
+        // 🧹 모든 타이머 완전 정리 (정상 구매 완료 시)
+        _cleanupAllTimersOnSuccess(purchaseDetails.productID);
+
         // 🧹 구매 완료 후 클린 작업 수행 (동기 처리로 완전성 보장)
-        final transactionId = purchaseDetails.purchaseID ?? 
+        final transactionId = purchaseDetails.purchaseID ??
             '${purchaseDetails.productID}_${DateTime.now().millisecondsSinceEpoch}';
-        
+
         // 🧹 동기로 클린 작업 실행 - 완료까지 기다림 (확실성 우선)
         await _safetyManager.performPostPurchaseCleanup(
           productId: purchaseDetails.productID,
@@ -616,6 +619,28 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         error.contains('이미 처리된 구매') ||
         error.contains('Duplicate') ||
         error.toLowerCase().contains('reused');
+  }
+
+  /// 🧹 정상 구매 완료 시 모든 타이머 완전 정리
+  void _cleanupAllTimersOnSuccess(String productId) {
+    logger.i('[PurchaseStarCandyState] 🧹 모든 타이머 정리 시작: $productId');
+
+    try {
+      // 1️⃣ PurchaseSafetyManager 타이머 정리 (추가 정리)
+      _safetyManager.cleanupAllTimersOnSuccess();
+
+      // 2️⃣ RestorePurchaseHandler 타이머 정리
+      _restoreHandler.cleanupTimersOnPurchaseSuccess();
+
+      // 3️⃣ InAppPurchaseService 타이머 정리
+      _purchaseService.inAppPurchaseService
+          .cleanupTimersOnPurchaseSuccess(productId);
+
+      logger.i('[PurchaseStarCandyState] 🧹 ✅ 모든 타이머 정리 완료: $productId');
+    } catch (e) {
+      logger.w('[PurchaseStarCandyState] 🧹 ⚠️ 타이머 정리 중 경고: $e');
+      // 타이머 정리 실패해도 구매는 이미 성공했으므로 계속 진행
+    }
   }
 
   void _resetPurchaseState() {

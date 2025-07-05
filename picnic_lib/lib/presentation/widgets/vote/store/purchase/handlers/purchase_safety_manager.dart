@@ -139,13 +139,29 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     logger.i('🎯 구매 시작: $productId (연속 $_consecutivePurchaseCount회째)');
   }
 
-  /// 🎯 심플 구매 완료 (3줄로 해결!)
+  /// 🎯 심플 구매 완료 + 타이머 정리 (3줄로 해결!)
   void completePurchaseSession(String productId) {
     final transactionId =
         '${productId}_${DateTime.now().millisecondsSinceEpoch}';
     _isPurchaseInProgress = false;
     _lastProcessedTransactionId = transactionId;
-    logger.i('🎯 구매 완료: $transactionId');
+
+    // 🛡️ 정상 구매 완료 시 안전망 타이머 정리
+    stopSafetyTimer();
+
+    logger.i('🎯 구매 완료: $transactionId (타이머 정리됨)');
+  }
+
+  /// 🧹 모든 타이머 완전 정리 (정상 구매 완료 시)
+  void cleanupAllTimersOnSuccess() {
+    // 1️⃣ 안전망 타이머 정리
+    stopSafetyTimer();
+
+    // 2️⃣ 안전망 상태 완전 리셋 (단, 구매 세션 정보는 유지)
+    _safetyTimeoutTriggered = false;
+    _safetyTimeoutTime = null;
+
+    logger.i('🧹 ✅ 모든 타이머 정리 완료 (정상 구매 성공 시)');
   }
 
   /// 🧹 구매 완료 후 클린 작업 - 연속 구매 최적화
