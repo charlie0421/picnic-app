@@ -137,25 +137,26 @@ workflows:
         script: |
           cd picnic_app/ios
           
-          echo "=== Manual Distribution Signing 설정 (성공했던 방식) ==="
+          echo "=== Runner 타겟만 Manual Distribution Signing 설정 ==="
+          echo "🎯 CocoaPods 의존성 충돌 해결: Runner만 Manual, Pods는 Automatic 유지"
           
-          # Manual Signing 강제 설정
-          echo "📝 Manual Distribution Signing 활성화..."
+          # Runner.xcodeproj만 수정 (Pods.xcodeproj는 건드리지 않음)
+          echo "📝 Runner 타겟: Manual Distribution Signing 활성화..."
           sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
           
-          # Development Team 설정 (필수)
+          # Development Team 설정 (Runner만)
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Distribution 인증서 강제 설정
-          echo "📝 Apple Distribution 인증서 설정..."
+          # Distribution 인증서 설정 (Runner만)
+          echo "📝 Runner 타겟: Apple Distribution 인증서 설정..."
           sed -i '' "s/CODE_SIGN_IDENTITY = \"\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Distribution 프로파일 설정 (성공했던 설정)
-          echo "📝 Distribution 프로파일 설정..."
+          # Distribution 프로파일 설정 (Runner만)
+          echo "📝 Runner 타겟: Distribution 프로파일 설정..."
           sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/g" Runner.xcodeproj/project.pbxproj
           
           # Release 구성 설정
@@ -164,20 +165,25 @@ workflows:
             sed -i '' 's/buildConfiguration = \"Debug\"/buildConfiguration = \"Release\"/g' Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
           fi
           
-          # Development 관련 설정 제거
-          echo "🧹 Development 관련 설정 제거..."
+          # Development 관련 설정 제거 (Runner만)
+          echo "🧹 Runner 타겟: Development 관련 설정 제거..."
           sed -i '' "/CODE_SIGN_IDENTITY.*=.*iPhone Developer/d" Runner.xcodeproj/project.pbxproj
           sed -i '' "/CODE_SIGN_IDENTITY.*=.*Apple Development/d" Runner.xcodeproj/project.pbxproj
           sed -i '' "/PROVISIONING_PROFILE_SPECIFIER.*=.*Development/d" Runner.xcodeproj/project.pbxproj
           
-          echo "📋 설정 후 확인:"
+          echo "✅ Pods 타겟들: Automatic signing 그대로 유지 (건드리지 않음)"
+          echo "📝 이제 Runner는 Manual, CocoaPods는 Automatic signing 사용"
+          
+          echo "📋 Runner 설정 확인:"
           grep -n "CODE_SIGN_STYLE\|Apple Distribution\|picnic_app_profile_2025" Runner.xcodeproj/project.pbxproj | head -10
           
-          echo "✅ Manual Distribution Signing 설정 완료"
-          echo "- CODE_SIGN_STYLE: Manual"
-          echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
-          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          echo "✅ 타겟별 서명 설정 완료"
+          echo "📱 Runner 타겟: Manual Distribution Signing"
+          echo "  - CODE_SIGN_STYLE: Manual"
+          echo "  - DEVELOPMENT_TEAM: 24SL34R9HR"
+          echo "  - CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "  - PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          echo "📦 CocoaPods 타겟들: Automatic Signing (변경 없음)"
 
       - name: Build iOS IPA for App Store
         script: |
@@ -188,12 +194,14 @@ workflows:
           echo ""
 
           echo "=== iOS 서명 환경 최종 확인 ==="
-          echo "✅ Manual Distribution Signing 사용 (성공했던 방식)"
+          echo "✅ 타겟별 서명 전략: Runner=Manual, CocoaPods=Automatic"
           echo "✅ Bundle ID: io.iconcasting.picnic.app"
           echo "✅ Distribution Type: App Store"
           echo "✅ Development Team: 24SL34R9HR"
-          echo "✅ CODE_SIGN_IDENTITY: Apple Distribution"
-          echo "✅ PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          echo "📱 Runner 타겟: Manual Distribution Signing"
+          echo "  - CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "  - PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          echo "📦 CocoaPods 타겟들: Automatic Signing (충돌 방지)"
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
@@ -221,15 +229,12 @@ workflows:
           echo "📦 2단계: Xcode Archive 생성..."
           cd ios
           
-          xcodebuild archive \
-            -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -archivePath "../build/ios/archive/Runner.xcarchive" \
-            CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM="24SL34R9HR" \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="picnic_app_profile_2025"
+                      xcodebuild archive \
+              -workspace Runner.xcworkspace \
+              -scheme Runner \
+              -configuration Release \
+              -archivePath "../build/ios/archive/Runner.xcarchive" \
+              ONLY_ACTIVE_ARCH=NO
           
           ARCHIVE_EXIT_CODE=$?
           
