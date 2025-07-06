@@ -243,36 +243,34 @@ workflows:
           # 3단계: IPA 내보내기
           echo "📤 3단계: IPA 파일 내보내기..."
           
-          # ExportOptions.plist 내용 확인 및 수정
-          cat > /tmp/ExportOptions.plist << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>method</key>
-    <string>app-store</string>
-    <key>uploadBitcode</key>
-    <false/>
-    <key>uploadSymbols</key>
-    <true/>
-    <key>compileBitcode</key>
-    <false/>
-    <key>stripSwiftSymbols</key>
-    <true/>
-    <key>teamID</key>
-    <string>24SL34R9HR</string>
-    <key>provisioningProfiles</key>
-    <dict>
-        <key>io.iconcasting.picnic.app</key>
-        <string>picnic_app_profile_2025</string>
-    </dict>
-    <key>signingStyle</key>
-    <string>manual</string>
-    <key>destination</key>
-    <string>export</string>
-</dict>
-</plist>
-EOF
+          # ExportOptions.plist 생성
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > /tmp/ExportOptions.plist
+          echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> /tmp/ExportOptions.plist
+          echo '<plist version="1.0">' >> /tmp/ExportOptions.plist
+          echo '<dict>' >> /tmp/ExportOptions.plist
+          echo '    <key>method</key>' >> /tmp/ExportOptions.plist
+          echo '    <string>app-store</string>' >> /tmp/ExportOptions.plist
+          echo '    <key>uploadBitcode</key>' >> /tmp/ExportOptions.plist
+          echo '    <false/>' >> /tmp/ExportOptions.plist
+          echo '    <key>uploadSymbols</key>' >> /tmp/ExportOptions.plist
+          echo '    <true/>' >> /tmp/ExportOptions.plist
+          echo '    <key>compileBitcode</key>' >> /tmp/ExportOptions.plist
+          echo '    <false/>' >> /tmp/ExportOptions.plist
+          echo '    <key>stripSwiftSymbols</key>' >> /tmp/ExportOptions.plist
+          echo '    <true/>' >> /tmp/ExportOptions.plist
+          echo '    <key>teamID</key>' >> /tmp/ExportOptions.plist
+          echo '    <string>24SL34R9HR</string>' >> /tmp/ExportOptions.plist
+          echo '    <key>provisioningProfiles</key>' >> /tmp/ExportOptions.plist
+          echo '    <dict>' >> /tmp/ExportOptions.plist
+          echo '        <key>io.iconcasting.picnic.app</key>' >> /tmp/ExportOptions.plist
+          echo '        <string>picnic_app_profile_2025</string>' >> /tmp/ExportOptions.plist
+          echo '    </dict>' >> /tmp/ExportOptions.plist
+          echo '    <key>signingStyle</key>' >> /tmp/ExportOptions.plist
+          echo '    <string>manual</string>' >> /tmp/ExportOptions.plist
+          echo '    <key>destination</key>' >> /tmp/ExportOptions.plist
+          echo '    <string>export</string>' >> /tmp/ExportOptions.plist
+          echo '</dict>' >> /tmp/ExportOptions.plist
+          echo '</plist>' >> /tmp/ExportOptions.plist
           
           xcodebuild -exportArchive \
             -archivePath "../build/ios/archive/Runner.xcarchive" \
