@@ -199,32 +199,121 @@ workflows:
           flutter clean
           flutter pub get
 
-          echo "=== iOS IPA 빌드 실행 ==="
-          echo "🚀 Flutter로 iOS IPA 빌드 시작..."
-          flutter build ipa \
+          echo "=== iOS 빌드 단계 시작 ==="
+          echo "🚀 단계별 iOS 빌드 및 IPA 생성..."
+          
+          # 1단계: Flutter iOS 빌드
+          echo "📱 1단계: Flutter iOS 빌드..."
+          flutter build ios \
             --release \
             --dart-define=ENVIRONMENT=prod
           
-          BUILD_EXIT_CODE=$?
+          FLUTTER_BUILD_EXIT_CODE=$?
           
-          # IPA 파일 생성 확인
-          if [ $BUILD_EXIT_CODE -eq 0 ]; then
-            echo "=== iOS IPA 빌드 성공 ==="
-            echo "✅ IPA 파일이 성공적으로 생성되었습니다"
-            
-            # IPA 파일 위치 확인
-            if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
-              IPA_SIZE=$(stat -f%z "build/ios/ipa/picnic_app.ipa" 2>/dev/null || echo "unknown")
-              echo "📦 IPA 파일: build/ios/ipa/picnic_app.ipa ($IPA_SIZE bytes)"
-            else
-              echo "🔍 IPA 파일 위치 확인 중..."
-              find build/ios -name "*.ipa" -type f | head -5
-            fi
-          else
-            echo "=== iOS IPA 빌드 실패 ==="
-            echo "❌ IPA 빌드에 실패했습니다 (종료 코드: $BUILD_EXIT_CODE)"
+          if [ $FLUTTER_BUILD_EXIT_CODE -ne 0 ]; then
+            echo "❌ Flutter iOS 빌드 실패 (종료 코드: $FLUTTER_BUILD_EXIT_CODE)"
             exit 1
           fi
+          
+          echo "✅ Flutter iOS 빌드 성공"
+          
+          # 2단계: Xcode Archive 생성
+          echo "📦 2단계: Xcode Archive 생성..."
+          cd ios
+          
+          xcodebuild archive \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath "../build/ios/archive/Runner.xcarchive" \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="24SL34R9HR" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="picnic_app_profile_2025"
+          
+          ARCHIVE_EXIT_CODE=$?
+          
+          if [ $ARCHIVE_EXIT_CODE -ne 0 ]; then
+            echo "❌ Xcode Archive 생성 실패 (종료 코드: $ARCHIVE_EXIT_CODE)"
+            exit 1
+          fi
+          
+          echo "✅ Xcode Archive 생성 성공"
+          
+          # 3단계: IPA 내보내기
+          echo "📤 3단계: IPA 파일 내보내기..."
+          
+          # ExportOptions.plist 내용 확인 및 수정
+          cat > /tmp/ExportOptions.plist << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>app-store</string>
+    <key>uploadBitcode</key>
+    <false/>
+    <key>uploadSymbols</key>
+    <true/>
+    <key>compileBitcode</key>
+    <false/>
+    <key>stripSwiftSymbols</key>
+    <true/>
+    <key>teamID</key>
+    <string>24SL34R9HR</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>io.iconcasting.picnic.app</key>
+        <string>picnic_app_profile_2025</string>
+    </dict>
+    <key>signingStyle</key>
+    <string>manual</string>
+    <key>destination</key>
+    <string>export</string>
+</dict>
+</plist>
+EOF
+          
+          xcodebuild -exportArchive \
+            -archivePath "../build/ios/archive/Runner.xcarchive" \
+            -exportPath "../build/ios/ipa" \
+            -exportOptionsPlist /tmp/ExportOptions.plist
+          
+          EXPORT_EXIT_CODE=$?
+          
+          cd ..
+          
+          if [ $EXPORT_EXIT_CODE -ne 0 ]; then
+            echo "❌ IPA 내보내기 실패 (종료 코드: $EXPORT_EXIT_CODE)"
+            exit 1
+          fi
+          
+          echo "✅ IPA 내보내기 성공"
+          
+          # 4단계: IPA 파일 확인
+          echo "🔍 4단계: IPA 파일 확인..."
+          
+          # IPA 파일 위치 확인
+          if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
+            IPA_SIZE=$(stat -f%z "build/ios/ipa/picnic_app.ipa" 2>/dev/null || echo "unknown")
+            echo "📦 ✅ IPA 파일: build/ios/ipa/picnic_app.ipa ($IPA_SIZE bytes)"
+          else
+            echo "🔍 다른 위치에서 IPA 파일 찾는 중..."
+            find build/ios -name "*.ipa" -type f | while read ipa_file; do
+              ipa_size=$(stat -f%z "$ipa_file" 2>/dev/null || echo "unknown")
+              echo "  📦 ✅ $ipa_file ($ipa_size bytes)"
+            done
+            
+            # 생성된 IPA 파일이 있는지 확인
+            IPA_COUNT=$(find build/ios -name "*.ipa" -type f | wc -l)
+            if [ "$IPA_COUNT" -eq 0 ]; then
+              echo "❌ IPA 파일을 찾을 수 없습니다"
+              exit 1
+            fi
+          fi
+          
+          echo "=== iOS IPA 빌드 완료 ==="
+          echo "✅ 모든 단계가 성공적으로 완료되었습니다!"
 
       - name: Shorebird iOS Release (Optional)
         script: |
@@ -282,9 +371,11 @@ workflows:
           echo "✅ iOS IPA 빌드 완료, Shorebird 릴리즈는 선택사항입니다"
 
     artifacts:
-      # IPA 파일과 관련 아티팩트
+      # Xcodebuild로 생성된 IPA 파일과 관련 아티팩트
       - picnic_app/build/ios/ipa/*.ipa
+      - picnic_app/build/ios/ipa/**/*.ipa
       - picnic_app/build/ios/archive/*.xcarchive
+      - picnic_app/build/ios/archive/**/*.xcarchive
       - picnic_app/shorebird.yaml
       - picnic_app/flutter_drive.log
       - picnic_app/build/ios/**/Runner.app
