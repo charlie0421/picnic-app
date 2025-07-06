@@ -254,7 +254,7 @@ workflows:
           echo '<plist version="1.0">' >> /tmp/ExportOptions.plist
           echo '<dict>' >> /tmp/ExportOptions.plist
           echo '    <key>method</key>' >> /tmp/ExportOptions.plist
-          echo '    <string>app-store</string>' >> /tmp/ExportOptions.plist
+          echo '    <string>app-store-connect</string>' >> /tmp/ExportOptions.plist
           echo '    <key>uploadBitcode</key>' >> /tmp/ExportOptions.plist
           echo '    <false/>' >> /tmp/ExportOptions.plist
           echo '    <key>uploadSymbols</key>' >> /tmp/ExportOptions.plist
@@ -296,24 +296,58 @@ workflows:
           # 4단계: IPA 파일 확인
           echo "🔍 4단계: IPA 파일 확인..."
           
-          # IPA 파일 위치 확인
-          if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
-            IPA_SIZE=$(stat -f%z "build/ios/ipa/picnic_app.ipa" 2>/dev/null || echo "unknown")
-            echo "📦 ✅ IPA 파일: build/ios/ipa/picnic_app.ipa ($IPA_SIZE bytes)"
-          else
-            echo "🔍 다른 위치에서 IPA 파일 찾는 중..."
-            find build/ios -name "*.ipa" -type f | while read ipa_file; do
-              ipa_size=$(stat -f%z "$ipa_file" 2>/dev/null || echo "unknown")
-              echo "  📦 ✅ $ipa_file ($ipa_size bytes)"
-            done
-            
-            # 생성된 IPA 파일이 있는지 확인
-            IPA_COUNT=$(find build/ios -name "*.ipa" -type f | wc -l)
-            if [ "$IPA_COUNT" -eq 0 ]; then
-              echo "❌ IPA 파일을 찾을 수 없습니다"
-              exit 1
-            fi
+          # IPA 파일 위치 확인 및 표준화
+          echo "🔍 생성된 모든 IPA 파일 확인..."
+          find build/ios -name "*.ipa" -type f | while read ipa_file; do
+            ipa_size=$(stat -f%z "$ipa_file" 2>/dev/null || echo "unknown")
+            echo "  📦 발견: $ipa_file ($ipa_size bytes)"
+          done
+          
+          # 생성된 IPA 파일이 있는지 확인
+          IPA_COUNT=$(find build/ios -name "*.ipa" -type f | wc -l)
+          if [ "$IPA_COUNT" -eq 0 ]; then
+            echo "❌ IPA 파일을 찾을 수 없습니다"
+            exit 1
           fi
+          
+          # Runner.ipa가 있다면 picnic_app.ipa로 복사 (artifacts 호환성을 위해)
+          if [ -f "build/ios/ipa/Runner.ipa" ]; then
+            echo "📋 Runner.ipa를 picnic_app.ipa로 복사 (artifacts 호환성)"
+            cp "build/ios/ipa/Runner.ipa" "build/ios/ipa/picnic_app.ipa"
+            
+            RUNNER_SIZE=$(stat -f%z "build/ios/ipa/Runner.ipa" 2>/dev/null || echo "unknown")
+            PICNIC_SIZE=$(stat -f%z "build/ios/ipa/picnic_app.ipa" 2>/dev/null || echo "unknown")
+            echo "  ✅ Runner.ipa: $RUNNER_SIZE bytes"
+            echo "  ✅ picnic_app.ipa: $PICNIC_SIZE bytes"
+          fi
+          
+          # 최종 확인 및 검증
+          echo "📦 최종 IPA 파일 목록:"
+          ls -la build/ios/ipa/ 2>/dev/null || echo "⚠️ IPA 디렉토리 접근 실패"
+          
+          # IPA 파일 무결성 검증
+          for ipa_file in build/ios/ipa/*.ipa; do
+            if [ -f "$ipa_file" ]; then
+              echo "🔍 IPA 파일 검증: $ipa_file"
+              file_size=$(stat -f%z "$ipa_file" 2>/dev/null || echo "0")
+              file_type=$(file "$ipa_file" 2>/dev/null || echo "unknown")
+              echo "  📏 크기: $file_size bytes"
+              echo "  📋 유형: $file_type"
+              
+              # 최소 크기 확인 (1MB 이상이어야 정상)
+              if [ "$file_size" -gt 1048576 ]; then
+                echo "  ✅ 정상적인 크기의 IPA 파일"
+              else
+                echo "  ⚠️ 의심스럽게 작은 IPA 파일"
+              fi
+            fi
+          done
+          
+          # 절대 경로로도 확인
+          echo "🌐 절대 경로 확인:"
+          pwd
+          echo "현재 디렉토리에서 IPA 파일들:"
+          find . -name "*.ipa" -type f -exec ls -la {} \;
           
           echo "=== iOS IPA 빌드 완료 ==="
           echo "✅ 모든 단계가 성공적으로 완료되었습니다!"
@@ -374,11 +408,12 @@ workflows:
           echo "✅ iOS IPA 빌드 완료, Shorebird 릴리즈는 선택사항입니다"
 
     artifacts:
-      # Xcodebuild로 생성된 IPA 파일과 관련 아티팩트
+      # 생성된 IPA 파일들 (구체적 파일명 + 와일드카드)
+      - picnic_app/build/ios/ipa/Runner.ipa
+      - picnic_app/build/ios/ipa/picnic_app.ipa  
       - picnic_app/build/ios/ipa/*.ipa
-      - picnic_app/build/ios/ipa/**/*.ipa
+      - picnic_app/build/ios/archive/Runner.xcarchive
       - picnic_app/build/ios/archive/*.xcarchive
-      - picnic_app/build/ios/archive/**/*.xcarchive
       - picnic_app/shorebird.yaml
       - picnic_app/flutter_drive.log
       - picnic_app/build/ios/**/Runner.app
