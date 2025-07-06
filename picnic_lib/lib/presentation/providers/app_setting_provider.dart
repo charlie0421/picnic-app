@@ -57,18 +57,30 @@ class Setting with _$Setting {
     @Default('all') String area,
   }) = _Setting;
 
+  /// 지원되는 언어 목록
+  static const List<String> supportedLanguages = [
+    'ko', // 한국어
+    'en', // 영어
+    'ja', // 일본어
+    'zh', // 중국어
+    'id', // 인도네시아어
+  ];
+
   Future<Setting> load() async {
     final language = await globalStorage.loadData('language', 'ko');
     final area = await globalStorage.loadData('area', 'all');
-    // 빈 값이거나 'en'일 경우 'ko'로 설정
-    final fixedLanguage =
-        language == null || language.isEmpty || language == 'en'
-            ? 'ko'
-            : language;
+
+    // 언어 유효성 검사: 빈 값이거나 지원되지 않는 언어일 경우 'ko'로 설정
+    final fixedLanguage = (language == null ||
+            language.isEmpty ||
+            !supportedLanguages.contains(language))
+        ? 'ko'
+        : language;
     final fixedArea = area == null || area.isEmpty ? 'all' : area;
 
     if (fixedLanguage != language) {
-      logger.i('언어 설정 수정: $language → $fixedLanguage');
+      logger.i(
+          '언어 설정 수정: $language → $fixedLanguage (지원되는 언어: ${supportedLanguages.join(', ')})');
       await globalStorage.debugSaveLanguage(fixedLanguage);
     }
 
