@@ -133,69 +133,37 @@ workflows:
             exit 1
           fi
 
-      - name: Configure Xcode Project Signing Strategy
+      - name: Configure Xcode Project for CodeMagic
         script: |
           cd picnic_app/ios
           
-          echo "=== Xcode 프로젝트 Manual Distribution Signing 설정 ==="
+          echo "=== Xcode 프로젝트 CodeMagic Integration 최적화 ==="
           
-          # Manual Signing 강제 설정 (CodeMagic Integration 사용)
-          echo "📝 Manual Distribution Signing 활성화..."
-          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
-          
-          # Development Team 설정 (필수)
+          # Development Team만 설정하고 나머지는 CodeMagic이 자동 처리하도록 함
+          echo "📝 Development Team 설정..."
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Distribution 인증서 및 프로파일 강제 설정
-          echo "📝 Distribution 인증서 및 프로파일 강제 설정..."
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"\"/CODE_SIGN_IDENTITY = \"Apple Distribution\"/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\"/CODE_SIGN_IDENTITY = \"Apple Distribution\"/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\"/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\"/g" Runner.xcodeproj/project.pbxproj
+          # 기존 수동 설정들 제거하여 CodeMagic이 자동으로 처리하도록 함
+          echo "🧹 기존 수동 서명 설정 정리..."
+          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/PROVISIONING_PROFILE_SPECIFIER = \"\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"\";/g" Runner.xcodeproj/project.pbxproj
           
-          # 프로비저닝 프로파일 설정 (성공했던 설정)
-          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\"/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\"/g" Runner.xcodeproj/project.pbxproj
-          
-          # PROVISIONING_PROFILE_SPECIFIER 추가 (존재하지 않는 경우)
-          if ! grep -q "PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj; then
-            sed -i '' '/DEVELOPMENT_TEAM = /a\
-                PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";' Runner.xcodeproj/project.pbxproj
-          fi
-          
-          # Archive 빌드가 Release 구성을 사용하도록 강제
+          # Archive 빌드가 Release 구성을 사용하도록 설정
           if [ -f "Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" ]; then
-            echo "📝 Archive 스킴 Release 구성 강제..."
+            echo "📝 Archive 스킴 Release 구성 설정..."
             sed -i '' 's/buildConfiguration = \"Debug\"/buildConfiguration = \"Release\"/g' Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
           fi
           
-          # Development 관련 설정 완전 제거
-          sed -i '' "/CODE_SIGN_IDENTITY.*=.*iPhone Developer/d" Runner.xcodeproj/project.pbxproj
-          sed -i '' "/CODE_SIGN_IDENTITY.*=.*Apple Development/d" Runner.xcodeproj/project.pbxproj
-          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER.*=.*Development/d" Runner.xcodeproj/project.pbxproj
-          
-          # 추가 강력 설정 - perl을 사용한 더 정확한 치환
-          echo "📝 추가 강력 설정 적용..."
-          perl -i -pe 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
-          perl -i -pe 's/CODE_SIGN_STYLE = "Automatic";/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
-          perl -i -pe 's/CODE_SIGN_IDENTITY = "";/CODE_SIGN_IDENTITY = "Apple Distribution";/g' Runner.xcodeproj/project.pbxproj
-          perl -i -pe 's/PROVISIONING_PROFILE_SPECIFIER = "";/PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";/g' Runner.xcodeproj/project.pbxproj
-          perl -i -pe 's/PROVISIONING_PROFILE_SPECIFIER = "match AppStore.*";/PROVISIONING_PROFILE_SPECIFIER = "picnic_app_profile_2025";/g' Runner.xcodeproj/project.pbxproj
-          
-          # Debug 구성도 Manual로 변경 (혹시 모를 경우를 위해)
-          perl -i -pe '/Debug.*= {/,/};/{
-            s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g;
-            s/CODE_SIGN_IDENTITY = "";/CODE_SIGN_IDENTITY = "Apple Distribution";/g;
-          }' Runner.xcodeproj/project.pbxproj
-          
           echo "📋 설정 후 확인:"
-          grep -n "CODE_SIGN_STYLE\|Apple Distribution\|picnic_app_profile_2025" Runner.xcodeproj/project.pbxproj | head -10
+          grep -n "DEVELOPMENT_TEAM\|CODE_SIGN_STYLE" Runner.xcodeproj/project.pbxproj | head -5
           
-          echo "✅ Manual Distribution Signing 강력 설정 완료"
-          echo "- CODE_SIGN_STYLE: Manual (강제)"
-          echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
-          echo "- CODE_SIGN_IDENTITY: Apple Distribution (강제)"
-          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025 (성공했던 설정)"
+          echo "✅ CodeMagic Integration 최적화 완료"
+          echo "- DEVELOPMENT_TEAM: 24SL34R9HR (설정됨)"
+          echo "- CODE_SIGN_STYLE: Automatic (CodeMagic 자동 처리)"
+          echo "- PROVISIONING_PROFILE_SPECIFIER: \"\" (CodeMagic 자동 선택)"
+          echo "- CODE_SIGN_IDENTITY: \"\" (CodeMagic 자동 선택)"
 
       - name: Build iOS IPA for App Store
         script: |
@@ -206,12 +174,11 @@ workflows:
           echo ""
 
           echo "=== iOS 서명 환경 최종 확인 ==="
-          echo "✅ Manual Distribution Signing 설정 완료"
+          echo "✅ CodeMagic App Store Connect Integration 사용"
           echo "✅ Bundle ID: io.iconcasting.picnic.app"
           echo "✅ Distribution Type: App Store"
           echo "✅ Development Team: 24SL34R9HR"
-          echo "✅ CODE_SIGN_IDENTITY: Apple Distribution"
-          echo "✅ PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
+          echo "✅ 자동 서명으로 CodeMagic이 인증서와 프로파일 관리"
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
@@ -221,8 +188,7 @@ workflows:
           echo "🚀 Flutter로 iOS IPA 빌드 시작..."
           flutter build ipa \
             --release \
-            --dart-define=ENVIRONMENT=prod \
-            --export-options-plist=ios/ExportOptions.plist
+            --dart-define=ENVIRONMENT=prod
           
           BUILD_EXIT_CODE=$?
           
