@@ -197,25 +197,13 @@ workflows:
           echo "- CODE_SIGN_IDENTITY: Apple Distribution (강제)"
           echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025 (성공했던 설정)"
 
-      - name: Shorebird iOS Release (Unified Build & Deploy)
+      - name: Build iOS IPA for App Store
         script: |
-          export PATH="$HOME/.shorebird/bin:$PATH"
           cd picnic_app
 
-          echo "=== Shorebird 통합 iOS 빌드 & 릴리즈 시작 ==="
-          echo "🎯 릴리즈와 패치의 일관된 빌드 환경을 위해 Shorebird로 직접 빌드합니다"
+          echo "=== iOS IPA 빌드 시작 ==="
+          echo "🎯 App Store Connect 업로드를 위한 IPA 파일 생성"
           echo ""
-
-          echo "=== Shorebird 버전 확인 ==="
-          shorebird --version
-
-          echo "=== Shorebird 인증 확인 ==="
-          if [ -z "$SHOREBIRD_TOKEN" ]; then
-            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
-            exit 1
-          else
-            echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
-          fi
 
           echo "=== iOS 서명 환경 최종 확인 ==="
           echo "✅ Manual Distribution Signing 설정 완료"
@@ -225,13 +213,66 @@ workflows:
           echo "✅ CODE_SIGN_IDENTITY: Apple Distribution"
           echo "✅ PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
 
+          echo "=== Flutter 빌드 준비 ==="
+          flutter clean
+          flutter pub get
+
+          echo "=== iOS IPA 빌드 실행 ==="
+          echo "🚀 Flutter로 iOS IPA 빌드 시작..."
+          flutter build ipa \
+            --release \
+            --dart-define=ENVIRONMENT=prod \
+            --export-options-plist=ios/ExportOptions.plist
+          
+          BUILD_EXIT_CODE=$?
+          
+          # IPA 파일 생성 확인
+          if [ $BUILD_EXIT_CODE -eq 0 ]; then
+            echo "=== iOS IPA 빌드 성공 ==="
+            echo "✅ IPA 파일이 성공적으로 생성되었습니다"
+            
+            # IPA 파일 위치 확인
+            if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
+              IPA_SIZE=$(stat -f%z "build/ios/ipa/picnic_app.ipa" 2>/dev/null || echo "unknown")
+              echo "📦 IPA 파일: build/ios/ipa/picnic_app.ipa ($IPA_SIZE bytes)"
+            else
+              echo "🔍 IPA 파일 위치 확인 중..."
+              find build/ios -name "*.ipa" -type f | head -5
+            fi
+          else
+            echo "=== iOS IPA 빌드 실패 ==="
+            echo "❌ IPA 빌드에 실패했습니다 (종료 코드: $BUILD_EXIT_CODE)"
+            exit 1
+          fi
+
+      - name: Shorebird iOS Release (Optional)
+        script: |
+          export PATH="$HOME/.shorebird/bin:$PATH"
+          cd picnic_app
+
+          echo "=== Shorebird iOS 릴리즈 (선택사항) ==="
+          echo "🎯 패치 시스템을 위한 Shorebird 릴리즈 업로드"
+          echo ""
+
+          echo "=== Shorebird 버전 확인 ==="
+          shorebird --version
+
+          echo "=== Shorebird 인증 확인 ==="
+          if [ -z "$SHOREBIRD_TOKEN" ]; then
+            echo "❌ SHOREBIRD_TOKEN 환경변수가 설정되지 않았습니다"
+            echo "⚠️ Shorebird 릴리즈를 건너뜁니다"
+            exit 0
+          else
+            echo "✅ SHOREBIRD_TOKEN 환경변수가 설정되었습니다"
+          fi
+
           echo "=== Shorebird 캐시 정리 및 환경 준비 ==="
           shorebird cache clean
           flutter clean
           flutter pub get
 
-          echo "=== Shorebird iOS 통합 릴리즈 실행 ==="
-          echo "🚀 Shorebird로 iOS 빌드 및 릴리즈 (최신 Flutter 엔진 사용)..."
+          echo "=== Shorebird iOS 릴리즈 실행 ==="
+          echo "🚀 Shorebird로 iOS 릴리즈 업로드..."
           RELEASE_RESULT=$(shorebird release ios \
             --dart-define=ENVIRONMENT=prod \
             --flutter-version=latest 2>&1)
@@ -243,61 +284,27 @@ workflows:
           # 릴리즈 결과 확인
           if [ $RELEASE_EXIT_CODE -eq 0 ]; then
             if echo "$RELEASE_RESULT" | grep -i "successfully\|completed\|deployed\|published\|release.*created"; then
-              echo "=== Shorebird iOS 통합 릴리즈 성공 ==="
-              echo "✅ iOS 앱이 Shorebird Flutter 엔진으로 빌드되어 성공적으로 배포되었습니다"
-              echo "🎯 이제 패치 워크플로우와 동일한 빌드 환경을 사용합니다"
-              
-              # 릴리즈 정보 추출 및 표시
-              if echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version"; then
-                echo ""
-                echo "📱 릴리즈 정보:"
-                echo "$RELEASE_RESULT" | grep -i "release.*version\|build.*version" | head -3
-              fi
+              echo "=== Shorebird iOS 릴리즈 성공 ==="
+              echo "✅ iOS 앱이 Shorebird에 성공적으로 업로드되었습니다"
+              echo "🎯 이제 패치 워크플로우를 사용할 수 있습니다"
             else
-              echo "=== Shorebird iOS 릴리즈 재시도 필요 ==="
-              echo "⚠️ 릴리즈 결과가 불분명합니다. 재시도합니다..."
-            sleep 5
-            
-              echo "🔄 iOS 릴리즈 재시도 (최신 Flutter)..."
-              RETRY_RESULT=$(shorebird release ios --dart-define=ENVIRONMENT=prod --flutter-version=latest 2>&1)
-            RETRY_EXIT_CODE=$?
-              
-            if [ $RETRY_EXIT_CODE -eq 0 ]; then
-              echo "✅ 재시도 성공!"
-                echo "$RETRY_RESULT"
-            else
-              echo "❌ 재시도도 실패했습니다."
-                echo "$RETRY_RESULT"
-              exit 1
-              fi
+              echo "=== Shorebird iOS 릴리즈 불완전 ==="
+              echo "⚠️ 릴리즈 결과가 불분명하지만 계속 진행합니다"
             fi
           else
             echo "=== Shorebird iOS 릴리즈 실패 ==="
-            echo "❌ iOS 릴리즈에 실패했습니다 (종료 코드: $RELEASE_EXIT_CODE)"
-            
-            # 실패 원인 분석
-            if echo "$RELEASE_RESULT" | grep -i "no.*account\|profile"; then
-              echo "🔍 서명 관련 문제로 보입니다"
-            elif echo "$RELEASE_RESULT" | grep -i "flutter.*build.*fail"; then
-              echo "🔍 Flutter 빌드 문제로 보입니다"
-            elif echo "$RELEASE_RESULT" | grep -i "no.*release\|app.*not.*found"; then
-              echo "🔍 앱 등록 문제로 보입니다"
-            fi
-            
-            exit 1
+            echo "❌ iOS 릴리즈에 실패했지만 IPA는 생성되어 계속 진행합니다"
+            echo "🔍 실패 원인: $RELEASE_RESULT"
           fi
 
           echo "=== 최종 결과 ==="
-          echo "✅ Shorebird 통합 iOS 빌드 & 릴리즈 완료!"
-          echo "🎯 패치 워크플로우와 동일한 Shorebird Flutter 엔진 사용"
-          echo "🔄 비결정론적 빌드 문제 해결 예상"
+          echo "✅ iOS IPA 빌드 완료, Shorebird 릴리즈는 선택사항입니다"
 
     artifacts:
-      # 하이브리드 아티팩트: TestFlight + Shorebird 모두
-      - picnic_app/build/ios/**/*.ipa
-      - picnic_app/build/ios/**/*.xcarchive
+      # IPA 파일과 관련 아티팩트
+      - picnic_app/build/ios/ipa/*.ipa
+      - picnic_app/build/ios/archive/*.xcarchive
       - picnic_app/shorebird.yaml
-      - picnic_app/build/shorebird/**/*
       - picnic_app/flutter_drive.log
       - picnic_app/build/ios/**/Runner.app
 
