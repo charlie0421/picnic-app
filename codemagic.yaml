@@ -133,37 +133,51 @@ workflows:
             exit 1
           fi
 
-      - name: Configure Xcode Project for CodeMagic
+      - name: Configure Manual Distribution Signing
         script: |
           cd picnic_app/ios
           
-          echo "=== Xcode 프로젝트 CodeMagic Integration 최적화 ==="
+          echo "=== Manual Distribution Signing 설정 (성공했던 방식) ==="
           
-          # Development Team만 설정하고 나머지는 CodeMagic이 자동 처리하도록 함
-          echo "📝 Development Team 설정..."
+          # Manual Signing 강제 설정
+          echo "📝 Manual Distribution Signing 활성화..."
+          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_STYLE = \"\";/CODE_SIGN_STYLE = Manual;/g" Runner.xcodeproj/project.pbxproj
+          
+          # Development Team 설정 (필수)
           sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           sed -i '' "s/DEVELOPMENT_TEAM = 24SL34R9HR;/DEVELOPMENT_TEAM = \"24SL34R9HR\";/g" Runner.xcodeproj/project.pbxproj
           
-          # 기존 수동 설정들 제거하여 CodeMagic이 자동으로 처리하도록 함
-          echo "🧹 기존 수동 서명 설정 정리..."
-          sed -i '' "s/CODE_SIGN_STYLE = Manual;/CODE_SIGN_STYLE = Automatic;/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/PROVISIONING_PROFILE_SPECIFIER = \"\";/g" Runner.xcodeproj/project.pbxproj
-          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Distribution\";/CODE_SIGN_IDENTITY = \"\";/g" Runner.xcodeproj/project.pbxproj
+          # Distribution 인증서 강제 설정
+          echo "📝 Apple Distribution 인증서 설정..."
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/CODE_SIGN_IDENTITY = \"Apple Development\";/CODE_SIGN_IDENTITY = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
+          sed -i '' "s/\"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]\" = \"iPhone Developer\";/\"CODE_SIGN_IDENTITY[sdk=iphoneos*]\" = \"Apple Distribution\";/g" Runner.xcodeproj/project.pbxproj
           
-          # Archive 빌드가 Release 구성을 사용하도록 설정
+          # Distribution 프로파일 설정 (성공했던 설정)
+          echo "📝 Distribution 프로파일 설정..."
+          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"picnic_app_profile_2025\";/g" Runner.xcodeproj/project.pbxproj
+          
+          # Release 구성 설정
           if [ -f "Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" ]; then
             echo "📝 Archive 스킴 Release 구성 설정..."
             sed -i '' 's/buildConfiguration = \"Debug\"/buildConfiguration = \"Release\"/g' Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
           fi
           
-          echo "📋 설정 후 확인:"
-          grep -n "DEVELOPMENT_TEAM\|CODE_SIGN_STYLE" Runner.xcodeproj/project.pbxproj | head -5
+          # Development 관련 설정 제거
+          echo "🧹 Development 관련 설정 제거..."
+          sed -i '' "/CODE_SIGN_IDENTITY.*=.*iPhone Developer/d" Runner.xcodeproj/project.pbxproj
+          sed -i '' "/CODE_SIGN_IDENTITY.*=.*Apple Development/d" Runner.xcodeproj/project.pbxproj
+          sed -i '' "/PROVISIONING_PROFILE_SPECIFIER.*=.*Development/d" Runner.xcodeproj/project.pbxproj
           
-          echo "✅ CodeMagic Integration 최적화 완료"
-          echo "- DEVELOPMENT_TEAM: 24SL34R9HR (설정됨)"
-          echo "- CODE_SIGN_STYLE: Automatic (CodeMagic 자동 처리)"
-          echo "- PROVISIONING_PROFILE_SPECIFIER: \"\" (CodeMagic 자동 선택)"
-          echo "- CODE_SIGN_IDENTITY: \"\" (CodeMagic 자동 선택)"
+          echo "📋 설정 후 확인:"
+          grep -n "CODE_SIGN_STYLE\|Apple Distribution\|picnic_app_profile_2025" Runner.xcodeproj/project.pbxproj | head -10
+          
+          echo "✅ Manual Distribution Signing 설정 완료"
+          echo "- CODE_SIGN_STYLE: Manual"
+          echo "- DEVELOPMENT_TEAM: 24SL34R9HR"
+          echo "- CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "- PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
 
       - name: Build iOS IPA for App Store
         script: |
@@ -174,11 +188,12 @@ workflows:
           echo ""
 
           echo "=== iOS 서명 환경 최종 확인 ==="
-          echo "✅ CodeMagic App Store Connect Integration 사용"
+          echo "✅ Manual Distribution Signing 사용 (성공했던 방식)"
           echo "✅ Bundle ID: io.iconcasting.picnic.app"
           echo "✅ Distribution Type: App Store"
           echo "✅ Development Team: 24SL34R9HR"
-          echo "✅ 자동 서명으로 CodeMagic이 인증서와 프로파일 관리"
+          echo "✅ CODE_SIGN_IDENTITY: Apple Distribution"
+          echo "✅ PROVISIONING_PROFILE_SPECIFIER: picnic_app_profile_2025"
 
           echo "=== Flutter 빌드 준비 ==="
           flutter clean
