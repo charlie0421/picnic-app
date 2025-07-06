@@ -349,26 +349,19 @@ workflows:
           echo "현재 디렉토리에서 IPA 파일들:"
           find . -name "*.ipa" -type f -exec ls -la {} \;
           
-          # Artifacts 수집을 위한 IPA 파일 복사
+          # Artifacts 수집을 위한 IPA 파일 복사 (단일 위치)
           echo "📋 Artifacts 수집을 위한 IPA 파일 복사..."
           
-          # 프로젝트 루트로 IPA 파일 복사 (artifacts 확실히 찾을 수 있도록)
+          # 워크스페이스 루트로만 복사 (중복 방지)
           if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
             cp "build/ios/ipa/picnic_app.ipa" "../picnic_app.ipa"
-            cp "build/ios/ipa/picnic_app.ipa" "./picnic_app.ipa"
-            echo "✅ IPA 파일을 프로젝트 루트와 상위 디렉토리에 복사했습니다"
+            echo "✅ IPA 파일을 워크스페이스 루트에 복사했습니다"
             
             # 복사 결과 확인
             ls -la ../picnic_app.ipa 2>/dev/null && echo "  ✅ ../picnic_app.ipa 복사 성공"
-            ls -la ./picnic_app.ipa 2>/dev/null && echo "  ✅ ./picnic_app.ipa 복사 성공"
-          fi
-          
-          # 추가로 다양한 위치에 복사 (안전장치)
-          mkdir -p ../artifacts
-          if [ -f "build/ios/ipa/picnic_app.ipa" ]; then
-            cp "build/ios/ipa/picnic_app.ipa" "../artifacts/picnic_app.ipa"
-            echo "✅ artifacts 디렉토리에도 복사했습니다"
-            ls -la ../artifacts/picnic_app.ipa 2>/dev/null && echo "  ✅ ../artifacts/picnic_app.ipa 복사 성공"
+          else
+            echo "❌ 원본 IPA 파일을 찾을 수 없습니다"
+            exit 1
           fi
           
           # 워크스페이스 레벨 확인 (서브셸로 실행하여 현재 디렉토리 유지)
@@ -376,18 +369,15 @@ workflows:
           (
             cd ..
             echo "워크스페이스 루트: $(pwd)"
-            echo "워크스페이스 루트 파일들:"
+            echo "워크스페이스 루트 IPA 파일:"
             ls -la *.ipa 2>/dev/null || echo "  ⚠️ 워크스페이스 루트에 IPA 파일 없음"
-            ls -la artifacts/*.ipa 2>/dev/null || echo "  ⚠️ artifacts 디렉토리에 IPA 파일 없음"
           )
           
           echo "=== iOS IPA 빌드 완료 ==="
           echo "✅ 모든 단계가 성공적으로 완료되었습니다!"
-          echo "📦 IPA 파일이 다음 위치들에 복사되었습니다:"
+          echo "📦 IPA 파일 위치:"
           echo "  - picnic_app/build/ios/ipa/picnic_app.ipa (원본)"
-          echo "  - picnic_app/picnic_app.ipa (프로젝트 내)"
-          echo "  - picnic_app.ipa (워크스페이스 루트)"
-          echo "  - artifacts/picnic_app.ipa (artifacts 디렉토리)"
+          echo "  - picnic_app.ipa (워크스페이스 루트 - artifacts 수집용)"
 
       - name: Shorebird iOS Release (Optional)
         script: |
@@ -445,15 +435,9 @@ workflows:
           echo "✅ iOS IPA 빌드 완료, Shorebird 릴리즈는 선택사항입니다"
 
     artifacts:
-      # 다양한 위치의 IPA 파일들 (확실한 수집을 위해)
-      - picnic_app.ipa                                    # 워크스페이스 루트
-      - artifacts/picnic_app.ipa                          # artifacts 디렉토리
-      - picnic_app/picnic_app.ipa                         # picnic_app 디렉토리 내
-      - picnic_app/build/ios/ipa/picnic_app.ipa          # 원본 위치
-      - picnic_app/build/ios/ipa/Runner.ipa              # Runner 이름
-      - picnic_app/build/ios/ipa/*.ipa                   # 와일드카드 백업
+      # 단일 IPA 파일 (중복 publishing 방지)
+      - picnic_app.ipa                                    # 워크스페이스 루트 (가장 확실한 위치)
       - picnic_app/build/ios/archive/Runner.xcarchive    # Archive 파일
-      - picnic_app/build/ios/archive/*.xcarchive         # Archive 와일드카드
       - picnic_app/shorebird.yaml
       - picnic_app/flutter_drive.log
       - picnic_app/build/ios/**/Runner.app
