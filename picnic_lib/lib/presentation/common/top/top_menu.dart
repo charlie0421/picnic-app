@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/common/top/top_right_community.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_post_view.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
@@ -103,6 +104,10 @@ class _TopState extends ConsumerState<TopMenu> {
     final navigationInfo = ref.watch(navigationInfoProvider);
     final navigationInfoNotifier = ref.watch(navigationInfoProvider.notifier);
 
+    // 로그인 상태를 감시하여 로그인 상태 변화 시 UI가 업데이트되도록 함
+    final userInfo = ref.watch(userInfoProvider);
+    final isLoggedIn = userInfo.value != null;
+
     final String pageName = navigationInfo.pageTitle;
 
     return Container(
@@ -142,7 +147,7 @@ class _TopState extends ConsumerState<TopMenu> {
                       ),
                     ),
                   )
-                : navigationInfo.showMyPoint
+                : (navigationInfo.showMyPoint && isLoggedIn)
                     ? const CommonMyPoint()
                     : Container(),
           ),

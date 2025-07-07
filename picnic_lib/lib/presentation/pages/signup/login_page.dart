@@ -38,16 +38,22 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginPage> {
   final AuthService _authService = AuthService();
-  final GlobalKey<LoadingOverlayWithIconState> _loadingKey = GlobalKey<LoadingOverlayWithIconState>();
+  final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
+      GlobalKey<LoadingOverlayWithIconState>();
 
   String? lastProvider;
 
   @override
   void initState() {
     super.initState();
-    const storage = FlutterSecureStorage();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      lastProvider = await storage.read(key: 'last_provider');
+      const storage = FlutterSecureStorage();
+      final provider = await storage.read(key: 'last_provider');
+      if (mounted) {
+        setState(() {
+          lastProvider = provider;
+        });
+      }
     });
   }
 
@@ -288,8 +294,20 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     );
   }
 
-  void _handleSuccessfulLogin() async {
+  void _handleSuccessfulLogin([String? provider]) async {
     try {
+      // 로그인 성공 시 사용한 provider 저장
+      if (provider != null) {
+        const storage = FlutterSecureStorage();
+        await storage.write(key: 'last_provider', value: provider);
+        // 상태 즉시 업데이트
+        if (mounted) {
+          setState(() {
+            lastProvider = provider;
+          });
+        }
+      }
+
       await _executeWithLoading(
         () async {
           final user = supabase.auth.currentUser;
@@ -342,8 +360,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-                             await _executeWithLoading(
-                 () async {
+              await _executeWithLoading(
+                () async {
                   if (kIsWeb) {
                     await supabase.auth.signInWithOAuth(
                       OAuthProvider.apple,
@@ -353,7 +371,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     final user = await _authService
                         .signInWithProvider(OAuthProvider.apple);
                     if (user != null) {
-                      _handleSuccessfulLogin();
+                      _handleSuccessfulLogin('apple');
                     }
                   }
                 },
@@ -421,8 +439,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-                             await _executeWithLoading(
-                 () async {
+              await _executeWithLoading(
+                () async {
                   if (kIsWeb) {
                     await supabase.auth.signInWithOAuth(
                       OAuthProvider.google,
@@ -432,7 +450,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     final user = await _authService
                         .signInWithProvider(OAuthProvider.google);
                     if (user != null) {
-                      _handleSuccessfulLogin();
+                      _handleSuccessfulLogin('google');
                     }
                   }
                 },
@@ -500,8 +518,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-                             await _executeWithLoading(
-                 () async {
+              await _executeWithLoading(
+                () async {
                   if (kIsWeb) {
                     await supabase.auth.signInWithOAuth(
                       OAuthProvider.kakao,
@@ -512,7 +530,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     final user = await _authService
                         .signInWithProvider(OAuthProvider.kakao);
                     if (user != null) {
-                      _handleSuccessfulLogin();
+                      _handleSuccessfulLogin('kakao');
                     }
                   }
                 },

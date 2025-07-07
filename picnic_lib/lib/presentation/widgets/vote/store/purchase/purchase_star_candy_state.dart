@@ -664,7 +664,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
   ) async {
-    if (!isSupabaseLoggedSafely) {
+    // 로그인 상태를 실시간으로 체크
+    final userInfo = ref.read(userInfoProvider);
+    final isLoggedIn = userInfo.value != null;
+
+    if (!isLoggedIn) {
       showRequireLoginDialog();
       return;
     }
@@ -803,6 +807,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
   @override
   Widget build(BuildContext context) {
+    // 로그인 상태를 실시간으로 감시
+    final userInfo = ref.watch(userInfoProvider);
+    final isLoggedIn = userInfo.value != null;
+
     return LoadingOverlayWithIcon(
       key: _loadingKey,
       iconAssetPath: 'assets/app_icon_128.png',
@@ -816,7 +824,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: ListView(
           children: [
-            if (isSupabaseLoggedSafely) ...[
+            if (isLoggedIn) ...[
               const SizedBox(height: 16),
               _buildHeaderSection(),
               const SizedBox(height: 8),
