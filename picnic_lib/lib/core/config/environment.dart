@@ -262,11 +262,4 @@ class Environment {
     }
   }
 
-  static String? get crowdinDistributionHash {
-    try {
-      return _getValue(['crowdin', 'distribution_hash']) as String;
-    } catch (e) {
-      return null;
-    }
-  }
 }

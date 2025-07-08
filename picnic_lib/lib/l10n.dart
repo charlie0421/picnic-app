@@ -1,8 +1,6 @@
 // picnic_lib/lib/core/utils/i18n.dart
 import 'package:flutter/material.dart';
-import 'package:crowdin_sdk/crowdin_sdk.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:picnic_lib/core/constatns/constants.dart';
 import 'dart:ui';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -11,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// 전역 변수 추가
 bool _isSettingLanguage = false;
 
-/// 로컬라이제이션 설정 클래스
+/// 로컬라이제이션 설정 클래스 (Crowdin 제거, 로컬 번역만 사용)
 class PicnicLibL10n {
   static bool _isInitialized = false;
   static Setting? _currentSetting;
@@ -46,7 +44,6 @@ class PicnicLibL10n {
     try {
       logger.i('언어 변경 시작 (PicnicLibL10n): $languageCode');
       _currentLanguage = languageCode;
-      loadTranslations(Locale(languageCode));
     } finally {
       _isSettingLanguage = false;
     }
@@ -85,36 +82,20 @@ class PicnicLibL10n {
     ];
   }
 
-  /// Crowdin OTA 초기화
+  /// 로컬 번역 시스템 초기화 (Crowdin 제거)
   static Future<void> initialize(Setting appSetting,
       [ProviderContainer? container]) async {
     try {
-      logger.i('PicnicLibL10n 초기화 시작');
+      logger.i('PicnicLibL10n 로컬 번역 시스템 초기화 시작');
 
       // 앱 설정 객체 저장
       _currentSetting = appSetting;
       _currentLanguage =
           appSetting.language.isNotEmpty ? appSetting.language : 'ko';
 
-      // SharedPreferences 초기화
-      logger.i('SharedPreferences 초기화 완료');
-
-      // Crowdin 초기화 시도
-      try {
-        await Crowdin.init(
-          distributionHash: Constants.crowdinDistributionHash,
-          connectionType: InternetConnectionType.any,
-          updatesInterval: const Duration(minutes: 15),
-        );
-        logger.i('Crowdin 초기화 완료: ${Constants.crowdinDistributionHash}');
-      } catch (crowdinError) {
-        logger.e('Crowdin 초기화 실패, 기본 번역으로 계속 진행', error: crowdinError);
-        // Crowdin 초기화가 실패해도 계속 진행
-      }
-
-      // 초기화 완료 플래그 설정
+      // 로컬 번역만 사용하므로 바로 초기화 완료
       _isInitialized = true;
-      logger.i('PicnicLibL10n 초기화 완료 (언어: $_currentLanguage)');
+      logger.i('PicnicLibL10n 로컬 번역 시스템 초기화 완료 (언어: $_currentLanguage)');
     } catch (e, s) {
       logger.e('PicnicLibL10n 초기화 실패', error: e, stackTrace: s);
 
@@ -122,13 +103,13 @@ class PicnicLibL10n {
       _currentSetting = appSetting;
       _currentLanguage =
           appSetting.language.isNotEmpty ? appSetting.language : 'ko';
-      _isInitialized = true; // 기본 기능은 작동하도록 설정
+      _isInitialized = true;
 
       logger.w('PicnicLibL10n 기본 모드로 초기화됨 (언어: $_currentLanguage)');
     }
   }
 
-  /// 특정 로케일의 번역 로드
+  /// 특정 로케일의 번역 로드 (로컬 번역만 사용)
   static Future<void> loadTranslations(Locale locale) async {
     if (!supportedLocales.contains(locale)) {
       logger.w('지원되지 않는 로케일: ${locale.languageCode}');
@@ -137,37 +118,17 @@ class PicnicLibL10n {
 
     try {
       final languageCode = locale.languageCode;
-      logger.i('번역 로드 시작: $languageCode');
+      logger.i('로컬 번역 로드 시작: $languageCode');
 
-      // Crowdin 번역 로드
-      await Crowdin.loadTranslations(Locale(languageCode));
-
-      // 기본 번역 키 설정
-      final testKeys = [
-        'app_name',
-        'nav_vote',
-      ];
-
-      // 각 키의 번역 로드 테스트 (디버깅 목적)
-      int successCount = 0;
-      for (final key in testKeys) {
-        final translation = Crowdin.getText(languageCode, key);
-        if (translation != null && translation.isNotEmpty) {
-          successCount++;
-        } else {
-          logger.w('번역 로드 실패: [$languageCode] $key');
-        }
-      }
-
-      logger
-          .i('번역 로드 완료: $languageCode, 성공률: $successCount/${testKeys.length}');
+      // 로컬 번역이므로 즉시 완료
+      logger.i('로컬 번역 로드 완료: $languageCode');
     } catch (e, s) {
       logger.e('번역 로드 실패', error: e, stackTrace: s);
       rethrow;
     }
   }
 
-  /// 번역 텍스트 가져오기
+  /// 번역 텍스트 가져오기 (로컬 번역만 사용)
   static String getText(String languageCode, String key) {
     if (!_isInitialized) {
       logger.w('PicnicLibL10n이 초기화되지 않았습니다 (getText): $key');
@@ -181,8 +142,8 @@ class PicnicLibL10n {
         languageCode = 'en'; // 기본값으로 영어 사용
       }
 
-      // Crowdin에서 직접 가져오기
-      final translation = Crowdin.getText(languageCode, key);
+      // 로컬 fallback 번역에서 가져오기
+      final translation = _getFallbackTranslation(key, languageCode);
       if (translation != null && translation.isNotEmpty) {
         return translation;
       }
@@ -233,43 +194,20 @@ class PicnicLibL10n {
       // 현재 언어 코드 가져오기
       final languageCode = _getLanguage();
 
-      // Crowdin에서 직접 가져오기
-      String? translatedText = Crowdin.getText(languageCode, key);
-      if (translatedText != null && translatedText.isNotEmpty) {
-        // 디버깅: compatibility 관련 키의 경우 로그 출력
-        if (key.contains('compatibility')) {
-          logger
-              .d('🌟 Crowdin 번역 로드됨: [$languageCode] $key -> $translatedText');
-          if (args != null && args.isNotEmpty) {
-            logger.d('🌟 매개변수: $args');
-          }
-        }
-        final result = _formatTranslation(translatedText, args);
-        if (key.contains('compatibility') && args != null && args.isNotEmpty) {
-          logger.d('🌟 최종 결과: $result');
-        }
-        return result;
-      }
-
-      // 기본 영어로 시도
-      if (languageCode != 'en') {
-        translatedText = Crowdin.getText('en', key);
-        if (translatedText != null && translatedText.isNotEmpty) {
-          logger.d('영어 번역 사용: $key -> $translatedText');
-          return _formatTranslation(translatedText, args);
-        }
-      }
-
-      // Crowdin에서 찾지 못한 경우 기본 번역으로 폴백
+      // 로컬 fallback 번역에서 직접 가져오기
       final fallbackText = _getFallbackTranslation(key, languageCode);
       if (fallbackText != null) {
-        logger.d('기본 번역 사용: $key -> $fallbackText');
         return _formatTranslation(fallbackText, args);
       }
 
-      // 모든 번역이 실패한 경우
-      if (key.contains('compatibility')) {
-        logger.w('🚨 Compatibility 키가 어디서도 찾아지지 않음: [$languageCode] $key');
+      // 모든 번역이 실패한 경우 키 기반 변환 시도
+      if (key.contains('_')) {
+        final parts = key.split('_');
+        if (parts.length > 1) {
+          final converted =
+              parts.sublist(1).map((part) => _capitalize(part)).join(' ');
+          return _formatTranslation(converted, args);
+        }
       }
 
       return _formatTranslation(key, args);

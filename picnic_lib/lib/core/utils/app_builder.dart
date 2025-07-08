@@ -5,7 +5,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
-import 'package:picnic_lib/services/localization_service.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -132,10 +131,7 @@ class AppBuilder {
       home: wrappedHome,
       locale: locale,
       supportedLocales: supportedLocales,
-      localizationsDelegates: [
-        ...localizationsDelegates,
-        ...LocalizationService.localizationDelegates,
-      ],
+      localizationsDelegates: localizationsDelegates,
     );
   }
 

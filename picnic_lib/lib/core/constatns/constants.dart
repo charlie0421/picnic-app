@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -15,8 +14,6 @@ class Constants {
   static double webWidth = 375;
   static double webHeight = 812;
   static Duration snackBarDuration = const Duration(seconds: 5);
-  static String get crowdinDistributionHash =>
-      Environment.crowdinDistributionHash ?? 'e266f21c6074a395eb846fa5954';
 }
 
 LocalStorage globalStorage = LocalStorage();

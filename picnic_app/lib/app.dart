@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/main.dart' as main_file;
@@ -30,7 +29,7 @@ import 'package:picnic_lib/ui/novel_theme.dart';
 import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:picnic_lib/core/config/environment.dart';
-import 'package:picnic_lib/services/localization_service.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/utils/device_debug_info.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
@@ -283,10 +282,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       theme: _getCurrentTheme(ref),
       home: UpdateDialog(child: currentScreen),
       localizationsDelegates: [
-        ...LocalizationService.localizationDelegates,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+        ...PicnicLibL10n.localizationsDelegates,
       ],
       supportedLocales: _supportedLocales,
       locale: currentLocale,

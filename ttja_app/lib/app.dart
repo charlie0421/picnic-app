@@ -28,7 +28,7 @@ import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:picnic_lib/services/localization_service.dart';
+
 import 'package:ttja_app/generated/l10n.dart';
 import 'package:ttja_app/main.dart' as main_file;
 
@@ -208,10 +208,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       theme: _getCurrentTheme(ref),
       home: UpdateDialog(child: homeWidget),
       localizationsDelegates: [
-        ...LocalizationService.localizationDelegates,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+        ...PicnicLibL10n.localizationsDelegates,
       ],
       supportedLocales: _supportedLocales,
       locale: Locale(appSettingState.language),

@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
-import 'package:picnic_lib/services/localization_service.dart';
 
 /// 언어 초기화 및 관리를 위한 유틸리티 클래스
 ///
@@ -138,12 +137,12 @@ class LanguageInitializer {
         // 실패해도 계속 진행
       }
 
-      // 2. LocalizationService를 통한 공통 번역 로드
+      // 2. PicnicLibL10n를 통한 공통 번역 로드
       try {
-        await LocalizationService.loadTranslations(Locale(language));
-        logger.i('LocalizationService 번역 로드 완료: $language');
+        await PicnicLibL10n.loadTranslations(Locale(language));
+        logger.i('PicnicLibL10n 번역 로드 완료: $language');
       } catch (e) {
-        logger.e('LocalizationService 번역 로드 실패', error: e);
+        logger.e('PicnicLibL10n 번역 로드 실패', error: e);
         // 실패해도 계속 진행
       }
 

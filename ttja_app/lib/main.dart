@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
-import 'package:picnic_lib/services/localization_service.dart';
+
 import 'package:ttja_app/app.dart';
 import 'package:ttja_app/firebase_options.dart';
 import 'package:ttja_app/generated/l10n.dart';
@@ -59,8 +59,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      localizationsDelegates: LocalizationService.localizationDelegates,
-      supportedLocales: LocalizationService.supportedLocales,
+      localizationsDelegates: [],
+      supportedLocales: const [Locale('ko'), Locale('en')],
       home: const Placeholder(), // 실제 홈 위젯으로 교체
     );
   }
