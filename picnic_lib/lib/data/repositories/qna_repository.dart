@@ -141,10 +141,12 @@ class QnARepository {
       };
 
       if (title != null) updateData['title'] = title;
-      if (question != null)
+      if (question != null) {
         updateData['question'] = question; // content -> question
-      if (isPrivate != null)
+      }
+      if (isPrivate != null) {
         updateData['is_private'] = isPrivate; // is_public -> is_private
+      }
 
       final response = await _client
           .from('qnas')

@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      localizationsDelegates: [],
+      localizationsDelegates: const [],
       supportedLocales: const [Locale('ko'), Locale('en')],
       home: const Placeholder(), // 실제 홈 위젯으로 교체
     );

@@ -28,12 +28,11 @@ class LanguageInitializer {
   /// 반환값은 언어 초기화 성공 여부와 최종 설정된 언어입니다.
   ///
   /// 초기화 과정:
-  /// 1. LocalizationService 초기화 (Crowdin 포함)
-  /// 2. 저장된 언어 설정 로드 (기본값: 'ko')
-  /// 3. Intl 기본 로케일 설정
-  /// 4. 앱 설정에 언어 반영
-  /// 5. 번역 데이터 로드 (Crowdin, 앱 내부 생성 번역, PicnicLibL10n)
-  /// 6. 오류 발생 시 한국어로 복구 시도
+  /// 1. 저장된 언어 설정 로드 (기본값: 'ko')
+  /// 2. Intl 기본 로케일 설정
+  /// 3. 앱 설정에 언어 반영
+  /// 4. 번역 데이터 로드 (로컬 번역, 앱 내부 생성 번역, PicnicLibL10n)
+  /// 5. 오류 발생 시 한국어로 복구 시도
   static Future<(bool, String)> initializeLanguage(
       WidgetRef ref,
       BuildContext context,
@@ -102,7 +101,7 @@ class LanguageInitializer {
   /// 언어 변경 과정:
   /// 1. 앱 설정에 새 언어 저장
   /// 2. Intl 기본 로케일 설정
-  /// 3. Crowdin 및 앱 내부 번역 데이터 로드
+  /// 3. 로컬 및 앱 내부 번역 데이터 로드
   /// 4. PicnicLibL10n 언어 설정 업데이트
   static Future<bool> changeLanguage(
     WidgetRef ref,

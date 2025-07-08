@@ -27,7 +27,6 @@ import 'package:ttja_app/bottom_navigation_menu.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:ttja_app/generated/l10n.dart';
 import 'package:ttja_app/main.dart' as main_file;

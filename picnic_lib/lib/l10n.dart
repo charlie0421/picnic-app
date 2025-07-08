@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// 전역 변수 추가
 bool _isSettingLanguage = false;
 
-/// 로컬라이제이션 설정 클래스 (Crowdin 제거, 로컬 번역만 사용)
+/// 로컬라이제이션 설정 클래스 (로컬 번역만 사용)
 class PicnicLibL10n {
   static bool _isInitialized = false;
   static Setting? _currentSetting;
@@ -82,7 +82,7 @@ class PicnicLibL10n {
     ];
   }
 
-  /// 로컬 번역 시스템 초기화 (Crowdin 제거)
+  /// 로컬 번역 시스템 초기화
   static Future<void> initialize(Setting appSetting,
       [ProviderContainer? container]) async {
     try {
@@ -217,7 +217,7 @@ class PicnicLibL10n {
     }
   }
 
-  /// 기본 번역 제공 (Crowdin 실패 시 사용)
+  /// 기본 번역 제공 (로컬 fallback 번역)
   static String? _getFallbackTranslation(String key, String languageCode) {
     // 한국어 기본 번역
     if (languageCode == 'ko') {

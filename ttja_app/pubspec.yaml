@@ -25,7 +25,7 @@ dependencies:
     another_flutter_splash_screen: ^1.2.1
     device_info_plus: ^11.2.0
     firebase_core: ^3.9.0
-    sentry_flutter: ^8.13.2
+    sentry_flutter: ^9.0.0
     reflectable: ^4.0.10
     firebase_analytics: ^11.3.6
     flutter_secure_storage: ^9.2.3
@@ -35,7 +35,6 @@ dependencies:
     url_launcher: ^6.2.5
     tapjoy_offerwall: ^14.2.1
     flutter_branch_sdk: ^8.3.2
-    crowdin_sdk: ^0.7.0
     shorebird_code_push: ^2.0.3
     flutter_phoenix: ^1.1.1
 
