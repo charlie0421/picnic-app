@@ -22,6 +22,7 @@ import 'package:picnic_lib/presentation/pages/my_page/vote_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna_list_page.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
@@ -110,6 +111,14 @@ class _MyPageState extends ConsumerState<MyPage> {
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
                           .setCurrentMyPage(const FAQPage())),
+                  // QnA
+                  if (data != null && data.id != null)
+                    PicnicListItem(
+                        leading: t('qna_page_title'),
+                        assetPath: 'assets/icons/arrow_right_style=line.svg',
+                        onTap: () => ref
+                            .read(navigationInfoProvider.notifier)
+                            .setCurrentMyPage(QnAListPage(userId: data.id!))),
                   // 충전내역
                   if (data != null && (data.isAdmin ?? false))
                     PicnicListItem(

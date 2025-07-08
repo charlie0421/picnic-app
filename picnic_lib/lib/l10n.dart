@@ -320,6 +320,92 @@ class PicnicLibL10n {
           return '신고';
         case 'dialog_caution':
           return '주의';
+        case 'ban_title':
+          return '계정 정지';
+        case 'ban_message':
+          return '커뮤니티 가이드라인 위반으로 인해 계정이 일시적으로 정지되었습니다.';
+        case 'ban_contact':
+          return '문의사항이 있으시면 고객센터로 연락주세요.';
+        // QnA 관련 번역 추가
+        case 'qna_page_title':
+          return 'Q&A';
+        case 'qna_list_title':
+          return 'Q&A 목록';
+        case 'qna_create_page_title':
+          return 'Q&A 작성';
+        case 'qna_detail_page_title':
+          return 'Q&A 상세';
+        case 'qna_title_hint':
+          return '제목을 입력해주세요';
+        case 'qna_content_hint':
+          return '문의 내용을 입력해주세요';
+        case 'qna_submit_button':
+          return '등록';
+        case 'qna_submit_success':
+          return '문의가 성공적으로 등록되었습니다';
+        case 'qna_submit_error':
+          return '문의 등록 중 오류가 발생했습니다';
+        case 'qna_title_required':
+          return '제목을 입력해 주세요';
+        case 'qna_title_too_short':
+          return '제목을 2글자 이상 입력해 주세요';
+        case 'qna_content_required':
+          return '내용을 입력해 주세요';
+        case 'qna_content_too_short':
+          return '내용을 10글자 이상 입력해 주세요';
+        case 'qna_public_option':
+          return '공개 문의';
+        case 'qna_private':
+          return '비공개';
+        case 'qna_load_error':
+          return '데이터를 불러오는 중 오류가 발생했습니다';
+        case 'qna_info_title':
+          return '문의 정보';
+        case 'qna_status':
+          return '상태';
+        case 'qna_created_at':
+          return '작성일';
+        case 'qna_updated_at':
+          return '수정일';
+        case 'qna_public_status':
+          return '공개 여부';
+        case 'qna_answer_title':
+          return '답변';
+        case 'qna_answered_at':
+          return '답변일';
+        case 'retry':
+          return '다시 시도';
+        case 'qna_empty_list':
+          return '등록된 문의가 없습니다';
+        case 'qna_create_first':
+          return '첫 번째 문의를 작성해보세요!';
+        // QnA 상태 관련
+        case 'qna_status_pending':
+          return '대기중';
+        case 'qna_status_answered':
+          return '답변완료';
+        case 'qna_status_resolved':
+          return '해결됨';
+        case 'qna_status_closed':
+          return '종료';
+        // 시간 관련
+        case 'days_ago':
+          return '일 전';
+        case 'hours_ago':
+          return '시간 전';
+        case 'minutes_ago':
+          return '분 전';
+        case 'just_now':
+          return '방금 전';
+        // 기타
+        case 'qna_error_message':
+          return '오류가 발생했습니다';
+        case 'qna_content':
+          return '내용';
+        case 'qna_title':
+          return '제목';
+        case 'qna_public':
+          return '공개';
       }
     }
 
@@ -361,6 +447,92 @@ class PicnicLibL10n {
         return 'Report';
       case 'dialog_caution':
         return 'Caution';
+      case 'ban_title':
+        return 'Account Suspended';
+      case 'ban_message':
+        return 'Your account has been temporarily suspended due to violation of community guidelines.';
+      case 'ban_contact':
+        return 'For inquiries, please contact customer support.';
+      // QnA 관련 영어 번역 추가
+      case 'qna_page_title':
+        return 'Q&A';
+      case 'qna_list_title':
+        return 'Q&A List';
+      case 'qna_create_page_title':
+        return 'Create Q&A';
+      case 'qna_detail_page_title':
+        return 'Q&A Details';
+      case 'qna_title_hint':
+        return 'Please enter a title';
+      case 'qna_content_hint':
+        return 'Please enter your inquiry';
+      case 'qna_submit_button':
+        return 'Submit';
+      case 'qna_submit_success':
+        return 'Your inquiry has been submitted successfully';
+      case 'qna_submit_error':
+        return 'An error occurred while submitting your inquiry';
+      case 'qna_title_required':
+        return 'Please enter a title';
+      case 'qna_title_too_short':
+        return 'Please enter at least 2 characters for the title';
+      case 'qna_content_required':
+        return 'Please enter content';
+      case 'qna_content_too_short':
+        return 'Please enter at least 10 characters for content';
+      case 'qna_public_option':
+        return 'Public Inquiry';
+      case 'qna_private':
+        return 'Private';
+      case 'qna_load_error':
+        return 'An error occurred while loading data';
+      case 'qna_info_title':
+        return 'Inquiry Information';
+      case 'qna_status':
+        return 'Status';
+      case 'qna_created_at':
+        return 'Created';
+      case 'qna_updated_at':
+        return 'Updated';
+      case 'qna_public_status':
+        return 'Visibility';
+      case 'qna_answer_title':
+        return 'Answer';
+      case 'qna_answered_at':
+        return 'Answered';
+      case 'retry':
+        return 'Retry';
+      case 'qna_empty_list':
+        return 'No inquiries registered';
+      case 'qna_create_first':
+        return 'Write your first inquiry!';
+      // QnA status related
+      case 'qna_status_pending':
+        return 'Pending';
+      case 'qna_status_answered':
+        return 'Answered';
+      case 'qna_status_resolved':
+        return 'Resolved';
+      case 'qna_status_closed':
+        return 'Closed';
+      // Time related
+      case 'days_ago':
+        return ' days ago';
+      case 'hours_ago':
+        return ' hours ago';
+      case 'minutes_ago':
+        return ' minutes ago';
+      case 'just_now':
+        return 'Just now';
+      // Others
+      case 'qna_error_message':
+        return 'An error occurred';
+      case 'qna_content':
+        return 'Content';
+      case 'qna_title':
+        return 'Title';
+      case 'qna_public':
+        return 'Public';
     }
 
     return null;

@@ -39,7 +39,7 @@ final selectedGalleryIdProvider =
 
 typedef _$SelectedGalleryId = AutoDisposeNotifier<int>;
 String _$asyncCelebGalleryListHash() =>
-    r'7defe217f93f538701a18af1002ece9c33269fd0';
+    r'5ceae2fcade1280cb3a9981420beb0dab33fcd63';
 
 /// Copied from Dart SDK
 class _SystemHash {
