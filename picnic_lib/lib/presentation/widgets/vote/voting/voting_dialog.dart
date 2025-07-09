@@ -59,7 +59,6 @@ class VotingDialog extends ConsumerStatefulWidget {
 }
 
 class _VotingDialogState extends ConsumerState<VotingDialog> {
-  static const int maxVoteAmount = 10000;
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   final GlobalKey _inputFieldKey = GlobalKey();
@@ -88,9 +87,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final myStarCandy = _getMyStarCandy();
     if (mounted) {
       setState(() {
-        _canVote = voteAmount > 0 &&
-            voteAmount <= myStarCandy &&
-            voteAmount <= maxVoteAmount;
+        _canVote = voteAmount > 0 && voteAmount <= myStarCandy;
         _hasValue = voteAmount > 0;
       });
     }
@@ -295,13 +292,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               AppColors.primary500,
             ),
           ),
-          Text(
-            '· ${t('voting_limit_text')}',
-            style: getTextStyle(
-              AppTypo.caption10SB,
-              AppColors.primary500,
-            ),
-          ),
         ],
       ),
     );
@@ -428,10 +418,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             _hasValue = _checkAll;
             if (_checkAll) {
               final amount = _getMyStarCandy();
-              final limitedAmount =
-                  amount > maxVoteAmount ? maxVoteAmount : amount;
-              _textEditingController.text =
-                  formatNumberWithComma(limitedAmount);
+              _textEditingController.text = formatNumberWithComma(amount);
             } else {
               _textEditingController.clear();
             }
@@ -499,18 +486,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   Widget _buildErrorMessage() {
     if (!_canVote && _hasValue) {
-      final voteAmount = _getVoteAmount();
-      if (voteAmount > maxVoteAmount) {
-        return Container(
-          padding: EdgeInsets.only(left: 22.w),
-          width: double.infinity,
-          child: Text(
-            t('voting_limit_warning'),
-            style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
-            textAlign: TextAlign.left,
-          ),
-        );
-      }
       return Container(
         padding: EdgeInsets.only(left: 22.w),
         width: double.infinity,
@@ -549,16 +524,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
   void _handleVote(int myStarCandy, String userId) {
     final voteAmount = _getVoteAmount();
-    if (voteAmount == 0 ||
-        myStarCandy < voteAmount ||
-        voteAmount > maxVoteAmount) {
+    if (voteAmount == 0 || myStarCandy < voteAmount) {
       showSimpleDialog(
         title: t('dialog_title_vote_fail'),
         content: voteAmount == 0
             ? t('text_dialog_vote_amount_should_not_zero')
-            : voteAmount > maxVoteAmount
-                ? t('voting_limit_text')
-                : t('text_need_recharge'),
+            : t('text_need_recharge'),
         onOk: () {},
       );
       return;

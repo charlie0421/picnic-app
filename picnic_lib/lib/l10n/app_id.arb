@@ -678,8 +678,6 @@
   "@vote_share_message": {},
   "voting_share_benefit_text": "Dapatkan 1 bonus permen bintang untuk setiap 100 suara dan bagikan!",
   "@voting_share_benefit_text": {},
-  "voting_limit_text": "Untuk mencegah lonjakan lalu lintas, total penggunaan dibatasi hingga 10.000 dalam satu waktu.",
-  "voting_limit_warning": "Hanya hingga 10.000 yang diperbolehkan.",
   "label_global_recommendation": "Pilihan Global",
   "@label_global_recommendation": {},
   "label_asia_recommendation": "Pilihan Asia",
@@ -788,12 +786,6 @@
   "qna_content_hint": "Masukkan isi konsultasi dengan detail",
   "qna_submit_button": "Daftar Konsultasi",
   "label_mypage_qna": "Pertanyaan QnA",
-  "@voting_limit_text": {
-    "description": "Text indicating voting limit information"
-  },
-  "@voting_limit_warning": {
-    "description": "Warning message for voting limits"
-  },
   "@label_mypage_faq": {
     "description": "FAQ menu label in my page"
   },

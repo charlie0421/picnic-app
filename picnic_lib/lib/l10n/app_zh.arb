@@ -678,8 +678,6 @@
   "@vote_share_message": {},
   "voting_share_benefit_text": "每 100 次投票和分享可获得 1 颗奖励星星糖果！",
   "@voting_share_benefit_text": {},
-  "voting_limit_text": "为防止流量激增，每次使用总量限制为 10,000 次。",
-  "voting_limit_warning": "最多只允许 10 000 人。",
   "label_global_recommendation": "全球精选",
   "@label_global_recommendation": {},
   "label_asia_recommendation": "亚洲精选",
@@ -788,12 +786,6 @@
   "qna_content_hint": "请详细输入咨询内容",
   "qna_submit_button": "提交咨询",
   "label_mypage_qna": "QnA咨询",
-  "@voting_limit_text": {
-    "description": "Text indicating voting limit information"
-  },
-  "@voting_limit_warning": {
-    "description": "Warning message for voting limits"
-  },
   "@label_mypage_faq": {
     "description": "FAQ menu label in my page"
   },

@@ -678,8 +678,6 @@
   "@vote_share_message": {},
   "voting_share_benefit_text": "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！",
   "@voting_share_benefit_text": {},
-  "voting_limit_text": "トラフィック急増防止のため、全体の使用は一度に1万個まで可能です。",
-  "voting_limit_warning": "最大1万個までしかできません",
   "label_global_recommendation": "グローバルおすすめ",
   "@label_global_recommendation": {},
   "label_asia_recommendation": "アジアおすすめ",
@@ -788,12 +786,6 @@
   "qna_content_hint": "お問い合わせ内容を詳しく入力してください",
   "qna_submit_button": "お問い合わせ登録",
   "label_mypage_qna": "QnA問い合わせ",
-  "@voting_limit_text": {
-    "description": "Text indicating voting limit information"
-  },
-  "@voting_limit_warning": {
-    "description": "Warning message for voting limits"
-  },
   "@label_mypage_faq": {
     "description": "FAQ menu label in my page"
   },
