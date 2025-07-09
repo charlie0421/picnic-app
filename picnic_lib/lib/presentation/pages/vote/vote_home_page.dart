@@ -276,6 +276,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
                                 style: getTextStyle(
                                         AppTypo.body14R, Colors.white)
                                     .copyWith(overflow: TextOverflow.ellipsis),
+                                maxLines: 1,
                               ),
                             ),
                           ),

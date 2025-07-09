@@ -51,11 +51,13 @@ class VoteCommonTitle extends StatelessWidget {
                                       ..color = AppColors.primary500
                                       ..strokeJoin = StrokeJoin.miter
                                       ..strokeMiterLimit = 28.96),
-                        overflow: TextOverflow.ellipsis),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1),
                     Text(
                       title,
                       style: getTextStyle(AppTypo.body16M, AppColors.grey00),
                       overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ],
                 ),

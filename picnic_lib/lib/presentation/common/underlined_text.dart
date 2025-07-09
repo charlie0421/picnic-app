@@ -9,6 +9,8 @@ class UnderlinedText extends StatelessWidget {
     this.underlineColor,
     this.underlineHeight = 2,
     this.underlineGap = 4,
+    this.maxLines,
+    this.overflow = TextOverflow.ellipsis,
   });
 
   final String text;
@@ -16,21 +18,25 @@ class UnderlinedText extends StatelessWidget {
   final Color? underlineColor;
   final double underlineHeight;
   final double underlineGap;
+  final int? maxLines;
+  final TextOverflow overflow;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(text, style: textStyle),
-        Positioned(
-          bottom: -underlineGap,
-          left: 0,
-          right: 0,
-          child: Container(
-            height: underlineHeight,
-            color: underlineColor ?? AppColors.primary500,
-          ),
+        Text(
+          text,
+          style: textStyle,
+          maxLines: maxLines,
+          overflow: overflow,
+        ),
+        SizedBox(height: underlineGap),
+        Container(
+          height: underlineHeight,
+          color: underlineColor ?? AppColors.primary500,
         ),
       ],
     );
