@@ -363,12 +363,11 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
         if (scheduledSplashUrl != null)
           PicnicCachedNetworkImage(
             imageUrl: scheduledSplashUrl!,
-            fit: BoxFit.contain,
+            fit: BoxFit.cover, // contain에서 cover로 변경
           ),
 
         // 3) 상태 메시지 표시 (패치 체크 진행 상황 등)
-        if (showStatus &&
-            currentStatusMessage.isNotEmpty)
+        if (showStatus && currentStatusMessage.isNotEmpty)
           Positioned(
             bottom: 50,
             left: 0,
