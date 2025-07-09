@@ -1,16 +1,17 @@
 # dart run flutter_native_splash:create --path flutter_native_splash.yaml
 flutter_native_splash:
   color: "#FFFFFF"
-  # 1024x1024 고해상도 이미지 사용
-  image: assets/app_icon.png
+  # 전용 스플래시 이미지 사용 (800x1738, 라운드 처리에 최적화됨)
+  image: assets/splash.png
 
   android_12:
-    # Android 12+에서도 더 높은 해상도 이미지 사용
+    # Android 12+에서는 작은 adaptive icon과 큰 branding 이미지 조합
     image: assets/app_icon.png
+    branding: assets/splash.png  # 라운드 처리 없는 큰 브랜딩 이미지
     color: "#FFFFFF"
     icon_background_color: "#FFFFFF"
-    android_gravity: center
+    branding_mode: center  # 브랜딩 이미지를 중앙에 배치
     android_screen_orientation: portrait
     
-  # 전용 스플래시 이미지가 있다면 이것도 사용할 수 있습니다
+  # 대안: 모든 경우에 splash.png 사용
   # image: assets/splash.png
