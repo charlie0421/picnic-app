@@ -1,14 +1,17 @@
 # dart run flutter_native_splash:create --path flutter_native_splash.yaml
 flutter_native_splash:
   color: "#FFFFFF"
-  # 전용 스플래시 이미지 사용 - 모든 Android 버전에서 동일
+  # 일반 Android에서는 전용 스플래시 이미지 사용
   image: assets/splash.png
 
-  # Android 12+ 특별 설정 제거 - 일반 설정과 동일하게 처리
-  # android_12:
-  #   image: assets/app_icon.png
-  #   branding: assets/splash.png
-  #   color: "#FFFFFF"
-  #   icon_background_color: "#FFFFFF"
-  #   branding_mode: center
-  #   android_screen_orientation: portrait
+  # Android 12+ Material You 가이드라인 준수
+  android_12:
+    # Adaptive icon (작고 중앙에 배치) - 시스템 일관성을 위해 필요
+    image: assets/app_icon.png
+    # 브랜딩 이미지를 하단에 작게 배치하여 덜 거슬리게
+    branding: assets/app_icon.png  # splash.png 대신 작은 아이콘 사용
+    color: "#FFFFFF"
+    icon_background_color: "#FFFFFF"
+    branding_mode: bottom  # 하단에 작게 배치
+    android_gravity: center  # 중앙 정렬
+    android_screen_orientation: portrait
