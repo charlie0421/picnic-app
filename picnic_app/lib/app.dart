@@ -13,6 +13,7 @@ import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
@@ -282,6 +283,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       theme: _getCurrentTheme(ref),
       home: UpdateDialog(child: currentScreen),
       localizationsDelegates: [
+        // picnic_lib의 ARB 파일 기반 번역 (gen-l10n으로 생성)
+        ...AppLocalizations.localizationsDelegates,
+        // 커스텀 PicnicLibL10n 번역 (하드코딩된 번역)
         ...PicnicLibL10n.localizationsDelegates,
       ],
       supportedLocales: _supportedLocales,

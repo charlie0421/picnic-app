@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 
 /// 전역 변수 추가
 bool _isSettingLanguage = false;
@@ -194,13 +195,20 @@ class PicnicLibL10n {
       // 현재 언어 코드 가져오기
       final languageCode = _getLanguage();
 
-      // 로컬 fallback 번역에서 직접 가져오기
+      // 1. 먼저 AppLocalizations (ARB 파일 기반)에서 번역 찾기
+      String? arbTranslation =
+          _getAppLocalizationsTranslation(key, languageCode);
+      if (arbTranslation != null && arbTranslation.isNotEmpty) {
+        return _formatTranslation(arbTranslation, args);
+      }
+
+      // 2. ARB에서 찾지 못하면 로컬 fallback 번역에서 찾기
       final fallbackText = _getFallbackTranslation(key, languageCode);
       if (fallbackText != null) {
         return _formatTranslation(fallbackText, args);
       }
 
-      // 모든 번역이 실패한 경우 키 기반 변환 시도
+      // 3. 모든 번역이 실패한 경우 키 기반 변환 시도
       if (key.contains('_')) {
         final parts = key.split('_');
         if (parts.length > 1) {
@@ -214,6 +222,136 @@ class PicnicLibL10n {
     } catch (e, s) {
       logger.e('번역 과정에서 오류 발생: $key', error: e, stackTrace: s);
       return _formatTranslation(key, args);
+    }
+  }
+
+  /// ARB 파일 기반 번역에서 텍스트 가져오기
+  static String? _getAppLocalizationsTranslation(
+      String key, String languageCode) {
+    try {
+      // Locale 객체 생성
+      final locale = Locale(languageCode);
+
+      // AppLocalizations 인스턴스 가져오기 (BuildContext 없이)
+      final appLocalizations = lookupAppLocalizations(locale);
+
+      // 리플렉션을 사용하여 키에 해당하는 getter 호출
+      switch (key) {
+        case 'appTitle':
+          final result = appLocalizations.appTitle;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'vote_item_request_title':
+          final result = appLocalizations.vote_item_request_title;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'vote_item_request_button':
+          final result = appLocalizations.vote_item_request_button;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'artist_name_label':
+          final result = appLocalizations.artist_name_label;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'group_name_label':
+          final result = appLocalizations.group_name_label;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'application_reason_label':
+          final result = appLocalizations.application_reason_label;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'artist_name_hint':
+          final result = appLocalizations.artist_name_hint;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'group_name_hint':
+          final result = appLocalizations.group_name_hint;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'application_reason_hint':
+          final result = appLocalizations.application_reason_hint;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'submit_application':
+          final result = appLocalizations.submit_application;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'vote_item_request_search_artist_hint':
+          final result = appLocalizations.vote_item_request_search_artist_hint;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'application_success':
+          final result = appLocalizations.application_success;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'success':
+          final result = appLocalizations.success;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'vote_period':
+          final result = appLocalizations.vote_period;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'error_artist_not_selected':
+          final result = appLocalizations.error_artist_not_selected;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'error_application_reason_required':
+          final result = appLocalizations.error_application_reason_required;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'searching':
+          final result = appLocalizations.searching;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'no_search_results':
+          final result = appLocalizations.no_search_results;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'vote_item_request_current_item_request':
+          final result =
+              appLocalizations.vote_item_request_current_item_request;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'vote_item_request_no_item_request_yet':
+          final result = appLocalizations.vote_item_request_no_item_request_yet;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'vote_item_request_search_artist':
+          final result = appLocalizations.vote_item_request_search_artist;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'vote_item_request_search_artist_prompt':
+          final result =
+              appLocalizations.vote_item_request_search_artist_prompt;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'label_tabbar_vote_active':
+          final result = appLocalizations.label_tabbar_vote_active;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'label_tabbar_vote_image':
+          final result = appLocalizations.label_tabbar_vote_image;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'label_tabbar_vote_end':
+          final result = appLocalizations.label_tabbar_vote_end;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        case 'label_tabbar_vote_upcoming':
+          final result = appLocalizations.label_tabbar_vote_upcoming;
+          logger.d('🎯 ARB 번역 발견: [$languageCode] $key = "$result"');
+          return result;
+        // 여기에 더 많은 키를 추가할 수 있습니다
+        default:
+          // 키를 찾을 수 없으면 null 반환
+          return null;
+      }
+    } catch (e) {
+      // ARB 파일에서 번역을 찾을 수 없거나 오류가 발생한 경우
+      logger.w('ARB 번역 가져오기 실패: [$languageCode] $key - $e');
+      return null;
     }
   }
 

@@ -27,6 +27,7 @@ import 'package:ttja_app/bottom_navigation_menu.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 
 import 'package:ttja_app/generated/l10n.dart';
 import 'package:ttja_app/main.dart' as main_file;
@@ -207,6 +208,9 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       theme: _getCurrentTheme(ref),
       home: UpdateDialog(child: homeWidget),
       localizationsDelegates: [
+        // picnic_lib의 ARB 파일 기반 번역 (gen-l10n으로 생성)
+        ...AppLocalizations.localizationsDelegates,
+        // 커스텀 PicnicLibL10n 번역 (하드코딩된 번역)
         ...PicnicLibL10n.localizationsDelegates,
       ],
       supportedLocales: _supportedLocales,
