@@ -65,12 +65,12 @@
   "vote_item_request_my_list": "내 신청",
   "vote_item_request_reason": "신청 사유 (선택)",
   "vote_item_request_reason_hint": "이 아티스트를 추천하는 이유를 적어주세요...",
-  "vote_item_request_submit": "신청",
+  "vote_item_request_submit": "신청하기",
   "vote_item_request_success": "투표 신청이 완료되었습니다!",
   "vote_item_request_error": "투표 신청 중 오류가 발생했습니다.",
   "vote_item_request_no_applications": "아직 신청한 내역이 없습니다.",
   "vote_item_request_status_approved": "승인됨",
-  "vote_item_request_status_rejected": "거절됨",
+  "vote_item_request_status_rejected": "거부됨",
   "vote_item_request_status_pending": "대기중",
   "search_artist_hint": "아티스트나 그룹을 검색하세요",
   "searching": "검색 중...",
@@ -79,12 +79,16 @@
   "vote_item_request_current_applications": "현재 신청 목록",
   "vote_item_request_no_applications_yet": "아직 신청된 항목이 없습니다",
   "vote_item_request_search_artist": "아티스트 검색",
-  "vote_item_request_search_artist_prompt": "아티스트를 검색하여 신청하세요",
+  "vote_item_request_search_artist_prompt": "아티스트명을 검색하여 신청해 보세요",
   "vote_item_request_no_search_results": "검색 결과가 없습니다",
   "vote_item_request_application_count": "신청 {count}개",
   "vote_item_request_total_applications": "총 신청 {count}개",
+  "vote_item_request_submit": "신청",
   "vote_item_request_already_registered": "이미 등록됨",
   "vote_item_request_can_apply": "신청 가능",
+  "vote_item_request_status_pending": "대기중",
+  "vote_item_request_status_approved": "승인됨",
+  "vote_item_request_status_rejected": "거절됨",
   "vote_item_request_status_in_progress": "진행중",
   "vote_item_request_status_cancelled": "취소됨",
   "vote_item_request_status_unknown": "알 수 없음",
@@ -95,21 +99,22 @@
   "vote_item_request_addition_request": "투표 아이템 추가 신청",
   "vote_item_request_current_item_request": "현재 아이템 요청",
   "vote_item_request_no_item_request_yet": "아직 아이템 요청이 없습니다",
+  "vote_item_request_search_artist_prompt": "아티스트를 검색하여 신청하세요",
   "vote_item_request_item_request_count": "{count}개 아이템 요청",
   "vote_item_request_total_item_requests": "총 {count}개 아이템 요청",
   "label_tabbar_vote_active": "진행중",
   "label_tabbar_vote_image": "이미지 투표",
   "label_tabbar_vote_end": "종료됨",
   "label_tabbar_vote_upcoming": "예정됨",
-  "ban_title": "계정이 일시 정지되었습니다",
+  "ban_title": "계정 정지",
   "@ban_title": {
     "description": "Title for ban screen"
   },
-  "ban_message": "부적절한 활동으로 인해 계정이 일시 정지되었습니다.",
+  "ban_message": "커뮤니티 가이드라인 위반으로 인해 계정이 일시적으로 정지되었습니다.",
   "@ban_message": {
     "description": "Message explaining the ban"
   },
-  "ban_contact": "문의사항이 있으시면 고객센터로 연락해주세요.",
+  "ban_contact": "문의사항이 있으시면 고객센터로 연락주세요.",
   "@ban_contact": {
     "description": "Contact information for banned users"
   },
@@ -244,17 +249,5 @@
   },
   "@qna_public_option": {
     "description": "QnA public option label"
-  },
-  "cancel": "취소",
-  "confirm": "확인",
-  "loading": "로딩 중...",
-  "just_now": "방금 전",
-  "update": "업데이트",
-  "compatibility_empty_state_title": "궁합 정보가 없습니다",
-  "compatibility_empty_state_subtitle": "첫 번째 궁합을 만들어보세요!",
-  "network_error_title": "네트워크 오류",
-  "network_error_message": "인터넷 연결을 확인해주세요.",
-  "notice_pinned": "고정",
-  "message_agreement_fail": "약관 동의가 필요합니다",
-  "title_dialog_error": "오류"
-}
+  }
+} 
