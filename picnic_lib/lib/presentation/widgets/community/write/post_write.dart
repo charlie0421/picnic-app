@@ -9,7 +9,7 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/openai.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
@@ -100,8 +100,8 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
     if (isFlagged) {
       OverlayLoadingProgress.stop();
       showSimpleDialog(
-        title: t('dialog_caution'),
-        content: t('post_flagged'),
+        title: AppLocalizations.of(context).dialog_caution,
+        content: AppLocalizations.of(context).post_flagged,
       );
       return;
     }
@@ -151,8 +151,9 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
 
       if (isTemporary) {
         showSimpleDialog(
-          title: t('post_temporary_save_complete'),
-          content: t('post_ask_go_to_temporary_save_list'),
+          title: AppLocalizations.of(context).post_temporary_save_complete,
+          content:
+              AppLocalizations.of(context).post_ask_go_to_temporary_save_list,
           onOk: () {},
           onCancel: () {
             Navigator.of(context).pop();

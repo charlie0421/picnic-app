@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 
 class BanScreen extends StatelessWidget {
   const BanScreen({super.key});
@@ -20,7 +20,7 @@ class BanScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                t('ban_title'),
+                AppLocalizations.of(context).ban_title,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -29,13 +29,13 @@ class BanScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                t('ban_message'),
+                AppLocalizations.of(context).ban_message,
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                t('ban_contact'),
+                AppLocalizations.of(context).ban_contact,
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,

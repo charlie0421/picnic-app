@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/library_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
@@ -32,7 +32,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Text(
-                        t('label_library_save'),
+                        AppLocalizations.of(context).label_library_save,
                         style: getTextStyle(AppTypo.body16B),
                       ),
                       GestureDetector(
@@ -41,7 +41,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                           _showAddAlbum();
                         },
                         child: Text(
-                          t('label_album_add'),
+                          AppLocalizations.of(context).label_album_add,
                           style: getTextStyle(AppTypo.body14R),
                         ),
                       ),
@@ -84,7 +84,7 @@ class _LibraryListState extends ConsumerState<AlbumList> {
                         asyncLibraryNotifier.addImageToLibrary(
                             _selectedRadioTile, widget.imageId);
                       },
-                      child: Text(t('button_complete')),
+                      child: Text(AppLocalizations.of(context).button_complete),
                     ),
                   ),
                 ],
@@ -101,21 +101,22 @@ class _LibraryListState extends ConsumerState<AlbumList> {
       builder: (context) {
         TextEditingController albumController = TextEditingController();
         return AlertDialog(
-          title: Text(t('title_dialog_library_add')),
+          title: Text(AppLocalizations.of(context).title_dialog_library_add),
           content: TextFormField(
             controller: albumController,
-            decoration: InputDecoration(hintText: t('hint_library_add')),
+            decoration: InputDecoration(
+                hintText: AppLocalizations.of(context).hint_library_add),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text(t('button_cancel')),
+              child: Text(AppLocalizations.of(context).button_cancel),
               onPressed: () {
                 albumController.dispose();
                 Navigator.pop(context);
               },
             ),
             TextButton(
-              child: Text(t('button_ok')),
+              child: Text(AppLocalizations.of(context).button_ok),
               onPressed: () {
                 if (albumController.text.isNotEmpty) {
                   albumController.dispose();

@@ -7,7 +7,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_input.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_reply_layer.dart';
@@ -149,7 +149,8 @@ class _CommentListState extends ConsumerState<CommentList> {
       logger.e('Error handling comment action: $e', stackTrace: s);
       if (!_isDisposed) {
         if (!context.mounted) return;
-        SnackbarUtil().showSnackbar(t('error_action_failed'));
+        SnackbarUtil()
+            .showSnackbar(AppLocalizations.of(context).error_action_failed);
       }
     } finally {
       _debounceTimer?.cancel();
@@ -253,7 +254,8 @@ class _CommentListState extends ConsumerState<CommentList> {
               fetchNextPage: _pagingController.fetchNextPage,
               builderDelegate: PagedChildBuilderDelegate<CommentModel>(
                 noItemsFoundIndicatorBuilder: (_) => NoItemContainer(
-                  message: t('label_article_comment_empty'),
+                  message:
+                      AppLocalizations.of(context).label_article_comment_empty,
                 ),
                 firstPageProgressIndicatorBuilder: (_) => const Center(
                   child: Padding(
@@ -278,13 +280,14 @@ class _CommentListState extends ConsumerState<CommentList> {
                   child: Column(
                     children: [
                       Text(
-                        t('error_loading_more_comments'),
+                        AppLocalizations.of(context)
+                            .error_loading_more_comments,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: _refreshComments,
-                        child: Text(t('label_retry')),
+                        child: Text(AppLocalizations.of(context).label_retry),
                       ),
                     ],
                   ),

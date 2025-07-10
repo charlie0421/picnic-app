@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/comment/like_button.dart';
 import 'package:picnic_lib/presentation/common/comment/reply_button.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -69,7 +69,7 @@ class CommentActions extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         child: Text(
-          t('label_reply'),
+          AppLocalizations.of(context).label_reply,
           style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
         ),
       ),
@@ -105,8 +105,10 @@ class CommentActions extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             showOriginal
-                ? t('post_comment_action_show_translation')
-                : t('post_comment_action_show_original'),
+                ? AppLocalizations.of(context)
+                    .post_comment_action_show_translation
+                : AppLocalizations.of(context)
+                    .post_comment_action_show_original,
             style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
           ),
         ),
@@ -121,7 +123,7 @@ class CommentActions extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         child: Text(
-          t('post_comment_action_translate'),
+          AppLocalizations.of(context).post_comment_action_translate,
           style: getTextStyle(AppTypo.caption12B, AppColors.grey500),
         ),
       ),

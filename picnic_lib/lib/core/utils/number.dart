@@ -1,12 +1,4 @@
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/l10n.dart';
-
-String formatCount(int number, String labelName) {
-  final String viewString = getLocaleLanguage() == 'ko'
-      ? '${formatViewCountNumberKo(number)} ${t(labelName)}'
-      : '${formatViewCountNumberEn(number)} ${t(labelName)}';
-  return viewString;
-}
 
 String formatViewCountNumberKo(int number) {
   if (number >= 100000000) {

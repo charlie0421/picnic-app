@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -44,8 +44,8 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
 
     try {
       showSimpleDialog(
-        title: t('popup_label_delete'),
-        content: t('post_comment_delete_confirm'),
+        title: AppLocalizations.of(context).popup_label_delete,
+        content: AppLocalizations.of(context).post_comment_delete_confirm,
         onOk: () async {
           try {
             final commentsNotifier = ref.read(
@@ -66,7 +66,8 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
             logger.e('exception:', error: e, stackTrace: s);
 
             if (mounted) {
-              SnackbarUtil().showSnackbar(t('post_comment_delete_fail'));
+              SnackbarUtil().showSnackbar(
+                  AppLocalizations.of(context).post_comment_delete_fail);
             }
             rethrow;
           }
@@ -94,7 +95,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
     try {
       if (widget.openReportModal != null) {
         widget.openReportModal!(
-          t('label_title_report'),
+          AppLocalizations.of(context).label_title_report,
           widget.comment,
         );
       }
@@ -143,12 +144,12 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
           if (_canDeleteComment())
             PopupMenuItem<String>(
               value: 'Delete',
-              child: Text(t('popup_label_delete')),
+              child: Text(AppLocalizations.of(context).popup_label_delete),
             ),
           if (_canReportComment())
             PopupMenuItem<String>(
               value: 'Report',
-              child: Text(t('label_title_report')),
+              child: Text(AppLocalizations.of(context).label_title_report),
             ),
         ],
         child: SvgPicture.asset(

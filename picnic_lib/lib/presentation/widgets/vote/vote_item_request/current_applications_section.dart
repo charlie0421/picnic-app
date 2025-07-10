@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'common_artist_widget.dart';
 
 /// 모든 사용자의 신청을 아티스트별로 표시하는 섹션
-class CurrentApplicationsSection extends StatelessWidget {
+class CurrentApplicationsSection extends StatefulWidget {
   final List<Map<String, dynamic>> artistApplicationSummaries;
   final int totalApplications;
   final bool isLoading;
@@ -19,6 +19,11 @@ class CurrentApplicationsSection extends StatelessWidget {
     this.isLoading = false,
   });
 
+  @override
+  State<CurrentApplicationsSection> createState() => _CurrentApplicationsSectionState();
+}
+
+class _CurrentApplicationsSectionState extends State<CurrentApplicationsSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,7 +47,7 @@ class CurrentApplicationsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          isLoading ? _buildLoadingSkeleton() : _buildContent(),
+          widget.isLoading ? _buildLoadingSkeleton() : _buildContent(),
         ],
       ),
     );
@@ -67,7 +72,7 @@ class CurrentApplicationsSection extends StatelessWidget {
           ),
           SizedBox(width: 8.w),
           Expanded(
-            child: isLoading
+            child: widget.isLoading
                 ? Shimmer.fromColors(
                     baseColor: AppColors.grey300,
                     highlightColor: AppColors.grey100,
@@ -81,7 +86,7 @@ class CurrentApplicationsSection extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    t('vote_item_request_status'),
+                    AppLocalizations.of(context).vote_item_request_status,
                     style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                   ),
           ),
@@ -203,20 +208,20 @@ class CurrentApplicationsSection extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    if (artistApplicationSummaries.isEmpty) {
+    if (widget.artistApplicationSummaries.isEmpty) {
       return _buildEmptyState();
     }
 
     return Expanded(
       child: ListView.builder(
         padding: EdgeInsets.fromLTRB(12.r, 0, 12.r, 12.r),
-        itemCount: artistApplicationSummaries.length,
+        itemCount: widget.artistApplicationSummaries.length,
         addAutomaticKeepAlives: false,
         addRepaintBoundaries: false,
         physics: BouncingScrollPhysics(),
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          final summary = artistApplicationSummaries[index];
+          final summary = widget.artistApplicationSummaries[index];
           return _buildArtistSummaryItem(summary, index);
         },
       ),
@@ -298,17 +303,20 @@ class CurrentApplicationsSection extends StatelessWidget {
 
     if (totalCount == approvedCount && approvedCount > 0) {
       // 전체 승인
-      statusLabel = t('vote_item_request_status_approved');
+      statusLabel =
+          AppLocalizations.of(context).vote_item_request_status_approved;
       statusColor = Colors.green;
       displayCount = null; // 승인된 경우 숫자 숨김
     } else if (totalCount == rejectedCount && rejectedCount > 0) {
       // 전체 거절
-      statusLabel = t('vote_item_request_status_rejected');
+      statusLabel =
+          AppLocalizations.of(context).vote_item_request_status_rejected;
       statusColor = Colors.red;
       displayCount = null; // 거절인 경우 숫자 숨김
     } else {
       // 나머지 (대기중/혼합)
-      statusLabel = t('vote_item_request_status_pending');
+      statusLabel =
+          AppLocalizations.of(context).vote_item_request_status_pending;
       statusColor = Colors.orange;
       displayCount = totalCount; // 대기중인 경우 전체 건수 표시
     }

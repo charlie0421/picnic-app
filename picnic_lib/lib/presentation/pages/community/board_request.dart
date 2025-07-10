@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/boards_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -145,8 +146,8 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                     ..._buildSection(
                       _nameController,
                       _nameFocus,
-                      t('post_minor_board_name'),
-                      t('post_minor_board_name_input'),
+                      AppLocalizations.of(context).post_minor_board_name,
+                      AppLocalizations.of(context).post_minor_board_name_input,
                       1,
                       _validateName,
                       pendingRequest == null,
@@ -154,8 +155,9 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                     ..._buildSection(
                       _descriptionController,
                       _descriptionFocus,
-                      t('post_minor_board_description'),
-                      t('post_minor_board_description_input'),
+                      AppLocalizations.of(context).post_minor_board_description,
+                      AppLocalizations.of(context)
+                          .post_minor_board_description_input,
                       3,
                       _validateDescription,
                       pendingRequest == null,
@@ -163,8 +165,10 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                     ..._buildSection(
                       _requestMessageController,
                       _requestMessageFocus,
-                      t('post_minor_board_create_request_message'),
-                      t('post_minor_board_create_request_message_input'),
+                      AppLocalizations.of(context)
+                          .post_minor_board_create_request_message,
+                      AppLocalizations.of(context)
+                          .post_minor_board_create_request_message_input,
                       3,
                       _validateRequestMessage,
                       pendingRequest == null,
@@ -190,8 +194,10 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
                           onPressed: isButtonEnabled ? _handleSubmit : null,
                           child: Text(
                             pendingRequest == null
-                                ? t('post_board_create_request_label')
-                                : t('post_board_create_request_reviewing'),
+                                ? AppLocalizations.of(context)
+                                    .post_board_create_request_label
+                                : AppLocalizations.of(context)
+                                    .post_board_create_request_reviewing,
                             style:
                                 getTextStyle(AppTypo.body14B, AppColors.grey00),
                           ),
@@ -221,7 +227,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
         if (duplicate != null) {
           if (!mounted) return;
           showSimpleDialog(
-            content: t('post_board_already_exist'),
+            content: AppLocalizations.of(context).post_board_already_exist,
             onOk: () => Navigator.of(context).pop(),
           );
           return;
@@ -236,7 +242,8 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
 
         if (!mounted) return;
         showSimpleDialog(
-          content: t('post_board_create_request_complete'),
+          content:
+              AppLocalizations.of(context).post_board_create_request_complete,
           onOk: () => Navigator.of(context).pop(),
         );
       } catch (e, s) {
@@ -244,7 +251,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
         if (!mounted) return;
         showSimpleDialog(
           type: DialogType.error,
-          content: t('message_error_occurred'),
+          content: AppLocalizations.of(context).message_error_occurred,
           onOk: () => Navigator.of(context).pop(),
         );
       }
@@ -253,27 +260,29 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
 
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return t('post_minor_board_name_input');
+      return AppLocalizations.of(context).post_minor_board_name_input;
     }
     return null;
   }
 
   String? _validateDescription(String? value) {
     if (value == null || value.isEmpty) {
-      return t('post_minor_board_description_input');
+      return AppLocalizations.of(context).post_minor_board_description_input;
     }
     if (value.length < 5 || value.length > 20) {
-      return t('post_minor_board_condition');
+      return AppLocalizations.of(context).post_minor_board_condition;
     }
     return null;
   }
 
   String? _validateRequestMessage(String? value) {
     if (value == null || value.isEmpty) {
-      return t('post_minor_board_create_request_message_input');
+      return AppLocalizations.of(context)
+          .post_minor_board_create_request_message_input;
     }
     if (value.length < 10) {
-      return t('post_minor_board_create_request_message_condition');
+      return AppLocalizations.of(context)
+          .post_minor_board_create_request_message_condition;
     }
     return null;
   }
@@ -284,7 +293,7 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
       decoration: const BoxDecoration(color: Color(0xFFF3EFFF)),
       child: Center(
         child: Text(
-          t('post_board_create_request_condition'),
+          AppLocalizations.of(context).post_board_create_request_condition,
           style: getTextStyle(AppTypo.caption12M, AppColors.primary500),
         ),
       ),

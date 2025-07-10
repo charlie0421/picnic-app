@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 class AppLoadingScreen extends StatelessWidget {
@@ -35,7 +35,7 @@ class AppLoadingScreen extends StatelessWidget {
 
             // 로딩 텍스트
             Text(
-              t('loading'),
+              AppLocalizations.of(context).loading,
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,

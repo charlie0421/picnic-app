@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/policy.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/signup/agreement_privacy_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/policy_provider.dart';
@@ -54,7 +55,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
             fit: StackFit.expand,
             children: [
               Text(
-                t('label_agreement_terms'),
+                AppLocalizations.of(context).label_agreement_terms,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 textAlign: TextAlign.center,
               ),
@@ -99,7 +100,8 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
               ElevatedButton(
                   onPressed: () => navigationInfoNotifier
                       .setCurrentSignUpPage(const AgreementPrivacyPage()),
-                  child: Text(t('label_button_agreement'),
+                  child: Text(
+                      AppLocalizations.of(context).label_button_agreement,
                       style: getTextStyle(AppTypo.body16B, AppColors.grey00))),
             ],
           ),

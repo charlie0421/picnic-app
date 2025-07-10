@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -82,11 +82,11 @@ class _CountdownTimerState extends State<CountdownTimer> {
             height: 20,
             margin: const EdgeInsets.only(bottom: 16),
             alignment: Alignment.center,
-            child: Text(t('label_vote_upcoming'),
+            child: Text(AppLocalizations.of(context).label_vote_upcoming,
                 style: getTextStyle(AppTypo.caption12B, _color)),
           ),
         if (widget.status == VoteStatus.end)
-          Text(t('label_vote_end'),
+          Text(AppLocalizations.of(context).label_vote_end,
               style: getTextStyle(AppTypo.body14B, AppColors.primary500)
                   .copyWith(decoration: TextDecoration.underline)),
         if (widget.status != VoteStatus.end)

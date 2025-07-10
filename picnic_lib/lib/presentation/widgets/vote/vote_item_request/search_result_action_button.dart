@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -66,7 +66,7 @@ class SearchResultActionButton extends StatelessWidget {
                     Icon(Icons.add_rounded, size: 12.r),
                     SizedBox(width: 3.w),
                     Text(
-                      t('vote_item_request_submit'),
+                      AppLocalizations.of(context).vote_item_request_submit,
                       style: getTextStyle(AppTypo.caption12B, Colors.white),
                     ),
                   ],
@@ -90,20 +90,28 @@ class SearchResultActionButton extends StatelessWidget {
           color: Colors.green,
         ),
       );
-    } else if (status != t('vote_item_request_can_apply')) {
+    } else if (status !=
+        AppLocalizations.of(context).vote_item_request_can_apply) {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: status == t('vote_item_request_status_pending')
+          color: status ==
+                  AppLocalizations.of(context).vote_item_request_status_pending
               ? Colors.orange.withValues(alpha: 0.1)
-              : status == t('vote_item_request_status_approved')
+              : status ==
+                      AppLocalizations.of(context)
+                          .vote_item_request_status_approved
                   ? Colors.green.withValues(alpha: 0.1)
                   : AppColors.grey300.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: status == t('vote_item_request_status_pending')
+            color: status ==
+                    AppLocalizations.of(context)
+                        .vote_item_request_status_pending
                 ? Colors.orange.withValues(alpha: 0.3)
-                : status == t('vote_item_request_status_approved')
+                : status ==
+                        AppLocalizations.of(context)
+                            .vote_item_request_status_approved
                     ? Colors.green.withValues(alpha: 0.3)
                     : AppColors.grey400.withValues(alpha: 0.3),
           ),
@@ -111,14 +119,17 @@ class SearchResultActionButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (status == t('vote_item_request_waiting')) ...[
+            if (status ==
+                AppLocalizations.of(context).vote_item_request_waiting) ...[
               Icon(
                 Icons.schedule_rounded,
                 size: 10.r,
                 color: Colors.orange,
               ),
               SizedBox(width: 3.w),
-            ] else if (status == t('vote_item_request_status_approved')) ...[
+            ] else if (status ==
+                AppLocalizations.of(context)
+                    .vote_item_request_status_approved) ...[
               Icon(
                 Icons.check_circle_rounded,
                 size: 10.r,
@@ -130,9 +141,11 @@ class SearchResultActionButton extends StatelessWidget {
               status,
               style: getTextStyle(
                 AppTypo.caption12B,
-                status == t('vote_item_request_waiting')
+                status == AppLocalizations.of(context).vote_item_request_waiting
                     ? Colors.orange
-                    : status == t('vote_item_request_status_approved')
+                    : status ==
+                            AppLocalizations.of(context)
+                                .vote_item_request_status_approved
                         ? Colors.green
                         : AppColors.grey600,
               ),

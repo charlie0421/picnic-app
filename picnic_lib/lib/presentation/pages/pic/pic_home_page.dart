@@ -8,7 +8,7 @@ import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/data/models/pic/celeb.dart';
 import 'package:picnic_lib/data/models/pic/gallery.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -125,7 +125,7 @@ class _PicHomePageState extends ConsumerState<PicHomePage> {
                     alignment: Alignment.centerLeft,
                     padding: EdgeInsets.only(left: 16.w),
                     child: Text(
-                      t('label_celeb_gallery'),
+                      AppLocalizations.of(context).label_celeb_gallery,
                       style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                     ),
                   ),
@@ -388,11 +388,11 @@ class _CelebDropDownState extends ConsumerState<CelebDropDown> {
             children: [
               const SizedBox(height: 20),
               Text(
-                t('label_moveto_celeb_gallery'),
+                AppLocalizations.of(context).label_moveto_celeb_gallery,
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900),
               ),
               Text(
-                t('text_moveto_celeb_gallery'),
+                AppLocalizations.of(context).text_moveto_celeb_gallery,
                 style: getTextStyle(AppTypo.body16R, AppColors.grey900),
               ),
               const SizedBox(height: 16),

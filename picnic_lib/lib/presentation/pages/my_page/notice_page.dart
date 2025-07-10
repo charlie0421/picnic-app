@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -31,9 +31,8 @@ class _NoticePageState extends ConsumerState<NoticePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: t('label_mypage_notice'));
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+          pageTitle: AppLocalizations.of(context).label_mypage_notice);
       _fetchPage();
     });
   }
@@ -91,7 +90,7 @@ class _NoticePageState extends ConsumerState<NoticePage> {
                             ),
                             SizedBox(width: 4.w),
                             Text(
-                              t('notice_pinned'),
+                              AppLocalizations.of(context).notice_pinned,
                               style: getTextStyle(
                                   AppTypo.caption12M, AppColors.primary500),
                             ),
@@ -122,6 +121,7 @@ class _NoticePageState extends ConsumerState<NoticePage> {
               );
             },
           )
-        : NoItemContainer(message: t('common_text_no_search_result'));
+        : NoItemContainer(
+            message: AppLocalizations.of(context).common_text_no_search_result);
   }
 }

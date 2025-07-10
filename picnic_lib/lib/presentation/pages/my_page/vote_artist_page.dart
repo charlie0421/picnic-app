@@ -6,6 +6,7 @@ import 'package:picnic_lib/core/utils/korean_search_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -49,9 +50,8 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       logger.i('🎯 VoteArtistPage setting title');
       try {
-        ref
-            .read(navigationInfoProvider.notifier)
-            .setMyPageTitle(pageTitle: t('label_mypage_my_artist'));
+        ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+            pageTitle: AppLocalizations.of(context).label_mypage_my_artist);
         logger.i('🎯 VoteArtistPage title set successfully');
       } catch (e) {
         logger.e('🎯 VoteArtistPage title setting failed: $e');
@@ -101,7 +101,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16),
           child: EnhancedSearchBox(
-            hintText: t('text_hint_search'),
+            hintText: AppLocalizations.of(context).text_hint_search,
             onSearchChanged: (query) {
               logger.i(
                   '🔍 [VoteArtistPage] Search changed called with query: "$query"');
@@ -214,7 +214,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             margin: EdgeInsets.only(top: 8.h),
-            color: AppColors.primary500.withValues(alpha:0.1),
+            color: AppColors.primary500.withValues(alpha: 0.1),
             child: Row(
               children: [
                 Icon(Icons.star, color: AppColors.primary500, size: 18),
@@ -249,11 +249,12 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: isBookmarked
-                ? AppColors.primary500.withValues(alpha:0.05)
+                ? AppColors.primary500.withValues(alpha: 0.05)
                 : Colors.white,
             border: isBookmarked
                 ? Border.all(
-                    color: AppColors.primary500.withValues(alpha:0.2), width: 0.5)
+                    color: AppColors.primary500.withValues(alpha: 0.2),
+                    width: 0.5)
                 : null,
           ),
           child: ListTile(
@@ -278,15 +279,15 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
                 padding: EdgeInsets.all(10.w), // 패딩을 더 크게
                 decoration: BoxDecoration(
                   color: isBookmarked
-                      ? AppColors.primary500.withValues(alpha:0.1)
-                      : Colors.grey.withValues(alpha:0.05),
+                      ? AppColors.primary500.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                   border: isBookmarked
                       ? Border.all(
-                          color: AppColors.primary500.withValues(alpha:0.3),
+                          color: AppColors.primary500.withValues(alpha: 0.3),
                           width: 1)
                       : Border.all(
-                          color: Colors.grey.withValues(alpha:0.2), width: 1),
+                          color: Colors.grey.withValues(alpha: 0.2), width: 1),
                 ),
                 child: Icon(
                   item.isBookmarked == true ? Icons.star : Icons.star_border,
@@ -347,7 +348,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
       matchingText,
       searchQuery,
       getTextStyle(AppTypo.body14M, AppColors.grey900),
-      highlightColor: AppColors.primary500.withValues(alpha:0.3),
+      highlightColor: AppColors.primary500.withValues(alpha: 0.3),
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
     );
@@ -374,7 +375,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
       matchingText,
       searchQuery,
       getTextStyle(AppTypo.caption12R, AppColors.grey500),
-      highlightColor: AppColors.primary500.withValues(alpha:0.3),
+      highlightColor: AppColors.primary500.withValues(alpha: 0.3),
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
     );

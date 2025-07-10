@@ -10,6 +10,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -92,7 +93,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       textInputAction: TextInputAction.done,
       style: getTextStyle(AppTypo.body16R, AppColors.grey900),
       decoration: InputDecoration(
-        hintText: t('label_hint_comment'),
+        hintText: AppLocalizations.of(context).label_hint_comment,
         hintStyle: TextStyle(
           fontSize: 16.sp,
           color: AppColors.grey400,
@@ -175,8 +176,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       if (isFlagged) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
-          title: t('dialog_caution'),
-          content: t('post_flagged'),
+          title: AppLocalizations.of(context).dialog_caution,
+          content: AppLocalizations.of(context).post_flagged,
         );
         return;
       }
@@ -198,12 +199,13 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       _onTextChanged();
       _focusNode.unfocus();
 
-      SnackbarUtil().showSnackbar(t('post_comment_registered_comment'));
+      SnackbarUtil().showSnackbar(
+          AppLocalizations.of(context).post_comment_registered_comment);
     } catch (e, s) {
       if (!mounted) return;
 
       SnackbarUtil().showSnackbar(
-        t('post_comment_register_fail'),
+        AppLocalizations.of(context).post_comment_register_fail,
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 2),
       );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/data/models/qna/qna.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class QnACreatePage extends StatefulWidget {
@@ -52,7 +52,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(t('qna_submit_success')),
+            content: Text(AppLocalizations.of(context).qna_submit_success),
             backgroundColor: AppColors.primary500,
           ),
         );
@@ -62,7 +62,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(t('qna_submit_error')),
+            content: Text(AppLocalizations.of(context).qna_submit_error),
             backgroundColor: AppColors.grey900,
           ),
         );
@@ -81,7 +81,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          t('qna_create_page_title'),
+          AppLocalizations.of(context).qna_create_page_title,
           style: getTextStyle(AppTypo.title18B, AppColors.grey00),
         ),
         backgroundColor: AppColors.primary500,
@@ -114,7 +114,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t('qna_title'),
+          AppLocalizations.of(context).qna_title,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -126,7 +126,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
           controller: _titleController,
           maxLength: 100,
           decoration: InputDecoration(
-            hintText: t('qna_title_hint'),
+            hintText: AppLocalizations.of(context).qna_title_hint,
             filled: true,
             fillColor: Colors.grey.withValues(alpha: 0.1),
             border: OutlineInputBorder(
@@ -144,10 +144,10 @@ class _QnACreatePageState extends State<QnACreatePage> {
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return t('qna_title_required');
+              return AppLocalizations.of(context).qna_title_required;
             }
             if (value.trim().length < 2) {
-              return t('qna_title_too_short');
+              return AppLocalizations.of(context).qna_title_too_short;
             }
             return null;
           },
@@ -161,7 +161,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t('qna_content'),
+          AppLocalizations.of(context).qna_content,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -174,7 +174,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
           maxLines: 8,
           maxLength: 1000,
           decoration: InputDecoration(
-            hintText: t('qna_content_hint'),
+            hintText: AppLocalizations.of(context).qna_content_hint,
             filled: true,
             fillColor: Colors.grey.withValues(alpha: 0.1),
             border: OutlineInputBorder(
@@ -192,10 +192,10 @@ class _QnACreatePageState extends State<QnACreatePage> {
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return t('qna_content_required');
+              return AppLocalizations.of(context).qna_content_required;
             }
             if (value.trim().length < 10) {
-              return t('qna_content_too_short');
+              return AppLocalizations.of(context).qna_content_too_short;
             }
             return null;
           },
@@ -209,7 +209,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          t('qna_public_option'),
+          AppLocalizations.of(context).qna_public_option,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -251,7 +251,7 @@ class _QnACreatePageState extends State<QnACreatePage> {
               ),
             )
           : Text(
-              t('qna_submit_button'),
+              AppLocalizations.of(context).qna_submit_button,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

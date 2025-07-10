@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/supabase_options.dart';
 
 void copyToClipboard(BuildContext context, String text) {
   Clipboard.setData(ClipboardData(text: text));
   showSimpleDialog(
-      content: t('text_copied_address'),
+      content: AppLocalizations.of(context).text_copied_address,
       onOk: () => Navigator.of(context).pop());
 }
 

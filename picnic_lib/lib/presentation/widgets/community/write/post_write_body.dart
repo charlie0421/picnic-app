@@ -12,7 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:keyboard_height_plugin/keyboard_height_plugin.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/link_embed_builder.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
@@ -175,7 +175,8 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
                 scrollController: ScrollController(),
                 focusNode: _editorFocusNode,
                 config: quill.QuillEditorConfig(
-                  placeholder: t('post_content_placeholder'),
+                  placeholder:
+                      AppLocalizations.of(context).post_content_placeholder,
                   embedBuilders: [
                     DeletableLinkEmbedBuilder(),
                     DeletableYouTubeEmbedBuilder(),
@@ -200,7 +201,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
         controller: widget.titleController,
         focusNode: _titleFocusNode,
         decoration: InputDecoration(
-          hintText: t('post_title_placeholder'),
+          hintText: AppLocalizations.of(context).post_title_placeholder,
           hintStyle: const TextStyle(color: AppColors.grey300),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
@@ -484,7 +485,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
       builder: (BuildContext context) => AlertDialog(
         title: Center(
           child: Text(
-            t('post_hyperlink'),
+            AppLocalizations.of(context).post_hyperlink,
             style: getTextStyle(AppTypo.title18B, AppColors.grey900),
           ),
         ),
@@ -494,7 +495,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
             TextField(
               controller: urlController,
               decoration: InputDecoration(
-                hintText: t('post_insert_link'),
+                hintText: AppLocalizations.of(context).post_insert_link,
                 hintStyle: getTextStyle(AppTypo.body16M, AppColors.grey500),
               ),
             ),
@@ -504,7 +505,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
           TextButton(
             onPressed: () =>
                 Navigator.of(context).pop({'url': urlController.text}),
-            child: Text(t('button_ok'),
+            child: Text(AppLocalizations.of(context).button_ok,
                 style: TextStyle(color: AppColors.primary500)),
           ),
         ],
@@ -534,11 +535,11 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t('post_youtube_link')),
+        title: Text(AppLocalizations.of(context).post_youtube_link),
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
-            hintText: t('post_insert_link'),
+            hintText: AppLocalizations.of(context).post_insert_link,
             hintStyle: const TextStyle(color: AppColors.grey500),
           ),
           onSubmitted: (value) => Navigator.of(context).pop(value),
@@ -546,7 +547,7 @@ class _PostWriteBodyState extends ConsumerState<PostWriteBody> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(textController.text),
-            child: Text(t('button_ok'),
+            child: Text(AppLocalizations.of(context).button_ok,
                 style: TextStyle(color: AppColors.primary500)),
           ),
         ],

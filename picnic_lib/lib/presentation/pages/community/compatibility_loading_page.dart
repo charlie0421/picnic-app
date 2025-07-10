@@ -6,7 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
@@ -137,7 +137,7 @@ class _CompatibilityLoadingPageState
             showTopMenu: true,
             topRightMenu: TopRightType.board,
             showBottomNavigation: false,
-            pageTitle: t('compatibility_page_title'),
+            pageTitle: AppLocalizations.of(context).compatibility_page_title,
           );
     });
   }
@@ -192,7 +192,7 @@ class _CompatibilityLoadingPageState
   Widget _buildProgressText() {
     return Center(
       child: Text(
-        '${_isLoadingStarted ? t('compatibility_analyzing') : t('compatibility_analyzing_prepare')} ${_isLoadingStarted ? '($_seconds${t('seconds')})' : ''}',
+        '${_isLoadingStarted ? AppLocalizations.of(context).compatibility_analyzing : AppLocalizations.of(context).compatibility_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${AppLocalizations.of(context).seconds})' : ''}',
         style: getTextStyle(
           AppTypo.body14B,
           AppColors.grey00,
@@ -217,7 +217,7 @@ class _CompatibilityLoadingPageState
         ),
         const SizedBox(height: 16),
         Text(
-          t('compatibility_waiting_message'),
+          AppLocalizations.of(context).compatibility_waiting_message,
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -226,7 +226,7 @@ class _CompatibilityLoadingPageState
         ),
         const SizedBox(height: 8),
         Text(
-          t('compatibility_warning_exit'),
+          AppLocalizations.of(context).compatibility_warning_exit,
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -275,7 +275,7 @@ class _CompatibilityLoadingPageState
                   else if (widget.compatibility.hasError)
                     CompatibilityErrorView(
                       error: widget.compatibility.errorMessage ??
-                          t('error_unknown'),
+                          AppLocalizations.of(context).error_unknown,
                     )
                 ],
               ),

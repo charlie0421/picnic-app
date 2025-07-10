@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -47,11 +47,11 @@ class _DrawImagePageState extends ConsumerState<DrawImagePage>
                   package: 'picnic_lib', 'assets/images/random_image.webp')),
           const SizedBox(height: 20),
           Text(
-            t('label_draw_image'),
+            AppLocalizations.of(context).label_draw_image,
             style: getTextStyle(AppTypo.title18B, AppColors.grey900),
           ),
           Text(
-            t('text_draw_image'),
+            AppLocalizations.of(context).text_draw_image,
             style: getTextStyle(AppTypo.body16R, AppColors.grey900),
           ),
         ],

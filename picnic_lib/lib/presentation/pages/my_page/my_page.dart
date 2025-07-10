@@ -11,6 +11,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
@@ -54,9 +55,8 @@ class _MyPageState extends ConsumerState<MyPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: t('page_title_mypage'));
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+          pageTitle: AppLocalizations.of(context).page_title_mypage);
 
       // 앱 시작 시 언어 설정 확인
       final currentLanguage = ref.read(appSettingProvider).language;
@@ -93,20 +93,20 @@ class _MyPageState extends ConsumerState<MyPage> {
                           child: StarCandyInfoText(
                               alignment: MainAxisAlignment.start))
                       : const SizedBox(height: 16),
-                  Text(t('label_setting_language'),
+                  Text(AppLocalizations.of(context).label_setting_language,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   _buildLanguageSelector(),
                   const Divider(color: AppColors.grey200),
                   // 공지사항
                   PicnicListItem(
-                      leading: t('label_mypage_notice'),
+                      leading: AppLocalizations.of(context).label_mypage_notice,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
                           .setCurrentMyPage(const NoticePage())),
                   // FAQ
                   PicnicListItem(
-                      leading: t('label_mypage_faq'),
+                      leading: AppLocalizations.of(context).label_mypage_faq,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
@@ -114,7 +114,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   // QnA
                   if (data != null && data.id != null)
                     PicnicListItem(
-                        leading: t('qna_page_title'),
+                        leading: AppLocalizations.of(context).qna_page_title,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () => ref
                             .read(navigationInfoProvider.notifier)
@@ -122,18 +122,21 @@ class _MyPageState extends ConsumerState<MyPage> {
                   // 충전내역
                   if (data != null && (data.isAdmin ?? false))
                     PicnicListItem(
-                        leading: t('label_mypage_charge_history'),
+                        leading: AppLocalizations.of(context)
+                            .label_mypage_charge_history,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',
                         onTap: () {}),
                   // 고객센터
                   PicnicListItem(
-                      leading: t('label_mypage_customer_center'),
+                      leading: AppLocalizations.of(context)
+                          .label_mypage_customer_center,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () {
                         _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
                       }),
                   PicnicListItem(
-                      leading: t('label_mypage_setting'),
+                      leading:
+                          AppLocalizations.of(context).label_mypage_setting,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
@@ -143,7 +146,8 @@ class _MyPageState extends ConsumerState<MyPage> {
                   const Divider(color: AppColors.grey200),
                   // 투표내역
                   PicnicListItem(
-                      leading: t('label_mypage_vote_history'),
+                      leading: AppLocalizations.of(context)
+                          .label_mypage_vote_history,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => data != null
                           ? ref
@@ -191,7 +195,7 @@ class _MyPageState extends ConsumerState<MyPage> {
             ),
           ),
           SizedBox(width: 16.w),
-          Text(t('label_mypage_should_login'),
+          Text(AppLocalizations.of(context).label_mypage_should_login,
               style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
           SizedBox(width: 16.w),
           SvgPicture.asset(
@@ -285,7 +289,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(categoryText, style: getTextStyle(AppTypo.body14B)),
-                    Text(t('label_mypage_my_artist'),
+                    Text(AppLocalizations.of(context).label_mypage_my_artist,
                         style: getTextStyle(AppTypo.body16M)),
                   ],
                 ),
@@ -310,7 +314,9 @@ class _MyPageState extends ConsumerState<MyPage> {
                       if (artists.isEmpty) {
                         return Container(
                           alignment: Alignment.center,
-                          child: Text(t('label_mypage_no_artist'),
+                          child: Text(
+                              AppLocalizations.of(context)
+                                  .label_mypage_no_artist,
                               style: getTextStyle(
                                   AppTypo.title18B, AppColors.primary500)),
                         );
@@ -340,7 +346,8 @@ class _MyPageState extends ConsumerState<MyPage> {
                 )
               : Container(
                   alignment: Alignment.center,
-                  child: Text(t('label_mypage_should_login'),
+                  child: Text(
+                      AppLocalizations.of(context).label_mypage_should_login,
                       style:
                           getTextStyle(AppTypo.title18B, AppColors.primary500)),
                 ),
@@ -445,7 +452,8 @@ class _MyPageState extends ConsumerState<MyPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       alignment: Alignment.center,
-                      child: Text(t('title_select_language'),
+                      child: Text(
+                          AppLocalizations.of(context).title_select_language,
                           style:
                               getTextStyle(AppTypo.body16B, AppColors.grey900)),
                     ),

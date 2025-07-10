@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -64,7 +64,9 @@ class UnityAdsPlatform extends AdPlatform {
       logger.e('[$id] placementId가 설정되지 않음');
       stopAllAnimations();
       if (context.mounted && !isDisposed) {
-        showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
+        showSimpleDialog(
+            content: AppLocalizations.of(context).label_ads_load_fail,
+            type: DialogType.error);
       }
       return;
     }
@@ -79,7 +81,8 @@ class UnityAdsPlatform extends AdPlatform {
           await _showLoadedAd(placementId);
         },
         onFailed: (placementId, error, message) {
-          logAdLoadFailure('Unity', error, placementId, message, StackTrace.current);
+          logAdLoadFailure(
+              'Unity', error, placementId, message, StackTrace.current);
           stopAllAnimations();
           // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
         },
@@ -111,10 +114,13 @@ class UnityAdsPlatform extends AdPlatform {
           commonUtils.refreshUserProfile();
         },
         onFailed: (placementId, error, message) {
-          logAdShowFailure('Unity', error, placementId, message, StackTrace.current);
+          logAdShowFailure(
+              'Unity', error, placementId, message, StackTrace.current);
           stopAllAnimations();
           if (context.mounted && !isDisposed) {
-            showSimpleDialog(content: t('label_ads_show_fail'), type: DialogType.error);
+            showSimpleDialog(
+                content: AppLocalizations.of(context).label_ads_show_fail,
+                type: DialogType.error);
           }
         },
       );
@@ -122,13 +128,13 @@ class UnityAdsPlatform extends AdPlatform {
       logAdShowFailure('Unity', e, placementId, 'Unity 광고 표시 실패', s);
       stopAllAnimations();
       if (context.mounted && !isDisposed) {
-        showSimpleDialog(content: t('label_ads_show_fail'), type: DialogType.error);
+        showSimpleDialog(
+            content: AppLocalizations.of(context).label_ads_show_fail,
+            type: DialogType.error);
       }
       rethrow;
     }
   }
-
-
 
   @override
   Future<void> handleError(error, StackTrace? stackTrace) async {
@@ -136,7 +142,9 @@ class UnityAdsPlatform extends AdPlatform {
     setLoading(false);
     stopAllAnimations();
     if (context.mounted && !isDisposed) {
-      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
+      showSimpleDialog(
+          content: AppLocalizations.of(context).label_ads_load_fail,
+          type: DialogType.error);
     }
   }
 

@@ -14,6 +14,7 @@ import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
@@ -64,7 +65,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           showPortal: false,
           showTopMenu: true,
           showBottomNavigation: false,
-          pageTitle: t('page_title_vote_detail'));
+          pageTitle: AppLocalizations.of(context).page_title_vote_detail);
     });
   }
 
@@ -215,8 +216,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
-                              t('text_achievement',
-                                  {'count': achievements.length.toString()}),
+                              AppLocalizations.of(context).text_achievement(
+                                  achievements.length.toString()),
                               style: getTextStyle(
                                   AppTypo.title18B, AppColors.grey00),
                             ),
@@ -737,9 +738,11 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     final voteDetail =
         ref.read(asyncVoteDetailProvider(voteId: widget.voteId)).value!;
     if (voteDetail.isEnded!) {
-      showSimpleDialog(content: t('message_vote_is_ended'));
+      showSimpleDialog(
+          content: AppLocalizations.of(context).message_vote_is_ended);
     } else if (voteDetail.isUpcoming!) {
-      showSimpleDialog(content: t('message_vote_is_upcoming'));
+      showSimpleDialog(
+          content: AppLocalizations.of(context).message_vote_is_upcoming);
     } else {
       isSupabaseLoggedSafely
           ? showVotingDialog(
@@ -770,7 +773,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${t('reward')}${rewardIndex + 1}',
+                    '${AppLocalizations.of(context).reward}${rewardIndex + 1}',
                     style: getTextStyle(AppTypo.caption12B,
                         isAchieved ? AppColors.primary500 : AppColors.grey400),
                   ),

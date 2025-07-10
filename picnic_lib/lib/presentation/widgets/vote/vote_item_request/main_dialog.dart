@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
@@ -301,7 +301,7 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
           SizedBox(width: 10.w),
           Expanded(
             child: Text(
-              t('vote_item_request_title'),
+              AppLocalizations.of(context).vote_item_request_title,
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
           ),
@@ -383,8 +383,8 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
             _searchResultsInfo[artistId] =
                 _searchResultsInfo[artistId]!.copyWith(
               isSubmitting: false,
-              applicationStatus:
-                  t('vote_item_request_status_pending'), // 대기중으로 변경
+              applicationStatus: AppLocalizations.of(context)
+                  .vote_item_request_status_pending, // 대기중으로 변경
               applicationCount:
                   _searchResultsInfo[artistId]!.applicationCount + 1, // 신청수 증가
             );
@@ -482,8 +482,6 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       logger.e('전체 데이터 갱신 실패: $e');
     }
   }
-
-
 
   Widget _buildErrorMessage() {
     final isSuccess = _errorMessage!.startsWith('✅');

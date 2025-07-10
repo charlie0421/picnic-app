@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 
 String formatTimeAgo(BuildContext context, DateTime timestamp) {
   final now = DateTime.now().toUtc();
   final difference = now.difference(timestamp);
 
   if (difference.inDays >= 1) {
-    return t('label_time_ago_day', {'day': difference.inDays.toString()});
+    return AppLocalizations.of(context).label_time_ago_day(difference.inDays.toString());
   } else if (difference.inHours >= 1) {
-    return t('label_time_ago_hour', {'hour': difference.inHours.toString()});
+    return AppLocalizations.of(context).label_time_ago_hour(difference.inHours.toString());
   } else if (difference.inMinutes >= 1) {
-    return t(
-        'label_time_ago_minute', {'minute': difference.inMinutes.toString()});
+    return AppLocalizations.of(context)
+        .label_time_ago_minute(difference.inMinutes.toString());
   } else {
-    return t('label_time_ago_right_now');
+    return AppLocalizations.of(context).label_time_ago_right_now;
   }
 }
 

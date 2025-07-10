@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -23,11 +23,11 @@ class PostWriteActions extends StatelessWidget {
           onTap: () => isTitleValid
               ? onSave(true)
               : showSimpleDialog(
-                  content: t('post_hint_title'),
+                  content: AppLocalizations.of(context).post_hint_title,
                   onOk: () => Navigator.of(context).pop(),
                 ),
           child: Text(
-            t('post_header_temporary_save'),
+            AppLocalizations.of(context).post_header_temporary_save,
             style: getTextStyle(AppTypo.body14B, AppColors.primary500),
           ),
         ),
@@ -48,11 +48,11 @@ class PostWriteActions extends StatelessWidget {
               onPressed: isTitleValid
                   ? () => onSave(false)
                   : () => showSimpleDialog(
-                        content: t('post_hint_title'),
+                        content: AppLocalizations.of(context).post_hint_title,
                         onOk: () => Navigator.of(context).pop(),
                       ),
               child: Text(
-                t('post_header_publish'),
+                AppLocalizations.of(context).post_header_publish,
               )),
         ),
       ],

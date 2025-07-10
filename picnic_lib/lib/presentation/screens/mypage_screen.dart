@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -63,7 +62,7 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
               ),
             ),
           ),
-          title: Text(t(pageName),
+          title: Text(pageName,
               style: getTextStyle(AppTypo.body16B, AppColors.grey900)),
           centerTitle: true,
           leadingWidth: 40.w,

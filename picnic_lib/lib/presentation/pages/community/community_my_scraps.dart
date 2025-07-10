@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post_scrap.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/comment/my_scrap_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
@@ -31,7 +31,7 @@ class _CommunityMyScrapsState extends ConsumerState<CommunityMyScraps>
           showTopMenu: true,
           topRightMenu: TopRightType.none,
           showBottomNavigation: false,
-          pageTitle: t('post_my_written_scrap'));
+          pageTitle: AppLocalizations.of(context).post_my_written_scrap);
     });
 
     _pagingController = PagingController<int, PostScrapModel>(

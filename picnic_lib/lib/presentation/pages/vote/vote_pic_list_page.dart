@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
@@ -61,9 +61,13 @@ class _VotePicListPageState extends ConsumerState<VotePicListPage>
               controller: _tabController,
               indicatorWeight: 3,
               tabs: [
-                Tab(text: t('label_tabbar_vote_active')),
-                Tab(text: t('label_tabbar_vote_end')),
-                Tab(text: t('label_tabbar_vote_upcoming')),
+                Tab(
+                    text:
+                        AppLocalizations.of(context).label_tabbar_vote_active),
+                Tab(text: AppLocalizations.of(context).label_tabbar_vote_end),
+                Tab(
+                    text: AppLocalizations.of(context)
+                        .label_tabbar_vote_upcoming),
               ],
             ),
           ),

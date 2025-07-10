@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -31,7 +31,7 @@ class PostWriteBottomBar extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            t('post_anonymous'),
+            AppLocalizations.of(context).post_anonymous,
             style: getTextStyle(AppTypo.caption12R, AppColors.grey800),
           ),
           SizedBox(width: 8.w),

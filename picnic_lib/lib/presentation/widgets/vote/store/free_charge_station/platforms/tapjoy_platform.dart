@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -52,7 +52,8 @@ class TapjoyPlatform extends AdPlatform {
         endPerformanceLog('사용자 설정');
       },
       onSetUserIDFailure: (error) {
-        logAdLoadFailure('Tapjoy', error, 'mission', error.toString(), StackTrace.current);
+        logAdLoadFailure(
+            'Tapjoy', error, 'mission', error.toString(), StackTrace.current);
         if (!isDisposed) {
           stopAllAnimations();
         }
@@ -68,7 +69,8 @@ class TapjoyPlatform extends AdPlatform {
         logInfo('플레이스먼트 요청 성공');
       },
       onRequestFailure: (placement, error) {
-        logAdLoadFailure('Tapjoy', error, 'mission', error.toString(), StackTrace.current);
+        logAdLoadFailure(
+            'Tapjoy', error, 'mission', error.toString(), StackTrace.current);
         _handleAdFailure(error);
       },
       onContentReady: (placement) {
@@ -93,15 +95,17 @@ class TapjoyPlatform extends AdPlatform {
       _currentPlacement!.setEntryPoint(TJEntryPoint.entryPointStore);
       await _currentPlacement!.requestContent();
     } else {
-      logAdLoadFailure(
-          'Tapjoy', '플레이스먼트 생성 실패', 'mission', '플레이스먼트 생성 실패', StackTrace.current);
+      logAdLoadFailure('Tapjoy', '플레이스먼트 생성 실패', 'mission', '플레이스먼트 생성 실패',
+          StackTrace.current);
     }
   }
 
   void _handleAdFailure(String? error) {
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
-      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
+      showSimpleDialog(
+          content: AppLocalizations.of(context).label_ads_load_fail,
+          type: DialogType.error);
     }
   }
 
@@ -110,7 +114,9 @@ class TapjoyPlatform extends AdPlatform {
     logError('오류 발생', error: error, stackTrace: stackTrace);
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
-      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
+      showSimpleDialog(
+          content: AppLocalizations.of(context).label_ads_load_fail,
+          type: DialogType.error);
     }
   }
 

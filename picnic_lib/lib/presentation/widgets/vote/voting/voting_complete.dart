@@ -11,6 +11,7 @@ import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/artist_group.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
@@ -114,7 +115,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                         ),
                         Expanded(
                           child: Text(
-                            t('text_vote_complete'),
+                            AppLocalizations.of(context).text_vote_complete,
                             style: getTextStyle(
                               AppTypo.title18B,
                               AppColors.point900,
@@ -283,8 +284,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                 SizedBox(height: 8),
                 if (!_isSaving)
                   ShareSection(
-                    saveButtonText: t('save'),
-                    shareButtonText: t('share'),
+                    saveButtonText: AppLocalizations.of(context).save,
+                    shareButtonText: AppLocalizations.of(context).share,
                     onSave: () {
                       if (_isSaving) return;
                       ShareUtils.saveImage(
@@ -317,7 +318,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       ShareUtils.shareToSocial(
                         _globalKey,
                         message:
-                            '$artist - $voteTitle ${t('vote_share_message')} 🎉',
+                            '$artist - $voteTitle ${AppLocalizations.of(context).vote_share_message} 🎉',
                         hashtag:
                             '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
                         downloadLink: await createBranchLink(

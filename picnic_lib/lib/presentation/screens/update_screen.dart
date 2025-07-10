@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 
 class UpdateScreen extends StatelessWidget {
   const UpdateScreen({super.key});
@@ -20,7 +20,7 @@ class UpdateScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                t('update_required_title'),
+                AppLocalizations.of(context).update_required_title,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -29,7 +29,7 @@ class UpdateScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                t('update_required_message'),
+                AppLocalizations.of(context).update_required_message,
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -48,7 +48,7 @@ class UpdateScreen extends StatelessWidget {
                     onPressed: () {
                       // 업데이트 로직
                     },
-                    child: Text(t('update')),
+                    child: Text(AppLocalizations.of(context).update),
                   ),
                 ],
               ),

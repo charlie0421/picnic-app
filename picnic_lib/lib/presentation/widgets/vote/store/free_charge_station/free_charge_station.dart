@@ -16,6 +16,7 @@ import 'package:picnic_lib/core/utils/pangle_ads.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/ad_info.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/pincruxOfferwallPlugin.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -143,11 +144,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     if (_adService.isPlatformAvailable('tapjoy')) {
       items.add(ChargeStationItem(
         id: 'tapjoy',
-        title: '${t('label_global_recommendation')} #${globalIndex + 1}',
+        title:
+            '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
         isMission: true,
         platformType: AdPlatformType.tapjoy,
         onPressed: () => _adService.getPlatform('tapjoy')?.showAd(),
-        bonusText: t('label_unlimited_rewards'),
+        bonusText: AppLocalizations.of(context).label_unlimited_rewards,
       ));
       globalIndex++;
     }
@@ -155,11 +157,12 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     if (_adService.isPlatformAvailable('pincrux')) {
       items.add(ChargeStationItem(
         id: 'pincrux',
-        title: '${t('label_korean_recommendation')} #${koreaIndex + 1}',
+        title:
+            '${AppLocalizations.of(context).label_korean_recommendation} #${koreaIndex + 1}',
         isMission: true,
         platformType: AdPlatformType.pincrux,
         onPressed: () => _adService.getPlatform('pincrux')?.showAd(),
-        bonusText: t('label_unlimited_rewards'),
+        bonusText: AppLocalizations.of(context).label_unlimited_rewards,
       ));
       globalIndex++;
     }
@@ -176,7 +179,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     if (_adService.isPlatformAvailable('admob')) {
       items.add(ChargeStationItem(
         id: 'admob',
-        title: '${t('label_global_recommendation')} #${globalIndex + 1}',
+        title:
+            '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
         isMission: false,
         platformType: AdPlatformType.admob,
         index: 0,
@@ -189,7 +193,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     if (_adService.isPlatformAvailable('unity')) {
       items.add(ChargeStationItem(
         id: 'unity',
-        title: '${t('label_global_recommendation')} #${globalIndex + 1}',
+        title:
+            '${AppLocalizations.of(context).label_global_recommendation} #${globalIndex + 1}',
         isMission: false,
         platformType: AdPlatformType.unity,
         onPressed: () => _adService.getPlatform('unity')?.showAd(),
@@ -201,7 +206,8 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
     if (_adService.isPlatformAvailable('pangle')) {
       items.add(ChargeStationItem(
         id: 'pangle',
-        title: '${t('label_asia_recommendation')} #${asiaIndex + 1}',
+        title:
+            '${AppLocalizations.of(context).label_asia_recommendation} #${asiaIndex + 1}',
         isMission: false,
         platformType: AdPlatformType.pangle,
         onPressed: () => _adService.getPlatform('pangle')?.showAd(),

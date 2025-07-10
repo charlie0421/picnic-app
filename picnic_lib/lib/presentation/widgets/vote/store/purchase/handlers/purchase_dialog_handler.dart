@@ -4,6 +4,8 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -39,7 +41,7 @@ class PurchaseDialogHandler {
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  t('purchase_confirm_title'),
+                  AppLocalizations.of(context).purchase_confirm_title,
                   style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 ),
               ),
@@ -50,7 +52,7 @@ class PurchaseDialogHandler {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                t('purchase_confirm_message'),
+                AppLocalizations.of(context).purchase_confirm_message,
                 style: getTextStyle(AppTypo.body14R, AppColors.grey700),
               ),
               SizedBox(height: 16),
@@ -177,7 +179,7 @@ class PurchaseDialogHandler {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          t('purchase_payment_amount'),
+                          AppLocalizations.of(context).purchase_payment_amount,
                           style:
                               getTextStyle(AppTypo.body14M, AppColors.grey600),
                         ),
@@ -197,7 +199,7 @@ class PurchaseDialogHandler {
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
-                t('cancel'),
+                AppLocalizations.of(context).cancel,
                 style: getTextStyle(AppTypo.body14R, AppColors.grey500),
               ),
             ),
@@ -208,7 +210,7 @@ class PurchaseDialogHandler {
                 foregroundColor: Colors.white,
               ),
               child: Text(
-                t('purchase_confirm_button'),
+                AppLocalizations.of(context).purchase_confirm_button,
                 style: getTextStyle(AppTypo.body14B, Colors.white),
               ),
             ),
@@ -252,7 +254,8 @@ class PurchaseDialogHandler {
   /// 🎉 구매 성공 다이얼로그
   Future<void> showSuccessDialog() async {
     logger.i('[PurchaseDialogHandler] Showing success dialog');
-    final message = t('dialog_message_purchase_success');
+    final message =
+        AppLocalizations.of(navigatorKey.currentContext!).dialog_message_purchase_success;
     showSimpleDialog(content: message);
   }
 

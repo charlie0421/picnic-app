@@ -9,6 +9,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/policy.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -61,7 +62,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
             fit: StackFit.expand,
             children: [
               Text(
-                t('label_agreement_privacy'),
+                AppLocalizations.of(context).label_agreement_privacy,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 textAlign: TextAlign.center,
               ),
@@ -115,12 +116,14 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                       if (ret == true) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           showSimpleDialog(
-                              title: t('title_dialog_success'),
+                              title: AppLocalizations.of(context)
+                                  .title_dialog_success,
                               contentWidget: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    t('message_agreement_success'),
+                                    AppLocalizations.of(context)
+                                        .message_agreement_success,
                                     style: getTextStyle(
                                         AppTypo.body16R, AppColors.grey900),
                                   ),
@@ -143,8 +146,10 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                       } else {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           showSimpleDialog(
-                              title: t('title_dialog_error'),
-                              content: t('message_agreement_fail'),
+                              title: AppLocalizations.of(context)
+                                  .title_dialog_error,
+                              content: AppLocalizations.of(context)
+                                  .message_agreement_fail,
                               onOk: () {
                                 Navigator.of(navigatorKey.currentContext!)
                                     .pop();
@@ -160,8 +165,10 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
 
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         showSimpleDialog(
-                            title: t('title_dialog_error'),
-                            content: t('message_agreement_fail'),
+                            title:
+                                AppLocalizations.of(context).title_dialog_error,
+                            content: AppLocalizations.of(context)
+                                .message_agreement_fail,
                             onOk: () {
                               Navigator.of(navigatorKey.currentContext!).pop();
                             });
@@ -171,7 +178,8 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                       OverlayLoadingProgress.stop();
                     }
                   },
-                  child: Text(t('label_button_agreement'),
+                  child: Text(
+                      AppLocalizations.of(context).label_button_agreement,
                       style: getTextStyle(AppTypo.body16B, AppColors.grey00))),
             ],
           ),

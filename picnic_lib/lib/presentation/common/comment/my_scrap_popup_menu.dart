@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
@@ -42,8 +42,8 @@ class _MyScrapPopupMenuState extends ConsumerState<MyScrapPopupMenu> {
       onSelected: (String result) async {
         if (result == 'Delete') {
           showSimpleDialog(
-            title: t('post_delete_scrap_title'),
-            content: t('post_delete_scrap_confirm'),
+            title: AppLocalizations.of(context).post_delete_scrap_title,
+            content: AppLocalizations.of(context).post_delete_scrap_confirm,
             onOk: () async {
               await unscrapPost(
                   ref, widget.post.postId, supabase.auth.currentUser!.id);
@@ -60,7 +60,7 @@ class _MyScrapPopupMenuState extends ConsumerState<MyScrapPopupMenu> {
         PopupMenuItem<String>(
             value: 'Delete',
             child: Row(
-              children: [Text(t('popup_label_delete'))],
+              children: [Text(AppLocalizations.of(context).popup_label_delete)],
             )),
       ],
     );

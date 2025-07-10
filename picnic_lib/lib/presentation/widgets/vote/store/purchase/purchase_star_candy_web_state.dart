@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
@@ -47,7 +48,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
                         bottomRight: Radius.circular(40.r))),
                 alignment: Alignment.center,
                 child: Text(
-                  t('purchase_web_message'),
+                  AppLocalizations.of(context).purchase_web_message,
                 ),
               ),
               Positioned.fill(
@@ -61,7 +62,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
           _buildProductsList(),
           const Divider(color: AppColors.grey200, height: 32),
           Text(
-            t('text_purchase_vat_included'),
+            AppLocalizations.of(context).text_purchase_vat_included,
             style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
           ),
           const SizedBox(height: 2),
@@ -129,7 +130,7 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      throw t('update_cannot_open_appstore');
+      throw AppLocalizations.of(context).update_cannot_open_appstore;
     }
   }
 

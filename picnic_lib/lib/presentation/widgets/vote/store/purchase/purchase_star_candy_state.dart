@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
@@ -301,7 +302,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           error: e, stackTrace: s);
       _resetPurchaseState();
       _loadingKey.currentState?.hide();
-      await _dialogHandler.showErrorDialog(t('dialog_message_purchase_failed'));
+      await _dialogHandler.showErrorDialog(
+          AppLocalizations.of(context).dialog_message_purchase_failed);
       rethrow;
     }
   }
@@ -597,8 +599,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         if (!isCanceled) {
           logger.e(
               '[PurchaseStarCandyState] Actual purchase error - showing dialog');
-          await _dialogHandler
-              .showErrorDialog(t('dialog_message_purchase_failed'));
+          await _dialogHandler.showErrorDialog(
+              AppLocalizations.of(context).dialog_message_purchase_failed);
         } else {
           logger.i(
               '[PurchaseStarCandyState] Purchase canceled - no error dialog');
@@ -675,7 +677,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     if (_isInitializing) {
       logger
           .w('[PurchaseStarCandyState] Purchase blocked during initialization');
-      showSimpleDialog(content: t('purchase_initializing_message'));
+      showSimpleDialog(
+          content: AppLocalizations.of(context).purchase_initializing_message);
       return;
     }
 
@@ -757,8 +760,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       _resetPurchaseState();
       if (mounted) {
         _loadingKey.currentState?.hide();
-        await _dialogHandler
-            .showErrorDialog(t('dialog_message_purchase_failed'));
+        await _dialogHandler.showErrorDialog(
+            AppLocalizations.of(context).dialog_message_purchase_failed);
       }
       rethrow;
     }
@@ -768,13 +771,15 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   bool _canPurchase() {
     if (_isPurchasing) {
       logger.w('[PurchaseStarCandyState] Purchase already in progress');
-      showSimpleDialog(content: t('purchase_in_progress_message'));
+      showSimpleDialog(
+          content: AppLocalizations.of(context).purchase_in_progress_message);
       return false;
     }
 
     if (!_safetyManager.canAttemptPurchase()) {
       logger.w('[PurchaseStarCandyState] Purchase cooldown active');
-      showSimpleDialog(content: t('purchase_cooldown_message'));
+      showSimpleDialog(
+          content: AppLocalizations.of(context).purchase_cooldown_message);
       return false;
     }
 
@@ -828,7 +833,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               _buildHeaderSection(),
               const SizedBox(height: 8),
               StorePointInfo(
-                title: t('label_star_candy_pouch'),
+                title: AppLocalizations.of(context).label_star_candy_pouch,
                 width: double.infinity,
                 height: 80,
               ),
@@ -881,7 +886,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          t('text_purchase_vat_included'),
+          AppLocalizations.of(context).text_purchase_vat_included,
           style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
         ),
         const SizedBox(height: 2),
@@ -891,12 +896,13 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
             TextSpan(
               children: [
                 TextSpan(
-                  text: t('candy_usage_policy_guide'),
+                  text: AppLocalizations.of(context).candy_usage_policy_guide,
                   style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
                 ),
                 const TextSpan(text: ' '),
                 TextSpan(
-                  text: t('candy_usage_policy_guide_button'),
+                  text: AppLocalizations.of(context)
+                      .candy_usage_policy_guide_button,
                   style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
                       .copyWith(decoration: TextDecoration.underline),
                 ),

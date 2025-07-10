@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
@@ -46,8 +47,13 @@ class _StorePageState extends ConsumerState<StorePage>
                 controller: _tabController,
                 indicatorWeight: 3,
                 tabs: [
-                  Tab(text: t('label_tab_buy_star_candy')),
-                  if (!kIsWeb) Tab(text: t('label_tab_free_charge_station')),
+                  Tab(
+                      text: AppLocalizations.of(context)
+                          .label_tab_buy_star_candy),
+                  if (!kIsWeb)
+                    Tab(
+                        text: AppLocalizations.of(context)
+                            .label_tab_free_charge_station),
                 ],
               ),
               Expanded(

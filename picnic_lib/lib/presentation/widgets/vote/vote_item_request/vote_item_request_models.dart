@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 /// 아티스트 신청 상태 정보를 담는 클래스
@@ -61,17 +63,17 @@ class VoteRequestStatusUtils {
   static String getStatusText(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return t('vote_item_request_status_pending');
+        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_pending;
       case 'approved':
-        return t('vote_item_request_status_approved');
+        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_approved;
       case 'rejected':
-        return t('vote_item_request_status_rejected');
+        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_rejected;
       case 'in-progress':
-        return t('vote_item_request_status_in_progress');
+        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_in_progress;
       case 'cancelled':
-        return t('vote_item_request_status_cancelled');
+        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_cancelled;
       default:
-        return t('vote_item_request_status_unknown');
+        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_unknown;
     }
   }
 
@@ -99,20 +101,25 @@ class VoteRequestStatusUtils {
     if (isAlreadyInVote) return false;
 
     // 거절된 경우는 재신청 가능
-    if (status == t('vote_item_request_status_rejected') ||
-        status == t('vote_item_request_status_cancelled')) {
+    if (status ==
+            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_rejected ||
+        status ==
+            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_cancelled) {
       return true;
     }
 
     // 내가 이미 신청한 경우 (대기중, 승인됨, 진행중)
-    if (status == t('vote_item_request_status_pending') ||
-        status == t('vote_item_request_status_approved') ||
-        status == t('vote_item_request_status_in_progress')) {
+    if (status ==
+            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_pending ||
+        status ==
+            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_approved ||
+        status ==
+            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_in_progress) {
       return false;
     }
 
     // 신청 가능한 경우만 true
-    return status == t('vote_item_request_can_apply');
+    return status == AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_can_apply;
   }
 }
 
@@ -150,4 +157,4 @@ class ArtistNameUtils {
           (Match m) => '${m[1]},',
         );
   }
-} 
+}

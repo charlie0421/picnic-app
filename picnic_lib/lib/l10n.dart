@@ -679,7 +679,3 @@ String getLocaleTextFromJson(Map<String, dynamic> json) {
   return json[locale] ?? json['en'] ?? '';
 }
 
-/// 전역 번역 함수
-String t(String key, [Map<String, String>? args]) {
-  return PicnicLibL10n.t(key, args);
-}

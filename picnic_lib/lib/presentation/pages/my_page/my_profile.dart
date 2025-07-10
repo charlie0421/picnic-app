@@ -15,7 +15,7 @@ import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/util.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -78,7 +78,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             const SizedBox(height: 26),
             if (isSupabaseLoggedSafely)
               PicnicListItem(
-                leading: t('label_mypage_picnic_id'),
+                leading: AppLocalizations.of(context).label_mypage_picnic_id,
                 title: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -93,7 +93,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     context, supabase.auth.currentUser?.id ?? ''),
               ),
             PicnicListItem(
-                leading: t('label_mypage_terms_of_use'),
+                leading: AppLocalizations.of(context).label_mypage_terms_of_use,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
                   ref
@@ -101,7 +101,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .setCurrentMyPage(const TermsPage());
                 }),
             PicnicListItem(
-                leading: t('label_mypage_privacy_policy'),
+                leading:
+                    AppLocalizations.of(context).label_mypage_privacy_policy,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
                   ref
@@ -109,7 +110,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       .setCurrentMyPage(const PrivacyPage());
                 }),
             PicnicListItem(
-                leading: t('label_mypage_logout'),
+                leading: AppLocalizations.of(context).label_mypage_logout,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () {
                   ref.read(userInfoProvider.notifier).logout();
@@ -119,7 +120,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   Navigator.of(context).pop();
                 }),
             PicnicListItem(
-                leading: t('label_mypage_withdrawal'),
+                leading: AppLocalizations.of(context).label_mypage_withdrawal,
                 assetPath: 'assets/icons/arrow_right_style=line.svg',
                 onTap: () => _showWithdrawalModal()),
           ],
@@ -176,14 +177,15 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             // 사용자 프로필 업데이트
             await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
 
-            SnackbarUtil().showSnackbar(t('common_success'));
+            SnackbarUtil()
+                .showSnackbar(AppLocalizations.of(context).common_success);
           } else {
             throw Exception('Failed to upload image');
           }
         } catch (e, s) {
           logger.e('error', error: e, stackTrace: s);
 
-          SnackbarUtil().showSnackbar(t('common_fail'));
+          SnackbarUtil().showSnackbar(AppLocalizations.of(context).common_fail);
           rethrow;
         } finally {
           if (mounted) {
@@ -220,22 +222,22 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(
-                    t('dialog_withdraw_title'),
+                    AppLocalizations.of(context).dialog_withdraw_title,
                     style: getTextStyle(AppTypo.title18SB, AppColors.grey900),
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    t('dialog_will_delete_star_candy'),
+                    AppLocalizations.of(context).dialog_will_delete_star_candy,
                     style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                   ),
                   const StarCandyInfoText(),
                   const SizedBox(height: 24),
-                  Text(t('dialog_withdraw_message'),
+                  Text(AppLocalizations.of(context).dialog_withdraw_message,
                       style:
                           getTextStyle(AppTypo.caption12R, AppColors.grey700),
                       textAlign: TextAlign.center),
                   const SizedBox(height: 24),
-                  Text(t('dialog_message_can_resignup'),
+                  Text(AppLocalizations.of(context).dialog_message_can_resignup,
                       style:
                           getTextStyle(AppTypo.caption12R, AppColors.grey700),
                       textAlign: TextAlign.center),
@@ -261,7 +263,9 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                   color: AppColors.grey300,
                                   borderRadius: BorderRadius.circular(30.w),
                                 ),
-                                child: Text(t('dialog_withdraw_button_ok'),
+                                child: Text(
+                                    AppLocalizations.of(context)
+                                        .dialog_withdraw_button_ok,
                                     style: getTextStyle(
                                         AppTypo.title18SB, AppColors.grey00)))),
                       ),
@@ -282,7 +286,9 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                       color: AppColors.primary500,
                                       width: 1.5.w),
                                 ),
-                                child: Text(t('dialog_button_cancel'),
+                                child: Text(
+                                    AppLocalizations.of(context)
+                                        .dialog_button_cancel,
                                     style: getTextStyle(AppTypo.title18SB,
                                         AppColors.primary500)))),
                       ),
@@ -328,7 +334,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         Navigator.of(context).pop();
 
         if (!mounted) return;
-        showSimpleDialog(content: t('withdrawal_success'));
+        showSimpleDialog(
+            content: AppLocalizations.of(context).withdrawal_success);
       } else {
         throw Exception('Failed to delete user: ${response.body}');
       }
@@ -346,7 +353,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       margin: EdgeInsets.symmetric(horizontal: 57.w),
       child: isValid == false
           ? Text(
-              t('nickname_validation_error'),
+              AppLocalizations.of(context).nickname_validation_error,
               style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
             )
           : null,
@@ -387,7 +394,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 keyboardType: TextInputType.text,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 decoration: InputDecoration(
-                  hintText: t('hint_nickname_input'),
+                  hintText: AppLocalizations.of(context).hint_nickname_input,
                   hintStyle: getTextStyle(AppTypo.body14B, AppColors.grey300),
                   border: InputBorder.none,
                   fillColor: AppColors.grey900,
@@ -460,10 +467,13 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 if (success) {
                   // 닉네임 변경 성공
                   showSimpleDialog(
-                      content: t('message_update_nickname_success'));
+                      content: AppLocalizations.of(context)
+                          .message_update_nickname_success);
                 } else {
                   // 닉네임 변경 실패 (중복 또는 오류)
-                  showSimpleDialog(content: t('message_update_nickname_fail'));
+                  showSimpleDialog(
+                      content: AppLocalizations.of(context)
+                          .message_update_nickname_fail);
                 }
                 OverlayLoadingProgress.stop();
               });
@@ -556,7 +566,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         value.isEmpty ||
         value.length > 20 ||
         !regExp.hasMatch(value)) {
-      return t('nickname_validation_error');
+      return AppLocalizations.of(context).nickname_validation_error;
     }
     return null;
   }

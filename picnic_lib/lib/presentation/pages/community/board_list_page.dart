@@ -6,6 +6,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -308,8 +309,8 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
     if (filteredBoards.isEmpty && !_isLoading) {
       return NoItemContainer(
         message: _currentSearchQuery.isNotEmpty
-            ? t('text_no_search_result')
-            : t('common_text_no_search_result'),
+            ? AppLocalizations.of(context).text_no_search_result
+            : AppLocalizations.of(context).common_text_no_search_result,
       );
     }
 
@@ -358,7 +359,8 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12),
               child: EnhancedSearchBox(
-                hintText: t('text_community_board_search'),
+                hintText:
+                    AppLocalizations.of(context).text_community_board_search,
                 onSearchChanged: (query) {
                   if (mounted) {
                     try {

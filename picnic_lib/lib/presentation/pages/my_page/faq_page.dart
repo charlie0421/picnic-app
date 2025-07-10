@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -31,17 +31,17 @@ class _FAQPageState extends ConsumerState<FAQPage> {
   String _getLocalizedCategory(String category) {
     switch (category) {
       case 'ALL':
-        return t('faq_category_all');
+        return AppLocalizations.of(context).faq_category_all;
       case 'ACCOUNT':
-        return t('faq_category_account');
+        return AppLocalizations.of(context).faq_category_account;
       case 'PAYMENT':
-        return t('faq_category_payment');
+        return AppLocalizations.of(context).faq_category_payment;
       case 'SERVICE':
-        return t('faq_category_service');
+        return AppLocalizations.of(context).faq_category_service;
       case 'GENERAL':
-        return t('faq_category_general');
+        return AppLocalizations.of(context).faq_category_general;
       case 'ETC':
-        return t('faq_category_etc');
+        return AppLocalizations.of(context).faq_category_etc;
       default:
         return category;
     }
@@ -53,9 +53,8 @@ class _FAQPageState extends ConsumerState<FAQPage> {
     _selectedCategory = 'ALL';
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: t('label_mypage_faq'));
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+          pageTitle: AppLocalizations.of(context).label_mypage_faq);
       _fetchPage();
     });
   }
@@ -167,7 +166,9 @@ class _FAQPageState extends ConsumerState<FAQPage> {
                     );
                   },
                 )
-              : NoItemContainer(message: t('common_text_no_search_result')),
+              : NoItemContainer(
+                  message: AppLocalizations.of(context)
+                      .common_text_no_search_result),
         ),
       ],
     );

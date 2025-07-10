@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class NoItemContainer extends StatelessWidget {
@@ -26,7 +26,7 @@ class NoItemContainer extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            message ?? t('common_text_no_data'),
+            message ?? AppLocalizations.of(context).common_text_no_data,
             style: getTextStyle(AppTypo.title18SB, AppColors.grey700),
           ),
         ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_pic_list_page.dart';
 
@@ -21,7 +21,7 @@ class _PicChartPageState extends ConsumerState<PicChartPage> {
             showTopMenu: true,
             showMyPoint: false,
             showBottomNavigation: true,
-            pageTitle: t('label_pic_chart'),
+            pageTitle: AppLocalizations.of(context).label_pic_chart,
           );
     });
   }

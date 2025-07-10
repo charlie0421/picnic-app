@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/overlay_notifier.dart';
@@ -41,18 +41,21 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
               child: Row(
                 children: [
                   Expanded(
-                      child: Text(t('update_recommend_text',
+                      child: Text(AppLocalizations.of(context)
+                          .update_recommend_text(
                           {'version': updateInfo.latestVersion}))),
                   TextButton(
                     child: Text(
-                      t("update_button"),
+                      AppLocalizations.of(context).update_button,
                       style: getTextStyle(AppTypo.body14M, AppColors.grey900)
                           .copyWith(
                         decoration: TextDecoration.underline,
                       ),
                     ),
                     onPressed: () => _launchAppStore(
-                        updateInfo.url ?? '', t("update_cannot_open_appstore")),
+                        updateInfo.url ?? '',
+                        AppLocalizations.of(context)
+                            .update_cannot_open_appstore),
                   ),
                   SizedBox(width: 8.w),
                   SmoothCircularCountdown(

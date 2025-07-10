@@ -1,0 +1,98 @@
+{
+  "@@locale": "en",
+  "appTitle": "Picnic",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "vote_item_request_title": "Vote Candidate Application",
+  "@vote_item_request_title": {
+    "description": "Title for vote application dialog"
+  },
+  "vote_item_request_button": "Apply for Vote Candidate",
+  "@vote_item_request_button": {
+    "description": "Button text for applying as vote candidate"
+  },
+  "artist_name_label": "Artist Name",
+  "@artist_name_label": {
+    "description": "Label for artist name field"
+  },
+  "group_name_label": "Group Name",
+  "@group_name_label": {
+    "description": "Label for group name field"
+  },
+  "application_reason_label": "Application Reason",
+  "@application_reason_label": {
+    "description": "Label for application reason field"
+  },
+  "artist_name_hint": "Enter artist name",
+  "@artist_name_hint": {
+    "description": "Hint text for artist name field"
+  },
+  "group_name_hint": "Enter group name (optional)",
+  "@group_name_hint": {
+    "description": "Hint text for group name field"
+  },
+  "application_reason_hint": "Enter application reason (optional)",
+  "@application_reason_hint": {
+    "description": "Hint text for application reason field"
+  },
+  "submit_application": "Submit Application",
+  "@submit_application": {
+    "description": "Submit button text"
+  },
+  "vote_item_request_search_artist_hint": "Search for artist or group",
+  "@vote_item_request_search_artist_hint": {
+    "description": "Hint text for artist search field"
+  },
+  "application_success": "Vote candidate application has been completed.",
+  "@application_success": {
+    "description": "Success message for application submission"
+  },
+  "success": "Success",
+  "@success": {
+    "description": "Success dialog title"
+  },
+  "vote_period": "Vote Period",
+  "@vote_period": {
+    "description": "Label for vote period"
+  },
+  "error_artist_not_selected": "Please select an artist",
+  "@error_artist_not_selected": {
+    "description": "Error message when no artist is selected"
+  },
+  "error_application_reason_required": "Application reason is required",
+  "@error_application_reason_required": {
+    "description": "Error message when application reason is empty"
+  },
+  "searching": "Searching...",
+  "@searching": {
+    "description": "Text shown while searching"
+  },
+  "no_search_results": "No search results found",
+  "@no_search_results": {
+  "description": "Text shown when no search results are found"
+  },
+  "vote_item_request_current_item_request": "Current Item Request",
+  "vote_item_request_no_item_request_yet": "No item request yet",
+  "vote_item_request_search_artist": "Search Artist",
+  "vote_item_request_search_artist_prompt": "Search for an artist to apply",
+  "vote_item_request_item_request_count": "{count} item requests",
+  "vote_item_request_total_item_requests": "Total {count} item requests",
+  "vote_item_request_submit": "Submit",
+  "vote_item_request_already_registered": "Already registered",
+  "vote_item_request_can_apply": "Can apply",
+  "vote_item_request_status_pending": "Pending",
+  "vote_item_request_status_approved": "Approved",
+  "vote_item_request_status_rejected": "Rejected",
+  "vote_item_request_status_in_progress": "In Progress",
+  "vote_item_request_status_cancelled": "Cancelled",
+  "vote_item_request_status_unknown": "Unknown",
+  "vote_item_request_artist_name_missing": "Artist name missing",
+  "vote_item_request_user_info_not_found": "User information not found.",
+  "vote_item_request_already_applied_artist": "You have already applied for this artist.",
+  "vote_item_request_addition_request": "Vote item addition request",
+  "label_tabbar_vote_active": "Active",
+  "label_tabbar_vote_image": "Image Vote",
+  "label_tabbar_vote_end": "Ended",
+  "label_tabbar_vote_upcoming": "Upcoming"
+}

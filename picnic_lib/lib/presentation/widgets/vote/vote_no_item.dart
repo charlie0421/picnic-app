@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -18,13 +18,13 @@ class VoteNoItem extends StatelessWidget {
     String message;
     switch (status) {
       case VoteStatus.active:
-        message = t('message_noitem_vote_active');
+        message = AppLocalizations.of(context).message_noitem_vote_active;
         break;
       case VoteStatus.end:
-        message = t('message_noitem_vote_end');
+        message = AppLocalizations.of(context).message_noitem_vote_end;
         break;
       case VoteStatus.upcoming:
-        message = t('message_noitem_vote_upcoming');
+        message = AppLocalizations.of(context).message_noitem_vote_upcoming;
         break;
       default:
         return Container();

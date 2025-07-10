@@ -10,6 +10,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_actions.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_contents.dart';
@@ -153,7 +154,8 @@ class _CommentItemState extends ConsumerState<CommentItem>
     } catch (e, s) {
       logger.e('exception:', error: e, stackTrace: s);
       if (mounted) {
-        SnackbarUtil().showSnackbar(t('post_comment_delete_fail'));
+        SnackbarUtil().showSnackbar(
+            AppLocalizations.of(context).post_comment_delete_fail);
       }
       rethrow;
     } finally {
@@ -205,7 +207,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
       if (!mounted) return;
 
       SnackbarUtil().showSnackbar(
-        t('post_comment_translate_fail'),
+        AppLocalizations.of(context).post_comment_translate_fail,
         backgroundColor: Colors.red,
       );
     } finally {

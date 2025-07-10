@@ -10,6 +10,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
@@ -215,7 +216,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 showCursor: true,
                 keyboardAppearance: Brightness.light,
                 decoration: InputDecoration(
-                  hintText: t('label_input_input'),
+                  hintText: AppLocalizations.of(context).label_input_input,
                   hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
                   border: InputBorder.none,
                   focusColor: AppColors.primary500,
@@ -286,7 +287,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       child: Column(
         children: [
           Text(
-            '· ${t('voting_share_benefit_text')}',
+            '· ${AppLocalizations.of(context).voting_share_benefit_text}',
             style: getTextStyle(
               AppTypo.caption10SB,
               AppColors.primary500,
@@ -388,7 +389,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              t('label_button_recharge'),
+              AppLocalizations.of(context).label_button_recharge,
               style: getTextStyle(AppTypo.body14B, AppColors.primary500),
             ),
             SizedBox(width: 4.w),
@@ -444,7 +445,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             ),
             SizedBox(width: 4.w),
             Text(
-              t('label_checkbox_entire_use'),
+              AppLocalizations.of(context).label_checkbox_entire_use,
               style: getTextStyle(
                 AppTypo.body14M,
                 _checkAll ? AppColors.primary500 : AppColors.grey300,
@@ -490,7 +491,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         padding: EdgeInsets.only(left: 22.w),
         width: double.infinity,
         child: Text(
-          t('text_need_recharge'),
+          AppLocalizations.of(context).text_need_recharge,
           style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
           textAlign: TextAlign.left,
         ),
@@ -512,7 +513,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         ),
         alignment: Alignment.center,
         child: Text(
-          t('label_button_vote'),
+          AppLocalizations.of(context).label_button_vote,
           style: getTextStyle(
             AppTypo.title18SB,
             AppColors.grey00,
@@ -526,10 +527,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final voteAmount = _getVoteAmount();
     if (voteAmount == 0 || myStarCandy < voteAmount) {
       showSimpleDialog(
-        title: t('dialog_title_vote_fail'),
+        title: AppLocalizations.of(context).dialog_title_vote_fail,
         content: voteAmount == 0
-            ? t('text_dialog_vote_amount_should_not_zero')
-            : t('text_need_recharge'),
+            ? AppLocalizations.of(context)
+                .text_dialog_vote_amount_should_not_zero
+            : AppLocalizations.of(context).text_need_recharge,
         onOk: () {},
       );
       return;
@@ -598,7 +600,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   void _showVotingFailDialog() {
     showSimpleDialog(
       type: DialogType.error,
-      content: t('dialog_title_vote_fail'),
+      content: AppLocalizations.of(context).dialog_title_vote_fail,
       onOk: () => Navigator.of(navigatorKey.currentContext!).pop(),
     );
   }

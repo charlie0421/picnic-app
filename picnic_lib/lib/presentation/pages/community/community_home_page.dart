@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
@@ -175,7 +176,8 @@ class _CommunityHomePageState extends ConsumerState<CommunityHomePage> {
               },
               child: Container(
                 alignment: Alignment.center,
-                child: Text(t('label_mypage_should_login'),
+                child: Text(
+                    AppLocalizations.of(context).label_mypage_should_login,
                     style:
                         getTextStyle(AppTypo.title18B, AppColors.primary500)),
               ),

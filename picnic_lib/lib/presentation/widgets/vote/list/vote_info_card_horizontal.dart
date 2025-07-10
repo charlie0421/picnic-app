@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/pic/artist_vote.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -55,7 +56,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
             child: FadeTransition(
               opacity: opacityAnimation,
               child: Text(
-                t('text_vote_rank', {'rank': rank.toString()}),
+                AppLocalizations.of(context).text_vote_rank(rank.toString()),
                 style: getTextStyle(AppTypo.caption12B, AppColors.point900),
                 textAlign: TextAlign.center,
               ),

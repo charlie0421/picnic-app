@@ -9,6 +9,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/community/fortune.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
@@ -161,8 +162,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
 
     return FullScreenDialog(
       child: fortuneAsync.when(
-        loading: () => Center(
-            child: MediumPulseLoadingIndicator()),
+        loading: () => Center(child: MediumPulseLoadingIndicator()),
         error: (error, stackTrace) => _buildError(error),
         data: (fortune) => DefaultTabController(
           length: 2,
@@ -192,8 +192,12 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                         onTap: (index) =>
                             setState(() => _showMonthly = index == 1),
                         tabs: [
-                          Tab(text: t('fortune_total_title')),
-                          Tab(text: t('fortune_monthly')),
+                          Tab(
+                              text: AppLocalizations.of(context)
+                                  .fortune_total_title),
+                          Tab(
+                              text:
+                                  AppLocalizations.of(context).fortune_monthly),
                         ],
                       ),
                       _showMonthly
@@ -201,21 +205,19 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                           : _buildOverallFortune(fortune),
                       if (!_isSaving)
                         ShareSection(
-                          saveButtonText: t('save'),
-                          shareButtonText: t('share'),
+                          saveButtonText: AppLocalizations.of(context).save,
+                          shareButtonText: AppLocalizations.of(context).share,
                           onSave: _handleSave,
                           onShare: () async {
                             if (_isSaving) return;
                             ShareUtils.shareToSocial(
                               _shareKey,
-                              message: t('compatibility_share_message', {
-                                'artistName':
-                                    getLocaleTextFromJson(fortune.artist.name)
-                              }),
-                              hashtag: t('compatibility_share_hashtag', {
-                                'artistName':
-                                    getLocaleTextFromJson(fortune.artist.name)
-                              }),
+                              message: AppLocalizations.of(navigatorKey.currentContext!)
+                                  .compatibility_share_message(
+                                      getLocaleTextFromJson(
+                                          fortune.artist.name)),
+                              hashtag: AppLocalizations.of(navigatorKey.currentContext!)
+                                  .compatibility_share_hashtag,
                               downloadLink: await createBranchLink(
                                   getLocaleTextFromJson(fortune.artist.name),
                                   '${Environment.appLinkPrefix}/community/fortune/${widget.artistId}'),
@@ -257,7 +259,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               shape: const Border(),
               collapsedShape: const Border(),
               title: Text(
-                '🔮 ${t('fortune_total_title')}',
+                '🔮 ${AppLocalizations.of(context).fortune_total_title}',
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               children: [
@@ -269,14 +271,19 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildAspectSection(
-                            '💝 ${t('fortune_honor')}', fortune.aspects.honor),
-                        _buildAspectSection('💼 ${t('fortune_career')}',
+                            '💝 ${AppLocalizations.of(context).fortune_honor}',
+                            fortune.aspects.honor),
+                        _buildAspectSection(
+                            '💼 ${AppLocalizations.of(context).fortune_career}',
                             fortune.aspects.career),
-                        _buildAspectSection('💪 ${t('fortune_health')}',
+                        _buildAspectSection(
+                            '💪 ${AppLocalizations.of(context).fortune_health}',
                             fortune.aspects.health),
-                        _buildAspectSection('💰 ${t('fortune_money')}',
+                        _buildAspectSection(
+                            '💰 ${AppLocalizations.of(context).fortune_money}',
                             fortune.aspects.finances),
-                        _buildAspectSection('👥 ${t('fortune_relationship')}',
+                        _buildAspectSection(
+                            '👥 ${AppLocalizations.of(context).fortune_relationship}',
                             fortune.aspects.relationships),
                       ],
                     ),
@@ -294,7 +301,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               shape: const Border(),
               collapsedShape: const Border(),
               title: Text(
-                '✨ ${t('fortune_lucky_keyword')}',
+                '✨ ${AppLocalizations.of(context).fortune_lucky_keyword}',
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               children: [
@@ -304,16 +311,20 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        _buildLuckyRow(t('fortune_lucky_days'),
+                        _buildLuckyRow(
+                            AppLocalizations.of(context).fortune_lucky_days,
                             fortune.lucky.days.join(', ')),
-                        _buildLuckyRow(t('fortune_lucky_color'),
+                        _buildLuckyRow(
+                            AppLocalizations.of(context).fortune_lucky_color,
                             fortune.lucky.colors.join(', ')),
                         _buildLuckyRow(
-                            t('fortune_lucky_number'),
+                            AppLocalizations.of(context).fortune_lucky_number,
                             fortune.lucky.numbers
                                 .map((e) => e.toString())
                                 .join(', ')),
-                        _buildLuckyRow(t('fortune_lucky_direction'),
+                        _buildLuckyRow(
+                            AppLocalizations.of(context)
+                                .fortune_lucky_direction,
                             fortune.lucky.directions.join(', ')),
                       ],
                     ),
@@ -331,7 +342,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
               shape: const Border(),
               collapsedShape: const Border(),
               title: Text(
-                '💡 ${t('fortune_advice')}',
+                '💡 ${AppLocalizations.of(context).fortune_advice}',
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
               children: [
@@ -543,7 +554,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
         const Icon(Icons.error_outline, color: Colors.red, size: 60),
         const SizedBox(height: 16),
         Text(
-          t('message_error_occurred'),
+          AppLocalizations.of(context).message_error_occurred,
           textAlign: TextAlign.center,
           style: const TextStyle(color: Colors.red, fontSize: 16),
         ),
@@ -617,29 +628,29 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   String getMonthName(int month) {
     switch (month) {
       case 1:
-        return t('fortune_month1');
+        return AppLocalizations.of(context).fortune_month1;
       case 2:
-        return t('fortune_month2');
+        return AppLocalizations.of(context).fortune_month2;
       case 3:
-        return t('fortune_month3');
+        return AppLocalizations.of(context).fortune_month3;
       case 4:
-        return t('fortune_month4');
+        return AppLocalizations.of(context).fortune_month4;
       case 5:
-        return t('fortune_month5');
+        return AppLocalizations.of(context).fortune_month5;
       case 6:
-        return t('fortune_month6');
+        return AppLocalizations.of(context).fortune_month6;
       case 7:
-        return t('fortune_month7');
+        return AppLocalizations.of(context).fortune_month7;
       case 8:
-        return t('fortune_month8');
+        return AppLocalizations.of(context).fortune_month8;
       case 9:
-        return t('fortune_month9');
+        return AppLocalizations.of(context).fortune_month9;
       case 10:
-        return t('fortune_month10');
+        return AppLocalizations.of(context).fortune_month10;
       case 11:
-        return t('fortune_month11');
+        return AppLocalizations.of(context).fortune_month11;
       case 12:
-        return t('fortune_month12');
+        return AppLocalizations.of(context).fortune_month12;
       default:
         return '';
     }

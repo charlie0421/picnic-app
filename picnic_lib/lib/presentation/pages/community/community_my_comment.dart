@@ -9,6 +9,7 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
@@ -36,7 +37,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
             showTopMenu: true,
             topRightMenu: TopRightType.none,
             showBottomNavigation: false,
-            pageTitle: t('post_my_written_reply'),
+            pageTitle: AppLocalizations.of(context).post_my_written_reply,
           );
     });
 
@@ -88,7 +89,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
       if (!mounted) return;
 
       SnackbarUtil().showSnackbar(
-        t('post_comment_delete_fail'),
+        AppLocalizations.of(context).post_comment_delete_fail,
         backgroundColor: Colors.red,
       );
       rethrow;
@@ -120,10 +121,10 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(t('post_comment_loading_fail')),
+                Text(AppLocalizations.of(context).post_comment_loading_fail),
                 ElevatedButton(
                   onPressed: _handleRefresh,
-                  child: Text(t('common_retry_label')),
+                  child: Text(AppLocalizations.of(context).common_retry_label),
                 ),
               ],
             ),
@@ -278,7 +279,7 @@ class CommentContentsState extends State<CommentContents> {
                 ),
                 if (exceedsMaxLines && !_expanded)
                   Text(
-                    t('post_comment_content_more'),
+                    AppLocalizations.of(context).post_comment_content_more,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                   ),
               ],

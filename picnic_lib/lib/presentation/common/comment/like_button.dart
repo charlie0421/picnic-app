@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -127,7 +127,8 @@ class LikeButtonState extends ConsumerState<LikeButton>
         isLiked = widget.isLiked;
       });
 
-      SnackbarUtil().showSnackbar(t('post_comment_like_processing_fail'));
+      SnackbarUtil().showSnackbar(
+          AppLocalizations.of(context).post_comment_like_processing_fail);
       rethrow;
     } finally {
       if (mounted) {

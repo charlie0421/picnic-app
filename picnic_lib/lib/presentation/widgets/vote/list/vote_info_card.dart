@@ -9,6 +9,7 @@ import 'package:picnic_lib/core/utils/deeplink.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
@@ -234,8 +235,8 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
               ),
               if (!_isSaving)
                 ShareSection(
-                  saveButtonText: t('save'),
-                  shareButtonText: t('share'),
+                  saveButtonText: AppLocalizations.of(context).save,
+                  shareButtonText: AppLocalizations.of(context).share,
                   onSave: _handleSaveImage,
                   onShare: _handleShareToTwitter,
                 ),

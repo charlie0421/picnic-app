@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
@@ -131,7 +131,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(
-                  t('vote_item_request_search_artist'),
+                  AppLocalizations.of(context).vote_item_request_search_artist,
                   style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                 ),
               ),
@@ -144,7 +144,8 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
           SizedBox(
             height: 36.h,
             child: EnhancedSearchBox(
-              hintText: t('vote_item_request_search_artist_hint'),
+              hintText: AppLocalizations.of(context)
+                  .vote_item_request_search_artist_hint,
               onSearchChanged: widget.onSearchChanged,
               showClearButton: true,
               showSearchIcon: true,
@@ -311,7 +312,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
             ),
             SizedBox(height: 12.h),
             Text(
-              t('vote_item_request_no_search_results'),
+              AppLocalizations.of(context).vote_item_request_no_search_results,
               style: getTextStyle(AppTypo.body14B, AppColors.grey600),
             ),
             SizedBox(height: 4.h),
@@ -353,7 +354,8 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
                 ArtistApplicationInfo(
                   artistName: ArtistNameUtils.getDisplayName(artist.name),
                   applicationCount: 0,
-                  applicationStatus: t('vote_item_request_can_apply'),
+                  applicationStatus:
+                      AppLocalizations.of(context).vote_item_request_can_apply,
                   isAlreadyInVote: false,
                   isSubmitting: false,
                 );
@@ -383,7 +385,7 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
             trailing: SearchResultActionButton(
               shouldShowApplicationButton: !applicationInfo.isAlreadyInVote &&
                   applicationInfo.applicationStatus ==
-                      t('vote_item_request_can_apply'),
+                      AppLocalizations.of(context).vote_item_request_can_apply,
               isSubmitting: applicationInfo.isSubmitting,
               isAlreadyInVote: applicationInfo.isAlreadyInVote,
               status: applicationInfo.applicationStatus,

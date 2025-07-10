@@ -7,7 +7,7 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -56,9 +56,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         setState(() {});
       });
 
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: t('mypage_setting'));
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+          pageTitle: AppLocalizations.of(context).mypage_setting);
     });
   }
 
@@ -75,11 +74,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               child: ListView(
                 children: [
                   const SizedBox(height: 16),
-                  Text(t('label_setting_alarm'),
+                  Text(AppLocalizations.of(context).label_setting_alarm,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   const SizedBox(height: 4),
                   PicnicListItem(
-                    leading: t('label_setting_push_alarm'),
+                    leading:
+                        AppLocalizations.of(context).label_setting_push_alarm,
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     tailing: LoadSwitch(
                       width: 48.w,
@@ -114,12 +114,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     ),
                   ),
                   PicnicListItem(
-                    leading: t('label_setting_event_alarm'),
+                    leading:
+                        AppLocalizations.of(context).label_setting_event_alarm,
                     title: Container(
                       margin: EdgeInsets.only(left: 8.w),
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        t('label_setting_event_alarm_desc'),
+                        AppLocalizations.of(context)
+                            .label_setting_event_alarm_desc,
                         style:
                             getTextStyle(AppTypo.caption12R, AppColors.grey600),
                         textAlign: TextAlign.start,
@@ -159,10 +161,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Text(t('label_setting_storage'),
+                  Text(AppLocalizations.of(context).label_setting_storage,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   PicnicListItem(
-                      leading: t('label_setting_remove_cache'),
+                      leading: AppLocalizations.of(context)
+                          .label_setting_remove_cache,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () async {
                         OverlayLoadingProgress.start(context);
@@ -170,12 +173,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         cacheManager.emptyCache().then((value) {
                           OverlayLoadingProgress.stop();
                           showSimpleDialog(
-                              content: t('message_setting_remove_cache'),
+                              content: AppLocalizations.of(context)
+                                  .message_setting_remove_cache,
                               onOk: () => Navigator.of(context).pop());
                         });
                       }),
                   const SizedBox(height: 24),
-                  Text(t('label_setting_appinfo'),
+                  Text(AppLocalizations.of(context).label_setting_appinfo,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   updateChecker.when(
                       data: (info) {
@@ -186,12 +190,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           case UpdateStatus.needPatch:
                             return PicnicListItem(
                               leading:
-                                  '${t('label_setting_current_version')} ${info.currentVersion}',
+                                  '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Container(
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                                  '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                 ),
@@ -202,12 +206,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                           case UpdateStatus.updateRequired:
                             return PicnicListItem(
                               leading:
-                                  '${t('label_setting_current_version')} ${info.currentVersion}',
+                                  '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Container(
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                                  '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
@@ -218,18 +222,19 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () async {
                                 (await canLaunchUrlString(info.url!))
                                     ? launchUrlString(info.url!)
-                                    : throw t('update_cannot_open_appstore');
+                                    : throw AppLocalizations.of(context)
+                                        .update_cannot_open_appstore;
                               },
                             );
                           case UpdateStatus.updateRecommended:
                             return PicnicListItem(
                               leading:
-                                  '${t('label_setting_current_version')} ${info.currentVersion}',
+                                  '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Container(
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version')} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                                  '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
                                   style: getTextStyle(
                                       AppTypo.caption12B, AppColors.primary500),
                                   textAlign: TextAlign.start,
@@ -240,18 +245,19 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () async {
                                 (await canLaunchUrlString(info.url!))
                                     ? launchUrlString(info.url!)
-                                    : throw t('update_cannot_open_appstore');
+                                    : throw AppLocalizations.of(context)
+                                        .update_cannot_open_appstore;
                               },
                             );
                           case UpdateStatus.upToDate:
                             return PicnicListItem(
                               leading:
-                                  '${t('label_setting_current_version')} ${info.currentVersion}',
+                                  '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
                               title: Container(
                                 margin: EdgeInsets.only(right: 8.w),
                                 alignment: Alignment.centerRight,
                                 child: Text(
-                                  '${t('label_setting_recent_version_up_to_date')} 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                                  '${AppLocalizations.of(context).label_setting_recent_version_up_to_date} 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
                                   style: getTextStyle(AppTypo.caption12B,
                                       AppColors.secondary500),
                                   textAlign: TextAlign.start,

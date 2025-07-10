@@ -1,6 +1,6 @@
 // network_error_screen.dart
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 
 class NetworkErrorScreen extends StatelessWidget {
   const NetworkErrorScreen({
@@ -26,7 +26,7 @@ class NetworkErrorScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                t('network_error_title'),
+                AppLocalizations.of(context).network_error_title,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -35,7 +35,7 @@ class NetworkErrorScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                t('network_error_message'),
+                AppLocalizations.of(context).network_error_message,
                 style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -43,7 +43,7 @@ class NetworkErrorScreen extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: Text(t('retry')),
+                label: Text(AppLocalizations.of(context).retry),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,

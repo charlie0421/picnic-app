@@ -7,7 +7,7 @@ import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -113,7 +113,7 @@ class ShareUtils {
         logger.e('Failed to capture content');
         showSimpleDialog(
           type: DialogType.error,
-          content: t('capture_failed'),
+          content: AppLocalizations.of(context).capture_failed,
         );
         return false;
       }
@@ -124,7 +124,7 @@ class ShareUtils {
         logger.e('Captured file does not exist: ${capturedFile.path}');
         showSimpleDialog(
           type: DialogType.error,
-          content: t('message_pic_pic_save_fail'),
+          content: AppLocalizations.of(context).message_pic_pic_save_fail,
         );
         return false;
       }
@@ -134,7 +134,7 @@ class ShareUtils {
         logger.e('Captured file is empty');
         showSimpleDialog(
           type: DialogType.error,
-          content: t('message_pic_pic_save_fail'),
+          content: AppLocalizations.of(context).message_pic_pic_save_fail,
         );
         return false;
       }
@@ -147,13 +147,14 @@ class ShareUtils {
 
       if (result?['isSuccess'] != true) throw Exception('Save failed');
 
-      showSimpleDialog(content: t('image_save_success'));
+      showSimpleDialog(
+          content: AppLocalizations.of(context).image_save_success);
       return true;
     } catch (e, s) {
       logger.e('Image save failed', error: e, stackTrace: s);
       showSimpleDialog(
         type: DialogType.error,
-        content: t('message_pic_pic_save_fail'),
+        content: AppLocalizations.of(context).message_pic_pic_save_fail,
       );
       return false;
     } finally {

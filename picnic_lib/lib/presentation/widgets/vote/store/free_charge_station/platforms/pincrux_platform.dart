@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -80,7 +80,9 @@ class PincruxPlatform extends AdPlatform {
     logError('오류 발생', error: error, stackTrace: stackTrace);
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
-      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
+      showSimpleDialog(
+          content: AppLocalizations.of(context).label_ads_load_fail,
+          type: DialogType.error);
     }
   }
 

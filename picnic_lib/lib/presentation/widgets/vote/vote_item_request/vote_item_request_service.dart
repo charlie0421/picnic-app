@@ -4,7 +4,8 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/vote_item_request_user.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/vote_item_request_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'vote_item_request_models.dart';
@@ -166,7 +167,8 @@ class VoteItemRequestService {
         applicationData[artist.id.toString()] = ArtistApplicationInfo(
           artistName: artistName,
           applicationCount: 0,
-          applicationStatus: t('vote_item_request_can_apply'),
+          applicationStatus: AppLocalizations.of(navigatorKey.currentContext!)
+              .vote_item_request_can_apply,
           isAlreadyInVote: false,
         );
       }
@@ -334,7 +336,9 @@ class VoteItemRequestService {
       }
 
       // 사용자 신청 상태 확인 (ID 우선, 이름으로 fallback)
-      String applicationStatus = t('vote_item_request_can_apply');
+      String applicationStatus =
+          AppLocalizations.of(navigatorKey.currentContext!)
+              .vote_item_request_can_apply;
       if (userId != null) {
         // 1. 아티스트 ID로 먼저 확인 (가장 정확함)
         if (userApplicationStatuses.containsKey(artist.id.toString())) {
@@ -458,7 +462,8 @@ class VoteItemRequestService {
           int.parse(voteId), artist.id, userId);
 
       if (hasRequested) {
-        throw Exception(t('vote_item_request_already_applied_artist'));
+        throw Exception(AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_already_applied_artist);
       }
 
       // VoteItemRequestRepository를 사용하여 직접 신청 생성
@@ -477,17 +482,23 @@ class VoteItemRequestService {
   String _getUserApplicationStatusText(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return t('vote_item_request_status_pending'); // "대기중"으로 표시
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_pending; // "대기중"으로 표시
       case 'approved':
-        return t('vote_item_request_status_approved');
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_approved;
       case 'rejected':
-        return t('vote_item_request_status_rejected');
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_rejected;
       case 'in-progress':
-        return t('vote_item_request_status_in_progress');
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_in_progress;
       case 'cancelled':
-        return t('vote_item_request_status_cancelled');
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_cancelled;
       default:
-        return t('vote_item_request_can_apply');
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_can_apply;
     }
   }
 

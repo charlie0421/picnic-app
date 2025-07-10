@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -139,7 +139,7 @@ void showSimpleDialog({
                         if (onCancel != null)
                           buildDialogButton(
                             context,
-                            t('dialog_button_cancel'),
+                            AppLocalizations.of(context).dialog_button_cancel,
                             type == DialogType.error
                                 ? AppColors.point900
                                 : AppColors.grey700,
@@ -148,7 +148,7 @@ void showSimpleDialog({
                         if (onOk != null)
                           buildDialogButton(
                             context,
-                            t('dialog_button_ok'),
+                            AppLocalizations.of(context).dialog_button_ok,
                             type == DialogType.error
                                 ? AppColors.point900
                                 : AppColors.primary500,

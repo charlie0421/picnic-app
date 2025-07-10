@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/number.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/bullet_point.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -22,7 +22,7 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 Text(
-                  t('candy_disappear_next_month'),
+                  AppLocalizations.of(context).candy_disappear_next_month,
                   style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 ),
                 const SizedBox(height: 12),
@@ -93,11 +93,11 @@ void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
                     }),
                 const SizedBox(height: 24),
                 BulletPoint(
-                  t('candy_usage_policy_contents'),
+                  AppLocalizations.of(context).candy_usage_policy_contents,
                 ),
                 const SizedBox(height: 36),
                 BulletPoint(
-                  t('candy_usage_policy_contents2'),
+                  AppLocalizations.of(context).candy_usage_policy_contents2,
                 ),
               ]),
             ),

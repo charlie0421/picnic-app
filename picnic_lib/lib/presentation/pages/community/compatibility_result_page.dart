@@ -10,6 +10,7 @@ import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_content.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
@@ -59,7 +60,7 @@ class _CompatibilityResultPageState
     final artistName = getLocaleTextFromJson(widget.compatibility.artist.name);
     logger.d('🎯 아티스트 이름: "$artistName"');
     final message =
-        t('compatibility_share_message', {'artistName': artistName});
+        AppLocalizations.of(context).compatibility_share_message(artistName);
     logger.d('🎯 공유 메시지: "$message"');
     return message;
   }
@@ -138,7 +139,7 @@ class _CompatibilityResultPageState
               showTopMenu: true,
               topRightMenu: TopRightType.board,
               showBottomNavigation: false,
-              pageTitle: t('compatibility_page_title'),
+              pageTitle: AppLocalizations.of(context).compatibility_page_title,
             );
       }
     });
@@ -183,7 +184,7 @@ class _CompatibilityResultPageState
       if (userProfile == null) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
-          content: t('message_error_occurred'),
+          content: AppLocalizations.of(context).message_error_occurred,
           onOk: () {
             if (mounted) {
               ref
@@ -199,8 +200,9 @@ class _CompatibilityResultPageState
       if ((userProfile.starCandy ?? 0) < 100) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
-          title: t('fortune_lack_of_star_candy_title'),
-          content: t('fortune_lack_of_star_candy_message'),
+          title: AppLocalizations.of(context).fortune_lack_of_star_candy_title,
+          content:
+              AppLocalizations.of(context).fortune_lack_of_star_candy_message,
           onOk: () {
             if (mounted) {
               ref
@@ -255,7 +257,7 @@ class _CompatibilityResultPageState
       showSimpleDialog(
         contentWidget: Column(
           children: [
-            Text(t('compatibility_remain_star_candy')),
+            Text(AppLocalizations.of(context).compatibility_remain_star_candy),
             SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -277,7 +279,8 @@ class _CompatibilityResultPageState
       logger.e('Error opening compatibility', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(t('message_error_occurred'));
+        await _showErrorDialog(
+            AppLocalizations.of(context).message_error_occurred);
       }
       rethrow;
     }
@@ -370,7 +373,8 @@ class _CompatibilityResultPageState
                               if (compatibility.hasError)
                                 CompatibilityErrorView(
                                   error: compatibility.errorMessage ??
-                                      t('error_unknown'),
+                                      AppLocalizations.of(context)
+                                          .error_unknown,
                                 )
                               else if (compatibility.isCompleted)
                                 _buildResultContent(compatibility)
@@ -443,8 +447,7 @@ class _CompatibilityResultPageState
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
     logger.i('Share to Twitter');
     final artistName = getLocaleTextFromJson(compatibility.artist.name);
-    final hashtag =
-        t('compatibility_share_hashtag', {'artistName': artistName});
+    final hashtag = AppLocalizations.of(context).compatibility_share_hashtag;
     logger.d('🎯 해시태그 - 아티스트 이름: "$artistName", 결과: "$hashtag"');
 
     return ShareUtils.shareToSocial(

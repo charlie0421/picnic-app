@@ -16,6 +16,7 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
@@ -84,7 +85,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           showPortal: false,
           showTopMenu: true,
           showBottomNavigation: false,
-          pageTitle: t('page_title_vote_detail'));
+          pageTitle: AppLocalizations.of(context).page_title_vote_detail);
     });
   }
 
@@ -495,7 +496,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                t('text_vote_rank_in_reward'),
+                AppLocalizations.of(context).text_vote_rank_in_reward,
                 style: getTextStyle(AppTypo.body14B, AppColors.primary500),
               ),
               ...voteModel.reward!.map((rewardModel) => FractionallySizedBox(
@@ -539,8 +540,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           Column(
             children: [
               ShareSection(
-                saveButtonText: t('save'),
-                shareButtonText: t('share'),
+                saveButtonText: AppLocalizations.of(context).save,
+                shareButtonText: AppLocalizations.of(context).share,
                 onSave: _handleSave,
                 onShare: _handleShare,
               ),
@@ -591,7 +592,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       ? SizedBox(
                           height: 200,
                           child: Center(
-                            child: Text(t('text_no_search_result')),
+                            child: Text(AppLocalizations.of(context)
+                                .text_no_search_result),
                           ),
                         )
                       : ListView.builder(
@@ -950,7 +952,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   String _buildRankText(int rank, VoteItemModel currentItem) {
-    return t('text_vote_rank', {'rank': rank.toString()});
+    return AppLocalizations.of(context).text_vote_rank(rank.toString());
   }
 
   /// 상대 경로를 절대 경로로 변환하는 메서드
@@ -1210,9 +1212,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   void _handleVoteItemTap(BuildContext context, VoteItemModel item, int index) {
     if (isEnded) {
-      showSimpleDialog(content: t('message_vote_is_ended'));
+      showSimpleDialog(
+          content: AppLocalizations.of(context).message_vote_is_ended);
     } else if (isUpcoming) {
-      showSimpleDialog(content: t('message_vote_is_upcoming'));
+      showSimpleDialog(
+          content: AppLocalizations.of(context).message_vote_is_upcoming);
     } else {
       isSupabaseLoggedSafely
           ? showVotingDialog(
@@ -1361,7 +1365,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                 return Opacity(
                                   opacity: safeOpacity,
                                   child: Text(
-                                    t('vote_item_request_button'),
+                                    AppLocalizations.of(context)
+                                        .vote_item_request_button,
                                     style: getTextStyle(
                                             AppTypo.body14B, AppColors.grey00)
                                         .copyWith(
@@ -1404,7 +1409,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 32.w),
         child: EnhancedSearchBox(
-          hintText: t('text_vote_where_is_my_bias'),
+          hintText: AppLocalizations.of(context).text_vote_where_is_my_bias,
           onSearchChanged: (query) {
             logger.d('🔍 EnhancedSearchBox onSearchChanged 호출됨: "$query"');
             // 로컬 상태 업데이트

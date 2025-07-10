@@ -7,6 +7,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote_pick.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
@@ -39,9 +40,8 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(navigationInfoProvider.notifier)
-          .setMyPageTitle(pageTitle: t('label_mypage_vote_history'));
+      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+          pageTitle: AppLocalizations.of(context).label_mypage_vote_history);
     });
   }
 
@@ -92,11 +92,11 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
             items: [
               CustomDropdownMenuItem(
                 value: 'DESC',
-                text: t('label_dropdown_recent'),
+                text: AppLocalizations.of(context).label_dropdown_recent,
               ),
               CustomDropdownMenuItem(
                 value: 'ASC',
-                text: t('label_dropdown_oldest'),
+                text: AppLocalizations.of(context).label_dropdown_oldest,
               ),
             ],
           ),
@@ -135,7 +135,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                             ),
                           ),
                           Text(
-                            t('text_vote_complete'),
+                            AppLocalizations.of(context).text_vote_complete,
                             style: getTextStyle(
                               AppTypo.caption12M,
                               AppColors.grey900,
@@ -144,7 +144,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
                         ],
                       ),
                       Text(
-                        '${formatNumberWithComma(item.amount)} ${t('text_star_candy')}',
+                        '${formatNumberWithComma(item.amount)} ${AppLocalizations.of(context).text_star_candy}',
                         style:
                             getTextStyle(AppTypo.title18B, AppColors.grey900),
                       ),

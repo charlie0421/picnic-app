@@ -15,6 +15,7 @@ import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_list.dart';
@@ -67,7 +68,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       if (_isDisposed) return Future.error('Widget is disposed');
 
       if (updatedPost == null) {
-        throw Exception(t('post_not_found'));
+        throw Exception(AppLocalizations.of(context).post_not_found);
       }
 
       _initializeQuillController(updatedPost);
@@ -97,20 +98,21 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     } catch (e, s) {
       logger.e('Error initializing QuillController: $e', stackTrace: s);
       if (!_isDisposed) {
-        setState(() => _errorMessage = t('error_content_parse'));
+        setState(() =>
+            _errorMessage = AppLocalizations.of(context).error_content_parse);
       }
     }
   }
 
   String _getErrorMessage(dynamic error) {
     if (error is SocketException) {
-      return t('error_network_connection');
+      return AppLocalizations.of(context).error_network_connection;
     } else if (error is TimeoutException) {
-      return t('error_request_timeout');
+      return AppLocalizations.of(context).error_request_timeout;
     } else if (error is FormatException) {
-      return t('error_invalid_data');
+      return AppLocalizations.of(context).error_invalid_data;
     } else {
-      return t('error_unknown');
+      return AppLocalizations.of(context).error_unknown;
     }
   }
 
@@ -137,7 +139,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     } catch (e, s) {
       logger.e('Error parsing content: $e', stackTrace: s);
       return [
-        {"insert": t('error_content_parse')}
+        {"insert": AppLocalizations.of(context).error_content_parse}
       ];
     }
   }
@@ -198,7 +200,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  _errorMessage ?? t('error_unknown'),
+                  _errorMessage ?? AppLocalizations.of(context).error_unknown,
                   style: const TextStyle(color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
@@ -209,7 +211,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                       _postFuture = _loadPost();
                     });
                   },
-                  child: Text(t('label_retry')),
+                  child: Text(AppLocalizations.of(context).label_retry),
                 ),
               ],
             ),
@@ -218,7 +220,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
         if (!snapshot.hasData) {
           return Center(
-            child: Text(t('post_not_found')),
+            child: Text(AppLocalizations.of(context).post_not_found),
           );
         }
 
@@ -248,7 +250,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
                   child: post.isAnonymous ?? false
                       ? Text(
-                          t('anonymous'),
+                          AppLocalizations.of(context).anonymous,
                           style: getTextStyle(
                               AppTypo.caption12B, AppColors.primary500),
                         )
@@ -288,13 +290,13 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
           Row(
             children: [
               Text(
-                '${t('views')}: ${post.viewCount}',
+                '${AppLocalizations.of(context).views}: ${post.viewCount}',
                 style:
                     getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
               ),
               SizedBox(width: 8.w),
               Text(
-                '${t('replies')}: ${post.replyCount}',
+                '${AppLocalizations.of(context).replies}: ${post.replyCount}',
                 style:
                     getTextStyle(AppTypo.caption10SB, const Color(0XFF8E8E8E)),
               ),
@@ -316,7 +318,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               } catch (e, s) {
                 logger.e('Error deleting post: $e', stackTrace: s);
                 if (!_isDisposed) {
-                  SnackbarUtil().showSnackbar(t('error_delete_post'));
+                  SnackbarUtil().showSnackbar(
+                      AppLocalizations.of(context).error_delete_post);
                 }
               }
             },
@@ -421,7 +424,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              t('comments'),
+              AppLocalizations.of(context).comments,
               style: getTextStyle(AppTypo.body14B, AppColors.grey00),
               textAlign: TextAlign.center,
             ),
@@ -435,12 +438,12 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
     return Center(
       child: Column(
         children: [
-          Text(t('post_no_comment')),
+          Text(AppLocalizations.of(context).post_no_comment),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => _openCommentsModal(post),
             child: Text(
-              t('post_comment_write_label'),
+              AppLocalizations.of(context).post_comment_write_label,
               style: getTextStyle(AppTypo.body14B, AppColors.grey00),
             ),
           ),
@@ -472,7 +475,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
         ElevatedButton(
           onPressed: () => _openCommentsModal(post),
           child: Text(
-            t('post_comment_content_more'),
+            AppLocalizations.of(context).post_comment_content_more,
             style: getTextStyle(AppTypo.body14B, AppColors.grey00),
           ),
         ),
@@ -535,7 +538,7 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       builder: (context) => SafeArea(
         child: CommentList(
           id: post.postId,
-          title: t('replies'),
+          title: AppLocalizations.of(context).replies,
           openReportModal: (String title, CommentModel comment) {
             _handleCommentReport(title, comment, post);
           },

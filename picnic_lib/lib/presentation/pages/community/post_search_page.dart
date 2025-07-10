@@ -6,7 +6,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
@@ -74,14 +74,14 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             showTopMenu: true,
             showBottomNavigation: true,
             topRightMenu: TopRightType.none,
-            pageTitle: t('text_community_post_search'),
+            pageTitle: AppLocalizations.of(context).text_community_post_search,
           );
     }
   }
 
   void _executeSearch(String query) {
     if (!mounted) return;
-    
+
     try {
       setState(() {
         _currentSearchQuery = query.isNotEmpty ? query : '';
@@ -177,7 +177,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
     return Container(
       padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 23, bottom: 33),
       child: EnhancedSearchBox(
-        hintText: t('text_community_board_search'),
+        hintText: AppLocalizations.of(context).text_community_board_search,
         onSearchChanged: (query) {
           if (mounted) {
             try {
@@ -191,7 +191,6 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
         focusNode: focusNode,
         debounceTime: const Duration(milliseconds: 500),
         showClearButton: true,
-
       ),
     );
   }
@@ -256,12 +255,14 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(t('common_text_search_error'),
+                      Text(
+                          AppLocalizations.of(context).common_text_search_error,
                           style:
                               getTextStyle(AppTypo.body16M, AppColors.grey400)),
                       ElevatedButton(
                         onPressed: () => _pagingController.refresh(),
-                        child: Text(t('common_retry_label')),
+                        child: Text(
+                            AppLocalizations.of(context).common_retry_label),
                       ),
                     ],
                   ),
@@ -285,7 +286,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             color: AppColors.primary500, width: 1.w, style: BorderStyle.solid),
         borderRadius: BorderRadius.all(Radius.circular(16.r)),
       ),
-      child: Text(t('common_text_search_result_label'),
+      child: Text(AppLocalizations.of(context).common_text_search_result_label,
           style: getTextStyle(AppTypo.body14B, AppColors.grey00)),
     );
   }
@@ -302,7 +303,8 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
             border: Border.all(color: AppColors.primary500, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(20.r)),
           ),
-          child: Text(t('common_text_search_recent_label'),
+          child: Text(
+              AppLocalizations.of(context).common_text_search_recent_label,
               style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
         ),
         Padding(
@@ -347,7 +349,7 @@ class _PostSearchPageState extends ConsumerState<PostSearchPage> {
   Widget _buildNoResultsWidget() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 56),
-      child: Text(t('text_no_search_result'),
+      child: Text(AppLocalizations.of(context).text_no_search_result,
           style: getTextStyle(AppTypo.body16M, AppColors.grey400)),
     );
   }

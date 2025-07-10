@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CommentContents extends StatefulWidget {
@@ -30,11 +30,11 @@ class _CommentContentsState extends State<CommentContents> {
 
     if (widget.item.isReportedByMe! ||
         (widget.item.isBlindedByAdmin ?? false)) {
-      return '(${t('post_comment_reported_comment')})';
+      return '(${AppLocalizations.of(context).post_comment_reported_comment})';
     }
 
     if (widget.item.deletedAt != null) {
-      return '(${t('post_comment_deleted_comment')})';
+      return '(${AppLocalizations.of(context).post_comment_deleted_comment})';
     }
 
     String currentLocale = Localizations.localeOf(context).languageCode;
@@ -114,7 +114,7 @@ class _CommentContentsState extends State<CommentContents> {
                     ),
                     if (!_expanded && exceedsMaxLines)
                       Text(
-                        t('post_comment_content_more'),
+                        AppLocalizations.of(context).post_comment_content_more,
                         style: getTextStyle(AppTypo.body14M, AppColors.grey500),
                       ),
                   ],
@@ -123,7 +123,7 @@ class _CommentContentsState extends State<CommentContents> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      '(${t('post_comment_translated')})',
+                      '(${AppLocalizations.of(context).post_comment_translated})',
                       style:
                           getTextStyle(AppTypo.caption12B, AppColors.grey500),
                     ),

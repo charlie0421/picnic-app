@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -21,14 +21,15 @@ class ForceUpdateOverlay extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(t('update_required_title')),
+                Text(AppLocalizations.of(context).update_required_title),
                 const SizedBox(height: 16),
-                Text(t('update_required_text', {'version': forceVersion})),
+                Text(AppLocalizations.of(context)
+                    .update_required_text(forceVersion)),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  child: Text(t('update_button')),
-                  onPressed: () => _launchAppStore(
-                      url ?? '', t('update_cannot_open_appstore')),
+                  child: Text(AppLocalizations.of(context).update_button),
+                  onPressed: () => _launchAppStore(url ?? '',
+                      AppLocalizations.of(context).update_cannot_open_appstore),
                 ),
               ],
             ),

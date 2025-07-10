@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/data/models/qna/qna.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:intl/intl.dart';
 
@@ -29,8 +29,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
   }
 
   Future<void> _refreshQnA() async {
-    setState(() {
-    });
+    setState(() {});
 
     try {
       final updatedQnA = await _repository.getQnAById(widget.qna.qnaId);
@@ -43,15 +42,14 @@ class _QnADetailPageState extends State<QnADetailPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(t('qna_load_error')),
+            content: Text(AppLocalizations.of(context).qna_load_error),
             backgroundColor: AppColors.grey900,
           ),
         );
       }
     } finally {
       if (mounted) {
-        setState(() {
-        });
+        setState(() {});
       }
     }
   }
@@ -62,7 +60,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            t('qna_detail_page_title'),
+            AppLocalizations.of(context).qna_detail_page_title,
             style: getTextStyle(AppTypo.title18B, AppColors.grey00),
           ),
           backgroundColor: AppColors.primary500,
@@ -78,7 +76,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          t('qna_detail_page_title'),
+          AppLocalizations.of(context).qna_detail_page_title,
           style: getTextStyle(AppTypo.title18B, AppColors.grey00),
         ),
         backgroundColor: AppColors.primary500,
@@ -168,7 +166,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    t('qna_public'),
+                    AppLocalizations.of(context).qna_public,
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.primary500,
@@ -196,7 +194,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            t('qna_content'),
+            AppLocalizations.of(context).qna_content,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -224,25 +222,27 @@ class _QnADetailPageState extends State<QnADetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            t('qna_info_title'),
+            AppLocalizations.of(context).qna_info_title,
             style: getTextStyle(AppTypo.title18B, AppColors.grey900),
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
-            t('qna_status'),
+            AppLocalizations.of(context).qna_status,
             _getStatusText(_currentQnA!.status),
           ),
           _buildInfoRow(
-            t('qna_created_at'),
+            AppLocalizations.of(context).qna_created_at,
             DateFormat('yyyy-MM-dd HH:mm').format(_currentQnA!.createdAt),
           ),
           _buildInfoRow(
-            t('qna_updated_at'),
+            AppLocalizations.of(context).qna_updated_at,
             DateFormat('yyyy-MM-dd HH:mm').format(_currentQnA!.updatedAt),
           ),
           _buildInfoRow(
-            t('qna_public_status'),
-            _currentQnA!.isPrivate ? t('qna_private') : t('qna_public_option'),
+            AppLocalizations.of(context).qna_public_status,
+            _currentQnA!.isPrivate
+                ? AppLocalizations.of(context).qna_private
+                : AppLocalizations.of(context).qna_public_option,
           ),
         ],
       ),
@@ -269,7 +269,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                t('qna_answer_title'),
+                AppLocalizations.of(context).qna_answer_title,
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900),
               ),
             ],
@@ -286,7 +286,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
           if (_currentQnA!.answeredAt != null) ...[
             const SizedBox(height: 12),
             Text(
-              '${t('qna_answered_at')}: ${DateFormat('yyyy-MM-dd HH:mm').format(_currentQnA!.answeredAt!)}',
+              '${AppLocalizations.of(context).qna_answered_at}: ${DateFormat('yyyy-MM-dd HH:mm').format(_currentQnA!.answeredAt!)}',
               style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
             ),
           ],
@@ -335,22 +335,22 @@ class _QnADetailPageState extends State<QnADetailPage> {
       case 'pending':
         backgroundColor = Colors.orange.withValues(alpha: 0.1);
         textColor = Colors.orange;
-        text = t('qna_status_pending');
+        text = AppLocalizations.of(context).qna_status_pending;
         break;
       case 'answered':
         backgroundColor = Colors.green.withValues(alpha: 0.1);
         textColor = Colors.green;
-        text = t('qna_status_answered');
+        text = AppLocalizations.of(context).qna_status_answered;
         break;
       case 'resolved':
         backgroundColor = Colors.blue.withValues(alpha: 0.1);
         textColor = Colors.blue;
-        text = t('qna_status_resolved');
+        text = AppLocalizations.of(context).qna_status_resolved;
         break;
       case 'closed':
         backgroundColor = Colors.grey.withValues(alpha: 0.1);
         textColor = Colors.grey;
-        text = t('qna_status_closed');
+        text = AppLocalizations.of(context).qna_status_closed;
         break;
       default:
         backgroundColor = Colors.grey.withValues(alpha: 0.1);
@@ -378,13 +378,13 @@ class _QnADetailPageState extends State<QnADetailPage> {
   String _getStatusText(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return t('qna_status_pending');
+        return AppLocalizations.of(context).qna_status_pending;
       case 'answered':
-        return t('qna_status_answered');
+        return AppLocalizations.of(context).qna_status_answered;
       case 'resolved':
-        return t('qna_status_resolved');
+        return AppLocalizations.of(context).qna_status_resolved;
       case 'closed':
-        return t('qna_status_closed');
+        return AppLocalizations.of(context).qna_status_closed;
       default:
         return status;
     }

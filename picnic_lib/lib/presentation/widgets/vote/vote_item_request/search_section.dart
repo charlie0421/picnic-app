@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -40,7 +40,8 @@ class SearchSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      t('vote_item_request_search_artist'),
+                      AppLocalizations.of(context)
+                          .vote_item_request_search_artist,
                       style: getTextStyle(AppTypo.body16B, AppColors.grey900),
                     ),
                     SizedBox(height: 2.h),
@@ -56,7 +57,8 @@ class SearchSection extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
           EnhancedSearchBox(
-            hintText: t('vote_item_request_search_artist_hint'),
+            hintText: AppLocalizations.of(context)
+                .vote_item_request_search_artist_hint,
             onSearchChanged: onSearchChanged,
             showClearButton: true,
             showSearchIcon: true,
@@ -67,4 +69,4 @@ class SearchSection extends StatelessWidget {
       ),
     );
   }
-} 
+}

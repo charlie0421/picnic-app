@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/data/models/qna/qna.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna_create_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna_detail_page.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class QnAListPage extends StatefulWidget {
@@ -58,7 +58,7 @@ class _QnAListPageState extends State<QnAListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          t('qna_list_title'),
+          AppLocalizations.of(context).qna_list_title,
           style: getTextStyle(AppTypo.title18B, AppColors.grey00),
         ),
         backgroundColor: AppColors.primary500,
@@ -94,7 +94,7 @@ class _QnAListPageState extends State<QnAListPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              t('qna_error_message'),
+              AppLocalizations.of(context).qna_error_message,
               style: getTextStyle(AppTypo.body16M, AppColors.grey600),
             ),
             if (_errorMessage != null) ...[
@@ -118,7 +118,7 @@ class _QnAListPageState extends State<QnAListPage> {
                 ),
               ),
               child: Text(
-                t('retry'),
+                AppLocalizations.of(context).retry,
                 style: getTextStyle(AppTypo.caption12B, AppColors.grey00),
               ),
             ),
@@ -139,13 +139,13 @@ class _QnAListPageState extends State<QnAListPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              t('qna_empty_list'),
+              AppLocalizations.of(context).qna_empty_list,
               style: getTextStyle(AppTypo.body16R, AppColors.grey600),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              t('qna_create_first'),
+              AppLocalizations.of(context).qna_create_first,
               style: getTextStyle(AppTypo.body14R, AppColors.grey500),
               textAlign: TextAlign.center,
             ),
@@ -224,7 +224,7 @@ class _QnAListPageState extends State<QnAListPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        t('qna_public_option'),
+                        AppLocalizations.of(context).qna_public_option,
                         style:
                             getTextStyle(AppTypo.caption12R, AppColors.grey00),
                       ),
@@ -247,17 +247,17 @@ class _QnAListPageState extends State<QnAListPage> {
       case 'pending':
         backgroundColor = Colors.orange.withValues(alpha: 0.1);
         textColor = Colors.orange;
-        text = t('qna_status_pending');
+        text = AppLocalizations.of(context).qna_status_pending;
         break;
       case 'answered':
         backgroundColor = Colors.green.withValues(alpha: 0.1);
         textColor = Colors.green;
-        text = t('qna_status_answered');
+        text = AppLocalizations.of(context).qna_status_answered;
         break;
       case 'closed':
         backgroundColor = Colors.grey.withValues(alpha: 0.1);
         textColor = Colors.grey;
-        text = t('qna_status_closed');
+        text = AppLocalizations.of(context).qna_status_closed;
         break;
       default:
         backgroundColor = Colors.grey.withValues(alpha: 0.1);
@@ -283,13 +283,13 @@ class _QnAListPageState extends State<QnAListPage> {
     final difference = now.difference(date);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays}${t('days_ago')}';
+      return '${difference.inDays}${AppLocalizations.of(context).days_ago}';
     } else if (difference.inHours > 0) {
-      return '${difference.inHours}${t('hours_ago')}';
+      return '${difference.inHours}${AppLocalizations.of(context).hours_ago}';
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}${t('minutes_ago')}';
+      return '${difference.inMinutes}${AppLocalizations.of(context).minutes_ago}';
     } else {
-      return t('just_now');
+      return AppLocalizations.of(context).just_now;
     }
   }
 

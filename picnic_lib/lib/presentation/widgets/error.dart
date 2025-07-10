@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 Widget buildErrorView(final BuildContext context,
@@ -20,7 +20,8 @@ Widget buildErrorView(final BuildContext context,
         const Icon(Icons.error_outline, color: Colors.red, size: 60),
         Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('${t('message_error_occurred')}\n ${error.toString()}',
+            child: Text(
+                '${AppLocalizations.of(context).message_error_occurred}\n ${error.toString()}',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge)),
         if (retryFunction != null)
@@ -29,7 +30,7 @@ Widget buildErrorView(final BuildContext context,
             child: ElevatedButton(
               onPressed: retryFunction,
               child: Text(
-                t('label_retry'),
+                AppLocalizations.of(context).label_retry,
               ),
             ),
           )

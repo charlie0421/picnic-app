@@ -1,7 +1,7 @@
 // pangle_platform.dart
 
 import 'dart:async';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -44,7 +44,9 @@ class PanglePlatform extends AdPlatform {
     } catch (e, s) {
       logError('초기화 실패', error: e, stackTrace: s);
       if (context.mounted && !isDisposed) {
-        showSimpleDialog(content: t('label_ads_sdk_init_fail'), type: DialogType.error);
+        showSimpleDialog(
+            content: AppLocalizations.of(context).label_ads_sdk_init_fail,
+            type: DialogType.error);
       }
       rethrow;
     }
@@ -84,7 +86,8 @@ class PanglePlatform extends AdPlatform {
         throw Exception('Pangle 광고 표시 실패');
       }
     } else {
-      logAdLoadFailure('Pangle', '광고 로드 실패', 'rewarded', '광고 로드 실패', StackTrace.current);
+      logAdLoadFailure(
+          'Pangle', '광고 로드 실패', 'rewarded', '광고 로드 실패', StackTrace.current);
       // No Fill 감지와 다이얼로그 표시는 logAdLoadFailure에서 공통 처리됨
       stopAllAnimations();
     }
@@ -129,14 +132,14 @@ class PanglePlatform extends AdPlatform {
     }
   }
 
-
-
   @override
   Future<void> handleError(error, StackTrace? stackTrace) async {
     logError('오류 발생', error: error, stackTrace: stackTrace);
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
-      showSimpleDialog(content: t('label_ads_load_fail'), type: DialogType.error);
+      showSimpleDialog(
+          content: AppLocalizations.of(context).label_ads_load_fail,
+          type: DialogType.error);
     }
   }
 

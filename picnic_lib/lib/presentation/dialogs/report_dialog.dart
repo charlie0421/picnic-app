@@ -5,7 +5,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -47,11 +47,11 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
     super.initState();
 
     _reasons = [
-      t('post_report_reason_1'),
-      t('post_report_reason_2'),
-      t('post_report_reason_3'),
-      t('post_report_reason_4'),
-      t('post_report_reason_5'),
+      AppLocalizations.of(context).post_report_reason_1,
+      AppLocalizations.of(context).post_report_reason_2,
+      AppLocalizations.of(context).post_report_reason_3,
+      AppLocalizations.of(context).post_report_reason_4,
+      AppLocalizations.of(context).post_report_reason_5,
     ];
 
     _otherReasonController.addListener(_validateOtherReason);
@@ -78,7 +78,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       final text = _otherReasonController.text.trim();
       setState(() {
         if (text.isEmpty) {
-          _errorText = t('post_report_other_input');
+          _errorText = AppLocalizations.of(context).post_report_other_input;
         } else if (text.length > _maxLength) {
           _errorText = '최대 $_maxLength자까지 입력 가능합니다.';
         } else {
@@ -121,7 +121,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         focusNode: _otherReasonFocus,
         enabled: !_isSubmitting,
         decoration: InputDecoration(
-          hintText: t('post_report_other_input'),
+          hintText: AppLocalizations.of(context).post_report_other_input,
           hintStyle: TextStyle(
             fontSize: 16.sp,
             color: AppColors.grey400,
@@ -180,7 +180,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              t('block_user_label'),
+              AppLocalizations.of(context).block_user_label,
               style: getTextStyle(
                 AppTypo.caption12R,
                 _blockUser ? AppColors.grey900 : AppColors.grey600,
@@ -194,13 +194,14 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
 
   Future<void> _submitReport() async {
     if (_selectedReason == null) {
-      SnackbarUtil().showSnackbar(t('post_report_reason_input'));
+      SnackbarUtil()
+          .showSnackbar(AppLocalizations.of(context).post_report_reason_input);
       return;
     }
 
     if (_selectedReason == 4 && _otherReasonController.text.trim().isEmpty) {
       setState(() {
-        _errorText = t('post_report_other_input');
+        _errorText = AppLocalizations.of(context).post_report_other_input;
       });
       _otherReasonFocus.requestFocus();
       return;
@@ -237,7 +238,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
       if (!mounted) return;
 
       SnackbarUtil().showSnackbar(
-        t('post_report_success'),
+        AppLocalizations.of(context).post_report_success,
       );
 
       Navigator.of(context).pop(true);
@@ -249,8 +250,8 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         _isSubmitting = false;
       });
 
-      SnackbarUtil()
-          .showSnackbar(t('post_report_fail'), backgroundColor: Colors.red);
+      SnackbarUtil().showSnackbar(AppLocalizations.of(context).post_report_fail,
+          backgroundColor: Colors.red);
       rethrow;
     }
   }
@@ -277,7 +278,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                t('post_report_reason_label'),
+                AppLocalizations.of(context).post_report_reason_label,
                 style: getTextStyle(AppTypo.caption10SB, AppColors.grey900),
               ),
             ),
@@ -303,7 +304,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
                       child: SmallPulseLoadingIndicator(),
                     )
                   : Text(
-                      t('post_report_label'),
+                      AppLocalizations.of(context).post_report_label,
                       style: getTextStyle(AppTypo.body14M, Colors.white),
                     ),
             ),

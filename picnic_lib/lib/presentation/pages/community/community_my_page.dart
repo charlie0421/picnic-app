@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/pages/community/community_my_comment.dart';
@@ -48,7 +48,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
                   const NoAvatar(width: 60, height: 60, borderRadius: 30),
                   SizedBox(width: 16.w),
                   Text(
-                    t('anonymous'),
+                    AppLocalizations.of(context).anonymous,
                     style: getTextStyle(AppTypo.title18B, AppColors.grey900),
                   )
                 ])
@@ -81,7 +81,8 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(t('anonymous_mode'), style: getTextStyle(AppTypo.body16M)),
+              Text(AppLocalizations.of(context).anonymous_mode,
+                  style: getTextStyle(AppTypo.body16M)),
               Switch(
                   inactiveTrackColor: AppColors.grey300,
                   inactiveThumbColor: AppColors.grey00,
@@ -92,7 +93,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
           ),
           const Divider(color: AppColors.grey200),
           PicnicListItem(
-            leading: t('post_my_written_post'),
+            leading: AppLocalizations.of(context).post_my_written_post,
             assetPath: 'assets/icons/arrow_right_style=line.svg',
             onTap: () {
               ref
@@ -101,7 +102,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             },
           ),
           PicnicListItem(
-            leading: t('post_my_written_scrap'),
+            leading: AppLocalizations.of(context).post_my_written_scrap,
             assetPath: 'assets/icons/arrow_right_style=line.svg',
             onTap: () {
               ref
@@ -110,7 +111,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             },
           ),
           PicnicListItem(
-            leading: t('post_my_written_reply'),
+            leading: AppLocalizations.of(context).post_my_written_reply,
             assetPath: 'assets/icons/arrow_right_style=line.svg',
             onTap: () {
               ref
@@ -119,7 +120,7 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
             },
           ),
           PicnicListItem(
-            leading: t('post_my_compatibilities'),
+            leading: AppLocalizations.of(context).post_my_compatibilities,
             assetPath: 'assets/icons/arrow_right_style=line.svg',
             onTap: () {
               ref

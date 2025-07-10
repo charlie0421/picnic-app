@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/area_selector.dart';
 import 'package:picnic_lib/presentation/common/common_my_point_info.dart';
 import 'package:picnic_lib/presentation/common/top/top_right_community.dart';
@@ -120,7 +120,7 @@ class _TopState extends ConsumerState<TopMenu> {
             alignment: Alignment.center,
             child: Center(
               child: Text(
-                t(pageName),
+                pageName,
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ),

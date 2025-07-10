@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -300,7 +300,9 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                                       color: Color(0xFFDDDDDD)),
                                 ),
                                 onPressed: _close,
-                                child: Text(t('label_popup_close'),
+                                child: Text(
+                                    AppLocalizations.of(context)
+                                        .label_popup_close,
                                     style: const TextStyle(fontSize: 16)),
                               ),
                             ),
@@ -317,7 +319,8 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                                   textStyle: const TextStyle(fontSize: 16),
                                 ),
                                 onPressed: _hideCurrentPopupFor7Days,
-                                child: Text(t('label_popup_hide_7days')),
+                                child: Text(AppLocalizations.of(context)
+                                    .label_popup_hide_7days),
                               ),
                             ),
                           ],

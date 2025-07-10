@@ -14,7 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/widgets/pic/bottom_bar_widget.dart';
 import 'package:picnic_lib/presentation/widgets/pic/image_overlay_painter.dart';
@@ -145,7 +145,9 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                 Container(
                   color: Colors.transparent,
                   child: Center(
-                    child: Text(t('label_pic_pic_synthesizing_image'),
+                    child: Text(
+                        AppLocalizations.of(context)
+                            .label_pic_pic_synthesizing_image,
                         style: TextStyle(
                             fontSize: 30, color: AppColors.primary500)),
                   ),
@@ -180,7 +182,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   color: Colors.transparent,
                   child: Center(
                     child: Text(
-                      t('label_pic_pic_initializing_camera'),
+                      AppLocalizations.of(context)
+                          .label_pic_pic_initializing_camera,
                       style:
                           TextStyle(fontSize: 30, color: AppColors.primary500),
                     ),
@@ -202,7 +205,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                   color: Colors.transparent,
                   child: Center(
                     child: Text(
-                      t('label_pic_pic_synthesizing_image'),
+                      AppLocalizations.of(context)
+                          .label_pic_pic_synthesizing_image,
                       style:
                           TextStyle(fontSize: 30, color: AppColors.primary500),
                     ),
@@ -431,7 +435,7 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         return Dialog(
           backgroundColor: Colors.transparent,
           child: LargePopupWidget(
-            title: t('label_pic_pic_save_gallery'),
+            title: AppLocalizations.of(context).label_pic_pic_save_gallery,
             content: _capturedImageBytes != null
                 ? Container(
                     height: 500,
@@ -458,7 +462,8 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                               if (!currentContext.mounted) return;
                               Navigator.of(context).pop();
                             },
-                            child: Text(t('button_pic_pic_save')),
+                            child: Text(AppLocalizations.of(context)
+                                .button_pic_pic_save),
                           ),
                         ),
                       ],
