@@ -21,35 +21,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get anonymous_mode => '匿名模式';
 
   @override
-  String get appTitle => 'Picnic';
+  String get appTitle => '野餐';
 
   @override
-  String get app_name => '野餐';
+  String get app_name => 'Picnic (Translation needed)';
 
   @override
-  String get application_reason_hint => 'Enter application reason (optional)';
+  String get application_reason_hint => '请输入申请理由（可选）';
 
   @override
-  String get application_reason_label => 'Application Reason';
+  String get application_reason_label => '申请理由';
 
   @override
-  String get application_success =>
-      'Vote candidate application has been completed.';
+  String get application_success => '投票候选人申请已完成。';
 
   @override
-  String get artist_name_hint => 'Enter artist name';
+  String get artist_name_hint => '请输入艺术家姓名';
 
   @override
-  String get artist_name_label => 'Artist Name';
+  String get artist_name_label => '艺术家姓名';
 
   @override
   String get block_user_label => '屏蔽用户';
 
   @override
-  String get bonus_candy_awarded => '已奖励星星糖果。';
+  String get bonus_candy_awarded =>
+      'Star candy has been awarded. (Translation needed)';
 
   @override
-  String get button_apply_as_candidate => '候选人申请';
+  String get button_apply_as_candidate =>
+      'Candidate Application (Translation needed)';
 
   @override
   String get button_cancel => '取消';
@@ -82,7 +83,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get candy_usage_policy_guide_button => '了解更多';
 
   @override
-  String get candy_usage_policy_title => '星尘使用政策';
+  String get candy_usage_policy_title =>
+      'Starchies Usage Policy (Translation needed)';
 
   @override
   String get comments => '评论';
@@ -209,7 +211,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get compatibility_snackbar_need_birthday => '请输入您的出生日期。';
 
   @override
-  String get compatibility_snackbar_need_birthtime => '请输入您的出生时间。';
+  String get compatibility_snackbar_need_birthtime =>
+      'Please enter your birth time. (Translation needed)';
 
   @override
   String get compatibility_snackbar_need_gender => '请选择性别。';
@@ -221,22 +224,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get compatibility_snackbar_start => '开始分析兼容性。';
 
   @override
-  String get compatibility_status_completed => '已完成';
+  String get compatibility_status_completed => 'Done (Translation needed)';
 
   @override
-  String get compatibility_status_error => '错误';
+  String get compatibility_status_error => 'Error (Translation needed)';
 
   @override
-  String get compatibility_status_input => '打字';
+  String get compatibility_status_input => 'Typing (Translation needed)';
 
   @override
-  String get compatibility_status_pending => '分析';
+  String get compatibility_status_pending => 'Analyzing (Translation needed)';
 
   @override
   String get compatibility_style_title => '兼容性样式';
 
   @override
-  String get compatibility_summary_title => '兼容性概述';
+  String get compatibility_summary_title =>
+      'Compatibility summary (Translation needed)';
 
   @override
   String get compatibility_time_slot1 => '老鼠的时刻|(23:30-01:29)|🐀';
@@ -302,22 +306,26 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dialog_content_ads_exhausted => '所有广告已用尽。请下次再试。';
 
   @override
-  String get dialog_content_ads_loading => '广告正在加载。';
+  String get dialog_content_ads_loading =>
+      'Ads are loading. (Translation needed)';
 
   @override
-  String get dialog_content_ads_retrying => '广告正在重新加载。请稍后再试。';
+  String get dialog_content_ads_retrying =>
+      'The ad is reloading. Please try again in a moment. (Translation needed)';
 
   @override
   String get dialog_content_login_required => '需要登录';
 
   @override
-  String get dialog_login_required_description => '使用此功能需要登录。您要登录吗？';
+  String get dialog_login_required_description =>
+      'You need to login to use this feature. Would you like to login? (Translation needed)';
 
   @override
   String get dialog_message_can_resignup => '如果现在取消会员资格，何时可以重新加入？';
 
   @override
-  String get dialog_message_purchase_canceled => '您的购买已被取消。';
+  String get dialog_message_purchase_canceled =>
+      'Your purchase has been canceled. (Translation needed)';
 
   @override
   String get dialog_message_purchase_failed => '您的购买出现错误，请稍后再试。';
@@ -326,10 +334,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dialog_message_purchase_success => '您的购买已成功完成。';
 
   @override
-  String get dialog_purchases_fail => '购买失败。';
+  String get dialog_purchases_fail =>
+      'The purchase failed. (Translation needed)';
 
   @override
-  String get dialog_purchases_success => '购买完成。';
+  String get dialog_purchases_success =>
+      'Your purchase is complete. (Translation needed)';
 
   @override
   String get dialog_title_ads_exhausted => '用尽所有广告';
@@ -341,78 +351,87 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dialog_will_delete_star_candy => '将删除的星星糖果';
 
   @override
-  String get dialog_withdraw_button_cancel => '让我再想一想。';
+  String get dialog_withdraw_button_cancel =>
+      'Let me think about this one more time. (Translation needed)';
 
   @override
   String get dialog_withdraw_button_ok => '退订';
 
   @override
-  String get dialog_withdraw_error => '取消订阅时发生错误。';
+  String get dialog_withdraw_error =>
+      'An error occurred during unsubscribe. (Translation needed)';
 
   @override
   String get dialog_withdraw_message =>
       '如果您取消会员资格，您在 Picnic 上的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。';
 
   @override
-  String get dialog_withdraw_success => '退订已成功处理。';
+  String get dialog_withdraw_success =>
+      'The unsubscribe was processed successfully. (Translation needed)';
 
   @override
   String get dialog_withdraw_title => '你确定要离开吗？';
 
   @override
-  String get download_android_button => '在 Google Play 上获取';
+  String get download_android_button =>
+      'Get it on Google Play (Translation needed)';
 
   @override
-  String get download_apk_button => '直接下载APK文件';
+  String get download_apk_button => 'Direct APK Download (Translation needed)';
 
   @override
-  String get download_coming_soon => '即将推出';
+  String get download_coming_soon => 'Coming Soon (Translation needed)';
 
   @override
-  String get download_description => 'K-Pop艺人投票与媒体平台';
+  String get download_description =>
+      'Voting and media platform for K-Pop artists (Translation needed)';
 
   @override
-  String get download_feature_media => '媒体库';
+  String get download_feature_media => 'Media Gallery (Translation needed)';
 
   @override
-  String get download_feature_rewards => '奖励系统';
+  String get download_feature_rewards => 'Reward System (Translation needed)';
 
   @override
-  String get download_feature_voting => '艺术家投票';
+  String get download_feature_voting => 'Artist Voting (Translation needed)';
 
   @override
-  String get download_features_title => '野餐核心功能';
+  String get download_features_title =>
+      'Picnic Key Features (Translation needed)';
 
   @override
-  String get download_ios_button => '在 App Store 下载';
+  String get download_ios_button =>
+      'Download on App Store (Translation needed)';
 
   @override
-  String get download_link_copied => '已复制！';
+  String get download_link_copied => 'Copied! (Translation needed)';
 
   @override
-  String get download_link_copy => '复制链接';
+  String get download_link_copy => 'Copy Link (Translation needed)';
 
   @override
-  String get download_page_title => '下载 Picnic 应用程序';
+  String get download_page_title => 'Download Picnic App (Translation needed)';
 
   @override
-  String get download_qr_description => '使用智能手机扫描二维码';
+  String get download_qr_description =>
+      'Scan the QR code with your smartphone (Translation needed)';
 
   @override
-  String get download_qr_title => '快速下载二维码';
+  String get download_qr_title =>
+      'Quick Download with QR Code (Translation needed)';
 
   @override
-  String get download_subtitle => '立即下载Picnic应用，支持你最喜欢的K-Pop艺人！';
+  String get download_subtitle =>
+      'Download the Picnic app now and support your favorite K-Pop artists! (Translation needed)';
 
   @override
   String get error_action_failed => '执行操作时发生错误。';
 
   @override
-  String get error_application_reason_required =>
-      'Application reason is required';
+  String get error_application_reason_required => '请输入申请理由';
 
   @override
-  String get error_artist_not_selected => 'Please select an artist';
+  String get error_artist_not_selected => '请选择艺术家';
 
   @override
   String get error_content_parse => '解析内容时发生错误。';
@@ -427,13 +446,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get error_loading_more_comments => '加载评论时出现错误。';
 
   @override
-  String get error_loading_page => '加载页面时出现错误。';
+  String get error_loading_page =>
+      'An error occurred while loading the page. (Translation needed)';
 
   @override
   String get error_message_login_failed => '登录时发生错误。';
 
   @override
-  String get error_message_no_user => '会员信息不存在。';
+  String get error_message_no_user =>
+      'The membership information doesn\'t exist. (Translation needed)';
 
   @override
   String get error_message_withdrawal => '已取消订阅的会员。';
@@ -452,33 +473,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get exception_auth_message_apple_invalid_response =>
-      '我们收到来自 Apple 服务器的无效响应。\n请重试。';
+      'We received an invalid response from the Apple server.\nPlease try again. (Translation needed)';
 
   @override
-  String get exception_auth_message_apple_sign_in_failed => 'Apple 登录失败。\n请重试。';
+  String get exception_auth_message_apple_sign_in_failed =>
+      'Apple sign-in failed.\nPlease try again. (Translation needed)';
 
   @override
-  String get exception_auth_message_common_cancel => '您的登录已被取消。';
+  String get exception_auth_message_common_cancel =>
+      'Your login has been canceled. (Translation needed)';
 
   @override
-  String get exception_auth_message_common_invalid_token => '验证令牌无效。\n请重试。';
+  String get exception_auth_message_common_invalid_token =>
+      'The authentication token is invalid.\nPlease try again. (Translation needed)';
 
   @override
-  String get exception_auth_message_common_network => '检查网络连接。';
+  String get exception_auth_message_common_network =>
+      'Check your network connection. (Translation needed)';
 
   @override
-  String get exception_auth_message_common_unknown => '登录过程中出现未知错误。\n请稍后再试。';
+  String get exception_auth_message_common_unknown =>
+      'An unknown error occurred during login.\nPlease try again in a moment. (Translation needed)';
 
   @override
-  String get exception_auth_message_common_unsupported_provider => '不支持该登录方法。';
+  String get exception_auth_message_common_unsupported_provider =>
+      'This login method is not supported. (Translation needed)';
 
   @override
   String get exception_auth_message_google_google_play_service =>
-      'Google Play 服务出现错误。\n请更新 Google Play 服务或重启设备。';
+      'A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device. (Translation needed)';
 
   @override
   String get exception_auth_message_kakao_not_supported =>
-      '我无法使用 KakaoTalk 应用程序登录。\n请尝试使用您的 Kakao 帐户登录。';
+      'I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account. (Translation needed)';
 
   @override
   String get faq_category_account => '账户';
@@ -577,7 +604,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fortune_monthly => '财富》月刊';
 
   @override
-  String get fortune_purchase_by_one_click => '立即付款';
+  String get fortune_purchase_by_one_click => 'Pay Now (Translation needed)';
 
   @override
   String get fortune_purchase_by_star_candy => '请向 Star Candy 查询';
@@ -586,16 +613,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fortune_relationship => '人际关系';
 
   @override
-  String get fortune_share_hashtag => '#picnic #신년운세 #Fourtuneteller';
+  String get fortune_share_hashtag =>
+      '#picnic #신년운세 #Fourtuneteller (Translation needed)';
 
   @override
   String fortune_share_message(Object artistName) {
-    return '对 $artistName的 2025 年财富感到好奇？现在就来 #피크닠！让我们一起探索那闪耀的命运！';
+    return 'Curious about $artistName\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together! (Translation needed)';
   }
 
   @override
   String fortune_title(Object year) {
-    return '$year财富';
+    return 'Fortune of $year (Translation needed)';
   }
 
   @override
@@ -605,10 +633,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fortune_with_me => 'Goong-Hap with me';
 
   @override
-  String get group_name_hint => 'Enter group name (optional)';
+  String get group_name_hint => '请输入组合名称（可选）';
 
   @override
-  String get group_name_label => 'Group Name';
+  String get group_name_label => '组合名称';
 
   @override
   String get hint_library_add => '专辑名称';
@@ -634,13 +662,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_ads_load_fail => '广告加载失败。请重试。';
 
   @override
-  String get label_ads_load_timeout => '广告加载超时。请重试。';
+  String get label_ads_load_timeout =>
+      'Ad loading timed out. Please try again. (Translation needed)';
 
   @override
-  String get label_ads_next_available_time => '下一则广告何时发布。';
+  String get label_ads_next_available_time =>
+      'When the next ad will be available. (Translation needed)';
 
   @override
-  String get label_ads_reward_fail => '获取奖励失败。请重试。';
+  String get label_ads_reward_fail =>
+      'Failed to get reward. Please try again. (Translation needed)';
 
   @override
   String get label_ads_sdk_init_fail => 'SDK 初始化失败。请重试。';
@@ -658,13 +689,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_album_add => '添加新相册';
 
   @override
-  String get label_area_filter_all => 'All';
+  String get label_area_filter_all => 'All (Translation needed)';
 
   @override
-  String get label_area_filter_kpop => 'K-POP';
+  String get label_area_filter_kpop => 'K-POP (Translation needed)';
 
   @override
-  String get label_area_filter_musical => 'K-MUSICAL';
+  String get label_area_filter_musical => 'K-MUSICAL (Translation needed)';
 
   @override
   String get label_article_comment_empty => '成为第一个发表评论的人！';
@@ -682,34 +713,38 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_button_close => '닫기';
 
   @override
-  String get label_button_disagreement => '未经同意';
+  String get label_button_disagreement => 'Non-Consent (Translation needed)';
 
   @override
-  String get label_button_mission_and_charge => '使命和职责';
+  String get label_button_mission_and_charge =>
+      'Mission and charge (Translation needed)';
 
   @override
   String get label_button_recharge => '充电';
 
   @override
-  String get label_button_save_vote_paper => '保存您的选票';
+  String get label_button_save_vote_paper =>
+      'Save your ballot (Translation needed)';
 
   @override
-  String get label_button_share => '分享';
+  String get label_button_share => 'Share (Translation needed)';
 
   @override
   String get label_button_vote => '投票';
 
   @override
-  String get label_button_vote_ended => '投票结束';
+  String get label_button_vote_ended => 'Vote Ended (Translation needed)';
 
   @override
-  String get label_button_vote_upcoming => '即将投票';
+  String get label_button_vote_upcoming => 'Vote Upcoming (Translation needed)';
 
   @override
-  String get label_button_watch_and_charge => '查看广告并收取费用';
+  String get label_button_watch_and_charge =>
+      'Viewing and charging for ads (Translation needed)';
 
   @override
-  String get label_celeb_ask_to_you => '艺术家问你!';
+  String get label_celeb_ask_to_you =>
+      'The Artist Asks You! (Translation needed)';
 
   @override
   String get label_celeb_gallery => '艺术家画廊';
@@ -721,7 +756,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_checkbox_entire_use => '全面使用';
 
   @override
-  String get label_current_language => '当前语言';
+  String get label_current_language => 'Current language (Translation needed)';
 
   @override
   String get label_draw_image => '赢取随机图片的机会';
@@ -733,13 +768,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_dropdown_recent => '最新';
 
   @override
-  String get label_find_celeb => '寻找更多艺术家';
+  String get label_find_celeb => 'Find more artists (Translation needed)';
 
   @override
-  String get label_gallery_tab_article => '文章';
+  String get label_gallery_tab_article => 'Articles (Translation needed)';
 
   @override
-  String get label_gallery_tab_chat => '聊天';
+  String get label_gallery_tab_chat => 'Chat (Translation needed)';
 
   @override
   String get label_global_recommendation => '全球精选';
@@ -769,25 +804,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_library_tab_pic => 'PIC';
 
   @override
-  String get label_list_more => '更多信息';
+  String get label_list_more => 'More (Translation needed)';
 
   @override
   String get label_loading_ads => '加载广告';
 
   @override
-  String get label_loading_ads_fail => '广告无法加载';
+  String get label_loading_ads_fail => 'Ads fail to load (Translation needed)';
 
   @override
-  String get label_login_with_apple => '使用Apple登录';
+  String get label_login_with_apple => 'Login with Apple (Translation needed)';
 
   @override
-  String get label_login_with_google => '使用Google登录';
+  String get label_login_with_google =>
+      'Login with Google (Translation needed)';
 
   @override
-  String get label_login_with_kakao => '使用Kakao登录';
+  String get label_login_with_kakao => 'Login with Kakao (Translation needed)';
 
   @override
-  String get label_login_with_wechat => '使用微信登录';
+  String get label_login_with_wechat =>
+      'Login with WeChat (Translation needed)';
 
   @override
   String get label_mission => '使命';
@@ -847,7 +884,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_mypage_withdrawal => '退出';
 
   @override
-  String get label_no_ads => '无广告';
+  String get label_no_ads => 'No ads (Translation needed)';
 
   @override
   String get label_no_celeb => '您还没有收藏任何艺术家！';
@@ -856,7 +893,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_pic_chart => 'PIC 图表';
 
   @override
-  String get label_pic_image_cropping => '裁剪图像';
+  String get label_pic_image_cropping => 'Crop an image (Translation needed)';
 
   @override
   String get label_pic_pic_initializing_camera => '初始化摄像机...';
@@ -883,16 +920,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_retry => '重试';
 
   @override
-  String get label_reward_location => '位置信息服务';
+  String get label_reward_location => 'Location (Translation needed)';
 
   @override
-  String get label_reward_overview => '概述';
+  String get label_reward_overview => 'Overview (Translation needed)';
 
   @override
-  String get label_reward_size => '大小';
+  String get label_reward_size => 'Size (Translation needed)';
 
   @override
-  String get label_screen_title_agreement => '接受条款';
+  String get label_screen_title_agreement =>
+      'Accept the terms (Translation needed)';
 
   @override
   String get label_setting_alarm => '通知';
@@ -925,13 +963,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_setting_remove_cache => '删除高速缓冲存储器';
 
   @override
-  String get label_setting_remove_cache_complete => '已完成';
+  String get label_setting_remove_cache_complete => 'Done (Translation needed)';
 
   @override
   String get label_setting_storage => '管理存储';
 
   @override
-  String get label_setting_update => '更新';
+  String get label_setting_update => 'Update (Translation needed)';
 
   @override
   String get label_star_candy_pouch => '星形糖果袋';
@@ -943,34 +981,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_tab_free_charge_station => '免费充电站';
 
   @override
-  String get label_tab_my_artist => '我的艺术家';
+  String get label_tab_my_artist => 'MyArtist (Translation needed)';
 
   @override
-  String get label_tab_search_my_artist => '查找我的艺术家';
+  String get label_tab_search_my_artist => 'Find MyArtist (Translation needed)';
 
   @override
-  String get label_tabbar_picchart_daily => '每日图表';
+  String get label_tabbar_picchart_daily => 'Daily charts (Translation needed)';
 
   @override
-  String get label_tabbar_picchart_monthly => '月度图表';
+  String get label_tabbar_picchart_monthly =>
+      'Monthly Charts (Translation needed)';
 
   @override
-  String get label_tabbar_picchart_weekly => '每周图表';
+  String get label_tabbar_picchart_weekly =>
+      'Weekly charts (Translation needed)';
 
   @override
-  String get label_tabbar_vote_active => '进行中';
+  String get label_tabbar_vote_active => 'Active';
 
   @override
-  String get label_tabbar_vote_all => '全部';
+  String get label_tabbar_vote_all => 'All (Translation needed)';
 
   @override
-  String get label_tabbar_vote_end => '退出';
+  String get label_tabbar_vote_end => 'Ended';
 
   @override
-  String get label_tabbar_vote_image => 'Image Vote';
+  String get label_tabbar_vote_image => '图片投票';
 
   @override
-  String get label_tabbar_vote_upcoming => '即将推出';
+  String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
   String label_time_ago_day(Object day) {
@@ -991,7 +1031,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_time_ago_right_now => '就在刚才';
 
   @override
-  String get label_title_comment => '评论';
+  String get label_title_comment => 'Comments (Translation needed)';
 
   @override
   String get label_title_report => '提交报告';
@@ -1000,40 +1040,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_unlimited_rewards => '无限奖励';
 
   @override
-  String get label_various_rewards => '各种奖励';
+  String get label_various_rewards => 'Various rewards (Translation needed)';
 
   @override
-  String get label_vote_achieve => '成就投票';
+  String get label_vote_achieve => 'Achievement Vote (Translation needed)';
 
   @override
-  String get label_vote_birthday => '生日';
+  String get label_vote_birthday => 'Birthday (Translation needed)';
 
   @override
-  String get label_vote_comback => '复出投票';
+  String get label_vote_comback => 'Comeback Vote (Translation needed)';
 
   @override
-  String get label_vote_debut => '首次亮相';
+  String get label_vote_debut => 'Debut (Translation needed)';
 
   @override
   String get label_vote_end => '关闭投票';
 
   @override
-  String get label_vote_image => '图片';
+  String get label_vote_image => 'Image (Translation needed)';
 
   @override
   String get label_vote_reward_list => '奖励清单';
 
   @override
-  String get label_vote_screen_title => '投票';
+  String get label_vote_screen_title => 'Voting (Translation needed)';
 
   @override
-  String get label_vote_shining => '获得投票';
+  String get label_vote_shining => 'Shining Vote (Translation needed)';
 
   @override
-  String get label_vote_tab_birthday => '生日投票';
+  String get label_vote_tab_birthday => 'Birthday polls (Translation needed)';
 
   @override
-  String get label_vote_tab_pic => '事先知情同意投票';
+  String get label_vote_tab_pic => 'PIC voting (Translation needed)';
 
   @override
   String get label_vote_upcoming => '投票开始前';
@@ -1051,13 +1091,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lable_my_celeb => '我的艺术家';
 
   @override
-  String get login_simple_login => '便捷登录';
+  String get login_simple_login => 'Simple Login (Translation needed)';
 
   @override
-  String get login_simple_login_guide => '还没有账户？您将使用上面的社交登录名自动注册';
+  String get login_simple_login_guide =>
+      'Don\'t have an account? You\'ll be automatically signed up with your social login above (Translation needed)';
 
   @override
-  String get login_title => '在野餐中发现特别时刻';
+  String get login_title =>
+      'Find special moments at a picnic (Translation needed)';
 
   @override
   String get message_agreement_success => '条款接受完毕。';
@@ -1081,10 +1123,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get message_pic_pic_save_success => '图像已保存。';
 
   @override
-  String get message_report_confirm => '要报告吗？';
+  String get message_report_confirm => 'Want to report? (Translation needed)';
 
   @override
-  String get message_report_ok => '报告已完成。';
+  String get message_report_ok =>
+      'The report is complete. (Translation needed)';
 
   @override
   String get message_setting_remove_cache => '缓存删除完成。';
@@ -1105,22 +1148,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get my_info => '我的信息';
 
   @override
-  String get mypage_comment => '管理评论';
+  String get mypage_comment => 'Manage comments (Translation needed)';
 
   @override
-  String get mypage_language => '语言设置';
+  String get mypage_language => 'Language settings (Translation needed)';
 
   @override
-  String get mypage_purchases => '我的采购';
+  String get mypage_purchases => 'My purchases (Translation needed)';
 
   @override
   String get mypage_setting => '设置';
 
   @override
-  String get mypage_subscription => '订阅信息';
+  String get mypage_subscription =>
+      'Subscription information (Translation needed)';
 
   @override
-  String get nav_ads => '广告';
+  String get nav_ads => 'Ads (Translation needed)';
 
   @override
   String get nav_board => '执行局';
@@ -1144,13 +1188,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nav_picchart => 'PIC 图表';
 
   @override
-  String get nav_purchases => '购买';
+  String get nav_purchases => 'Purchase (Translation needed)';
 
   @override
-  String get nav_rewards => '奖励';
+  String get nav_rewards => 'Reward (Translation needed)';
 
   @override
-  String get nav_setting => '设置';
+  String get nav_setting => 'Settings (Translation needed)';
 
   @override
   String get nav_store => '商店';
@@ -1168,7 +1212,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get no_search_results => 'No search results found';
 
   @override
-  String get optional => '可选';
+  String get optional => 'Optional (Translation needed)';
 
   @override
   String get page_title_mypage => '我的页面';
@@ -1183,7 +1227,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get page_title_privacy => '隐私政策';
 
   @override
-  String get page_title_setting => '首选项';
+  String get page_title_setting => 'Preferences (Translation needed)';
 
   @override
   String get page_title_terms_of_use => '使用条款';
@@ -1195,16 +1239,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get page_title_vote_gather => '收集选票';
 
   @override
-  String get patch_check => '检查补丁';
+  String get patch_check => 'Checking for patches (Translation needed)';
 
   @override
-  String get patch_error => '补丁失败';
+  String get patch_error => 'Patch failed (Translation needed)';
 
   @override
-  String get patch_install => '安装补丁';
+  String get patch_install => 'Installing patch (Translation needed)';
 
   @override
-  String get patch_restart_app => '重启应用程序';
+  String get patch_restart_app => 'Restarting app (Translation needed)';
 
   @override
   String get popup_label_delete => '删除';
@@ -1234,7 +1278,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get post_board_request_label => '公开申请';
 
   @override
-  String get post_cannot_open_youtube => '我打不开 Youtube。';
+  String get post_cannot_open_youtube =>
+      'I can\'t open Youtube. (Translation needed)';
 
   @override
   String get post_comment_action_show_original => '查看全文';
@@ -1273,7 +1318,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get post_comment_reported_comment => '这是据报道的评论。';
 
   @override
-  String get post_comment_translate_complete => '翻译工作已经完成。';
+  String get post_comment_translate_complete =>
+      'The translation is complete. (Translation needed)';
 
   @override
   String get post_comment_translate_fail => '翻译失败。';
@@ -1315,7 +1361,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get post_insert_link => '插入链接';
 
   @override
-  String get post_loading_post_fail => '帖子加载失败。';
+  String get post_loading_post_fail =>
+      'The post failed to load. (Translation needed)';
 
   @override
   String get post_minor_board_condition => '请输入至少 5 个字符、不超过 20 个字符的描述。';
@@ -1435,38 +1482,41 @@ class AppLocalizationsZh extends AppLocalizations {
   String get purchase_payment_amount => '支付金额';
 
   @override
-  String get purchase_restore_success_message => '购买恢复完成。\\n请检查您的星糖余额。';
+  String get purchase_restore_success_message =>
+      'Purchase restoration completed.\\nPlease check your star candy balance. (Translation needed)';
 
   @override
-  String get purchase_restore_wait_message => '购买正在进行中。完成后请重试。';
+  String get purchase_restore_wait_message =>
+      'Purchase is in progress. Please try again after completion. (Translation needed)';
 
   @override
-  String get purchase_timeout_message => '购买处理时间过长。\\n请稍后重试。';
+  String get purchase_timeout_message =>
+      'Purchase processing is taking too long.\\nPlease try again later. (Translation needed)';
 
   @override
   String get purchase_web_message =>
       '这是为无法使用应用程序付款的用户提供的付款窗口。\n 请提前复制随机 ID。\n 复制后，点击下面的按钮进行支付。';
 
   @override
-  String get qna_actions => 'Actions';
+  String get qna_actions => 'Actions (Translation needed)';
 
   @override
-  String get qna_answer => 'Answer';
+  String get qna_answer => 'Answer (Translation needed)';
 
   @override
-  String get qna_answered_at => 'Answered at';
+  String get qna_answered_at => 'Answered at (Translation needed)';
 
   @override
-  String get qna_answered_by => 'Answered by';
+  String get qna_answered_by => 'Answered by (Translation needed)';
 
   @override
-  String get qna_attached_files => '附加文件';
+  String get qna_attached_files => 'Attached Files (Translation needed)';
 
   @override
-  String get qna_attachments => 'Attachments';
+  String get qna_attachments => 'Attachments (Translation needed)';
 
   @override
-  String get qna_cancel => '取消';
+  String get qna_cancel => 'Cancel (Translation needed)';
 
   @override
   String get qna_content => 'Content';
@@ -1475,71 +1525,79 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_content_hint => '请详细输入咨询内容';
 
   @override
-  String get qna_content_min_length => '咨询内容至少需要10个字符';
+  String get qna_content_min_length =>
+      'Inquiry content must be at least 10 characters (Translation needed)';
 
   @override
-  String get qna_content_required => '请输入咨询内容';
+  String get qna_content_required =>
+      'Please enter inquiry content (Translation needed)';
 
   @override
-  String get qna_create_failed => '咨询提交失败：';
+  String get qna_create_failed =>
+      'Failed to submit inquiry: (Translation needed)';
 
   @override
   String get qna_create_page_title => '创建咨询';
 
   @override
-  String get qna_create_success => '咨询已成功提交';
+  String get qna_create_success =>
+      'Inquiry has been successfully submitted (Translation needed)';
 
   @override
-  String get qna_delete => '删除';
+  String get qna_delete => 'Delete (Translation needed)';
 
   @override
-  String get qna_delete_confirm => '删除';
+  String get qna_delete_confirm => 'Delete (Translation needed)';
 
   @override
-  String get qna_delete_confirm_content => '是否删除此咨询？\n删除后无法恢复。';
+  String get qna_delete_confirm_content =>
+      'Delete this inquiry?\nIt cannot be recovered after deletion. (Translation needed)';
 
   @override
-  String get qna_delete_confirm_title => 'Delete Inquiry';
+  String get qna_delete_confirm_title => 'Delete Inquiry (Translation needed)';
 
   @override
-  String get qna_delete_failed => '删除失败';
+  String get qna_delete_failed => 'Failed to delete (Translation needed)';
 
   @override
-  String get qna_delete_success => '咨询已删除';
+  String get qna_delete_success =>
+      'Inquiry has been deleted (Translation needed)';
 
   @override
   String get qna_detail_page_title => '咨询详情';
 
   @override
-  String get qna_download_file => 'Download File';
+  String get qna_download_file => 'Download File (Translation needed)';
 
   @override
-  String get qna_edit => '编辑';
+  String get qna_edit => 'Edit (Translation needed)';
 
   @override
-  String get qna_file_attach_label => '附加文件';
+  String get qna_file_attach_label => 'File Attachment (Translation needed)';
 
   @override
-  String get qna_file_select => '选择文件';
+  String get qna_file_select => 'Select File (Translation needed)';
 
   @override
-  String get qna_file_type_document => 'Document';
+  String get qna_file_type_document => 'Document (Translation needed)';
 
   @override
-  String get qna_file_type_image => 'Image';
+  String get qna_file_type_image => 'Image (Translation needed)';
 
   @override
-  String get qna_file_type_other => 'Other';
+  String get qna_file_type_other => 'Other (Translation needed)';
 
   @override
   String get qna_file_upload_info =>
-      '• 最大可上传10MB\n• 支持格式：图片（jpg、png、gif）、文档（pdf、doc、txt）';
+      '• Maximum 10MB upload allowed\n• Supported formats: Images (jpg, png, gif), Documents (pdf, doc, txt) (Translation needed)';
 
   @override
-  String get qna_file_uploading_button => '文件上传中...';
+  String get qna_file_uploading_button =>
+      'File Uploading... (Translation needed)';
 
   @override
-  String get qna_loading_error => 'Error occurred while loading';
+  String get qna_loading_error =>
+      'Error occurred while loading (Translation needed)';
 
   @override
   String get qna_login_required => '需要登录';
@@ -1554,16 +1612,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_login_required_service => '使用QnA服务需要\n先进行登录';
 
   @override
-  String get qna_mark_resolved => '标记为已解决';
+  String get qna_mark_resolved => 'Mark as Resolved (Translation needed)';
 
   @override
-  String get qna_mark_resolved_failed => 'Failed to change status';
+  String get qna_mark_resolved_failed =>
+      'Failed to change status (Translation needed)';
 
   @override
-  String get qna_mark_resolved_success => 'Changed to resolved';
+  String get qna_mark_resolved_success =>
+      'Changed to resolved (Translation needed)';
 
   @override
-  String get qna_no_answer_yet => '暂无回答';
+  String get qna_no_answer_yet => 'No answer yet (Translation needed)';
 
   @override
   String get qna_no_inquiries => 'No inquiry history';
@@ -1576,13 +1636,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_page_title => 'QnA 咨询';
 
   @override
-  String get qna_privacy_notice => '为处理咨询，将收集并使用您输入的信息。详情请查看隐私政策。';
+  String get qna_privacy_notice =>
+      'Information you enter will be collected and used for inquiry processing. Please check our privacy policy for details. (Translation needed)';
 
   @override
-  String get qna_question => 'Question';
+  String get qna_question => 'Question (Translation needed)';
 
   @override
-  String get qna_refresh_pull => 'Pull to refresh';
+  String get qna_refresh_pull => 'Pull to refresh (Translation needed)';
 
   @override
   String get qna_statistics_answered => 'Answered';
@@ -1615,22 +1676,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_title_hint => '请简洁地输入咨询概要';
 
   @override
-  String get qna_title_min_length => '标题至少需要5个字符';
+  String get qna_title_min_length =>
+      'Title must be at least 5 characters (Translation needed)';
 
   @override
-  String get qna_title_required => '请输入标题';
+  String get qna_title_required => 'Please enter a title (Translation needed)';
 
   @override
-  String get qna_upload_complete => '上传完成';
+  String get qna_upload_complete => 'Upload Complete (Translation needed)';
 
   @override
-  String get qna_upload_waiting => '等待上传';
+  String get qna_upload_waiting => 'Upload Waiting (Translation needed)';
 
   @override
-  String get qna_uploading => '上传中...';
+  String get qna_uploading => 'Uploading... (Translation needed)';
 
   @override
-  String get qna_validation_failed => '请检查输入内容。';
+  String get qna_validation_failed =>
+      'Please check your input. (Translation needed)';
 
   @override
   String get qna_write_inquiry => 'New Inquiry';
@@ -1654,19 +1717,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get share => '分享';
 
   @override
-  String get share_image_fail => '图像共享失败';
+  String get share_image_fail => 'Image sharing failed (Translation needed)';
 
   @override
-  String get share_image_success => '成功共享图像';
+  String get share_image_success =>
+      'Shared image successfully (Translation needed)';
 
   @override
-  String get share_no_twitter => 'X 应用程序丢失。';
+  String get share_no_twitter => 'X app is missing. (Translation needed)';
 
   @override
-  String get share_twitter => '在 Twitter 上分享';
+  String get share_twitter => 'Share on Twitter (Translation needed)';
 
   @override
-  String get submit_application => 'Submit Application';
+  String get submit_application => '提交申请';
 
   @override
   String get success => '成功';
@@ -1677,30 +1741,35 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get text_ads_random => '查看广告并收集随机图片。';
+  String get text_ads_random =>
+      'Viewing ads and collecting random images. (Translation needed)';
 
   @override
-  String get text_bonus => '奖金';
+  String get text_bonus => 'Bonuses (Translation needed)';
 
   @override
-  String get text_bookmark_failed => '取消书签失败';
+  String get text_bookmark_failed =>
+      'Failed to unbookmark (Translation needed)';
 
   @override
-  String get text_bookmark_over_5 => '您最多可以拥有五个书签';
+  String get text_bookmark_over_5 =>
+      'You can have up to five bookmarks (Translation needed)';
 
   @override
   String get text_comming_soon_pic_chart1 =>
-      '欢迎访问 Peek Charts！\n2024 年 11 月再见！';
+      'Welcome to Peek Charts!\nSee you in November 2024! (Translation needed)';
 
   @override
   String get text_comming_soon_pic_chart2 =>
-      '饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPeeknick 反映每日、每周和每月得分的新图表。';
+      'Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick\'s new chart that reflects daily, weekly, and monthly scores. (Translation needed)';
 
   @override
-  String get text_comming_soon_pic_chart3 => '实时反映\n艺术家的品牌声誉！';
+  String get text_comming_soon_pic_chart3 =>
+      'Get a real-time reflection\nartist\'s brand reputation in real-time! (Translation needed)';
 
   @override
-  String get text_comming_soon_pic_chart_title => '什么是饼图？';
+  String get text_comming_soon_pic_chart_title =>
+      'What is a PicChart? (Translation needed)';
 
   @override
   String get text_community_board_search => '搜索艺术家板';
@@ -1712,13 +1781,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_copied_address => '地址已复制。';
 
   @override
-  String get text_dialog_ad_dismissed => '广告中途停止了。';
+  String get text_dialog_ad_dismissed =>
+      'The ad stopped midway through. (Translation needed)';
 
   @override
-  String get text_dialog_ad_failed_to_show => '加载广告失败。';
+  String get text_dialog_ad_failed_to_show =>
+      'Failed to load ads. (Translation needed)';
 
   @override
-  String get text_dialog_star_candy_received => '已颁发星形糖果。';
+  String get text_dialog_star_candy_received =>
+      'Star candy has been awarded. (Translation needed)';
 
   @override
   String get text_dialog_vote_amount_should_not_zero => '票数不能为零。';
@@ -1736,7 +1808,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_need_recharge => '需要充电。';
 
   @override
-  String get text_no_artist => '无艺术家';
+  String get text_no_artist => 'No artist (Translation needed)';
 
   @override
   String get text_no_search_result => '没有搜索结果。';
@@ -1749,23 +1821,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String text_star_candy_with_bonus(Object num1) {
-    return '$num1 + $num1 奖金';
+    return '$num1 + $num1 Bonuses (Translation needed)';
   }
 
   @override
-  String get text_this_time_vote => '本次投票';
+  String get text_this_time_vote => 'This Vote (Translation needed)';
 
   @override
   String get text_vote_complete => '投票结束';
 
   @override
-  String get text_vote_countdown_end => '距离结束';
+  String get text_vote_countdown_end => 'Until End (Translation needed)';
 
   @override
-  String get text_vote_countdown_start => '距离开始';
+  String get text_vote_countdown_start => 'Until Start (Translation needed)';
 
   @override
-  String get text_vote_ended => '已结束';
+  String get text_vote_ended => 'Ended (Translation needed)';
 
   @override
   String text_vote_rank(Object rank) {
@@ -1777,35 +1849,35 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String text_vote_reward(Object count) {
-    return '$count 奖励';
+    return '$count reward (Translation needed)';
   }
 
   @override
   String get text_vote_where_is_my_bias => '我的最爱在哪？';
 
   @override
-  String get time_days_ago => '天前';
+  String get time_days_ago => 'days ago (Translation needed)';
 
   @override
-  String get time_hours_ago => '小时前';
+  String get time_hours_ago => 'hours ago (Translation needed)';
 
   @override
-  String get time_just_now => '刚刚';
+  String get time_just_now => 'just now (Translation needed)';
 
   @override
-  String get time_minutes_ago => '分钟前';
+  String get time_minutes_ago => 'minutes ago (Translation needed)';
 
   @override
-  String get time_unit_day => '日';
+  String get time_unit_day => 'D (Translation needed)';
 
   @override
-  String get time_unit_hour => '小时';
+  String get time_unit_hour => 'H (Translation needed)';
 
   @override
-  String get time_unit_minute => '分';
+  String get time_unit_minute => 'M (Translation needed)';
 
   @override
-  String get time_unit_second => '秒';
+  String get time_unit_second => 'S (Translation needed)';
 
   @override
   String get title_dialog_library_add => '添加新相册';
@@ -1842,45 +1914,47 @@ class AppLocalizationsZh extends AppLocalizations {
   String get views => '意见';
 
   @override
-  String get vote_item_request_addition_request => '投票项添加请求';
+  String get vote_item_request_addition_request => '投票项目添加请求';
 
   @override
-  String get vote_item_request_already_applied_artist => '您已为该艺术家提交过申请。';
+  String get vote_item_request_already_applied_artist =>
+      'You have already applied for this artist.';
 
   @override
-  String get vote_item_request_already_registered => '已经注册';
+  String get vote_item_request_already_registered => '已注册';
 
   @override
-  String get vote_item_request_artist_name_missing => '艺术家名称缺失';
+  String get vote_item_request_artist_name_missing => '艺术家姓名缺失';
 
   @override
-  String get vote_item_request_button => '申请投票候选人';
+  String get vote_item_request_button => '申请投票';
 
   @override
-  String get vote_item_request_can_apply => '可申请';
+  String get vote_item_request_can_apply => 'Can apply';
 
   @override
-  String get vote_item_request_count => '申请数量';
+  String get vote_item_request_count => 'count (Translation needed)';
 
   @override
   String get vote_item_request_current_item_request => '当前项目请求';
 
   @override
   String vote_item_request_item_request_count(Object count) {
-    return '$count 项目请求';
+    return '$count个项目请求';
   }
 
   @override
-  String get vote_item_request_no_item_request_yet => '尚未收到任何项目请求';
+  String get vote_item_request_no_item_request_yet => '暂无项目请求';
 
   @override
-  String get vote_item_request_search_artist => '搜索艺术家';
+  String get vote_item_request_search_artist => 'Search Artist';
 
   @override
-  String get vote_item_request_search_artist_hint => '搜索艺术家或乐队';
+  String get vote_item_request_search_artist_hint =>
+      'Search for artist or group';
 
   @override
-  String get vote_item_request_search_artist_prompt => '搜索要申请的艺术家';
+  String get vote_item_request_search_artist_prompt => '搜索艺术家进行申请';
 
   @override
   String get vote_item_request_status => '申请状态';
@@ -1889,51 +1963,54 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vote_item_request_status_approved => '已批准';
 
   @override
-  String get vote_item_request_status_cancelled => '已取消';
+  String get vote_item_request_status_cancelled => 'Cancelled';
 
   @override
-  String get vote_item_request_status_in_progress => '正在处理中';
+  String get vote_item_request_status_in_progress => 'In Progress';
 
   @override
-  String get vote_item_request_status_pending => '待处理';
+  String get vote_item_request_status_pending => '等待中';
 
   @override
   String get vote_item_request_status_rejected => '已拒绝';
 
   @override
-  String get vote_item_request_status_unknown => '未知';
+  String get vote_item_request_status_unknown => 'Unknown';
 
   @override
-  String get vote_item_request_submit => '提交';
+  String get vote_item_request_submit => '提交申请';
 
   @override
-  String get vote_item_request_title => '投票艺术家请求';
+  String get vote_item_request_title => 'Vote Candidate Application';
 
   @override
   String vote_item_request_total_item_requests(Object count) {
-    return '总 $count 项请求';
+    return '总共$count个项目请求';
   }
 
   @override
-  String get vote_item_request_user_info_not_found => '用户信息未找到。';
+  String get vote_item_request_user_info_not_found => '找不到用户信息。';
 
   @override
-  String get vote_period => 'Vote Period';
+  String get vote_period => '投票期间';
 
   @override
-  String get vote_result_save_button => '保存结果';
+  String get vote_result_save_button => 'Save the results (Translation needed)';
 
   @override
-  String get vote_result_share_button => '分享您的成果';
+  String get vote_result_share_button =>
+      'Share your results (Translation needed)';
 
   @override
   String get vote_share_message => '投了赞成票！';
 
   @override
-  String get voting_limit_text => '为防止流量激增，每次使用总量限制为 10,000 次。';
+  String get voting_limit_text =>
+      'To prevent traffic surges, total usage is limited to 10,000 at a time. (Translation needed)';
 
   @override
-  String get voting_limit_warning => '最多只允许 10 000 人。';
+  String get voting_limit_warning =>
+      'Only up to 10,000 is allowed. (Translation needed)';
 
   @override
   String get voting_share_benefit_text => '每 100 次投票和分享可获得 1 颗奖励星星糖果！';
@@ -1942,53 +2019,166 @@ class AppLocalizationsZh extends AppLocalizations {
   String get withdrawal_success => '退订已成功处理。';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'Cancel (Translation needed)';
 
   @override
-  String get confirm => 'Confirm';
+  String get confirm => 'Confirm (Translation needed)';
 
   @override
-  String get loading => 'Loading...';
+  String get loading => 'Loading... (Translation needed)';
 
   @override
-  String get just_now => 'Just now';
+  String get just_now => 'Just now (Translation needed)';
 
   @override
-  String get retry => 'Retry';
+  String get retry => 'Retry (Translation needed)';
 
   @override
-  String get update => 'Update';
+  String get update => 'Update (Translation needed)';
 
   @override
-  String get ban_title => 'Account Suspended';
+  String get ban_title => '账户停用';
 
   @override
-  String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
+  String get ban_message => '由于违反社区准则，您的账户已被暂时停用。';
 
   @override
-  String get ban_contact =>
-      'Please contact customer service if you have any questions.';
+  String get ban_contact => '如有问题，请联系客户服务。';
 
   @override
-  String get compatibility_empty_state_title => 'No compatibility information';
+  String get compatibility_empty_state_title =>
+      'No compatibility information (Translation needed)';
 
   @override
   String get compatibility_empty_state_subtitle =>
-      'Create your first compatibility!';
+      'Create your first compatibility! (Translation needed)';
 
   @override
-  String get network_error_title => 'Network Error';
+  String get network_error_title => 'Network Error (Translation needed)';
 
   @override
-  String get network_error_message => 'Please check your internet connection.';
+  String get network_error_message =>
+      'Please check your internet connection. (Translation needed)';
 
   @override
-  String get notice_pinned => 'Pinned';
+  String get notice_pinned => 'Pinned (Translation needed)';
 
   @override
-  String get message_agreement_fail => 'Terms agreement required';
+  String get message_agreement_fail =>
+      'Terms agreement required (Translation needed)';
 
   @override
-  String get title_dialog_error => 'Error';
+  String get title_dialog_error => 'Error (Translation needed)';
+
+  @override
+  String get capture_failed => 'Screen capture failed (Translation needed)';
+
+  @override
+  String days_ago(Object days) {
+    return '$days days ago (Translation needed)';
+  }
+
+  @override
+  String hours_ago(Object hours) {
+    return '$hours hours ago (Translation needed)';
+  }
+
+  @override
+  String minutes_ago(Object minutes) {
+    return '$minutes minutes ago (Translation needed)';
+  }
+
+  @override
+  String get qna_answer_title => 'Answer (Translation needed)';
+
+  @override
+  String get qna_content_too_short =>
+      'Content is too short (Translation needed)';
+
+  @override
+  String get qna_create_first => 'Create your first Q&A (Translation needed)';
+
+  @override
+  String get qna_created_at => 'Created at (Translation needed)';
+
+  @override
+  String get qna_empty_list => 'No Q&A items (Translation needed)';
+
+  @override
+  String get qna_error_message => 'Error loading Q&A (Translation needed)';
+
+  @override
+  String get qna_info_title => 'Q&A Information (Translation needed)';
+
+  @override
+  String get qna_list_title => 'Q&A List (Translation needed)';
+
+  @override
+  String get qna_load_error => 'Failed to load Q&A (Translation needed)';
+
+  @override
+  String get qna_private => 'Private (Translation needed)';
+
+  @override
+  String get qna_public => 'Public (Translation needed)';
+
+  @override
+  String get qna_public_option => 'Make public (Translation needed)';
+
+  @override
+  String get qna_public_status => 'Public status (Translation needed)';
+
+  @override
+  String get qna_status => 'Status (Translation needed)';
+
+  @override
+  String get qna_status_closed => 'Closed (Translation needed)';
+
+  @override
+  String get qna_submit_error => 'Failed to submit Q&A (Translation needed)';
+
+  @override
+  String get qna_submit_success =>
+      'Q&A submitted successfully (Translation needed)';
+
+  @override
+  String get qna_title_too_short => 'Title is too short (Translation needed)';
+
+  @override
+  String get qna_updated_at => 'Updated at (Translation needed)';
+
+  @override
+  String get update_required_message =>
+      'App update required (Translation needed)';
+
+  @override
+  String get vote_item_request_no_search_results =>
+      'No search results (Translation needed)';
+
+  @override
+  String get vote_item_request_waiting => 'Waiting... (Translation needed)';
+
+  @override
+  String get starCandy100 => 'Star Candy 100 (Translation needed)';
+
+  @override
+  String get starCandy1000 => 'Star Candy 1,000 (Translation needed)';
+
+  @override
+  String get starCandy200 => 'Star Candy 200 (Translation needed)';
+
+  @override
+  String get starCandy2000 => 'Star Candy 2,000 (Translation needed)';
+
+  @override
+  String get starCandy3000 => 'Star Candy 3,000 (Translation needed)';
+
+  @override
+  String get starCandy4000 => 'Star Candy 4,000 (Translation needed)';
+
+  @override
+  String get starCandy5000 => 'Star Candy 5,000 (Translation needed)';
+
+  @override
+  String get starCandy600 => 'Star Candy 600 (Translation needed)';
 }

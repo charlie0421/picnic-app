@@ -21,35 +21,36 @@ class AppLocalizationsId extends AppLocalizations {
   String get anonymous_mode => 'Mode Anonim';
 
   @override
-  String get appTitle => 'Picnic';
+  String get appTitle => 'Piknik';
 
   @override
-  String get app_name => 'Piknik';
+  String get app_name => 'Picnic (Translation needed)';
 
   @override
-  String get application_reason_hint => 'Enter application reason (optional)';
+  String get application_reason_hint => 'Masukkan alasan aplikasi (opsional)';
 
   @override
-  String get application_reason_label => 'Application Reason';
+  String get application_reason_label => 'Alasan Aplikasi';
 
   @override
-  String get application_success =>
-      'Vote candidate application has been completed.';
+  String get application_success => 'Aplikasi kandidat voting telah selesai.';
 
   @override
-  String get artist_name_hint => 'Enter artist name';
+  String get artist_name_hint => 'Masukkan nama artis';
 
   @override
-  String get artist_name_label => 'Artist Name';
+  String get artist_name_label => 'Nama Artis';
 
   @override
   String get block_user_label => 'Memblokir pengguna';
 
   @override
-  String get bonus_candy_awarded => 'Permen bintang telah diberikan.';
+  String get bonus_candy_awarded =>
+      'Star candy has been awarded. (Translation needed)';
 
   @override
-  String get button_apply_as_candidate => 'Pendaftaran Calon';
+  String get button_apply_as_candidate =>
+      'Candidate Application (Translation needed)';
 
   @override
   String get button_cancel => 'Batalkan';
@@ -86,7 +87,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get candy_usage_policy_guide_button => 'Pelajari lebih lanjut';
 
   @override
-  String get candy_usage_policy_title => 'Kebijakan Penggunaan StarCandy';
+  String get candy_usage_policy_title =>
+      'Starchies Usage Policy (Translation needed)';
 
   @override
   String get comments => 'Komentar';
@@ -220,7 +222,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get compatibility_snackbar_need_birthtime =>
-      'Silakan masukkan waktu kelahiran Anda.';
+      'Please enter your birth time. (Translation needed)';
 
   @override
   String get compatibility_snackbar_need_gender => 'Pilih jenis kelamin.';
@@ -234,22 +236,23 @@ class AppLocalizationsId extends AppLocalizations {
       'Mulai menganalisis kompatibilitas.';
 
   @override
-  String get compatibility_status_completed => 'Selesai';
+  String get compatibility_status_completed => 'Done (Translation needed)';
 
   @override
-  String get compatibility_status_error => 'Kesalahan';
+  String get compatibility_status_error => 'Error (Translation needed)';
 
   @override
-  String get compatibility_status_input => 'Mengetik';
+  String get compatibility_status_input => 'Typing (Translation needed)';
 
   @override
-  String get compatibility_status_pending => 'Menganalisis';
+  String get compatibility_status_pending => 'Analyzing (Translation needed)';
 
   @override
   String get compatibility_style_title => 'Gaya kompatibilitas';
 
   @override
-  String get compatibility_summary_title => 'Ringkasan kompatibilitas';
+  String get compatibility_summary_title =>
+      'Compatibility summary (Translation needed)';
 
   @override
   String get compatibility_time_slot1 => 'Jam Tikus (23:30-01:29)';
@@ -317,18 +320,19 @@ class AppLocalizationsId extends AppLocalizations {
       'Semua iklan telah habis. Silakan coba lagi lain kali.';
 
   @override
-  String get dialog_content_ads_loading => 'Iklan sedang dimuat.';
+  String get dialog_content_ads_loading =>
+      'Ads are loading. (Translation needed)';
 
   @override
   String get dialog_content_ads_retrying =>
-      'Iklan sedang dimuat ulang. Silakan coba lagi sebentar lagi.';
+      'The ad is reloading. Please try again in a moment. (Translation needed)';
 
   @override
   String get dialog_content_login_required => 'Diperlukan login';
 
   @override
   String get dialog_login_required_description =>
-      'Anda perlu masuk untuk menggunakan fitur ini. Apakah Anda ingin masuk?';
+      'You need to login to use this feature. Would you like to login? (Translation needed)';
 
   @override
   String get dialog_message_can_resignup =>
@@ -336,7 +340,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get dialog_message_purchase_canceled =>
-      'Pembelian Anda telah dibatalkan.';
+      'Your purchase has been canceled. (Translation needed)';
 
   @override
   String get dialog_message_purchase_failed =>
@@ -347,10 +351,12 @@ class AppLocalizationsId extends AppLocalizations {
       'Pembelian Anda telah berhasil diselesaikan.';
 
   @override
-  String get dialog_purchases_fail => 'Pembelian gagal.';
+  String get dialog_purchases_fail =>
+      'The purchase failed. (Translation needed)';
 
   @override
-  String get dialog_purchases_success => 'Pembelian Anda sudah selesai.';
+  String get dialog_purchases_success =>
+      'Your purchase is complete. (Translation needed)';
 
   @override
   String get dialog_title_ads_exhausted => 'Habis semua iklan';
@@ -364,14 +370,14 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get dialog_withdraw_button_cancel =>
-      'Biarkan saya memikirkan hal ini sekali lagi.';
+      'Let me think about this one more time. (Translation needed)';
 
   @override
   String get dialog_withdraw_button_ok => 'Berhenti berlangganan';
 
   @override
   String get dialog_withdraw_error =>
-      'Terjadi kesalahan saat berhenti berlangganan.';
+      'An error occurred during unsubscribe. (Translation needed)';
 
   @override
   String get dialog_withdraw_message =>
@@ -379,67 +385,71 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get dialog_withdraw_success =>
-      'Berhenti berlangganan berhasil diproses.';
+      'The unsubscribe was processed successfully. (Translation needed)';
 
   @override
   String get dialog_withdraw_title => 'Apakah Anda yakin ingin pergi?';
 
   @override
-  String get download_android_button => 'Unduh di Google Play';
+  String get download_android_button =>
+      'Get it on Google Play (Translation needed)';
 
   @override
-  String get download_apk_button => 'Unduh APK Langsung';
+  String get download_apk_button => 'Direct APK Download (Translation needed)';
 
   @override
-  String get download_coming_soon => 'Segera Hadir';
+  String get download_coming_soon => 'Coming Soon (Translation needed)';
 
   @override
   String get download_description =>
-      'Platform pemungutan suara dan media untuk artis K-Pop';
+      'Voting and media platform for K-Pop artists (Translation needed)';
 
   @override
-  String get download_feature_media => 'Galeri Media';
+  String get download_feature_media => 'Media Gallery (Translation needed)';
 
   @override
-  String get download_feature_rewards => 'Sistem Hadiah';
+  String get download_feature_rewards => 'Reward System (Translation needed)';
 
   @override
-  String get download_feature_voting => 'Pemungutan Suara untuk Seniman';
+  String get download_feature_voting => 'Artist Voting (Translation needed)';
 
   @override
-  String get download_features_title => 'Fitur Utama Picnic';
+  String get download_features_title =>
+      'Picnic Key Features (Translation needed)';
 
   @override
-  String get download_ios_button => 'Unduh di App Store';
+  String get download_ios_button =>
+      'Download on App Store (Translation needed)';
 
   @override
-  String get download_link_copied => 'Tautan telah disalin!';
+  String get download_link_copied => 'Copied! (Translation needed)';
 
   @override
-  String get download_link_copy => 'Salin Tautan';
+  String get download_link_copy => 'Copy Link (Translation needed)';
 
   @override
-  String get download_page_title => 'Unduh Aplikasi Picnic';
+  String get download_page_title => 'Download Picnic App (Translation needed)';
 
   @override
-  String get download_qr_description => 'Pindai kode QR dengan smartphone Anda';
+  String get download_qr_description =>
+      'Scan the QR code with your smartphone (Translation needed)';
 
   @override
-  String get download_qr_title => 'Unduh Cepat dengan Kode QR';
+  String get download_qr_title =>
+      'Quick Download with QR Code (Translation needed)';
 
   @override
   String get download_subtitle =>
-      'Unduh aplikasi Picnic sekarang dan dukung artis K-Pop favoritmu!';
+      'Download the Picnic app now and support your favorite K-Pop artists! (Translation needed)';
 
   @override
   String get error_action_failed => 'Terjadi kesalahan saat melakukan operasi.';
 
   @override
-  String get error_application_reason_required =>
-      'Application reason is required';
+  String get error_application_reason_required => 'Alasan aplikasi diperlukan';
 
   @override
-  String get error_artist_not_selected => 'Please select an artist';
+  String get error_artist_not_selected => 'Silakan pilih artis';
 
   @override
   String get error_content_parse => 'Terjadi kesalahan saat mengurai konten.';
@@ -455,13 +465,15 @@ class AppLocalizationsId extends AppLocalizations {
       'Terjadi kesalahan saat memuat komentar.';
 
   @override
-  String get error_loading_page => 'Terjadi kesalahan saat memuat halaman.';
+  String get error_loading_page =>
+      'An error occurred while loading the page. (Translation needed)';
 
   @override
   String get error_message_login_failed => 'Terjadi kesalahan saat login.';
 
   @override
-  String get error_message_no_user => 'Informasi keanggotaan tidak ada.';
+  String get error_message_no_user =>
+      'The membership information doesn\'t exist. (Translation needed)';
 
   @override
   String get error_message_withdrawal =>
@@ -481,39 +493,39 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get exception_auth_message_apple_invalid_response =>
-      'Kami menerima respons yang tidak valid dari server Apple.\nSilakan coba lagi.';
+      'We received an invalid response from the Apple server.\nPlease try again. (Translation needed)';
 
   @override
   String get exception_auth_message_apple_sign_in_failed =>
-      'Proses masuk Apple gagal.\nSilakan coba lagi.';
+      'Apple sign-in failed.\nPlease try again. (Translation needed)';
 
   @override
   String get exception_auth_message_common_cancel =>
-      'Login Anda telah dibatalkan.';
+      'Your login has been canceled. (Translation needed)';
 
   @override
   String get exception_auth_message_common_invalid_token =>
-      'Token autentikasi tidak valid.\nSilakan coba lagi.';
+      'The authentication token is invalid.\nPlease try again. (Translation needed)';
 
   @override
   String get exception_auth_message_common_network =>
-      'Periksa koneksi jaringan Anda.';
+      'Check your network connection. (Translation needed)';
 
   @override
   String get exception_auth_message_common_unknown =>
-      'Terjadi kesalahan yang tidak diketahui saat login.\nSilakan coba lagi sebentar lagi.';
+      'An unknown error occurred during login.\nPlease try again in a moment. (Translation needed)';
 
   @override
   String get exception_auth_message_common_unsupported_provider =>
-      'Metode login ini tidak didukung.';
+      'This login method is not supported. (Translation needed)';
 
   @override
   String get exception_auth_message_google_google_play_service =>
-      'Telah terjadi kesalahan Layanan Google Play.\nPerbarui Layanan Google Play atau mulai ulang perangkat Anda.';
+      'A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device. (Translation needed)';
 
   @override
   String get exception_auth_message_kakao_not_supported =>
-      'Saya tidak bisa masuk dengan aplikasi KakaoTalk.\nCoba masuk dengan akun Kakao Anda.';
+      'I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account. (Translation needed)';
 
   @override
   String get faq_category_account => 'Akun';
@@ -614,7 +626,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get fortune_monthly => 'Kekayaan Bulanan';
 
   @override
-  String get fortune_purchase_by_one_click => 'Bayar Sekarang';
+  String get fortune_purchase_by_one_click => 'Pay Now (Translation needed)';
 
   @override
   String get fortune_purchase_by_star_candy => 'Periksa dengan StarCandy';
@@ -623,16 +635,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get fortune_relationship => 'Interpersonal';
 
   @override
-  String get fortune_share_hashtag => '#piknik #신년운세 #Fourtuneteller';
+  String get fortune_share_hashtag =>
+      '#picnic #신년운세 #Fourtuneteller (Translation needed)';
 
   @override
   String fortune_share_message(Object artistName) {
-    return 'Penasaran dengan kekayaan ${artistName}di tahun 2025? Datanglah ke #피크닠 sekarang! Mari temukan takdir yang bersinar itu bersama-sama!';
+    return 'Curious about $artistName\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together! (Translation needed)';
   }
 
   @override
   String fortune_title(Object year) {
-    return 'Keberuntungan dari $year';
+    return 'Fortune of $year (Translation needed)';
   }
 
   @override
@@ -642,10 +655,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get fortune_with_me => 'Goong-Hap dengan saya';
 
   @override
-  String get group_name_hint => 'Enter group name (optional)';
+  String get group_name_hint => 'Masukkan nama grup (opsional)';
 
   @override
-  String get group_name_label => 'Group Name';
+  String get group_name_label => 'Nama Grup';
 
   @override
   String get hint_library_add => 'Nama album';
@@ -673,15 +686,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get label_ads_load_timeout =>
-      'Waktu pemuatan iklan habis. Silakan coba lagi.';
+      'Ad loading timed out. Please try again. (Translation needed)';
 
   @override
   String get label_ads_next_available_time =>
-      'Kapan iklan berikutnya akan tersedia.';
+      'When the next ad will be available. (Translation needed)';
 
   @override
   String get label_ads_reward_fail =>
-      'Gagal mendapatkan hadiah. Silakan coba lagi.';
+      'Failed to get reward. Please try again. (Translation needed)';
 
   @override
   String get label_ads_sdk_init_fail =>
@@ -702,13 +715,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_album_add => 'Menambahkan album baru';
 
   @override
-  String get label_area_filter_all => 'All';
+  String get label_area_filter_all => 'All (Translation needed)';
 
   @override
-  String get label_area_filter_kpop => 'K-POP';
+  String get label_area_filter_kpop => 'K-POP (Translation needed)';
 
   @override
-  String get label_area_filter_musical => 'K-MUSICAL';
+  String get label_area_filter_musical => 'K-MUSICAL (Translation needed)';
 
   @override
   String get label_article_comment_empty => 'Jadilah yang pertama berkomentar!';
@@ -726,34 +739,38 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_button_close => '닫기';
 
   @override
-  String get label_button_disagreement => 'Tanpa Persetujuan';
+  String get label_button_disagreement => 'Non-Consent (Translation needed)';
 
   @override
-  String get label_button_mission_and_charge => 'Misi dan biaya';
+  String get label_button_mission_and_charge =>
+      'Mission and charge (Translation needed)';
 
   @override
   String get label_button_recharge => 'Pengisian daya';
 
   @override
-  String get label_button_save_vote_paper => 'Simpan surat suara Anda';
+  String get label_button_save_vote_paper =>
+      'Save your ballot (Translation needed)';
 
   @override
-  String get label_button_share => 'Bagikan';
+  String get label_button_share => 'Share (Translation needed)';
 
   @override
   String get label_button_vote => 'Pilih';
 
   @override
-  String get label_button_vote_ended => 'Pemungutan Suara Berakhir';
+  String get label_button_vote_ended => 'Vote Ended (Translation needed)';
 
   @override
-  String get label_button_vote_upcoming => 'Pemungutan Suara Akan Datang';
+  String get label_button_vote_upcoming => 'Vote Upcoming (Translation needed)';
 
   @override
-  String get label_button_watch_and_charge => 'Melihat dan menagih iklan';
+  String get label_button_watch_and_charge =>
+      'Viewing and charging for ads (Translation needed)';
 
   @override
-  String get label_celeb_ask_to_you => 'Sang Seniman Meminta Anda!';
+  String get label_celeb_ask_to_you =>
+      'The Artist Asks You! (Translation needed)';
 
   @override
   String get label_celeb_gallery => 'Galeri Artis';
@@ -765,7 +782,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_checkbox_entire_use => 'Penggunaan Penuh';
 
   @override
-  String get label_current_language => 'Bahasa saat ini';
+  String get label_current_language => 'Current language (Translation needed)';
 
   @override
   String get label_draw_image => 'Kesempatan untuk memenangkan gambar acak';
@@ -777,13 +794,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_dropdown_recent => 'Terbaru';
 
   @override
-  String get label_find_celeb => 'Temukan lebih banyak artis';
+  String get label_find_celeb => 'Find more artists (Translation needed)';
 
   @override
-  String get label_gallery_tab_article => 'Artikel';
+  String get label_gallery_tab_article => 'Articles (Translation needed)';
 
   @override
-  String get label_gallery_tab_chat => 'Mengobrol';
+  String get label_gallery_tab_chat => 'Chat (Translation needed)';
 
   @override
   String get label_global_recommendation => 'Pilihan Global';
@@ -813,25 +830,27 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_library_tab_pic => 'PIC';
 
   @override
-  String get label_list_more => 'Lebih lanjut';
+  String get label_list_more => 'More (Translation needed)';
 
   @override
   String get label_loading_ads => 'Memuat iklan';
 
   @override
-  String get label_loading_ads_fail => 'Iklan gagal dimuat';
+  String get label_loading_ads_fail => 'Ads fail to load (Translation needed)';
 
   @override
-  String get label_login_with_apple => 'Masuk dengan Apple';
+  String get label_login_with_apple => 'Login with Apple (Translation needed)';
 
   @override
-  String get label_login_with_google => 'Masuk dengan Google';
+  String get label_login_with_google =>
+      'Login with Google (Translation needed)';
 
   @override
-  String get label_login_with_kakao => 'Masuk dengan Kakao';
+  String get label_login_with_kakao => 'Login with Kakao (Translation needed)';
 
   @override
-  String get label_login_with_wechat => 'Masuk dengan WeChat';
+  String get label_login_with_wechat =>
+      'Login with WeChat (Translation needed)';
 
   @override
   String get label_mission => 'Misi';
@@ -892,7 +911,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_mypage_withdrawal => 'Penarikan';
 
   @override
-  String get label_no_ads => 'Tidak ada iklan';
+  String get label_no_ads => 'No ads (Translation needed)';
 
   @override
   String get label_no_celeb => 'Anda belum memiliki artis yang ditandai!';
@@ -901,7 +920,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_pic_chart => 'Grafik Pic';
 
   @override
-  String get label_pic_image_cropping => 'Memangkas gambar';
+  String get label_pic_image_cropping => 'Crop an image (Translation needed)';
 
   @override
   String get label_pic_pic_initializing_camera => 'Menginisialisasi kamera...';
@@ -928,16 +947,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_retry => 'Mencoba kembali';
 
   @override
-  String get label_reward_location => 'Lokasi';
+  String get label_reward_location => 'Location (Translation needed)';
 
   @override
-  String get label_reward_overview => 'Ringkasan';
+  String get label_reward_overview => 'Overview (Translation needed)';
 
   @override
-  String get label_reward_size => 'Ukuran';
+  String get label_reward_size => 'Size (Translation needed)';
 
   @override
-  String get label_screen_title_agreement => 'Menerima persyaratan';
+  String get label_screen_title_agreement =>
+      'Accept the terms (Translation needed)';
 
   @override
   String get label_setting_alarm => 'Pemberitahuan';
@@ -970,13 +990,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_setting_remove_cache => 'Menghapus memori cache';
 
   @override
-  String get label_setting_remove_cache_complete => 'Selesai.';
+  String get label_setting_remove_cache_complete => 'Done (Translation needed)';
 
   @override
   String get label_setting_storage => 'Mengelola penyimpanan';
 
   @override
-  String get label_setting_update => 'Memperbarui';
+  String get label_setting_update => 'Update (Translation needed)';
 
   @override
   String get label_star_candy_pouch => 'Kantong Permen Bintang';
@@ -988,34 +1008,36 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_tab_free_charge_station => 'Stasiun pengisian daya gratis';
 
   @override
-  String get label_tab_my_artist => 'MyArtist';
+  String get label_tab_my_artist => 'MyArtist (Translation needed)';
 
   @override
-  String get label_tab_search_my_artist => 'Temukan MyArtist';
+  String get label_tab_search_my_artist => 'Find MyArtist (Translation needed)';
 
   @override
-  String get label_tabbar_picchart_daily => 'Grafik harian';
+  String get label_tabbar_picchart_daily => 'Daily charts (Translation needed)';
 
   @override
-  String get label_tabbar_picchart_monthly => 'Grafik Bulanan';
+  String get label_tabbar_picchart_monthly =>
+      'Monthly Charts (Translation needed)';
 
   @override
-  String get label_tabbar_picchart_weekly => 'Grafik mingguan';
+  String get label_tabbar_picchart_weekly =>
+      'Weekly charts (Translation needed)';
 
   @override
-  String get label_tabbar_vote_active => 'Sedang Berlangsung';
+  String get label_tabbar_vote_active => 'Active';
 
   @override
-  String get label_tabbar_vote_all => 'Semua';
+  String get label_tabbar_vote_all => 'All (Translation needed)';
 
   @override
-  String get label_tabbar_vote_end => 'akhir';
+  String get label_tabbar_vote_end => 'Ended';
 
   @override
-  String get label_tabbar_vote_image => 'Image Vote';
+  String get label_tabbar_vote_image => 'Voting Gambar';
 
   @override
-  String get label_tabbar_vote_upcoming => 'Mendatang';
+  String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
   String label_time_ago_day(Object day) {
@@ -1036,7 +1058,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_time_ago_right_now => 'Beberapa saat yang lalu';
 
   @override
-  String get label_title_comment => 'Komentar';
+  String get label_title_comment => 'Comments (Translation needed)';
 
   @override
   String get label_title_report => 'Membuat laporan';
@@ -1045,40 +1067,40 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_unlimited_rewards => 'Hadiah tak terbatas';
 
   @override
-  String get label_various_rewards => 'Berbagai hadiah';
+  String get label_various_rewards => 'Various rewards (Translation needed)';
 
   @override
-  String get label_vote_achieve => 'Suara Pencapaian';
+  String get label_vote_achieve => 'Achievement Vote (Translation needed)';
 
   @override
-  String get label_vote_birthday => 'Ulang tahun';
+  String get label_vote_birthday => 'Birthday (Translation needed)';
 
   @override
-  String get label_vote_comback => 'Suara Kembalinya';
+  String get label_vote_comback => 'Comeback Vote (Translation needed)';
 
   @override
-  String get label_vote_debut => 'Debut';
+  String get label_vote_debut => 'Debut (Translation needed)';
 
   @override
   String get label_vote_end => 'Tutup jajak pendapat';
 
   @override
-  String get label_vote_image => 'Gambar';
+  String get label_vote_image => 'Image (Translation needed)';
 
   @override
   String get label_vote_reward_list => 'Daftar hadiah';
 
   @override
-  String get label_vote_screen_title => 'Pemungutan suara';
+  String get label_vote_screen_title => 'Voting (Translation needed)';
 
   @override
-  String get label_vote_shining => 'Suara yang bersinar';
+  String get label_vote_shining => 'Shining Vote (Translation needed)';
 
   @override
-  String get label_vote_tab_birthday => 'Jajak pendapat ulang tahun';
+  String get label_vote_tab_birthday => 'Birthday polls (Translation needed)';
 
   @override
-  String get label_vote_tab_pic => 'Pemungutan suara PIC';
+  String get label_vote_tab_pic => 'PIC voting (Translation needed)';
 
   @override
   String get label_vote_upcoming => 'Sampai pemungutan suara dimulai';
@@ -1096,14 +1118,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get lable_my_celeb => 'Seniman Saya';
 
   @override
-  String get login_simple_login => 'Masuk Sederhana';
+  String get login_simple_login => 'Simple Login (Translation needed)';
 
   @override
   String get login_simple_login_guide =>
-      'Belum punya akun? Anda akan secara otomatis terdaftar menggunakan akun media sosial Anda di atas';
+      'Don\'t have an account? You\'ll be automatically signed up with your social login above (Translation needed)';
 
   @override
-  String get login_title => 'Temukan momen spesial di piknik';
+  String get login_title =>
+      'Find special moments at a picnic (Translation needed)';
 
   @override
   String get message_agreement_success =>
@@ -1131,10 +1154,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get message_pic_pic_save_success => 'Gambar sudah disimpan.';
 
   @override
-  String get message_report_confirm => 'Ingin melaporkan?';
+  String get message_report_confirm => 'Want to report? (Translation needed)';
 
   @override
-  String get message_report_ok => 'Laporan sudah selesai.';
+  String get message_report_ok =>
+      'The report is complete. (Translation needed)';
 
   @override
   String get message_setting_remove_cache =>
@@ -1159,22 +1183,23 @@ class AppLocalizationsId extends AppLocalizations {
   String get my_info => 'Informasi Saya';
 
   @override
-  String get mypage_comment => 'Mengelola komentar';
+  String get mypage_comment => 'Manage comments (Translation needed)';
 
   @override
-  String get mypage_language => 'Pengaturan bahasa';
+  String get mypage_language => 'Language settings (Translation needed)';
 
   @override
-  String get mypage_purchases => 'Pembelian saya';
+  String get mypage_purchases => 'My purchases (Translation needed)';
 
   @override
   String get mypage_setting => 'Pengaturan';
 
   @override
-  String get mypage_subscription => 'Informasi langganan';
+  String get mypage_subscription =>
+      'Subscription information (Translation needed)';
 
   @override
-  String get nav_ads => 'Iklan';
+  String get nav_ads => 'Ads (Translation needed)';
 
   @override
   String get nav_board => 'Papan';
@@ -1198,13 +1223,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get nav_picchart => 'Bagan PIC';
 
   @override
-  String get nav_purchases => 'Pembelian';
+  String get nav_purchases => 'Purchase (Translation needed)';
 
   @override
-  String get nav_rewards => 'Hadiah';
+  String get nav_rewards => 'Reward (Translation needed)';
 
   @override
-  String get nav_setting => 'Pengaturan';
+  String get nav_setting => 'Settings (Translation needed)';
 
   @override
   String get nav_store => 'Belanja';
@@ -1223,7 +1248,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get no_search_results => 'No search results found';
 
   @override
-  String get optional => 'Opsional';
+  String get optional => 'Optional (Translation needed)';
 
   @override
   String get page_title_mypage => 'Halaman Saya';
@@ -1238,7 +1263,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get page_title_privacy => 'Kebijakan Privasi';
 
   @override
-  String get page_title_setting => 'Preferensi';
+  String get page_title_setting => 'Preferences (Translation needed)';
 
   @override
   String get page_title_terms_of_use => 'Ketentuan Penggunaan';
@@ -1250,16 +1275,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get page_title_vote_gather => 'Mengumpulkan suara';
 
   @override
-  String get patch_check => 'Memeriksa tambalan';
+  String get patch_check => 'Checking for patches (Translation needed)';
 
   @override
-  String get patch_error => 'Tambalan gagal';
+  String get patch_error => 'Patch failed (Translation needed)';
 
   @override
-  String get patch_install => 'Menginstal patch';
+  String get patch_install => 'Installing patch (Translation needed)';
 
   @override
-  String get patch_restart_app => 'Memulai ulang aplikasi';
+  String get patch_restart_app => 'Restarting app (Translation needed)';
 
   @override
   String get popup_label_delete => 'Menghapus';
@@ -1293,7 +1318,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get post_board_request_label => 'Permintaan terbuka';
 
   @override
-  String get post_cannot_open_youtube => 'Saya tidak bisa membuka Youtube.';
+  String get post_cannot_open_youtube =>
+      'I can\'t open Youtube. (Translation needed)';
 
   @override
   String get post_comment_action_show_original => 'Lihat teks lengkap';
@@ -1336,7 +1362,8 @@ class AppLocalizationsId extends AppLocalizations {
       'Ini adalah komentar yang dilaporkan.';
 
   @override
-  String get post_comment_translate_complete => 'Terjemahan sudah selesai.';
+  String get post_comment_translate_complete =>
+      'The translation is complete. (Translation needed)';
 
   @override
   String get post_comment_translate_fail => 'Terjemahan gagal.';
@@ -1378,7 +1405,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get post_insert_link => 'Memasukkan tautan';
 
   @override
-  String get post_loading_post_fail => 'Postingan gagal dimuat.';
+  String get post_loading_post_fail =>
+      'The post failed to load. (Translation needed)';
 
   @override
   String get post_minor_board_condition =>
@@ -1508,40 +1536,40 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchase_restore_success_message =>
-      'Pemulihan pembelian selesai.\\nSilakan periksa saldo star candy Anda.';
+      'Purchase restoration completed.\\nPlease check your star candy balance. (Translation needed)';
 
   @override
   String get purchase_restore_wait_message =>
-      'Pembelian sedang berlangsung. Silakan coba lagi setelah selesai.';
+      'Purchase is in progress. Please try again after completion. (Translation needed)';
 
   @override
   String get purchase_timeout_message =>
-      'Proses pembelian memakan waktu terlalu lama.\\nSilakan coba lagi nanti.';
+      'Purchase processing is taking too long.\\nPlease try again later. (Translation needed)';
 
   @override
   String get purchase_web_message =>
       'Ini adalah jendela pembayaran bagi mereka yang tidak dapat membayar dengan aplikasi.\n Harap salin ID acak terlebih dahulu.\n Setelah menyalinnya, klik tombol di bawah ini untuk melanjutkan pembayaran.';
 
   @override
-  String get qna_actions => 'Actions';
+  String get qna_actions => 'Actions (Translation needed)';
 
   @override
-  String get qna_answer => 'Answer';
+  String get qna_answer => 'Answer (Translation needed)';
 
   @override
-  String get qna_answered_at => 'Answered at';
+  String get qna_answered_at => 'Answered at (Translation needed)';
 
   @override
-  String get qna_answered_by => 'Answered by';
+  String get qna_answered_by => 'Answered by (Translation needed)';
 
   @override
-  String get qna_attached_files => 'File Terlampir';
+  String get qna_attached_files => 'Attached Files (Translation needed)';
 
   @override
-  String get qna_attachments => 'Attachments';
+  String get qna_attachments => 'Attachments (Translation needed)';
 
   @override
-  String get qna_cancel => 'Batal';
+  String get qna_cancel => 'Cancel (Translation needed)';
 
   @override
   String get qna_content => 'Content';
@@ -1550,72 +1578,79 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_content_hint => 'Masukkan isi konsultasi dengan detail';
 
   @override
-  String get qna_content_min_length => 'Isi konsultasi minimal 10 karakter';
+  String get qna_content_min_length =>
+      'Inquiry content must be at least 10 characters (Translation needed)';
 
   @override
-  String get qna_content_required => 'Harap masukkan isi konsultasi';
+  String get qna_content_required =>
+      'Please enter inquiry content (Translation needed)';
 
   @override
-  String get qna_create_failed => 'Gagal mendaftar konsultasi:';
+  String get qna_create_failed =>
+      'Failed to submit inquiry: (Translation needed)';
 
   @override
   String get qna_create_page_title => 'Buat Konsultasi';
 
   @override
-  String get qna_create_success => 'Konsultasi berhasil didaftarkan';
+  String get qna_create_success =>
+      'Inquiry has been successfully submitted (Translation needed)';
 
   @override
-  String get qna_delete => 'Hapus';
+  String get qna_delete => 'Delete (Translation needed)';
 
   @override
-  String get qna_delete_confirm => 'Hapus';
+  String get qna_delete_confirm => 'Delete (Translation needed)';
 
   @override
   String get qna_delete_confirm_content =>
-      'Hapus konsultasi ini?\nTidak dapat dipulihkan setelah dihapus.';
+      'Delete this inquiry?\nIt cannot be recovered after deletion. (Translation needed)';
 
   @override
-  String get qna_delete_confirm_title => 'Delete Inquiry';
+  String get qna_delete_confirm_title => 'Delete Inquiry (Translation needed)';
 
   @override
-  String get qna_delete_failed => 'Gagal menghapus';
+  String get qna_delete_failed => 'Failed to delete (Translation needed)';
 
   @override
-  String get qna_delete_success => 'Konsultasi telah dihapus';
+  String get qna_delete_success =>
+      'Inquiry has been deleted (Translation needed)';
 
   @override
   String get qna_detail_page_title => 'Detail Konsultasi';
 
   @override
-  String get qna_download_file => 'Download File';
+  String get qna_download_file => 'Download File (Translation needed)';
 
   @override
-  String get qna_edit => 'Edit';
+  String get qna_edit => 'Edit (Translation needed)';
 
   @override
-  String get qna_file_attach_label => 'Lampiran File';
+  String get qna_file_attach_label => 'File Attachment (Translation needed)';
 
   @override
-  String get qna_file_select => 'Pilih File';
+  String get qna_file_select => 'Select File (Translation needed)';
 
   @override
-  String get qna_file_type_document => 'Document';
+  String get qna_file_type_document => 'Document (Translation needed)';
 
   @override
-  String get qna_file_type_image => 'Image';
+  String get qna_file_type_image => 'Image (Translation needed)';
 
   @override
-  String get qna_file_type_other => 'Other';
+  String get qna_file_type_other => 'Other (Translation needed)';
 
   @override
   String get qna_file_upload_info =>
-      '• Maksimal upload 10MB\n• Format yang didukung: Gambar (jpg, png, gif), Dokumen (pdf, doc, txt)';
+      '• Maximum 10MB upload allowed\n• Supported formats: Images (jpg, png, gif), Documents (pdf, doc, txt) (Translation needed)';
 
   @override
-  String get qna_file_uploading_button => 'File Sedang Upload...';
+  String get qna_file_uploading_button =>
+      'File Uploading... (Translation needed)';
 
   @override
-  String get qna_loading_error => 'Error occurred while loading';
+  String get qna_loading_error =>
+      'Error occurred while loading (Translation needed)';
 
   @override
   String get qna_login_required => 'Login diperlukan';
@@ -1633,16 +1668,18 @@ class AppLocalizationsId extends AppLocalizations {
       'Untuk menggunakan layanan QnA\nharap login terlebih dahulu';
 
   @override
-  String get qna_mark_resolved => 'Tandai Selesai';
+  String get qna_mark_resolved => 'Mark as Resolved (Translation needed)';
 
   @override
-  String get qna_mark_resolved_failed => 'Failed to change status';
+  String get qna_mark_resolved_failed =>
+      'Failed to change status (Translation needed)';
 
   @override
-  String get qna_mark_resolved_success => 'Changed to resolved';
+  String get qna_mark_resolved_success =>
+      'Changed to resolved (Translation needed)';
 
   @override
-  String get qna_no_answer_yet => 'Belum ada jawaban';
+  String get qna_no_answer_yet => 'No answer yet (Translation needed)';
 
   @override
   String get qna_no_inquiries => 'No inquiry history';
@@ -1656,13 +1693,13 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_privacy_notice =>
-      'Untuk pemrosesan konsultasi, informasi yang Anda masukkan akan dikumpulkan dan digunakan. Detail dapat dilihat di kebijakan privasi.';
+      'Information you enter will be collected and used for inquiry processing. Please check our privacy policy for details. (Translation needed)';
 
   @override
-  String get qna_question => 'Question';
+  String get qna_question => 'Question (Translation needed)';
 
   @override
-  String get qna_refresh_pull => 'Pull to refresh';
+  String get qna_refresh_pull => 'Pull to refresh (Translation needed)';
 
   @override
   String get qna_statistics_answered => 'Answered';
@@ -1695,22 +1732,24 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_title_hint => 'Masukkan ringkasan konsultasi dengan singkat';
 
   @override
-  String get qna_title_min_length => 'Judul minimal 5 karakter';
+  String get qna_title_min_length =>
+      'Title must be at least 5 characters (Translation needed)';
 
   @override
-  String get qna_title_required => 'Harap masukkan judul';
+  String get qna_title_required => 'Please enter a title (Translation needed)';
 
   @override
-  String get qna_upload_complete => 'Upload Selesai';
+  String get qna_upload_complete => 'Upload Complete (Translation needed)';
 
   @override
-  String get qna_upload_waiting => 'Menunggu Upload';
+  String get qna_upload_waiting => 'Upload Waiting (Translation needed)';
 
   @override
-  String get qna_uploading => 'Sedang Upload...';
+  String get qna_uploading => 'Uploading... (Translation needed)';
 
   @override
-  String get qna_validation_failed => 'Harap periksa isi input.';
+  String get qna_validation_failed =>
+      'Please check your input. (Translation needed)';
 
   @override
   String get qna_write_inquiry => 'New Inquiry';
@@ -1734,19 +1773,20 @@ class AppLocalizationsId extends AppLocalizations {
   String get share => 'Bagikan';
 
   @override
-  String get share_image_fail => 'Berbagi gambar gagal';
+  String get share_image_fail => 'Image sharing failed (Translation needed)';
 
   @override
-  String get share_image_success => 'Berhasil membagikan gambar';
+  String get share_image_success =>
+      'Shared image successfully (Translation needed)';
 
   @override
-  String get share_no_twitter => 'Aplikasi X tidak ada.';
+  String get share_no_twitter => 'X app is missing. (Translation needed)';
 
   @override
-  String get share_twitter => 'Bagikan di Twitter';
+  String get share_twitter => 'Share on Twitter (Translation needed)';
 
   @override
-  String get submit_application => 'Submit Application';
+  String get submit_application => 'Kirim Aplikasi';
 
   @override
   String get success => 'Berhasil';
@@ -1757,32 +1797,35 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get text_ads_random => 'Melihat iklan dan mengumpulkan gambar acak.';
+  String get text_ads_random =>
+      'Viewing ads and collecting random images. (Translation needed)';
 
   @override
-  String get text_bonus => 'Bonus';
+  String get text_bonus => 'Bonuses (Translation needed)';
 
   @override
-  String get text_bookmark_failed => 'Gagal membatalkan penandaan buku';
+  String get text_bookmark_failed =>
+      'Failed to unbookmark (Translation needed)';
 
   @override
-  String get text_bookmark_over_5 => 'Anda dapat memiliki hingga lima penanda';
+  String get text_bookmark_over_5 =>
+      'You can have up to five bookmarks (Translation needed)';
 
   @override
   String get text_comming_soon_pic_chart1 =>
-      'Selamat datang di Peek Charts!\nSampai jumpa di bulan November 2024!';
+      'Welcome to Peek Charts!\nSee you in November 2024! (Translation needed)';
 
   @override
   String get text_comming_soon_pic_chart2 =>
-      'Diagram lingkaran adalah diagram baru yang unik untuk Peeknick yang mencerminkan skor harian, mingguan, dan bulanan.\nGrafik baru Peeknick yang mencerminkan skor harian, mingguan, dan bulanan.';
+      'Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick\'s new chart that reflects daily, weekly, and monthly scores. (Translation needed)';
 
   @override
   String get text_comming_soon_pic_chart3 =>
-      'Dapatkan refleksi waktu nyata\nreputasi merek artis secara real-time!';
+      'Get a real-time reflection\nartist\'s brand reputation in real-time! (Translation needed)';
 
   @override
   String get text_comming_soon_pic_chart_title =>
-      'Apa yang dimaksud dengan PicChart?';
+      'What is a PicChart? (Translation needed)';
 
   @override
   String get text_community_board_search => 'Mencari Papan Artis';
@@ -1794,14 +1837,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_copied_address => 'Alamat telah disalin.';
 
   @override
-  String get text_dialog_ad_dismissed => 'Iklan berhenti di tengah jalan.';
+  String get text_dialog_ad_dismissed =>
+      'The ad stopped midway through. (Translation needed)';
 
   @override
-  String get text_dialog_ad_failed_to_show => 'Gagal memuat iklan.';
+  String get text_dialog_ad_failed_to_show =>
+      'Failed to load ads. (Translation needed)';
 
   @override
   String get text_dialog_star_candy_received =>
-      'Permen bintang telah diberikan.';
+      'Star candy has been awarded. (Translation needed)';
 
   @override
   String get text_dialog_vote_amount_should_not_zero =>
@@ -1822,7 +1867,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_need_recharge => 'Membutuhkan pengisian daya.';
 
   @override
-  String get text_no_artist => 'Tidak ada artis';
+  String get text_no_artist => 'No artist (Translation needed)';
 
   @override
   String get text_no_search_result => 'Tidak ada hasil pencarian.';
@@ -1835,23 +1880,23 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String text_star_candy_with_bonus(Object num1) {
-    return '$num1 + $num1 Bonus';
+    return '$num1 + $num1 Bonuses (Translation needed)';
   }
 
   @override
-  String get text_this_time_vote => 'Suara ini';
+  String get text_this_time_vote => 'This Vote (Translation needed)';
 
   @override
   String get text_vote_complete => 'Pemungutan suara selesai';
 
   @override
-  String get text_vote_countdown_end => 'Hingga Selesai';
+  String get text_vote_countdown_end => 'Until End (Translation needed)';
 
   @override
-  String get text_vote_countdown_start => 'Hingga Mulai';
+  String get text_vote_countdown_start => 'Until Start (Translation needed)';
 
   @override
-  String get text_vote_ended => 'Berakhir';
+  String get text_vote_ended => 'Ended (Translation needed)';
 
   @override
   String text_vote_rank(Object rank) {
@@ -1863,35 +1908,35 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String text_vote_reward(Object count) {
-    return '$count hadiah';
+    return '$count reward (Translation needed)';
   }
 
   @override
   String get text_vote_where_is_my_bias => 'Di mana Favorit Saya?';
 
   @override
-  String get time_days_ago => 'hari lalu';
+  String get time_days_ago => 'days ago (Translation needed)';
 
   @override
-  String get time_hours_ago => 'jam lalu';
+  String get time_hours_ago => 'hours ago (Translation needed)';
 
   @override
-  String get time_just_now => 'baru saja';
+  String get time_just_now => 'just now (Translation needed)';
 
   @override
-  String get time_minutes_ago => 'menit lalu';
+  String get time_minutes_ago => 'minutes ago (Translation needed)';
 
   @override
-  String get time_unit_day => 'D';
+  String get time_unit_day => 'D (Translation needed)';
 
   @override
-  String get time_unit_hour => 'H';
+  String get time_unit_hour => 'H (Translation needed)';
 
   @override
-  String get time_unit_minute => 'M';
+  String get time_unit_minute => 'M (Translation needed)';
 
   @override
-  String get time_unit_second => 'S';
+  String get time_unit_second => 'S (Translation needed)';
 
   @override
   String get title_dialog_library_add => 'Menambahkan album baru';
@@ -1931,32 +1976,30 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get vote_item_request_addition_request =>
-      'Permohonan penambahan item pemungutan suara';
+      'Permintaan penambahan item voting';
 
   @override
   String get vote_item_request_already_applied_artist =>
-      'Anda telah mengajukan permohonan untuk artis ini.';
+      'You have already applied for this artist.';
 
   @override
   String get vote_item_request_already_registered => 'Sudah terdaftar';
 
   @override
-  String get vote_item_request_artist_name_missing =>
-      'Nama artis tidak tersedia';
+  String get vote_item_request_artist_name_missing => 'Nama artis hilang';
 
   @override
-  String get vote_item_request_button =>
-      'Ajukan Permohonan untuk Calon Pemilih';
+  String get vote_item_request_button => 'Ajukan Voting';
 
   @override
-  String get vote_item_request_can_apply => 'Dapat diajukan';
+  String get vote_item_request_can_apply => 'Can apply';
 
   @override
-  String get vote_item_request_count => 'jumlah permintaan item suara';
+  String get vote_item_request_count => 'count (Translation needed)';
 
   @override
   String get vote_item_request_current_item_request =>
-      'Permohonan Item Saat Ini';
+      'Permintaan Item Saat Ini';
 
   @override
   String vote_item_request_item_request_count(Object count) {
@@ -1968,14 +2011,15 @@ class AppLocalizationsId extends AppLocalizations {
       'Belum ada permintaan item';
 
   @override
-  String get vote_item_request_search_artist => 'Cari Seniman';
+  String get vote_item_request_search_artist => 'Search Artist';
 
   @override
-  String get vote_item_request_search_artist_hint => 'Cari artis atau grup';
+  String get vote_item_request_search_artist_hint =>
+      'Search for artist or group';
 
   @override
   String get vote_item_request_search_artist_prompt =>
-      'Cari artis untuk diajukan';
+      'Cari artis untuk melamar';
 
   @override
   String get vote_item_request_status => 'Status permintaan';
@@ -1984,10 +2028,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get vote_item_request_status_approved => 'Disetujui';
 
   @override
-  String get vote_item_request_status_cancelled => 'Dibatalkan';
+  String get vote_item_request_status_cancelled => 'Cancelled';
 
   @override
-  String get vote_item_request_status_in_progress => 'Sedang diproses';
+  String get vote_item_request_status_in_progress => 'In Progress';
 
   @override
   String get vote_item_request_status_pending => 'Menunggu';
@@ -1996,18 +2040,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get vote_item_request_status_rejected => 'Ditolak';
 
   @override
-  String get vote_item_request_status_unknown => 'Tidak diketahui';
+  String get vote_item_request_status_unknown => 'Unknown';
 
   @override
-  String get vote_item_request_submit => 'Kirim';
+  String get vote_item_request_submit => 'Ajukan';
 
   @override
-  String get vote_item_request_title =>
-      'Permintaan Pemungutan Suara untuk Seniman';
+  String get vote_item_request_title => 'Vote Candidate Application';
 
   @override
   String vote_item_request_total_item_requests(Object count) {
-    return 'Total permintaan item $count';
+    return 'Total $count permintaan item';
   }
 
   @override
@@ -2015,23 +2058,25 @@ class AppLocalizationsId extends AppLocalizations {
       'Informasi pengguna tidak ditemukan.';
 
   @override
-  String get vote_period => 'Vote Period';
+  String get vote_period => 'Periode Voting';
 
   @override
-  String get vote_result_save_button => 'Menyimpan hasil';
+  String get vote_result_save_button => 'Save the results (Translation needed)';
 
   @override
-  String get vote_result_share_button => 'Bagikan hasil Anda';
+  String get vote_result_share_button =>
+      'Share your results (Translation needed)';
 
   @override
   String get vote_share_message => 'Voted!';
 
   @override
   String get voting_limit_text =>
-      'Untuk mencegah lonjakan lalu lintas, total penggunaan dibatasi hingga 10.000 dalam satu waktu.';
+      'To prevent traffic surges, total usage is limited to 10,000 at a time. (Translation needed)';
 
   @override
-  String get voting_limit_warning => 'Hanya hingga 10.000 yang diperbolehkan.';
+  String get voting_limit_warning =>
+      'Only up to 10,000 is allowed. (Translation needed)';
 
   @override
   String get voting_share_benefit_text =>
@@ -2041,53 +2086,168 @@ class AppLocalizationsId extends AppLocalizations {
   String get withdrawal_success => 'Berhenti berlangganan berhasil diproses.';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'Cancel (Translation needed)';
 
   @override
-  String get confirm => 'Confirm';
+  String get confirm => 'Confirm (Translation needed)';
 
   @override
-  String get loading => 'Loading...';
+  String get loading => 'Loading... (Translation needed)';
 
   @override
-  String get just_now => 'Just now';
+  String get just_now => 'Just now (Translation needed)';
 
   @override
-  String get retry => 'Retry';
+  String get retry => 'Retry (Translation needed)';
 
   @override
-  String get update => 'Update';
+  String get update => 'Update (Translation needed)';
 
   @override
-  String get ban_title => 'Account Suspended';
+  String get ban_title => 'Akun Dinonaktifkan';
 
   @override
   String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
+      'Akun Anda telah dinonaktifkan sementara karena melanggar pedoman komunitas.';
 
   @override
   String get ban_contact =>
-      'Please contact customer service if you have any questions.';
+      'Untuk pertanyaan, silakan hubungi dukungan pelanggan.';
 
   @override
-  String get compatibility_empty_state_title => 'No compatibility information';
+  String get compatibility_empty_state_title =>
+      'No compatibility information (Translation needed)';
 
   @override
   String get compatibility_empty_state_subtitle =>
-      'Create your first compatibility!';
+      'Create your first compatibility! (Translation needed)';
 
   @override
-  String get network_error_title => 'Network Error';
+  String get network_error_title => 'Network Error (Translation needed)';
 
   @override
-  String get network_error_message => 'Please check your internet connection.';
+  String get network_error_message =>
+      'Please check your internet connection. (Translation needed)';
 
   @override
-  String get notice_pinned => 'Pinned';
+  String get notice_pinned => 'Pinned (Translation needed)';
 
   @override
-  String get message_agreement_fail => 'Terms agreement required';
+  String get message_agreement_fail =>
+      'Terms agreement required (Translation needed)';
 
   @override
-  String get title_dialog_error => 'Error';
+  String get title_dialog_error => 'Error (Translation needed)';
+
+  @override
+  String get capture_failed => 'Screen capture failed (Translation needed)';
+
+  @override
+  String days_ago(Object days) {
+    return '$days days ago (Translation needed)';
+  }
+
+  @override
+  String hours_ago(Object hours) {
+    return '$hours hours ago (Translation needed)';
+  }
+
+  @override
+  String minutes_ago(Object minutes) {
+    return '$minutes minutes ago (Translation needed)';
+  }
+
+  @override
+  String get qna_answer_title => 'Answer (Translation needed)';
+
+  @override
+  String get qna_content_too_short =>
+      'Content is too short (Translation needed)';
+
+  @override
+  String get qna_create_first => 'Create your first Q&A (Translation needed)';
+
+  @override
+  String get qna_created_at => 'Created at (Translation needed)';
+
+  @override
+  String get qna_empty_list => 'No Q&A items (Translation needed)';
+
+  @override
+  String get qna_error_message => 'Error loading Q&A (Translation needed)';
+
+  @override
+  String get qna_info_title => 'Q&A Information (Translation needed)';
+
+  @override
+  String get qna_list_title => 'Q&A List (Translation needed)';
+
+  @override
+  String get qna_load_error => 'Failed to load Q&A (Translation needed)';
+
+  @override
+  String get qna_private => 'Private (Translation needed)';
+
+  @override
+  String get qna_public => 'Public (Translation needed)';
+
+  @override
+  String get qna_public_option => 'Make public (Translation needed)';
+
+  @override
+  String get qna_public_status => 'Public status (Translation needed)';
+
+  @override
+  String get qna_status => 'Status (Translation needed)';
+
+  @override
+  String get qna_status_closed => 'Closed (Translation needed)';
+
+  @override
+  String get qna_submit_error => 'Failed to submit Q&A (Translation needed)';
+
+  @override
+  String get qna_submit_success =>
+      'Q&A submitted successfully (Translation needed)';
+
+  @override
+  String get qna_title_too_short => 'Title is too short (Translation needed)';
+
+  @override
+  String get qna_updated_at => 'Updated at (Translation needed)';
+
+  @override
+  String get update_required_message =>
+      'App update required (Translation needed)';
+
+  @override
+  String get vote_item_request_no_search_results =>
+      'No search results (Translation needed)';
+
+  @override
+  String get vote_item_request_waiting => 'Waiting... (Translation needed)';
+
+  @override
+  String get starCandy100 => 'Star Candy 100 (Translation needed)';
+
+  @override
+  String get starCandy1000 => 'Star Candy 1,000 (Translation needed)';
+
+  @override
+  String get starCandy200 => 'Star Candy 200 (Translation needed)';
+
+  @override
+  String get starCandy2000 => 'Star Candy 2,000 (Translation needed)';
+
+  @override
+  String get starCandy3000 => 'Star Candy 3,000 (Translation needed)';
+
+  @override
+  String get starCandy4000 => 'Star Candy 4,000 (Translation needed)';
+
+  @override
+  String get starCandy5000 => 'Star Candy 5,000 (Translation needed)';
+
+  @override
+  String get starCandy600 => 'Star Candy 600 (Translation needed)';
 }

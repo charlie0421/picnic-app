@@ -3967,6 +3967,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error'**
   String get title_dialog_error;
+
+  /// No description provided for @capture_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen capture failed'**
+  String get capture_failed;
+
+  /// No description provided for @days_ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days ago'**
+  String days_ago(Object days);
+
+  /// No description provided for @hours_ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours ago'**
+  String hours_ago(Object hours);
+
+  /// No description provided for @minutes_ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} minutes ago'**
+  String minutes_ago(Object minutes);
+
+  /// No description provided for @qna_answer_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer'**
+  String get qna_answer_title;
+
+  /// No description provided for @qna_content_too_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Content is too short'**
+  String get qna_content_too_short;
+
+  /// No description provided for @qna_create_first.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first Q&A'**
+  String get qna_create_first;
+
+  /// No description provided for @qna_created_at.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get qna_created_at;
+
+  /// No description provided for @qna_empty_list.
+  ///
+  /// In en, this message translates to:
+  /// **'No Q&A items'**
+  String get qna_empty_list;
+
+  /// No description provided for @qna_error_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading Q&A'**
+  String get qna_error_message;
+
+  /// No description provided for @qna_info_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Q&A Information'**
+  String get qna_info_title;
+
+  /// No description provided for @qna_list_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Q&A List'**
+  String get qna_list_title;
+
+  /// No description provided for @qna_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load Q&A'**
+  String get qna_load_error;
+
+  /// No description provided for @qna_private.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get qna_private;
+
+  /// No description provided for @qna_public.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get qna_public;
+
+  /// No description provided for @qna_public_option.
+  ///
+  /// In en, this message translates to:
+  /// **'Make public'**
+  String get qna_public_option;
+
+  /// No description provided for @qna_public_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Public status'**
+  String get qna_public_status;
+
+  /// No description provided for @qna_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get qna_status;
+
+  /// No description provided for @qna_status_closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get qna_status_closed;
+
+  /// No description provided for @qna_submit_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit Q&A'**
+  String get qna_submit_error;
+
+  /// No description provided for @qna_submit_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Q&A submitted successfully'**
+  String get qna_submit_success;
+
+  /// No description provided for @qna_title_too_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Title is too short'**
+  String get qna_title_too_short;
+
+  /// No description provided for @qna_updated_at.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated at'**
+  String get qna_updated_at;
+
+  /// No description provided for @update_required_message.
+  ///
+  /// In en, this message translates to:
+  /// **'App update required'**
+  String get update_required_message;
+
+  /// No description provided for @vote_item_request_no_search_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No search results'**
+  String get vote_item_request_no_search_results;
+
+  /// No description provided for @vote_item_request_waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting...'**
+  String get vote_item_request_waiting;
+
+  /// No description provided for @starCandy100.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy 100'**
+  String get starCandy100;
+
+  /// No description provided for @starCandy1000.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy 1,000'**
+  String get starCandy1000;
+
+  /// No description provided for @starCandy200.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy 200'**
+  String get starCandy200;
+
+  /// No description provided for @starCandy2000.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy 2,000'**
+  String get starCandy2000;
+
+  /// No description provided for @starCandy3000.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy 3,000'**
+  String get starCandy3000;
+
+  /// No description provided for @starCandy4000.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy 4,000'**
+  String get starCandy4000;
+
+  /// No description provided for @starCandy5000.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy 5,000'**
+  String get starCandy5000;
+
+  /// No description provided for @starCandy600.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy 600'**
+  String get starCandy600;
 }
 
 class _AppLocalizationsDelegate

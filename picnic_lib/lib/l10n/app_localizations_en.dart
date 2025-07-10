@@ -2077,4 +2077,112 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get title_dialog_error => 'Error';
+
+  @override
+  String get capture_failed => 'Screen capture failed';
+
+  @override
+  String days_ago(Object days) {
+    return '$days days ago';
+  }
+
+  @override
+  String hours_ago(Object hours) {
+    return '$hours hours ago';
+  }
+
+  @override
+  String minutes_ago(Object minutes) {
+    return '$minutes minutes ago';
+  }
+
+  @override
+  String get qna_answer_title => 'Answer';
+
+  @override
+  String get qna_content_too_short => 'Content is too short';
+
+  @override
+  String get qna_create_first => 'Create your first Q&A';
+
+  @override
+  String get qna_created_at => 'Created at';
+
+  @override
+  String get qna_empty_list => 'No Q&A items';
+
+  @override
+  String get qna_error_message => 'Error loading Q&A';
+
+  @override
+  String get qna_info_title => 'Q&A Information';
+
+  @override
+  String get qna_list_title => 'Q&A List';
+
+  @override
+  String get qna_load_error => 'Failed to load Q&A';
+
+  @override
+  String get qna_private => 'Private';
+
+  @override
+  String get qna_public => 'Public';
+
+  @override
+  String get qna_public_option => 'Make public';
+
+  @override
+  String get qna_public_status => 'Public status';
+
+  @override
+  String get qna_status => 'Status';
+
+  @override
+  String get qna_status_closed => 'Closed';
+
+  @override
+  String get qna_submit_error => 'Failed to submit Q&A';
+
+  @override
+  String get qna_submit_success => 'Q&A submitted successfully';
+
+  @override
+  String get qna_title_too_short => 'Title is too short';
+
+  @override
+  String get qna_updated_at => 'Updated at';
+
+  @override
+  String get update_required_message => 'App update required';
+
+  @override
+  String get vote_item_request_no_search_results => 'No search results';
+
+  @override
+  String get vote_item_request_waiting => 'Waiting...';
+
+  @override
+  String get starCandy100 => 'Star Candy 100';
+
+  @override
+  String get starCandy1000 => 'Star Candy 1,000';
+
+  @override
+  String get starCandy200 => 'Star Candy 200';
+
+  @override
+  String get starCandy2000 => 'Star Candy 2,000';
+
+  @override
+  String get starCandy3000 => 'Star Candy 3,000';
+
+  @override
+  String get starCandy4000 => 'Star Candy 4,000';
+
+  @override
+  String get starCandy5000 => 'Star Candy 5,000';
+
+  @override
+  String get starCandy600 => 'Star Candy 600';
 }
