@@ -919,7 +919,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_popup_close => 'close';
 
   @override
-  String get label_popup_hide_7days => 'Don\'t view for 7 days';
+  String get label_popup_hide_7days => 'Sembunyikan 7 hari';
 
   @override
   String get label_read_more_comment => 'Lebih banyak komentar';

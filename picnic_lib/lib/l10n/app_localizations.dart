@@ -1799,7 +1799,7 @@ abstract class AppLocalizations {
   /// No description provided for @label_popup_hide_7days.
   ///
   /// In en, this message translates to:
-  /// **'Don\'t view for 7 days'**
+  /// **'Hide for 7 days'**
   String get label_popup_hide_7days;
 
   /// No description provided for @label_read_more_comment.

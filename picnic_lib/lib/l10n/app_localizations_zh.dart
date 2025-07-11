@@ -874,7 +874,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_popup_close => '关闭';
 
   @override
-  String get label_popup_hide_7days => '不查看 7 天';
+  String get label_popup_hide_7days => '隐藏7天';
 
   @override
   String get label_read_more_comment => '更多评论';

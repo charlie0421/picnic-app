@@ -913,7 +913,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_popup_close => 'Close';
 
   @override
-  String get label_popup_hide_7days => 'Don\'t view for 7 days';
+  String get label_popup_hide_7days => '7일간 숨기기';
 
   @override
   String get label_read_more_comment => 'More comments';

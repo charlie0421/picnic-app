@@ -915,7 +915,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_popup_close => 'Close';
 
   @override
-  String get label_popup_hide_7days => 'Don\'t view for 7 days';
+  String get label_popup_hide_7days => 'Hide for 7 days';
 
   @override
   String get label_read_more_comment => 'More comments';

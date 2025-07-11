@@ -271,5 +271,6 @@
   "starCandy3000": "스타 캔디 3000개 + 보너스 540개",
   "starCandy4000": "스타 캔디 4000개 + 보너스 760개",
   "starCandy5000": "스타 캔디 5000개 + 보너스 1000개",
-  "update_required_message": "앱을 계속 사용하려면 새 버전으로 업데이트해야 합니다."
+  "update_required_message": "앱을 계속 사용하려면 새 버전으로 업데이트해야 합니다.",
+  "label_popup_hide_7days": "7일간 숨기기"
 }

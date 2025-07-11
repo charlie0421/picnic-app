@@ -882,7 +882,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_popup_close => '閉じる';
 
   @override
-  String get label_popup_hide_7days => '7日間表示しない';
+  String get label_popup_hide_7days => '7日間非表示';
 
   @override
   String get label_read_more_comment => 'コメントをもっと見る';
