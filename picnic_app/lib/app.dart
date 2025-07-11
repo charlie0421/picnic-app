@@ -20,6 +20,7 @@ import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
@@ -33,7 +34,6 @@ import 'package:picnic_lib/core/config/environment.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/utils/device_debug_info.dart';
-import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});

@@ -4,7 +4,6 @@ class QnA {
   final String question;
   final String? answer;
   final String status;
-  final bool isPrivate;
   final String? createdBy;
   final String? answeredBy;
   final DateTime? answeredAt;
@@ -18,7 +17,6 @@ class QnA {
     required this.question,
     this.answer,
     required this.status,
-    required this.isPrivate,
     this.createdBy,
     this.answeredBy,
     this.answeredAt,
@@ -34,7 +32,6 @@ class QnA {
       question: json['question'] as String,
       answer: json['answer'] as String?,
       status: json['status'] as String,
-      isPrivate: json['is_private'] as bool? ?? false,
       createdBy: json['created_by'] as String?,
       answeredBy: json['answered_by'] as String?,
       answeredAt: json['answered_at'] != null
@@ -55,7 +52,6 @@ class QnA {
       'question': question,
       'answer': answer,
       'status': status,
-      'is_private': isPrivate,
       'created_by': createdBy,
       'answered_by': answeredBy,
       'answered_at': answeredAt?.toIso8601String(),
@@ -64,8 +60,6 @@ class QnA {
       'deleted_at': deletedAt?.toIso8601String(),
     };
   }
-
-  bool get isPublic => !isPrivate;
 }
 
 class QnAListResponse {
@@ -96,13 +90,11 @@ class QnAListResponse {
 class QnACreateRequest {
   final String title;
   final String question;
-  final bool isPrivate;
   final String createdBy;
 
   QnACreateRequest({
     required this.title,
     required this.question,
-    required this.isPrivate,
     required this.createdBy,
   });
 
@@ -110,7 +102,6 @@ class QnACreateRequest {
     return {
       'title': title,
       'question': question,
-      'is_private': isPrivate,
       'created_by': createdBy,
       'status': 'PENDING',
     };

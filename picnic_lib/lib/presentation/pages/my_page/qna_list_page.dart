@@ -214,21 +214,6 @@ class _QnAListPageState extends State<QnAListPage> {
                     _formatDate(qna.createdAt),
                     style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
                   ),
-                  const Spacer(),
-                  if (!qna.isPrivate)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary500,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context).qna_public_option,
-                        style:
-                            getTextStyle(AppTypo.caption12R, AppColors.grey00),
-                      ),
-                    ),
                 ],
               ),
             ],

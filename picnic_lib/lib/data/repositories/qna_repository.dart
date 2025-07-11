@@ -9,7 +9,6 @@ class QnARepository {
     int page = 1,
     int limit = 20,
     String? status,
-    bool? isPrivate,
   }) async {
     try {
       var query = _client
@@ -17,25 +16,12 @@ class QnARepository {
           .select('*')
           .order('created_at', ascending: false);
 
-      // 필터 조건이 있는 경우 새로운 쿼리 체인 구성
-      if (status != null && isPrivate != null) {
+      // 상태 필터 조건이 있는 경우
+      if (status != null) {
         query = _client
             .from('qnas')
             .select('*')
             .eq('status', status)
-            .eq('is_private', isPrivate)
-            .order('created_at', ascending: false);
-      } else if (status != null) {
-        query = _client
-            .from('qnas')
-            .select('*')
-            .eq('status', status)
-            .order('created_at', ascending: false);
-      } else if (isPrivate != null) {
-        query = _client
-            .from('qnas')
-            .select('*')
-            .eq('is_private', isPrivate)
             .order('created_at', ascending: false);
       }
 
@@ -43,8 +29,7 @@ class QnARepository {
       final response = await query.range(offset, offset + limit - 1);
 
       // 간단한 count 조회
-      final totalResponse =
-          await _client.from('qnas').select('qna_id'); // id -> qna_id로 변경
+      final totalResponse = await _client.from('qnas').select('qna_id');
 
       final items = (response as List<dynamic>)
           .map((item) => QnA.fromJson(item as Map<String, dynamic>))
@@ -63,12 +48,11 @@ class QnARepository {
 
   /// 특정 QnA 조회
   Future<QnA?> getQnAById(int qnaId) async {
-    // id -> qnaId로 변경
     try {
       final response = await _client
           .from('qnas')
           .select('*')
-          .eq('qna_id', qnaId) // id -> qna_id로 변경
+          .eq('qna_id', qnaId)
           .maybeSingle();
 
       if (response == null) return null;
@@ -91,14 +75,12 @@ class QnARepository {
       final response = await _client
           .from('qnas')
           .select('*')
-          .eq('created_by', userId) // user_id -> created_by로 변경
+          .eq('created_by', userId)
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
 
-      final totalResponse = await _client
-          .from('qnas')
-          .select('qna_id') // id -> qna_id로 변경
-          .eq('created_by', userId); // user_id -> created_by로 변경
+      final totalResponse =
+          await _client.from('qnas').select('qna_id').eq('created_by', userId);
 
       final items = (response as List<dynamic>)
           .map((item) => QnA.fromJson(item as Map<String, dynamic>))
@@ -129,11 +111,10 @@ class QnARepository {
 
   /// QnA 수정 (제목, 내용만)
   Future<QnA> updateQnA({
-    required int qnaId, // id -> qnaId로 변경
+    required int qnaId,
     required String userId,
     String? title,
-    String? question, // content -> question으로 변경
-    bool? isPrivate, // isPublic -> isPrivate로 변경
+    String? question,
   }) async {
     try {
       final updateData = <String, dynamic>{
@@ -142,17 +123,14 @@ class QnARepository {
 
       if (title != null) updateData['title'] = title;
       if (question != null) {
-        updateData['question'] = question; // content -> question
-      }
-      if (isPrivate != null) {
-        updateData['is_private'] = isPrivate; // is_public -> is_private
+        updateData['question'] = question;
       }
 
       final response = await _client
           .from('qnas')
           .update(updateData)
-          .eq('qna_id', qnaId) // id -> qna_id로 변경
-          .eq('created_by', userId) // user_id -> created_by로 변경
+          .eq('qna_id', qnaId)
+          .eq('created_by', userId)
           .select()
           .single();
 
@@ -164,7 +142,7 @@ class QnARepository {
 
   /// QnA 삭제 (소프트 삭제)
   Future<void> deleteQnA({
-    required int qnaId, // id -> qnaId로 변경
+    required int qnaId,
     required String userId,
   }) async {
     try {
@@ -174,8 +152,8 @@ class QnARepository {
             'deleted_at': DateTime.now().toIso8601String(),
             'updated_at': DateTime.now().toIso8601String(),
           })
-          .eq('qna_id', qnaId) // id -> qna_id로 변경
-          .eq('created_by', userId); // user_id -> created_by로 변경
+          .eq('qna_id', qnaId)
+          .eq('created_by', userId);
     } catch (e) {
       throw Exception('QnA 삭제 실패: $e');
     }
@@ -183,7 +161,7 @@ class QnARepository {
 
   /// 답변 추가 (관리자용)
   Future<QnA> addAnswer({
-    required int qnaId, // id -> qnaId로 변경
+    required int qnaId,
     required String answer,
     required String answeredBy,
   }) async {
@@ -197,7 +175,7 @@ class QnARepository {
             'status': 'ANSWERED',
             'updated_at': DateTime.now().toIso8601String(),
           })
-          .eq('qna_id', qnaId) // id -> qna_id로 변경
+          .eq('qna_id', qnaId)
           .select()
           .single();
 

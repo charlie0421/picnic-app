@@ -7,7 +7,7 @@ part of '../../presentation/providers/purchase_product_provider.dart';
 // **************************************************************************
 
 String _$purchaseProductListHash() =>
-    r'e63d03102e938d8ad8771dcb8f375410db489fe1';
+    r'a971062ff5b42a812d648989ed98a480fa708f89';
 
 /// See also [PurchaseProductList].
 @ProviderFor(PurchaseProductList)

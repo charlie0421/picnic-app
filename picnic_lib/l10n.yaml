@@ -4,3 +4,9 @@ output-localization-file: app_localizations.dart
 output-class: AppLocalizations
 synthetic-package: false
 nullable-getter: false
+# 메타데이터 경고 억제 설정 (안전장치)
+require-resource-attributes: false
+# Flutter 3.32.5 호환성 설정
+use-deferred-loading: false
+# 누락된 번역 정보 파일 생성
+untranslated-messages-file: untranslated-messages.json

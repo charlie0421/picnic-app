@@ -42,7 +42,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).qna_load_error),
+            content: Text('Q&A 로딩에 실패했습니다'),
             backgroundColor: AppColors.grey900,
           ),
         );
@@ -156,24 +156,6 @@ class _QnADetailPageState extends State<QnADetailPage> {
                   color: Colors.grey[600],
                 ),
               ),
-              const SizedBox(width: 16),
-              if (_currentQnA!.isPublic)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary500.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context).qna_public,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.primary500,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
             ],
           ),
         ],
@@ -222,27 +204,21 @@ class _QnADetailPageState extends State<QnADetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context).qna_info_title,
+            'Q&A 정보',
             style: getTextStyle(AppTypo.title18B, AppColors.grey900),
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
-            AppLocalizations.of(context).qna_status,
+            '상태',
             _getStatusText(_currentQnA!.status),
           ),
           _buildInfoRow(
-            AppLocalizations.of(context).qna_created_at,
+            '작성일',
             DateFormat('yyyy-MM-dd HH:mm').format(_currentQnA!.createdAt),
           ),
           _buildInfoRow(
-            AppLocalizations.of(context).qna_updated_at,
+            '수정일',
             DateFormat('yyyy-MM-dd HH:mm').format(_currentQnA!.updatedAt),
-          ),
-          _buildInfoRow(
-            AppLocalizations.of(context).qna_public_status,
-            _currentQnA!.isPrivate
-                ? AppLocalizations.of(context).qna_private
-                : AppLocalizations.of(context).qna_public_option,
           ),
         ],
       ),
@@ -269,7 +245,7 @@ class _QnADetailPageState extends State<QnADetailPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context).qna_answer_title,
+                '답변',
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900),
               ),
             ],

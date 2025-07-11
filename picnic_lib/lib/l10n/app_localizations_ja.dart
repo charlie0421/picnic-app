@@ -21,36 +21,35 @@ class AppLocalizationsJa extends AppLocalizations {
   String get anonymous_mode => '匿名モード';
 
   @override
-  String get appTitle => 'ピクニック';
+  String get appTitle => 'Picnic';
 
   @override
-  String get app_name => 'Picnic (Translation needed)';
+  String get app_name => 'ピクニック';
 
   @override
-  String get application_reason_hint => '申請理由を入力してください（任意）';
+  String get application_reason_hint => 'Enter application reason (optional)';
 
   @override
-  String get application_reason_label => '申請理由';
+  String get application_reason_label => 'Application Reason';
 
   @override
-  String get application_success => '投票候補者申請が完了しました。';
+  String get application_success =>
+      'Vote candidate application has been completed.';
 
   @override
-  String get artist_name_hint => 'アーティスト名を入力してください';
+  String get artist_name_hint => 'Enter artist name';
 
   @override
-  String get artist_name_label => 'アーティスト名';
+  String get artist_name_label => 'Artist Name';
 
   @override
   String get block_user_label => 'ユーザーブロック';
 
   @override
-  String get bonus_candy_awarded =>
-      'Star candy has been awarded. (Translation needed)';
+  String get bonus_candy_awarded => '星飴が支給されました。';
 
   @override
-  String get button_apply_as_candidate =>
-      'Candidate Application (Translation needed)';
+  String get button_apply_as_candidate => '候補者応募';
 
   @override
   String get button_cancel => 'キャンセル';
@@ -71,6 +70,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get candy_disappear_next_month => '消滅予定ボーナス星空キャンディー😢(笑)';
 
   @override
+  String get capture_failed => '画面キャプチャに失敗しました';
+
+  @override
   String get candy_usage_policy_contents => '今月獲得したボーナススターキャンディーは、翌月15日に消滅します。';
 
   @override
@@ -83,8 +85,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get candy_usage_policy_guide_button => '詳細を見る';
 
   @override
-  String get candy_usage_policy_title =>
-      'Starchies Usage Policy (Translation needed)';
+  String get candy_usage_policy_title => 'スターキャンディー使用ポリシー';
 
   @override
   String get comments => 'コメント';
@@ -201,7 +202,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String compatibility_share_message(Object artistName) {
-    return '私と#$artistName の輝くケミは何％かな？ドキドキが止まらない！';
+    return '私と$artistName の輝くケミは何％かな？ドキドキが止まらない！';
   }
 
   @override
@@ -211,8 +212,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_snackbar_need_birthday => '生年月日を入力してください。';
 
   @override
-  String get compatibility_snackbar_need_birthtime =>
-      'Please enter your birth time. (Translation needed)';
+  String get compatibility_snackbar_need_birthtime => '出生時刻を入力してください。';
 
   @override
   String get compatibility_snackbar_need_gender => '性別を選択してください。';
@@ -225,23 +225,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_snackbar_start => '相性を分析し始めます。';
 
   @override
-  String get compatibility_status_completed => 'Done (Translation needed)';
+  String get compatibility_status_completed => '完了';
 
   @override
-  String get compatibility_status_error => 'Error (Translation needed)';
+  String get compatibility_status_error => 'エラー';
 
   @override
-  String get compatibility_status_input => 'Typing (Translation needed)';
+  String get compatibility_status_input => '入力中';
 
   @override
-  String get compatibility_status_pending => 'Analyzing (Translation needed)';
+  String get compatibility_status_pending => '分析中';
 
   @override
   String get compatibility_style_title => '相性スタイル';
 
   @override
-  String get compatibility_summary_title =>
-      'Compatibility summary (Translation needed)';
+  String get compatibility_summary_title => '相性の概要';
 
   @override
   String get compatibility_time_slot1 => '子の刻(ね)|(23:30-01:29)|🐀';
@@ -307,26 +306,23 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dialog_content_ads_exhausted => '広告がなくなりました。次回、もう一度お試しください。';
 
   @override
-  String get dialog_content_ads_loading =>
-      'Ads are loading. (Translation needed)';
+  String get dialog_content_ads_loading => '広告の読み込み中です。';
 
   @override
-  String get dialog_content_ads_retrying =>
-      'The ad is reloading. Please try again in a moment. (Translation needed)';
+  String get dialog_content_ads_retrying => '広告を再呼び出し中です。しばらくしてからもう一度お試しください。';
 
   @override
   String get dialog_content_login_required => 'ログインが必要です';
 
   @override
   String get dialog_login_required_description =>
-      'You need to login to use this feature. Would you like to login? (Translation needed)';
+      'この機能を使用するにはログインが必要です。ログインしますか？';
 
   @override
   String get dialog_message_can_resignup => '今すぐ退会した場合、再入会可能日';
 
   @override
-  String get dialog_message_purchase_canceled =>
-      'Your purchase has been canceled. (Translation needed)';
+  String get dialog_message_purchase_canceled => '購入がキャンセルされました。';
 
   @override
   String get dialog_message_purchase_failed => '購入中にエラーが発生しました。 後ほど再試行してください。';
@@ -335,12 +331,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dialog_message_purchase_success => '購入が正常に完了しました。';
 
   @override
-  String get dialog_purchases_fail =>
-      'The purchase failed. (Translation needed)';
+  String get dialog_purchases_fail => '購入に失敗しました。';
 
   @override
-  String get dialog_purchases_success =>
-      'Your purchase is complete. (Translation needed)';
+  String get dialog_purchases_success => '購入が完了しました。';
 
   @override
   String get dialog_title_ads_exhausted => '広告完売しました';
@@ -352,87 +346,79 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dialog_will_delete_star_candy => '削除予定 星飴';
 
   @override
-  String get dialog_withdraw_button_cancel =>
-      'Let me think about this one more time. (Translation needed)';
+  String get dialog_withdraw_button_cancel => 'もう一度考えてみます';
 
   @override
   String get dialog_withdraw_button_ok => '退会する';
 
   @override
-  String get dialog_withdraw_error =>
-      'An error occurred during unsubscribe. (Translation needed)';
+  String get dialog_withdraw_error => '退会中にエラーが発生しました。';
 
   @override
   String get dialog_withdraw_message =>
       '退会時、ピクニックで保有している星キャンディーとアカウント情報は即座に削除され、再入会時、既存の情報及びデータは復旧されません。';
 
   @override
-  String get dialog_withdraw_success =>
-      'The unsubscribe was processed successfully. (Translation needed)';
+  String get dialog_withdraw_success => '退会が正常に処理されました。';
 
   @override
   String get dialog_withdraw_title => '本当に退会しますか？';
 
   @override
-  String get download_android_button =>
-      'Get it on Google Play (Translation needed)';
+  String get download_android_button => 'Google Playでダウンロード';
 
   @override
-  String get download_apk_button => 'Direct APK Download (Translation needed)';
+  String get download_apk_button => 'ダイレクトAPKダウンロード';
 
   @override
-  String get download_coming_soon => 'Coming Soon (Translation needed)';
+  String get download_coming_soon => '近日公開';
 
   @override
-  String get download_description =>
-      'Voting and media platform for K-Pop artists (Translation needed)';
+  String get download_description => 'K-Popアーティスト向けの投票とメディアプラットフォーム';
 
   @override
-  String get download_feature_media => 'Media Gallery (Translation needed)';
+  String get download_feature_media => 'メディアギャラリー';
 
   @override
-  String get download_feature_rewards => 'Reward System (Translation needed)';
+  String get download_feature_rewards => '特典システム';
 
   @override
-  String get download_feature_voting => 'Artist Voting (Translation needed)';
+  String get download_feature_voting => 'アーティスト投票';
 
   @override
-  String get download_features_title =>
-      'Picnic Key Features (Translation needed)';
+  String get download_features_title => 'ピクニックの主要な機能';
 
   @override
-  String get download_ios_button =>
-      'Download on App Store (Translation needed)';
+  String get download_ios_button => 'App Storeでダウンロード';
 
   @override
-  String get download_link_copied => 'Copied! (Translation needed)';
+  String get download_link_copied => 'コピー完了！';
 
   @override
-  String get download_link_copy => 'Copy Link (Translation needed)';
+  String get download_link_copy => 'リンクをコピー';
 
   @override
-  String get download_page_title => 'Download Picnic App (Translation needed)';
+  String get download_page_title => 'ピクニック アプリをダウンロード';
 
   @override
-  String get download_qr_description =>
-      'Scan the QR code with your smartphone (Translation needed)';
+  String get download_qr_description => 'スマートフォンでQRコードをスキャンしてください。';
 
   @override
-  String get download_qr_title =>
-      'Quick Download with QR Code (Translation needed)';
+  String get download_qr_title => 'QRコードでクイックダウンロード';
 
   @override
   String get download_subtitle =>
-      'Download the Picnic app now and support your favorite K-Pop artists! (Translation needed)';
+      '今すぐPicnicアプリをダウンロードして、お気に入りのK-Popアーティストを応援しよう！';
 
   @override
   String get error_action_failed => '作業中にエラーが発生しました。';
 
   @override
-  String get error_application_reason_required => '申請理由を入力してください';
+  String get error_application_reason_required =>
+      'Application reason is required';
 
   @override
-  String get error_artist_not_selected => 'アーティストを選択してください';
+  String get error_artist_not_selected => 'Please select an artist';
 
   @override
   String get error_content_parse => 'コンテンツ解析中にエラーが発生しました。';
@@ -447,15 +433,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get error_loading_more_comments => 'コメントの読み込み中にエラーが発生しました。';
 
   @override
-  String get error_loading_page =>
-      'An error occurred while loading the page. (Translation needed)';
+  String get error_loading_page => 'ページの読み込み中にエラーが発生しました。';
 
   @override
   String get error_message_login_failed => 'ログイン中にエラーが発生しました。';
 
   @override
-  String get error_message_no_user =>
-      'The membership information doesn\'t exist. (Translation needed)';
+  String get error_message_no_user => '会員情報が存在しません。';
 
   @override
   String get error_message_withdrawal => '退会した会員です。';
@@ -474,39 +458,37 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get exception_auth_message_apple_invalid_response =>
-      'We received an invalid response from the Apple server.\nPlease try again. (Translation needed)';
+      'Appleのサーバーから無効な応答を受け取りました。\nもう一度お試しください。';
 
   @override
   String get exception_auth_message_apple_sign_in_failed =>
-      'Apple sign-in failed.\nPlease try again. (Translation needed)';
+      'Appleログインに失敗しました。\nもう一度お試しください。';
 
   @override
-  String get exception_auth_message_common_cancel =>
-      'Your login has been canceled. (Translation needed)';
+  String get exception_auth_message_common_cancel => 'ログインがキャンセルされました。';
 
   @override
   String get exception_auth_message_common_invalid_token =>
-      'The authentication token is invalid.\nPlease try again. (Translation needed)';
+      '認証トークンが無効です。\n再試行してください。';
 
   @override
-  String get exception_auth_message_common_network =>
-      'Check your network connection. (Translation needed)';
+  String get exception_auth_message_common_network => 'ネットワーク接続を確認してください。';
 
   @override
   String get exception_auth_message_common_unknown =>
-      'An unknown error occurred during login.\nPlease try again in a moment. (Translation needed)';
+      'ログイン中に不明なエラーが発生しました。\nしばらくしてから再試行してください。';
 
   @override
   String get exception_auth_message_common_unsupported_provider =>
-      'This login method is not supported. (Translation needed)';
+      'サポートされていないログイン方法です';
 
   @override
   String get exception_auth_message_google_google_play_service =>
-      'A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device. (Translation needed)';
+      'Google Play Servicesエラーが発生しました。\nGoogle Play Servicesを更新するか、デバイスを再起動してください。';
 
   @override
   String get exception_auth_message_kakao_not_supported =>
-      'I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account. (Translation needed)';
+      'カカオトークのアプリでログインできません。\nカカオアカウントでログインを試みます。';
 
   @override
   String get faq_category_account => 'アカウント';
@@ -606,7 +588,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fortune_monthly => '月別占い';
 
   @override
-  String get fortune_purchase_by_one_click => 'Pay Now (Translation needed)';
+  String get fortune_purchase_by_one_click => 'すぐに支払い';
 
   @override
   String get fortune_purchase_by_star_candy => 'スターキャンディで確認';
@@ -615,17 +597,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fortune_relationship => '対人関係';
 
   @override
-  String get fortune_share_hashtag =>
-      '#picnic #신년운세 #Fourtuneteller (Translation needed)';
+  String get fortune_share_hashtag => '#picnic #신년운세 #フォーチュネテラー';
 
   @override
   String fortune_share_message(Object artistName) {
-    return 'Curious about $artistName\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together! (Translation needed)';
+    return '想知道$artistName在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！\n#picnic #新年运势 #Fourtuneteller\n';
   }
 
   @override
   String fortune_title(Object year) {
-    return 'Fortune of $year (Translation needed)';
+    return '$year年の運勢';
   }
 
   @override
@@ -635,10 +616,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fortune_with_me => 'アーティストと私の相性';
 
   @override
-  String get group_name_hint => 'グループ名を入力してください（任意）';
+  String get group_name_hint => 'Enter group name (optional)';
 
   @override
-  String get group_name_label => 'グループ名';
+  String get group_name_label => 'Group Name';
 
   @override
   String get hint_library_add => 'アルバム名';
@@ -664,16 +645,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_ads_load_fail => '広告の読み込みに失敗しました。もう一度お試しください。';
 
   @override
-  String get label_ads_load_timeout =>
-      'Ad loading timed out. Please try again. (Translation needed)';
+  String get label_ads_load_timeout => '広告の読み込みがタイムアウトしました。もう一度お試しください。';
 
   @override
-  String get label_ads_next_available_time =>
-      'When the next ad will be available. (Translation needed)';
+  String get label_ads_next_available_time => '次の広告視聴可能時間。';
 
   @override
-  String get label_ads_reward_fail =>
-      'Failed to get reward. Please try again. (Translation needed)';
+  String get label_ads_reward_fail => '報酬の獲得に失敗しました。もう一度お試しください。';
 
   @override
   String get label_ads_sdk_init_fail => 'SDK初期化に失敗しました。もう一度お試しください。';
@@ -691,13 +669,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_album_add => '新しいアルバムを追加';
 
   @override
-  String get label_area_filter_all => 'All (Translation needed)';
+  String get label_area_filter_all => 'All';
 
   @override
-  String get label_area_filter_kpop => 'K-POP (Translation needed)';
+  String get label_area_filter_kpop => 'K-POP';
 
   @override
-  String get label_area_filter_musical => 'K-MUSICAL (Translation needed)';
+  String get label_area_filter_musical => 'K-MUSICAL';
 
   @override
   String get label_article_comment_empty => '最初のコメントの主人公になりましょう！';
@@ -715,38 +693,34 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_button_close => '閉じる';
 
   @override
-  String get label_button_disagreement => 'Non-Consent (Translation needed)';
+  String get label_button_disagreement => '非同意';
 
   @override
-  String get label_button_mission_and_charge =>
-      'Mission and charge (Translation needed)';
+  String get label_button_mission_and_charge => 'ミッションして充電する';
 
   @override
   String get label_button_recharge => '充電する';
 
   @override
-  String get label_button_save_vote_paper =>
-      'Save your ballot (Translation needed)';
+  String get label_button_save_vote_paper => '投票券の保存';
 
   @override
-  String get label_button_share => 'Share (Translation needed)';
+  String get label_button_share => 'シェアする';
 
   @override
   String get label_button_vote => '投票する';
 
   @override
-  String get label_button_vote_ended => 'Vote Ended (Translation needed)';
+  String get label_button_vote_ended => '投票終了';
 
   @override
-  String get label_button_vote_upcoming => 'Vote Upcoming (Translation needed)';
+  String get label_button_vote_upcoming => '投票予定';
 
   @override
-  String get label_button_watch_and_charge =>
-      'Viewing and charging for ads (Translation needed)';
+  String get label_button_watch_and_charge => '広告を見てチャージする';
 
   @override
-  String get label_celeb_ask_to_you =>
-      'The Artist Asks You! (Translation needed)';
+  String get label_celeb_ask_to_you => 'アーティストがあなたに尋ねる！';
 
   @override
   String get label_celeb_gallery => 'アーティストギャラリー';
@@ -758,7 +732,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_checkbox_entire_use => '全体使用';
 
   @override
-  String get label_current_language => 'Current language (Translation needed)';
+  String get label_current_language => '現在の言語';
 
   @override
   String get label_draw_image => 'ランダム画像獲得チャンス';
@@ -770,13 +744,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_dropdown_recent => '最新順';
 
   @override
-  String get label_find_celeb => 'Find more artists (Translation needed)';
+  String get label_find_celeb => 'その他のアーティストを探す';
 
   @override
-  String get label_gallery_tab_article => 'Articles (Translation needed)';
+  String get label_gallery_tab_article => '記事';
 
   @override
-  String get label_gallery_tab_chat => 'Chat (Translation needed)';
+  String get label_gallery_tab_chat => 'チャット';
 
   @override
   String get label_global_recommendation => 'グローバルおすすめ';
@@ -806,27 +780,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_library_tab_pic => 'ピック';
 
   @override
-  String get label_list_more => 'More (Translation needed)';
+  String get label_list_more => 'もっと見る';
 
   @override
   String get label_loading_ads => '広告読み込み中';
 
   @override
-  String get label_loading_ads_fail => 'Ads fail to load (Translation needed)';
+  String get label_loading_ads_fail => '広告の読み込みに失敗';
 
   @override
-  String get label_login_with_apple => 'Login with Apple (Translation needed)';
+  String get label_login_with_apple => 'Appleでログイン';
 
   @override
-  String get label_login_with_google =>
-      'Login with Google (Translation needed)';
+  String get label_login_with_google => 'Googleでログイン';
 
   @override
-  String get label_login_with_kakao => 'Login with Kakao (Translation needed)';
+  String get label_login_with_kakao => 'Kakaoでログイン';
 
   @override
-  String get label_login_with_wechat =>
-      'Login with WeChat (Translation needed)';
+  String get label_login_with_wechat => 'WeChatでログイン';
 
   @override
   String get label_mission => 'ミッションをする';
@@ -886,7 +858,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_mypage_withdrawal => '退会する';
 
   @override
-  String get label_no_ads => 'No ads (Translation needed)';
+  String get label_no_ads => '広告なし';
 
   @override
   String get label_no_celeb => 'まだブックマークしたアーティストはいません！';
@@ -895,7 +867,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_pic_chart => 'PICチャート';
 
   @override
-  String get label_pic_image_cropping => 'Crop an image (Translation needed)';
+  String get label_pic_image_cropping => '画像の切り抜き';
 
   @override
   String get label_pic_pic_initializing_camera => 'カメラの初期化中...';
@@ -922,17 +894,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_retry => '再試行する';
 
   @override
-  String get label_reward_location => 'Location (Translation needed)';
+  String get label_reward_location => 'ロケーション';
 
   @override
-  String get label_reward_overview => 'Overview (Translation needed)';
+  String get label_reward_overview => '概要';
 
   @override
-  String get label_reward_size => 'Size (Translation needed)';
+  String get label_reward_size => 'サイズ';
 
   @override
-  String get label_screen_title_agreement =>
-      'Accept the terms (Translation needed)';
+  String get label_screen_title_agreement => '規約に同意する';
 
   @override
   String get label_setting_alarm => 'お知らせ';
@@ -965,13 +936,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_setting_remove_cache => 'キャッシュメモリの削除';
 
   @override
-  String get label_setting_remove_cache_complete => 'Done (Translation needed)';
+  String get label_setting_remove_cache_complete => '完了';
 
   @override
   String get label_setting_storage => 'ストレージスペース管理';
 
   @override
-  String get label_setting_update => 'Update (Translation needed)';
+  String get label_setting_update => '最新情報';
 
   @override
   String get label_star_candy_pouch => 'スターキャンディーの袋';
@@ -983,36 +954,34 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_tab_free_charge_station => '無料充電ステーション';
 
   @override
-  String get label_tab_my_artist => 'MyArtist (Translation needed)';
+  String get label_tab_my_artist => 'マイアーティスト';
 
   @override
-  String get label_tab_search_my_artist => 'Find MyArtist (Translation needed)';
+  String get label_tab_search_my_artist => 'マイアーティストを探す';
 
   @override
-  String get label_tabbar_picchart_daily => 'Daily charts (Translation needed)';
+  String get label_tabbar_picchart_daily => '日足チャート';
 
   @override
-  String get label_tabbar_picchart_monthly =>
-      'Monthly Charts (Translation needed)';
+  String get label_tabbar_picchart_monthly => '月間チャート';
 
   @override
-  String get label_tabbar_picchart_weekly =>
-      'Weekly charts (Translation needed)';
+  String get label_tabbar_picchart_weekly => '週間チャート';
 
   @override
-  String get label_tabbar_vote_active => 'Active';
+  String get label_tabbar_vote_active => '進行中';
 
   @override
-  String get label_tabbar_vote_all => 'All (Translation needed)';
+  String get label_tabbar_vote_all => '全体';
 
   @override
-  String get label_tabbar_vote_end => 'Ended';
+  String get label_tabbar_vote_end => '終了';
 
   @override
-  String get label_tabbar_vote_image => '画像投票';
+  String get label_tabbar_vote_image => 'Image Vote';
 
   @override
-  String get label_tabbar_vote_upcoming => 'Upcoming';
+  String get label_tabbar_vote_upcoming => '予定';
 
   @override
   String label_time_ago_day(Object day) {
@@ -1033,7 +1002,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_time_ago_right_now => '先ほど';
 
   @override
-  String get label_title_comment => 'Comments (Translation needed)';
+  String get label_title_comment => 'コメント';
 
   @override
   String get label_title_report => '報告する';
@@ -1042,40 +1011,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_unlimited_rewards => '無制限の報酬';
 
   @override
-  String get label_various_rewards => 'Various rewards (Translation needed)';
+  String get label_various_rewards => '様々な報酬';
 
   @override
-  String get label_vote_achieve => 'Achievement Vote (Translation needed)';
+  String get label_vote_achieve => '達成投票';
 
   @override
-  String get label_vote_birthday => 'Birthday (Translation needed)';
+  String get label_vote_birthday => '誕生日';
 
   @override
-  String get label_vote_comback => 'Comeback Vote (Translation needed)';
+  String get label_vote_comback => 'カムバック投票';
 
   @override
-  String get label_vote_debut => 'Debut (Translation needed)';
+  String get label_vote_debut => 'デビュー';
 
   @override
   String get label_vote_end => '投票終了';
 
   @override
-  String get label_vote_image => 'Image (Translation needed)';
+  String get label_vote_image => 'イメージ';
 
   @override
   String get label_vote_reward_list => 'リワードリスト';
 
   @override
-  String get label_vote_screen_title => 'Voting (Translation needed)';
+  String get label_vote_screen_title => '投票';
 
   @override
-  String get label_vote_shining => 'Shining Vote (Translation needed)';
+  String get label_vote_shining => '輝く投票';
 
   @override
-  String get label_vote_tab_birthday => 'Birthday polls (Translation needed)';
+  String get label_vote_tab_birthday => '誕生日投票';
 
   @override
-  String get label_vote_tab_pic => 'PIC voting (Translation needed)';
+  String get label_vote_tab_pic => 'PIC投票';
 
   @override
   String get label_vote_upcoming => '投票開始まで';
@@ -1093,15 +1062,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get lable_my_celeb => '私のアーティスト';
 
   @override
-  String get login_simple_login => 'Simple Login (Translation needed)';
+  String get login_simple_login => '簡易ログイン';
 
   @override
   String get login_simple_login_guide =>
-      'Don\'t have an account? You\'ll be automatically signed up with your social login above (Translation needed)';
+      'アカウントをお持ちでない場合、上記のソーシャルログインで自動的に登録されます';
 
   @override
-  String get login_title =>
-      'Find special moments at a picnic (Translation needed)';
+  String get login_title => 'ピクニックで特別な瞬間を見つけよう';
 
   @override
   String get message_agreement_success => '規約の同意が完了しました。';
@@ -1125,11 +1093,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get message_pic_pic_save_success => '画像が保存されました。';
 
   @override
-  String get message_report_confirm => 'Want to report? (Translation needed)';
+  String get message_report_confirm => '申告しますか？';
 
   @override
-  String get message_report_ok =>
-      'The report is complete. (Translation needed)';
+  String get message_report_ok => '申告が完了しました。';
 
   @override
   String get message_setting_remove_cache => 'キャッシュメモリの削除が完了しました';
@@ -1151,23 +1118,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get my_info => '私の情報';
 
   @override
-  String get mypage_comment => 'Manage comments (Translation needed)';
+  String get mypage_comment => 'コメント管理';
 
   @override
-  String get mypage_language => 'Language settings (Translation needed)';
+  String get mypage_language => '言語設定';
 
   @override
-  String get mypage_purchases => 'My purchases (Translation needed)';
+  String get mypage_purchases => '私の購入';
 
   @override
   String get mypage_setting => '設定';
 
   @override
-  String get mypage_subscription =>
-      'Subscription information (Translation needed)';
+  String get mypage_subscription => '購読情報';
 
   @override
-  String get nav_ads => 'Ads (Translation needed)';
+  String get nav_ads => '広告';
 
   @override
   String get nav_board => '掲示板';
@@ -1191,13 +1157,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get nav_picchart => 'PICチャート';
 
   @override
-  String get nav_purchases => 'Purchase (Translation needed)';
+  String get nav_purchases => '購入';
 
   @override
-  String get nav_rewards => 'Reward (Translation needed)';
+  String get nav_rewards => 'リワード';
 
   @override
-  String get nav_setting => 'Settings (Translation needed)';
+  String get nav_setting => '設定';
 
   @override
   String get nav_store => 'ショップ';
@@ -1215,7 +1181,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get no_search_results => 'No search results found';
 
   @override
-  String get optional => 'Optional (Translation needed)';
+  String get optional => 'オプション';
 
   @override
   String get page_title_mypage => 'マイページ';
@@ -1230,7 +1196,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get page_title_privacy => '個人情報保護方針';
 
   @override
-  String get page_title_setting => 'Preferences (Translation needed)';
+  String get page_title_setting => '環境設定';
 
   @override
   String get page_title_terms_of_use => '利用規約';
@@ -1242,16 +1208,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get page_title_vote_gather => '投票集を見る';
 
   @override
-  String get patch_check => 'Checking for patches (Translation needed)';
+  String get patch_check => 'パッチをチェックする';
 
   @override
-  String get patch_error => 'Patch failed (Translation needed)';
+  String get patch_error => 'パッチが失敗した';
 
   @override
-  String get patch_install => 'Installing patch (Translation needed)';
+  String get patch_install => 'パッチをインストールする';
 
   @override
-  String get patch_restart_app => 'Restarting app (Translation needed)';
+  String get patch_restart_app => 'アプリを再起動する';
 
   @override
   String get popup_label_delete => '削除';
@@ -1282,8 +1248,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get post_board_request_label => 'オープンリクエスト';
 
   @override
-  String get post_cannot_open_youtube =>
-      'I can\'t open Youtube. (Translation needed)';
+  String get post_cannot_open_youtube => 'Youtubeを開くことができません。';
 
   @override
   String get post_comment_action_show_original => '原文を見る';
@@ -1322,8 +1287,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get post_comment_reported_comment => '報告されたコメントです。';
 
   @override
-  String get post_comment_translate_complete =>
-      'The translation is complete. (Translation needed)';
+  String get post_comment_translate_complete => '翻訳が完了しました。';
 
   @override
   String get post_comment_translate_fail => '翻訳に失敗しました。';
@@ -1365,8 +1329,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get post_insert_link => 'リンク挿入';
 
   @override
-  String get post_loading_post_fail =>
-      'The post failed to load. (Translation needed)';
+  String get post_loading_post_fail => '投稿の読み込みに失敗しました。';
 
   @override
   String get post_minor_board_condition => '説明は5文字以上20文字以内で入力してください。';
@@ -1488,40 +1451,39 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get purchase_restore_success_message =>
-      'Purchase restoration completed.\\nPlease check your star candy balance. (Translation needed)';
+      '購入の復元が完了しました。\\nスターキャンディの残高をご確認ください。';
 
   @override
-  String get purchase_restore_wait_message =>
-      'Purchase is in progress. Please try again after completion. (Translation needed)';
+  String get purchase_restore_wait_message => '購入処理中です。完了後に再度お試しください。';
 
   @override
   String get purchase_timeout_message =>
-      'Purchase processing is taking too long.\\nPlease try again later. (Translation needed)';
+      '購入処理に時間がかかりすぎています。\\nしばらくしてから再度お試しください。';
 
   @override
   String get purchase_web_message =>
       'アプリ決済ができない方のための決済画面です。\n あらかじめ乱数IDをコピーしてください。\n コピー後、下のボタンを押して支払いを行ってください。';
 
   @override
-  String get qna_actions => 'Actions (Translation needed)';
+  String get qna_actions => 'Actions';
 
   @override
-  String get qna_answer => 'Answer (Translation needed)';
+  String get qna_answer => 'Answer';
 
   @override
-  String get qna_answered_at => 'Answered at (Translation needed)';
+  String get qna_answered_at => 'Answered at';
 
   @override
-  String get qna_answered_by => 'Answered by (Translation needed)';
+  String get qna_answered_by => 'Answered by';
 
   @override
-  String get qna_attached_files => 'Attached Files (Translation needed)';
+  String get qna_attached_files => '添付ファイル';
 
   @override
-  String get qna_attachments => 'Attachments (Translation needed)';
+  String get qna_attachments => 'Attachments';
 
   @override
-  String get qna_cancel => 'Cancel (Translation needed)';
+  String get qna_cancel => 'キャンセル';
 
   @override
   String get qna_content => 'Content';
@@ -1530,79 +1492,71 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_content_hint => 'お問い合わせ内容を詳しく入力してください';
 
   @override
-  String get qna_content_min_length =>
-      'Inquiry content must be at least 10 characters (Translation needed)';
+  String get qna_content_min_length => 'お問い合わせ内容は最低10文字以上入力してください';
 
   @override
-  String get qna_content_required =>
-      'Please enter inquiry content (Translation needed)';
+  String get qna_content_required => 'お問い合わせ内容を入力してください';
 
   @override
-  String get qna_create_failed =>
-      'Failed to submit inquiry: (Translation needed)';
+  String get qna_create_failed => 'お問い合わせ登録失敗：';
 
   @override
   String get qna_create_page_title => 'お問い合わせ作成';
 
   @override
-  String get qna_create_success =>
-      'Inquiry has been successfully submitted (Translation needed)';
+  String get qna_create_success => 'お問い合わせが正常に登録されました';
 
   @override
-  String get qna_delete => 'Delete (Translation needed)';
+  String get qna_delete => '削除';
 
   @override
-  String get qna_delete_confirm => 'Delete (Translation needed)';
+  String get qna_delete_confirm => '削除';
 
   @override
-  String get qna_delete_confirm_content =>
-      'Delete this inquiry?\nIt cannot be recovered after deletion. (Translation needed)';
+  String get qna_delete_confirm_content => 'このお問い合わせを削除しますか？\n削除後は復元できません。';
 
   @override
-  String get qna_delete_confirm_title => 'Delete Inquiry (Translation needed)';
+  String get qna_delete_confirm_title => 'Delete Inquiry';
 
   @override
-  String get qna_delete_failed => 'Failed to delete (Translation needed)';
+  String get qna_delete_failed => '削除に失敗しました';
 
   @override
-  String get qna_delete_success =>
-      'Inquiry has been deleted (Translation needed)';
+  String get qna_delete_success => 'お問い合わせが削除されました';
 
   @override
   String get qna_detail_page_title => 'お問い合わせ詳細';
 
   @override
-  String get qna_download_file => 'Download File (Translation needed)';
+  String get qna_download_file => 'Download File';
 
   @override
-  String get qna_edit => 'Edit (Translation needed)';
+  String get qna_edit => '修正';
 
   @override
-  String get qna_file_attach_label => 'File Attachment (Translation needed)';
+  String get qna_file_attach_label => 'ファイル添付';
 
   @override
-  String get qna_file_select => 'Select File (Translation needed)';
+  String get qna_file_select => 'ファイル選択';
 
   @override
-  String get qna_file_type_document => 'Document (Translation needed)';
+  String get qna_file_type_document => 'Document';
 
   @override
-  String get qna_file_type_image => 'Image (Translation needed)';
+  String get qna_file_type_image => 'Image';
 
   @override
-  String get qna_file_type_other => 'Other (Translation needed)';
+  String get qna_file_type_other => 'Other';
 
   @override
   String get qna_file_upload_info =>
-      '• Maximum 10MB upload allowed\n• Supported formats: Images (jpg, png, gif), Documents (pdf, doc, txt) (Translation needed)';
+      '• 最大10MBまでアップロード可能\n• 対応形式：画像（jpg、png、gif）、文書（pdf、doc、txt）';
 
   @override
-  String get qna_file_uploading_button =>
-      'File Uploading... (Translation needed)';
+  String get qna_file_uploading_button => 'ファイルアップロード中...';
 
   @override
-  String get qna_loading_error =>
-      'Error occurred while loading (Translation needed)';
+  String get qna_loading_error => 'Error occurred while loading';
 
   @override
   String get qna_login_required => 'ログインが必要です';
@@ -1617,18 +1571,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_login_required_service => 'QnAサービスをご利用いただくには\nまずログインしてください';
 
   @override
-  String get qna_mark_resolved => 'Mark as Resolved (Translation needed)';
+  String get qna_mark_resolved => '解決済みにする';
 
   @override
-  String get qna_mark_resolved_failed =>
-      'Failed to change status (Translation needed)';
+  String get qna_mark_resolved_failed => 'Failed to change status';
 
   @override
-  String get qna_mark_resolved_success =>
-      'Changed to resolved (Translation needed)';
+  String get qna_mark_resolved_success => 'Changed to resolved';
 
   @override
-  String get qna_no_answer_yet => 'No answer yet (Translation needed)';
+  String get qna_no_answer_yet => 'まだ回答がありません';
 
   @override
   String get qna_no_inquiries => 'No inquiry history';
@@ -1642,13 +1594,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get qna_privacy_notice =>
-      'Information you enter will be collected and used for inquiry processing. Please check our privacy policy for details. (Translation needed)';
+      'お問い合わせ処理のため、入力された情報が収集・利用されます。詳細はプライバシーポリシーをご確認ください。';
 
   @override
-  String get qna_question => 'Question (Translation needed)';
+  String get qna_question => 'Question';
 
   @override
-  String get qna_refresh_pull => 'Pull to refresh (Translation needed)';
+  String get qna_refresh_pull => 'Pull to refresh';
 
   @override
   String get qna_statistics_answered => 'Answered';
@@ -1681,24 +1633,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_title_hint => 'お問い合わせの概要を簡潔に入力してください';
 
   @override
-  String get qna_title_min_length =>
-      'Title must be at least 5 characters (Translation needed)';
+  String get qna_title_min_length => 'タイトルは最低5文字以上入力してください';
 
   @override
-  String get qna_title_required => 'Please enter a title (Translation needed)';
+  String get qna_title_required => 'タイトルを入力してください';
 
   @override
-  String get qna_upload_complete => 'Upload Complete (Translation needed)';
+  String get qna_upload_complete => 'アップロード完了';
 
   @override
-  String get qna_upload_waiting => 'Upload Waiting (Translation needed)';
+  String get qna_upload_waiting => 'アップロード待ち';
 
   @override
-  String get qna_uploading => 'Uploading... (Translation needed)';
+  String get qna_uploading => 'アップロード中...';
 
   @override
-  String get qna_validation_failed =>
-      'Please check your input. (Translation needed)';
+  String get qna_validation_failed => '入力内容をご確認ください。';
 
   @override
   String get qna_write_inquiry => 'New Inquiry';
@@ -1722,20 +1672,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get share => '共有';
 
   @override
-  String get share_image_fail => 'Image sharing failed (Translation needed)';
+  String get share_image_fail => '画像共有に失敗';
 
   @override
-  String get share_image_success =>
-      'Shared image successfully (Translation needed)';
+  String get share_image_success => '画像共有成功';
 
   @override
-  String get share_no_twitter => 'X app is missing. (Translation needed)';
+  String get share_no_twitter => 'Xアプリがありません。';
 
   @override
-  String get share_twitter => 'Share on Twitter (Translation needed)';
+  String get share_twitter => 'Twitter共有';
 
   @override
-  String get submit_application => '申請する';
+  String get submit_application => 'Submit Application';
 
   @override
   String get success => '成功';
@@ -1746,35 +1695,31 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get text_ads_random =>
-      'Viewing ads and collecting random images. (Translation needed)';
+  String get text_ads_random => '広告表示とランダム画像収集。';
 
   @override
-  String get text_bonus => 'Bonuses (Translation needed)';
+  String get text_bonus => 'ボーナス';
 
   @override
-  String get text_bookmark_failed =>
-      'Failed to unbookmark (Translation needed)';
+  String get text_bookmark_failed => 'ブックマーク解除に失敗しました';
 
   @override
-  String get text_bookmark_over_5 =>
-      'You can have up to five bookmarks (Translation needed)';
+  String get text_bookmark_over_5 => 'ブックマークは最大5個まで可能です。';
 
   @override
   String get text_comming_soon_pic_chart1 =>
-      'Welcome to Peek Charts!\nSee you in November 2024! (Translation needed)';
+      'ピックチャートへようこそ！\n2024年11月にお会いしましょう！';
 
   @override
   String get text_comming_soon_pic_chart2 =>
-      'Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick\'s new chart that reflects daily, weekly, and monthly scores. (Translation needed)';
+      'ピックチャートは、日次、週次、月次のスコアを反映している\nピクニックならではの新しいチャートです。';
 
   @override
   String get text_comming_soon_pic_chart3 =>
-      'Get a real-time reflection\nartist\'s brand reputation in real-time! (Translation needed)';
+      'リアルタイムで反映される\nアーティストのブランド評判をご確認ください！';
 
   @override
-  String get text_comming_soon_pic_chart_title =>
-      'What is a PicChart? (Translation needed)';
+  String get text_comming_soon_pic_chart_title => 'ピクチャーチャートとは？';
 
   @override
   String get text_community_board_search => 'アーティスト掲示板検索';
@@ -1786,16 +1731,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get text_copied_address => 'アドレスがコピーされました。';
 
   @override
-  String get text_dialog_ad_dismissed =>
-      'The ad stopped midway through. (Translation needed)';
+  String get text_dialog_ad_dismissed => '広告を途中で止めました。';
 
   @override
-  String get text_dialog_ad_failed_to_show =>
-      'Failed to load ads. (Translation needed)';
+  String get text_dialog_ad_failed_to_show => '広告の読み込みに失敗';
 
   @override
-  String get text_dialog_star_candy_received =>
-      'Star candy has been awarded. (Translation needed)';
+  String get text_dialog_star_candy_received => '星飴が支給されました。';
 
   @override
   String get text_dialog_vote_amount_should_not_zero => '投票数は0にすることはできません。';
@@ -1813,7 +1755,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get text_need_recharge => '充電が必要です。';
 
   @override
-  String get text_no_artist => 'No artist (Translation needed)';
+  String get text_no_artist => 'アーティストがいません';
 
   @override
   String get text_no_search_result => '検索結果がありません。';
@@ -1826,23 +1768,23 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String text_star_candy_with_bonus(Object num1) {
-    return '$num1 + $num1 Bonuses (Translation needed)';
+    return '$num1個  +$num1個のボーナス';
   }
 
   @override
-  String get text_this_time_vote => 'This Vote (Translation needed)';
+  String get text_this_time_vote => '今回の投票';
 
   @override
   String get text_vote_complete => '投票完了';
 
   @override
-  String get text_vote_countdown_end => 'Until End (Translation needed)';
+  String get text_vote_countdown_end => '終了まで';
 
   @override
-  String get text_vote_countdown_start => 'Until Start (Translation needed)';
+  String get text_vote_countdown_start => '開始まで';
 
   @override
-  String get text_vote_ended => 'Ended (Translation needed)';
+  String get text_vote_ended => '終了';
 
   @override
   String text_vote_rank(Object rank) {
@@ -1854,35 +1796,35 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String text_vote_reward(Object count) {
-    return '$count reward (Translation needed)';
+    return '$count 報酬';
   }
 
   @override
   String get text_vote_where_is_my_bias => '私のお気に入りはどこ？';
 
   @override
-  String get time_days_ago => 'days ago (Translation needed)';
+  String get time_days_ago => '日前';
 
   @override
-  String get time_hours_ago => 'hours ago (Translation needed)';
+  String get time_hours_ago => '時間前';
 
   @override
-  String get time_just_now => 'just now (Translation needed)';
+  String get time_just_now => 'たった今';
 
   @override
-  String get time_minutes_ago => 'minutes ago (Translation needed)';
+  String get time_minutes_ago => '分前';
 
   @override
-  String get time_unit_day => 'D (Translation needed)';
+  String get time_unit_day => '日';
 
   @override
-  String get time_unit_hour => 'H (Translation needed)';
+  String get time_unit_hour => '時';
 
   @override
-  String get time_unit_minute => 'M (Translation needed)';
+  String get time_unit_minute => '分';
 
   @override
-  String get time_unit_second => 'S (Translation needed)';
+  String get time_unit_second => '秒';
 
   @override
   String get title_dialog_library_add => '新しいアルバムを追加';
@@ -1919,47 +1861,49 @@ class AppLocalizationsJa extends AppLocalizations {
   String get views => '再生回数';
 
   @override
-  String get vote_item_request_addition_request => '投票アイテム追加リクエスト';
+  String get vote_item_request_addition_request => '投票項目の追加リクエスト';
 
   @override
   String get vote_item_request_already_applied_artist =>
-      'You have already applied for this artist.';
+      'このアーティストへの応募は既に完了しています。';
 
   @override
   String get vote_item_request_already_registered => '既に登録済み';
 
   @override
-  String get vote_item_request_artist_name_missing => 'アーティスト名がありません';
+  String get vote_item_request_artist_name_missing => 'アーティスト名が入力されていません';
 
   @override
-  String get vote_item_request_button => '投票申請';
+  String get vote_item_request_button => '投票候補者への応募';
 
   @override
-  String get vote_item_request_can_apply => 'Can apply';
+  String get vote_item_request_can_apply => '適用可能';
 
   @override
-  String get vote_item_request_count => 'count (Translation needed)';
+  String get vote_item_request_count => '数';
 
   @override
   String get vote_item_request_current_item_request => '現在のアイテムリクエスト';
 
   @override
   String vote_item_request_item_request_count(Object count) {
-    return '$count個のアイテムリクエスト';
+    return '$count アイテムリクエスト';
   }
 
   @override
-  String get vote_item_request_no_item_request_yet => 'まだアイテムリクエストがありません';
+  String get vote_item_request_no_item_request_yet => 'まだアイテムのリクエストはありません';
 
   @override
-  String get vote_item_request_search_artist => 'Search Artist';
+  String get vote_item_request_no_search_results => '検索結果がありません';
 
   @override
-  String get vote_item_request_search_artist_hint =>
-      'Search for artist or group';
+  String get vote_item_request_search_artist => 'アーティスト検索';
 
   @override
-  String get vote_item_request_search_artist_prompt => 'アーティストを検索して申請してください';
+  String get vote_item_request_search_artist_hint => 'アーティストまたはグループを検索';
+
+  @override
+  String get vote_item_request_search_artist_prompt => 'アーティストを検索して応募する';
 
   @override
   String get vote_item_request_status => 'リクエストのステータス';
@@ -1968,54 +1912,54 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vote_item_request_status_approved => '承認済み';
 
   @override
-  String get vote_item_request_status_cancelled => 'Cancelled';
+  String get vote_item_request_status_cancelled => 'キャンセルされました';
 
   @override
-  String get vote_item_request_status_in_progress => 'In Progress';
+  String get vote_item_request_status_in_progress => '進行中';
 
   @override
-  String get vote_item_request_status_pending => '待機中';
+  String get vote_item_request_status_pending => '保留中';
 
   @override
-  String get vote_item_request_status_rejected => '拒否済み';
+  String get vote_item_request_status_rejected => '却下されました';
 
   @override
-  String get vote_item_request_status_unknown => 'Unknown';
+  String get vote_item_request_status_unknown => '不明';
 
   @override
-  String get vote_item_request_submit => '申請する';
+  String get vote_item_request_submit => '送信';
 
   @override
-  String get vote_item_request_title => 'Vote Candidate Application';
+  String get vote_item_request_title => 'アーティスト投票リクエスト';
 
   @override
   String vote_item_request_total_item_requests(Object count) {
-    return '合計$count個のアイテムリクエスト';
+    return '$count のアイテムリクエストの総数';
   }
 
   @override
-  String get vote_item_request_user_info_not_found => 'ユーザー情報が見つかりません。';
+  String get vote_item_request_user_info_not_found => 'ユーザー情報が見つかりませんでした。';
 
   @override
-  String get vote_period => '投票期間';
+  String get vote_item_request_waiting => '待機中';
 
   @override
-  String get vote_result_save_button => 'Save the results (Translation needed)';
+  String get vote_period => 'Vote Period';
 
   @override
-  String get vote_result_share_button =>
-      'Share your results (Translation needed)';
+  String get vote_result_save_button => '結果保存';
+
+  @override
+  String get vote_result_share_button => '結果共有';
 
   @override
   String get vote_share_message => '投票完了！';
 
   @override
-  String get voting_limit_text =>
-      'To prevent traffic surges, total usage is limited to 10,000 at a time. (Translation needed)';
+  String get voting_limit_text => 'トラフィック急増防止のため、全体の使用は一度に1万個まで可能です。';
 
   @override
-  String get voting_limit_warning =>
-      'Only up to 10,000 is allowed. (Translation needed)';
+  String get voting_limit_warning => '最大1万個までしかできません';
 
   @override
   String get voting_share_benefit_text =>
@@ -2025,166 +1969,117 @@ class AppLocalizationsJa extends AppLocalizations {
   String get withdrawal_success => '退会が正常に処理されました。';
 
   @override
-  String get cancel => 'Cancel (Translation needed)';
+  String get cancel => 'Cancel';
 
   @override
-  String get confirm => 'Confirm (Translation needed)';
+  String get confirm => 'Confirm';
 
   @override
-  String get loading => 'Loading... (Translation needed)';
+  String get loading => 'Loading...';
 
   @override
-  String get just_now => 'Just now (Translation needed)';
+  String get just_now => 'Just now';
 
   @override
-  String get retry => 'Retry (Translation needed)';
+  String get retry => 'Retry';
 
   @override
-  String get update => 'Update (Translation needed)';
+  String get update => 'Update';
 
   @override
-  String get ban_title => 'アカウント停止';
+  String get ban_title => 'Account Suspended';
 
   @override
-  String get ban_message => 'コミュニティガイドライン違反により、アカウントが一時的に停止されました。';
+  String get ban_message =>
+      'Your account has been temporarily suspended due to inappropriate activity.';
 
   @override
-  String get ban_contact => 'お問い合わせがございましたら、カスタマーサポートまでご連絡ください。';
+  String get ban_contact =>
+      'Please contact customer service if you have any questions.';
 
   @override
-  String get compatibility_empty_state_title =>
-      'No compatibility information (Translation needed)';
+  String get compatibility_empty_state_title => 'No compatibility information';
 
   @override
   String get compatibility_empty_state_subtitle =>
-      'Create your first compatibility! (Translation needed)';
+      'Create your first compatibility!';
 
   @override
-  String get network_error_title => 'Network Error (Translation needed)';
+  String get network_error_title => 'Network Error';
 
   @override
-  String get network_error_message =>
-      'Please check your internet connection. (Translation needed)';
+  String get network_error_message => 'Please check your internet connection.';
 
   @override
-  String get notice_pinned => 'Pinned (Translation needed)';
+  String get notice_pinned => 'Pinned';
 
   @override
-  String get message_agreement_fail =>
-      'Terms agreement required (Translation needed)';
+  String get message_agreement_fail => 'Terms agreement required';
 
   @override
-  String get title_dialog_error => 'Error (Translation needed)';
+  String get title_dialog_error => 'Error';
 
   @override
-  String get capture_failed => 'Screen capture failed (Translation needed)';
+  String get qna_list_title => 'Q&Aリスト';
 
   @override
-  String days_ago(Object days) {
-    return '$days days ago (Translation needed)';
-  }
+  String get qna_error_message => 'エラーが発生しました';
 
   @override
-  String hours_ago(Object hours) {
-    return '$hours hours ago (Translation needed)';
-  }
+  String get qna_empty_list => 'まだQ&Aがありません';
 
   @override
-  String minutes_ago(Object minutes) {
-    return '$minutes minutes ago (Translation needed)';
-  }
+  String get qna_create_first => '最初のQ&Aを作成してください';
 
   @override
-  String get qna_answer_title => 'Answer (Translation needed)';
+  String get qna_status_closed => '終了';
 
   @override
-  String get qna_content_too_short =>
-      'Content is too short (Translation needed)';
+  String get qna_submit_success => 'Q&Aが正常に送信されました';
 
   @override
-  String get qna_create_first => 'Create your first Q&A (Translation needed)';
+  String get qna_submit_error => 'Q&Aの送信に失敗しました';
 
   @override
-  String get qna_created_at => 'Created at (Translation needed)';
+  String get qna_title_too_short => 'タイトルが短すぎます';
 
   @override
-  String get qna_empty_list => 'No Q&A items (Translation needed)';
+  String get qna_content_too_short => '内容が短すぎます';
 
   @override
-  String get qna_error_message => 'Error loading Q&A (Translation needed)';
+  String get days_ago => '日前';
 
   @override
-  String get qna_info_title => 'Q&A Information (Translation needed)';
+  String get hours_ago => '時間前';
 
   @override
-  String get qna_list_title => 'Q&A List (Translation needed)';
+  String get minutes_ago => '分前';
 
   @override
-  String get qna_load_error => 'Failed to load Q&A (Translation needed)';
+  String get starCandy100 => 'スターキャンディ100個';
 
   @override
-  String get qna_private => 'Private (Translation needed)';
+  String get starCandy200 => 'スターキャンディ200個 + ボーナス25個';
 
   @override
-  String get qna_public => 'Public (Translation needed)';
+  String get starCandy600 => 'スターキャンディ600個 + ボーナス85個';
 
   @override
-  String get qna_public_option => 'Make public (Translation needed)';
+  String get starCandy1000 => 'スターキャンディ1000個 + ボーナス150個';
 
   @override
-  String get qna_public_status => 'Public status (Translation needed)';
+  String get starCandy2000 => 'スターキャンディ2000個 + ボーナス320個';
 
   @override
-  String get qna_status => 'Status (Translation needed)';
+  String get starCandy3000 => 'スターキャンディ3000個 + ボーナス540個';
 
   @override
-  String get qna_status_closed => 'Closed (Translation needed)';
+  String get starCandy4000 => 'スターキャンディ4000個 + ボーナス760個';
 
   @override
-  String get qna_submit_error => 'Failed to submit Q&A (Translation needed)';
-
-  @override
-  String get qna_submit_success =>
-      'Q&A submitted successfully (Translation needed)';
-
-  @override
-  String get qna_title_too_short => 'Title is too short (Translation needed)';
-
-  @override
-  String get qna_updated_at => 'Updated at (Translation needed)';
+  String get starCandy5000 => 'スターキャンディ5000個 + ボーナス1000個';
 
   @override
   String get update_required_message =>
-      'App update required (Translation needed)';
-
-  @override
-  String get vote_item_request_no_search_results =>
-      'No search results (Translation needed)';
-
-  @override
-  String get vote_item_request_waiting => 'Waiting... (Translation needed)';
-
-  @override
-  String get starCandy100 => 'Star Candy 100 (Translation needed)';
-
-  @override
-  String get starCandy1000 => 'Star Candy 1,000 (Translation needed)';
-
-  @override
-  String get starCandy200 => 'Star Candy 200 (Translation needed)';
-
-  @override
-  String get starCandy2000 => 'Star Candy 2,000 (Translation needed)';
-
-  @override
-  String get starCandy3000 => 'Star Candy 3,000 (Translation needed)';
-
-  @override
-  String get starCandy4000 => 'Star Candy 4,000 (Translation needed)';
-
-  @override
-  String get starCandy5000 => 'Star Candy 5,000 (Translation needed)';
-
-  @override
-  String get starCandy600 => 'Star Candy 600 (Translation needed)';
+      'アプリを引き続きご利用いただくには、新しいバージョンに更新する必要があります。';
 }

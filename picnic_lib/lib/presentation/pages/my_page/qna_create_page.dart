@@ -23,7 +23,6 @@ class _QnACreatePageState extends State<QnACreatePage> {
   final QnARepository _repository = QnARepository();
 
   bool _isSubmitting = false;
-  bool _isPublic = false;
 
   @override
   void dispose() {
@@ -43,7 +42,6 @@ class _QnACreatePageState extends State<QnACreatePage> {
       final request = QnACreateRequest(
         title: _titleController.text.trim(),
         question: _contentController.text.trim(),
-        isPrivate: !_isPublic,
         createdBy: widget.userId,
       );
 
@@ -98,8 +96,6 @@ class _QnACreatePageState extends State<QnACreatePage> {
               _buildTitleField(),
               const SizedBox(height: 24),
               _buildContentField(),
-              const SizedBox(height: 24),
-              _buildPublicSwitch(),
               const SizedBox(height: 32),
               _buildSubmitButton(),
             ],
@@ -199,31 +195,6 @@ class _QnACreatePageState extends State<QnACreatePage> {
             }
             return null;
           },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPublicSwitch() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          AppLocalizations.of(context).qna_public_option,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        Switch(
-          value: _isPublic,
-          onChanged: (value) {
-            setState(() {
-              _isPublic = value;
-            });
-          },
-          activeColor: AppColors.primary500,
         ),
       ],
     );
