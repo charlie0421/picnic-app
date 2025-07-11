@@ -301,97 +301,92 @@ class _CompatibilityResultPageState
             return _buildLoadingIndicator();
           }
 
-          return CustomScrollView(
-            controller: _scrollController, // Add the ScrollController here
-
-            slivers: [
-              SliverToBoxAdapter(
-                child: RepaintBoundary(
-                  key: _saveKey,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          AppColors.primary500.withValues(alpha: .7),
-                          AppColors.secondary500.withValues(alpha: .7),
+          // CustomScrollView 대신 SingleChildScrollView 사용하여 렌더링 복잡성 감소
+          return SingleChildScrollView(
+            controller: _scrollController,
+            physics: const ClampingScrollPhysics(), // 더 안정적인 스크롤 물리학
+            child: RepaintBoundary(
+              key: _saveKey,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.primary500.withValues(alpha: .7),
+                      AppColors.secondary500.withValues(alpha: .7),
+                    ],
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    // 공유용 RepaintBoundary를 조건부로만 적용
+                    RepaintBoundary(
+                      key: _shareKey,
+                      child: Container(
+                        decoration: _isSharing
+                            ? BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    AppColors.primary500.withValues(alpha: .7),
+                                    AppColors.secondary500
+                                        .withValues(alpha: .7),
+                                  ],
+                                ),
+                              )
+                            : null,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min, // MainAxisSize 최적화
+                          children: [
+                            const SizedBox(height: 24),
+                            const CompatibilityLogoWidget(),
+                            const SizedBox(height: 36),
+                            CompatibilityCard(
+                              artist: compatibility.artist,
+                              ref: ref,
+                              birthDate: compatibility.birthDate,
+                              birthTime: compatibility.birthTime,
+                              compatibility: compatibility,
+                              gender: compatibility.gender,
+                            ),
+                            const SizedBox(height: 24),
+                            CompatibilitySummaryWidget(
+                                localizedResult:
+                                    compatibility.getLocalizedResult(
+                                        Localizations.localeOf(context)
+                                            .languageCode)),
+                            const SizedBox(height: 24),
+                            CompatibilityScoreWidget(
+                              compatibility: compatibility,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: [
+                          if (compatibility.hasError)
+                            CompatibilityErrorView(
+                              error: compatibility.errorMessage ??
+                                  AppLocalizations.of(context).error_unknown,
+                            )
+                          else if (compatibility.isCompleted)
+                            _buildResultContent(compatibility)
                         ],
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        RepaintBoundary(
-                          key: _shareKey,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: _isSharing
-                                  ? LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        AppColors.primary500
-                                            .withValues(alpha: .7),
-                                        AppColors.secondary500
-                                            .withValues(alpha: .7),
-                                      ],
-                                    )
-                                  : null,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(height: 24),
-                                CompatibilityLogoWidget(),
-                                SizedBox(height: 36),
-                                CompatibilityCard(
-                                  artist: compatibility.artist,
-                                  ref: ref,
-                                  birthDate: compatibility.birthDate,
-                                  birthTime: compatibility.birthTime,
-                                  compatibility: compatibility,
-                                  gender: compatibility.gender,
-                                ),
-                                SizedBox(height: 24),
-                                CompatibilitySummaryWidget(
-                                    localizedResult:
-                                        compatibility.getLocalizedResult(
-                                            Localizations.localeOf(context)
-                                                .languageCode)),
-                                SizedBox(height: 24),
-                                CompatibilityScoreWidget(
-                                  compatibility: compatibility,
-                                ),
-                                SizedBox(height: 12),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            children: [
-                              if (compatibility.hasError)
-                                CompatibilityErrorView(
-                                  error: compatibility.errorMessage ??
-                                      AppLocalizations.of(context)
-                                          .error_unknown,
-                                )
-                              else if (compatibility.isCompleted)
-                                _buildResultContent(compatibility)
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
               ),
-            ],
+            ),
           );
         },
         loading: () => _buildLoadingIndicator(),

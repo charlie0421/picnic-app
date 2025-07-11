@@ -132,13 +132,18 @@ class AppInitializer {
 
             final errorMessage = element.value ?? 'Unknown error';
 
-            // 특정 오류들은 로그 레벨을 낮춤 (너무 빈번하게 발생할 수 있음)
+            // 렌더링 관련 일반적인 오류들은 로그 레벨을 낮춤
             if (errorMessage.contains('RenderBox was not laid out') ||
                 errorMessage.contains('hasSize') ||
                 errorMessage.contains('Directionality widget') ||
-                errorMessage.contains('No Directionality widget found')) {
+                errorMessage.contains('No Directionality widget found') ||
+                errorMessage.contains('semantics.parentDataDirty') ||
+                errorMessage.contains('!semantics.parentDataDirty') ||
+                errorMessage.contains('Failed assertion') ||
+                errorMessage.contains('RenderObject') ||
+                errorMessage.contains('rendering/object.dart')) {
               logger.w(
-                  'UI 레이아웃 경고: $errorMessage\nStacktrace:\n$stackTraceString');
+                  'UI 렌더링 경고 (무시됨): $errorMessage\nStacktrace:\n$stackTraceString');
             } else {
               logger.e('$errorMessage\nStacktrace:\n$stackTraceString');
             }
@@ -149,8 +154,13 @@ class AppInitializer {
           // 스택 트레이스가 없는 경우
           final errorMessage = element.value ?? 'Unknown error';
           if (errorMessage.contains('Directionality widget') ||
-              errorMessage.contains('No Directionality widget found')) {
-            logger.w('UI 초기화 경고: $errorMessage');
+              errorMessage.contains('No Directionality widget found') ||
+              errorMessage.contains('semantics.parentDataDirty') ||
+              errorMessage.contains('!semantics.parentDataDirty') ||
+              errorMessage.contains('Failed assertion') ||
+              errorMessage.contains('RenderObject') ||
+              errorMessage.contains('rendering/object.dart')) {
+            logger.w('UI 렌더링 경고 (무시됨): $errorMessage');
           } else {
             logger.e('오류 (스택 트레이스 없음): $errorMessage');
           }
