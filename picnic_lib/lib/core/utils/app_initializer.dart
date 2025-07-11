@@ -177,7 +177,8 @@ class AppInitializer {
 
     logger.i('Initializing Tapjoy...');
     final Map<String, dynamic> optionFlags = {};
-    await Tapjoy.setLoggingLevel(TJLoggingLevel.debug);
+    // Tapjoy setLoggingLevel이 버전 14.2.1에서 정의되지 않음 - 일시적으로 주석 처리
+    // await Tapjoy.setLoggingLevel(TJLoggingLevel.debug);
     await Tapjoy.connect(
       sdkKey: isIOS()
           ? Environment.tapjoyIosSdkKey!

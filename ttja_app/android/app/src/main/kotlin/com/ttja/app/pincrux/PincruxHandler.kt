@@ -17,7 +17,7 @@ class PincruxHandler(private val context: Context) {
             "init" -> {
                 val pubkey: String? = call.argument("pubkey")
                 val usrkey: String? = call.argument("usrkey")
-                offerwall.init(pubkey, usrkey)
+                offerwall.init(context, pubkey, usrkey)
                 result.success(null)
             }
             "startOfferwall" -> {
