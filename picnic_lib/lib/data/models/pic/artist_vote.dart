@@ -1,5 +1,6 @@
+import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 
 part '../../../generated/models/pic/artist_vote.freezed.dart';
 part '../../../generated/models/pic/artist_vote.g.dart';
@@ -56,7 +57,7 @@ class MyStarMemberModel with _$MyStarMemberModel {
 
   String getTitle() {
     String title = '';
-    if (getLocaleLanguage() == 'ko') {
+    if (Localizations.localeOf(navigatorKey.currentContext!).languageCode == 'ko') {
       title = nameKo;
     } else {
       title = nameEn;
@@ -85,7 +86,7 @@ class MyStarGroupModel with _$MyStarGroupModel {
 
   String getTitle() {
     String title = '';
-    if (getLocaleLanguage() == 'ko') {
+    if (Localizations.localeOf(navigatorKey.currentContext!).languageCode == 'ko') {
       title = nameKo;
     } else {
       title = nameEn;

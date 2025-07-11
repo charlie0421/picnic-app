@@ -1,7 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -81,7 +82,9 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
                 'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
             .neq('artist_id', 0)
             .eq('status', 'approved')
-            .order('artist(name->>${getLocaleLanguage()})', ascending: true)
+            .order(
+                'artist(name->>${Localizations.localeOf(navigatorKey.currentContext!).languageCode})',
+                ascending: true)
             .order('is_official', ascending: false)
             .order('order', ascending: true)
             .range(page * limit, (page + 1) * limit - 1);
@@ -94,7 +97,8 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
         query: query,
         page: page,
         limit: limit,
-        language: getLocaleLanguage(),
+        language:
+            Localizations.localeOf(navigatorKey.currentContext!).languageCode,
         useCache: true,
       );
     } catch (e, s) {

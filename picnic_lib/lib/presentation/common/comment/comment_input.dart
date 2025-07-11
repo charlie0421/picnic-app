@@ -9,8 +9,8 @@ import 'package:picnic_lib/core/utils/openai.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -176,8 +176,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       if (isFlagged) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
-          title: AppLocalizations.of(context).dialog_caution,
-          content: AppLocalizations.of(context).post_flagged,
+          title: AppLocalizations.of(navigatorKey.currentContext!).dialog_caution,
+          content: AppLocalizations.of(navigatorKey.currentContext!).post_flagged,
         );
         return;
       }
@@ -186,7 +186,7 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       widget.onPostComment?.call(
         widget.id,
         parentItemState?.parentCommentId ?? parentItemState?.commentId,
-        getLocaleLanguage(),
+        Localizations.localeOf(navigatorKey.currentContext!).languageCode,
         comment,
       );
 

@@ -1,240 +1,118 @@
 {
   "@@locale": "ko",
-  "appTitle": "피크닉",
   "@appTitle": {
     "description": "The title of the application"
   },
-  "vote_item_request_title": "투표 후보 신청",
-  "@vote_item_request_title": {
-    "description": "Title for vote application dialog"
-  },
-  "artist_name_label": "아티스트명",
-  "@artist_name_label": {
-    "description": "Label for artist name field"
-  },
-  "group_name_label": "그룹명",
-  "@group_name_label": {
-    "description": "Label for group name field"
-  },
-  "application_reason_label": "신청 사유",
-  "@application_reason_label": {
-    "description": "Label for application reason field"
-  },
-  "artist_name_hint": "아티스트명을 입력하세요",
-  "@artist_name_hint": {
-    "description": "Hint text for artist name field"
-  },
-  "group_name_hint": "그룹명을 입력하세요 (선택사항)",
-  "@group_name_hint": {
-    "description": "Hint text for group name field"
-  },
-  "application_reason_hint": "신청 사유를 입력하세요 (선택사항)",
   "@application_reason_hint": {
     "description": "Hint text for application reason field"
   },
-  "submit_application": "신청하기",
-  "@submit_application": {
-    "description": "Submit button text"
+  "@application_reason_label": {
+    "description": "Label for application reason field"
   },
-  "vote_item_request_search_artist_hint": "아티스트나 그룹을 검색하세요",
-  "@vote_item_request_search_artist_hint": {
-    "description": "Hint text for artist search field"
-  },
-  "application_success": "투표 후보 신청이 완료되었습니다.",
   "@application_success": {
     "description": "Success message for application submission"
   },
-  "vote_period": "투표 기간",
-  "@vote_period": {
-    "description": "Label for vote period"
+  "@artist_name_hint": {
+    "description": "Hint text for artist name field"
   },
-  "error_artist_not_selected": "아티스트를 선택해주세요",
-  "@error_artist_not_selected": {
-    "description": "Error message when no artist is selected"
+  "@artist_name_label": {
+    "description": "Label for artist name field"
   },
-  "error_application_reason_required": "신청 사유를 입력해주세요",
-  "@error_application_reason_required": {
-    "description": "Error message when application reason is empty"
-  },
-  "no_search_results": "검색 결과가 없습니다",
-  "@no_search_results": {
-    "description": "Text shown when no search results are found"
-  },
-  "vote_item_request_button": "투표 신청하기",
-  "vote_item_request_new": "새 신청",
-  "vote_item_request_my_list": "내 신청",
-  "vote_item_request_reason": "신청 사유 (선택)",
-  "vote_item_request_reason_hint": "이 아티스트를 추천하는 이유를 적어주세요...",
-  "vote_item_request_submit": "신청",
-  "vote_item_request_success": "투표 신청이 완료되었습니다!",
-  "vote_item_request_error": "투표 신청 중 오류가 발생했습니다.",
-  "vote_item_request_no_applications": "아직 신청한 내역이 없습니다.",
-  "vote_item_request_status_approved": "승인됨",
-  "vote_item_request_status_rejected": "거절됨",
-  "vote_item_request_status_pending": "대기중",
-  "search_artist_hint": "아티스트나 그룹을 검색하세요",
-  "searching": "검색 중...",
-  "success": "성공",
-  "error": "오류",
-  "vote_item_request_current_applications": "현재 신청 목록",
-  "vote_item_request_no_applications_yet": "아직 신청된 항목이 없습니다",
-  "vote_item_request_search_artist": "아티스트 검색",
-  "vote_item_request_search_artist_prompt": "아티스트를 검색하여 신청하세요",
-  "vote_item_request_no_search_results": "검색 결과가 없습니다",
-  "vote_item_request_application_count": "신청 {count}개",
-  "vote_item_request_total_applications": "총 신청 {count}개",
-  "vote_item_request_already_registered": "이미 등록됨",
-  "vote_item_request_can_apply": "신청 가능",
-  "vote_item_request_status_in_progress": "진행중",
-  "vote_item_request_status_cancelled": "취소됨",
-  "vote_item_request_status_unknown": "알 수 없음",
-  "vote_item_request_artist_name_missing": "아티스트명 없음",
-  "vote_item_request_user_info_not_found": "사용자 정보를 찾을 수 없습니다.",
-  "vote_item_request_already_applied_artist": "이미 해당 아티스트에 대해 신청하셨습니다.",
-  "vote_item_request_waiting": "대기중",
-  "vote_item_request_addition_request": "투표 아이템 추가 신청",
-  "vote_item_request_current_item_request": "현재 아이템 요청",
-  "vote_item_request_no_item_request_yet": "아직 아이템 요청이 없습니다",
-  "vote_item_request_item_request_count": "{count}개 아이템 요청",
-  "vote_item_request_total_item_requests": "총 {count}개 아이템 요청",
-  "label_tabbar_vote_active": "진행중",
-  "label_tabbar_vote_image": "이미지 투표",
-  "label_tabbar_vote_end": "종료됨",
-  "label_tabbar_vote_upcoming": "예정됨",
-  "ban_title": "계정이 일시 정지되었습니다",
-  "@ban_title": {
-    "description": "Title for ban screen"
-  },
-  "ban_message": "부적절한 활동으로 인해 계정이 일시 정지되었습니다.",
-  "@ban_message": {
-    "description": "Message explaining the ban"
-  },
-  "ban_contact": "문의사항이 있으시면 고객센터로 연락해주세요.",
   "@ban_contact": {
     "description": "Contact information for banned users"
   },
-  "qna_page_title": "QnA 문의",
-  "qna_create_page_title": "문의 작성",
-  "qna_detail_page_title": "문의 상세",
-  "qna_login_required": "로그인이 필요합니다",
-  "qna_login_required_service": "QnA 서비스를 이용하시려면\n먼저 로그인을 해주세요",
-  "qna_login_required_create": "QnA 작성을 위해\n먼저 로그인을 해주세요",
-  "qna_login_required_detail": "QnA 상세 정보를 보시려면\n먼저 로그인을 해주세요",
-  "qna_status_pending": "답변 대기",
-  "qna_status_answered": "답변 완료",
-  "qna_status_resolved": "해결됨",
-  "qna_statistics_title": "문의 현황",
-  "qna_statistics_pending": "답변 대기",
-  "qna_statistics_answered": "답변 완료",
-  "qna_statistics_resolved": "해결됨",
-  "qna_write_inquiry": "새 문의 작성",
-  "qna_no_inquiries": "문의 내역이 없습니다",
-  "qna_no_inquiries_subtitle": "궁금한 점이 있으시면\n언제든지 문의해 주세요",
-  "qna_title": "제목",
-  "qna_content": "내용",
-  "qna_title_hint": "문의 제목을 간단히 입력해 주세요",
-  "qna_content_hint": "문의 내용을 자세히 입력해 주세요",
-  "qna_submit_button": "문의 등록",
-  "qna_list_title": "문의 목록",
-  "qna_error_message": "오류가 발생했습니다",
-  "qna_empty_message": "QnA가 없습니다",
-  "qna_empty_description": "첫 번째 질문을 작성해보세요",
-  "qna_public": "공개",
-  "qna_status_closed": "종료됨",
-  "@qna_page_title": {
-    "description": "QnA page title"
+  "@ban_message": {
+    "description": "Message explaining the ban"
   },
-  "@qna_create_page_title": {
-    "description": "QnA create page title"
+  "@ban_title": {
+    "description": "Title for ban screen"
   },
-  "@qna_detail_page_title": {
-    "description": "QnA detail page title"
+  "@cancel": {
+    "description": "Description for cancel"
   },
-  "@qna_login_required": {
-    "description": "Login required message"
+  "@capture_failed": {
+    "description": "Description for capture_failed"
   },
-  "@qna_login_required_service": {
-    "description": "Login required for service message"
+  "@compatibility_empty_state_subtitle": {
+    "description": "Description for compatibility_empty_state_subtitle"
   },
-  "@qna_login_required_create": {
-    "description": "Login required for create message"
+  "@compatibility_empty_state_title": {
+    "description": "Description for compatibility_empty_state_title"
   },
-  "@qna_login_required_detail": {
-    "description": "Login required for detail message"
+  "@confirm": {
+    "description": "Description for confirm"
   },
-  "@qna_status_pending": {
-    "description": "QnA pending status"
+  "@days_ago": {
+    "description": "Description for days_ago"
   },
-  "@qna_status_answered": {
-    "description": "QnA answered status"
+  "@error": {
+    "description": "Description for error"
   },
-  "@qna_status_resolved": {
-    "description": "QnA resolved status"
+  "@error_application_reason_required": {
+    "description": "Error message when application reason is empty"
   },
-  "@qna_statistics_title": {
-    "description": "QnA statistics title"
+  "@error_artist_not_selected": {
+    "description": "Error message when no artist is selected"
   },
-  "@qna_statistics_pending": {
-    "description": "QnA statistics pending"
+  "@group_name_hint": {
+    "description": "Hint text for group name field"
   },
-  "@qna_statistics_answered": {
-    "description": "QnA statistics answered"
+  "@group_name_label": {
+    "description": "Label for group name field"
   },
-  "@qna_statistics_resolved": {
-    "description": "QnA statistics resolved"
+  "@hours_ago": {
+    "description": "Description for hours_ago"
   },
-  "@qna_write_inquiry": {
-    "description": "Write inquiry button"
+  "@just_now": {
+    "description": "Description for just_now"
   },
-  "@qna_no_inquiries": {
-    "description": "No inquiries message"
+  "@label_popup_hide_7days": {
+    "description": "Description for label_popup_hide_7days"
   },
-  "@qna_no_inquiries_subtitle": {
-    "description": "No inquiries subtitle"
+  "@label_tabbar_vote_active": {
+    "description": "Description for label_tabbar_vote_active"
   },
-  "@qna_title": {
-    "description": "QnA title field"
+  "@label_tabbar_vote_end": {
+    "description": "Description for label_tabbar_vote_end"
+  },
+  "@label_tabbar_vote_image": {
+    "description": "Description for label_tabbar_vote_image"
+  },
+  "@label_tabbar_vote_upcoming": {
+    "description": "Description for label_tabbar_vote_upcoming"
+  },
+  "@loading": {
+    "description": "Description for loading"
+  },
+  "@message_agreement_fail": {
+    "description": "Description for message_agreement_fail"
+  },
+  "@minutes_ago": {
+    "description": "Description for minutes_ago"
+  },
+  "@network_error_message": {
+    "description": "Description for network_error_message"
+  },
+  "@network_error_title": {
+    "description": "Description for network_error_title"
+  },
+  "@no_search_results": {
+    "description": "Text shown when no search results are found"
+  },
+  "@notice_pinned": {
+    "description": "Description for notice_pinned"
+  },
+  "@qna_answer_title": {
+    "description": "Description for qna_answer_title"
+  },
+  "@qna_answered_at": {
+    "description": "Description for qna_answered_at"
   },
   "@qna_content": {
     "description": "QnA content field"
   },
-  "@qna_title_hint": {
-    "description": "QnA title hint"
-  },
   "@qna_content_hint": {
     "description": "QnA content hint"
-  },
-  "@qna_submit_button": {
-    "description": "QnA submit button"
-  },
-  "qna_submit_success": "문의가 성공적으로 등록되었습니다",
-  "qna_submit_error": "문의 등록에 실패했습니다",
-  "qna_title_required": "제목을 입력해 주세요",
-  "qna_title_too_short": "제목이 너무 짧습니다",
-  "qna_content_required": "내용을 입력해 주세요",
-  "qna_content_too_short": "내용이 너무 짧습니다",
-  "qna_public_option": "공개 문의",
-  "qna_load_error": "데이터를 불러오는 중 오류가 발생했습니다",
-  "qna_info_title": "문의 정보",
-  "qna_status": "상태",
-  "qna_created_at": "작성일",
-  "qna_updated_at": "수정일",
-  "qna_public_status": "공개 여부",
-  "qna_private": "비공개",
-  "qna_answer_title": "답변",
-  "qna_answered_at": "답변일",
-  "retry": "다시 시도",
-  "@qna_submit_success": {
-    "description": "QnA submit success message"
-  },
-  "@qna_submit_error": {
-    "description": "QnA submit error message"
-  },
-  "@qna_title_required": {
-    "description": "QnA title required error"
-  },
-  "@qna_title_too_short": {
-    "description": "QnA title too short error"
   },
   "@qna_content_required": {
     "description": "QnA content required error"
@@ -242,35 +120,440 @@
   "@qna_content_too_short": {
     "description": "QnA content too short error"
   },
+  "@qna_create_first": {
+    "description": "Description for qna_create_first"
+  },
+  "@qna_create_page_title": {
+    "description": "QnA create page title"
+  },
+  "@qna_created_at": {
+    "description": "Description for qna_created_at"
+  },
+  "@qna_detail_page_title": {
+    "description": "QnA detail page title"
+  },
+  "@qna_empty_description": {
+    "description": "Description for qna_empty_description"
+  },
+  "@qna_empty_list": {
+    "description": "Description for qna_empty_list"
+  },
+  "@qna_empty_message": {
+    "description": "Description for qna_empty_message"
+  },
+  "@qna_error_message": {
+    "description": "Description for qna_error_message"
+  },
+  "@qna_info_title": {
+    "description": "Description for qna_info_title"
+  },
+  "@qna_list_title": {
+    "description": "Description for qna_list_title"
+  },
+  "@qna_load_error": {
+    "description": "Description for qna_load_error"
+  },
+  "@qna_login_required": {
+    "description": "Login required message"
+  },
+  "@qna_login_required_create": {
+    "description": "Login required for create message"
+  },
+  "@qna_login_required_detail": {
+    "description": "Login required for detail message"
+  },
+  "@qna_login_required_service": {
+    "description": "Login required for service message"
+  },
+  "@qna_no_inquiries": {
+    "description": "No inquiries message"
+  },
+  "@qna_no_inquiries_subtitle": {
+    "description": "No inquiries subtitle"
+  },
+  "@qna_page_title": {
+    "description": "QnA page title"
+  },
+  "@qna_private": {
+    "description": "Description for qna_private"
+  },
+  "@qna_public": {
+    "description": "Description for qna_public"
+  },
   "@qna_public_option": {
     "description": "QnA public option label"
   },
+  "@qna_public_status": {
+    "description": "Description for qna_public_status"
+  },
+  "@qna_statistics_answered": {
+    "description": "QnA statistics answered"
+  },
+  "@qna_statistics_pending": {
+    "description": "QnA statistics pending"
+  },
+  "@qna_statistics_resolved": {
+    "description": "QnA statistics resolved"
+  },
+  "@qna_statistics_title": {
+    "description": "QnA statistics title"
+  },
+  "@qna_status": {
+    "description": "Description for qna_status"
+  },
+  "@qna_status_answered": {
+    "description": "QnA answered status"
+  },
+  "@qna_status_closed": {
+    "description": "Description for qna_status_closed"
+  },
+  "@qna_status_pending": {
+    "description": "QnA pending status"
+  },
+  "@qna_status_resolved": {
+    "description": "QnA resolved status"
+  },
+  "@qna_submit_button": {
+    "description": "QnA submit button"
+  },
+  "@qna_submit_error": {
+    "description": "QnA submit error message"
+  },
+  "@qna_submit_success": {
+    "description": "QnA submit success message"
+  },
+  "@qna_title": {
+    "description": "QnA title field"
+  },
+  "@qna_title_hint": {
+    "description": "QnA title hint"
+  },
+  "@qna_title_required": {
+    "description": "QnA title required error"
+  },
+  "@qna_title_too_short": {
+    "description": "QnA title too short error"
+  },
+  "@qna_updated_at": {
+    "description": "Description for qna_updated_at"
+  },
+  "@qna_write_inquiry": {
+    "description": "Write inquiry button"
+  },
+  "@retry": {
+    "description": "Description for retry"
+  },
+  "@search_artist_hint": {
+    "description": "Description for search_artist_hint"
+  },
+  "@searching": {
+    "description": "Description for searching"
+  },
+  "@starCandy100": {
+    "description": "Description for starCandy100"
+  },
+  "@starCandy1000": {
+    "description": "Description for starCandy1000"
+  },
+  "@starCandy200": {
+    "description": "Description for starCandy200"
+  },
+  "@starCandy2000": {
+    "description": "Description for starCandy2000"
+  },
+  "@starCandy3000": {
+    "description": "Description for starCandy3000"
+  },
+  "@starCandy4000": {
+    "description": "Description for starCandy4000"
+  },
+  "@starCandy5000": {
+    "description": "Description for starCandy5000"
+  },
+  "@starCandy600": {
+    "description": "Description for starCandy600"
+  },
+  "@submit_application": {
+    "description": "Submit button text"
+  },
+  "@success": {
+    "description": "Description for success"
+  },
+  "@title_dialog_error": {
+    "description": "Description for title_dialog_error"
+  },
+  "@update": {
+    "description": "Description for update"
+  },
+  "@update_required_message": {
+    "description": "Description for update_required_message"
+  },
+  "@vote_item_request_addition_request": {
+    "description": "Description for vote_item_request_addition_request"
+  },
+  "@vote_item_request_already_applied_artist": {
+    "description": "Description for vote_item_request_already_applied_artist"
+  },
+  "@vote_item_request_already_registered": {
+    "description": "Description for vote_item_request_already_registered"
+  },
+  "@vote_item_request_application_count": {
+    "description": "Description for vote_item_request_application_count",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@vote_item_request_artist_name_missing": {
+    "description": "Description for vote_item_request_artist_name_missing"
+  },
+  "@vote_item_request_button": {
+    "description": "Description for vote_item_request_button"
+  },
+  "@vote_item_request_can_apply": {
+    "description": "Description for vote_item_request_can_apply"
+  },
+  "@vote_item_request_current_applications": {
+    "description": "Description for vote_item_request_current_applications"
+  },
+  "@vote_item_request_current_item_request": {
+    "description": "Description for vote_item_request_current_item_request"
+  },
+  "@vote_item_request_error": {
+    "description": "Description for vote_item_request_error"
+  },
+  "@vote_item_request_item_request_count": {
+    "description": "Description for vote_item_request_item_request_count",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@vote_item_request_my_list": {
+    "description": "Description for vote_item_request_my_list"
+  },
+  "@vote_item_request_new": {
+    "description": "Description for vote_item_request_new"
+  },
+  "@vote_item_request_no_applications": {
+    "description": "Description for vote_item_request_no_applications"
+  },
+  "@vote_item_request_no_applications_yet": {
+    "description": "Description for vote_item_request_no_applications_yet"
+  },
+  "@vote_item_request_no_item_request_yet": {
+    "description": "Description for vote_item_request_no_item_request_yet"
+  },
+  "@vote_item_request_no_search_results": {
+    "description": "Description for vote_item_request_no_search_results"
+  },
+  "@vote_item_request_reason": {
+    "description": "Description for vote_item_request_reason"
+  },
+  "@vote_item_request_reason_hint": {
+    "description": "Description for vote_item_request_reason_hint"
+  },
+  "@vote_item_request_search_artist": {
+    "description": "Description for vote_item_request_search_artist"
+  },
+  "@vote_item_request_search_artist_hint": {
+    "description": "Hint text for artist search field"
+  },
+  "@vote_item_request_search_artist_prompt": {
+    "description": "Description for vote_item_request_search_artist_prompt"
+  },
+  "@vote_item_request_status_approved": {
+    "description": "Description for vote_item_request_status_approved"
+  },
+  "@vote_item_request_status_cancelled": {
+    "description": "Description for vote_item_request_status_cancelled"
+  },
+  "@vote_item_request_status_in_progress": {
+    "description": "Description for vote_item_request_status_in_progress"
+  },
+  "@vote_item_request_status_pending": {
+    "description": "Description for vote_item_request_status_pending"
+  },
+  "@vote_item_request_status_rejected": {
+    "description": "Description for vote_item_request_status_rejected"
+  },
+  "@vote_item_request_status_unknown": {
+    "description": "Description for vote_item_request_status_unknown"
+  },
+  "@vote_item_request_submit": {
+    "description": "Description for vote_item_request_submit"
+  },
+  "@vote_item_request_success": {
+    "description": "Description for vote_item_request_success"
+  },
+  "@vote_item_request_title": {
+    "description": "Title for vote application dialog"
+  },
+  "@vote_item_request_total_applications": {
+    "description": "Description for vote_item_request_total_applications",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@vote_item_request_total_item_requests": {
+    "description": "Description for vote_item_request_total_item_requests",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@vote_item_request_user_info_not_found": {
+    "description": "Description for vote_item_request_user_info_not_found"
+  },
+  "@vote_item_request_waiting": {
+    "description": "Description for vote_item_request_waiting"
+  },
+  "@vote_period": {
+    "description": "Label for vote period"
+  },
+  "@label_vote_list": {
+    "description": "Description for label_vote_list"
+  },
+  "@page_title_vote_list": {
+    "description": "Description for page_title_vote_list"
+  },
+  "appTitle": "피크닉",
+  "application_reason_hint": "신청 사유를 입력하세요 (선택사항)",
+  "application_reason_label": "신청 사유",
+  "application_success": "투표 후보 신청이 완료되었습니다.",
+  "artist_name_hint": "아티스트명을 입력하세요",
+  "artist_name_label": "아티스트명",
+  "ban_contact": "문의사항이 있으시면 고객센터로 연락해주세요.",
+  "ban_message": "부적절한 활동으로 인해 계정이 일시 정지되었습니다.",
+  "ban_title": "계정이 일시 정지되었습니다",
   "cancel": "취소",
-  "confirm": "확인",
-  "loading": "로딩 중...",
-  "just_now": "방금 전",
-  "update": "업데이트",
-  "compatibility_empty_state_title": "궁합 정보가 없습니다",
-  "compatibility_empty_state_subtitle": "첫 번째 궁합을 만들어보세요!",
-  "network_error_title": "네트워크 오류",
-  "network_error_message": "인터넷 연결을 확인해주세요.",
-  "notice_pinned": "고정",
-  "message_agreement_fail": "약관 동의가 필요합니다",
-  "title_dialog_error": "오류",
   "capture_failed": "화면 캡처에 실패했습니다",
-  "qna_empty_list": "아직 문의가 없습니다",
-  "qna_create_first": "첫 번째 문의를 작성해보세요",
+  "compatibility_empty_state_subtitle": "첫 번째 궁합을 만들어보세요!",
+  "compatibility_empty_state_title": "궁합 정보가 없습니다",
+  "confirm": "확인",
   "days_ago": "일 전",
+  "error": "오류",
+  "error_application_reason_required": "신청 사유를 입력해주세요",
+  "error_artist_not_selected": "아티스트를 선택해주세요",
+  "group_name_hint": "그룹명을 입력하세요 (선택사항)",
+  "group_name_label": "그룹명",
   "hours_ago": "시간 전",
+  "just_now": "방금 전",
+  "label_popup_hide_7days": "7일간 숨기기",
+  "label_tabbar_vote_active": "진행중",
+  "label_tabbar_vote_end": "종료됨",
+  "label_tabbar_vote_image": "이미지 투표",
+  "label_tabbar_vote_upcoming": "예정됨",
+  "loading": "로딩 중...",
+  "message_agreement_fail": "약관 동의가 필요합니다",
   "minutes_ago": "분 전",
+  "network_error_message": "인터넷 연결을 확인해주세요.",
+  "network_error_title": "네트워크 오류",
+  "no_search_results": "검색 결과가 없습니다",
+  "notice_pinned": "고정",
+  "qna_answer_title": "답변",
+  "qna_answered_at": "답변일",
+  "qna_content": "내용",
+  "qna_content_hint": "문의 내용을 자세히 입력해 주세요",
+  "qna_content_required": "내용을 입력해 주세요",
+  "qna_content_too_short": "내용이 너무 짧습니다",
+  "qna_create_first": "첫 번째 문의를 작성해보세요",
+  "qna_create_page_title": "문의 작성",
+  "qna_created_at": "작성일",
+  "qna_detail_page_title": "문의 상세",
+  "qna_empty_description": "첫 번째 질문을 작성해보세요",
+  "qna_empty_list": "아직 문의가 없습니다",
+  "qna_empty_message": "QnA가 없습니다",
+  "qna_error_message": "오류가 발생했습니다",
+  "qna_info_title": "문의 정보",
+  "qna_list_title": "문의 목록",
+  "qna_load_error": "데이터를 불러오는 중 오류가 발생했습니다",
+  "qna_login_required": "로그인이 필요합니다",
+  "qna_login_required_create": "QnA 작성을 위해\n먼저 로그인을 해주세요",
+  "qna_login_required_detail": "QnA 상세 정보를 보시려면\n먼저 로그인을 해주세요",
+  "qna_login_required_service": "QnA 서비스를 이용하시려면\n먼저 로그인을 해주세요",
+  "qna_no_inquiries": "문의 내역이 없습니다",
+  "qna_no_inquiries_subtitle": "궁금한 점이 있으시면\n언제든지 문의해 주세요",
+  "qna_page_title": "QnA 문의",
+  "qna_private": "비공개",
+  "qna_public": "공개",
+  "qna_public_option": "공개 문의",
+  "qna_public_status": "공개 여부",
+  "qna_statistics_answered": "답변 완료",
+  "qna_statistics_pending": "답변 대기",
+  "qna_statistics_resolved": "해결됨",
+  "qna_statistics_title": "문의 현황",
+  "qna_status": "상태",
+  "qna_status_answered": "답변 완료",
+  "qna_status_closed": "종료됨",
+  "qna_status_pending": "답변 대기",
+  "qna_status_resolved": "해결됨",
+  "qna_submit_button": "문의 등록",
+  "qna_submit_error": "문의 등록에 실패했습니다",
+  "qna_submit_success": "문의가 성공적으로 등록되었습니다",
+  "qna_title": "제목",
+  "qna_title_hint": "문의 제목을 간단히 입력해 주세요",
+  "qna_title_required": "제목을 입력해 주세요",
+  "qna_title_too_short": "제목이 너무 짧습니다",
+  "qna_updated_at": "수정일",
+  "qna_write_inquiry": "새 문의 작성",
+  "retry": "다시 시도",
+  "search_artist_hint": "아티스트나 그룹을 검색하세요",
+  "searching": "검색 중...",
   "starCandy100": "스타 캔디 100개",
-  "starCandy200": "스타 캔디 200개 + 보너스 25개",
-  "starCandy600": "스타 캔디 600개 + 보너스 85개",
   "starCandy1000": "스타 캔디 1000개 + 보너스 150개",
+  "starCandy200": "스타 캔디 200개 + 보너스 25개",
   "starCandy2000": "스타 캔디 2000개 + 보너스 320개",
   "starCandy3000": "스타 캔디 3000개 + 보너스 540개",
   "starCandy4000": "스타 캔디 4000개 + 보너스 760개",
   "starCandy5000": "스타 캔디 5000개 + 보너스 1000개",
+  "starCandy600": "스타 캔디 600개 + 보너스 85개",
+  "submit_application": "신청하기",
+  "success": "성공",
+  "title_dialog_error": "오류",
+  "update": "업데이트",
   "update_required_message": "앱을 계속 사용하려면 새 버전으로 업데이트해야 합니다.",
-  "label_popup_hide_7days": "7일간 숨기기"
+  "vote_item_request_addition_request": "투표 아이템 추가 신청",
+  "vote_item_request_already_applied_artist": "이미 해당 아티스트에 대해 신청하셨습니다.",
+  "vote_item_request_already_registered": "이미 등록됨",
+  "vote_item_request_application_count": "신청 {count}개",
+  "vote_item_request_artist_name_missing": "아티스트명 없음",
+  "vote_item_request_button": "투표 신청하기",
+  "vote_item_request_can_apply": "신청 가능",
+  "vote_item_request_current_applications": "현재 신청 목록",
+  "vote_item_request_current_item_request": "현재 아이템 요청",
+  "vote_item_request_error": "투표 신청 중 오류가 발생했습니다.",
+  "vote_item_request_item_request_count": "{count}개 아이템 요청",
+  "vote_item_request_my_list": "내 신청",
+  "vote_item_request_new": "새 신청",
+  "vote_item_request_no_applications": "아직 신청한 내역이 없습니다.",
+  "vote_item_request_no_applications_yet": "아직 신청된 항목이 없습니다",
+  "vote_item_request_no_item_request_yet": "아직 아이템 요청이 없습니다",
+  "vote_item_request_no_search_results": "검색 결과가 없습니다",
+  "vote_item_request_reason": "신청 사유 (선택)",
+  "vote_item_request_reason_hint": "이 아티스트를 추천하는 이유를 적어주세요...",
+  "vote_item_request_search_artist": "아티스트 검색",
+  "vote_item_request_search_artist_hint": "아티스트나 그룹을 검색하세요",
+  "vote_item_request_search_artist_prompt": "아티스트를 검색하여 신청하세요",
+  "vote_item_request_status_approved": "승인됨",
+  "vote_item_request_status_cancelled": "취소됨",
+  "vote_item_request_status_in_progress": "진행중",
+  "vote_item_request_status_pending": "대기중",
+  "vote_item_request_status_rejected": "거절됨",
+  "vote_item_request_status_unknown": "알 수 없음",
+  "vote_item_request_submit": "신청",
+  "vote_item_request_success": "투표 신청이 완료되었습니다!",
+  "vote_item_request_title": "투표 후보 신청",
+  "vote_item_request_total_applications": "총 신청 {count}개",
+  "vote_item_request_total_item_requests": "총 {count}개 아이템 요청",
+  "vote_item_request_user_info_not_found": "사용자 정보를 찾을 수 없습니다.",
+  "vote_item_request_waiting": "대기중",
+  "vote_period": "투표 기간",
+  "label_vote_list": "투표리스트",
+  "page_title_vote_list": "투표리스트"
 }

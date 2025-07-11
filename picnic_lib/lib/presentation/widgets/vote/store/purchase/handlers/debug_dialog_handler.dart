@@ -65,7 +65,11 @@ class DebugDialogHandler {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
             child: Text('OK'),
           ),
         ],
@@ -122,7 +126,11 @@ class DebugDialogHandler {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
             child: Text('OK'),
           ),
         ],
@@ -155,11 +163,19 @@ Precautions:
 Do you really want to proceed?'''),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop(false);
+              }
+            },
             child: Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
             child: Text('💥 Nuclear Reset',
                 style: TextStyle(color: Colors.purple)),
           ),
@@ -191,11 +207,19 @@ Effects:
 Note: Use only in Sandbox environment.'''),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop(false);
+              }
+            },
             child: Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
             child: Text('Reset', style: TextStyle(color: Colors.orange)),
           ),
         ],
@@ -261,7 +285,11 @@ Note: Use only in Sandbox environment.'''),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
             child: Text('OK'),
           ),
         ],
@@ -295,11 +323,19 @@ Precautions:
 Do you really want to proceed?'''),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop(false);
+              }
+            },
             child: Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
             child:
                 Text('⚡ Ultimate Reset', style: TextStyle(color: Colors.red)),
           ),

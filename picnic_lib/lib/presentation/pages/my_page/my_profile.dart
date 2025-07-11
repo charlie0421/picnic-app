@@ -17,6 +17,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/util.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/my_page/privacy_page.dart';
@@ -177,15 +178,21 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             // 사용자 프로필 업데이트
             await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
 
-            SnackbarUtil()
-                .showSnackbar(AppLocalizations.of(context).common_success);
+            if (navigatorKey.currentContext != null) {
+              SnackbarUtil().showSnackbar(
+                  AppLocalizations.of(navigatorKey.currentContext!)
+                      .common_success);
+            }
           } else {
             throw Exception('Failed to upload image');
           }
         } catch (e, s) {
           logger.e('error', error: e, stackTrace: s);
 
-          SnackbarUtil().showSnackbar(AppLocalizations.of(context).common_fail);
+          if (navigatorKey.currentContext != null) {
+            SnackbarUtil().showSnackbar(
+                AppLocalizations.of(navigatorKey.currentContext!).common_fail);
+          }
           rethrow;
         } finally {
           if (mounted) {
@@ -331,11 +338,15 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
 
         if (!mounted) return;
-        Navigator.of(context).pop();
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
 
         if (!mounted) return;
-        showSimpleDialog(
-            content: AppLocalizations.of(context).withdrawal_success);
+        if (navigatorKey.currentContext != null) {
+          showSimpleDialog(
+              content: AppLocalizations.of(navigatorKey.currentContext!).withdrawal_success);
+        }
       } else {
         throw Exception('Failed to delete user: ${response.body}');
       }
@@ -466,14 +477,18 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   .then((success) {
                 if (success) {
                   // 닉네임 변경 성공
-                  showSimpleDialog(
-                      content: AppLocalizations.of(context)
-                          .message_update_nickname_success);
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                        content: AppLocalizations.of(navigatorKey.currentContext!)
+                            .message_update_nickname_success);
+                  }
                 } else {
                   // 닉네임 변경 실패 (중복 또는 오류)
-                  showSimpleDialog(
-                      content: AppLocalizations.of(context)
-                          .message_update_nickname_fail);
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                        content: AppLocalizations.of(navigatorKey.currentContext!)
+                            .message_update_nickname_fail);
+                  }
                 }
                 OverlayLoadingProgress.stop();
               });

@@ -82,7 +82,11 @@ class _FullScreenDialogState extends State<FullScreenDialog> {
 
   Widget _buildCloseButton() {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
+      onTap: () {
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
       child: Container(
         width: FullScreenDialogConstants.closeButtonSize,
         height: FullScreenDialogConstants.closeButtonSize,

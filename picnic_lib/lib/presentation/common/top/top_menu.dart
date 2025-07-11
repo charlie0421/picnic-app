@@ -13,7 +13,6 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
-import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/navigation_stack.dart';
 
 class TopMenu extends ConsumerStatefulWidget {
@@ -32,10 +31,10 @@ class _TopState extends ConsumerState<TopMenu> {
     // _setupRealtime();
   }
 
-  bool _isVotePage(NavigationStack? stack) {
+  bool _isVoteHomePage(NavigationStack? stack) {
     if (stack == null) return false;
     final currentPage = stack.peek();
-    return currentPage is VoteHomePage || currentPage is VoteListPage;
+    return currentPage is VoteHomePage;
   }
 
   bool _shouldShowBackButton(Navigation navigationInfo) {
@@ -79,7 +78,7 @@ class _TopState extends ConsumerState<TopMenu> {
 
     if (navigationInfo.topRightMenu == TopRightType.common &&
         navigationInfo.portalType == PortalType.vote &&
-        _isVotePage(navigationInfo.voteNavigationStack)) {
+        _isVoteHomePage(navigationInfo.voteNavigationStack)) {
       return const AreaSelector();
     }
 

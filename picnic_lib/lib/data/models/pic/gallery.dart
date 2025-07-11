@@ -1,6 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/pic/celeb.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 
 part '../../../generated/models/pic/gallery.freezed.dart';
 part '../../../generated/models/pic/gallery.g.dart';
@@ -18,7 +19,7 @@ class GalleryModel with _$GalleryModel {
   }) = _GalleryModel;
 
   String getTitle() {
-    switch (getLocaleLanguage()) {
+    switch (Localizations.localeOf(navigatorKey.currentContext!).languageCode) {
       case 'ko':
         return titleKo;
       case 'en':

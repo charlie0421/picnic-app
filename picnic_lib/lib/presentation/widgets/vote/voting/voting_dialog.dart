@@ -601,7 +601,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     showSimpleDialog(
       type: DialogType.error,
       content: AppLocalizations.of(context).dialog_title_vote_fail,
-      onOk: () => Navigator.of(navigatorKey.currentContext!).pop(),
+      onOk: () {
+        final navContext = navigatorKey.currentContext;
+        if (navContext != null && navContext.mounted) {
+          Navigator.of(navContext).pop();
+        }
+      },
     );
   }
 }

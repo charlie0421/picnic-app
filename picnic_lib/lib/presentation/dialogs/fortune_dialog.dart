@@ -129,7 +129,6 @@ class _FortunePageState extends ConsumerState<FortunePage> {
   Future<void> _handleSave() async {
     try {
       await ShareUtils.saveImage(
-        context: context,
         _saveKey,
         onStart: () {
           setState(() => _isSaving = true);
@@ -157,7 +156,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
     final fortuneAsync = ref.watch(getFortuneProvider(
       artistId: widget.artistId,
       year: widget.year,
-      language: getLocaleLanguage(),
+      language: Localizations.localeOf(context).languageCode,
     ));
 
     return FullScreenDialog(
@@ -212,11 +211,13 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                             if (_isSaving) return;
                             ShareUtils.shareToSocial(
                               _shareKey,
-                              message: AppLocalizations.of(navigatorKey.currentContext!)
+                              message: AppLocalizations.of(
+                                      navigatorKey.currentContext!)
                                   .compatibility_share_message(
                                       getLocaleTextFromJson(
                                           fortune.artist.name)),
-                              hashtag: AppLocalizations.of(navigatorKey.currentContext!)
+                              hashtag: AppLocalizations.of(
+                                      navigatorKey.currentContext!)
                                   .compatibility_share_hashtag,
                               downloadLink: await createBranchLink(
                                   getLocaleTextFromJson(fortune.artist.name),

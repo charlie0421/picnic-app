@@ -19,6 +19,7 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:picnic_lib/enums.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
@@ -299,7 +300,7 @@ class AppInitializer {
       await _waitForMaterialAppInitialization(context);
 
       // 앱 초기화 작업 수행
-      final initFuture = initializeApp(context, ref);
+      final initFuture = initializeApp(navigatorKey.currentContext!, ref);
 
       // 최소 표시 시간 설정 (기본 2초)
       const minSplashDuration = Duration(milliseconds: 2000);
@@ -358,7 +359,7 @@ class AppInitializer {
 
       // MediaQuery 데이터를 안전하게 확인
       try {
-        final mediaQuery = MediaQuery.maybeOf(context);
+        final mediaQuery = MediaQuery.maybeOf(navigatorKey.currentContext!);
         if (mediaQuery != null) {
           logger.d('MediaQuery 데이터 확인 완료: ${mediaQuery.size}');
         } else {

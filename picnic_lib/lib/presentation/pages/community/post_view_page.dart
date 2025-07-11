@@ -20,6 +20,7 @@ import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_list.dart';
 import 'package:picnic_lib/presentation/common/comment/post_popup_menu.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
@@ -68,7 +69,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
       if (_isDisposed) return Future.error('Widget is disposed');
 
       if (updatedPost == null) {
-        throw Exception(AppLocalizations.of(context).post_not_found);
+        throw Exception(
+            AppLocalizations.of(navigatorKey.currentContext!).post_not_found);
       }
 
       _initializeQuillController(updatedPost);
@@ -318,8 +320,11 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
               } catch (e, s) {
                 logger.e('Error deleting post: $e', stackTrace: s);
                 if (!_isDisposed) {
-                  SnackbarUtil().showSnackbar(
-                      AppLocalizations.of(context).error_delete_post);
+                  if (navigatorKey.currentContext != null) {
+                    SnackbarUtil().showSnackbar(
+                        AppLocalizations.of(navigatorKey.currentContext!)
+                            .error_delete_post);
+                  }
                 }
               }
             },

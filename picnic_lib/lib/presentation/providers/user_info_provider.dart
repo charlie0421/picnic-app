@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -9,7 +8,6 @@ import 'package:picnic_lib/data/models/user_profiles.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:screen_protector/screen_protector.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 part '../../generated/providers/user_info_provider.g.dart';
@@ -54,15 +52,8 @@ class UserInfo extends _$UserInfo {
         final userProfile = UserProfilesModel.fromJson(response);
         state = AsyncValue.data(userProfile);
 
-        if (!kIsWeb) {
-          if (kDebugMode || userProfile.isAdmin == true) {
-            logger.i('Disabling screenshot prevention');
-            ScreenProtector.preventScreenshotOff();
-          } else {
-            logger.i('Enabling screenshot prevention');
-            ScreenProtector.preventScreenshotOn();
-          }
-        }
+        // 캡처 방지 로직은 screen_protector_provider에서 PIC 메뉴별로 관리
+        // 여기서는 전역 캡처 방지 설정을 하지 않음
 
         return userProfile;
       } else {

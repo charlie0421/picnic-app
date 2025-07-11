@@ -6,6 +6,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/data/models/pic/celeb.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/celeb_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/celeb_search_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -71,9 +72,11 @@ class CelebListItem extends ConsumerWidget {
                         } else {
                           if (await getBookmarkCount(asyncCelebListState) >=
                               5) {
-                            SnackbarUtil().showSnackbar(
-                              AppLocalizations.of(context).toast_max_five_celeb,
-                            );
+                            if (navigatorKey.currentContext != null) {
+                              SnackbarUtil().showSnackbar(
+                                AppLocalizations.of(navigatorKey.currentContext!).toast_max_five_celeb,
+                              );
+                            }
                             return;
                           }
                           await asyncCelebListNotifier.addBookmark(item);

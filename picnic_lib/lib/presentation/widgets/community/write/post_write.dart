@@ -10,6 +10,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/openai.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
@@ -99,10 +100,14 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
 
     if (isFlagged) {
       OverlayLoadingProgress.stop();
-      showSimpleDialog(
-        title: AppLocalizations.of(context).dialog_caution,
-        content: AppLocalizations.of(context).post_flagged,
-      );
+      if (navigatorKey.currentContext != null) {
+        showSimpleDialog(
+          title:
+              AppLocalizations.of(navigatorKey.currentContext!).dialog_caution,
+          content:
+              AppLocalizations.of(navigatorKey.currentContext!).post_flagged,
+        );
+      }
       return;
     }
 
@@ -151,16 +156,21 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
 
       if (isTemporary) {
         showSimpleDialog(
-          title: AppLocalizations.of(context).post_temporary_save_complete,
-          content:
-              AppLocalizations.of(context).post_ask_go_to_temporary_save_list,
+          title: AppLocalizations.of(navigatorKey.currentContext!)
+              .post_temporary_save_complete,
+          content: AppLocalizations.of(navigatorKey.currentContext!)
+              .post_ask_go_to_temporary_save_list,
           onOk: () {},
           onCancel: () {
             Navigator.of(context).pop();
           },
         );
       } else {
-        SnackbarUtil().showSnackbar('Post saved successfully!');
+        if (navigatorKey.currentContext != null) {
+          SnackbarUtil().showSnackbar(
+            AppLocalizations.of(navigatorKey.currentContext!).common_success,
+          );
+        }
         ref.read(navigationInfoProvider.notifier).goBack();
       }
     } catch (e, s) {

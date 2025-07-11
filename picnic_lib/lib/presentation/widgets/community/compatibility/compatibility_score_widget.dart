@@ -16,7 +16,7 @@ class CompatibilityScoreWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) {
-        final currentLocale = getLocaleLanguage();
+        final currentLocale = Localizations.localeOf(context).languageCode;
         final localizedResult = compatibility?.localizedResults?[currentLocale];
         if (localizedResult != null) {
           return compatibility?.isPaid ?? false

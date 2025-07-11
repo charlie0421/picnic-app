@@ -15,6 +15,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/widgets/pic/bottom_bar_widget.dart';
 import 'package:picnic_lib/presentation/widgets/pic/image_overlay_painter.dart';
@@ -431,7 +432,6 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        final currentContext = context;
         return Dialog(
           backgroundColor: Colors.transparent,
           child: LargePopupWidget(
@@ -459,8 +459,10 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
                             onPressed: () async {
                               await _saveImage();
                               _controller!.resumePreview();
-                              if (!currentContext.mounted) return;
-                              Navigator.of(context).pop();
+                              final navContext = navigatorKey.currentContext;
+                              if (navContext != null && navContext.mounted) {
+                                Navigator.of(navContext).pop();
+                              }
                             },
                             child: Text(AppLocalizations.of(context)
                                 .button_pic_pic_save),

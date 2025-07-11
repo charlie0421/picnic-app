@@ -12,7 +12,6 @@ import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/custom_pagination.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -145,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       ),
       itemBuilder: (BuildContext context, int index) {
         return Image.asset(
-            'assets/login/${getLocaleLanguage()}_${index + 1}.png');
+            'assets/login/${Localizations.localeOf(context).languageCode}_${index + 1}.png');
       },
     );
   }
@@ -180,7 +179,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                         entry.value,
                         style: getTextStyle(
                             AppTypo.body14B,
-                            getLocaleLanguage() == entry.key
+                            Localizations.localeOf(context).languageCode ==
+                                    entry.key
                                 ? AppColors.grey800
                                 : AppColors.grey400),
                       ),
@@ -323,34 +323,51 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             ref
                 .read(navigationInfoProvider.notifier)
                 .setCurrentSignUpPage(const AgreementTermsPage());
-            Navigator.of(navigatorKey.currentContext!).pop();
+            final navContext = navigatorKey.currentContext;
+            if (navContext != null && navContext.mounted) {
+              Navigator.of(navContext).pop();
+            }
           } else if (userProfile.deletedAt != null) {
-            showSimpleDialog(
-                content: AppLocalizations.of(context).error_message_withdrawal,
-                onOk: () {
-                  ref.read(userInfoProvider.notifier).logout();
-                  Navigator.of(navigatorKey.currentContext!).pop();
-                });
+            if (navigatorKey.currentContext != null) {
+              showSimpleDialog(
+                  content: AppLocalizations.of(navigatorKey.currentContext!)
+                      .error_message_withdrawal,
+                  onOk: () {
+                    ref.read(userInfoProvider.notifier).logout();
+                    final navContext = navigatorKey.currentContext;
+                    if (navContext != null && navContext.mounted) {
+                      Navigator.of(navContext).pop();
+                    }
+                  });
+            }
           } else if (userProfile.userAgreement == null) {
             ref
                 .read(navigationInfoProvider.notifier)
                 .setCurrentSignUpPage(const AgreementTermsPage());
-            Navigator.of(navigatorKey.currentContext!).pop();
+            final navContext = navigatorKey.currentContext;
+            if (navContext != null && navContext.mounted) {
+              Navigator.of(navContext).pop();
+            }
           } else {
             ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
-            Navigator.of(navigatorKey.currentContext!).pop();
-            Navigator.of(navigatorKey.currentContext!).pop();
+            final navContext = navigatorKey.currentContext;
+            if (navContext != null && navContext.mounted) {
+              Navigator.of(navContext).pop();
+              Navigator.of(navContext).pop();
+            }
           }
         },
       );
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
+      if (navigatorKey.currentContext != null) {
       showSimpleDialog(
-          title: AppLocalizations.of(context).error_title,
-          content: AppLocalizations.of(context).error_message_login_failed,
-          onOk: () {
+            title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
+            content: AppLocalizations.of(navigatorKey.currentContext!).error_message_login_failed,
+            onOk: () {
             Navigator.of(navigatorKey.currentContext!).pop();
           });
+      }
       rethrow;
     }
   }
@@ -382,24 +399,27 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 return; // 사용자가 취소한 경우 아무것도 하지 않음
               }
 
+              if (navigatorKey.currentContext != null) {
               showSimpleDialog(
                   type: DialogType.error,
-                  title: AppLocalizations.of(context).error_title,
+                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
                   content: e.message,
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
+              }
             } catch (e, s) {
               logger.e('Error signing in with Apple: $e', stackTrace: s);
-
+              if (navigatorKey.currentContext != null) {
               showSimpleDialog(
                   type: DialogType.error,
-                  title: AppLocalizations.of(context).error_title,
+                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
                   content:
-                      AppLocalizations.of(context).error_message_login_failed,
+                      AppLocalizations.of(navigatorKey.currentContext!).error_message_login_failed,
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
+              }
               rethrow;
             }
           },
@@ -462,24 +482,27 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 return; // 사용자가 취소한 경우 아무것도 하지 않음
               }
 
+              if (navigatorKey.currentContext != null) {
               showSimpleDialog(
                   type: DialogType.error,
-                  title: AppLocalizations.of(context).error_title,
+                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
                   content: e.message,
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
+              }
             } catch (e, s) {
               logger.e('Error signing in with Google: $e', stackTrace: s);
-
+              if (navigatorKey.currentContext != null) {
               showSimpleDialog(
                   type: DialogType.error,
-                  title: AppLocalizations.of(context).error_title,
+                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
                   content:
-                      AppLocalizations.of(context).error_message_login_failed,
+                      AppLocalizations.of(navigatorKey.currentContext!).error_message_login_failed,
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
+              }
               rethrow;
             }
           },
@@ -542,25 +565,27 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               if (e.code == 'canceled') {
                 return; // 사용자가 취소한 경우 아무것도 하지 않음
               }
-
+              if (navigatorKey.currentContext != null) {
               showSimpleDialog(
                   type: DialogType.error,
-                  title: AppLocalizations.of(context).error_title,
+                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
                   content: e.message,
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
+              }
             } catch (e, s) {
               logger.e('Error signing in with Kakao: $e', stackTrace: s);
-
+              if (navigatorKey.currentContext != null) {
               showSimpleDialog(
                   type: DialogType.error,
-                  title: AppLocalizations.of(context).error_title,
+                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
                   content:
-                      AppLocalizations.of(context).error_message_login_failed,
+                      AppLocalizations.of(navigatorKey.currentContext!).error_message_login_failed,
                   onOk: () {
                     Navigator.of(navigatorKey.currentContext!).pop();
                   });
+              }
               rethrow;
             }
           },

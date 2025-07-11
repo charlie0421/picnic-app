@@ -59,8 +59,9 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
               widget.refreshFunction!();
             }
 
-            if (navigatorKey.currentContext != null) {
-              Navigator.of(navigatorKey.currentContext!).pop();
+            final navContext = navigatorKey.currentContext;
+            if (navContext != null && navContext.mounted) {
+              Navigator.of(navContext).pop();
             }
           } catch (e, s) {
             logger.e('exception:', error: e, stackTrace: s);
@@ -73,7 +74,9 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
           }
         },
         onCancel: () {
-          Navigator.of(context).pop();
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
         },
       );
     } finally {

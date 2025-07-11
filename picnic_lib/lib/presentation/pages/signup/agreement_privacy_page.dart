@@ -8,7 +8,6 @@ import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/policy.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -95,7 +94,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
             color: AppColors.grey100,
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Markdown(
-                data: getLocaleLanguage() == 'ko'
+                data: Localizations.localeOf(context).languageCode == 'ko'
                     ? data.privacyKo.content
                     : data.privacyEn.content),
           ),
@@ -137,10 +136,11 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                               ),
                               onOk: () {
                                 navigationInfoNotifier.setResetStackSignUp();
-                                Navigator.of(navigatorKey.currentContext!)
-                                    .pop();
-                                Navigator.of(navigatorKey.currentContext!)
-                                    .pop();
+                                final navContext = navigatorKey.currentContext;
+                                if (navContext != null && navContext.mounted) {
+                                  Navigator.of(navContext).pop();
+                                  Navigator.of(navContext).pop();
+                                }
                               });
                         });
                       } else {
@@ -151,8 +151,10 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                               content: AppLocalizations.of(context)
                                   .message_agreement_fail,
                               onOk: () {
-                                Navigator.of(navigatorKey.currentContext!)
-                                    .pop();
+                                final navContext = navigatorKey.currentContext;
+                                if (navContext != null && navContext.mounted) {
+                                  Navigator.of(navContext).pop();
+                                }
                               });
                         });
                       }
@@ -170,7 +172,10 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                             content: AppLocalizations.of(context)
                                 .message_agreement_fail,
                             onOk: () {
-                              Navigator.of(navigatorKey.currentContext!).pop();
+                              final navContext = navigatorKey.currentContext;
+                              if (navContext != null && navContext.mounted) {
+                                Navigator.of(navContext).pop();
+                              }
                             });
                       });
                       rethrow;

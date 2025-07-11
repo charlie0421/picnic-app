@@ -69,11 +69,16 @@ class _PostPopupMenuState extends ConsumerState<PostPopupMenu> {
               content: AppLocalizations.of(context).post_comment_delete_confirm,
               onOk: () async {
                 if (widget.deletePost != null) widget.deletePost!(widget.post);
-                if (navigatorKey.currentContext != null) {
-                  Navigator.of(navigatorKey.currentContext!).pop();
+                final navContext = navigatorKey.currentContext;
+                if (navContext != null && navContext.mounted) {
+                  Navigator.of(navContext).pop();
                 }
               },
-              onCancel: () => Navigator.of(context).pop(),
+              onCancel: () {
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
             );
           }
         },

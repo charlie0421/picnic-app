@@ -128,7 +128,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
         alignment: Alignment.centerLeft,
         child: Row(
           children: [
-            Text(AppLocalizations.of(context).label_vote_vote_gather,
+            Text(AppLocalizations.of(context).label_vote_list,
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
             SvgPicture.asset(
               package: 'picnic_lib',

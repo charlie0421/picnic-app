@@ -28,8 +28,8 @@ class CommentReplyLayer extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-              AppLocalizations.of(context).post_replying_comment(
-                  {'nickname': parentComment.user?.nickname ?? ''}),
+              AppLocalizations.of(context)
+                  .post_replying_comment(parentComment.user?.nickname ?? ''),
               style: getTextStyle(AppTypo.caption12B, AppColors.grey00)),
           IconButton(
             onPressed: () {

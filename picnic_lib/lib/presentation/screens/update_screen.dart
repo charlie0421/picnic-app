@@ -38,7 +38,11 @@ class UpdateScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () {
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey,
                     ),

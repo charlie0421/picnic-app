@@ -42,8 +42,7 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
                 children: [
                   Expanded(
                       child: Text(AppLocalizations.of(context)
-                          .update_recommend_text(
-                          {'version': updateInfo.latestVersion}))),
+                          .update_recommend_text(updateInfo.latestVersion))),
                   TextButton(
                     child: Text(
                       AppLocalizations.of(context).update_button,

@@ -9,6 +9,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
@@ -302,8 +303,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           error: e, stackTrace: s);
       _resetPurchaseState();
       _loadingKey.currentState?.hide();
-      await _dialogHandler.showErrorDialog(
-          AppLocalizations.of(context).dialog_message_purchase_failed);
+      if (navigatorKey.currentContext != null) {
+        await _dialogHandler.showErrorDialog(
+            AppLocalizations.of(navigatorKey.currentContext!).dialog_message_purchase_failed);
+      }
       rethrow;
     }
   }
@@ -760,8 +763,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       _resetPurchaseState();
       if (mounted) {
         _loadingKey.currentState?.hide();
-        await _dialogHandler.showErrorDialog(
-            AppLocalizations.of(context).dialog_message_purchase_failed);
+        if (navigatorKey.currentContext != null) {
+          await _dialogHandler.showErrorDialog(
+              AppLocalizations.of(navigatorKey.currentContext!).dialog_message_purchase_failed);
+        }
       }
       rethrow;
     }

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
@@ -175,7 +174,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
                     children: [
                       SvgPicture.asset(
                         package: 'picnic_lib',
-                        'assets/images/fortune/title_${getLocaleLanguage()}.svg',
+                        'assets/images/fortune/title_${Localizations.localeOf(context).languageCode}.svg',
                         fit: BoxFit.fitHeight,
                         height: 48,
                       ),

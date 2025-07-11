@@ -225,7 +225,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   void _handleSave() {
     if (_isSaving) return;
     ShareUtils.saveImage(
-      context: context,
       _captureKey,
       onStart: () {
         _loadingKey.currentState?.show();

@@ -190,7 +190,9 @@ class _CompatibilityResultPageState
               ref
                   .read(navigationInfoProvider.notifier)
                   .setCommunityCurrentPage(StorePage());
-              Navigator.of(context).pop();
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
             }
           },
         );
@@ -208,7 +210,9 @@ class _CompatibilityResultPageState
               ref
                   .read(navigationInfoProvider.notifier)
                   .setCommunityCurrentPage(StorePage());
-              Navigator.of(context).pop();
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
             }
           },
         );
@@ -356,7 +360,8 @@ class _CompatibilityResultPageState
                                 CompatibilitySummaryWidget(
                                     localizedResult:
                                         compatibility.getLocalizedResult(
-                                            getLocaleLanguage())),
+                                            Localizations.localeOf(context)
+                                                .languageCode)),
                                 SizedBox(height: 24),
                                 CompatibilityScoreWidget(
                                   compatibility: compatibility,
@@ -418,7 +423,6 @@ class _CompatibilityResultPageState
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
     return ShareUtils.saveImage(
       _saveKey,
-      context: context,
       onStart: () {
         setState(() {
           _isSaving = true;

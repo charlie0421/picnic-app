@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/policy.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/signup/agreement_privacy_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -86,7 +85,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
             color: AppColors.grey100,
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Markdown(
-                data: getLocaleLanguage() == 'ko'
+                data: Localizations.localeOf(context).languageCode == 'ko'
                     ? data.termsKo.content
                     : data.termsEn.content),
           ),

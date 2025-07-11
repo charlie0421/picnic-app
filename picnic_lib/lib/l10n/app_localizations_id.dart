@@ -43,6 +43,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get artist_name_label => 'Artist Name';
 
   @override
+  String get ban_contact =>
+      'Please contact customer service if you have any questions.';
+
+  @override
+  String get ban_message =>
+      'Your account has been temporarily suspended due to inappropriate activity.';
+
+  @override
+  String get ban_title => 'Account Suspended';
+
+  @override
   String get block_user_label => 'Memblokir pengguna';
 
   @override
@@ -67,11 +78,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get button_pic_pic_save => 'Simpan';
 
   @override
-  String get candy_disappear_next_month =>
-      'Bintang-bintang bonus akan hilang 😢';
+  String get cancel => 'Cancel';
 
   @override
-  String get capture_failed => 'Gagal mengambil tangkapan layar';
+  String get candy_disappear_next_month =>
+      'Bintang-bintang bonus akan hilang 😢';
 
   @override
   String get candy_usage_policy_contents =>
@@ -90,6 +101,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get candy_usage_policy_title => 'Kebijakan Penggunaan StarCandy';
+
+  @override
+  String get capture_failed => 'Gagal mengambil tangkapan layar';
 
   @override
   String get comments => 'Komentar';
@@ -158,6 +172,13 @@ class AppLocalizationsId extends AppLocalizations {
       'Data kompatibilitas yang sudah ada';
 
   @override
+  String get compatibility_empty_state_subtitle =>
+      'Create your first compatibility!';
+
+  @override
+  String get compatibility_empty_state_title => 'No compatibility information';
+
+  @override
   String get compatibility_gender => 'Jenis Kelamin';
 
   @override
@@ -195,7 +216,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get compatibility_purchase_confirm_title => 'Beli dengan Star Candy';
 
   @override
-  String compatibility_purchase_message(Object artistName) {
+  String compatibility_purchase_message(String artistName) {
     return 'Jika saya ingin mengetahui skor Goong-hap antara saya dan $artistName?';
   }
 
@@ -210,7 +231,7 @@ class AppLocalizationsId extends AppLocalizations {
       'ピクニック #피크닠 #아이돌궁 #Goonghap #피크닠합 #궁합';
 
   @override
-  String compatibility_share_message(Object artistName) {
+  String compatibility_share_message(String artistName) {
     return 'Berapa persen kompatibilitas kimia bersinar saya dengan $artistName ? Jantungku berdegup kencang!';
   }
 
@@ -305,6 +326,12 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get compatibility_warning_exit =>
       'Jika Anda meninggalkan layar, Anda harus melakukan analisis lagi.';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get days_ago => ' hari yang lalu';
 
   @override
   String get dialog_button_cancel => 'Batal';
@@ -629,12 +656,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get fortune_share_hashtag => '#piknik #신년운세 #Fourtuneteller';
 
   @override
-  String fortune_share_message(Object artistName) {
+  String fortune_share_message(String artistName) {
     return 'Penasaran dengan kekayaan ${artistName}di tahun 2025? Datanglah ke #피크닠 sekarang! Mari temukan takdir yang bersinar itu bersama-sama!';
   }
 
   @override
-  String fortune_title(Object year) {
+  String fortune_title(String year) {
     return 'Keberuntungan dari $year';
   }
 
@@ -657,7 +684,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get hint_nickname_input => 'Masukkan nama panggilan.';
 
   @override
+  String get hours_ago => ' jam yang lalu';
+
+  @override
   String get image_save_success => 'Gambar sudah disimpan.';
+
+  @override
+  String get just_now => 'Just now';
 
   @override
   String get label_ads_exceeded =>
@@ -667,7 +700,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_ads_get_star_candy => 'Dapatkan Permen Bintang dari Iklan';
 
   @override
-  String label_ads_limits(Object daily, Object hourly) {
+  String label_ads_limits(String daily, String hourly) {
     return '$hourly per jam, $daily per hari';
   }
 
@@ -1021,17 +1054,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_tabbar_vote_upcoming => 'Mendatang';
 
   @override
-  String label_time_ago_day(Object day) {
+  String label_time_ago_day(String day) {
     return '$day beberapa hari yang lalu';
   }
 
   @override
-  String label_time_ago_hour(Object hour) {
+  String label_time_ago_hour(String hour) {
     return '$hour beberapa jam yang lalu';
   }
 
   @override
-  String label_time_ago_minute(Object minute) {
+  String label_time_ago_minute(String minute) {
     return '$minute beberapa menit yang lalu';
   }
 
@@ -1087,7 +1120,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_vote_upcoming => 'Sampai pemungutan suara dimulai';
 
   @override
-  String get label_vote_vote_gather => 'Mengumpulkan suara';
+  String get label_vote_list => 'Daftar Voting';
 
   @override
   String get label_watch_ads => 'Lihat iklan';
@@ -1099,6 +1132,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get lable_my_celeb => 'Seniman Saya';
 
   @override
+  String get loading => 'Loading...';
+
+  @override
   String get login_simple_login => 'Masuk Sederhana';
 
   @override
@@ -1107,6 +1143,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get login_title => 'Temukan momen spesial di piknik';
+
+  @override
+  String get message_agreement_fail => 'Terms agreement required';
 
   @override
   String get message_agreement_success =>
@@ -1157,6 +1196,9 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get message_vote_is_upcoming =>
       'Ini adalah pemungutan suara yang akan datang.';
+
+  @override
+  String get minutes_ago => ' menit yang lalu';
 
   @override
   String get my_info => 'Informasi Saya';
@@ -1219,11 +1261,20 @@ class AppLocalizationsId extends AppLocalizations {
   String get nav_vote => 'Pemungutan suara';
 
   @override
+  String get network_error_message => 'Please check your internet connection.';
+
+  @override
+  String get network_error_title => 'Network Error';
+
+  @override
   String get nickname_validation_error =>
       '20 karakter atau kurang, tidak termasuk karakter khusus.';
 
   @override
   String get no_search_results => 'No search results found';
+
+  @override
+  String get notice_pinned => 'Pinned';
 
   @override
   String get optional => 'Opsional';
@@ -1250,7 +1301,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get page_title_vote_detail => 'Pilih';
 
   @override
-  String get page_title_vote_gather => 'Mengumpulkan suara';
+  String get page_title_vote_list => 'Daftar Voting';
 
   @override
   String get patch_check => 'Memeriksa tambalan';
@@ -1432,7 +1483,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get post_not_found => 'Tidak ada tulisan yang ditemukan.';
 
   @override
-  String post_replying_comment(Object nickname) {
+  String post_replying_comment(String nickname) {
     return 'Membalas ke $nickname...';
   }
 
@@ -1559,7 +1610,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_content_required => 'Harap masukkan isi konsultasi';
 
   @override
+  String get qna_content_too_short => 'Konten terlalu pendek';
+
+  @override
   String get qna_create_failed => 'Gagal mendaftar konsultasi:';
+
+  @override
+  String get qna_create_first => 'Buat tanya jawab pertama Anda';
 
   @override
   String get qna_create_page_title => 'Buat Konsultasi';
@@ -1596,6 +1653,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_edit => 'Edit';
 
   @override
+  String get qna_empty_list => 'Belum ada tanya jawab';
+
+  @override
+  String get qna_error_message => 'Terjadi kesalahan';
+
+  @override
   String get qna_file_attach_label => 'Lampiran File';
 
   @override
@@ -1616,6 +1679,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_file_uploading_button => 'File Sedang Upload...';
+
+  @override
+  String get qna_list_title => 'Daftar Tanya Jawab';
 
   @override
   String get qna_loading_error => 'Error occurred while loading';
@@ -1683,6 +1749,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_status_answered => 'Sudah Dijawab';
 
   @override
+  String get qna_status_closed => 'Ditutup';
+
+  @override
   String get qna_status_pending => 'Menunggu Jawaban';
 
   @override
@@ -1690,6 +1759,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_submit_button => 'Daftar Konsultasi';
+
+  @override
+  String get qna_submit_error => 'Gagal mengirim tanya jawab';
+
+  @override
+  String get qna_submit_success => 'Tanya jawab berhasil dikirim';
 
   @override
   String get qna_title => 'Judul';
@@ -1702,6 +1777,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_title_required => 'Harap masukkan judul';
+
+  @override
+  String get qna_title_too_short => 'Judul terlalu pendek';
 
   @override
   String get qna_upload_complete => 'Upload Selesai';
@@ -1720,6 +1798,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get replies => 'Komentar';
+
+  @override
+  String get retry => 'Retry';
 
   @override
   String get reward => 'Penghargaan';
@@ -1749,13 +1830,37 @@ class AppLocalizationsId extends AppLocalizations {
   String get share_twitter => 'Bagikan di Twitter';
 
   @override
+  String get starCandy100 => '100 StarCandy';
+
+  @override
+  String get starCandy1000 => '1000 StarCandy + Bonus 150';
+
+  @override
+  String get starCandy200 => '200 StarCandy + Bonus 25';
+
+  @override
+  String get starCandy2000 => '2000 StarCandy + Bonus 320';
+
+  @override
+  String get starCandy3000 => '3000 StarCandy + Bonus 540';
+
+  @override
+  String get starCandy4000 => '4000 StarCandy + Bonus 760';
+
+  @override
+  String get starCandy5000 => '5000 StarCandy + Bonus 1000';
+
+  @override
+  String get starCandy600 => '600 StarCandy + Bonus 85';
+
+  @override
   String get submit_application => 'Submit Application';
 
   @override
   String get success => 'Berhasil';
 
   @override
-  String text_achievement(Object count) {
+  String text_achievement(String count) {
     return '🎉 Anda telah mencapai target \$$count sejauh ini! 🎉';
   }
 
@@ -1837,7 +1942,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_star_candy => 'Bintang Permen';
 
   @override
-  String text_star_candy_with_bonus(Object num1) {
+  String text_star_candy_with_bonus(String num1) {
     return '$num1 + $num1 Bonus';
   }
 
@@ -1857,7 +1962,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_vote_ended => 'Berakhir';
 
   @override
-  String text_vote_rank(Object rank) {
+  String text_vote_rank(String rank) {
     return 'Rank $rank';
   }
 
@@ -1865,7 +1970,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_vote_rank_in_reward => 'Peringkat dalam Penghargaan';
 
   @override
-  String text_vote_reward(Object count) {
+  String text_vote_reward(String count) {
     return '$count hadiah';
   }
 
@@ -1897,6 +2002,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get time_unit_second => 'S';
 
   @override
+  String get title_dialog_error => 'Error';
+
+  @override
   String get title_dialog_library_add => 'Menambahkan album baru';
 
   @override
@@ -1910,6 +2018,9 @@ class AppLocalizationsId extends AppLocalizations {
       'Anda dapat menambahkan hingga lima artis Anda sendiri.';
 
   @override
+  String get update => 'Update';
+
+  @override
   String get update_button => 'Memperbarui';
 
   @override
@@ -1917,12 +2028,16 @@ class AppLocalizationsId extends AppLocalizations {
       'Saya tidak bisa membuka toko aplikasi.';
 
   @override
-  String update_recommend_text(Object version) {
+  String update_recommend_text(String version) {
     return 'Versi baru ($version) tersedia.';
   }
 
   @override
-  String update_required_text(Object version) {
+  String get update_required_message =>
+      'Anda perlu memperbarui ke versi baru untuk terus menggunakan aplikasi.';
+
+  @override
+  String update_required_text(String version) {
     return 'Anda perlu memperbarui ke versi baru ($version).';
   }
 
@@ -1962,7 +2077,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Permohonan Item Saat Ini';
 
   @override
-  String vote_item_request_item_request_count(Object count) {
+  String vote_item_request_item_request_count(String count) {
     return '$count permintaan item';
   }
 
@@ -2012,7 +2127,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Permintaan Pemungutan Suara untuk Seniman';
 
   @override
-  String vote_item_request_total_item_requests(Object count) {
+  String vote_item_request_total_item_requests(String count) {
     return 'Total permintaan item $count';
   }
 
@@ -2048,119 +2163,4 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get withdrawal_success => 'Berhenti berlangganan berhasil diproses.';
-
-  @override
-  String get cancel => 'Cancel';
-
-  @override
-  String get confirm => 'Confirm';
-
-  @override
-  String get loading => 'Loading...';
-
-  @override
-  String get just_now => 'Just now';
-
-  @override
-  String get retry => 'Retry';
-
-  @override
-  String get update => 'Update';
-
-  @override
-  String get ban_title => 'Account Suspended';
-
-  @override
-  String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
-
-  @override
-  String get ban_contact =>
-      'Please contact customer service if you have any questions.';
-
-  @override
-  String get compatibility_empty_state_title => 'No compatibility information';
-
-  @override
-  String get compatibility_empty_state_subtitle =>
-      'Create your first compatibility!';
-
-  @override
-  String get network_error_title => 'Network Error';
-
-  @override
-  String get network_error_message => 'Please check your internet connection.';
-
-  @override
-  String get notice_pinned => 'Pinned';
-
-  @override
-  String get message_agreement_fail => 'Terms agreement required';
-
-  @override
-  String get title_dialog_error => 'Error';
-
-  @override
-  String get qna_list_title => 'Daftar Tanya Jawab';
-
-  @override
-  String get qna_error_message => 'Terjadi kesalahan';
-
-  @override
-  String get qna_empty_list => 'Belum ada tanya jawab';
-
-  @override
-  String get qna_create_first => 'Buat tanya jawab pertama Anda';
-
-  @override
-  String get qna_status_closed => 'Ditutup';
-
-  @override
-  String get qna_submit_success => 'Tanya jawab berhasil dikirim';
-
-  @override
-  String get qna_submit_error => 'Gagal mengirim tanya jawab';
-
-  @override
-  String get qna_title_too_short => 'Judul terlalu pendek';
-
-  @override
-  String get qna_content_too_short => 'Konten terlalu pendek';
-
-  @override
-  String get days_ago => ' hari yang lalu';
-
-  @override
-  String get hours_ago => ' jam yang lalu';
-
-  @override
-  String get minutes_ago => ' menit yang lalu';
-
-  @override
-  String get starCandy100 => '100 StarCandy';
-
-  @override
-  String get starCandy200 => '200 StarCandy + Bonus 25';
-
-  @override
-  String get starCandy600 => '600 StarCandy + Bonus 85';
-
-  @override
-  String get starCandy1000 => '1000 StarCandy + Bonus 150';
-
-  @override
-  String get starCandy2000 => '2000 StarCandy + Bonus 320';
-
-  @override
-  String get starCandy3000 => '3000 StarCandy + Bonus 540';
-
-  @override
-  String get starCandy4000 => '4000 StarCandy + Bonus 760';
-
-  @override
-  String get starCandy5000 => '5000 StarCandy + Bonus 1000';
-
-  @override
-  String get update_required_message =>
-      'Anda perlu memperbarui ke versi baru untuk terus menggunakan aplikasi.';
 }

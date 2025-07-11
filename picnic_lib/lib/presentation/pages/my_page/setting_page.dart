@@ -8,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -172,10 +173,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         final cacheManager = DefaultCacheManager();
                         cacheManager.emptyCache().then((value) {
                           OverlayLoadingProgress.stop();
-                          showSimpleDialog(
-                              content: AppLocalizations.of(context)
-                                  .message_setting_remove_cache,
-                              onOk: () => Navigator.of(context).pop());
+                          if (navigatorKey.currentContext != null) {
+                            showSimpleDialog(
+                                content: AppLocalizations.of(
+                                        navigatorKey.currentContext!)
+                                    .message_setting_remove_cache,
+                                onOk: () => Navigator.of(context).pop());
+                          }
                         });
                       }),
                   const SizedBox(height: 24),
@@ -222,7 +226,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () async {
                                 (await canLaunchUrlString(info.url!))
                                     ? launchUrlString(info.url!)
-                                    : throw AppLocalizations.of(context)
+                                    : throw AppLocalizations.of(
+                                            navigatorKey.currentContext!)
                                         .update_cannot_open_appstore;
                               },
                             );
@@ -245,7 +250,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                               onTap: () async {
                                 (await canLaunchUrlString(info.url!))
                                     ? launchUrlString(info.url!)
-                                    : throw AppLocalizations.of(context)
+                                    : throw AppLocalizations.of(
+                                            navigatorKey.currentContext!)
                                         .update_cannot_open_appstore;
                               },
                             );
@@ -383,14 +389,22 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop(false);
+              }
+            },
             child: Text(
               'Cancel',
               style: getTextStyle(AppTypo.body14M, AppColors.grey600),
             ),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              if (context.mounted) {
+                Navigator.of(context).pop(true);
+              }
+            },
             child: Text(
               'Restart',
               style: getTextStyle(AppTypo.body14B, AppColors.primary500),
@@ -408,7 +422,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       try {
         // 짧은 지연 후 재시작 실행
         await Future.delayed(const Duration(milliseconds: 300));
-        if (mounted) {
+        if (mounted && context.mounted) {
           await ref
               .read(patchInfoProvider.notifier)
               .performManualRestart(context);

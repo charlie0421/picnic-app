@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 
 String formatTimeAgo(BuildContext context, DateTime timestamp) {
   final now = DateTime.now().toUtc();
@@ -22,17 +22,17 @@ String formatTimeAgo(BuildContext context, DateTime timestamp) {
 
 String formatCurrentTime() {
   var now = DateTime.now();
-  var formatter = DateFormat('yyyy-MM-dd HH:mm:ss', getLocaleLanguage());
+  var formatter = DateFormat('yyyy-MM-dd HH:mm:ss', Localizations.localeOf(navigatorKey.currentContext!).languageCode);
   return formatter.format(now);
 }
 
 String formatDateTimeYYYYMMDD(DateTime dateTime) {
-  var formatter = DateFormat('yyyy.MM.dd', getLocaleLanguage());
+  var formatter = DateFormat('yyyy.MM.dd', Localizations.localeOf(navigatorKey.currentContext!).languageCode);
   return formatter.format(dateTime);
 }
 
 String formatDateTimeYYYYMMDDHHM(DateTime dateTime) {
-  var formatter = DateFormat('yyyy.MM.dd HH:mm', getLocaleLanguage());
+  var formatter = DateFormat('yyyy.MM.dd HH:mm', Localizations.localeOf(navigatorKey.currentContext!).languageCode);
   return formatter.format(dateTime);
 }
 

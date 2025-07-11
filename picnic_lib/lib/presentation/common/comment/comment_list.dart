@@ -12,6 +12,7 @@ import 'package:picnic_lib/presentation/common/comment/comment_input.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_item.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_reply_layer.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/comment_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -149,8 +150,10 @@ class _CommentListState extends ConsumerState<CommentList> {
       logger.e('Error handling comment action: $e', stackTrace: s);
       if (!_isDisposed) {
         if (!context.mounted) return;
-        SnackbarUtil()
-            .showSnackbar(AppLocalizations.of(context).error_action_failed);
+        if (navigatorKey.currentContext != null) {
+          SnackbarUtil()
+              .showSnackbar(AppLocalizations.of(navigatorKey.currentContext!).error_action_failed);
+        }
       }
     } finally {
       _debounceTimer?.cancel();

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -63,17 +62,23 @@ class VoteRequestStatusUtils {
   static String getStatusText(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_pending;
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_pending;
       case 'approved':
-        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_approved;
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_approved;
       case 'rejected':
-        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_rejected;
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_rejected;
       case 'in-progress':
-        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_in_progress;
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_in_progress;
       case 'cancelled':
-        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_cancelled;
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_cancelled;
       default:
-        return AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_unknown;
+        return AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_status_unknown;
     }
   }
 
@@ -102,24 +107,31 @@ class VoteRequestStatusUtils {
 
     // 거절된 경우는 재신청 가능
     if (status ==
-            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_rejected ||
+            AppLocalizations.of(navigatorKey.currentContext!)
+                .vote_item_request_status_rejected ||
         status ==
-            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_cancelled) {
+            AppLocalizations.of(navigatorKey.currentContext!)
+                .vote_item_request_status_cancelled) {
       return true;
     }
 
     // 내가 이미 신청한 경우 (대기중, 승인됨, 진행중)
     if (status ==
-            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_pending ||
+            AppLocalizations.of(navigatorKey.currentContext!)
+                .vote_item_request_status_pending ||
         status ==
-            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_approved ||
+            AppLocalizations.of(navigatorKey.currentContext!)
+                .vote_item_request_status_approved ||
         status ==
-            AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_status_in_progress) {
+            AppLocalizations.of(navigatorKey.currentContext!)
+                .vote_item_request_status_in_progress) {
       return false;
     }
 
     // 신청 가능한 경우만 true
-    return status == AppLocalizations.of(navigatorKey.currentContext!).vote_item_request_can_apply;
+    return status ==
+        AppLocalizations.of(navigatorKey.currentContext!)
+            .vote_item_request_can_apply;
   }
 }
 
@@ -129,7 +141,8 @@ class ArtistNameUtils {
   static String getDisplayName(Map<String, dynamic> nameJson) {
     if (nameJson.isEmpty) return '';
 
-    final currentLanguage = getLocaleLanguage();
+    final currentLanguage =
+        Localizations.localeOf(navigatorKey.currentContext!).languageCode;
     final koreanName = nameJson['ko'] as String? ?? '';
     final englishName = nameJson['en'] as String? ?? '';
 

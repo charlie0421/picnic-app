@@ -1,11 +1,12 @@
 // ignore_for_file: strict_top_level_inference
 
+import 'package:flutter/widgets.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/community/board.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/data/models/community/post_scrap.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -156,7 +157,9 @@ Future<List<PostModel>?> postsByQuery(
 
     final response = await searchQuery
         .range((page - 1) * limit, page * limit - 1)
-        .order('title->>${getLocaleLanguage()}', ascending: true);
+        .order(
+            'title->>${Localizations.localeOf(navigatorKey.currentContext!).languageCode}',
+            ascending: true);
 
     return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {

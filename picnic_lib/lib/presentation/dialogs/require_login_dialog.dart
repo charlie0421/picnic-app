@@ -6,27 +6,30 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
 
 void showRequireLoginDialog() {
-  if (navigatorKey.currentContext == null) {
+  final context = navigatorKey.currentContext;
+  if (context == null) {
     logger.e('navigatorKey.currentContext is null');
     return;
   }
 
   try {
     showSimpleDialog(
-      content: AppLocalizations.of(navigatorKey.currentContext!).dialog_content_login_required,
+      content: AppLocalizations.of(context).dialog_content_login_required,
       onOk: () async {
-        if (navigatorKey.currentContext!.mounted) {
-          Navigator.of(navigatorKey.currentContext!).pop();
+        final navContext = navigatorKey.currentContext;
+        if (navContext != null && navContext.mounted) {
+          Navigator.of(navContext).pop();
         }
         await Future.delayed(const Duration(milliseconds: 100));
-        if (navigatorKey.currentContext!.mounted) {
-          Navigator.pushNamed(
-              navigatorKey.currentContext!, SignUpScreen.routeName);
+        final navContext2 = navigatorKey.currentContext;
+        if (navContext2 != null && navContext2.mounted) {
+          Navigator.pushNamed(navContext2, SignUpScreen.routeName);
         }
       },
       onCancel: () {
-        if (navigatorKey.currentContext!.mounted) {
-          Navigator.of(navigatorKey.currentContext!).pop();
+        final navContext = navigatorKey.currentContext;
+        if (navContext != null && navContext.mounted) {
+          Navigator.of(navContext).pop();
         }
       },
     );

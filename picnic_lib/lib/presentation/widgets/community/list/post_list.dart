@@ -67,7 +67,9 @@ class _PostListState extends ConsumerState<PostList> {
                 showSimpleDialog(
                   content: '아직 토정비결이 없습니다.',
                   onOk: () {
-                    Navigator.of(context).pop();
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
                   },
                 );
                 return;

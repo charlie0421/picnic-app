@@ -48,8 +48,9 @@ class _MyScrapPopupMenuState extends ConsumerState<MyScrapPopupMenu> {
               await unscrapPost(
                   ref, widget.post.postId, supabase.auth.currentUser!.id);
               widget.refreshFunction();
-              if (navigatorKey.currentContext != null) {
-                Navigator.of(navigatorKey.currentContext!).pop();
+              final navContext = navigatorKey.currentContext;
+              if (navContext != null && navContext.mounted) {
+                Navigator.of(navContext).pop();
               }
             },
             onCancel: () => Navigator.of(context).pop(),

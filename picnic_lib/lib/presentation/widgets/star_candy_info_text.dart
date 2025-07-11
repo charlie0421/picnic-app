@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/util.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -34,18 +33,27 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
     String firstPart = '';
     String secondPart = '';
 
-    if (getLocaleLanguage() == 'ko') {
+    String currentLocale = Localizations.localeOf(context).languageCode;
+
+    if (currentLocale == 'ko') {
       firstPart = '${numberFormatter.format(starCandy)}개';
       secondPart = ' +${numberFormatter.format(starCandyBonus)}개 보너스';
-    } else if (getLocaleLanguage() == 'en') {
+    } else if (currentLocale == 'en') {
       firstPart = numberFormatter.format(starCandy);
       secondPart = ' +${numberFormatter.format(starCandyBonus)} bonus';
-    } else if (getLocaleLanguage() == 'ja') {
+    } else if (currentLocale == 'ja') {
       firstPart = '${numberFormatter.format(starCandy)}個';
       secondPart = ' +${numberFormatter.format(starCandyBonus)}個ボーナス';
-    } else if (getLocaleLanguage() == 'zh') {
+    } else if (currentLocale == 'zh') {
       firstPart = numberFormatter.format(starCandy);
       secondPart = ' +${numberFormatter.format(starCandyBonus)} 奖金';
+    } else if (currentLocale == 'id') {
+      firstPart = numberFormatter.format(starCandy);
+      secondPart = ' +${numberFormatter.format(starCandyBonus)} bonus';
+    } else {
+      // 기본값: 영어 형식
+      firstPart = numberFormatter.format(starCandy);
+      secondPart = ' +${numberFormatter.format(starCandyBonus)} bonus';
     }
     return Row(
       mainAxisAlignment: widget.alignment,

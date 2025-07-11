@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -58,12 +59,27 @@ class ShareUtils {
   }) async {
     XFile? capturedFile;
 
+    // 네비게이션 키를 통해 안전하게 context 가져오기
+    final context = navigatorKey.currentContext;
+    if (context == null) {
+      logger.e('NavigatorKey context is null - cannot proceed with share');
+      return false;
+    }
+
     try {
       onStart?.call();
 
       capturedFile = await _captureContent(key);
       if (capturedFile == null) {
-        throw Exception('Failed to capture content');
+        logger.e('Failed to capture content for sharing');
+        if (navigatorKey.currentContext != null) {
+          showSimpleDialog(
+            type: DialogType.error,
+            content: AppLocalizations.of(navigatorKey.currentContext!)
+                .capture_failed,
+          );
+        }
+        return false;
       }
 
       final finalDownloadLink = downloadLink ?? Environment.downloadLink;
@@ -82,6 +98,13 @@ class ShareUtils {
       return result.status == ShareResultStatus.success;
     } catch (e, s) {
       logger.e('Social share failed', error: e, stackTrace: s);
+      // context가 여전히 유효한지 재확인
+      if (navigatorKey.currentContext != null) {
+        showSimpleDialog(
+          type: DialogType.error,
+          content: AppLocalizations.of(navigatorKey.currentContext!).error_action_failed,
+        );
+      }
       return false;
     } finally {
       onComplete?.call();
@@ -100,21 +123,30 @@ class ShareUtils {
 
   static Future<bool> saveImage(
     GlobalKey key, {
-    required BuildContext context,
     VoidCallback? onStart,
     VoidCallback? onComplete,
   }) async {
     XFile? capturedFile;
+
+    // 네비게이션 키를 통해 안전하게 context 가져오기
+    final context = navigatorKey.currentContext;
+    if (context == null) {
+      logger.e('NavigatorKey context is null - cannot proceed with save');
+      return false;
+    }
+
     try {
       onStart?.call();
 
       capturedFile = await _captureContent(key);
       if (capturedFile == null) {
         logger.e('Failed to capture content');
+        if (navigatorKey.currentContext != null) {
         showSimpleDialog(
-          type: DialogType.error,
-          content: AppLocalizations.of(context).capture_failed,
-        );
+            type: DialogType.error,
+            content: AppLocalizations.of(navigatorKey.currentContext!).capture_failed,
+          );
+        }
         return false;
       }
 
@@ -122,20 +154,24 @@ class ShareUtils {
       final file = File(capturedFile.path);
       if (!await file.exists()) {
         logger.e('Captured file does not exist: ${capturedFile.path}');
-        showSimpleDialog(
-          type: DialogType.error,
-          content: AppLocalizations.of(context).message_pic_pic_save_fail,
-        );
+        if (navigatorKey.currentContext != null) {
+          showSimpleDialog(
+            type: DialogType.error,
+            content: AppLocalizations.of(navigatorKey.currentContext!).message_pic_pic_save_fail,
+          );
+        }
         return false;
       }
 
       final bytes = await capturedFile.readAsBytes();
       if (bytes.isEmpty) {
         logger.e('Captured file is empty');
-        showSimpleDialog(
-          type: DialogType.error,
-          content: AppLocalizations.of(context).message_pic_pic_save_fail,
-        );
+        if (navigatorKey.currentContext != null) {
+          showSimpleDialog(
+            type: DialogType.error,
+            content: AppLocalizations.of(navigatorKey.currentContext!).message_pic_pic_save_fail,
+          );
+        }
         return false;
       }
 
@@ -147,15 +183,21 @@ class ShareUtils {
 
       if (result?['isSuccess'] != true) throw Exception('Save failed');
 
-      showSimpleDialog(
-          content: AppLocalizations.of(context).image_save_success);
+      if (navigatorKey.currentContext != null) {
+        showSimpleDialog(
+          content: AppLocalizations.of(navigatorKey.currentContext!).image_save_success,
+        );
+      }
       return true;
     } catch (e, s) {
       logger.e('Image save failed', error: e, stackTrace: s);
-      showSimpleDialog(
-        type: DialogType.error,
-        content: AppLocalizations.of(context).message_pic_pic_save_fail,
-      );
+      // context가 여전히 유효한지 재확인
+      if (navigatorKey.currentContext != null) {
+        showSimpleDialog(
+          type: DialogType.error,
+          content: AppLocalizations.of(navigatorKey.currentContext!).message_pic_pic_save_fail,
+        );
+      }
       return false;
     } finally {
       onComplete?.call();

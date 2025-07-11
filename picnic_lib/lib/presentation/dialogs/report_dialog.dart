@@ -241,7 +241,9 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         AppLocalizations.of(context).post_report_success,
       );
 
-      Navigator.of(context).pop(true);
+      if (context.mounted) {
+        Navigator.of(context).pop(true);
+      }
     } catch (e, s) {
       logger.e('exception:', error: e, stackTrace: s);
       if (!mounted) return;

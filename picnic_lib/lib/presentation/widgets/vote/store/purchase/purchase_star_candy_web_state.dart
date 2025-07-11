@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
@@ -130,7 +131,9 @@ class PurchaseStarCandyWebState extends ConsumerState<PurchaseStarCandyWeb> {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url);
     } else {
-      throw AppLocalizations.of(context).update_cannot_open_appstore;
+      if (navigatorKey.currentContext != null) {
+        throw AppLocalizations.of(navigatorKey.currentContext!).update_cannot_open_appstore;
+      }
     }
   }
 

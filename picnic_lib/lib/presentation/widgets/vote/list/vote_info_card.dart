@@ -102,7 +102,6 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   void _handleSaveImage() async {
     await ShareUtils.saveImage(
       _globalKey,
-      context: context,
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() => _isSaving = true);

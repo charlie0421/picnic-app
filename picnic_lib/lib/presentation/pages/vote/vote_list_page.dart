@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/area_selector.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
@@ -51,7 +53,7 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
           showTopMenu: true,
           showMyPoint: false,
           showBottomNavigation: true,
-          pageTitle: AppLocalizations.of(context).page_title_vote_gather);
+          pageTitle: AppLocalizations.of(context).page_title_vote_list);
     });
   }
 
@@ -63,6 +65,18 @@ class _VoteListPageState extends ConsumerState<VoteListPage>
       bucket: _pageStorageBucket,
       child: Column(
         children: [
+          // Area 선택기를 본문 상단에 추가
+          Container(
+            height: 34,
+            width: double.infinity,
+            padding: EdgeInsets.only(right: 16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const AreaSelector(),
+              ],
+            ),
+          ),
           SizedBox(
             height: 50,
             child: TabBar(

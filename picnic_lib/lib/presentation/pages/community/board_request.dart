@@ -228,7 +228,11 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
           if (!mounted) return;
           showSimpleDialog(
             content: AppLocalizations.of(context).post_board_already_exist,
-            onOk: () => Navigator.of(context).pop(),
+            onOk: () {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
           );
           return;
         }
@@ -244,7 +248,11 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
         showSimpleDialog(
           content:
               AppLocalizations.of(context).post_board_create_request_complete,
-          onOk: () => Navigator.of(context).pop(),
+          onOk: () {
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
         );
       } catch (e, s) {
         logger.e('Error submitting board request:', error: e, stackTrace: s);
@@ -252,7 +260,11 @@ class _BoardRequireState extends ConsumerState<BoardRequest> {
         showSimpleDialog(
           type: DialogType.error,
           content: AppLocalizations.of(context).message_error_occurred,
-          onOk: () => Navigator.of(context).pop(),
+          onOk: () {
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
         );
       }
     }

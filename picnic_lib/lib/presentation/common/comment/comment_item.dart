@@ -9,13 +9,13 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_actions.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_contents.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_header.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
@@ -85,7 +85,7 @@ class _CommentItemState extends ConsumerState<CommentItem>
   }
 
   void _initializeTranslationState() {
-    final currentLocale = getLocaleLanguage();
+    final currentLocale = Localizations.localeOf(navigatorKey.currentContext!).languageCode;
     final hasTranslation =
         widget.commentModel.content?.containsKey(currentLocale) ?? false;
     final isDifferentLanguage =

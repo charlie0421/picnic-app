@@ -24,7 +24,11 @@ class PostWriteActions extends StatelessWidget {
               ? onSave(true)
               : showSimpleDialog(
                   content: AppLocalizations.of(context).post_hint_title,
-                  onOk: () => Navigator.of(context).pop(),
+                  onOk: () {
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
                 ),
           child: Text(
             AppLocalizations.of(context).post_header_temporary_save,

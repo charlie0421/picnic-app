@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
@@ -117,7 +116,7 @@ class _CompatibilityResultContentState
 
   @override
   Widget build(BuildContext context) {
-    String language = getLocaleLanguage();
+    String language = Localizations.localeOf(context).languageCode;
 
     if (widget.compatibility.localizedResults?.isEmpty ?? true) {
       return Center(

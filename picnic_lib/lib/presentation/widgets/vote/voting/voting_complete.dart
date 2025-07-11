@@ -13,6 +13,7 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -290,7 +291,6 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                       if (_isSaving) return;
                       ShareUtils.saveImage(
                         _globalKey,
-                        context: context,
                         onStart: () {
                           OverlayLoadingProgress.start(context,
                               color: AppColors.primary500);
@@ -314,26 +314,27 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
 
                       logger.i(
                           'Environment.appLinkPrefix: ${Environment.appLinkPrefix}');
-
-                      ShareUtils.shareToSocial(
-                        _globalKey,
-                        message:
-                            '$artist - $voteTitle ${AppLocalizations.of(context).vote_share_message} 🎉',
-                        hashtag:
-                            '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
-                        downloadLink: await createBranchLink(
-                            getLocaleTextFromJson(widget.voteModel.title),
-                            '${Environment.appLinkPrefix}/vote/detail/${widget.voteModel.id}'),
-                        onStart: () {
-                          OverlayLoadingProgress.start(context,
-                              color: AppColors.primary500);
-                          setState(() => _isSaving = true);
-                        },
-                        onComplete: () {
-                          OverlayLoadingProgress.stop();
-                          setState(() => _isSaving = false);
-                        },
-                      );
+                      if (navigatorKey.currentContext != null) {
+                        ShareUtils.shareToSocial(
+                          _globalKey,
+                          message:
+                              '$artist - $voteTitle ${AppLocalizations.of(navigatorKey.currentContext!).vote_share_message} 🎉',
+                          hashtag:
+                              '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
+                          downloadLink: await createBranchLink(
+                              getLocaleTextFromJson(widget.voteModel.title),
+                              '${Environment.appLinkPrefix}/vote/detail/${widget.voteModel.id}'),
+                          onStart: () {
+                            OverlayLoadingProgress.start(context,
+                                color: AppColors.primary500);
+                            setState(() => _isSaving = true);
+                          },
+                          onComplete: () {
+                            OverlayLoadingProgress.stop();
+                            setState(() => _isSaving = false);
+                          },
+                        );
+                      }
                     },
                   ),
                 SizedBox(height: 4),

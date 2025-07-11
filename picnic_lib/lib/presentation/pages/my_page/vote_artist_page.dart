@@ -81,7 +81,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
           await ref.read(asyncVoteArtistListProvider.notifier).fetchArtists(
                 page: pageKey,
                 query: searchQuery,
-                language: getLocaleLanguage(),
+                language: Localizations.localeOf(context).languageCode,
               );
 
       logger.d('Received ${newItems.length} items for page $pageKey');

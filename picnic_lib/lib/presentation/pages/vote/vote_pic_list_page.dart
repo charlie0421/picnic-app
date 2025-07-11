@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/common/area_selector.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
@@ -55,6 +57,18 @@ class _VotePicListPageState extends ConsumerState<VotePicListPage>
       bucket: _pageStorageBucket,
       child: Column(
         children: [
+          // Area 선택기를 본문 상단에 추가
+          Container(
+            height: 34,
+            width: double.infinity,
+            padding: EdgeInsets.only(right: 16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const AreaSelector(),
+              ],
+            ),
+          ),
           SizedBox(
             height: 50,
             child: TabBar(

@@ -8,6 +8,7 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -132,13 +133,15 @@ class _CompatibilityLoadingPageState
 
   void _updateNavigation() {
     Future(() {
+      if (navigatorKey.currentContext != null) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
             topRightMenu: TopRightType.board,
             showBottomNavigation: false,
-            pageTitle: AppLocalizations.of(context).compatibility_page_title,
-          );
+              pageTitle: AppLocalizations.of(navigatorKey.currentContext!).compatibility_page_title,
+            );
+          }
     });
   }
 

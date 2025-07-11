@@ -26,9 +26,3 @@ String getLocaleTextFromJsonWithLocale(
 
   return json[languageCode] ?? json['en'] ?? '';
 }
-
-/// 현재 로케일의 언어 코드 가져오기 (하위호환용)
-@Deprecated('Use Localizations.localeOf(context).languageCode instead')
-String getLocaleLanguage() {
-  return WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-}

@@ -254,8 +254,12 @@ class PurchaseDialogHandler {
   /// 🎉 구매 성공 다이얼로그
   Future<void> showSuccessDialog() async {
     logger.i('[PurchaseDialogHandler] Showing success dialog');
-    final message =
-        AppLocalizations.of(navigatorKey.currentContext!).dialog_message_purchase_success;
+    final context = navigatorKey.currentContext;
+    if (context == null) {
+      logger.e('Navigator context is null in showSuccessDialog');
+      return;
+    }
+    final message = AppLocalizations.of(context).dialog_message_purchase_success;
     showSimpleDialog(content: message);
   }
 
