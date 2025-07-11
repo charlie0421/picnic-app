@@ -7,7 +7,7 @@ import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/language_initializer.dart';
+import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -26,9 +26,11 @@ import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:ttja_app/bottom_navigation_menu.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 
 import 'package:ttja_app/generated/l10n.dart';
+import 'package:ttja_app/main.dart' as main_file;
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -140,15 +142,39 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     logger.i('_initializeApp 완료');
   }
 
-  // 언어 초기화를 위한 별도 메서드 (간소화)
+  // 언어 초기화를 위한 별도 메서드
   Future<void> _initializeLanguage() async {
-    logger.i('언어 초기화 시작 (ttja_app)');
+    // 먼저 앱 설정이 로드될 때까지 대기
+    await ref.read(appSettingProvider.notifier).loadSettings();
 
-    // LanguageInitializer가 모든 로직(설정 로드, 에러 핸들링, fallback)을 처리
-    final (success, language) =
-        await LanguageInitializer.initializeLanguage(ref, S.load);
+    // MainInitializer의 initializeLanguageAsync 메서드를 사용하여 언어 초기화
+    await MainInitializer.initializeLanguageAsync(
+      ref,
+      context,
+      S.load,
+      (success, language) {
+        logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
 
-    logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
+        // main.dart의 전역 변수 업데이트
+        main_file.isLanguageInitialized = success;
+        main_file.currentLanguage = language;
+
+        // 앱 설정에 언어 반영
+        if (success) {
+          ref.read(appSettingProvider.notifier).setLanguage(language);
+
+          // PicnicLibL10n을 올바른 ProviderContainer와 함께 초기화
+          try {
+            final appSetting = ref.read(appSettingProvider);
+            PicnicLibL10n.initialize(appSetting);
+            logger.i('PicnicLibL10n 명시적 초기화 완료');
+          } catch (e) {
+            logger.e('PicnicLibL10n 명시적 초기화 실패', error: e);
+            // 실패해도 계속 진행 (t 메서드가 대체 값을 반환하도록 개선됨)
+          }
+        }
+      },
+    );
   }
 
   @override
@@ -184,6 +210,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       localizationsDelegates: [
         // picnic_lib의 ARB 파일 기반 번역 (gen-l10n으로 생성)
         ...AppLocalizations.localizationsDelegates,
+        // 커스텀 PicnicLibL10n 번역 (하드코딩된 번역)
+        ...PicnicLibL10n.localizationsDelegates,
       ],
       supportedLocales: _supportedLocales,
       locale: Locale(appSettingState.language),

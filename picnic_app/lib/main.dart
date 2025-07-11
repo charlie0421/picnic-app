@@ -27,9 +27,7 @@ import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
 
-// 전역 언어 상태 변수
-bool isLanguageInitialized = false;
-String currentLanguage = 'ko'; // 기본값은 한국어
+
 
 void main() async {
   // ENVIRONMENT dart-define 값을 동적으로 읽기 (기본값: dev)

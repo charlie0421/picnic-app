@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/generated/l10n.dart';
-import 'package:picnic_app/main.dart' as main_file;
+
 import 'package:picnic_app/presentation/screens/portal.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
+import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
+import 'package:picnic_lib/presentation/providers/screen_protector_provider.dart';
 import 'package:picnic_lib/presentation/screens/ban_screen.dart';
 import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 import 'package:picnic_lib/presentation/widgets/splash_image.dart';
@@ -189,44 +190,15 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     });
   }
 
-  // 언어 초기화를 위한 별도 메서드
+  // 언어 초기화를 위한 별도 메서드 (간소화)
   Future<void> _initializeLanguage() async {
     logger.i('언어 초기화 시작 (picnic_app)');
 
-    try {
-      // 먼저 앱 설정이 로드될 때까지 대기
-      await ref.read(appSettingProvider.notifier).loadSettings();
-      logger.i('앱 설정 로드 완료');
+    // LanguageInitializer가 모든 로직(설정 로드, 에러 핸들링, fallback)을 처리
+    final (success, language) =
+        await LanguageInitializer.initializeLanguage(ref, S.load);
 
-      // MainInitializer를 사용하여 언어 초기화
-      await MainInitializer.initializeLanguageAsync(
-        ref,
-        context,
-        S.load,
-        (success, language) {
-          logger.i('언어 초기화 콜백 호출: 성공=$success, 언어=$language');
-
-          // main.dart의 전역 변수 업데이트
-          main_file.isLanguageInitialized = success;
-          main_file.currentLanguage = language;
-
-          // 앱 설정에 언어 반영
-          if (success) {
-            ref.read(appSettingProvider.notifier).setLanguage(language);
-
-            // PicnicLibL10n이 제거되었으므로 AppLocalizations만 사용
-            logger.i('AppLocalizations 기반 언어 설정 완료 (picnic_app)');
-          }
-        },
-      );
-
-      logger.i('언어 초기화 완료 (picnic_app)');
-    } catch (e, stackTrace) {
-      logger.e('언어 초기화 중 오류 발생 (picnic_app)', error: e, stackTrace: stackTrace);
-      // 오류 발생 시에도 기본값으로 설정
-      main_file.isLanguageInitialized = false;
-      main_file.currentLanguage = 'ko';
-    }
+    logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
   }
 
   @override
@@ -236,8 +208,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final appInitState = ref.watch(appInitializationProvider);
     final appSettingState = ref.watch(appSettingProvider);
 
-    // 화면 보호기 상태 감지 및 처리
-    final isScreenProtector = false; // 필요한 경우 Provider 추가
+    // 화면 보호기 상태 감지 및 처리 (PIC 메뉴에서만 활성화)
+    final isScreenProtector = ref.watch(isScreenProtectorProvider);
+
+    // PIC 메뉴별 캡처 방지 설정 업데이트
     AppBuilder.updateScreenProtector(isScreenProtector);
 
     Widget currentScreen;
