@@ -433,7 +433,6 @@ class _MyPageState extends ConsumerState<MyPage> {
 
                     // 언어 변경 - App.dart의 ref.listen이 감지하여 재시작 처리
                     ref.read(appSettingProvider.notifier).setLanguage(langCode);
-                    PicnicLibL10n.setCurrentLocale(langCode);
                     Phoenix.rebirth(context);
                   } catch (e, stackTrace) {
                     logger.e('언어 변경 중 오류 발생', error: e, stackTrace: stackTrace);

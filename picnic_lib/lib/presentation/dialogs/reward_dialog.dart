@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/core/utils/locale_utils.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
@@ -83,7 +83,7 @@ class _RewardDialogState extends State<RewardDialog> {
               height: 48,
               margin: EdgeInsets.symmetric(horizontal: 30.w),
               child: VoteCommonTitle(
-                title: getLocaleTextFromJson(widget.data.title!),
+                title: getLocaleTextFromJson(widget.data.title!, context),
               ),
             ),
           ),
@@ -103,7 +103,7 @@ class _RewardDialogState extends State<RewardDialog> {
       );
 
       // 섹션 내용이 있는 경우만 추가
-      if (rewardSection.hasContent()) {
+      if (rewardSection.hasContent(context)) {
         sections.add(rewardSection);
 
         // 마지막 섹션이 아니고, 다음에 표시될 섹션이 있는 경우 간격 추가
@@ -116,7 +116,7 @@ class _RewardDialogState extends State<RewardDialog> {
               type: nextType,
               data: widget.data,
             );
-            if (nextRewardSection.hasContent()) {
+            if (nextRewardSection.hasContent(context)) {
               hasNextSection = true;
               break;
             }
@@ -143,8 +143,8 @@ class RewardSection extends StatelessWidget {
     required this.data,
   });
 
-  bool hasContent() {
-    final locale = PicnicLibL10n.getCurrentLocale().languageCode;
+  bool hasContent(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
 
     switch (type) {
       case RewardType.overview:
@@ -209,7 +209,7 @@ class RewardSection extends StatelessWidget {
   }
 
   List<Widget> _buildSectionContent(BuildContext context) {
-    final locale = PicnicLibL10n.getCurrentLocale().languageCode;
+    final locale = Localizations.localeOf(context).languageCode;
     List<Widget> widgets = [];
 
     switch (type) {

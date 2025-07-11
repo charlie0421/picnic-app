@@ -12,7 +12,6 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/enums.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
@@ -215,15 +214,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
           if (success) {
             ref.read(appSettingProvider.notifier).setLanguage(language);
 
-            // PicnicLibL10n 명시적 초기화 시도
-            try {
-              final appSetting = ref.read(appSettingProvider);
-              PicnicLibL10n.initialize(appSetting);
-              logger.i('PicnicLibL10n 명시적 초기화 완료 (picnic_app)');
-            } catch (e) {
-              logger.e('PicnicLibL10n 명시적 초기화 실패 (picnic_app)', error: e);
-              // 실패해도 계속 진행 (t 메서드가 대체 값을 반환하도록 개선됨)
-            }
+            // PicnicLibL10n이 제거되었으므로 AppLocalizations만 사용
+            logger.i('AppLocalizations 기반 언어 설정 완료 (picnic_app)');
           }
         },
       );
@@ -285,8 +277,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       localizationsDelegates: [
         // picnic_lib의 ARB 파일 기반 번역 (gen-l10n으로 생성)
         ...AppLocalizations.localizationsDelegates,
-        // 커스텀 PicnicLibL10n 번역 (하드코딩된 번역)
-        ...PicnicLibL10n.localizationsDelegates,
       ],
       supportedLocales: _supportedLocales,
       locale: currentLocale,

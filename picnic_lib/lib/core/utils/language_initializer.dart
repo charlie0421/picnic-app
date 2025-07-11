@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 /// 언어 초기화 및 관리를 위한 유틸리티 클래스
@@ -73,12 +72,7 @@ class LanguageInitializer {
       // Intl 기본 로케일 설정
       Intl.defaultLocale = language;
 
-      // PicnicLibL10n 초기화 및 설정
-      await PicnicLibL10n.initialize(appSetting);
-      PicnicLibL10n.setCurrentLocale(language);
-      await PicnicLibL10n.loadTranslations(locale);
-
-      // 앱별 생성된 번역 로드
+      // 앱별 생성된 번역 로드 (AppLocalizations 사용)
       await loadGeneratedTranslations(locale);
 
       // 앱 설정에 언어 반영
