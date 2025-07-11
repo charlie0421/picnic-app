@@ -765,9 +765,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(
-              width: 130,
-              height: 50,
+            IntrinsicWidth(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,

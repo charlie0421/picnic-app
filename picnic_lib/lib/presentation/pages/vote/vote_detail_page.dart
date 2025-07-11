@@ -499,32 +499,38 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 AppLocalizations.of(context).text_vote_rank_in_reward,
                 style: getTextStyle(AppTypo.body14B, AppColors.primary500),
               ),
-              ...voteModel.reward!.map((rewardModel) => FractionallySizedBox(
-                    widthFactor: 0.8,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => showRewardDialog(context, rewardModel),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        padding: const EdgeInsets.all(8),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              getLocaleTextFromJson(rewardModel.title!),
-                              style: getTextStyle(
-                                  AppTypo.caption12R, AppColors.grey900),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
+              ...voteModel.reward!.map((rewardModel) => GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => showRewardDialog(context, rewardModel),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 4.0),
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IntrinsicWidth(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  getLocaleTextFromJson(rewardModel.title!),
+                                  style: getTextStyle(
+                                      AppTypo.caption12R, AppColors.grey900),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 2),
+                                Container(
+                                  height: 0.5,
+                                  width: double.infinity,
+                                  color: AppColors.grey700,
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 2),
-                            Container(
-                              height: 0.5,
-                              color: AppColors.grey700,
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ))
