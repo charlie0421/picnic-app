@@ -48,6 +48,10 @@ mixin _$VoteModel {
   bool? get isEnded => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_upcoming')
   bool? get isUpcoming => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_partnership')
+  bool? get isPartnership => throw _privateConstructorUsedError;
+  @JsonKey(name: 'partner')
+  String? get partner => throw _privateConstructorUsedError;
   @JsonKey(name: 'reward')
   List<RewardModel>? get reward => throw _privateConstructorUsedError;
 
@@ -81,6 +85,8 @@ abstract class $VoteModelCopyWith<$Res> {
       @JsonKey(name: 'start_at') DateTime? startAt,
       @JsonKey(name: 'is_ended') bool? isEnded,
       @JsonKey(name: 'is_upcoming') bool? isUpcoming,
+      @JsonKey(name: 'is_partnership') bool? isPartnership,
+      @JsonKey(name: 'partner') String? partner,
       @JsonKey(name: 'reward') List<RewardModel>? reward});
 }
 
@@ -113,6 +119,8 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
     Object? startAt = freezed,
     Object? isEnded = freezed,
     Object? isUpcoming = freezed,
+    Object? isPartnership = freezed,
+    Object? partner = freezed,
     Object? reward = freezed,
   }) {
     return _then(_value.copyWith(
@@ -172,6 +180,14 @@ class _$VoteModelCopyWithImpl<$Res, $Val extends VoteModel>
           ? _value.isUpcoming
           : isUpcoming // ignore: cast_nullable_to_non_nullable
               as bool?,
+      isPartnership: freezed == isPartnership
+          ? _value.isPartnership
+          : isPartnership // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      partner: freezed == partner
+          ? _value.partner
+          : partner // ignore: cast_nullable_to_non_nullable
+              as String?,
       reward: freezed == reward
           ? _value.reward
           : reward // ignore: cast_nullable_to_non_nullable
@@ -203,6 +219,8 @@ abstract class _$$VoteModelImplCopyWith<$Res>
       @JsonKey(name: 'start_at') DateTime? startAt,
       @JsonKey(name: 'is_ended') bool? isEnded,
       @JsonKey(name: 'is_upcoming') bool? isUpcoming,
+      @JsonKey(name: 'is_partnership') bool? isPartnership,
+      @JsonKey(name: 'partner') String? partner,
       @JsonKey(name: 'reward') List<RewardModel>? reward});
 }
 
@@ -233,6 +251,8 @@ class __$$VoteModelImplCopyWithImpl<$Res>
     Object? startAt = freezed,
     Object? isEnded = freezed,
     Object? isUpcoming = freezed,
+    Object? isPartnership = freezed,
+    Object? partner = freezed,
     Object? reward = freezed,
   }) {
     return _then(_$VoteModelImpl(
@@ -292,6 +312,14 @@ class __$$VoteModelImplCopyWithImpl<$Res>
           ? _value.isUpcoming
           : isUpcoming // ignore: cast_nullable_to_non_nullable
               as bool?,
+      isPartnership: freezed == isPartnership
+          ? _value.isPartnership
+          : isPartnership // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      partner: freezed == partner
+          ? _value.partner
+          : partner // ignore: cast_nullable_to_non_nullable
+              as String?,
       reward: freezed == reward
           ? _value._reward
           : reward // ignore: cast_nullable_to_non_nullable
@@ -318,6 +346,8 @@ class _$VoteModelImpl extends _VoteModel {
       @JsonKey(name: 'start_at') required this.startAt,
       @JsonKey(name: 'is_ended') required this.isEnded,
       @JsonKey(name: 'is_upcoming') required this.isUpcoming,
+      @JsonKey(name: 'is_partnership') required this.isPartnership,
+      @JsonKey(name: 'partner') required this.partner,
       @JsonKey(name: 'reward') required final List<RewardModel>? reward})
       : _title = title,
         _voteItem = voteItem,
@@ -383,6 +413,12 @@ class _$VoteModelImpl extends _VoteModel {
   @override
   @JsonKey(name: 'is_upcoming')
   final bool? isUpcoming;
+  @override
+  @JsonKey(name: 'is_partnership')
+  final bool? isPartnership;
+  @override
+  @JsonKey(name: 'partner')
+  final String? partner;
   final List<RewardModel>? _reward;
   @override
   @JsonKey(name: 'reward')
@@ -396,7 +432,7 @@ class _$VoteModelImpl extends _VoteModel {
 
   @override
   String toString() {
-    return 'VoteModel(id: $id, title: $title, voteCategory: $voteCategory, mainImage: $mainImage, waitImage: $waitImage, resultImage: $resultImage, voteContent: $voteContent, voteItem: $voteItem, createdAt: $createdAt, visibleAt: $visibleAt, stopAt: $stopAt, startAt: $startAt, isEnded: $isEnded, isUpcoming: $isUpcoming, reward: $reward)';
+    return 'VoteModel(id: $id, title: $title, voteCategory: $voteCategory, mainImage: $mainImage, waitImage: $waitImage, resultImage: $resultImage, voteContent: $voteContent, voteItem: $voteItem, createdAt: $createdAt, visibleAt: $visibleAt, stopAt: $stopAt, startAt: $startAt, isEnded: $isEnded, isUpcoming: $isUpcoming, isPartnership: $isPartnership, partner: $partner, reward: $reward)';
   }
 
   @override
@@ -426,6 +462,9 @@ class _$VoteModelImpl extends _VoteModel {
             (identical(other.isEnded, isEnded) || other.isEnded == isEnded) &&
             (identical(other.isUpcoming, isUpcoming) ||
                 other.isUpcoming == isUpcoming) &&
+            (identical(other.isPartnership, isPartnership) ||
+                other.isPartnership == isPartnership) &&
+            (identical(other.partner, partner) || other.partner == partner) &&
             const DeepCollectionEquality().equals(other._reward, _reward));
   }
 
@@ -447,6 +486,8 @@ class _$VoteModelImpl extends _VoteModel {
       startAt,
       isEnded,
       isUpcoming,
+      isPartnership,
+      partner,
       const DeepCollectionEquality().hash(_reward));
 
   /// Create a copy of VoteModel
@@ -481,6 +522,8 @@ abstract class _VoteModel extends VoteModel {
       @JsonKey(name: 'start_at') required final DateTime? startAt,
       @JsonKey(name: 'is_ended') required final bool? isEnded,
       @JsonKey(name: 'is_upcoming') required final bool? isUpcoming,
+      @JsonKey(name: 'is_partnership') required final bool? isPartnership,
+      @JsonKey(name: 'partner') required final String? partner,
       @JsonKey(name: 'reward')
       required final List<RewardModel>? reward}) = _$VoteModelImpl;
   const _VoteModel._() : super._();
@@ -530,6 +573,12 @@ abstract class _VoteModel extends VoteModel {
   @override
   @JsonKey(name: 'is_upcoming')
   bool? get isUpcoming;
+  @override
+  @JsonKey(name: 'is_partnership')
+  bool? get isPartnership;
+  @override
+  @JsonKey(name: 'partner')
+  String? get partner;
   @override
   @JsonKey(name: 'reward')
   List<RewardModel>? get reward;

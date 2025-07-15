@@ -25,6 +25,8 @@ class VoteModel with _$VoteModel {
           @JsonKey(name: 'start_at') required DateTime? startAt,
           @JsonKey(name: 'is_ended') required bool? isEnded,
           @JsonKey(name: 'is_upcoming') required bool? isUpcoming,
+          @JsonKey(name: 'is_partnership') required bool? isPartnership,
+          @JsonKey(name: 'partner') required String? partner,
           @JsonKey(name: 'reward') required List<RewardModel>? reward}) =
       _VoteModel;
 

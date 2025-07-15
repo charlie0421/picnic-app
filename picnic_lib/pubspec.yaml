@@ -129,6 +129,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/images/fortune/
+    - assets/images/partners/
     - assets/icons/
     - assets/icons/login/
     - assets/icons/vote/

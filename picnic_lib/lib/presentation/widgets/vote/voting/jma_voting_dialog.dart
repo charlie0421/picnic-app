@@ -25,7 +25,7 @@ import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-Future showVotingDialog({
+Future showJmaVotingDialog({
   required BuildContext context,
   required VoteModel voteModel,
   required VoteItemModel voteItemModel,
@@ -35,7 +35,7 @@ Future showVotingDialog({
     context: context,
     barrierDismissible: true,
     builder: (context) {
-      return VotingDialog(
+      return JmaVotingDialog(
         voteModel: voteModel,
         voteItemModel: voteItemModel,
         portalType: portalType,
@@ -44,12 +44,12 @@ Future showVotingDialog({
   );
 }
 
-class VotingDialog extends ConsumerStatefulWidget {
+class JmaVotingDialog extends ConsumerStatefulWidget {
   final VoteModel voteModel;
   final VoteItemModel voteItemModel;
   final VotePortal portalType;
 
-  const VotingDialog({
+  const JmaVotingDialog({
     super.key,
     required this.voteModel,
     required this.voteItemModel,
@@ -57,10 +57,10 @@ class VotingDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<VotingDialog> createState() => _VotingDialogState();
+  ConsumerState<JmaVotingDialog> createState() => _JmaVotingDialogState();
 }
 
-class _VotingDialogState extends ConsumerState<VotingDialog> {
+class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   final GlobalKey _inputFieldKey = GlobalKey();
@@ -134,11 +134,25 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           content: Container(
             padding:
                 EdgeInsets.only(top: 32, bottom: 24, left: 24.w, right: 24.w),
+            decoration: BoxDecoration(
+              // JMA 전용 배경 스타일
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.blue.shade50,
+                  Colors.white,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 8),
+                _buildJmaHeader(),
+                const SizedBox(height: 16),
                 _buildArtistImage(),
                 const SizedBox(height: 16),
                 _buildMemberInfo(),
@@ -149,15 +163,57 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 _buildVoteAmountInput(context),
                 const SizedBox(height: 8),
                 _buildErrorMessage(),
-                _buildBubble(),
+                _buildJmaBubble(),
                 const SizedBox(height: 9),
-                _buildVoteButton(myStarCandy, userId),
+                _buildJmaVoteButton(myStarCandy, userId),
                 const SizedBox(height: 16),
-                _buildLogoImage(),
+                _buildJmaLogoImage(),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildJmaHeader() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade600,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                'JMA',
+                style: TextStyle(
+                  color: Colors.blue.shade600,
+                  fontSize: 8.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Text(
+            'JMA 파트너십 보팅',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -177,9 +233,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: AppColors.primary500,
-          width: 2,
+          color: Colors.blue.shade600,
+          width: 3,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.shade200,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: ClipOval(
         child: imageUrl != null && imageUrl.isNotEmpty
@@ -200,74 +263,70 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       height: 80.w,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.grey200,
+        color: Colors.blue.shade100,
       ),
       child: Icon(
         Icons.person,
         size: 40.w,
-        color: AppColors.grey500,
+        color: Colors.blue.shade600,
       ),
     );
   }
 
-  Widget _buildLogoImage() {
-    // VoteModel의 실제 데이터 사용
-    final isPartnership = widget.voteModel.isPartnership ?? false;
-    final partner = widget.voteModel.partner;
-
-    // 파트너십이 활성화되어 있고 파트너 이름이 있으면 파트너 로고 사용
-    if (isPartnership && partner != null && partner.isNotEmpty) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            package: 'picnic_lib',
-            'assets/images/partners/$partner.png',
-            width: 100.w,
-            height: 100.w,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              // 파트너 로고가 없으면 텍스트로 표시
-              return Container(
-                width: 100.w,
-                height: 100.w,
-                decoration: BoxDecoration(
-                  color: AppColors.primary500,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Center(
-                  child: Text(
-                    partner.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+  Widget _buildJmaLogoImage() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 120.w,
+          height: 60.w,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue.shade600, Colors.blue.shade800],
+            ),
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.shade300,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'JMA',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              );
-            },
+                Text(
+                  'PARTNERSHIP',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 8.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
-      );
-    }
-
-    // 기본 로고 사용
-    return Container(
-      width: 60.w,
-      height: 60.w,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            package: 'picnic_lib',
-            'assets/images/logo.png',
-            width: 40.w,
-            height: 40.w,
-            fit: BoxFit.contain,
+        ),
+        SizedBox(height: 8),
+        Text(
+          'JMA와 함께하는 특별한 보팅',
+          style: TextStyle(
+            color: Colors.blue.shade600,
+            fontSize: 10.sp,
+            fontWeight: FontWeight.w500,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -297,11 +356,18 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       decoration: BoxDecoration(
         border: Border.all(
           color: !_canVote && _hasValue
-              ? AppColors.statusError
-              : AppColors.primary500,
-          width: 1,
+              ? Colors.red.shade400
+              : Colors.blue.shade600,
+          width: 2,
         ),
         borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.shade100,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       padding: EdgeInsets.only(right: 16.w),
       child: Row(
@@ -321,7 +387,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               },
               child: TextFormField(
                 cursorHeight: 16.h,
-                cursorColor: AppColors.primary500,
+                cursorColor: Colors.blue.shade600,
                 focusNode: _focusNode,
                 controller: _textEditingController,
                 keyboardType: TextInputType.number,
@@ -331,10 +397,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 keyboardAppearance: Brightness.light,
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context).label_input_input,
-                  hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
+                  hintStyle:
+                      getTextStyle(AppTypo.body16R, Colors.grey.shade400),
                   border: InputBorder.none,
-                  focusColor: AppColors.primary500,
-                  fillColor: AppColors.grey900,
+                  focusColor: Colors.blue.shade600,
+                  fillColor: Colors.white,
                   isCollapsed: true,
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 24.w, vertical: 5),
@@ -376,7 +443,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     );
                   }),
                 ],
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                style: getTextStyle(AppTypo.body16B, Colors.blue.shade700),
               ),
             ),
           ),
@@ -386,39 +453,48 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-  Widget _buildBubble() {
-    final isPartnership = widget.voteModel.isPartnership ?? false;
-    final partner = widget.voteModel.partner;
-
+  Widget _buildJmaBubble() {
     return BubbleBox(
       shape: BubbleShapeBorder(
         border: BubbleBoxBorder(
-          color: AppColors.primary500,
-          width: 1.5,
-          style: BubbleBoxBorderStyle.dashed,
+          color: Colors.blue.shade600,
+          width: 2,
+          style: BubbleBoxBorderStyle.solid,
         ),
         position: const BubblePosition.center(0),
         direction: BubbleDirection.top,
       ),
-      backgroundColor: AppColors.secondary500,
+      backgroundColor: Colors.blue.shade50,
       child: Column(
         children: [
-          isPartnership && partner != null && partner.isNotEmpty
-              ? Text(
-                  '· ${AppLocalizations.of(context).voting_share_benefit_text}\n· ${partner.toUpperCase()} 파트너십 혜택',
-                  style: getTextStyle(
-                    AppTypo.caption10SB,
-                    AppColors.primary500,
-                  ),
-                  textAlign: TextAlign.center,
-                )
-              : Text(
-                  '· ${AppLocalizations.of(context).voting_share_benefit_text}',
-                  style: getTextStyle(
-                    AppTypo.caption10SB,
-                    AppColors.primary500,
-                  ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.star,
+                color: Colors.blue.shade600,
+                size: 16,
+              ),
+              SizedBox(width: 4.w),
+              Text(
+                'JMA 파트너십 혜택',
+                style: TextStyle(
+                  color: Colors.blue.shade600,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4),
+          Text(
+            '· 추가 리워드 혜택 제공\n· 특별 이벤트 참여 기회\n· JMA 독점 컨텐츠 액세스',
+            style: TextStyle(
+              color: Colors.blue.shade700,
+              fontSize: 10.sp,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -437,7 +513,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     (widget.voteItemModel.artist?.id ?? 0) != 0
                         ? widget.voteItemModel.artist?.name ?? {}
                         : widget.voteItemModel.artistGroup?.name ?? {}),
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                style: TextStyle(
+                  color: Colors.blue.shade700,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(width: 8.w),
               if ((widget.voteItemModel.artist?.id ?? 0) != 0 &&
@@ -447,13 +527,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   child: Text(
                     getLocaleTextFromJson(
                         widget.voteItemModel.artist!.artistGroup!.name),
-                    style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+                    style: TextStyle(
+                      color: Colors.blue.shade600,
+                      fontSize: 12.sp,
+                    ),
                   ),
                 ),
             ],
           ),
         ),
-        Divider(color: AppColors.grey300, thickness: 1, height: 20.0.h),
+        Divider(color: Colors.blue.shade300, thickness: 1, height: 20.0.h),
       ],
     );
   }
@@ -481,7 +564,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               alignment: Alignment.topLeft,
               child: Text(
                 formatNumberWithComma(myStarCandy),
-                style: getTextStyle(AppTypo.body16B, AppColors.primary500),
+                style: TextStyle(
+                  color: Colors.blue.shade600,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -507,25 +594,26 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         height: 32,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
-          color: AppColors.secondary500,
+          color: Colors.blue.shade50,
           borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: AppColors.primary500, width: 1),
+          border: Border.all(color: Colors.blue.shade600, width: 2),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               AppLocalizations.of(context).label_button_recharge,
-              style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+              style: TextStyle(
+                color: Colors.blue.shade600,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SizedBox(width: 4.w),
-            SvgPicture.asset(
-              package: 'picnic_lib',
-              'assets/icons/plus_style=fill.svg',
-              width: 16.w,
-              height: 16,
-              colorFilter:
-                  ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+            Icon(
+              Icons.add,
+              color: Colors.blue.shade600,
+              size: 16,
             ),
           ],
         ),
@@ -559,22 +647,18 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SvgPicture.asset(
-              package: 'picnic_lib',
-              'assets/icons/check_style=line.svg',
-              width: 20.w,
-              height: 20,
-              colorFilter: ColorFilter.mode(
-                _checkAll ? AppColors.primary500 : AppColors.grey300,
-                BlendMode.srcIn,
-              ),
+            Icon(
+              _checkAll ? Icons.check_box : Icons.check_box_outline_blank,
+              color: _checkAll ? Colors.blue.shade600 : Colors.grey.shade400,
+              size: 20,
             ),
             SizedBox(width: 4.w),
             Text(
               AppLocalizations.of(context).label_checkbox_entire_use,
-              style: getTextStyle(
-                AppTypo.body14M,
-                _checkAll ? AppColors.primary500 : AppColors.grey300,
+              style: TextStyle(
+                color: _checkAll ? Colors.blue.shade600 : Colors.grey.shade400,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -598,15 +682,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
         _focusNode.requestFocus();
       },
-      child: SvgPicture.asset(
-        package: 'picnic_lib',
-        'assets/icons/cancel_style=fill.svg',
-        colorFilter: ColorFilter.mode(
-          _hasValue ? AppColors.grey700 : AppColors.grey200,
-          BlendMode.srcIn,
-        ),
-        width: 20.w,
-        height: 20,
+      child: Icon(
+        Icons.clear,
+        color: _hasValue ? Colors.blue.shade600 : Colors.grey.shade400,
+        size: 20,
       ),
     );
   }
@@ -618,7 +697,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         width: double.infinity,
         child: Text(
           AppLocalizations.of(context).text_need_recharge,
-          style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
+          style: TextStyle(
+            color: Colors.red.shade600,
+            fontSize: 10.sp,
+            fontWeight: FontWeight.w600,
+          ),
           textAlign: TextAlign.left,
         ),
       );
@@ -626,7 +709,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return const SizedBox(height: 0);
   }
 
-  Widget _buildVoteButton(int myStarCandy, String userId) {
+  Widget _buildJmaVoteButton(int myStarCandy, String userId) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _canVote ? () => _handleVote(myStarCandy, userId) : null,
@@ -634,16 +717,44 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         width: 172.w,
         height: 52,
         decoration: BoxDecoration(
-          color: _canVote ? AppColors.primary500 : AppColors.grey300,
+          gradient: _canVote
+              ? LinearGradient(
+                  colors: [Colors.blue.shade600, Colors.blue.shade800],
+                )
+              : null,
+          color: _canVote ? null : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(24),
+          boxShadow: _canVote
+              ? [
+                  BoxShadow(
+                    color: Colors.blue.shade300,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         alignment: Alignment.center,
-        child: Text(
-          AppLocalizations.of(context).label_button_vote,
-          style: getTextStyle(
-            AppTypo.title18SB,
-            AppColors.grey00,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_canVote) ...[
+              Icon(
+                Icons.how_to_vote,
+                color: Colors.white,
+                size: 20,
+              ),
+              SizedBox(width: 8.w),
+            ],
+            Text(
+              'JMA 보팅',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

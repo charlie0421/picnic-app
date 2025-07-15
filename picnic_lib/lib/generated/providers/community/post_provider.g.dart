@@ -356,7 +356,7 @@ class _PostsByBoardProviderElement
   int get page => (origin as PostsByBoardProvider).page;
 }
 
-String _$postsByQueryHash() => r'ed1ab92cfafb78fc1d5bb7af9d9d21a17876f0ff';
+String _$postsByQueryHash() => r'ef605c58d2b8add4caa8150f3fd1cde86144a952';
 
 /// See also [postsByQuery].
 @ProviderFor(postsByQuery)

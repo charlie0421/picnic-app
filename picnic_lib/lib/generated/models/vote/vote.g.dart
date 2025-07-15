@@ -35,6 +35,8 @@ _$VoteModelImpl _$$VoteModelImplFromJson(Map<String, dynamic> json) =>
               (v) => v == null ? null : DateTime.parse(v as String)),
           isEnded: $checkedConvert('is_ended', (v) => v as bool?),
           isUpcoming: $checkedConvert('is_upcoming', (v) => v as bool?),
+          isPartnership: $checkedConvert('is_partnership', (v) => v as bool?),
+          partner: $checkedConvert('partner', (v) => v as String?),
           reward: $checkedConvert(
               'reward',
               (v) => (v as List<dynamic>?)
@@ -55,7 +57,8 @@ _$VoteModelImpl _$$VoteModelImplFromJson(Map<String, dynamic> json) =>
         'stopAt': 'stop_at',
         'startAt': 'start_at',
         'isEnded': 'is_ended',
-        'isUpcoming': 'is_upcoming'
+        'isUpcoming': 'is_upcoming',
+        'isPartnership': 'is_partnership'
       },
     );
 
@@ -75,6 +78,8 @@ Map<String, dynamic> _$$VoteModelImplToJson(_$VoteModelImpl instance) =>
       'start_at': instance.startAt?.toIso8601String(),
       'is_ended': instance.isEnded,
       'is_upcoming': instance.isUpcoming,
+      'is_partnership': instance.isPartnership,
+      'partner': instance.partner,
       'reward': instance.reward?.map((e) => e.toJson()).toList(),
     };
 
