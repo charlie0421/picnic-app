@@ -1,2063 +1,19 @@
 {
   "@@locale": "zh",
-  "@achieve": {
-    "description": "Description for achieve"
-  },
-  "@ads_available_time": {
-    "description": "Description for ads_available_time"
-  },
-  "@anonymous": {
-    "description": "Description for anonymous"
-  },
-  "@anonymous_mode": {
-    "description": "Description for anonymous_mode"
-  },
-  "@appTitle": {
-    "description": "Description for appTitle"
-  },
-  "@app_name": {
-    "description": "Description for app_name"
-  },
-  "@application_reason_hint": {
-    "description": "Description for application_reason_hint"
-  },
-  "@application_reason_label": {
-    "description": "Description for application_reason_label"
-  },
-  "@application_success": {
-    "description": "Description for application_success"
-  },
-  "@artist_name_hint": {
-    "description": "Description for artist_name_hint"
-  },
-  "@artist_name_label": {
-    "description": "Description for artist_name_label"
-  },
-  "@block_user_label": {
-    "description": "Description for block_user_label"
-  },
-  "@bonus_candy_awarded": {
-    "description": "Description for bonus_candy_awarded"
-  },
-  "@button_apply_as_candidate": {
-    "description": "Description for button_apply_as_candidate"
-  },
-  "@button_cancel": {
-    "description": "Description for button_cancel"
-  },
-  "@button_complete": {
-    "description": "Description for button_complete"
-  },
-  "@button_login": {
-    "description": "Description for button_login"
-  },
-  "@button_ok": {
-    "description": "Description for button_ok"
-  },
-  "@button_pic_pic_save": {
-    "description": "Description for button_pic_pic_save"
-  },
-  "@candy_disappear_next_month": {
-    "description": "Description for candy_disappear_next_month"
-  },
-  "@candy_usage_policy_contents": {
-    "description": "Description for candy_usage_policy_contents"
-  },
-  "@candy_usage_policy_contents2": {
-    "description": "Description for candy_usage_policy_contents2"
-  },
-  "@candy_usage_policy_guide": {
-    "description": "Description for candy_usage_policy_guide"
-  },
-  "@candy_usage_policy_guide_button": {
-    "description": "Description for candy_usage_policy_guide_button"
-  },
-  "@candy_usage_policy_title": {
-    "description": "Description for candy_usage_policy_title"
-  },
-  "@capture_failed": {
-    "description": "Description for capture_failed"
-  },
-  "@comments": {
-    "description": "Description for comments"
-  },
-  "@common_all": {
-    "description": "Description for common_all"
-  },
-  "@common_fail": {
-    "description": "Description for common_fail"
-  },
-  "@common_retry_label": {
-    "description": "Description for common_retry_label"
-  },
-  "@common_success": {
-    "description": "Description for common_success"
-  },
-  "@common_text_no_data": {
-    "description": "Description for common_text_no_data"
-  },
-  "@common_text_no_search_result": {
-    "description": "Description for common_text_no_search_result"
-  },
-  "@common_text_search_error": {
-    "description": "Description for common_text_search_error"
-  },
-  "@common_text_search_recent_label": {
-    "description": "Description for common_text_search_recent_label"
-  },
-  "@common_text_search_result_label": {
-    "description": "Description for common_text_search_result_label"
-  },
-  "@compatibility_activities_title": {
-    "description": "Description for compatibility_activities_title"
-  },
-  "@compatibility_agree_checkbox": {
-    "description": "Description for compatibility_agree_checkbox"
-  },
-  "@compatibility_analyze_start": {
-    "description": "Description for compatibility_analyze_start"
-  },
-  "@compatibility_analyzing": {
-    "description": "Description for compatibility_analyzing"
-  },
-  "@compatibility_analyzing_prepare": {
-    "description": "Description for compatibility_analyzing_prepare"
-  },
-  "@compatibility_birthday": {
-    "description": "Description for compatibility_birthday"
-  },
-  "@compatibility_birthtime": {
-    "description": "Description for compatibility_birthtime"
-  },
-  "@compatibility_birthtime_subtitle": {
-    "description": "Description for compatibility_birthtime_subtitle"
-  },
-  "@compatibility_couple_style": {
-    "description": "Description for compatibility_couple_style"
-  },
-  "@compatibility_duplicate_data_message": {
-    "description": "Description for compatibility_duplicate_data_message"
-  },
-  "@compatibility_duplicate_data_title": {
-    "description": "Description for compatibility_duplicate_data_title"
-  },
-  "@compatibility_gender": {
-    "description": "Description for compatibility_gender"
-  },
-  "@compatibility_gender_female": {
-    "description": "Description for compatibility_gender_female"
-  },
-  "@compatibility_gender_male": {
-    "description": "Description for compatibility_gender_male"
-  },
-  "@compatibility_idol_style": {
-    "description": "Description for compatibility_idol_style"
-  },
-  "@compatibility_new_compatibility": {
-    "description": "Description for compatibility_new_compatibility"
-  },
-  "@compatibility_new_compatibility_ask": {
-    "description": "Description for compatibility_new_compatibility_ask"
-  },
-  "@compatibility_page_title": {
-    "description": "Description for compatibility_page_title"
-  },
-  "@compatibility_perfect_score_exists": {
-    "description": "Description for compatibility_perfect_score_exists"
-  },
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Description for compatibility_perfect_score_exists_title"
-  },
-  "@compatibility_purchase_confirm_message": {
-    "description": "Description for compatibility_purchase_confirm_message"
-  },
-  "@compatibility_purchase_confirm_title": {
-    "description": "Description for compatibility_purchase_confirm_title"
-  },
-  "@compatibility_purchase_message": {
-    "description": "Description for compatibility_purchase_message",
-    "placeholders": {
-      "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "@compatibility_remain_star_candy": {
-    "description": "Description for compatibility_remain_star_candy"
-  },
-  "@compatibility_result_not_found": {
-    "description": "Description for compatibility_result_not_found"
-  },
-  "@compatibility_share_hashtag": {
-    "description": "Description for compatibility_share_hashtag"
-  },
-  "@compatibility_share_message": {
-    "description": "Description for compatibility_share_message",
-    "placeholders": {
-      "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "@compatibility_snackbar_error": {
-    "description": "Description for compatibility_snackbar_error"
-  },
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Description for compatibility_snackbar_need_birthday"
-  },
-  "@compatibility_snackbar_need_birthtime": {
-    "description": "Description for compatibility_snackbar_need_birthtime"
-  },
-  "@compatibility_snackbar_need_gender": {
-    "description": "Description for compatibility_snackbar_need_gender"
-  },
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Description for compatibility_snackbar_need_profile_save_agree"
-  },
-  "@compatibility_snackbar_start": {
-    "description": "Description for compatibility_snackbar_start"
-  },
-  "@compatibility_status_completed": {
-    "description": "Description for compatibility_status_completed"
-  },
-  "@compatibility_status_error": {
-    "description": "Description for compatibility_status_error"
-  },
-  "@compatibility_status_input": {
-    "description": "Description for compatibility_status_input"
-  },
-  "@compatibility_status_pending": {
-    "description": "Description for compatibility_status_pending"
-  },
-  "@compatibility_style_title": {
-    "description": "Description for compatibility_style_title"
-  },
-  "@compatibility_summary_title": {
-    "description": "Description for compatibility_summary_title"
-  },
-  "@compatibility_time_slot1": {
-    "description": "Description for compatibility_time_slot1"
-  },
-  "@compatibility_time_slot10": {
-    "description": "Description for compatibility_time_slot10"
-  },
-  "@compatibility_time_slot11": {
-    "description": "Description for compatibility_time_slot11"
-  },
-  "@compatibility_time_slot12": {
-    "description": "Description for compatibility_time_slot12"
-  },
-  "@compatibility_time_slot2": {
-    "description": "Description for compatibility_time_slot2"
-  },
-  "@compatibility_time_slot3": {
-    "description": "Description for compatibility_time_slot3"
-  },
-  "@compatibility_time_slot4": {
-    "description": "Description for compatibility_time_slot4"
-  },
-  "@compatibility_time_slot5": {
-    "description": "Description for compatibility_time_slot5"
-  },
-  "@compatibility_time_slot6": {
-    "description": "Description for compatibility_time_slot6"
-  },
-  "@compatibility_time_slot7": {
-    "description": "Description for compatibility_time_slot7"
-  },
-  "@compatibility_time_slot8": {
-    "description": "Description for compatibility_time_slot8"
-  },
-  "@compatibility_time_slot9": {
-    "description": "Description for compatibility_time_slot9"
-  },
-  "@compatibility_time_slot_unknown": {
-    "description": "Description for compatibility_time_slot_unknown"
-  },
-  "@compatibility_tips_title": {
-    "description": "Description for compatibility_tips_title"
-  },
-  "@compatibility_user_style": {
-    "description": "Description for compatibility_user_style"
-  },
-  "@compatibility_waiting_message": {
-    "description": "Description for compatibility_waiting_message"
-  },
-  "@compatibility_warning_exit": {
-    "description": "Description for compatibility_warning_exit"
-  },
-  "@days_ago": {
-    "description": "Description for days_ago"
-  },
-  "@dialog_button_cancel": {
-    "description": "Description for dialog_button_cancel"
-  },
-  "@dialog_button_ok": {
-    "description": "Description for dialog_button_ok"
-  },
-  "@dialog_caution": {
-    "description": "Description for dialog_caution"
-  },
-  "@dialog_content_ads_exhausted": {
-    "description": "Description for dialog_content_ads_exhausted"
-  },
-  "@dialog_content_ads_loading": {
-    "description": "Description for dialog_content_ads_loading"
-  },
-  "@dialog_content_ads_retrying": {
-    "description": "Description for dialog_content_ads_retrying"
-  },
-  "@dialog_content_login_required": {
-    "description": "Description for dialog_content_login_required"
-  },
-  "@dialog_login_required_description": {
-    "description": "Description for dialog_login_required_description"
-  },
-  "@dialog_message_can_resignup": {
-    "description": "Description for dialog_message_can_resignup"
-  },
-  "@dialog_message_purchase_canceled": {
-    "description": "Description for dialog_message_purchase_canceled"
-  },
-  "@dialog_message_purchase_failed": {
-    "description": "Description for dialog_message_purchase_failed"
-  },
-  "@dialog_message_purchase_success": {
-    "description": "Description for dialog_message_purchase_success"
-  },
-  "@dialog_purchases_fail": {
-    "description": "Description for dialog_purchases_fail"
-  },
-  "@dialog_purchases_success": {
-    "description": "Description for dialog_purchases_success"
-  },
-  "@dialog_title_ads_exhausted": {
-    "description": "Description for dialog_title_ads_exhausted"
-  },
-  "@dialog_title_vote_fail": {
-    "description": "Description for dialog_title_vote_fail"
-  },
-  "@dialog_will_delete_star_candy": {
-    "description": "Description for dialog_will_delete_star_candy"
-  },
-  "@dialog_withdraw_button_cancel": {
-    "description": "Description for dialog_withdraw_button_cancel"
-  },
-  "@dialog_withdraw_button_ok": {
-    "description": "Description for dialog_withdraw_button_ok"
-  },
-  "@dialog_withdraw_error": {
-    "description": "Description for dialog_withdraw_error"
-  },
-  "@dialog_withdraw_message": {
-    "description": "Description for dialog_withdraw_message"
-  },
-  "@dialog_withdraw_success": {
-    "description": "Description for dialog_withdraw_success"
-  },
-  "@dialog_withdraw_title": {
-    "description": "Description for dialog_withdraw_title"
-  },
-  "@download_android_button": {
-    "description": "Description for download_android_button"
-  },
-  "@download_apk_button": {
-    "description": "Description for download_apk_button"
-  },
-  "@download_coming_soon": {
-    "description": "Description for download_coming_soon"
-  },
-  "@download_description": {
-    "description": "Description for download_description"
-  },
-  "@download_feature_media": {
-    "description": "Description for download_feature_media"
-  },
-  "@download_feature_rewards": {
-    "description": "Description for download_feature_rewards"
-  },
-  "@download_feature_voting": {
-    "description": "Description for download_feature_voting"
-  },
-  "@download_features_title": {
-    "description": "Description for download_features_title"
-  },
-  "@download_ios_button": {
-    "description": "Description for download_ios_button"
-  },
-  "@download_link_copied": {
-    "description": "Description for download_link_copied"
-  },
-  "@download_link_copy": {
-    "description": "Description for download_link_copy"
-  },
-  "@download_page_title": {
-    "description": "Description for download_page_title"
-  },
-  "@download_qr_description": {
-    "description": "Description for download_qr_description"
-  },
-  "@download_qr_title": {
-    "description": "Description for download_qr_title"
-  },
-  "@download_subtitle": {
-    "description": "Description for download_subtitle"
-  },
-  "@error_action_failed": {
-    "description": "Description for error_action_failed"
-  },
-  "@error_application_reason_required": {
-    "description": "Description for error_application_reason_required"
-  },
-  "@error_artist_not_selected": {
-    "description": "Description for error_artist_not_selected"
-  },
-  "@error_content_parse": {
-    "description": "Description for error_content_parse"
-  },
-  "@error_delete_post": {
-    "description": "Description for error_delete_post"
-  },
-  "@error_invalid_data": {
-    "description": "Description for error_invalid_data"
-  },
-  "@error_loading_more_comments": {
-    "description": "Description for error_loading_more_comments"
-  },
-  "@error_loading_page": {
-    "description": "Description for error_loading_page"
-  },
-  "@error_message_login_failed": {
-    "description": "Description for error_message_login_failed"
-  },
-  "@error_message_no_user": {
-    "description": "Description for error_message_no_user"
-  },
-  "@error_message_withdrawal": {
-    "description": "Description for error_message_withdrawal"
-  },
-  "@error_network_connection": {
-    "description": "Description for error_network_connection"
-  },
-  "@error_request_timeout": {
-    "description": "Description for error_request_timeout"
-  },
-  "@error_title": {
-    "description": "Description for error_title"
-  },
-  "@error_unknown": {
-    "description": "Description for error_unknown"
-  },
-  "@exception_auth_message_apple_invalid_response": {
-    "description": "Description for exception_auth_message_apple_invalid_response"
-  },
-  "@exception_auth_message_apple_sign_in_failed": {
-    "description": "Description for exception_auth_message_apple_sign_in_failed"
-  },
-  "@exception_auth_message_common_cancel": {
-    "description": "Description for exception_auth_message_common_cancel"
-  },
-  "@exception_auth_message_common_invalid_token": {
-    "description": "Description for exception_auth_message_common_invalid_token"
-  },
-  "@exception_auth_message_common_network": {
-    "description": "Description for exception_auth_message_common_network"
-  },
-  "@exception_auth_message_common_unknown": {
-    "description": "Description for exception_auth_message_common_unknown"
-  },
-  "@exception_auth_message_common_unsupported_provider": {
-    "description": "Description for exception_auth_message_common_unsupported_provider"
-  },
-  "@exception_auth_message_google_google_play_service": {
-    "description": "Description for exception_auth_message_google_google_play_service"
-  },
-  "@exception_auth_message_kakao_not_supported": {
-    "description": "Description for exception_auth_message_kakao_not_supported"
-  },
-  "@faq_category_account": {
-    "description": "Description for faq_category_account"
-  },
-  "@faq_category_all": {
-    "description": "Description for faq_category_all"
-  },
-  "@faq_category_etc": {
-    "description": "Description for faq_category_etc"
-  },
-  "@faq_category_general": {
-    "description": "Description for faq_category_general"
-  },
-  "@faq_category_payment": {
-    "description": "Description for faq_category_payment"
-  },
-  "@faq_category_service": {
-    "description": "Description for faq_category_service"
-  },
-  "@fortune_advice": {
-    "description": "Description for fortune_advice"
-  },
-  "@fortune_button_title": {
-    "description": "Description for fortune_button_title"
-  },
-  "@fortune_career": {
-    "description": "Description for fortune_career"
-  },
-  "@fortune_health": {
-    "description": "Description for fortune_health"
-  },
-  "@fortune_honor": {
-    "description": "Description for fortune_honor"
-  },
-  "@fortune_lack_of_star_candy_message": {
-    "description": "Description for fortune_lack_of_star_candy_message"
-  },
-  "@fortune_lack_of_star_candy_title": {
-    "description": "Description for fortune_lack_of_star_candy_title"
-  },
-  "@fortune_lucky_color": {
-    "description": "Description for fortune_lucky_color"
-  },
-  "@fortune_lucky_days": {
-    "description": "Description for fortune_lucky_days"
-  },
-  "@fortune_lucky_direction": {
-    "description": "Description for fortune_lucky_direction"
-  },
-  "@fortune_lucky_keyword": {
-    "description": "Description for fortune_lucky_keyword"
-  },
-  "@fortune_lucky_number": {
-    "description": "Description for fortune_lucky_number"
-  },
-  "@fortune_money": {
-    "description": "Description for fortune_money"
-  },
-  "@fortune_month1": {
-    "description": "Description for fortune_month1"
-  },
-  "@fortune_month10": {
-    "description": "Description for fortune_month10"
-  },
-  "@fortune_month11": {
-    "description": "Description for fortune_month11"
-  },
-  "@fortune_month12": {
-    "description": "Description for fortune_month12"
-  },
-  "@fortune_month2": {
-    "description": "Description for fortune_month2"
-  },
-  "@fortune_month3": {
-    "description": "Description for fortune_month3"
-  },
-  "@fortune_month4": {
-    "description": "Description for fortune_month4"
-  },
-  "@fortune_month5": {
-    "description": "Description for fortune_month5"
-  },
-  "@fortune_month6": {
-    "description": "Description for fortune_month6"
-  },
-  "@fortune_month7": {
-    "description": "Description for fortune_month7"
-  },
-  "@fortune_month8": {
-    "description": "Description for fortune_month8"
-  },
-  "@fortune_month9": {
-    "description": "Description for fortune_month9"
-  },
-  "@fortune_monthly": {
-    "description": "Description for fortune_monthly"
-  },
-  "@fortune_purchase_by_one_click": {
-    "description": "Description for fortune_purchase_by_one_click"
-  },
-  "@fortune_purchase_by_star_candy": {
-    "description": "Description for fortune_purchase_by_star_candy"
-  },
-  "@fortune_relationship": {
-    "description": "Description for fortune_relationship"
-  },
-  "@fortune_share_hashtag": {
-    "description": "Description for fortune_share_hashtag"
-  },
-  "@fortune_share_message": {
-    "description": "Description for fortune_share_message",
-    "placeholders": {
-      "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "@fortune_title": {
-    "description": "Description for fortune_title",
-    "placeholders": {
-      "year": {
-        "type": "String"
-      }
-    }
-  },
-  "@fortune_total_title": {
-    "description": "Description for fortune_total_title"
-  },
-  "@fortune_with_me": {
-    "description": "Description for fortune_with_me"
-  },
-  "@group_name_hint": {
-    "description": "Description for group_name_hint"
-  },
-  "@group_name_label": {
-    "description": "Description for group_name_label"
-  },
-  "@hint_library_add": {
-    "description": "Description for hint_library_add"
-  },
-  "@hint_nickname_input": {
-    "description": "Description for hint_nickname_input"
-  },
-  "@hours_ago": {
-    "description": "Description for hours_ago"
-  },
-  "@image_save_success": {
-    "description": "Description for image_save_success"
-  },
-  "@label_ads_exceeded": {
-    "description": "Description for label_ads_exceeded"
-  },
-  "@label_ads_get_star_candy": {
-    "description": "Description for label_ads_get_star_candy"
-  },
-  "@label_ads_limits": {
-    "description": "Description for label_ads_limits",
-    "placeholders": {
-      "daily": {
-        "type": "String"
-      },
-      "hourly": {
-        "type": "String"
-      }
-    }
-  },
-  "@label_ads_load_fail": {
-    "description": "Description for label_ads_load_fail"
-  },
-  "@label_ads_load_timeout": {
-    "description": "Description for label_ads_load_timeout"
-  },
-  "@label_ads_next_available_time": {
-    "description": "Description for label_ads_next_available_time"
-  },
-  "@label_ads_reward_fail": {
-    "description": "Description for label_ads_reward_fail"
-  },
-  "@label_ads_sdk_init_fail": {
-    "description": "Description for label_ads_sdk_init_fail"
-  },
-  "@label_ads_show_fail": {
-    "description": "Description for label_ads_show_fail"
-  },
-  "@label_agreement_privacy": {
-    "description": "Description for label_agreement_privacy"
-  },
-  "@label_agreement_terms": {
-    "description": "Description for label_agreement_terms"
-  },
-  "@label_album_add": {
-    "description": "Description for label_album_add"
-  },
-  "@label_area_filter_all": {
-    "description": "Description for label_area_filter_all"
-  },
-  "@label_area_filter_kpop": {
-    "description": "Description for label_area_filter_kpop"
-  },
-  "@label_area_filter_musical": {
-    "description": "Description for label_area_filter_musical"
-  },
-  "@label_article_comment_empty": {
-    "description": "Description for label_article_comment_empty"
-  },
-  "@label_asia_recommendation": {
-    "description": "Description for label_asia_recommendation"
-  },
-  "@label_bonus": {
-    "description": "Description for label_bonus"
-  },
-  "@label_button_agreement": {
-    "description": "Description for label_button_agreement"
-  },
-  "@label_button_close": {
-    "description": "Description for label_button_close"
-  },
-  "@label_button_disagreement": {
-    "description": "Description for label_button_disagreement"
-  },
-  "@label_button_mission_and_charge": {
-    "description": "Description for label_button_mission_and_charge"
-  },
-  "@label_button_recharge": {
-    "description": "Description for label_button_recharge"
-  },
-  "@label_button_save_vote_paper": {
-    "description": "Description for label_button_save_vote_paper"
-  },
-  "@label_button_share": {
-    "description": "Description for label_button_share"
-  },
-  "@label_button_vote": {
-    "description": "Description for label_button_vote"
-  },
-  "@label_button_vote_ended": {
-    "description": "Description for label_button_vote_ended"
-  },
-  "@label_button_vote_upcoming": {
-    "description": "Description for label_button_vote_upcoming"
-  },
-  "@label_button_watch_and_charge": {
-    "description": "Description for label_button_watch_and_charge"
-  },
-  "@label_celeb_ask_to_you": {
-    "description": "Description for label_celeb_ask_to_you"
-  },
-  "@label_celeb_gallery": {
-    "description": "Description for label_celeb_gallery"
-  },
-  "@label_celeb_recommend": {
-    "description": "Description for label_celeb_recommend"
-  },
-  "@label_checkbox_entire_use": {
-    "description": "Description for label_checkbox_entire_use"
-  },
-  "@label_current_language": {
-    "description": "Description for label_current_language"
-  },
-  "@label_draw_image": {
-    "description": "Description for label_draw_image"
-  },
-  "@label_dropdown_oldest": {
-    "description": "Description for label_dropdown_oldest"
-  },
-  "@label_dropdown_recent": {
-    "description": "Description for label_dropdown_recent"
-  },
-  "@label_find_celeb": {
-    "description": "Description for label_find_celeb"
-  },
-  "@label_gallery_tab_article": {
-    "description": "Description for label_gallery_tab_article"
-  },
-  "@label_gallery_tab_chat": {
-    "description": "Description for label_gallery_tab_chat"
-  },
-  "@label_global_recommendation": {
-    "description": "Description for label_global_recommendation"
-  },
-  "@label_hint_comment": {
-    "description": "Description for label_hint_comment"
-  },
-  "@label_input_input": {
-    "description": "Description for label_input_input"
-  },
-  "@label_korean_recommendation": {
-    "description": "Description for label_korean_recommendation"
-  },
-  "@label_last_provider": {
-    "description": "Description for label_last_provider"
-  },
-  "@label_library_save": {
-    "description": "Description for label_library_save"
-  },
-  "@label_library_tab_ai_photo": {
-    "description": "Description for label_library_tab_ai_photo"
-  },
-  "@label_library_tab_library": {
-    "description": "Description for label_library_tab_library"
-  },
-  "@label_library_tab_pic": {
-    "description": "Description for label_library_tab_pic"
-  },
-  "@label_list_more": {
-    "description": "Description for label_list_more"
-  },
-  "@label_loading_ads": {
-    "description": "Description for label_loading_ads"
-  },
-  "@label_loading_ads_fail": {
-    "description": "Description for label_loading_ads_fail"
-  },
-  "@label_login_with_apple": {
-    "description": "Description for label_login_with_apple"
-  },
-  "@label_login_with_google": {
-    "description": "Description for label_login_with_google"
-  },
-  "@label_login_with_kakao": {
-    "description": "Description for label_login_with_kakao"
-  },
-  "@label_login_with_wechat": {
-    "description": "Description for label_login_with_wechat"
-  },
-  "@label_mission": {
-    "description": "Description for label_mission"
-  },
-  "@label_mission_get_star_candy": {
-    "description": "Description for label_mission_get_star_candy"
-  },
-  "@label_mission_short": {
-    "description": "Description for label_mission_short"
-  },
-  "@label_moveto_celeb_gallery": {
-    "description": "Description for label_moveto_celeb_gallery"
-  },
-  "@label_mypage_charge_history": {
-    "description": "Description for label_mypage_charge_history"
-  },
-  "@label_mypage_customer_center": {
-    "description": "Description for label_mypage_customer_center"
-  },
-  "@label_mypage_faq": {
-    "description": "Description for label_mypage_faq"
-  },
-  "@label_mypage_logout": {
-    "description": "Description for label_mypage_logout"
-  },
-  "@label_mypage_membership_history": {
-    "description": "Description for label_mypage_membership_history"
-  },
-  "@label_mypage_my_artist": {
-    "description": "Description for label_mypage_my_artist"
-  },
-  "@label_mypage_no_artist": {
-    "description": "Description for label_mypage_no_artist"
-  },
-  "@label_mypage_notice": {
-    "description": "Description for label_mypage_notice"
-  },
-  "@label_mypage_picnic_id": {
-    "description": "Description for label_mypage_picnic_id"
-  },
-  "@label_mypage_privacy_policy": {
-    "description": "Description for label_mypage_privacy_policy"
-  },
-  "@label_mypage_setting": {
-    "description": "Description for label_mypage_setting"
-  },
-  "@label_mypage_should_login": {
-    "description": "Description for label_mypage_should_login"
-  },
-  "@label_mypage_terms_of_use": {
-    "description": "Description for label_mypage_terms_of_use"
-  },
-  "@label_mypage_vote_history": {
-    "description": "Description for label_mypage_vote_history"
-  },
-  "@label_mypage_withdrawal": {
-    "description": "Description for label_mypage_withdrawal"
-  },
-  "@label_no_ads": {
-    "description": "Description for label_no_ads"
-  },
-  "@label_no_celeb": {
-    "description": "Description for label_no_celeb"
-  },
-  "@label_pic_chart": {
-    "description": "Description for label_pic_chart"
-  },
-  "@label_pic_image_cropping": {
-    "description": "Description for label_pic_image_cropping"
-  },
-  "@label_pic_pic_initializing_camera": {
-    "description": "Description for label_pic_pic_initializing_camera"
-  },
-  "@label_pic_pic_save_gallery": {
-    "description": "Description for label_pic_pic_save_gallery"
-  },
-  "@label_pic_pic_synthesizing_image": {
-    "description": "Description for label_pic_pic_synthesizing_image"
-  },
-  "@label_popup_close": {
-    "description": "Description for label_popup_close"
-  },
-  "@label_popup_hide_7days": {
-    "description": "Description for label_popup_hide_7days"
-  },
-  "@label_read_more_comment": {
-    "description": "Description for label_read_more_comment"
-  },
-  "@label_reply": {
-    "description": "Description for label_reply"
-  },
-  "@label_retry": {
-    "description": "Description for label_retry"
-  },
-  "@label_reward_location": {
-    "description": "Description for label_reward_location"
-  },
-  "@label_reward_overview": {
-    "description": "Description for label_reward_overview"
-  },
-  "@label_reward_size": {
-    "description": "Description for label_reward_size"
-  },
-  "@label_screen_title_agreement": {
-    "description": "Description for label_screen_title_agreement"
-  },
-  "@label_setting_alarm": {
-    "description": "Description for label_setting_alarm"
-  },
-  "@label_setting_appinfo": {
-    "description": "Description for label_setting_appinfo"
-  },
-  "@label_setting_current_version": {
-    "description": "Description for label_setting_current_version"
-  },
-  "@label_setting_event_alarm": {
-    "description": "Description for label_setting_event_alarm"
-  },
-  "@label_setting_event_alarm_desc": {
-    "description": "Description for label_setting_event_alarm_desc"
-  },
-  "@label_setting_language": {
-    "description": "Description for label_setting_language"
-  },
-  "@label_setting_push_alarm": {
-    "description": "Description for label_setting_push_alarm"
-  },
-  "@label_setting_recent_version": {
-    "description": "Description for label_setting_recent_version"
-  },
-  "@label_setting_recent_version_up_to_date": {
-    "description": "Description for label_setting_recent_version_up_to_date"
-  },
-  "@label_setting_remove_cache": {
-    "description": "Description for label_setting_remove_cache"
-  },
-  "@label_setting_remove_cache_complete": {
-    "description": "Description for label_setting_remove_cache_complete"
-  },
-  "@label_setting_storage": {
-    "description": "Description for label_setting_storage"
-  },
-  "@label_setting_update": {
-    "description": "Description for label_setting_update"
-  },
-  "@label_star_candy_pouch": {
-    "description": "Description for label_star_candy_pouch"
-  },
-  "@label_tab_buy_star_candy": {
-    "description": "Description for label_tab_buy_star_candy"
-  },
-  "@label_tab_free_charge_station": {
-    "description": "Description for label_tab_free_charge_station"
-  },
-  "@label_tab_my_artist": {
-    "description": "Description for label_tab_my_artist"
-  },
-  "@label_tab_search_my_artist": {
-    "description": "Description for label_tab_search_my_artist"
-  },
-  "@label_tabbar_picchart_daily": {
-    "description": "Description for label_tabbar_picchart_daily"
-  },
-  "@label_tabbar_picchart_monthly": {
-    "description": "Description for label_tabbar_picchart_monthly"
-  },
-  "@label_tabbar_picchart_weekly": {
-    "description": "Description for label_tabbar_picchart_weekly"
-  },
-  "@label_tabbar_vote_active": {
-    "description": "Description for label_tabbar_vote_active"
-  },
-  "@label_tabbar_vote_all": {
-    "description": "Description for label_tabbar_vote_all"
-  },
-  "@label_tabbar_vote_end": {
-    "description": "Description for label_tabbar_vote_end"
-  },
-  "@label_tabbar_vote_image": {
-    "description": "Description for label_tabbar_vote_image"
-  },
-  "@label_tabbar_vote_upcoming": {
-    "description": "Description for label_tabbar_vote_upcoming"
-  },
-  "@label_time_ago_day": {
-    "description": "Description for label_time_ago_day",
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
-  "@label_time_ago_hour": {
-    "description": "Description for label_time_ago_hour",
-    "placeholders": {
-      "hour": {
-        "type": "String"
-      }
-    }
-  },
-  "@label_time_ago_minute": {
-    "description": "Description for label_time_ago_minute",
-    "placeholders": {
-      "minute": {
-        "type": "String"
-      }
-    }
-  },
-  "@label_time_ago_right_now": {
-    "description": "Description for label_time_ago_right_now"
-  },
-  "@label_title_comment": {
-    "description": "Description for label_title_comment"
-  },
-  "@label_title_report": {
-    "description": "Description for label_title_report"
-  },
-  "@label_unlimited_rewards": {
-    "description": "Description for label_unlimited_rewards"
-  },
-  "@label_various_rewards": {
-    "description": "Description for label_various_rewards"
-  },
-  "@label_vote_achieve": {
-    "description": "Description for label_vote_achieve"
-  },
-  "@label_vote_birthday": {
-    "description": "Description for label_vote_birthday"
-  },
-  "@label_vote_comback": {
-    "description": "Description for label_vote_comback"
-  },
-  "@label_vote_debut": {
-    "description": "Description for label_vote_debut"
-  },
-  "@label_vote_end": {
-    "description": "Description for label_vote_end"
-  },
-  "@label_vote_image": {
-    "description": "Description for label_vote_image"
-  },
-  "@label_vote_reward_list": {
-    "description": "Description for label_vote_reward_list"
-  },
-  "@label_vote_screen_title": {
-    "description": "Description for label_vote_screen_title"
-  },
-  "@label_vote_shining": {
-    "description": "Description for label_vote_shining"
-  },
-  "@label_vote_tab_birthday": {
-    "description": "Description for label_vote_tab_birthday"
-  },
-  "@label_vote_tab_pic": {
-    "description": "Description for label_vote_tab_pic"
-  },
-  "@label_vote_upcoming": {
-    "description": "Description for label_vote_upcoming"
-  },
-  "@label_vote_list": {
-    "description": "Description for label_vote_list"
-  },
-  "@label_watch_ads": {
-    "description": "Description for label_watch_ads"
-  },
-  "@label_watch_ads_short": {
-    "description": "Description for label_watch_ads_short"
-  },
-  "@lable_my_celeb": {
-    "description": "Description for lable_my_celeb"
-  },
-  "@login_simple_login": {
-    "description": "Description for login_simple_login"
-  },
-  "@login_simple_login_guide": {
-    "description": "Description for login_simple_login_guide"
-  },
-  "@login_title": {
-    "description": "Description for login_title"
-  },
-  "@message_agreement_success": {
-    "description": "Description for message_agreement_success"
-  },
-  "@message_error_occurred": {
-    "description": "Description for message_error_occurred"
-  },
-  "@message_noitem_vote_active": {
-    "description": "Description for message_noitem_vote_active"
-  },
-  "@message_noitem_vote_end": {
-    "description": "Description for message_noitem_vote_end"
-  },
-  "@message_noitem_vote_upcoming": {
-    "description": "Description for message_noitem_vote_upcoming"
-  },
-  "@message_pic_pic_save_fail": {
-    "description": "Description for message_pic_pic_save_fail"
-  },
-  "@message_pic_pic_save_success": {
-    "description": "Description for message_pic_pic_save_success"
-  },
-  "@message_report_confirm": {
-    "description": "Description for message_report_confirm"
-  },
-  "@message_report_ok": {
-    "description": "Description for message_report_ok"
-  },
-  "@message_setting_remove_cache": {
-    "description": "Description for message_setting_remove_cache"
-  },
-  "@message_update_nickname_fail": {
-    "description": "Description for message_update_nickname_fail"
-  },
-  "@message_update_nickname_success": {
-    "description": "Description for message_update_nickname_success"
-  },
-  "@message_vote_is_ended": {
-    "description": "Description for message_vote_is_ended"
-  },
-  "@message_vote_is_upcoming": {
-    "description": "Description for message_vote_is_upcoming"
-  },
-  "@minutes_ago": {
-    "description": "Description for minutes_ago"
-  },
-  "@my_info": {
-    "description": "Description for my_info"
-  },
-  "@mypage_comment": {
-    "description": "Description for mypage_comment"
-  },
-  "@mypage_language": {
-    "description": "Description for mypage_language"
-  },
-  "@mypage_purchases": {
-    "description": "Description for mypage_purchases"
-  },
-  "@mypage_setting": {
-    "description": "Description for mypage_setting"
-  },
-  "@mypage_subscription": {
-    "description": "Description for mypage_subscription"
-  },
-  "@nav_ads": {
-    "description": "Description for nav_ads"
-  },
-  "@nav_board": {
-    "description": "Description for nav_board"
-  },
-  "@nav_gallery": {
-    "description": "Description for nav_gallery"
-  },
-  "@nav_home": {
-    "description": "Description for nav_home"
-  },
-  "@nav_library": {
-    "description": "Description for nav_library"
-  },
-  "@nav_media": {
-    "description": "Description for nav_media"
-  },
-  "@nav_my": {
-    "description": "Description for nav_my"
-  },
-  "@nav_picchart": {
-    "description": "Description for nav_picchart"
-  },
-  "@nav_purchases": {
-    "description": "Description for nav_purchases"
-  },
-  "@nav_rewards": {
-    "description": "Description for nav_rewards"
-  },
-  "@nav_setting": {
-    "description": "Description for nav_setting"
-  },
-  "@nav_store": {
-    "description": "Description for nav_store"
-  },
-  "@nav_subscription": {
-    "description": "Description for nav_subscription"
-  },
-  "@nav_vote": {
-    "description": "Description for nav_vote"
-  },
-  "@nickname_validation_error": {
-    "description": "Description for nickname_validation_error"
-  },
-  "@no_search_results": {
-    "description": "Description for no_search_results"
-  },
-  "@optional": {
-    "description": "Description for optional"
-  },
-  "@page_title_mypage": {
-    "description": "Description for page_title_mypage"
-  },
-  "@page_title_myprofile": {
-    "description": "Description for page_title_myprofile"
-  },
-  "@page_title_post_write": {
-    "description": "Description for page_title_post_write"
-  },
-  "@page_title_privacy": {
-    "description": "Description for page_title_privacy"
-  },
-  "@page_title_setting": {
-    "description": "Description for page_title_setting"
-  },
-  "@page_title_terms_of_use": {
-    "description": "Description for page_title_terms_of_use"
-  },
-  "@page_title_vote_detail": {
-    "description": "Description for page_title_vote_detail"
-  },
-  "@page_title_vote_list": {
-    "description": "Description for page_title_vote_list"
-  },
-  "@patch_check": {
-    "description": "Description for patch_check"
-  },
-  "@patch_error": {
-    "description": "Description for patch_error"
-  },
-  "@patch_install": {
-    "description": "Description for patch_install"
-  },
-  "@patch_restart_app": {
-    "description": "Description for patch_restart_app"
-  },
-  "@popup_label_delete": {
-    "description": "Description for popup_label_delete"
-  },
-  "@post_anonymous": {
-    "description": "Description for post_anonymous"
-  },
-  "@post_ask_go_to_temporary_save_list": {
-    "description": "Description for post_ask_go_to_temporary_save_list"
-  },
-  "@post_board_already_exist": {
-    "description": "Description for post_board_already_exist"
-  },
-  "@post_board_create_request_complete": {
-    "description": "Description for post_board_create_request_complete"
-  },
-  "@post_board_create_request_condition": {
-    "description": "Description for post_board_create_request_condition"
-  },
-  "@post_board_create_request_label": {
-    "description": "Description for post_board_create_request_label"
-  },
-  "@post_board_create_request_reviewing": {
-    "description": "Description for post_board_create_request_reviewing"
-  },
-  "@post_board_request_label": {
-    "description": "Description for post_board_request_label"
-  },
-  "@post_cannot_open_youtube": {
-    "description": "Description for post_cannot_open_youtube"
-  },
-  "@post_comment_action_show_original": {
-    "description": "Description for post_comment_action_show_original"
-  },
-  "@post_comment_action_show_translation": {
-    "description": "Description for post_comment_action_show_translation"
-  },
-  "@post_comment_action_translate": {
-    "description": "Description for post_comment_action_translate"
-  },
-  "@post_comment_content_more": {
-    "description": "Description for post_comment_content_more"
-  },
-  "@post_comment_delete_confirm": {
-    "description": "Description for post_comment_delete_confirm"
-  },
-  "@post_comment_delete_fail": {
-    "description": "Description for post_comment_delete_fail"
-  },
-  "@post_comment_deleted_comment": {
-    "description": "Description for post_comment_deleted_comment"
-  },
-  "@post_comment_like_processing_fail": {
-    "description": "Description for post_comment_like_processing_fail"
-  },
-  "@post_comment_loading_fail": {
-    "description": "Description for post_comment_loading_fail"
-  },
-  "@post_comment_register_fail": {
-    "description": "Description for post_comment_register_fail"
-  },
-  "@post_comment_registered_comment": {
-    "description": "Description for post_comment_registered_comment"
-  },
-  "@post_comment_reported_comment": {
-    "description": "Description for post_comment_reported_comment"
-  },
-  "@post_comment_translate_complete": {
-    "description": "Description for post_comment_translate_complete"
-  },
-  "@post_comment_translate_fail": {
-    "description": "Description for post_comment_translate_fail"
-  },
-  "@post_comment_translated": {
-    "description": "Description for post_comment_translated"
-  },
-  "@post_comment_write_label": {
-    "description": "Description for post_comment_write_label"
-  },
-  "@post_content_placeholder": {
-    "description": "Description for post_content_placeholder"
-  },
-  "@post_delete_scrap_confirm": {
-    "description": "Description for post_delete_scrap_confirm"
-  },
-  "@post_delete_scrap_title": {
-    "description": "Description for post_delete_scrap_title"
-  },
-  "@post_flagged": {
-    "description": "Description for post_flagged"
-  },
-  "@post_go_to_boards": {
-    "description": "Description for post_go_to_boards"
-  },
-  "@post_header_publish": {
-    "description": "Description for post_header_publish"
-  },
-  "@post_header_temporary_save": {
-    "description": "Description for post_header_temporary_save"
-  },
-  "@post_hint_title": {
-    "description": "Description for post_hint_title"
-  },
-  "@post_hyperlink": {
-    "description": "Description for post_hyperlink"
-  },
-  "@post_insert_link": {
-    "description": "Description for post_insert_link"
-  },
-  "@post_loading_post_fail": {
-    "description": "Description for post_loading_post_fail"
-  },
-  "@post_minor_board_condition": {
-    "description": "Description for post_minor_board_condition"
-  },
-  "@post_minor_board_create_request_message": {
-    "description": "Description for post_minor_board_create_request_message"
-  },
-  "@post_minor_board_create_request_message_condition": {
-    "description": "Description for post_minor_board_create_request_message_condition"
-  },
-  "@post_minor_board_create_request_message_input": {
-    "description": "Description for post_minor_board_create_request_message_input"
-  },
-  "@post_minor_board_description": {
-    "description": "Description for post_minor_board_description"
-  },
-  "@post_minor_board_description_input": {
-    "description": "Description for post_minor_board_description_input"
-  },
-  "@post_minor_board_name": {
-    "description": "Description for post_minor_board_name"
-  },
-  "@post_minor_board_name_input": {
-    "description": "Description for post_minor_board_name_input"
-  },
-  "@post_my_compatibilities": {
-    "description": "Description for post_my_compatibilities"
-  },
-  "@post_my_written_post": {
-    "description": "Description for post_my_written_post"
-  },
-  "@post_my_written_reply": {
-    "description": "Description for post_my_written_reply"
-  },
-  "@post_my_written_scrap": {
-    "description": "Description for post_my_written_scrap"
-  },
-  "@post_no_comment": {
-    "description": "Description for post_no_comment"
-  },
-  "@post_not_found": {
-    "description": "Description for post_not_found"
-  },
-  "@post_replying_comment": {
-    "description": "Description for post_replying_comment",
-    "placeholders": {
-      "nickname": {
-        "type": "String"
-      }
-    }
-  },
-  "@post_report_fail": {
-    "description": "Description for post_report_fail"
-  },
-  "@post_report_label": {
-    "description": "Description for post_report_label"
-  },
-  "@post_report_other_input": {
-    "description": "Description for post_report_other_input"
-  },
-  "@post_report_reason_1": {
-    "description": "Description for post_report_reason_1"
-  },
-  "@post_report_reason_2": {
-    "description": "Description for post_report_reason_2"
-  },
-  "@post_report_reason_3": {
-    "description": "Description for post_report_reason_3"
-  },
-  "@post_report_reason_4": {
-    "description": "Description for post_report_reason_4"
-  },
-  "@post_report_reason_5": {
-    "description": "Description for post_report_reason_5"
-  },
-  "@post_report_reason_input": {
-    "description": "Description for post_report_reason_input"
-  },
-  "@post_report_reason_label": {
-    "description": "Description for post_report_reason_label"
-  },
-  "@post_report_success": {
-    "description": "Description for post_report_success"
-  },
-  "@post_temporary_save_complete": {
-    "description": "Description for post_temporary_save_complete"
-  },
-  "@post_title_placeholder": {
-    "description": "Description for post_title_placeholder"
-  },
-  "@post_write_board_post": {
-    "description": "Description for post_write_board_post"
-  },
-  "@post_write_post_recommend_write": {
-    "description": "Description for post_write_post_recommend_write"
-  },
-  "@post_youtube_link": {
-    "description": "Description for post_youtube_link"
-  },
-  "@purchase_confirm_button": {
-    "description": "Description for purchase_confirm_button"
-  },
-  "@purchase_confirm_message": {
-    "description": "Description for purchase_confirm_message"
-  },
-  "@purchase_confirm_title": {
-    "description": "Description for purchase_confirm_title"
-  },
-  "@purchase_cooldown_message": {
-    "description": "Description for purchase_cooldown_message"
-  },
-  "@purchase_in_progress_message": {
-    "description": "Description for purchase_in_progress_message"
-  },
-  "@purchase_initializing_message": {
-    "description": "Description for purchase_initializing_message"
-  },
-  "@purchase_payment_amount": {
-    "description": "Description for purchase_payment_amount"
-  },
-  "@purchase_restore_success_message": {
-    "description": "Description for purchase_restore_success_message"
-  },
-  "@purchase_restore_wait_message": {
-    "description": "Description for purchase_restore_wait_message"
-  },
-  "@purchase_timeout_message": {
-    "description": "Description for purchase_timeout_message"
-  },
-  "@purchase_web_message": {
-    "description": "Description for purchase_web_message"
-  },
-  "@qna_actions": {
-    "description": "Description for qna_actions"
-  },
-  "@qna_answer": {
-    "description": "Description for qna_answer"
-  },
-  "@qna_answered_at": {
-    "description": "Description for qna_answered_at"
-  },
-  "@qna_answered_by": {
-    "description": "Description for qna_answered_by"
-  },
-  "@qna_attached_files": {
-    "description": "Description for qna_attached_files"
-  },
-  "@qna_attachments": {
-    "description": "Description for qna_attachments"
-  },
-  "@qna_cancel": {
-    "description": "Description for qna_cancel"
-  },
-  "@qna_content": {
-    "description": "Description for qna_content"
-  },
-  "@qna_content_hint": {
-    "description": "Description for qna_content_hint"
-  },
-  "@qna_content_min_length": {
-    "description": "Description for qna_content_min_length"
-  },
-  "@qna_content_required": {
-    "description": "Description for qna_content_required"
-  },
-  "@qna_content_too_short": {
-    "description": "Description for qna_content_too_short"
-  },
-  "@qna_create_failed": {
-    "description": "Description for qna_create_failed"
-  },
-  "@qna_create_first": {
-    "description": "Description for qna_create_first"
-  },
-  "@qna_create_page_title": {
-    "description": "Description for qna_create_page_title"
-  },
-  "@qna_create_success": {
-    "description": "Description for qna_create_success"
-  },
-  "@qna_delete": {
-    "description": "Description for qna_delete"
-  },
-  "@qna_delete_confirm": {
-    "description": "Description for qna_delete_confirm"
-  },
-  "@qna_delete_confirm_content": {
-    "description": "Description for qna_delete_confirm_content"
-  },
-  "@qna_delete_confirm_title": {
-    "description": "Description for qna_delete_confirm_title"
-  },
-  "@qna_delete_failed": {
-    "description": "Description for qna_delete_failed"
-  },
-  "@qna_delete_success": {
-    "description": "Description for qna_delete_success"
-  },
-  "@qna_detail_page_title": {
-    "description": "Description for qna_detail_page_title"
-  },
-  "@qna_download_file": {
-    "description": "Description for qna_download_file"
-  },
-  "@qna_edit": {
-    "description": "Description for qna_edit"
-  },
-  "@qna_empty_list": {
-    "description": "Description for qna_empty_list"
-  },
-  "@qna_error_message": {
-    "description": "Description for qna_error_message"
-  },
-  "@qna_file_attach_label": {
-    "description": "Description for qna_file_attach_label"
-  },
-  "@qna_file_select": {
-    "description": "Description for qna_file_select"
-  },
-  "@qna_file_type_document": {
-    "description": "Description for qna_file_type_document"
-  },
-  "@qna_file_type_image": {
-    "description": "Description for qna_file_type_image"
-  },
-  "@qna_file_type_other": {
-    "description": "Description for qna_file_type_other"
-  },
-  "@qna_file_upload_info": {
-    "description": "Description for qna_file_upload_info"
-  },
-  "@qna_file_uploading_button": {
-    "description": "Description for qna_file_uploading_button"
-  },
-  "@qna_list_title": {
-    "description": "Description for qna_list_title"
-  },
-  "@qna_loading_error": {
-    "description": "Description for qna_loading_error"
-  },
-  "@qna_login_required": {
-    "description": "Description for qna_login_required"
-  },
-  "@qna_login_required_create": {
-    "description": "Description for qna_login_required_create"
-  },
-  "@qna_login_required_detail": {
-    "description": "Description for qna_login_required_detail"
-  },
-  "@qna_login_required_service": {
-    "description": "Description for qna_login_required_service"
-  },
-  "@qna_mark_resolved": {
-    "description": "Description for qna_mark_resolved"
-  },
-  "@qna_mark_resolved_failed": {
-    "description": "Description for qna_mark_resolved_failed"
-  },
-  "@qna_mark_resolved_success": {
-    "description": "Description for qna_mark_resolved_success"
-  },
-  "@qna_no_answer_yet": {
-    "description": "Description for qna_no_answer_yet"
-  },
-  "@qna_no_inquiries": {
-    "description": "Description for qna_no_inquiries"
-  },
-  "@qna_no_inquiries_subtitle": {
-    "description": "Description for qna_no_inquiries_subtitle"
-  },
-  "@qna_page_title": {
-    "description": "Description for qna_page_title"
-  },
-  "@qna_privacy_notice": {
-    "description": "Description for qna_privacy_notice"
-  },
-  "@qna_question": {
-    "description": "Description for qna_question"
-  },
-  "@qna_refresh_pull": {
-    "description": "Description for qna_refresh_pull"
-  },
-  "@qna_statistics_answered": {
-    "description": "Description for qna_statistics_answered"
-  },
-  "@qna_statistics_pending": {
-    "description": "Description for qna_statistics_pending"
-  },
-  "@qna_statistics_resolved": {
-    "description": "Description for qna_statistics_resolved"
-  },
-  "@qna_statistics_title": {
-    "description": "Description for qna_statistics_title"
-  },
-  "@qna_status_answered": {
-    "description": "Description for qna_status_answered"
-  },
-  "@qna_status_closed": {
-    "description": "Description for qna_status_closed"
-  },
-  "@qna_status_pending": {
-    "description": "Description for qna_status_pending"
-  },
-  "@qna_status_resolved": {
-    "description": "Description for qna_status_resolved"
-  },
-  "@qna_submit_button": {
-    "description": "Description for qna_submit_button"
-  },
-  "@qna_submit_error": {
-    "description": "Description for qna_submit_error"
-  },
-  "@qna_submit_success": {
-    "description": "Description for qna_submit_success"
-  },
-  "@qna_title": {
-    "description": "Description for qna_title"
-  },
-  "@qna_title_hint": {
-    "description": "Description for qna_title_hint"
-  },
-  "@qna_title_min_length": {
-    "description": "Description for qna_title_min_length"
-  },
-  "@qna_title_required": {
-    "description": "Description for qna_title_required"
-  },
-  "@qna_title_too_short": {
-    "description": "Description for qna_title_too_short"
-  },
-  "@qna_upload_complete": {
-    "description": "Description for qna_upload_complete"
-  },
-  "@qna_upload_waiting": {
-    "description": "Description for qna_upload_waiting"
-  },
-  "@qna_uploading": {
-    "description": "Description for qna_uploading"
-  },
-  "@qna_validation_failed": {
-    "description": "Description for qna_validation_failed"
-  },
-  "@qna_write_inquiry": {
-    "description": "Description for qna_write_inquiry"
-  },
-  "@replies": {
-    "description": "Description for replies"
-  },
-  "@reward": {
-    "description": "Description for reward"
-  },
-  "@save": {
-    "description": "Description for save"
-  },
-  "@searching": {
-    "description": "Description for searching"
-  },
-  "@seconds": {
-    "description": "Description for seconds"
-  },
-  "@share": {
-    "description": "Description for share"
-  },
-  "@share_image_fail": {
-    "description": "Description for share_image_fail"
-  },
-  "@share_image_success": {
-    "description": "Description for share_image_success"
-  },
-  "@share_no_twitter": {
-    "description": "Description for share_no_twitter"
-  },
-  "@share_twitter": {
-    "description": "Description for share_twitter"
-  },
-  "@starCandy100": {
-    "description": "Description for starCandy100"
-  },
-  "@starCandy1000": {
-    "description": "Description for starCandy1000"
-  },
-  "@starCandy200": {
-    "description": "Description for starCandy200"
-  },
-  "@starCandy2000": {
-    "description": "Description for starCandy2000"
-  },
-  "@starCandy3000": {
-    "description": "Description for starCandy3000"
-  },
-  "@starCandy4000": {
-    "description": "Description for starCandy4000"
-  },
-  "@starCandy5000": {
-    "description": "Description for starCandy5000"
-  },
-  "@starCandy600": {
-    "description": "Description for starCandy600"
-  },
-  "@submit_application": {
-    "description": "Description for submit_application"
-  },
-  "@success": {
-    "description": "Description for success"
-  },
-  "@text_achievement": {
-    "description": "Description for text_achievement",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "@text_ads_random": {
-    "description": "Description for text_ads_random"
-  },
-  "@text_bonus": {
-    "description": "Description for text_bonus"
-  },
-  "@text_bookmark_failed": {
-    "description": "Description for text_bookmark_failed"
-  },
-  "@text_bookmark_over_5": {
-    "description": "Description for text_bookmark_over_5"
-  },
-  "@text_comming_soon_pic_chart1": {
-    "description": "Description for text_comming_soon_pic_chart1"
-  },
-  "@text_comming_soon_pic_chart2": {
-    "description": "Description for text_comming_soon_pic_chart2"
-  },
-  "@text_comming_soon_pic_chart3": {
-    "description": "Description for text_comming_soon_pic_chart3"
-  },
-  "@text_comming_soon_pic_chart_title": {
-    "description": "Description for text_comming_soon_pic_chart_title"
-  },
-  "@text_community_board_search": {
-    "description": "Description for text_community_board_search"
-  },
-  "@text_community_post_search": {
-    "description": "Description for text_community_post_search"
-  },
-  "@text_copied_address": {
-    "description": "Description for text_copied_address"
-  },
-  "@text_dialog_ad_dismissed": {
-    "description": "Description for text_dialog_ad_dismissed"
-  },
-  "@text_dialog_ad_failed_to_show": {
-    "description": "Description for text_dialog_ad_failed_to_show"
-  },
-  "@text_dialog_star_candy_received": {
-    "description": "Description for text_dialog_star_candy_received"
-  },
-  "@text_dialog_vote_amount_should_not_zero": {
-    "description": "Description for text_dialog_vote_amount_should_not_zero"
-  },
-  "@text_draw_image": {
-    "description": "Description for text_draw_image"
-  },
-  "@text_hint_search": {
-    "description": "Description for text_hint_search"
-  },
-  "@text_moveto_celeb_gallery": {
-    "description": "Description for text_moveto_celeb_gallery"
-  },
-  "@text_need_recharge": {
-    "description": "Description for text_need_recharge"
-  },
-  "@text_no_artist": {
-    "description": "Description for text_no_artist"
-  },
-  "@text_no_search_result": {
-    "description": "Description for text_no_search_result"
-  },
-  "@text_purchase_vat_included": {
-    "description": "Description for text_purchase_vat_included"
-  },
-  "@text_star_candy": {
-    "description": "Description for text_star_candy"
-  },
-  "@text_star_candy_with_bonus": {
-    "description": "Description for text_star_candy_with_bonus",
-    "placeholders": {
-      "num1": {
-        "type": "String"
-      }
-    }
-  },
-  "@text_this_time_vote": {
-    "description": "Description for text_this_time_vote"
-  },
-  "@text_vote_complete": {
-    "description": "Description for text_vote_complete"
-  },
-  "@text_vote_countdown_end": {
-    "description": "Description for text_vote_countdown_end"
-  },
-  "@text_vote_countdown_start": {
-    "description": "Description for text_vote_countdown_start"
-  },
-  "@text_vote_ended": {
-    "description": "Description for text_vote_ended"
-  },
-  "@text_vote_rank": {
-    "description": "Description for text_vote_rank",
-    "placeholders": {
-      "rank": {
-        "type": "String"
-      }
-    }
-  },
-  "@text_vote_rank_in_reward": {
-    "description": "Description for text_vote_rank_in_reward"
-  },
-  "@text_vote_reward": {
-    "description": "Description for text_vote_reward",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "@text_vote_where_is_my_bias": {
-    "description": "Description for text_vote_where_is_my_bias"
-  },
-  "@time_days_ago": {
-    "description": "Description for time_days_ago"
-  },
-  "@time_hours_ago": {
-    "description": "Description for time_hours_ago"
-  },
-  "@time_just_now": {
-    "description": "Description for time_just_now"
-  },
-  "@time_minutes_ago": {
-    "description": "Description for time_minutes_ago"
-  },
-  "@time_unit_day": {
-    "description": "Description for time_unit_day"
-  },
-  "@time_unit_hour": {
-    "description": "Description for time_unit_hour"
-  },
-  "@time_unit_minute": {
-    "description": "Description for time_unit_minute"
-  },
-  "@time_unit_second": {
-    "description": "Description for time_unit_second"
-  },
-  "@title_dialog_library_add": {
-    "description": "Description for title_dialog_library_add"
-  },
-  "@title_dialog_success": {
-    "description": "Description for title_dialog_success"
-  },
-  "@title_select_language": {
-    "description": "Description for title_select_language"
-  },
-  "@toast_max_five_celeb": {
-    "description": "Description for toast_max_five_celeb"
-  },
-  "@update_button": {
-    "description": "Description for update_button"
-  },
-  "@update_cannot_open_appstore": {
-    "description": "Description for update_cannot_open_appstore"
-  },
-  "@update_recommend_text": {
-    "description": "Description for update_recommend_text",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "@update_required_message": {
-    "description": "Description for update_required_message"
-  },
-  "@update_required_text": {
-    "description": "Description for update_required_text",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "@update_required_title": {
-    "description": "Description for update_required_title"
-  },
-  "@views": {
-    "description": "Description for views"
-  },
-  "@vote_item_request_addition_request": {
-    "description": "Description for vote_item_request_addition_request"
-  },
-  "@vote_item_request_already_applied_artist": {
-    "description": "Description for vote_item_request_already_applied_artist"
-  },
-  "@vote_item_request_already_registered": {
-    "description": "Description for vote_item_request_already_registered"
-  },
-  "@vote_item_request_artist_name_missing": {
-    "description": "Description for vote_item_request_artist_name_missing"
-  },
-  "@vote_item_request_button": {
-    "description": "Description for vote_item_request_button"
-  },
-  "@vote_item_request_can_apply": {
-    "description": "Description for vote_item_request_can_apply"
-  },
-  "@vote_item_request_count": {
-    "description": "Description for vote_item_request_count"
-  },
-  "@vote_item_request_current_item_request": {
-    "description": "Description for vote_item_request_current_item_request"
-  },
-  "@vote_item_request_item_request_count": {
-    "description": "Description for vote_item_request_item_request_count",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "@vote_item_request_no_item_request_yet": {
-    "description": "Description for vote_item_request_no_item_request_yet"
-  },
-  "@vote_item_request_no_search_results": {
-    "description": "Description for vote_item_request_no_search_results"
-  },
-  "@vote_item_request_search_artist": {
-    "description": "Description for vote_item_request_search_artist"
-  },
-  "@vote_item_request_search_artist_hint": {
-    "description": "Description for vote_item_request_search_artist_hint"
-  },
-  "@vote_item_request_search_artist_prompt": {
-    "description": "Description for vote_item_request_search_artist_prompt"
-  },
-  "@vote_item_request_status": {
-    "description": "Description for vote_item_request_status"
-  },
-  "@vote_item_request_status_approved": {
-    "description": "Description for vote_item_request_status_approved"
-  },
-  "@vote_item_request_status_cancelled": {
-    "description": "Description for vote_item_request_status_cancelled"
-  },
-  "@vote_item_request_status_in_progress": {
-    "description": "Description for vote_item_request_status_in_progress"
-  },
-  "@vote_item_request_status_pending": {
-    "description": "Description for vote_item_request_status_pending"
-  },
-  "@vote_item_request_status_rejected": {
-    "description": "Description for vote_item_request_status_rejected"
-  },
-  "@vote_item_request_status_unknown": {
-    "description": "Description for vote_item_request_status_unknown"
-  },
-  "@vote_item_request_submit": {
-    "description": "Description for vote_item_request_submit"
-  },
-  "@vote_item_request_title": {
-    "description": "Description for vote_item_request_title"
-  },
-  "@vote_item_request_total_item_requests": {
-    "description": "Description for vote_item_request_total_item_requests",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "@vote_item_request_user_info_not_found": {
-    "description": "Description for vote_item_request_user_info_not_found"
-  },
-  "@vote_item_request_waiting": {
-    "description": "Description for vote_item_request_waiting"
-  },
-  "@vote_period": {
-    "description": "Description for vote_period"
-  },
-  "@vote_result_save_button": {
-    "description": "Description for vote_result_save_button"
-  },
-  "@vote_result_share_button": {
-    "description": "Description for vote_result_share_button"
-  },
-  "@vote_share_message": {
-    "description": "Description for vote_share_message"
-  },
-  "@voting_limit_text": {
-    "description": "Description for voting_limit_text"
-  },
-  "@voting_limit_warning": {
-    "description": "Description for voting_limit_warning"
-  },
-  "@voting_share_benefit_text": {
-    "description": "Description for voting_share_benefit_text"
-  },
-  "@withdrawal_success": {
-    "description": "Description for withdrawal_success"
-  },
   "achieve": "成就",
   "ads_available_time": "下次可观看广告时间",
   "anonymous": "匿名",
   "anonymous_mode": "匿名模式",
-  "appTitle": "Picnic",
-  "app_name": "野餐",
-  "application_reason_hint": "Enter application reason (optional)",
-  "application_reason_label": "Application Reason",
-  "application_success": "Vote candidate application has been completed.",
-  "artist_name_hint": "Enter artist name",
-  "artist_name_label": "Artist Name",
+  "appTitle": "野餐",
+  "app_name": "Picnic (Translation needed)",
+  "application_reason_hint": "请输入申请理由（可选）",
+  "application_reason_label": "申请理由",
+  "application_success": "投票候选人申请已完成。",
+  "artist_name_hint": "请输入艺术家姓名",
+  "artist_name_label": "艺术家姓名",
   "block_user_label": "屏蔽用户",
-  "bonus_candy_awarded": "已奖励星星糖果。",
-  "button_apply_as_candidate": "候选人申请",
+  "bonus_candy_awarded": "Star candy has been awarded. (Translation needed)",
+  "button_apply_as_candidate": "Candidate Application (Translation needed)",
   "button_cancel": "取消",
   "button_complete": "完成",
   "button_login": "登录",
@@ -2068,8 +24,7 @@
   "candy_usage_policy_contents2": "使用星星糖果时，优先使用即将过期的。",
   "candy_usage_policy_guide": "* 奖励将在获得后的第二个月消失！",
   "candy_usage_policy_guide_button": "了解更多",
-  "candy_usage_policy_title": "星尘使用政策",
-  "capture_failed": "屏幕截图失败",
+  "candy_usage_policy_title": "Starchies Usage Policy (Translation needed)",
   "comments": "评论",
   "common_all": "全部",
   "common_fail": "失败",
@@ -2109,16 +64,16 @@
   "compatibility_share_message": "我的闪亮化学兼容性与 {artistName} 的百分比是多少？?我的心在狂跳",
   "compatibility_snackbar_error": "出现错误。",
   "compatibility_snackbar_need_birthday": "请输入您的出生日期。",
-  "compatibility_snackbar_need_birthtime": "请输入您的出生时间。",
+  "compatibility_snackbar_need_birthtime": "Please enter your birth time. (Translation needed)",
   "compatibility_snackbar_need_gender": "请选择性别。",
   "compatibility_snackbar_need_profile_save_agree": "同意保存您的个人资料。",
   "compatibility_snackbar_start": "开始分析兼容性。",
-  "compatibility_status_completed": "已完成",
-  "compatibility_status_error": "错误",
-  "compatibility_status_input": "打字",
-  "compatibility_status_pending": "分析",
+  "compatibility_status_completed": "Done (Translation needed)",
+  "compatibility_status_error": "Error (Translation needed)",
+  "compatibility_status_input": "Typing (Translation needed)",
+  "compatibility_status_pending": "Analyzing (Translation needed)",
   "compatibility_style_title": "兼容性样式",
-  "compatibility_summary_title": "兼容性概述",
+  "compatibility_summary_title": "Compatibility summary (Translation needed)",
   "compatibility_time_slot1": "老鼠的时刻|(23:30-01:29)|🐀",
   "compatibility_time_slot10": "鸡鸣时刻|(17:30-19:29)|🐔|(17:30-19:29)",
   "compatibility_time_slot11": "狗的时刻|(19:30-21:29)|🐕",
@@ -2136,69 +91,68 @@
   "compatibility_user_style": "用户风格",
   "compatibility_waiting_message": "请稍候。",
   "compatibility_warning_exit": "如果离开屏幕，则需要重新进行分析。",
-  "days_ago": "天前",
   "dialog_button_cancel": "取消",
   "dialog_button_ok": "确认",
   "dialog_caution": "注意事项 🚫",
   "dialog_content_ads_exhausted": "所有广告已用尽。请下次再试。",
-  "dialog_content_ads_loading": "广告正在加载。",
-  "dialog_content_ads_retrying": "广告正在重新加载。请稍后再试。",
+  "dialog_content_ads_loading": "Ads are loading. (Translation needed)",
+  "dialog_content_ads_retrying": "The ad is reloading. Please try again in a moment. (Translation needed)",
   "dialog_content_login_required": "需要登录",
-  "dialog_login_required_description": "使用此功能需要登录。您要登录吗？",
+  "dialog_login_required_description": "You need to login to use this feature. Would you like to login? (Translation needed)",
   "dialog_message_can_resignup": "如果现在取消会员资格，何时可以重新加入？",
-  "dialog_message_purchase_canceled": "您的购买已被取消。",
+  "dialog_message_purchase_canceled": "Your purchase has been canceled. (Translation needed)",
   "dialog_message_purchase_failed": "您的购买出现错误，请稍后再试。",
   "dialog_message_purchase_success": "您的购买已成功完成。",
-  "dialog_purchases_fail": "购买失败。",
-  "dialog_purchases_success": "购买完成。",
+  "dialog_purchases_fail": "The purchase failed. (Translation needed)",
+  "dialog_purchases_success": "Your purchase is complete. (Translation needed)",
   "dialog_title_ads_exhausted": "用尽所有广告",
   "dialog_title_vote_fail": "投票失败",
   "dialog_will_delete_star_candy": "将删除的星星糖果",
-  "dialog_withdraw_button_cancel": "让我再想一想。",
+  "dialog_withdraw_button_cancel": "Let me think about this one more time. (Translation needed)",
   "dialog_withdraw_button_ok": "退订",
-  "dialog_withdraw_error": "取消订阅时发生错误。",
+  "dialog_withdraw_error": "An error occurred during unsubscribe. (Translation needed)",
   "dialog_withdraw_message": "如果您取消会员资格，您在 Picnic 上的星星糖果和账户信息将被立即删除，重新加入时将无法恢复您的现有信息和数据。",
-  "dialog_withdraw_success": "退订已成功处理。",
+  "dialog_withdraw_success": "The unsubscribe was processed successfully. (Translation needed)",
   "dialog_withdraw_title": "你确定要离开吗？",
-  "download_android_button": "在 Google Play 上获取",
-  "download_apk_button": "直接下载APK文件",
-  "download_coming_soon": "即将推出",
-  "download_description": "K-Pop艺人投票与媒体平台",
-  "download_feature_media": "媒体库",
-  "download_feature_rewards": "奖励系统",
-  "download_feature_voting": "艺术家投票",
-  "download_features_title": "野餐核心功能",
-  "download_ios_button": "在 App Store 下载",
-  "download_link_copied": "已复制！",
-  "download_link_copy": "复制链接",
-  "download_page_title": "下载 Picnic 应用程序",
-  "download_qr_description": "使用智能手机扫描二维码",
-  "download_qr_title": "快速下载二维码",
-  "download_subtitle": "立即下载Picnic应用，支持你最喜欢的K-Pop艺人！",
+  "download_android_button": "Get it on Google Play (Translation needed)",
+  "download_apk_button": "Direct APK Download (Translation needed)",
+  "download_coming_soon": "Coming Soon (Translation needed)",
+  "download_description": "Voting and media platform for K-Pop artists (Translation needed)",
+  "download_feature_media": "Media Gallery (Translation needed)",
+  "download_feature_rewards": "Reward System (Translation needed)",
+  "download_feature_voting": "Artist Voting (Translation needed)",
+  "download_features_title": "Picnic Key Features (Translation needed)",
+  "download_ios_button": "Download on App Store (Translation needed)",
+  "download_link_copied": "Copied! (Translation needed)",
+  "download_link_copy": "Copy Link (Translation needed)",
+  "download_page_title": "Download Picnic App (Translation needed)",
+  "download_qr_description": "Scan the QR code with your smartphone (Translation needed)",
+  "download_qr_title": "Quick Download with QR Code (Translation needed)",
+  "download_subtitle": "Download the Picnic app now and support your favorite K-Pop artists! (Translation needed)",
   "error_action_failed": "执行操作时发生错误。",
-  "error_application_reason_required": "Application reason is required",
-  "error_artist_not_selected": "Please select an artist",
+  "error_application_reason_required": "请输入申请理由",
+  "error_artist_not_selected": "请选择艺术家",
   "error_content_parse": "解析内容时发生错误。",
   "error_delete_post": "删除帖子时出现错误。",
   "error_invalid_data": "数据无效。",
   "error_loading_more_comments": "加载评论时出现错误。",
-  "error_loading_page": "加载页面时出现错误。",
+  "error_loading_page": "An error occurred while loading the page. (Translation needed)",
   "error_message_login_failed": "登录时发生错误。",
-  "error_message_no_user": "会员信息不存在。",
+  "error_message_no_user": "The membership information doesn't exist. (Translation needed)",
   "error_message_withdrawal": "已取消订阅的会员。",
   "error_network_connection": "检查网络连接。",
   "error_request_timeout": "请求超时。",
   "error_title": "错误",
   "error_unknown": "出现未知错误。",
-  "exception_auth_message_apple_invalid_response": "我们收到来自 Apple 服务器的无效响应。\n请重试。",
-  "exception_auth_message_apple_sign_in_failed": "Apple 登录失败。\n请重试。",
-  "exception_auth_message_common_cancel": "您的登录已被取消。",
-  "exception_auth_message_common_invalid_token": "验证令牌无效。\n请重试。",
-  "exception_auth_message_common_network": "检查网络连接。",
-  "exception_auth_message_common_unknown": "登录过程中出现未知错误。\n请稍后再试。",
-  "exception_auth_message_common_unsupported_provider": "不支持该登录方法。",
-  "exception_auth_message_google_google_play_service": "Google Play 服务出现错误。\n请更新 Google Play 服务或重启设备。",
-  "exception_auth_message_kakao_not_supported": "我无法使用 KakaoTalk 应用程序登录。\n请尝试使用您的 Kakao 帐户登录。",
+  "exception_auth_message_apple_invalid_response": "We received an invalid response from the Apple server.\nPlease try again. (Translation needed)",
+  "exception_auth_message_apple_sign_in_failed": "Apple sign-in failed.\nPlease try again. (Translation needed)",
+  "exception_auth_message_common_cancel": "Your login has been canceled. (Translation needed)",
+  "exception_auth_message_common_invalid_token": "The authentication token is invalid.\nPlease try again. (Translation needed)",
+  "exception_auth_message_common_network": "Check your network connection. (Translation needed)",
+  "exception_auth_message_common_unknown": "An unknown error occurred during login.\nPlease try again in a moment. (Translation needed)",
+  "exception_auth_message_common_unsupported_provider": "This login method is not supported. (Translation needed)",
+  "exception_auth_message_google_google_play_service": "A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device. (Translation needed)",
+  "exception_auth_message_kakao_not_supported": "I can't sign in with the KakaoTalk app.\nTry signing in with your Kakao account. (Translation needed)",
   "faq_category_account": "账户",
   "faq_category_all": "全部",
   "faq_category_etc": "其他",
@@ -2231,60 +185,59 @@
   "fortune_month8": "八月财富",
   "fortune_month9": "九月财富",
   "fortune_monthly": "财富》月刊",
-  "fortune_purchase_by_one_click": "立即付款",
+  "fortune_purchase_by_one_click": "Pay Now (Translation needed)",
   "fortune_purchase_by_star_candy": "请向 Star Candy 查询",
   "fortune_relationship": "人际关系",
-  "fortune_share_hashtag": "#picnic #신년운세 #Fourtuneteller",
-  "fortune_share_message": "对 {artistName}的 2025 年财富感到好奇？现在就来 #피크닠！让我们一起探索那闪耀的命运！",
-  "fortune_title": "{year}财富",
+  "fortune_share_hashtag": "#picnic #신년운세 #Fourtuneteller (Translation needed)",
+  "fortune_share_message": "Curious about {artistName}'s 2025 fortune? Come to #피크닠 now! Let's discover that shining destiny together! (Translation needed)",
+  "fortune_title": "Fortune of {year} (Translation needed)",
   "fortune_total_title": "综合财富",
   "fortune_with_me": "Goong-Hap with me",
-  "group_name_hint": "Enter group name (optional)",
-  "group_name_label": "Group Name",
+  "group_name_hint": "请输入组合名称（可选）",
+  "group_name_label": "组合名称",
   "hint_library_add": "专辑名称",
   "hint_nickname_input": "请输入昵称。",
-  "hours_ago": "小时前",
   "image_save_success": "图像已保存。",
   "label_ads_exceeded": "您已超过此按钮的广告观看次数。",
   "label_ads_get_star_candy": "从广告中获取星星糖果",
   "label_ads_limits": "{hourly} 每小时， {daily} 每天",
   "label_ads_load_fail": "广告加载失败。请重试。",
-  "label_ads_load_timeout": "广告加载超时。请重试。",
-  "label_ads_next_available_time": "下一则广告何时发布。",
-  "label_ads_reward_fail": "获取奖励失败。请重试。",
+  "label_ads_load_timeout": "Ad loading timed out. Please try again. (Translation needed)",
+  "label_ads_next_available_time": "When the next ad will be available. (Translation needed)",
+  "label_ads_reward_fail": "Failed to get reward. Please try again. (Translation needed)",
   "label_ads_sdk_init_fail": "SDK 初始化失败。请重试。",
   "label_ads_show_fail": "显示广告失败。请重试。",
   "label_agreement_privacy": "同意收集和使用个人信息",
   "label_agreement_terms": "接受使用条款",
   "label_album_add": "添加新相册",
-  "label_area_filter_all": "All",
-  "label_area_filter_kpop": "K-POP",
-  "label_area_filter_musical": "K-MUSICAL",
+  "label_area_filter_all": "All (Translation needed)",
+  "label_area_filter_kpop": "K-POP (Translation needed)",
+  "label_area_filter_musical": "K-MUSICAL (Translation needed)",
   "label_article_comment_empty": "成为第一个发表评论的人！",
   "label_asia_recommendation": "亚洲精选",
   "label_bonus": "奖金",
   "label_button_agreement": "接受",
   "label_button_close": "닫기",
-  "label_button_disagreement": "未经同意",
-  "label_button_mission_and_charge": "使命和职责",
+  "label_button_disagreement": "Non-Consent (Translation needed)",
+  "label_button_mission_and_charge": "Mission and charge (Translation needed)",
   "label_button_recharge": "充电",
-  "label_button_save_vote_paper": "保存您的选票",
-  "label_button_share": "分享",
+  "label_button_save_vote_paper": "Save your ballot (Translation needed)",
+  "label_button_share": "Share (Translation needed)",
   "label_button_vote": "投票",
-  "label_button_vote_ended": "投票结束",
-  "label_button_vote_upcoming": "即将投票",
-  "label_button_watch_and_charge": "查看广告并收取费用",
-  "label_celeb_ask_to_you": "艺术家问你!",
+  "label_button_vote_ended": "Vote Ended (Translation needed)",
+  "label_button_vote_upcoming": "Vote Upcoming (Translation needed)",
+  "label_button_watch_and_charge": "Viewing and charging for ads (Translation needed)",
+  "label_celeb_ask_to_you": "The Artist Asks You! (Translation needed)",
   "label_celeb_gallery": "艺术家画廊",
   "label_celeb_recommend": "艺术家推荐",
   "label_checkbox_entire_use": "全面使用",
-  "label_current_language": "当前语言",
+  "label_current_language": "Current language (Translation needed)",
   "label_draw_image": "赢取随机图片的机会",
   "label_dropdown_oldest": "最老",
   "label_dropdown_recent": "最新",
-  "label_find_celeb": "寻找更多艺术家",
-  "label_gallery_tab_article": "文章",
-  "label_gallery_tab_chat": "聊天",
+  "label_find_celeb": "Find more artists (Translation needed)",
+  "label_gallery_tab_article": "Articles (Translation needed)",
+  "label_gallery_tab_chat": "Chat (Translation needed)",
   "label_global_recommendation": "全球精选",
   "label_hint_comment": "发表评论。",
   "label_input_input": "输入",
@@ -2294,13 +247,13 @@
   "label_library_tab_ai_photo": "人工智能照片",
   "label_library_tab_library": "图书馆",
   "label_library_tab_pic": "PIC",
-  "label_list_more": "更多信息",
+  "label_list_more": "More (Translation needed)",
   "label_loading_ads": "加载广告",
-  "label_loading_ads_fail": "广告无法加载",
-  "label_login_with_apple": "使用Apple登录",
-  "label_login_with_google": "使用Google登录",
-  "label_login_with_kakao": "使用Kakao登录",
-  "label_login_with_wechat": "使用微信登录",
+  "label_loading_ads_fail": "Ads fail to load (Translation needed)",
+  "label_login_with_apple": "Login with Apple (Translation needed)",
+  "label_login_with_google": "Login with Google (Translation needed)",
+  "label_login_with_kakao": "Login with Kakao (Translation needed)",
+  "label_login_with_wechat": "Login with WeChat (Translation needed)",
   "label_mission": "使命",
   "label_mission_get_star_candy": "从任务中获取星星糖果",
   "label_mission_short": "使命",
@@ -2320,22 +273,22 @@
   "label_mypage_terms_of_use": "使用条款",
   "label_mypage_vote_history": "星星糖投票历史",
   "label_mypage_withdrawal": "退出",
-  "label_no_ads": "无广告",
+  "label_no_ads": "No ads (Translation needed)",
   "label_no_celeb": "您还没有收藏任何艺术家！",
   "label_pic_chart": "PIC 图表",
-  "label_pic_image_cropping": "裁剪图像",
+  "label_pic_image_cropping": "Crop an image (Translation needed)",
   "label_pic_pic_initializing_camera": "初始化摄像机...",
   "label_pic_pic_save_gallery": "保存到图库",
   "label_pic_pic_synthesizing_image": "合成图像...",
   "label_popup_close": "关闭",
-  "label_popup_hide_7days": "隐藏7天",
+  "label_popup_hide_7days": "不查看 7 天",
   "label_read_more_comment": "更多评论",
   "label_reply": "回复",
   "label_retry": "重试",
-  "label_reward_location": "位置信息服务",
-  "label_reward_overview": "概述",
-  "label_reward_size": "大小",
-  "label_screen_title_agreement": "接受条款",
+  "label_reward_location": "Location (Translation needed)",
+  "label_reward_overview": "Overview (Translation needed)",
+  "label_reward_size": "Size (Translation needed)",
+  "label_screen_title_agreement": "Accept the terms (Translation needed)",
   "label_setting_alarm": "通知",
   "label_setting_appinfo": "应用程序信息",
   "label_setting_current_version": "当前版本",
@@ -2346,49 +299,49 @@
   "label_setting_recent_version": "最新版本",
   "label_setting_recent_version_up_to_date": "最新版本",
   "label_setting_remove_cache": "删除高速缓冲存储器",
-  "label_setting_remove_cache_complete": "已完成",
+  "label_setting_remove_cache_complete": "Done (Translation needed)",
   "label_setting_storage": "管理存储",
-  "label_setting_update": "更新",
+  "label_setting_update": "Update (Translation needed)",
   "label_star_candy_pouch": "星形糖果袋",
   "label_tab_buy_star_candy": "购买星星糖",
   "label_tab_free_charge_station": "免费充电站",
-  "label_tab_my_artist": "我的艺术家",
-  "label_tab_search_my_artist": "查找我的艺术家",
-  "label_tabbar_picchart_daily": "每日图表",
-  "label_tabbar_picchart_monthly": "月度图表",
-  "label_tabbar_picchart_weekly": "每周图表",
-  "label_tabbar_vote_active": "进行中",
-  "label_tabbar_vote_all": "全部",
-  "label_tabbar_vote_end": "退出",
-  "label_tabbar_vote_image": "Image Vote",
-  "label_tabbar_vote_upcoming": "即将推出",
+  "label_tab_my_artist": "MyArtist (Translation needed)",
+  "label_tab_search_my_artist": "Find MyArtist (Translation needed)",
+  "label_tabbar_picchart_daily": "Daily charts (Translation needed)",
+  "label_tabbar_picchart_monthly": "Monthly Charts (Translation needed)",
+  "label_tabbar_picchart_weekly": "Weekly charts (Translation needed)",
+  "label_tabbar_vote_active": "Active",
+  "label_tabbar_vote_all": "All (Translation needed)",
+  "label_tabbar_vote_end": "Ended",
+  "label_tabbar_vote_image": "图片投票",
+  "label_tabbar_vote_upcoming": "Upcoming",
   "label_time_ago_day": "{day} 日前",
   "label_time_ago_hour": "{hour} 小时前",
   "label_time_ago_minute": "{minute} 分钟前",
   "label_time_ago_right_now": "就在刚才",
-  "label_title_comment": "评论",
+  "label_title_comment": "Comments (Translation needed)",
   "label_title_report": "提交报告",
   "label_unlimited_rewards": "无限奖励",
-  "label_various_rewards": "各种奖励",
-  "label_vote_achieve": "成就投票",
-  "label_vote_birthday": "生日",
-  "label_vote_comback": "复出投票",
-  "label_vote_debut": "首次亮相",
+  "label_various_rewards": "Various rewards (Translation needed)",
+  "label_vote_achieve": "Achievement Vote (Translation needed)",
+  "label_vote_birthday": "Birthday (Translation needed)",
+  "label_vote_comback": "Comeback Vote (Translation needed)",
+  "label_vote_debut": "Debut (Translation needed)",
   "label_vote_end": "关闭投票",
-  "label_vote_image": "图片",
+  "label_vote_image": "Image (Translation needed)",
   "label_vote_reward_list": "奖励清单",
-  "label_vote_screen_title": "投票",
-  "label_vote_shining": "获得投票",
-  "label_vote_tab_birthday": "生日投票",
-  "label_vote_tab_pic": "事先知情同意投票",
+  "label_vote_screen_title": "Voting (Translation needed)",
+  "label_vote_shining": "Shining Vote (Translation needed)",
+  "label_vote_tab_birthday": "Birthday polls (Translation needed)",
+  "label_vote_tab_pic": "PIC voting (Translation needed)",
   "label_vote_upcoming": "投票开始前",
-  "label_vote_list": "投票列表",
+  "label_vote_vote_gather": "收集选票",
   "label_watch_ads": "查看广告",
   "label_watch_ads_short": "观看",
   "lable_my_celeb": "我的艺术家",
-  "login_simple_login": "便捷登录",
-  "login_simple_login_guide": "还没有账户？您将使用上面的社交登录名自动注册",
-  "login_title": "在野餐中发现特别时刻",
+  "login_simple_login": "Simple Login (Translation needed)",
+  "login_simple_login_guide": "Don't have an account? You'll be automatically signed up with your social login above (Translation needed)",
+  "login_title": "Find special moments at a picnic (Translation needed)",
   "message_agreement_success": "条款接受完毕。",
   "message_error_occurred": "出现错误。",
   "message_noitem_vote_active": "目前没有正在进行的投票。",
@@ -2396,21 +349,20 @@
   "message_noitem_vote_upcoming": "目前没有即将进行的投票。",
   "message_pic_pic_save_fail": "保存图像失败。",
   "message_pic_pic_save_success": "图像已保存。",
-  "message_report_confirm": "要报告吗？",
-  "message_report_ok": "报告已完成。",
+  "message_report_confirm": "Want to report? (Translation needed)",
+  "message_report_ok": "The report is complete. (Translation needed)",
   "message_setting_remove_cache": "缓存删除完成。",
   "message_update_nickname_fail": "昵称更改失败。\n请选择其他昵称。",
   "message_update_nickname_success": "您的昵称已成功更改。",
   "message_vote_is_ended": "投票结束",
   "message_vote_is_upcoming": "这是一次即将进行的投票。",
-  "minutes_ago": "分钟前",
   "my_info": "我的信息",
-  "mypage_comment": "管理评论",
-  "mypage_language": "语言设置",
-  "mypage_purchases": "我的采购",
+  "mypage_comment": "Manage comments (Translation needed)",
+  "mypage_language": "Language settings (Translation needed)",
+  "mypage_purchases": "My purchases (Translation needed)",
   "mypage_setting": "设置",
-  "mypage_subscription": "订阅信息",
-  "nav_ads": "广告",
+  "mypage_subscription": "Subscription information (Translation needed)",
+  "nav_ads": "Ads (Translation needed)",
   "nav_board": "执行局",
   "nav_gallery": "画廊",
   "nav_home": "首页",
@@ -2418,27 +370,27 @@
   "nav_media": "媒体",
   "nav_my": "我的",
   "nav_picchart": "PIC 图表",
-  "nav_purchases": "购买",
-  "nav_rewards": "奖励",
-  "nav_setting": "设置",
+  "nav_purchases": "Purchase (Translation needed)",
+  "nav_rewards": "Reward (Translation needed)",
+  "nav_setting": "Settings (Translation needed)",
   "nav_store": "商店",
   "nav_subscription": "订阅",
   "nav_vote": "投票",
   "nickname_validation_error": "20 个字符或更少，不包括特殊字符。",
   "no_search_results": "No search results found",
-  "optional": "可选",
+  "optional": "Optional (Translation needed)",
   "page_title_mypage": "我的页面",
   "page_title_myprofile": "我的简介",
   "page_title_post_write": "创建一个职位",
   "page_title_privacy": "隐私政策",
-  "page_title_setting": "首选项",
+  "page_title_setting": "Preferences (Translation needed)",
   "page_title_terms_of_use": "使用条款",
   "page_title_vote_detail": "投票",
-  "page_title_vote_list": "投票列表",
-  "patch_check": "检查补丁",
-  "patch_error": "补丁失败",
-  "patch_install": "安装补丁",
-  "patch_restart_app": "重启应用程序",
+  "page_title_vote_gather": "收集选票",
+  "patch_check": "Checking for patches (Translation needed)",
+  "patch_error": "Patch failed (Translation needed)",
+  "patch_install": "Installing patch (Translation needed)",
+  "patch_restart_app": "Restarting app (Translation needed)",
   "popup_label_delete": "删除",
   "post_anonymous": "匿名张贴",
   "post_ask_go_to_temporary_save_list": "想进入草稿列表吗？",
@@ -2448,7 +400,7 @@
   "post_board_create_request_label": "申请开设一个板块",
   "post_board_create_request_reviewing": "审查开板申请",
   "post_board_request_label": "公开申请",
-  "post_cannot_open_youtube": "我打不开 Youtube。",
+  "post_cannot_open_youtube": "I can't open Youtube. (Translation needed)",
   "post_comment_action_show_original": "查看全文",
   "post_comment_action_show_translation": "查看翻译",
   "post_comment_action_translate": "翻译",
@@ -2461,7 +413,7 @@
   "post_comment_register_fail": "评论注册失败。",
   "post_comment_registered_comment": "您的评论已被注册。",
   "post_comment_reported_comment": "这是据报道的评论。",
-  "post_comment_translate_complete": "翻译工作已经完成。",
+  "post_comment_translate_complete": "The translation is complete. (Translation needed)",
   "post_comment_translate_fail": "翻译失败。",
   "post_comment_translated": "已翻译",
   "post_comment_write_label": "写评论",
@@ -2475,7 +427,7 @@
   "post_hint_title": "请输入标题。",
   "post_hyperlink": "超链接",
   "post_insert_link": "插入链接",
-  "post_loading_post_fail": "帖子加载失败。",
+  "post_loading_post_fail": "The post failed to load. (Translation needed)",
   "post_minor_board_condition": "请输入至少 5 个字符、不超过 20 个字符的描述。",
   "post_minor_board_create_request_message": "* 请求开设留言板的信息。",
   "post_minor_board_create_request_message_condition": "请在申请开设留言板的信息中至少包含 10 个字符。",
@@ -2514,80 +466,71 @@
   "purchase_in_progress_message": "购买正在进行中。请稍等。",
   "purchase_initializing_message": "购买正在进行中。请稍等。",
   "purchase_payment_amount": "支付金额",
-  "purchase_restore_success_message": "购买恢复完成。\\n请检查您的星糖余额。",
-  "purchase_restore_wait_message": "购买正在进行中。完成后请重试。",
-  "purchase_timeout_message": "购买处理时间过长。\\n请稍后重试。",
+  "purchase_restore_success_message": "Purchase restoration completed.\\nPlease check your star candy balance. (Translation needed)",
+  "purchase_restore_wait_message": "Purchase is in progress. Please try again after completion. (Translation needed)",
+  "purchase_timeout_message": "Purchase processing is taking too long.\\nPlease try again later. (Translation needed)",
   "purchase_web_message": "这是为无法使用应用程序付款的用户提供的付款窗口。\n 请提前复制随机 ID。\n 复制后，点击下面的按钮进行支付。",
-  "qna_actions": "Actions",
-  "qna_answer": "Answer",
-  "qna_answered_at": "Answered at",
-  "qna_answered_by": "Answered by",
-  "qna_attached_files": "附加文件",
-  "qna_attachments": "Attachments",
-  "qna_cancel": "取消",
+  "qna_actions": "Actions (Translation needed)",
+  "qna_answer": "Answer (Translation needed)",
+  "qna_answered_at": "Answered at (Translation needed)",
+  "qna_answered_by": "Answered by (Translation needed)",
+  "qna_attached_files": "Attached Files (Translation needed)",
+  "qna_attachments": "Attachments (Translation needed)",
+  "qna_cancel": "Cancel (Translation needed)",
   "qna_content": "Content",
   "qna_content_hint": "请详细输入咨询内容",
-  "qna_content_min_length": "咨询内容至少需要10个字符",
-  "qna_content_required": "请输入咨询内容",
-  "qna_content_too_short": "内容太短",
-  "qna_create_failed": "咨询提交失败：",
-  "qna_create_first": "创建您的第一个问答",
+  "qna_content_min_length": "Inquiry content must be at least 10 characters (Translation needed)",
+  "qna_content_required": "Please enter inquiry content (Translation needed)",
+  "qna_create_failed": "Failed to submit inquiry: (Translation needed)",
   "qna_create_page_title": "创建咨询",
-  "qna_create_success": "咨询已成功提交",
-  "qna_delete": "删除",
-  "qna_delete_confirm": "删除",
-  "qna_delete_confirm_content": "是否删除此咨询？\n删除后无法恢复。",
-  "qna_delete_confirm_title": "Delete Inquiry",
-  "qna_delete_failed": "删除失败",
-  "qna_delete_success": "咨询已删除",
+  "qna_create_success": "Inquiry has been successfully submitted (Translation needed)",
+  "qna_delete": "Delete (Translation needed)",
+  "qna_delete_confirm": "Delete (Translation needed)",
+  "qna_delete_confirm_content": "Delete this inquiry?\nIt cannot be recovered after deletion. (Translation needed)",
+  "qna_delete_confirm_title": "Delete Inquiry (Translation needed)",
+  "qna_delete_failed": "Failed to delete (Translation needed)",
+  "qna_delete_success": "Inquiry has been deleted (Translation needed)",
   "qna_detail_page_title": "咨询详情",
-  "qna_download_file": "Download File",
-  "qna_edit": "编辑",
-  "qna_empty_list": "还没有问答",
-  "qna_error_message": "发生了错误",
-  "qna_file_attach_label": "附加文件",
-  "qna_file_select": "选择文件",
-  "qna_file_type_document": "Document",
-  "qna_file_type_image": "Image",
-  "qna_file_type_other": "Other",
-  "qna_file_upload_info": "• 最大可上传10MB\n• 支持格式：图片（jpg、png、gif）、文档（pdf、doc、txt）",
-  "qna_file_uploading_button": "文件上传中...",
-  "qna_list_title": "问答列表",
-  "qna_loading_error": "Error occurred while loading",
+  "qna_download_file": "Download File (Translation needed)",
+  "qna_edit": "Edit (Translation needed)",
+  "qna_file_attach_label": "File Attachment (Translation needed)",
+  "qna_file_select": "Select File (Translation needed)",
+  "qna_file_type_document": "Document (Translation needed)",
+  "qna_file_type_image": "Image (Translation needed)",
+  "qna_file_type_other": "Other (Translation needed)",
+  "qna_file_upload_info": "• Maximum 10MB upload allowed\n• Supported formats: Images (jpg, png, gif), Documents (pdf, doc, txt) (Translation needed)",
+  "qna_file_uploading_button": "File Uploading... (Translation needed)",
+  "qna_loading_error": "Error occurred while loading (Translation needed)",
   "qna_login_required": "需要登录",
   "qna_login_required_create": "创建QnA需要\n先进行登录",
   "qna_login_required_detail": "查看QnA详细信息需要\n先进行登录",
   "qna_login_required_service": "使用QnA服务需要\n先进行登录",
-  "qna_mark_resolved": "标记为已解决",
-  "qna_mark_resolved_failed": "Failed to change status",
-  "qna_mark_resolved_success": "Changed to resolved",
-  "qna_no_answer_yet": "暂无回答",
+  "qna_mark_resolved": "Mark as Resolved (Translation needed)",
+  "qna_mark_resolved_failed": "Failed to change status (Translation needed)",
+  "qna_mark_resolved_success": "Changed to resolved (Translation needed)",
+  "qna_no_answer_yet": "No answer yet (Translation needed)",
   "qna_no_inquiries": "No inquiry history",
   "qna_no_inquiries_subtitle": "If you have any questions\nfeel free to contact us anytime",
   "qna_page_title": "QnA 咨询",
-  "qna_privacy_notice": "为处理咨询，将收集并使用您输入的信息。详情请查看隐私政策。",
-  "qna_question": "Question",
-  "qna_refresh_pull": "Pull to refresh",
+  "qna_privacy_notice": "Information you enter will be collected and used for inquiry processing. Please check our privacy policy for details. (Translation needed)",
+  "qna_question": "Question (Translation needed)",
+  "qna_refresh_pull": "Pull to refresh (Translation needed)",
   "qna_statistics_answered": "Answered",
   "qna_statistics_pending": "Awaiting Response",
   "qna_statistics_resolved": "Resolved",
   "qna_statistics_title": "Inquiry Status",
   "qna_status_answered": "回答完成",
-  "qna_status_closed": "已结束",
   "qna_status_pending": "等待回答",
   "qna_status_resolved": "已解决",
   "qna_submit_button": "提交咨询",
-  "qna_submit_error": "问答提交失败",
-  "qna_submit_success": "问答提交成功",
   "qna_title": "标题",
   "qna_title_hint": "请简洁地输入咨询概要",
-  "qna_title_min_length": "标题至少需要5个字符",
-  "qna_title_required": "请输入标题",
-  "qna_title_too_short": "标题太短",
-  "qna_upload_complete": "上传完成",
-  "qna_upload_waiting": "等待上传",
-  "qna_uploading": "上传中...",
-  "qna_validation_failed": "请检查输入内容。",
+  "qna_title_min_length": "Title must be at least 5 characters (Translation needed)",
+  "qna_title_required": "Please enter a title (Translation needed)",
+  "qna_upload_complete": "Upload Complete (Translation needed)",
+  "qna_upload_waiting": "Upload Waiting (Translation needed)",
+  "qna_uploading": "Uploading... (Translation needed)",
+  "qna_validation_failed": "Please check your input. (Translation needed)",
   "qna_write_inquiry": "New Inquiry",
   "replies": "评论",
   "reward": "奖励",
@@ -2595,62 +538,54 @@
   "searching": "搜索中...",
   "seconds": "秒钟",
   "share": "分享",
-  "share_image_fail": "图像共享失败",
-  "share_image_success": "成功共享图像",
-  "share_no_twitter": "X 应用程序丢失。",
-  "share_twitter": "在 Twitter 上分享",
-  "starCandy100": "星星糖果100个",
-  "starCandy1000": "星星糖果1000个 + 奖励150个",
-  "starCandy200": "星星糖果200个 + 奖励25个",
-  "starCandy2000": "星星糖果2000个 + 奖励320个",
-  "starCandy3000": "星星糖果3000个 + 奖励540个",
-  "starCandy4000": "星星糖果4000个 + 奖励760个",
-  "starCandy5000": "星星糖果5000个 + 奖励1000个",
-  "starCandy600": "星星糖果600个 + 奖励85个",
-  "submit_application": "Submit Application",
+  "share_image_fail": "Image sharing failed (Translation needed)",
+  "share_image_success": "Shared image successfully (Translation needed)",
+  "share_no_twitter": "X app is missing. (Translation needed)",
+  "share_twitter": "Share on Twitter (Translation needed)",
+  "submit_application": "提交申请",
   "success": "成功",
   "text_achievement": "到目前为止，您已实现 ${count} 目标！🎉",
-  "text_ads_random": "查看广告并收集随机图片。",
-  "text_bonus": "奖金",
-  "text_bookmark_failed": "取消书签失败",
-  "text_bookmark_over_5": "您最多可以拥有五个书签",
-  "text_comming_soon_pic_chart1": "欢迎访问 Peek Charts！\n2024 年 11 月再见！",
-  "text_comming_soon_pic_chart2": "饼图是 Peeknick 独有的新图表，可反映每日、每周和每月的分数。\nPeeknick 反映每日、每周和每月得分的新图表。",
-  "text_comming_soon_pic_chart3": "实时反映\n艺术家的品牌声誉！",
-  "text_comming_soon_pic_chart_title": "什么是饼图？",
+  "text_ads_random": "Viewing ads and collecting random images. (Translation needed)",
+  "text_bonus": "Bonuses (Translation needed)",
+  "text_bookmark_failed": "Failed to unbookmark (Translation needed)",
+  "text_bookmark_over_5": "You can have up to five bookmarks (Translation needed)",
+  "text_comming_soon_pic_chart1": "Welcome to Peek Charts!\nSee you in November 2024! (Translation needed)",
+  "text_comming_soon_pic_chart2": "Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick's new chart that reflects daily, weekly, and monthly scores. (Translation needed)",
+  "text_comming_soon_pic_chart3": "Get a real-time reflection\nartist's brand reputation in real-time! (Translation needed)",
+  "text_comming_soon_pic_chart_title": "What is a PicChart? (Translation needed)",
   "text_community_board_search": "搜索艺术家板",
   "text_community_post_search": "搜索",
   "text_copied_address": "地址已复制。",
-  "text_dialog_ad_dismissed": "广告中途停止了。",
-  "text_dialog_ad_failed_to_show": "加载广告失败。",
-  "text_dialog_star_candy_received": "已颁发星形糖果。",
+  "text_dialog_ad_dismissed": "The ad stopped midway through. (Translation needed)",
+  "text_dialog_ad_failed_to_show": "Failed to load ads. (Translation needed)",
+  "text_dialog_star_candy_received": "Star candy has been awarded. (Translation needed)",
   "text_dialog_vote_amount_should_not_zero": "票数不能为零。",
   "text_draw_image": "确认整个图库中 1 张图片的所有权。",
   "text_hint_search": "搜索艺术家",
   "text_moveto_celeb_gallery": "导航至所选艺术家的主页。",
   "text_need_recharge": "需要充电。",
-  "text_no_artist": "无艺术家",
+  "text_no_artist": "No artist (Translation needed)",
   "text_no_search_result": "没有搜索结果。",
   "text_purchase_vat_included": "*价格包含增值税。",
   "text_star_candy": "星形糖果",
-  "text_star_candy_with_bonus": "{num1} + {num1} 奖金",
-  "text_this_time_vote": "本次投票",
+  "text_star_candy_with_bonus": "{num1} + {num1} Bonuses (Translation needed)",
+  "text_this_time_vote": "This Vote (Translation needed)",
   "text_vote_complete": "投票结束",
-  "text_vote_countdown_end": "距离结束",
-  "text_vote_countdown_start": "距离开始",
-  "text_vote_ended": "已结束",
+  "text_vote_countdown_end": "Until End (Translation needed)",
+  "text_vote_countdown_start": "Until Start (Translation needed)",
+  "text_vote_ended": "Ended (Translation needed)",
   "text_vote_rank": "排名 {rank}",
   "text_vote_rank_in_reward": "奖励排名",
-  "text_vote_reward": "{count} 奖励",
+  "text_vote_reward": "{count} reward (Translation needed)",
   "text_vote_where_is_my_bias": "我的最爱在哪？",
-  "time_days_ago": "天前",
-  "time_hours_ago": "小时前",
-  "time_just_now": "刚刚",
-  "time_minutes_ago": "分钟前",
-  "time_unit_day": "日",
-  "time_unit_hour": "小时",
-  "time_unit_minute": "分",
-  "time_unit_second": "秒",
+  "time_days_ago": "days ago (Translation needed)",
+  "time_hours_ago": "hours ago (Translation needed)",
+  "time_just_now": "just now (Translation needed)",
+  "time_minutes_ago": "minutes ago (Translation needed)",
+  "time_unit_day": "D (Translation needed)",
+  "time_unit_hour": "H (Translation needed)",
+  "time_unit_minute": "M (Translation needed)",
+  "time_unit_second": "S (Translation needed)",
   "title_dialog_library_add": "添加新相册",
   "title_dialog_success": "成功",
   "title_select_language": "选择语言",
@@ -2658,42 +593,89 @@
   "update_button": "更新",
   "update_cannot_open_appstore": "我无法打开应用程序商店。",
   "update_recommend_text": "新版本 ({version}) 已发布。",
-  "update_required_message": "要继续使用应用程序，您需要更新到新版本。",
   "update_required_text": "您需要更新到新版本 ({version})。",
   "update_required_title": "需要更新。",
   "views": "意见",
-  "vote_item_request_addition_request": "投票项添加请求",
-  "vote_item_request_already_applied_artist": "您已为该艺术家提交过申请。",
-  "vote_item_request_already_registered": "已经注册",
-  "vote_item_request_artist_name_missing": "艺术家名称缺失",
-  "vote_item_request_button": "申请投票候选人",
-  "vote_item_request_can_apply": "可申请",
-  "vote_item_request_count": "申请数量",
+  "vote_item_request_addition_request": "投票项目添加请求",
+  "vote_item_request_already_applied_artist": "You have already applied for this artist.",
+  "vote_item_request_already_registered": "已注册",
+  "vote_item_request_artist_name_missing": "艺术家姓名缺失",
+  "vote_item_request_button": "申请投票",
+  "vote_item_request_can_apply": "Can apply",
+  "vote_item_request_count": "count (Translation needed)",
   "vote_item_request_current_item_request": "当前项目请求",
-  "vote_item_request_item_request_count": "{count} 项目请求",
-  "vote_item_request_no_item_request_yet": "尚未收到任何项目请求",
-  "vote_item_request_no_search_results": "未找到搜索结果",
-  "vote_item_request_search_artist": "搜索艺术家",
-  "vote_item_request_search_artist_hint": "搜索艺术家或乐队",
-  "vote_item_request_search_artist_prompt": "搜索要申请的艺术家",
+  "vote_item_request_item_request_count": "{count}个项目请求",
+  "vote_item_request_no_item_request_yet": "暂无项目请求",
+  "vote_item_request_search_artist": "Search Artist",
+  "vote_item_request_search_artist_hint": "Search for artist or group",
+  "vote_item_request_search_artist_prompt": "搜索艺术家进行申请",
   "vote_item_request_status": "申请状态",
   "vote_item_request_status_approved": "已批准",
-  "vote_item_request_status_cancelled": "已取消",
-  "vote_item_request_status_in_progress": "正在处理中",
-  "vote_item_request_status_pending": "待处理",
+  "vote_item_request_status_cancelled": "Cancelled",
+  "vote_item_request_status_in_progress": "In Progress",
+  "vote_item_request_status_pending": "等待中",
   "vote_item_request_status_rejected": "已拒绝",
-  "vote_item_request_status_unknown": "未知",
-  "vote_item_request_submit": "提交",
-  "vote_item_request_title": "投票艺术家请求",
-  "vote_item_request_total_item_requests": "总 {count} 项请求",
-  "vote_item_request_user_info_not_found": "用户信息未找到。",
-  "vote_item_request_waiting": "等待中",
-  "vote_period": "Vote Period",
-  "vote_result_save_button": "保存结果",
-  "vote_result_share_button": "分享您的成果",
+  "vote_item_request_status_unknown": "Unknown",
+  "vote_item_request_submit": "提交申请",
+  "vote_item_request_title": "Vote Candidate Application",
+  "vote_item_request_total_item_requests": "总共{count}个项目请求",
+  "vote_item_request_user_info_not_found": "找不到用户信息。",
+  "vote_period": "投票期间",
+  "vote_result_save_button": "Save the results (Translation needed)",
+  "vote_result_share_button": "Share your results (Translation needed)",
   "vote_share_message": "投了赞成票！",
-  "voting_limit_text": "为防止流量激增，每次使用总量限制为 10,000 次。",
-  "voting_limit_warning": "最多只允许 10 000 人。",
+  "voting_limit_text": "To prevent traffic surges, total usage is limited to 10,000 at a time. (Translation needed)",
+  "voting_limit_warning": "Only up to 10,000 is allowed. (Translation needed)",
   "voting_share_benefit_text": "每 100 次投票和分享可获得 1 颗奖励星星糖果！",
-  "withdrawal_success": "退订已成功处理。"
+  "withdrawal_success": "退订已成功处理。",
+  "cancel": "Cancel (Translation needed)",
+  "confirm": "Confirm (Translation needed)",
+  "loading": "Loading... (Translation needed)",
+  "just_now": "Just now (Translation needed)",
+  "retry": "Retry (Translation needed)",
+  "update": "Update (Translation needed)",
+  "ban_title": "账户停用",
+  "ban_message": "由于违反社区准则，您的账户已被暂时停用。",
+  "ban_contact": "如有问题，请联系客户服务。",
+  "compatibility_empty_state_title": "No compatibility information (Translation needed)",
+  "compatibility_empty_state_subtitle": "Create your first compatibility! (Translation needed)",
+  "network_error_title": "Network Error (Translation needed)",
+  "network_error_message": "Please check your internet connection. (Translation needed)",
+  "notice_pinned": "Pinned (Translation needed)",
+  "message_agreement_fail": "Terms agreement required (Translation needed)",
+  "title_dialog_error": "Error (Translation needed)",
+  "capture_failed": "Screen capture failed (Translation needed)",
+  "days_ago": "{days} days ago (Translation needed)",
+  "hours_ago": "{hours} hours ago (Translation needed)",
+  "minutes_ago": "{minutes} minutes ago (Translation needed)",
+  "qna_answer_title": "Answer (Translation needed)",
+  "qna_content_too_short": "Content is too short (Translation needed)",
+  "qna_create_first": "Create your first Q&A (Translation needed)",
+  "qna_created_at": "Created at (Translation needed)",
+  "qna_empty_list": "No Q&A items (Translation needed)",
+  "qna_error_message": "Error loading Q&A (Translation needed)",
+  "qna_info_title": "Q&A Information (Translation needed)",
+  "qna_list_title": "Q&A List (Translation needed)",
+  "qna_load_error": "Failed to load Q&A (Translation needed)",
+  "qna_private": "Private (Translation needed)",
+  "qna_public": "Public (Translation needed)",
+  "qna_public_option": "Make public (Translation needed)",
+  "qna_public_status": "Public status (Translation needed)",
+  "qna_status": "Status (Translation needed)",
+  "qna_status_closed": "Closed (Translation needed)",
+  "qna_submit_error": "Failed to submit Q&A (Translation needed)",
+  "qna_submit_success": "Q&A submitted successfully (Translation needed)",
+  "qna_title_too_short": "Title is too short (Translation needed)",
+  "qna_updated_at": "Updated at (Translation needed)",
+  "update_required_message": "App update required (Translation needed)",
+  "vote_item_request_no_search_results": "No search results (Translation needed)",
+  "vote_item_request_waiting": "Waiting... (Translation needed)",
+  "starCandy100": "Star Candy 100 (Translation needed)",
+  "starCandy1000": "Star Candy 1,000 (Translation needed)",
+  "starCandy200": "Star Candy 200 (Translation needed)",
+  "starCandy2000": "Star Candy 2,000 (Translation needed)",
+  "starCandy3000": "Star Candy 3,000 (Translation needed)",
+  "starCandy4000": "Star Candy 4,000 (Translation needed)",
+  "starCandy5000": "Star Candy 5,000 (Translation needed)",
+  "starCandy600": "Star Candy 600 (Translation needed)"
 }
