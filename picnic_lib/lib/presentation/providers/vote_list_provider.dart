@@ -7,7 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 part '../../generated/providers/vote_list_provider.g.dart';
 
-enum VoteStatus { all, active, end, upcoming, activeAndUpcoming }
+enum VoteStatus { all, active, end, upcoming, activeAndUpcoming, debug }
 
 enum VoteCategory { all, birthday, comeback, achieve, birth, debut, image }
 
@@ -21,10 +21,22 @@ class AsyncVoteList extends _$AsyncVoteList {
       {VotePortal votePortal = VotePortal.vote,
       required VoteStatus status,
       required VoteCategory category}) async {
+    // 🚨🚨🚨 빌드 메서드 호출 로깅
+    print('🚨🚨🚨 AsyncVoteList.build 메서드 시작');
+    print(
+        '🔍 파라미터: status=$status, category=$category, area=$area, page=$page, limit=$limit');
+
+    if (status == VoteStatus.debug) {
+      print('🚨🚨🚨🚨🚨 디버그 모드로 build 메서드 진입 확인됨!');
+    }
+
+    // 정렬 키가 타임스탬프를 포함하는 경우 실제 정렬은 id로 처리
+    final actualSort = sort.startsWith('id_') ? 'id' : sort;
+
     return await _fetchPage(
       page: page,
       limit: limit,
-      sort: sort,
+      sort: actualSort,
       order: order,
       votePortal: votePortal,
       category: category.name,
@@ -68,15 +80,15 @@ class AsyncVoteList extends _$AsyncVoteList {
             )
           ''');
 
-      // area가 'all'이 아닌 경우에만 area 필터 적용
-      if (area != 'all') {
+      // 디버그 모드가 아닌 경우에만 area 필터 적용
+      if (area != 'all' && status != VoteStatus.debug) {
         query = query.eq('area', area);
       }
 
       query = query.filter('deleted_at', 'is', null);
 
-      // 카테고리 필터 적용 ('all'이 아닌 경우에만)
-      if (category != 'all') {
+      // 디버그 모드가 아닌 경우에만 카테고리 필터 적용
+      if (category != 'all' && status != VoteStatus.debug) {
         query = query.eq('vote_category', category);
       }
 
@@ -93,6 +105,19 @@ class AsyncVoteList extends _$AsyncVoteList {
         query = query.lt('visible_at', 'now()').gt('stop_at', 'now()');
         sort = 'stop_at';
         order = 'ASC';
+      } else if (status == VoteStatus.debug) {
+        // 🚨🚨🚨 디버그 모드: 기존 쿼리 구조 유지하되 필터만 제거
+        print('🚨🚨🚨 디버그 모드 활성화됨! 모든 필터 제거');
+        print(
+            '📋 목표 SQL: SELECT * FROM $voteTable WHERE deleted_at IS NULL ORDER BY id DESC');
+
+        // 디버그 모드에서는 area, category 필터를 적용하지 않음
+        // (이미 위에서 적용된 필터들은 그대로 두고, 날짜 조건만 제거)
+        // id 역순 정렬 강제 적용
+        sort = 'id';
+        order = 'DESC';
+
+        print('🚨🚨🚨 디버그 모드: 모든 날짜 조건 제거, id DESC 정렬');
       }
 
       // area가 'all'인 경우 kpop을 먼저 보여주기 위한 정렬 추가
@@ -107,22 +132,56 @@ class AsyncVoteList extends _$AsyncVoteList {
             .range(offset, offset + limit - 1);
       }
 
-      // 각 투표에 대해 상위 3개 vote_item만 유지하여 메모리 사용량 최적화
-      final optimizedResponse = response.map((voteData) {
-        if (voteData[voteItemTable] is List) {
-          final voteItems = voteData[voteItemTable] as List;
-          // vote_total 기준으로 정렬하고 상위 3개만 유지
-          voteItems.sort(
-              (a, b) => (b['vote_total'] ?? 0).compareTo(a['vote_total'] ?? 0));
-          voteData[voteItemTable] = voteItems.take(3).toList();
+      // 디버그 모드가 아닌 경우에만 vote_item 최적화 수행
+      List<dynamic> finalResponse;
+      if (status == VoteStatus.debug) {
+        // 디버그 모드: vote_item이 없으므로 빈 배열 추가하여 JSON 파싱 오류 방지
+        print('🚨🚨🚨 디버그 모드: vote_item 필드를 빈 배열로 추가');
+        finalResponse = response.map((voteData) {
+          voteData[voteItemTable] = []; // 빈 vote_item 배열 추가
+          return voteData;
+        }).toList();
+      } else {
+        // 일반 모드: 각 투표에 대해 상위 3개 vote_item만 유지
+        finalResponse = response.map((voteData) {
+          if (voteData[voteItemTable] is List) {
+            final voteItems = voteData[voteItemTable] as List;
+            // vote_total 기준으로 정렬하고 상위 3개만 유지
+            voteItems.sort((a, b) =>
+                (b['vote_total'] ?? 0).compareTo(a['vote_total'] ?? 0));
+            voteData[voteItemTable] = voteItems.take(3).toList();
+          }
+          return voteData;
+        }).toList();
+      }
+
+      final result = finalResponse.map((e) => VoteModel.fromJson(e)).toList();
+
+      // 디버그 상태에서 결과 상세 로그 출력
+      if (status == VoteStatus.debug) {
+        print('🚨🚨🚨 디버그 쿼리 결과 분석:');
+        print('📊 총 ${result.length}개 투표 반환됨 (페이지 $page, 제한 $limit)');
+
+        if (result.isNotEmpty) {
+          print('📋 투표 목록:');
+          for (int i = 0; i < result.length && i < 10; i++) {
+            final vote = result[i];
+            final title =
+                vote.title['ko'] ?? vote.title['en'] ?? 'Unknown Title';
+            print('  ${i + 1}. [${vote.id}] $title');
+            print('     시작: ${vote.startAt}');
+            print('     종료: ${vote.stopAt}');
+            print('     공개: ${vote.visibleAt}');
+            print('     ---');
+          }
+
+          if (result.length > 10) {
+            print('... 외 ${result.length - 10}개 더');
+          }
+        } else {
+          print('❌ 반환된 투표 없음');
         }
-        return voteData;
-      }).toList();
-
-      final result =
-          optimizedResponse.map((e) => VoteModel.fromJson(e)).toList();
-
-
+      }
 
       return result;
     } catch (e, s) {

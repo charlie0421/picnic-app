@@ -24,6 +24,7 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -601,72 +602,74 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                 .text_no_search_result),
                           ),
                         )
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: filteredIndices.length,
-                          itemBuilder: (context, index) {
-                            logger.d(
-                                '📋 ListView.builder 아이템 빌드 - index: $index');
+                      : Column(
+                          children: [
+                            for (int index = 0; index < filteredIndices.length; index++)
+                              Builder(
+                                builder: (context) {
+                                  logger.d(
+                                      '📋 ListView.builder 아이템 빌드 - index: $index');
 
-                            // 안전성 체크 추가
-                            if (index >= filteredIndices.length) {
-                              logger.w(
-                                  '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}');
-                              return const SizedBox.shrink();
-                            }
+                                  // 안전성 체크 추가
+                                  if (index >= filteredIndices.length) {
+                                    logger.w(
+                                        '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}');
+                                    return const SizedBox.shrink();
+                                  }
 
-                            final itemIndex = filteredIndices[index];
-                            if (itemIndex >= data.length) {
-                              logger.w(
-                                  '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}');
-                              return const SizedBox.shrink();
-                            }
+                                  final itemIndex = filteredIndices[index];
+                                  if (itemIndex >= data.length) {
+                                    logger.w(
+                                        '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}');
+                                    return const SizedBox.shrink();
+                                  }
 
-                            final item = data[itemIndex];
-                            if (item == null) {
-                              logger.w('📋 null 아이템 - itemIndex: $itemIndex');
-                              return const SizedBox.shrink();
-                            }
+                                  final item = data[itemIndex];
+                                  if (item == null) {
+                                    logger.w('📋 null 아이템 - itemIndex: $itemIndex');
+                                    return const SizedBox.shrink();
+                                  }
 
-                            logger.d(
-                                '📋 아이템 빌드 준비 - Item ID: ${item.id}, originalIndex: $itemIndex, listIndex: $index');
+                                  logger.d(
+                                      '📋 아이템 빌드 준비 - Item ID: ${item.id}, originalIndex: $itemIndex, listIndex: $index');
 
-                            final previousVoteCount =
-                                _previousVoteCounts[item.id] ?? item.voteTotal;
-                            final voteCountDiff =
-                                item.voteTotal! - previousVoteCount!;
-                            final actualRank = _currentRanks[item.id] ?? 1;
-                            final previousRank =
-                                _previousRanks[item.id] ?? actualRank;
-                            final rankChanged = previousRank != actualRank;
+                                  final previousVoteCount =
+                                      _previousVoteCounts[item.id] ?? item.voteTotal;
+                                  final voteCountDiff =
+                                      item.voteTotal! - previousVoteCount!;
+                                  final actualRank = _currentRanks[item.id] ?? 1;
+                                  final previousRank =
+                                      _previousRanks[item.id] ?? actualRank;
+                                  final rankChanged = previousRank != actualRank;
 
-                            // PostFrameCallback을 더 안전하게 처리
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              if (mounted) {
-                                _previousVoteCounts[item.id] = item.voteTotal!;
-                                _previousRanks[item.id] = actualRank;
-                              }
-                            });
+                                  // PostFrameCallback을 더 안전하게 처리
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (mounted) {
+                                      _previousVoteCounts[item.id] = item.voteTotal!;
+                                      _previousRanks[item.id] = actualRank;
+                                    }
+                                  });
 
-                            return RepaintBoundary(
-                              key: ValueKey(
-                                  'vote_item_${item.id}'), // 검색어 제거하여 안정적인 키 사용
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: 16), // 24에서 16으로 더 감소
-                                child: _buildVoteItemWithHighlight(
-                                  item: item,
-                                  index: itemIndex,
-                                  actualRank: actualRank,
-                                  voteCountDiff: voteCountDiff,
-                                  rankChanged: rankChanged,
-                                  rankUp: previousRank > actualRank,
-                                  searchQuery: _searchQuery,
-                                ),
+                                  return RepaintBoundary(
+                                    key: ValueKey(
+                                        'vote_item_${item.id}'), // 검색어 제거하여 안정적인 키 사용
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          bottom: 16), // 24에서 16으로 더 감소
+                                      child: _buildVoteItemWithHighlight(
+                                        item: item,
+                                        index: itemIndex,
+                                        actualRank: actualRank,
+                                        voteCountDiff: voteCountDiff,
+                                        rankChanged: rankChanged,
+                                        rankUp: previousRank > actualRank,
+                                        searchQuery: _searchQuery,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                          ],
                         ),
                 ),
               ),
@@ -698,6 +701,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     required bool rankUp,
     required String searchQuery,
   }) {
+    logger.d('🔥 _buildVoteItemWithHighlight 호출됨 - index: $index');
     // 검색어가 있을 때는 커스텀 위젯을 만들어서 하이라이트 적용
     if (searchQuery.isNotEmpty) {
       return _buildCustomVoteItemWithHighlight(
@@ -721,7 +725,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       rankUp: rankUp,
       isEnded: isEnded,
       isSaving: _isSaving,
-      onTap: () => _handleVoteItemTap(context, item, index),
+      onTap: () {
+        logger.d('🔥 onTap: onTap');
+        _handleVoteItemTap(context, item, index);
+      },
       artistImage: _buildArtistImage(item, index),
       voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
       rankText: _buildRankText(actualRank, item),
@@ -1084,7 +1091,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         return _buildImagePlaceholder();
       },
       errorWidget: (context, url, error) {
-        logger.e('🖼️ 이미지 로딩 실패: $url, 에러: $error');
+        // logger.e('🖼️ 이미지 로딩 실패: $url, 에러: $error');
         // 에러 발생 시 PicnicCachedNetworkImage로 fallback
         return _buildPicnicImageFallback(imageUrl);
       },
@@ -1216,6 +1223,36 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   void _handleVoteItemTap(BuildContext context, VoteItemModel item, int index) {
+    logger.d('🔥 _handleVoteItemTap 호출됨 - index: $index');
+    final isAdmin =
+        ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
+            false;
+    final isJmaVote = ref
+            .read(asyncVoteDetailProvider(
+                voteId: widget.voteId, votePortal: widget.votePortal))
+            .value!
+            .partner
+            ?.toLowerCase() ==
+        'jma';
+
+    logger.d('🔥 isAdmin: $isAdmin');
+    logger.d('🔥 isJmaVote: $isJmaVote');
+
+    if (isAdmin && isJmaVote) {
+      isSupabaseLoggedSafely
+          ? showVotingDialog(
+              context: context,
+              voteModel: ref
+                  .read(asyncVoteDetailProvider(
+                      voteId: widget.voteId, votePortal: widget.votePortal))
+                  .value!,
+              voteItemModel: item,
+              portalType: widget.votePortal,
+            )
+          : showRequireLoginDialog();
+      return;
+    }
+
     if (isEnded) {
       showSimpleDialog(
           content: AppLocalizations.of(context).message_vote_is_ended);

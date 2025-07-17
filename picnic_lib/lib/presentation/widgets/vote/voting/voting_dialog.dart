@@ -22,6 +22,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -31,6 +32,39 @@ Future showVotingDialog({
   required VoteItemModel voteItemModel,
   VotePortal portalType = VotePortal.vote,
 }) {
+  // PIC에서는 JMA 보팅 대신 일반 보팅 사용
+  if (portalType == VotePortal.pic) {
+    return showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return VotingDialog(
+          voteModel: voteModel,
+          voteItemModel: voteItemModel,
+          portalType: portalType,
+        );
+      },
+    );
+  }
+
+  // partner가 'jma'인 경우에만 JMA 투표 다이얼로그 사용
+  print('🔍 VoteModel 파트너십 정보:');
+  print('   - isPartnership: ${voteModel.isPartnership}');
+  print('   - partner: "${voteModel.partner}"');
+  print('   - partner?.toLowerCase(): "${voteModel.partner?.toLowerCase()}"');
+  print('   - JMA 조건 매칭: ${voteModel.partner?.toLowerCase() == 'jma'}');
+
+  if (voteModel.partner?.toLowerCase() == 'jma') {
+    print('✅ JMA 투표 다이얼로그 사용');
+    return showJmaVotingDialog(
+      context: context,
+      voteModel: voteModel,
+      voteItemModel: voteItemModel,
+      portalType: portalType,
+    );
+  }
+
+  // 그 외의 경우는 일반 투표 다이얼로그 사용
   return showDialog(
     context: context,
     barrierDismissible: true,

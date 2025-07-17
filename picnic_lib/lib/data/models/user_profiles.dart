@@ -17,6 +17,7 @@ class UserProfilesModel with _$UserProfilesModel {
     @JsonKey(name: 'is_admin') required bool? isAdmin,
     @JsonKey(name: 'star_candy') required int? starCandy,
     @JsonKey(name: 'star_candy_bonus') required int? starCandyBonus,
+    @JsonKey(name: 'jma_candy') required int? jmaCandy,
     @JsonKey(name: 'birth_date') DateTime? birthDate,
     @JsonKey(name: 'gender') String? gender,
     @JsonKey(name: 'birth_time') String? birthTime,

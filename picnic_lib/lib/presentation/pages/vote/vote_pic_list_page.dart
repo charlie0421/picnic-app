@@ -6,6 +6,7 @@ import 'package:picnic_lib/presentation/common/area_selector.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 
 class VotePicListPage extends ConsumerStatefulWidget {
   const VotePicListPage({super.key});
@@ -15,6 +16,85 @@ class VotePicListPage extends ConsumerStatefulWidget {
 }
 
 class _VotePicListPageState extends ConsumerState<VotePicListPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final _pageStorageBucket = PageStorageBucket();
+  static const String _tabIndexKey = 'vote_pic_list_tab_index';
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeTabController();
+  }
+
+  void _initializeTabController() {
+    final savedIndex = PageStorage.of(context).readState(
+          context,
+          identifier: _tabIndexKey,
+        ) as int? ??
+        0;
+
+    final tabLength = _isAdmin ? 4 : 3;
+    _tabController = TabController(
+      length: tabLength,
+      vsync: this,
+      initialIndex: savedIndex < tabLength ? savedIndex : 0,
+    );
+
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        PageStorage.of(context).writeState(
+          context,
+          _tabController.index,
+          identifier: _tabIndexKey,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final setting = ref.watch(appSettingProvider);
+    final area = setting.area;
+
+    // 사용자 정보를 확인하여 관리자인지 체크
+    final userInfo = ref.watch(userInfoProvider);
+    userInfo.whenData((user) {
+      final newIsAdmin = user?.isAdmin == true;
+      if (newIsAdmin != _isAdmin) {
+        // 관리자 상태가 변경되면 페이지를 다시 빌드하기 위해 Key 변경
+        _isAdmin = newIsAdmin;
+      }
+    });
+
+    // 관리자 상태에 따라 고유한 Key 생성하여 위젯 재생성
+    return VotePicListContent(
+      key: ValueKey('vote_pic_list_${area}_$_isAdmin'),
+      isAdmin: _isAdmin,
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+}
+
+class VotePicListContent extends ConsumerStatefulWidget {
+  final bool isAdmin;
+
+  const VotePicListContent({
+    super.key,
+    required this.isAdmin,
+  });
+
+  @override
+  ConsumerState<VotePicListContent> createState() => _VotePicListContentState();
+}
+
+class _VotePicListContentState extends ConsumerState<VotePicListContent>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _pageStorageBucket = PageStorageBucket();
@@ -30,14 +110,19 @@ class _VotePicListPageState extends ConsumerState<VotePicListPage>
         ) as int? ??
         0;
 
+    final tabLength = widget.isAdmin ? 4 : 3;
     _tabController = TabController(
-      length: 3,
+      length: tabLength,
       vsync: this,
-      initialIndex: savedIndex,
+      initialIndex: savedIndex < tabLength ? savedIndex : 0,
     );
 
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
+        print('🔄 Pic 탭 변경됨: ${_tabController.index} (관리자: ${widget.isAdmin})');
+        if (widget.isAdmin && _tabController.index == 3) {
+          print('🚨🚨🚨 Pic 디버그 탭(3번)으로 변경됨!');
+        }
         PageStorage.of(context).writeState(
           context,
           _tabController.index,
@@ -45,14 +130,13 @@ class _VotePicListPageState extends ConsumerState<VotePicListPage>
         );
       }
     });
-
-    // Navigation 설정은 부모 페이지(PicChartPage)에서 처리
   }
 
   @override
   Widget build(BuildContext context) {
     final setting = ref.watch(appSettingProvider);
     final area = setting.area;
+
     return PageStorage(
       bucket: _pageStorageBucket,
       child: Column(
@@ -82,24 +166,51 @@ class _VotePicListPageState extends ConsumerState<VotePicListPage>
                 Tab(
                     text: AppLocalizations.of(context)
                         .label_tabbar_vote_upcoming),
+                if (widget.isAdmin) const Tab(text: '(Admin)'),
               ],
             ),
           ),
           Expanded(
             child: TabBarView(
-              key: ValueKey(area),
               controller: _tabController,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                // 모든 탭에서 image 카테고리만 표시
-                VoteList(VoteStatus.active, VoteCategory.image, area),
-                VoteList(VoteStatus.end, VoteCategory.image, area),
-                VoteList(VoteStatus.upcoming, VoteCategory.image, area),
+                _buildTabContent(VoteStatus.active, area, 0),
+                _buildTabContent(VoteStatus.end, area, 1),
+                _buildTabContent(VoteStatus.upcoming, area, 2),
+                if (widget.isAdmin) _buildTabContent(VoteStatus.debug, area, 3),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// 탭별 컨텐츠를 lazy loading으로 빌드
+  Widget _buildTabContent(VoteStatus status, String area, int tabIndex) {
+    // 현재 선택된 탭만 로딩
+    return AnimatedBuilder(
+      animation: _tabController,
+      builder: (context, child) {
+        // 현재 탭이거나 인접한 탭만 빌드 (성능 최적화)
+        // 디버그 탭은 항상 빌드되도록 예외 처리
+        final currentIndex = _tabController.index;
+        final shouldBuild =
+            (currentIndex - tabIndex).abs() <= 1 || status == VoteStatus.debug;
+
+        // 디버그 탭 선택 시 로그 추가
+        if (status == VoteStatus.debug && currentIndex == tabIndex) {
+          print(
+              '🚨🚨🚨 디버그 탭 선택됨! (Pic) currentIndex: $currentIndex, tabIndex: $tabIndex');
+        }
+
+        if (!shouldBuild) {
+          return const SizedBox.shrink();
+        }
+
+        return VoteList(status, VoteCategory.image, area);
+      },
     );
   }
 

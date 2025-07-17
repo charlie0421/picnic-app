@@ -38,7 +38,7 @@ final agreementProvider = AutoDisposeFutureProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AgreementRef = AutoDisposeFutureProviderRef<bool>;
-String _$expireBonusHash() => r'e12174725f2a41af9098a049f2c5779245b9394d';
+String _$expireBonusHash() => r'ae616808fd747b910d93d80bdbf08a90d3e4d009';
 
 /// See also [expireBonus].
 @ProviderFor(expireBonus)

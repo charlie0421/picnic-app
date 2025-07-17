@@ -112,7 +112,9 @@ class _MyPageState extends ConsumerState<MyPage> {
                           .read(navigationInfoProvider.notifier)
                           .setCurrentMyPage(const FAQPage())),
                   // QnA
-                  if (data != null && data.id != null)
+                  if (data != null &&
+                      data.id != null &&
+                      (data.isAdmin ?? false))
                     PicnicListItem(
                         leading: AppLocalizations.of(context).qna_page_title,
                         assetPath: 'assets/icons/arrow_right_style=line.svg',

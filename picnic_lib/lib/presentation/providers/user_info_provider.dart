@@ -194,7 +194,8 @@ Future<bool> agreement(Ref ref) async {
 Future<List<Map<String, dynamic>?>?> expireBonus(Ref ref) async {
   logger.i('Calculating expire bonus');
   try {
-    final response = await supabase.rpc('get_expiring_bonus_prediction');
+    final response = await supabase
+        .rpc('get_expiring_bonus_prediction_v2', params: {'uri': ''});
     if (response != null && response is List) {
       logger.i('Expire bonus calculated: $response');
       return List<Map<String, dynamic>>.from(response);

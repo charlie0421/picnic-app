@@ -40,19 +40,38 @@ class _VoteListState extends ConsumerState<VoteList> {
   }
 
   Future<void> _fetchVotes() async {
+    // 디버그 상태 로그 추가
+    if (widget.status == VoteStatus.debug) {
+      print('🚨🚨🚨 VoteList._fetchVotes 호출됨 - 디버그 모드');
+      print(
+          '📍 파라미터: status=${widget.status}, category=${widget.category}, area=${widget.area}');
+      print('📍 페이지: $_pageKey, 사이즈: $_pageSize');
+      print('📍 정렬: id DESC (고정값)');
+      print('📍 Provider 호출 시작...');
+    }
+
     _setStateIfMounted(() {
       _isLoading = true;
     });
     try {
+      // 디버그 모드에서는 타임스탬프를 추가하여 캐시 회피
+      final sortKey = widget.status == VoteStatus.debug
+          ? 'id_${DateTime.now().millisecondsSinceEpoch}'
+          : 'id';
+
       final newItems = await ref.read(asyncVoteListProvider(
         _pageKey,
         _pageSize,
-        'id',
+        sortKey,
         'DESC',
         widget.area,
         status: widget.status,
         category: widget.category,
       ).future);
+
+      if (widget.status == VoteStatus.debug) {
+        print('🚨🚨🚨 VoteList._fetchVotes 결과: ${newItems.length}개 아이템');
+      }
 
       _setStateIfMounted(() {
         _items.addAll(newItems);
@@ -63,6 +82,9 @@ class _VoteListState extends ConsumerState<VoteList> {
         }
       });
     } catch (e) {
+      if (widget.status == VoteStatus.debug) {
+        print('🚨🚨🚨 VoteList._fetchVotes 오류: $e');
+      }
       _setStateIfMounted(() {
         _isLoading = false;
         _isFetchingMore = false;

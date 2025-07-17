@@ -38,6 +38,8 @@ mixin _$UserProfilesModel {
   int? get starCandy => throw _privateConstructorUsedError;
   @JsonKey(name: 'star_candy_bonus')
   int? get starCandyBonus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'jma_candy')
+  int? get jmaCandy => throw _privateConstructorUsedError;
   @JsonKey(name: 'birth_date')
   DateTime? get birthDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'gender')
@@ -71,6 +73,7 @@ abstract class $UserProfilesModelCopyWith<$Res> {
       @JsonKey(name: 'is_admin') bool? isAdmin,
       @JsonKey(name: 'star_candy') int? starCandy,
       @JsonKey(name: 'star_candy_bonus') int? starCandyBonus,
+      @JsonKey(name: 'jma_candy') int? jmaCandy,
       @JsonKey(name: 'birth_date') DateTime? birthDate,
       @JsonKey(name: 'gender') String? gender,
       @JsonKey(name: 'birth_time') String? birthTime});
@@ -102,6 +105,7 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
     Object? isAdmin = freezed,
     Object? starCandy = freezed,
     Object? starCandyBonus = freezed,
+    Object? jmaCandy = freezed,
     Object? birthDate = freezed,
     Object? gender = freezed,
     Object? birthTime = freezed,
@@ -142,6 +146,10 @@ class _$UserProfilesModelCopyWithImpl<$Res, $Val extends UserProfilesModel>
       starCandyBonus: freezed == starCandyBonus
           ? _value.starCandyBonus
           : starCandyBonus // ignore: cast_nullable_to_non_nullable
+              as int?,
+      jmaCandy: freezed == jmaCandy
+          ? _value.jmaCandy
+          : jmaCandy // ignore: cast_nullable_to_non_nullable
               as int?,
       birthDate: freezed == birthDate
           ? _value.birthDate
@@ -191,6 +199,7 @@ abstract class _$$UserProfilesModelImplCopyWith<$Res>
       @JsonKey(name: 'is_admin') bool? isAdmin,
       @JsonKey(name: 'star_candy') int? starCandy,
       @JsonKey(name: 'star_candy_bonus') int? starCandyBonus,
+      @JsonKey(name: 'jma_candy') int? jmaCandy,
       @JsonKey(name: 'birth_date') DateTime? birthDate,
       @JsonKey(name: 'gender') String? gender,
       @JsonKey(name: 'birth_time') String? birthTime});
@@ -221,6 +230,7 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
     Object? isAdmin = freezed,
     Object? starCandy = freezed,
     Object? starCandyBonus = freezed,
+    Object? jmaCandy = freezed,
     Object? birthDate = freezed,
     Object? gender = freezed,
     Object? birthTime = freezed,
@@ -262,6 +272,10 @@ class __$$UserProfilesModelImplCopyWithImpl<$Res>
           ? _value.starCandyBonus
           : starCandyBonus // ignore: cast_nullable_to_non_nullable
               as int?,
+      jmaCandy: freezed == jmaCandy
+          ? _value.jmaCandy
+          : jmaCandy // ignore: cast_nullable_to_non_nullable
+              as int?,
       birthDate: freezed == birthDate
           ? _value.birthDate
           : birthDate // ignore: cast_nullable_to_non_nullable
@@ -291,6 +305,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       @JsonKey(name: 'is_admin') required this.isAdmin,
       @JsonKey(name: 'star_candy') required this.starCandy,
       @JsonKey(name: 'star_candy_bonus') required this.starCandyBonus,
+      @JsonKey(name: 'jma_candy') required this.jmaCandy,
       @JsonKey(name: 'birth_date') this.birthDate,
       @JsonKey(name: 'gender') this.gender,
       @JsonKey(name: 'birth_time') this.birthTime})
@@ -327,6 +342,9 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
   @JsonKey(name: 'star_candy_bonus')
   final int? starCandyBonus;
   @override
+  @JsonKey(name: 'jma_candy')
+  final int? jmaCandy;
+  @override
   @JsonKey(name: 'birth_date')
   final DateTime? birthDate;
   @override
@@ -338,7 +356,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
 
   @override
   String toString() {
-    return 'UserProfilesModel(id: $id, nickname: $nickname, avatarUrl: $avatarUrl, countryCode: $countryCode, deletedAt: $deletedAt, userAgreement: $userAgreement, isAdmin: $isAdmin, starCandy: $starCandy, starCandyBonus: $starCandyBonus, birthDate: $birthDate, gender: $gender, birthTime: $birthTime)';
+    return 'UserProfilesModel(id: $id, nickname: $nickname, avatarUrl: $avatarUrl, countryCode: $countryCode, deletedAt: $deletedAt, userAgreement: $userAgreement, isAdmin: $isAdmin, starCandy: $starCandy, starCandyBonus: $starCandyBonus, jmaCandy: $jmaCandy, birthDate: $birthDate, gender: $gender, birthTime: $birthTime)';
   }
 
   @override
@@ -362,6 +380,8 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
                 other.starCandy == starCandy) &&
             (identical(other.starCandyBonus, starCandyBonus) ||
                 other.starCandyBonus == starCandyBonus) &&
+            (identical(other.jmaCandy, jmaCandy) ||
+                other.jmaCandy == jmaCandy) &&
             (identical(other.birthDate, birthDate) ||
                 other.birthDate == birthDate) &&
             (identical(other.gender, gender) || other.gender == gender) &&
@@ -382,6 +402,7 @@ class _$UserProfilesModelImpl extends _UserProfilesModel {
       isAdmin,
       starCandy,
       starCandyBonus,
+      jmaCandy,
       birthDate,
       gender,
       birthTime);
@@ -414,6 +435,7 @@ abstract class _UserProfilesModel extends UserProfilesModel {
           @JsonKey(name: 'is_admin') required final bool? isAdmin,
           @JsonKey(name: 'star_candy') required final int? starCandy,
           @JsonKey(name: 'star_candy_bonus') required final int? starCandyBonus,
+          @JsonKey(name: 'jma_candy') required final int? jmaCandy,
           @JsonKey(name: 'birth_date') final DateTime? birthDate,
           @JsonKey(name: 'gender') final String? gender,
           @JsonKey(name: 'birth_time') final String? birthTime}) =
@@ -450,6 +472,9 @@ abstract class _UserProfilesModel extends UserProfilesModel {
   @override
   @JsonKey(name: 'star_candy_bonus')
   int? get starCandyBonus;
+  @override
+  @JsonKey(name: 'jma_candy')
+  int? get jmaCandy;
   @override
   @JsonKey(name: 'birth_date')
   DateTime? get birthDate;

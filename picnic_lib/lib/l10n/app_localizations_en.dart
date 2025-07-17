@@ -43,17 +43,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get artist_name_label => 'Artist Name';
 
   @override
-  String get ban_contact =>
-      'Please contact customer service if you have any questions.';
-
-  @override
-  String get ban_message =>
-      'Your account has been temporarily suspended due to inappropriate activity.';
-
-  @override
-  String get ban_title => 'Account Suspended';
-
-  @override
   String get block_user_label => 'Blocking users';
 
   @override
@@ -78,9 +67,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get button_pic_pic_save => 'Save';
 
   @override
-  String get cancel => 'Cancel';
-
-  @override
   String get candy_disappear_next_month => 'Expiring Bonus Starchies 😢';
 
   @override
@@ -100,9 +86,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get candy_usage_policy_title => 'Starchies Usage Policy';
-
-  @override
-  String get capture_failed => 'Screen capture failed';
 
   @override
   String get comments => 'Comments';
@@ -171,13 +154,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Compatibility data that already exists';
 
   @override
-  String get compatibility_empty_state_subtitle =>
-      'Create your first compatibility!';
-
-  @override
-  String get compatibility_empty_state_title => 'No compatibility information';
-
-  @override
   String get compatibility_gender => 'Gender';
 
   @override
@@ -215,7 +191,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compatibility_purchase_confirm_title => 'Purchase with Star Candy';
 
   @override
-  String compatibility_purchase_message(String artistName) {
+  String compatibility_purchase_message(Object artistName) {
     return 'If I want to know the Goong-hap score between me and the $artistName?';
   }
 
@@ -230,7 +206,7 @@ class AppLocalizationsEn extends AppLocalizations {
       '#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합';
 
   @override
-  String compatibility_share_message(String artistName) {
+  String compatibility_share_message(Object artistName) {
     return 'What percentage is my shining chemistry compatibility with $artistName ? My heart is racing!';
   }
 
@@ -325,12 +301,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get compatibility_warning_exit =>
       'If you leave the screen, you\'ll need to do the analysis again.';
-
-  @override
-  String get confirm => 'Confirm';
-
-  @override
-  String get days_ago => ' days ago';
 
   @override
   String get dialog_button_cancel => 'Cancel';
@@ -655,12 +625,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fortune_share_hashtag => '#picnic #신년운세 #Fourtuneteller';
 
   @override
-  String fortune_share_message(String artistName) {
+  String fortune_share_message(Object artistName) {
     return 'Curious about $artistName\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!';
   }
 
   @override
-  String fortune_title(String year) {
+  String fortune_title(Object year) {
     return 'Fortune of $year';
   }
 
@@ -683,13 +653,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hint_nickname_input => 'Please enter a nickname.';
 
   @override
-  String get hours_ago => ' hours ago';
-
-  @override
   String get image_save_success => 'The image has been saved.';
-
-  @override
-  String get just_now => 'Just now';
 
   @override
   String get label_ads_exceeded =>
@@ -699,7 +663,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_ads_get_star_candy => 'Get Star Candy from Ads';
 
   @override
-  String label_ads_limits(String daily, String hourly) {
+  String label_ads_limits(Object daily, Object hourly) {
     return '$hourly per hour, $daily per day';
   }
 
@@ -879,7 +843,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_moveto_celeb_gallery => 'Go to the Artist Gallery';
 
   @override
-  String get label_mypage_charge_history => 'Charges';
+  String get label_mypage_charge_history => 'Charges (Admin)';
 
   @override
   String get label_mypage_customer_center => 'Help Center';
@@ -948,7 +912,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_popup_close => 'Close';
 
   @override
-  String get label_popup_hide_7days => 'Hide for 7 days';
+  String get label_popup_hide_7days => 'Don\'t view for 7 days';
 
   @override
   String get label_read_more_comment => 'More comments';
@@ -1041,7 +1005,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_tabbar_vote_all => 'All';
 
   @override
-  String get label_tabbar_vote_end => 'Closed';
+  String get label_tabbar_vote_end => '\nClosed';
 
   @override
   String get label_tabbar_vote_image => 'Image Vote';
@@ -1050,17 +1014,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
-  String label_time_ago_day(String day) {
+  String label_time_ago_day(Object day) {
     return '$day days ago';
   }
 
   @override
-  String label_time_ago_hour(String hour) {
+  String label_time_ago_hour(Object hour) {
     return '$hour hours ago';
   }
 
   @override
-  String label_time_ago_minute(String minute) {
+  String label_time_ago_minute(Object minute) {
     return '$minute minutes ago';
   }
 
@@ -1116,7 +1080,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_vote_upcoming => 'Until voting begins';
 
   @override
-  String get label_vote_list => 'Vote List';
+  String get label_vote_vote_gather => 'Collecting votes';
 
   @override
   String get label_watch_ads => 'View ads';
@@ -1128,9 +1092,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lable_my_celeb => 'My Artists';
 
   @override
-  String get loading => 'Loading...';
-
-  @override
   String get login_simple_login => 'Simple Login';
 
   @override
@@ -1139,9 +1100,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get login_title => 'Find special moments at a picnic';
-
-  @override
-  String get message_agreement_fail => 'Terms agreement required';
 
   @override
   String get message_agreement_success =>
@@ -1190,9 +1148,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get message_vote_is_upcoming => 'This is an upcoming vote.';
-
-  @override
-  String get minutes_ago => ' minutes ago';
 
   @override
   String get my_info => 'My Information';
@@ -1255,20 +1210,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_vote => 'Voting';
 
   @override
-  String get network_error_message => 'Please check your internet connection.';
-
-  @override
-  String get network_error_title => 'Network Error';
-
-  @override
   String get nickname_validation_error =>
       '20 characters or less, excluding special characters.';
 
   @override
   String get no_search_results => 'No search results found';
-
-  @override
-  String get notice_pinned => 'Pinned';
 
   @override
   String get optional => 'Optional';
@@ -1295,7 +1241,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get page_title_vote_detail => 'Vote';
 
   @override
-  String get page_title_vote_list => 'Vote List';
+  String get page_title_vote_gather => 'Collecting votes';
 
   @override
   String get patch_check => 'Checking for patches';
@@ -1476,7 +1422,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get post_not_found => 'No posts were found.';
 
   @override
-  String post_replying_comment(String nickname) {
+  String post_replying_comment(Object nickname) {
     return 'Replying to $nickname...';
   }
 
@@ -1604,13 +1550,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_content_required => 'Please enter inquiry content';
 
   @override
-  String get qna_content_too_short => 'Content is too short';
-
-  @override
   String get qna_create_failed => 'Failed to submit inquiry:';
-
-  @override
-  String get qna_create_first => 'Create your first Q&A';
 
   @override
   String get qna_create_page_title => 'Create Inquiry';
@@ -1647,12 +1587,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_edit => 'Edit';
 
   @override
-  String get qna_empty_list => 'No Q&A items yet';
-
-  @override
-  String get qna_error_message => 'An error occurred';
-
-  @override
   String get qna_file_attach_label => 'File Attachment';
 
   @override
@@ -1673,9 +1607,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qna_file_uploading_button => 'File Uploading...';
-
-  @override
-  String get qna_list_title => 'Q&A List';
 
   @override
   String get qna_loading_error => 'Error occurred while loading';
@@ -1714,7 +1645,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'If you have any questions\nfeel free to contact us anytime';
 
   @override
-  String get qna_page_title => 'QnA Inquiry';
+  String get qna_page_title => 'QnA Inquiry (Admin)';
 
   @override
   String get qna_privacy_notice =>
@@ -1742,22 +1673,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_status_answered => 'Answered';
 
   @override
-  String get qna_status_closed => 'Closed';
-
-  @override
   String get qna_status_pending => 'Awaiting Response';
 
   @override
   String get qna_status_resolved => 'Resolved';
 
   @override
+  String get qna_status_closed => 'Closed';
+
+  @override
   String get qna_submit_button => 'Submit Inquiry';
-
-  @override
-  String get qna_submit_error => 'Failed to submit Q&A';
-
-  @override
-  String get qna_submit_success => 'Q&A submitted successfully';
 
   @override
   String get qna_title => 'Title';
@@ -1770,9 +1695,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qna_title_required => 'Please enter a title';
-
-  @override
-  String get qna_title_too_short => 'Title is too short';
 
   @override
   String get qna_upload_complete => 'Upload Complete';
@@ -1791,9 +1713,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get replies => 'Comments';
-
-  @override
-  String get retry => 'Retry';
 
   @override
   String get reward => 'Rewards';
@@ -1823,37 +1742,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get share_twitter => 'Share on Twitter';
 
   @override
-  String get starCandy100 => '100 StarCandy';
-
-  @override
-  String get starCandy1000 => '1000 StarCandy + 150 Bonus';
-
-  @override
-  String get starCandy200 => '200 StarCandy + 25 Bonus';
-
-  @override
-  String get starCandy2000 => '2000 StarCandy + 320 Bonus';
-
-  @override
-  String get starCandy3000 => '3000 StarCandy + 540 Bonus';
-
-  @override
-  String get starCandy4000 => '4000 StarCandy + 760 Bonus';
-
-  @override
-  String get starCandy5000 => '5000 StarCandy + 1000 Bonus';
-
-  @override
-  String get starCandy600 => '600 StarCandy + 85 Bonus';
-
-  @override
   String get submit_application => 'Submit Application';
 
   @override
   String get success => 'Success';
 
   @override
-  String text_achievement(String count) {
+  String text_achievement(Object count) {
     return '🎉 You\'ve reached \$$count goals so far! 🎉';
   }
 
@@ -1933,7 +1828,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_star_candy => 'Star Candy';
 
   @override
-  String text_star_candy_with_bonus(String num1) {
+  String text_star_candy_with_bonus(Object num1) {
     return '$num1 + $num1 Bonuses';
   }
 
@@ -1953,7 +1848,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_vote_ended => 'Ended';
 
   @override
-  String text_vote_rank(String rank) {
+  String text_vote_rank(Object rank) {
     return 'Rank $rank';
   }
 
@@ -1961,7 +1856,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_vote_rank_in_reward => 'Rank in Rewards';
 
   @override
-  String text_vote_reward(String count) {
+  String text_vote_reward(Object count) {
     return '$count reward';
   }
 
@@ -1993,9 +1888,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get time_unit_second => 'S';
 
   @override
-  String get title_dialog_error => 'Error';
-
-  @override
   String get title_dialog_library_add => 'Add a new album';
 
   @override
@@ -2009,25 +1901,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'You can add up to five of your own artists.';
 
   @override
-  String get update => 'Update';
-
-  @override
   String get update_button => 'Update';
 
   @override
   String get update_cannot_open_appstore => 'I can\'t open the app store.';
 
   @override
-  String update_recommend_text(String version) {
+  String update_recommend_text(Object version) {
     return 'A new version ($version) is available.';
   }
 
   @override
-  String get update_required_message =>
-      'You need to update to a new version to continue using the app.';
-
-  @override
-  String update_required_text(String version) {
+  String update_required_text(Object version) {
     return 'You need to update to a new version ($version).';
   }
 
@@ -2064,15 +1949,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vote_item_request_current_item_request => 'Current Artist Request';
 
   @override
-  String vote_item_request_item_request_count(String count) {
+  String vote_item_request_item_request_count(Object count) {
     return '$count artists requests';
   }
 
   @override
   String get vote_item_request_no_item_request_yet => 'No artist request yet';
-
-  @override
-  String get vote_item_request_no_search_results => 'No search results found';
 
   @override
   String get vote_item_request_search_artist => 'Search Artist';
@@ -2113,16 +1995,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vote_item_request_title => 'Vote Artist Request';
 
   @override
-  String vote_item_request_total_item_requests(String count) {
+  String vote_item_request_total_item_requests(Object count) {
     return 'Total $count artists requests';
   }
 
   @override
   String get vote_item_request_user_info_not_found =>
       'User information not found.';
-
-  @override
-  String get vote_item_request_waiting => 'Waiting';
 
   @override
   String get vote_period => 'Vote Period';
@@ -2150,4 +2029,128 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get withdrawal_success =>
       'The unsubscribe was processed successfully.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get just_now => 'Just now';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get ban_title => 'Account Suspended';
+
+  @override
+  String get ban_message =>
+      'Your account has been temporarily suspended due to inappropriate activity.';
+
+  @override
+  String get ban_contact =>
+      'Please contact customer service if you have any questions.';
+
+  @override
+  String get compatibility_empty_state_title => 'No compatibility information';
+
+  @override
+  String get compatibility_empty_state_subtitle =>
+      'Create your first compatibility!';
+
+  @override
+  String get network_error_title => 'Network Error';
+
+  @override
+  String get network_error_message => 'Please check your internet connection.';
+
+  @override
+  String get notice_pinned => 'Pinned';
+
+  @override
+  String get message_agreement_fail => 'Terms agreement required';
+
+  @override
+  String get title_dialog_error => 'Error';
+
+  @override
+  String get vote_item_request_waiting => '대기중';
+
+  @override
+  String get capture_failed => 'Capture failed';
+
+  @override
+  String get qna_submit_success =>
+      'Your inquiry has been successfully submitted';
+
+  @override
+  String get qna_submit_error =>
+      'An error occurred while submitting your inquiry';
+
+  @override
+  String get qna_title_too_short =>
+      'Please enter at least 2 characters for the title';
+
+  @override
+  String get qna_content_too_short =>
+      'Please enter at least 10 characters for the content';
+
+  @override
+  String get qna_list_title => 'QnA List';
+
+  @override
+  String get qna_error_message => 'An error occurred';
+
+  @override
+  String get qna_empty_list => 'No inquiry history';
+
+  @override
+  String get qna_create_first => 'Write your first question';
+
+  @override
+  String get days_ago => ' days ago';
+
+  @override
+  String get hours_ago => ' hours ago';
+
+  @override
+  String get minutes_ago => ' minutes ago';
+
+  @override
+  String get starCandy100 => '100 Star Candy';
+
+  @override
+  String get starCandy200 => '200 Star Candy';
+
+  @override
+  String get starCandy600 => '600 Star Candy';
+
+  @override
+  String get starCandy1000 => '1,000 Star Candy';
+
+  @override
+  String get starCandy2000 => '2,000 Star Candy';
+
+  @override
+  String get starCandy3000 => '3,000 Star Candy';
+
+  @override
+  String get starCandy4000 => '4,000 Star Candy';
+
+  @override
+  String get starCandy5000 => '5,000 Star Candy';
+
+  @override
+  String get update_required_message => 'App update required';
+
+  @override
+  String get vote_item_request_no_search_results => 'No search results';
 }

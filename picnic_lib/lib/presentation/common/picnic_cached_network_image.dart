@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
-
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/webp_support_checker.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -62,7 +61,6 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final bool enableProgressiveLoading; // 점진적 로딩 활성화
   final int? maxConcurrentLoads; // 최대 동시 로딩 수
 
-
   const PicnicCachedNetworkImage({
     super.key,
     required this.imageUrl,
@@ -84,7 +82,6 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.enableMemoryOptimization = true,
     this.enableProgressiveLoading = true,
     this.maxConcurrentLoads,
-
   });
 
   @override
@@ -325,8 +322,6 @@ class _PicnicCachedNetworkImageState
         logger.d(
             '이미지 캐시 부분 정리됨: ${previousSizeMB}MB/${(maxSizeBytes ~/ (1024 * 1024))}MB → ${newSizeMB}MB, '
             '이미지 수: $previousImageCount개 → $newImageCount개');
-
-
       }
     } catch (e) {
       logger.e('이미지 캐시 정리 오류: $e');
@@ -340,14 +335,10 @@ class _PicnicCachedNetworkImageState
 
       // GIF 로딩 전 메모리 사용량이 150MB를 초과하는 경우에만 정리
       if (currentSizeBytes > 150 * 1024 * 1024) {
-
-
         _clearPartialImageCache();
 
         logger.d(
             'GIF 로딩을 위한 부분 캐시 정리: ${currentSizeBytes ~/ (1024 * 1024)}MB → ${PaintingBinding.instance.imageCache.currentSizeBytes ~/ (1024 * 1024)}MB');
-
-
       }
     } catch (e) {
       logger.e('GIF 로딩 준비 오류: $e');
@@ -981,7 +972,7 @@ class _PicnicCachedNetworkImageState
 
     if (kDebugMode) {
       final errorKey = "${url}_error_${DateTime.now().hour}";
-      logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);
+      // logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);
     }
   }
 }

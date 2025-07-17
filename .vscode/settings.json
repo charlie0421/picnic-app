@@ -1,5 +1,22 @@
 {
   "workbench.colorTheme": "Cursor Dark High Contrast",
   "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
-  "java.configuration.updateBuildConfiguration": "automatic"
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "files.maxMemoryForLargeFilesMB": 4096,
+  "editor.largeFileOptimizations": false,
+  "files.associations": {
+    "*.arb": "json"
+  },
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "string.quoted.double.json",
+        "settings": {
+          "foreground": "#98C379"
+        }
+      }
+    ]
+  },
+  "files.encoding": "utf8",
+  "files.autoGuessEncoding": true
 }

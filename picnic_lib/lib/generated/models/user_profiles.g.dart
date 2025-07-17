@@ -28,6 +28,7 @@ _$UserProfilesModelImpl _$$UserProfilesModelImplFromJson(
           starCandy: $checkedConvert('star_candy', (v) => (v as num?)?.toInt()),
           starCandyBonus:
               $checkedConvert('star_candy_bonus', (v) => (v as num?)?.toInt()),
+          jmaCandy: $checkedConvert('jma_candy', (v) => (v as num?)?.toInt()),
           birthDate: $checkedConvert('birth_date',
               (v) => v == null ? null : DateTime.parse(v as String)),
           gender: $checkedConvert('gender', (v) => v as String?),
@@ -43,6 +44,7 @@ _$UserProfilesModelImpl _$$UserProfilesModelImplFromJson(
         'isAdmin': 'is_admin',
         'starCandy': 'star_candy',
         'starCandyBonus': 'star_candy_bonus',
+        'jmaCandy': 'jma_candy',
         'birthDate': 'birth_date',
         'birthTime': 'birth_time'
       },
@@ -60,6 +62,7 @@ Map<String, dynamic> _$$UserProfilesModelImplToJson(
       'is_admin': instance.isAdmin,
       'star_candy': instance.starCandy,
       'star_candy_bonus': instance.starCandyBonus,
+      'jma_candy': instance.jmaCandy,
       'birth_date': instance.birthDate?.toIso8601String(),
       'gender': instance.gender,
       'birth_time': instance.birthTime,

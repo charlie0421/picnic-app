@@ -28,7 +28,7 @@ class AsyncVoteDetail extends _$AsyncVoteDetail {
       final response = await supabase
           .from(voteTable)
           .select(
-              'id, main_image, title, start_at, stop_at, visible_at, vote_category, $voteItemTable(*, artist(*, artist_group(*)), artist_group(*)), reward(*)')
+              'id, main_image, title, start_at, stop_at, visible_at, vote_category, is_partnership, partner, $voteItemTable(*, artist(*, artist_group(*)), artist_group(*)), reward(*)')
           .eq('id', voteId)
           .single();
 

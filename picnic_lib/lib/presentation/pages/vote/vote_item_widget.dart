@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/l10n.dart';
@@ -37,6 +38,7 @@ class VoteItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    logger.d('🔥 onTap: $onTap');
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 600),
