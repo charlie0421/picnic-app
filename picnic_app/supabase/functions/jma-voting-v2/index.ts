@@ -125,33 +125,7 @@ async function deductStarCandyWithUsage(
     throw new Error('Failed to deduct star candy');
   }
 
-  // 일반 별사탕 사용이 있는 경우 JMA 교환 히스토리 기록
-  if (starCandyUsage > 0) {
-    const jmaCandyAmount = Math.floor(starCandyUsage / 3);
-    
-    // JMA 교환 히스토리 기록
-    await queryDatabase(`
-      INSERT INTO jma_exchange_history (user_id, star_candy_amount, jma_candy_amount, exchange_rate, created_at)
-      VALUES ($1, $2, $3, 3, NOW())
-    `, user_id, starCandyUsage, jmaCandyAmount);
-
-    // 별사탕 사용 히스토리 기록
-    await queryDatabase(`
-      INSERT INTO star_candy_history (user_id, amount, remain_amount, parent_id, exchange_id, type, created_at)
-      VALUES ($1, $2, 0, NULL, NULL, 'EXCHANGE_TO_JMA', NOW())
-    `, user_id, starCandyUsage);
-
-    // JMA 캔디 추가 히스토리 기록 (실제로는 JMA 투표로 바로 사용되므로 증가 후 즉시 차감)
-    await queryDatabase(`
-      INSERT INTO jma_candy_history (type, user_id, amount, exchange_id, created_at)
-      VALUES ('EXCHANGE_FROM_STAR', $1, $2, NULL, NOW())
-    `, user_id, jmaCandyAmount);
-
-    await queryDatabase(`
-      INSERT INTO jma_candy_history (type, user_id, amount, exchange_id, created_at)
-      VALUES ('VOTE_USAGE', $1, $2, NULL, NOW())
-    `, user_id, -jmaCandyAmount);
-  }
+  // 히스토리 기록 없이 진행
 
   console.log(`Deducted star candy for user ${user_id}: regular=${starCandyUsage}, bonus=${starCandyBonusUsage}`);
   console.log(`Remaining: regular=${deductRows[0].star_candy}, bonus=${deductRows[0].star_candy_bonus}`);
