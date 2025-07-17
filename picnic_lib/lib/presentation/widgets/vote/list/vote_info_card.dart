@@ -116,15 +116,15 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   void _handleShareToTwitter() async {
     await ShareUtils.shareToSocial(
       _shareKey,
-      message: getLocaleTextFromJson(widget.vote.title),
+      message: getLocaleTextFromJson(widget.vote.title, context),
       hashtag:
-          '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title).replaceAll(' ', '')}',
+          '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title, context).replaceAll(' ', '')}',
       onStart: () {
         OverlayLoadingProgress.start(context, color: AppColors.primary500);
         setState(() => _isSaving = true);
       },
       downloadLink: await createBranchLink(
-          getLocaleTextFromJson(widget.vote.title),
+          getLocaleTextFromJson(widget.vote.title, context),
           '${Environment.appLinkPrefix}/vote/detail/${widget.vote.id}'),
       onComplete: () {
         OverlayLoadingProgress.stop();
@@ -212,7 +212,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
                 child: Column(
                   children: [
                     VoteCardInfoHeader(
-                      title: getLocaleTextFromJson(vote.title),
+                      title: getLocaleTextFromJson(vote.title, context),
                       stopAt: widget.status == VoteStatus.upcoming
                           ? vote.startAt!
                           : vote.stopAt!,

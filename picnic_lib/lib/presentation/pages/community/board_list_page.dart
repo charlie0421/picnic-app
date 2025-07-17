@@ -451,7 +451,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
                             maxLines: 1,
                           )
                         : Text(
-                            getLocaleTextFromJson(artist.name),
+                            getLocaleTextFromJson(artist.name, context),
                             style: getTextStyle(
                                 AppTypo.body14B, AppColors.grey900),
                             overflow: TextOverflow.ellipsis,
@@ -513,7 +513,7 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
                         : AppColors.grey900),
               )
             : Text(
-                getLocaleTextFromJson(board.name),
+                getLocaleTextFromJson(board.name, context),
                 style: getTextStyle(
                     AppTypo.caption12B,
                     (board.isOfficial ?? false)

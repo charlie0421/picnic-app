@@ -54,7 +54,9 @@ class _PostListItemState extends ConsumerState<PostListItem> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     if (widget.post.board != null)
-                      Text(getLocaleTextFromJson(widget.post.board!.name),
+                      Text(
+                          getLocaleTextFromJson(
+                              widget.post.board!.name, context),
                           style: getTextStyle(
                               AppTypo.caption12B, AppColors.primary500)),
                     SizedBox(width: 4.w),

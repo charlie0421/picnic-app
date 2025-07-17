@@ -87,7 +87,7 @@ class _PicVoteInfoCardState extends ConsumerState<PicVoteInfoCard>
         child: Column(
           children: [
             VoteCardInfoHeader(
-                title: getLocaleTextFromJson(widget.vote.title),
+                title: getLocaleTextFromJson(widget.vote.title, context),
                 stopAt: widget.vote.stopAt,
                 onRefresh: _restartAnimation,
                 status: widget.status),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/services/locale_service.dart';
 
 /// 언어 초기화 및 관리를 위한 유틸리티 클래스
 class LanguageInitializer {
@@ -77,6 +78,10 @@ class LanguageInitializer {
 
       // 앱 설정에 언어 반영
       ref.read(appSettingProvider.notifier).setLanguage(language);
+
+      // LocaleService에도 현재 언어 업데이트
+      LocaleService.instance.updateLanguageCode(language);
+      logger.i('LocaleService 초기화: $language');
 
       return true;
     } catch (e, stackTrace) {

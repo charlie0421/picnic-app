@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/services/locale_service.dart';
 
 import 'package:screen_protector/screen_protector.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -132,6 +133,14 @@ class AppBuilder {
       locale: locale,
       supportedLocales: supportedLocales,
       localizationsDelegates: localizationsDelegates,
+      localeResolutionCallback: (locale, supportedLocales) {
+        // 로케일이 변경될 때마다 LocaleService 업데이트
+        if (locale != null) {
+          LocaleService.instance.updateLanguageCode(locale.languageCode);
+          logger.i('LocaleService 업데이트: ${locale.languageCode}');
+        }
+        return locale;
+      },
     );
   }
 

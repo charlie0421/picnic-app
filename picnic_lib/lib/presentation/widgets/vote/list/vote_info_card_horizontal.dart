@@ -74,14 +74,14 @@ class VoteCardColumnHorizontal extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  getLocaleTextFromJson(voteItem.title),
+                  getLocaleTextFromJson(voteItem.title, context),
                   style: getTextStyle(
                     AppTypo.body14B,
                     AppColors.grey900,
                   ),
                 ),
                 Text(
-                  getLocaleTextFromJson(voteItem.description),
+                  getLocaleTextFromJson(voteItem.description, context),
                   style: getTextStyle(
                     AppTypo.caption10SB,
                     AppColors.grey00,

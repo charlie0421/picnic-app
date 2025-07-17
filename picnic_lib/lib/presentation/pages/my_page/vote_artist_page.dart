@@ -335,7 +335,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
   Widget _buildHighlightedName(ArtistModel item, String searchQuery) {
     if (searchQuery.isEmpty) {
       return Text(
-        getLocaleTextFromJson(item.name),
+        getLocaleTextFromJson(item.name, context),
         style: getTextStyle(AppTypo.body14M, AppColors.grey900),
       );
     }
@@ -362,7 +362,7 @@ class _VoteMyArtistState extends ConsumerState<VoteArtistPage> {
 
     if (searchQuery.isEmpty) {
       return Text(
-        getLocaleTextFromJson(item.artistGroup!.name),
+        getLocaleTextFromJson(item.artistGroup!.name, context),
         style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
       );
     }
