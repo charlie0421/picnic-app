@@ -7,6 +7,7 @@ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
+import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
@@ -32,6 +33,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   bool value2 = false;
   String buildNumber = '';
   bool _isRestartingApp = false;
+  bool _isCheckingPatch = false;
 
   Future<bool> _getFuture1() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -286,16 +288,35 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            patchInfo.displayInfo,
-                            style: getTextStyle(
-                                AppTypo.caption12B,
-                                patchInfo.canRestart
-                                    ? AppColors.primary500
-                                    : AppColors.secondary500),
-                            textAlign: TextAlign.end,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_isCheckingPatch)
+                                Container(
+                                  width: 12.w,
+                                  height: 12.w,
+                                  margin: EdgeInsets.only(right: 6.w),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.5,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        AppColors.primary500),
+                                  ),
+                                ),
+                              Text(
+                                _isCheckingPatch
+                                    ? 'Checking...'
+                                    : patchInfo.displayInfo,
+                                style: getTextStyle(
+                                    AppTypo.caption12B,
+                                    patchInfo.canRestart
+                                        ? AppColors.primary500
+                                        : AppColors.secondary500),
+                                textAlign: TextAlign.end,
+                              ),
+                            ],
                           ),
-                          if (patchInfo.lastChecked != null)
+                          if (patchInfo.lastChecked != null &&
+                              !_isCheckingPatch)
                             Text(
                               'Last checked: ${_formatTime(patchInfo.lastChecked!)}',
                               style: getTextStyle(
@@ -306,6 +327,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       ),
                     ),
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    onTap: () => _handlePatchStatusTap(),
                     tailing: patchInfo.canRestart
                         ? _buildRestartButton(context, patchInfo)
                         : const SizedBox.shrink(),
@@ -434,6 +456,148 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             _isRestartingApp = false;
           });
         }
+      }
+    }
+  }
+
+  /// 패치 상태 탭 처리 - 수동 패치 확인
+  Future<void> _handlePatchStatusTap() async {
+    if (_isCheckingPatch) return;
+
+    setState(() {
+      _isCheckingPatch = true;
+    });
+
+    try {
+      logger.i('🔍 설정 페이지에서 수동 패치 확인 시작');
+
+      // 1. 종합 진단 실행
+      final diagnosis = await ShorebirdUtils.diagnosePatchDetectionIssue();
+      logger.i('📊 진단 결과: ${diagnosis['summary']}');
+
+      // 2. 진단 결과에 따른 처리
+      if (diagnosis['network']?['isOnline'] == false) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('네트워크 연결을 확인해주세요.'),
+              duration: Duration(seconds: 3),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      if (diagnosis['shorebird']?['error'] != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('패치 시스템 오류가 발생했습니다. 앱을 재시작해보세요.'),
+              duration: Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // 3. 새로운 전용 메서드 사용
+      final patchStatus = await ShorebirdUtils.checkPatchStatusForSettings();
+      logger.i('📋 패치 상태 결과: $patchStatus');
+
+      if (!patchStatus['success']) {
+        throw Exception(patchStatus['error'] ?? '패치 상태 확인 실패');
+      }
+
+      // 4. PatchInfoProvider 업데이트
+      if (mounted) {
+        ref.read(patchInfoProvider.notifier).updatePatchInfo({
+          'updateAvailable': patchStatus['isOutdated'] == true,
+          'updateDownloaded': false,
+          'needsRestart': patchStatus['isRestartRequired'] == true,
+          'currentPatch': patchStatus['currentPatch'],
+        });
+      }
+
+      // 5. 업데이트가 필요한 경우 자동으로 다운로드
+      if (patchStatus['isOutdated'] == true && mounted) {
+        logger.i('🔄 업데이트 다운로드 시작');
+
+        // 사용자에게 알림
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('패치를 다운로드하고 있습니다...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // 전용 다운로드 메서드 사용
+        final downloadResult = await ShorebirdUtils.downloadAndApplyPatch();
+        logger.i('📥 다운로드 결과: $downloadResult');
+
+        if (mounted) {
+          if (downloadResult['success'] == true) {
+            ref.read(patchInfoProvider.notifier).updatePatchInfo({
+              'updateAvailable': false,
+              'updateDownloaded': true,
+              'needsRestart': downloadResult['needsRestart'] == true,
+              'currentPatch': downloadResult['patchAfter'],
+              'newPatch': downloadResult['patchAfter'],
+            });
+
+            if (downloadResult['patchChanged'] == true) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('패치가 준비되었습니다. 재시작 버튼을 눌러주세요.'),
+                  duration: Duration(seconds: 3),
+                  backgroundColor: AppColors.primary500,
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('패치 다운로드가 완료되었습니다.'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          } else {
+            throw Exception(downloadResult['error'] ?? '패치 다운로드 실패');
+          }
+        }
+      } else if (patchStatus['isRestartRequired'] == true && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('패치가 준비되었습니다. 재시작 버튼을 눌러주세요.'),
+            duration: Duration(seconds: 3),
+            backgroundColor: AppColors.primary500,
+          ),
+        );
+      } else if (patchStatus['isUpToDate'] == true && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('최신 패치를 사용 중입니다.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      logger.e('💥 수동 패치 확인 중 오류: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('패치 확인 중 오류가 발생했습니다: ${e.toString()}'),
+            duration: Duration(seconds: 3),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCheckingPatch = false;
+        });
       }
     }
   }
