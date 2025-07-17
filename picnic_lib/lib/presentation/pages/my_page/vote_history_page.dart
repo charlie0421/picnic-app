@@ -50,7 +50,7 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
       final response = await supabase
           .from('vote_pick')
           .select(
-              'id,amount,created_at,vote(id,title),vote_item(id,vote_id,artist(id,name,artist_group(id,name)),artist_group(id,name))')
+              'id,amount,star_candy_usage,star_candy_bonus_usage,created_at,updated_at,vote(id,title,vote_category,main_image,wait_image,result_image,vote_content,created_at,visible_at,stop_at,start_at,is_ended,is_upcoming,is_partnership,partner),vote_item(id,vote_total,star_candy_total,star_candy_bonus_total,vote_id,artist(id,name,yy,mm,dd,birth_date,gender,image,created_at,updated_at,deleted_at,artist_group(id,name,image,created_at,updated_at,deleted_at)),artist_group(id,name,image,created_at,updated_at,deleted_at))')
           .eq('user_id', supabase.auth.currentUser!.id)
           .order('id', ascending: _sortOrder == 'ASC')
           .range((pageKey - 1) * _pageSize, pageKey * _pageSize - 1)

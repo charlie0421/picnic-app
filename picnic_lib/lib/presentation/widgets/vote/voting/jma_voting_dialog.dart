@@ -92,12 +92,12 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       final startOfDay = DateTime(today.year, today.month, today.day);
       final endOfDay = startOfDay.add(Duration(days: 1));
 
-      // 이 투표에 대한 오늘 보너스 투표 카운트 조회 (투표별 제한)
+      // 오늘 보너스 캔디를 사용한 투표 기록 조회
       final response = await supabase
           .from('vote_pick')
           .select('id')
           .eq('user_id', userId)
-          .eq('vote_id', widget.voteModel.id) // 현재 투표에 대해서만 카운트
+          .eq('vote_id', widget.voteModel.id)
           .gt('star_candy_bonus_usage', 0) // 보너스 캔디를 사용한 투표만 카운트
           .gte('created_at', startOfDay.toIso8601String())
           .lt('created_at', endOfDay.toIso8601String());
@@ -109,7 +109,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       }
     } catch (e) {
       logger.e('Failed to load daily vote count', error: e);
-      // 오류 시 기본값 0 유지
+      if (mounted) {
+        setState(() {
+          _dailyVoteCount = 0; // 기본값으로 설정
+        });
+      }
     }
   }
 
@@ -175,11 +179,21 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     final usableBonusStarCandy =
         bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
 
-    // 보너스로 충당되지 않는 투표 수를 별사탕으로 변환
-    if (voteAmount > usableBonusStarCandy) {
-      return (voteAmount - usableBonusStarCandy) * 3;
+    // 전체 투표량을 별사탕으로 계산
+    // 보너스로 사용할 수 있는 양과 일반 별사탕으로 사야 할 양을 합쳐서 반환
+    int totalStarCandyNeeded = 0;
+
+    if (voteAmount <= usableBonusStarCandy) {
+      // 보너스 별사탕만으로 충분한 경우 - 보너스 사용량만큼 별사탕 필요
+      totalStarCandyNeeded = voteAmount;
+    } else {
+      // 보너스 + 일반 별사탕 모두 사용하는 경우
+      // 보너스로 사용할 양 + 일반 별사탕으로 사야 할 양(투표 수 * 3)
+      totalStarCandyNeeded =
+          usableBonusStarCandy + ((voteAmount - usableBonusStarCandy) * 3);
     }
-    return 0;
+
+    return totalStarCandyNeeded;
   }
 
   int _getStarCandyAmount() =>
@@ -1058,30 +1072,6 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     }
   }
 
-  // 별사탕 교환 함수 (보팅과 함께 호출)
-  Future<bool> _performStarCandyExchange(int starCandyAmount) async {
-    try {
-      final userId = ref.read(userInfoProvider).value?.id ?? '';
-
-      final response =
-          await supabase.functions.invoke('exchange-star-candy-to-jma', body: {
-        'starCandyAmount': starCandyAmount,
-        'userId': userId,
-      });
-
-      if (response.status == 200) {
-        // 사용자 정보 업데이트
-        await ref.read(userInfoProvider.notifier).getUserProfiles();
-        return true;
-      } else {
-        throw Exception('Exchange failed');
-      }
-    } catch (e) {
-      logger.e('Star candy exchange error', error: e);
-      return false;
-    }
-  }
-
   Widget _buildCheckAllOption() {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -1263,90 +1253,69 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     FocusScope.of(context).unfocus();
     _loadingKey.currentState?.show();
 
-    // 보너스 우선 사용하여 보팅
-    _performExchangeAndVoting(voteAmount, userId, requiredStarCandy);
+    // 보너스 사용 계산
+    final bonusStarCandy = _getMyBonusStarCandy();
+    final remainingVotes = _maxDailyVotes - _dailyVoteCount;
+    final usableBonusStarCandy =
+        bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
+
+    final bonusVotesUsed =
+        voteAmount <= usableBonusStarCandy ? voteAmount : usableBonusStarCandy;
+
+    // 교환과 투표를 함께 수행
+    _performExchangeAndVoting(voteAmount, userId, bonusVotesUsed);
   }
 
-  // 별사탕 교환 후 보팅을 순차적으로 수행
+  // 교환과 투표를 함께 수행하는 함수
   Future<void> _performExchangeAndVoting(
-      int voteAmount, String userId, int starCandyAmount) async {
+      int voteAmount, String userId, int bonusVotesUsed) async {
     try {
-      // 보너스 사용 계산
-      final bonusStarCandy = _getMyBonusStarCandy();
-      final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-      final usableBonusStarCandy =
-          bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
-
-      int bonusVotesUsed = 0;
-      int regularStarCandyUsed = 0;
-
-      if (voteAmount <= usableBonusStarCandy) {
-        // 보너스만으로 충분한 경우
-        bonusVotesUsed = voteAmount;
-      } else if (usableBonusStarCandy > 0) {
-        // 보너스 + 일반 별사탕 조합
-        bonusVotesUsed = usableBonusStarCandy;
-        regularStarCandyUsed = (voteAmount - usableBonusStarCandy) * 3;
-      } else {
-        // 일반 별사탕만 사용
-        regularStarCandyUsed = starCandyAmount;
-      }
-
-      // 1. 별사탕 교환 (일반 별사탕 사용이 있는 경우에만)
-      if (regularStarCandyUsed > 0) {
-        final exchangeSuccess =
-            await _performStarCandyExchange(regularStarCandyUsed);
-
-        if (!exchangeSuccess) {
-          _loadingKey.currentState?.hide();
-          if (mounted) {
-            showSimpleDialog(
-              type: DialogType.error,
-              title:
-                  AppLocalizations.of(context).jma_voting_exchange_failed_title,
-              content: AppLocalizations.of(context).jma_voting_exchange_failed,
-              onOk: () {},
-            );
-          }
-          return;
-        }
-      }
-
-      // 2. 보팅 수행 (보너스 사용량 포함)
+      // 투표 수행 (교환 로직이 내장됨)
       await _performVoting(voteAmount, userId, bonusVotesUsed);
     } catch (e) {
-      logger.e('Exchange and voting error', error: e);
+      logger.e('Voting error', error: e);
       _loadingKey.currentState?.hide();
-      _showVotingFailDialog();
+      if (mounted) {
+        showSimpleDialog(
+          type: DialogType.error,
+          title: AppLocalizations.of(context).jma_voting_exchange_failed_title,
+          content: AppLocalizations.of(context).jma_voting_exchange_failed,
+          onOk: () {},
+        );
+      }
     }
   }
 
-  /// 보너스 캔디 우선 사용 로직으로 사용량 계산
-  Map<String, int> _calculateUsage(int amount) {
-    final userInfo = ref.read(userInfoProvider).value;
-    final starCandy = userInfo?.starCandy ?? 0;
-    final starCandyBonus = userInfo?.starCandyBonus ?? 0;
+  /// 보너스 캔디 우선 사용 로직으로 사용량 계산 (실제 별사탕 개수 기준)
+  Map<String, int> _calculateUsage(int totalStarCandyAmount) {
+    final voteAmount = _getVoteAmount();
+    final bonusStarCandy = _getMyBonusStarCandy();
+    final remainingVotes = _maxDailyVotes - _dailyVoteCount;
+    final usableBonusStarCandy =
+        bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
 
-    int starCandyUsage = 0;
-    int starCandyBonusUsage = 0;
+    int starCandyUsage = 0; // 일반 별사탕 사용량 (개수)
+    int starCandyBonusUsage = 0; // 보너스 별사탕 사용량 (개수)
 
-    if (amount <= starCandyBonus) {
-      // 보너스 캔디만으로 충분한 경우
-      starCandyBonusUsage = amount;
+    if (voteAmount <= usableBonusStarCandy) {
+      // 보너스 별사탕만으로 충분한 경우
+      starCandyBonusUsage = voteAmount; // 보너스는 1:1 비율
+      starCandyUsage = 0;
     } else {
-      // 보너스 캔디를 모두 사용하고 일반 캔디 사용
-      starCandyBonusUsage = starCandyBonus;
-      starCandyUsage = amount - starCandyBonus;
+      // 보너스 별사탕을 모두 사용하고 일반 별사탕도 사용
+      starCandyBonusUsage = usableBonusStarCandy; // 보너스는 1:1 비율
+      final regularVotes = voteAmount - usableBonusStarCandy;
+      starCandyUsage = regularVotes * 3; // 일반 별사탕은 3:1 비율
     }
 
     return {
-      'star_candy_usage': starCandyUsage,
-      'star_candy_bonus_usage': starCandyBonusUsage,
+      'star_candy_usage': starCandyUsage, // 실제 별사탕 개수
+      'star_candy_bonus_usage': starCandyBonusUsage, // 실제 보너스 별사탕 개수
     };
   }
 
-  Future<void> _performVoting(int voteAmount, String userId,
-      [int bonusVotesUsed = 0]) async {
+  Future<void> _performVoting(
+      int voteAmount, String userId, int bonusVotesUsed) async {
     try {
       // PIC에서는 JMA 보팅이 지원되지 않음
       if (widget.portalType == VotePortal.pic) {
@@ -1361,7 +1330,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       final response = await supabase.functions.invoke('jma-voting-v2', body: {
         'vote_id': widget.voteModel.id,
         'vote_item_id': widget.voteItemModel.id,
-        'amount': requiredStarCandy,
+        'amount': voteAmount, // 투표 수
         'star_candy_usage': usage['star_candy_usage'],
         'star_candy_bonus_usage': usage['star_candy_bonus_usage'],
         'user_id': userId,
@@ -1405,8 +1374,17 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
       if (!mounted) return;
 
-      final result = Map<String, dynamic>.from(response.data);
-      result['votePickId'] = response.data['votePickId'];
+      // Edge Function 응답 데이터를 안전하게 처리
+      final responseData = response.data as Map<String, dynamic>? ?? {};
+      final result = Map<String, dynamic>.from(responseData);
+
+      // 필수 필드들이 없으면 기본값 설정
+      result['votePickId'] = responseData['votePickId'] ?? '';
+      result['updatedAt'] =
+          responseData['updatedAt'] ?? DateTime.now().toIso8601String();
+      result['existingVoteTotal'] = responseData['existingVoteTotal'] ?? 0;
+      result['addedVoteTotal'] = responseData['addedVoteTotal'] ?? 0;
+      result['updatedVoteTotal'] = responseData['updatedVoteTotal'] ?? 0;
 
       _showVotingCompleteDialog(result);
     } catch (e, s) {

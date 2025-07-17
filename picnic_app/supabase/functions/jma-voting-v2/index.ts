@@ -125,6 +125,34 @@ async function deductStarCandyWithUsage(
     throw new Error('Failed to deduct star candy');
   }
 
+  // 일반 별사탕 사용이 있는 경우 JMA 교환 히스토리 기록
+  if (starCandyUsage > 0) {
+    const jmaCandyAmount = Math.floor(starCandyUsage / 3);
+    
+    // JMA 교환 히스토리 기록
+    await queryDatabase(`
+      INSERT INTO jma_exchange_history (user_id, star_candy_amount, jma_candy_amount, exchange_rate, created_at)
+      VALUES ($1, $2, $3, 3, NOW())
+    `, user_id, starCandyUsage, jmaCandyAmount);
+
+    // 별사탕 사용 히스토리 기록
+    await queryDatabase(`
+      INSERT INTO star_candy_history (user_id, amount, remain_amount, parent_id, exchange_id, type, created_at)
+      VALUES ($1, $2, 0, NULL, NULL, 'EXCHANGE_TO_JMA', NOW())
+    `, user_id, starCandyUsage);
+
+    // JMA 캔디 추가 히스토리 기록 (실제로는 JMA 투표로 바로 사용되므로 증가 후 즉시 차감)
+    await queryDatabase(`
+      INSERT INTO jma_candy_history (type, user_id, amount, exchange_id, created_at)
+      VALUES ('EXCHANGE_FROM_STAR', $1, $2, NULL, NOW())
+    `, user_id, jmaCandyAmount);
+
+    await queryDatabase(`
+      INSERT INTO jma_candy_history (type, user_id, amount, exchange_id, created_at)
+      VALUES ('VOTE_USAGE', $1, $2, NULL, NOW())
+    `, user_id, -jmaCandyAmount);
+  }
+
   console.log(`Deducted star candy for user ${user_id}: regular=${starCandyUsage}, bonus=${starCandyBonusUsage}`);
   console.log(`Remaining: regular=${deductRows[0].star_candy}, bonus=${deductRows[0].star_candy_bonus}`);
 
@@ -215,14 +243,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 사용량 검증 (총 사용량이 amount와 일치해야 함)
-    if (star_candy_usage + star_candy_bonus_usage !== amount) {
+    // 사용량 검증 (별사탕 사용량으로 계산한 투표 수가 amount와 일치해야 함)
+    const calculatedVotes = Math.floor(star_candy_usage / 3) + star_candy_bonus_usage;
+    if (calculatedVotes !== amount) {
       return new Response(
         JSON.stringify({ 
           error: 'Usage validation failed',
-          message: 'star_candy_usage + star_candy_bonus_usage must equal amount',
+          message: 'Calculated votes from star candy usage must equal amount',
           star_candy_usage,
           star_candy_bonus_usage,
+          calculated_votes: calculatedVotes,
           amount
         }),
         { 
@@ -325,6 +355,11 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           votePickId: votePick.id,
+          updatedAt: votePick.created_at,
+          // 투표 완료 다이얼로그에서 사용하는 필드들 추가
+          existingVoteTotal: updatedVoteItem.vote_total - amount,
+          addedVoteTotal: amount,
+          updatedVoteTotal: updatedVoteItem.vote_total,
           message: 'JMA vote processed successfully',
           data: {
             vote_pick: votePick,

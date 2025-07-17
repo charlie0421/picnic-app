@@ -172,7 +172,25 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.tryParse(widget.result['updatedAt'])!.add(const Duration(hours: 9)))}(KST)',
+                              () {
+                                try {
+                                  final updatedAtStr =
+                                      widget.result['updatedAt'] as String?;
+                                  if (updatedAtStr == null) {
+                                    return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
+                                  }
+                                  final parsedDate =
+                                      DateTime.tryParse(updatedAtStr);
+                                  if (parsedDate == null) {
+                                    return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
+                                  }
+                                  return '${DateFormat('yyyy.MM.dd HH:mm').format(parsedDate.add(const Duration(hours: 9)))}(KST)';
+                                } catch (e) {
+                                  logger.w(
+                                      'Failed to parse updatedAt: ${widget.result['updatedAt']}, error: $e');
+                                  return '${DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now().add(const Duration(hours: 9)))}(KST)';
+                                }
+                              }(),
                               style: getTextStyle(
                                   AppTypo.caption12R, AppColors.grey600),
                               overflow: TextOverflow.ellipsis,
@@ -239,12 +257,44 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                 height: 120,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: (widget.voteItemModel.artist?.id ??
-                                              0) !=
-                                          0
-                                      ? _artist(widget.voteItemModel.artist!)
-                                      : _group(
-                                          widget.voteItemModel.artistGroup!),
+                                  children: () {
+                                    if ((widget.voteItemModel.artist?.id ??
+                                                0) !=
+                                            0 &&
+                                        widget.voteItemModel.artist != null) {
+                                      return _artist(
+                                          widget.voteItemModel.artist!);
+                                    } else if (widget
+                                            .voteItemModel.artistGroup !=
+                                        null) {
+                                      return _group(
+                                          widget.voteItemModel.artistGroup!);
+                                    } else {
+                                      // fallback: 기본 위젯 반환
+                                      return [
+                                        Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: AppColors.grey200,
+                                          ),
+                                          child: Icon(
+                                            Icons.person,
+                                            size: 30,
+                                            color: AppColors.grey500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Unknown Artist',
+                                          style: getTextStyle(AppTypo.body16B,
+                                              AppColors.grey900),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ];
+                                    }
+                                  }(),
                                 ),
                               ),
                             ),
@@ -370,12 +420,14 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
         style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         textAlign: TextAlign.center,
       ),
-      Text(
-        getLocaleTextFromJson(artist.artistGroup!.name),
-        style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
-            .copyWith(height: .8),
-        textAlign: TextAlign.center,
-      ),
+      // artistGroup이 null인 경우를 안전하게 처리
+      if (artist.artistGroup?.name != null)
+        Text(
+          getLocaleTextFromJson(artist.artistGroup!.name),
+          style: getTextStyle(AppTypo.caption12R, AppColors.grey600)
+              .copyWith(height: .8),
+          textAlign: TextAlign.center,
+        ),
     ];
   }
 
