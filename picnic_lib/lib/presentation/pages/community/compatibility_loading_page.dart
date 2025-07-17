@@ -6,9 +6,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/ads/banner_ad_widget.dart';
-import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -133,15 +132,13 @@ class _CompatibilityLoadingPageState
 
   void _updateNavigation() {
     Future(() {
-      if (navigatorKey.currentContext != null) {
       ref.read(navigationInfoProvider.notifier).settingNavigation(
             showPortal: true,
             showTopMenu: true,
             topRightMenu: TopRightType.board,
             showBottomNavigation: false,
-              pageTitle: AppLocalizations.of(navigatorKey.currentContext!).compatibility_page_title,
-            );
-          }
+            pageTitle: t('compatibility_page_title'),
+          );
     });
   }
 
@@ -195,7 +192,7 @@ class _CompatibilityLoadingPageState
   Widget _buildProgressText() {
     return Center(
       child: Text(
-        '${_isLoadingStarted ? AppLocalizations.of(context).compatibility_analyzing : AppLocalizations.of(context).compatibility_analyzing_prepare} ${_isLoadingStarted ? '($_seconds${AppLocalizations.of(context).seconds})' : ''}',
+        '${_isLoadingStarted ? t('compatibility_analyzing') : t('compatibility_analyzing_prepare')} ${_isLoadingStarted ? '($_seconds${t('seconds')})' : ''}',
         style: getTextStyle(
           AppTypo.body14B,
           AppColors.grey00,
@@ -220,7 +217,7 @@ class _CompatibilityLoadingPageState
         ),
         const SizedBox(height: 16),
         Text(
-          AppLocalizations.of(context).compatibility_waiting_message,
+          t('compatibility_waiting_message'),
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -229,7 +226,7 @@ class _CompatibilityLoadingPageState
         ),
         const SizedBox(height: 8),
         Text(
-          AppLocalizations.of(context).compatibility_warning_exit,
+          t('compatibility_warning_exit'),
           textAlign: TextAlign.center,
           style: getTextStyle(
             AppTypo.caption12R,
@@ -278,7 +275,7 @@ class _CompatibilityLoadingPageState
                   else if (widget.compatibility.hasError)
                     CompatibilityErrorView(
                       error: widget.compatibility.errorMessage ??
-                          AppLocalizations.of(context).error_unknown,
+                          t('error_unknown'),
                     )
                 ],
               ),

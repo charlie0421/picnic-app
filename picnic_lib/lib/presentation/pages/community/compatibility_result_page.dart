@@ -10,7 +10,6 @@ import 'package:picnic_lib/core/utils/vote_share_util.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_content.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';
@@ -60,7 +59,7 @@ class _CompatibilityResultPageState
     final artistName = getLocaleTextFromJson(widget.compatibility.artist.name);
     logger.d('🎯 아티스트 이름: "$artistName"');
     final message =
-        AppLocalizations.of(context).compatibility_share_message(artistName);
+        t('compatibility_share_message', {'artistName': artistName});
     logger.d('🎯 공유 메시지: "$message"');
     return message;
   }
@@ -139,7 +138,7 @@ class _CompatibilityResultPageState
               showTopMenu: true,
               topRightMenu: TopRightType.board,
               showBottomNavigation: false,
-              pageTitle: AppLocalizations.of(context).compatibility_page_title,
+              pageTitle: t('compatibility_page_title'),
             );
       }
     });
@@ -184,15 +183,13 @@ class _CompatibilityResultPageState
       if (userProfile == null) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
-          content: AppLocalizations.of(context).message_error_occurred,
+          content: t('message_error_occurred'),
           onOk: () {
             if (mounted) {
               ref
                   .read(navigationInfoProvider.notifier)
                   .setCommunityCurrentPage(StorePage());
-              if (context.mounted) {
-                Navigator.of(context).pop();
-              }
+              Navigator.of(context).pop();
             }
           },
         );
@@ -202,17 +199,14 @@ class _CompatibilityResultPageState
       if ((userProfile.starCandy ?? 0) < 100) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
-          title: AppLocalizations.of(context).fortune_lack_of_star_candy_title,
-          content:
-              AppLocalizations.of(context).fortune_lack_of_star_candy_message,
+          title: t('fortune_lack_of_star_candy_title'),
+          content: t('fortune_lack_of_star_candy_message'),
           onOk: () {
             if (mounted) {
               ref
                   .read(navigationInfoProvider.notifier)
                   .setCommunityCurrentPage(StorePage());
-              if (context.mounted) {
-                Navigator.of(context).pop();
-              }
+              Navigator.of(context).pop();
             }
           },
         );
@@ -261,7 +255,7 @@ class _CompatibilityResultPageState
       showSimpleDialog(
         contentWidget: Column(
           children: [
-            Text(AppLocalizations.of(context).compatibility_remain_star_candy),
+            Text(t('compatibility_remain_star_candy')),
             SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -283,8 +277,7 @@ class _CompatibilityResultPageState
       logger.e('Error opening compatibility', error: e, stackTrace: s);
       if (mounted) {
         OverlayLoadingProgress.stop();
-        await _showErrorDialog(
-            AppLocalizations.of(context).message_error_occurred);
+        await _showErrorDialog(t('message_error_occurred'));
       }
       rethrow;
     }
@@ -301,92 +294,95 @@ class _CompatibilityResultPageState
             return _buildLoadingIndicator();
           }
 
-          // CustomScrollView 대신 SingleChildScrollView 사용하여 렌더링 복잡성 감소
-          return SingleChildScrollView(
-            controller: _scrollController,
-            physics: const ClampingScrollPhysics(), // 더 안정적인 스크롤 물리학
-            child: RepaintBoundary(
-              key: _saveKey,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.primary500.withValues(alpha: .7),
-                      AppColors.secondary500.withValues(alpha: .7),
-                    ],
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    // 공유용 RepaintBoundary를 조건부로만 적용
-                    RepaintBoundary(
-                      key: _shareKey,
-                      child: Container(
-                        decoration: _isSharing
-                            ? BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    AppColors.primary500.withValues(alpha: .7),
-                                    AppColors.secondary500
-                                        .withValues(alpha: .7),
-                                  ],
-                                ),
-                              )
-                            : null,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min, // MainAxisSize 최적화
-                          children: [
-                            const SizedBox(height: 24),
-                            const CompatibilityLogoWidget(),
-                            const SizedBox(height: 36),
-                            CompatibilityCard(
-                              artist: compatibility.artist,
-                              ref: ref,
-                              birthDate: compatibility.birthDate,
-                              birthTime: compatibility.birthTime,
-                              compatibility: compatibility,
-                              gender: compatibility.gender,
-                            ),
-                            const SizedBox(height: 24),
-                            CompatibilitySummaryWidget(
-                                localizedResult:
-                                    compatibility.getLocalizedResult(
-                                        Localizations.localeOf(context)
-                                            .languageCode)),
-                            const SizedBox(height: 24),
-                            CompatibilityScoreWidget(
-                              compatibility: compatibility,
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: [
-                          if (compatibility.hasError)
-                            CompatibilityErrorView(
-                              error: compatibility.errorMessage ??
-                                  AppLocalizations.of(context).error_unknown,
-                            )
-                          else if (compatibility.isCompleted)
-                            _buildResultContent(compatibility)
+          return CustomScrollView(
+            controller: _scrollController, // Add the ScrollController here
+
+            slivers: [
+              SliverToBoxAdapter(
+                child: RepaintBoundary(
+                  key: _saveKey,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          AppColors.primary500.withValues(alpha: .7),
+                          AppColors.secondary500.withValues(alpha: .7),
                         ],
                       ),
                     ),
-                  ],
+                    child: Column(
+                      children: [
+                        RepaintBoundary(
+                          key: _shareKey,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: _isSharing
+                                  ? LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        AppColors.primary500
+                                            .withValues(alpha: .7),
+                                        AppColors.secondary500
+                                            .withValues(alpha: .7),
+                                      ],
+                                    )
+                                  : null,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 24),
+                                CompatibilityLogoWidget(),
+                                SizedBox(height: 36),
+                                CompatibilityCard(
+                                  artist: compatibility.artist,
+                                  ref: ref,
+                                  birthDate: compatibility.birthDate,
+                                  birthTime: compatibility.birthTime,
+                                  compatibility: compatibility,
+                                  gender: compatibility.gender,
+                                ),
+                                SizedBox(height: 24),
+                                CompatibilitySummaryWidget(
+                                    localizedResult:
+                                        compatibility.getLocalizedResult(
+                                            getLocaleLanguage())),
+                                SizedBox(height: 24),
+                                CompatibilityScoreWidget(
+                                  compatibility: compatibility,
+                                ),
+                                SizedBox(height: 12),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: [
+                              if (compatibility.hasError)
+                                CompatibilityErrorView(
+                                  error: compatibility.errorMessage ??
+                                      t('error_unknown'),
+                                )
+                              else if (compatibility.isCompleted)
+                                _buildResultContent(compatibility)
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           );
         },
         loading: () => _buildLoadingIndicator(),
@@ -418,6 +414,7 @@ class _CompatibilityResultPageState
   Future<Future<bool>> _handleSave(CompatibilityModel compatibility) async {
     return ShareUtils.saveImage(
       _saveKey,
+      context: context,
       onStart: () {
         setState(() {
           _isSaving = true;
@@ -446,7 +443,8 @@ class _CompatibilityResultPageState
   Future<Future<bool>> _handleShare(CompatibilityModel compatibility) async {
     logger.i('Share to Twitter');
     final artistName = getLocaleTextFromJson(compatibility.artist.name);
-    final hashtag = AppLocalizations.of(context).compatibility_share_hashtag;
+    final hashtag =
+        t('compatibility_share_hashtag', {'artistName': artistName});
     logger.d('🎯 해시태그 - 아티스트 이름: "$artistName", 결과: "$hashtag"');
 
     return ShareUtils.shareToSocial(

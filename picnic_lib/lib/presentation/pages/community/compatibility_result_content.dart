@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
@@ -63,21 +63,20 @@ class _CompatibilityResultContentState
           title: Row(
             children: [
               Text(
-                AppLocalizations.of(context)
-                    .compatibility_purchase_confirm_title,
+                t('compatibility_purchase_confirm_title'),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ],
           ),
           content: Text(
-            AppLocalizations.of(context).compatibility_purchase_confirm_message,
+            t('compatibility_purchase_confirm_message'),
             style: getTextStyle(AppTypo.body14R, AppColors.grey700),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
-                AppLocalizations.of(context).cancel,
+                t('cancel'),
                 style: getTextStyle(AppTypo.body14R, AppColors.grey500),
               ),
             ),
@@ -88,7 +87,7 @@ class _CompatibilityResultContentState
                 foregroundColor: Colors.white,
               ),
               child: Text(
-                AppLocalizations.of(context).confirm,
+                t('confirm'),
                 style: getTextStyle(AppTypo.body14B, Colors.white),
               ),
             ),
@@ -116,12 +115,12 @@ class _CompatibilityResultContentState
 
   @override
   Widget build(BuildContext context) {
-    String language = Localizations.localeOf(context).languageCode;
+    String language = getLocaleLanguage();
 
     if (widget.compatibility.localizedResults?.isEmpty ?? true) {
       return Center(
         child: Text(
-          AppLocalizations.of(context).compatibility_result_not_found,
+          t('compatibility_result_not_found'),
           style: getTextStyle(AppTypo.body14R, AppColors.grey500),
         ),
       );
@@ -133,7 +132,7 @@ class _CompatibilityResultContentState
     if (localizedResult == null) {
       return Center(
         child: Text(
-          AppLocalizations.of(context).compatibility_result_not_found,
+          t('compatibility_result_not_found'),
           style: getTextStyle(AppTypo.body14R, AppColors.grey500),
         ),
       );
@@ -171,8 +170,8 @@ class _CompatibilityResultContentState
                       if (tips.isNotEmpty) _buildTipsSection(tips),
                       if (!widget.isSaving)
                         ShareSection(
-                          saveButtonText: AppLocalizations.of(context).save,
-                          shareButtonText: AppLocalizations.of(context).share,
+                          saveButtonText: t('save'),
+                          shareButtonText: t('share'),
                           onSave: () => widget.onSave(widget.compatibility),
                           onShare: () => widget.onShare(widget.compatibility),
                         ),
@@ -251,8 +250,8 @@ class _CompatibilityResultContentState
                                     // 🔒 구매 확인 다이얼로그 표시
                                     await _showPurchaseConfirmDialog();
                                   },
-                                  child: Text(AppLocalizations.of(context)
-                                      .fortune_purchase_by_star_candy),
+                                  child:
+                                      Text(t('fortune_purchase_by_star_candy')),
                                 ),
                               ),
                             ],
@@ -272,8 +271,8 @@ class _CompatibilityResultContentState
             if (tips.isNotEmpty) _buildTipsSection(tips),
             if (!widget.isSaving)
               ShareSection(
-                saveButtonText: AppLocalizations.of(context).save,
-                shareButtonText: AppLocalizations.of(context).share,
+                saveButtonText: t('save'),
+                shareButtonText: t('share'),
                 onSave: () => widget.onSave(widget.compatibility),
                 onShare: () => widget.onShare(widget.compatibility),
               ),
@@ -322,8 +321,7 @@ class _CompatibilityResultContentState
                 ),
               ),
               UnderlinedText(
-                text:
-                    ' ${AppLocalizations.of(context).compatibility_style_title}',
+                text: ' ${t('compatibility_style_title')}',
                 textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
                 underlineGap: 1.5,
               ),
@@ -344,19 +342,19 @@ class _CompatibilityResultContentState
                 children: [
                   _buildStyleItem(
                     context,
-                    AppLocalizations.of(context).compatibility_idol_style,
+                    t('compatibility_idol_style'),
                     style.idolStyle,
                   ),
                   const SizedBox(height: 12),
                   _buildStyleItem(
                     context,
-                    AppLocalizations.of(context).compatibility_user_style,
+                    t('compatibility_user_style'),
                     style.userStyle,
                   ),
                   const SizedBox(height: 12),
                   _buildStyleItem(
                     context,
-                    AppLocalizations.of(context).compatibility_couple_style,
+                    t('compatibility_couple_style'),
                     style.coupleStyle,
                   ),
                 ],
@@ -387,8 +385,7 @@ class _CompatibilityResultContentState
               ),
             ),
             UnderlinedText(
-              text:
-                  ' ${AppLocalizations.of(context).compatibility_activities_title}',
+              text: ' ${t('compatibility_activities_title')}',
               textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
               underlineGap: 1.5,
             ),
@@ -454,7 +451,7 @@ class _CompatibilityResultContentState
               ),
             ),
             UnderlinedText(
-              text: ' ${AppLocalizations.of(context).compatibility_tips_title}',
+              text: ' ${t('compatibility_tips_title')}',
               textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
               underlineGap: 1.5,
             ),
