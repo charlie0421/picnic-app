@@ -97,6 +97,9 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     try {
       logger.i('🔍 Shorebird 패치 체크 시작 (splash_image)');
 
+      // 0. PatchInfoProvider가 초기화되었는지 확인하고 필요시 강제 새로고침
+      await _ensurePatchInfoProviderInitialized();
+
       // 1. 네트워크 상태 확인 (최대 3회 재시도)
       bool hasNetwork = false;
       for (int i = 0; i < 3; i++) {
@@ -190,6 +193,30 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       });
 
       logger.i('🏁 패치 체크 완료');
+    }
+  }
+
+  /// PatchInfoProvider 초기화 보장
+  Future<void> _ensurePatchInfoProviderInitialized() async {
+    try {
+      if (!context.mounted) return;
+
+      final container = ProviderScope.containerOf(context);
+      final patchInfoNotifier = container.read(patchInfoProvider.notifier);
+
+      // PatchInfoProvider가 유효한 정보를 가지고 있는지 확인
+      if (!patchInfoNotifier.isPatchInfoValid) {
+        logger.i('🔄 PatchInfoProvider 정보가 유효하지 않아 강제 새로고침 실행');
+        await patchInfoNotifier.forceRefreshPatchInfo();
+
+        // 잠시 대기하여 업데이트가 완료되도록 함
+        await Future.delayed(const Duration(milliseconds: 200));
+      } else {
+        logger.i('✅ PatchInfoProvider가 유효한 정보를 가지고 있음');
+      }
+    } catch (e) {
+      logger.e('⚠️ PatchInfoProvider 초기화 보장 중 오류: $e');
+      // 오류가 발생해도 패치 체크는 계속 진행
     }
   }
 

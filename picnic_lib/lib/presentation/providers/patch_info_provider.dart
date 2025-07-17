@@ -4,6 +4,8 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
+import 'package:universal_platform/universal_platform.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
 /// 패치 정보 상태 모델
 class PatchInfo {
@@ -66,7 +68,109 @@ class PatchInfo {
 
 /// 패치 정보 상태 관리 Provider
 class PatchInfoNotifier extends StateNotifier<PatchInfo> {
-  PatchInfoNotifier() : super(const PatchInfo());
+  PatchInfoNotifier() : super(const PatchInfo()) {
+    // 생성자에서 초기 패치 정보 로드 시도
+    _loadInitialPatchInfo();
+  }
+
+  /// 초기 패치 정보 로드
+  Future<void> _loadInitialPatchInfo() async {
+    try {
+      // 웹 환경에서는 패치 정보를 로드하지 않음
+      if (UniversalPlatform.isWeb) {
+        logger.i('웹 환경에서는 패치 정보를 로드하지 않습니다');
+        state = state.copyWith(
+          statusMessage: 'Web environment - patches not supported',
+          lastChecked: DateTime.now(),
+        );
+        return;
+      }
+
+      logger.i('🚀 PatchInfoProvider 초기 패치 정보 로드 시작');
+
+      // 재시도 로직을 포함한 패치 정보 로드
+      await _loadPatchWithRetry();
+
+      logger.i('✅ PatchInfoProvider 초기 패치 정보 로드 완료');
+    } catch (e) {
+      logger.e('❌ PatchInfoProvider 초기 패치 정보 로드 최종 실패: $e');
+      // 실패해도 기본 상태 설정
+      state = state.copyWith(
+        statusMessage: 'Failed to load patch info',
+        lastChecked: DateTime.now(),
+      );
+    }
+  }
+
+  /// 재시도를 포함한 패치 정보 로드
+  Future<void> _loadPatchWithRetry() async {
+    const maxRetries = 3;
+    const baseDelay = Duration(milliseconds: 500);
+
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        logger.i('🔄 패치 정보 로드 시도 $attempt/$maxRetries');
+
+        // Shorebird updater를 사용하여 현재 패치 정보를 가져옴
+        final updater = shorebird.ShorebirdUpdater();
+        final currentPatch = await updater.readCurrentPatch();
+
+        // 성공 시 상태 업데이트
+        state = state.copyWith(
+          currentPatch: currentPatch?.number,
+          statusMessage: currentPatch != null
+              ? 'Current patch: ${currentPatch.number}'
+              : 'No patch applied',
+          lastChecked: DateTime.now(),
+        );
+
+        logger.i(
+            '✅ 패치 정보 로드 성공 (시도 $attempt): 패치 번호 ${currentPatch?.number ?? "없음"}');
+        return; // 성공 시 즉시 리턴
+      } catch (e) {
+        logger.w('⚠️ 패치 정보 로드 시도 $attempt 실패: $e');
+
+        // 마지막 시도가 아니면 재시도
+        if (attempt < maxRetries) {
+          final delay =
+              Duration(milliseconds: baseDelay.inMilliseconds * attempt);
+          logger.i('⏰ ${delay.inMilliseconds}ms 후 재시도...');
+          await Future.delayed(delay);
+        } else {
+          rethrow; // 마지막 시도에서도 실패하면 예외 전파
+        }
+      }
+    }
+  }
+
+  /// 강제로 패치 정보를 새로고침하는 메소드
+  Future<void> forceRefreshPatchInfo() async {
+    try {
+      logger.i('🔄 패치 정보 강제 새로고침 시작');
+
+      if (UniversalPlatform.isWeb) {
+        logger.i('웹 환경에서는 패치 새로고침을 지원하지 않습니다');
+        return;
+      }
+
+      await _loadPatchWithRetry();
+      logger.i('✅ 패치 정보 강제 새로고침 완료');
+    } catch (e) {
+      logger.e('❌ 패치 정보 강제 새로고침 실패: $e');
+    }
+  }
+
+  /// 패치 정보가 유효한지 확인하는 메소드
+  bool get isPatchInfoValid {
+    final now = DateTime.now();
+
+    // lastChecked가 null이면 유효하지 않음
+    if (state.lastChecked == null) return false;
+
+    // 5분 이내에 체크된 정보면 유효
+    final timeDiff = now.difference(state.lastChecked!);
+    return timeDiff.inMinutes < 5;
+  }
 
   /// 패치 정보 업데이트
   void updatePatchInfo(Map<String, dynamic>? patchData) {

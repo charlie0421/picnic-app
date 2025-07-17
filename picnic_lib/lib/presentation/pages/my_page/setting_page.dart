@@ -20,6 +20,7 @@ import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
@@ -61,7 +62,59 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
       ref.read(navigationInfoProvider.notifier).setMyPageTitle(
           pageTitle: AppLocalizations.of(context).mypage_setting);
+
+      // 패치 정보가 초기화되지 않은 경우 초기화 시도
+      _initializePatchInfoIfNeeded();
     });
+  }
+
+  /// 패치 정보가 초기화되지 않은 경우 초기화 시도
+  Future<void> _initializePatchInfoIfNeeded() async {
+    try {
+      // 웹 환경에서는 스킵
+      if (UniversalPlatform.isWeb) {
+        logger.i('웹 환경에서는 패치 정보 초기화를 스킵합니다');
+        return;
+      }
+
+      final patchInfoNotifier = ref.read(patchInfoProvider.notifier);
+
+      // PatchInfoProvider가 유효한 정보를 가지고 있는지 확인
+      if (!patchInfoNotifier.isPatchInfoValid) {
+        logger.i('설정 페이지에서 패치 정보 초기화 시작 - 유효하지 않은 정보 감지');
+
+        // 강제 새로고침 실행
+        await patchInfoNotifier.forceRefreshPatchInfo();
+
+        logger.i('설정 페이지에서 패치 정보 강제 새로고침 완료');
+      } else {
+        final currentPatchInfo = ref.read(patchInfoProvider);
+        logger.i(
+            '설정 페이지 패치 정보 확인: 유효한 정보 존재 (패치: ${currentPatchInfo.currentPatch ?? "없음"})');
+      }
+    } catch (e) {
+      logger.e('설정 페이지 패치 정보 초기화 실패: $e');
+
+      // 백업 로직: 직접 ShorebirdUtils를 사용하여 정보 로드 시도
+      try {
+        logger.i('백업 로직 실행: ShorebirdUtils를 직접 사용');
+        final patch = await ShorebirdUtils.checkPatch();
+
+        if (mounted) {
+          ref.read(patchInfoProvider.notifier).updatePatchInfo({
+            'currentPatch': patch?.number,
+            'updateAvailable': false,
+            'updateDownloaded': false,
+            'needsRestart': false,
+          });
+
+          logger.i('백업 로직으로 패치 정보 로드 완료: 패치 번호 ${patch?.number ?? "없음"}');
+        }
+      } catch (backupError) {
+        logger.e('백업 로직도 실패: $backupError');
+        // 최종적으로 실패해도 계속 진행
+      }
+    }
   }
 
   @override
@@ -471,11 +524,58 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     try {
       logger.i('🔍 설정 페이지에서 수동 패치 확인 시작');
 
-      // 1. 종합 진단 실행
+      // 웹 환경에서는 스킵
+      if (UniversalPlatform.isWeb) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('웹 환경에서는 패치 기능을 사용할 수 없습니다.'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // 1. 기본 패치 정보부터 확인 (currentPatch가 null인 경우 대비)
+      final patchInfoNotifier = ref.read(patchInfoProvider.notifier);
+
+      // PatchInfoProvider가 유효한 정보를 가지고 있는지 확인
+      if (!patchInfoNotifier.isPatchInfoValid) {
+        logger.i('현재 패치 정보가 유효하지 않아 강제 새로고침 실행');
+        try {
+          await patchInfoNotifier.forceRefreshPatchInfo();
+          logger.i('패치 정보 강제 새로고침 완료');
+        } catch (e) {
+          logger.e('패치 정보 강제 새로고침 실패: $e');
+
+          // 백업: 직접 ShorebirdUtils 사용
+          try {
+            logger.i('백업 로직: ShorebirdUtils 직접 사용');
+            final patch = await ShorebirdUtils.checkPatch();
+            if (mounted) {
+              ref.read(patchInfoProvider.notifier).updatePatchInfo({
+                'currentPatch': patch?.number,
+                'updateAvailable': false,
+                'updateDownloaded': false,
+                'needsRestart': false,
+              });
+            }
+            logger.i('백업으로 기본 패치 정보 로드 완료: ${patch?.number ?? "없음"}');
+          } catch (backupError) {
+            logger.e('백업 로직도 실패: $backupError');
+          }
+        }
+      } else {
+        logger.i('유효한 패치 정보가 이미 존재함');
+      }
+
+      // 2. 종합 진단 실행
       final diagnosis = await ShorebirdUtils.diagnosePatchDetectionIssue();
       logger.i('📊 진단 결과: ${diagnosis['summary']}');
 
-      // 2. 진단 결과에 따른 처리
+      // 3. 진단 결과에 따른 처리
       if (diagnosis['network']?['isOnline'] == false) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -502,7 +602,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         return;
       }
 
-      // 3. 새로운 전용 메서드 사용
+      // 4. 새로운 전용 메서드 사용
       final patchStatus = await ShorebirdUtils.checkPatchStatusForSettings();
       logger.i('📋 패치 상태 결과: $patchStatus');
 
@@ -510,7 +610,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         throw Exception(patchStatus['error'] ?? '패치 상태 확인 실패');
       }
 
-      // 4. PatchInfoProvider 업데이트
+      // 5. PatchInfoProvider 업데이트
       if (mounted) {
         ref.read(patchInfoProvider.notifier).updatePatchInfo({
           'updateAvailable': patchStatus['isOutdated'] == true,
@@ -520,7 +620,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         });
       }
 
-      // 5. 업데이트가 필요한 경우 자동으로 다운로드
+      // 6. 업데이트가 필요한 경우 자동으로 다운로드
       if (patchStatus['isOutdated'] == true && mounted) {
         logger.i('🔄 업데이트 다운로드 시작');
 
@@ -575,9 +675,15 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ),
         );
       } else if (patchStatus['isUpToDate'] == true && mounted) {
+        // 최신 상태인 경우에도 현재 패치 번호를 표시
+        final currentPatch = patchStatus['currentPatch'];
+        final message = currentPatch != null
+            ? '최신 패치를 사용 중입니다. (패치: $currentPatch)'
+            : '최신 상태입니다.';
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('최신 패치를 사용 중입니다.'),
+            content: Text(message),
             duration: Duration(seconds: 2),
           ),
         );
