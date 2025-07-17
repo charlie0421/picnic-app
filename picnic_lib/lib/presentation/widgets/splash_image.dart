@@ -11,6 +11,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
+import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 
 class SplashImageData {
   final String imageUrl;
@@ -81,7 +82,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     setState(fn);
   }
 
-  /// 안정화된 패치 체크 로직
+  /// 간소화된 패치 체크 로직 (auto_update 사용)
   Future<void> _checkForUpdatesStable() async {
     if (UniversalPlatform.isWeb || _patchCheckCompleted) {
       logger.i(
@@ -95,96 +96,39 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     });
 
     try {
-      logger.i('🔍 Shorebird 패치 체크 시작 (splash_image)');
+      logger.i('🔍 간단한 패치 정보 확인 시작 (auto_update 활성화됨)');
 
-      // 0. PatchInfoProvider가 초기화되었는지 확인하고 필요시 강제 새로고침
-      await _ensurePatchInfoProviderInitialized();
+      // 간단한 현재 패치 정보만 확인 (Shorebird auto_update가 패치 처리)
+      try {
+        final patch = await ShorebirdUtils.checkPatch();
+        final currentPatchNumber = patch?.number;
 
-      // 1. 네트워크 상태 확인 (최대 3회 재시도)
-      bool hasNetwork = false;
-      for (int i = 0; i < 3; i++) {
-        logger.i('📡 네트워크 상태 확인 시도 ${i + 1}/3');
+        logger.i('✅ 현재 패치 번호: ${currentPatchNumber ?? "없음"}');
 
-        final networkService = NetworkConnectivityService();
-        hasNetwork = await networkService.checkOnlineStatus();
+        // PatchInfoProvider 업데이트
+        _updatePatchInfoProvider({
+          'currentPatch': currentPatchNumber,
+          'updateAvailable': false, // auto_update가 처리
+          'needsRestart': false,
+          'statusMessage': '패치 정보 확인 완료',
+        });
 
-        if (hasNetwork) {
-          logger.i('✅ 네트워크 연결 확인됨');
-          break;
-        } else {
-          logger.w('❌ 네트워크 연결 없음, ${i < 2 ? "재시도" : "포기"}');
-          if (i < 2) {
-            await Future.delayed(Duration(seconds: 1 + i)); // 점진적 지연
-          }
-        }
-      }
+        await _handleUpToDate(currentPatchNumber);
+      } catch (e) {
+        logger.w('⚠️ 패치 정보 확인 실패: $e');
 
-      if (!hasNetwork) {
-        logger.e('🚨 네트워크 연결 실패 - 패치 체크 중단');
-        await _handlePatchError('네트워크 연결이 필요합니다');
-        return;
-      }
+        // 실패해도 정상 진행
+        _updatePatchInfoProvider({
+          'currentPatch': null,
+          'updateAvailable': false,
+          'needsRestart': false,
+          'statusMessage': '패치 정보 확인 실패',
+        });
 
-      // 2. 짧은 딜레이로 Shorebird 초기화 시간 제공
-      logger.i('⏳ Shorebird 초기화 대기 중...');
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // 3. Shorebird 업데이터 초기화 및 현재 패치 정보 확인
-      final updater = shorebird.ShorebirdUpdater();
-
-      logger.i('📋 현재 패치 정보 확인 중...');
-      final currentPatch = await updater.readCurrentPatch();
-      final currentPatchNumber = currentPatch?.number;
-      logger.i('📋 현재 패치 번호: ${currentPatchNumber ?? "없음"}');
-
-      // 4. 업데이트 상태 확인
-      logger.i('🔄 업데이트 상태 확인 중...');
-      final status = await updater.checkForUpdate();
-      logger.i('🔄 업데이트 상태: $status');
-
-      // 5. 상세 진단 정보 로깅
-      logger.i('📊 패치 체크 진단 정보:');
-      logger.i('  - 현재 패치: $currentPatchNumber');
-      logger.i('  - 업데이트 상태: $status');
-      logger.i('  - 네트워크 상태: 연결됨');
-      logger.i('  - 플랫폼: ${UniversalPlatform.operatingSystem}');
-
-      switch (status) {
-        case shorebird.UpdateStatus.outdated:
-          logger.i('🆕 새로운 패치 발견 - 다운로드 시작');
-          await _handleOutdatedUpdate(updater, currentPatchNumber);
-          break;
-
-        case shorebird.UpdateStatus.restartRequired:
-          logger.i('🔄 재시작이 필요한 상태 감지');
-          await _handleRestartRequired(currentPatchNumber);
-          break;
-
-        case shorebird.UpdateStatus.upToDate:
-          logger.i('✅ 최신 상태 확인됨');
-          await _handleUpToDate(currentPatchNumber);
-          break;
-
-        default:
-          logger.w('⚠️ 알 수 없는 업데이트 상태: $status');
-          await _handleUpToDate(currentPatchNumber);
-          break;
+        await _handleUpToDate(null);
       }
     } catch (e, stackTrace) {
-      logger.e('💥 패치 체크 중 오류 발생: $e', stackTrace: stackTrace);
-
-      // 오류 유형별 상세 로깅
-      if (e.toString().contains('network') ||
-          e.toString().contains('connection')) {
-        logger.e('🌐 네트워크 관련 오류');
-      } else if (e.toString().contains('timeout')) {
-        logger.e('⏰ 타임아웃 오류');
-      } else if (e.toString().contains('permission')) {
-        logger.e('🔒 권한 관련 오류');
-      } else {
-        logger.e('❓ 기타 오류');
-      }
-
+      logger.e('💥 패치 체크 중 오류: $e', stackTrace: stackTrace);
       await _handlePatchError(e);
     } finally {
       setStateIfMounted(() {
@@ -192,31 +136,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
         _isCheckingUpdate = false;
       });
 
-      logger.i('🏁 패치 체크 완료');
-    }
-  }
-
-  /// PatchInfoProvider 초기화 보장
-  Future<void> _ensurePatchInfoProviderInitialized() async {
-    try {
-      if (!context.mounted) return;
-
-      final container = ProviderScope.containerOf(context);
-      final patchInfoNotifier = container.read(patchInfoProvider.notifier);
-
-      // PatchInfoProvider가 유효한 정보를 가지고 있는지 확인
-      if (!patchInfoNotifier.isPatchInfoValid) {
-        logger.i('🔄 PatchInfoProvider 정보가 유효하지 않아 강제 새로고침 실행');
-        await patchInfoNotifier.forceRefreshPatchInfo();
-
-        // 잠시 대기하여 업데이트가 완료되도록 함
-        await Future.delayed(const Duration(milliseconds: 200));
-      } else {
-        logger.i('✅ PatchInfoProvider가 유효한 정보를 가지고 있음');
-      }
-    } catch (e) {
-      logger.e('⚠️ PatchInfoProvider 초기화 보장 중 오류: $e');
-      // 오류가 발생해도 패치 체크는 계속 진행
+      logger.i('🏁 Splash 패치 체크 완료');
     }
   }
 
@@ -387,40 +307,28 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
     if (mounted) {
       try {
-        logger.i('Phoenix를 사용하여 앱 재시작 시도');
+        logger.i('Phoenix를 사용하여 앱 재시작');
         Phoenix.rebirth(context);
         logger.i('Phoenix.rebirth 성공적으로 실행됨');
       } catch (e) {
         logger.e('Phoenix 재시작 실패: $e');
 
-        // Phoenix 실패 시 PatchInfoProvider의 더 안정적인 재시작 방법 사용
-        if (mounted && context.mounted) {
-          try {
-            final container = ProviderScope.containerOf(context);
-            await container
-                .read(patchInfoProvider.notifier)
-                .performManualRestart(context);
-          } catch (e2) {
-            logger.e('대체 재시작 방법도 실패: $e2');
+        // 재시작 실패 시 사용자에게 수동 재시작 요청
+        if (mounted) {
+          setStateIfMounted(() {
+            _patchCheckCompleted = false;
+            _isCheckingUpdate = false;
+            _updateStatus = 'Restart required - please restart manually';
+          });
 
-            // 모든 재시작 방법이 실패한 경우 상태만 초기화
+          // 5초 후 메시지 숨김
+          Future.delayed(const Duration(seconds: 5), () {
             if (mounted) {
               setStateIfMounted(() {
-                _patchCheckCompleted = false;
-                _isCheckingUpdate = false;
-                _updateStatus = 'Restart required - please restart manually';
-              });
-
-              // 5초 후 메시지 숨김
-              Future.delayed(const Duration(seconds: 5), () {
-                if (mounted) {
-                  setStateIfMounted(() {
-                    _updateStatus = '';
-                  });
-                }
+                _updateStatus = '';
               });
             }
-          }
+          });
         }
       }
     }

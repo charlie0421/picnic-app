@@ -21,6 +21,7 @@ import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
@@ -62,59 +63,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
       ref.read(navigationInfoProvider.notifier).setMyPageTitle(
           pageTitle: AppLocalizations.of(context).mypage_setting);
-
-      // 패치 정보가 초기화되지 않은 경우 초기화 시도
-      _initializePatchInfoIfNeeded();
     });
-  }
-
-  /// 패치 정보가 초기화되지 않은 경우 초기화 시도
-  Future<void> _initializePatchInfoIfNeeded() async {
-    try {
-      // 웹 환경에서는 스킵
-      if (UniversalPlatform.isWeb) {
-        logger.i('웹 환경에서는 패치 정보 초기화를 스킵합니다');
-        return;
-      }
-
-      final patchInfoNotifier = ref.read(patchInfoProvider.notifier);
-
-      // PatchInfoProvider가 유효한 정보를 가지고 있는지 확인
-      if (!patchInfoNotifier.isPatchInfoValid) {
-        logger.i('설정 페이지에서 패치 정보 초기화 시작 - 유효하지 않은 정보 감지');
-
-        // 강제 새로고침 실행
-        await patchInfoNotifier.forceRefreshPatchInfo();
-
-        logger.i('설정 페이지에서 패치 정보 강제 새로고침 완료');
-      } else {
-        final currentPatchInfo = ref.read(patchInfoProvider);
-        logger.i(
-            '설정 페이지 패치 정보 확인: 유효한 정보 존재 (패치: ${currentPatchInfo.currentPatch ?? "없음"})');
-      }
-    } catch (e) {
-      logger.e('설정 페이지 패치 정보 초기화 실패: $e');
-
-      // 백업 로직: 직접 ShorebirdUtils를 사용하여 정보 로드 시도
-      try {
-        logger.i('백업 로직 실행: ShorebirdUtils를 직접 사용');
-        final patch = await ShorebirdUtils.checkPatch();
-
-        if (mounted) {
-          ref.read(patchInfoProvider.notifier).updatePatchInfo({
-            'currentPatch': patch?.number,
-            'updateAvailable': false,
-            'updateDownloaded': false,
-            'needsRestart': false,
-          });
-
-          logger.i('백업 로직으로 패치 정보 로드 완료: 패치 번호 ${patch?.number ?? "없음"}');
-        }
-      } catch (backupError) {
-        logger.e('백업 로직도 실패: $backupError');
-        // 최종적으로 실패해도 계속 진행
-      }
-    }
   }
 
   @override
@@ -498,9 +447,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         // 짧은 지연 후 재시작 실행
         await Future.delayed(const Duration(milliseconds: 300));
         if (mounted && context.mounted) {
-          await ref
-              .read(patchInfoProvider.notifier)
-              .performManualRestart(context);
+          Phoenix.rebirth(context);
         }
       } catch (e) {
         logger.e('수동 재시작 실행 중 오류: $e');
@@ -538,162 +485,62 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         return;
       }
 
-      // 1. 기본 패치 정보부터 확인 (currentPatch가 null인 경우 대비)
-      final patchInfoNotifier = ref.read(patchInfoProvider.notifier);
-
-      // PatchInfoProvider가 유효한 정보를 가지고 있는지 확인
-      if (!patchInfoNotifier.isPatchInfoValid) {
-        logger.i('현재 패치 정보가 유효하지 않아 강제 새로고침 실행');
-        try {
-          await patchInfoNotifier.forceRefreshPatchInfo();
-          logger.i('패치 정보 강제 새로고침 완료');
-        } catch (e) {
-          logger.e('패치 정보 강제 새로고침 실패: $e');
-
-          // 백업: 직접 ShorebirdUtils 사용
-          try {
-            logger.i('백업 로직: ShorebirdUtils 직접 사용');
-            final patch = await ShorebirdUtils.checkPatch();
-            if (mounted) {
-              ref.read(patchInfoProvider.notifier).updatePatchInfo({
-                'currentPatch': patch?.number,
-                'updateAvailable': false,
-                'updateDownloaded': false,
-                'needsRestart': false,
-              });
-            }
-            logger.i('백업으로 기본 패치 정보 로드 완료: ${patch?.number ?? "없음"}');
-          } catch (backupError) {
-            logger.e('백업 로직도 실패: $backupError');
-          }
-        }
-      } else {
-        logger.i('유효한 패치 정보가 이미 존재함');
-      }
-
-      // 2. 종합 진단 실행
-      final diagnosis = await ShorebirdUtils.diagnosePatchDetectionIssue();
-      logger.i('📊 진단 결과: ${diagnosis['summary']}');
-
-      // 3. 진단 결과에 따른 처리
-      if (diagnosis['network']?['isOnline'] == false) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('네트워크 연결을 확인해주세요.'),
-              duration: Duration(seconds: 3),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
-        return;
-      }
-
-      if (diagnosis['shorebird']?['error'] != null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('패치 시스템 오류가 발생했습니다. 앱을 재시작해보세요.'),
-              duration: Duration(seconds: 3),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        return;
-      }
-
-      // 4. 새로운 전용 메서드 사용
+      // 간단한 패치 상태 확인
       final patchStatus = await ShorebirdUtils.checkPatchStatusForSettings();
-      logger.i('📋 패치 상태 결과: $patchStatus');
 
-      if (!patchStatus['success']) {
-        throw Exception(patchStatus['error'] ?? '패치 상태 확인 실패');
-      }
-
-      // 5. PatchInfoProvider 업데이트
       if (mounted) {
-        ref.read(patchInfoProvider.notifier).updatePatchInfo({
-          'updateAvailable': patchStatus['isOutdated'] == true,
-          'updateDownloaded': false,
-          'needsRestart': patchStatus['isRestartRequired'] == true,
-          'currentPatch': patchStatus['currentPatch'],
-        });
-      }
-
-      // 6. 업데이트가 필요한 경우 자동으로 다운로드
-      if (patchStatus['isOutdated'] == true && mounted) {
-        logger.i('🔄 업데이트 다운로드 시작');
-
-        // 사용자에게 알림
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('패치를 다운로드하고 있습니다...'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-
-        // 전용 다운로드 메서드 사용
-        final downloadResult = await ShorebirdUtils.downloadAndApplyPatch();
-        logger.i('📥 다운로드 결과: $downloadResult');
-
-        if (mounted) {
-          if (downloadResult['success'] == true) {
-            ref.read(patchInfoProvider.notifier).updatePatchInfo({
-              'updateAvailable': false,
-              'updateDownloaded': true,
-              'needsRestart': downloadResult['needsRestart'] == true,
-              'currentPatch': downloadResult['patchAfter'],
-              'newPatch': downloadResult['patchAfter'],
-            });
-
-            if (downloadResult['patchChanged'] == true) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('패치가 준비되었습니다. 재시작 버튼을 눌러주세요.'),
-                  duration: Duration(seconds: 3),
-                  backgroundColor: AppColors.primary500,
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('패치 다운로드가 완료되었습니다.'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            }
-          } else {
-            throw Exception(downloadResult['error'] ?? '패치 다운로드 실패');
-          }
-        }
-      } else if (patchStatus['isRestartRequired'] == true && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('패치가 준비되었습니다. 재시작 버튼을 눌러주세요.'),
+            content: Text(patchStatus),
             duration: Duration(seconds: 3),
-            backgroundColor: AppColors.primary500,
-          ),
-        );
-      } else if (patchStatus['isUpToDate'] == true && mounted) {
-        // 최신 상태인 경우에도 현재 패치 번호를 표시
-        final currentPatch = patchStatus['currentPatch'];
-        final message = currentPatch != null
-            ? '최신 패치를 사용 중입니다. (패치: $currentPatch)'
-            : '최신 상태입니다.';
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            duration: Duration(seconds: 2),
+            backgroundColor: patchStatus.contains('업데이트 가능')
+                ? Colors.blue
+                : patchStatus.contains('최신')
+                    ? Colors.green
+                    : Colors.grey,
+            action: patchStatus.contains('업데이트 가능')
+                ? SnackBarAction(
+                    label: '업데이트',
+                    textColor: Colors.white,
+                    onPressed: () async {
+                      try {
+                        await ShorebirdUtils.checkAndUpdate();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('패치 업데이트 완료! 앱을 재시작하세요.'),
+                              backgroundColor: Colors.green,
+                              action: SnackBarAction(
+                                label: '재시작',
+                                textColor: Colors.white,
+                                onPressed: () => Phoenix.rebirth(context),
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('패치 업데이트 실패: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  )
+                : null,
           ),
         );
       }
-    } catch (e) {
-      logger.e('💥 수동 패치 확인 중 오류: $e');
+    } catch (e, stackTrace) {
+      logger.e('❌ 패치 상태 확인 중 오류 발생: $e', stackTrace: stackTrace);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('패치 확인 중 오류가 발생했습니다: ${e.toString()}'),
+            content: Text('패치 상태 확인 실패: $e'),
             duration: Duration(seconds: 3),
             backgroundColor: Colors.red,
           ),
