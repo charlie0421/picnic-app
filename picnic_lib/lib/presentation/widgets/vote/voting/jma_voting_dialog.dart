@@ -82,7 +82,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     _loadDailyVoteCount();
   }
 
-  // 오늘 투표 횟수 조회
+  // 오늘 보너스 투표 횟수 조회 (vote_pick 기반)
   Future<void> _loadDailyVoteCount() async {
     try {
       final userId = ref.read(userInfoProvider).value?.id ?? '';
@@ -92,10 +92,13 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       final startOfDay = DateTime(today.year, today.month, today.day);
       final endOfDay = startOfDay.add(Duration(days: 1));
 
+      // 이 투표에 대한 오늘 보너스 투표 카운트 조회 (투표별 제한)
       final response = await supabase
-          .from('jma_voting_logs')
-          .select('count')
+          .from('vote_pick')
+          .select('id')
           .eq('user_id', userId)
+          .eq('vote_id', widget.voteModel.id) // 현재 투표에 대해서만 카운트
+          .gt('star_candy_bonus_usage', 0) // 보너스 캔디를 사용한 투표만 카운트
           .gte('created_at', startOfDay.toIso8601String())
           .lt('created_at', endOfDay.toIso8601String());
 
@@ -237,9 +240,12 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     final userId =
         ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
 
+    // 키보드 높이 감지
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardVisible = keyboardHeight > 0;
+
     // 사용 가능한 화면 높이 계산 (키보드 고려)
     final screenHeight = MediaQuery.of(context).size.height;
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final availableHeight = screenHeight - keyboardHeight;
 
     return LoadingOverlayWithIcon(
@@ -254,7 +260,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       child: AlertDialog(
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.symmetric(
-            horizontal: 16.w, vertical: keyboardHeight > 0 ? 20 : 40),
+            horizontal: 16.w, vertical: isKeyboardVisible ? 20 : 40),
         contentPadding: EdgeInsets.zero,
         content: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
@@ -269,7 +275,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               showCloseButton: false,
               content: Container(
                 constraints: BoxConstraints(
-                  maxHeight: availableHeight * 0.75,
+                  maxHeight: isKeyboardVisible
+                      ? availableHeight * 0.85
+                      : availableHeight * 0.75,
                   minHeight: 200,
                   maxWidth: MediaQuery.of(context).size.width - 32.w,
                 ),
@@ -293,15 +301,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                               _buildStarCandyInfo(myStarCandy),
                               SizedBox(height: 8.h),
                               _buildVoteInputSection(),
-                              if (keyboardHeight > 0) SizedBox(height: 80.h),
                             ],
                           ),
                         ),
                       ),
                     ),
 
-                    // 고정 푸터 - 투표 버튼 + JMA 로고
-                    _buildFixedFooter(userId),
+                    // 고정 푸터 - 투표 버튼 + JMA 로고 (키보드 시 로고 숨김)
+                    _buildFixedFooter(userId, isKeyboardVisible),
                   ],
                 ),
               ),
@@ -441,25 +448,23 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   Widget _buildVoteAmountInput(BuildContext context) {
+    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isInitialRender) {
         _isInitialRender = false;
       }
 
       // 포커스가 있을 때 텍스트 필드가 보이도록 적절한 위치로 스크롤
-      if (_focusNode.hasFocus) {
+      if (_focusNode.hasFocus && isKeyboardVisible) {
         final RenderObject? renderObject =
             _inputFieldKey.currentContext?.findRenderObject();
         if (renderObject != null) {
-          // 키보드가 올라온 경우 더 많이 스크롤
-          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-          final alignment = keyboardHeight > 0 ? 0.3 : 0.5;
-
           Scrollable.ensureVisible(
             _inputFieldKey.currentContext!,
-            alignment: alignment,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
+            alignment: 0.4, // 고정된 정렬 값으로 더 예측 가능한 스크롤
+            duration: const Duration(milliseconds: 300), // 더 빠른 애니메이션
+            curve: Curves.easeOutCubic, // 더 부드러운 곡선
           );
         }
       }
@@ -637,6 +642,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
   // 아티스트 정보 (가로 레이아웃)
   Widget _buildArtistInfoRow() {
+    // 키보드 상태 확인
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardVisible = keyboardHeight > 0;
+
     // 아티스트 이미지 URL을 가져오기
     String? imageUrl;
     if ((widget.voteItemModel.artist?.id ?? 0) != 0) {
@@ -648,47 +657,50 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // 아티스트 이미지
-        Container(
-          width: 60.w,
-          height: 60.w,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.primary500,
-              width: 2,
+        // 아티스트 이미지 - 키보드가 나올 때 숨김
+        if (!isKeyboardVisible) ...[
+          Container(
+            width: 60.w,
+            height: 60.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.primary500,
+                width: 2,
+              ),
+            ),
+            child: ClipOval(
+              child: imageUrl != null && imageUrl.isNotEmpty
+                  ? PicnicCachedNetworkImage(
+                      imageUrl: imageUrl,
+                      width: 60.w,
+                      height: 60.w,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(
+                      width: 60.w,
+                      height: 60.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.grey200,
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        size: 30.w,
+                        color: AppColors.grey500,
+                      ),
+                    ),
             ),
           ),
-          child: ClipOval(
-            child: imageUrl != null && imageUrl.isNotEmpty
-                ? PicnicCachedNetworkImage(
-                    imageUrl: imageUrl,
-                    width: 60.w,
-                    height: 60.w,
-                    fit: BoxFit.cover,
-                  )
-                : Container(
-                    width: 60.w,
-                    height: 60.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.grey200,
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      size: 30.w,
-                      color: AppColors.grey500,
-                    ),
-                  ),
-          ),
-        ),
-
-        SizedBox(width: 12), // 10 → 12로 복원
+          SizedBox(width: 12), // 10 → 12로 복원
+        ],
 
         // 아티스트 이름 정보
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: isKeyboardVisible
+                ? CrossAxisAlignment.center // 키보드 시 중앙 정렬
+                : CrossAxisAlignment.start, // 평상시 왼쪽 정렬
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 메인 아티스트 이름
@@ -698,6 +710,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                         ? widget.voteItemModel.artist?.name ?? {}
                         : widget.voteItemModel.artistGroup?.name ?? {}),
                 style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                textAlign: isKeyboardVisible
+                    ? TextAlign.center // 키보드 시 중앙 정렬
+                    : TextAlign.start, // 평상시 왼쪽 정렬
               ),
 
               // 그룹 이름 (솔로 아티스트의 경우)
@@ -708,6 +723,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   getLocaleTextFromJson(
                       widget.voteItemModel.artist!.artistGroup!.name),
                   style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+                  textAlign: isKeyboardVisible
+                      ? TextAlign.center // 키보드 시 중앙 정렬
+                      : TextAlign.start, // 평상시 왼쪽 정렬
                 ),
               ],
             ],
@@ -757,8 +775,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   Image.asset(
                     package: 'picnic_lib',
                     'assets/icons/store/star_100.png',
-                    width: 30,
-                    height: 30,
+                    width: 40,
+                    height: 40,
                   ),
                   SizedBox(width: 3),
                   Text(
@@ -825,9 +843,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                 children: [
                   Image.asset(
                     package: 'picnic_lib',
-                    'assets/icons/store/star_100.png',
-                    width: 30,
-                    height: 30,
+                    'assets/icons/store/jma.png',
+                    width: 40,
+                    height: 40,
                   ),
                   SizedBox(width: 3),
                   Text(
@@ -1174,7 +1192,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       onTap: _canVote ? () => _handleVote(userId) : null,
       child: Container(
         width: 172.w,
-        height: 52, // 44 → 52로 복원
+        height: 44, // 44 → 52로 복원
         decoration: BoxDecoration(
           gradient: _canVote ? commonGradient : null,
           color: _canVote ? null : AppColors.grey300,
@@ -1303,6 +1321,30 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     }
   }
 
+  /// 보너스 캔디 우선 사용 로직으로 사용량 계산
+  Map<String, int> _calculateUsage(int amount) {
+    final userInfo = ref.read(userInfoProvider).value;
+    final starCandy = userInfo?.starCandy ?? 0;
+    final starCandyBonus = userInfo?.starCandyBonus ?? 0;
+
+    int starCandyUsage = 0;
+    int starCandyBonusUsage = 0;
+
+    if (amount <= starCandyBonus) {
+      // 보너스 캔디만으로 충분한 경우
+      starCandyBonusUsage = amount;
+    } else {
+      // 보너스 캔디를 모두 사용하고 일반 캔디 사용
+      starCandyBonusUsage = starCandyBonus;
+      starCandyUsage = amount - starCandyBonus;
+    }
+
+    return {
+      'star_candy_usage': starCandyUsage,
+      'star_candy_bonus_usage': starCandyBonusUsage,
+    };
+  }
+
   Future<void> _performVoting(int voteAmount, String userId,
       [int bonusVotesUsed = 0]) async {
     try {
@@ -1311,10 +1353,17 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         throw Exception('JMA voting is not supported for PIC');
       }
 
-      final response = await supabase.functions.invoke('jma-voting', body: {
+      // 필요한 별사탕 계산
+      final requiredStarCandy = _getRequiredStarCandyAmount();
+      final usage = _calculateUsage(requiredStarCandy);
+
+      // 새로운 jma-voting-v2 엣지 함수 사용
+      final response = await supabase.functions.invoke('jma-voting-v2', body: {
         'vote_id': widget.voteModel.id,
         'vote_item_id': widget.voteItemModel.id,
-        'amount': voteAmount,
+        'amount': requiredStarCandy,
+        'star_candy_usage': usage['star_candy_usage'],
+        'star_candy_bonus_usage': usage['star_candy_bonus_usage'],
         'user_id': userId,
         'bonus_votes_used': bonusVotesUsed,
       });
@@ -1393,17 +1442,21 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
   // 고정 헤더 - JMA 제목 + 아티스트 정보
   Widget _buildFixedHeader() {
+    // 키보드 상태 확인
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardVisible = keyboardHeight > 0;
+
     return Container(
       padding: EdgeInsets.only(
-        top: 16.h, // 12 → 16으로 증가
+        top: isKeyboardVisible ? 12.h : 16.h, // 키보드 시 패딩 줄임
         left: 20.w, // 16 → 20으로 증가
         right: 20.w, // 16 → 20으로 증가
-        bottom: 8.h, // 6 → 8로 증가
+        bottom: isKeyboardVisible ? 4.h : 8.h, // 키보드 시 패딩 줄임
       ),
       child: Column(
         children: [
           _buildJmaHeader(),
-          const SizedBox(height: 8), // 6 → 8로 증가
+          SizedBox(height: isKeyboardVisible ? 4 : 8), // 키보드 시 간격 줄임
           _buildArtistInfoRow(),
         ],
       ),
@@ -1430,7 +1483,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   // 고정 푸터 - 투표 버튼 + JMA 로고
-  Widget _buildFixedFooter(String userId) {
+  Widget _buildFixedFooter(String userId, bool isKeyboardVisible) {
     return Container(
       padding: EdgeInsets.only(
         left: 20.w, // 16 → 20으로 증가
@@ -1442,7 +1495,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         children: [
           _buildJmaVoteButton(userId),
           const SizedBox(height: 8), // 6 → 8로 증가
-          _buildJmaLogoImage(),
+          if (!isKeyboardVisible) _buildJmaLogoImage(),
         ],
       ),
     );

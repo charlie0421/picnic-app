@@ -601,6 +601,10 @@ mixin _$VoteItemModel {
   int get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'vote_total')
   int? get voteTotal => throw _privateConstructorUsedError;
+  @JsonKey(name: 'star_candy_total')
+  int? get starCandyTotal => throw _privateConstructorUsedError;
+  @JsonKey(name: 'star_candy_bonus_total')
+  int? get starCandyBonusTotal => throw _privateConstructorUsedError;
   @JsonKey(name: 'vote_id')
   int get voteId => throw _privateConstructorUsedError;
   @JsonKey(name: 'artist')
@@ -627,6 +631,8 @@ abstract class $VoteItemModelCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int id,
       @JsonKey(name: 'vote_total') int? voteTotal,
+      @JsonKey(name: 'star_candy_total') int? starCandyTotal,
+      @JsonKey(name: 'star_candy_bonus_total') int? starCandyBonusTotal,
       @JsonKey(name: 'vote_id') int voteId,
       @JsonKey(name: 'artist') ArtistModel? artist,
       @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup});
@@ -652,6 +658,8 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
   $Res call({
     Object? id = null,
     Object? voteTotal = freezed,
+    Object? starCandyTotal = freezed,
+    Object? starCandyBonusTotal = freezed,
     Object? voteId = null,
     Object? artist = freezed,
     Object? artistGroup = freezed,
@@ -664,6 +672,14 @@ class _$VoteItemModelCopyWithImpl<$Res, $Val extends VoteItemModel>
       voteTotal: freezed == voteTotal
           ? _value.voteTotal
           : voteTotal // ignore: cast_nullable_to_non_nullable
+              as int?,
+      starCandyTotal: freezed == starCandyTotal
+          ? _value.starCandyTotal
+          : starCandyTotal // ignore: cast_nullable_to_non_nullable
+              as int?,
+      starCandyBonusTotal: freezed == starCandyBonusTotal
+          ? _value.starCandyBonusTotal
+          : starCandyBonusTotal // ignore: cast_nullable_to_non_nullable
               as int?,
       voteId: null == voteId
           ? _value.voteId
@@ -720,6 +736,8 @@ abstract class _$$VoteItemModelImplCopyWith<$Res>
   $Res call(
       {@JsonKey(name: 'id') int id,
       @JsonKey(name: 'vote_total') int? voteTotal,
+      @JsonKey(name: 'star_candy_total') int? starCandyTotal,
+      @JsonKey(name: 'star_candy_bonus_total') int? starCandyBonusTotal,
       @JsonKey(name: 'vote_id') int voteId,
       @JsonKey(name: 'artist') ArtistModel? artist,
       @JsonKey(name: 'artist_group') ArtistGroupModel? artistGroup});
@@ -745,6 +763,8 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? voteTotal = freezed,
+    Object? starCandyTotal = freezed,
+    Object? starCandyBonusTotal = freezed,
     Object? voteId = null,
     Object? artist = freezed,
     Object? artistGroup = freezed,
@@ -757,6 +777,14 @@ class __$$VoteItemModelImplCopyWithImpl<$Res>
       voteTotal: freezed == voteTotal
           ? _value.voteTotal
           : voteTotal // ignore: cast_nullable_to_non_nullable
+              as int?,
+      starCandyTotal: freezed == starCandyTotal
+          ? _value.starCandyTotal
+          : starCandyTotal // ignore: cast_nullable_to_non_nullable
+              as int?,
+      starCandyBonusTotal: freezed == starCandyBonusTotal
+          ? _value.starCandyBonusTotal
+          : starCandyBonusTotal // ignore: cast_nullable_to_non_nullable
               as int?,
       voteId: null == voteId
           ? _value.voteId
@@ -780,6 +808,8 @@ class _$VoteItemModelImpl extends _VoteItemModel {
   const _$VoteItemModelImpl(
       {@JsonKey(name: 'id') required this.id,
       @JsonKey(name: 'vote_total') required this.voteTotal,
+      @JsonKey(name: 'star_candy_total') this.starCandyTotal,
+      @JsonKey(name: 'star_candy_bonus_total') this.starCandyBonusTotal,
       @JsonKey(name: 'vote_id') required this.voteId,
       @JsonKey(name: 'artist') required this.artist,
       @JsonKey(name: 'artist_group') required this.artistGroup})
@@ -795,6 +825,12 @@ class _$VoteItemModelImpl extends _VoteItemModel {
   @JsonKey(name: 'vote_total')
   final int? voteTotal;
   @override
+  @JsonKey(name: 'star_candy_total')
+  final int? starCandyTotal;
+  @override
+  @JsonKey(name: 'star_candy_bonus_total')
+  final int? starCandyBonusTotal;
+  @override
   @JsonKey(name: 'vote_id')
   final int voteId;
   @override
@@ -806,7 +842,7 @@ class _$VoteItemModelImpl extends _VoteItemModel {
 
   @override
   String toString() {
-    return 'VoteItemModel(id: $id, voteTotal: $voteTotal, voteId: $voteId, artist: $artist, artistGroup: $artistGroup)';
+    return 'VoteItemModel(id: $id, voteTotal: $voteTotal, starCandyTotal: $starCandyTotal, starCandyBonusTotal: $starCandyBonusTotal, voteId: $voteId, artist: $artist, artistGroup: $artistGroup)';
   }
 
   @override
@@ -817,6 +853,10 @@ class _$VoteItemModelImpl extends _VoteItemModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.voteTotal, voteTotal) ||
                 other.voteTotal == voteTotal) &&
+            (identical(other.starCandyTotal, starCandyTotal) ||
+                other.starCandyTotal == starCandyTotal) &&
+            (identical(other.starCandyBonusTotal, starCandyBonusTotal) ||
+                other.starCandyBonusTotal == starCandyBonusTotal) &&
             (identical(other.voteId, voteId) || other.voteId == voteId) &&
             (identical(other.artist, artist) || other.artist == artist) &&
             (identical(other.artistGroup, artistGroup) ||
@@ -825,8 +865,8 @@ class _$VoteItemModelImpl extends _VoteItemModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, voteTotal, voteId, artist, artistGroup);
+  int get hashCode => Object.hash(runtimeType, id, voteTotal, starCandyTotal,
+      starCandyBonusTotal, voteId, artist, artistGroup);
 
   /// Create a copy of VoteItemModel
   /// with the given fields replaced by the non-null parameter values.
@@ -848,6 +888,8 @@ abstract class _VoteItemModel extends VoteItemModel {
   const factory _VoteItemModel(
       {@JsonKey(name: 'id') required final int id,
       @JsonKey(name: 'vote_total') required final int? voteTotal,
+      @JsonKey(name: 'star_candy_total') final int? starCandyTotal,
+      @JsonKey(name: 'star_candy_bonus_total') final int? starCandyBonusTotal,
       @JsonKey(name: 'vote_id') required final int voteId,
       @JsonKey(name: 'artist') required final ArtistModel? artist,
       @JsonKey(name: 'artist_group')
@@ -863,6 +905,12 @@ abstract class _VoteItemModel extends VoteItemModel {
   @override
   @JsonKey(name: 'vote_total')
   int? get voteTotal;
+  @override
+  @JsonKey(name: 'star_candy_total')
+  int? get starCandyTotal;
+  @override
+  @JsonKey(name: 'star_candy_bonus_total')
+  int? get starCandyBonusTotal;
   @override
   @JsonKey(name: 'vote_id')
   int get voteId;

@@ -91,6 +91,10 @@ _$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
         final val = _$VoteItemModelImpl(
           id: $checkedConvert('id', (v) => (v as num).toInt()),
           voteTotal: $checkedConvert('vote_total', (v) => (v as num?)?.toInt()),
+          starCandyTotal:
+              $checkedConvert('star_candy_total', (v) => (v as num?)?.toInt()),
+          starCandyBonusTotal: $checkedConvert(
+              'star_candy_bonus_total', (v) => (v as num?)?.toInt()),
           voteId: $checkedConvert('vote_id', (v) => (v as num).toInt()),
           artist: $checkedConvert(
               'artist',
@@ -107,6 +111,8 @@ _$VoteItemModelImpl _$$VoteItemModelImplFromJson(Map<String, dynamic> json) =>
       },
       fieldKeyMap: const {
         'voteTotal': 'vote_total',
+        'starCandyTotal': 'star_candy_total',
+        'starCandyBonusTotal': 'star_candy_bonus_total',
         'voteId': 'vote_id',
         'artistGroup': 'artist_group'
       },
@@ -116,6 +122,8 @@ Map<String, dynamic> _$$VoteItemModelImplToJson(_$VoteItemModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'vote_total': instance.voteTotal,
+      'star_candy_total': instance.starCandyTotal,
+      'star_candy_bonus_total': instance.starCandyBonusTotal,
       'vote_id': instance.voteId,
       'artist': instance.artist?.toJson(),
       'artist_group': instance.artistGroup?.toJson(),

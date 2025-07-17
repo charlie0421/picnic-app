@@ -41,6 +41,8 @@ class VoteItemModel with _$VoteItemModel {
   const factory VoteItemModel(
       {@JsonKey(name: 'id') required int id,
       @JsonKey(name: 'vote_total') required int? voteTotal,
+      @JsonKey(name: 'star_candy_total') int? starCandyTotal,
+      @JsonKey(name: 'star_candy_bonus_total') int? starCandyBonusTotal,
       @JsonKey(name: 'vote_id') required int voteId,
       @JsonKey(name: 'artist') required ArtistModel? artist,
       @JsonKey(name: 'artist_group')

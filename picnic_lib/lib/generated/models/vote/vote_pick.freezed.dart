@@ -28,6 +28,10 @@ mixin _$VotePickModel {
   VoteItemModel get voteItem => throw _privateConstructorUsedError;
   @JsonKey(name: 'amount')
   int? get amount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'star_candy_usage')
+  int? get starCandyUsage => throw _privateConstructorUsedError;
+  @JsonKey(name: 'star_candy_bonus_usage')
+  int? get starCandyBonusUsage => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
@@ -54,6 +58,8 @@ abstract class $VotePickModelCopyWith<$Res> {
       @JsonKey(name: 'vote') VoteModel vote,
       @JsonKey(name: 'vote_item') VoteItemModel voteItem,
       @JsonKey(name: 'amount') int? amount,
+      @JsonKey(name: 'star_candy_usage') int? starCandyUsage,
+      @JsonKey(name: 'star_candy_bonus_usage') int? starCandyBonusUsage,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt});
 
@@ -80,6 +86,8 @@ class _$VotePickModelCopyWithImpl<$Res, $Val extends VotePickModel>
     Object? vote = null,
     Object? voteItem = null,
     Object? amount = freezed,
+    Object? starCandyUsage = freezed,
+    Object? starCandyBonusUsage = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -99,6 +107,14 @@ class _$VotePickModelCopyWithImpl<$Res, $Val extends VotePickModel>
       amount: freezed == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
+              as int?,
+      starCandyUsage: freezed == starCandyUsage
+          ? _value.starCandyUsage
+          : starCandyUsage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      starCandyBonusUsage: freezed == starCandyBonusUsage
+          ? _value.starCandyBonusUsage
+          : starCandyBonusUsage // ignore: cast_nullable_to_non_nullable
               as int?,
       createdAt: freezed == createdAt
           ? _value.createdAt
@@ -145,6 +161,8 @@ abstract class _$$VotePickModelImplCopyWith<$Res>
       @JsonKey(name: 'vote') VoteModel vote,
       @JsonKey(name: 'vote_item') VoteItemModel voteItem,
       @JsonKey(name: 'amount') int? amount,
+      @JsonKey(name: 'star_candy_usage') int? starCandyUsage,
+      @JsonKey(name: 'star_candy_bonus_usage') int? starCandyBonusUsage,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt});
 
@@ -171,6 +189,8 @@ class __$$VotePickModelImplCopyWithImpl<$Res>
     Object? vote = null,
     Object? voteItem = null,
     Object? amount = freezed,
+    Object? starCandyUsage = freezed,
+    Object? starCandyBonusUsage = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -190,6 +210,14 @@ class __$$VotePickModelImplCopyWithImpl<$Res>
       amount: freezed == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
+              as int?,
+      starCandyUsage: freezed == starCandyUsage
+          ? _value.starCandyUsage
+          : starCandyUsage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      starCandyBonusUsage: freezed == starCandyBonusUsage
+          ? _value.starCandyBonusUsage
+          : starCandyBonusUsage // ignore: cast_nullable_to_non_nullable
               as int?,
       createdAt: freezed == createdAt
           ? _value.createdAt
@@ -211,6 +239,8 @@ class _$VotePickModelImpl extends _VotePickModel {
       @JsonKey(name: 'vote') required this.vote,
       @JsonKey(name: 'vote_item') required this.voteItem,
       @JsonKey(name: 'amount') required this.amount,
+      @JsonKey(name: 'star_candy_usage') this.starCandyUsage,
+      @JsonKey(name: 'star_candy_bonus_usage') this.starCandyBonusUsage,
       @JsonKey(name: 'created_at') required this.createdAt,
       @JsonKey(name: 'updated_at') required this.updatedAt})
       : super._();
@@ -231,6 +261,12 @@ class _$VotePickModelImpl extends _VotePickModel {
   @JsonKey(name: 'amount')
   final int? amount;
   @override
+  @JsonKey(name: 'star_candy_usage')
+  final int? starCandyUsage;
+  @override
+  @JsonKey(name: 'star_candy_bonus_usage')
+  final int? starCandyBonusUsage;
+  @override
   @JsonKey(name: 'created_at')
   final DateTime? createdAt;
   @override
@@ -239,7 +275,7 @@ class _$VotePickModelImpl extends _VotePickModel {
 
   @override
   String toString() {
-    return 'VotePickModel(id: $id, vote: $vote, voteItem: $voteItem, amount: $amount, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'VotePickModel(id: $id, vote: $vote, voteItem: $voteItem, amount: $amount, starCandyUsage: $starCandyUsage, starCandyBonusUsage: $starCandyBonusUsage, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -252,6 +288,10 @@ class _$VotePickModelImpl extends _VotePickModel {
             (identical(other.voteItem, voteItem) ||
                 other.voteItem == voteItem) &&
             (identical(other.amount, amount) || other.amount == amount) &&
+            (identical(other.starCandyUsage, starCandyUsage) ||
+                other.starCandyUsage == starCandyUsage) &&
+            (identical(other.starCandyBonusUsage, starCandyBonusUsage) ||
+                other.starCandyBonusUsage == starCandyBonusUsage) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -260,8 +300,8 @@ class _$VotePickModelImpl extends _VotePickModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, vote, voteItem, amount, createdAt, updatedAt);
+  int get hashCode => Object.hash(runtimeType, id, vote, voteItem, amount,
+      starCandyUsage, starCandyBonusUsage, createdAt, updatedAt);
 
   /// Create a copy of VotePickModel
   /// with the given fields replaced by the non-null parameter values.
@@ -281,13 +321,15 @@ class _$VotePickModelImpl extends _VotePickModel {
 
 abstract class _VotePickModel extends VotePickModel {
   const factory _VotePickModel(
-          {@JsonKey(name: 'id') required final int id,
-          @JsonKey(name: 'vote') required final VoteModel vote,
-          @JsonKey(name: 'vote_item') required final VoteItemModel voteItem,
-          @JsonKey(name: 'amount') required final int? amount,
-          @JsonKey(name: 'created_at') required final DateTime? createdAt,
-          @JsonKey(name: 'updated_at') required final DateTime? updatedAt}) =
-      _$VotePickModelImpl;
+      {@JsonKey(name: 'id') required final int id,
+      @JsonKey(name: 'vote') required final VoteModel vote,
+      @JsonKey(name: 'vote_item') required final VoteItemModel voteItem,
+      @JsonKey(name: 'amount') required final int? amount,
+      @JsonKey(name: 'star_candy_usage') final int? starCandyUsage,
+      @JsonKey(name: 'star_candy_bonus_usage') final int? starCandyBonusUsage,
+      @JsonKey(name: 'created_at') required final DateTime? createdAt,
+      @JsonKey(name: 'updated_at')
+      required final DateTime? updatedAt}) = _$VotePickModelImpl;
   const _VotePickModel._() : super._();
 
   factory _VotePickModel.fromJson(Map<String, dynamic> json) =
@@ -305,6 +347,12 @@ abstract class _VotePickModel extends VotePickModel {
   @override
   @JsonKey(name: 'amount')
   int? get amount;
+  @override
+  @JsonKey(name: 'star_candy_usage')
+  int? get starCandyUsage;
+  @override
+  @JsonKey(name: 'star_candy_bonus_usage')
+  int? get starCandyBonusUsage;
   @override
   @JsonKey(name: 'created_at')
   DateTime? get createdAt;
