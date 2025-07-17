@@ -407,9 +407,17 @@ workflows:
 
           echo "=== Shorebird iOS 릴리즈 실행 ==="
           echo "🚀 Shorebird로 iOS 릴리즈 업로드..."
+          
+          # 환경에서 사용하는 정확한 Flutter 버전 확인
+          FLUTTER_VERSION=$(flutter --version | grep -E "Flutter [0-9]+\.[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | head -1)
+          if [ -z "$FLUTTER_VERSION" ]; then
+            FLUTTER_VERSION="3.32.5"  # CodeMagic 환경에서 설정된 기본값 사용
+          fi
+          echo "🎯 사용할 Flutter 버전: $FLUTTER_VERSION"
+          
           RELEASE_RESULT=$(shorebird release ios \
             --dart-define=ENVIRONMENT=prod \
-            --flutter-version=latest 2>&1)
+            --flutter-version=$FLUTTER_VERSION 2>&1)
           RELEASE_EXIT_CODE=$?
           
           echo "릴리즈 결과:"
@@ -681,6 +689,7 @@ workflows:
 
           echo "=== Shorebird 전용 환경 준비 ==="
           echo "🔧 Flutter 빌드 완료 후 Shorebird 전용 준비 시작"
+          echo "🎯 Flutter 버전 호환성을 위한 명시적 버전 지정"
           
           # Flutter 빌드 완료 확인
           if [ ! -f "/tmp/flutter_build_complete" ]; then
@@ -712,10 +721,17 @@ workflows:
           echo "🚀 Shorebird 자체 빌드 시스템으로 릴리즈 생성..."
           echo "⚠️ 참고: Shorebird는 Flutter 빌드와 별개로 자체 빌드를 수행합니다"
           
-          # --verbose 플래그 추가로 디버깅 정보 확보
+          # 환경에서 사용하는 정확한 Flutter 버전 확인
+          FLUTTER_VERSION=$(flutter --version | grep -E "Flutter [0-9]+\.[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | head -1)
+          if [ -z "$FLUTTER_VERSION" ]; then
+            FLUTTER_VERSION="3.32.5"  # CodeMagic 환경에서 설정된 기본값 사용
+          fi
+          echo "🎯 사용할 Flutter 버전: $FLUTTER_VERSION"
+          
+          # --verbose 플래그와 명시적 Flutter 버전 사용
           RELEASE_RESULT=$(shorebird release android \
             --dart-define=ENVIRONMENT=prod \
-            --flutter-version=latest \
+            --flutter-version=$FLUTTER_VERSION \
             --verbose 2>&1)
           RELEASE_EXIT_CODE=$?
           
@@ -753,10 +769,12 @@ workflows:
               echo "  🔐 서명 관련 문제:"
               echo "  - CodeMagic Android 서명 설정 확인 필요"
               echo "  - 키스토어 파일과 비밀번호 확인 필요"
-            elif echo "$RELEASE_RESULT" | grep -i "flutter.*version\|sdk.*version"; then
+            elif echo "$RELEASE_RESULT" | grep -i "flutter.*version\|sdk.*version\|providing the desired flutter version"; then
               echo "  🐦 Flutter 버전 문제:"
-              echo "  - Flutter 버전 호환성 확인 필요"
+              echo "  - 현재 사용 중인 Flutter 버전: $FLUTTER_VERSION"
               echo "  - Shorebird 지원 Flutter 버전 확인 필요"
+              echo "  - 💡 해결책: Shorebird 공식 문서에서 호환 버전 확인"
+              echo "  - 🔗 https://docs.shorebird.dev/guides/flutter-versions/"
             else
               echo "  ❓ 기타 문제:"
               echo "  - 네트워크 연결 문제 가능성"
@@ -765,9 +783,14 @@ workflows:
             
             echo ""
             echo "📋 문제 해결 가이드:"
-            echo "1. 표준 Flutter AAB는 정상 생성되어 Google Play 배포는 가능합니다"
-            echo "2. Shorebird 패치가 필요한 경우, 별도 패치 워크플로우를 사용하세요"
-            echo "3. 지속적인 문제 시 Shorebird 이슈 트래커에 보고를 고려하세요"
+            echo "1. ✅ 표준 Flutter AAB는 정상 생성되어 Google Play 배포는 가능합니다"
+            echo "2. 🔧 Shorebird 패치가 필요한 경우, 다음을 확인하세요:"
+            echo "   - Flutter 버전이 Shorebird와 호환되는지 확인"
+            echo "   - SHOREBIRD_TOKEN이 올바르게 설정되었는지 확인"
+            echo "   - 프로젝트에 shorebird.yaml이 올바르게 구성되었는지 확인"
+            echo "3. 🆘 지속적인 문제 시:"
+            echo "   - Shorebird 공식 문서: https://docs.shorebird.dev/"
+            echo "   - Shorebird 이슈 트래커: https://github.com/shorebirdtech/shorebird/issues"
           fi
 
           echo "=== 정리 작업 ==="
