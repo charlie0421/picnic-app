@@ -159,7 +159,7 @@ class _FetchVoteAchieveProviderElement
   int get voteId => (origin as FetchVoteAchieveProvider).voteId;
 }
 
-String _$asyncVoteDetailHash() => r'b75330e782130ee16d641e1d7f0795d078ec7039';
+String _$asyncVoteDetailHash() => r'dd83a1b07ecb1d931f075a9806561344b2431ad7';
 
 abstract class _$AsyncVoteDetail
     extends BuildlessAutoDisposeAsyncNotifier<VoteModel?> {

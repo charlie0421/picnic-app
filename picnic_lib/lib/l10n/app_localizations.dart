@@ -4111,6 +4111,109 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No search results'**
   String get vote_item_request_no_search_results;
+
+  /// No description provided for @jma_voting_star_candy_shortage.
+  ///
+  /// In en, this message translates to:
+  /// **'You are short {shortage} Star Candy.'**
+  String jma_voting_star_candy_shortage(Object shortage);
+
+  /// No description provided for @jma_voting_star_candy_multiple_of_three.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy can only be used in multiples of 3. Please add {needed} more or reduce by {excess}.'**
+  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed);
+
+  /// No description provided for @jma_voting_daily_limit_remaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s remaining bonus votes: {remaining} times (max {max} times)'**
+  String jma_voting_daily_limit_remaining(Object max, Object remaining);
+
+  /// No description provided for @jma_voting_daily_limit_exhausted.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used all bonus votes for today.'**
+  String get jma_voting_daily_limit_exhausted;
+
+  /// No description provided for @jma_voting_my_star_candy.
+  ///
+  /// In en, this message translates to:
+  /// **'My Star Candy'**
+  String get jma_voting_my_star_candy;
+
+  /// No description provided for @jma_voting_usable_jma_votes.
+  ///
+  /// In en, this message translates to:
+  /// **'Available JMA Votes'**
+  String get jma_voting_usable_jma_votes;
+
+  /// No description provided for @jma_voting_use_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Use All'**
+  String get jma_voting_use_all;
+
+  /// No description provided for @jma_voting_max_usable.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum {amount} available'**
+  String jma_voting_max_usable(Object amount);
+
+  /// No description provided for @jma_voting_bonus_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {amount} bonus Star Candy → {votes} votes'**
+  String jma_voting_bonus_only(Object amount, Object votes);
+
+  /// No description provided for @jma_voting_bonus_plus_regular.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus {bonus} + Star Candy {regular} → {votes} votes'**
+  String jma_voting_bonus_plus_regular(
+      Object bonus, Object regular, Object votes);
+
+  /// No description provided for @jma_voting_regular_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Star Candy {amount} → {votes} votes'**
+  String jma_voting_regular_only(Object amount, Object votes);
+
+  /// No description provided for @jma_voting_input_amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the amount of Star Candy.'**
+  String get jma_voting_input_amount;
+
+  /// No description provided for @jma_voting_info_text.
+  ///
+  /// In en, this message translates to:
+  /// **'· 3 Star Candy will be automatically converted to 1 JMA vote\n· Bonus Star Candy can be used up to 5 times per day for JMA voting\n· By participating in voting, you will automatically participate in the JMA concert ticket event'**
+  String get jma_voting_info_text;
+
+  /// No description provided for @jma_voting_daily_limit_error.
+  ///
+  /// In en, this message translates to:
+  /// **'You can vote up to 5 times per day.'**
+  String get jma_voting_daily_limit_error;
+
+  /// No description provided for @jma_voting_exchange_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while exchanging Star Candy. Please try again.'**
+  String get jma_voting_exchange_failed;
+
+  /// No description provided for @jma_voting_daily_limit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Voting Limit'**
+  String get jma_voting_daily_limit_title;
+
+  /// No description provided for @jma_voting_exchange_failed_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange Failed'**
+  String get jma_voting_exchange_failed_title;
 }
 
 class _AppLocalizationsDelegate

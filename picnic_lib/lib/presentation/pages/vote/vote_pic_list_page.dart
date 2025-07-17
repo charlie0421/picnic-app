@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/area_selector.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -18,7 +19,6 @@ class VotePicListPage extends ConsumerStatefulWidget {
 class _VotePicListPageState extends ConsumerState<VotePicListPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final _pageStorageBucket = PageStorageBucket();
   static const String _tabIndexKey = 'vote_pic_list_tab_index';
   bool _isAdmin = false;
 
@@ -119,9 +119,9 @@ class _VotePicListContentState extends ConsumerState<VotePicListContent>
 
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        print('🔄 Pic 탭 변경됨: ${_tabController.index} (관리자: ${widget.isAdmin})');
+        logger.d('🔄 Pic 탭 변경됨: ${_tabController.index} (관리자: ${widget.isAdmin})');
         if (widget.isAdmin && _tabController.index == 3) {
-          print('🚨🚨🚨 Pic 디버그 탭(3번)으로 변경됨!');
+          logger.d('🚨🚨🚨 Pic 디버그 탭(3번)으로 변경됨!');
         }
         PageStorage.of(context).writeState(
           context,
@@ -201,7 +201,7 @@ class _VotePicListContentState extends ConsumerState<VotePicListContent>
 
         // 디버그 탭 선택 시 로그 추가
         if (status == VoteStatus.debug && currentIndex == tabIndex) {
-          print(
+          logger.d(
               '🚨🚨🚨 디버그 탭 선택됨! (Pic) currentIndex: $currentIndex, tabIndex: $tabIndex');
         }
 

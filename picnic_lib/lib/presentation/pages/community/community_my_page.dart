@@ -7,7 +7,7 @@ import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/pages/community/community_my_comment.dart';
 import 'package:picnic_lib/presentation/pages/community/community_my_scraps.dart';
 import 'package:picnic_lib/presentation/pages/community/community_my_writen.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart';
+// import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart'; // 임시 비활성화
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -119,15 +119,16 @@ class _MyPageState extends ConsumerState<CommunityMyPage> {
                   .setCommunityCurrentPage(const CommunityMyComment());
             },
           ),
-          PicnicListItem(
-            leading: AppLocalizations.of(context).post_my_compatibilities,
-            assetPath: 'assets/icons/arrow_right_style=line.svg',
-            onTap: () {
-              ref
-                  .read(navigationInfoProvider.notifier)
-                  .setCommunityCurrentPage(const CompatibilityListPage());
-            },
-          ),
+          // 임시로 Compatibility 기능 비활성화
+          // PicnicListItem(
+          //   leading: AppLocalizations.of(context).post_my_compatibilities,
+          //   assetPath: 'assets/icons/arrow_right_style=line.svg',
+          //   onTap: () {
+          //     ref
+          //         .read(navigationInfoProvider.notifier)
+          //         .setCommunityCurrentPage(const CompatibilityListPage());
+          //   },
+          // ),
         ],
       ),
     );

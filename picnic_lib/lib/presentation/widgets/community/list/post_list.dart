@@ -10,7 +10,7 @@ import 'package:picnic_lib/presentation/dialogs/fortune_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/report_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart';
+// import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart'; // 임시 비활성화
 import 'package:picnic_lib/presentation/pages/community/post_write_page.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
@@ -90,23 +90,24 @@ class _PostListState extends ConsumerState<PostList> {
             thickness: 1,
             color: AppColors.grey300,
           ),
-          InkWell(
-            onTap: () {
-              if (isSupabaseLoggedSafely) {
-                navigationInfoNotifier.setCommunityCurrentPage(
-                    CompatibilityListPage(artistId: currentArtist?.id));
-              } else {
-                showRequireLoginDialog();
-              }
-            },
-            child: Container(
-              height: 40,
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              alignment: Alignment.centerLeft,
-              child: Text(AppLocalizations.of(context).fortune_with_me,
-                  style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
-            ),
-          ),
+          // 임시로 Compatibility 기능 비활성화
+          // InkWell(
+          //   onTap: () {
+          //     if (isSupabaseLoggedSafely) {
+          //       navigationInfoNotifier.setCommunityCurrentPage(
+          //           CompatibilityListPage(artistId: currentArtist?.id));
+          //     } else {
+          //       showRequireLoginDialog();
+          //     }
+          //   },
+          //   child: Container(
+          //     height: 40,
+          //     padding: EdgeInsets.symmetric(horizontal: 16.w),
+          //     alignment: Alignment.centerLeft,
+          //     child: Text(AppLocalizations.of(context).fortune_with_me,
+          //         style: getTextStyle(AppTypo.body14B, AppColors.primary500)),
+          //   ),
+          // ),
           Divider(
             height: 1,
             thickness: 1,

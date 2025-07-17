@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
@@ -42,12 +43,12 @@ class _VoteListState extends ConsumerState<VoteList> {
   Future<void> _fetchVotes() async {
     // 디버그 상태 로그 추가
     if (widget.status == VoteStatus.debug) {
-      print('🚨🚨🚨 VoteList._fetchVotes 호출됨 - 디버그 모드');
-      print(
+      logger.d('🚨🚨🚨 VoteList._fetchVotes 호출됨 - 디버그 모드');
+      logger.d(
           '📍 파라미터: status=${widget.status}, category=${widget.category}, area=${widget.area}');
-      print('📍 페이지: $_pageKey, 사이즈: $_pageSize');
-      print('📍 정렬: id DESC (고정값)');
-      print('📍 Provider 호출 시작...');
+      logger.d('📍 페이지: $_pageKey, 사이즈: $_pageSize');
+      logger.d('📍 정렬: id DESC (고정값)');
+      logger.d('📍 Provider 호출 시작...');
     }
 
     _setStateIfMounted(() {
@@ -70,7 +71,7 @@ class _VoteListState extends ConsumerState<VoteList> {
       ).future);
 
       if (widget.status == VoteStatus.debug) {
-        print('🚨🚨🚨 VoteList._fetchVotes 결과: ${newItems.length}개 아이템');
+        logger.d('🚨🚨🚨 VoteList._fetchVotes 결과: ${newItems.length}개 아이템');
       }
 
       _setStateIfMounted(() {
@@ -83,7 +84,7 @@ class _VoteListState extends ConsumerState<VoteList> {
       });
     } catch (e) {
       if (widget.status == VoteStatus.debug) {
-        print('🚨🚨🚨 VoteList._fetchVotes 오류: $e');
+        logger.d('🚨🚨🚨 VoteList._fetchVotes 오류: $e');
       }
       _setStateIfMounted(() {
         _isLoading = false;

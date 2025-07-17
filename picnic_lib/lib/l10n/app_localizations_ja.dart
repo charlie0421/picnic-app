@@ -2081,4 +2081,71 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get vote_item_request_no_search_results => '検索結果がありません';
+
+  @override
+  String jma_voting_star_candy_shortage(Object shortage) {
+    return 'スターキャンディが$shortage個不足しています。';
+  }
+
+  @override
+  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
+    return 'スターキャンディは3の倍数でのみ使用できます。$needed個追加するか$excess個減らしてください。';
+  }
+
+  @override
+  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+    return '今日の残りボーナス投票数: $remaining回 (最大$max回)';
+  }
+
+  @override
+  String get jma_voting_daily_limit_exhausted => '今日のボーナス投票数をすべて使用しました。';
+
+  @override
+  String get jma_voting_my_star_candy => '私のスターキャンディ';
+
+  @override
+  String get jma_voting_usable_jma_votes => '使用可能JMA投票権';
+
+  @override
+  String get jma_voting_use_all => 'すべて使用';
+
+  @override
+  String jma_voting_max_usable(Object amount) {
+    return '最大$amount個使用可能';
+  }
+
+  @override
+  String jma_voting_bonus_only(Object amount, Object votes) {
+    return 'ボーナススターキャンディ$amount個使用 → $votes票';
+  }
+
+  @override
+  String jma_voting_bonus_plus_regular(
+      Object bonus, Object regular, Object votes) {
+    return 'ボーナス$bonus個 + スターキャンディ$regular個 → $votes票';
+  }
+
+  @override
+  String jma_voting_regular_only(Object amount, Object votes) {
+    return 'スターキャンディ$amount個 → $votes票';
+  }
+
+  @override
+  String get jma_voting_input_amount => 'スターキャンディの数量を入力してください。';
+
+  @override
+  String get jma_voting_info_text =>
+      '· 投票時にスターキャンディ3個がJMA投票権1個に自動変換されます\n· ボーナススターキャンディはJMA投票で1日5個まで使用可能です\n· 投票に参加すると自動的にJMAコンサートチケットイベントに参加されます';
+
+  @override
+  String get jma_voting_daily_limit_error => '1日最大5回まで投票できます。';
+
+  @override
+  String get jma_voting_exchange_failed => 'スターキャンディ交換中にエラーが発生しました。再試行してください。';
+
+  @override
+  String get jma_voting_daily_limit_title => '投票制限';
+
+  @override
+  String get jma_voting_exchange_failed_title => '交換失敗';
 }

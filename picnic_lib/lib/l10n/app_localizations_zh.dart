@@ -2063,4 +2063,71 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get vote_item_request_no_search_results => '没有搜索结果';
+
+  @override
+  String jma_voting_star_candy_shortage(Object shortage) {
+    return '星星糖果不足$shortage个。';
+  }
+
+  @override
+  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
+    return '星星糖果只能以3的倍数使用。请增加$needed个或减少$excess个。';
+  }
+
+  @override
+  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+    return '今日剩余奖励投票次数：$remaining次（最多$max次）';
+  }
+
+  @override
+  String get jma_voting_daily_limit_exhausted => '今日奖励投票次数已全部使用完毕。';
+
+  @override
+  String get jma_voting_my_star_candy => '我的星星糖果';
+
+  @override
+  String get jma_voting_usable_jma_votes => '可用JMA投票权';
+
+  @override
+  String get jma_voting_use_all => '全部使用';
+
+  @override
+  String jma_voting_max_usable(Object amount) {
+    return '最多可使用$amount个';
+  }
+
+  @override
+  String jma_voting_bonus_only(Object amount, Object votes) {
+    return '使用$amount个奖励星星糖果 → $votes票';
+  }
+
+  @override
+  String jma_voting_bonus_plus_regular(
+      Object bonus, Object regular, Object votes) {
+    return '奖励$bonus个 + 星星糖果$regular个 → $votes票';
+  }
+
+  @override
+  String jma_voting_regular_only(Object amount, Object votes) {
+    return '星星糖果$amount个 → $votes票';
+  }
+
+  @override
+  String get jma_voting_input_amount => '请输入星星糖果数量。';
+
+  @override
+  String get jma_voting_info_text =>
+      '· 投票时星星糖果3个将自动转换为JMA投票权1个\n· 奖励星星糖果在JMA投票中每日最多可使用5个\n· 参与投票即可自动参加JMA演唱会门票活动';
+
+  @override
+  String get jma_voting_daily_limit_error => '每日最多可投票5次。';
+
+  @override
+  String get jma_voting_exchange_failed => '星星糖果兑换时发生错误。请重试。';
+
+  @override
+  String get jma_voting_daily_limit_title => '投票限制';
+
+  @override
+  String get jma_voting_exchange_failed_title => '兑换失败';
 }

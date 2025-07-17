@@ -48,14 +48,14 @@ Future showVotingDialog({
   }
 
   // partner가 'jma'인 경우에만 JMA 투표 다이얼로그 사용
-  print('🔍 VoteModel 파트너십 정보:');
-  print('   - isPartnership: ${voteModel.isPartnership}');
-  print('   - partner: "${voteModel.partner}"');
-  print('   - partner?.toLowerCase(): "${voteModel.partner?.toLowerCase()}"');
-  print('   - JMA 조건 매칭: ${voteModel.partner?.toLowerCase() == 'jma'}');
+  logger.d('🔍 VoteModel 파트너십 정보:');
+  logger.d('   - isPartnership: ${voteModel.isPartnership}');
+  logger.d('   - partner: "${voteModel.partner}"');
+  logger.d('   - partner?.toLowerCase(): "${voteModel.partner?.toLowerCase()}"');
+  logger.d('   - JMA 조건 매칭: ${voteModel.partner?.toLowerCase() == 'jma'}');
 
   if (voteModel.partner?.toLowerCase() == 'jma') {
-    print('✅ JMA 투표 다이얼로그 사용');
+    logger.d('✅ JMA 투표 다이얼로그 사용');
     return showJmaVotingDialog(
       context: context,
       voteModel: voteModel,
@@ -287,7 +287,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     }
 
     // 기본 로고 사용
-    return Container(
+    return SizedBox(
       width: 60.w,
       height: 60.w,
       child: Column(

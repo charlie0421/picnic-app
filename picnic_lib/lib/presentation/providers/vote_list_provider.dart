@@ -22,12 +22,12 @@ class AsyncVoteList extends _$AsyncVoteList {
       required VoteStatus status,
       required VoteCategory category}) async {
     // 🚨🚨🚨 빌드 메서드 호출 로깅
-    print('🚨🚨🚨 AsyncVoteList.build 메서드 시작');
-    print(
+    logger.d('🚨🚨🚨 AsyncVoteList.build 메서드 시작');
+    logger.d(
         '🔍 파라미터: status=$status, category=$category, area=$area, page=$page, limit=$limit');
 
     if (status == VoteStatus.debug) {
-      print('🚨🚨🚨🚨🚨 디버그 모드로 build 메서드 진입 확인됨!');
+      logger.d('🚨🚨🚨🚨🚨 디버그 모드로 build 메서드 진입 확인됨!');
     }
 
     // 정렬 키가 타임스탬프를 포함하는 경우 실제 정렬은 id로 처리
@@ -107,8 +107,8 @@ class AsyncVoteList extends _$AsyncVoteList {
         order = 'ASC';
       } else if (status == VoteStatus.debug) {
         // 🚨🚨🚨 디버그 모드: 기존 쿼리 구조 유지하되 필터만 제거
-        print('🚨🚨🚨 디버그 모드 활성화됨! 모든 필터 제거');
-        print(
+        logger.d('🚨🚨🚨 디버그 모드 활성화됨! 모든 필터 제거');
+        logger.d(
             '📋 목표 SQL: SELECT * FROM $voteTable WHERE deleted_at IS NULL ORDER BY id DESC');
 
         // 디버그 모드에서는 area, category 필터를 적용하지 않음
@@ -117,7 +117,7 @@ class AsyncVoteList extends _$AsyncVoteList {
         sort = 'id';
         order = 'DESC';
 
-        print('🚨🚨🚨 디버그 모드: 모든 날짜 조건 제거, id DESC 정렬');
+        logger.d('🚨🚨🚨 디버그 모드: 모든 날짜 조건 제거, id DESC 정렬');
       }
 
       // area가 'all'인 경우 kpop을 먼저 보여주기 위한 정렬 추가
@@ -136,7 +136,7 @@ class AsyncVoteList extends _$AsyncVoteList {
       List<dynamic> finalResponse;
       if (status == VoteStatus.debug) {
         // 디버그 모드: vote_item이 없으므로 빈 배열 추가하여 JSON 파싱 오류 방지
-        print('🚨🚨🚨 디버그 모드: vote_item 필드를 빈 배열로 추가');
+        logger.d('🚨🚨🚨 디버그 모드: vote_item 필드를 빈 배열로 추가');
         finalResponse = response.map((voteData) {
           voteData[voteItemTable] = []; // 빈 vote_item 배열 추가
           return voteData;
@@ -159,27 +159,27 @@ class AsyncVoteList extends _$AsyncVoteList {
 
       // 디버그 상태에서 결과 상세 로그 출력
       if (status == VoteStatus.debug) {
-        print('🚨🚨🚨 디버그 쿼리 결과 분석:');
-        print('📊 총 ${result.length}개 투표 반환됨 (페이지 $page, 제한 $limit)');
+        logger.d('🚨🚨🚨 디버그 쿼리 결과 분석:');
+        logger.d('📊 총 ${result.length}개 투표 반환됨 (페이지 $page, 제한 $limit)');
 
         if (result.isNotEmpty) {
-          print('📋 투표 목록:');
+          logger.d('📋 투표 목록:');
           for (int i = 0; i < result.length && i < 10; i++) {
             final vote = result[i];
             final title =
                 vote.title['ko'] ?? vote.title['en'] ?? 'Unknown Title';
-            print('  ${i + 1}. [${vote.id}] $title');
-            print('     시작: ${vote.startAt}');
-            print('     종료: ${vote.stopAt}');
-            print('     공개: ${vote.visibleAt}');
-            print('     ---');
+            logger.d('  ${i + 1}. [${vote.id}] $title');
+            logger.d('     시작: ${vote.startAt}');
+            logger.d('     종료: ${vote.stopAt}');
+            logger.d('     공개: ${vote.visibleAt}');
+            logger.d('     ---');
           }
 
           if (result.length > 10) {
-            print('... 외 ${result.length - 10}개 더');
+            logger.d('... 외 ${result.length - 10}개 더');
           }
         } else {
-          print('❌ 반환된 투표 없음');
+          logger.d('❌ 반환된 투표 없음');
         }
       }
 

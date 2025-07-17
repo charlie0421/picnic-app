@@ -655,5 +655,22 @@
   "starCandy5000": "5.000 Star Candy",
   "update_required_message": "Pembaruan aplikasi diperlukan",
   "vote_item_request_no_search_results": "Tidak ada hasil pencarian",
-  "vote_item_request_waiting": "Menunggu"
+  "vote_item_request_waiting": "Menunggu",
+  "jma_voting_star_candy_shortage": "Anda kekurangan {shortage} Star Candy.",
+  "jma_voting_star_candy_multiple_of_three": "Star Candy hanya dapat digunakan dalam kelipatan 3. Silakan tambahkan {needed} lagi atau kurangi {excess}.",
+  "jma_voting_daily_limit_remaining": "Sisa vote bonus hari ini: {remaining} kali (maksimal {max} kali)",
+  "jma_voting_daily_limit_exhausted": "Anda telah menggunakan semua vote bonus untuk hari ini.",
+  "jma_voting_my_star_candy": "Star Candy Saya",
+  "jma_voting_usable_jma_votes": "Vote JMA Tersedia",
+  "jma_voting_use_all": "Gunakan Semua",
+  "jma_voting_max_usable": "Maksimal {amount} tersedia",
+  "jma_voting_bonus_only": "Gunakan {amount} Star Candy bonus → {votes} vote",
+  "jma_voting_bonus_plus_regular": "Bonus {bonus} + Star Candy {regular} → {votes} vote",
+  "jma_voting_regular_only": "Star Candy {amount} → {votes} vote",
+  "jma_voting_input_amount": "Silakan masukkan jumlah Star Candy.",
+  "jma_voting_info_text": "· 3 Star Candy akan otomatis dikonversi menjadi 1 vote JMA\n· Star Candy bonus dapat digunakan hingga 5 kali per hari untuk voting JMA\n· Dengan berpartisipasi dalam voting, Anda akan otomatis berpartisipasi dalam acara tiket konser JMA",
+  "jma_voting_daily_limit_error": "Anda dapat melakukan vote hingga 5 kali per hari.",
+  "jma_voting_exchange_failed": "Terjadi kesalahan saat menukar Star Candy. Silakan coba lagi.",
+  "jma_voting_daily_limit_title": "Batas Voting",
+  "jma_voting_exchange_failed_title": "Gagal Menukar"
 }

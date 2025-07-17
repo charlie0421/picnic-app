@@ -836,5 +836,22 @@
   "voting_limit_text": "트래픽 급증 방지를 위해 한 번에 총 사용량이 10,000개로 제한됩니다.",
   "voting_limit_warning": "최대 10,000개까지만 허용됩니다.",
   "voting_share_benefit_text": "100표마다 보너스 스타캔디 1개 획득 및 공유!",
-  "withdrawal_success": "회원탈퇴가 성공적으로 처리되었습니다."
+  "withdrawal_success": "회원탈퇴가 성공적으로 처리되었습니다.",
+  "jma_voting_star_candy_shortage": "별사탕이 {shortage}개 부족합니다.",
+  "jma_voting_star_candy_multiple_of_three": "별사탕은 3의 배수로만 사용 가능합니다. {needed}개 더 추가하거나 {excess}개 줄여주세요.",
+  "jma_voting_daily_limit_remaining": "오늘 남은 보너스 투표 갯수: {remaining}회 (최대 {max}회)",
+  "jma_voting_daily_limit_exhausted": "오늘 보너스 투표 갯수를 모두 사용했습니다.",
+  "jma_voting_my_star_candy": "나의 별사탕",
+  "jma_voting_usable_jma_votes": "사용가능 JMA 투표권",
+  "jma_voting_use_all": "전체 사용",
+  "jma_voting_max_usable": "최대 {amount}개 사용 가능",
+  "jma_voting_bonus_only": "보너스 별사탕 {amount}개 사용 → {votes} 투표",
+  "jma_voting_bonus_plus_regular": "보너스 {bonus}개 + 별사탕 {regular}개 → {votes} 투표",
+  "jma_voting_regular_only": "별사탕 {amount}개 → {votes} 투표",
+  "jma_voting_input_amount": "별사탕 수량을 입력해주세요.",
+  "jma_voting_info_text": "· 투표 시 별사탕 3개가 JMA투표권 1개로 자동 변환됩니다\n· 보너스 별사탕은 JMA 투표에선 1일 5개까지 사용 가능합니다\n· 투표에 참여하시면 자동으로 JMA 콘서트 티켓 이벤트에 참여됩니다",
+  "jma_voting_daily_limit_error": "하루 최대 5번까지 투표할 수 있습니다.",
+  "jma_voting_exchange_failed": "별사탕 교환 중 오류가 발생했습니다. 다시 시도해주세요.",
+  "jma_voting_daily_limit_title": "투표 제한",
+  "jma_voting_exchange_failed_title": "교환 실패"
 }

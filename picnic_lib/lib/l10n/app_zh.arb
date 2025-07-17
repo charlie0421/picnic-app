@@ -655,5 +655,22 @@
   "starCandy5000": "5,000个星星糖果",
   "update_required_message": "需要应用更新",
   "vote_item_request_no_search_results": "没有搜索结果",
-  "vote_item_request_waiting": "等待中"
+  "vote_item_request_waiting": "等待中",
+  "jma_voting_star_candy_shortage": "星星糖果不足{shortage}个。",
+  "jma_voting_star_candy_multiple_of_three": "星星糖果只能以3的倍数使用。请增加{needed}个或减少{excess}个。",
+  "jma_voting_daily_limit_remaining": "今日剩余奖励投票次数：{remaining}次（最多{max}次）",
+  "jma_voting_daily_limit_exhausted": "今日奖励投票次数已全部使用完毕。",
+  "jma_voting_my_star_candy": "我的星星糖果",
+  "jma_voting_usable_jma_votes": "可用JMA投票权",
+  "jma_voting_use_all": "全部使用",
+  "jma_voting_max_usable": "最多可使用{amount}个",
+  "jma_voting_bonus_only": "使用{amount}个奖励星星糖果 → {votes}票",
+  "jma_voting_bonus_plus_regular": "奖励{bonus}个 + 星星糖果{regular}个 → {votes}票",
+  "jma_voting_regular_only": "星星糖果{amount}个 → {votes}票",
+  "jma_voting_input_amount": "请输入星星糖果数量。",
+  "jma_voting_info_text": "· 投票时星星糖果3个将自动转换为JMA投票权1个\n· 奖励星星糖果在JMA投票中每日最多可使用5个\n· 参与投票即可自动参加JMA演唱会门票活动",
+  "jma_voting_daily_limit_error": "每日最多可投票5次。",
+  "jma_voting_exchange_failed": "星星糖果兑换时发生错误。请重试。",
+  "jma_voting_daily_limit_title": "投票限制",
+  "jma_voting_exchange_failed_title": "兑换失败"
 }

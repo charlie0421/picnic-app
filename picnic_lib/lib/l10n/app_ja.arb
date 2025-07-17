@@ -654,5 +654,22 @@
   "starCandy5000": "スターキャンディ5,000個",
   "update_required_message": "アプリの更新が必要です",
   "vote_item_request_no_search_results": "検索結果がありません",
-  "vote_item_request_waiting": "待機中"
+  "vote_item_request_waiting": "待機中",
+  "jma_voting_star_candy_shortage": "スターキャンディが{shortage}個不足しています。",
+  "jma_voting_star_candy_multiple_of_three": "スターキャンディは3の倍数でのみ使用できます。{needed}個追加するか{excess}個減らしてください。",
+  "jma_voting_daily_limit_remaining": "今日の残りボーナス投票数: {remaining}回 (最大{max}回)",
+  "jma_voting_daily_limit_exhausted": "今日のボーナス投票数をすべて使用しました。",
+  "jma_voting_my_star_candy": "私のスターキャンディ",
+  "jma_voting_usable_jma_votes": "使用可能JMA投票権",
+  "jma_voting_use_all": "すべて使用",
+  "jma_voting_max_usable": "最大{amount}個使用可能",
+  "jma_voting_bonus_only": "ボーナススターキャンディ{amount}個使用 → {votes}票",
+  "jma_voting_bonus_plus_regular": "ボーナス{bonus}個 + スターキャンディ{regular}個 → {votes}票",
+  "jma_voting_regular_only": "スターキャンディ{amount}個 → {votes}票",
+  "jma_voting_input_amount": "スターキャンディの数量を入力してください。",
+  "jma_voting_info_text": "· 投票時にスターキャンディ3個がJMA投票権1個に自動変換されます\n· ボーナススターキャンディはJMA投票で1日5個まで使用可能です\n· 投票に参加すると自動的にJMAコンサートチケットイベントに参加されます",
+  "jma_voting_daily_limit_error": "1日最大5回まで投票できます。",
+  "jma_voting_exchange_failed": "スターキャンディ交換中にエラーが発生しました。再試行してください。",
+  "jma_voting_daily_limit_title": "投票制限",
+  "jma_voting_exchange_failed_title": "交換失敗"
 }

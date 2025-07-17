@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
-import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_input_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_result_page.dart';
@@ -51,7 +51,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
           showTopMenu: true,
           topRightMenu: TopRightType.board,
           showBottomNavigation: false,
-          pageTitle: t('compatibility_page_title'));
+          pageTitle: AppLocalizations.of(context).compatibility_page_title);
     });
   }
 
@@ -132,13 +132,13 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            t('compatibility_empty_state_title'),
+            AppLocalizations.of(context).compatibility_empty_state_title,
             style: getTextStyle(AppTypo.title18B, AppColors.grey00),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            t('compatibility_empty_state_subtitle'),
+            AppLocalizations.of(context).compatibility_empty_state_subtitle,
             style: getTextStyle(
                 AppTypo.body14R, AppColors.grey00.withValues(alpha: 0.8)),
             textAlign: TextAlign.center,
@@ -174,7 +174,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
                     children: [
                       SvgPicture.asset(
                         package: 'picnic_lib',
-                        'assets/images/fortune/title_${getLocaleLanguage()}.svg',
+                        'assets/images/fortune/title_${Localizations.localeOf(context).languageCode}.svg',
                         fit: BoxFit.fitHeight,
                         height: 48,
                       ),
@@ -259,7 +259,8 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
                             const Icon(Icons.add_circle_outline, size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              t('compatibility_new_compatibility'),
+                              AppLocalizations.of(context)
+                                  .compatibility_new_compatibility,
                               style:
                                   getTextStyle(AppTypo.body16B, Colors.white),
                             ),
@@ -285,7 +286,7 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            t('compatibility_new_compatibility'),
+            AppLocalizations.of(context).compatibility_new_compatibility,
             style: getTextStyle(AppTypo.body16B, Colors.white),
           ),
         ],

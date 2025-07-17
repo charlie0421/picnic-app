@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityScoreWidget extends StatelessWidget {
@@ -15,7 +16,7 @@ class CompatibilityScoreWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) {
-        final currentLocale = getLocaleLanguage();
+        final currentLocale = Localizations.localeOf(context).languageCode;
         final localizedResult = compatibility?.localizedResults?[currentLocale];
         if (localizedResult != null) {
           return compatibility?.isPaid ?? false
@@ -40,10 +41,10 @@ class CompatibilityScoreWidget extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        t('compatibility_purchase_message', {
-                          'artistName': getLocaleTextFromJson(
-                              compatibility?.artist.name ?? {})
-                        }),
+                        AppLocalizations.of(context)
+                            .compatibility_purchase_message(
+                                getLocaleTextFromJson(
+                                    compatibility?.artist.name ?? {}, context)),
                         style: getTextStyle(AppTypo.body14B, AppColors.grey00),
                       ),
                     ),

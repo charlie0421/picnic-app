@@ -23,7 +23,7 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/pages/community/board_home_page.dart';
 import 'package:picnic_lib/presentation/pages/community/board_list_page.dart';
 import 'package:picnic_lib/presentation/pages/community/community_home_page.dart';
-import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart';
+// import 'package:picnic_lib/presentation/pages/community/compatibility_list_page.dart'; // 임시 비활성화
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
@@ -695,16 +695,20 @@ class AppInitializer {
                 );
                 break;
               case 'fortune':
-                final artistId = uri.pathSegments[2];
-                navigationNotifier.setCurrentPage(
-                  CompatibilityListPage(artistId: int.parse(artistId)),
-                );
+                // 임시로 Fortune/Compatibility 기능 비활성화
+                // final artistId = uri.pathSegments[2];
+                // navigationNotifier.setCurrentPage(
+                //   CompatibilityListPage(artistId: int.parse(artistId)),
+                // );
+                logger.i('Fortune/Compatibility 기능이 임시로 비활성화되었습니다.');
                 break;
               case 'compatibility':
-                final artistId = uri.pathSegments[2];
-                navigationNotifier.setCurrentPage(
-                  CompatibilityListPage(artistId: int.parse(artistId)),
-                );
+                // 임시로 Compatibility 기능 비활성화
+                // final artistId = uri.pathSegments[2];
+                // navigationNotifier.setCurrentPage(
+                //   CompatibilityListPage(artistId: int.parse(artistId)),
+                // );
+                logger.i('Compatibility 기능이 임시로 비활성화되었습니다.');
                 break;
             }
         }

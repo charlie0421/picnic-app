@@ -2153,4 +2153,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vote_item_request_no_search_results => 'No search results';
+
+  @override
+  String jma_voting_star_candy_shortage(Object shortage) {
+    return 'You are short $shortage Star Candy.';
+  }
+
+  @override
+  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
+    return 'Star Candy can only be used in multiples of 3. Please add $needed more or reduce by $excess.';
+  }
+
+  @override
+  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+    return 'Today\'s remaining bonus votes: $remaining times (max $max times)';
+  }
+
+  @override
+  String get jma_voting_daily_limit_exhausted =>
+      'You have used all bonus votes for today.';
+
+  @override
+  String get jma_voting_my_star_candy => 'My Star Candy';
+
+  @override
+  String get jma_voting_usable_jma_votes => 'Available JMA Votes';
+
+  @override
+  String get jma_voting_use_all => 'Use All';
+
+  @override
+  String jma_voting_max_usable(Object amount) {
+    return 'Maximum $amount available';
+  }
+
+  @override
+  String jma_voting_bonus_only(Object amount, Object votes) {
+    return 'Use $amount bonus Star Candy → $votes votes';
+  }
+
+  @override
+  String jma_voting_bonus_plus_regular(
+      Object bonus, Object regular, Object votes) {
+    return 'Bonus $bonus + Star Candy $regular → $votes votes';
+  }
+
+  @override
+  String jma_voting_regular_only(Object amount, Object votes) {
+    return 'Star Candy $amount → $votes votes';
+  }
+
+  @override
+  String get jma_voting_input_amount =>
+      'Please enter the amount of Star Candy.';
+
+  @override
+  String get jma_voting_info_text =>
+      '· 3 Star Candy will be automatically converted to 1 JMA vote\n· Bonus Star Candy can be used up to 5 times per day for JMA voting\n· By participating in voting, you will automatically participate in the JMA concert ticket event';
+
+  @override
+  String get jma_voting_daily_limit_error =>
+      'You can vote up to 5 times per day.';
+
+  @override
+  String get jma_voting_exchange_failed =>
+      'An error occurred while exchanging Star Candy. Please try again.';
+
+  @override
+  String get jma_voting_daily_limit_title => 'Voting Limit';
+
+  @override
+  String get jma_voting_exchange_failed_title => 'Exchange Failed';
 }

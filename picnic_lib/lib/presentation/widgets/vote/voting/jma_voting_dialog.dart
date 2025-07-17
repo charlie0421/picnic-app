@@ -126,7 +126,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       if (starCandyAmount > totalStarCandy) {
         canVote = false;
         final shortfall = starCandyAmount - totalStarCandy;
-        validationMessage = '별사탕이 ${formatNumberWithComma(shortfall)}개 부족합니다.';
+        validationMessage = AppLocalizations.of(context)
+            .jma_voting_star_candy_shortage(formatNumberWithComma(shortfall));
       } else {
         // 3의 배수 검증 (보너스 사용 후 남은 별사탕이 있을 때)
         final bonusStarCandy = _getMyBonusStarCandy();
@@ -140,8 +141,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           if (remainingStarCandy % 3 != 0) {
             canVote = false;
             final needed = (3 - (remainingStarCandy % 3));
-            validationMessage =
-                '별사탕은 3의 배수로만 사용 가능합니다. ${needed}개 더 추가하거나 ${remainingStarCandy % 3}개 줄여주세요.';
+            validationMessage = AppLocalizations.of(context)
+                .jma_voting_star_candy_multiple_of_three(
+                    remainingStarCandy % 3, needed);
           } else {
             canVote = true;
             validationMessage = '';
@@ -579,7 +581,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       child: SizedBox(
         width: double.infinity,
         child: Text(
-          '· 투표 시 별사탕 3개가 JMA투표권 1개로 자동 변환됩니다\n· 보너스 별사탕은 JMA 투표에선 1일 5개까지 사용 가능합니다\n· 투표에 참여하시면 자동으로 JMA 콘서트 티켓 이벤트에 참여됩니다',
+          AppLocalizations.of(context).jma_voting_info_text,
           style: getTextStyle(
             AppTypo.caption10SB,
             AppColors.grey700,
@@ -736,7 +738,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         children: [
           // 나의 별사탕 섹션
           Text(
-            '나의 별사탕',
+            AppLocalizations.of(context).jma_voting_my_star_candy,
             style: getTextStyle(
               AppTypo.caption12B,
               AppColors.grey700,
@@ -805,7 +807,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
           // 사용가능 별사탕 섹션
           Text(
-            '사용가능 JMA 투표권',
+            AppLocalizations.of(context).jma_voting_usable_jma_votes,
             style: getTextStyle(
               AppTypo.caption12B,
               AppColors.primary500,
@@ -891,8 +893,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           Expanded(
             child: Text(
               remainingVotes > 0
-                  ? '오늘 남은 보너스 투표 갯수: ${remainingVotes}회 (최대 ${_maxDailyVotes}회)'
-                  : '오늘 보너스 투표 갯수를 모두 사용했습니다.',
+                  ? AppLocalizations.of(context)
+                      .jma_voting_daily_limit_remaining(
+                          _maxDailyVotes, remainingVotes)
+                  : AppLocalizations.of(context)
+                      .jma_voting_daily_limit_exhausted,
               style: getTextStyle(
                 AppTypo.caption10SB,
                 remainingVotes > 0 ? Colors.blue.shade700 : Colors.red.shade700,
@@ -1002,7 +1007,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     final myStarCandy = _getMyStarCandy();
     final maxUsableStarCandy = (myStarCandy ~/ 3) * 3;
 
-    return '최대 ${formatNumberWithComma(maxUsableStarCandy)}개 사용 가능';
+    return AppLocalizations.of(context)
+        .jma_voting_max_usable(formatNumberWithComma(maxUsableStarCandy));
   }
 
   String _getCalculationResultMessage() {
@@ -1017,14 +1023,20 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
     if (voteAmount <= usableBonusStarCandy) {
       // 보너스만으로 충분한 경우
-      return '보너스 별사탕 ${formatNumberWithComma(voteAmount)}개 사용 → ${formatNumberWithComma(voteAmount)} 투표';
+      return AppLocalizations.of(context).jma_voting_bonus_only(
+          formatNumberWithComma(voteAmount), formatNumberWithComma(voteAmount));
     } else if (usableBonusStarCandy > 0) {
       // 보너스 + 일반 별사탕 조합
       final regularStarCandyNeeded = (voteAmount - usableBonusStarCandy) * 3;
-      return '보너스 ${formatNumberWithComma(usableBonusStarCandy)}개 + 별사탕 ${formatNumberWithComma(regularStarCandyNeeded)}개 → ${formatNumberWithComma(voteAmount)} 투표';
+      return AppLocalizations.of(context).jma_voting_bonus_plus_regular(
+          formatNumberWithComma(usableBonusStarCandy),
+          formatNumberWithComma(regularStarCandyNeeded),
+          formatNumberWithComma(voteAmount));
     } else {
       // 일반 별사탕만 사용
-      return '별사탕 ${formatNumberWithComma(requiredStarCandy)}개 → ${formatNumberWithComma(voteAmount)} 투표';
+      return AppLocalizations.of(context).jma_voting_regular_only(
+          formatNumberWithComma(requiredStarCandy),
+          formatNumberWithComma(voteAmount));
     }
   }
 
@@ -1098,7 +1110,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
             ),
             SizedBox(width: 4.w),
             Text(
-              '전체 사용',
+              AppLocalizations.of(context).jma_voting_use_all,
               style: getTextStyle(
                 AppTypo.body14M,
                 _checkAll ? AppColors.primary500 : AppColors.grey400,
@@ -1214,7 +1226,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     if (voteAmount == 0) {
       showSimpleDialog(
         title: AppLocalizations.of(context).dialog_title_vote_fail,
-        content: '별사탕 수량을 입력해주세요.',
+        content: AppLocalizations.of(context).jma_voting_input_amount,
         onOk: () {},
       );
       return;
@@ -1272,8 +1284,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           if (mounted) {
             showSimpleDialog(
               type: DialogType.error,
-              title: '교환 실패',
-              content: '별사탕 교환 중 오류가 발생했습니다. 다시 시도해주세요.',
+              title:
+                  AppLocalizations.of(context).jma_voting_exchange_failed_title,
+              content: AppLocalizations.of(context).jma_voting_exchange_failed,
               onOk: () {},
             );
           }
@@ -1313,8 +1326,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           if (mounted) {
             showSimpleDialog(
               type: DialogType.error,
-              title: '투표 제한',
-              content: '하루 최대 5번까지 투표할 수 있습니다.',
+              title: AppLocalizations.of(context).jma_voting_daily_limit_title,
+              content:
+                  AppLocalizations.of(context).jma_voting_daily_limit_error,
               onOk: () {},
             );
           }

@@ -2164,4 +2164,74 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get vote_item_request_no_search_results => 'Tidak ada hasil pencarian';
+
+  @override
+  String jma_voting_star_candy_shortage(Object shortage) {
+    return 'Anda kekurangan $shortage Star Candy.';
+  }
+
+  @override
+  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
+    return 'Star Candy hanya dapat digunakan dalam kelipatan 3. Silakan tambahkan $needed lagi atau kurangi $excess.';
+  }
+
+  @override
+  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+    return 'Sisa vote bonus hari ini: $remaining kali (maksimal $max kali)';
+  }
+
+  @override
+  String get jma_voting_daily_limit_exhausted =>
+      'Anda telah menggunakan semua vote bonus untuk hari ini.';
+
+  @override
+  String get jma_voting_my_star_candy => 'Star Candy Saya';
+
+  @override
+  String get jma_voting_usable_jma_votes => 'Vote JMA Tersedia';
+
+  @override
+  String get jma_voting_use_all => 'Gunakan Semua';
+
+  @override
+  String jma_voting_max_usable(Object amount) {
+    return 'Maksimal $amount tersedia';
+  }
+
+  @override
+  String jma_voting_bonus_only(Object amount, Object votes) {
+    return 'Gunakan $amount Star Candy bonus → $votes vote';
+  }
+
+  @override
+  String jma_voting_bonus_plus_regular(
+      Object bonus, Object regular, Object votes) {
+    return 'Bonus $bonus + Star Candy $regular → $votes vote';
+  }
+
+  @override
+  String jma_voting_regular_only(Object amount, Object votes) {
+    return 'Star Candy $amount → $votes vote';
+  }
+
+  @override
+  String get jma_voting_input_amount => 'Silakan masukkan jumlah Star Candy.';
+
+  @override
+  String get jma_voting_info_text =>
+      '· 3 Star Candy akan otomatis dikonversi menjadi 1 vote JMA\n· Star Candy bonus dapat digunakan hingga 5 kali per hari untuk voting JMA\n· Dengan berpartisipasi dalam voting, Anda akan otomatis berpartisipasi dalam acara tiket konser JMA';
+
+  @override
+  String get jma_voting_daily_limit_error =>
+      'Anda dapat melakukan vote hingga 5 kali per hari.';
+
+  @override
+  String get jma_voting_exchange_failed =>
+      'Terjadi kesalahan saat menukar Star Candy. Silakan coba lagi.';
+
+  @override
+  String get jma_voting_daily_limit_title => 'Batas Voting';
+
+  @override
+  String get jma_voting_exchange_failed_title => 'Gagal Menukar';
 }
