@@ -18,6 +18,8 @@ workflows:
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
+        # 명시적 Flutter 버전 고정 (Shorebird 호환성)
+        FLUTTER_VERSION: "3.32.5"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -408,16 +410,20 @@ workflows:
           echo "=== Shorebird iOS 릴리즈 실행 ==="
           echo "🚀 Shorebird로 iOS 릴리즈 업로드..."
           
-          # 환경에서 사용하는 정확한 Flutter 버전 확인
-          FLUTTER_VERSION=$(flutter --version | grep -E "Flutter [0-9]+\.[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | head -1)
-          if [ -z "$FLUTTER_VERSION" ]; then
-            FLUTTER_VERSION="3.32.5"  # CodeMagic 환경에서 설정된 기본값 사용
+          # 환경 변수에서 명시적으로 설정된 Flutter 버전 사용 (Shorebird 호환성)
+          if [ -n "$FLUTTER_VERSION" ]; then
+            echo "🎯 환경 변수에서 설정된 Flutter 버전 사용: $FLUTTER_VERSION"
+          else
+            FLUTTER_VERSION=$(flutter --version | grep -E "Flutter [0-9]+\.[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | head -1)
+            if [ -z "$FLUTTER_VERSION" ]; then
+              FLUTTER_VERSION="3.32.5"  # 최종 폴백값
+            fi
+            echo "🎯 자동 감지된 Flutter 버전: $FLUTTER_VERSION"
           fi
-          echo "🎯 사용할 Flutter 버전: $FLUTTER_VERSION"
           
           RELEASE_RESULT=$(shorebird release ios \
             --dart-define=ENVIRONMENT=prod \
-            --flutter-version=$FLUTTER_VERSION 2>&1)
+            --flutter-version=3.32.5 2>&1)
           RELEASE_EXIT_CODE=$?
           
           echo "릴리즈 결과:"
@@ -489,6 +495,8 @@ workflows:
         APP_NAME: "picnic_app"
         # CodeMagic이 android_signing을 인식하도록 강제 설정
         FLUTTER_BUILD_MODE: "release"
+        # 명시적 Flutter 버전 고정 (Shorebird 호환성)
+        FLUTTER_VERSION: "3.32.5"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -699,39 +707,53 @@ workflows:
           
           echo "✅ Flutter 빌드 완료 확인됨, Shorebird 환경 준비 중..."
           
-          # Shorebird 전용 작업 디렉토리 생성 (격리)
-          SHOREBIRD_WORK_DIR="/tmp/shorebird_build_$(date +%s)"
-          echo "📁 Shorebird 전용 작업 디렉토리: $SHOREBIRD_WORK_DIR"
+          # Shorebird는 현재 위치에서 직접 실행 (격리 제거)
+          echo "📁 현재 디렉토리에서 Shorebird 실행 (격리 제거)"
+          echo "🎯 Flutter 빌드와 동일한 환경 사용으로 의존성 문제 해결"
           
-          # 프로젝트 소스를 작업 디렉토리로 복사
-          echo "📋 프로젝트 소스 복사 중..."
-          cp -r . "$SHOREBIRD_WORK_DIR"
-          cd "$SHOREBIRD_WORK_DIR"
-          
-          # Shorebird 캐시 정리 (오류 해결)
+          # Shorebird 캐시만 정리 (Flutter는 이미 준비됨)
           echo "🧹 Shorebird 캐시 정리..."
           shorebird cache clean
           
-          # 깨끗한 상태로 시작
-          echo "🧹 깨끗한 빌드 환경 준비..."
-          flutter clean
-          flutter pub get
+          # Flutter 상태는 그대로 유지 (의존성 문제 방지)
+          echo "✅ Flutter 환경 그대로 사용 (이미 pub get 완료)"
+          echo "✅ 기존 빌드 아티팩트 유지"
+          
+          # Flutter 환경 확인 (추가 안전장치)
+          echo "=== Flutter 환경 상태 확인 ==="
+          if [ ! -d ".dart_tool" ]; then
+            echo "⚠️ .dart_tool이 없습니다. pub get 실행..."
+            flutter pub get
+          else
+            echo "✅ .dart_tool 존재 확인"
+          fi
+          
+          if [ ! -f "pubspec.lock" ]; then
+            echo "⚠️ pubspec.lock이 없습니다. pub get 실행..."
+            flutter pub get
+          else
+            echo "✅ pubspec.lock 존재 확인"
+          fi
 
           echo "=== Shorebird Android 릴리즈 실행 ==="
           echo "🚀 Shorebird 자체 빌드 시스템으로 릴리즈 생성..."
           echo "⚠️ 참고: Shorebird는 Flutter 빌드와 별개로 자체 빌드를 수행합니다"
           
-          # 환경에서 사용하는 정확한 Flutter 버전 확인
-          FLUTTER_VERSION=$(flutter --version | grep -E "Flutter [0-9]+\.[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | head -1)
-          if [ -z "$FLUTTER_VERSION" ]; then
-            FLUTTER_VERSION="3.32.5"  # CodeMagic 환경에서 설정된 기본값 사용
+          # 환경 변수에서 명시적으로 설정된 Flutter 버전 사용 (Shorebird 호환성)
+          if [ -n "$FLUTTER_VERSION" ]; then
+            echo "🎯 환경 변수에서 설정된 Flutter 버전 사용: $FLUTTER_VERSION"
+          else
+            FLUTTER_VERSION=$(flutter --version | grep -E "Flutter [0-9]+\.[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | head -1)
+            if [ -z "$FLUTTER_VERSION" ]; then
+              FLUTTER_VERSION="3.32.5"  # 최종 폴백값
+            fi
+            echo "🎯 자동 감지된 Flutter 버전: $FLUTTER_VERSION"
           fi
-          echo "🎯 사용할 Flutter 버전: $FLUTTER_VERSION"
           
-          # --verbose 플래그와 명시적 Flutter 버전 사용
+          # --verbose 플래그와 명시적 Flutter 버전 3.32.5 사용 (Shorebird 호환성)
           RELEASE_RESULT=$(shorebird release android \
             --dart-define=ENVIRONMENT=prod \
-            --flutter-version=$FLUTTER_VERSION \
+            --flutter-version=3.32.5 \
             --verbose 2>&1)
           RELEASE_EXIT_CODE=$?
           
@@ -765,6 +787,11 @@ workflows:
               echo "  - Shorebird와 Flutter 빌드 시스템 간 충돌 가능성"
               echo "  - 네이티브 라이브러리 경로 문제"
               echo "  - 💡 해결책: 향후 Shorebird 전용 빌드 단계 분리 검토"
+            elif echo "$RELEASE_RESULT" | grep -i "failed to build aab\|exited with code 66\|flutter pub get.*failed"; then
+              echo "  📦 AAB 빌드 및 의존성 문제:"
+              echo "  - Flutter pub get 실패로 인한 빌드 중단"
+              echo "  - 의존성 해결 문제 (코드 66)"
+              echo "  - 💡 해결책: 격리 환경 제거로 의존성 공유"
             elif echo "$RELEASE_RESULT" | grep -i "keystore\|signing\|certificate"; then
               echo "  🔐 서명 관련 문제:"
               echo "  - CodeMagic Android 서명 설정 확인 필요"
@@ -794,15 +821,9 @@ workflows:
           fi
 
           echo "=== 정리 작업 ==="
-          # 원래 프로젝트 디렉토리로 돌아가기
-          cd /Users/builder/clone
-          cd picnic_app
-          
-          # 작업 디렉토리 정리
-          if [ -n "$SHOREBIRD_WORK_DIR" ] && [ -d "$SHOREBIRD_WORK_DIR" ]; then
-            echo "🧹 Shorebird 작업 디렉토리 정리: $SHOREBIRD_WORK_DIR"
-            rm -rf "$SHOREBIRD_WORK_DIR"
-          fi
+          echo "🧹 Shorebird 캐시 정리 (프로젝트는 그대로 유지)"
+          # 작업 디렉토리 정리는 더 이상 필요없음 (격리 제거)
+          echo "✅ 현재 디렉토리에서 작업 완료, 별도 정리 불필요"
           
           echo "=== 최종 결과 ==="
           echo "✅ Android AAB 빌드 완료 (Google Play 배포 준비)"
@@ -811,8 +832,10 @@ workflows:
             echo "🎯 이제 \`picnic-patch-*\` 태그로 패치를 배포할 수 있습니다"
           else
             echo "⚠️ Shorebird 릴리즈 실패했지만 AAB 배포는 가능합니다"
-            echo "🎯 패치가 필요한 경우 별도 패치 워크플로우를 사용하세요"
-            echo "📋 또는 Shorebird 빌드 아티팩트 문제 해결 후 재시도하세요"
+            echo "🎯 패치가 필요한 경우:"
+            echo "   - 의존성 문제 해결 후 재시도"
+            echo "   - 또는 별도 패치 워크플로우 사용"
+            echo "📋 주요 개선 사항: 격리 환경 제거로 의존성 공유"
           fi
 
       - name: Verify AAB Output
@@ -917,6 +940,8 @@ workflows:
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
+        # 명시적 Flutter 버전 고정 (Shorebird 호환성)
+        FLUTTER_VERSION: "3.32.5"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -1239,6 +1264,8 @@ workflows:
       vars:
         PATH: $PATH:$HOME/.shorebird/bin
         APP_NAME: "picnic_app"
+        # 명시적 Flutter 버전 고정 (Shorebird 호환성)
+        FLUTTER_VERSION: "3.32.5"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
