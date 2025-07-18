@@ -49,12 +49,12 @@ import 'app_localizations_zh.dart';
 ///
 /// iOS applications define key application metadata, including supported
 /// locales, in an Info.plist file that is built into the application bundle.
-/// To configure the locales supported by your app, you’ll need to edit this
+/// To configure the locales supported by your app, you'll need to edit this
 /// file.
 ///
-/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// First, open your project's ios/Runner.xcworkspace Xcode workspace file.
 /// Then, in the Project Navigator, open the Info.plist file under the Runner
-/// project’s Runner folder.
+/// project's Runner folder.
 ///
 /// Next, select the Information Property List item, select Add Item from the
 /// Editor menu, then select Localizations from the pop-up menu.
@@ -4115,7 +4115,7 @@ abstract class AppLocalizations {
   /// No description provided for @jma_voting_star_candy_shortage.
   ///
   /// In en, this message translates to:
-  /// **'You are short {shortage} Star Candy.'**
+  /// **'You need {shortage} more star candies.'**
   String jma_voting_star_candy_shortage(Object shortage);
 
   /// No description provided for @jma_voting_star_candy_multiple_of_three.
@@ -4214,6 +4214,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Exchange Failed'**
   String get jma_voting_exchange_failed_title;
+
+  /// No description provided for @jma_voting_max_votes_exceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'The current maximum possible votes is {maxVotes}.'**
+  String jma_voting_max_votes_exceeded(Object maxVotes);
 }
 
 class _AppLocalizationsDelegate

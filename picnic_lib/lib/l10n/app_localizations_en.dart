@@ -2156,7 +2156,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String jma_voting_star_candy_shortage(Object shortage) {
-    return 'You are short $shortage Star Candy.';
+    return 'You need $shortage more star candies.';
+  }
+
+  @override
+  String jma_voting_max_votes_exceeded(Object maxVotes) {
+    return 'The current maximum possible votes is $maxVotes.';
   }
 
   @override

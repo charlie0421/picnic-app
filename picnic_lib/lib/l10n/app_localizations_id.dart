@@ -2167,7 +2167,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String jma_voting_star_candy_shortage(Object shortage) {
-    return 'Anda kekurangan $shortage Star Candy.';
+    return 'Anda kekurangan $shortage permen bintang.';
+  }
+
+  @override
+  String jma_voting_max_votes_exceeded(Object maxVotes) {
+    return 'Jumlah maksimum vote yang dapat dilakukan saat ini adalah $maxVotes.';
   }
 
   @override

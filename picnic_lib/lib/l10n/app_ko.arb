@@ -838,7 +838,7 @@
   "voting_share_benefit_text": "100표마다 보너스 스타캔디 1개 획득 및 공유!",
   "withdrawal_success": "회원탈퇴가 성공적으로 처리되었습니다.",
   "jma_voting_star_candy_shortage": "별사탕이 {shortage}개 부족합니다.",
-  "jma_voting_star_candy_multiple_of_three": "별사탕은 3의 배수로만 사용 가능합니다. {needed}개 더 추가하거나 {excess}개 줄여주세요.",
+  "jma_voting_max_votes_exceeded": "현재 최대 가능 투표수는 {maxVotes}개 입니다.",
   "jma_voting_daily_limit_remaining": "오늘 남은 보너스 투표 갯수: {remaining}회 (최대 {max}회)",
   "jma_voting_daily_limit_exhausted": "오늘 보너스 투표 갯수를 모두 사용했습니다.",
   "jma_voting_my_star_candy": "나의 별사탕",

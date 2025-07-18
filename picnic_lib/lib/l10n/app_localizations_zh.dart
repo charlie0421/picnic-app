@@ -2070,6 +2070,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String jma_voting_max_votes_exceeded(Object maxVotes) {
+    return '当前最大可投票数为$maxVotes个。';
+  }
+
+  @override
   String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
     return '星星糖果只能以3的倍数使用。请增加$needed个或减少$excess个。';
   }

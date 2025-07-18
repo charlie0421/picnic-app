@@ -2148,4 +2148,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get jma_voting_exchange_failed_title => '交換失敗';
+
+  @override
+  String jma_voting_max_votes_exceeded(Object maxVotes) {
+    return '現在の最大投票可能数は$maxVotes個です。';
+  }
 }

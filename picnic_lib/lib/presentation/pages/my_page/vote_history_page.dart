@@ -50,11 +50,27 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
       final response = await supabase
           .from('vote_pick')
           .select(
-              'id,amount,star_candy_usage,star_candy_bonus_usage,created_at,updated_at,vote(id,title,vote_category,main_image,wait_image,result_image,vote_content,created_at,visible_at,stop_at,start_at,is_ended,is_upcoming,is_partnership,partner),vote_item(id,vote_total,star_candy_total,star_candy_bonus_total,vote_id,artist(id,name,yy,mm,dd,birth_date,gender,image,created_at,updated_at,deleted_at,artist_group(id,name,image,created_at,updated_at,deleted_at)),artist_group(id,name,image,created_at,updated_at,deleted_at))')
+              'id,amount,star_candy_usage,star_candy_bonus_usage,created_at,updated_at,vote(id,title,vote_category,main_image,wait_image,result_image,vote_content,created_at,visible_at,stop_at,start_at,is_partnership,partner),vote_item(id,vote_total,star_candy_total,star_candy_bonus_total,vote_id,artist(id,name,yy,mm,dd,birth_date,gender,image,created_at,updated_at,deleted_at,artist_group(id,name,image,created_at,updated_at,deleted_at)),artist_group(id,name,image,created_at,updated_at,deleted_at))')
           .eq('user_id', supabase.auth.currentUser!.id)
           .order('id', ascending: _sortOrder == 'ASC')
           .range((pageKey - 1) * _pageSize, pageKey * _pageSize - 1)
           .limit(_pageSize);
+
+      final now = DateTime.now().toUtc();
+      
+      // Add computed fields to vote data before parsing
+      for (var item in response as List) {
+        if (item['vote'] != null) {
+          final voteData = item['vote'] as Map<String, dynamic>;
+          if (voteData['stop_at'] != null && voteData['start_at'] != null) {
+            voteData['is_ended'] = now.isAfter(DateTime.parse(voteData['stop_at']));
+            voteData['is_upcoming'] = now.isBefore(DateTime.parse(voteData['start_at']));
+          } else {
+            voteData['is_ended'] = false;
+            voteData['is_upcoming'] = false;
+          }
+        }
+      }
 
       final items = (response as List)
           .map((item) => VotePickModel.fromJson(item))

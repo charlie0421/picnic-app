@@ -657,7 +657,7 @@
   "vote_item_request_no_search_results": "没有搜索结果",
   "vote_item_request_waiting": "等待中",
   "jma_voting_star_candy_shortage": "星星糖果不足{shortage}个。",
-  "jma_voting_star_candy_multiple_of_three": "星星糖果只能以3的倍数使用。请增加{needed}个或减少{excess}个。",
+  "jma_voting_max_votes_exceeded": "当前最大可投票数为{maxVotes}个。",
   "jma_voting_daily_limit_remaining": "今日剩余奖励投票次数：{remaining}次（最多{max}次）",
   "jma_voting_daily_limit_exhausted": "今日奖励投票次数已全部使用完毕。",
   "jma_voting_my_star_candy": "我的星星糖果",

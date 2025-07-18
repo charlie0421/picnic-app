@@ -125,107 +125,32 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     _validateVote();
   }
 
-  void _validateVote() {
-    final starCandyAmount = _getStarCandyAmount();
-    final totalStarCandy = _getTotalStarCandy();
-
-    String validationMessage = '';
-    bool canVote = false;
-
-    if (starCandyAmount > 0) {
-      // 총 별사탕(보너스 포함) 부족 검증
-      if (starCandyAmount > totalStarCandy) {
-        canVote = false;
-        final shortfall = starCandyAmount - totalStarCandy;
-        validationMessage = AppLocalizations.of(context)
-            .jma_voting_star_candy_shortage(formatNumberWithComma(shortfall));
-      } else {
-        // 3의 배수 검증 (보너스 사용 후 남은 별사탕이 있을 때)
-        final bonusStarCandy = _getMyBonusStarCandy();
-        final remainingBonusUsage =
-            _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-        final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
-            ? remainingBonusUsage
-            : bonusStarCandy;
-
-        if (starCandyAmount > usableBonusStarCandy) {
-          // 보너스로 충당되지 않는 부분이 있을 때
-          final remainingStarCandy = starCandyAmount - usableBonusStarCandy;
-          if (remainingStarCandy % 3 != 0) {
-            canVote = false;
-            final needed = (3 - (remainingStarCandy % 3));
-            validationMessage = AppLocalizations.of(context)
-                .jma_voting_star_candy_multiple_of_three(
-                    remainingStarCandy % 3, needed);
-          } else {
-            canVote = true;
-            validationMessage = '';
-          }
-        } else {
-          // 보너스만 사용하는 경우
-          canVote = true;
-          validationMessage = '';
-        }
-      }
-    }
-
-    if (mounted) {
-      setState(() {
-        _canVote = canVote;
-        _hasValue = starCandyAmount > 0;
-        _validationMessage = validationMessage;
-      });
-    }
-  }
-
-  int _getRequiredStarCandyAmount() {
-    final voteAmount = _getVoteAmount();
-    final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingBonusUsage =
-        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
-        ? remainingBonusUsage
-        : bonusStarCandy;
-
-    // 전체 투표량을 별사탕으로 계산
-    // 보너스로 사용할 수 있는 양과 일반 별사탕으로 사야 할 양을 합쳐서 반환
-    int totalStarCandyNeeded = 0;
-
-    if (voteAmount <= usableBonusStarCandy) {
-      // 보너스 별사탕만으로 충분한 경우 - 보너스 사용량만큼 별사탕 필요
-      totalStarCandyNeeded = voteAmount;
-    } else {
-      // 보너스 + 일반 별사탕 모두 사용하는 경우
-      // 보너스로 사용할 양 + 일반 별사탕으로 사야 할 양(투표 수 * 3)
-      totalStarCandyNeeded =
-          usableBonusStarCandy + ((voteAmount - usableBonusStarCandy) * 3);
-    }
-
-    return totalStarCandyNeeded;
-  }
-
-  int _getStarCandyAmount() =>
+  // 입력받은 투표수 가져오기
+  int _getVoteAmount() =>
       int.tryParse(_textEditingController.text.replaceAll(',', '')) ?? 0;
 
-  int _getVoteAmount() {
-    final starCandyAmount = _getStarCandyAmount();
+  // 입력된 투표수에 필요한 별사탕 총량 계산
+  int _getRequiredStarCandyAmount() {
+    final voteAmount = _getVoteAmount();
+    if (voteAmount == 0) return 0;
 
-    // 보너스 우선 사용하여 투표 수 계산
+    // 보너스 우선 사용
     final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingBonusUsage =
-        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
-        ? remainingBonusUsage
-        : bonusStarCandy;
+    final remainingBonusUsage = _maxDailyVotes - _dailyVoteCount;
 
-    if (starCandyAmount <= usableBonusStarCandy) {
+    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
+    final usableBonusVotes = remainingBonusUsage > 0
+        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
+        : 0;
+
+    if (voteAmount <= usableBonusVotes) {
       // 보너스만으로 충분한 경우 (1:1)
-      return starCandyAmount;
+      return voteAmount;
     } else {
       // 보너스 + 일반 별사탕 조합
-      final remainingStarCandy = starCandyAmount - usableBonusStarCandy;
-      final regularVotes = remainingStarCandy ~/ 3; // 일반 별사탕은 3:1
-      return usableBonusStarCandy + regularVotes;
+      final remainingVotes = voteAmount - usableBonusVotes;
+      final regularStarCandyNeeded = remainingVotes * 3; // 일반 별사탕 3:1
+      return usableBonusVotes + regularStarCandyNeeded;
     }
   }
 
@@ -243,12 +168,61 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     return _getMyStarCandy() + _getMyBonusStarCandy();
   }
 
-  // 사용 가능한 스타캔디 (일반 별사탕만 3:1 비율로 변환)
-  int _getUsableStarCandy() {
-    final regularStarCandy = _getMyStarCandy(); // 일반 별사탕만
+  // 사용 가능한 최대 투표수 계산
+  int _getMaxPossibleVotes() {
+    final bonusStarCandy = _getMyBonusStarCandy();
+    final remainingBonusUsage = _maxDailyVotes - _dailyVoteCount;
 
-    // 일반 별사탕만 3으로 나누고 나머지 버림 (보너스는 별도 계산)
-    return regularStarCandy ~/ 3;
+    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
+    final usableBonusVotes = remainingBonusUsage > 0
+        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
+        : 0;
+
+    final regularStarCandy = _getMyStarCandy();
+    final regularVotes = regularStarCandy ~/ 3; // 일반 별사탕은 3:1
+
+    return usableBonusVotes + regularVotes;
+  }
+
+  void _validateVote() {
+    final voteAmount = _getVoteAmount();
+    final requiredStarCandy = _getRequiredStarCandyAmount();
+    final totalStarCandy = _getTotalStarCandy();
+    final maxPossibleVotes = _getMaxPossibleVotes();
+
+    String validationMessage = '';
+    bool canVote = false;
+
+    if (voteAmount > 0) {
+      // 최대 투표 가능 수량 초과 검증
+      if (voteAmount > maxPossibleVotes) {
+        canVote = false;
+        validationMessage = AppLocalizations.of(context)
+            .jma_voting_max_votes_exceeded(
+                formatNumberWithComma(maxPossibleVotes));
+      }
+      // 총 별사탕(보너스 포함) 부족 검증
+      else if (requiredStarCandy > totalStarCandy) {
+        canVote = false;
+        final shortfall = requiredStarCandy - totalStarCandy;
+        validationMessage = AppLocalizations.of(context)
+            .jma_voting_star_candy_shortage(formatNumberWithComma(shortfall));
+      } else {
+        canVote = true;
+        validationMessage = '';
+      }
+    } else {
+      canVote = false;
+      validationMessage = '';
+    }
+
+    if (mounted) {
+      setState(() {
+        _canVote = canVote;
+        _hasValue = voteAmount > 0;
+        _validationMessage = validationMessage;
+      });
+    }
   }
 
   @override
@@ -761,12 +735,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
   Widget _buildStarCandyInfo(int myStarCandy) {
     final bonusStarCandy = _getMyBonusStarCandy();
-    final usableStarCandy = _getUsableStarCandy(); // 기본 별사탕 기준
+    final usableStarCandy = _getMyStarCandy() ~/ 3; // 기본 별사탕 기준
     final remainingBonusUsage =
         _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
-        ? remainingBonusUsage
-        : bonusStarCandy; // 하루 5개 제한
+
+    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
+    final usableBonusVotes = remainingBonusUsage > 0
+        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
+        : 0;
 
     return Container(
       width: double.infinity,
@@ -895,7 +871,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   ),
                   SizedBox(width: 3),
                   Text(
-                    '${formatNumberWithComma(usableBonusStarCandy)}개',
+                    '${formatNumberWithComma(usableBonusVotes)}개',
                     style: getTextStyle(
                       AppTypo.caption12B,
                       Colors.orange.shade700,
@@ -953,11 +929,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   Widget _buildCalculationAndErrorSection() {
-    final starCandyAmount = _getStarCandyAmount();
     final voteAmount = _getVoteAmount();
 
     // 계산 결과나 에러 메시지가 있을 때만 표시
-    if (starCandyAmount == 0 && _validationMessage.isEmpty) {
+    if (voteAmount == 0 && _validationMessage.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -981,7 +956,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 계산 결과 (별사탕 입력이 있고 유효할 때)
-          if (starCandyAmount > 0 && _canVote) ...[
+          if (voteAmount > 0 && _canVote) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1055,33 +1030,26 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   String _getCalculationResultMessage() {
-    final requiredStarCandy = _getRequiredStarCandyAmount();
     final voteAmount = _getVoteAmount();
-
-    // 보너스 사용 여부 계산
     final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingBonusUsage =
-        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
-        ? remainingBonusUsage
-        : bonusStarCandy;
+    final remainingBonusUsage = _maxDailyVotes - _dailyVoteCount;
 
-    if (voteAmount <= usableBonusStarCandy) {
+    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
+    final usableBonusVotes = remainingBonusUsage > 0
+        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
+        : 0;
+
+    if (voteAmount <= usableBonusVotes) {
       // 보너스만으로 충분한 경우
-      return AppLocalizations.of(context).jma_voting_bonus_only(
-          formatNumberWithComma(voteAmount), formatNumberWithComma(voteAmount));
-    } else if (usableBonusStarCandy > 0) {
+      return "JMA ${formatNumberWithComma(voteAmount)}투표 = 보너스 ${formatNumberWithComma(voteAmount)}개";
+    } else if (usableBonusVotes > 0) {
       // 보너스 + 일반 별사탕 조합
-      final regularStarCandyNeeded = (voteAmount - usableBonusStarCandy) * 3;
-      return AppLocalizations.of(context).jma_voting_bonus_plus_regular(
-          formatNumberWithComma(usableBonusStarCandy),
-          formatNumberWithComma(regularStarCandyNeeded),
-          formatNumberWithComma(voteAmount));
+      final regularStarCandyNeeded = (voteAmount - usableBonusVotes) * 3;
+      return "JMA ${formatNumberWithComma(voteAmount)}투표 = 보너스 ${formatNumberWithComma(usableBonusVotes)}개 + 별사탕 ${formatNumberWithComma(regularStarCandyNeeded)}개";
     } else {
       // 일반 별사탕만 사용
-      return AppLocalizations.of(context).jma_voting_regular_only(
-          formatNumberWithComma(requiredStarCandy),
-          formatNumberWithComma(voteAmount));
+      final regularStarCandyNeeded = voteAmount * 3;
+      return "JMA ${formatNumberWithComma(voteAmount)}투표 = 별사탕 ${formatNumberWithComma(regularStarCandyNeeded)}개";
     }
   }
 
@@ -1096,22 +1064,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
             _checkAll = !_checkAll;
             _hasValue = _checkAll;
             if (_checkAll) {
-              // 사용 가능한 보너스 + 사용 가능한 별사탕(3의 배수) 합산
-              final bonusStarCandy = _getMyBonusStarCandy();
-              final remainingBonusUsage =
-                  _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-              final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
-                  ? remainingBonusUsage
-                  : bonusStarCandy;
-
-              final myStarCandy = _getMyStarCandy();
-              final usableStarCandy =
-                  (myStarCandy ~/ 3) * 3; // 3의 배수로 사용 가능한 별사탕
-
-              // 보너스 개수 + 사용 가능한 별사탕 개수 = 총 입력 가능 개수
-              final totalUsableAmount = usableBonusStarCandy + usableStarCandy;
-              _textEditingController.text =
-                  formatNumberWithComma(totalUsableAmount);
+              // 최대 투표 가능 수량 계산
+              final maxVotes = _getMaxPossibleVotes();
+              _textEditingController.text = formatNumberWithComma(maxVotes);
             } else {
               _textEditingController.clear();
             }
@@ -1271,12 +1226,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     final bonusStarCandy = _getMyBonusStarCandy();
     final remainingBonusUsage =
         _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
-        ? remainingBonusUsage
-        : bonusStarCandy;
+
+    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
+    final usableBonusVotes = remainingBonusUsage > 0
+        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
+        : 0;
 
     final bonusVotesUsed =
-        voteAmount <= usableBonusStarCandy ? voteAmount : usableBonusStarCandy;
+        voteAmount <= usableBonusVotes ? voteAmount : usableBonusVotes;
 
     // 교환과 투표를 함께 수행
     _performExchangeAndVoting(voteAmount, userId, bonusVotesUsed);
@@ -1308,21 +1265,23 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     final bonusStarCandy = _getMyBonusStarCandy();
     final remainingBonusUsage =
         _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
-        ? remainingBonusUsage
-        : bonusStarCandy;
+
+    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
+    final usableBonusVotes = remainingBonusUsage > 0
+        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
+        : 0;
 
     int starCandyUsage = 0; // 일반 별사탕 사용량 (개수)
     int starCandyBonusUsage = 0; // 보너스 별사탕 사용량 (개수)
 
-    if (voteAmount <= usableBonusStarCandy) {
+    if (voteAmount <= usableBonusVotes) {
       // 보너스 별사탕만으로 충분한 경우
       starCandyBonusUsage = voteAmount; // 보너스는 1:1 비율
       starCandyUsage = 0;
     } else {
       // 보너스 별사탕을 모두 사용하고 일반 별사탕도 사용
-      starCandyBonusUsage = usableBonusStarCandy; // 보너스는 1:1 비율
-      final regularVotes = voteAmount - usableBonusStarCandy;
+      starCandyBonusUsage = usableBonusVotes; // 보너스는 1:1 비율
+      final regularVotes = voteAmount - usableBonusVotes;
       starCandyUsage = regularVotes * 3; // 일반 별사탕은 3:1 비율
     }
 

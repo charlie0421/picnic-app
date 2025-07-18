@@ -656,7 +656,7 @@
   "vote_item_request_no_search_results": "検索結果がありません",
   "vote_item_request_waiting": "待機中",
   "jma_voting_star_candy_shortage": "スターキャンディが{shortage}個不足しています。",
-  "jma_voting_star_candy_multiple_of_three": "スターキャンディは3の倍数でのみ使用できます。{needed}個追加するか{excess}個減らしてください。",
+  "jma_voting_max_votes_exceeded": "現在の最大投票可能数は{maxVotes}個です。",
   "jma_voting_daily_limit_remaining": "今日の残りボーナス投票数: {remaining}回 (最大{max}回)",
   "jma_voting_daily_limit_exhausted": "今日のボーナス投票数をすべて使用しました。",
   "jma_voting_my_star_candy": "私のスターキャンディ",

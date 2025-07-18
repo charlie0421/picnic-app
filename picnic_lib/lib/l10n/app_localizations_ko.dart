@@ -2138,4 +2138,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get jma_voting_exchange_failed_title => '교환 실패';
+
+  @override
+  String jma_voting_max_votes_exceeded(Object maxVotes) {
+    return '현재 최대 가능 투표수는 $maxVotes개 입니다.';
+  }
 }
