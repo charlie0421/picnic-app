@@ -70,8 +70,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   bool _isInitialRender = true;
   bool _isProcessingTap = false;
   String _validationMessage = '';
-  int _dailyVoteCount = 0; // 오늘 투표한 횟수
-  static const int _maxDailyVotes = 5; // 일일 최대 투표 횟수
+  int _dailyVoteCount = 0; // 오늘 보너스 별사탕 사용량
+  static const int _maxDailyVotes = 5; // 일일 최대 보너스 별사탕 사용량 (5개)
 
   @override
   void initState() {
@@ -82,7 +82,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     _loadDailyVoteCount();
   }
 
-  // 오늘 보너스 투표 횟수 조회 (vote_pick 기반)
+  // 오늘 보너스 별사탕 사용량 조회 (vote_pick 기반)
   Future<void> _loadDailyVoteCount() async {
     try {
       final userId = ref.read(userInfoProvider).value?.id ?? '';
@@ -92,19 +92,23 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       final startOfDay = DateTime(today.year, today.month, today.day);
       final endOfDay = startOfDay.add(Duration(days: 1));
 
-      // 오늘 보너스 캔디를 사용한 투표 기록 조회
+      // 오늘 보너스 별사탕 사용량 총합 조회
       final response = await supabase
           .from('vote_pick')
-          .select('id')
+          .select('star_candy_bonus_usage')
           .eq('user_id', userId)
           .eq('vote_id', widget.voteModel.id)
-          .gt('star_candy_bonus_usage', 0) // 보너스 캔디를 사용한 투표만 카운트
+          .gt('star_candy_bonus_usage', 0) // 보너스 별사탕을 사용한 투표만
           .gte('created_at', startOfDay.toIso8601String())
           .lt('created_at', endOfDay.toIso8601String());
 
       if (mounted) {
         setState(() {
-          _dailyVoteCount = response.length;
+          // 보너스 별사탕 사용량 총합 계산
+          _dailyVoteCount = response.fold<int>(
+              0,
+              (sum, record) =>
+                  sum + (record['star_candy_bonus_usage'] as int? ?? 0));
         });
       }
     } catch (e) {
@@ -138,9 +142,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       } else {
         // 3의 배수 검증 (보너스 사용 후 남은 별사탕이 있을 때)
         final bonusStarCandy = _getMyBonusStarCandy();
-        final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-        final usableBonusStarCandy =
-            bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
+        final remainingBonusUsage =
+            _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
+        final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
+            ? remainingBonusUsage
+            : bonusStarCandy;
 
         if (starCandyAmount > usableBonusStarCandy) {
           // 보너스로 충당되지 않는 부분이 있을 때
@@ -175,9 +181,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   int _getRequiredStarCandyAmount() {
     final voteAmount = _getVoteAmount();
     final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-    final usableBonusStarCandy =
-        bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
+    final remainingBonusUsage =
+        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
+    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
+        ? remainingBonusUsage
+        : bonusStarCandy;
 
     // 전체 투표량을 별사탕으로 계산
     // 보너스로 사용할 수 있는 양과 일반 별사탕으로 사야 할 양을 합쳐서 반환
@@ -204,9 +212,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
     // 보너스 우선 사용하여 투표 수 계산
     final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-    final usableBonusStarCandy =
-        bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
+    final remainingBonusUsage =
+        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
+    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
+        ? remainingBonusUsage
+        : bonusStarCandy;
 
     if (starCandyAmount <= usableBonusStarCandy) {
       // 보너스만으로 충분한 경우 (1:1)
@@ -752,9 +762,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   Widget _buildStarCandyInfo(int myStarCandy) {
     final bonusStarCandy = _getMyBonusStarCandy();
     final usableStarCandy = _getUsableStarCandy(); // 기본 별사탕 기준
-    final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-    final usableBonusStarCandy = bonusStarCandy > remainingVotes
-        ? remainingVotes
+    final remainingBonusUsage =
+        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
+    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
+        ? remainingBonusUsage
         : bonusStarCandy; // 하루 5개 제한
 
     return Container(
@@ -872,7 +883,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                 ],
               ),
 
-              // 보너스 (하루 5개)
+              // 보너스 (하루 5개 제한)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -1049,9 +1060,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
     // 보너스 사용 여부 계산
     final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-    final usableBonusStarCandy =
-        bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
+    final remainingBonusUsage =
+        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
+    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
+        ? remainingBonusUsage
+        : bonusStarCandy;
 
     if (voteAmount <= usableBonusStarCandy) {
       // 보너스만으로 충분한 경우
@@ -1085,9 +1098,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
             if (_checkAll) {
               // 사용 가능한 보너스 + 사용 가능한 별사탕(3의 배수) 합산
               final bonusStarCandy = _getMyBonusStarCandy();
-              final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-              final usableBonusStarCandy = bonusStarCandy > remainingVotes
-                  ? remainingVotes
+              final remainingBonusUsage =
+                  _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
+              final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
+                  ? remainingBonusUsage
                   : bonusStarCandy;
 
               final myStarCandy = _getMyStarCandy();
@@ -1255,9 +1269,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
     // 보너스 사용 계산
     final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-    final usableBonusStarCandy =
-        bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
+    final remainingBonusUsage =
+        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
+    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
+        ? remainingBonusUsage
+        : bonusStarCandy;
 
     final bonusVotesUsed =
         voteAmount <= usableBonusStarCandy ? voteAmount : usableBonusStarCandy;
@@ -1290,9 +1306,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   Map<String, int> _calculateUsage(int totalStarCandyAmount) {
     final voteAmount = _getVoteAmount();
     final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingVotes = _maxDailyVotes - _dailyVoteCount;
-    final usableBonusStarCandy =
-        bonusStarCandy > remainingVotes ? remainingVotes : bonusStarCandy;
+    final remainingBonusUsage =
+        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
+    final usableBonusStarCandy = bonusStarCandy > remainingBonusUsage
+        ? remainingBonusUsage
+        : bonusStarCandy;
 
     int starCandyUsage = 0; // 일반 별사탕 사용량 (개수)
     int starCandyBonusUsage = 0; // 보너스 별사탕 사용량 (개수)

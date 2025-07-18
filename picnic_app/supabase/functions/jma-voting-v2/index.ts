@@ -53,16 +53,16 @@ async function getUserProfiles(supabaseClient: any, user_id: string) {
   }
 }
 
-// JMA 일일 보너스 투표 제한 확인 (투표별로 하루 5회)
+// JMA 일일 보너스 투표 제한 확인 (투표별로 하루 5개)
 async function checkJmaBonusVoteLimit(user_id: string, vote_id: number): Promise<{ canVote: boolean, dailyCount: number }> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // 특정 투표에 대한 오늘 보너스 투표 횟수 확인 (star_candy_bonus_usage > 0인 경우)
+  // 특정 투표에 대한 오늘 보너스 별사탕 사용량 총합 확인
   const { rows } = await queryDatabase(`
-    SELECT COUNT(*) as count
+    SELECT COALESCE(SUM(star_candy_bonus_usage), 0) as total_usage
     FROM vote_pick
     WHERE user_id = $1
     AND vote_id = $2
@@ -71,12 +71,12 @@ async function checkJmaBonusVoteLimit(user_id: string, vote_id: number): Promise
     AND created_at < $4
   `, user_id, vote_id, today.toISOString(), tomorrow.toISOString());
 
-  const bonusVoteCount = parseInt(rows[0].count);
-  console.log(`User ${user_id} bonus vote count for vote ${vote_id} today: ${bonusVoteCount}`);
+  const bonusUsageTotal = parseInt(rows[0].total_usage);
+  console.log(`User ${user_id} bonus usage total for vote ${vote_id} today: ${bonusUsageTotal}`);
   
   return {
-    canVote: bonusVoteCount < 5, // 5회 미만이면 허용
-    dailyCount: bonusVoteCount
+    canVote: bonusUsageTotal < 5, // 5개 미만이면 허용
+    dailyCount: bonusUsageTotal
   };
 }
 

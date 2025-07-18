@@ -2177,12 +2177,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String jma_voting_daily_limit_remaining(Object max, Object remaining) {
-    return 'Sisa vote bonus hari ini: $remaining kali (maksimal $max kali)';
+    return 'Voting bonus memungkinkan hingga $max vote per hari. (Sisa penggunaan: $remaining vote)';
   }
 
   @override
   String get jma_voting_daily_limit_exhausted =>
-      'Anda telah menggunakan semua vote bonus untuk hari ini.';
+      'Jumlah vote bonus hari ini telah habis digunakan.';
 
   @override
   String get jma_voting_my_star_candy => 'Star Candy Saya';
@@ -2223,7 +2223,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get jma_voting_daily_limit_error =>
-      'Anda dapat melakukan vote hingga 5 kali per hari.';
+      'Anda dapat melakukan hingga 5 vote bonus per hari.';
 
   @override
   String get jma_voting_exchange_failed =>

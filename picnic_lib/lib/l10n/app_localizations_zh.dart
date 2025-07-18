@@ -2076,11 +2076,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String jma_voting_daily_limit_remaining(Object max, Object remaining) {
-    return '今日剩余奖励投票次数：$remaining次（最多$max次）';
+    return '奖励投票每日最多可使用$max个。（剩余使用量：$remaining个）';
   }
 
   @override
-  String get jma_voting_daily_limit_exhausted => '今日奖励投票次数已全部使用完毕。';
+  String get jma_voting_daily_limit_exhausted => '今日奖励投票个数已全部使用完毕。';
 
   @override
   String get jma_voting_my_star_candy => '我的星星糖果';
@@ -2120,7 +2120,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '· 投票时星星糖果3个将自动转换为JMA投票权1个\n· 奖励星星糖果在JMA投票中每日最多可使用5个\n· 参与投票即可自动参加JMA演唱会门票活动';
 
   @override
-  String get jma_voting_daily_limit_error => '每日最多可投票5次。';
+  String get jma_voting_daily_limit_error => '每日最多可投票5个。';
 
   @override
   String get jma_voting_exchange_failed => '星星糖果兑换时发生错误。请重试。';

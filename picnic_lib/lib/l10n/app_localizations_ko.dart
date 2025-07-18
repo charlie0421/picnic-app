@@ -2084,11 +2084,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String jma_voting_daily_limit_remaining(Object max, Object remaining) {
-    return '오늘 남은 보너스 투표 갯수: $remaining회 (최대 $max회)';
+    return '보너스 투표는 하루 최대 $max개까지 가능합니다. (남은 사용량: $remaining개)';
   }
 
   @override
-  String get jma_voting_daily_limit_exhausted => '오늘 보너스 투표 갯수를 모두 사용했습니다.';
+  String get jma_voting_daily_limit_exhausted => '오늘 보너스 투표 개수를 모두 사용했습니다.';
 
   @override
   String get jma_voting_my_star_candy => '나의 별사탕';
@@ -2128,7 +2128,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '· 투표 시 별사탕 3개가 JMA투표권 1개로 자동 변환됩니다\n· 보너스 별사탕은 JMA 투표에선 1일 5개까지 사용 가능합니다\n· 투표에 참여하시면 자동으로 JMA 콘서트 티켓 이벤트에 참여됩니다';
 
   @override
-  String get jma_voting_daily_limit_error => '하루 최대 5번까지 투표할 수 있습니다.';
+  String get jma_voting_daily_limit_error => '하루 최대 5개까지 투표할 수 있습니다.';
 
   @override
   String get jma_voting_exchange_failed => '별사탕 교환 중 오류가 발생했습니다. 다시 시도해주세요.';

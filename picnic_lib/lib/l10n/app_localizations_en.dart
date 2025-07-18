@@ -2166,12 +2166,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String jma_voting_daily_limit_remaining(Object max, Object remaining) {
-    return 'Today\'s remaining bonus votes: $remaining times (max $max times)';
+    return 'Bonus voting allows up to $max votes per day. (Remaining usage: $remaining votes)';
   }
 
   @override
   String get jma_voting_daily_limit_exhausted =>
-      'You have used all bonus votes for today.';
+      'Today\'s bonus vote amount has been fully used.';
 
   @override
   String get jma_voting_my_star_candy => 'My Star Candy';
@@ -2213,7 +2213,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jma_voting_daily_limit_error =>
-      'You can vote up to 5 times per day.';
+      'You can vote up to 5 bonus votes per day.';
 
   @override
   String get jma_voting_exchange_failed =>
