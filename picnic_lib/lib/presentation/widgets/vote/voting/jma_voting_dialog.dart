@@ -82,34 +82,34 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     _loadDailyVoteCount();
   }
 
-  // 오늘 보너스 별사탕 사용량 조회 (vote_pick 기반)
+  // 오늘 보너스 별사탕 사용량 조회 (엣지 함수에서 UTC 기준으로 조회)
   Future<void> _loadDailyVoteCount() async {
     try {
       final userId = ref.read(userInfoProvider).value?.id ?? '';
       if (userId.isEmpty) return;
 
-      final today = DateTime.now();
-      final startOfDay = DateTime(today.year, today.month, today.day);
-      final endOfDay = startOfDay.add(Duration(days: 1));
+      // 전용 엣지 함수를 통해 일일 사용량 조회 (UTC 기준)
+      final response = await supabase.functions.invoke('jma-voting-usage', 
+        queryParameters: {
+          'user_id': userId,
+          'vote_id': widget.voteModel.id.toString(),
+        }
+      );
 
-      // 오늘 보너스 별사탕 사용량 총합 조회
-      final response = await supabase
-          .from('vote_pick')
-          .select('star_candy_bonus_usage')
-          .eq('user_id', userId)
-          .eq('vote_id', widget.voteModel.id)
-          .gt('star_candy_bonus_usage', 0) // 보너스 별사탕을 사용한 투표만
-          .gte('created_at', startOfDay.toIso8601String())
-          .lt('created_at', endOfDay.toIso8601String());
-
-      if (mounted) {
-        setState(() {
-          // 보너스 별사탕 사용량 총합 계산
-          _dailyVoteCount = response.fold<int>(
-              0,
-              (sum, record) =>
-                  sum + (record['star_candy_bonus_usage'] as int? ?? 0));
-        });
+      if (response.status == 200 && response.data != null) {
+        final data = response.data as Map<String, dynamic>;
+        if (mounted) {
+          setState(() {
+            _dailyVoteCount = data['dailyVoteCount'] ?? 0;
+          });
+        }
+      } else {
+        logger.e('Failed to load daily vote count from usage function: ${response.status}');
+        if (mounted) {
+          setState(() {
+            _dailyVoteCount = 0; // 기본값으로 설정
+          });
+        }
       }
     } catch (e) {
       logger.e('Failed to load daily vote count', error: e);
