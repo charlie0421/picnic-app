@@ -142,6 +142,7 @@ async function createVotePick(
   starCandyUsage: number,
   starCandyBonusUsage: number
 ) {
+  const regularVotesFromStarCandy = Math.floor(starCandyUsage / 3);
   const { rows } = await queryDatabase(`
     INSERT INTO vote_pick (
       vote_id, vote_item_id, user_id, amount, 
@@ -150,18 +151,19 @@ async function createVotePick(
     )
     VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
     RETURNING id, amount, star_candy_usage, star_candy_bonus_usage, created_at
-  `, vote_id, vote_item_id, user_id, amount, starCandyUsage, starCandyBonusUsage);
+  `, vote_id, vote_item_id, user_id, amount, regularVotesFromStarCandy, starCandyBonusUsage);
 
   if (rows.length === 0) {
     throw new Error('Failed to create vote pick');
   }
 
-  console.log(`Created vote_pick: ID=${rows[0].id}, amount=${amount}, star_candy_usage=${starCandyUsage}, star_candy_bonus_usage=${starCandyBonusUsage}`);
+  console.log(`Created vote_pick: ID=${rows[0].id}, amount=${amount}, star_candy_usage=${regularVotesFromStarCandy}, star_candy_bonus_usage=${starCandyBonusUsage}`);
   return rows[0];
 }
 
 // vote_item 업데이트 (분리된 총합 포함)
 async function updateVoteItem(vote_item_id: number, amount: number, starCandyUsage: number, starCandyBonusUsage: number) {
+  const regularVotesFromStarCandy = Math.floor(starCandyUsage / 3);
   const { rows } = await queryDatabase(`
     UPDATE vote_item
     SET 
@@ -171,7 +173,7 @@ async function updateVoteItem(vote_item_id: number, amount: number, starCandyUsa
       updated_at = NOW()
     WHERE id = $1
     RETURNING id, vote_total, star_candy_total, star_candy_bonus_total
-  `, vote_item_id, amount, starCandyUsage, starCandyBonusUsage);
+  `, vote_item_id, amount, regularVotesFromStarCandy, starCandyBonusUsage);
 
   if (rows.length === 0) {
     throw new Error('Vote item not found');
