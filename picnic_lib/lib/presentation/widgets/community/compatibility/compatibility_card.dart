@@ -138,7 +138,7 @@ class CompatibilityCard extends ConsumerWidget {
                   ],
                 ),
                 SizedBox(width: 16),
-                Expanded(
+                Flexible(
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
