@@ -346,13 +346,15 @@ class _CompatibilityResultPageState
                                 CompatibilityLogoWidget(),
                                 SizedBox(height: 36),
                                 CompatibilityCard(
-                                  artist: compatibility.artist,
-                                  ref: ref,
-                                  birthDate: compatibility.birthDate,
-                                  birthTime: compatibility.birthTime,
-                                  compatibility: compatibility,
-                                  gender: compatibility.gender,
+                                  artist: widget.compatibility.artist,
+                                  birthDate: widget.compatibility.birthDate,
+                                  birthTime: widget.compatibility.birthTime,
+                                  gender: widget.compatibility.gender,
+                                  compatibility: widget.compatibility,
                                 ),
+                                const SizedBox(height: 8),
+                                CompatibilityScoreWidget(
+                                    compatibility: widget.compatibility),
                                 SizedBox(height: 24),
                                 CompatibilitySummaryWidget(
                                     localizedResult:

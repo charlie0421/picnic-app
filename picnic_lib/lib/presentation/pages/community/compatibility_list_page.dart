@@ -168,69 +168,50 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
             ? _buildEmptyState()
             : Stack(
                 children: [
-                  ListView(
+                  ListView.builder(
                     controller: _scrollController,
                     padding: _padding,
-                    children: [
-                      SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/images/fortune/title_${Localizations.localeOf(context).languageCode}.svg',
-                        fit: BoxFit.fitHeight,
-                        height: 48,
-                      ),
-                      SizedBox(height: 24),
-                      ...List.generate(
-                        history.items.length + (history.isLoading ? 1 : 0),
-                        (index) {
-                          if (index == history.items.length) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: MediumPulseLoadingIndicator(),
-                              ),
-                            );
-                          }
+                    itemCount:
+                        1 + history.items.length + (history.isLoading ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        final locale = Localizations.localeOf(context);
+                        final languageCode =
+                            ['ko', 'en'].contains(locale.languageCode)
+                                ? locale.languageCode
+                                : 'en';
+                        return Column(
+                          children: [
+                            SvgPicture.asset(
+                              package: 'picnic_lib',
+                              'assets/images/fortune/title_$languageCode.svg',
+                              fit: BoxFit.fitHeight,
+                              height: 48,
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+                        );
+                      }
 
-                          final item = history.items[index];
+                      final itemIndex = index - 1;
 
-                          return Column(
-                            children: [
-                              InkWell(
-                                onTap: () => _onCompatibilityCardTap(item),
-                                child: Column(
-                                  children: [
-                                    CompatibilityCard(
-                                      artist: item.artist,
-                                      ref: ref,
-                                      birthDate: item.birthDate,
-                                      birthTime: item.birthTime,
-                                      gender: item.gender,
-                                      compatibility: item,
-                                    ),
-                                    SizedBox(height: 8),
-                                    CompatibilityScoreWidget(
-                                        compatibility: item),
-                                  ],
-                                ),
-                              ),
-                              if (index < history.items.length - 1)
-                                Center(
-                                  child: Container(
-                                    height: 3,
-                                    width: 48,
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 32),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: AppColors.primary500,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
+                      if (itemIndex == history.items.length) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: MediumPulseLoadingIndicator(),
+                          ),
+                        );
+                      }
+
+                      final item = history.items[itemIndex];
+
+                      return _CompatibilityListItem(
+                        item: item,
+                        isLastItem: itemIndex == history.items.length - 1,
+                        onTap: () => _onCompatibilityCardTap(item),
+                      );
+                    },
                   ),
                   Positioned(
                     bottom: 24,
@@ -291,6 +272,54 @@ class _CompatibilityListPageState extends ConsumerState<CompatibilityListPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CompatibilityListItem extends ConsumerWidget {
+  const _CompatibilityListItem({
+    required this.item,
+    required this.isLastItem,
+    required this.onTap,
+  });
+
+  final CompatibilityModel item;
+  final bool isLastItem;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Column(
+            children: [
+              CompatibilityCard(
+                artist: item.artist,
+                birthDate: item.birthDate,
+                birthTime: item.birthTime,
+                gender: item.gender,
+                compatibility: item,
+              ),
+              const SizedBox(height: 8),
+              CompatibilityScoreWidget(compatibility: item),
+            ],
+          ),
+        ),
+        if (!isLastItem)
+          Center(
+            child: Container(
+              height: 3,
+              width: 48,
+              margin: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: AppColors.primary500,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

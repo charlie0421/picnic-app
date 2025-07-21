@@ -488,8 +488,6 @@ class _CompatibilityInputScreenState
             const SizedBox(height: 12),
             CompatibilityCard(
               artist: widget.artist,
-              ref: ref,
-              compatibility: null,
             ),
             const SizedBox(height: 8),
             FortuneDivider(color: AppColors.grey00),

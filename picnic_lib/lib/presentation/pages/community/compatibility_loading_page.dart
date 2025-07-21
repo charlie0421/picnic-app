@@ -263,11 +263,10 @@ class _CompatibilityLoadingPageState
                 children: [
                   CompatibilityCard(
                     artist: widget.compatibility.artist,
-                    ref: ref,
                     birthDate: widget.compatibility.birthDate,
                     birthTime: widget.compatibility.birthTime,
-                    compatibility: widget.compatibility,
                     gender: widget.compatibility.gender,
+                    compatibility: widget.compatibility,
                   ),
                   if (widget.compatibility.isPending ||
                       widget.compatibility.isAds == false)

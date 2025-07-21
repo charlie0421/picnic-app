@@ -25,7 +25,7 @@ class CompatibilityScoreWidget extends StatelessWidget {
                   message: localizedResult.scoreTitle,
                 )
               : ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
                   child: Container(
                     width: double.infinity,
                     height: 48,
@@ -57,7 +57,7 @@ class CompatibilityScoreWidget extends StatelessWidget {
   }
 }
 
-class AnimatedCompatibilityBar extends StatefulWidget {
+class AnimatedCompatibilityBar extends StatelessWidget {
   final int score;
   final String message;
 
@@ -68,60 +68,25 @@ class AnimatedCompatibilityBar extends StatefulWidget {
   });
 
   @override
-  State<AnimatedCompatibilityBar> createState() =>
-      AnimatedCompatibilityBarState();
-}
-
-class AnimatedCompatibilityBarState extends State<AnimatedCompatibilityBar>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _widthAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-
-    _widthAnimation = Tween<double>(
-      begin: 0,
-      end: widget.score / 100,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       height: 48,
       decoration: BoxDecoration(
         color: AppColors.grey200,
-        borderRadius: BorderRadius.all(Radius.circular(16)),
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
       child: Stack(
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return AnimatedBuilder(
-                animation: _widthAnimation,
-                builder: (context, child) {
-                  final actualWidth =
-                      constraints.maxWidth * _widthAnimation.value;
-
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: score / 100),
+            duration: const Duration(milliseconds: 1000),
+            curve: Curves.easeInOut,
+            builder: (context, value, child) {
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final actualWidth = constraints.maxWidth * value;
                   return ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Container(
@@ -149,12 +114,12 @@ class AnimatedCompatibilityBarState extends State<AnimatedCompatibilityBar>
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  '${widget.score}%',
+                  '$score%',
                   style: getTextStyle(AppTypo.body16B, AppColors.grey00),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
-                  widget.message,
+                  message,
                   style: getTextStyle(AppTypo.body16B, AppColors.grey00),
                 ),
               ],

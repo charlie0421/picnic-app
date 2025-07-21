@@ -14,11 +14,10 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-class CompatibilityCard extends StatelessWidget {
+class CompatibilityCard extends ConsumerWidget {
   const CompatibilityCard({
     super.key,
     required this.artist,
-    required this.ref,
     this.birthDate,
     this.birthTime,
     this.compatibility,
@@ -26,7 +25,6 @@ class CompatibilityCard extends StatelessWidget {
   });
 
   final ArtistModel artist;
-  final WidgetRef ref;
   final DateTime? birthDate;
   final String? birthTime;
   final String? gender;
@@ -63,15 +61,15 @@ class CompatibilityCard extends StatelessWidget {
       width: 150.w,
       height: 150.w,
       fit: BoxFit.cover,
-      priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
-      lazyLoadingStrategy: LazyLoadingStrategy.viewport, // ✅ 뷰포트 기반 지연로딩
-      enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
-      enableProgressiveLoading: true, // ✅ 점진적 로딩으로 빠른 표시
-      memCacheWidth: 150, // ✅ 메모리 캐시 크기 지정
-      memCacheHeight: 150, // ✅ 메모리 캐시 크기 지정
+      priority: ImagePriority.normal,
+      lazyLoadingStrategy: LazyLoadingStrategy.none, // ❌
+      enableMemoryOptimization: true,
+      enableProgressiveLoading: false, // ❌
+      memCacheWidth: (150 * 1.5).toInt(),
+      memCacheHeight: (150 * 1.5).toInt(),
       timeout: const Duration(seconds: 10), // ✅ 타임아웃 설정
       maxRetries: 2, // ✅ 재시도 횟수 설정
-      borderRadius: BorderRadius.only(
+      borderRadius: const BorderRadius.only(
         // ✅ 테두리 최적화
         topLeft: Radius.circular(16),
         bottomLeft: Radius.circular(16),
@@ -79,7 +77,7 @@ class CompatibilityCard extends StatelessWidget {
       placeholder: Container(
         width: 150.w,
         height: 150.w,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.grey100,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(16),
@@ -96,7 +94,7 @@ class CompatibilityCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final avatarUrl =
         ref.watch(userInfoProvider.select((value) => value.value?.avatarUrl));
     return Container(
@@ -140,90 +138,92 @@ class CompatibilityCard extends StatelessWidget {
                   ],
                 ),
                 SizedBox(width: 16),
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      UnderlinedText(
-                        text: getLocaleTextFromJson(artist.name),
-                        underlineGap: 2,
-                        textStyle:
-                            getTextStyle(AppTypo.body16B, AppColors.grey900),
-                      ),
-                      SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Text(
-                            formatDateTimeYYYYMMDD(
-                                artist.birthDate ?? DateTime.now()),
-                            textAlign: TextAlign.center,
-                            style: getTextStyle(
-                                AppTypo.caption12M, AppColors.grey600),
-                          ),
-                          Text(' · ',
-                              style: getTextStyle(
-                                  AppTypo.caption12B, AppColors.grey900)),
-                          Text(
-                            artist.gender! == Gender.male.name
-                                ? '🧑'
-                                : artist.gender! == Gender.female.name
-                                    ? '👩'
-                                    : '',
-                            textAlign: TextAlign.center,
-                            style: getTextStyle(
-                                AppTypo.caption12M, AppColors.grey900),
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 4),
-                      if (birthDate != null) ...[
-                        SizedBox(height: 18),
+                Expanded(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         UnderlinedText(
-                          text: ref.read(userInfoProvider
-                                  .select((value) => value.value?.nickname)) ??
-                              '',
+                          text: getLocaleTextFromJson(artist.name),
                           underlineGap: 2,
                           textStyle:
                               getTextStyle(AppTypo.body16B, AppColors.grey900),
                         ),
-                      ],
-                      SizedBox(height: 4),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (birthDate != null) ...[
+                        SizedBox(height: 4),
+                        Row(
+                          children: [
                             Text(
-                              formatDateTimeYYYYMMDD(birthDate!),
+                              formatDateTimeYYYYMMDD(
+                                  artist.birthDate ?? DateTime.now()),
                               textAlign: TextAlign.center,
                               style: getTextStyle(
                                   AppTypo.caption12M, AppColors.grey600),
-                            )
-                          ],
-                          if (gender != null) ...[
+                            ),
                             Text(' · ',
                                 style: getTextStyle(
                                     AppTypo.caption12B, AppColors.grey900)),
                             Text(
-                              gender! == 'male' ? '🧑' : '👩',
+                              artist.gender! == Gender.male.name
+                                  ? '🧑'
+                                  : artist.gender! == Gender.female.name
+                                      ? '👩'
+                                      : '',
                               textAlign: TextAlign.center,
                               style: getTextStyle(
                                   AppTypo.caption12M, AppColors.grey900),
                             )
                           ],
-                          if (birthTime != null) ...[
-                            Text(' · ',
-                                style: getTextStyle(
-                                    AppTypo.caption12B, AppColors.grey900)),
-                            Text(
-                              convertKoreanTraditionalTime(birthTime),
-                              textAlign: TextAlign.center,
-                              style: getTextStyle(
-                                  AppTypo.caption12M, AppColors.grey900),
-                            )
-                          ],
+                        ),
+                        SizedBox(height: 4),
+                        if (birthDate != null) ...[
+                          SizedBox(height: 18),
+                          UnderlinedText(
+                            text: ref.read(userInfoProvider.select(
+                                    (value) => value.value?.nickname)) ??
+                                '',
+                            underlineGap: 2,
+                            textStyle: getTextStyle(
+                                AppTypo.body16B, AppColors.grey900),
+                          ),
                         ],
-                      ),
-                    ]),
+                        SizedBox(height: 4),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (birthDate != null) ...[
+                              Text(
+                                formatDateTimeYYYYMMDD(birthDate!),
+                                textAlign: TextAlign.center,
+                                style: getTextStyle(
+                                    AppTypo.caption12M, AppColors.grey600),
+                              )
+                            ],
+                            if (gender != null) ...[
+                              Text(' · ',
+                                  style: getTextStyle(
+                                      AppTypo.caption12B, AppColors.grey900)),
+                              Text(
+                                gender! == 'male' ? '🧑' : '👩',
+                                textAlign: TextAlign.center,
+                                style: getTextStyle(
+                                    AppTypo.caption12M, AppColors.grey900),
+                              )
+                            ],
+                            if (birthTime != null) ...[
+                              Text(' · ',
+                                  style: getTextStyle(
+                                      AppTypo.caption12B, AppColors.grey900)),
+                              Text(
+                                convertKoreanTraditionalTime(birthTime),
+                                textAlign: TextAlign.center,
+                                style: getTextStyle(
+                                    AppTypo.caption12M, AppColors.grey900),
+                              )
+                            ],
+                          ],
+                        ),
+                      ]),
+                ),
               ],
             ),
           ),
