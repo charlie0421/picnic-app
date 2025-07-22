@@ -8,7 +8,6 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/pages/community/compatibility_loading_page.dart';
 import 'package:picnic_lib/presentation/providers/community/compatibility_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
@@ -479,6 +478,7 @@ class _CompatibilityInputScreenState
           ),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             StrokedText(
               text: AppLocalizations.of(context).label_mypage_my_artist,
@@ -528,14 +528,10 @@ class _CompatibilityInputScreenState
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        UnderlinedText(
-                          text:
-                              AppLocalizations.of(context).compatibility_gender,
-                          textStyle:
+                        Text(
+                          AppLocalizations.of(context).compatibility_gender,
+                          style:
                               getTextStyle(AppTypo.body14B, AppColors.grey900),
-                          underlineColor: AppColors.primary500,
-                          underlineHeight: 2,
-                          underlineGap: 4,
                         ),
                         SizedBox(height: 16),
                         _buildGenderSelection(),
@@ -580,14 +576,11 @@ class _CompatibilityInputScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            UnderlinedText(
-                              text: AppLocalizations.of(context)
+                            Text(
+                              AppLocalizations.of(context)
                                   .compatibility_birthday,
-                              textStyle: getTextStyle(
+                              style: getTextStyle(
                                   AppTypo.body14B, AppColors.grey900),
-                              underlineColor: AppColors.primary500,
-                              underlineHeight: 2,
-                              underlineGap: 4,
                             ),
                             const SizedBox(height: 12),
                             Container(
@@ -659,14 +652,13 @@ class _CompatibilityInputScreenState
                         children: [
                           Row(
                             children: [
-                              UnderlinedText(
-                                textStyle: getTextStyle(
-                                    AppTypo.body14B, AppColors.grey900),
-                                text: AppLocalizations.of(context)
+                              Text(
+                                AppLocalizations.of(context)
                                     .compatibility_birthtime,
-                                underlineColor: AppColors.primary500,
-                                underlineHeight: 2,
-                                underlineGap: 4,
+                                style: getTextStyle(
+                                  AppTypo.body14B,
+                                  AppColors.grey900,
+                                ),
                               ),
                               SizedBox(width: 8),
                               Text(
