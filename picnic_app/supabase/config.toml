@@ -176,3 +176,14 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 # [functions.runtime]
 # memory = 256
 # timeout = 10
+
+[functions.jma-report-stage]
+enabled = true
+verify_jwt = true
+import_map = "./functions/jma-report-stage/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/jma-report-stage/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/jma-report-stage/*.html" ]
