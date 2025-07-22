@@ -180,88 +180,88 @@ class _CompatibilityResultContentState
                     ],
                   ),
                 ),
-                Positioned.fill(
-                  child: ClipRect(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            children: [
-                              BubbleBox(
-                                backgroundColor: AppColors.grey00,
-                                elevation: 2,
-                                shape: BubbleShapeBorder(
-                                  border: BubbleBoxBorder(
-                                    color: AppColors.grey300,
-                                    width: 1.5,
-                                    style: BubbleBoxBorderStyle.solid,
-                                  ),
-                                  radius: const BorderRadius.all(
-                                    Radius.circular(10),
-                                  ),
-                                  position: const BubblePosition.center(0),
-                                  direction: BubbleDirection.bottom,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 0,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      package: 'picnic_lib',
-                                      'assets/icons/store/star_100.png',
-                                      width: 36,
-                                    ),
-                                    Text(
-                                      '100',
-                                      style: getTextStyle(
-                                        AppTypo.body16B,
-                                        AppColors.grey900,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Container(
-                                constraints: BoxConstraints(
-                                  minWidth: 240,
-                                ),
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    // 🔧 강화된 연타 방지
-                                    if (_lastStarPurchaseTime != null) {
-                                      final timeSince = DateTime.now()
-                                          .difference(_lastStarPurchaseTime!);
-                                      if (timeSince < _purchaseCooldown) {
-                                        return;
-                                      }
-                                    }
-                                    _lastStarPurchaseTime = DateTime.now();
+                // Positioned.fill(
+                //   child: ClipRect(
+                //     child: BackdropFilter(
+                //       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                //       child: Container(
+                //         decoration: BoxDecoration(
+                //           color: Colors.white.withValues(alpha: 0.3),
+                //           borderRadius: BorderRadius.circular(16),
+                //         ),
+                //         child: Container(
+                //           padding: const EdgeInsets.all(8),
+                //           child: Column(
+                //             children: [
+                //               BubbleBox(
+                //                 backgroundColor: AppColors.grey00,
+                //                 elevation: 2,
+                //                 shape: BubbleShapeBorder(
+                //                   border: BubbleBoxBorder(
+                //                     color: AppColors.grey300,
+                //                     width: 1.5,
+                //                     style: BubbleBoxBorderStyle.solid,
+                //                   ),
+                //                   radius: const BorderRadius.all(
+                //                     Radius.circular(10),
+                //                   ),
+                //                   position: const BubblePosition.center(0),
+                //                   direction: BubbleDirection.bottom,
+                //                 ),
+                //                 padding: const EdgeInsets.symmetric(
+                //                   horizontal: 16,
+                //                   vertical: 0,
+                //                 ),
+                //                 child: Row(
+                //                   mainAxisSize: MainAxisSize.min,
+                //                   mainAxisAlignment: MainAxisAlignment.center,
+                //                   children: [
+                //                     Image.asset(
+                //                       package: 'picnic_lib',
+                //                       'assets/icons/store/star_100.png',
+                //                       width: 36,
+                //                     ),
+                //                     Text(
+                //                       '100',
+                //                       style: getTextStyle(
+                //                         AppTypo.body16B,
+                //                         AppColors.grey900,
+                //                       ),
+                //                     ),
+                //                   ],
+                //                 ),
+                //               ),
+                //               SizedBox(height: 8),
+                //               Container(
+                //                 constraints: BoxConstraints(
+                //                   minWidth: 240,
+                //                 ),
+                //                 child: ElevatedButton(
+                //                   onPressed: () async {
+                //                     // 🔧 강화된 연타 방지
+                //                     if (_lastStarPurchaseTime != null) {
+                //                       final timeSince = DateTime.now()
+                //                           .difference(_lastStarPurchaseTime!);
+                //                       if (timeSince < _purchaseCooldown) {
+                //                         return;
+                //                       }
+                //                     }
+                //                     _lastStarPurchaseTime = DateTime.now();
 
-                                    // 🔒 구매 확인 다이얼로그 표시
-                                    await _showPurchaseConfirmDialog();
-                                  },
-                                  child: Text(AppLocalizations.of(context)
-                                      .fortune_purchase_by_star_candy),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                //                     // 🔒 구매 확인 다이얼로그 표시
+                //                     await _showPurchaseConfirmDialog();
+                //                   },
+                //                   child: Text(AppLocalizations.of(context)
+                //                       .fortune_purchase_by_star_candy),
+                //                 ),
+                //               ),
+                //             ],
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             )
           else ...[
@@ -321,11 +321,9 @@ class _CompatibilityResultContentState
                   BlendMode.srcIn,
                 ),
               ),
-              UnderlinedText(
-                text:
-                    ' ${AppLocalizations.of(context).compatibility_style_title}',
-                textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                underlineGap: 1.5,
+              Text(
+                ' ${AppLocalizations.of(context).compatibility_style_title}',
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               ),
             ],
           ),
@@ -386,11 +384,9 @@ class _CompatibilityResultContentState
                 BlendMode.srcIn,
               ),
             ),
-            UnderlinedText(
-              text:
-                  ' ${AppLocalizations.of(context).compatibility_activities_title}',
-              textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              underlineGap: 1.5,
+            Text(
+              ' ${AppLocalizations.of(context).compatibility_activities_title}',
+              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
           ],
         ),
@@ -453,10 +449,9 @@ class _CompatibilityResultContentState
                 BlendMode.srcIn,
               ),
             ),
-            UnderlinedText(
-              text: ' ${AppLocalizations.of(context).compatibility_tips_title}',
-              textStyle: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              underlineGap: 1.5,
+            Text(
+              ' ${AppLocalizations.of(context).compatibility_tips_title}',
+              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
             ),
           ],
         ),
