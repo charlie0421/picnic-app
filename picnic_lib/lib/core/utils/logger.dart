@@ -22,7 +22,6 @@ Level _getLogLevel() {
 final Set<String> _throttledLogKeys = <String>{};
 
 class LongMessagePrinter extends PrettyPrinter {
-  static const int _skipFrames = 4;
   static const int _maxStackTraceLines = 20;
 // 호출 스택 표시 라인 수
   static final _emojiMap = {
@@ -52,31 +51,6 @@ class LongMessagePrinter extends PrettyPrinter {
           printEmojis: true,
           dateTimeFormat: DateTimeFormat.dateAndTime,
         );
-
-  String _getCallerInfo() {
-    final frames = Trace.current().frames;
-    if (frames.length > _skipFrames) {
-      final frame = frames[_skipFrames];
-      return '${frame.uri}:${frame.line}';
-    }
-    return '';
-  }
-
-
-  String _getClassName() {
-    final frames = Trace.current().frames;
-    if (frames.length > _skipFrames) {
-      final frame = frames[_skipFrames];
-      final member = frame.member;
-      if (member != null) {
-        if (member.contains('.')) {
-          return member.split('.')[0];
-        }
-        return member;
-      }
-    }
-    return '';
-  }
 
   String _getTimestamp() {
     final now = DateTime.now();
@@ -148,9 +122,52 @@ class LongMessagePrinter extends PrettyPrinter {
   List<String> log(LogEvent event) {
     final messages = <String>[];
     final emoji = _emojiMap[event.level] ?? '📝';
-    final callerInfo = _getCallerInfo();
     final timestamp = _getTimestamp();
-    final className = _getClassName();
+
+    String callerInfo = 'Unknown location';
+    String className = '';
+    List<String> stackTraceLines = [];
+
+    var stackTrace = event.stackTrace;
+    if (stackTrace == null && event.level == Level.error) {
+      stackTrace = StackTrace.current;
+    }
+
+    try {
+      if (stackTrace != null) {
+        final trace = Trace.from(stackTrace);
+        final frame = trace.frames.firstWhere(
+          (f) {
+            final path = f.uri.path;
+            return path.isNotEmpty &&
+                !path.startsWith('package:flutter/') &&
+                !path.startsWith('dart:') &&
+                !path.contains('package:logger/');
+          },
+          orElse: () =>
+              trace.frames.isNotEmpty ? trace.frames.first : Frame.parseVM(''),
+        );
+
+        final file = frame.uri.pathSegments.last;
+        final line = frame.line;
+        callerInfo = '$file:$line';
+
+        if (frame.member != null) {
+          final member = frame.member!;
+          className = member.contains('.') ? member.split('.').first : member;
+        }
+
+        stackTraceLines = trace.frames
+            .take(_maxStackTraceLines)
+            .map((f) => '│   $f')
+            .toList();
+      }
+    } catch (e) {
+      callerInfo = 'Error parsing stacktrace';
+      if (stackTrace != null) {
+        stackTraceLines = ['│   ${stackTrace.toString()}'];
+      }
+    }
 
     messages.add(_createBorder('┌'));
     messages.add('│ 🕒 $timestamp');
@@ -172,11 +189,7 @@ class LongMessagePrinter extends PrettyPrinter {
     if (event.stackTrace != null) {
       messages.add('│');
       messages.add('│ 📍 StackTrace:');
-      messages.addAll(event.stackTrace
-          .toString()
-          .split('\n')
-          .take(_maxStackTraceLines)
-          .map((line) => '│   $line'));
+      messages.addAll(stackTraceLines);
     }
 
     messages.add(_createBorder('└'));

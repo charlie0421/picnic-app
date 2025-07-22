@@ -43,6 +43,7 @@ import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:universal_platform/universal_platform.dart';
 import 'package:logger/logger.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 class AppInitializer {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
@@ -61,6 +62,7 @@ class AppInitializer {
     WidgetsFlutterBinding.ensureInitialized();
     logger.i('Widget binding initialized');
     BindingBase.debugZoneErrorsAreFatal = true;
+    await initializeGlobalErrorHandling();
 
     // 앱 초기화 상태 확인을 위한 지연
     await Future.delayed(const Duration(milliseconds: 100));
@@ -102,14 +104,6 @@ class AppInitializer {
 
         options.beforeSend = (event, hint) {
           if (!Environment.enableSentry || kDebugMode) {
-            try {
-              _logSentryException(event);
-            } catch (e) {
-              // logger가 초기화되지 않은 경우 무시
-              if (kDebugMode) {
-                print('Error logging Sentry event: $e');
-              }
-            }
             return null;
           }
           return event;
@@ -119,59 +113,33 @@ class AppInitializer {
     logger.i('Sentry initialized');
   }
 
-  static void _logSentryException(SentryEvent event) {
-    try {
-      event.exceptions?.forEach((element) {
-        if (element.stackTrace != null) {
-          final frames = element.stackTrace?.frames;
-          if (frames != null && frames.isNotEmpty) {
-            final stackTraceString = frames
-                .map((frame) =>
-                    '${frame.fileName}:${frame.lineNo} - ${frame.function}')
-                .join('\n');
+  static Future<void> initializeGlobalErrorHandling() async {
+    FlutterError.onError = (details) {
+      // Flutter 프레임워크 에러
+      logger.e(
+        'Flutter Error',
+        error: details.exception,
+        stackTrace: details.stack,
+      );
+      Sentry.captureException(
+        details.exception,
+        stackTrace: details.stack,
+      );
+    };
 
-            final errorMessage = element.value ?? 'Unknown error';
-
-            // 렌더링 관련 일반적인 오류들은 로그 레벨을 낮춤
-            if (errorMessage.contains('RenderBox was not laid out') ||
-                errorMessage.contains('hasSize') ||
-                errorMessage.contains('Directionality widget') ||
-                errorMessage.contains('No Directionality widget found') ||
-                errorMessage.contains('semantics.parentDataDirty') ||
-                errorMessage.contains('!semantics.parentDataDirty') ||
-                errorMessage.contains('Failed assertion') ||
-                errorMessage.contains('RenderObject') ||
-                errorMessage.contains('rendering/object.dart')) {
-              logger.w(
-                  'UI 렌더링 경고 (무시됨): $errorMessage\nStacktrace:\n$stackTraceString');
-            } else {
-              logger.e('$errorMessage\nStacktrace:\n$stackTraceString');
-            }
-          } else {
-            logger.e('Stacktrace: No frames available');
-          }
-        } else {
-          // 스택 트레이스가 없는 경우
-          final errorMessage = element.value ?? 'Unknown error';
-          if (errorMessage.contains('Directionality widget') ||
-              errorMessage.contains('No Directionality widget found') ||
-              errorMessage.contains('semantics.parentDataDirty') ||
-              errorMessage.contains('!semantics.parentDataDirty') ||
-              errorMessage.contains('Failed assertion') ||
-              errorMessage.contains('RenderObject') ||
-              errorMessage.contains('rendering/object.dart')) {
-            logger.w('UI 렌더링 경고 (무시됨): $errorMessage');
-          } else {
-            logger.e('오류 (스택 트레이스 없음): $errorMessage');
-          }
-        }
-      });
-    } catch (e) {
-      // 로그 출력 중 오류 발생 시 무시
-      if (kDebugMode) {
-        print('Error in _logSentryException: $e');
-      }
-    }
+    PlatformDispatcher.instance.onError = (error, stack) {
+      // Dart Isolate 에러 (비동기 등)
+      logger.e(
+        'Unhandled Asynchronous Error',
+        error: error,
+        stackTrace: stack,
+      );
+      Sentry.captureException(
+        error,
+        stackTrace: stack,
+      );
+      return true; // 에러가 처리되었음을 알림
+    };
   }
 
   // static Future<void> initializeMetaAudienceNetwork() async {

@@ -8,6 +8,8 @@ import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/common/underlined_text.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
+import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -155,6 +157,12 @@ class _CompatibilityResultContentState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          CompatibilitySummaryWidget(localizedResult: localizedResult),
+          const SizedBox(height: 24),
+          CompatibilityScoreWidget(
+            compatibility: widget.compatibility,
+          ),
+          const SizedBox(height: 36),
           if (!(widget.compatibility.isPaid ?? false))
             Stack(
               children: [
@@ -180,95 +188,95 @@ class _CompatibilityResultContentState
                     ],
                   ),
                 ),
-                // Positioned.fill(
-                //   child: ClipRect(
-                //     child: BackdropFilter(
-                //       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                //       child: Container(
-                //         decoration: BoxDecoration(
-                //           color: Colors.white.withValues(alpha: 0.3),
-                //           borderRadius: BorderRadius.circular(16),
-                //         ),
-                //         child: Container(
-                //           padding: const EdgeInsets.all(8),
-                //           child: Column(
-                //             children: [
-                //               BubbleBox(
-                //                 backgroundColor: AppColors.grey00,
-                //                 elevation: 2,
-                //                 shape: BubbleShapeBorder(
-                //                   border: BubbleBoxBorder(
-                //                     color: AppColors.grey300,
-                //                     width: 1.5,
-                //                     style: BubbleBoxBorderStyle.solid,
-                //                   ),
-                //                   radius: const BorderRadius.all(
-                //                     Radius.circular(10),
-                //                   ),
-                //                   position: const BubblePosition.center(0),
-                //                   direction: BubbleDirection.bottom,
-                //                 ),
-                //                 padding: const EdgeInsets.symmetric(
-                //                   horizontal: 16,
-                //                   vertical: 0,
-                //                 ),
-                //                 child: Row(
-                //                   mainAxisSize: MainAxisSize.min,
-                //                   mainAxisAlignment: MainAxisAlignment.center,
-                //                   children: [
-                //                     Image.asset(
-                //                       package: 'picnic_lib',
-                //                       'assets/icons/store/star_100.png',
-                //                       width: 36,
-                //                     ),
-                //                     Text(
-                //                       '100',
-                //                       style: getTextStyle(
-                //                         AppTypo.body16B,
-                //                         AppColors.grey900,
-                //                       ),
-                //                     ),
-                //                   ],
-                //                 ),
-                //               ),
-                //               SizedBox(height: 8),
-                //               Container(
-                //                 constraints: BoxConstraints(
-                //                   minWidth: 240,
-                //                 ),
-                //                 child: ElevatedButton(
-                //                   onPressed: () async {
-                //                     // 🔧 강화된 연타 방지
-                //                     if (_lastStarPurchaseTime != null) {
-                //                       final timeSince = DateTime.now()
-                //                           .difference(_lastStarPurchaseTime!);
-                //                       if (timeSince < _purchaseCooldown) {
-                //                         return;
-                //                       }
-                //                     }
-                //                     _lastStarPurchaseTime = DateTime.now();
+                Positioned.fill(
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            children: [
+                              BubbleBox(
+                                backgroundColor: AppColors.grey00,
+                                elevation: 2,
+                                shape: BubbleShapeBorder(
+                                  border: BubbleBoxBorder(
+                                    color: AppColors.grey300,
+                                    width: 1.5,
+                                    style: BubbleBoxBorderStyle.solid,
+                                  ),
+                                  radius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  position: const BubblePosition.center(0),
+                                  direction: BubbleDirection.bottom,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 0,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      package: 'picnic_lib',
+                                      'assets/icons/store/star_100.png',
+                                      width: 36,
+                                    ),
+                                    Text(
+                                      '100',
+                                      style: getTextStyle(
+                                        AppTypo.body16B,
+                                        AppColors.grey900,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                constraints: const BoxConstraints(
+                                  minWidth: 240,
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    // 🔧 강화된 연타 방지
+                                    if (_lastStarPurchaseTime != null) {
+                                      final timeSince = DateTime.now()
+                                          .difference(_lastStarPurchaseTime!);
+                                      if (timeSince < _purchaseCooldown) {
+                                        return;
+                                      }
+                                    }
+                                    _lastStarPurchaseTime = DateTime.now();
 
-                //                     // 🔒 구매 확인 다이얼로그 표시
-                //                     await _showPurchaseConfirmDialog();
-                //                   },
-                //                   child: Text(AppLocalizations.of(context)
-                //                       .fortune_purchase_by_star_candy),
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
+                                    // 🔒 구매 확인 다이얼로그 표시
+                                    await _showPurchaseConfirmDialog();
+                                  },
+                                  child: Text(AppLocalizations.of(context)
+                                      .fortune_purchase_by_star_candy),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             )
           else ...[
             if (style != null) _buildStyleSection(style),
-            SizedBox(height: 36),
+            const SizedBox(height: 36),
             if (activities != null) _buildActivitiesSection(activities),
-            SizedBox(height: 36),
+            const SizedBox(height: 36),
             if (tips.isNotEmpty) _buildTipsSection(tips),
             if (!widget.isSaving)
               ShareSection(
@@ -277,7 +285,7 @@ class _CompatibilityResultContentState
                 onSave: () => widget.onSave(widget.compatibility),
                 onShare: () => widget.onShare(widget.compatibility),
               ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
           ],
         ],
       ),
