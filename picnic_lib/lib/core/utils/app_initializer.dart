@@ -42,21 +42,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:universal_platform/universal_platform.dart';
-import 'package:logger/logger.dart';
-import 'package:stack_trace/stack_trace.dart';
 
 class AppInitializer {
   static final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
-  static Logger? _logger;
-
-  static Logger get logger {
-    _logger ??= Logger(
-      printer: LongMessagePrinter(),
-      output: LongOutputHandler(),
-      level: Level.all,
-    );
-    return _logger!;
-  }
 
   static Future<void> initializeBasics() async {
     WidgetsFlutterBinding.ensureInitialized();
