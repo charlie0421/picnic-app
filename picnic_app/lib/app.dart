@@ -31,9 +31,11 @@ import 'package:picnic_lib/ui/novel_theme.dart';
 import 'package:picnic_lib/ui/pic_theme.dart';
 import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/utils/device_debug_info.dart';
+import 'package:picnic_app/bottom_navigation_menu.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -109,17 +111,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     try {
       // 컨텍스트 없이 실행 가능한 초기화 부분
       await _initializeAppBasics();
-
-      // mounted 상태 확인
-      if (!mounted) {
-        logger.e('앱 초기화 중 위젯이 dispose됨');
-        return;
-      }
-
-      // 컨텍스트가 필요한 부분 동기적으로 실행
-      _initializeAppWithContext();
-
-      logger.i('_initializeApp 완료');
     } catch (e, stackTrace) {
       logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
       if (mounted) {
@@ -127,7 +118,17 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
           _isAppInitialized = false;
         });
       }
+      return; // 오류 발생 시 더 이상 진행하지 않음
     }
+
+    // mounted 상태 확인 후 컨텍스트가 필요한 부분 실행
+    if (mounted) {
+      _initializeAppWithContext();
+    } else {
+      logger.e('앱 초기화 중 위젯이 dispose됨');
+    }
+
+    logger.i('_initializeApp 완료');
   }
 
   // 컨텍스트가 필요 없는 초기화 작업
@@ -170,6 +171,18 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         logger.i('앱 초기화 완료 (with context)');
 
         if (!mounted) return;
+
+        // 스크린 정보 맵 생성
+        final screenInfoMap = {
+          PortalType.vote.name.toString(): voteScreenInfo,
+          PortalType.pic.name.toString(): picScreenInfo,
+          PortalType.community.name.toString(): communityScreenInfo,
+          PortalType.novel.name.toString(): novelScreenInfo,
+          PortalType.mypage.name.toString(): mypageScreenInfo,
+        };
+
+        // screenInfosProvider에 스크린 정보 설정
+        ref.read(screenInfosProvider.notifier).state = screenInfoMap;
 
         // 최종 언어가 제대로 설정되었는지 확인
         final currentLanguage = ref.read(appSettingProvider).language;
@@ -235,7 +248,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     // 현재 언어 정보 로깅
     final currentLocale = Locale(appSettingState.language);
-    logger.i('현재 언어: ${currentLocale.languageCode}');
+    // logger.i('현재 언어: ${currentLocale.languageCode}');
 
     // 라우트 처리
     final routes = RouteManager.mergeRoutes(_appSpecificRoutes);

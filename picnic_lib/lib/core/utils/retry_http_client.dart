@@ -41,14 +41,16 @@ class RetryHttpClient extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     Exception? lastException;
-    
+
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        logger.d('Request attempt $attempt/$maxAttempts to ${request.url}');
-        
+        if (attempt > 1) {
+          logger.d('Request attempt $attempt/$maxAttempts to ${request.url}');
+        }
+
         final hostKey = request.url.host;
         _cleanupOldConnections();
-        
+
         if (_connectionPool.containsKey(hostKey)) {
           final lastUsed = _connectionPool[hostKey]!;
           if (DateTime.now().difference(lastUsed) > _connectionMaxAge) {
@@ -57,13 +59,13 @@ class RetryHttpClient extends http.BaseClient {
         }
 
         final copiedRequest = await _copyRequest(request);
-        
+
         try {
           final response = await _sendWithTimeout(copiedRequest);
-          
+
           // 성공적인 응답 처리 - 연결 풀 업데이트
           _connectionPool[hostKey] = DateTime.now();
-          
+
           return response;
         } catch (e) {
           // 네트워크 오류 발생 시 연결 리셋
@@ -72,11 +74,11 @@ class RetryHttpClient extends http.BaseClient {
           }
           rethrow;
         }
-        
       } catch (e) {
         lastException = e is Exception ? e : Exception(e.toString());
-        
-        final detailedLog = _createDetailedErrorLog(lastException, attempt, request.url);
+
+        final detailedLog =
+            _createDetailedErrorLog(lastException, attempt, request.url);
         logger.w(detailedLog);
 
         if (attempt == maxAttempts || !_shouldRetry(lastException)) {
@@ -101,8 +103,8 @@ class RetryHttpClient extends http.BaseClient {
     _connectionPool.remove(hostKey);
   }
 
-
-  Future<http.StreamedResponse> _sendWithTimeout(http.BaseRequest request) async {
+  Future<http.StreamedResponse> _sendWithTimeout(
+      http.BaseRequest request) async {
     try {
       // Content-Length 헤더 제거하여 chunked transfer encoding 사용
       request.headers.remove('Content-Length');
@@ -121,9 +123,10 @@ class RetryHttpClient extends http.BaseClient {
       // 안전한 응답 처리
       return http.StreamedResponse(
         response.stream.handleError((error, stackTrace) {
-          logger.e('Stream error during response processing', 
-                   error: error, stackTrace: stackTrace);
-          throw NetworkError('Stream processing error: $error', isRetryable: true);
+          logger.e('Stream error during response processing',
+              error: error, stackTrace: stackTrace);
+          throw NetworkError('Stream processing error: $error',
+              isRetryable: true);
         }),
         response.statusCode,
         headers: response.headers,
@@ -132,7 +135,6 @@ class RetryHttpClient extends http.BaseClient {
         reasonPhrase: response.reasonPhrase,
         request: request,
       );
-
     } on TimeoutException {
       rethrow;
     } catch (e, s) {
@@ -143,7 +145,6 @@ class RetryHttpClient extends http.BaseClient {
       throw ClientException('Failed to send request: $e', request.url);
     }
   }
-
 
   String _createDetailedErrorLog(Exception error, int attempt, Uri url) {
     return '''
@@ -166,7 +167,7 @@ Headers: ${error is ClientException ? error.uri : 'N/A'}
   http.StreamedResponse _createErrorResponse(Exception? lastException) {
     final errorMessage = lastException?.toString() ?? 'Unknown network error';
     final errorBytes = utf8.encode('{"error": "$errorMessage"}');
-    
+
     return http.StreamedResponse(
       Stream.fromIterable([errorBytes]),
       500,

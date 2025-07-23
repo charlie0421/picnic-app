@@ -137,7 +137,7 @@ class AppBuilder {
         // 로케일이 변경될 때마다 LocaleService 업데이트
         if (locale != null) {
           LocaleService.instance.updateLanguageCode(locale.languageCode);
-          logger.i('LocaleService 업데이트: ${locale.languageCode}');
+          // logger.i('LocaleService 업데이트: ${locale.languageCode}');
         }
         return locale;
       },

@@ -2,6 +2,7 @@ import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
@@ -28,18 +29,20 @@ class _CommonMyPointState extends ConsumerState<CommonMyPoint> {
     final starCandyBonus = ref.watch(
             userInfoProvider.select((value) => value.value?.starCandyBonus)) ??
         0;
-
+    final screenInfos = ref.watch(screenInfosProvider);
     return GestureDetector(
       onTap: () {
-        final votePages =
-            ref.read(screenInfosProvider).value?[PortalType.vote.name]?.pages;
-
-        if ( votePages == null ) {
+        final currentPortal = ref.read(navigationInfoProvider).portalType;
+        final pages = screenInfos[currentPortal.name]?.pages;
+        pages?.forEach((element) {
+          logger.d('element: ${element.pageWidget}');
+        });
+        if (pages == null) {
           return;
         }
         ref
             .read(navigationInfoProvider.notifier)
-            .setVoteBottomNavigationIndex(votePages.length - 1);
+            .setBottomNavigationIndex(pages.length - 1);
       },
       child: SizedBox(
         child: CustomPaint(

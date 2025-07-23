@@ -55,8 +55,8 @@ class RouteManager {
     // 앱별 라우트 추가 (동일 경로가 있으면 앱별 라우트가 우선)
     mergedRoutes.addAll(appSpecificRoutes);
 
-    logger.i(
-        '라우트 병합 완료: 공통=${commonRoutes.length}개, 앱별=${appSpecificRoutes.length}개, 최종=${mergedRoutes.length}개');
+    // logger.i(
+    // '라우트 병합 완료: 공통=${commonRoutes.length}개, 앱별=${appSpecificRoutes.length}개, 최종=${mergedRoutes.length}개');
     return mergedRoutes;
   }
 

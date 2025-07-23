@@ -108,17 +108,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
       if (!mounted) return;
 
-      // 스크린 정보 맵 생성
-      final screenInfoMap = {
-        PortalType.vote.name.toString(): voteScreenInfo,
-        PortalType.pic.name.toString(): picScreenInfo,
-        PortalType.community.name.toString(): communityScreenInfo,
-        PortalType.novel.name.toString(): novelScreenInfo,
-      };
-
-      // screenInfosProvider에 스크린 정보 설정
-      ref.read(screenInfosProvider.notifier).setScreenInfoMap(screenInfoMap);
-
       // 앱 초기화 완료 플래그 설정
       if (mounted) {
         setState(() {
