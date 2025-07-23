@@ -20,8 +20,6 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_card.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_error.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_logo_widget.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
-import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart';
 // ignore: unused_import
 import 'package:picnic_lib/presentation/widgets/community/compatibility/fortune_divider.dart';
 import 'package:picnic_lib/supabase_options.dart';

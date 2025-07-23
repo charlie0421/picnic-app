@@ -7,7 +7,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/community/compatibility.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
-import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_score_widget.dart';
 import 'package:picnic_lib/presentation/widgets/community/compatibility/compatibility_summary_widget.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';

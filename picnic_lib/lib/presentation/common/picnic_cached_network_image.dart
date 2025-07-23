@@ -971,7 +971,6 @@ class _PicnicCachedNetworkImageState
     _onLoadingComplete();
 
     if (kDebugMode) {
-      final errorKey = "${url}_error_${DateTime.now().hour}";
       // logger.throttledWarn('이미지 로딩 오류: $error (URL: $url)', errorKey);
     }
   }

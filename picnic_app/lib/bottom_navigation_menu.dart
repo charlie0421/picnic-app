@@ -8,7 +8,6 @@ import 'package:picnic_lib/presentation/pages/community/community_home_page.dart
 import 'package:picnic_lib/presentation/pages/community/community_my_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/gallery_page.dart';
-import 'package:picnic_lib/presentation/pages/pic/library_page.dart';
 import 'package:picnic_lib/presentation/pages/pic/pic_home_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/pic_chart_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/store_page.dart';

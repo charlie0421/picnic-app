@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/services/network_connectivity_service.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';

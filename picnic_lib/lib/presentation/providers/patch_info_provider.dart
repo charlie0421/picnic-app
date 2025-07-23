@@ -1,11 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:io';
-import 'package:universal_platform/universal_platform.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
 /// 패치 정보 상태 모델
 class PatchInfo {
