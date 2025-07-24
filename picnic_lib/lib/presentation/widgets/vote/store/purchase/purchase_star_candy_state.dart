@@ -305,7 +305,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       _loadingKey.currentState?.hide();
       if (navigatorKey.currentContext != null) {
         await _dialogHandler.showErrorDialog(
-            AppLocalizations.of(navigatorKey.currentContext!).dialog_message_purchase_failed);
+            AppLocalizations.of(navigatorKey.currentContext!)
+                .dialog_message_purchase_failed);
       }
       rethrow;
     }
@@ -765,7 +766,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         _loadingKey.currentState?.hide();
         if (navigatorKey.currentContext != null) {
           await _dialogHandler.showErrorDialog(
-              AppLocalizations.of(navigatorKey.currentContext!).dialog_message_purchase_failed);
+              AppLocalizations.of(navigatorKey.currentContext!)
+                  .dialog_message_purchase_failed);
         }
       }
       rethrow;
@@ -829,28 +831,35 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       minScale: 0.98,
       maxScale: 1.02,
       showProgressIndicator: false,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: ListView(
-          children: [
-            if (isLoggedIn) ...[
-              const SizedBox(height: 16),
-              _buildHeaderSection(),
-              const SizedBox(height: 8),
-              StorePointInfo(
-                title: AppLocalizations.of(context).label_star_candy_pouch,
-                width: double.infinity,
-                height: 80,
-              ),
+      child: RefreshIndicator(
+        color: AppColors.primary500,
+        backgroundColor: Colors.white,
+        onRefresh: () async {
+          ref.read(userInfoProvider.notifier).getUserProfiles();
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: ListView(
+            children: [
+              if (isLoggedIn) ...[
+                const SizedBox(height: 16),
+                _buildHeaderSection(),
+                const SizedBox(height: 8),
+                StorePointInfo(
+                  title: AppLocalizations.of(context).label_star_candy_pouch,
+                  width: double.infinity,
+                  height: 80,
+                ),
+              ],
+              const SizedBox(height: 12),
+              const Divider(color: AppColors.grey200, height: 32),
+              _buildProductsList(),
+              const Divider(color: AppColors.grey200, height: 32),
+              _buildFooterSection(),
+              const SizedBox(height: 36),
+              _buildDebugButtons(),
             ],
-            const SizedBox(height: 12),
-            const Divider(color: AppColors.grey200, height: 32),
-            _buildProductsList(),
-            const Divider(color: AppColors.grey200, height: 32),
-            _buildFooterSection(),
-            const SizedBox(height: 36),
-            _buildDebugButtons(),
-          ],
+          ),
         ),
       ),
     );

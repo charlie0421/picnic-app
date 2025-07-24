@@ -221,13 +221,21 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
 
   @override
   Widget build(BuildContext context) {
-    return FreeChargeContent(
-      buttonScaleAnimation: _buttonScaleAnimation,
-      onPolicyTap: () => showUsagePolicyDialog(context, ref),
-      missionItemBuilder: _buildMissionItems,
-      adItemBuilder: _buildAdItems,
-      onPincruxOfferwallPressed: _showPincruxOfferwall,
-      rotationController: _rotationController,
+    return RefreshIndicator(
+      color: AppColors.primary500,
+      backgroundColor: Colors.white,
+      onRefresh: () async {
+        _initializeAdPlatforms();
+        ref.read(userInfoProvider.notifier).getUserProfiles();
+      },
+      child: FreeChargeContent(
+        buttonScaleAnimation: _buttonScaleAnimation,
+        onPolicyTap: () => showUsagePolicyDialog(context, ref),
+        missionItemBuilder: _buildMissionItems,
+        adItemBuilder: _buildAdItems,
+        onPincruxOfferwallPressed: _showPincruxOfferwall,
+        rotationController: _rotationController,
+      ),
     );
   }
 }
