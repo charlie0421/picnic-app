@@ -15,6 +15,7 @@ import 'package:picnic_lib/presentation/common/common_banner.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
+import 'package:picnic_lib/presentation/providers/banner_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
@@ -47,6 +48,8 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   static const _pageSize = 20;
 
   Object? _lastArea = Object();
+  Key _bannerKey = UniqueKey();
+  Key _rewardListKey = UniqueKey();
 
   @override
   void initState() {
@@ -99,15 +102,45 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
       _pagingController.refresh();
     }
 
-    return ListView(
-      children: [
-        const CommonBanner('vote_home', 786 / 400),
-        const SizedBox(height: 36),
-        _buildRewardList(context),
-        const SizedBox(height: 36),
-        _buildVoteListTitle(),
-        _buildVoteSection(),
-      ],
+    return RefreshIndicator(
+      color: AppColors.primary500,
+      backgroundColor: Colors.white,
+      onRefresh: () async {
+        ref.invalidate(asyncBannerListProvider(location: 'vote_home'));
+        ref.invalidate(asyncRewardListProvider);
+
+        setState(() {
+          _bannerKey = UniqueKey();
+          _rewardListKey = UniqueKey();
+        });
+
+        final rewardFuture = ref.read(asyncRewardListProvider.future);
+
+        final voteCompleter = Completer<void>();
+        void listener() {
+          if (_pagingController.value.status != PagingStatus.loadingFirstPage) {
+            _pagingController.removeListener(listener);
+            if (!voteCompleter.isCompleted) {
+              voteCompleter.complete();
+            }
+          }
+        }
+
+        _pagingController.addListener(listener);
+        _pagingController.refresh();
+
+        await Future.wait([rewardFuture, voteCompleter.future]);
+      },
+      child: ListView(
+        children: [
+          CommonBanner('vote_home', 786 / 400, key: _bannerKey),
+          const SizedBox(height: 36),
+          _buildRewardList(context),
+          const SizedBox(height: 36),
+          _buildVoteListTitle(),
+          _buildVoteSection(),
+        ],
+      ),
     );
   }
 
@@ -215,6 +248,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
             padding: EdgeInsets.only(left: 16.w),
             height: 100,
             child: ListView.builder(
+              key: _rewardListKey,
               scrollDirection: Axis.horizontal,
               itemCount: data.length,
               cacheExtent: 400.0,
@@ -317,10 +351,10 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage> {
   }
 
   Future<List<VoteModel>> _fetch(int pageKey) async {
-    final setting = ref.watch(appSettingProvider);
+    final setting = ref.read(appSettingProvider);
     final area = setting.area;
     try {
-      final newItems = await ref.watch(asyncVoteListProvider(
+      final newItems = await ref.read(asyncVoteListProvider(
         pageKey,
         _pageSize,
         'stop_at',
