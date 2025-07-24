@@ -559,21 +559,13 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildVoteItemList(BuildContext context) {
-    logger.d('🔍 _buildVoteItemList 호출됨 - 검색어: "$_searchQuery"');
     final dataAsync = ref.watch(asyncVoteItemListProvider(
         voteId: widget.voteId, votePortal: widget.votePortal));
 
     return dataAsync.when(
       data: (data) {
-        logger.d('📊 투표 아이템 데이터 받음 - 개수: ${data.length}');
-        if (data.isNotEmpty) {
-          logger.d(
-              '📊 첫 번째 아이템: ID=${data[0]?.id}, Artist ID=${data[0]?.artist?.id}, Group ID=${data[0]?.artistGroup?.id}');
-        }
-
         _updateRanks(data);
         final filteredIndices = _getFilteredIndices([data, _searchQuery]);
-        logger.d('📊 필터링 결과 - 표시할 아이템 수: ${filteredIndices.length}');
 
         return SliverToBoxAdapter(
           child: Stack(
@@ -604,12 +596,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         )
                       : Column(
                           children: [
-                            for (int index = 0; index < filteredIndices.length; index++)
+                            for (int index = 0;
+                                index < filteredIndices.length;
+                                index++)
                               Builder(
                                 builder: (context) {
-                                  logger.d(
-                                      '📋 ListView.builder 아이템 빌드 - index: $index');
-
                                   // 안전성 체크 추가
                                   if (index >= filteredIndices.length) {
                                     logger.w(
@@ -626,26 +617,29 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
                                   final item = data[itemIndex];
                                   if (item == null) {
-                                    logger.w('📋 null 아이템 - itemIndex: $itemIndex');
+                                    logger.w(
+                                        '📋 null 아이템 - itemIndex: $itemIndex');
                                     return const SizedBox.shrink();
                                   }
 
-                                  logger.d(
-                                      '📋 아이템 빌드 준비 - Item ID: ${item.id}, originalIndex: $itemIndex, listIndex: $index');
-
                                   final previousVoteCount =
-                                      _previousVoteCounts[item.id] ?? item.voteTotal;
+                                      _previousVoteCounts[item.id] ??
+                                          item.voteTotal;
                                   final voteCountDiff =
                                       item.voteTotal! - previousVoteCount!;
-                                  final actualRank = _currentRanks[item.id] ?? 1;
+                                  final actualRank =
+                                      _currentRanks[item.id] ?? 1;
                                   final previousRank =
                                       _previousRanks[item.id] ?? actualRank;
-                                  final rankChanged = previousRank != actualRank;
+                                  final rankChanged =
+                                      previousRank != actualRank;
 
                                   // PostFrameCallback을 더 안전하게 처리
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
                                     if (mounted) {
-                                      _previousVoteCounts[item.id] = item.voteTotal!;
+                                      _previousVoteCounts[item.id] =
+                                          item.voteTotal!;
                                       _previousRanks[item.id] = actualRank;
                                     }
                                   });
@@ -701,7 +695,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     required bool rankUp,
     required String searchQuery,
   }) {
-    logger.d('🔥 _buildVoteItemWithHighlight 호출됨 - index: $index');
     // 검색어가 있을 때는 커스텀 위젯을 만들어서 하이라이트 적용
     if (searchQuery.isNotEmpty) {
       return _buildCustomVoteItemWithHighlight(
@@ -990,7 +983,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           imageUrl.startsWith('/') ? imageUrl.substring(1) : imageUrl;
 
       final fullUrl = '$cleanCdnUrl/$cleanImageUrl';
-      logger.d('🔗 URL 변환: "$imageUrl" -> "$fullUrl"');
       return fullUrl;
     } catch (e) {
       logger.e('🔗 URL 변환 실패: $e');
@@ -999,8 +991,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildArtistImage(VoteItemModel item, int index) {
-    logger.d('🖼️ _buildArtistImage 호출됨 - ID: ${item.id}, index: $index');
-
     try {
       // 이미지 URL을 안전하게 가져오기
       final artistUrl = item.artist?.image ?? '';
@@ -1010,22 +1000,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       // 상대 경로를 절대 경로로 변환
       final fullImageUrl = _makeFullImageUrl(imageUrl);
 
-      // 상세 디버깅용 로그
-      logger.d('🖼️ 이미지 빌드 상세 정보:');
-      logger.d('   - Item ID: ${item.id}');
-      logger.d('   - Artist ID: ${item.artist?.id}');
-      logger.d('   - Artist Image: $artistUrl');
-      logger.d('   - Group ID: ${item.artistGroup?.id}');
-      logger.d('   - Group Image: $groupUrl');
-      logger.d('   - 원본 URL: $imageUrl');
-      logger.d('   - 전체 URL: $fullImageUrl');
-
       // URL 유효성 검사 강화
       final hasValidImageUrl = fullImageUrl.isNotEmpty &&
           (fullImageUrl.startsWith('http://') ||
               fullImageUrl.startsWith('https://'));
 
-      logger.d('🖼️ URL 유효성 검사 결과: $hasValidImageUrl');
+      // logger.d('🖼️ URL 유효성 검사 결과: $hasValidImageUrl');
 
       if (!hasValidImageUrl) {
         logger.w(
@@ -1064,8 +1044,6 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildNetworkImage(String imageUrl, int itemId, int index) {
-    logger.d('🖼️ 네트워크 이미지 생성 - ID: $itemId, URL: $imageUrl');
-
     // 안정적인 키 사용
     return RepaintBoundary(
       key: ValueKey('image_$itemId'),

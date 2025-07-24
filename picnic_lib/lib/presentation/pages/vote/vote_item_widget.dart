@@ -38,7 +38,6 @@ class VoteItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('🔥 onTap: $onTap');
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 600),
