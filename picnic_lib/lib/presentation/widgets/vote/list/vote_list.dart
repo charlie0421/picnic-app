@@ -115,7 +115,17 @@ class _VoteListState extends ConsumerState<VoteList> {
     }
   }
 
-  VoteCardStatus _getSkeletonStatus() {
+  VoteCardStatus _getSkeletonStatus(VoteModel? item) {
+    if (widget.status == VoteStatus.debug && item != null) {
+      final now = DateTime.now();
+      if (item.startAt != null && now.isBefore(item.startAt!)) {
+        return VoteCardStatus.upcoming;
+      } else if (item.stopAt != null && now.isAfter(item.stopAt!)) {
+        return VoteCardStatus.ended;
+      } else {
+        return VoteCardStatus.ongoing;
+      }
+    }
     switch (widget.status) {
       case VoteStatus.upcoming:
         return VoteCardStatus.upcoming;
@@ -134,7 +144,7 @@ class _VoteListState extends ConsumerState<VoteList> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          VoteCardSkeleton(status: _getSkeletonStatus()),
+          VoteCardSkeleton(status: _getSkeletonStatus(null)),
         ],
       );
     }
@@ -154,13 +164,28 @@ class _VoteListState extends ConsumerState<VoteList> {
             onPageChanged: _onPageChanged,
             itemBuilder: (context, index) {
               final item = _items[index];
+              final VoteStatus itemStatus;
+
+              if (widget.status == VoteStatus.debug) {
+                final now = DateTime.now();
+                if (item.startAt != null && now.isBefore(item.startAt!)) {
+                  itemStatus = VoteStatus.upcoming;
+                } else if (item.stopAt != null && now.isAfter(item.stopAt!)) {
+                  itemStatus = VoteStatus.end;
+                } else {
+                  itemStatus = VoteStatus.active;
+                }
+              } else {
+                itemStatus = widget.status;
+              }
+
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   VoteInfoCard(
                     context: context,
                     vote: item,
-                    status: widget.status,
+                    status: itemStatus,
                   ),
                 ],
               );
@@ -173,7 +198,9 @@ class _VoteListState extends ConsumerState<VoteList> {
               right: 0,
               child: Padding(
                 padding: EdgeInsets.all(16.0),
-                child: VoteCardSkeleton(status: _getSkeletonStatus()),
+                child: VoteCardSkeleton(
+                    status: _getSkeletonStatus(
+                        _items.isNotEmpty ? _items[_items.length - 1] : null)),
               ),
             ),
         ],

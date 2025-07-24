@@ -2,6 +2,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/reward.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/artist_group.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 
 part '../../../generated/models/vote/vote.freezed.dart';
 part '../../../generated/models/vote/vote.g.dart';
@@ -32,6 +34,17 @@ class VoteModel with _$VoteModel {
 
   factory VoteModel.fromJson(Map<String, dynamic> json) =>
       _$VoteModelFromJson(json);
+
+  VoteCardStatus get cardStatus {
+    final now = DateTime.now();
+    if (startAt != null && now.isBefore(startAt!)) {
+      return VoteCardStatus.upcoming;
+    } else if (stopAt != null && now.isAfter(stopAt!)) {
+      return VoteCardStatus.ended;
+    } else {
+      return VoteCardStatus.ongoing;
+    }
+  }
 }
 
 @freezed
