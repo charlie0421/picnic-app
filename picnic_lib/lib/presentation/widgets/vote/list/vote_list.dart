@@ -6,6 +6,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class VoteList extends ConsumerStatefulWidget {
   final VoteStatus status;
@@ -30,7 +31,7 @@ class _VoteListState extends ConsumerState<VoteList> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    _fetchVotes();
+    _fetchVotes(isInitialLoad: true);
   }
 
   // setState 호출을 안전하게 하기 위한 헬퍼 메서드
@@ -40,7 +41,8 @@ class _VoteListState extends ConsumerState<VoteList> {
     }
   }
 
-  Future<void> _fetchVotes() async {
+  Future<void> _fetchVotes(
+      {bool isInitialLoad = false, bool isRefresh = false}) async {
     // 디버그 상태 로그 추가
     if (widget.status == VoteStatus.debug) {
       logger.d('🚨🚨🚨 VoteList._fetchVotes 호출됨 - 디버그 모드');
@@ -51,9 +53,16 @@ class _VoteListState extends ConsumerState<VoteList> {
       logger.d('📍 Provider 호출 시작...');
     }
 
-    _setStateIfMounted(() {
-      _isLoading = true;
-    });
+    if (isInitialLoad) {
+      _setStateIfMounted(() {
+        _isLoading = true;
+      });
+    }
+
+    if (isRefresh) {
+      _pageKey = 1;
+    }
+
     try {
       // 디버그 모드에서는 타임스탬프를 추가하여 캐시 회피
       final sortKey = widget.status == VoteStatus.debug
@@ -75,12 +84,15 @@ class _VoteListState extends ConsumerState<VoteList> {
       }
 
       _setStateIfMounted(() {
+        if (isRefresh || isInitialLoad) {
+          _items.clear();
+        }
         _items.addAll(newItems);
-        _isLoading = false;
-        _isFetchingMore = false;
         if (newItems.isNotEmpty) {
           _pageKey++;
         }
+        _isLoading = false;
+        _isFetchingMore = false;
       });
     } catch (e) {
       if (widget.status == VoteStatus.debug) {
@@ -129,38 +141,43 @@ class _VoteListState extends ConsumerState<VoteList> {
     if (_items.isEmpty) {
       return VoteNoItem(status: widget.status, context: context);
     }
-    return Stack(
-      children: [
-        PageView.builder(
-          controller: _pageController,
-          scrollDirection: Axis.vertical,
-          itemCount: _items.length,
-          onPageChanged: _onPageChanged,
-          itemBuilder: (context, index) {
-            final item = _items[index];
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                VoteInfoCard(
-                  context: context,
-                  vote: item,
-                  status: widget.status,
-                ),
-              ],
-            );
-          },
-        ),
-        if (_isFetchingMore)
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: VoteCardSkeleton(status: _getSkeletonStatus()),
-            ),
+    return RefreshIndicator(
+      color: AppColors.primary500,
+      backgroundColor: Colors.white,
+      onRefresh: () => _fetchVotes(isRefresh: true),
+      child: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            itemCount: _items.length,
+            onPageChanged: _onPageChanged,
+            itemBuilder: (context, index) {
+              final item = _items[index];
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  VoteInfoCard(
+                    context: context,
+                    vote: item,
+                    status: widget.status,
+                  ),
+                ],
+              );
+            },
           ),
-      ],
+          if (_isFetchingMore)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: VoteCardSkeleton(status: _getSkeletonStatus()),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
