@@ -13,7 +13,9 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
 import 'package:picnic_lib/presentation/common/comment/comment_popup_menu.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
+import 'package:picnic_lib/presentation/pages/community/post_view_page.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
+import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -135,7 +137,7 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
   }
 }
 
-class CommentListItem extends StatelessWidget {
+class CommentListItem extends ConsumerStatefulWidget {
   final CommentModel item;
   final VoidCallback onDelete;
   final VoidCallback onRefresh;
@@ -148,45 +150,61 @@ class CommentListItem extends StatelessWidget {
   });
 
   @override
+  ConsumerState<CommentListItem> createState() => _CommentListItemState();
+}
+
+class _CommentListItemState extends ConsumerState<CommentListItem> {
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 71,
-      alignment: Alignment.centerLeft,
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 8,
-      ),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.grey300,
-            width: 1,
-          ),
+    return GestureDetector(
+      onTap: () {
+        ref
+            .read(communityStateInfoProvider.notifier)
+            .setCurrentBoard(widget.item.post!.board!);
+
+        ref
+            .read(navigationInfoProvider.notifier)
+            .setCommunityCurrentPage(PostViewPage(widget.item.post!.postId));
+      },
+      child: Container(
+        height: 71,
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: 8,
         ),
-      ),
-      width: getPlatformScreenSize(context).width,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: 5),
-                CommentContents(item: item),
-              ],
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: AppColors.grey300,
+              width: 1,
             ),
           ),
-          SizedBox(width: 10.w),
-          CommentPopupMenu(
-            postId: item.post!.postId,
-            comment: item,
-            onDelete: onDelete,
-            refreshFunction: onRefresh,
-          ),
-        ],
+        ),
+        width: getPlatformScreenSize(context).width,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildHeader(context),
+                  const SizedBox(height: 5),
+                  CommentContents(item: widget.item),
+                ],
+              ),
+            ),
+            SizedBox(width: 10.w),
+            CommentPopupMenu(
+              postId: widget.item.post!.postId,
+              comment: widget.item,
+              onDelete: widget.onDelete,
+              refreshFunction: widget.onRefresh,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -195,24 +213,24 @@ class CommentListItem extends StatelessWidget {
     return Row(
       children: [
         Text(
-          getLocaleTextFromJson(item.post!.board!.name),
+          getLocaleTextFromJson(widget.item.post!.board!.name),
           style: getTextStyle(AppTypo.caption12B, AppColors.primary500),
         ),
         SizedBox(width: 4.w),
         ProfileImageContainer(
-          avatarUrl: item.user?.avatarUrl,
+          avatarUrl: widget.item.user?.avatarUrl,
           borderRadius: 4,
           width: 18,
           height: 18,
         ),
         SizedBox(width: 4.w),
         Text(
-          item.user?.nickname ?? '',
+          widget.item.user?.nickname ?? '',
           style: getTextStyle(AppTypo.caption12B, AppColors.grey900),
         ),
         SizedBox(width: 4.w),
         Text(
-          formatTimeAgo(context, item.createdAt),
+          formatTimeAgo(context, widget.item.createdAt),
           style: getTextStyle(AppTypo.caption10SB, AppColors.grey400),
         ),
       ],
