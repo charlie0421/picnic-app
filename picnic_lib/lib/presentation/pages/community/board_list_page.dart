@@ -378,6 +378,8 @@ class _BoardPageState extends ConsumerState<BoardListPage> {
             ),
             Expanded(
               child: RefreshIndicator(
+                color: AppColors.primary500,
+                backgroundColor: Colors.white,
                 onRefresh: () => _loadData(isRefresh: true),
                 child: _buildBoardList(),
               ),

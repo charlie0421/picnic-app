@@ -18,6 +18,7 @@ import 'package:picnic_lib/presentation/providers/community/comments_provider.da
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/bottom_sheet_header.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 final commentsPageProvider = FutureProvider.autoDispose
     .family<List<CommentModel>, CommentsPageParams>((ref, params) async {
@@ -151,8 +152,9 @@ class _CommentListState extends ConsumerState<CommentList> {
       if (!_isDisposed) {
         if (!context.mounted) return;
         if (navigatorKey.currentContext != null) {
-          SnackbarUtil()
-              .showSnackbar(AppLocalizations.of(navigatorKey.currentContext!).error_action_failed);
+          SnackbarUtil().showSnackbar(
+              AppLocalizations.of(navigatorKey.currentContext!)
+                  .error_action_failed);
         }
       }
     } finally {
@@ -329,6 +331,8 @@ class _CommentListState extends ConsumerState<CommentList> {
                       return true;
                     },
                     child: RefreshIndicator(
+                      color: AppColors.primary500,
+                      backgroundColor: Colors.white,
                       onRefresh: _refreshComments,
                       child: _buildPagedListView(),
                     ),

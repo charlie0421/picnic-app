@@ -11,6 +11,7 @@ import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item.dart'
 import 'package:picnic_lib/presentation/widgets/vote/media/video_list_item_skeleton.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 class VoteMediaListPage extends ConsumerStatefulWidget {
   final String pageName = 'page_title_vote_gather';
@@ -107,6 +108,8 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
+      color: AppColors.primary500,
+      backgroundColor: Colors.white,
       onRefresh: () async {
         _pagingController.refresh();
       },

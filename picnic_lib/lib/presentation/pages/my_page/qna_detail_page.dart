@@ -90,6 +90,8 @@ class _QnADetailPageState extends State<QnADetailPage> {
         ],
       ),
       body: RefreshIndicator(
+        color: AppColors.primary500,
+        backgroundColor: Colors.white,
         onRefresh: _refreshQnA,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),

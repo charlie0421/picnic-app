@@ -155,6 +155,8 @@ class _QnAListPageState extends State<QnAListPage> {
     }
 
     return RefreshIndicator(
+      color: AppColors.primary500,
+      backgroundColor: Colors.white,
       onRefresh: _loadQnAList,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),

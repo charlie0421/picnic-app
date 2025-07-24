@@ -228,6 +228,8 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
 
         final post = snapshot.data!;
         return RefreshIndicator(
+          color: AppColors.primary500,
+          backgroundColor: Colors.white,
           onRefresh: () => _refreshPostAndComments(),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
