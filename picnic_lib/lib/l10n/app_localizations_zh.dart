@@ -1996,16 +1996,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get title_dialog_error => '错误';
 
   @override
-  String get vote_item_request_waiting => '等待中';
+  String get vote_item_request_waiting => '대기중';
 
   @override
   String get capture_failed => '截图失败';
 
   @override
-  String get qna_submit_success => '您的询问已成功提交';
+  String get qna_submit_success => '您的咨询已成功提交。';
 
   @override
-  String get qna_submit_error => '提交询问时发生错误';
+  String get qna_submit_error => '提交咨询失败，请重试。';
 
   @override
   String get qna_title_too_short => '请输入至少2个字符的标题';
@@ -2014,125 +2014,154 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_content_too_short => '请输入至少10个字符的内容';
 
   @override
-  String get qna_list_title => 'QnA 列表';
+  String get qna_list_title => '咨询列表';
 
   @override
-  String get qna_error_message => '发生错误';
+  String get qna_list_empty => '没有找到咨询。按+按钮创建一个新的。';
 
   @override
-  String get qna_empty_list => '没有询问历史';
+  String get qna_create_title => '新的咨询';
 
   @override
-  String get qna_create_first => '写下您的第一个问题';
+  String get qna_form_title => '标题';
 
   @override
-  String get days_ago => '天前';
+  String get qna_form_title_empty => '请输入标题。';
 
   @override
-  String get hours_ago => '小时前';
+  String get qna_form_content => '内容';
 
   @override
-  String get minutes_ago => '分钟前';
+  String get qna_form_content_empty => '请输入您的咨询内容。';
 
   @override
-  String get starCandy100 => '100个星星糖果';
+  String get qna_message_hint => '输入消息';
 
   @override
-  String get starCandy200 => '200个星星糖果';
+  String get qna_error_message => 'An error occurred';
 
   @override
-  String get starCandy600 => '600个星星糖果';
+  String get qna_empty_list => 'No inquiry history';
 
   @override
-  String get starCandy1000 => '1,000个星星糖果';
+  String get qna_create_first => 'Write your first question';
 
   @override
-  String get starCandy2000 => '2,000个星星糖果';
+  String get days_ago => ' days ago';
 
   @override
-  String get starCandy3000 => '3,000个星星糖果';
+  String get hours_ago => ' hours ago';
 
   @override
-  String get starCandy4000 => '4,000个星星糖果';
+  String get minutes_ago => ' minutes ago';
 
   @override
-  String get starCandy5000 => '5,000个星星糖果';
+  String get starCandy100 => '100 Star Candy';
 
   @override
-  String get update_required_message => '需要应用更新';
+  String get starCandy200 => '200 Star Candy';
 
   @override
-  String get vote_item_request_no_search_results => '没有搜索结果';
+  String get starCandy600 => '600 Star Candy';
+
+  @override
+  String get starCandy1000 => '1,000 Star Candy';
+
+  @override
+  String get starCandy2000 => '2,000 Star Candy';
+
+  @override
+  String get starCandy3000 => '3,000 Star Candy';
+
+  @override
+  String get starCandy4000 => '4,000 Star Candy';
+
+  @override
+  String get starCandy5000 => '5,000 Star Candy';
+
+  @override
+  String get update_required_message => 'App update required';
+
+  @override
+  String get vote_item_request_no_search_results => 'No search results';
 
   @override
   String jma_voting_star_candy_shortage(Object shortage) {
-    return '星星糖果不足$shortage个。';
+    return 'You need $shortage more star candies.';
   }
 
   @override
   String jma_voting_max_votes_exceeded(Object maxVotes) {
-    return '当前最大可投票数为$maxVotes个。';
-  }
-
-  @override
-  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
-    return '星星糖果只能以3的倍数使用。请增加$needed个或减少$excess个。';
+    return 'The current maximum possible votes is $maxVotes.';
   }
 
   @override
   String jma_voting_daily_limit_remaining(Object max, Object remaining) {
-    return '奖励投票每日最多可使用$max个。（剩余使用量：$remaining个）';
+    return 'Today\'s remaining bonus votes: $remaining times (max $max times)';
   }
 
   @override
-  String get jma_voting_daily_limit_exhausted => '今日奖励投票个数已全部使用完毕。';
+  String get jma_voting_daily_limit_exhausted =>
+      'You have used all bonus votes for today.';
 
   @override
-  String get jma_voting_my_star_candy => '我的星星糖果';
+  String get jma_voting_my_star_candy => 'My Star Candy';
 
   @override
-  String get jma_voting_usable_jma_votes => '可用JMA投票权';
+  String get jma_voting_usable_jma_votes => 'Available JMA Votes';
 
   @override
-  String get jma_voting_use_all => '全部使用';
+  String get jma_voting_use_all => 'Use All';
 
   @override
   String jma_voting_max_usable(Object amount) {
-    return '最多可使用$amount个';
+    return 'Maximum $amount available';
   }
 
   @override
   String jma_voting_bonus_only(Object amount, Object votes) {
-    return '使用$amount个奖励星星糖果 → $votes票';
+    return 'Use $amount bonus Star Candy → $votes votes';
   }
 
   @override
   String jma_voting_bonus_plus_regular(
       Object bonus, Object regular, Object votes) {
-    return '奖励$bonus个 + 星星糖果$regular个 → $votes票';
+    return 'Bonus $bonus + Star Candy $regular → $votes votes';
   }
 
   @override
   String jma_voting_regular_only(Object amount, Object votes) {
-    return '星星糖果$amount个 → $votes票';
+    return 'Star Candy $amount → $votes votes';
   }
 
   @override
-  String get jma_voting_input_amount => '请输入星星糖果数量。';
+  String get jma_voting_input_amount =>
+      'Please enter the amount of Star Candy.';
 
   @override
   String get jma_voting_info_text =>
-      '· 投票时星星糖果3个将自动转换为JMA投票权1个\n· 奖励星星糖果在JMA投票中每日最多可使用5个\n· 参与投票即可自动参加JMA演唱会门票活动';
+      '· 3 Star Candy will be automatically converted to 1 JMA vote\n· Bonus Star Candy can be used up to 5 times per day for JMA voting\n· By participating in voting, you will automatically participate in the JMA concert ticket event';
 
   @override
-  String get jma_voting_daily_limit_error => '每日最多可投票5个。';
+  String get jma_voting_daily_limit_error =>
+      'You can vote up to 5 times per day.';
 
   @override
-  String get jma_voting_exchange_failed => '星星糖果兑换时发生错误。请重试。';
+  String get jma_voting_exchange_failed =>
+      'An error occurred while exchanging Star Candy. Please try again.';
 
   @override
-  String get jma_voting_daily_limit_title => '投票限制';
+  String get jma_voting_daily_limit_title => 'Voting Limit';
 
   @override
-  String get jma_voting_exchange_failed_title => '兑换失败';
+  String get jma_voting_exchange_failed_title => 'Exchange Failed';
+
+  @override
+  String get search_input_text_hint => '搜索';
+
+  @override
+  String get submit => '提交';
+
+  @override
+  String get next => '下一个';
 }

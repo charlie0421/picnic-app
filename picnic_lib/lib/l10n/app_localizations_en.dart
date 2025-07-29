@@ -867,7 +867,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_mypage_notice => 'Notice';
 
   @override
-  String get label_mypage_picnic_id => 'だろう。';
+  String get label_mypage_picnic_id => 'Picnic ID';
 
   @override
   String get label_mypage_privacy_policy => 'Privacy Policy';
@@ -2104,7 +2104,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enter at least 10 characters for the content';
 
   @override
-  String get qna_list_title => 'QnA List';
+  String get qna_list_title => 'My Inquiries';
+
+  @override
+  String get qna_list_empty =>
+      'No inquiries found. Press the + button to create a new one.';
+
+  @override
+  String get qna_create_title => 'New Inquiry';
+
+  @override
+  String get qna_form_title => 'Title';
+
+  @override
+  String get qna_form_title_empty => 'Please enter a title.';
+
+  @override
+  String get qna_form_content => 'Content';
+
+  @override
+  String get qna_form_content_empty =>
+      'Please enter the content of your inquiry.';
+
+  @override
+  String get qna_message_hint => 'Enter a message';
 
   @override
   String get qna_error_message => 'An error occurred';
@@ -2165,18 +2188,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
-    return 'Star Candy can only be used in multiples of 3. Please add $needed more or reduce by $excess.';
-  }
-
-  @override
   String jma_voting_daily_limit_remaining(Object max, Object remaining) {
-    return 'Bonus voting allows up to $max votes per day. (Remaining usage: $remaining votes)';
+    return 'Today\'s remaining bonus votes: $remaining times (max $max times)';
   }
 
   @override
   String get jma_voting_daily_limit_exhausted =>
-      'Today\'s bonus vote amount has been fully used.';
+      'You have used all bonus votes for today.';
 
   @override
   String get jma_voting_my_star_candy => 'My Star Candy';
@@ -2218,7 +2236,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jma_voting_daily_limit_error =>
-      'You can vote up to 5 bonus votes per day.';
+      'You can vote up to 5 times per day.';
 
   @override
   String get jma_voting_exchange_failed =>
@@ -2229,4 +2247,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jma_voting_exchange_failed_title => 'Exchange Failed';
+
+  @override
+  String get search_input_text_hint => 'Search';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get next => 'Next';
 }

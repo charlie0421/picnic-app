@@ -73,10 +73,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    logger.i('App initState 호출됨');
-
-    // AppLifecycleInitializer를 사용하여 앱 초기화 및 리스너 설정
-    AppLifecycleInitializer.setupAppInitializers(ref, context);
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppInitializer.initializeAppWithSplash(context, ref);
+    });
 
     // 라우트 설정
     AppLifecycleInitializer.setupAppRoutes(ref, _appSpecificRoutes);
@@ -90,12 +90,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       });
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppInitializer.initializeAppWithSplash(context, ref);
-    });
-
     // 기존 코드의 나머지 부분은 유지
-    WidgetsBinding.instance.addObserver(this);
     _initializeApp();
   }
 

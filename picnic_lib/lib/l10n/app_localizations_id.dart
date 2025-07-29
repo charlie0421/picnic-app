@@ -2101,10 +2101,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get capture_failed => 'Gagal menangkap';
 
   @override
-  String get qna_submit_success => 'Pertanyaan Anda berhasil dikirim';
+  String get qna_submit_success => 'Pertanyaan Anda berhasil dikirim.';
 
   @override
-  String get qna_submit_error => 'Terjadi kesalahan saat mengirim pertanyaan';
+  String get qna_submit_error =>
+      'Gagal mengirim pertanyaan Anda. Silakan coba lagi.';
 
   @override
   String get qna_title_too_short =>
@@ -2115,7 +2116,29 @@ class AppLocalizationsId extends AppLocalizations {
       'Silakan masukkan minimal 10 karakter untuk konten';
 
   @override
-  String get qna_list_title => 'Daftar QnA';
+  String get qna_list_title => 'Daftar Q&A';
+
+  @override
+  String get qna_list_empty =>
+      'No inquiries found. Press the + button to create a new one.';
+
+  @override
+  String get qna_create_title => 'Pertanyaan Baru';
+
+  @override
+  String get qna_form_title => 'Judul';
+
+  @override
+  String get qna_form_title_empty => 'Silakan masukkan judul.';
+
+  @override
+  String get qna_form_content => 'Isi';
+
+  @override
+  String get qna_form_content_empty => 'Silakan masukkan isi pertanyaan Anda.';
+
+  @override
+  String get qna_message_hint => 'Masukkan pesan';
 
   @override
   String get qna_error_message => 'Terjadi kesalahan';
@@ -2176,18 +2199,13 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
-    return 'Star Candy hanya dapat digunakan dalam kelipatan 3. Silakan tambahkan $needed lagi atau kurangi $excess.';
-  }
-
-  @override
   String jma_voting_daily_limit_remaining(Object max, Object remaining) {
-    return 'Voting bonus memungkinkan hingga $max vote per hari. (Sisa penggunaan: $remaining vote)';
+    return 'Sisa vote bonus hari ini: $remaining kali (maksimal $max kali)';
   }
 
   @override
   String get jma_voting_daily_limit_exhausted =>
-      'Jumlah vote bonus hari ini telah habis digunakan.';
+      'Anda telah menggunakan semua vote bonus untuk hari ini.';
 
   @override
   String get jma_voting_my_star_candy => 'Star Candy Saya';
@@ -2228,7 +2246,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get jma_voting_daily_limit_error =>
-      'Anda dapat melakukan hingga 5 vote bonus per hari.';
+      'Anda dapat melakukan vote hingga 5 kali per hari.';
 
   @override
   String get jma_voting_exchange_failed =>
@@ -2239,4 +2257,13 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get jma_voting_exchange_failed_title => 'Gagal Menukar';
+
+  @override
+  String get search_input_text_hint => 'Search';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get next => 'Next';
 }

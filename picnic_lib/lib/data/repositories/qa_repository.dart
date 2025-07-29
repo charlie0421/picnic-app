@@ -3,7 +3,7 @@ import 'package:picnic_lib/data/models/qna/qna_message.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class QnaRepository {
+class QaRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
   /// Q&A 스레드 목록 조회

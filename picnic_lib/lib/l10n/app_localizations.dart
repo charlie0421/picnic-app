@@ -49,12 +49,12 @@ import 'app_localizations_zh.dart';
 ///
 /// iOS applications define key application metadata, including supported
 /// locales, in an Info.plist file that is built into the application bundle.
-/// To configure the locales supported by your app, you'll need to edit this
+/// To configure the locales supported by your app, you’ll need to edit this
 /// file.
 ///
-/// First, open your project's ios/Runner.xcworkspace Xcode workspace file.
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
 /// Then, in the Project Navigator, open the Info.plist file under the Runner
-/// project's Runner folder.
+/// project’s Runner folder.
 ///
 /// Next, select the Information Property List item, select Add Item from the
 /// Editor menu, then select Localizations from the pop-up menu.
@@ -1703,7 +1703,7 @@ abstract class AppLocalizations {
   /// No description provided for @label_mypage_picnic_id.
   ///
   /// In en, this message translates to:
-  /// **'だろう。'**
+  /// **'Picnic ID'**
   String get label_mypage_picnic_id;
 
   /// No description provided for @label_mypage_privacy_policy.
@@ -4013,8 +4013,50 @@ abstract class AppLocalizations {
   /// No description provided for @qna_list_title.
   ///
   /// In en, this message translates to:
-  /// **'QnA List'**
+  /// **'My Inquiries'**
   String get qna_list_title;
+
+  /// No description provided for @qna_list_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No inquiries found. Press the + button to create a new one.'**
+  String get qna_list_empty;
+
+  /// No description provided for @qna_create_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New Inquiry'**
+  String get qna_create_title;
+
+  /// No description provided for @qna_form_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get qna_form_title;
+
+  /// No description provided for @qna_form_title_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title.'**
+  String get qna_form_title_empty;
+
+  /// No description provided for @qna_form_content.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get qna_form_content;
+
+  /// No description provided for @qna_form_content_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the content of your inquiry.'**
+  String get qna_form_content_empty;
+
+  /// No description provided for @qna_message_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a message'**
+  String get qna_message_hint;
 
   /// No description provided for @qna_error_message.
   ///
@@ -4118,11 +4160,11 @@ abstract class AppLocalizations {
   /// **'You need {shortage} more star candies.'**
   String jma_voting_star_candy_shortage(Object shortage);
 
-  /// No description provided for @jma_voting_star_candy_multiple_of_three.
+  /// No description provided for @jma_voting_max_votes_exceeded.
   ///
   /// In en, this message translates to:
-  /// **'Star Candy can only be used in multiples of 3. Please add {needed} more or reduce by {excess}.'**
-  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed);
+  /// **'The current maximum possible votes is {maxVotes}.'**
+  String jma_voting_max_votes_exceeded(Object maxVotes);
 
   /// No description provided for @jma_voting_daily_limit_remaining.
   ///
@@ -4215,11 +4257,23 @@ abstract class AppLocalizations {
   /// **'Exchange Failed'**
   String get jma_voting_exchange_failed_title;
 
-  /// No description provided for @jma_voting_max_votes_exceeded.
+  /// No description provided for @search_input_text_hint.
   ///
   /// In en, this message translates to:
-  /// **'The current maximum possible votes is {maxVotes}.'**
-  String jma_voting_max_votes_exceeded(Object maxVotes);
+  /// **'Search'**
+  String get search_input_text_hint;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
 }
 
 class _AppLocalizationsDelegate

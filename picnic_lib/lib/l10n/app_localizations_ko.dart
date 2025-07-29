@@ -2022,7 +2022,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_content_too_short => '내용을 10자 이상 입력해주세요';
 
   @override
-  String get qna_list_title => 'QnA 목록';
+  String get qna_list_title => '문의 내역';
+
+  @override
+  String get qna_list_empty => '문의 내역이 없습니다. + 버튼을 눌러 새 문의를 작성해보세요.';
+
+  @override
+  String get qna_create_title => '새 문의 작성';
+
+  @override
+  String get qna_form_title => '제목';
+
+  @override
+  String get qna_form_title_empty => '제목을 입력해주세요.';
+
+  @override
+  String get qna_form_content => '내용';
+
+  @override
+  String get qna_form_content_empty => '문의 내용을 입력해주세요.';
+
+  @override
+  String get qna_message_hint => '메시지를 입력하세요';
 
   @override
   String get qna_error_message => '오류가 발생했습니다';
@@ -2078,17 +2099,17 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String jma_voting_star_candy_multiple_of_three(Object excess, Object needed) {
-    return '별사탕은 3의 배수로만 사용 가능합니다. $needed개 더 추가하거나 $excess개 줄여주세요.';
+  String jma_voting_max_votes_exceeded(Object maxVotes) {
+    return '현재 최대 가능 투표수는 $maxVotes개 입니다.';
   }
 
   @override
   String jma_voting_daily_limit_remaining(Object max, Object remaining) {
-    return '보너스 투표는 하루 최대 $max개까지 가능합니다. (남은 사용량: $remaining개)';
+    return '오늘 남은 보너스 투표 갯수: $remaining회 (최대 $max회)';
   }
 
   @override
-  String get jma_voting_daily_limit_exhausted => '오늘 보너스 투표 개수를 모두 사용했습니다.';
+  String get jma_voting_daily_limit_exhausted => '오늘 보너스 투표 갯수를 모두 사용했습니다.';
 
   @override
   String get jma_voting_my_star_candy => '나의 별사탕';
@@ -2128,7 +2149,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '· 투표 시 별사탕 3개가 JMA투표권 1개로 자동 변환됩니다\n· 보너스 별사탕은 JMA 투표에선 1일 5개까지 사용 가능합니다\n· 투표에 참여하시면 자동으로 JMA 콘서트 티켓 이벤트에 참여됩니다';
 
   @override
-  String get jma_voting_daily_limit_error => '하루 최대 5개까지 투표할 수 있습니다.';
+  String get jma_voting_daily_limit_error => '하루 최대 5번까지 투표할 수 있습니다.';
 
   @override
   String get jma_voting_exchange_failed => '별사탕 교환 중 오류가 발생했습니다. 다시 시도해주세요.';
@@ -2140,7 +2161,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get jma_voting_exchange_failed_title => '교환 실패';
 
   @override
-  String jma_voting_max_votes_exceeded(Object maxVotes) {
-    return '현재 최대 가능 투표수는 $maxVotes개 입니다.';
-  }
+  String get search_input_text_hint => 'Search';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get next => 'Next';
 }
