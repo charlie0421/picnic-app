@@ -38,16 +38,21 @@ class UsagePolicyPopup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
-    final expiringSoonBonusCandy =
-        ref.watch(userInfoProvider).user.expiringSoonBonusCandy;
+    final expireBonusResult = ref.watch(expireBonusProvider);
 
     return LargePopupWidget(
       title: localizations.bonus_candy_expiration_policy_title,
-      content: _buildPolicyContent(context, expiringSoonBonusCandy),
+      content: expireBonusResult.when(
+        data: (data) => _buildPolicyContent(context, data),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) =>
+            const Center(child: Text('소멸 예정 보너스 정보를 불러오는데 실패했습니다.')),
+      ),
     );
   }
 
-  Widget _buildPolicyContent(BuildContext context, int expiringSoonBonusCandy) {
+  Widget _buildPolicyContent(
+      BuildContext context, List<Map<String, dynamic>?>? expiringData) {
     final localizations = AppLocalizations.of(context);
     final now = DateTime.now();
     final day = now.day;
@@ -100,14 +105,31 @@ class UsagePolicyPopup extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (expiringSoonBonusCandy > 0) ...[
-              Text(
-                '${localizations.expiring_soon_bonus_candy}: $expiringSoonBonusCandy',
-                style: getTextStyle(
-                  AppTypo.body14B,
-                  AppColors.point900,
-                ),
-              ),
+            if (expiringData != null && expiringData.isNotEmpty) ...[
+              ...expiringData
+                  .map((e) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${e!['prediction_month']}-15: ',
+                              style: getTextStyle(
+                                AppTypo.body14B,
+                                AppColors.point900,
+                              ),
+                            ),
+                            Text(
+                              '${e['expiring_amount'] ?? 0}',
+                              style: getTextStyle(
+                                AppTypo.body14B,
+                                AppColors.point900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ))
+                  .toList(),
               SizedBox(height: 16.h),
             ],
             ...policies.map((policy) {
