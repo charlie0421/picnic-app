@@ -93,74 +93,77 @@ class UsagePolicyPopup extends ConsumerWidget {
       exampleText,
     ];
 
-    return Container(
-      padding: EdgeInsets.only(
-        top: 60.h,
-        bottom: 30.h,
-        left: 24.w,
-        right: 24.w,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (expiringData != null && expiringData.isNotEmpty) ...[
-              ...expiringData
-                  .map((e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${e!['prediction_month']}-15: ',
-                              style: getTextStyle(
-                                AppTypo.body14B,
-                                AppColors.point900,
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: EdgeInsets.only(
+          top: 60.h,
+          bottom: 30.h,
+          left: 24.w,
+          right: 24.w,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (expiringData != null && expiringData.isNotEmpty) ...[
+                ...expiringData
+                    .map((e) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${e!['prediction_month']}-15: ',
+                                style: getTextStyle(
+                                  AppTypo.body14B,
+                                  AppColors.point900,
+                                ),
                               ),
-                            ),
-                            Text(
-                              '${e['expiring_amount'] ?? 0}',
-                              style: getTextStyle(
-                                AppTypo.body14B,
-                                AppColors.point900,
+                              Text(
+                                '${e['expiring_amount'] ?? 0}',
+                                style: getTextStyle(
+                                  AppTypo.body14B,
+                                  AppColors.point900,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ))
+                    .toList(),
+                SizedBox(height: 16.h),
+              ],
+              ...policies.map((policy) {
+                final isTitle = policy.endsWith(':');
+                return Padding(
+                  padding: EdgeInsets.only(bottom: isTitle ? 4.h : 12.h),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!isTitle)
+                        Text(
+                          '• ',
+                          style: getTextStyle(
+                            AppTypo.body14R,
+                            AppColors.grey800,
+                          ),
                         ),
-                      ))
-                  .toList(),
-              SizedBox(height: 16.h),
+                      Expanded(
+                        child: Text(
+                          policy,
+                          style: getTextStyle(
+                            isTitle ? AppTypo.body14B : AppTypo.body14R,
+                            AppColors.grey800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
             ],
-            ...policies.map((policy) {
-              final isTitle = policy.endsWith(':');
-              return Padding(
-                padding: EdgeInsets.only(bottom: isTitle ? 4.h : 12.h),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (!isTitle)
-                      Text(
-                        '• ',
-                        style: getTextStyle(
-                          AppTypo.body14R,
-                          AppColors.grey800,
-                        ),
-                      ),
-                    Expanded(
-                      child: Text(
-                        policy,
-                        style: getTextStyle(
-                          isTitle ? AppTypo.body14B : AppTypo.body14R,
-                          AppColors.grey800,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
+          ),
         ),
       ),
     );
