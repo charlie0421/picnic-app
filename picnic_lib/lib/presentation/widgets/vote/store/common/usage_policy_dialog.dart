@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -41,129 +42,238 @@ class UsagePolicyPopup extends ConsumerWidget {
     final expireBonusResult = ref.watch(expireBonusProvider);
 
     return LargePopupWidget(
-      title: localizations.bonus_candy_expiration_policy_title,
-      content: expireBonusResult.when(
-        data: (data) => _buildPolicyContent(context, data),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) =>
-            const Center(child: Text('소멸 예정 보너스 정보를 불러오는데 실패했습니다.')),
+      titleWidget: VoteCommonTitle(
+        title: localizations.expiring_soon_bonus_candy,
+      ),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
+        ),
+        child: expireBonusResult.when(
+          data: (data) => _buildPolicyContent(context, data),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+              child:
+                  Text(localizations.bonus_candy_expiration_policy_load_fail)),
+        ),
       ),
     );
   }
 
   Widget _buildPolicyContent(
       BuildContext context, List<Map<String, dynamic>?>? expiringData) {
-    final localizations = AppLocalizations.of(context);
-    final now = DateTime.now();
-    final day = now.day;
-
-    DateTime earnStartDate;
-    DateTime earnEndDate;
-    DateTime expirationDate;
-
-    if (day <= 15) {
-      earnStartDate = DateTime(now.year, now.month, 1);
-      earnEndDate = DateTime(now.year, now.month, 15);
-      expirationDate = DateTime(now.year, now.month + 1, 15);
-    } else {
-      earnStartDate = DateTime(now.year, now.month, 16);
-      earnEndDate = DateTime(
-          now.year, now.month, DateUtils.getDaysInMonth(now.year, now.month));
-      expirationDate = DateTime(now.year, now.month + 2, 15);
-    }
-
-    final dateFormat = DateFormat('M/d', localizations.localeName);
-    final expirationDateFormat = DateFormat('M/d', localizations.localeName);
-
-    final exampleText = localizations.bonus_candy_expiration_policy_example(
-      dateFormat.format(earnStartDate),
-      dateFormat.format(earnEndDate),
-      expirationDateFormat.format(expirationDate),
-    );
-
-    final policies = [
-      localizations.bonus_candy_expiration_policy_target_title,
-      localizations.bonus_candy_expiration_policy_target_description,
-      localizations.bonus_candy_expiration_policy_date_title,
-      localizations.bonus_candy_expiration_policy_date_description,
-      localizations.bonus_candy_expiration_policy_rules_title,
-      localizations.bonus_candy_expiration_policy_rule1,
-      localizations.bonus_candy_expiration_policy_rule2,
-      localizations.bonus_candy_expiration_policy_example_title,
-      exampleText,
-    ];
-
     return Material(
       color: Colors.transparent,
       child: Container(
-        padding: EdgeInsets.only(
+        padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(
           top: 60.h,
-          bottom: 30.h,
-          left: 24.w,
-          right: 24.w,
+          bottom: 24.h,
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (expiringData != null && expiringData.isNotEmpty) ...[
+              _buildExpiringBonusSection(context, expiringData),
+              SizedBox(height: 20.h),
+            ],
+            Expanded(
+              child: SingleChildScrollView(
+                child: _buildPolicyDetailsSection(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpiringBonusSection(
+      BuildContext context, List<Map<String, dynamic>?> expiringData) {
+    final localizations = AppLocalizations.of(context);
+    final numberFormat = NumberFormat('#,###');
+
+    return Container(
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: AppColors.primary500.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              if (expiringData != null && expiringData.isNotEmpty) ...[
-                ...expiringData
-                    .map((e) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '${e!['prediction_month']}-15: ',
-                                style: getTextStyle(
-                                  AppTypo.body14B,
-                                  AppColors.point900,
-                                ),
-                              ),
-                              Text(
-                                '${e['expiring_amount'] ?? 0}',
-                                style: getTextStyle(
-                                  AppTypo.body14B,
-                                  AppColors.point900,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ))
-                    .toList(),
-                SizedBox(height: 16.h),
-              ],
-              ...policies.map((policy) {
-                final isTitle = policy.endsWith(':');
-                return Padding(
-                  padding: EdgeInsets.only(bottom: isTitle ? 4.h : 12.h),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (!isTitle)
-                        Text(
-                          '• ',
-                          style: getTextStyle(
-                            AppTypo.body14R,
-                            AppColors.grey800,
-                          ),
-                        ),
-                      Expanded(
-                        child: Text(
-                          policy,
-                          style: getTextStyle(
-                            isTitle ? AppTypo.body14B : AppTypo.body14R,
-                            AppColors.grey800,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+              Image.asset(
+                'assets/icons/store/bonus.png',
+                width: 24.w,
+                height: 24.w,
+                package: 'picnic_lib',
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                localizations.expiring_soon_bonus_candy,
+                style: getTextStyle(
+                  AppTypo.body16B,
+                  AppColors.primary500,
+                ),
+              ),
             ],
           ),
+          SizedBox(height: 12.h),
+          ...expiringData.map((e) {
+            if (e == null) return const SizedBox.shrink();
+            final amount = e['expiring_amount'] ?? 0;
+            return Padding(
+              padding: EdgeInsets.only(bottom: 4.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${e['prediction_month']}-15',
+                    style: getTextStyle(
+                      AppTypo.body14R,
+                      AppColors.grey700,
+                    ),
+                  ),
+                  Text(
+                    numberFormat.format(amount),
+                    style: getTextStyle(
+                      AppTypo.body14B,
+                      AppColors.primary500,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPolicyDetailsSection(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildPolicyItem(
+          context,
+          localizations.bonus_candy_expiration_time_title,
+          isTitle: true,
+        ),
+        SizedBox(height: 4.h),
+        _buildSimplifiedExpirationTable(context),
+        SizedBox(height: 12.h),
+        SizedBox(height: 12.h),
+        _buildPolicyItem(
+          context,
+          localizations.bonus_candy_policy_title,
+          isTitle: true,
+        ),
+        _buildPolicyItem(context, localizations.bonus_candy_policy_1),
+        _buildPolicyItem(context, localizations.bonus_candy_policy_2),
+        _buildPolicyItem(context, localizations.bonus_candy_policy_3),
+        _buildPolicyItem(
+          context,
+          localizations.bonus_candy_example_title,
+          isTitle: true,
+        ),
+        SizedBox(height: 4.h),
+        _buildExampleTable(context),
+      ],
+    );
+  }
+
+  Widget _buildSimplifiedExpirationTable(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    return Container(
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey300),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Column(
+        children: [
+          _buildTableRow(
+            context,
+            localizations.bonus_candy_expiration_policy_earn_period,
+            localizations.bonus_candy_expiration_policy_expiration_date,
+            isHeader: true,
+          ),
+          Divider(color: AppColors.grey300, height: 12.h),
+          _buildTableRow(
+            context,
+            localizations.bonus_candy_earn_period_1_to_15,
+            localizations.bonus_candy_expiration_next_month,
+          ),
+          Divider(color: AppColors.grey300, height: 12.h),
+          _buildTableRow(
+            context,
+            localizations.bonus_candy_earn_period_16_to_end,
+            localizations.bonus_candy_expiration_month_after_next,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExampleTable(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    return Container(
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey300),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Column(
+        children: [
+          _buildTableRow(
+            context,
+            localizations.bonus_candy_example_earn_date,
+            localizations.bonus_candy_example_expiration_date,
+            isHeader: true,
+          ),
+          Divider(color: AppColors.grey300, height: 12.h),
+          _buildTableRow(
+            context,
+            localizations.bonus_candy_example_1_earn,
+            localizations.bonus_candy_example_1_expire,
+          ),
+          Divider(color: AppColors.grey300, height: 12.h),
+          _buildTableRow(
+            context,
+            localizations.bonus_candy_example_2_earn,
+            localizations.bonus_candy_example_2_expire,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableRow(BuildContext context, String left, String right,
+      {bool isHeader = false}) {
+    final style = getTextStyle(
+      isHeader ? AppTypo.body14B : AppTypo.caption12M,
+      AppColors.grey800,
+    );
+    return Row(
+      children: [
+        Expanded(child: Text(left, style: style, textAlign: TextAlign.center)),
+        Expanded(child: Text(right, style: style, textAlign: TextAlign.center)),
+      ],
+    );
+  }
+
+  Widget _buildPolicyItem(BuildContext context, String text,
+      {bool isTitle = false}) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      child: Text(
+        text,
+        style: getTextStyle(
+          isTitle ? AppTypo.body14B : AppTypo.caption12M,
+          isTitle ? AppColors.grey800 : AppColors.grey700,
         ),
       ),
     );

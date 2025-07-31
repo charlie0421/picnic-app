@@ -435,7 +435,10 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
         return Dialog(
           backgroundColor: Colors.transparent,
           child: LargePopupWidget(
-            title: AppLocalizations.of(context).label_pic_pic_save_gallery,
+            titleWidget: Text(
+              AppLocalizations.of(context).label_pic_pic_save_gallery,
+              style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+            ),
             content: _capturedImageBytes != null
                 ? Container(
                     height: 500,

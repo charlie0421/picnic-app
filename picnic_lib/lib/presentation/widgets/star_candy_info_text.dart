@@ -36,24 +36,24 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
     String currentLocale = Localizations.localeOf(context).languageCode;
 
     if (currentLocale == 'ko') {
-      firstPart = '${numberFormatter.format(starCandy)}개';
-      secondPart = ' +${numberFormatter.format(starCandyBonus)}개 보너스';
+      firstPart = '${numberFormatter.format(starCandy)}';
+      secondPart = '';
     } else if (currentLocale == 'en') {
       firstPart = numberFormatter.format(starCandy);
-      secondPart = ' +${numberFormatter.format(starCandyBonus)} bonus';
+      secondPart = '';
     } else if (currentLocale == 'ja') {
-      firstPart = '${numberFormatter.format(starCandy)}個';
-      secondPart = ' +${numberFormatter.format(starCandyBonus)}個ボーナス';
+      firstPart = '${numberFormatter.format(starCandy)}';
+      secondPart = '';
     } else if (currentLocale == 'zh') {
       firstPart = numberFormatter.format(starCandy);
-      secondPart = ' +${numberFormatter.format(starCandyBonus)} 奖金';
+      secondPart = '';
     } else if (currentLocale == 'id') {
       firstPart = numberFormatter.format(starCandy);
-      secondPart = ' +${numberFormatter.format(starCandyBonus)} bonus';
+      secondPart = '';
     } else {
       // 기본값: 영어 형식
       firstPart = numberFormatter.format(starCandy);
-      secondPart = ' +${numberFormatter.format(starCandyBonus)} bonus';
+      secondPart = '';
     }
     return Row(
       mainAxisAlignment: widget.alignment,
@@ -64,21 +64,30 @@ class _StarCandyInfoTextState extends ConsumerState<StarCandyInfoText> {
           width: 48.w,
           height: 48,
         ),
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: firstPart,
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              ),
-              if (starCandyBonus > 0)
-                TextSpan(
-                  text: secondPart,
-                  style: getTextStyle(AppTypo.body16B, AppColors.primary500),
-                ),
-            ],
-          ),
+        SizedBox(width: 4.w),
+        Text(
+          firstPart,
+          style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         ),
+        if (starCandyBonus > 0) ...[
+          SizedBox(width: 8.w),
+          Text(
+            '+',
+            style: getTextStyle(AppTypo.body16B, AppColors.primary500),
+          ),
+          SizedBox(width: 8.w),
+          Image.asset(
+            'assets/icons/store/bonus.png',
+            width: 24.w,
+            height: 24.w,
+            package: 'picnic_lib',
+          ),
+          SizedBox(width: 4.w),
+          Text(
+            '${numberFormatter.format(starCandyBonus)}',
+            style: getTextStyle(AppTypo.body16B, AppColors.primary500),
+          ),
+        ],
       ],
     );
   }

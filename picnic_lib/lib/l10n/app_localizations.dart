@@ -4275,78 +4275,137 @@ abstract class AppLocalizations {
   /// **'Next'**
   String get next;
 
-  /// Title for the bonus candy expiration policy
+  /// No description provided for @bonus_candy_expiration_policy_title.
   ///
   /// In en, this message translates to:
   /// **'Bonus Star Candy Expiration Policy'**
   String get bonus_candy_expiration_policy_title;
 
-  /// Title for the target of expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'Expiration Target:'**
-  String get bonus_candy_expiration_policy_target_title;
-
-  /// Description of the target for expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'Bonus Star Candy acquired through missions at the free charging station'**
-  String get bonus_candy_expiration_policy_target_description;
-
-  /// Title for the date of expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'Expiration Time:'**
-  String get bonus_candy_expiration_policy_date_title;
-
-  /// Description of the date for expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'Bonus Star Candy acquired from the 1st to the 15th of each month will expire on the 15th of the following month, and those acquired from the 16th to the end of the month will expire on the 15th of the month after next.'**
-  String get bonus_candy_expiration_policy_date_description;
-
-  /// Title for the rules of expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'Usage Rules:'**
-  String get bonus_candy_expiration_policy_rules_title;
-
-  /// Rule 1 for expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.'**
-  String get bonus_candy_expiration_policy_rule1;
-
-  /// Rule 2 for expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.'**
-  String get bonus_candy_expiration_policy_rule2;
-
-  /// Title for the example of expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'Example:'**
-  String get bonus_candy_expiration_policy_example_title;
-
-  /// Example of expiration policy
-  ///
-  /// In en, this message translates to:
-  /// **'Bonus Star Candy acquired between {startDate}～{endDate} → Expires on {expirationDate}'**
-  String bonus_candy_expiration_policy_example(
-      String startDate, String endDate, String expirationDate);
-
   /// No description provided for @expiring_soon_bonus_candy.
   ///
   /// In en, this message translates to:
-  /// **'Expiring soon bonus candy'**
+  /// **'Expiring Bonus Star Candy'**
   String get expiring_soon_bonus_candy;
 
-  /// A guide for expiring bonus candy
+  /// No description provided for @expiring_bonus_candy_guide.
   ///
   /// In en, this message translates to:
   /// **'Expiring Bonus Guide'**
   String get expiring_bonus_candy_guide;
+
+  /// No description provided for @bonus_candy_expiration_policy_load_fail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load expiring bonus information.'**
+  String get bonus_candy_expiration_policy_load_fail;
+
+  /// No description provided for @bonus_candy_expiration_time_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration Time:'**
+  String get bonus_candy_expiration_time_title;
+
+  /// No description provided for @bonus_candy_policy_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus Star Candy Policy:'**
+  String get bonus_candy_policy_title;
+
+  /// No description provided for @bonus_candy_policy_1.
+  ///
+  /// In en, this message translates to:
+  /// **'- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.'**
+  String get bonus_candy_policy_1;
+
+  /// No description provided for @bonus_candy_policy_2.
+  ///
+  /// In en, this message translates to:
+  /// **'- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.'**
+  String get bonus_candy_policy_2;
+
+  /// No description provided for @bonus_candy_policy_3.
+  ///
+  /// In en, this message translates to:
+  /// **'- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.'**
+  String get bonus_candy_policy_3;
+
+  /// No description provided for @bonus_candy_expiration_policy_earn_period.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn Period'**
+  String get bonus_candy_expiration_policy_earn_period;
+
+  /// No description provided for @bonus_candy_expiration_policy_expiration_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration Date'**
+  String get bonus_candy_expiration_policy_expiration_date;
+
+  /// No description provided for @bonus_candy_earn_period_1_to_15.
+  ///
+  /// In en, this message translates to:
+  /// **'1st 00:00:00 ~ 15th 23:59:59'**
+  String get bonus_candy_earn_period_1_to_15;
+
+  /// No description provided for @bonus_candy_earn_period_16_to_end.
+  ///
+  /// In en, this message translates to:
+  /// **'16th 00:00:00 ~ end of month 23:59:59'**
+  String get bonus_candy_earn_period_16_to_end;
+
+  /// No description provided for @bonus_candy_expiration_next_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month 15th 00:00:00'**
+  String get bonus_candy_expiration_next_month;
+
+  /// No description provided for @bonus_candy_expiration_month_after_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Month after next 15th 00:00:00'**
+  String get bonus_candy_expiration_month_after_next;
+
+  /// No description provided for @bonus_candy_example_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get bonus_candy_example_title;
+
+  /// No description provided for @bonus_candy_example_earn_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn Date'**
+  String get bonus_candy_example_earn_date;
+
+  /// No description provided for @bonus_candy_example_expiration_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration Date'**
+  String get bonus_candy_example_expiration_date;
+
+  /// No description provided for @bonus_candy_example_1_earn.
+  ///
+  /// In en, this message translates to:
+  /// **'July 14, 23:59:59'**
+  String get bonus_candy_example_1_earn;
+
+  /// No description provided for @bonus_candy_example_1_expire.
+  ///
+  /// In en, this message translates to:
+  /// **'August 15, 00:00:00'**
+  String get bonus_candy_example_1_expire;
+
+  /// No description provided for @bonus_candy_example_2_earn.
+  ///
+  /// In en, this message translates to:
+  /// **'July 15, 00:00:00'**
+  String get bonus_candy_example_2_earn;
+
+  /// No description provided for @bonus_candy_example_2_expire.
+  ///
+  /// In en, this message translates to:
+  /// **'August 15, 00:00:00'**
+  String get bonus_candy_example_2_expire;
 }
 
 class _AppLocalizationsDelegate

@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
+import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class StorePointInfo extends ConsumerStatefulWidget {
@@ -57,19 +59,18 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const StarCandyInfoText(),
-              expireBonusResult.when(
-                data: (data) {
-                  final totalExpiringCandy = data?.fold<int>(
-                          0,
-                          (sum, e) =>
-                              sum + ((e?['expiring_amount'] as int?) ?? 0)) ??
-                      0;
-                  return totalExpiringCandy > 0
-                      ? _starCandyBonusGuide()
-                      : const SizedBox.shrink();
+              GestureDetector(
+                onTap: () {
+                  logger.d('보너스 캔디 소멸 로직 안내');
+                  showUsagePolicyDialog(context);
                 },
-                loading: () => const SizedBox.shrink(),
-                error: (ec, st) => const SizedBox.shrink(),
+                child: UnderlinedText(
+                  text: AppLocalizations.of(context).expiring_bonus_candy_guide,
+                  textStyle:
+                      getTextStyle(AppTypo.caption12B, AppColors.primary500),
+                  underlineColor: AppColors.primary500,
+                  underlineGap: 0,
+                ),
               ),
             ],
           ),
@@ -84,33 +85,6 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _starCandyBonusGuide() {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          logger.d('보너스 캔디 소멸 로직 안내');
-          showUsagePolicyDialog(context);
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              AppLocalizations.of(context).expiring_bonus_candy_guide,
-              style: getTextStyle(AppTypo.body14B, AppColors.primary500),
-            ),
-            const SizedBox(height: 2),
-            Container(
-              height: 0.5,
-              width: double.infinity,
-              color: AppColors.primary500,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

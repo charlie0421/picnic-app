@@ -7,7 +7,7 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart
 import 'package:picnic_lib/ui/style.dart';
 
 class LargePopupWidget extends StatelessWidget {
-  final String? title;
+  final Widget? titleWidget;
   final Widget content;
   final Widget? closeButton;
   final Color? backgroundColor;
@@ -16,7 +16,7 @@ class LargePopupWidget extends StatelessWidget {
 
   const LargePopupWidget({
     super.key,
-    this.title,
+    this.titleWidget,
     required this.content,
     this.closeButton,
     this.backgroundColor,
@@ -36,6 +36,7 @@ class LargePopupWidget extends StatelessWidget {
           children: [
             Container(
                 width: width ?? 345.w,
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                   color: backgroundColor ?? AppColors.grey00,
                   border: Border.all(
@@ -45,7 +46,7 @@ class LargePopupWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(120.r),
                 ),
                 child: content),
-            if (title != null)
+            if (titleWidget != null)
               Positioned(
                 top: 0,
                 left: 0,
@@ -54,7 +55,12 @@ class LargePopupWidget extends StatelessWidget {
                     height: 48,
                     alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 33.w),
-                    child: VoteCommonTitle(title: title!)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(child: titleWidget!),
+                      ],
+                    )),
               ),
           ],
         ),
@@ -66,31 +72,35 @@ class LargePopupWidget extends StatelessWidget {
             }
           },
           child: Container(
-              height: 24,
-              padding: EdgeInsets.only(right: 16.w),
-              child: closeButton != null
-                  ? closeButton!
-                  : showCloseButton
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Text(
-                                AppLocalizations.of(context).label_button_close,
-                                style: getTextStyle(
-                                    AppTypo.body14B, AppColors.grey00)),
-                            SizedBox(width: 4.w),
-                            SvgPicture.asset(
-                              package: 'picnic_lib',
-                              'assets/icons/cancel_style=line.svg',
-                              width: 24.w,
-                              height: 24,
-                              colorFilter: const ColorFilter.mode(
-                                  AppColors.grey00, BlendMode.srcIn),
+            height: 24,
+            padding: EdgeInsets.only(right: 16.w),
+            child: closeButton ??
+                (showCloseButton
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              AppLocalizations.of(context).label_button_close,
+                              style:
+                                  getTextStyle(AppTypo.body14B, AppColors.grey00),
+                              textAlign: TextAlign.end,
                             ),
-                          ],
-                        )
-                      : const SizedBox.shrink()),
+                          ),
+                          SizedBox(width: 4.w),
+                          SvgPicture.asset(
+                            package: 'picnic_lib',
+                            'assets/icons/cancel_style=line.svg',
+                            width: 24.w,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(
+                                AppColors.grey00, BlendMode.srcIn),
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink()),
+          ),
         ),
       ],
     ));

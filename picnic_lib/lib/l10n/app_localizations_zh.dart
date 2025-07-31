@@ -2169,42 +2169,65 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bonus_candy_expiration_policy_title => '奖励星星糖果失效规定';
 
   @override
-  String get bonus_candy_expiration_policy_target_title => '失效对象:';
-
-  @override
-  String get bonus_candy_expiration_policy_target_description =>
-      '通过免费充电站任务获得的奖励星星糖果';
-
-  @override
-  String get bonus_candy_expiration_policy_date_title => '失效时间点:';
-
-  @override
-  String get bonus_candy_expiration_policy_date_description =>
-      '每月1日至15日获得的奖励星星糖果将在次月15日失效，16日至月底获得的奖励星星糖果将在下下个月15日失效。';
-
-  @override
-  String get bonus_candy_expiration_policy_rules_title => '使用规则:';
-
-  @override
-  String get bonus_candy_expiration_policy_rule1 =>
-      '使用星星糖果时，将优先扣除有效期临近的奖励星星糖果。';
-
-  @override
-  String get bonus_candy_expiration_policy_rule2 =>
-      '已失效的奖励星星糖果无法恢复，请务必在有效期内使用。';
-
-  @override
-  String get bonus_candy_expiration_policy_example_title => '示例:';
-
-  @override
-  String bonus_candy_expiration_policy_example(
-      String startDate, String endDate, String expirationDate) {
-    return '在$startDate～$endDate期间获得的奖励星星糖果 → 在$expirationDate失效';
-  }
-
-  @override
-  String get expiring_soon_bonus_candy => '即将失效的奖励糖果';
+  String get expiring_soon_bonus_candy => '即将过期的奖励星星糖果';
 
   @override
   String get expiring_bonus_candy_guide => '即将过期的奖励指南';
+
+  @override
+  String get bonus_candy_expiration_policy_load_fail => '加载即将过期的奖励信息失败。';
+
+  @override
+  String get bonus_candy_expiration_time_title => '失效时间点:';
+
+  @override
+  String get bonus_candy_policy_title => '奖励星星糖果政策:';
+
+  @override
+  String get bonus_candy_policy_1 => '- 从免费充电站获得的奖励星星糖果和购买时额外赠送的奖励星星糖果有有效期。';
+
+  @override
+  String get bonus_candy_policy_2 => '- 使用星星糖果时，将优先扣除有效期临近的奖励星星糖果。';
+
+  @override
+  String get bonus_candy_policy_3 => '- 已失效的奖励星星糖果无法恢复，请务必在有效期内使用。';
+
+  @override
+  String get bonus_candy_expiration_policy_earn_period => '赚取期间';
+
+  @override
+  String get bonus_candy_expiration_policy_expiration_date => '到期日期';
+
+  @override
+  String get bonus_candy_earn_period_1_to_15 => '1日 00:00:00 ~ 15日 23:59:59';
+
+  @override
+  String get bonus_candy_earn_period_16_to_end => '16日 00:00:00 ~ 月底 23:59:59';
+
+  @override
+  String get bonus_candy_expiration_next_month => '次月15日 00:00:00';
+
+  @override
+  String get bonus_candy_expiration_month_after_next => '下下月15日 00:00:00';
+
+  @override
+  String get bonus_candy_example_title => '例子';
+
+  @override
+  String get bonus_candy_example_earn_date => '赚取日期';
+
+  @override
+  String get bonus_candy_example_expiration_date => '到期日期';
+
+  @override
+  String get bonus_candy_example_1_earn => '7月14日 23:59:59';
+
+  @override
+  String get bonus_candy_example_1_expire => '8月15日 00:00:00';
+
+  @override
+  String get bonus_candy_example_2_earn => '7月15日 00:00:00';
+
+  @override
+  String get bonus_candy_example_2_expire => '8月15日 00:00:00';
 }

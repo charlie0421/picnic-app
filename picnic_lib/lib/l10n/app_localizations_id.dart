@@ -481,11 +481,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get exception_auth_message_apple_invalid_response =>
-      'Kami menerima respons yang tidak valid dari server Apple.\nSilakan coba lagi.';
+      'Kami menerima respons yang tidak valid dari server Apple.\\nSilakan coba lagi.';
 
   @override
   String get exception_auth_message_apple_sign_in_failed =>
-      'Proses masuk Apple gagal.\nSilakan coba lagi.';
+      'Proses masuk Apple gagal.\\nSilakan coba lagi.';
 
   @override
   String get exception_auth_message_common_cancel =>
@@ -493,7 +493,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get exception_auth_message_common_invalid_token =>
-      'Token autentikasi tidak valid.\nSilakan coba lagi.';
+      'Token autentikasi tidak valid.\\nSilakan coba lagi.';
 
   @override
   String get exception_auth_message_common_network =>
@@ -501,7 +501,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get exception_auth_message_common_unknown =>
-      'Terjadi kesalahan yang tidak diketahui saat login.\nSilakan coba lagi sebentar lagi.';
+      'Terjadi kesalahan yang tidak diketahui saat login.\\nSilakan coba lagi sebentar lagi.';
 
   @override
   String get exception_auth_message_common_unsupported_provider =>
@@ -509,11 +509,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get exception_auth_message_google_google_play_service =>
-      'Telah terjadi kesalahan Layanan Google Play.\nPerbarui Layanan Google Play atau mulai ulang perangkat Anda.';
+      'Telah terjadi kesalahan Layanan Google Play.\\nPerbarui Layanan Google Play atau mulai ulang perangkat Anda.';
 
   @override
   String get exception_auth_message_kakao_not_supported =>
-      'Saya tidak bisa masuk dengan aplikasi KakaoTalk.\nCoba masuk dengan akun Kakao Anda.';
+      'Saya tidak bisa masuk dengan aplikasi KakaoTalk.\\nCoba masuk dengan akun Kakao Anda.';
 
   @override
   String get faq_category_account => 'Akun';
@@ -1142,7 +1142,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get message_update_nickname_fail =>
-      'Perubahan nama panggilan gagal.\nPilih nama panggilan yang berbeda.';
+      'Perubahan nama panggilan gagal.\\nPilih nama panggilan yang berbeda.';
 
   @override
   String get message_update_nickname_success =>
@@ -1520,7 +1520,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchase_web_message =>
-      'Ini adalah jendela pembayaran bagi mereka yang tidak dapat membayar dengan aplikasi.\n Harap salin ID acak terlebih dahulu.\n Setelah menyalinnya, klik tombol di bawah ini untuk melanjutkan pembayaran.';
+      'Ini adalah jendela pembayaran bagi mereka yang tidak dapat membayar dengan aplikasi.\\n Harap salin ID acak terlebih dahulu.\\n Setelah menyalinnya, klik tombol di bawah ini untuk melanjutkan pembayaran.';
 
   @override
   String get qna_actions => 'Actions';
@@ -1572,7 +1572,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_delete_confirm_content =>
-      'Hapus konsultasi ini?\nTidak dapat dipulihkan setelah dihapus.';
+      'Hapus konsultasi ini?\\nTidak dapat dipulihkan setelah dihapus.';
 
   @override
   String get qna_delete_confirm_title => 'Delete Inquiry';
@@ -1609,7 +1609,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_file_upload_info =>
-      '• Maksimal upload 10MB\n• Format yang didukung: Gambar (jpg, png, gif), Dokumen (pdf, doc, txt)';
+      '• Maksimal upload 10MB\\n• Format yang didukung: Gambar (jpg, png, gif), Dokumen (pdf, doc, txt)';
 
   @override
   String get qna_file_uploading_button => 'File Sedang Upload...';
@@ -1622,15 +1622,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_login_required_create =>
-      'Untuk membuat QnA\nharap login terlebih dahulu';
+      'Untuk membuat QnA\\nharap login terlebih dahulu';
 
   @override
   String get qna_login_required_detail =>
-      'Untuk melihat detail QnA\nharap login terlebih dahulu';
+      'Untuk melihat detail QnA\\nharap login terlebih dahulu';
 
   @override
   String get qna_login_required_service =>
-      'Untuk menggunakan layanan QnA\nharap login terlebih dahulu';
+      'Untuk menggunakan layanan QnA\\nharap login terlebih dahulu';
 
   @override
   String get qna_mark_resolved => 'Tandai Selesai';
@@ -1649,7 +1649,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_no_inquiries_subtitle =>
-      'If you have any questions\nfeel free to contact us anytime';
+      'If you have any questions\\nfeel free to contact us anytime';
 
   @override
   String get qna_page_title => 'QnA Konsultasi (Admin)';
@@ -1773,15 +1773,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get text_comming_soon_pic_chart1 =>
-      'Selamat datang di Peek Charts!\nSampai jumpa di bulan November 2024!';
+      'Selamat datang di Peek Charts!\\nSampai jumpa di bulan November 2024!';
 
   @override
   String get text_comming_soon_pic_chart2 =>
-      'Diagram lingkaran adalah diagram baru yang unik untuk Peeknick yang mencerminkan skor harian, mingguan, dan bulanan.\nGrafik baru Peeknick yang mencerminkan skor harian, mingguan, dan bulanan.';
+      'Diagram lingkaran adalah diagram baru yang unik untuk Peeknick yang mencerminkan skor harian, mingguan, dan bulanan.\\nGrafik baru Peeknick yang mencerminkan skor harian, mingguan, dan bulanan.';
 
   @override
   String get text_comming_soon_pic_chart3 =>
-      'Dapatkan refleksi waktu nyata\nreputasi merek artis secara real-time!';
+      'Dapatkan refleksi waktu nyata\\nreputasi merek artis secara real-time!';
 
   @override
   String get text_comming_soon_pic_chart_title =>
@@ -2241,7 +2241,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get jma_voting_info_text =>
-      '· 3 Star Candy akan otomatis dikonversi menjadi 1 vote JMA\n· Star Candy bonus dapat digunakan hingga 5 kali per hari untuk voting JMA\n· Dengan berpartisipasi dalam voting, Anda akan otomatis berpartisipasi dalam acara tiket konser JMA';
+      '· 3 Star Candy akan otomatis dikonversi menjadi 1 vote JMA\\n· Star Candy bonus dapat digunakan hingga 5 kali per hari untuk voting JMA\\n· Dengan berpartisipasi dalam voting, Anda akan otomatis berpartisipasi dalam acara tiket konser JMA';
 
   @override
   String get jma_voting_daily_limit_error =>
@@ -2271,45 +2271,75 @@ class AppLocalizationsId extends AppLocalizations {
       'Kebijakan Kedaluwarsa Permen Bintang Bonus';
 
   @override
-  String get bonus_candy_expiration_policy_target_title =>
-      'Target Kedaluwarsa:';
-
-  @override
-  String get bonus_candy_expiration_policy_target_description =>
-      'Permen Bintang Bonus yang diperoleh melalui misi di stasiun pengisian gratis';
-
-  @override
-  String get bonus_candy_expiration_policy_date_title => 'Waktu Kedaluwarsa:';
-
-  @override
-  String get bonus_candy_expiration_policy_date_description =>
-      'Permen Bintang Bonus yang diperoleh dari tanggal 1 hingga 15 setiap bulan akan kedaluwarsa pada tanggal 15 bulan berikutnya, dan yang diperoleh dari tanggal 16 hingga akhir bulan akan kedaluwarsa pada tanggal 15 dua bulan kemudian.';
-
-  @override
-  String get bonus_candy_expiration_policy_rules_title => 'Aturan Penggunaan:';
-
-  @override
-  String get bonus_candy_expiration_policy_rule1 =>
-      'Saat menggunakan Permen Bintang, Permen Bintang Bonus dengan tanggal kedaluwarsa terdekat akan dipotong terlebih dahulu.';
-
-  @override
-  String get bonus_candy_expiration_policy_rule2 =>
-      'Permen Bintang Bonus yang telah kedaluwarsa tidak dapat dipulihkan, jadi pastikan untuk menggunakannya dalam periode tersebut.';
-
-  @override
-  String get bonus_candy_expiration_policy_example_title => 'Contoh:';
-
-  @override
-  String bonus_candy_expiration_policy_example(
-      String startDate, String endDate, String expirationDate) {
-    return 'Permen Bintang Bonus yang diperoleh antara $startDate～$endDate → Kedaluwarsa pada $expirationDate';
-  }
-
-  @override
   String get expiring_soon_bonus_candy =>
-      'Permen Bonus yang akan segera kedaluwarsa';
+      'Permen Bintang Bonus yang Akan Kedaluwarsa';
 
   @override
   String get expiring_bonus_candy_guide =>
       'Panduan Bonus yang Akan Kedaluwarsa';
+
+  @override
+  String get bonus_candy_expiration_policy_load_fail =>
+      'Gagal memuat informasi bonus yang akan kedaluwarsa.';
+
+  @override
+  String get bonus_candy_expiration_time_title => 'Waktu Kedaluwarsa:';
+
+  @override
+  String get bonus_candy_policy_title => 'Kebijakan Permen Bintang Bonus:';
+
+  @override
+  String get bonus_candy_policy_1 =>
+      '- Permen Bintang Bonus dari stasiun pengisian gratis dan permen Bintang Bonus dari pembelian memiliki tanggal kedaluwarsa.';
+
+  @override
+  String get bonus_candy_policy_2 =>
+      '- Saat menggunakan Permen Bintang, Permen Bintang Bonus dengan tanggal kedaluwarsa terdekat akan dipotong terlebih dahulu.';
+
+  @override
+  String get bonus_candy_policy_3 =>
+      '- Permen Bintang Bonus yang telah kedaluwarsa tidak dapat dipulihkan, jadi pastikan untuk menggunakannya dalam periode tersebut.';
+
+  @override
+  String get bonus_candy_expiration_policy_earn_period => 'Periode Perolehan';
+
+  @override
+  String get bonus_candy_expiration_policy_expiration_date =>
+      'Tanggal Kedaluwarsa';
+
+  @override
+  String get bonus_candy_earn_period_1_to_15 => 'Tanggal 1 - 15 setiap bulan';
+
+  @override
+  String get bonus_candy_earn_period_16_to_end =>
+      'Tanggal 16 - akhir setiap bulan';
+
+  @override
+  String get bonus_candy_expiration_next_month =>
+      'Tanggal 15 bulan berikutnya tengah malam';
+
+  @override
+  String get bonus_candy_expiration_month_after_next =>
+      'Tanggal 15 dua bulan kemudian tengah malam';
+
+  @override
+  String get bonus_candy_example_title => 'Example';
+
+  @override
+  String get bonus_candy_example_earn_date => 'Earn Date';
+
+  @override
+  String get bonus_candy_example_expiration_date => 'Expiration Date';
+
+  @override
+  String get bonus_candy_example_1_earn => 'July 14, 23:59:59';
+
+  @override
+  String get bonus_candy_example_1_expire => 'August 15, 00:00:00';
+
+  @override
+  String get bonus_candy_example_2_earn => 'July 15, 00:00:00';
+
+  @override
+  String get bonus_candy_example_2_expire => 'August 15, 00:00:00';
 }

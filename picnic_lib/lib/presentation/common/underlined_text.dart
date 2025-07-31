@@ -23,22 +23,23 @@ class UnderlinedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          text,
-          style: textStyle,
-          maxLines: maxLines,
-          overflow: overflow,
-        ),
-        SizedBox(height: underlineGap),
-        Container(
-          height: underlineHeight,
-          color: underlineColor ?? AppColors.primary500,
-        ),
-      ],
+    return IntrinsicWidth(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            text,
+            style: textStyle,
+            maxLines: maxLines,
+            overflow: overflow,
+          ),
+          SizedBox(height: underlineGap),
+          Container(
+            height: underlineHeight,
+            color: underlineColor ?? AppColors.primary500,
+          ),
+        ],
+      ),
     );
   }
 }
