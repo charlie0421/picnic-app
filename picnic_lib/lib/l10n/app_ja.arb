@@ -678,5 +678,60 @@
   "jma_voting_daily_limit_error": "1日最大5回まで投票できます。",
   "jma_voting_exchange_failed": "スターキャンディ交換中にエラーが発生しました。再試行してください。",
   "jma_voting_daily_limit_title": "投票制限",
-  "jma_voting_exchange_failed_title": "交換失敗"
+  "jma_voting_exchange_failed_title": "交換失敗",
+  "bonus_candy_expiration_policy_title": "ボーナススターキャンディの失効規定",
+  "@bonus_candy_expiration_policy_title": {
+    "description": "Title for the bonus candy expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_title": "失効対象:",
+  "@bonus_candy_expiration_policy_target_title": {
+    "description": "Title for the target of expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_description": "無料充電ステーションでのミッションを通じて獲得したボーナススターキャンディ",
+  "@bonus_candy_expiration_policy_target_description": {
+    "description": "Description of the target for expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_title": "失効時点:",
+  "@bonus_candy_expiration_policy_date_title": {
+    "description": "Title for the date of expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_description": "毎月1日～15日に獲得したボーナススターキャンディは翌月15日に失効し、16日から月末までに獲得したボーナススターキャンディは翌々月15日に失効します。",
+  "@bonus_candy_expiration_policy_date_description": {
+    "description": "Description of the date for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rules_title": "使用規則:",
+  "@bonus_candy_expiration_policy_rules_title": {
+    "description": "Title for the rules of expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule1": "スターキャンディを使用する際、失効日が近いボーナススターキャンディから順に差し引かれます。",
+  "@bonus_candy_expiration_policy_rule1": {
+    "description": "Rule 1 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule2": "失効したボーナススターキャンディは復元できませんので、期間内に必ずご使用ください。",
+  "@bonus_candy_expiration_policy_rule2": {
+    "description": "Rule 2 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_example_title": "例:",
+  "@bonus_candy_expiration_policy_example_title": {
+    "description": "Title for the example of expiration policy"
+  },
+  "bonus_candy_expiration_policy_example": "{startDate}～{endDate}に獲得したボーナススターキャンディ→{expirationDate}に失効",
+  "@bonus_candy_expiration_policy_example": {
+    "description": "Example of expiration policy",
+    "placeholders": {
+      "startDate": {
+        "type": "String",
+        "example": "6/16"
+      },
+      "endDate": {
+        "type": "String",
+        "example": "6/30"
+      },
+      "expirationDate": {
+        "type": "String",
+        "example": "8/15"
+      }
+    }
+  },
+  "expiring_soon_bonus_candy": "まもなく失効するボーナスキャンディー"
 }

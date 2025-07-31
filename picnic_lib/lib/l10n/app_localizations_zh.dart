@@ -1996,13 +1996,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get title_dialog_error => '错误';
 
   @override
-  String get vote_item_request_waiting => '대기중';
+  String get vote_item_request_waiting => 'Waiting';
 
   @override
   String get capture_failed => '截图失败';
 
   @override
-  String get qna_submit_success => '您的咨询已成功提交。';
+  String get qna_submit_success => '您的咨询已成功提交';
 
   @override
   String get qna_submit_error => '提交咨询失败，请重试。';

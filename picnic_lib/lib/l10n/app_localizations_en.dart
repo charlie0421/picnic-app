@@ -1501,7 +1501,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchase_restore_success_message =>
-      'Purchase restoration completed.\\nPlease check your star candy balance.';
+      'Purchase restoration completed.\nPlease check your star candy balance.';
 
   @override
   String get purchase_restore_wait_message =>
@@ -1509,7 +1509,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchase_timeout_message =>
-      'Purchase processing is taking too long.\\nPlease try again later.';
+      'Purchase processing is taking too long.\nPlease try again later.';
 
   @override
   String get purchase_web_message =>
@@ -2082,7 +2082,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get title_dialog_error => 'Error';
 
   @override
-  String get vote_item_request_waiting => '대기중';
+  String get vote_item_request_waiting => 'Waiting';
 
   @override
   String get capture_failed => 'Capture failed';

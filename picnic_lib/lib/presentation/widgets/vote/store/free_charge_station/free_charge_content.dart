@@ -75,7 +75,7 @@ class FreeChargeContent extends ConsumerWidget {
             StorePointInfo(
               title: AppLocalizations.of(context).label_star_candy_pouch,
               width: double.infinity,
-              height: 80,
+              height: 120,
             ),
           ],
           const SizedBox(height: 12),

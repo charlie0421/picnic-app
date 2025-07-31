@@ -641,8 +641,6 @@
   "qna_list_title": "咨询列表",
   "qna_list_empty": "没有找到咨询。按+按钮创建一个新的。",
   "qna_create_title": "新的咨询",
-  "qna_submit_success": "您的咨询已成功提交。",
-  "qna_submit_error": "提交咨询失败，请重试。",
   "qna_form_title": "标题",
   "qna_form_title_empty": "请输入标题。",
   "qna_form_content": "内容",
@@ -650,5 +648,60 @@
   "qna_message_hint": "输入消息",
   "search_input_text_hint": "搜索",
   "submit": "提交",
-  "next": "下一个"
+  "next": "下一个",
+  "bonus_candy_expiration_policy_title": "奖励星星糖果失效规定",
+  "@bonus_candy_expiration_policy_title": {
+    "description": "Title for the bonus candy expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_title": "失效对象:",
+  "@bonus_candy_expiration_policy_target_title": {
+    "description": "Title for the target of expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_description": "通过免费充电站任务获得的奖励星星糖果",
+  "@bonus_candy_expiration_policy_target_description": {
+    "description": "Description of the target for expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_title": "失效时间点:",
+  "@bonus_candy_expiration_policy_date_title": {
+    "description": "Title for the date of expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_description": "每月1日至15日获得的奖励星星糖果将在次月15日失效，16日至月底获得的奖励星星糖果将在下下个月15日失效。",
+  "@bonus_candy_expiration_policy_date_description": {
+    "description": "Description of the date for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rules_title": "使用规则:",
+  "@bonus_candy_expiration_policy_rules_title": {
+    "description": "Title for the rules of expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule1": "使用星星糖果时，将优先扣除有效期临近的奖励星星糖果。",
+  "@bonus_candy_expiration_policy_rule1": {
+    "description": "Rule 1 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule2": "已失效的奖励星星糖果无法恢复，请务必在有效期内使用。",
+  "@bonus_candy_expiration_policy_rule2": {
+    "description": "Rule 2 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_example_title": "示例:",
+  "@bonus_candy_expiration_policy_example_title": {
+    "description": "Title for the example of expiration policy"
+  },
+  "bonus_candy_expiration_policy_example": "在{startDate}～{endDate}期间获得的奖励星星糖果 → 在{expirationDate}失效",
+  "@bonus_candy_expiration_policy_example": {
+    "description": "Example of expiration policy",
+    "placeholders": {
+      "startDate": {
+        "type": "String",
+        "example": "6/16"
+      },
+      "endDate": {
+        "type": "String",
+        "example": "6/30"
+      },
+      "expirationDate": {
+        "type": "String",
+        "example": "8/15"
+      }
+    }
+  },
+  "expiring_soon_bonus_candy": "即将失效的奖励糖果"
 }

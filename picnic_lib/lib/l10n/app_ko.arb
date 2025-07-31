@@ -862,5 +862,60 @@
   "jma_voting_daily_limit_error": "하루 최대 5번까지 투표할 수 있습니다.",
   "jma_voting_exchange_failed": "별사탕 교환 중 오류가 발생했습니다. 다시 시도해주세요.",
   "jma_voting_daily_limit_title": "투표 제한",
-  "jma_voting_exchange_failed_title": "교환 실패"
+  "jma_voting_exchange_failed_title": "교환 실패",
+  "bonus_candy_expiration_policy_title": "보너스 스타캔디 소멸 정책",
+  "@bonus_candy_expiration_policy_title": {
+    "description": "Title for the bonus candy expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_title": "소멸 대상:",
+  "@bonus_candy_expiration_policy_target_title": {
+    "description": "Title for the target of expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_description": "무료 충전소에서 미션을 통해 획득한 보너스 스타캔디",
+  "@bonus_candy_expiration_policy_target_description": {
+    "description": "Description of the target for expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_title": "소멸 시점:",
+  "@bonus_candy_expiration_policy_date_title": {
+    "description": "Title for the date of expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_description": "매월 1일~15일에 획득한 보너스 스타캔디는 다음 달 15일에 소멸되며, 16일부터 말일까지 획득한 보너스 스타캔디는 다다음 달 15일에 소멸됩니다.",
+  "@bonus_candy_expiration_policy_date_description": {
+    "description": "Description of the date for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rules_title": "사용 규칙:",
+  "@bonus_candy_expiration_policy_rules_title": {
+    "description": "Title for the rules of expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule1": "스타캔디 사용 시, 소멸일이 임박한 보너스 스타캔디부터 순서대로 차감됩니다.",
+  "@bonus_candy_expiration_policy_rule1": {
+    "description": "Rule 1 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule2": "소멸된 보너스 스타캔디는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.",
+  "@bonus_candy_expiration_policy_rule2": {
+    "description": "Rule 2 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_example_title": "예시:",
+  "@bonus_candy_expiration_policy_example_title": {
+    "description": "Title for the example of expiration policy"
+  },
+  "bonus_candy_expiration_policy_example": "{startDate} ~ {endDate} 획득한 보너스 스타캔디 → {expirationDate} 소멸",
+  "@bonus_candy_expiration_policy_example": {
+    "description": "Example of expiration policy",
+    "placeholders": {
+      "startDate": {
+        "type": "String",
+        "example": "6/16"
+      },
+      "endDate": {
+        "type": "String",
+        "example": "6/30"
+      },
+      "expirationDate": {
+        "type": "String",
+        "example": "8/15"
+      }
+    }
+  },
+  "expiring_soon_bonus_candy": "소멸 예정 보너스 캔디"
 }

@@ -230,7 +230,7 @@ class _FreeChargeStationState extends ConsumerState<FreeChargeStation>
       },
       child: FreeChargeContent(
         buttonScaleAnimation: _buttonScaleAnimation,
-        onPolicyTap: () => showUsagePolicyDialog(context, ref),
+        onPolicyTap: () => showUsagePolicyDialog(context),
         missionItemBuilder: _buildMissionItems,
         adItemBuilder: _buildAdItems,
         onPincruxOfferwallPressed: _showPincruxOfferwall,

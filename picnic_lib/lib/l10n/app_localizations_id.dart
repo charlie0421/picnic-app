@@ -2101,11 +2101,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get capture_failed => 'Gagal menangkap';
 
   @override
-  String get qna_submit_success => 'Pertanyaan Anda berhasil dikirim.';
+  String get qna_submit_success => 'Pertanyaan Anda berhasil dikirim';
 
   @override
-  String get qna_submit_error =>
-      'Gagal mengirim pertanyaan Anda. Silakan coba lagi.';
+  String get qna_submit_error => 'Terjadi kesalahan saat mengirim pertanyaan';
 
   @override
   String get qna_title_too_short =>

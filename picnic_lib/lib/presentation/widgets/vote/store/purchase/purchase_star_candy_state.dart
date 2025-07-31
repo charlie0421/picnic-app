@@ -905,7 +905,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         ),
         const SizedBox(height: 2),
         GestureDetector(
-          onTap: () => showUsagePolicyDialog(context, ref),
+          onTap: () => showUsagePolicyDialog(context),
           child: Text.rich(
             TextSpan(
               children: [

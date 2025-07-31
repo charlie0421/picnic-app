@@ -1,105 +1,146 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/core/utils/number.dart';
+import 'package:intl/intl.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/common/bullet_point.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/ui/style.dart';
 
-void showUsagePolicyDialog(BuildContext context, WidgetRef ref) {
-  showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(48),
-          topRight: const Radius.circular(48),
+Future<void> showUsagePolicyDialog(BuildContext context) {
+  return showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: '',
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return const UsagePolicyPopup();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeInOut,
+      );
+      return ScaleTransition(
+        scale: Tween<double>(begin: 0.5, end: 1.0).animate(curvedAnimation),
+        child: FadeTransition(
+          opacity: Tween<double>(begin: 0.0, end: 1.0).animate(curvedAnimation),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
+class UsagePolicyPopup extends ConsumerWidget {
+  const UsagePolicyPopup({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final localizations = AppLocalizations.of(context);
+    final expiringSoonBonusCandy =
+        ref.watch(userInfoProvider).user.expiringSoonBonusCandy;
+
+    return LargePopupWidget(
+      title: localizations.bonus_candy_expiration_policy_title,
+      content: _buildPolicyContent(context, expiringSoonBonusCandy),
+    );
+  }
+
+  Widget _buildPolicyContent(BuildContext context, int expiringSoonBonusCandy) {
+    final localizations = AppLocalizations.of(context);
+    final now = DateTime.now();
+    final day = now.day;
+
+    DateTime earnStartDate;
+    DateTime earnEndDate;
+    DateTime expirationDate;
+
+    if (day <= 15) {
+      earnStartDate = DateTime(now.year, now.month, 1);
+      earnEndDate = DateTime(now.year, now.month, 15);
+      expirationDate = DateTime(now.year, now.month + 1, 15);
+    } else {
+      earnStartDate = DateTime(now.year, now.month, 16);
+      earnEndDate = DateTime(
+          now.year, now.month, DateUtils.getDaysInMonth(now.year, now.month));
+      expirationDate = DateTime(now.year, now.month + 2, 15);
+    }
+
+    final dateFormat = DateFormat('M/d', localizations.localeName);
+    final expirationDateFormat = DateFormat('M/d', localizations.localeName);
+
+    final exampleText = localizations.bonus_candy_expiration_policy_example(
+      dateFormat.format(earnStartDate),
+      dateFormat.format(earnEndDate),
+      expirationDateFormat.format(expirationDate),
+    );
+
+    final policies = [
+      localizations.bonus_candy_expiration_policy_target_title,
+      localizations.bonus_candy_expiration_policy_target_description,
+      localizations.bonus_candy_expiration_policy_date_title,
+      localizations.bonus_candy_expiration_policy_date_description,
+      localizations.bonus_candy_expiration_policy_rules_title,
+      localizations.bonus_candy_expiration_policy_rule1,
+      localizations.bonus_candy_expiration_policy_rule2,
+      localizations.bonus_candy_expiration_policy_example_title,
+      exampleText,
+    ];
+
+    return Container(
+      padding: EdgeInsets.only(
+        top: 60.h,
+        bottom: 30.h,
+        left: 24.w,
+        right: 24.w,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (expiringSoonBonusCandy > 0) ...[
+              Text(
+                '${localizations.expiring_soon_bonus_candy}: $expiringSoonBonusCandy',
+                style: getTextStyle(
+                  AppTypo.body14B,
+                  AppColors.point900,
+                ),
+              ),
+              SizedBox(height: 16.h),
+            ],
+            ...policies.map((policy) {
+              final isTitle = policy.endsWith(':');
+              return Padding(
+                padding: EdgeInsets.only(bottom: isTitle ? 4.h : 12.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isTitle)
+                      Text(
+                        '• ',
+                        style: getTextStyle(
+                          AppTypo.body14R,
+                          AppColors.grey800,
+                        ),
+                      ),
+                    Expanded(
+                      child: Text(
+                        policy,
+                        style: getTextStyle(
+                          isTitle ? AppTypo.body14B : AppTypo.body14R,
+                          AppColors.grey800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
         ),
       ),
-      builder: (context) => StatefulBuilder(
-            builder: (context, setState) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text(
-                  AppLocalizations.of(context).candy_disappear_next_month,
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                ),
-                const SizedBox(height: 12),
-                FutureBuilder(
-                    future: ref.read(expireBonusProvider.future),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: snapshot.data!
-                                .map((e) => Container(
-                                      alignment: Alignment.center,
-                                      width: 200.w,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: 100.w,
-                                            child: Text(
-                                                '${e!['prediction_month']}-15',
-                                                style: getTextStyle(
-                                                    AppTypo.body16B,
-                                                    AppColors.grey900)),
-                                          ),
-                                          SizedBox(width: 12.w),
-                                          SizedBox(
-                                            width: 36.w,
-                                            child: Image.asset(
-                                                package: 'picnic_lib',
-                                                'assets/icons/store/star_100.png',
-                                                width: 36,
-                                                height: 36),
-                                          ),
-                                          Text(
-                                              formatNumberWithComma(
-                                                      e['expiring_amount'] ?? 0)
-                                                  .toString(),
-                                              style: getTextStyle(
-                                                  AppTypo.body16B,
-                                                  AppColors.primary500)),
-                                        ],
-                                      ),
-                                    ))
-                                .toList());
-
-                        // return Row(
-                        //   mainAxisAlignment: MainAxisAlignment.center,
-                        //   children: [
-                        //     Image.asset(package: 'picnic_lib','assets/icons/store/star_100.png',
-                        //         width: 48.w, height: 48),
-                        //     snapshot.data == null
-                        //         ? Text(
-                        //             '0',
-                        //             style: getTextStyle(
-                        //                 AppTypo.BODY16B, AppColors.Grey900),
-                        //           )
-                        //         : Text(
-                        //             '${snapshot.data}',
-                        //             style: getTextStyle(
-                        //                 AppTypo.BODY16B, AppColors.Grey900),
-                        //           ),
-                        //   ],
-                        // );
-                      } else {
-                        return MediumPulseLoadingIndicator();
-                      }
-                    }),
-                const SizedBox(height: 24),
-                BulletPoint(
-                  AppLocalizations.of(context).candy_usage_policy_contents,
-                ),
-                const SizedBox(height: 36),
-                BulletPoint(
-                  AppLocalizations.of(context).candy_usage_policy_contents2,
-                ),
-              ]),
-            ),
-          ));
+    );
+  }
 }

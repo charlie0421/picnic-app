@@ -2903,7 +2903,7 @@ abstract class AppLocalizations {
   /// No description provided for @purchase_restore_success_message.
   ///
   /// In en, this message translates to:
-  /// **'Purchase restoration completed.\\nPlease check your star candy balance.'**
+  /// **'Purchase restoration completed.\nPlease check your star candy balance.'**
   String get purchase_restore_success_message;
 
   /// No description provided for @purchase_restore_wait_message.
@@ -2915,7 +2915,7 @@ abstract class AppLocalizations {
   /// No description provided for @purchase_timeout_message.
   ///
   /// In en, this message translates to:
-  /// **'Purchase processing is taking too long.\\nPlease try again later.'**
+  /// **'Purchase processing is taking too long.\nPlease try again later.'**
   String get purchase_timeout_message;
 
   /// No description provided for @purchase_web_message.
@@ -3977,7 +3977,7 @@ abstract class AppLocalizations {
   /// No description provided for @vote_item_request_waiting.
   ///
   /// In en, this message translates to:
-  /// **'대기중'**
+  /// **'Waiting'**
   String get vote_item_request_waiting;
 
   /// No description provided for @capture_failed.

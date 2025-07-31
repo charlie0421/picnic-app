@@ -641,8 +641,6 @@
   "qna_list_title": "Daftar Q&A",
   "qna_list_empty": "No inquiries found. Press the + button to create a new one.",
   "qna_create_title": "Pertanyaan Baru",
-  "qna_submit_success": "Pertanyaan Anda berhasil dikirim.",
-  "qna_submit_error": "Gagal mengirim pertanyaan Anda. Silakan coba lagi.",
   "qna_form_title": "Judul",
   "qna_form_title_empty": "Silakan masukkan judul.",
   "qna_form_content": "Isi",
@@ -681,5 +679,60 @@
   "jma_voting_daily_limit_error": "Anda dapat melakukan vote hingga 5 kali per hari.",
   "jma_voting_exchange_failed": "Terjadi kesalahan saat menukar Star Candy. Silakan coba lagi.",
   "jma_voting_daily_limit_title": "Batas Voting",
-  "jma_voting_exchange_failed_title": "Gagal Menukar"
+  "jma_voting_exchange_failed_title": "Gagal Menukar",
+  "bonus_candy_expiration_policy_title": "Kebijakan Kedaluwarsa Permen Bintang Bonus",
+  "@bonus_candy_expiration_policy_title": {
+    "description": "Title for the bonus candy expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_title": "Target Kedaluwarsa:",
+  "@bonus_candy_expiration_policy_target_title": {
+    "description": "Title for the target of expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_description": "Permen Bintang Bonus yang diperoleh melalui misi di stasiun pengisian gratis",
+  "@bonus_candy_expiration_policy_target_description": {
+    "description": "Description of the target for expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_title": "Waktu Kedaluwarsa:",
+  "@bonus_candy_expiration_policy_date_title": {
+    "description": "Title for the date of expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_description": "Permen Bintang Bonus yang diperoleh dari tanggal 1 hingga 15 setiap bulan akan kedaluwarsa pada tanggal 15 bulan berikutnya, dan yang diperoleh dari tanggal 16 hingga akhir bulan akan kedaluwarsa pada tanggal 15 dua bulan kemudian.",
+  "@bonus_candy_expiration_policy_date_description": {
+    "description": "Description of the date for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rules_title": "Aturan Penggunaan:",
+  "@bonus_candy_expiration_policy_rules_title": {
+    "description": "Title for the rules of expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule1": "Saat menggunakan Permen Bintang, Permen Bintang Bonus dengan tanggal kedaluwarsa terdekat akan dipotong terlebih dahulu.",
+  "@bonus_candy_expiration_policy_rule1": {
+    "description": "Rule 1 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule2": "Permen Bintang Bonus yang telah kedaluwarsa tidak dapat dipulihkan, jadi pastikan untuk menggunakannya dalam periode tersebut.",
+  "@bonus_candy_expiration_policy_rule2": {
+    "description": "Rule 2 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_example_title": "Contoh:",
+  "@bonus_candy_expiration_policy_example_title": {
+    "description": "Title for the example of expiration policy"
+  },
+  "bonus_candy_expiration_policy_example": "Permen Bintang Bonus yang diperoleh antara {startDate}～{endDate} → Kedaluwarsa pada {expirationDate}",
+  "@bonus_candy_expiration_policy_example": {
+    "description": "Example of expiration policy",
+    "placeholders": {
+      "startDate": {
+        "type": "String",
+        "example": "6/16"
+      },
+      "endDate": {
+        "type": "String",
+        "example": "6/30"
+      },
+      "expirationDate": {
+        "type": "String",
+        "example": "8/15"
+      }
+    }
+  },
+  "expiring_soon_bonus_candy": "Permen Bonus yang akan segera kedaluwarsa"
 }
