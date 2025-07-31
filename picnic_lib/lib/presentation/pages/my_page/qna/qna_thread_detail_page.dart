@@ -229,7 +229,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                     style: getTextStyle(
                         AppTypo.caption12R,
                         isMyMessage
-                            ? AppColors.grey00.withOpacity(0.8)
+                            ? AppColors.grey00.withValues(alpha: 0.8)
                             : AppColors.grey400),
                   ),
                 ),
@@ -259,7 +259,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                     snapshot.data!.isEmpty) {
                   return Container(
                     color: isMyMessage
-                        ? AppColors.primary500.withOpacity(0.5)
+                        ? AppColors.primary500.withValues(alpha: 0.5)
                         : AppColors.grey200,
                     child: const Center(
                       child: CircularProgressIndicator(
@@ -294,7 +294,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                           if (loadingProgress == null) return child;
                           return Container(
                             color: isMyMessage
-                                ? AppColors.primary500.withOpacity(0.5)
+                                ? AppColors.primary500.withValues(alpha: 0.5)
                                 : AppColors.grey200,
                             child: const Center(
                               child: CircularProgressIndicator(
@@ -316,14 +316,14 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
+                              color: Colors.black.withValues(alpha: 0.7),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               formatTimeAgo(
                                   context, message.createdAt.toLocal()),
                               style: getTextStyle(AppTypo.caption12R,
-                                  AppColors.grey00.withOpacity(0.8)),
+                                  AppColors.grey00.withValues(alpha: 0.8)),
                             ),
                           ),
                         ),
@@ -378,7 +378,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 5,
           ),
