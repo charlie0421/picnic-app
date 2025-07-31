@@ -917,5 +917,9 @@
       }
     }
   },
-  "expiring_soon_bonus_candy": "소멸 예정 보너스 캔디"
+  "expiring_soon_bonus_candy": "소멸 예정 보너스 캔디",
+  "expiring_bonus_candy_guide": "소멸 예정 보너스 안내",
+  "@expiring_bonus_candy_guide": {
+    "description": "A guide for expiring bonus candy"
+  }
 }

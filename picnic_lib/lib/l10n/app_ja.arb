@@ -733,5 +733,9 @@
       }
     }
   },
-  "expiring_soon_bonus_candy": "まもなく失効するボーナスキャンディー"
+  "expiring_soon_bonus_candy": "まもなく失効するボーナスキャンディー",
+  "expiring_bonus_candy_guide": "消滅予定ボーナス案内",
+  "@expiring_bonus_candy_guide": {
+    "description": "A guide for expiring bonus candy"
+  }
 }

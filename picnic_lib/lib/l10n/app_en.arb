@@ -697,5 +697,64 @@
   "jma_voting_exchange_failed_title": "Exchange Failed",
   "search_input_text_hint": "Search",
   "submit": "Submit",
-  "next": "Next"
+  "next": "Next",
+  "bonus_candy_expiration_policy_title": "Bonus Star Candy Expiration Policy",
+  "@bonus_candy_expiration_policy_title": {
+    "description": "Title for the bonus candy expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_title": "Expiration Target:",
+  "@bonus_candy_expiration_policy_target_title": {
+    "description": "Title for the target of expiration policy"
+  },
+  "bonus_candy_expiration_policy_target_description": "Bonus Star Candy acquired through missions at the free charging station",
+  "@bonus_candy_expiration_policy_target_description": {
+    "description": "Description of the target for expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_title": "Expiration Time:",
+  "@bonus_candy_expiration_policy_date_title": {
+    "description": "Title for the date of expiration policy"
+  },
+  "bonus_candy_expiration_policy_date_description": "Bonus Star Candy acquired from the 1st to the 15th of each month will expire on the 15th of the following month, and those acquired from the 16th to the end of the month will expire on the 15th of the month after next.",
+  "@bonus_candy_expiration_policy_date_description": {
+    "description": "Description of the date for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rules_title": "Usage Rules:",
+  "@bonus_candy_expiration_policy_rules_title": {
+    "description": "Title for the rules of expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule1": "When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.",
+  "@bonus_candy_expiration_policy_rule1": {
+    "description": "Rule 1 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_rule2": "Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.",
+  "@bonus_candy_expiration_policy_rule2": {
+    "description": "Rule 2 for expiration policy"
+  },
+  "bonus_candy_expiration_policy_example_title": "Example:",
+  "@bonus_candy_expiration_policy_example_title": {
+    "description": "Title for the example of expiration policy"
+  },
+  "bonus_candy_expiration_policy_example": "Bonus Star Candy acquired between {startDate}～{endDate} → Expires on {expirationDate}",
+  "@bonus_candy_expiration_policy_example": {
+    "description": "Example of expiration policy",
+    "placeholders": {
+      "startDate": {
+        "type": "String",
+        "example": "6/16"
+      },
+      "endDate": {
+        "type": "String",
+        "example": "6/30"
+      },
+      "expirationDate": {
+        "type": "String",
+        "example": "8/15"
+      }
+    }
+  },
+  "expiring_soon_bonus_candy": "Expiring soon bonus candy",
+  "expiring_bonus_candy_guide": "Expiring Bonus Guide",
+  "@expiring_bonus_candy_guide": {
+    "description": "A guide for expiring bonus candy"
+  }
 }

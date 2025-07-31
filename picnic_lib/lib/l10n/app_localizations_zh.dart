@@ -2164,4 +2164,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get next => '下一个';
+
+  @override
+  String get bonus_candy_expiration_policy_title => '奖励星星糖果失效规定';
+
+  @override
+  String get bonus_candy_expiration_policy_target_title => '失效对象:';
+
+  @override
+  String get bonus_candy_expiration_policy_target_description =>
+      '通过免费充电站任务获得的奖励星星糖果';
+
+  @override
+  String get bonus_candy_expiration_policy_date_title => '失效时间点:';
+
+  @override
+  String get bonus_candy_expiration_policy_date_description =>
+      '每月1日至15日获得的奖励星星糖果将在次月15日失效，16日至月底获得的奖励星星糖果将在下下个月15日失效。';
+
+  @override
+  String get bonus_candy_expiration_policy_rules_title => '使用规则:';
+
+  @override
+  String get bonus_candy_expiration_policy_rule1 =>
+      '使用星星糖果时，将优先扣除有效期临近的奖励星星糖果。';
+
+  @override
+  String get bonus_candy_expiration_policy_rule2 =>
+      '已失效的奖励星星糖果无法恢复，请务必在有效期内使用。';
+
+  @override
+  String get bonus_candy_expiration_policy_example_title => '示例:';
+
+  @override
+  String bonus_candy_expiration_policy_example(
+      String startDate, String endDate, String expirationDate) {
+    return '在$startDate～$endDate期间获得的奖励星星糖果 → 在$expirationDate失效';
+  }
+
+  @override
+  String get expiring_soon_bonus_candy => '即将失效的奖励糖果';
+
+  @override
+  String get expiring_bonus_candy_guide => '即将过期的奖励指南';
 }

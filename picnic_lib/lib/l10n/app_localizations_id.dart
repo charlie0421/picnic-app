@@ -2265,4 +2265,51 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get next => 'Next';
+
+  @override
+  String get bonus_candy_expiration_policy_title =>
+      'Kebijakan Kedaluwarsa Permen Bintang Bonus';
+
+  @override
+  String get bonus_candy_expiration_policy_target_title =>
+      'Target Kedaluwarsa:';
+
+  @override
+  String get bonus_candy_expiration_policy_target_description =>
+      'Permen Bintang Bonus yang diperoleh melalui misi di stasiun pengisian gratis';
+
+  @override
+  String get bonus_candy_expiration_policy_date_title => 'Waktu Kedaluwarsa:';
+
+  @override
+  String get bonus_candy_expiration_policy_date_description =>
+      'Permen Bintang Bonus yang diperoleh dari tanggal 1 hingga 15 setiap bulan akan kedaluwarsa pada tanggal 15 bulan berikutnya, dan yang diperoleh dari tanggal 16 hingga akhir bulan akan kedaluwarsa pada tanggal 15 dua bulan kemudian.';
+
+  @override
+  String get bonus_candy_expiration_policy_rules_title => 'Aturan Penggunaan:';
+
+  @override
+  String get bonus_candy_expiration_policy_rule1 =>
+      'Saat menggunakan Permen Bintang, Permen Bintang Bonus dengan tanggal kedaluwarsa terdekat akan dipotong terlebih dahulu.';
+
+  @override
+  String get bonus_candy_expiration_policy_rule2 =>
+      'Permen Bintang Bonus yang telah kedaluwarsa tidak dapat dipulihkan, jadi pastikan untuk menggunakannya dalam periode tersebut.';
+
+  @override
+  String get bonus_candy_expiration_policy_example_title => 'Contoh:';
+
+  @override
+  String bonus_candy_expiration_policy_example(
+      String startDate, String endDate, String expirationDate) {
+    return 'Permen Bintang Bonus yang diperoleh antara $startDate～$endDate → Kedaluwarsa pada $expirationDate';
+  }
+
+  @override
+  String get expiring_soon_bonus_candy =>
+      'Permen Bonus yang akan segera kedaluwarsa';
+
+  @override
+  String get expiring_bonus_candy_guide =>
+      'Panduan Bonus yang Akan Kedaluwarsa';
 }

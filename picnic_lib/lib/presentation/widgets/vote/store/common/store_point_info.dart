@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
@@ -28,6 +30,8 @@ class StorePointInfo extends ConsumerStatefulWidget {
 class _StorePointInfoState extends ConsumerState<StorePointInfo> {
   @override
   Widget build(BuildContext context) {
+    final expireBonusResult = ref.watch(expireBonusProvider);
+
     return Stack(
       children: [
         Container(
@@ -53,7 +57,20 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const StarCandyInfoText(),
-              _starCandyBonusGuide(),
+              expireBonusResult.when(
+                data: (data) {
+                  final totalExpiringCandy = data?.fold<int>(
+                          0,
+                          (sum, e) =>
+                              sum + ((e?['expiring_amount'] as int?) ?? 0)) ??
+                      0;
+                  return totalExpiringCandy > 0
+                      ? _starCandyBonusGuide()
+                      : const SizedBox.shrink();
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (ec, st) => const SizedBox.shrink(),
+              ),
             ],
           ),
         ),
@@ -82,7 +99,7 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '보너스 캔디 소멸 로직 안내',
+              AppLocalizations.of(context).expiring_bonus_candy_guide,
               style: getTextStyle(AppTypo.body14B, AppColors.primary500),
             ),
             const SizedBox(height: 2),

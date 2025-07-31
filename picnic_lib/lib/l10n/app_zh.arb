@@ -703,5 +703,9 @@
       }
     }
   },
-  "expiring_soon_bonus_candy": "即将失效的奖励糖果"
+  "expiring_soon_bonus_candy": "即将失效的奖励糖果",
+  "expiring_bonus_candy_guide": "即将过期的奖励指南",
+  "@expiring_bonus_candy_guide": {
+    "description": "A guide for expiring bonus candy"
+  }
 }

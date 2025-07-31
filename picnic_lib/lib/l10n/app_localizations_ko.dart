@@ -2168,4 +2168,47 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get next => 'Next';
+
+  @override
+  String get bonus_candy_expiration_policy_title => '보너스 스타캔디 소멸 정책';
+
+  @override
+  String get bonus_candy_expiration_policy_target_title => '소멸 대상:';
+
+  @override
+  String get bonus_candy_expiration_policy_target_description =>
+      '무료 충전소에서 미션을 통해 획득한 보너스 스타캔디';
+
+  @override
+  String get bonus_candy_expiration_policy_date_title => '소멸 시점:';
+
+  @override
+  String get bonus_candy_expiration_policy_date_description =>
+      '매월 1일~15일에 획득한 보너스 스타캔디는 다음 달 15일에 소멸되며, 16일부터 말일까지 획득한 보너스 스타캔디는 다다음 달 15일에 소멸됩니다.';
+
+  @override
+  String get bonus_candy_expiration_policy_rules_title => '사용 규칙:';
+
+  @override
+  String get bonus_candy_expiration_policy_rule1 =>
+      '스타캔디 사용 시, 소멸일이 임박한 보너스 스타캔디부터 순서대로 차감됩니다.';
+
+  @override
+  String get bonus_candy_expiration_policy_rule2 =>
+      '소멸된 보너스 스타캔디는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.';
+
+  @override
+  String get bonus_candy_expiration_policy_example_title => '예시:';
+
+  @override
+  String bonus_candy_expiration_policy_example(
+      String startDate, String endDate, String expirationDate) {
+    return '$startDate ~ $endDate 획득한 보너스 스타캔디 → $expirationDate 소멸';
+  }
+
+  @override
+  String get expiring_soon_bonus_candy => '소멸 예정 보너스 캔디';
+
+  @override
+  String get expiring_bonus_candy_guide => '소멸 예정 보너스 안내';
 }

@@ -2179,4 +2179,47 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get next => 'Next';
+
+  @override
+  String get bonus_candy_expiration_policy_title => 'ボーナススターキャンディの失効規定';
+
+  @override
+  String get bonus_candy_expiration_policy_target_title => '失効対象:';
+
+  @override
+  String get bonus_candy_expiration_policy_target_description =>
+      '無料充電ステーションでのミッションを通じて獲得したボーナススターキャンディ';
+
+  @override
+  String get bonus_candy_expiration_policy_date_title => '失効時点:';
+
+  @override
+  String get bonus_candy_expiration_policy_date_description =>
+      '毎月1日～15日に獲得したボーナススターキャンディは翌月15日に失効し、16日から月末までに獲得したボーナススターキャンディは翌々月15日に失効します。';
+
+  @override
+  String get bonus_candy_expiration_policy_rules_title => '使用規則:';
+
+  @override
+  String get bonus_candy_expiration_policy_rule1 =>
+      'スターキャンディを使用する際、失効日が近いボーナススターキャンディから順に差し引かれます。';
+
+  @override
+  String get bonus_candy_expiration_policy_rule2 =>
+      '失効したボーナススターキャンディは復元できませんので、期間内に必ずご使用ください。';
+
+  @override
+  String get bonus_candy_expiration_policy_example_title => '例:';
+
+  @override
+  String bonus_candy_expiration_policy_example(
+      String startDate, String endDate, String expirationDate) {
+    return '$startDate～$endDateに獲得したボーナススターキャンディ→$expirationDateに失効';
+  }
+
+  @override
+  String get expiring_soon_bonus_candy => 'まもなく失効するボーナスキャンディー';
+
+  @override
+  String get expiring_bonus_candy_guide => '消滅予定ボーナス案内';
 }

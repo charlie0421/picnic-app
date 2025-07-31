@@ -2256,4 +2256,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get next => 'Next';
+
+  @override
+  String get bonus_candy_expiration_policy_title =>
+      'Bonus Star Candy Expiration Policy';
+
+  @override
+  String get bonus_candy_expiration_policy_target_title => 'Expiration Target:';
+
+  @override
+  String get bonus_candy_expiration_policy_target_description =>
+      'Bonus Star Candy acquired through missions at the free charging station';
+
+  @override
+  String get bonus_candy_expiration_policy_date_title => 'Expiration Time:';
+
+  @override
+  String get bonus_candy_expiration_policy_date_description =>
+      'Bonus Star Candy acquired from the 1st to the 15th of each month will expire on the 15th of the following month, and those acquired from the 16th to the end of the month will expire on the 15th of the month after next.';
+
+  @override
+  String get bonus_candy_expiration_policy_rules_title => 'Usage Rules:';
+
+  @override
+  String get bonus_candy_expiration_policy_rule1 =>
+      'When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.';
+
+  @override
+  String get bonus_candy_expiration_policy_rule2 =>
+      'Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.';
+
+  @override
+  String get bonus_candy_expiration_policy_example_title => 'Example:';
+
+  @override
+  String bonus_candy_expiration_policy_example(
+      String startDate, String endDate, String expirationDate) {
+    return 'Bonus Star Candy acquired between $startDate～$endDate → Expires on $expirationDate';
+  }
+
+  @override
+  String get expiring_soon_bonus_candy => 'Expiring soon bonus candy';
+
+  @override
+  String get expiring_bonus_candy_guide => 'Expiring Bonus Guide';
 }

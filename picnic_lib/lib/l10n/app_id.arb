@@ -734,5 +734,9 @@
       }
     }
   },
-  "expiring_soon_bonus_candy": "Permen Bonus yang akan segera kedaluwarsa"
+  "expiring_soon_bonus_candy": "Permen Bonus yang akan segera kedaluwarsa",
+  "expiring_bonus_candy_guide": "Panduan Bonus yang Akan Kedaluwarsa",
+  "@expiring_bonus_candy_guide": {
+    "description": "A guide for expiring bonus candy"
+  }
 }
