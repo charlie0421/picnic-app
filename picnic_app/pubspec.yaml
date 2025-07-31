@@ -55,7 +55,7 @@ dev_dependencies:
     riverpod_lint: ^2.6.3
 
 flutter_intl:
-    enabled: false
+    enabled: true
 
 dependency_overrides:
 
