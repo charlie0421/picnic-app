@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
 
-part '../../../generated/models/pic/celeb.freezed.dart';
-part '../../../generated/models/pic/celeb.g.dart';
+part '../../../generated/providers/models/pic/celeb.freezed.dart';
+part '../../../generated/providers/models/pic/celeb.g.dart';
 
 @freezed
 class CelebModel with _$CelebModel {

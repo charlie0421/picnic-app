@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-part '../../generated/models/ad_info.freezed.dart';
+part '../../generated/providers/models/ad_info.freezed.dart';
 
 @freezed
 class AdInfo with _$AdInfo {

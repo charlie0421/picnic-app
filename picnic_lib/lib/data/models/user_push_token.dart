@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../generated/models/user_push_token.freezed.dart';
-part '../../generated/models/user_push_token.g.dart';
+part '../../generated/providers/models/user_push_token.freezed.dart';
+part '../../generated/providers/models/user_push_token.g.dart';
 
 @freezed
 class UserPushToken with _$UserPushToken {

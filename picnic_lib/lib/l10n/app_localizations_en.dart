@@ -78,13 +78,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'When using Star Candy, Star Candy that is about to expire is prioritized.';
 
   @override
-  String get candy_usage_policy_guide =>
-      '*Bonuses will disappear the month after they are earned!';
-
-  @override
-  String get candy_usage_policy_guide_button => 'Learn more';
-
-  @override
   String get candy_usage_policy_title => 'Starchies Usage Policy';
 
   @override
@@ -2272,10 +2265,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Failed to load expiring bonus information.';
 
   @override
-  String get bonus_candy_expiration_time_title => 'Expiration Time:';
+  String get bonus_candy_expiration_time_title => 'Expiration Time';
 
   @override
-  String get bonus_candy_policy_title => 'Bonus Star Candy Policy:';
+  String get bonus_candy_policy_title => 'Bonus Star Candy Policy';
 
   @override
   String get bonus_candy_policy_1 =>
@@ -2319,14 +2312,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bonus_candy_example_expiration_date => 'Expiration Date';
 
   @override
-  String get bonus_candy_example_1_earn => 'July 14, 23:59:59';
+  String get bonus_candy_example_1_earn => '__MONTH__ 10th 14:00(KST)';
 
   @override
-  String get bonus_candy_example_1_expire => 'August 15, 00:00:00';
+  String get bonus_candy_example_1_expire => '__NEXT_MONTH__ 15th 00:00(KST)';
 
   @override
-  String get bonus_candy_example_2_earn => 'July 15, 00:00:00';
+  String get bonus_candy_example_2_earn => '__MONTH__ 20th 14:00(KST)';
 
   @override
-  String get bonus_candy_example_2_expire => 'August 15, 00:00:00';
+  String get bonus_candy_example_2_expire =>
+      '__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)';
 }

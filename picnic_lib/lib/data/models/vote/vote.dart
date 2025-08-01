@@ -4,8 +4,8 @@ import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/data/models/vote/artist_group.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 
-part '../../../generated/models/vote/vote.freezed.dart';
-part '../../../generated/models/vote/vote.g.dart';
+part '../../../generated/providers/models/vote/vote.freezed.dart';
+part '../../../generated/providers/models/vote/vote.g.dart';
 
 @freezed
 class VoteModel with _$VoteModel {

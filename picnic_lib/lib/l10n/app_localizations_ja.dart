@@ -76,12 +76,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get candy_usage_policy_contents2 => '星飴を使用する場合、消滅が近い星飴が優先的に使用されます。';
 
   @override
-  String get candy_usage_policy_guide => '*ボーナスは獲得した翌月に消滅します！';
-
-  @override
-  String get candy_usage_policy_guide_button => '詳細を見る';
-
-  @override
   String get candy_usage_policy_title => 'スターキャンディー使用ポリシー';
 
   @override
@@ -2184,7 +2178,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bonus_candy_expiration_policy_title => 'ボーナススターキャンディの失効規定';
 
   @override
-  String get expiring_soon_bonus_candy => 'まもなく失効するボーナススターキャンディ';
+  String get expiring_soon_bonus_candy => '失効予定ボーナス';
 
   @override
   String get expiring_bonus_candy_guide => '消滅予定ボーナス案内';
@@ -2194,10 +2188,10 @@ class AppLocalizationsJa extends AppLocalizations {
       '失効予定のボーナス情報の読み込みに失敗しました。';
 
   @override
-  String get bonus_candy_expiration_time_title => '失効時点:';
+  String get bonus_candy_expiration_time_title => '失効時点';
 
   @override
-  String get bonus_candy_policy_title => 'ボーナススターキャンディのポリシー:';
+  String get bonus_candy_policy_title => 'ボーナススターキャンディのポリシー';
 
   @override
   String get bonus_candy_policy_1 =>
@@ -2239,14 +2233,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bonus_candy_example_expiration_date => '失効日';
 
   @override
-  String get bonus_candy_example_1_earn => '7月14日 23:59:59';
+  String get bonus_candy_example_1_earn => '__MONTH__月10日 14:00(KST)';
 
   @override
-  String get bonus_candy_example_1_expire => '8月15日 00:00:00';
+  String get bonus_candy_example_1_expire => '__NEXT_MONTH__月15日 00:00(KST)';
 
   @override
-  String get bonus_candy_example_2_earn => '7月15日 00:00:00';
+  String get bonus_candy_example_2_earn => '__MONTH__月20日 14:00(KST)';
 
   @override
-  String get bonus_candy_example_2_expire => '8月15日 00:00:00';
+  String get bonus_candy_example_2_expire =>
+      '__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)';
 }

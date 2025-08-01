@@ -3,8 +3,8 @@ import 'package:picnic_lib/data/models/community/post.dart';
 import 'package:picnic_lib/data/models/pic/comment_like.dart';
 import 'package:picnic_lib/data/models/user_profiles.dart';
 
-part '../../../generated/models/common/comment.freezed.dart';
-part '../../../generated/models/common/comment.g.dart';
+part '../../../generated/providers/models/common/comment.freezed.dart';
+part '../../../generated/providers/models/common/comment.g.dart';
 
 @freezed
 class CommentModel with _$CommentModel {

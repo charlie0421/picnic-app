@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 
-part '../../../generated/models/vote/vote_item_request_user.freezed.dart';
-part '../../../generated/models/vote/vote_item_request_user.g.dart';
+part '../../../generated/providers/models/vote/vote_item_request_user.freezed.dart';
+part '../../../generated/providers/models/vote/vote_item_request_user.g.dart';
 
 /// 투표 아이템 요청 사용자 모델
 ///

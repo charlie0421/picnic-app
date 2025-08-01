@@ -3,8 +3,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/pic/celeb.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 
-part '../../../generated/models/pic/gallery.freezed.dart';
-part '../../../generated/models/pic/gallery.g.dart';
+part '../../../generated/providers/models/pic/gallery.freezed.dart';
+part '../../../generated/providers/models/pic/gallery.g.dart';
 
 @freezed
 class GalleryModel with _$GalleryModel {

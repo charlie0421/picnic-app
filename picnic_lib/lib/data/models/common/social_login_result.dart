@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../../generated/models/common/social_login_result.freezed.dart';
-part '../../../generated/models/common/social_login_result.g.dart';
+part '../../../generated/providers/models/common/social_login_result.freezed.dart';
+part '../../../generated/providers/models/common/social_login_result.g.dart';
 
 @freezed
 class SocialLoginResult with _$SocialLoginResult {

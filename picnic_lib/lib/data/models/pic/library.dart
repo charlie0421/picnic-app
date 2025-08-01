@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/pic/article_image.dart';
 
-part '../../../generated/models/pic/library.freezed.dart';
-part '../../../generated/models/pic/library.g.dart';
+part '../../../generated/providers/models/pic/library.freezed.dart';
+part '../../../generated/providers/models/pic/library.g.dart';
 
 @freezed
 class LibraryModel with _$LibraryModel {

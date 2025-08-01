@@ -10,7 +10,7 @@ import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:picnic_lib/reflector.dart';
 
-part '../../../generated/models/common/navigation.freezed.dart';
+part '../../../generated/providers/models/common/navigation.freezed.dart';
 
 enum TopRightType { none, common, board, postView, community }
 

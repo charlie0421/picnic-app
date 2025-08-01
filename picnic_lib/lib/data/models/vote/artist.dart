@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/vote/artist_group.dart';
 
-part '../../../generated/models/vote/artist.freezed.dart';
-part '../../../generated/models/vote/artist.g.dart';
+part '../../../generated/providers/models/vote/artist.freezed.dart';
+part '../../../generated/providers/models/vote/artist.g.dart';
 
 @freezed
 class ArtistModel with _$ArtistModel {

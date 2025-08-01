@@ -904,26 +904,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
         ),
         const SizedBox(height: 2),
-        GestureDetector(
-          onTap: () => showUsagePolicyDialog(context),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: AppLocalizations.of(context).candy_usage_policy_guide,
-                  style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-                ),
-                const TextSpan(text: ' '),
-                TextSpan(
-                  text: AppLocalizations.of(context)
-                      .candy_usage_policy_guide_button,
-                  style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
-                      .copyWith(decoration: TextDecoration.underline),
-                ),
-              ],
-            ),
-          ),
-        ),
       ],
     );
   }

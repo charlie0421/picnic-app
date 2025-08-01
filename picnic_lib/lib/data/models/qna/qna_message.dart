@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/qna/qna_attachment.dart';
 
-part '../../../generated/models/qna/qna_message.freezed.dart';
-part '../../../generated/models/qna/qna_message.g.dart';
+part '../../../generated/providers/models/qna/qna_message.freezed.dart';
+part '../../../generated/providers/models/qna/qna_message.g.dart';
 
 @freezed
 class QnaMessage with _$QnaMessage {

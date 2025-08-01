@@ -21,10 +21,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get anonymous_mode => '익명 모드';
 
   @override
-  String get appTitle => '피크닉';
+  String get appTitle => '피크닠';
 
   @override
-  String get app_name => '피크닉';
+  String get app_name => '피크닠';
 
   @override
   String get application_reason_hint => '신청 사유를 입력하세요 (선택사항)';
@@ -74,12 +74,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get candy_usage_policy_contents2 => '스타캔디 사용 시 만료 예정인 스타캔디가 우선 사용됩니다.';
-
-  @override
-  String get candy_usage_policy_guide => '*보너스는 획득한 다음 달에 사라집니다!';
-
-  @override
-  String get candy_usage_policy_guide_button => '자세히 알아보기';
 
   @override
   String get candy_usage_policy_title => '스타캔디 사용 정책';
@@ -354,7 +348,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dialog_withdraw_message =>
-      '탈퇴하시면 피크닉의 스타캔디와 계정 정보가 즉시 삭제되며, 재가입 시 기존 정보와 데이터는 복구되지 않습니다.';
+      '탈퇴하시면 피크닠의 스타캔디와 계정 정보가 즉시 삭제되며, 재가입 시 기존 정보와 데이터는 복구되지 않습니다.';
 
   @override
   String get dialog_withdraw_success => '회원탈퇴가 성공적으로 처리되었습니다.';
@@ -384,7 +378,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get download_feature_voting => '아티스트 투표';
 
   @override
-  String get download_features_title => '피크닉 주요 기능';
+  String get download_features_title => '피크닠 주요 기능';
 
   @override
   String get download_ios_button => 'App Store에서 다운로드';
@@ -396,7 +390,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get download_link_copy => '링크 복사';
 
   @override
-  String get download_page_title => '피크닉 앱 다운로드';
+  String get download_page_title => '피크닠 앱 다운로드';
 
   @override
   String get download_qr_description => '스마트폰으로 QR 코드를 스캔하세요';
@@ -405,7 +399,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get download_qr_title => 'QR 코드로 빠른 다운로드';
 
   @override
-  String get download_subtitle => '지금 피크닉 앱을 다운로드하고 좋아하는 K-Pop 아티스트를 응원하세요!';
+  String get download_subtitle => '지금 피크닠 앱을 다운로드하고 좋아하는 K-Pop 아티스트를 응원하세요!';
 
   @override
   String get error_action_failed => '작업 수행 중 오류가 발생했습니다.';
@@ -833,7 +827,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_mypage_notice => '공지사항';
 
   @override
-  String get label_mypage_picnic_id => '피크닉 ID';
+  String get label_mypage_picnic_id => '피크닠 ID';
 
   @override
   String get label_mypage_privacy_policy => '개인정보처리방침';
@@ -860,7 +854,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_no_celeb => '아직 북마크한 아티스트가 없습니다!';
 
   @override
-  String get label_pic_chart => '피크 차트';
+  String get label_pic_chart => '핔차트';
 
   @override
   String get label_pic_image_cropping => '이미지 자르기';
@@ -1064,7 +1058,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get login_simple_login_guide => '계정이 없으신가요? 위의 소셜 로그인으로 자동 가입됩니다';
 
   @override
-  String get login_title => '피크닉에서 특별한 순간을 찾아보세요';
+  String get login_title => '피크닠에서 특별한 순간을 찾아보세요';
 
   @override
   String get message_agreement_success => '약관 동의가 완료되었습니다.';
@@ -1703,17 +1697,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get text_comming_soon_pic_chart1 =>
-      '피크 차트에 오신 것을 환영합니다!\n2024년 11월에 만나요!';
+      '핔차트에 오신 것을 환영합니다!\n2024년 11월에 만나요!';
 
   @override
   String get text_comming_soon_pic_chart2 =>
-      '피크차트는 일간, 주간, 월간 점수를 반영하는 피크닉만의 새로운 차트입니다.\n일간, 주간, 월간 점수를 반영하는 피크닉의 새로운 차트입니다.';
+      '핔차트는 일간, 주간, 월간 점수를 반영하는 피크닠만의 새로운 차트입니다.\n일간, 주간, 월간 점수를 반영하는 피크닠의 새로운 차트입니다.';
 
   @override
   String get text_comming_soon_pic_chart3 => '아티스트의 브랜드 평판을\n실시간으로 반영받으세요!';
 
   @override
-  String get text_comming_soon_pic_chart_title => '피크차트란?';
+  String get text_comming_soon_pic_chart_title => '핔차트란?';
 
   @override
   String get text_community_board_search => '아티스트 게시판 검색';
@@ -2183,10 +2177,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '소멸 예정 보너스 정보를 불러오는데 실패했습니다.';
 
   @override
-  String get bonus_candy_expiration_time_title => '소멸 시점:';
+  String get bonus_candy_expiration_time_title => '소멸 시점 안내';
 
   @override
-  String get bonus_candy_policy_title => '보너스 스타캔디 정책:';
+  String get bonus_candy_policy_title => '보너스 스타캔디 정책';
 
   @override
   String get bonus_candy_policy_1 =>
@@ -2207,16 +2201,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bonus_candy_expiration_policy_expiration_date => '소멸 시점';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1일 00:00:00 ~ 15일 23:59:59';
+  String get bonus_candy_earn_period_1_to_15 =>
+      '01일 00:00:00(KST) ~ 14일 23:59:59(KST)';
 
   @override
-  String get bonus_candy_earn_period_16_to_end => '16일 00:00:00 ~ 말일 23:59:59';
+  String get bonus_candy_earn_period_16_to_end =>
+      '15일 00:00:00(KST) ~ 말일 23:59:59(KST)';
 
   @override
-  String get bonus_candy_expiration_next_month => '다음 달 15일 00:00:00';
+  String get bonus_candy_expiration_next_month => '다음달 15일 00:00:00(KST)';
 
   @override
-  String get bonus_candy_expiration_month_after_next => '다다음 달 15일 00:00:00';
+  String get bonus_candy_expiration_month_after_next =>
+      '다다음달 15일 00:00:00(KST)';
 
   @override
   String get bonus_candy_example_title => '예시';
@@ -2228,14 +2225,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bonus_candy_example_expiration_date => '소멸일';
 
   @override
-  String get bonus_candy_example_1_earn => '7월 14일 23:59:59';
+  String get bonus_candy_example_1_earn => '__MONTH__월 10일 14:00(KST)';
 
   @override
-  String get bonus_candy_example_1_expire => '8월 15일 00:00:00';
+  String get bonus_candy_example_1_expire => '__NEXT_MONTH__월 15일 00:00(KST)';
 
   @override
-  String get bonus_candy_example_2_earn => '7월 15일 00:00:00';
+  String get bonus_candy_example_2_earn => '__MONTH__월 20일 14:00(KST)';
 
   @override
-  String get bonus_candy_example_2_expire => '8월 15일 00:00:00';
+  String get bonus_candy_example_2_expire =>
+      '__THE_MONTH_AFTER_NEXT__월 15일 00:00(KST)';
 }

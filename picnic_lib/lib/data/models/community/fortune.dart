@@ -1,8 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 
-part '../../../generated/models/community/fortune.freezed.dart';
-part '../../../generated/models/community/fortune.g.dart';
+part '../../../generated/providers/models/community/fortune.freezed.dart';
+part '../../../generated/providers/models/community/fortune.g.dart';
 
 @freezed
 class FortuneModel with _$FortuneModel {

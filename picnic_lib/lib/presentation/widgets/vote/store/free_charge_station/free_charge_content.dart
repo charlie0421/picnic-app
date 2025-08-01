@@ -95,9 +95,6 @@ class FreeChargeContent extends ConsumerWidget {
           _buildItemsList(ads, context, loadingState),
 
           const SizedBox(height: 12),
-          const Divider(height: 12, thickness: 1, color: AppColors.grey200),
-          _buildPolicyGuide(context),
-          const SizedBox(height: 8),
         ],
       ),
     );
@@ -197,28 +194,5 @@ class FreeChargeContent extends ConsumerWidget {
     }
 
     return AppLocalizations.of(context).label_watch_ads_short;
-  }
-
-  Widget _buildPolicyGuide(BuildContext context) {
-    return GestureDetector(
-      onTap: onPolicyTap,
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: AppLocalizations.of(context).candy_usage_policy_guide,
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
-            ),
-            const TextSpan(text: ' '),
-            TextSpan(
-              text:
-                  AppLocalizations.of(context).candy_usage_policy_guide_button,
-              style: getTextStyle(AppTypo.caption12B, AppColors.grey600)
-                  .copyWith(decoration: TextDecoration.underline),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

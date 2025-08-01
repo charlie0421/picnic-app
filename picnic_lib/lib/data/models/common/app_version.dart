@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../../generated/models/common/app_version.freezed.dart';
-part '../../../generated/models/common/app_version.g.dart';
+part '../../../generated/providers/models/common/app_version.freezed.dart';
+part '../../../generated/providers/models/common/app_version.g.dart';
 
 @freezed
 class AppVersionModel with _$AppVersionModel {

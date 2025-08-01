@@ -79,13 +79,6 @@ class AppLocalizationsId extends AppLocalizations {
       'Saat menggunakan Permen Bintang, Permen Bintang yang akan kedaluwarsa diutamakan.';
 
   @override
-  String get candy_usage_policy_guide =>
-      '*Bonus akan hilang sebulan setelah diperoleh!';
-
-  @override
-  String get candy_usage_policy_guide_button => 'Pelajari lebih lanjut';
-
-  @override
   String get candy_usage_policy_title => 'Kebijakan Penggunaan StarCandy';
 
   @override
@@ -2268,37 +2261,35 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get bonus_candy_expiration_policy_title =>
-      'Kebijakan Kedaluwarsa Permen Bintang Bonus';
+      'Kebijakan Kedaluwarsa Bonus';
 
   @override
-  String get expiring_soon_bonus_candy =>
-      'Permen Bintang Bonus yang Akan Kedaluwarsa';
+  String get expiring_soon_bonus_candy => 'Bonus Kedaluwarsa';
 
   @override
-  String get expiring_bonus_candy_guide =>
-      'Panduan Bonus yang Akan Kedaluwarsa';
+  String get expiring_bonus_candy_guide => 'Panduan Bonus Kedaluwarsa';
 
   @override
   String get bonus_candy_expiration_policy_load_fail =>
-      'Gagal memuat informasi bonus yang akan kedaluwarsa.';
+      'Gagal memuat info bonus kedaluwarsa.';
 
   @override
-  String get bonus_candy_expiration_time_title => 'Waktu Kedaluwarsa:';
+  String get bonus_candy_expiration_time_title => 'Waktu Kedaluwarsa';
 
   @override
-  String get bonus_candy_policy_title => 'Kebijakan Permen Bintang Bonus:';
+  String get bonus_candy_policy_title => 'Kebijakan Star Candy Bonus';
 
   @override
   String get bonus_candy_policy_1 =>
-      '- Permen Bintang Bonus dari stasiun pengisian gratis dan permen Bintang Bonus dari pembelian memiliki tanggal kedaluwarsa.';
+      '- Star Candy Bonus dari stasiun pengisian gratis dan pembelian memiliki tanggal kedaluwarsa.';
 
   @override
   String get bonus_candy_policy_2 =>
-      '- Saat menggunakan Permen Bintang, Permen Bintang Bonus dengan tanggal kedaluwarsa terdekat akan dipotong terlebih dahulu.';
+      '- Saat menggunakan Star Candy, bonus dengan tanggal kedaluwarsa terdekat akan digunakan lebih dulu.';
 
   @override
   String get bonus_candy_policy_3 =>
-      '- Permen Bintang Bonus yang telah kedaluwarsa tidak dapat dipulihkan, jadi pastikan untuk menggunakannya dalam periode tersebut.';
+      '- Bonus yang sudah kedaluwarsa tidak bisa dipulihkan, jadi gunakan sebelum waktunya habis.';
 
   @override
   String get bonus_candy_expiration_policy_earn_period => 'Periode Perolehan';
@@ -2308,38 +2299,43 @@ class AppLocalizationsId extends AppLocalizations {
       'Tanggal Kedaluwarsa';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => 'Tanggal 1 - 15 setiap bulan';
+  String get bonus_candy_earn_period_1_to_15 =>
+      '01 00:00:00 ~ 14 23:59:59 (KST)';
 
   @override
   String get bonus_candy_earn_period_16_to_end =>
-      'Tanggal 16 - akhir setiap bulan';
+      '15 00:00:00 ~ Akhir bulan 23:59:59 (KST)';
 
   @override
   String get bonus_candy_expiration_next_month =>
-      'Tanggal 15 bulan berikutnya tengah malam';
+      'Bulan depan tgl 15, 00:00 (KST)';
 
   @override
   String get bonus_candy_expiration_month_after_next =>
-      'Tanggal 15 dua bulan kemudian tengah malam';
+      '2 bulan lagi tgl 15, 00:00 (KST)';
 
   @override
-  String get bonus_candy_example_title => 'Example';
+  String get bonus_candy_example_title => 'Contoh';
 
   @override
-  String get bonus_candy_example_earn_date => 'Earn Date';
+  String get bonus_candy_example_earn_date => 'Tanggal Perolehan';
 
   @override
-  String get bonus_candy_example_expiration_date => 'Expiration Date';
+  String get bonus_candy_example_expiration_date => 'Tanggal Kedaluwarsa';
 
   @override
-  String get bonus_candy_example_1_earn => 'July 14, 23:59:59';
+  String get bonus_candy_example_1_earn =>
+      'Bulan __MONTH__ tgl 10, 14:00 (KST)';
 
   @override
-  String get bonus_candy_example_1_expire => 'August 15, 00:00:00';
+  String get bonus_candy_example_1_expire =>
+      'Bulan __NEXT_MONTH__ tgl 15, 00:00 (KST)';
 
   @override
-  String get bonus_candy_example_2_earn => 'July 15, 00:00:00';
+  String get bonus_candy_example_2_earn =>
+      'Bulan __MONTH__ tgl 20, 14:00 (KST)';
 
   @override
-  String get bonus_candy_example_2_expire => 'August 15, 00:00:00';
+  String get bonus_candy_example_2_expire =>
+      'Bulan __THE_MONTH_AFTER_NEXT__ tgl 15, 00:00 (KST)';
 }

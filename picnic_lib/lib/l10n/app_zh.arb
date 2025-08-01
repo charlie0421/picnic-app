@@ -22,8 +22,6 @@
   "candy_disappear_next_month": "过期的奖励星星糖果 😢",
   "candy_usage_policy_contents": "当月获得的奖励星级糖果将于下月 15 日过期。",
   "candy_usage_policy_contents2": "使用星星糖果时，优先使用即将过期的。",
-  "candy_usage_policy_guide": "* 奖励将在获得后的第二个月消失！",
-  "candy_usage_policy_guide_button": "了解更多",
   "candy_usage_policy_title": "星尘使用政策",
   "comments": "评论",
   "common_all": "全部",
@@ -653,8 +651,8 @@
   "expiring_soon_bonus_candy": "即将过期的奖励星星糖果",
   "expiring_bonus_candy_guide": "即将过期的奖励指南",
   "bonus_candy_expiration_policy_load_fail": "加载即将过期的奖励信息失败。",
-  "bonus_candy_expiration_time_title": "失效时间点:",
-  "bonus_candy_policy_title": "奖励星星糖果政策:",
+  "bonus_candy_expiration_time_title": "失效时间点",
+  "bonus_candy_policy_title": "奖励星星糖果政策",
   "bonus_candy_policy_1": "- 从免费充电站获得的奖励星星糖果和购买时额外赠送的奖励星星糖果有有效期。",
   "bonus_candy_policy_2": "- 使用星星糖果时，将优先扣除有效期临近的奖励星星糖果。",
   "bonus_candy_policy_3": "- 已失效的奖励星星糖果无法恢复，请务必在有效期内使用。",
@@ -667,8 +665,8 @@
   "bonus_candy_example_title": "例子",
   "bonus_candy_example_earn_date": "赚取日期",
   "bonus_candy_example_expiration_date": "到期日期",
-  "bonus_candy_example_1_earn": "7月14日 23:59:59",
-  "bonus_candy_example_1_expire": "8月15日 00:00:00",
-  "bonus_candy_example_2_earn": "7月15日 00:00:00",
-  "bonus_candy_example_2_expire": "8月15日 00:00:00"
+     "bonus_candy_example_1_earn": "__MONTH__月10日 14:00(KST)",
+   "bonus_candy_example_1_expire": "__NEXT_MONTH__月15日 00:00(KST)",
+   "bonus_candy_example_2_earn": "__MONTH__月20日 14:00(KST)",
+   "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)"
 }

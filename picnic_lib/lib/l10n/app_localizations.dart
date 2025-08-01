@@ -236,18 +236,6 @@ abstract class AppLocalizations {
   /// **'When using Star Candy, Star Candy that is about to expire is prioritized.'**
   String get candy_usage_policy_contents2;
 
-  /// No description provided for @candy_usage_policy_guide.
-  ///
-  /// In en, this message translates to:
-  /// **'*Bonuses will disappear the month after they are earned!'**
-  String get candy_usage_policy_guide;
-
-  /// No description provided for @candy_usage_policy_guide_button.
-  ///
-  /// In en, this message translates to:
-  /// **'Learn more'**
-  String get candy_usage_policy_guide_button;
-
   /// No description provided for @candy_usage_policy_title.
   ///
   /// In en, this message translates to:
@@ -4302,13 +4290,13 @@ abstract class AppLocalizations {
   /// No description provided for @bonus_candy_expiration_time_title.
   ///
   /// In en, this message translates to:
-  /// **'Expiration Time:'**
+  /// **'Expiration Time'**
   String get bonus_candy_expiration_time_title;
 
   /// No description provided for @bonus_candy_policy_title.
   ///
   /// In en, this message translates to:
-  /// **'Bonus Star Candy Policy:'**
+  /// **'Bonus Star Candy Policy'**
   String get bonus_candy_policy_title;
 
   /// No description provided for @bonus_candy_policy_1.
@@ -4386,25 +4374,25 @@ abstract class AppLocalizations {
   /// No description provided for @bonus_candy_example_1_earn.
   ///
   /// In en, this message translates to:
-  /// **'July 14, 23:59:59'**
+  /// **'__MONTH__ 10th 14:00(KST)'**
   String get bonus_candy_example_1_earn;
 
   /// No description provided for @bonus_candy_example_1_expire.
   ///
   /// In en, this message translates to:
-  /// **'August 15, 00:00:00'**
+  /// **'__NEXT_MONTH__ 15th 00:00(KST)'**
   String get bonus_candy_example_1_expire;
 
   /// No description provided for @bonus_candy_example_2_earn.
   ///
   /// In en, this message translates to:
-  /// **'July 15, 00:00:00'**
+  /// **'__MONTH__ 20th 14:00(KST)'**
   String get bonus_candy_example_2_earn;
 
   /// No description provided for @bonus_candy_example_2_expire.
   ///
   /// In en, this message translates to:
-  /// **'August 15, 00:00:00'**
+  /// **'__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)'**
   String get bonus_candy_example_2_expire;
 }
 

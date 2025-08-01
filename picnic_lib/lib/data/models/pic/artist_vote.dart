@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 
-part '../../../generated/models/pic/artist_vote.freezed.dart';
-part '../../../generated/models/pic/artist_vote.g.dart';
+part '../../../generated/providers/models/pic/artist_vote.freezed.dart';
+part '../../../generated/providers/models/pic/artist_vote.g.dart';
 
 @freezed
 class ArtistVoteModel with _$ArtistVoteModel {

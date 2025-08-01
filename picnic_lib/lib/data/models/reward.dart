@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../generated/models/reward.freezed.dart';
-part '../../generated/models/reward.g.dart';
+part '../../generated/providers/models/reward.freezed.dart';
+part '../../generated/providers/models/reward.g.dart';
 
 @freezed
 class RewardModel with _$RewardModel {

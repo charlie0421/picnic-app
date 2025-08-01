@@ -22,8 +22,6 @@
   "candy_disappear_next_month": "Expiring Bonus Starchies 😢",
   "candy_usage_policy_contents": "Bonus Star Candy earned in the current month will expire on the 15th of the following month.",
   "candy_usage_policy_contents2": "When using Star Candy, Star Candy that is about to expire is prioritized.",
-  "candy_usage_policy_guide": "*Bonuses will disappear the month after they are earned!",
-  "candy_usage_policy_guide_button": "Learn more",
   "candy_usage_policy_title": "Starchies Usage Policy",
   "comments": "Comments",
   "common_all": "All",
@@ -702,8 +700,8 @@
   "expiring_soon_bonus_candy": "Expiring Bonus Star Candy",
   "expiring_bonus_candy_guide": "Expiring Bonus Guide",
   "bonus_candy_expiration_policy_load_fail": "Failed to load expiring bonus information.",
-  "bonus_candy_expiration_time_title": "Expiration Time:",
-  "bonus_candy_policy_title": "Bonus Star Candy Policy:",
+  "bonus_candy_expiration_time_title": "Expiration Time",
+  "bonus_candy_policy_title": "Bonus Star Candy Policy",
   "bonus_candy_policy_1": "- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.",
   "bonus_candy_policy_2": "- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.",
   "bonus_candy_policy_3": "- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.",
@@ -716,8 +714,8 @@
   "bonus_candy_example_title": "Example",
   "bonus_candy_example_earn_date": "Earn Date",
   "bonus_candy_example_expiration_date": "Expiration Date",
-  "bonus_candy_example_1_earn": "July 14, 23:59:59",
-  "bonus_candy_example_1_expire": "August 15, 00:00:00",
-  "bonus_candy_example_2_earn": "July 15, 00:00:00",
-  "bonus_candy_example_2_expire": "August 15, 00:00:00"
+     "bonus_candy_example_1_earn": "__MONTH__ 10th 14:00(KST)",
+   "bonus_candy_example_1_expire": "__NEXT_MONTH__ 15th 00:00(KST)",
+   "bonus_candy_example_2_earn": "__MONTH__ 20th 14:00(KST)",
+   "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)"
 }

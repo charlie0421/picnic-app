@@ -15,7 +15,10 @@ Future<void> showUsagePolicyDialog(BuildContext context) {
     barrierLabel: '',
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, animation, secondaryAnimation) {
-      return const UsagePolicyPopup();
+      return const Material(
+        color: Colors.transparent,
+        child: UsagePolicyPopup(),
+      );
     },
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       final curvedAnimation = CurvedAnimation(
@@ -62,27 +65,24 @@ class UsagePolicyPopup extends ConsumerWidget {
 
   Widget _buildPolicyContent(
       BuildContext context, List<Map<String, dynamic>?>? expiringData) {
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(
-          top: 60.h,
-          bottom: 24.h,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (expiringData != null && expiringData.isNotEmpty) ...[
-              _buildExpiringBonusSection(context, expiringData),
-              SizedBox(height: 20.h),
-            ],
-            Expanded(
-              child: SingleChildScrollView(
-                child: _buildPolicyDetailsSection(context),
-              ),
-            ),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(
+        top: 60.h,
+        bottom: 24.h,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (expiringData != null && expiringData.isNotEmpty) ...[
+            _buildExpiringBonusSection(context, expiringData),
+            SizedBox(height: 20.h),
           ],
-        ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: _buildPolicyDetailsSection(context),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -93,7 +93,7 @@ class UsagePolicyPopup extends ConsumerWidget {
     final numberFormat = NumberFormat('#,###');
 
     return Container(
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: AppColors.primary500.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12.r),
@@ -105,15 +105,15 @@ class UsagePolicyPopup extends ConsumerWidget {
             children: [
               Image.asset(
                 'assets/icons/store/bonus.png',
-                width: 24.w,
-                height: 24.w,
+                width: 16.w,
+                height: 16.w,
                 package: 'picnic_lib',
               ),
               SizedBox(width: 8.w),
               Text(
                 localizations.expiring_soon_bonus_candy,
                 style: getTextStyle(
-                  AppTypo.body16B,
+                  AppTypo.body14B,
                   AppColors.primary500,
                 ),
               ),
@@ -129,16 +129,16 @@ class UsagePolicyPopup extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${e['prediction_month']}-15',
+                    '${e['prediction_month']}-15 (KST)',
                     style: getTextStyle(
-                      AppTypo.body14R,
+                      AppTypo.caption12M,
                       AppColors.grey700,
                     ),
                   ),
                   Text(
                     numberFormat.format(amount),
                     style: getTextStyle(
-                      AppTypo.body14B,
+                      AppTypo.caption12M,
                       AppColors.primary500,
                     ),
                   ),
@@ -162,10 +162,8 @@ class UsagePolicyPopup extends ConsumerWidget {
           localizations.bonus_candy_expiration_time_title,
           isTitle: true,
         ),
-        SizedBox(height: 4.h),
         _buildSimplifiedExpirationTable(context),
-        SizedBox(height: 12.h),
-        SizedBox(height: 12.h),
+        SizedBox(height: 20.h),
         _buildPolicyItem(
           context,
           localizations.bonus_candy_policy_title,
@@ -174,13 +172,14 @@ class UsagePolicyPopup extends ConsumerWidget {
         _buildPolicyItem(context, localizations.bonus_candy_policy_1),
         _buildPolicyItem(context, localizations.bonus_candy_policy_2),
         _buildPolicyItem(context, localizations.bonus_candy_policy_3),
+        SizedBox(height: 20.h),
         _buildPolicyItem(
           context,
           localizations.bonus_candy_example_title,
           isTitle: true,
         ),
-        SizedBox(height: 4.h),
         _buildExampleTable(context),
+        SizedBox(height: 20.h),
       ],
     );
   }
@@ -188,7 +187,7 @@ class UsagePolicyPopup extends ConsumerWidget {
   Widget _buildSimplifiedExpirationTable(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     return Container(
-      padding: EdgeInsets.all(12.r),
+      padding: EdgeInsets.all(8.r),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.grey300),
         borderRadius: BorderRadius.circular(8.r),
@@ -202,13 +201,13 @@ class UsagePolicyPopup extends ConsumerWidget {
             isHeader: true,
           ),
           Divider(color: AppColors.grey300, height: 12.h),
-          _buildTableRow(
+          _buildCustomTableRow(
             context,
             localizations.bonus_candy_earn_period_1_to_15,
             localizations.bonus_candy_expiration_next_month,
           ),
           Divider(color: AppColors.grey300, height: 12.h),
-          _buildTableRow(
+          _buildCustomTableRow(
             context,
             localizations.bonus_candy_earn_period_16_to_end,
             localizations.bonus_candy_expiration_month_after_next,
@@ -218,8 +217,82 @@ class UsagePolicyPopup extends ConsumerWidget {
     );
   }
 
+  Widget _buildCustomTableRow(BuildContext context, String left, String right) {
+    final style = getTextStyle(
+      AppTypo.caption10SB,
+      AppColors.grey800,
+    );
+    final boldStyle = style.copyWith(fontWeight: FontWeight.bold);
+
+    Widget buildRichText(String text) {
+      final spans = <TextSpan>[];
+      final parts = text.split(' ');
+      for (var i = 0; i < parts.length; i++) {
+        final part = parts[i];
+        final isDatePart = part.contains('일') || part.contains('말일');
+
+        // Add space if it's not the last part
+        final textWithSpace = i < parts.length - 1 ? '$part ' : part;
+
+        spans.add(
+          TextSpan(
+            text: textWithSpace,
+            style: isDatePart ? boldStyle : style,
+          ),
+        );
+      }
+      return RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(children: spans),
+      );
+    }
+
+    final leftParts = left.split('~');
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  buildRichText(leftParts[0].trim()),
+                  if (leftParts.length > 1)
+                    buildRichText('~ ${leftParts[1].trim()}'),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: buildRichText(right),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildExampleTable(BuildContext context) {
     final localizations = AppLocalizations.of(context);
+    final now = DateTime.now();
+    final currentMonth = now.month.toString();
+    final nextMonth = (now.month % 12 + 1).toString();
+    final afterNextMonth = (now.month % 12 + 2).toString();
+
+    final example1Earn = localizations.bonus_candy_example_1_earn
+        .replaceAll('__MONTH__', currentMonth);
+    final example1Expire = localizations.bonus_candy_example_1_expire
+        .replaceAll('__NEXT_MONTH__', nextMonth);
+    final example2Earn = localizations.bonus_candy_example_2_earn
+        .replaceAll('__MONTH__', currentMonth);
+    final example2Expire = localizations.bonus_candy_example_2_expire
+        .replaceAll('__THE_MONTH_AFTER_NEXT__', afterNextMonth);
+
     return Container(
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
@@ -235,19 +308,55 @@ class UsagePolicyPopup extends ConsumerWidget {
             isHeader: true,
           ),
           Divider(color: AppColors.grey300, height: 12.h),
-          _buildTableRow(
+          _buildExampleTableRow(
             context,
-            localizations.bonus_candy_example_1_earn,
-            localizations.bonus_candy_example_1_expire,
+            example1Earn,
+            example1Expire,
           ),
           Divider(color: AppColors.grey300, height: 12.h),
-          _buildTableRow(
+          _buildExampleTableRow(
             context,
-            localizations.bonus_candy_example_2_earn,
-            localizations.bonus_candy_example_2_expire,
+            example2Earn,
+            example2Expire,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildExampleTableRow(
+      BuildContext context, String left, String right) {
+    Widget buildRichText(String text) {
+      final parts = text.split(' ');
+      final spans = <TextSpan>[];
+
+      for (var i = 0; i < parts.length; i++) {
+        final part = parts[i];
+        final isDate = RegExp(r'^\d+일$').hasMatch(part);
+        spans.add(
+          TextSpan(
+            text: '$part ',
+            style: getTextStyle(
+              AppTypo.caption10SB,
+              AppColors.grey800,
+            ).copyWith(
+              fontWeight: isDate ? FontWeight.bold : null,
+            ),
+          ),
+        );
+      }
+
+      return RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(children: spans),
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: buildRichText(left)),
+        Expanded(child: buildRichText(right)),
+      ],
     );
   }
 
@@ -272,8 +381,10 @@ class UsagePolicyPopup extends ConsumerWidget {
       child: Text(
         text,
         style: getTextStyle(
-          isTitle ? AppTypo.body14B : AppTypo.caption12M,
+          isTitle ? AppTypo.body14B : AppTypo.caption10SB,
           isTitle ? AppColors.grey800 : AppColors.grey700,
+        ).copyWith(
+          fontWeight: isTitle ? FontWeight.bold : null,
         ),
       ),
     );

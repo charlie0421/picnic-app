@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../../generated/models/common/popup.freezed.dart';
-part '../../../generated/models/common/popup.g.dart';
+part '../../../generated/providers/models/common/popup.freezed.dart';
+part '../../../generated/providers/models/common/popup.g.dart';
 
 @freezed
 class Popup with _$Popup {

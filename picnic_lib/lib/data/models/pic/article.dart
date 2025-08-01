@@ -3,8 +3,8 @@ import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/data/models/pic/article_image.dart';
 import 'package:picnic_lib/data/models/pic/gallery.dart';
 
-part '../../../generated/models/pic/article.freezed.dart';
-part '../../../generated/models/pic/article.g.dart';
+part '../../../generated/providers/models/pic/article.freezed.dart';
+part '../../../generated/providers/models/pic/article.g.dart';
 
 @freezed
 class ArticleModel with _$ArticleModel {

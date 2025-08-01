@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../../generated/models/vote/vote_item_request.freezed.dart';
-part '../../../generated/models/vote/vote_item_request.g.dart';
+part '../../../generated/providers/models/vote/vote_item_request.freezed.dart';
+part '../../../generated/providers/models/vote/vote_item_request.g.dart';
 
 /// 투표 아이템 요청 모델
 ///

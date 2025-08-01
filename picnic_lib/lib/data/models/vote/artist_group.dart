@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../../generated/models/vote/artist_group.freezed.dart';
-part '../../../generated/models/vote/artist_group.g.dart';
+part '../../../generated/providers/models/vote/artist_group.freezed.dart';
+part '../../../generated/providers/models/vote/artist_group.g.dart';
 
 @freezed
 class ArtistGroupModel with _$ArtistGroupModel {

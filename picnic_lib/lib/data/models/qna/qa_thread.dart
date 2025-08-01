@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '../../../generated/models/qna/qa_thread.freezed.dart';
-part '../../../generated/models/qna/qa_thread.g.dart';
+part '../../../generated/providers/models/qna/qa_thread.freezed.dart';
+part '../../../generated/providers/models/qna/qa_thread.g.dart';
 
 @freezed
 class QnaThread with _$QnaThread {
