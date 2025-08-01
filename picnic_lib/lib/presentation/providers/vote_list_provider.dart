@@ -121,7 +121,7 @@ class AsyncVoteList extends _$AsyncVoteList {
         logger.d('🚨🚨🚨 디버그 모드: 모든 날짜 조건 제거, id DESC 정렬');
       }
 
-      var finalQuery = query;
+      dynamic finalQuery = query;
       // area가 'all'이고, 기본 정렬(id)일 때만 kpop 우선 정렬 적용
       if (area == 'all' && finalSort == 'id') {
         finalQuery = finalQuery.order('area', ascending: true);
