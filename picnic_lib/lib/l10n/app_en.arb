@@ -313,7 +313,7 @@
   "label_tabbar_picchart_weekly": "Weekly charts",
   "label_tabbar_vote_active": "In Progress",
   "label_tabbar_vote_all": "All",
-  "label_tabbar_vote_end": "\nClosed",
+  "label_tabbar_vote_end": "Closed",
   "label_tabbar_vote_image": "Image Vote",
   "label_tabbar_vote_upcoming": "Upcoming",
   "label_time_ago_day": "{day} days ago",

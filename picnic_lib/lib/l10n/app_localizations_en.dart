@@ -998,7 +998,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_tabbar_vote_all => 'All';
 
   @override
-  String get label_tabbar_vote_end => '\nClosed';
+  String get label_tabbar_vote_end => 'Closed';
 
   @override
   String get label_tabbar_vote_image => 'Image Vote';

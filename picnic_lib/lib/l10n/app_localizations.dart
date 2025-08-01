@@ -1967,7 +1967,7 @@ abstract class AppLocalizations {
   /// No description provided for @label_tabbar_vote_end.
   ///
   /// In en, this message translates to:
-  /// **'\nClosed'**
+  /// **'Closed'**
   String get label_tabbar_vote_end;
 
   /// No description provided for @label_tabbar_vote_image.

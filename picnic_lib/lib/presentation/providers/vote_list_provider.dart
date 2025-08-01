@@ -92,45 +92,44 @@ class AsyncVoteList extends _$AsyncVoteList {
         query = query.eq('vote_category', category);
       }
 
+      String finalSort = sort;
+      String finalOrder = order;
+
       if (status == VoteStatus.active) {
         query = query
             .lt('visible_at', 'now()')
             .lt('start_at', 'now()')
             .gt('stop_at', 'now()');
+        finalSort = 'stop_at';
+        finalOrder = 'ASC';
       } else if (status == VoteStatus.end) {
         query = query.lt('stop_at', 'now()');
+        finalSort = 'stop_at';
+        finalOrder = 'DESC';
       } else if (status == VoteStatus.upcoming) {
         query = query.lt('visible_at', 'now()').gt('start_at', 'now()');
+        finalSort = 'start_at';
+        finalOrder = 'ASC';
       } else if (status == VoteStatus.activeAndUpcoming) {
         query = query.lt('visible_at', 'now()').gt('stop_at', 'now()');
-        sort = 'stop_at';
-        order = 'ASC';
+        finalSort = 'stop_at';
+        finalOrder = 'ASC';
       } else if (status == VoteStatus.debug) {
-        // 🚨🚨🚨 디버그 모드: 기존 쿼리 구조 유지하되 필터만 제거
         logger.d('🚨🚨🚨 디버그 모드 활성화됨! 모든 필터 제거');
-        logger.d(
-            '📋 목표 SQL: SELECT * FROM $voteTable WHERE deleted_at IS NULL ORDER BY id DESC');
-
-        // 디버그 모드에서는 area, category 필터를 적용하지 않음
-        // (이미 위에서 적용된 필터들은 그대로 두고, 날짜 조건만 제거)
-        // id 역순 정렬 강제 적용
-        sort = 'id';
-        order = 'DESC';
-
+        finalSort = 'id';
+        finalOrder = 'DESC';
         logger.d('🚨🚨🚨 디버그 모드: 모든 날짜 조건 제거, id DESC 정렬');
       }
 
-      // area가 'all'인 경우 kpop을 먼저 보여주기 위한 정렬 추가
-      if (area == 'all') {
-        response = await query
-            .order('area', ascending: true) // kpop이 musical보다 먼저 오도록
-            .order(sort, ascending: order == 'ASC')
-            .range(offset, offset + limit - 1);
-      } else {
-        response = await query
-            .order(sort, ascending: order == 'ASC')
-            .range(offset, offset + limit - 1);
+      var finalQuery = query;
+      // area가 'all'이고, 기본 정렬(id)일 때만 kpop 우선 정렬 적용
+      if (area == 'all' && finalSort == 'id') {
+        finalQuery = finalQuery.order('area', ascending: true);
       }
+
+      response = await finalQuery
+          .order(finalSort, ascending: finalOrder == 'ASC')
+          .range(offset, offset + limit - 1);
 
       // 디버그 모드가 아닌 경우에만 vote_item 최적화 수행
       List<dynamic> finalResponse;
