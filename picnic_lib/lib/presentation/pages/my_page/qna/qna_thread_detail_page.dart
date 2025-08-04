@@ -75,7 +75,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         final file = _attachment!;
         final fileName =
             '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
-        final filePath = '$userId/${widget.thread.id}/$fileName';
+        final filePath = '${widget.thread.id}/$userId/$fileName';
 
         await Supabase.instance.client.storage
             .from('qna_attachments')

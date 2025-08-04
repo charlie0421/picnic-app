@@ -29,7 +29,7 @@ CREATE POLICY "qna_attachments_insert_policy"
 ON storage.objects FOR INSERT
 WITH CHECK (
     bucket_id = 'qna_attachments' AND
-    auth.uid()::text = (storage.foldername(name))[1]
+    auth.uid()::text = (storage.foldername(name))[2]
 );
 
 -- 3. Update policy for qna_attachments
@@ -38,7 +38,7 @@ CREATE POLICY "qna_attachments_update_policy"
 ON storage.objects FOR UPDATE
 USING (
     bucket_id = 'qna_attachments' AND
-    auth.uid()::text = (storage.foldername(name))[1]
+    auth.uid()::text = (storage.foldername(name))[2]
 );
 
 -- 4. Delete policy for qna_attachments
@@ -47,7 +47,7 @@ CREATE POLICY "qna_attachments_delete_policy"
 ON storage.objects FOR DELETE
 USING (
     bucket_id = 'qna_attachments' AND
-    auth.uid()::text = (storage.foldername(name))[1]
+    auth.uid()::text = (storage.foldername(name))[2]
 );
 
 -- 관리자 정책 (필요시 추가)
