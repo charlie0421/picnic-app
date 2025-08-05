@@ -698,5 +698,19 @@
      "bonus_candy_example_1_earn": "__MONTH__月10日 14:00(KST)",
    "bonus_candy_example_1_expire": "__NEXT_MONTH__月15日 00:00(KST)",
    "bonus_candy_example_2_earn": "__MONTH__月20日 14:00(KST)",
-   "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)"
+   "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)",
+  "qna_form_title_hint": "件名は5文字以上で入力してください。",
+  "qna_form_content_hint": "内容は10文字以上で入力してください。",
+  "qna_title_min_length": "件名は5文字以上で入力してください。",
+  "qna_content_min_length": "内容は10文字以上で入力してください。",
+  "qna_create_title": "新規お問い合わせ",
+  "qna_submit_success": "お問い合わせが正常に送信されました。",
+  "qna_submit_button": "お問い合わせ登録",
+  "qna_form_title": "件名",
+  "qna_form_content": "内容",
+  "qna_form_title_empty": "件名を入力してください。",
+  "qna_form_content_empty": "お問い合わせ内容を入力してください。",
+  "qna_attach_image": "画像添付",
+  "qna_attach_file": "ファイル添付",
+  "qna_submit_fail": "お問い合わせの送信に失敗しました"
 }

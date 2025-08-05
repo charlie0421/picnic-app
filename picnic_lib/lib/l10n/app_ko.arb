@@ -883,5 +883,19 @@
   "bonus_candy_example_1_earn": "__MONTH__월 10일 14:00(KST)",
   "bonus_candy_example_1_expire": "__NEXT_MONTH__월 15일 00:00(KST)",
   "bonus_candy_example_2_earn": "__MONTH__월 20일 14:00(KST)",
-  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__월 15일 00:00(KST)"
+  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__월 15일 00:00(KST)",
+  "qna_form_title_hint": "제목을 5자 이상 입력해주세요.",
+  "qna_form_content_hint": "내용을 10자 이상 입력해주세요.",
+  "qna_title_min_length": "제목은 최소 5자 이상 입력해주세요.",
+  "qna_content_min_length": "내용은 최소 10자 이상 입력해주세요.",
+  "qna_create_title": "새 문의 작성",
+  "qna_submit_success": "문의가 성공적으로 등록되었습니다.",
+  "qna_submit_button": "문의 등록",
+  "qna_form_title": "제목",
+  "qna_form_content": "내용",
+  "qna_form_title_empty": "제목을 입력해주세요.",
+  "qna_form_content_empty": "문의 내용을 입력해주세요.",
+  "qna_attach_image": "이미지 첨부",
+  "qna_attach_file": "파일 첨부",
+  "qna_submit_fail": "문의 등록에 실패했습니다"
 }

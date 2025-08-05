@@ -1483,7 +1483,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_content_hint => 'お問い合わせ内容を詳しく入力してください';
 
   @override
-  String get qna_content_min_length => 'お問い合わせ内容は最低10文字以上入力してください';
+  String get qna_content_min_length => '内容は10文字以上で入力してください。';
 
   @override
   String get qna_content_required => 'お問い合わせ内容を入力してください';
@@ -1633,7 +1633,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_title_hint => 'お問い合わせの概要を簡潔に入力してください';
 
   @override
-  String get qna_title_min_length => 'タイトルは最低5文字以上入力してください';
+  String get qna_title_min_length => '件名は5文字以上で入力してください。';
 
   @override
   String get qna_title_required => 'タイトルを入力してください';
@@ -2020,7 +2020,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get capture_failed => 'キャプチャに失敗しました';
 
   @override
-  String get qna_submit_success => 'お問い合わせが正常に送信されました';
+  String get qna_submit_success => 'お問い合わせが正常に送信されました。';
 
   @override
   String get qna_submit_error => 'お問い合わせの送信中にエラーが発生しました';
@@ -2260,4 +2260,19 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bonus_candy_example_2_expire =>
       '__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)';
+
+  @override
+  String get qna_form_title_hint => '件名は5文字以上で入力してください。';
+
+  @override
+  String get qna_form_content_hint => '内容は10文字以上で入力してください。';
+
+  @override
+  String get qna_attach_image => '画像添付';
+
+  @override
+  String get qna_attach_file => 'ファイル添付';
+
+  @override
+  String get qna_submit_fail => 'お問い合わせの送信に失敗しました';
 }

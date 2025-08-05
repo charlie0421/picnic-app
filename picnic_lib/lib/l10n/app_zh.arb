@@ -668,5 +668,19 @@
      "bonus_candy_example_1_earn": "__MONTH__月10日 14:00(KST)",
    "bonus_candy_example_1_expire": "__NEXT_MONTH__月15日 00:00(KST)",
    "bonus_candy_example_2_earn": "__MONTH__月20日 14:00(KST)",
-   "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)"
+   "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)",
+  "qna_form_title_hint": "请输入至少5个字符的标题。",
+  "qna_form_content_hint": "请输入至少10个字符的内容。",
+  "qna_title_min_length": "标题至少需要5个字符。",
+  "qna_content_min_length": "内容至少需要10个字符。",
+  "qna_create_title": "新的询问",
+  "qna_submit_success": "查询已成功提交。",
+  "qna_submit_button": "提交查询",
+  "qna_form_title": "标题",
+  "qna_form_content": "内容",
+  "qna_form_title_empty": "请输入标题。",
+  "qna_form_content_empty": "请输入您的查询内容。",
+  "qna_attach_image": "附上图片",
+  "qna_attach_file": "附上文件",
+  "qna_submit_fail": "提交查询失败"
 }

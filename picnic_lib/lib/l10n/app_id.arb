@@ -699,5 +699,19 @@
    "bonus_candy_example_1_earn": "Bulan __MONTH__ tgl 10, 14:00 (KST)",
    "bonus_candy_example_1_expire": "Bulan __NEXT_MONTH__ tgl 15, 00:00 (KST)",
    "bonus_candy_example_2_earn": "Bulan __MONTH__ tgl 20, 14:00 (KST)",
-   "bonus_candy_example_2_expire": "Bulan __THE_MONTH_AFTER_NEXT__ tgl 15, 00:00 (KST)"
+   "bonus_candy_example_2_expire": "Bulan __THE_MONTH_AFTER_NEXT__ tgl 15, 00:00 (KST)",
+  "qna_form_title_hint": "Harap masukkan judul setidaknya 5 karakter.",
+  "qna_form_content_hint": "Harap masukkan konten setidaknya 10 karakter.",
+  "qna_title_min_length": "Judul harus memiliki panjang minimal 5 karakter.",
+  "qna_content_min_length": "Konten harus memiliki panjang minimal 10 karakter.",
+  "qna_create_title": "Pertanyaan Baru",
+  "qna_submit_success": "Pertanyaan berhasil dikirim.",
+  "qna_submit_button": "Kirim Pertanyaan",
+  "qna_form_title": "Judul",
+  "qna_form_content": "Konten",
+  "qna_form_title_empty": "Harap masukkan judul.",
+  "qna_form_content_empty": "Harap masukkan konten pertanyaan Anda.",
+  "qna_attach_image": "Lampirkan Gambar",
+  "qna_attach_file": "Lampirkan Berkas",
+  "qna_submit_fail": "Gagal mengirimkan pertanyaan"
 }

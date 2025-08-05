@@ -1,7 +1,9 @@
-import 'package:picnic_lib/core/utils/logger.dart';
+import 'dart:io';
+import 'package:mime/mime.dart';
 import 'package:picnic_lib/data/models/qna/qna_message.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:path/path.dart' as p;
 
 class QnaRepository {
   final SupabaseClient _client = Supabase.instance.client;
@@ -68,6 +70,7 @@ class QnaRepository {
     required String userId,
     required String title,
     required String initialMessage,
+    List<File>? attachments,
   }) async {
     try {
       // 1. 스레드 생성
@@ -79,11 +82,12 @@ class QnaRepository {
 
       final newThread = QnaThread.fromJson(threadResponse);
 
-      // 2. 첫 번째 메시지 생성
+      // 2. 첫 번째 메시지 생성 (첨부파일과 함께)
       await createQaMessage(
         threadId: newThread.id,
         userId: userId,
         content: initialMessage,
+        attachments: attachments,
       );
 
       return newThread;
@@ -97,7 +101,7 @@ class QnaRepository {
     required int threadId,
     required String userId,
     required String content,
-    List<Map<String, dynamic>>? attachments,
+    List<File>? attachments,
   }) async {
     try {
       final messageResponse = await _client
@@ -111,38 +115,45 @@ class QnaRepository {
           .single();
 
       final newMessage = QnaMessage.fromJson(messageResponse);
-      logger.d('New message created with ID: ${newMessage.id}');
 
       // 첨부파일이 있는 경우
       if (attachments != null && attachments.isNotEmpty) {
-        logger.d('Attachments found, preparing to insert...');
-        final attachmentRecords = attachments
-            .map((att) => {
-                  'message_id': newMessage.id,
-                  'file_name': att['file_name'],
-                  'file_path': att['file_path'],
-                  'file_type': att['file_type'],
-                  'file_size': att['file_size'],
-                })
-            .toList();
+        final List<Map<String, dynamic>> attachmentRecords = [];
 
-        logger.d('Inserting attachment records: $attachmentRecords');
+        for (final file in attachments) {
+          final fileName = p.basename(file.path);
+          final filePath = 'qna/$userId/${newMessage.id}/$fileName';
+
+          await _client.storage.from('qna_attachments').upload(
+                filePath,
+                file,
+                fileOptions: FileOptions(
+                  cacheControl: '3600',
+                  upsert: false,
+                  contentType: lookupMimeType(file.path),
+                ),
+              );
+
+          attachmentRecords.add({
+            'message_id': newMessage.id,
+            'file_name': fileName,
+            'file_path': filePath,
+            'file_type': lookupMimeType(file.path),
+            'file_size': await file.length(),
+          });
+        }
         await _client.from('qna_attachments').insert(attachmentRecords);
-        logger.d('Attachment records inserted successfully.');
       }
 
       // 완성된 메시지 다시 조회 (첨부파일 포함)
-      logger.d('Refetching message with attachments...');
       final finalMessage = await _client
           .from('qna_messages')
           .select('*, qna_attachments(*)')
           .eq('id', newMessage.id)
           .single();
 
-      logger.d('Final message data: $finalMessage');
       return QnaMessage.fromJson(finalMessage);
     } catch (e) {
-      logger.d('Error creating Q&A message: $e');
       throw Exception('Q&A 메시지 생성 실패: $e');
     }
   }

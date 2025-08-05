@@ -2969,7 +2969,7 @@ abstract class AppLocalizations {
   /// No description provided for @qna_content_min_length.
   ///
   /// In en, this message translates to:
-  /// **'Inquiry content must be at least 10 characters'**
+  /// **'Content must be at least 10 characters long.'**
   String get qna_content_min_length;
 
   /// No description provided for @qna_content_required.
@@ -3263,7 +3263,7 @@ abstract class AppLocalizations {
   /// No description provided for @qna_title_min_length.
   ///
   /// In en, this message translates to:
-  /// **'Title must be at least 5 characters'**
+  /// **'Title must be at least 5 characters long.'**
   String get qna_title_min_length;
 
   /// No description provided for @qna_title_required.
@@ -3989,7 +3989,7 @@ abstract class AppLocalizations {
   /// No description provided for @qna_submit_success.
   ///
   /// In en, this message translates to:
-  /// **'Your inquiry has been successfully submitted'**
+  /// **'Inquiry submitted successfully.'**
   String get qna_submit_success;
 
   /// No description provided for @qna_submit_error.
@@ -4424,6 +4424,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)'**
   String get bonus_candy_example_2_expire;
+
+  /// No description provided for @qna_form_title_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title of at least 5 characters.'**
+  String get qna_form_title_hint;
+
+  /// No description provided for @qna_form_content_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter content of at least 10 characters.'**
+  String get qna_form_content_hint;
+
+  /// No description provided for @qna_attach_image.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach Image'**
+  String get qna_attach_image;
+
+  /// No description provided for @qna_attach_file.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach File'**
+  String get qna_attach_file;
+
+  /// No description provided for @qna_submit_fail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit inquiry'**
+  String get qna_submit_fail;
 }
 
 class _AppLocalizationsDelegate

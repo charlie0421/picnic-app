@@ -1537,7 +1537,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qna_content_min_length =>
-      'Inquiry content must be at least 10 characters';
+      'Content must be at least 10 characters long.';
 
   @override
   String get qna_content_required => 'Please enter inquiry content';
@@ -1690,7 +1690,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_title_hint => 'Please enter a brief summary of your inquiry';
 
   @override
-  String get qna_title_min_length => 'Title must be at least 5 characters';
+  String get qna_title_min_length =>
+      'Title must be at least 5 characters long.';
 
   @override
   String get qna_title_required => 'Please enter a title';
@@ -2087,8 +2088,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get capture_failed => 'Capture failed';
 
   @override
-  String get qna_submit_success =>
-      'Your inquiry has been successfully submitted';
+  String get qna_submit_success => 'Inquiry submitted successfully.';
 
   @override
   String get qna_submit_error =>
@@ -2339,4 +2339,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bonus_candy_example_2_expire =>
       '__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)';
+
+  @override
+  String get qna_form_title_hint =>
+      'Please enter a title of at least 5 characters.';
+
+  @override
+  String get qna_form_content_hint =>
+      'Please enter content of at least 10 characters.';
+
+  @override
+  String get qna_attach_image => 'Attach Image';
+
+  @override
+  String get qna_attach_file => 'Attach File';
+
+  @override
+  String get qna_submit_fail => 'Failed to submit inquiry';
 }

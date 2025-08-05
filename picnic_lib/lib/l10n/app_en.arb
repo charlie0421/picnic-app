@@ -722,5 +722,19 @@
      "bonus_candy_example_1_earn": "__MONTH__ 10th 14:00(KST)",
    "bonus_candy_example_1_expire": "__NEXT_MONTH__ 15th 00:00(KST)",
    "bonus_candy_example_2_earn": "__MONTH__ 20th 14:00(KST)",
-   "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)"
+   "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)",
+  "qna_form_title_hint": "Please enter a title of at least 5 characters.",
+  "qna_form_content_hint": "Please enter content of at least 10 characters.",
+  "qna_title_min_length": "Title must be at least 5 characters long.",
+  "qna_content_min_length": "Content must be at least 10 characters long.",
+  "qna_create_title": "New Inquiry",
+  "qna_submit_success": "Inquiry submitted successfully.",
+  "qna_submit_button": "Submit Inquiry",
+  "qna_form_title": "Title",
+  "qna_form_content": "Content",
+  "qna_form_title_empty": "Please enter a title.",
+  "qna_form_content_empty": "Please enter the content of your inquiry.",
+  "qna_attach_image": "Attach Image",
+  "qna_attach_file": "Attach File",
+  "qna_submit_fail": "Failed to submit inquiry"
 }

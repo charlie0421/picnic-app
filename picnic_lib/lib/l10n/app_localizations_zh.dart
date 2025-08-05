@@ -1469,7 +1469,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_content_hint => '请详细输入咨询内容';
 
   @override
-  String get qna_content_min_length => '咨询内容至少需要10个字符';
+  String get qna_content_min_length => '内容至少需要10个字符。';
 
   @override
   String get qna_content_required => '请输入咨询内容';
@@ -1609,7 +1609,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_status_in_progress => 'In Progress';
 
   @override
-  String get qna_submit_button => '提交咨询';
+  String get qna_submit_button => '提交查询';
 
   @override
   String get qna_title => '标题';
@@ -1618,7 +1618,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_title_hint => '请简洁地输入咨询概要';
 
   @override
-  String get qna_title_min_length => '标题至少需要5个字符';
+  String get qna_title_min_length => '标题至少需要5个字符。';
 
   @override
   String get qna_title_required => '请输入标题';
@@ -2002,7 +2002,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get capture_failed => '截图失败';
 
   @override
-  String get qna_submit_success => '您的咨询已成功提交';
+  String get qna_submit_success => '查询已成功提交。';
 
   @override
   String get qna_submit_error => '提交咨询失败，请重试。';
@@ -2030,7 +2030,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'If you have any questions, feel free to ask!';
 
   @override
-  String get qna_create_title => '新的咨询';
+  String get qna_create_title => '新的询问';
 
   @override
   String get qna_form_title => '标题';
@@ -2042,7 +2042,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_form_content => '内容';
 
   @override
-  String get qna_form_content_empty => '请输入您的咨询内容。';
+  String get qna_form_content_empty => '请输入您的查询内容。';
 
   @override
   String get qna_message_hint => '输入消息';
@@ -2241,4 +2241,19 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get bonus_candy_example_2_expire =>
       '__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)';
+
+  @override
+  String get qna_form_title_hint => '请输入至少5个字符的标题。';
+
+  @override
+  String get qna_form_content_hint => '请输入至少10个字符的内容。';
+
+  @override
+  String get qna_attach_image => '附上图片';
+
+  @override
+  String get qna_attach_file => '附上文件';
+
+  @override
+  String get qna_submit_fail => '提交查询失败';
 }

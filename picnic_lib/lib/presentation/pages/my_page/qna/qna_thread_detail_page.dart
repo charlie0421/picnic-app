@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,11 +28,13 @@ class QnaThreadDetailPage extends ConsumerStatefulWidget {
 class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   final QnaRepository _repository = QnaRepository();
   final TextEditingController _messageController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+
   List<QnaMessage> _messages = [];
+  List<File> _attachments = [];
   bool _isLoading = true;
   bool _isSending = false;
   String? _errorMessage;
-  File? _attachment;
   final Map<String, Future<String>> _signedUrlCache = {};
 
   @override
@@ -63,7 +66,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
   Future<void> _sendMessage() async {
     final content = _messageController.text.trim();
-    if (content.isEmpty && _attachment == null) return;
+    if (content.isEmpty && _attachments.isEmpty) return;
 
     setState(() {
       _isSending = true;
@@ -72,41 +75,18 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     final userId = Supabase.instance.client.auth.currentUser!.id;
 
     try {
-      List<Map<String, dynamic>>? attachments;
-      if (_attachment != null) {
-        final file = _attachment!;
-        final fileName =
-            '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
-        final filePath = '${widget.thread.id}/$userId/$fileName';
-        final mimeType =
-            lookupMimeType(file.path) ?? 'application/octet-stream';
-
-        await Supabase.instance.client.storage
-            .from('qna_attachments')
-            .upload(filePath, file);
-
-        attachments = [
-          {
-            'file_name': fileName,
-            'file_path': filePath,
-            'file_type': mimeType,
-            'file_size': await file.length(),
-          }
-        ];
-      }
-
       final newMessage = await _repository.createQaMessage(
         threadId: widget.thread.id,
         userId: userId,
         content: content,
-        attachments: attachments,
+        attachments: _attachments,
       );
 
       _messageController.clear();
       if (mounted) {
         setState(() {
           _messages.add(newMessage);
-          _attachment = null;
+          _attachments = [];
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -128,14 +108,31 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+  Future<void> _pickImages() async {
+    final List<XFile> pickedFiles = await _picker.pickMultiImage();
+    setState(() {
+      _attachments.addAll(pickedFiles.map((file) => File(file.path)).toList());
+    });
+  }
+
+  Future<void> _pickFiles() async {
+    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'zip'],
+    );
+
+    if (result != null) {
       setState(() {
-        _attachment = File(pickedFile.path);
+        _attachments.addAll(result.paths.map((path) => File(path!)).toList());
       });
     }
+  }
+
+  void _removeAttachment(int index) {
+    setState(() {
+      _attachments.removeAt(index);
+    });
   }
 
   @override
@@ -224,7 +221,6 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
     final attachments = _buildAttachments(message, hasText, isMyMessage);
 
-    // 텍스트 없이 첨부파일만 있는 경우, 버블 없이 첨부파일만 표시
     if (!hasText && attachments.isNotEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
@@ -243,7 +239,6 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       );
     }
 
-    // 텍스트가 있는 경우, 기존 버블 스타일 유지
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
       alignment: isMyMessage ? Alignment.centerRight : Alignment.centerLeft,
@@ -277,7 +272,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                     style: getTextStyle(
                         AppTypo.caption12R,
                         isMyMessage
-                            ? AppColors.grey00.withValues(alpha: 0.8)
+                            ? AppColors.grey00.withOpacity(0.8)
                             : AppColors.grey400),
                   ),
                 ),
@@ -309,7 +304,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                     snapshot.data!.isEmpty) {
                   return Container(
                     color: isMyMessage
-                        ? AppColors.primary500.withValues(alpha: 0.5)
+                        ? AppColors.primary500.withOpacity(0.5)
                         : AppColors.grey200,
                     child: const Center(
                       child: CircularProgressIndicator(
@@ -320,8 +315,6 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                 }
 
                 if (snapshot.hasError) {
-                  debugPrint(
-                      'FutureBuilder error getting signed URL: ${snapshot.error}');
                   return const SizedBox(
                       width: 50, height: 50, child: Icon(Icons.error));
                 }
@@ -344,7 +337,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                           if (loadingProgress == null) return child;
                           return Container(
                             color: isMyMessage
-                                ? AppColors.primary500.withValues(alpha: 0.5)
+                                ? AppColors.primary500.withOpacity(0.5)
                                 : AppColors.grey200,
                             child: const Center(
                               child: CircularProgressIndicator(
@@ -354,7 +347,6 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                           );
                         },
                         errorBuilder: (context, error, stackTrace) {
-                          debugPrint('Error loading network image: $error');
                           return const Icon(Icons.error);
                         },
                       ),
@@ -366,14 +358,14 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.7),
+                              color: Colors.black.withOpacity(0.7),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               formatTimeAgo(
                                   context, message.createdAt.toLocal()),
                               style: getTextStyle(AppTypo.caption12R,
-                                  AppColors.grey00.withValues(alpha: 0.8)),
+                                  AppColors.grey00.withOpacity(0.8)),
                             ),
                           ),
                         ),
@@ -428,7 +420,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
+            color: Colors.grey.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 5,
           ),
@@ -438,28 +430,76 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_attachment != null)
-              Row(
-                children: [
-                  Image.file(_attachment!,
-                      width: 50, height: 50, fit: BoxFit.cover),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(_attachment!.path.split('/').last)),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        _attachment = null;
-                      });
-                    },
-                  ),
-                ],
+            if (_attachments.isNotEmpty)
+              SizedBox(
+                height: 70,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _attachments.length,
+                  itemBuilder: (context, index) {
+                    final file = _attachments[index];
+                    final isImage =
+                        lookupMimeType(file.path)?.startsWith('image/') ??
+                            false;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0, top: 8.0),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            child: isImage
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      file,
+                                      fit: BoxFit.cover,
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                  )
+                                : Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.grey200,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(Icons.insert_drive_file,
+                                        color: AppColors.grey500),
+                                  ),
+                          ),
+                          Positioned(
+                            top: -10,
+                            right: -10,
+                            child: GestureDetector(
+                              onTap: () => _removeAttachment(index),
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.black54,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.close,
+                                    color: Colors.white, size: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             Row(
               children: [
                 IconButton(
+                  icon: const Icon(Icons.photo_camera_outlined),
+                  onPressed: _pickImages,
+                  tooltip: '이미지 추가',
+                ),
+                IconButton(
                   icon: const Icon(Icons.attach_file),
-                  onPressed: _pickImage,
+                  onPressed: _pickFiles,
+                  tooltip: '파일 추가',
                 ),
                 Expanded(
                   child: TextField(

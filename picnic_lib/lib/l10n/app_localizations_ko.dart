@@ -1479,7 +1479,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_content_hint => '문의 내용을 자세히 입력해 주세요';
 
   @override
-  String get qna_content_min_length => '문의 내용은 최소 10자 이상 입력해주세요';
+  String get qna_content_min_length => '내용은 최소 10자 이상 입력해주세요.';
 
   @override
   String get qna_content_required => '내용을 입력해 주세요';
@@ -1628,7 +1628,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_title_hint => '문의 제목을 간단히 입력해 주세요';
 
   @override
-  String get qna_title_min_length => '제목은 최소 5자 이상 입력해주세요';
+  String get qna_title_min_length => '제목은 최소 5자 이상 입력해주세요.';
 
   @override
   String get qna_title_required => '제목을 입력해 주세요';
@@ -2010,7 +2010,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get capture_failed => '캡처 실패';
 
   @override
-  String get qna_submit_success => '문의가 성공적으로 접수되었습니다';
+  String get qna_submit_success => '문의가 성공적으로 등록되었습니다.';
 
   @override
   String get qna_submit_error => '문의 접수 중 오류가 발생했습니다';
@@ -2252,4 +2252,19 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get bonus_candy_example_2_expire =>
       '__THE_MONTH_AFTER_NEXT__월 15일 00:00(KST)';
+
+  @override
+  String get qna_form_title_hint => '제목을 5자 이상 입력해주세요.';
+
+  @override
+  String get qna_form_content_hint => '내용을 10자 이상 입력해주세요.';
+
+  @override
+  String get qna_attach_image => '이미지 첨부';
+
+  @override
+  String get qna_attach_file => '파일 첨부';
+
+  @override
+  String get qna_submit_fail => '문의 등록에 실패했습니다';
 }

@@ -1543,7 +1543,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_content_hint => 'Masukkan isi konsultasi dengan detail';
 
   @override
-  String get qna_content_min_length => 'Isi konsultasi minimal 10 karakter';
+  String get qna_content_min_length =>
+      'Konten harus memiliki panjang minimal 10 karakter.';
 
   @override
   String get qna_content_required => 'Harap masukkan isi konsultasi';
@@ -1688,7 +1689,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_status_in_progress => 'In Progress';
 
   @override
-  String get qna_submit_button => 'Daftar Konsultasi';
+  String get qna_submit_button => 'Kirim Pertanyaan';
 
   @override
   String get qna_title => 'Judul';
@@ -1697,7 +1698,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_title_hint => 'Masukkan ringkasan konsultasi dengan singkat';
 
   @override
-  String get qna_title_min_length => 'Judul minimal 5 karakter';
+  String get qna_title_min_length =>
+      'Judul harus memiliki panjang minimal 5 karakter.';
 
   @override
   String get qna_title_required => 'Harap masukkan judul';
@@ -2100,7 +2102,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get capture_failed => 'Gagal menangkap';
 
   @override
-  String get qna_submit_success => 'Pertanyaan Anda berhasil dikirim';
+  String get qna_submit_success => 'Pertanyaan berhasil dikirim.';
 
   @override
   String get qna_submit_error => 'Terjadi kesalahan saat mengirim pertanyaan';
@@ -2137,13 +2139,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_form_title => 'Judul';
 
   @override
-  String get qna_form_title_empty => 'Silakan masukkan judul.';
+  String get qna_form_title_empty => 'Harap masukkan judul.';
 
   @override
-  String get qna_form_content => 'Isi';
+  String get qna_form_content => 'Konten';
 
   @override
-  String get qna_form_content_empty => 'Silakan masukkan isi pertanyaan Anda.';
+  String get qna_form_content_empty => 'Harap masukkan konten pertanyaan Anda.';
 
   @override
   String get qna_message_hint => 'Masukkan pesan';
@@ -2354,4 +2356,21 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get bonus_candy_example_2_expire =>
       'Bulan __THE_MONTH_AFTER_NEXT__ tgl 15, 00:00 (KST)';
+
+  @override
+  String get qna_form_title_hint =>
+      'Harap masukkan judul setidaknya 5 karakter.';
+
+  @override
+  String get qna_form_content_hint =>
+      'Harap masukkan konten setidaknya 10 karakter.';
+
+  @override
+  String get qna_attach_image => 'Lampirkan Gambar';
+
+  @override
+  String get qna_attach_file => 'Lampirkan Berkas';
+
+  @override
+  String get qna_submit_fail => 'Gagal mengirimkan pertanyaan';
 }
