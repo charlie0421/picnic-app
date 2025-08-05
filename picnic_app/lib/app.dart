@@ -237,7 +237,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       logger.i('업데이트 필요 - 업데이트 화면 표시');
       currentScreen = ForceUpdateOverlay(updateInfo: appInitState.updateInfo!);
     } else {
-      logger.i('정상 상태 - 포털 화면 표시');
+      // logger.i('정상 상태 - 포털 화면 표시');
       currentScreen = const Portal();
     }
 

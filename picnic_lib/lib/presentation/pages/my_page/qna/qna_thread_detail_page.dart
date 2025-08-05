@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:mime/mime.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/data/models/qna/qna_message.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
@@ -76,6 +78,8 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         final fileName =
             '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
         final filePath = '${widget.thread.id}/$userId/$fileName';
+        final mimeType =
+            lookupMimeType(file.path) ?? 'application/octet-stream';
 
         await Supabase.instance.client.storage
             .from('qna_attachments')
@@ -85,7 +89,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           {
             'file_name': fileName,
             'file_path': filePath,
-            'file_type': file.path.split('.').last,
+            'file_type': mimeType,
             'file_size': await file.length(),
           }
         ];
@@ -158,14 +162,58 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     if (_errorMessage != null) {
       return Center(child: Text(_errorMessage!));
     }
+    if (_messages.isEmpty) {
+      return Center(
+        child: Text(AppLocalizations.of(context).qna_no_answer_yet),
+      );
+    }
     return ListView.builder(
       reverse: true,
-      itemCount: _messages.length,
       padding: const EdgeInsets.all(8.0),
+      itemCount: _messages.length,
       itemBuilder: (context, index) {
-        final message = _messages.reversed.toList()[index];
-        return _buildMessageBubble(message);
+        final reversedMessages = _messages.reversed.toList();
+        final message = reversedMessages[index];
+
+        bool showDateDivider = false;
+        if (index == reversedMessages.length - 1) {
+          showDateDivider = true;
+        } else {
+          final prevMessage = reversedMessages[index + 1];
+          final currentMessageDate = message.createdAt.toLocal();
+          final prevMessageDate = prevMessage.createdAt.toLocal();
+          if (currentMessageDate.day != prevMessageDate.day ||
+              currentMessageDate.month != prevMessageDate.month ||
+              currentMessageDate.year != prevMessageDate.year) {
+            showDateDivider = true;
+          }
+        }
+
+        return Column(
+          children: [
+            if (showDateDivider) _buildDateDivider(message.createdAt.toLocal()),
+            _buildMessageBubble(message),
+          ],
+        );
       },
+    );
+  }
+
+  Widget _buildDateDivider(DateTime date) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          color: AppColors.grey300,
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Text(
+          DateFormat('yyyy년 M월 d일', AppLocalizations.of(context).localeName)
+              .format(date),
+          style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
+        ),
+      ),
     );
   }
 
@@ -243,8 +291,10 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   List<Widget> _buildAttachments(
       QnaMessage message, bool hasText, bool isMyMessage) {
     return message.attachments.map((att) {
-      final isImage = ['jpg', 'jpeg', 'png', 'gif']
-          .any((ext) => att.fileName.toLowerCase().endsWith(ext));
+      final isImageByMime = att.fileType?.startsWith('image/') ?? false;
+      final isImageByExtension = ['jpg', 'jpeg', 'png', 'gif']
+          .any((ext) => att.fileName.toLowerCase().endsWith('.$ext'));
+      final isImage = isImageByMime || isImageByExtension;
 
       if (isImage) {
         final imageWidget = ClipRRect(

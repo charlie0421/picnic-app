@@ -3230,6 +3230,18 @@ abstract class AppLocalizations {
   /// **'Closed'**
   String get qna_status_closed;
 
+  /// No description provided for @qna_status_open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get qna_status_open;
+
+  /// No description provided for @qna_status_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get qna_status_in_progress;
+
   /// No description provided for @qna_submit_button.
   ///
   /// In en, this message translates to:
@@ -4009,6 +4021,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No inquiries found. Press the + button to create a new one.'**
   String get qna_list_empty;
+
+  /// No description provided for @qna_list_error_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load inquiries'**
+  String get qna_list_error_title;
+
+  /// No description provided for @qna_list_retry_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get qna_list_retry_button;
+
+  /// No description provided for @qna_list_empty_description.
+  ///
+  /// In en, this message translates to:
+  /// **'If you have any questions, feel free to ask!'**
+  String get qna_list_empty_description;
 
   /// No description provided for @qna_create_title.
   ///

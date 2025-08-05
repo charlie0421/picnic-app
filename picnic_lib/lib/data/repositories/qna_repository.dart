@@ -7,17 +7,31 @@ class QnaRepository {
   final SupabaseClient _client = Supabase.instance.client;
 
   /// Q&A 스레드 목록 조회
-  Future<List<QnaThread>> getQaThreadList({required String userId}) async {
+  Future<List<QnaThread>> getQaThreadList({
+    required String userId,
+    int? lastId,
+    int limit = 20,
+  }) async {
     try {
-      final response = await _client
-          .from('qna_threads')
-          .select()
-          .eq('user_id', userId)
-          .order('created_at', ascending: false);
+      var query = _client.from('qna_threads').select().eq('user_id', userId);
 
-      return (response as List<dynamic>)
-          .map((item) => QnaThread.fromJson(item as Map<String, dynamic>))
-          .toList();
+      if (lastId != null) {
+        final lastItemResponse = await _client
+            .from('qna_threads')
+            .select('created_at')
+            .eq('id', lastId)
+            .single();
+        final lastCreatedAt = lastItemResponse['created_at'] as String;
+
+        query = query.or(
+          'created_at.lt.$lastCreatedAt,and(created_at.eq.$lastCreatedAt,id.lt.$lastId)',
+        );
+      }
+
+      final response =
+          await query.order('created_at', ascending: false).limit(limit);
+
+      return (response).map((item) => QnaThread.fromJson(item)).toList();
     } catch (e) {
       throw Exception('Q&A 스레드 목록 조회 실패: $e');
     }

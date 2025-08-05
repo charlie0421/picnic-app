@@ -1610,7 +1610,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_status_resolved => '해결됨';
 
   @override
-  String get qna_status_closed => '마감';
+  String get qna_status_closed => '종료';
+
+  @override
+  String get qna_status_open => '진행중';
+
+  @override
+  String get qna_status_in_progress => 'In Progress';
 
   @override
   String get qna_submit_button => '문의 등록';
@@ -2020,6 +2026,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get qna_list_empty => '문의 내역이 없습니다. + 버튼을 눌러 새 문의를 작성해보세요.';
+
+  @override
+  String get qna_list_error_title => 'Failed to load inquiries';
+
+  @override
+  String get qna_list_retry_button => 'Retry';
+
+  @override
+  String get qna_list_empty_description =>
+      'If you have any questions, feel free to ask!';
 
   @override
   String get qna_create_title => '새 문의 작성';

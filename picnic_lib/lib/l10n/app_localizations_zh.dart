@@ -1603,6 +1603,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_status_closed => '已关闭';
 
   @override
+  String get qna_status_open => 'Open';
+
+  @override
+  String get qna_status_in_progress => 'In Progress';
+
+  @override
   String get qna_submit_button => '提交咨询';
 
   @override
@@ -2012,6 +2018,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get qna_list_empty => '没有找到咨询。按+按钮创建一个新的。';
+
+  @override
+  String get qna_list_error_title => 'Failed to load inquiries';
+
+  @override
+  String get qna_list_retry_button => 'Retry';
+
+  @override
+  String get qna_list_empty_description =>
+      'If you have any questions, feel free to ask!';
 
   @override
   String get qna_create_title => '新的咨询';

@@ -6,7 +6,7 @@ part of '../../presentation/providers/vote_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$asyncVoteListHash() => r'1c5297dd86bf1ada32b35064af9f25a6ce842498';
+String _$asyncVoteListHash() => r'9d5984361e67739eae1f4bf56604c0d205ed47bc';
 
 /// Copied from Dart SDK
 class _SystemHash {

@@ -1682,6 +1682,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_status_closed => 'Ditutup';
 
   @override
+  String get qna_status_open => 'Open';
+
+  @override
+  String get qna_status_in_progress => 'In Progress';
+
+  @override
   String get qna_submit_button => 'Daftar Konsultasi';
 
   @override
@@ -2113,6 +2119,16 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get qna_list_empty =>
       'No inquiries found. Press the + button to create a new one.';
+
+  @override
+  String get qna_list_error_title => 'Failed to load inquiries';
+
+  @override
+  String get qna_list_retry_button => 'Retry';
+
+  @override
+  String get qna_list_empty_description =>
+      'If you have any questions, feel free to ask!';
 
   @override
   String get qna_create_title => 'Pertanyaan Baru';

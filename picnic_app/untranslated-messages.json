@@ -1,5 +1,7 @@
 {
   "id": [
+    "qna_status_open",
+    "qna_status_in_progress",
     "cancel",
     "confirm",
     "loading",
@@ -15,6 +17,9 @@
     "network_error_message",
     "notice_pinned",
     "message_agreement_fail",
+    "qna_list_error_title",
+    "qna_list_retry_button",
+    "qna_list_empty_description",
     "search_input_text_hint",
     "submit",
     "next"
@@ -22,6 +27,8 @@
 
   "ja": [
     "qna_status_pending",
+    "qna_status_open",
+    "qna_status_in_progress",
     "cancel",
     "confirm",
     "loading",
@@ -37,18 +44,27 @@
     "network_error_message",
     "notice_pinned",
     "message_agreement_fail",
+    "qna_list_error_title",
+    "qna_list_retry_button",
+    "qna_list_empty_description",
     "search_input_text_hint",
     "submit",
     "next"
   ],
 
   "ko": [
+    "qna_status_in_progress",
+    "qna_list_error_title",
+    "qna_list_retry_button",
+    "qna_list_empty_description",
     "search_input_text_hint",
     "submit",
     "next"
   ],
 
   "zh": [
+    "qna_status_open",
+    "qna_status_in_progress",
     "cancel",
     "confirm",
     "loading",
@@ -65,6 +81,9 @@
     "notice_pinned",
     "message_agreement_fail",
     "vote_item_request_waiting",
+    "qna_list_error_title",
+    "qna_list_retry_button",
+    "qna_list_empty_description",
     "qna_error_message",
     "qna_empty_list",
     "qna_create_first",

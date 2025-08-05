@@ -30,7 +30,6 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
         return artist.copyWith(isBookmarked: true);
       }).toList();
 
-      logger.d('Successfully fetched ${bookmarkedArtists.length} bookmarked artists');
       return bookmarkedArtists;
     } catch (e, s) {
       logger.e('Error fetching bookmarked artists', error: e, stackTrace: s);
@@ -45,7 +44,7 @@ class AsyncBookmarkedArtists extends _$AsyncBookmarkedArtists {
       state = const AsyncValue.data([]);
       return;
     }
-    
+
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _fetchBookmarkedArtists());
   }
