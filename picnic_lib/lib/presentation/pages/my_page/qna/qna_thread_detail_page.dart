@@ -139,7 +139,38 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.thread.title),
+        title: Text(
+          widget.thread.title,
+          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+        ),
+        backgroundColor: AppColors.grey00,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        foregroundColor: AppColors.grey900,
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Chip(
+                label: Text(
+                  widget.thread.status == 'OPEN'
+                      ? AppLocalizations.of(context).qna_status_open
+                      : AppLocalizations.of(context).qna_status_closed,
+                  style: getTextStyle(AppTypo.caption12M, AppColors.grey00),
+                ),
+                backgroundColor: widget.thread.status == 'OPEN'
+                    ? AppColors.primary500
+                    : AppColors.secondary500,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide.none,
+                ),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
