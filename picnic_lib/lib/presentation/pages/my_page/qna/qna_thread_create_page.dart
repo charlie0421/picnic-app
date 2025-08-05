@@ -202,45 +202,60 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                 final isImage =
                     lookupMimeType(file.path)?.startsWith('image/') ?? false;
 
-                return Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      child: isImage
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.file(
-                                file,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.grey200,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(Icons.insert_drive_file,
-                                  color: AppColors.grey500),
-                            ),
-                    ),
-                    Positioned(
-                      top: -10,
-                      right: -10,
-                      child: GestureDetector(
-                        onTap: () => _removeAttachment(index),
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.black54,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.close,
-                              color: Colors.white, size: 18),
+                return SizedBox(
+                  width: 88,
+                  height: 88,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: 0,
+                        bottom: 0,
+                        child: SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: isImage
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    file,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grey200,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.insert_drive_file,
+                                    color: AppColors.grey500,
+                                  ),
+                                ),
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            _removeAttachment(index);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }),
             ),
