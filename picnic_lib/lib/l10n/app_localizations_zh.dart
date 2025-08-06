@@ -2255,5 +2255,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_attach_file => '附上文件';
 
   @override
+  String get qna_attach_media => 'Attach Photo/Video';
+
+  @override
+  String file_too_large_message(Object fileName, Object maxSize) {
+    return '$fileName exceeds the ${maxSize}MB size limit.';
+  }
+
+  @override
   String get qna_submit_fail => '提交查询失败';
+
+  @override
+  String qna_file_size_limit_notice(Object maxSize) {
+    return '最大可附加${maxSize}MB的文件。';
+  }
 }

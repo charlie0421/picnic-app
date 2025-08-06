@@ -2274,5 +2274,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_attach_file => 'ファイル添付';
 
   @override
+  String get qna_attach_media => 'Attach Photo/Video';
+
+  @override
+  String file_too_large_message(Object fileName, Object maxSize) {
+    return '$fileName exceeds the ${maxSize}MB size limit.';
+  }
+
+  @override
   String get qna_submit_fail => 'お問い合わせの送信に失敗しました';
+
+  @override
+  String qna_file_size_limit_notice(Object maxSize) {
+    return '最大${maxSize}MBまでのファイルを添付できます。';
+  }
 }

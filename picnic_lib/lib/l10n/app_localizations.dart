@@ -4449,11 +4449,29 @@ abstract class AppLocalizations {
   /// **'Attach File'**
   String get qna_attach_file;
 
+  /// No description provided for @qna_attach_media.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach Photo/Video'**
+  String get qna_attach_media;
+
+  /// No description provided for @file_too_large_message.
+  ///
+  /// In en, this message translates to:
+  /// **'{fileName} exceeds the {maxSize}MB size limit.'**
+  String file_too_large_message(Object fileName, Object maxSize);
+
   /// No description provided for @qna_submit_fail.
   ///
   /// In en, this message translates to:
   /// **'Failed to submit inquiry'**
   String get qna_submit_fail;
+
+  /// No description provided for @qna_file_size_limit_notice.
+  ///
+  /// In en, this message translates to:
+  /// **'You can attach files up to {maxSize}MB.'**
+  String qna_file_size_limit_notice(Object maxSize);
 }
 
 class _AppLocalizationsDelegate

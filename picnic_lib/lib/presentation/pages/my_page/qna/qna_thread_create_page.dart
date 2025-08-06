@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
@@ -25,10 +23,10 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final QnaRepository _repository = QnaRepository();
-  final ImagePicker _picker = ImagePicker();
 
   List<File> _attachments = [];
   bool _isSubmitting = false;
+  static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
 
   @override
   void dispose() {
@@ -37,23 +35,42 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
     super.dispose();
   }
 
-  Future<void> _pickImages() async {
-    final List<XFile> pickedFiles = await _picker.pickMultiImage();
-    setState(() {
-      _attachments.addAll(pickedFiles.map((file) => File(file.path)).toList());
-    });
-  }
-
-  Future<void> _pickFiles() async {
+  Future<void> _pickMedia() async {
     final FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
-      type: FileType.any,
+      type: FileType.media,
     );
 
     if (result != null) {
+      final List<File> newAttachments = [];
+      final List<String> oversizedFiles = [];
+
+      for (final platformFile in result.files) {
+        if (platformFile.size > _maxFileSizeInBytes) {
+          oversizedFiles.add(platformFile.name);
+          continue;
+        }
+        if (platformFile.path != null) {
+          newAttachments.add(File(platformFile.path!));
+        }
+      }
+
       setState(() {
-        _attachments.addAll(result.paths.map((path) => File(path!)).toList());
+        _attachments.addAll(newAttachments);
       });
+
+      if (oversizedFiles.isNotEmpty && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).file_too_large_message(
+                oversizedFiles.join(', '),
+                _maxFileSizeInBytes ~/ (1024 * 1024),
+              ),
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -176,20 +193,17 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            ElevatedButton.icon(
-              onPressed: _pickImages,
-              icon: const Icon(Icons.photo_library),
-              label: Text(AppLocalizations.of(context).qna_attach_image),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton.icon(
-              onPressed: _pickFiles,
-              icon: const Icon(Icons.attach_file),
-              label: Text(AppLocalizations.of(context).qna_attach_file),
-            ),
-          ],
+        ElevatedButton.icon(
+          onPressed: _pickMedia,
+          icon: const Icon(Icons.perm_media),
+          label: Text(AppLocalizations.of(context).qna_attach_media),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            AppLocalizations.of(context).qna_file_size_limit_notice(10),
+            style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
+          ),
         ),
         if (_attachments.isNotEmpty)
           Padding(
@@ -199,8 +213,9 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
               runSpacing: 8.0,
               children: List.generate(_attachments.length, (index) {
                 final file = _attachments[index];
-                final isImage =
-                    lookupMimeType(file.path)?.startsWith('image/') ?? false;
+                final mimeType = lookupMimeType(file.path) ?? '';
+                final isImage = mimeType.startsWith('image/');
+                final isVideo = mimeType.startsWith('video/');
 
                 return SizedBox(
                   width: 88,
@@ -221,16 +236,30 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                                     fit: BoxFit.cover,
                                   ),
                                 )
-                              : Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.grey200,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    Icons.insert_drive_file,
-                                    color: AppColors.grey500,
-                                  ),
-                                ),
+                              : isVideo
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.grey200,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.play_circle_outline,
+                                          color: AppColors.grey500,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.grey200,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.insert_drive_file,
+                                        color: AppColors.grey500,
+                                      ),
+                                    ),
                         ),
                       ),
                       Positioned(

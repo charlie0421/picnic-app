@@ -158,15 +158,14 @@ class QnaRepository {
     }
   }
 
-  /// 스토리지 파일의 서명된 URL 가져오기
-  Future<String> getSignedUrl(String path) async {
+  /// 스토리지 파일의 공개 URL 가져오기
+  String getPublicUrl(String path) {
     try {
-      final response = await _client.storage
-          .from('qna_attachments')
-          .createSignedUrl(path, 60 * 60); // 1 hour expiration
+      final response =
+          _client.storage.from('qna_attachments').getPublicUrl(path);
       return response;
     } catch (e) {
-      throw Exception('서명된 URL 가져오기 실패: $e');
+      throw Exception('공개 URL 가져오기 실패: $e');
     }
   }
 }

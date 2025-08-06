@@ -682,5 +682,6 @@
   "qna_form_content_empty": "请输入您的查询内容。",
   "qna_attach_image": "附上图片",
   "qna_attach_file": "附上文件",
-  "qna_submit_fail": "提交查询失败"
+  "qna_submit_fail": "提交查询失败",
+  "qna_file_size_limit_notice": "最大可附加{maxSize}MB的文件。"
 }

@@ -22,7 +22,9 @@
     "qna_list_empty_description",
     "search_input_text_hint",
     "submit",
-    "next"
+    "next",
+    "qna_attach_media",
+    "file_too_large_message"
   ],
 
   "ja": [
@@ -49,7 +51,9 @@
     "qna_list_empty_description",
     "search_input_text_hint",
     "submit",
-    "next"
+    "next",
+    "qna_attach_media",
+    "file_too_large_message"
   ],
 
   "ko": [
@@ -116,6 +120,8 @@
     "jma_voting_daily_limit_error",
     "jma_voting_exchange_failed",
     "jma_voting_daily_limit_title",
-    "jma_voting_exchange_failed_title"
+    "jma_voting_exchange_failed_title",
+    "qna_attach_media",
+    "file_too_large_message"
   ]
 }

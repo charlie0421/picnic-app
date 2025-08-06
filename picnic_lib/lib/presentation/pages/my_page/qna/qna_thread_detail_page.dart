@@ -3,15 +3,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 import 'package:picnic_lib/core/utils/date.dart';
+import 'package:picnic_lib/data/models/qna/qna_attachment.dart';
 import 'package:picnic_lib/data/models/qna/qna_message.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_full_screen_image_viewer.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_video_player_page.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,14 +29,13 @@ class QnaThreadDetailPage extends ConsumerStatefulWidget {
 class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   final QnaRepository _repository = QnaRepository();
   final TextEditingController _messageController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
 
   List<QnaMessage> _messages = [];
   List<File> _attachments = [];
   bool _isLoading = true;
   bool _isSending = false;
   String? _errorMessage;
-  final Map<String, Future<String>> _signedUrlCache = {};
+  static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
 
   @override
   void initState() {
@@ -108,24 +108,42 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     }
   }
 
-  Future<void> _pickImages() async {
-    final List<XFile> pickedFiles = await _picker.pickMultiImage();
-    setState(() {
-      _attachments.addAll(pickedFiles.map((file) => File(file.path)).toList());
-    });
-  }
-
-  Future<void> _pickFiles() async {
+  Future<void> _pickMedia() async {
     final FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx', 'txt', 'zip'],
+      type: FileType.media,
     );
 
     if (result != null) {
+      final List<File> newAttachments = [];
+      final List<String> oversizedFiles = [];
+
+      for (final platformFile in result.files) {
+        if (platformFile.size > _maxFileSizeInBytes) {
+          oversizedFiles.add(platformFile.name);
+          continue;
+        }
+        if (platformFile.path != null) {
+          newAttachments.add(File(platformFile.path!));
+        }
+      }
+
       setState(() {
-        _attachments.addAll(result.paths.map((path) => File(path!)).toList());
+        _attachments.addAll(newAttachments);
       });
+
+      if (oversizedFiles.isNotEmpty && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).file_too_large_message(
+                oversizedFiles.join(', '),
+                _maxFileSizeInBytes ~/ (1024 * 1024),
+              ),
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -321,99 +339,25 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       final isImageByExtension = ['jpg', 'jpeg', 'png', 'gif']
           .any((ext) => att.fileName.toLowerCase().endsWith('.$ext'));
       final isImage = isImageByMime || isImageByExtension;
+      final isVideo = att.fileType?.startsWith('video/') ?? false;
 
       if (isImage) {
-        final imageWidget = ClipRRect(
-          borderRadius: BorderRadius.circular(12.0),
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: FutureBuilder<String>(
-              future: _getSignedUrl(att.filePath),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting ||
-                    !snapshot.hasData ||
-                    snapshot.data!.isEmpty) {
-                  return Container(
-                    color: isMyMessage
-                        ? AppColors.primary500.withOpacity(0.5)
-                        : AppColors.grey200,
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                  );
-                }
-
-                if (snapshot.hasError) {
-                  return const SizedBox(
-                      width: 50, height: 50, child: Icon(Icons.error));
-                }
-
-                final imageUrl = snapshot.data!;
-                return GestureDetector(
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          QnaFullScreenImageViewer(imageUrl: imageUrl),
-                    ),
-                  ),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            color: isMyMessage
-                                ? AppColors.primary500.withOpacity(0.5)
-                                : AppColors.grey200,
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.error);
-                        },
-                      ),
-                      if (!hasText)
-                        Positioned(
-                          bottom: 4,
-                          right: 4,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              formatTimeAgo(
-                                  context, message.createdAt.toLocal()),
-                              style: getTextStyle(AppTypo.caption12R,
-                                  AppColors.grey00.withOpacity(0.8)),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-
+        final imageWidget =
+            _buildImageAttachment(att, message, hasText, isMyMessage);
         return hasText
             ? Padding(
                 padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
                 child: imageWidget,
               )
             : imageWidget;
+      } else if (isVideo) {
+        final videoWidget = _buildVideoAttachment(att);
+        return hasText
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
+                child: videoWidget,
+              )
+            : videoWidget;
       } else {
         return InkWell(
           onTap: () {
@@ -434,14 +378,98 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     }).toList();
   }
 
-  Future<String> _getSignedUrl(String path) {
-    if (_signedUrlCache.containsKey(path)) {
-      return _signedUrlCache[path]!;
-    } else {
-      final future = _repository.getSignedUrl(path);
-      _signedUrlCache[path] = future;
-      return future;
-    }
+  Widget _buildImageAttachment(
+      QnaAttachment att, QnaMessage message, bool hasText, bool isMyMessage) {
+    final imageUrl = _getPublicUrl(att.filePath);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12.0),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => QnaFullScreenImageViewer(imageUrl: imageUrl),
+            ),
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    color: isMyMessage
+                        ? AppColors.primary500.withOpacity(0.5)
+                        : AppColors.grey200,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.error);
+                },
+              ),
+              if (!hasText)
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      formatTimeAgo(context, message.createdAt.toLocal()),
+                      style: getTextStyle(AppTypo.caption12R,
+                          AppColors.grey00.withOpacity(0.8)),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoAttachment(QnaAttachment att) {
+    return GestureDetector(
+      onTap: () {
+        final videoUrl = _getPublicUrl(att.filePath);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => QnaVideoPlayerPage(videoUrl: videoUrl),
+          ),
+        );
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.0),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Container(
+            color: AppColors.grey200,
+            child: const Center(
+              child: Icon(
+                Icons.play_circle_outline,
+                color: AppColors.grey500,
+                size: 40,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getPublicUrl(String path) {
+    return _repository.getPublicUrl(path);
   }
 
   Widget _buildMessageInput() {
@@ -523,14 +551,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.photo_camera_outlined),
-                  onPressed: _pickImages,
-                  tooltip: '이미지 추가',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.attach_file),
-                  onPressed: _pickFiles,
-                  tooltip: '파일 추가',
+                  icon: const Icon(Icons.perm_media_outlined),
+                  onPressed: _pickMedia,
+                  tooltip: '미디어 추가',
                 ),
                 Expanded(
                   child: TextField(

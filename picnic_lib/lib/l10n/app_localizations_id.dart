@@ -2372,5 +2372,18 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_attach_file => 'Lampirkan Berkas';
 
   @override
+  String get qna_attach_media => 'Attach Photo/Video';
+
+  @override
+  String file_too_large_message(Object fileName, Object maxSize) {
+    return '$fileName exceeds the ${maxSize}MB size limit.';
+  }
+
+  @override
   String get qna_submit_fail => 'Gagal mengirimkan pertanyaan';
+
+  @override
+  String qna_file_size_limit_notice(Object maxSize) {
+    return 'Anda dapat melampirkan file hingga ${maxSize}MB.';
+  }
 }

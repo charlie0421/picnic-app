@@ -2266,5 +2266,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_attach_file => '파일 첨부';
 
   @override
+  String get qna_attach_media => '사진/동영상 첨부';
+
+  @override
+  String file_too_large_message(Object fileName, Object maxSize) {
+    return '$fileName 파일은 ${maxSize}MB 크기를 초과할 수 없습니다.';
+  }
+
+  @override
   String get qna_submit_fail => '문의 등록에 실패했습니다';
+
+  @override
+  String qna_file_size_limit_notice(Object maxSize) {
+    return '최대 ${maxSize}MB까지 파일을 첨부할 수 있습니다.';
+  }
 }

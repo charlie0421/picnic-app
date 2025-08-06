@@ -736,5 +736,8 @@
   "qna_form_content_empty": "Please enter the content of your inquiry.",
   "qna_attach_image": "Attach Image",
   "qna_attach_file": "Attach File",
-  "qna_submit_fail": "Failed to submit inquiry"
+  "qna_attach_media": "Attach Photo/Video",
+  "file_too_large_message": "{fileName} exceeds the {maxSize}MB size limit.",
+  "qna_submit_fail": "Failed to submit inquiry",
+  "qna_file_size_limit_notice": "You can attach files up to {maxSize}MB."
 }

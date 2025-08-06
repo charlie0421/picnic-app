@@ -712,5 +712,6 @@
   "qna_form_content_empty": "お問い合わせ内容を入力してください。",
   "qna_attach_image": "画像添付",
   "qna_attach_file": "ファイル添付",
-  "qna_submit_fail": "お問い合わせの送信に失敗しました"
+  "qna_submit_fail": "お問い合わせの送信に失敗しました",
+  "qna_file_size_limit_notice": "最大{maxSize}MBまでのファイルを添付できます。"
 }

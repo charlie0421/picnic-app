@@ -713,5 +713,6 @@
   "qna_form_content_empty": "Harap masukkan konten pertanyaan Anda.",
   "qna_attach_image": "Lampirkan Gambar",
   "qna_attach_file": "Lampirkan Berkas",
-  "qna_submit_fail": "Gagal mengirimkan pertanyaan"
+  "qna_submit_fail": "Gagal mengirimkan pertanyaan",
+  "qna_file_size_limit_notice": "Anda dapat melampirkan file hingga {maxSize}MB."
 }
