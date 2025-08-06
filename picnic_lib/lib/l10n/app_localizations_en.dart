@@ -731,6 +731,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_button_share => 'Share';
 
   @override
+  String get label_button_view_policy => 'View Policy';
+
+  @override
   String get label_button_vote => 'Vote';
 
   @override
@@ -2238,7 +2241,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jma_voting_info_text =>
-      '· 3 Star Candy will be automatically converted to 1 JMA vote\n· Bonus Star Candy can be used up to 5 times per day for JMA voting\n· By participating in voting, you will automatically participate in the JMA concert ticket event';
+      '-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.';
 
   @override
   String get jma_voting_daily_limit_error =>

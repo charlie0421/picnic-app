@@ -320,7 +320,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dialog_message_purchase_success => '您的购买已成功完成。';
 
   @override
-  String get dialog_purchases_fail => '购买失败。';
+  String get dialog_purchases_fail => 'The purchase failed.';
 
   @override
   String get dialog_purchases_success => '购买完成。';
@@ -689,6 +689,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get label_button_share => '分享';
+
+  @override
+  String get label_button_view_policy => '查看政策';
 
   @override
   String get label_button_vote => '投票';
@@ -2147,7 +2150,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get jma_voting_info_text =>
-      '· 3 Star Candy will be automatically converted to 1 JMA vote\n· Bonus Star Candy can be used up to 5 times per day for JMA voting\n· By participating in voting, you will automatically participate in the JMA concert ticket event';
+      '-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.';
 
   @override
   String get jma_voting_daily_limit_error =>

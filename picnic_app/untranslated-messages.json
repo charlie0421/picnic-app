@@ -67,6 +67,7 @@
   ],
 
   "zh": [
+    "dialog_purchases_fail",
     "qna_status_open",
     "qna_status_in_progress",
     "cancel",

@@ -1430,6 +1430,12 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get label_button_share;
 
+  /// No description provided for @label_button_view_policy.
+  ///
+  /// In en, this message translates to:
+  /// **'View Policy'**
+  String get label_button_view_policy;
+
   /// No description provided for @label_button_vote.
   ///
   /// In en, this message translates to:
@@ -4242,7 +4248,7 @@ abstract class AppLocalizations {
   /// No description provided for @jma_voting_info_text.
   ///
   /// In en, this message translates to:
-  /// **'· 3 Star Candy will be automatically converted to 1 JMA vote\n· Bonus Star Candy can be used up to 5 times per day for JMA voting\n· By participating in voting, you will automatically participate in the JMA concert ticket event'**
+  /// **'-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.'**
   String get jma_voting_info_text;
 
   /// No description provided for @jma_voting_daily_limit_error.

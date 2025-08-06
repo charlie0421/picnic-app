@@ -734,6 +734,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_button_share => 'Bagikan';
 
   @override
+  String get label_button_view_policy => 'Lihat Kebijakan';
+
+  @override
   String get label_button_vote => 'Pilih';
 
   @override
@@ -2249,7 +2252,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get jma_voting_info_text =>
-      '· 3 Star Candy akan otomatis dikonversi menjadi 1 vote JMA\\n· Star Candy bonus dapat digunakan hingga 5 kali per hari untuk voting JMA\\n· Dengan berpartisipasi dalam voting, Anda akan otomatis berpartisipasi dalam acara tiket konser JMA';
+      '-Permen bintang bonus dapat digunakan untuk voting JMA hingga 5 kali sehari.\n-Permen bintang yang diperlukan akan dikonversi secara otomatis. (30 Permen Bintang = 1 Suara JMA)\n-Partisipasi dalam voting akan secara otomatis memasukkan Anda ke dalam konser Jakarta.';
 
   @override
   String get jma_voting_daily_limit_error =>

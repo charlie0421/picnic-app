@@ -698,6 +698,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_button_share => '공유';
 
   @override
+  String get label_button_view_policy => '정책보기';
+
+  @override
   String get label_button_vote => '투표';
 
   @override
@@ -2153,7 +2156,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get jma_voting_info_text =>
-      '· 투표 시 별사탕 3개가 JMA투표권 1개로 자동 변환됩니다\n· 보너스 별사탕은 JMA 투표에선 1일 5개까지 사용 가능합니다\n· 투표에 참여하시면 자동으로 JMA 콘서트 티켓 이벤트에 참여됩니다';
+      '-보너스 스타캔디는 1일 최대 5개까지 JMA 투표에 사용 가능합니다.\n-필요한 스타캔디는 자동으로 변환됩니다.(30star Candy = 1JMA Vote)\n-투표 참여 시 자카르타 콘서트에 자동 응모됩니다.';
 
   @override
   String get jma_voting_daily_limit_error => '하루 최대 5번까지 투표할 수 있습니다.';

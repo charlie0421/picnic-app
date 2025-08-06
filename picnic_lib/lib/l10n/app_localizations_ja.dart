@@ -699,6 +699,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_button_share => 'シェアする';
 
   @override
+  String get label_button_view_policy => 'ポリシーを見る';
+
+  @override
   String get label_button_vote => '投票する';
 
   @override
@@ -2164,7 +2167,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get jma_voting_info_text =>
-      '· 投票時にスターキャンディ3個がJMA投票権1個に自動変換されます\n· ボーナススターキャンディはJMA投票で1日5個まで使用可能です\n· 投票に参加すると自動的にJMAコンサートチケットイベントに参加されます';
+      '-ボーナススターキャンディーは1日最大5個までJMA投票に使用可能です。\n-必要なスターキャンディーは自動的に変換されます。(30スターキャンディー = 1 JMA投票)\n-投票に参加すると、ジャカルタコンサートに自動的に応募されます。';
 
   @override
   String get jma_voting_daily_limit_error => '1日最大5回まで投票できます。';
