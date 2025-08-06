@@ -64,14 +64,17 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
     }
 
     try {
-      setState(() {
-        if (isInitial) {
+      if (isInitial && _threadList.isEmpty) {
+        setState(() {
           _isLoading = true;
-        } else {
+          _errorMessage = null;
+        });
+      } else if (!isInitial) {
+        setState(() {
           _isMoreLoading = true;
-        }
-        _errorMessage = null;
-      });
+          _errorMessage = null;
+        });
+      }
 
       final lastId =
           isInitial || _threadList.isEmpty ? null : _threadList.last.id;
@@ -87,16 +90,15 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
           _threadList.addAll(threads);
         }
         _hasMore = threads.isNotEmpty;
-        if (isInitial) {
-          _isLoading = false;
-        }
+        _isLoading = false;
         _isMoreLoading = false;
+        if (isInitial) {
+          _errorMessage = null;
+        }
       });
     } catch (e) {
       setState(() {
-        if (isInitial) {
-          _isLoading = false;
-        }
+        _isLoading = false;
         _isMoreLoading = false;
         _errorMessage = e.toString();
       });
@@ -138,32 +140,52 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
     if (_isLoading) {
       return _buildShimmer();
     }
-    if (_errorMessage != null) {
-      return _buildErrorView();
-    }
-    if (_threadList.isEmpty) {
-      return _buildEmptyView();
-    }
+
     return RefreshIndicator(
       onRefresh: () => _loadThreads(isInitial: true),
-      child: ListView.separated(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16.0),
-        itemCount: _threadList.length + (_isMoreLoading ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == _threadList.length) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: CircularProgressIndicator(),
+      child: () {
+        if (_errorMessage != null && _threadList.isEmpty) {
+          return CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverFillRemaining(
+                child: _buildErrorView(),
               ),
-            );
-          }
-          final thread = _threadList[index];
-          return _buildThreadCard(thread);
-        },
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-      ),
+            ],
+          );
+        }
+
+        if (_threadList.isEmpty) {
+          return CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverFillRemaining(
+                child: _buildEmptyView(),
+              ),
+            ],
+          );
+        }
+
+        return ListView.separated(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
+          itemCount: _threadList.length + (_isMoreLoading ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == _threadList.length) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            final thread = _threadList[index];
+            return _buildThreadCard(thread);
+          },
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+        );
+      }(),
     );
   }
 
