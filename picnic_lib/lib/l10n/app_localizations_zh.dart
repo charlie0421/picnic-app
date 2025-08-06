@@ -1560,7 +1560,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_no_answer_yet => '暂无回答';
 
   @override
-  String get qna_no_inquiries => 'No inquiry history';
+  String get qna_no_inquiries => '没有找到咨询。按+按钮创建一个新的。';
 
   @override
   String get qna_no_inquiries_subtitle =>
@@ -2017,9 +2017,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_list_title => '咨询列表';
 
   @override
-  String get qna_list_empty => '没有找到咨询。按+按钮创建一个新的。';
-
-  @override
   String get qna_list_error_title => 'Failed to load inquiries';
 
   @override
@@ -2269,4 +2266,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String qna_file_size_limit_notice(Object maxSize) {
     return '最大可附加${maxSize}MB的文件。';
   }
+
+  @override
+  String get qna_cannot_send_message_closed => '此查询已关闭，您不能再发送消息。';
 }

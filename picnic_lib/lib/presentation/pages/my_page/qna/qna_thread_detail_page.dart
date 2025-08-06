@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_full_screen_image_
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_video_player_page.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class QnaThreadDetailPage extends ConsumerStatefulWidget {
   final QnaThread thread;
@@ -440,9 +442,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   Widget _buildVideoAttachment(QnaAttachment att) {
+    final videoUrl = _getPublicUrl(att.filePath);
     return GestureDetector(
       onTap: () {
-        final videoUrl = _getPublicUrl(att.filePath);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => QnaVideoPlayerPage(videoUrl: videoUrl),
@@ -455,12 +457,18 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           aspectRatio: 16 / 9,
           child: Container(
             color: AppColors.grey200,
-            child: const Center(
-              child: Icon(
-                Icons.play_circle_outline,
-                color: AppColors.grey500,
-                size: 40,
-              ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                _VideoThumbnail(videoUrl: videoUrl),
+                const Center(
+                  child: Icon(
+                    Icons.play_circle_outline,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -473,6 +481,31 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   Widget _buildMessageInput() {
+    final isThreadOpen = widget.thread.status == 'OPEN';
+
+    if (!isThreadOpen) {
+      return Container(
+        padding: const EdgeInsets.all(16.0),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.grey100,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 5,
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Text(
+            AppLocalizations.of(context).qna_cannot_send_message_closed,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.grey500),
+          ),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
@@ -505,7 +538,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          Container(
+                          SizedBox(
                             width: 60,
                             height: 60,
                             child: isImage
@@ -523,7 +556,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                                       color: AppColors.grey200,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Icon(Icons.insert_drive_file,
+                                    child: const Icon(Icons.insert_drive_file,
                                         color: AppColors.grey500),
                                   ),
                           ),
@@ -579,6 +612,50 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _VideoThumbnail extends StatefulWidget {
+  const _VideoThumbnail({required this.videoUrl});
+
+  final String videoUrl;
+
+  @override
+  State<_VideoThumbnail> createState() => _VideoThumbnailState();
+}
+
+class _VideoThumbnailState extends State<_VideoThumbnail> {
+  Uint8List? _thumbnailData;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateThumbnail();
+  }
+
+  Future<void> _generateThumbnail() async {
+    final thumbnailData = await VideoThumbnail.thumbnailData(
+      video: widget.videoUrl,
+      imageFormat: ImageFormat.PNG,
+      maxWidth: 300,
+      quality: 25,
+    );
+    if (mounted) {
+      setState(() {
+        _thumbnailData = thumbnailData;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_thumbnailData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Image.memory(
+      _thumbnailData!,
+      fit: BoxFit.cover,
     );
   }
 }

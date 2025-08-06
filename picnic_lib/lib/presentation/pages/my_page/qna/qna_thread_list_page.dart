@@ -237,7 +237,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
 
   Widget _buildEmptyView() {
     return NoItemContainer(
-      message: AppLocalizations.of(context).qna_list_empty,
+      message: AppLocalizations.of(context).qna_no_inquiries,
     );
   }
 

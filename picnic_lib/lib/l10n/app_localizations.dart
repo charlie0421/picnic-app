@@ -3149,7 +3149,7 @@ abstract class AppLocalizations {
   /// No description provided for @qna_no_inquiries.
   ///
   /// In en, this message translates to:
-  /// **'No inquiry history'**
+  /// **'No inquiries found. Press the + button to create a new one.'**
   String get qna_no_inquiries;
 
   /// No description provided for @qna_no_inquiries_subtitle.
@@ -4016,12 +4016,6 @@ abstract class AppLocalizations {
   /// **'My Inquiries'**
   String get qna_list_title;
 
-  /// No description provided for @qna_list_empty.
-  ///
-  /// In en, this message translates to:
-  /// **'No inquiries found. Press the + button to create a new one.'**
-  String get qna_list_empty;
-
   /// No description provided for @qna_list_error_title.
   ///
   /// In en, this message translates to:
@@ -4472,6 +4466,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can attach files up to {maxSize}MB.'**
   String qna_file_size_limit_notice(Object maxSize);
+
+  /// No description provided for @qna_cannot_send_message_closed.
+  ///
+  /// In en, this message translates to:
+  /// **'This inquiry has been closed and you can no longer send messages.'**
+  String get qna_cannot_send_message_closed;
 }
 
 class _AppLocalizationsDelegate

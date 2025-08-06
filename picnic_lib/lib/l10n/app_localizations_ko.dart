@@ -2025,9 +2025,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_list_title => '문의 내역';
 
   @override
-  String get qna_list_empty => '문의 내역이 없습니다. + 버튼을 눌러 새 문의를 작성해보세요.';
-
-  @override
   String get qna_list_error_title => 'Failed to load inquiries';
 
   @override
@@ -2280,4 +2277,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String qna_file_size_limit_notice(Object maxSize) {
     return '최대 ${maxSize}MB까지 파일을 첨부할 수 있습니다.';
   }
+
+  @override
+  String get qna_cannot_send_message_closed => '문의가 종료되어 더 이상 메시지를 보낼 수 없습니다.';
 }

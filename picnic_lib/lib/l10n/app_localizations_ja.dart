@@ -1574,7 +1574,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_no_answer_yet => 'まだ回答がありません';
 
   @override
-  String get qna_no_inquiries => 'No inquiry history';
+  String get qna_no_inquiries =>
+      'No inquiries found. Press the + button to create a new one.';
 
   @override
   String get qna_no_inquiries_subtitle =>
@@ -2035,10 +2036,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_list_title => 'Q&Aリスト';
 
   @override
-  String get qna_list_empty =>
-      'No inquiries found. Press the + button to create a new one.';
-
-  @override
   String get qna_list_error_title => 'Failed to load inquiries';
 
   @override
@@ -2288,4 +2285,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String qna_file_size_limit_notice(Object maxSize) {
     return '最大${maxSize}MBまでのファイルを添付できます。';
   }
+
+  @override
+  String get qna_cannot_send_message_closed =>
+      'このお問い合わせは終了したため、これ以上メッセージを送信できません。';
 }

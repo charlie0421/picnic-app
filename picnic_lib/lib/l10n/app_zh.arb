@@ -637,7 +637,7 @@
   "qna_title_too_short": "请输入至少2个字符的标题",
   "qna_content_too_short": "请输入至少10个字符的内容",
   "qna_list_title": "咨询列表",
-  "qna_list_empty": "没有找到咨询。按+按钮创建一个新的。",
+  "qna_no_inquiries": "没有找到咨询。按+按钮创建一个新的。",
   "qna_create_title": "新的咨询",
   "qna_form_title": "标题",
   "qna_form_title_empty": "请输入标题。",
@@ -683,5 +683,6 @@
   "qna_attach_image": "附上图片",
   "qna_attach_file": "附上文件",
   "qna_submit_fail": "提交查询失败",
-  "qna_file_size_limit_notice": "最大可附加{maxSize}MB的文件。"
+  "qna_file_size_limit_notice": "最大可附加{maxSize}MB的文件。",
+  "qna_cannot_send_message_closed": "此查询已关闭，您不能再发送消息。"
 }

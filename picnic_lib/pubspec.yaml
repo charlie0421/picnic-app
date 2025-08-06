@@ -69,6 +69,7 @@ dependencies:
   http: ^1.2.2
   video_player: ^2.8.6
   chewie: ^1.7.5
+  video_thumbnail: ^0.5.6
   deepl_dart: ^2.0.0
   firebase_analytics: ^11.3.6
   timezone: ^0.10.0
