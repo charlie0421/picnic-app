@@ -51,7 +51,8 @@ Future showVotingDialog({
   logger.d('🔍 VoteModel 파트너십 정보:');
   logger.d('   - isPartnership: ${voteModel.isPartnership}');
   logger.d('   - partner: "${voteModel.partner}"');
-  logger.d('   - partner?.toLowerCase(): "${voteModel.partner?.toLowerCase()}"');
+  logger
+      .d('   - partner?.toLowerCase(): "${voteModel.partner?.toLowerCase()}"');
   logger.d('   - JMA 조건 매칭: ${voteModel.partner?.toLowerCase() == 'jma'}');
 
   if (voteModel.partner?.toLowerCase() == 'jma') {
@@ -707,13 +708,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   // star_candy와 star_candy_bonus 사용량 계산
   Map<String, int> _calculateUsage(int totalAmount) {
     final userInfo = ref.read(userInfoProvider).value;
-    final starCandy = userInfo?.starCandy ?? 0;
     final starCandyBonus = userInfo?.starCandyBonus ?? 0;
-    
+
     int starCandyUsage = 0;
     int starCandyBonusUsage = 0;
     int remainingAmount = totalAmount;
-    
+
     // 1. 먼저 보너스 캔디 사용
     if (starCandyBonus > 0 && remainingAmount > 0) {
       if (starCandyBonus >= remainingAmount) {
@@ -724,12 +724,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         remainingAmount -= starCandyBonus;
       }
     }
-    
+
     // 2. 남은 금액은 일반 캔디 사용
     if (remainingAmount > 0) {
       starCandyUsage = remainingAmount;
     }
-    
+
     return {
       'star_candy_usage': starCandyUsage,
       'star_candy_bonus_usage': starCandyBonusUsage,
@@ -742,7 +742,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       final usage = _calculateUsage(voteAmount);
       final starCandyUsage = usage['star_candy_usage']!;
       final starCandyBonusUsage = usage['star_candy_bonus_usage']!;
-      
+
       // 새로운 엣지 함수 사용
       final response = await supabase.functions.invoke(
           widget.portalType == VotePortal.vote ? 'voting-v2' : 'pic-voting-v2',

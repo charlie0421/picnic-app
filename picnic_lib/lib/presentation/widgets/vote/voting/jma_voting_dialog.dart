@@ -129,19 +129,27 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   int _getVoteAmount() =>
       int.tryParse(_textEditingController.text.replaceAll(',', '')) ?? 0;
 
+  int _getUsableBonusVotes() {
+    final bonusStarCandy = _getMyBonusStarCandy();
+    final remainingBonusUsage = _maxDailyVotes - _dailyVoteCount;
+
+    if (remainingBonusUsage <= 0 || bonusStarCandy <= 0) {
+      return 0;
+    }
+
+    // min(사용가능한 보너스 사탕, 오늘 남은 보너스 사용 한도)
+    return bonusStarCandy < remainingBonusUsage
+        ? bonusStarCandy
+        : remainingBonusUsage;
+  }
+
   // 입력된 투표수에 필요한 별사탕 총량 계산
   int _getRequiredStarCandyAmount() {
     final voteAmount = _getVoteAmount();
     if (voteAmount == 0) return 0;
 
     // 보너스 우선 사용
-    final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingBonusUsage = _maxDailyVotes - _dailyVoteCount;
-
-    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
-    final usableBonusVotes = remainingBonusUsage > 0
-        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
-        : 0;
+    final usableBonusVotes = _getUsableBonusVotes();
 
     if (voteAmount <= usableBonusVotes) {
       // 보너스만으로 충분한 경우 (1:1)
@@ -170,14 +178,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
   // 사용 가능한 최대 투표수 계산
   int _getMaxPossibleVotes() {
-    final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingBonusUsage = _maxDailyVotes - _dailyVoteCount;
-
-    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
-    final usableBonusVotes = remainingBonusUsage > 0
-        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
-        : 0;
-
+    final usableBonusVotes = _getUsableBonusVotes();
     final regularStarCandy = _getMyStarCandy();
     final regularVotes = regularStarCandy ~/ 30; // 일반 별사탕은 30:1
 
@@ -189,6 +190,17 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     final requiredStarCandy = _getRequiredStarCandyAmount();
     final totalStarCandy = _getTotalStarCandy();
     final maxPossibleVotes = _getMaxPossibleVotes();
+    final usableBonusVotes = _getUsableBonusVotes(); // for logging
+
+    logger.d(
+      'JMA Voting Validation:\n'
+      '  - Vote Amount: $voteAmount\n'
+      '  - Usable Bonus Votes: $usableBonusVotes\n'
+      '  - Max Possible Votes: $maxPossibleVotes\n'
+      '  - Required Star Candy: $requiredStarCandy\n'
+      '  - My Total Star Candy: $totalStarCandy\n'
+      '  - Daily Vote Count: $_dailyVoteCount',
+    );
 
     String validationMessage = '';
     bool canVote = false;
@@ -664,13 +676,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   Widget _buildStarCandyInfo(int myStarCandy) {
     final bonusStarCandy = _getMyBonusStarCandy();
     final usableStarCandy = _getMyStarCandy() ~/ 30; // 기본 별사탕 기준
-    final remainingBonusUsage =
-        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-
-    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
-    final usableBonusVotes = remainingBonusUsage > 0
-        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
-        : 0;
+    final usableBonusVotes = _getUsableBonusVotes();
 
     return Container(
       width: double.infinity,
@@ -866,62 +872,122 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   Widget _buildCalculationAndErrorSection() {
-    // 에러 메시지가 있을 때만 표시
-    if (_validationMessage.isEmpty) {
+    final voteAmount = _getVoteAmount();
+    if (voteAmount == 0 || _validationMessage.isNotEmpty) {
+      // 에러 메시지가 있거나 투표량이 0이면 계산 결과를 보여주지 않음
+      if (_validationMessage.isNotEmpty) {
+        return Container(
+          width: double.infinity,
+          margin: EdgeInsets.symmetric(horizontal: 8.w),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.statusError.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: AppColors.statusError.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: AppColors.statusError.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: const Icon(
+                  Icons.warning_rounded,
+                  size: 12,
+                  color: AppColors.statusError,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  _validationMessage,
+                  style: getTextStyle(
+                    AppTypo.caption12M,
+                    AppColors.statusError,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
       return const SizedBox.shrink();
     }
 
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 8.w),
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.statusError.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: AppColors.statusError.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: AppColors.statusError.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: const Icon(
-              Icons.warning_rounded,
-              size: 12,
-              color: AppColors.statusError,
-            ),
+    final userRole = ref.watch(userInfoProvider).value?.isAdmin;
+    final isAdmin = userRole == true;
+
+    // 어드민 포털일 때만 계산 결과 표시
+    if (isAdmin) {
+      return Container(
+        width: double.infinity,
+        margin: EdgeInsets.symmetric(horizontal: 8.w),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.primary500.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: AppColors.primary500.withValues(alpha: 0.2),
+            width: 1,
           ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              _validationMessage,
-              style: getTextStyle(
-                AppTypo.caption12M,
-                AppColors.statusError,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.primary500.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Icon(
+                Icons.calculate_rounded,
+                size: 12,
+                color: AppColors.primary500,
               ),
             ),
-          ),
-        ],
-      ),
-    );
+            const SizedBox(width: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              decoration: BoxDecoration(
+                color: AppColors.primary500,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                'Admin',
+                style: getTextStyle(
+                  AppTypo.caption10SB,
+                  Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                _getCalculationResultMessage(),
+                style: getTextStyle(
+                  AppTypo.caption12M,
+                  AppColors.primary500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   String _getCalculationResultMessage() {
     final voteAmount = _getVoteAmount();
-    final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingBonusUsage = _maxDailyVotes - _dailyVoteCount;
-
-    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
-    final usableBonusVotes = remainingBonusUsage > 0
-        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
-        : 0;
+    final usableBonusVotes = _getUsableBonusVotes();
 
     if (voteAmount <= usableBonusVotes) {
       // 보너스만으로 충분한 경우
@@ -1106,14 +1172,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     _loadingKey.currentState?.show();
 
     // 보너스 사용 계산
-    final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingBonusUsage =
-        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-
-    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
-    final usableBonusVotes = remainingBonusUsage > 0
-        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
-        : 0;
+    final usableBonusVotes = _getUsableBonusVotes();
 
     final bonusVotesUsed =
         voteAmount <= usableBonusVotes ? voteAmount : usableBonusVotes;
@@ -1145,14 +1204,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   /// 보너스 캔디 우선 사용 로직으로 사용량 계산 (실제 별사탕 개수 기준)
   Map<String, int> _calculateUsage(int totalStarCandyAmount) {
     final voteAmount = _getVoteAmount();
-    final bonusStarCandy = _getMyBonusStarCandy();
-    final remainingBonusUsage =
-        _maxDailyVotes - _dailyVoteCount; // 남은 보너스 사용 가능량
-
-    // 보너스는 반드시 일일 제한(5개) 내에서만 사용 가능
-    final usableBonusVotes = remainingBonusUsage > 0
-        ? (bonusStarCandy > 0 ? remainingBonusUsage : 0)
-        : 0;
+    final usableBonusVotes = _getUsableBonusVotes();
 
     int starCandyUsage = 0; // 일반 별사탕 사용량 (개수)
     int starCandyBonusUsage = 0; // 보너스 별사탕 사용량 (개수)
@@ -1167,6 +1219,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       final regularVotes = voteAmount - usableBonusVotes;
       starCandyUsage = regularVotes * 30; // 일반 별사탕은 30:1 비율
     }
+
+    logger.d(
+      'JMA Voting Usage Calculation:\n'
+      '  - Vote Amount: $voteAmount\n'
+      '  - Usable Bonus Votes: $usableBonusVotes\n'
+      '  - Star Candy Usage: $starCandyUsage\n'
+      '  - Bonus Star Candy Usage: $starCandyBonusUsage',
+    );
 
     return {
       'star_candy_usage': starCandyUsage, // 실제 별사탕 개수
@@ -1194,7 +1254,6 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         'star_candy_usage': usage['star_candy_usage'],
         'star_candy_bonus_usage': usage['star_candy_bonus_usage'],
         'user_id': userId,
-        'bonus_votes_used': bonusVotesUsed,
       });
 
       if (response.status != 200) {

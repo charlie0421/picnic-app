@@ -4,7 +4,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'dart:typed_data';
 
 class QnaThreadCreatePage extends StatefulWidget {
   final String userId;
@@ -22,54 +25,71 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
+  final _scrollController = ScrollController();
   final QnaRepository _repository = QnaRepository();
 
-  List<File> _attachments = [];
+  final List<File> _attachments = [];
   bool _isSubmitting = false;
+  bool _isAttaching = false;
   static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
 
   @override
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   Future<void> _pickMedia() async {
-    final FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.media,
-    );
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isAttaching = true;
+    });
+    try {
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.media,
+      );
 
-    if (result != null) {
-      final List<File> newAttachments = [];
-      final List<String> oversizedFiles = [];
+      if (result != null) {
+        final List<File> newAttachments = [];
+        final List<String> oversizedFiles = [];
 
-      for (final platformFile in result.files) {
-        if (platformFile.size > _maxFileSizeInBytes) {
-          oversizedFiles.add(platformFile.name);
-          continue;
+        for (final platformFile in result.files) {
+          if (platformFile.size > _maxFileSizeInBytes) {
+            oversizedFiles.add(platformFile.name);
+            continue;
+          }
+          if (platformFile.path != null) {
+            newAttachments.add(File(platformFile.path!));
+          }
         }
-        if (platformFile.path != null) {
-          newAttachments.add(File(platformFile.path!));
-        }
-      }
 
-      setState(() {
-        _attachments.addAll(newAttachments);
-      });
+        setState(() {
+          _attachments.addAll(newAttachments);
+        });
 
-      if (oversizedFiles.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).file_too_large_message(
-                oversizedFiles.join(', '),
-                _maxFileSizeInBytes ~/ (1024 * 1024),
+        _scrollToBottom();
+
+        if (oversizedFiles.isNotEmpty && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context).file_too_large_message(
+                  oversizedFiles.join(', '),
+                  _maxFileSizeInBytes ~/ (1024 * 1024),
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAttaching = false;
+        });
       }
     }
   }
@@ -81,6 +101,7 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
   }
 
   Future<void> _submitThread() async {
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isSubmitting = true;
@@ -119,72 +140,101 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
     }
   }
 
+  void _scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).qna_create_title),
-        actions: [
-          TextButton(
-            onPressed: _isSubmitting ? null : _submitThread,
-            child: _isSubmitting
-                ? const CircularProgressIndicator()
-                : Text(
-                    AppLocalizations.of(context).qna_submit_button,
-                    style: TextStyle(
-                        color:
-                            _isSubmitting ? AppColors.grey500 : Colors.black),
-                  ),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context).qna_create_title),
+              actions: [
+                TextButton(
+                  onPressed: _isSubmitting ? null : _submitThread,
+                  child: _isSubmitting
+                      ? const SizedBox.shrink()
+                      : Text(
+                          AppLocalizations.of(context).qna_submit_button,
+                          style: TextStyle(
+                              color: _isSubmitting
+                                  ? AppColors.grey500
+                                  : Colors.black),
+                        ),
+                ),
+              ],
+            ),
+            body: SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context).qna_form_title,
+                        hintText:
+                            AppLocalizations.of(context).qna_form_title_hint,
+                        hintStyle:
+                            getTextStyle(AppTypo.caption12R, AppColors.grey500),
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().length < 5) {
+                          return AppLocalizations.of(context)
+                              .qna_title_min_length;
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _contentController,
+                      maxLines: 10,
+                      decoration: InputDecoration(
+                        labelText:
+                            AppLocalizations.of(context).qna_form_content,
+                        hintText:
+                            AppLocalizations.of(context).qna_form_content_hint,
+                        hintStyle:
+                            getTextStyle(AppTypo.caption12R, AppColors.grey500),
+                        alignLabelWithHint: true,
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().length < 10) {
+                          return AppLocalizations.of(context)
+                              .qna_content_min_length;
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildAttachmentSection(),
+                  ],
+                ),
+              ),
+            ),
           ),
+          if (_isSubmitting || _isAttaching)
+            Container(
+              color: Colors.black.withValues(alpha: 0.5),
+              child: const Center(
+                child: LoadingView(),
+              ),
+            ),
         ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).qna_form_title,
-                  hintText: AppLocalizations.of(context).qna_form_title_hint,
-                  hintStyle:
-                      getTextStyle(AppTypo.caption12R, AppColors.grey500),
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().length < 5) {
-                    return AppLocalizations.of(context).qna_title_min_length;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _contentController,
-                maxLines: 10,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).qna_form_content,
-                  hintText: AppLocalizations.of(context).qna_form_content_hint,
-                  hintStyle:
-                      getTextStyle(AppTypo.caption12R, AppColors.grey500),
-                  alignLabelWithHint: true,
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().length < 10) {
-                    return AppLocalizations.of(context).qna_content_min_length;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildAttachmentSection(),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -237,19 +287,7 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                                   ),
                                 )
                               : isVideo
-                                  ? Container(
-                                      decoration: BoxDecoration(
-                                        color: AppColors.grey200,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.play_circle_outline,
-                                          color: AppColors.grey500,
-                                          size: 40,
-                                        ),
-                                      ),
-                                    )
+                                  ? _VideoThumbnailFromFile(file: file)
                                   : Container(
                                       decoration: BoxDecoration(
                                         color: AppColors.grey200,
@@ -290,6 +328,60 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _VideoThumbnailFromFile extends StatefulWidget {
+  final File file;
+
+  const _VideoThumbnailFromFile({required this.file});
+
+  @override
+  State<_VideoThumbnailFromFile> createState() =>
+      _VideoThumbnailFromFileState();
+}
+
+class _VideoThumbnailFromFileState extends State<_VideoThumbnailFromFile> {
+  Uint8List? _thumbnailData;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateThumbnail();
+  }
+
+  Future<void> _generateThumbnail() async {
+    final thumbnailData = await VideoThumbnail.thumbnailData(
+      video: widget.file.path,
+      imageFormat: ImageFormat.PNG,
+      maxWidth: 160,
+      quality: 25,
+    );
+    if (mounted) {
+      setState(() {
+        _thumbnailData = thumbnailData;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8.0),
+      child: Container(
+        width: 80,
+        height: 80,
+        color: AppColors.grey200,
+        child: _thumbnailData != null
+            ? Image.memory(
+                _thumbnailData!,
+                fit: BoxFit.cover,
+              )
+            : const Center(
+                child: LoadingView(),
+              ),
+      ),
     );
   }
 }

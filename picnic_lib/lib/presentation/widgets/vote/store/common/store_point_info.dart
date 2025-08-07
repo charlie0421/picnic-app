@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 
-import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
@@ -32,8 +31,6 @@ class StorePointInfo extends ConsumerStatefulWidget {
 class _StorePointInfoState extends ConsumerState<StorePointInfo> {
   @override
   Widget build(BuildContext context) {
-    final expireBonusResult = ref.watch(expireBonusProvider);
-
     return Stack(
       children: [
         Container(

@@ -14,6 +14,7 @@ import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_full_screen_image_viewer.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_video_player_page.dart';
+import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -36,6 +37,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   List<File> _attachments = [];
   bool _isLoading = true;
   bool _isSending = false;
+  bool _isAttaching = false;
   String? _errorMessage;
   static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
 
@@ -69,6 +71,8 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   Future<void> _sendMessage() async {
     final content = _messageController.text.trim();
     if (content.isEmpty && _attachments.isEmpty) return;
+
+    FocusScope.of(context).unfocus();
 
     setState(() {
       _isSending = true;
@@ -111,93 +115,121 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   Future<void> _pickMedia() async {
-    final FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.media,
-    );
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isAttaching = true;
+    });
+    try {
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.media,
+      );
 
-    if (result != null) {
-      final List<File> newAttachments = [];
-      final List<String> oversizedFiles = [];
+      if (result != null) {
+        final List<File> newAttachments = [];
+        final List<String> oversizedFiles = [];
 
-      for (final platformFile in result.files) {
-        if (platformFile.size > _maxFileSizeInBytes) {
-          oversizedFiles.add(platformFile.name);
-          continue;
+        for (final platformFile in result.files) {
+          if (platformFile.size > _maxFileSizeInBytes) {
+            oversizedFiles.add(platformFile.name);
+            continue;
+          }
+          if (platformFile.path != null) {
+            newAttachments.add(File(platformFile.path!));
+          }
         }
-        if (platformFile.path != null) {
-          newAttachments.add(File(platformFile.path!));
-        }
-      }
 
-      setState(() {
-        _attachments.addAll(newAttachments);
-      });
+        setState(() {
+          _attachments.addAll(newAttachments);
+        });
 
-      if (oversizedFiles.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).file_too_large_message(
-                oversizedFiles.join(', '),
-                _maxFileSizeInBytes ~/ (1024 * 1024),
+        if (oversizedFiles.isNotEmpty && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context).file_too_large_message(
+                  oversizedFiles.join(', '),
+                  _maxFileSizeInBytes ~/ (1024 * 1024),
+                ),
               ),
             ),
-          ),
-        );
+          );
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAttaching = false;
+        });
       }
     }
   }
 
   void _removeAttachment(int index) {
+    FocusScope.of(context).unfocus();
     setState(() {
       _attachments.removeAt(index);
     });
   }
 
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.thread.title,
-          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-        ),
-        backgroundColor: AppColors.grey00,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        foregroundColor: AppColors.grey900,
-        actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Chip(
-                label: Text(
-                  widget.thread.status == 'OPEN'
-                      ? AppLocalizations.of(context).qna_status_open
-                      : AppLocalizations.of(context).qna_status_closed,
-                  style: getTextStyle(AppTypo.caption12M, AppColors.grey00),
-                ),
-                backgroundColor: widget.thread.status == 'OPEN'
-                    ? AppColors.primary500
-                    : AppColors.secondary500,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide.none,
-                ),
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              title: Text(
+                widget.thread.title,
+                style: getTextStyle(AppTypo.body14M, AppColors.grey900),
               ),
+              backgroundColor: AppColors.grey00,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              foregroundColor: AppColors.grey900,
+              actions: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Chip(
+                      label: Text(
+                        widget.thread.status == 'OPEN'
+                            ? AppLocalizations.of(context).qna_status_open
+                            : AppLocalizations.of(context).qna_status_closed,
+                        style:
+                            getTextStyle(AppTypo.caption12M, AppColors.grey00),
+                      ),
+                      backgroundColor: widget.thread.status == 'OPEN'
+                          ? AppColors.primary500
+                          : AppColors.secondary500,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide.none,
+                      ),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: _buildBody(),
+                ),
+                _buildMessageInput(),
+              ],
             ),
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _buildBody(),
-          ),
-          _buildMessageInput(),
+          if (_isSending || _isAttaching)
+            Container(
+              color: Colors.black.withAlpha(128),
+              child: const Center(
+                child: LoadingView(),
+              ),
+            ),
         ],
       ),
     );
@@ -323,7 +355,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                     style: getTextStyle(
                         AppTypo.caption12R,
                         isMyMessage
-                            ? AppColors.grey00.withOpacity(0.8)
+                            ? AppColors.grey00.withAlpha(204)
                             : AppColors.grey400),
                   ),
                 ),
@@ -385,57 +417,51 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     final imageUrl = _getPublicUrl(att.filePath);
     return ClipRRect(
       borderRadius: BorderRadius.circular(12.0),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: GestureDetector(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => QnaFullScreenImageViewer(imageUrl: imageUrl),
-            ),
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => QnaFullScreenImageViewer(imageUrl: imageUrl),
           ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: isMyMessage
-                        ? AppColors.primary500.withOpacity(0.5)
-                        : AppColors.grey200,
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.error);
-                },
-              ),
-              if (!hasText)
-                Positioned(
-                  bottom: 4,
-                  right: 4,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      formatTimeAgo(context, message.createdAt.toLocal()),
-                      style: getTextStyle(AppTypo.caption12R,
-                          AppColors.grey00.withOpacity(0.8)),
-                    ),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Image.network(
+              imageUrl,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  color: isMyMessage
+                      ? AppColors.primary500.withAlpha(128)
+                      : AppColors.grey200,
+                  child: const Center(
+                    child: LoadingView(),
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.error);
+              },
+            ),
+            if (!hasText)
+              Positioned(
+                bottom: 4,
+                right: 4,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(178),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    formatTimeAgo(context, message.createdAt.toLocal()),
+                    style: getTextStyle(
+                        AppTypo.caption12R, AppColors.grey00.withAlpha(204)),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -453,23 +479,20 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12.0),
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Container(
-            color: AppColors.grey200,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                _VideoThumbnail(videoUrl: videoUrl),
-                const Center(
-                  child: Icon(
-                    Icons.play_circle_outline,
-                    color: Colors.white,
-                    size: 40,
-                  ),
+        child: Container(
+          color: AppColors.grey200,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              _VideoThumbnail(videoUrl: videoUrl),
+              const Center(
+                child: Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.white,
+                  size: 40,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -491,7 +514,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           color: AppColors.grey100,
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withAlpha(25),
               spreadRadius: 1,
               blurRadius: 5,
             ),
@@ -512,7 +535,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withAlpha(25),
             spreadRadius: 1,
             blurRadius: 5,
           ),
@@ -533,6 +556,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                     final isImage =
                         lookupMimeType(file.path)?.startsWith('image/') ??
                             false;
+                    final isVideo =
+                        lookupMimeType(file.path)?.startsWith('video/') ??
+                            false;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0, top: 8.0),
                       child: Stack(
@@ -551,14 +577,22 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                                       height: 60,
                                     ),
                                   )
-                                : Container(
-                                    decoration: BoxDecoration(
-                                      color: AppColors.grey200,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.insert_drive_file,
-                                        color: AppColors.grey500),
-                                  ),
+                                : isVideo
+                                    ? _VideoThumbnailFromFile(
+                                        file: file,
+                                        width: 60,
+                                        height: 60,
+                                      )
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.grey200,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                            Icons.insert_drive_file,
+                                            color: AppColors.grey500),
+                                      ),
                           ),
                           Positioned(
                             top: -10,
@@ -651,11 +685,71 @@ class _VideoThumbnailState extends State<_VideoThumbnail> {
   @override
   Widget build(BuildContext context) {
     if (_thumbnailData == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: LoadingView());
     }
     return Image.memory(
       _thumbnailData!,
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
+    );
+  }
+}
+
+class _VideoThumbnailFromFile extends StatefulWidget {
+  final File file;
+  final double? width;
+  final double? height;
+
+  const _VideoThumbnailFromFile({
+    required this.file,
+    this.width,
+    this.height,
+  });
+
+  @override
+  State<_VideoThumbnailFromFile> createState() =>
+      _VideoThumbnailFromFileState();
+}
+
+class _VideoThumbnailFromFileState extends State<_VideoThumbnailFromFile> {
+  Uint8List? _thumbnailData;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateThumbnail();
+  }
+
+  Future<void> _generateThumbnail() async {
+    final thumbnailData = await VideoThumbnail.thumbnailData(
+      video: widget.file.path,
+      imageFormat: ImageFormat.PNG,
+      maxWidth: (widget.width?.toInt() ?? 160) * 2,
+      quality: 25,
+    );
+    if (mounted) {
+      setState(() {
+        _thumbnailData = thumbnailData;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8.0),
+      child: Container(
+        width: widget.width ?? 80,
+        height: widget.height ?? 80,
+        color: AppColors.grey200,
+        child: _thumbnailData != null
+            ? Image.memory(
+                _thumbnailData!,
+                fit: BoxFit.contain,
+              )
+            : const Center(
+                child: LoadingView(),
+              ),
+      ),
     );
   }
 }
