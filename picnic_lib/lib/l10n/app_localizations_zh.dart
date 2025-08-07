@@ -1560,7 +1560,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_mark_resolved_success => 'Changed to resolved';
 
   @override
-  String get qna_no_answer_yet => '暂无回答';
+  String get qna_no_answer_yet => '还没有答案。请稍等。';
 
   @override
   String get qna_no_inquiries => '没有找到咨询。按+按钮创建一个新的。';
@@ -1960,7 +1960,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get just_now => 'Just now';
 
   @override
-  String get retry => 'Retry';
+  String get retry => '重试';
 
   @override
   String get update => 'Update';
@@ -2272,4 +2272,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get qna_cannot_send_message_closed => '此查询已关闭，您不能再发送消息。';
+
+  @override
+  String get qna_message_sent_success => '消息已成功发送。';
+
+  @override
+  String get qna_message_sent_fail => '发送消息失败';
+
+  @override
+  String get qna_add_media_tooltip => '添加媒体';
+
+  @override
+  String get qna_load_fail_title => '加载查询失败';
 }

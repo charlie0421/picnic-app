@@ -231,9 +231,9 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
         children: [
           Icon(Icons.error_outline, color: Colors.red[400], size: 60),
           const SizedBox(height: 16),
-          const Text(
-            'Failed to load inquiries',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            AppLocalizations.of(context).qna_load_fail_title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -246,7 +246,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
           ElevatedButton.icon(
             onPressed: () => _loadThreads(isInitial: true),
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(AppLocalizations.of(context).retry),
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
               backgroundColor: AppColors.primary500,

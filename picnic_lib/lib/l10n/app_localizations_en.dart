@@ -2373,4 +2373,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get qna_cannot_send_message_closed =>
       'This inquiry has been closed and you can no longer send messages.';
+
+  @override
+  String get qna_message_sent_success => 'Message sent successfully.';
+
+  @override
+  String get qna_message_sent_fail => 'Failed to send message';
+
+  @override
+  String get qna_add_media_tooltip => 'Add Media';
+
+  @override
+  String get qna_load_fail_title => 'Failed to load inquiries';
 }

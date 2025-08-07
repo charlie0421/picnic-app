@@ -4478,6 +4478,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This inquiry has been closed and you can no longer send messages.'**
   String get qna_cannot_send_message_closed;
+
+  /// No description provided for @qna_message_sent_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Message sent successfully.'**
+  String get qna_message_sent_success;
+
+  /// No description provided for @qna_message_sent_fail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send message'**
+  String get qna_message_sent_fail;
+
+  /// No description provided for @qna_add_media_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Media'**
+  String get qna_add_media_tooltip;
+
+  /// No description provided for @qna_load_fail_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load inquiries'**
+  String get qna_load_fail_title;
 }
 
 class _AppLocalizationsDelegate

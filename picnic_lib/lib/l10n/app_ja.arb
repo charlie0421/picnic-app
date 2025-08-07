@@ -715,5 +715,11 @@
   "qna_attach_file": "ファイル添付",
   "qna_submit_fail": "お問い合わせの送信に失敗しました",
   "qna_file_size_limit_notice": "最大{maxSize}MBまでのファイルを添付できます。",
-  "qna_cannot_send_message_closed": "このお問い合わせは終了したため、これ以上メッセージを送信できません。"
+  "qna_cannot_send_message_closed": "このお問い合わせは終了したため、これ以上メッセージを送信できません。",
+  "qna_message_sent_success": "メッセージを正常に送信しました。",
+  "qna_message_sent_fail": "メッセージの送信に失敗しました",
+  "qna_no_answer_yet": "まだ回答がありません。しばらくお待ちください。",
+  "qna_add_media_tooltip": "メディアを追加",
+  "qna_load_fail_title": "お問い合わせの読み込みに失敗しました",
+  "retry": "再試行"
 }

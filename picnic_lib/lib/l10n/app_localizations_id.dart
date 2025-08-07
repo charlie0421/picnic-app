@@ -1639,7 +1639,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_mark_resolved_success => 'Changed to resolved';
 
   @override
-  String get qna_no_answer_yet => 'Belum ada jawaban';
+  String get qna_no_answer_yet => 'Belum ada jawaban. Harap tunggu sebentar.';
 
   @override
   String get qna_no_inquiries =>
@@ -2061,7 +2061,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get just_now => 'Just now';
 
   @override
-  String get retry => 'Retry';
+  String get retry => 'Coba lagi';
 
   @override
   String get update => 'Update';
@@ -2390,4 +2390,16 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get qna_cannot_send_message_closed =>
       'Pertanyaan ini telah ditutup dan Anda tidak dapat lagi mengirim pesan.';
+
+  @override
+  String get qna_message_sent_success => 'Pesan berhasil dikirim.';
+
+  @override
+  String get qna_message_sent_fail => 'Gagal mengirim pesan';
+
+  @override
+  String get qna_add_media_tooltip => 'Tambah Media';
+
+  @override
+  String get qna_load_fail_title => 'Gagal memuat pertanyaan';
 }

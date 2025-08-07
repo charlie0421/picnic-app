@@ -716,5 +716,11 @@
   "qna_attach_file": "Lampirkan Berkas",
   "qna_submit_fail": "Gagal mengirimkan pertanyaan",
   "qna_file_size_limit_notice": "Anda dapat melampirkan file hingga {maxSize}MB.",
-  "qna_cannot_send_message_closed": "Pertanyaan ini telah ditutup dan Anda tidak dapat lagi mengirim pesan."
+  "qna_cannot_send_message_closed": "Pertanyaan ini telah ditutup dan Anda tidak dapat lagi mengirim pesan.",
+  "qna_message_sent_success": "Pesan berhasil dikirim.",
+  "qna_message_sent_fail": "Gagal mengirim pesan",
+  "qna_no_answer_yet": "Belum ada jawaban. Harap tunggu sebentar.",
+  "qna_add_media_tooltip": "Tambah Media",
+  "qna_load_fail_title": "Gagal memuat pertanyaan",
+  "retry": "Coba lagi"
 }

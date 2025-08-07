@@ -741,5 +741,11 @@
   "file_too_large_message": "{fileName} exceeds the {maxSize}MB size limit.",
   "qna_submit_fail": "Failed to submit inquiry",
   "qna_file_size_limit_notice": "You can attach files up to {maxSize}MB.",
-  "qna_cannot_send_message_closed": "This inquiry has been closed and you can no longer send messages."
+  "qna_cannot_send_message_closed": "This inquiry has been closed and you can no longer send messages.",
+  "qna_message_sent_success": "Message sent successfully.",
+  "qna_message_sent_fail": "Failed to send message",
+  "qna_no_answer_yet": "No answer yet",
+  "qna_add_media_tooltip": "Add Media",
+  "qna_load_fail_title": "Failed to load inquiries",
+  "retry": "Retry"
 }

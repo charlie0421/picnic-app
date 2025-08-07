@@ -96,13 +96,21 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('메시지를 성공적으로 보냈습니다.')),
+          SnackBar(
+            content:
+                Text(AppLocalizations.of(context).qna_message_sent_success),
+            duration: const Duration(seconds: 2),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('메시지 전송 실패: $e')),
+          SnackBar(
+            content: Text(
+                '${AppLocalizations.of(context).qna_message_sent_fail}: $e'),
+            duration: const Duration(seconds: 2),
+          ),
         );
       }
     } finally {
@@ -152,6 +160,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                   _maxFileSizeInBytes ~/ (1024 * 1024),
                 ),
               ),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
@@ -620,7 +629,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                 IconButton(
                   icon: const Icon(Icons.perm_media_outlined),
                   onPressed: _pickMedia,
-                  tooltip: '미디어 추가',
+                  tooltip: AppLocalizations.of(context).qna_add_media_tooltip,
                 ),
                 Expanded(
                   child: TextField(

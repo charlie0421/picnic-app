@@ -902,5 +902,11 @@
   "file_too_large_message": "{fileName} 파일은 {maxSize}MB 크기를 초과할 수 없습니다.",
   "qna_submit_fail": "문의 등록에 실패했습니다",
   "qna_file_size_limit_notice": "최대 {maxSize}MB까지 파일을 첨부할 수 있습니다.",
-  "qna_cannot_send_message_closed": "문의가 종료되어 더 이상 메시지를 보낼 수 없습니다."
+  "qna_cannot_send_message_closed": "문의가 종료되어 더 이상 메시지를 보낼 수 없습니다.",
+  "qna_message_sent_success": "메시지를 성공적으로 보냈습니다.",
+  "qna_message_sent_fail": "메시지 전송에 실패했습니다",
+  "qna_no_answer_yet": "아직 답변이 없습니다. 잠시만 기다려주세요.",
+  "qna_add_media_tooltip": "미디어 추가",
+  "qna_load_fail_title": "문의 내역을 불러오는데 실패했습니다",
+  "retry": "재시도"
 }

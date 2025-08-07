@@ -1574,7 +1574,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_mark_resolved_success => 'Changed to resolved';
 
   @override
-  String get qna_no_answer_yet => 'まだ回答がありません';
+  String get qna_no_answer_yet => 'まだ回答がありません。しばらくお待ちください。';
 
   @override
   String get qna_no_inquiries =>
@@ -1979,7 +1979,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get just_now => 'Just now';
 
   @override
-  String get retry => 'Retry';
+  String get retry => '再試行';
 
   @override
   String get update => 'Update';
@@ -2292,4 +2292,16 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get qna_cannot_send_message_closed =>
       'このお問い合わせは終了したため、これ以上メッセージを送信できません。';
+
+  @override
+  String get qna_message_sent_success => 'メッセージを正常に送信しました。';
+
+  @override
+  String get qna_message_sent_fail => 'メッセージの送信に失敗しました';
+
+  @override
+  String get qna_add_media_tooltip => 'メディアを追加';
+
+  @override
+  String get qna_load_fail_title => 'お問い合わせの読み込みに失敗しました';
 }

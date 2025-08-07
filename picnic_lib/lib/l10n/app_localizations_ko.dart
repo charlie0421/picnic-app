@@ -1570,7 +1570,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_mark_resolved_success => '해결됨으로 변경되었습니다';
 
   @override
-  String get qna_no_answer_yet => '아직 답변이 없습니다';
+  String get qna_no_answer_yet => '아직 답변이 없습니다. 잠시만 기다려주세요.';
 
   @override
   String get qna_no_inquiries => '문의 내역이 없습니다';
@@ -1971,7 +1971,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get just_now => '방금 전';
 
   @override
-  String get retry => '다시 시도';
+  String get retry => '재시도';
 
   @override
   String get update => '업데이트';
@@ -2283,4 +2283,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get qna_cannot_send_message_closed => '문의가 종료되어 더 이상 메시지를 보낼 수 없습니다.';
+
+  @override
+  String get qna_message_sent_success => '메시지를 성공적으로 보냈습니다.';
+
+  @override
+  String get qna_message_sent_fail => '메시지 전송에 실패했습니다';
+
+  @override
+  String get qna_add_media_tooltip => '미디어 추가';
+
+  @override
+  String get qna_load_fail_title => '문의 내역을 불러오는데 실패했습니다';
 }

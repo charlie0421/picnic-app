@@ -81,6 +81,7 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                   _maxFileSizeInBytes ~/ (1024 * 1024),
                 ),
               ),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
@@ -118,7 +119,8 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(AppLocalizations.of(context).qna_submit_success)),
+                content: Text(AppLocalizations.of(context).qna_submit_success),
+                duration: const Duration(seconds: 2)),
           );
           Navigator.of(context).pop(true);
         }
@@ -126,8 +128,9 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                    '${AppLocalizations.of(context).qna_submit_fail}: $e')),
+                content:
+                    Text('${AppLocalizations.of(context).qna_submit_fail}: $e'),
+                duration: const Duration(seconds: 2)),
           );
         }
       } finally {
