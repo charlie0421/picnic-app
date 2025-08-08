@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -35,14 +36,15 @@ class PurchaseDialogHandler {
               Image.asset(
                 package: 'picnic_lib',
                 'assets/icons/store/star_${serverProduct['id'].replaceAll('STAR', '')}.png',
-                width: 24,
-                height: 24,
+                width: 50.w,
+                height: 50.w,
               ),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
                   AppLocalizations.of(context).purchase_confirm_title,
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                  style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],

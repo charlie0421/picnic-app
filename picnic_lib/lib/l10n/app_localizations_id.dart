@@ -1492,12 +1492,19 @@ class AppLocalizationsId extends AppLocalizations {
   String get purchase_cooldown_message => 'Silakan coba lagi nanti.';
 
   @override
+  String get previousTransactionPendingError =>
+      'Pembayaran Anda sebelumnya masih diproses oleh Store. Silakan coba lagi nanti.';
+
+  @override
   String get purchase_in_progress_message =>
       'Pembelian sedang berlangsung. Mohon tunggu sebentar.';
 
   @override
   String get purchase_initializing_message =>
       'Pembelian sedang berlangsung. Mohon tunggu sebentar.';
+
+  @override
+  String get purchase_cancelled_message => 'Pembelian telah dibatalkan.';
 
   @override
   String get purchase_payment_amount => 'Jumlah Pembayaran';

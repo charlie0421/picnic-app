@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -26,6 +27,7 @@ import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:picnic_lib/core/utils/ui.dart';
 
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
@@ -48,6 +50,7 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   bool _isActivePurchasing = false;
   bool _isInitializing = true;
   bool _isPurchasing = false;
+  final Set<String> _currentlyProcessingIDs = {};
 
   @override
   void initState() {
@@ -295,7 +298,23 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
     try {
       for (final purchaseDetails in purchaseDetailsList) {
-        await _processPurchaseDetail(purchaseDetails);
+        final purchaseID = purchaseDetails.purchaseID;
+        if (purchaseID != null && _currentlyProcessingIDs.contains(purchaseID)) {
+          logger.w('[PurchaseStarCandyState] Skipping already processing purchase: $purchaseID');
+          continue;
+        }
+
+        if (purchaseID != null) {
+          _currentlyProcessingIDs.add(purchaseID);
+        }
+
+        try {
+          await _processPurchaseDetail(purchaseDetails);
+        } finally {
+          if (purchaseID != null) {
+            _currentlyProcessingIDs.remove(purchaseID);
+          }
+        }
       }
     } catch (e, s) {
       logger.e('[PurchaseStarCandyState] Error handling purchase update: $e',
@@ -366,10 +385,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     await _processErrorAndCancel(purchaseDetails);
-    if (purchaseDetails.pendingCompletePurchase) {
-      await _purchaseService.inAppPurchaseService
-          .completePurchase(purchaseDetails);
-    }
   }
 
   /// 초기화 중 pending 구매 강제 완료 여부 확인
@@ -575,8 +590,23 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
 
-          if (_isDuplicateError(error)) {
-            await _dialogHandler.showUnexpectedDuplicateDialog();
+                    if (error == 'previousTransactionPendingError') {
+            if (mounted) {
+              final context = navigatorKey.currentContext;
+              if (context != null) {
+                showOverlayToast(
+                  context,
+                  Text(AppLocalizations.of(context).previousTransactionPendingError),
+                );
+              }
+            }
+          } else if (_isDuplicateError(error)) {
+            if (navigatorKey.currentContext != null) {
+              showOverlayToast(
+                navigatorKey.currentContext!,
+                Text(error),
+              );
+            }
           } else {
             logger.e('[PurchaseStarCandyState] Purchase error: $error');
             await _dialogHandler.showErrorDialog(error);
@@ -609,13 +639,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               '[PurchaseStarCandyState] Purchase canceled - no error dialog');
         }
       }
-    } else if (purchaseDetails.status == PurchaseStatus.canceled) {
-      logger.i(
-          '[PurchaseStarCandyState] Purchase canceled: ${purchaseDetails.productID}');
-      if (mounted) {
-        _resetPurchaseState();
-        _loadingKey.currentState?.hide();
-      }
+    }
+
+    // 🔥 중요: 에러가 발생하거나 취소된 경우에도 트랜잭션을 완료하여 반복적인 팝업을 방지합니다.
+    if (purchaseDetails.pendingCompletePurchase) {
+      logger.i('[PurchaseStarCandyState] Completing failed/canceled transaction to prevent re-delivery.');
+      await _purchaseService.inAppPurchaseService.completePurchase(purchaseDetails);
     }
   }
 
@@ -804,6 +833,17 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   /// 구매 결과 처리 - 취소와 에러를 구분
   Future<void> _handlePurchaseResult(
       Map<String, dynamic> purchaseResult) async {
+    if (purchaseResult['wasCancelled'] == true) {
+      if (mounted) {
+        _resetPurchaseState();
+        _loadingKey.currentState?.hide();
+        // 사용자가 직접 취소한 경우 팝업 표시
+        showSimpleDialog(
+            content: AppLocalizations.of(context).purchase_cancelled_message);
+      }
+      return;
+    }
+
     await _safetyManager.handlePurchaseResult(
       purchaseResult,
       _isActivePurchasing,

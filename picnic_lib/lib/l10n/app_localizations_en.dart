@@ -1485,12 +1485,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchase_cooldown_message => 'Please try again in a moment.';
 
   @override
+  String get previousTransactionPendingError =>
+      'Your previous payment is still being processed by the Store. Please try again shortly.';
+
+  @override
   String get purchase_in_progress_message =>
       'Purchase is in progress. Please wait a moment.';
 
   @override
   String get purchase_initializing_message =>
       'Initializing. Please try again in a moment.';
+
+  @override
+  String get purchase_cancelled_message => 'Purchase has been cancelled.';
 
   @override
   String get purchase_payment_amount => 'Payment Amount';

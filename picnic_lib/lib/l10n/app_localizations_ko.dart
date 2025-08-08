@@ -1431,10 +1431,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get purchase_cooldown_message => '잠시 후 다시 시도해주세요.';
 
   @override
+  String get previousTransactionPendingError =>
+      '이전 결제가 스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get purchase_in_progress_message => '구매가 진행 중입니다. 잠시만 기다려주세요.';
 
   @override
   String get purchase_initializing_message => '초기화 중입니다. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get purchase_cancelled_message => '구매가 취소되었습니다.';
 
   @override
   String get purchase_payment_amount => '결제 금액';

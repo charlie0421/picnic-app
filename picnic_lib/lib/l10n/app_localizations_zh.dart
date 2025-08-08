@@ -1423,10 +1423,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get purchase_cooldown_message => '请稍后重试。';
 
   @override
+  String get previousTransactionPendingError => '您之前的付款仍在由商店处理。请稍后重试。';
+
+  @override
   String get purchase_in_progress_message => '购买正在进行中。请稍等。';
 
   @override
   String get purchase_initializing_message => '购买正在进行中。请稍等。';
+
+  @override
+  String get purchase_cancelled_message => '购买已取消。';
 
   @override
   String get purchase_payment_amount => '支付金额';

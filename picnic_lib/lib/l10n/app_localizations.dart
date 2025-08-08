@@ -2876,6 +2876,12 @@ abstract class AppLocalizations {
   /// **'Please try again in a moment.'**
   String get purchase_cooldown_message;
 
+  /// No description provided for @previousTransactionPendingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your previous payment is still being processed by the Store. Please try again shortly.'**
+  String get previousTransactionPendingError;
+
   /// No description provided for @purchase_in_progress_message.
   ///
   /// In en, this message translates to:
@@ -2887,6 +2893,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Initializing. Please try again in a moment.'**
   String get purchase_initializing_message;
+
+  /// No description provided for @purchase_cancelled_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase has been cancelled.'**
+  String get purchase_cancelled_message;
 
   /// No description provided for @purchase_payment_amount.
   ///

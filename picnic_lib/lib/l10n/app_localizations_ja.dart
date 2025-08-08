@@ -1435,10 +1435,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get purchase_cooldown_message => 'しばらくしてから再度お試しください。';
 
   @override
-  String get purchase_in_progress_message => '購入処理中です。しばらくお待ちください。';
+  String get previousTransactionPendingError =>
+      '前回の決済がストアで処理中です。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get purchase_in_progress_message => '決済処理中です。しばらくお待ちください。';
 
   @override
   String get purchase_initializing_message => '購入処理中です。しばらくお待ちください。';
+
+  @override
+  String get purchase_cancelled_message => '購入がキャンセルされました。';
 
   @override
   String get purchase_payment_amount => '支払い金額';
