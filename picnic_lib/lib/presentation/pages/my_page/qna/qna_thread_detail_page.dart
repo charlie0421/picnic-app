@@ -427,11 +427,27 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12.0),
       child: GestureDetector(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => QnaFullScreenImageViewer(imageUrl: imageUrl),
-          ),
-        ),
+        onTap: () {
+          final imageAttachments = message.attachments.where((attachment) {
+            final isImageByMime =
+                attachment.fileType?.startsWith('image/') ?? false;
+            final isImageByExtension = ['jpg', 'jpeg', 'png', 'gif']
+                .any((ext) => attachment.fileName.toLowerCase().endsWith('.$ext'));
+            return isImageByMime || isImageByExtension;
+          }).toList();
+          final imageUrls =
+              imageAttachments.map((a) => _getPublicUrl(a.filePath)).toList();
+          final currentIndex = imageAttachments.indexOf(att);
+
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => QnaFullScreenImageViewer(
+                imageUrls: imageUrls,
+                initialIndex: currentIndex,
+              ),
+            ),
+          );
+        },
         child: Stack(
           alignment: Alignment.center,
           children: [

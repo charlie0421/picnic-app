@@ -1,9 +1,34 @@
 import 'package:flutter/material.dart';
 
-class QnaFullScreenImageViewer extends StatelessWidget {
-  final String imageUrl;
+class QnaFullScreenImageViewer extends StatefulWidget {
+  final List<String> imageUrls;
+  final int initialIndex;
 
-  const QnaFullScreenImageViewer({super.key, required this.imageUrl});
+  const QnaFullScreenImageViewer({
+    super.key,
+    required this.imageUrls,
+    this.initialIndex = 0,
+  });
+
+  @override
+  State<QnaFullScreenImageViewer> createState() =>
+      _QnaFullScreenImageViewerState();
+}
+
+class _QnaFullScreenImageViewerState extends State<QnaFullScreenImageViewer> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +42,19 @@ class QnaFullScreenImageViewer extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Center(
-        child: InteractiveViewer(
-          panEnabled: true,
-          minScale: 0.5,
-          maxScale: 4,
-          child: Image.network(imageUrl),
-        ),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.imageUrls.length,
+        itemBuilder: (context, index) {
+          return Center(
+            child: InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.5,
+              maxScale: 4,
+              child: Image.network(widget.imageUrls[index]),
+            ),
+          );
+        },
       ),
     );
   }
