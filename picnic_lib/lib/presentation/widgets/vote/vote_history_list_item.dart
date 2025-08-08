@@ -13,36 +13,40 @@ class VoteHistoryListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.grey100,
+    return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      shape: RoundedRectangleBorder(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 0,
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(12.w),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _VoteHistoryHeader(item: item),
-                  _VoteInfo(item: item),
-                  SizedBox(height: 4.h),
-                  _VoteUsage(item: item),
-                ],
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _VoteHistoryHeader(item: item),
+          SizedBox(height: 8.h),
+          _VoteInfo(item: item),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.h),
+            child: Divider(
+              color: AppColors.grey200,
+              height: 1.h,
             ),
-          ],
-        ),
+          ),
+          _VoteUsage(item: item),
+        ],
       ),
     );
   }
 }
-
-
 
 class _VoteHistoryHeader extends StatelessWidget {
   const _VoteHistoryHeader({required this.item});
@@ -54,12 +58,13 @@ class _VoteHistoryHeader extends StatelessWidget {
     final isPartnership = item.vote.isPartnership ?? false;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           DateFormat('yyyy.MM.dd HH:mm:ss').format(item.createdAt!),
           style: getTextStyle(
             AppTypo.caption12R,
-            AppColors.grey900,
+            AppColors.grey600,
           ),
         ),
         if (isPartnership)
@@ -109,29 +114,44 @@ class _VoteInfo extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         if (artistName.isNotEmpty) ...[
-          SizedBox(height: 2.h),
-          RichText(
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: artistName,
-                  style: getTextStyle(
-                    AppTypo.body16B,
-                    AppColors.grey900,
+          SizedBox(height: 4.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.point500.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Text(
+                    artistName,
+                    style: getTextStyle(
+                      AppTypo.caption12B,
+                      AppColors.point900,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (groupName.isNotEmpty)
-                  TextSpan(
-                    text: ' ($groupName)',
+              ),
+              if (groupName.isNotEmpty) ...[
+                SizedBox(width: 6.w),
+                Flexible(
+                  child: Text(
+                    groupName,
                     style: getTextStyle(
-                      AppTypo.body16M,
+                      AppTypo.caption12M,
                       AppColors.grey600,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-              ],
-            ),
+                ),
+              ]
+            ],
           ),
         ]
       ],
@@ -216,9 +236,17 @@ class _VoteUsage extends StatelessWidget {
       children.add(Text(formatNumberWithComma(bonusUsage), style: numberStyle));
     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: children,
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: AppColors.grey100.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(30.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: children,
+      ),
     );
   }
 }
