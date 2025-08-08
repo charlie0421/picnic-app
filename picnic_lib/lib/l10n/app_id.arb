@@ -722,5 +722,7 @@
   "qna_no_answer_yet": "Belum ada jawaban. Harap tunggu sebentar.",
   "qna_add_media_tooltip": "Tambah Media",
   "qna_load_fail_title": "Gagal memuat pertanyaan",
-  "retry": "Coba lagi"
+  "retry": "Coba lagi",
+  "voteTypeJma": "JMA",
+  "label_my_vote_history": "Riwayat Voting Saya"
 }

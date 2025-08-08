@@ -1765,6 +1765,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_vote_complete => '投票结束';
 
   @override
+  String get text_jma_vote_ticket => 'JMA Vote Ticket';
+
+  @override
   String get text_vote_countdown_end => '距离结束';
 
   @override
@@ -2284,4 +2287,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get qna_load_fail_title => '加载查询失败';
+
+  @override
+  String get jmaVoteTicket => 'JMA Vote Ticket';
+
+  @override
+  String get paid => 'Paid';
+
+  @override
+  String get bonus => 'Bonus';
+
+  @override
+  String get voteTypePicnic => 'Picnic';
+
+  @override
+  String get voteTypeJma => 'JMA';
+
+  @override
+  String get label_my_vote_history => '我的投票历史';
 }

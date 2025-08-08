@@ -573,6 +573,7 @@
   "text_star_candy_with_bonus": "{num1}個  +{num1}個のボーナス",
   "text_this_time_vote": "今回の投票",
   "text_vote_complete": "投票完了",
+  "text_jma_vote_ticket": "JMA投票権",
   "text_vote_countdown_end": "終了まで",
   "text_vote_countdown_start": "開始まで",
   "text_vote_ended": "終了",
@@ -721,5 +722,11 @@
   "qna_no_answer_yet": "まだ回答がありません。しばらくお待ちください。",
   "qna_add_media_tooltip": "メディアを追加",
   "qna_load_fail_title": "お問い合わせの読み込みに失敗しました",
-  "retry": "再試行"
+  "retry": "再試行",
+  "jmaVoteTicket": "JMA投票券",
+  "paid": "有料",
+  "bonus": "ボーナス",
+  "voteTypePicnic": "Picnic",
+  "voteTypeJma": "JMA",
+  "label_my_vote_history": "私の投票履歴"
 }

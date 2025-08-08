@@ -1782,6 +1782,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get text_vote_complete => '投票完了';
 
   @override
+  String get text_jma_vote_ticket => 'JMA投票権';
+
+  @override
   String get text_vote_countdown_end => '終了まで';
 
   @override
@@ -2304,4 +2307,22 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get qna_load_fail_title => 'お問い合わせの読み込みに失敗しました';
+
+  @override
+  String get jmaVoteTicket => 'JMA投票券';
+
+  @override
+  String get paid => '有料';
+
+  @override
+  String get bonus => 'ボーナス';
+
+  @override
+  String get voteTypePicnic => 'Picnic';
+
+  @override
+  String get voteTypeJma => 'JMA';
+
+  @override
+  String get label_my_vote_history => '私の投票履歴';
 }

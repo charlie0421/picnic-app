@@ -3542,6 +3542,12 @@ abstract class AppLocalizations {
   /// **'Voting complete'**
   String get text_vote_complete;
 
+  /// No description provided for @text_jma_vote_ticket.
+  ///
+  /// In en, this message translates to:
+  /// **'JMA Vote Ticket'**
+  String get text_jma_vote_ticket;
+
   /// No description provided for @text_vote_countdown_end.
   ///
   /// In en, this message translates to:
@@ -4502,6 +4508,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to load inquiries'**
   String get qna_load_fail_title;
+
+  /// No description provided for @jmaVoteTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'JMA Vote Ticket'**
+  String get jmaVoteTicket;
+
+  /// No description provided for @paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paid;
+
+  /// No description provided for @bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus'**
+  String get bonus;
+
+  /// No description provided for @voteTypePicnic.
+  ///
+  /// In en, this message translates to:
+  /// **'Picnic'**
+  String get voteTypePicnic;
+
+  /// No description provided for @voteTypeJma.
+  ///
+  /// In en, this message translates to:
+  /// **'JMA'**
+  String get voteTypeJma;
+
+  /// No description provided for @label_my_vote_history.
+  ///
+  /// In en, this message translates to:
+  /// **'My Vote History'**
+  String get label_my_vote_history;
 }
 
 class _AppLocalizationsDelegate

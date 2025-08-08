@@ -576,6 +576,7 @@
   "text_star_candy_with_bonus": "{num1} + {num1} Bonuses",
   "text_this_time_vote": "This Vote",
   "text_vote_complete": "Voting complete",
+  "text_jma_vote_ticket": "JMA Vote Ticket",
   "text_vote_countdown_end": "Until End",
   "text_vote_countdown_start": "Until Start",
   "text_vote_ended": "Ended",
@@ -747,5 +748,11 @@
   "qna_no_answer_yet": "No answer yet",
   "qna_add_media_tooltip": "Add Media",
   "qna_load_fail_title": "Failed to load inquiries",
-  "retry": "Retry"
+  "retry": "Retry",
+  "jmaVoteTicket": "JMA Vote Ticket",
+  "paid": "Paid",
+  "bonus": "Bonus",
+  "voteTypePicnic": "Picnic",
+  "voteTypeJma": "JMA",
+  "label_my_vote_history": "My Vote History"
 }

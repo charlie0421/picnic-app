@@ -691,5 +691,7 @@
   "qna_no_answer_yet": "还没有答案。请稍等。",
   "qna_add_media_tooltip": "添加媒体",
   "qna_load_fail_title": "加载查询失败",
-  "retry": "重试"
+  "retry": "重试",
+  "voteTypeJma": "JMA",
+  "label_my_vote_history": "我的投票历史"
 }

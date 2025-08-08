@@ -1853,6 +1853,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_vote_complete => 'Pemungutan suara selesai';
 
   @override
+  String get text_jma_vote_ticket => 'JMA Vote Ticket';
+
+  @override
   String get text_vote_countdown_end => 'Hingga Selesai';
 
   @override
@@ -2402,4 +2405,22 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_load_fail_title => 'Gagal memuat pertanyaan';
+
+  @override
+  String get jmaVoteTicket => 'JMA Vote Ticket';
+
+  @override
+  String get paid => 'Paid';
+
+  @override
+  String get bonus => 'Bonus';
+
+  @override
+  String get voteTypePicnic => 'Picnic';
+
+  @override
+  String get voteTypeJma => 'JMA';
+
+  @override
+  String get label_my_vote_history => 'Riwayat Voting Saya';
 }
