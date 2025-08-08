@@ -93,11 +93,18 @@ class _MyPageState extends ConsumerState<MyPage> {
                           child: StarCandyInfoText(
                               alignment: MainAxisAlignment.start))
                       : const SizedBox(height: 16),
+                  
+                  // Language
                   Text(AppLocalizations.of(context).label_setting_language,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
                   _buildLanguageSelector(),
                   const Divider(color: AppColors.grey200),
-                  // 공지사항
+
+                  // My artist
+                  _buildMyArtist(),
+                  const Divider(color: AppColors.grey200),
+
+                  // Notice
                   PicnicListItem(
                       leading: AppLocalizations.of(context).label_mypage_notice,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
@@ -120,21 +127,19 @@ class _MyPageState extends ConsumerState<MyPage> {
                             .read(navigationInfoProvider.notifier)
                             .setCurrentMyPage(
                                 QnaThreadListPage(userId: data.id!))),
-                  // 충전내역
-                  if (data != null && (data.isAdmin ?? false))
-                    PicnicListItem(
-                        leading: AppLocalizations.of(context)
-                            .label_mypage_charge_history,
-                        assetPath: 'assets/icons/arrow_right_style=line.svg',
-                        onTap: () {}),
-                  // 고객센터
+
+                  // Voting History
                   PicnicListItem(
                       leading: AppLocalizations.of(context)
-                          .label_mypage_customer_center,
+                          .label_my_vote_history,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      onTap: () {
-                        _launchURL('https://forms.gle/VPfgdt2JSMyBisps5');
-                      }),
+                      onTap: () => data != null
+                          ? ref
+                              .read(navigationInfoProvider.notifier)
+                              .setCurrentMyPage(const VoteHistoryPage())
+                          : showRequireLoginDialog()),
+                  
+                  // Setting
                   PicnicListItem(
                       leading:
                           AppLocalizations.of(context).label_mypage_setting,
@@ -142,25 +147,18 @@ class _MyPageState extends ConsumerState<MyPage> {
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
                           .setCurrentMyPage(const SettingPage())),
-                  // 나의 아티스트
-                  _buildMyArtist('VOTE'),
-                  const Divider(color: AppColors.grey200),
-                  // 투표내역
-                  PicnicListItem(
-                      leading: AppLocalizations.of(context)
-                          .label_mypage_vote_history,
-                      assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      onTap: () => data != null
-                          ? ref
-                              .read(navigationInfoProvider.notifier)
-                              .setCurrentMyPage(const VoteHistoryPage())
-                          : showRequireLoginDialog()),
-                  // _buildMyStar('PIC'),
-                  // const Divider(color: AppColors.Grey200),
-                  // ListItem(
-                  //     leading: t('label_mypage_membership_history,
-                  //     assetPath: 'assets/icons/arrow_right_style=line.svg',
-                  //     onTap: () {}),
+                  
+                  // --- Admin / Test Menus ---
+                  if (data != null && (data.isAdmin ?? false))
+                    const Divider(color: AppColors.grey200),
+
+                  // 충전내역
+                  if (data != null && (data.isAdmin ?? false))
+                    PicnicListItem(
+                        leading: AppLocalizations.of(context)
+                            .label_mypage_charge_history,
+                        assetPath: 'assets/icons/arrow_right_style=line.svg',
+                        onTap: () {}),
                 ],
               ),
             ),
@@ -259,7 +257,7 @@ class _MyPageState extends ConsumerState<MyPage> {
     );
   }
 
-  Widget _buildMyArtist(String categoryText) {
+  Widget _buildMyArtist() {
     final bookmarkedArtists = ref.watch(asyncBookmarkedArtistsProvider);
 
     return GestureDetector(
@@ -288,8 +286,8 @@ class _MyPageState extends ConsumerState<MyPage> {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(categoryText, style: getTextStyle(AppTypo.body14B)),
                     Text(AppLocalizations.of(context).label_mypage_my_artist,
                         style: getTextStyle(AppTypo.body16M)),
                   ],
