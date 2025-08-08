@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote_pick.dart';
 import 'package:picnic_lib/l10n.dart';
-import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class VoteHistoryListItem extends StatelessWidget {
@@ -25,8 +24,6 @@ class VoteHistoryListItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _ArtistImage(item: item),
-            SizedBox(width: 12.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,29 +42,7 @@ class VoteHistoryListItem extends StatelessWidget {
   }
 }
 
-class _ArtistImage extends StatelessWidget {
-  const _ArtistImage({required this.item});
 
-  final VotePickModel item;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20.r),
-      child: PicnicCachedNetworkImage(
-        imageUrl: item.voteItem.artist?.image ?? '',
-        width: 40,
-        height: 40,
-        errorWidget: Image.asset(
-          'assets/icons/avatar.png',
-          package: 'picnic_lib',
-          width: 40,
-          height: 40,
-        ),
-      ),
-    );
-  }
-}
 
 class _VoteHistoryHeader extends StatelessWidget {
   const _VoteHistoryHeader({required this.item});
@@ -117,6 +92,10 @@ class _VoteInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final artistName = getLocaleTextFromJson(item.voteItem.artist?.name ?? {});
+    final groupName =
+        getLocaleTextFromJson(item.voteItem.artist?.artistGroup?.name ?? {});
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -129,15 +108,32 @@ class _VoteInfo extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        Text(
-          '${getLocaleTextFromJson(item.voteItem.artist?.name ?? {})} ${getLocaleTextFromJson(item.voteItem.artist?.artistGroup?.name ?? {})}',
-          style: getTextStyle(
-            AppTypo.caption12R,
-            AppColors.grey900,
+        if (artistName.isNotEmpty) ...[
+          SizedBox(height: 2.h),
+          RichText(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: artistName,
+                  style: getTextStyle(
+                    AppTypo.body16B,
+                    AppColors.grey900,
+                  ),
+                ),
+                if (groupName.isNotEmpty)
+                  TextSpan(
+                    text: ' ($groupName)',
+                    style: getTextStyle(
+                      AppTypo.body16M,
+                      AppColors.grey600,
+                    ),
+                  ),
+              ],
+            ),
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        ]
       ],
     );
   }
@@ -188,25 +184,35 @@ class _VoteUsage extends StatelessWidget {
     final numberStyle = getTextStyle(AppTypo.body14B, AppColors.grey900);
     final List<Widget> children = [];
 
+    // Star candy part
     if (starUsage > 0) {
       children.add(_buildStarIcon(context, isPartnership));
-      children.add(SizedBox(width: 4.w));
+      children.add(SizedBox(width: 2.w));
       children.add(Text(formatNumberWithComma(starUsage), style: numberStyle));
     }
 
+    // Bonus candy part
     if (bonusUsage > 0) {
       if (starUsage > 0) {
         children.add(SizedBox(width: 8.w));
       }
+
+      // Wrap bonus icon in a fixed-size container to ensure alignment
       children.add(
-        Image.asset(
-          'assets/icons/store/bonus.png',
-          package: 'picnic_lib',
-          width: 20,
-          height: 20,
+        SizedBox(
+          width: 36.0,
+          height: 36.0,
+          child: Center(
+            child: Image.asset(
+              'assets/icons/store/bonus.png',
+              package: 'picnic_lib',
+              width: 20,
+              height: 20,
+            ),
+          ),
         ),
       );
-      children.add(SizedBox(width: 4.w));
+      children.add(SizedBox(width: 2.w));
       children.add(Text(formatNumberWithComma(bonusUsage), style: numberStyle));
     }
 

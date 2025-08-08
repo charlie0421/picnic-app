@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/number.dart';
 import 'package:picnic_lib/data/models/vote/vote_pick.dart';
-import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_history_list_item.dart';
 import 'package:picnic_lib/supabase_options.dart';
-import 'package:picnic_lib/ui/style.dart';
 
 class VoteHistoryPage extends ConsumerStatefulWidget {
   const VoteHistoryPage({super.key});
@@ -110,10 +106,10 @@ class _VoteHistoryPageState extends ConsumerState<VoteHistoryPage> {
               state: _pagingController.value,
               fetchNextPage: _pagingController.fetchNextPage,
               builderDelegate: PagedChildBuilderDelegate<VotePickModel>(
-                noItemsFoundIndicatorBuilder: (context) =>
-                    const NoItemContainer(),
                 itemBuilder: (context, item, index) =>
                     VoteHistoryListItem(item: item),
+                noItemsFoundIndicatorBuilder: (context) =>
+                    const NoItemContainer(),
               ),
             ),
           ),
