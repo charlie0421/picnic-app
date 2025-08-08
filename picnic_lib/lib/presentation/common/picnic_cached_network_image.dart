@@ -61,6 +61,8 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
   final bool enableProgressiveLoading; // 점진적 로딩 활성화
   final int? maxConcurrentLoads; // 최대 동시 로딩 수
 
+  final Widget? errorWidget; // 커스텀 에러 위젯
+
   const PicnicCachedNetworkImage({
     super.key,
     required this.imageUrl,
@@ -76,6 +78,7 @@ class PicnicCachedNetworkImage extends ConsumerStatefulWidget {
     this.visibilityThreshold = 0.1,
     this.lazyLoadDelay,
     this.placeholder,
+    this.errorWidget,
     this.enablePreloading = true,
     this.preloadDistance = 200.0,
     this.priority = ImagePriority.normal,
@@ -852,6 +855,14 @@ class _PicnicCachedNetworkImageState
 
   // 에러 위젯 생성
   Widget _buildErrorWidget(double? width, double? height) {
+    if (widget.errorWidget != null) {
+      return SizedBox(
+        width: width,
+        height: height,
+        child: widget.errorWidget,
+      );
+    }
+
     return SizedBox(
       width: width,
       height: height,
