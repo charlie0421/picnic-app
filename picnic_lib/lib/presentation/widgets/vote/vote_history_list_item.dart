@@ -148,45 +148,71 @@ class _VoteUsage extends StatelessWidget {
 
   final VotePickModel item;
 
-  @override
-  Widget build(BuildContext context) {
-    final isPartnership = item.vote.isPartnership ?? false;
-    return Row(
-      children: [
-        if (isPartnership) ...[
-          SizedBox(width: 12.w),
-          Image.asset(
+  Widget _buildStarIcon(BuildContext context, bool isPartnership) {
+    const double iconContainerSize = 36.0;
+    if (isPartnership) {
+      return SizedBox(
+        width: iconContainerSize,
+        height: iconContainerSize,
+        child: Center(
+          child: Image.asset(
             'assets/icons/store/${item.vote.partner}.png',
             package: 'picnic_lib',
             width: 18,
             height: 18,
-            errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox.shrink(),
           ),
-          SizedBox(width: 8.w),
-        ] else
-          Image.asset(
-            'assets/icons/store/star_100.png',
-            package: 'picnic_lib',
-            width: 36,
-            height: 36,
-          ),
-        Text(
-          formatNumberWithComma(item.starCandyUsage ?? 0),
-          style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         ),
-        const Text(' + '),
+      );
+    } else {
+      return Image.asset(
+        'assets/icons/store/star_100.png',
+        package: 'picnic_lib',
+        width: iconContainerSize,
+        height: iconContainerSize,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isPartnership = item.vote.isPartnership ?? false;
+    final starUsage = item.starCandyUsage ?? 0;
+    final bonusUsage = item.starCandyBonusUsage ?? 0;
+
+    if (starUsage == 0 && bonusUsage == 0) {
+      return const SizedBox.shrink();
+    }
+
+    final numberStyle = getTextStyle(AppTypo.body14B, AppColors.grey900);
+    final List<Widget> children = [];
+
+    if (starUsage > 0) {
+      children.add(_buildStarIcon(context, isPartnership));
+      children.add(SizedBox(width: 4.w));
+      children.add(Text(formatNumberWithComma(starUsage), style: numberStyle));
+    }
+
+    if (bonusUsage > 0) {
+      if (starUsage > 0) {
+        children.add(SizedBox(width: 8.w));
+      }
+      children.add(
         Image.asset(
           'assets/icons/store/bonus.png',
           package: 'picnic_lib',
           width: 20,
           height: 20,
         ),
-        SizedBox(width: 8.w),
-        Text(
-          formatNumberWithComma(item.starCandyBonusUsage ?? 0),
-          style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-        ),
-      ],
+      );
+      children.add(SizedBox(width: 4.w));
+      children.add(Text(formatNumberWithComma(bonusUsage), style: numberStyle));
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: children,
     );
   }
 }
