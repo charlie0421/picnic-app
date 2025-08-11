@@ -57,6 +57,7 @@ class InAppPurchaseService {
       'normal'; // 'normal', 'debug', 'ultrafast', 'instant'
   bool simulateSlowPurchase = false; // 구매 요청 지연 시뮬레이션
   bool forceTimeoutSimulation = false; // 🎯 무조건 타임아웃 시뮬레이션 (실제 구매 요청 안함)
+  Duration _slowPurchaseDelay = const Duration(seconds: 1); // 디버그 지연 기본 1초
 
   /// 🧪 디버그 모드 설정 (타임아웃 시간 단축)
   void setDebugMode(bool enabled) {
@@ -74,10 +75,15 @@ class InAppPurchaseService {
   }
 
   /// 🧪 구매 지연 시뮬레이션 설정
-  void setSlowPurchaseSimulation(bool enabled) {
+  void setSlowPurchaseSimulation(bool enabled, {Duration? delay}) {
     simulateSlowPurchase = enabled;
-    logger.i(
-        '🧪 구매 지연 시뮬레이션 ${enabled ? "활성화" : "비활성화"}: ${enabled ? "5초 지연" : "즉시 실행"}');
+    if (delay != null) {
+      _slowPurchaseDelay = delay;
+    }
+    final delayText = _slowPurchaseDelay.inMilliseconds < 1000
+        ? '${_slowPurchaseDelay.inMilliseconds}ms'
+        : '${_slowPurchaseDelay.inSeconds}초';
+    logger.i('🧪 구매 지연 시뮬레이션 ${enabled ? "활성화" : "비활성화"}: ${enabled ? delayText : "즉시 실행"}');
   }
 
   /// 🎯 무조건 타임아웃 시뮬레이션 설정 (실제 구매 요청 안함)
@@ -294,8 +300,11 @@ class InAppPurchaseService {
 
       // 🧪 구매 지연 시뮬레이션 (디버그용)
       if (simulateSlowPurchase) {
-        logger.w('🧪 구매 지연 시뮬레이션 - 5초 대기 중...');
-        await Future.delayed(Duration(seconds: 5));
+        final delayText = _slowPurchaseDelay.inMilliseconds < 1000
+            ? '${_slowPurchaseDelay.inMilliseconds}ms'
+            : '${_slowPurchaseDelay.inSeconds}초';
+        logger.w('🧪 구매 지연 시뮬레이션 - $delayText 대기 중...');
+        await Future.delayed(_slowPurchaseDelay);
         logger.w('🧪 구매 지연 시뮬레이션 완료 - 구매 요청 시작');
       }
 

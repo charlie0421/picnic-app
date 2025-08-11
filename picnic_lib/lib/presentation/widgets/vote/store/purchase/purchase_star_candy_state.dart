@@ -591,8 +591,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _loadingKey.currentState?.hide();
           setState(() => _isPurchasing = false);
           if (error == PurchaseConstants.errPrevTransactionPending) {
-            // 엣지(서버)에서 중복 처리됨 → 즉시 '스토어 처리 중' 팝업 + 1분 쿨타임
-            _safetyManager.activateDuplicateCooldown();
+            // 엣지(서버)에서 중복 처리됨 → '스토어 처리 중' 안내만, 쿨타임 미적용
             setState(() => _isPurchasing = false);
             if (navigatorKey.currentContext != null) {
               showSimpleDialog(
@@ -600,9 +599,15 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                     .previousTransactionPendingError,
               );
             }
+            // iOS JWS 반복 중복 완화: 강제 쿨다운(상품별) 60초 적용하여 루프 차단
+            if (_pendingProductId != null) {
+              _safetyManager.activateDuplicateCooldown(
+                productId: _pendingProductId,
+                cooldown: const Duration(minutes: 1),
+              );
+            }
           } else if (error == PurchaseConstants.errCooldownActive) {
-            // 쿨다운 위반도 동일하게 '스토어 처리중' 팝업
-            _safetyManager.activateDuplicateCooldown();
+            // 쿨다운 위반도 동일하게 안내만, 추가 쿨타임 미적용
             setState(() => _isPurchasing = false);
             if (navigatorKey.currentContext != null) {
               showSimpleDialog(
@@ -611,9 +616,15 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               );
             }
           } else if (_isDuplicateError(error)) {
-            // 문자열 기반 중복 케이스도 동일 처리
-            _safetyManager.activateDuplicateCooldown();
+            // 문자열 기반 중복 케이스도 동일 처리: 안내만, 쿨타임 미적용
             setState(() => _isPurchasing = false);
+            // iOS 캐시성 중복 신호 완화용 강제 쿨다운(상품별) 60초
+            if (_pendingProductId != null) {
+              _safetyManager.activateDuplicateCooldown(
+                productId: _pendingProductId,
+                cooldown: const Duration(minutes: 1),
+              );
+            }
           } else {
             logger.e('[PurchaseStarCandyState] Purchase error: $error');
             // 코드 → i18n 직접 매핑 (상수 메시지/헬퍼 미사용)
@@ -679,6 +690,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       final isCanceled = _isPurchaseCanceled(purchaseDetails);
 
       if (mounted) {
+        // ✅ 일반 오류: 상품별 쿨타임 적용하지 않음 (초기화는 굳이 강제하지 않음)
         _resetPurchaseState();
         _loadingKey.currentState?.hide();
 
@@ -688,8 +700,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           await _dialogHandler.showErrorDialog(
               AppLocalizations.of(context).dialog_message_purchase_failed);
         } else {
-          logger.i(
-              '[PurchaseStarCandyState] Purchase canceled - no error dialog');
+          // ✅ 취소: 쿨타임 적용하지 않음
+          logger.i('[PurchaseStarCandyState] Purchase canceled - no error dialog');
         }
       }
     }
@@ -769,7 +781,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    if (!_canPurchase()) {
+    if (!_canPurchase(productId: serverProduct['id'] as String)) {
       return;
     }
 
@@ -857,8 +869,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
   }
 
-  /// 구매 가능 여부 확인
-  bool _canPurchase() {
+  /// 구매 가능 여부 확인 (상품별 쿨타임 적용)
+  bool _canPurchase({required String productId}) {
     if (_isPurchasing) {
       logger.w('[PurchaseStarCandyState] Purchase already in progress');
       showSimpleDialog(
@@ -866,8 +878,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return false;
     }
 
-    if (!_safetyManager.canAttemptPurchase()) {
-      logger.w('[PurchaseStarCandyState] Purchase cooldown active');
+    if (!_safetyManager.canAttemptPurchaseForProduct(productId)) {
+      logger.w('[PurchaseStarCandyState] Purchase cooldown active (per product)');
       // 일반 쿨다운 문구 제거 → 스토어 처리 중 문구로 통일
       showSimpleDialog(
           content:

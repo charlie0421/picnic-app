@@ -13,7 +13,7 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   static const Duration _safetyTimeout = Duration(seconds: 90);
   static const Duration _basePurchaseCooldown =
-      Duration(minutes: 1); // 🎯 기본 60초 고정
+      Duration(minutes: 1); // 🎯 기본 60초
   static const Duration _consecutivePurchaseCooldown =
       Duration(minutes: 1); // 🔄 연속 구매도 60초 동일 적용
 
@@ -30,6 +30,13 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   bool _isPurchaseInProgress = false; // 현재 구매 진행 중?
   String? _lastProcessedTransactionId; // 마지막 처리된 실제 거래 ID
   DateTime? _lastPurchaseTime; // 마지막 구매 시도 시간
+  String? _currentProductId; // 현재 진행 중인 상품 ID
+
+  // 🧩 상품별 쿨타임/연속 구매 세션 추적
+  final Map<String, DateTime> _lastPurchaseTimeByProduct = {}; // productId -> last attempt time
+  final Map<String, int> _consecutivePurchaseCountByProduct = {}; // productId -> count
+  final Map<String, DateTime> _firstPurchaseInSessionByProduct = {}; // productId -> first in session
+  final Map<String, DateTime> _productCooldownUntil = {}; // productId -> enforced cooldown until
 
   PurchaseSafetyManager({
     required GlobalKey<LoadingOverlayWithIconState> loadingKey,
@@ -83,20 +90,44 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   /// 🎯 심플 구매 가능 체크 + 연속 구매 보호 (적응형 쿨다운)
   @override
   bool canAttemptPurchase() {
+    // 전역 쿨다운은 사용하지 않음. 진행 중 여부만 확인
+    if (_isPurchaseInProgress) {
+      logger.w('🛡️ 구매 진행 중 - 추가 구매 차단');
+      return false;
+    }
+    return true;
+  }
+
+  /// 🎯 상품별 구매 가능 체크 (1분 쿨타임을 개별 상품 기준으로 적용)
+  bool canAttemptPurchaseForProduct(String productId) {
     if (_isPurchaseInProgress) {
       logger.w('🛡️ 구매 진행 중 - 추가 구매 차단');
       return false;
     }
 
-    if (_lastPurchaseTime != null) {
-      final elapsed = DateTime.now().difference(_lastPurchaseTime!);
+    // 1) 강제(오버라이드) 쿨타임 우선 적용
+    final until = _productCooldownUntil[productId];
+    if (until != null) {
+      final now = DateTime.now();
+      if (now.isBefore(until)) {
+        final remaining = until.difference(now);
+        logger.w('🛡️ [상품별] 강제 쿨다운 차단: $productId - 남은 ${remaining.inSeconds}s, 종료 예정: ${until.toIso8601String()}');
+        return false;
+      } else {
+        // 만료된 오버라이드는 제거
+        _productCooldownUntil.remove(productId);
+      }
+    }
 
-      // 🔄 연속 구매 감지 및 적응형 쿨다운 적용
-      final requiredCooldown = _getAdaptiveCooldown();
-
+    final lastForProduct = _lastPurchaseTimeByProduct[productId];
+    if (lastForProduct != null) {
+      final elapsed = DateTime.now().difference(lastForProduct);
+      final requiredCooldown = _getAdaptiveCooldownForProduct(productId);
       if (elapsed < requiredCooldown) {
-        // 팝업에서 안내는 호출측(UI)이 수행. 여기서는 차단만 수행.
-        logger.w('🛡️ 구매 쿨다운 차단');
+        final remaining = requiredCooldown - elapsed;
+        final endsAt = DateTime.now().add(remaining).toIso8601String();
+        logger.w(
+            '🛡️ [상품별] 구매 쿨다운 차단: $productId - 남은 ${remaining.inSeconds}s (경과 ${elapsed.inSeconds}s / 필요 ${requiredCooldown.inSeconds}s), 종료 예정: $endsAt');
         return false;
       }
     }
@@ -126,15 +157,51 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     return _basePurchaseCooldown; // 8초
   }
 
+  /// 🔄 상품별 적응형 쿨다운 시간 계산
+  Duration _getAdaptiveCooldownForProduct(String productId) {
+    // 🔄 연속 구매 세션 감지 (10분 내 구매들)
+    final firstInSession = _firstPurchaseInSessionByProduct[productId];
+    if (firstInSession != null) {
+      final sessionElapsed = DateTime.now().difference(firstInSession);
+      if (sessionElapsed.inMinutes > 10) {
+        // 세션 리셋
+        _consecutivePurchaseCountByProduct[productId] = 0;
+        _firstPurchaseInSessionByProduct.remove(productId);
+      }
+    }
+
+    final count = _consecutivePurchaseCountByProduct[productId] ?? 0;
+    if (count >= 2) {
+      logger.w('🔄 [상품별] 연속 구매 감지 ($count회) - 확장된 쿨다운 적용: $productId');
+      return _consecutivePurchaseCooldown;
+    }
+
+    return _basePurchaseCooldown;
+  }
+
   /// 🔒 중복 JWS 감지 시 강제로 쿨다운 활성화
-  void activateDuplicateCooldown() {
+  void activateDuplicateCooldown({String? productId, Duration? cooldown}) {
     final now = DateTime.now();
-    _lastPurchaseTime = now;
+    _lastPurchaseTime = now; // 전역 최근 시도 갱신 (지연 신호 판별 등에 사용)
     _firstPurchaseInSession ??= now;
     _consecutivePurchaseCount++;
-    final cooldown = _getAdaptiveCooldown();
-    logger.w(
-        '🛡️ Duplicate JWS detected - cooldown activated (${cooldown.inSeconds}s)');
+
+    final targetProductId = productId ?? _currentProductId;
+    if (targetProductId != null) {
+      _lastPurchaseTimeByProduct[targetProductId] = now;
+      _firstPurchaseInSessionByProduct[targetProductId] ??= now;
+      _consecutivePurchaseCountByProduct[targetProductId] =
+          (_consecutivePurchaseCountByProduct[targetProductId] ?? 0) + 1;
+
+      final enforced = cooldown ?? _getAdaptiveCooldownForProduct(targetProductId);
+      _productCooldownUntil[targetProductId] = now.add(enforced);
+      logger.w('🛡️ [상품별] Duplicate JWS detected - cooldown enforced for '
+          '$targetProductId (${enforced.inSeconds}s), until=${_productCooldownUntil[targetProductId]!.toIso8601String()}');
+    } else {
+      final cooldown = _getAdaptiveCooldown();
+      logger.w(
+          '🛡️ Duplicate JWS detected - cooldown activated (no productId) (${cooldown.inSeconds}s)');
+    }
   }
 
   /// ⏱️ 남은 쿨다운 시간 반환 (없으면 null)
@@ -148,10 +215,38 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     return null;
   }
 
+  /// ⏱️ 상품별 남은 쿨다운 시간 반환 (없으면 null)
+  Duration? remainingCooldownForProduct(String productId) {
+    final lastForProduct = _lastPurchaseTimeByProduct[productId];
+    if (lastForProduct == null) return null;
+    final required = _getAdaptiveCooldownForProduct(productId);
+    final elapsed = DateTime.now().difference(lastForProduct);
+    if (elapsed < required) {
+      return required - elapsed;
+    }
+    return null;
+  }
+
+  /// 🧹 상품별 쿨타임/세션 상태 초기화 (일반 오류/취소 시 사용)
+  void clearProductCooldown(String productId) {
+    _lastPurchaseTimeByProduct.remove(productId);
+    _consecutivePurchaseCountByProduct.remove(productId);
+    _firstPurchaseInSessionByProduct.remove(productId);
+    _productCooldownUntil.remove(productId);
+    if (_currentProductId == productId) {
+      _currentProductId = null;
+    }
+    logger.i('🧹 [상품별] 쿨타임 초기화: $productId');
+  }
+
   /// 🎯 심플 구매 시작 + 연속 구매 추적 (3줄로 해결!)
   void recordPurchaseAttempt({String? productId}) {
     _isPurchaseInProgress = true;
     _lastPurchaseTime = DateTime.now();
+    if (productId != null) {
+      // 성공 시에만 상품별 쿨타임을 적용하므로 여기서는 상품 ID만 저장
+      _currentProductId = productId;
+    }
 
     // 🔄 연속 구매 세션 추적
     _firstPurchaseInSession ??= _lastPurchaseTime;
@@ -168,6 +263,11 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     _lastProcessedTransactionId = transactionId;
     // ✅ 성공 직후에도 연속 구매를 막기 위해 최근 시도 시간을 현재로 갱신
     _lastPurchaseTime = DateTime.now();
+    _currentProductId = productId;
+    _lastPurchaseTimeByProduct[productId] = _lastPurchaseTime!;
+    _firstPurchaseInSessionByProduct[productId] ??= _lastPurchaseTime!;
+    _consecutivePurchaseCountByProduct[productId] =
+        (_consecutivePurchaseCountByProduct[productId] ?? 0) + 1;
 
     // 🛡️ 정상 구매 완료 시 안전망 타이머 정리
     stopSafetyTimer();
