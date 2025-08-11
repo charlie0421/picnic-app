@@ -1,10 +1,17 @@
+// @ts-nocheck
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { Pool } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
-import { corsHeaders } from '../_shared/cors.ts';
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+};
 
 console.log("JMA Voting Usage function loaded");
 
-const databaseUrl = Deno.env.get('SUPABASE_DB_URL');
-const pool = new Pool(databaseUrl, 3, true);
+const databaseUrl = Deno.env.get('DB_POOLED_URL') ?? Deno.env.get('SUPABASE_DB_URL') ?? '';
+const parsedPoolSize = parseInt(Deno.env.get('DB_POOL_SIZE') ?? '1', 10);
+const poolSize = Number.isFinite(parsedPoolSize) && parsedPoolSize > 0 ? parsedPoolSize : 1;
+const pool = new Pool(databaseUrl, poolSize, true);
 
 // 일일 사용량 조회 응답 인터페이스
 interface DailyUsageResponse {

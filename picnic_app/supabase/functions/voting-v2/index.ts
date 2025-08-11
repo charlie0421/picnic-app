@@ -1,9 +1,16 @@
+// @ts-nocheck
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Pool } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
-import { corsHeaders } from '../_shared/cors.ts';
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+};
 
-const databaseUrl = Deno.env.get('SUPABASE_DB_URL');
-const pool = new Pool(databaseUrl, 3, true);
+const databaseUrl = Deno.env.get('DB_POOLED_URL') ?? Deno.env.get('SUPABASE_DB_URL') ?? '';
+const parsedPoolSize = parseInt(Deno.env.get('DB_POOL_SIZE') ?? '1', 10);
+const poolSize = Number.isFinite(parsedPoolSize) && parsedPoolSize > 0 ? parsedPoolSize : 1;
+const pool = new Pool(databaseUrl, poolSize, true);
 
 async function queryDatabase(query: string, ...args: any[]) {
   const client = await pool.connect();
@@ -24,6 +31,17 @@ async function queryDatabase(query: string, ...args: any[]) {
     throw error;
   } finally {
     client.release();
+  }
+}
+
+// Execute a query using an existing transaction/client
+async function queryWithClient(client: any, query: string, ...args: any[]) {
+  try {
+    const result = await client.queryObject(query, args);
+    return result;
+  } catch (error) {
+    console.error('Error executing query (tx):', { query, args, error });
+    throw error;
   }
 }
 
@@ -175,7 +193,7 @@ async function performTransaction(
   
   try {
     // 1. vote_pick 레코드 생성 (분리된 사용량 포함)
-    const votePickResult = await queryDatabase(`
+    const votePickResult = await queryWithClient(connection, `
       INSERT INTO vote_pick (vote_id, vote_item_id, amount, user_id, star_candy_usage, star_candy_bonus_usage)
       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
     `, vote_id, vote_item_id, amount, user_id, star_candy_usage, star_candy_bonus_usage);
@@ -190,7 +208,7 @@ async function performTransaction(
     }
     
     // 3. vote_item 총계 업데이트 (분리된 사용량 포함)
-    const voteTotalResult = await queryDatabase(`
+    const voteTotalResult = await queryWithClient(connection, `
       SELECT vote_total, star_candy_total, star_candy_bonus_total
       FROM vote_item
       WHERE id = $1
@@ -200,7 +218,7 @@ async function performTransaction(
     const existingStarCandyTotal = voteTotalResult.rows.length > 0 ? voteTotalResult.rows[0].star_candy_total : 0;
     const existingStarCandyBonusTotal = voteTotalResult.rows.length > 0 ? voteTotalResult.rows[0].star_candy_bonus_total : 0;
     
-    await queryDatabase(`
+    await queryWithClient(connection, `
       UPDATE vote_item
       SET 
         vote_total = vote_total + $1,
@@ -210,7 +228,6 @@ async function performTransaction(
     `, amount, star_candy_usage, star_candy_bonus_usage, vote_item_id);
     
     await connection.queryObject('COMMIT');
-    connection.release();
     
     return {
       existingVoteTotal,
@@ -222,7 +239,6 @@ async function performTransaction(
     };
   } catch (error) {
     await connection.queryObject('ROLLBACK');
-    connection.release();
     console.error('Error in performTransaction function:', error);
     throw error;
   }
@@ -315,10 +331,14 @@ Deno.serve(async (req) => {
         status: 200
       });
     } catch (e) {
-      await connection.queryObject('ROLLBACK');
-      connection.release();
       console.error('Error occurred during transaction:', e);
       throw e;
+    } finally {
+      try {
+        connection.release();
+      } catch (_) {
+        // ignore release errors
+      }
     }
   } catch (error) {
     console.error('Unexpected error occurred:', error);

@@ -1,11 +1,18 @@
+// @ts-nocheck
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Pool } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
-import { corsHeaders } from '../_shared/cors.ts';
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+};
 
 console.log("JMA Voting V2 function loaded");
 
-const databaseUrl = Deno.env.get('SUPABASE_DB_URL');
-const pool = new Pool(databaseUrl, 3, true);
+const databaseUrl = Deno.env.get('DB_POOLED_URL') ?? Deno.env.get('SUPABASE_DB_URL') ?? '';
+const parsedPoolSize = parseInt(Deno.env.get('DB_POOL_SIZE') ?? '1', 10);
+const poolSize = Number.isFinite(parsedPoolSize) && parsedPoolSize > 0 ? parsedPoolSize : 1;
+const pool = new Pool(databaseUrl, poolSize, true);
 
 interface JmaVotingRequest {
   vote_id: number;
@@ -17,25 +24,14 @@ interface JmaVotingRequest {
   bonus_votes_used?: number;
 }
 
-async function queryDatabase(query: string, ...args: any[]) {
-  const client = await pool.connect();
+async function queryWithClient(client: any, query: string, ...args: any[]) {
   try {
     const result = await client.queryObject(query, args);
-    console.log('Query executed:', {
-      query,
-      args,
-      result
-    });
+    console.log('Query executed:', { query, args });
     return result;
   } catch (error) {
-    console.error('Error executing query:', {
-      query,
-      args,
-      error
-    });
+    console.error('Error executing query:', { query, args, error });
     throw error;
-  } finally {
-    client.release();
   }
 }
 
@@ -54,14 +50,14 @@ async function getUserProfiles(supabaseClient: any, user_id: string) {
 }
 
 // JMA 일일 보너스 투표 제한 확인 (투표별로 하루 5개)
-async function checkJmaBonusVoteLimit(user_id: string, vote_id: number): Promise<{ canVote: boolean, dailyCount: number }> {
+async function checkJmaBonusVoteLimit(client: any, user_id: string, vote_id: number): Promise<{ canVote: boolean, dailyCount: number }> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   // 특정 투표에 대한 오늘 보너스 별사탕 사용량 총합 확인
-  const { rows } = await queryDatabase(`
+  const { rows } = await queryWithClient(client, `
     SELECT COALESCE(SUM(star_candy_bonus_usage), 0) as total_usage
     FROM vote_pick
     WHERE user_id = $1
@@ -82,13 +78,14 @@ async function checkJmaBonusVoteLimit(user_id: string, vote_id: number): Promise
 
 // star_candy와 star_candy_bonus 동시 차감 (분리된 사용량 기록)
 async function deductStarCandyWithUsage(
+  client: any,
   user_id: string, 
   starCandyUsage: number, 
   starCandyBonusUsage: number,
   vote_pick_id: number
 ) {
   // 사용자 현재 잔액 확인
-  const { rows: userRows } = await queryDatabase(`
+  const { rows: userRows } = await queryWithClient(client, `
     SELECT id, star_candy, star_candy_bonus
     FROM user_profiles
     WHERE id = $1
@@ -111,7 +108,7 @@ async function deductStarCandyWithUsage(
   }
 
   // 별사탕 차감
-  const { rows: deductRows } = await queryDatabase(`
+  const { rows: deductRows } = await queryWithClient(client, `
     UPDATE user_profiles
     SET 
       star_candy = star_candy - $2,
@@ -135,6 +132,7 @@ async function deductStarCandyWithUsage(
 
 // vote_pick 생성 (분리된 사용량 포함)
 async function createVotePick(
+  client: any,
   vote_id: number,
   vote_item_id: number,
   user_id: string,
@@ -143,7 +141,7 @@ async function createVotePick(
   starCandyBonusUsage: number
 ) {
   const regularVotesFromStarCandy = Math.floor(starCandyUsage / 3);
-  const { rows } = await queryDatabase(`
+  const { rows } = await queryWithClient(client, `
     INSERT INTO vote_pick (
       vote_id, vote_item_id, user_id, amount, 
       star_candy_usage, star_candy_bonus_usage,
@@ -162,9 +160,9 @@ async function createVotePick(
 }
 
 // vote_item 업데이트 (분리된 총합 포함)
-async function updateVoteItem(vote_item_id: number, amount: number, starCandyUsage: number, starCandyBonusUsage: number) {
+async function updateVoteItem(client: any, vote_item_id: number, amount: number, starCandyUsage: number, starCandyBonusUsage: number) {
   const regularVotesFromStarCandy = Math.floor(starCandyUsage / 3);
-  const { rows } = await queryDatabase(`
+  const { rows } = await queryWithClient(client, `
     UPDATE vote_item
     SET 
       vote_total = vote_total + $2,
@@ -238,28 +236,35 @@ Deno.serve(async (req) => {
       );
     }
 
-    // JMA 보너스 투표 일일 제한 확인 (투표별로 보너스 사용량이 있는 경우만)
-    if (star_candy_bonus_usage > 0) {
-      const limitCheck = await checkJmaBonusVoteLimit(user_id, vote_id);
-      if (!limitCheck.canVote) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'JMA daily bonus vote limit exceeded',
-            message: '이 투표에 대해 하루 최대 5번까지 보너스 투표할 수 있습니다.',
-            dailyCount: limitCheck.dailyCount,
-            limit: 5
-          }),
-          { 
-            status: 429, // Too Many Requests
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
+    // 트랜잭션 시작 - 모든 DB 작업을 순차적으로 수행 (단일 커넥션)
+    const client = await pool.connect();
+    try {
+      await client.queryObject('BEGIN');
+
+      // JMA 보너스 투표 일일 제한 확인 (투표별로 보너스 사용량이 있는 경우만)
+      if (star_candy_bonus_usage > 0) {
+        const limitCheck = await checkJmaBonusVoteLimit(client, user_id, vote_id);
+        if (!limitCheck.canVote) {
+          await client.queryObject('ROLLBACK');
+          return new Response(
+            JSON.stringify({ 
+              error: 'JMA daily bonus vote limit exceeded',
+              message: '이 투표에 대해 하루 최대 5번까지 보너스 투표할 수 있습니다.',
+              dailyCount: limitCheck.dailyCount,
+              limit: 5
+            }),
+            { 
+              status: 429,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          );
+        }
       }
-    }
 
     // 사용자 정보 확인
     const { user_profiles, error: userError } = await getUserProfiles(supabaseClient, user_id);
     if (userError || !user_profiles) {
+      await client.queryObject('ROLLBACK');
       return new Response(
         JSON.stringify({ error: 'User not found' }),
         { 
@@ -271,6 +276,7 @@ Deno.serve(async (req) => {
 
     // 잔액 충분한지 확인
     if (user_profiles.star_candy < star_candy_usage) {
+      await client.queryObject('ROLLBACK');
       return new Response(
         JSON.stringify({ 
           error: 'Insufficient star_candy',
@@ -285,6 +291,7 @@ Deno.serve(async (req) => {
     }
 
     if (user_profiles.star_candy_bonus < star_candy_bonus_usage) {
+      await client.queryObject('ROLLBACK');
       return new Response(
         JSON.stringify({ 
           error: 'Insufficient star_candy_bonus',
@@ -298,10 +305,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 트랜잭션 시작 - 모든 DB 작업을 순차적으로 수행
-    try {
       // 1. vote_pick 생성
       const votePick = await createVotePick(
+        client,
         vote_id, 
         vote_item_id, 
         user_id, 
@@ -312,6 +318,7 @@ Deno.serve(async (req) => {
 
       // 2. 별사탕 차감
       const updatedUser = await deductStarCandyWithUsage(
+        client,
         user_id, 
         star_candy_usage, 
         star_candy_bonus_usage,
@@ -320,11 +327,14 @@ Deno.serve(async (req) => {
 
       // 3. vote_item 업데이트
       const updatedVoteItem = await updateVoteItem(
+        client,
         vote_item_id, 
         amount, 
         star_candy_usage, 
         star_candy_bonus_usage
       );
+
+      await client.queryObject('COMMIT');
 
       // 성공 응답
       return new Response(
@@ -356,10 +366,12 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
-
     } catch (dbError) {
+      await client.queryObject('ROLLBACK');
       console.error('Database transaction error:', dbError);
       throw dbError;
+    } finally {
+      try { client.release(); } catch(_) {}
     }
 
   } catch (error) {
