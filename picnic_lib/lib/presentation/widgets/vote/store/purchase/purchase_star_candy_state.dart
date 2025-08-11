@@ -99,10 +99,8 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     _safetyManager.onTimeoutUIReset = () {
       if (mounted) {
         _resetPurchaseState();
-        // TODO: i18n - 국제화 적용 필요
-        showSimpleDialog(
-            content:
-                'Purchase processing time exceeded.\nPlease try again later.');
+        final l10n = AppLocalizations.of(context);
+        showSimpleDialog(content: l10n.purchase_timeout_message);
       }
     };
 
@@ -591,9 +589,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           // ✅ UI만 리셋하고 쿨다운은 유지하여 즉시 연속 구매 차단
           _safetyManager.resetUIOnly(reason: '구매 에러/중복 처리 후 UI만 리셋');
           _loadingKey.currentState?.hide();
+          setState(() => _isPurchasing = false);
           if (error == PurchaseConstants.errPrevTransactionPending) {
             // 엣지(서버)에서 중복 처리됨 → 즉시 '스토어 처리 중' 팝업 + 1분 쿨타임
             _safetyManager.activateDuplicateCooldown();
+            setState(() => _isPurchasing = false);
             if (navigatorKey.currentContext != null) {
               showSimpleDialog(
                 content: AppLocalizations.of(navigatorKey.currentContext!)
@@ -603,6 +603,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           } else if (error == PurchaseConstants.errCooldownActive) {
             // 쿨다운 위반도 동일하게 '스토어 처리중' 팝업
             _safetyManager.activateDuplicateCooldown();
+            setState(() => _isPurchasing = false);
             if (navigatorKey.currentContext != null) {
               showSimpleDialog(
                 content: AppLocalizations.of(navigatorKey.currentContext!)
@@ -612,6 +613,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           } else if (_isDuplicateError(error)) {
             // 문자열 기반 중복 케이스도 동일 처리
             _safetyManager.activateDuplicateCooldown();
+            setState(() => _isPurchasing = false);
           } else {
             logger.e('[PurchaseStarCandyState] Purchase error: $error');
             // 코드 → i18n 직접 매핑 (상수 메시지/헬퍼 미사용)

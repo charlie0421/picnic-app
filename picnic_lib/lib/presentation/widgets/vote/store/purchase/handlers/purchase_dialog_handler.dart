@@ -32,6 +32,7 @@ class PurchaseDialogHandler {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Image.asset(
                 package: 'picnic_lib',
@@ -40,12 +41,10 @@ class PurchaseDialogHandler {
                 height: 50.w,
               ),
               SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context).purchase_confirm_title,
-                  style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-                  textAlign: TextAlign.center,
-                ),
+              Text(
+                AppLocalizations.of(context).purchase_confirm_title,
+                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -261,7 +260,8 @@ class PurchaseDialogHandler {
       logger.e('Navigator context is null in showSuccessDialog');
       return;
     }
-    final message = AppLocalizations.of(context).dialog_message_purchase_success;
+    final message =
+        AppLocalizations.of(context).dialog_message_purchase_success;
     showSimpleDialog(content: message);
   }
 
