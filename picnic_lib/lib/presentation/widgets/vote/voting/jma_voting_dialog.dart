@@ -72,6 +72,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   String _validationMessage = '';
   int _dailyVoteCount = 0; // 오늘 보너스 별사탕 사용량
   static const int _maxDailyVotes = 5; // 일일 최대 보너스 별사탕 사용량 (5개)
+  bool _isDailyVoteCountLoaded = false; // 일일 사용량 로딩 완료 여부
 
   @override
   void initState() {
@@ -100,6 +101,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         if (mounted) {
           setState(() {
             _dailyVoteCount = data['dailyVoteCount'] ?? 0;
+            _isDailyVoteCountLoaded = true;
           });
         }
       } else {
@@ -108,6 +110,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         if (mounted) {
           setState(() {
             _dailyVoteCount = 0; // 기본값으로 설정
+            _isDailyVoteCountLoaded = true;
           });
         }
       }
@@ -116,6 +119,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       if (mounted) {
         setState(() {
           _dailyVoteCount = 0; // 기본값으로 설정
+          _isDailyVoteCountLoaded = true;
         });
       }
     }
@@ -814,7 +818,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   ),
                   SizedBox(width: 3),
                   Text(
-                    '${formatNumberWithComma(usableBonusVotes)}개',
+                    _isDailyVoteCountLoaded
+                        ? '${formatNumberWithComma(usableBonusVotes)}개'
+                        : '-',
                     style: getTextStyle(
                       AppTypo.caption12B,
                       Colors.orange.shade700,
@@ -857,7 +863,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               remainingVotes > 0
                   ? AppLocalizations.of(context)
                       .jma_voting_daily_limit_remaining(
-                          _maxDailyVotes, remainingVotes)
+                      _isDailyVoteCountLoaded ? _maxDailyVotes : '-',
+                      _isDailyVoteCountLoaded ? remainingVotes : '-',
+                    )
                   : AppLocalizations.of(context)
                       .jma_voting_daily_limit_exhausted,
               style: getTextStyle(
