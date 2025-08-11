@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:mime/mime.dart';
 import 'package:uuid/uuid.dart';
 import 'package:picnic_lib/data/models/qna/qna_message.dart';
+import 'package:picnic_lib/data/models/qna/qna_attachment.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as p;
@@ -175,6 +176,24 @@ class QnaRepository {
       return response;
     } catch (e) {
       throw Exception('공개 URL 가져오기 실패: $e');
+    }
+  }
+
+  /// 특정 스레드에서 가장 처음(오래된) 첨부파일 1개 조회
+  Future<QnaAttachment?> getFirstAttachmentForThread(int threadId) async {
+    try {
+      final List<dynamic> rows = await _client
+          .from('qna_attachments')
+          .select('*, qna_messages!inner(thread_id)')
+          .eq('qna_messages.thread_id', threadId)
+          .order('created_at', ascending: true)
+          .limit(1);
+
+      if (rows.isEmpty) return null;
+      final Map<String, dynamic> row = rows.first as Map<String, dynamic>;
+      return QnaAttachment.fromJson(row);
+    } catch (e) {
+      throw Exception('첫 첨부파일 조회 실패: $e');
     }
   }
 }

@@ -7,6 +7,8 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_create_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
+import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
+import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
@@ -127,10 +129,20 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _navigateToCreateThread,
         backgroundColor: AppColors.primary500,
-        child: const Icon(Icons.add, color: Colors.white),
+        foregroundColor: Colors.white,
+        elevation: 6,
+        icon: const Icon(Icons.edit),
+        label: Text(
+          AppLocalizations.of(context).qna_create_title,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
       body: _buildBody(),
     );
@@ -285,9 +297,8 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Flexible(
+                Expanded(
                   child: Text(
                     thread.title,
                     style: const TextStyle(
@@ -297,13 +308,80 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 _buildStatusChip(thread.status),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              DateFormat('yyyy-MM-dd HH:mm').format(thread.updatedAt.toLocal()),
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+            FutureBuilder(
+              future: _repository.getFirstAttachmentForThread(thread.id),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox.shrink();
+                }
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return const SizedBox.shrink();
+                }
+                final att = snapshot.data!;
+                final isImage = (att.fileType?.startsWith('image/') ?? false) ||
+                    ['jpg', 'jpeg', 'png', 'gif'].any(
+                        (ext) => att.fileName.toLowerCase().endsWith('.$ext'));
+                final isVideo = att.fileType?.startsWith('video/') ?? false;
+
+                final url = _repository.getPublicUrl(att.filePath);
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      height: 140,
+                      width: double.infinity,
+                      child: isImage
+                          ? ImageThumbnailFromUrl(
+                              imageUrl: url,
+                              fit: BoxFit.cover,
+                            )
+                          : isVideo
+                              ? Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    VideoThumbnailFromUrl(
+                                      videoUrl: url,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    const Align(
+                                      alignment: Alignment.center,
+                                      child: Icon(
+                                        Icons.play_circle_fill,
+                                        color: Colors.white,
+                                        size: 48,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Container(
+                                  color: AppColors.grey200,
+                                  child: const Center(
+                                    child: Icon(Icons.insert_drive_file,
+                                        color: Colors.grey),
+                                  ),
+                                ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.schedule, size: 14, color: Colors.grey[600]),
+                const SizedBox(width: 4),
+                Text(
+                  DateFormat('yyyy-MM-dd HH:mm')
+                      .format(thread.updatedAt.toLocal()),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              ],
             ),
           ],
         ),

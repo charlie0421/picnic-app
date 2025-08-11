@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,8 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_video_player_page.
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
+import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 
 class QnaThreadDetailPage extends ConsumerStatefulWidget {
   final QnaThread thread;
@@ -169,28 +169,25 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
               scrolledUnderElevation: 0,
               foregroundColor: AppColors.grey900,
               actions: [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: Chip(
-                      label: Text(
-                        widget.thread.status == 'OPEN'
-                            ? AppLocalizations.of(context).qna_status_open
-                            : AppLocalizations.of(context).qna_status_closed,
-                        style:
-                            getTextStyle(AppTypo.caption12M, AppColors.grey00),
-                      ),
-                      backgroundColor: widget.thread.status == 'OPEN'
-                          ? AppColors.primary500
-                          : AppColors.secondary500,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide.none,
-                      ),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Chip(
+                    label: Text(
+                      widget.thread.status == 'OPEN'
+                          ? AppLocalizations.of(context).qna_status_open
+                          : AppLocalizations.of(context).qna_status_closed,
+                      style: getTextStyle(AppTypo.caption12M, AppColors.grey00),
                     ),
+                    backgroundColor: widget.thread.status == 'OPEN'
+                        ? AppColors.primary500
+                        : AppColors.secondary500,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide.none,
+                    ),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
               ],
@@ -403,8 +400,12 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           final imageAttachments = message.attachments.where((attachment) {
             final isImageByMime =
                 attachment.fileType?.startsWith('image/') ?? false;
-            final isImageByExtension = ['jpg', 'jpeg', 'png', 'gif']
-                .any((ext) => attachment.fileName.toLowerCase().endsWith('.$ext'));
+            final isImageByExtension = [
+              'jpg',
+              'jpeg',
+              'png',
+              'gif'
+            ].any((ext) => attachment.fileName.toLowerCase().endsWith('.$ext'));
             return isImageByMime || isImageByExtension;
           }).toList();
           final imageUrls =
@@ -423,22 +424,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Image.network(
-              imageUrl,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(
-                  color: isMyMessage
-                      ? AppColors.primary500.withAlpha(128)
-                      : AppColors.grey200,
-                  child: const Center(
-                    child: LoadingView(),
-                  ),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.error);
-              },
+            ImageThumbnailFromUrl(
+              imageUrl: imageUrl,
+              fit: BoxFit.cover,
             ),
             if (!hasText)
               Positioned(
@@ -474,25 +462,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           ),
         );
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12.0),
-        child: Container(
-          color: AppColors.grey200,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              _VideoThumbnail(videoUrl: videoUrl),
-              const Center(
-                child: Icon(
-                  Icons.play_circle_outline,
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: VideoThumbnailFromUrl(videoUrl: videoUrl),
     );
   }
 
@@ -567,15 +537,16 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                             child: isImage
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
-                                    child: Image.file(
-                                      file,
-                                      fit: BoxFit.cover,
+                                    child: ImageThumbnailFromFile(
+                                      file: file,
                                       width: 60,
                                       height: 60,
+                                      borderRadius: 8,
+                                      fit: BoxFit.cover,
                                     ),
                                   )
                                 : isVideo
-                                    ? _VideoThumbnailFromFile(
+                                    ? VideoThumbnailFromFile(
                                         file: file,
                                         width: 60,
                                         height: 60,
@@ -647,106 +618,6 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 }
 
-class _VideoThumbnail extends StatefulWidget {
-  const _VideoThumbnail({required this.videoUrl});
+// URL thumbnail widget replaced by shared component.
 
-  final String videoUrl;
-
-  @override
-  State<_VideoThumbnail> createState() => _VideoThumbnailState();
-}
-
-class _VideoThumbnailState extends State<_VideoThumbnail> {
-  Uint8List? _thumbnailData;
-
-  @override
-  void initState() {
-    super.initState();
-    _generateThumbnail();
-  }
-
-  Future<void> _generateThumbnail() async {
-    final thumbnailData = await VideoThumbnail.thumbnailData(
-      video: widget.videoUrl,
-      imageFormat: ImageFormat.PNG,
-      maxWidth: 300,
-      quality: 25,
-    );
-    if (mounted) {
-      setState(() {
-        _thumbnailData = thumbnailData;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_thumbnailData == null) {
-      return const Center(child: LoadingView());
-    }
-    return Image.memory(
-      _thumbnailData!,
-      fit: BoxFit.contain,
-    );
-  }
-}
-
-class _VideoThumbnailFromFile extends StatefulWidget {
-  final File file;
-  final double? width;
-  final double? height;
-
-  const _VideoThumbnailFromFile({
-    required this.file,
-    this.width,
-    this.height,
-  });
-
-  @override
-  State<_VideoThumbnailFromFile> createState() =>
-      _VideoThumbnailFromFileState();
-}
-
-class _VideoThumbnailFromFileState extends State<_VideoThumbnailFromFile> {
-  Uint8List? _thumbnailData;
-
-  @override
-  void initState() {
-    super.initState();
-    _generateThumbnail();
-  }
-
-  Future<void> _generateThumbnail() async {
-    final thumbnailData = await VideoThumbnail.thumbnailData(
-      video: widget.file.path,
-      imageFormat: ImageFormat.PNG,
-      maxWidth: (widget.width?.toInt() ?? 160) * 2,
-      quality: 25,
-    );
-    if (mounted) {
-      setState(() {
-        _thumbnailData = thumbnailData;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8.0),
-      child: Container(
-        width: widget.width ?? 80,
-        height: widget.height ?? 80,
-        color: AppColors.grey200,
-        child: _thumbnailData != null
-            ? Image.memory(
-                _thumbnailData!,
-                fit: BoxFit.contain,
-              )
-            : const Center(
-                child: LoadingView(),
-              ),
-      ),
-    );
-  }
-}
+// Local file thumbnail widget replaced by shared component.

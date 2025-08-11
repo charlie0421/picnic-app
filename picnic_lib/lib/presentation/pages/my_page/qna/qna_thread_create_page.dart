@@ -6,8 +6,8 @@ import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-import 'dart:typed_data';
+import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
+import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 
 class QnaThreadCreatePage extends StatefulWidget {
   final String userId;
@@ -129,19 +129,33 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
         children: [
           Scaffold(
             appBar: AppBar(
-              title: Text(AppLocalizations.of(context).qna_create_title),
+              title: Text(
+                AppLocalizations.of(context).qna_create_title,
+                style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+              ),
+              backgroundColor: AppColors.grey00,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              foregroundColor: AppColors.grey900,
               actions: [
-                TextButton(
-                  onPressed: _isSubmitting ? null : _submitThread,
-                  child: _isSubmitting
-                      ? const SizedBox.shrink()
-                      : Text(
-                          AppLocalizations.of(context).qna_submit_button,
-                          style: TextStyle(
-                              color: _isSubmitting
-                                  ? AppColors.grey500
-                                  : Colors.black),
-                        ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: FilledButton.icon(
+                    onPressed: _isSubmitting ? null : _submitThread,
+                    icon: const Icon(Icons.check, size: 18),
+                    label: Text(AppLocalizations.of(context).qna_submit_button),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary500,
+                      foregroundColor: Colors.white,
+                      textStyle:
+                          getTextStyle(AppTypo.caption12M, AppColors.grey00),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -202,7 +216,7 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
           ),
           if (_isSubmitting || _isAttaching)
             Container(
-              color: Colors.black.withValues(alpha: 0.5),
+              color: Colors.black.withAlpha(128),
               child: const Center(
                 child: LoadingView(),
               ),
@@ -252,15 +266,15 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                           width: 80,
                           height: 80,
                           child: isImage
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.file(
-                                    file,
-                                    fit: BoxFit.cover,
-                                  ),
+                              ? ImageThumbnailFromFile(
+                                  file: file,
+                                  width: 80,
+                                  height: 80,
+                                  borderRadius: 8,
+                                  fit: BoxFit.cover,
                                 )
                               : isVideo
-                                  ? _VideoThumbnailFromFile(file: file)
+                                  ? VideoThumbnailFromFile(file: file)
                                   : Container(
                                       decoration: BoxDecoration(
                                         color: AppColors.grey200,
@@ -305,56 +319,4 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
   }
 }
 
-class _VideoThumbnailFromFile extends StatefulWidget {
-  final File file;
-
-  const _VideoThumbnailFromFile({required this.file});
-
-  @override
-  State<_VideoThumbnailFromFile> createState() =>
-      _VideoThumbnailFromFileState();
-}
-
-class _VideoThumbnailFromFileState extends State<_VideoThumbnailFromFile> {
-  Uint8List? _thumbnailData;
-
-  @override
-  void initState() {
-    super.initState();
-    _generateThumbnail();
-  }
-
-  Future<void> _generateThumbnail() async {
-    final thumbnailData = await VideoThumbnail.thumbnailData(
-      video: widget.file.path,
-      imageFormat: ImageFormat.PNG,
-      maxWidth: 160,
-      quality: 25,
-    );
-    if (mounted) {
-      setState(() {
-        _thumbnailData = thumbnailData;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8.0),
-      child: Container(
-        width: 80,
-        height: 80,
-        color: AppColors.grey200,
-        child: _thumbnailData != null
-            ? Image.memory(
-                _thumbnailData!,
-                fit: BoxFit.cover,
-              )
-            : const Center(
-                child: LoadingView(),
-              ),
-      ),
-    );
-  }
-}
+// 로컬 전용 썸네일 위젯은 공통 컴포넌트로 대체되었습니다.
