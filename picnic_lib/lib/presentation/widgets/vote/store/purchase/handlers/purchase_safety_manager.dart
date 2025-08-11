@@ -13,9 +13,9 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
 
   static const Duration _safetyTimeout = Duration(seconds: 90);
   static const Duration _basePurchaseCooldown =
-      Duration(seconds: 8); // 🎯 기본 8초로 증가
+      Duration(minutes: 1); // 🎯 기본 60초 고정
   static const Duration _consecutivePurchaseCooldown =
-      Duration(seconds: 15); // 🔄 연속 구매 시 15초
+      Duration(minutes: 1); // 🔄 연속 구매도 60초 동일 적용
 
   // 🔄 연속 구매 추적
   int _consecutivePurchaseCount = 0;
@@ -95,9 +95,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       final requiredCooldown = _getAdaptiveCooldown();
 
       if (elapsed < requiredCooldown) {
-        final remaining = requiredCooldown - elapsed;
-        final cooldownType = _consecutivePurchaseCount >= 2 ? '연속구매' : '기본';
-        logger.w('🛡️ 구매 쿨다운 ($cooldownType): ${remaining.inSeconds}초 남음');
+        // 팝업에서 안내는 호출측(UI)이 수행. 여기서는 차단만 수행.
+        logger.w('🛡️ 구매 쿨다운 차단');
         return false;
       }
     }
@@ -127,6 +126,28 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     return _basePurchaseCooldown; // 8초
   }
 
+  /// 🔒 중복 JWS 감지 시 강제로 쿨다운 활성화
+  void activateDuplicateCooldown() {
+    final now = DateTime.now();
+    _lastPurchaseTime = now;
+    _firstPurchaseInSession ??= now;
+    _consecutivePurchaseCount++;
+    final cooldown = _getAdaptiveCooldown();
+    logger.w(
+        '🛡️ Duplicate JWS detected - cooldown activated (${cooldown.inSeconds}s)');
+  }
+
+  /// ⏱️ 남은 쿨다운 시간 반환 (없으면 null)
+  Duration? remainingCooldown() {
+    if (_lastPurchaseTime == null) return null;
+    final required = _getAdaptiveCooldown();
+    final elapsed = DateTime.now().difference(_lastPurchaseTime!);
+    if (elapsed < required) {
+      return required - elapsed;
+    }
+    return null;
+  }
+
   /// 🎯 심플 구매 시작 + 연속 구매 추적 (3줄로 해결!)
   void recordPurchaseAttempt({String? productId}) {
     _isPurchaseInProgress = true;
@@ -145,6 +166,8 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
         '${productId}_${DateTime.now().millisecondsSinceEpoch}';
     _isPurchaseInProgress = false;
     _lastProcessedTransactionId = transactionId;
+    // ✅ 성공 직후에도 연속 구매를 막기 위해 최근 시도 시간을 현재로 갱신
+    _lastPurchaseTime = DateTime.now();
 
     // 🛡️ 정상 구매 완료 시 안전망 타이머 정리
     stopSafetyTimer();
@@ -311,7 +334,6 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   /// 🚨 취소/에러 시 내부 상태 완전 리셋 (중요!)
   void resetInternalState({String reason = '상태 리셋'}) {
     _isPurchaseInProgress = false;
-    _lastPurchaseTime = null;
     _lastProcessedTransactionId = null;
 
     // 🔄 연속 구매 세션도 리셋 (에러/취소 시)
@@ -322,6 +344,14 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
     }
 
     logger.i('🔄 내부 상태 완전 리셋: $reason');
+  }
+
+  /// UI만 리셋하고 쿨다운 시각은 유지
+  void resetUIOnly({String reason = 'UI 상태 리셋'}) {
+    _isPurchaseInProgress = false;
+    // _lastPurchaseTime 유지 → 연속 구매 차단 지속
+    // _lastProcessedTransactionId 유지 가능 (로직 영향 없음)
+    logger.i('🔄 UI 상태 리셋(쿨다운 유지): $reason');
   }
 
   /// 🎯 플랫폼별 구매 판별 - iOS/Android 완전 분리!

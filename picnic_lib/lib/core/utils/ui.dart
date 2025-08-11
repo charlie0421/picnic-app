@@ -10,24 +10,66 @@ import 'package:universal_platform/universal_platform.dart';
 import '../../presentation/providers/global_media_query.dart';
 
 void showOverlayToast(BuildContext context, Widget child) {
-  OverlayEntry overlayEntry = OverlayEntry(
-    builder: (context) => Center(
-      child: Container(
-        width: getPlatformScreenSize(context).width * 0.5,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppColors.grey100,
-          borderRadius: BorderRadius.circular(8),
+  // 1) 가능한 모든 경로로 OverlayState 획득 시도
+  final overlayState =
+      Navigator.maybeOf(context, rootNavigator: true)?.overlay ??
+          Overlay.maybeOf(context, rootOverlay: true) ??
+          Overlay.maybeOf(context);
+
+  if (overlayState != null) {
+    final overlayEntry = OverlayEntry(
+      builder: (ctx) => Center(
+        child: Container(
+          width: getPlatformScreenSize(ctx).width * 0.5,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.grey100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: child,
         ),
-        child: child,
+      ),
+    );
+    overlayState.insert(overlayEntry);
+    Future.delayed(const Duration(seconds: 1), () => overlayEntry.remove());
+    return;
+  }
+
+  // 2) Fallback: ScaffoldMessenger 스낵바로 표시
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  if (messenger != null) {
+    messenger.showSnackBar(SnackBar(
+      content: child,
+      duration: const Duration(seconds: 1),
+      behavior: SnackBarBehavior.floating,
+    ));
+    return;
+  }
+
+  // 3) 최후 Fallback: 다이얼로그로 1초 표시 후 자동 닫기
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) => Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(24),
+      child: Center(
+        child: Container(
+          width: getPlatformScreenSize(ctx).width * 0.6,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.grey100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: child,
+        ),
       ),
     ),
   );
-
-  Overlay.of(context).insert(overlayEntry);
-
   Future.delayed(const Duration(seconds: 1), () {
-    overlayEntry.remove();
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
   });
 }
 

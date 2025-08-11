@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -63,8 +64,26 @@ class ReceiptVerificationService {
     logger.i('Receipt format: $receiptFormat');
 
     if (Platform.isIOS) {
-      await _verifyiOSReceipt(
-          receipt, productId, userId, environment, receiptFormat);
+      // iOS: 동일 JWS 재전송 방지 (멱등 키: transactionId + signedDate)
+      try {
+        final idemKey = _makeIdemKeyFromJWS(receipt);
+        if (await _idemCacheContains(idemKey)) {
+          logger.w('🍎 동일 JWS 재전송 차단: $idemKey');
+          // 중복으로 간주하여 예외를 던져 상위에서 성공 UI를 띄우지 않도록 함
+          throw ReusedPurchaseException(message: 'Duplicate iOS receipt');
+        }
+        await _verifyiOSReceipt(
+            receipt, productId, userId, environment, receiptFormat);
+        await _idemCacheAdd(idemKey);
+      } catch (e) {
+        if (e is ReusedPurchaseException) {
+          // 중복은 그대로 상위로 전달하여 성공 플로우를 막는다
+          rethrow;
+        }
+        logger.w('🍎 JWS 파싱/멱등 처리 실패 - 일반 경로로 진행: $e');
+        await _verifyiOSReceipt(
+            receipt, productId, userId, environment, receiptFormat);
+      }
     } else {
       await _verifyAndroidReceipt(receipt, productId, userId, environment);
     }
@@ -187,10 +206,10 @@ class ReceiptVerificationService {
         if (error is FunctionException && error.status == 409) {
           logger.w('Duplicate receipt detected (409 Conflict)');
           throw ReusedPurchaseException(
-            message: PurchaseConstants.duplicatePurchaseError,
+            message: PurchaseConstants.errPrevTransactionPending,
           );
         }
-        
+
         // ReusedPurchaseException은 재시도하지 않음
         if (error is ReusedPurchaseException) {
           rethrow;
@@ -208,27 +227,15 @@ class ReceiptVerificationService {
       }
     }
 
-    // 모든 시도 실패 시 처리
+    // 모든 시도 실패 시 처리(타임아웃도 실패로 간주)
     logger.e('All $verificationType verification attempts failed');
-
-    // 🔥 타임아웃의 경우 관대한 처리 (구매는 성공했을 가능성 높음)
     final isTimeout = lastException is TimeoutException ||
-        lastException.toString().contains('TimeoutException') ||
-        lastException.toString().contains('timeout');
-
+        lastException.toString().toLowerCase().contains('time');
     if (isTimeout) {
-      logger.w('⚠️ 영수증 검증 타임아웃 - 관대한 처리 적용');
-      logger.w('📝 ${PurchaseConstants.timeoutGracefulHandling}');
-      logger.w(
-          '🌍 Environment: $environment, Timeout: ${timeoutDuration.inSeconds}s');
-      logger.w('🔄 Retries completed: $maxRetries attempts');
-      return; // 성공으로 간주
+      logger.w('⚠️ 영수증 검증 타임아웃 - 실패로 처리 (관대한 처리 비활성화)');
     }
-
     throw lastException ?? Exception('영수증 검증 실패');
   }
-
-
 
   /// 환경 감지
   Future<String> getEnvironment() async {
@@ -285,6 +292,54 @@ class ReceiptVerificationService {
           receiptData.split('.').length == 3;
     } catch (e) {
       return false;
+    }
+  }
+
+  // ===== iOS JWS 멱등 캐시 =====
+  static const _spKeySentReceipts = 'sent_receipts_idem_keys';
+
+  Future<Set<String>> _loadIdemCache() async {
+    final sp = await SharedPreferences.getInstance();
+    return sp.getStringList(_spKeySentReceipts)?.toSet() ?? <String>{};
+  }
+
+  Future<bool> _idemCacheContains(String key) async {
+    final s = await _loadIdemCache();
+    return s.contains(key);
+  }
+
+  Future<void> _idemCacheAdd(String key) async {
+    final sp = await SharedPreferences.getInstance();
+    final s = await _loadIdemCache()
+      ..add(key);
+    await sp.setStringList(_spKeySentReceipts, s.toList());
+  }
+
+  String _makeIdemKeyFromJWS(String jws) {
+    try {
+      if (!isStoreKit2JWT(jws)) return 'raw:${jws.hashCode}';
+      final parts = jws.split('.');
+      String normalize(String s) {
+        s = s.replaceAll('-', '+').replaceAll('_', '/');
+        while (s.length % 4 != 0) {
+          s += '=';
+        }
+        return s;
+      }
+
+      final payload =
+          json.decode(utf8.decode(base64.decode(normalize(parts[1]))));
+      final tx =
+          (payload['transactionId'] ?? payload['originalTransactionId'] ?? '')
+              .toString();
+      final time = (payload['signedDate'] ??
+              payload['purchaseDate'] ??
+              payload['originalPurchaseDate'] ??
+              '')
+          .toString();
+      return 'ios:$tx:$time';
+    } catch (_) {
+      return 'raw:${jws.hashCode}';
     }
   }
 

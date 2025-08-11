@@ -1,3 +1,4 @@
+// No UI/i18n imports here. UI 레이어에서 arb 기반으로 처리합니다.
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 /// 구매 처리 상수
@@ -33,47 +34,31 @@ class PurchaseConstants {
   static const int sandboxMaxRetries = 5; // Sandbox 환경 (더 많은 재시도)
   static const int baseRetryDelay = 2; // 초
 
-  // 에러 메시지
-  static const String userNotAuthenticatedError = '사용자 인증이 필요합니다';
-  static const String productNotFoundError = '구매한 상품을 찾을 수 없습니다';
-  static const String receiptVerificationError = '영수증 검증에 실패했습니다';
-  static const String purchaseFailedError = '구매 처리 중 오류가 발생했습니다';
-  static const String purchaseCanceledError = '구매가 취소되었습니다';
-  static const String duplicatePurchaseError = '이미 처리된 구매입니다';
-  static const String initializingError = '초기화 중입니다. 잠시 후 다시 시도해주세요.';
-  static const String purchaseInProgressError = '구매가 진행 중입니다. 잠시만 기다려주세요.';
-  static const String cooldownActiveError = '잠시 후 다시 시도해주세요.';
+  // 에러 메시지 키 (UI에서 i18n 매핑)
+  static const String userNotAuthenticatedErrorKey =
+      'error_user_not_authenticated';
+  static const String productNotFoundErrorKey = 'error_product_not_found';
+  static const String receiptVerificationErrorKey =
+      'error_receipt_verification_failed';
+  static const String duplicatePurchaseErrorKey = 'error_duplicate_purchase';
+  static const String initializingErrorKey = 'error_initializing';
+  static const String purchaseInProgressErrorKey = 'error_purchase_in_progress';
 
-  // 타임아웃 관련 에러 메시지
-  static const String verificationTimeoutError =
-      '구매 처리 시간이 초과되었습니다. 네트워크 연결을 확인하고 다시 시도해 주세요.';
-  static const String authenticationTimeoutError =
-      'Touch ID/Face ID 인증 시간이 초과되었습니다. 다시 시도해 주세요.';
-  static const String sandboxTimeoutWarning =
-      'Sandbox 환경에서 서버 응답이 지연되었지만 구매는 정상 처리되었습니다.';
-  static const String timeoutGracefulHandling =
-      '영수증 검증 응답이 지연되었지만 구매가 성공했을 가능성이 높아 성공으로 처리합니다.';
-  static const String networkConnectionError = '네트워크 연결을 확인해주세요.';
-  static const String serverResponseError = '서버에서 응답이 없습니다. 잠시 후 다시 시도해 주세요.';
+  // 표준 에러 코드(문자열 비교 지양 → 코드 비교 사용)
+  static const String errPrevTransactionPending = 'ERR_PREV_TX';
+  static const String errCooldownActive = 'ERR_COOLDOWN';
+  static const String errPurchaseCanceled = 'ERR_PURCHASE_CANCELED';
+  static const String errInProgress = 'ERR_IN_PROGRESS';
+  static const String errTimeout = 'TIMEOUT';
+  static const String errAuthTimeout = 'AUTH_TIMEOUT';
+  static const String errNetwork = 'NETWORK';
+  static const String errServer = 'SERVER';
+  static const String errConcurrent = 'ERR_CONCURRENT';
+  static const String errTooSoon = 'ERR_TOO_SOON';
+  static const String errRecentPurchase = 'ERR_RECENT_PURCHASE';
+  static const String errRequestDuplicate = 'ERR_REQUEST_DUPLICATE';
 
-  // 🛡️ 중복 방지 관련 에러 메시지
-  static const String concurrentPurchaseError = '해당 제품에 대한 구매가 이미 진행 중입니다.';
-  static const String timeTooSoonError = '구매 요청 간격이 너무 짧습니다. 잠시 후 다시 시도해주세요.';
-  static const String recentPurchaseError =
-      '최근에 동일한 구매를 완료했습니다. 잠시 후 다시 시도해주세요.';
-  static const String requestIdDuplicateError = '이미 처리된 요청입니다.';
-  static const String guardSystemError = '구매 보안 시스템 오류가 발생했습니다.';
-
-  // 🛡️ 새로운 강화된 중복 방지 메시지
-  static const String authenticationInProgressError =
-      'Touch ID/Face ID 인증이 진행 중입니다. 잠시만 기다려주세요.';
-  static const String backgroundPurchaseDetectedError =
-      '백그라운드에서 구매가 처리 중입니다. 잠시만 기다려주세요.';
-  static const String recentPurchaseAttemptError =
-      '최근 구매 시도 후 아직 충분한 시간이 지나지 않았습니다.';
-
-  // 성공 메시지
-  static const String purchaseSuccessMessage = '구매가 완료되었습니다';
+  // localizedMessage 제거: UI에서 직접 i18n 키로 처리
 
   // SharedPreferences 키
   static const String testDialogShownKey = 'test_environment_dialog_shown';
@@ -122,22 +107,22 @@ class PurchaseError {
 
   static const PurchaseError userNotAuthenticated = PurchaseError(
     code: 'USER_NOT_AUTHENTICATED',
-    message: PurchaseConstants.userNotAuthenticatedError,
+    message: PurchaseConstants.userNotAuthenticatedErrorKey,
   );
 
   static const PurchaseError productNotFound = PurchaseError(
     code: 'PRODUCT_NOT_FOUND',
-    message: PurchaseConstants.productNotFoundError,
+    message: PurchaseConstants.productNotFoundErrorKey,
   );
 
   static const PurchaseError receiptVerification = PurchaseError(
     code: 'RECEIPT_VERIFICATION_FAILED',
-    message: PurchaseConstants.receiptVerificationError,
+    message: PurchaseConstants.receiptVerificationErrorKey,
   );
 
   static const PurchaseError duplicatePurchase = PurchaseError(
     code: 'DUPLICATE_PURCHASE',
-    message: PurchaseConstants.duplicatePurchaseError,
+    message: PurchaseConstants.duplicatePurchaseErrorKey,
   );
 
   @override

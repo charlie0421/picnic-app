@@ -2882,6 +2882,42 @@ abstract class AppLocalizations {
   /// **'Your previous payment is still being processed by the Store. Please try again shortly.'**
   String get previousTransactionPendingError;
 
+  /// No description provided for @error_user_not_authenticated.
+  ///
+  /// In en, this message translates to:
+  /// **'You need to sign in. Please log in again.'**
+  String get error_user_not_authenticated;
+
+  /// No description provided for @error_product_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find the purchased product.'**
+  String get error_product_not_found;
+
+  /// No description provided for @error_receipt_verification_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt verification failed.'**
+  String get error_receipt_verification_failed;
+
+  /// No description provided for @error_duplicate_purchase.
+  ///
+  /// In en, this message translates to:
+  /// **'This purchase has already been processed.'**
+  String get error_duplicate_purchase;
+
+  /// No description provided for @error_initializing.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing. Please try again shortly.'**
+  String get error_initializing;
+
+  /// No description provided for @error_purchase_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'A purchase is in progress. Please wait.'**
+  String get error_purchase_in_progress;
+
   /// No description provided for @purchase_in_progress_message.
   ///
   /// In en, this message translates to:

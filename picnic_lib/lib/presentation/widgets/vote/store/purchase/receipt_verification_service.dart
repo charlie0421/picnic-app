@@ -194,7 +194,7 @@ class ReceiptVerificationService {
 
           throw ReusedPurchaseException(
             message: reusedInfo['message'] ??
-                PurchaseConstants.duplicatePurchaseError,
+                PurchaseConstants.errPrevTransactionPending,
             receiptId: reusedInfo['receiptId'],
           );
         }

@@ -1435,6 +1435,24 @@ class AppLocalizationsKo extends AppLocalizations {
       '이전 결제가 스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요.';
 
   @override
+  String get error_user_not_authenticated => '사용자 인증이 필요합니다. 다시 로그인해주세요.';
+
+  @override
+  String get error_product_not_found => '구매한 상품을 찾을 수 없습니다.';
+
+  @override
+  String get error_receipt_verification_failed => '영수증 검증에 실패했습니다.';
+
+  @override
+  String get error_duplicate_purchase => '이미 처리된 구매입니다.';
+
+  @override
+  String get error_initializing => '초기화 중입니다. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get error_purchase_in_progress => '구매가 진행 중입니다. 잠시만 기다려주세요.';
+
+  @override
   String get purchase_in_progress_message => '구매가 진행 중입니다. 잠시만 기다려주세요.';
 
   @override

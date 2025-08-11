@@ -1496,6 +1496,28 @@ class AppLocalizationsId extends AppLocalizations {
       'Pembayaran Anda sebelumnya masih diproses oleh Store. Silakan coba lagi nanti.';
 
   @override
+  String get error_user_not_authenticated =>
+      'Anda perlu masuk. Silakan masuk kembali.';
+
+  @override
+  String get error_product_not_found =>
+      'Kami tidak dapat menemukan produk yang dibeli.';
+
+  @override
+  String get error_receipt_verification_failed =>
+      'Verifikasi tanda terima gagal.';
+
+  @override
+  String get error_duplicate_purchase => 'Pembelian ini sudah diproses.';
+
+  @override
+  String get error_initializing => 'Inisialisasi. Silakan coba lagi nanti.';
+
+  @override
+  String get error_purchase_in_progress =>
+      'Pembelian sedang berlangsung. Harap tunggu.';
+
+  @override
   String get purchase_in_progress_message =>
       'Pembelian sedang berlangsung. Mohon tunggu sebentar.';
 

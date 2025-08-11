@@ -1489,6 +1489,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your previous payment is still being processed by the Store. Please try again shortly.';
 
   @override
+  String get error_user_not_authenticated =>
+      'You need to sign in. Please log in again.';
+
+  @override
+  String get error_product_not_found =>
+      'We couldn\'t find the purchased product.';
+
+  @override
+  String get error_receipt_verification_failed =>
+      'Receipt verification failed.';
+
+  @override
+  String get error_duplicate_purchase =>
+      'This purchase has already been processed.';
+
+  @override
+  String get error_initializing => 'Initializing. Please try again shortly.';
+
+  @override
+  String get error_purchase_in_progress =>
+      'A purchase is in progress. Please wait.';
+
+  @override
   String get purchase_in_progress_message =>
       'Purchase is in progress. Please wait a moment.';
 

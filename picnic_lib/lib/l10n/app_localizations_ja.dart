@@ -1439,6 +1439,24 @@ class AppLocalizationsJa extends AppLocalizations {
       '前回の決済がストアで処理中です。しばらくしてからもう一度お試しください。';
 
   @override
+  String get error_user_not_authenticated => 'サインインが必要です。もう一度ログインしてください。';
+
+  @override
+  String get error_product_not_found => '購入した商品が見つかりません。';
+
+  @override
+  String get error_receipt_verification_failed => 'レシートの検証に失敗しました。';
+
+  @override
+  String get error_duplicate_purchase => 'この購入はすでに処理されています。';
+
+  @override
+  String get error_initializing => '初期化中です。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get error_purchase_in_progress => '購入を処理中です。しばらくお待ちください。';
+
+  @override
   String get purchase_in_progress_message => '決済処理中です。しばらくお待ちください。';
 
   @override

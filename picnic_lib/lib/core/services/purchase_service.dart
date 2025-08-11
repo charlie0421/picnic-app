@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -77,7 +77,7 @@ class PurchaseService {
       logger.i('=== Purchase Handling Completed ===');
     } catch (e, s) {
       logger.e('Error handling purchase: $e', stackTrace: s);
-      onError(PurchaseConstants.purchaseFailedError);
+      onError('GENERIC');
     }
   }
 
@@ -111,7 +111,7 @@ class PurchaseService {
       // 🔥 오류 시 진행 상태 정리
       _processingProducts.remove(purchaseDetails.productID);
 
-      onError(PurchaseConstants.purchaseFailedError);
+      onError('GENERIC');
     } finally {
       await _completePurchaseIfNeeded(purchaseDetails);
     }
@@ -294,6 +294,18 @@ class PurchaseService {
 
       onSuccess();
       logger.i('Purchase successfully completed: ${purchaseDetails.productID}');
+    } on ReusedPurchaseException catch (e) {
+      // 동일 JWS 재사용 케이스: 명확한 안내 메시지 반환
+      logger.w('🔄 JWT 재사용 감지 (handleSuccessfulPurchase) - ${e.message}');
+      // 실패로 기록 (쿨다운 경로에서 활용)
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser != null) {
+        duplicatePreventionService.completePurchase(
+            purchaseDetails.productID, currentUser.id,
+            success: false);
+      }
+      onError(PurchaseConstants.errPrevTransactionPending);
+      rethrow;
     } catch (e, s) {
       logger.e('Error in handleSuccessfulPurchase: $e', stackTrace: s);
       onError(_getDetailedErrorMessage(e));
@@ -354,7 +366,13 @@ class PurchaseService {
             success: false);
       }
 
-      onError('previousTransactionPendingError');
+      // 중복 감지 시: 서비스 레벨 실패 처리 + 남은 쿨다운 안내 메시지 구성
+      duplicatePreventionService.completePurchase(
+          purchaseDetails.productID, supabase.auth.currentUser?.id ?? '',
+          success: false);
+
+      // JWS 재사용: 명확한 안내 메시지 키 전달
+      onError(PurchaseConstants.errPrevTransactionPending);
     } catch (e, s) {
       logger.e('❌ 실제 구매 처리 중 오류 ($platform): $e', stackTrace: s);
       _processingProducts.remove(purchaseDetails.productID);
@@ -393,7 +411,7 @@ class PurchaseService {
   void _validateUserAuthentication() {
     final currentUser = supabase.auth.currentUser;
     if (currentUser == null) {
-      throw Exception(PurchaseConstants.userNotAuthenticatedError);
+      throw Exception('USER_NOT_AUTHENTICATED');
     }
     logger.i('✅ 사용자 인증 확인 완료: ${currentUser.id}');
   }
@@ -443,7 +461,7 @@ class PurchaseService {
     final storeProducts = await ref.read(storeProductsProvider.future);
     final productDetails = storeProducts.firstWhere(
       (product) => product.id == purchaseDetails.productID,
-      orElse: () => throw Exception(PurchaseConstants.productNotFoundError),
+      orElse: () => throw Exception('PRODUCT_NOT_FOUND'),
     );
 
     logger.i('애널리틱스 로깅...');
@@ -476,17 +494,17 @@ class PurchaseService {
 
   /// 에러 메시지 생성
   String _getErrorMessage(IAPError? error) {
-    if (error == null) return PurchaseConstants.purchaseFailedError;
+    if (error == null) return 'GENERIC';
 
     switch (error.code) {
       case 'payment_invalid':
         return '결제 정보가 유효하지 않습니다.';
       case 'payment_canceled':
-        return PurchaseConstants.purchaseCanceledError;
+        return PurchaseConstants.errPurchaseCanceled;
       case 'store_problem':
-        return '스토어 연결에 문제가 있습니다.';
+        return PurchaseConstants.errServer;
       default:
-        return '구매 처리 중 오류가 발생했습니다: ${error.message}';
+        return 'GENERIC';
     }
   }
 
@@ -494,21 +512,26 @@ class PurchaseService {
   String _getDetailedErrorMessage(dynamic error) {
     final errorString = error.toString();
 
+    // 코드 기반 반환(국제화는 UI 레이어에서 수행)
     if (errorString.contains('Receipt verification failed')) {
-      return '영수증 검증에 실패했습니다. 잠시 후 다시 시도해주세요.';
-    } else if (errorString.contains('구매 처리 시간이 초과')) {
-      return PurchaseConstants.verificationTimeoutError;
+      return 'RECEIPT_VERIFICATION_FAILED';
+    } else if (errorString.contains('timeout') ||
+        errorString.contains('타임아웃')) {
+      return PurchaseConstants.errTimeout;
     } else if (errorString.contains('Touch ID') ||
         errorString.contains('Face ID')) {
-      return PurchaseConstants.authenticationTimeoutError;
-    } else if (errorString
-        .contains(PurchaseConstants.userNotAuthenticatedError)) {
-      return '사용자 인증이 필요합니다. 다시 로그인해주세요.';
-    } else if (errorString.contains(PurchaseConstants.productNotFoundError)) {
-      return PurchaseConstants.productNotFoundError;
+      return PurchaseConstants.errAuthTimeout;
+    } else if (errorString.contains('USER_NOT_AUTHENTICATED')) {
+      return 'USER_NOT_AUTHENTICATED';
+    } else if (errorString.contains('PRODUCT_NOT_FOUND')) {
+      return 'PRODUCT_NOT_FOUND';
+    } else if (errorString.toLowerCase().contains('network')) {
+      return PurchaseConstants.errNetwork;
+    } else if (errorString.toLowerCase().contains('server')) {
+      return PurchaseConstants.errServer;
     }
 
-    return PurchaseConstants.purchaseFailedError;
+    return 'GENERIC';
   }
 
   /// 서비스 해제 시 모든 진행 상태 정리

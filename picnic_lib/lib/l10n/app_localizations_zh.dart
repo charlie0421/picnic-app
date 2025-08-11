@@ -1426,6 +1426,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get previousTransactionPendingError => '您之前的付款仍在由商店处理。请稍后重试。';
 
   @override
+  String get error_user_not_authenticated => '需要登录。请重新登录。';
+
+  @override
+  String get error_product_not_found => '我们找不到已购买的产品。';
+
+  @override
+  String get error_receipt_verification_failed => '收据验证失败。';
+
+  @override
+  String get error_duplicate_purchase => '此购买已被处理。';
+
+  @override
+  String get error_initializing => '正在初始化。请稍后再试。';
+
+  @override
+  String get error_purchase_in_progress => '正在处理购买。请稍候。';
+
+  @override
   String get purchase_in_progress_message => '购买正在进行中。请稍等。';
 
   @override

@@ -26,7 +26,7 @@ import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
+import 'package:picnic_lib/core/constants/purchase_constants.dart';
 
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
@@ -588,30 +588,79 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       },
       (error) async {
         if (mounted) {
-          _resetPurchaseState();
+          // ✅ UI만 리셋하고 쿨다운은 유지하여 즉시 연속 구매 차단
+          _safetyManager.resetUIOnly(reason: '구매 에러/중복 처리 후 UI만 리셋');
           _loadingKey.currentState?.hide();
-
-          if (error == 'previousTransactionPendingError') {
-            if (mounted) {
-              final context = navigatorKey.currentContext;
-              if (context != null) {
-                showOverlayToast(
-                  context,
-                  Text(AppLocalizations.of(context)
-                      .previousTransactionPendingError),
-                );
-              }
-            }
-          } else if (_isDuplicateError(error)) {
+          if (error == PurchaseConstants.errPrevTransactionPending) {
+            // 엣지(서버)에서 중복 처리됨 → 즉시 '스토어 처리 중' 팝업 + 1분 쿨타임
+            _safetyManager.activateDuplicateCooldown();
             if (navigatorKey.currentContext != null) {
-              showOverlayToast(
-                navigatorKey.currentContext!,
-                Text(error),
+              showSimpleDialog(
+                content: AppLocalizations.of(navigatorKey.currentContext!)
+                    .previousTransactionPendingError,
               );
             }
+          } else if (error == PurchaseConstants.errCooldownActive) {
+            // 쿨다운 위반도 동일하게 '스토어 처리중' 팝업
+            _safetyManager.activateDuplicateCooldown();
+            if (navigatorKey.currentContext != null) {
+              showSimpleDialog(
+                content: AppLocalizations.of(navigatorKey.currentContext!)
+                    .previousTransactionPendingError,
+              );
+            }
+          } else if (_isDuplicateError(error)) {
+            // 문자열 기반 중복 케이스도 동일 처리
+            _safetyManager.activateDuplicateCooldown();
           } else {
             logger.e('[PurchaseStarCandyState] Purchase error: $error');
-            await _dialogHandler.showErrorDialog(error);
+            // 코드 → i18n 직접 매핑 (상수 메시지/헬퍼 미사용)
+            final l10n = AppLocalizations.of(navigatorKey.currentContext!);
+            String msg;
+            switch (error) {
+              case PurchaseConstants.errPrevTransactionPending:
+              case PurchaseConstants.errCooldownActive:
+                msg = l10n.previousTransactionPendingError;
+                break;
+              case 'RECEIPT_VERIFICATION_FAILED':
+                msg = l10n.error_receipt_verification_failed;
+                break;
+              case 'USER_NOT_AUTHENTICATED':
+                msg = l10n.error_user_not_authenticated;
+                break;
+              case 'PRODUCT_NOT_FOUND':
+                msg = l10n.error_product_not_found;
+                break;
+              case PurchaseConstants.errTimeout:
+                msg = l10n.purchase_timeout_message;
+                break;
+              case PurchaseConstants.errAuthTimeout:
+                msg = l10n.dialog_message_purchase_failed;
+                break;
+              case PurchaseConstants.errNetwork:
+                msg = l10n.error_network_connection;
+                break;
+              case PurchaseConstants.errServer:
+                msg = l10n.network_error_message;
+                break;
+              case PurchaseConstants.errPurchaseCanceled:
+                msg = l10n.purchase_cancelled_message;
+                break;
+              case PurchaseConstants.errInProgress:
+                msg = l10n.purchase_in_progress_message;
+                break;
+              case PurchaseConstants.errConcurrent:
+                msg = l10n.purchase_in_progress_message;
+                break;
+              case PurchaseConstants.errTooSoon:
+              case PurchaseConstants.errRecentPurchase:
+              case PurchaseConstants.errRequestDuplicate:
+                msg = l10n.previousTransactionPendingError;
+                break;
+              default:
+                msg = l10n.dialog_message_purchase_failed;
+            }
+            await _dialogHandler.showErrorDialog(msg);
           }
         }
       },
@@ -817,8 +866,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
     if (!_safetyManager.canAttemptPurchase()) {
       logger.w('[PurchaseStarCandyState] Purchase cooldown active');
+      // 일반 쿨다운 문구 제거 → 스토어 처리 중 문구로 통일
       showSimpleDialog(
-          content: AppLocalizations.of(context).purchase_cooldown_message);
+          content:
+              AppLocalizations.of(context).previousTransactionPendingError);
       return false;
     }
 
