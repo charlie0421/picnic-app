@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:mime/mime.dart';
+import 'package:uuid/uuid.dart';
 import 'package:picnic_lib/data/models/qna/qna_message.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -121,8 +122,8 @@ class QnaRepository {
         final List<Map<String, dynamic>> attachmentRecords = [];
 
         for (final file in attachments) {
-          final fileName = p.basename(file.path);
-          final filePath = 'qna/$userId/${newMessage.id}/$fileName';
+          final safeName = _generateUuidName(p.extension(file.path));
+          final filePath = 'qna/$userId/${newMessage.id}/$safeName';
 
           await _client.storage.from('qna_attachments').upload(
                 filePath,
@@ -136,7 +137,7 @@ class QnaRepository {
 
           attachmentRecords.add({
             'message_id': newMessage.id,
-            'file_name': fileName,
+            'file_name': safeName,
             'file_path': filePath,
             'file_type': lookupMimeType(file.path),
             'file_size': await file.length(),
@@ -156,6 +157,14 @@ class QnaRepository {
     } catch (e) {
       throw Exception('Q&A 메시지 생성 실패: $e');
     }
+  }
+
+  String _generateUuidName(String extension) {
+    final uuid = const Uuid().v4().replaceAll('-', '');
+    final normalizedExt = extension.isNotEmpty && extension.startsWith('.')
+        ? extension
+        : (extension.isNotEmpty ? '.$extension' : '');
+    return '$uuid$normalizedExt';
   }
 
   /// 스토리지 파일의 공개 URL 가져오기

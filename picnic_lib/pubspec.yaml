@@ -101,6 +101,7 @@ dependencies:
   googleapis: ^14.0.0
   googleapis_auth: ^2.0.0
   json_annotation: ^4.9.0
+  uuid: ^4.5.1
   # fluwx: ^5.5.4  # TODO: 위챗 로그인 임시 비활성화 - CI 에러 해결
 
 dev_dependencies:

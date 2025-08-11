@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -128,43 +128,14 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       _isAttaching = true;
     });
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        type: FileType.media,
+      final result = await pickQnaMedia(
+        context: context,
+        maxFileSizeInBytes: _maxFileSizeInBytes,
       );
-
-      if (result != null) {
-        final List<File> newAttachments = [];
-        final List<String> oversizedFiles = [];
-
-        for (final platformFile in result.files) {
-          if (platformFile.size > _maxFileSizeInBytes) {
-            oversizedFiles.add(platformFile.name);
-            continue;
-          }
-          if (platformFile.path != null) {
-            newAttachments.add(File(platformFile.path!));
-          }
-        }
-
-        setState(() {
-          _attachments.addAll(newAttachments);
-        });
-
-        if (oversizedFiles.isNotEmpty && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context).file_too_large_message(
-                  oversizedFiles.join(', '),
-                  _maxFileSizeInBytes ~/ (1024 * 1024),
-                ),
-              ),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      }
+      if (!mounted) return;
+      setState(() {
+        _attachments.addAll(result.selectedFiles);
+      });
     } finally {
       if (mounted) {
         setState(() {
@@ -181,6 +152,7 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),

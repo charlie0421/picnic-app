@@ -2,13 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_app/generated/l10n.dart';
 
 import 'package:picnic_app/presentation/screens/portal.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
-import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/enums.dart';
@@ -142,10 +140,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     logger.i('시스템 UI 초기화 시작');
     await AppInitializer.initializeSystemUI();
     logger.i('시스템 UI 초기화 완료');
-
-    // 언어 및 국제화 초기화
-    await _initializeLanguage();
-    logger.i('언어 및 국제화 초기화 완료');
   }
 
   // 컨텍스트가 필요한 초기화 작업 (동기적으로 실행)
@@ -196,17 +190,6 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         }
       }
     });
-  }
-
-  // 언어 초기화를 위한 별도 메서드 (간소화)
-  Future<void> _initializeLanguage() async {
-    logger.i('언어 초기화 시작 (picnic_app)');
-
-    // LanguageInitializer가 모든 로직(설정 로드, 에러 핸들링, fallback)을 처리
-    final (success, language) =
-        await LanguageInitializer.initializeLanguage(ref, S.load);
-
-    logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
   }
 
   @override

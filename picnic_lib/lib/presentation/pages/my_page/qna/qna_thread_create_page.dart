@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -47,45 +47,15 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
       _isAttaching = true;
     });
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        type: FileType.media,
+      final result = await pickQnaMedia(
+        context: context,
+        maxFileSizeInBytes: _maxFileSizeInBytes,
       );
-
-      if (result != null) {
-        final List<File> newAttachments = [];
-        final List<String> oversizedFiles = [];
-
-        for (final platformFile in result.files) {
-          if (platformFile.size > _maxFileSizeInBytes) {
-            oversizedFiles.add(platformFile.name);
-            continue;
-          }
-          if (platformFile.path != null) {
-            newAttachments.add(File(platformFile.path!));
-          }
-        }
-
-        setState(() {
-          _attachments.addAll(newAttachments);
-        });
-
-        _scrollToBottom();
-
-        if (oversizedFiles.isNotEmpty && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context).file_too_large_message(
-                  oversizedFiles.join(', '),
-                  _maxFileSizeInBytes ~/ (1024 * 1024),
-                ),
-              ),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      }
+      if (!mounted) return;
+      setState(() {
+        _attachments.addAll(result.selectedFiles);
+      });
+      _scrollToBottom();
     } finally {
       if (mounted) {
         setState(() {

@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/firebase_options.dart';
-import 'package:picnic_app/generated/l10n.dart';
 import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
@@ -41,7 +40,6 @@ void main() async {
     appBuilder: () => Phoenix(
       child: const App(),
     ),
-    loadGeneratedTranslations: S.load,
     reflectableInitializer: initializeReflectable,
   );
 }

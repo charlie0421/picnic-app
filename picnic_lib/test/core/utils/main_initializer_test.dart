@@ -29,7 +29,6 @@ void main() {
             environment: 'test',
             firebaseOptions: mockFirebaseOptions,
             appBuilder: mockAppBuilder,
-            loadGeneratedTranslations: mockLoadGeneratedTranslations,
             reflectableInitializer: mockReflectableInitializer,
           ),
           isA<Future<void>>());

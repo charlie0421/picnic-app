@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
+import 'package:uuid/uuid.dart';
 
 class S3Uploader {
   final String accessKey;
@@ -32,7 +33,7 @@ class S3Uploader {
     if (kIsWeb) {
       if (file is Uint8List) {
         // 웹 환경에서 파일 처리
-        fileName = DateTime.now().millisecondsSinceEpoch.toString();
+        fileName = _generateUuidFileName(null);
         fileLength = file.length;
         fileStream = Stream.fromIterable([file]);
         contentType = lookupMimeType(fileName) ?? 'application/octet-stream';
@@ -42,7 +43,9 @@ class S3Uploader {
     } else {
       if (file is File) {
         // 모바일/데스크톱 환경에서 파일 처리
-        fileName = path.basename(file.path);
+        final originalName = path.basename(file.path);
+        final ext = path.extension(originalName);
+        fileName = _generateUuidFileName(ext);
         fileLength = await file.length();
         fileStream = file.openRead();
         contentType = lookupMimeType(file.path) ?? 'application/octet-stream';
@@ -51,8 +54,18 @@ class S3Uploader {
       }
     }
 
-    final uri = Uri.parse(
-        'https://$bucketName.s3.$region.amazonaws.com/$folder/$fileName');
+    // 경로 세그먼트 안전 인코딩 (AWS SigV4 규칙과 일치하도록 각 세그먼트를 인코딩)
+    final pathSegments = <String>[
+      ...folder.split('/').where((s) => s.isNotEmpty),
+      fileName,
+    ].map(Uri.encodeComponent).join('/');
+
+    final encodedPath = '/$pathSegments';
+
+    final uri = Uri.https(
+      '$bucketName.s3.$region.amazonaws.com',
+      encodedPath,
+    );
 
     final now = DateTime.now().toUtc();
     final amzDate = DateFormat("yyyyMMdd'T'HHmmss'Z'").format(now);
@@ -66,8 +79,8 @@ class S3Uploader {
       'x-amz-content-sha256': 'UNSIGNED-PAYLOAD',
     };
 
-    final canonicalRequest =
-        _createCanonicalRequest('PUT', uri.path, headers, 'UNSIGNED-PAYLOAD');
+    final canonicalRequest = _createCanonicalRequest(
+        'PUT', encodedPath, headers, 'UNSIGNED-PAYLOAD');
     final stringToSign =
         _createStringToSign(dateStamp, region, 's3', canonicalRequest, amzDate);
     final signature =
@@ -100,8 +113,8 @@ class S3Uploader {
     final response = await http.Response.fromStream(await request.send());
 
     if (response.statusCode == 200) {
-      final url = '$folder/$fileName';
-      return url;
+      // 기존 반환 형태를 유지: 키 형태("folder/filename") 반환
+      return '$folder/$fileName';
     } else {
       throw Exception(
           'Failed to upload file: ${response.statusCode}, ${response.body}');
@@ -148,5 +161,13 @@ class S3Uploader {
       ..sort();
     final signedHeadersString = signedHeaders.join(';');
     return 'AWS4-HMAC-SHA256 Credential=$credential,SignedHeaders=$signedHeadersString,Signature=$signature';
+  }
+
+  String _generateUuidFileName(String? extension) {
+    final uuid = const Uuid().v4().replaceAll('-', '');
+    final normalizedExt = (extension != null && extension.isNotEmpty)
+        ? (extension.startsWith('.') ? extension : '.$extension')
+        : '';
+    return '$uuid$normalizedExt';
   }
 }

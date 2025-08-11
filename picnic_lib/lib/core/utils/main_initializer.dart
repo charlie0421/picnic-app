@@ -33,7 +33,6 @@ class MainInitializer {
     required String environment,
     required FirebaseOptions firebaseOptions,
     required Widget Function() appBuilder,
-    required Future<void> Function(Locale) loadGeneratedTranslations,
     required Function() reflectableInitializer,
   }) async {
     await runZonedGuarded(() async {
