@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -299,8 +298,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     try {
       for (final purchaseDetails in purchaseDetailsList) {
         final purchaseID = purchaseDetails.purchaseID;
-        if (purchaseID != null && _currentlyProcessingIDs.contains(purchaseID)) {
-          logger.w('[PurchaseStarCandyState] Skipping already processing purchase: $purchaseID');
+        if (purchaseID != null &&
+            _currentlyProcessingIDs.contains(purchaseID)) {
+          logger.w(
+              '[PurchaseStarCandyState] Skipping already processing purchase: $purchaseID');
           continue;
         }
 
@@ -590,13 +591,14 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           _resetPurchaseState();
           _loadingKey.currentState?.hide();
 
-                    if (error == 'previousTransactionPendingError') {
+          if (error == 'previousTransactionPendingError') {
             if (mounted) {
               final context = navigatorKey.currentContext;
               if (context != null) {
                 showOverlayToast(
                   context,
-                  Text(AppLocalizations.of(context).previousTransactionPendingError),
+                  Text(AppLocalizations.of(context)
+                      .previousTransactionPendingError),
                 );
               }
             }
@@ -643,8 +645,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
 
     // 🔥 중요: 에러가 발생하거나 취소된 경우에도 트랜잭션을 완료하여 반복적인 팝업을 방지합니다.
     if (purchaseDetails.pendingCompletePurchase) {
-      logger.i('[PurchaseStarCandyState] Completing failed/canceled transaction to prevent re-delivery.');
-      await _purchaseService.inAppPurchaseService.completePurchase(purchaseDetails);
+      logger.i(
+          '[PurchaseStarCandyState] Completing failed/canceled transaction to prevent re-delivery.');
+      await _purchaseService.inAppPurchaseService
+          .completePurchase(purchaseDetails);
     }
   }
 

@@ -93,7 +93,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                           child: StarCandyInfoText(
                               alignment: MainAxisAlignment.start))
                       : const SizedBox(height: 16),
-                  
+
                   // Language
                   Text(AppLocalizations.of(context).label_setting_language,
                       style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
@@ -130,15 +130,15 @@ class _MyPageState extends ConsumerState<MyPage> {
 
                   // Voting History
                   PicnicListItem(
-                      leading: AppLocalizations.of(context)
-                          .label_my_vote_history,
+                      leading:
+                          AppLocalizations.of(context).label_my_vote_history,
                       assetPath: 'assets/icons/arrow_right_style=line.svg',
                       onTap: () => data != null
                           ? ref
                               .read(navigationInfoProvider.notifier)
                               .setCurrentMyPage(const VoteHistoryPage())
                           : showRequireLoginDialog()),
-                  
+
                   // Setting
                   PicnicListItem(
                       leading:
@@ -147,7 +147,7 @@ class _MyPageState extends ConsumerState<MyPage> {
                       onTap: () => ref
                           .read(navigationInfoProvider.notifier)
                           .setCurrentMyPage(const SettingPage())),
-                  
+
                   // --- Admin / Test Menus ---
                   if (data != null && (data.isAdmin ?? false))
                     const Divider(color: AppColors.grey200),
@@ -381,22 +381,6 @@ class _MyPageState extends ConsumerState<MyPage> {
             return SizedBox(width: 14.w);
           },
         ));
-  }
-
-  void _launchURL(String targetUrl) async {
-    Uri url = Uri.parse(targetUrl);
-    if (await canLaunchUrl(url)) {
-      try {
-        await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication, // WebView 대신 외부 브라우저 사용
-        );
-      } catch (e, s) {
-        logger.e('_launchURL:', error: e, stackTrace: s);
-      }
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 
   // 언어 선택기 위젯
