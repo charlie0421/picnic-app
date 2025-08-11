@@ -25,6 +25,7 @@ class PurchaseService {
     required void Function(List<PurchaseDetails>) onPurchaseUpdate,
   }) {
     inAppPurchaseService.initialize(onPurchaseUpdate);
+    inAppPurchaseService.clearPendingPurchasesOnStartup();
 
     // 🚨 타임아웃 콜백 설정
     inAppPurchaseService.onPurchaseTimeout = handlePurchaseTimeout;
@@ -353,7 +354,7 @@ class PurchaseService {
             success: false);
       }
 
-      onError('StoreKit 캐시 문제로 인한 중복 영수증. 잠시 후 다시 시도해주세요.');
+      onError('previousTransactionPendingError');
     } catch (e, s) {
       logger.e('❌ 실제 구매 처리 중 오류 ($platform): $e', stackTrace: s);
       _processingProducts.remove(purchaseDetails.productID);

@@ -128,20 +128,23 @@ class _TopState extends ConsumerState<TopMenu> {
             top: 0,
             bottom: 0,
             child: _shouldShowBackButton(navigationInfo)
-                ? GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      _handleBackButtonTap(
-                          navigationInfo, navigationInfoNotifier);
-                    },
-                    child: SizedBox(
-                      width: 24.w,
-                      height: 24,
-                      child: SvgPicture.asset(
-                        package: 'picnic_lib',
-                        'assets/icons/arrow_left_style=line.svg',
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        _handleBackButtonTap(
+                            navigationInfo, navigationInfoNotifier);
+                      },
+                      child: SizedBox(
                         width: 24.w,
                         height: 24,
+                        child: SvgPicture.asset(
+                          package: 'picnic_lib',
+                          'assets/icons/arrow_left_style=line.svg',
+                          width: 24.w,
+                          height: 24,
+                        ),
                       ),
                     ),
                   )

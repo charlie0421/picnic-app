@@ -2,6 +2,7 @@
   "id": [
     "qna_status_open",
     "qna_status_in_progress",
+    "text_jma_vote_ticket",
     "cancel",
     "confirm",
     "loading",
@@ -23,7 +24,11 @@
     "submit",
     "next",
     "qna_attach_media",
-    "file_too_large_message"
+    "file_too_large_message",
+    "jmaVoteTicket",
+    "paid",
+    "bonus",
+    "voteTypePicnic"
   ],
 
   "ja": [
@@ -68,6 +73,7 @@
     "dialog_purchases_fail",
     "qna_status_open",
     "qna_status_in_progress",
+    "text_jma_vote_ticket",
     "cancel",
     "confirm",
     "loading",
@@ -120,6 +126,10 @@
     "jma_voting_daily_limit_title",
     "jma_voting_exchange_failed_title",
     "qna_attach_media",
-    "file_too_large_message"
+    "file_too_large_message",
+    "jmaVoteTicket",
+    "paid",
+    "bonus",
+    "voteTypePicnic"
   ]
 }

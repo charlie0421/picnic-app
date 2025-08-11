@@ -1431,10 +1431,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get purchase_cooldown_message => '잠시 후 다시 시도해주세요.';
 
   @override
+  String get previousTransactionPendingError =>
+      '이전 결제가 스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get purchase_in_progress_message => '구매가 진행 중입니다. 잠시만 기다려주세요.';
 
   @override
   String get purchase_initializing_message => '초기화 중입니다. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get purchase_cancelled_message => '구매가 취소되었습니다.';
 
   @override
   String get purchase_payment_amount => '결제 금액';
@@ -1773,6 +1780,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get text_vote_complete => '투표 완료';
+
+  @override
+  String get text_jma_vote_ticket => 'JMA 투표권';
 
   @override
   String get text_vote_countdown_end => '종료까지';
@@ -2295,4 +2305,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get qna_load_fail_title => '문의 내역을 불러오는데 실패했습니다';
+
+  @override
+  String get jmaVoteTicket => 'JMA 투표권';
+
+  @override
+  String get paid => '유료';
+
+  @override
+  String get bonus => '보너스';
+
+  @override
+  String get voteTypePicnic => 'Picnic';
+
+  @override
+  String get voteTypeJma => 'JMA';
+
+  @override
+  String get label_my_vote_history => '나의 투표 이력';
 }

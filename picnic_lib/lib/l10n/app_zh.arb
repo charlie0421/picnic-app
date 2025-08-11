@@ -465,9 +465,11 @@
   "purchase_confirm_message": "您要购买以下商品吗？",
   "purchase_confirm_title": "购买确认",
   "purchase_cooldown_message": "请稍后重试。",
+  "previousTransactionPendingError": "您之前的付款仍在由商店处理。请稍后重试。",
   "purchase_in_progress_message": "购买正在进行中。请稍等。",
-  "purchase_initializing_message": "购买正在进行中。请稍等。",
-  "purchase_payment_amount": "支付金额",
+    "purchase_initializing_message": "购买正在进行中。请稍等。",
+  "purchase_cancelled_message": "购买已取消。",
+   "purchase_payment_amount": "支付金额",
   "purchase_restore_success_message": "购买恢复完成。\\n请检查您的星糖余额。",
   "purchase_restore_wait_message": "购买正在进行中。完成后请重试。",
   "purchase_timeout_message": "购买处理时间过长。\\n请稍后重试。",
@@ -691,5 +693,7 @@
   "qna_no_answer_yet": "还没有答案。请稍等。",
   "qna_add_media_tooltip": "添加媒体",
   "qna_load_fail_title": "加载查询失败",
-  "retry": "重试"
+  "retry": "重试",
+  "voteTypeJma": "JMA",
+  "label_my_vote_history": "我的投票历史"
 }

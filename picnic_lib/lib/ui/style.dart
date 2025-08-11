@@ -39,7 +39,8 @@ enum AppTypo {
   caption12B(12.0, FontWeight.w700, 1.5, 0),
   caption12M(12.0, FontWeight.w500, 1.5, 0),
   caption12R(12.0, FontWeight.w400, 1.5, 0),
-  caption10SB(10.0, FontWeight.w600, 1.5, 0);
+  caption10SB(10.0, FontWeight.w600, 1.5, 0),
+  caption10R(10.0, FontWeight.w400, 1.5, 0);
 
   final double _size;
 

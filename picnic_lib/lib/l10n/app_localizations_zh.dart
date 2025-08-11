@@ -1423,10 +1423,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get purchase_cooldown_message => '请稍后重试。';
 
   @override
+  String get previousTransactionPendingError => '您之前的付款仍在由商店处理。请稍后重试。';
+
+  @override
   String get purchase_in_progress_message => '购买正在进行中。请稍等。';
 
   @override
   String get purchase_initializing_message => '购买正在进行中。请稍等。';
+
+  @override
+  String get purchase_cancelled_message => '购买已取消。';
 
   @override
   String get purchase_payment_amount => '支付金额';
@@ -1763,6 +1769,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get text_vote_complete => '投票结束';
+
+  @override
+  String get text_jma_vote_ticket => 'JMA Vote Ticket';
 
   @override
   String get text_vote_countdown_end => '距离结束';
@@ -2284,4 +2293,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get qna_load_fail_title => '加载查询失败';
+
+  @override
+  String get jmaVoteTicket => 'JMA Vote Ticket';
+
+  @override
+  String get paid => 'Paid';
+
+  @override
+  String get bonus => 'Bonus';
+
+  @override
+  String get voteTypePicnic => 'Picnic';
+
+  @override
+  String get voteTypeJma => 'JMA';
+
+  @override
+  String get label_my_vote_history => '我的投票历史';
 }

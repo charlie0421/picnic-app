@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 이미 처리된 구매에 대한 예외
 class ReusedPurchaseException implements Exception {
@@ -172,28 +173,24 @@ class ReceiptVerificationService {
       try {
         logger.i('$verificationType verification attempt $attempt/$maxRetries');
 
-        final response = await supabase.functions
-            .invoke('verify_receipt', body: requestBody)
+        await supabase.functions
+            .invoke('verify_receipt', body: requestBody) // 함수 이름 변경
             .timeout(timeoutDuration);
 
         logger.i('Verification successful');
-
-        // 재사용 검증 우선 확인
-        if (_isReusedPurchase(response.data)) {
-          final reusedInfo = _extractReusedInfo(response.data);
-          throw ReusedPurchaseException(
-            message: reusedInfo['message'] ??
-                PurchaseConstants.duplicatePurchaseError,
-            receiptId: reusedInfo['receiptId'],
-          );
-        }
-
-        // 성공 시 즉시 반환
-        return;
+        return; // 성공 시 즉시 반환
       } catch (error) {
         lastException =
             error is Exception ? error : Exception(error.toString());
 
+        // 409 Conflict (중복) 에러인지 확인
+        if (error is FunctionException && error.status == 409) {
+          logger.w('Duplicate receipt detected (409 Conflict)');
+          throw ReusedPurchaseException(
+            message: PurchaseConstants.duplicatePurchaseError,
+          );
+        }
+        
         // ReusedPurchaseException은 재시도하지 않음
         if (error is ReusedPurchaseException) {
           rethrow;
@@ -231,45 +228,7 @@ class ReceiptVerificationService {
     throw lastException ?? Exception('영수증 검증 실패');
   }
 
-  /// 재사용된 구매인지 확인
-  bool _isReusedPurchase(dynamic responseData) {
-    if (responseData == null) return false;
 
-    // 직접 reused 필드 확인
-    if (responseData['reused'] == true) return true;
-
-    // data 필드 내부 확인
-    final data = responseData['data'];
-    if (data != null && data['reused'] == true) return true;
-
-    return false;
-  }
-
-  /// 재사용 정보 추출
-  Map<String, String?> _extractReusedInfo(dynamic responseData) {
-    if (responseData == null) {
-      return {'message': null, 'receiptId': null};
-    }
-
-    // 직접 필드에서 추출
-    if (responseData['reused'] == true) {
-      return {
-        'message': responseData['message']?.toString(),
-        'receiptId': responseData['receipt_id']?.toString(),
-      };
-    }
-
-    // data 필드에서 추출
-    final data = responseData['data'];
-    if (data != null && data['reused'] == true) {
-      return {
-        'message': data['message']?.toString(),
-        'receiptId': data['receipt_id']?.toString(),
-      };
-    }
-
-    return {'message': null, 'receiptId': null};
-  }
 
   /// 환경 감지
   Future<String> getEnvironment() async {

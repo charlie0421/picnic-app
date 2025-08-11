@@ -465,9 +465,11 @@
   "purchase_confirm_message": "Apakah Anda ingin membeli item berikut?",
   "purchase_confirm_title": "Konfirmasi Pembelian",
   "purchase_cooldown_message": "Silakan coba lagi nanti.",
+  "previousTransactionPendingError": "Pembayaran Anda sebelumnya masih diproses oleh Store. Silakan coba lagi nanti.",
   "purchase_in_progress_message": "Pembelian sedang berlangsung. Mohon tunggu sebentar.",
-  "purchase_initializing_message": "Pembelian sedang berlangsung. Mohon tunggu sebentar.",
-  "purchase_payment_amount": "Jumlah Pembayaran",
+    "purchase_initializing_message": "Pembelian sedang berlangsung. Mohon tunggu sebentar.",
+  "purchase_cancelled_message": "Pembelian telah dibatalkan.",
+   "purchase_payment_amount": "Jumlah Pembayaran",
   "purchase_restore_success_message": "Pemulihan pembelian selesai.\\nSilakan periksa saldo star candy Anda.",
   "purchase_restore_wait_message": "Pembelian sedang berlangsung. Silakan coba lagi setelah selesai.",
   "purchase_timeout_message": "Proses pembelian memakan waktu terlalu lama.\\nSilakan coba lagi nanti.",
@@ -722,5 +724,7 @@
   "qna_no_answer_yet": "Belum ada jawaban. Harap tunggu sebentar.",
   "qna_add_media_tooltip": "Tambah Media",
   "qna_load_fail_title": "Gagal memuat pertanyaan",
-  "retry": "Coba lagi"
+  "retry": "Coba lagi",
+  "voteTypeJma": "JMA",
+  "label_my_vote_history": "Riwayat Voting Saya"
 }

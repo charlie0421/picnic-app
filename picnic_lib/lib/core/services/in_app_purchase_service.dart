@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 
@@ -136,6 +137,48 @@ class InAppPurchaseService {
   void initialize(Function(List<PurchaseDetails>) onPurchaseUpdate) {
     _onPurchaseUpdate = onPurchaseUpdate;
     _initializePurchaseStream();
+  }
+
+  /// 앱 시작 시 처리되지 않은 구매를 정리합니다.
+  Future<void> clearPendingPurchasesOnStartup() async {
+    logger.i('✨ 앱 시작: 처리되지 않은 구매 정리 시작');
+    // StoreKit/BillingClient 초기화를 위해 약간의 지연 시간을 줍니다.
+    await Future.delayed(const Duration(seconds: 1));
+
+    // iOS에서는 SKPaymentQueue를 직접 정리하여 안정성을 높입니다.
+    if (Platform.isIOS) {
+      await _clearIosPendingTransactions();
+    }
+
+    // 모든 플랫폼에서 플러그인을 통한 정리를 한 번 더 수행합니다.
+    await _processPendingTransactions();
+    logger.i('✨ 앱 시작: 처리되지 않은 구매 정리 완료');
+  }
+
+  /// iOS의 SKPaymentQueue에 남아있는 트랜잭션을 직접 정리합니다.
+  Future<void> _clearIosPendingTransactions() async {
+    if (!Platform.isIOS) {
+      return;
+    }
+    logger.i('iOS: SKPaymentQueue의 pending 트랜잭션 직접 정리 시작');
+    try {
+      final transactions = await SKPaymentQueueWrapper().transactions();
+      if (transactions.isEmpty) {
+        logger.i('iOS: SKPaymentQueue에 정리할 pending 트랜잭션 없음');
+        return;
+      }
+      logger.w('iOS: ${transactions.length}개의 pending 트랜잭션 발견. 강제 정리 시작.');
+      for (final transaction in transactions) {
+        try {
+          await SKPaymentQueueWrapper().finishTransaction(transaction);
+          logger.i('iOS: 트랜잭션 강제 완료: ${transaction.transactionIdentifier}');
+        } catch (e) {
+          logger.e('iOS: 트랜잭션 강제 완료 실패: ${transaction.transactionIdentifier}, error: $e');
+        }
+      }
+    } catch (e) {
+      logger.e('iOS: SKPaymentQueue 트랜잭션 조회 실패: $e');
+    }
   }
 
   void _initializePurchaseStream() {
