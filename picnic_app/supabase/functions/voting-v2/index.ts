@@ -59,64 +59,67 @@ async function getUserProfiles(supabaseClient: any, user_id: string) {
   }
 }
 
-// star_candy 차감 (사용량 기록 포함)
-async function deductStarCandy(user_id: string, amount: number, vote_pick_id: number) {
-  const { rows } = await queryDatabase(`
+// star_candy 차감 (사용량 기록 포함) — 트랜잭션 내 클라이언트 사용
+async function deductStarCandy(client: any, user_id: string, amount: number, vote_pick_id: number) {
+  const { rows } = await queryWithClient(client, `
     SELECT id, star_candy
     FROM user_profiles
     WHERE id = $1
+    FOR UPDATE
   `, user_id);
-  
+
   if (rows.length === 0) {
     throw new Error('User not found');
   }
-  
-  const { id, star_candy } = rows[0];
-  
-  await queryDatabase(`
+
+  const { id } = rows[0];
+
+  await queryWithClient(client, `
     INSERT INTO star_candy_history (type, user_id, amount, vote_pick_id)
     VALUES ('VOTE', $1, $2, $3)
   `, user_id, amount, vote_pick_id);
-  
-  await queryDatabase(`
+
+  await queryWithClient(client, `
     UPDATE user_profiles
     SET star_candy = GREATEST(star_candy - $1, 0)
     WHERE id = $2
   `, amount, id);
 }
 
-// star_candy_bonus 차감 (사용량 기록 포함)
-async function deductStarCandyBonus(user_id: string, amount: number, bonusId: string, vote_pick_id: number) {
-  await queryDatabase(`
+// star_candy_bonus 차감 (사용량 기록 포함) — 트랜잭션 내 클라이언트 사용
+async function deductStarCandyBonus(client: any, user_id: string, amount: number, bonusId: string, vote_pick_id: number) {
+  await queryWithClient(client, `
     UPDATE star_candy_bonus_history
     SET remain_amount = GREATEST(remain_amount - $1, 0),
         updated_at = NOW()
     WHERE id = $2
   `, amount, bonusId);
-  
-  await queryDatabase(`
+
+  await queryWithClient(client, `
     INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
     VALUES ($1, $2, $3, $4, $5)
   `, user_id, amount, amount, bonusId, vote_pick_id);
-  
-  await queryDatabase(`
+
+  await queryWithClient(client, `
     UPDATE user_profiles
     SET star_candy_bonus = GREATEST(star_candy_bonus - $1, 0)
     WHERE id = $2
   `, amount, user_id);
 }
 
-// 투표 가능 여부 확인 및 차감 (분리된 사용량 반환)
+// 투표 가능 여부 확인 및 차감 (분리된 사용량 반환) — 트랜잭션 내 수행
 async function canVoteAndDeduct(
-  user_id: string, 
-  vote_amount: number, 
+  client: any,
+  user_id: string,
+  vote_amount: number,
   vote_pick_id: number
 ): Promise<{ success: boolean; star_candy_used: number; star_candy_bonus_used: number }> {
   try {
-    const { rows } = await queryDatabase(`
+    const { rows } = await queryWithClient(client, `
       SELECT id, star_candy, star_candy_bonus
       FROM user_profiles
       WHERE id = $1
+      FOR UPDATE
     `, user_id);
     
     if (rows.length === 0) {
@@ -136,13 +139,14 @@ async function canVoteAndDeduct(
     
     // 1. 먼저 보너스 캔디 사용
     if (star_candy_bonus > 0 && remainingAmount > 0) {
-      const { rows: bonusRows } = await queryDatabase(`
+      const { rows: bonusRows } = await queryWithClient(client, `
         SELECT id, remain_amount
         FROM star_candy_bonus_history
         WHERE user_id = $1
           AND expired_dt > NOW()
           AND remain_amount > 0
         ORDER BY created_at ASC
+        FOR UPDATE
       `, user_id);
       
       for (const bonusRow of bonusRows) {
@@ -150,11 +154,11 @@ async function canVoteAndDeduct(
         if (remainingAmount <= 0) break;
         
         if (bonusAmount >= remainingAmount) {
-          await deductStarCandyBonus(user_id, remainingAmount, bonusId, vote_pick_id);
+          await deductStarCandyBonus(client, user_id, remainingAmount, bonusId, vote_pick_id);
           star_candy_bonus_used += remainingAmount;
           remainingAmount = 0;
         } else {
-          await deductStarCandyBonus(user_id, bonusAmount, bonusId, vote_pick_id);
+          await deductStarCandyBonus(client, user_id, bonusAmount, bonusId, vote_pick_id);
           star_candy_bonus_used += bonusAmount;
           remainingAmount -= bonusAmount;
         }
@@ -163,7 +167,7 @@ async function canVoteAndDeduct(
     
     // 2. 남은 금액은 일반 캔디 사용
     if (remainingAmount > 0) {
-      await deductStarCandy(user_id, remainingAmount, vote_pick_id);
+      await deductStarCandy(client, user_id, remainingAmount, vote_pick_id);
       star_candy_used = remainingAmount;
     }
     
@@ -200,12 +204,20 @@ async function performTransaction(
     
     const vote_pick_id = votePickResult.rows[0].id;
     
-    // 2. 투표 가능 여부 확인 및 차감
-    const voteResult = await canVoteAndDeduct(user_id, amount, vote_pick_id);
+    // 2. 투표 가능 여부 확인 및 차감 (실제 사용량 산출)
+    const voteResult = await canVoteAndDeduct(connection, user_id, amount, vote_pick_id);
     
     if (!voteResult.success) {
       throw new Error('Insufficient star_candy and star_candy_bonus to vote');
     }
+    
+    // 2-1. 실제 사용량으로 vote_pick 업데이트
+    await queryWithClient(connection, `
+      UPDATE vote_pick
+      SET star_candy_usage = $1,
+          star_candy_bonus_usage = $2
+      WHERE id = $3
+    `, voteResult.star_candy_used, voteResult.star_candy_bonus_used, vote_pick_id);
     
     // 3. vote_item 총계 업데이트 (분리된 사용량 포함)
     const voteTotalResult = await queryWithClient(connection, `
@@ -225,7 +237,7 @@ async function performTransaction(
         star_candy_total = star_candy_total + $2,
         star_candy_bonus_total = star_candy_bonus_total + $3
       WHERE id = $4
-    `, amount, star_candy_usage, star_candy_bonus_usage, vote_item_id);
+    `, amount, voteResult.star_candy_used, voteResult.star_candy_bonus_used, vote_item_id);
     
     await connection.queryObject('COMMIT');
     
@@ -233,8 +245,8 @@ async function performTransaction(
       existingVoteTotal,
       addedVoteTotal: amount,
       updatedVoteTotal: existingVoteTotal + amount,
-      starCandyUsed: star_candy_usage,
-      starCandyBonusUsed: star_candy_bonus_usage,
+      starCandyUsed: voteResult.star_candy_used,
+      starCandyBonusUsed: voteResult.star_candy_bonus_used,
       updatedAt: new Date().toISOString()
     };
   } catch (error) {
