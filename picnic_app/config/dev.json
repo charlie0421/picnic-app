@@ -21,8 +21,8 @@
       "javascript_key": "fe170eb02c6ff6a488a5848f9db41335"
     },
     "wechat": {
-      "app_id": "wxa5eea7ab9b3894a8",
-      "app_secret": "your_wechat_app_secret_here",
+      "app_id": "wxd4a92d01576ef70b",
+      "app_secret": "1a9a7736f86602999648c56b247193c4",
       "universal_link": "https://applink.picnic.fan/wechat/"
     }
   },

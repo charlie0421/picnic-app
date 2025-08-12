@@ -51,7 +51,7 @@ dependencies:
   overlay_support: ^2.1.0
   screen_protector: ^1.4.2+1
   bubble_box: ^0.5.3
-  supabase_flutter: ^2.8.4
+  supabase_flutter: ^2.9.1
   google_sign_in: ^6.2.2
   sign_in_with_apple: ^7.0.1
   kakao_flutter_sdk_user: ^1.9.6
@@ -102,7 +102,7 @@ dependencies:
   googleapis_auth: ^2.0.0
   json_annotation: ^4.9.0
   uuid: ^4.5.1
-  # fluwx: ^5.5.4  # TODO: 위챗 로그인 임시 비활성화 - CI 에러 해결
+  fluwx: ^5.5.4
 
 dev_dependencies:
   flutter_test:

@@ -7,7 +7,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
+import 'package:fluwx/fluwx.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -42,6 +44,8 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       GlobalKey<LoadingOverlayWithIconState>();
 
   String? lastProvider;
+  bool _isWeChatInstalled = false;
+  final Fluwx _fluwx = Fluwx();
 
   @override
   void initState() {
@@ -53,6 +57,28 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         setState(() {
           lastProvider = provider;
         });
+      }
+
+      // WeChat 설치 여부 확인 (모바일에서만)
+      if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+        try {
+          await _fluwx.registerApi(
+            appId: Environment.wechatAppId,
+            universalLink: Environment.wechatUniversalLink,
+          );
+          final installed = await _fluwx.isWeChatInstalled;
+          if (mounted) {
+            setState(() {
+              _isWeChatInstalled = installed;
+            });
+          }
+        } catch (_) {
+          if (mounted) {
+            setState(() {
+              _isWeChatInstalled = false;
+            });
+          }
+        }
       }
     });
   }
@@ -290,6 +316,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           if (isIOS()) _buildAppleLogin(context),
           _buildGoogleLogin(context),
           _buildKakaoLogin(context),
+          if ((UniversalPlatform.isAndroid || UniversalPlatform.isIOS) &&
+              _isWeChatInstalled)
+            _buildWeChatLogin(context),
         ],
       ),
     );
@@ -361,12 +390,14 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       if (navigatorKey.currentContext != null) {
-      showSimpleDialog(
-            title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
-            content: AppLocalizations.of(navigatorKey.currentContext!).error_message_login_failed,
+        showSimpleDialog(
+            title:
+                AppLocalizations.of(navigatorKey.currentContext!).error_title,
+            content: AppLocalizations.of(navigatorKey.currentContext!)
+                .error_message_login_failed,
             onOk: () {
-            Navigator.of(navigatorKey.currentContext!).pop();
-          });
+              Navigator.of(navigatorKey.currentContext!).pop();
+            });
       }
       rethrow;
     }
@@ -400,25 +431,27 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               }
 
               if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                  type: DialogType.error,
-                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
-                  content: e.message,
-                  onOk: () {
-                    Navigator.of(navigatorKey.currentContext!).pop();
-                  });
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_title,
+                    content: e.message,
+                    onOk: () {
+                      Navigator.of(navigatorKey.currentContext!).pop();
+                    });
               }
             } catch (e, s) {
               logger.e('Error signing in with Apple: $e', stackTrace: s);
               if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                  type: DialogType.error,
-                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
-                  content:
-                      AppLocalizations.of(navigatorKey.currentContext!).error_message_login_failed,
-                  onOk: () {
-                    Navigator.of(navigatorKey.currentContext!).pop();
-                  });
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_title,
+                    content: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_message_login_failed,
+                    onOk: () {
+                      Navigator.of(navigatorKey.currentContext!).pop();
+                    });
               }
               rethrow;
             }
@@ -483,25 +516,27 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               }
 
               if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                  type: DialogType.error,
-                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
-                  content: e.message,
-                  onOk: () {
-                    Navigator.of(navigatorKey.currentContext!).pop();
-                  });
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_title,
+                    content: e.message,
+                    onOk: () {
+                      Navigator.of(navigatorKey.currentContext!).pop();
+                    });
               }
             } catch (e, s) {
               logger.e('Error signing in with Google: $e', stackTrace: s);
               if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                  type: DialogType.error,
-                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
-                  content:
-                      AppLocalizations.of(navigatorKey.currentContext!).error_message_login_failed,
-                  onOk: () {
-                    Navigator.of(navigatorKey.currentContext!).pop();
-                  });
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_title,
+                    content: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_message_login_failed,
+                    onOk: () {
+                      Navigator.of(navigatorKey.currentContext!).pop();
+                    });
               }
               rethrow;
             }
@@ -566,25 +601,27 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 return; // 사용자가 취소한 경우 아무것도 하지 않음
               }
               if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                  type: DialogType.error,
-                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
-                  content: e.message,
-                  onOk: () {
-                    Navigator.of(navigatorKey.currentContext!).pop();
-                  });
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_title,
+                    content: e.message,
+                    onOk: () {
+                      Navigator.of(navigatorKey.currentContext!).pop();
+                    });
               }
             } catch (e, s) {
               logger.e('Error signing in with Kakao: $e', stackTrace: s);
               if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                  type: DialogType.error,
-                  title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
-                  content:
-                      AppLocalizations.of(navigatorKey.currentContext!).error_message_login_failed,
-                  onOk: () {
-                    Navigator.of(navigatorKey.currentContext!).pop();
-                  });
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_title,
+                    content: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_message_login_failed,
+                    onOk: () {
+                      Navigator.of(navigatorKey.currentContext!).pop();
+                    });
               }
               rethrow;
             }
@@ -617,6 +654,78 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           ),
         ),
         if (lastProvider == 'kakao') const LastProvider(),
+      ]);
+    });
+  }
+
+  Widget _buildWeChatLogin(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      return Stack(children: [
+        GestureDetector(
+          onTap: () async {
+            try {
+              await _executeWithLoading(() async {
+                final user = await _authService.signInWithWeChat();
+                if (user != null) {
+                  _handleSuccessfulLogin('wechat');
+                }
+              });
+            } on PicnicAuthException catch (e) {
+              if (e.code == 'canceled') {
+                return;
+              }
+              if (navigatorKey.currentContext != null) {
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_title,
+                    content: e.message,
+                    onOk: () {
+                      Navigator.of(navigatorKey.currentContext!).pop();
+                    });
+              }
+            } catch (e, s) {
+              logger.e('Error signing in with WeChat: $e', stackTrace: s);
+              if (navigatorKey.currentContext != null) {
+                showSimpleDialog(
+                    type: DialogType.error,
+                    title: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_title,
+                    content: AppLocalizations.of(navigatorKey.currentContext!)
+                        .error_message_login_failed,
+                    onOk: () {
+                      Navigator.of(navigatorKey.currentContext!).pop();
+                    });
+              }
+              rethrow;
+            }
+          },
+          child: Center(
+            child: Container(
+              width: 240,
+              height: 44,
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.grey400, width: 1),
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // 머티리얼에 기본 위챗 아이콘이 없어 FontAwesome 대체
+                  FaIcon(FontAwesomeIcons.weixin,
+                      color: AppColors.grey800, size: 20),
+                  SizedBox(width: 8.w),
+                  Text('Login with WeChat',
+                      style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (lastProvider == 'wechat') const LastProvider(),
       ]);
     });
   }
