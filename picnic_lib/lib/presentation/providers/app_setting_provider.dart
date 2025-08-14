@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -57,14 +58,9 @@ class Setting with _$Setting {
     @Default('all') String area,
   }) = _Setting;
 
-  /// 지원되는 언어 목록
-  static const List<String> supportedLanguages = [
-    'ko', // 한국어
-    'en', // 영어
-    'ja', // 일본어
-    'zh', // 중국어
-    'id', // 인도네시아어
-  ];
+  /// 지원되는 언어 목록 (AppLocalizations.supportedLocales 기반, 단일 소스)
+  static List<String> get supportedLanguages =>
+      AppLocalizations.supportedLocales.map((e) => e.languageCode).toList();
 
   Future<Setting> load() async {
     final language = await globalStorage.loadData('language', 'ko');

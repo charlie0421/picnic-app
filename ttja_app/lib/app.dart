@@ -44,14 +44,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
 
-  // 지원되는 언어 목록
-  static const List<Locale> _supportedLocales = [
-    Locale('ko'), // 한국어 (기본값)
-    Locale('en'), // 영어
-    Locale('ja'), // 일본어
-    Locale('zh'), // 중국어
-    Locale('id'), // 인도네시아어
-  ];
+  // 지원되는 언어 목록은 AppLocalizations.supportedLocales를 단일 소스로 사용
 
   // 앱의 라우트 맵 - 앱 고유 라우트만 포함 (공통 라우트는 RouteManager에서 관리)
   final Map<String, WidgetBuilder> _appSpecificRoutes = {
@@ -172,7 +165,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
         // picnic_lib의 ARB 파일 기반 번역 (gen-l10n으로 생성)
         ...AppLocalizations.localizationsDelegates,
       ],
-      supportedLocales: _supportedLocales,
+      supportedLocales: AppLocalizations.supportedLocales,
       locale: Locale(appSettingState.language),
       enableScreenProtector: isScreenProtector,
     );
