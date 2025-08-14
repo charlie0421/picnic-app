@@ -154,8 +154,9 @@ class _CommentItemState extends ConsumerState<CommentItem>
     } catch (e, s) {
       logger.e('exception:', error: e, stackTrace: s);
       if (mounted) {
-        SnackbarUtil().showSnackbar(
-            AppLocalizations.of(context).post_comment_delete_fail);
+        SnackbarUtil().error(
+            AppLocalizations.of(context).post_comment_delete_fail,
+            context: context);
       }
       rethrow;
     } finally {
@@ -206,9 +207,9 @@ class _CommentItemState extends ConsumerState<CommentItem>
       logger.e('Translation error:', error: e, stackTrace: s);
       if (!mounted) return;
 
-      SnackbarUtil().showSnackbar(
+      SnackbarUtil().error(
         AppLocalizations.of(context).post_comment_translate_fail,
-        backgroundColor: Colors.red,
+        context: context,
       );
     } finally {
       if (mounted) {

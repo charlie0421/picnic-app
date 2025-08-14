@@ -1062,10 +1062,10 @@ packages:
     dependency: "direct main"
     description:
       name: fluwx
-      sha256: "46c78b678e2586ad21883dd1b1875b2f4548cf6bf52a388c839fe5d2a6a37e02"
+      sha256: d25c26a12a1fa280833105869ea255a5877695e03dc1190f0d2c027a7c989ef3
       url: "https://pub.dev"
     source: hosted
-    version: "5.7.1"
+    version: "4.6.3"
   font_awesome_flutter:
     dependency: transitive
     description:

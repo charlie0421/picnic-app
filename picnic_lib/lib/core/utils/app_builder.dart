@@ -124,6 +124,7 @@ class AppBuilder {
 
     return MaterialApp(
       navigatorKey: navigatorKey,
+      // 원복: 앱에서 전달한 scaffoldKey 사용
       scaffoldMessengerKey: scaffoldKey,
       title: title,
       theme: theme,

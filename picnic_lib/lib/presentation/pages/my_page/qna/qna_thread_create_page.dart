@@ -8,6 +8,7 @@ import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 class QnaThreadCreatePage extends StatefulWidget {
   final String userId;
@@ -87,20 +88,17 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
         );
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(AppLocalizations.of(context).qna_submit_success),
-                duration: const Duration(seconds: 2)),
+          SnackbarUtil().success(
+            AppLocalizations.of(context).qna_submit_success,
+            context: context,
           );
           Navigator.of(context).pop(true);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text('${AppLocalizations.of(context).qna_submit_fail}: $e'),
-                duration: const Duration(seconds: 2)),
+          SnackbarUtil().error(
+            '${AppLocalizations.of(context).qna_submit_fail}: $e',
+            context: context,
           );
         }
       } finally {

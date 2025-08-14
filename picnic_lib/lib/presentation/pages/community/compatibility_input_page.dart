@@ -409,8 +409,8 @@ class _CompatibilityInputScreenState
   }
 
   void _showLoadingMessage() {
-    SnackbarUtil().showSnackbar(
-        AppLocalizations.of(context).compatibility_snackbar_start);
+    SnackbarUtil()
+        .info(AppLocalizations.of(context).compatibility_snackbar_start);
   }
 
   Future<void> _saveUserProfile() async {
@@ -450,15 +450,16 @@ class _CompatibilityInputScreenState
           .compatibility_snackbar_need_profile_save_agree;
     }
 
-    SnackbarUtil().showSnackbar(
+    SnackbarUtil().error(
       message,
     );
   }
 
   void _showErrorMessage() {
     if (!mounted) return;
-    SnackbarUtil().showSnackbar(
-        AppLocalizations.of(context).compatibility_snackbar_error);
+    SnackbarUtil().error(
+      AppLocalizations.of(context).compatibility_snackbar_error,
+    );
   }
 
   @override

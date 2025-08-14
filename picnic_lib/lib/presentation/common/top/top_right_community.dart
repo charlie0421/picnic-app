@@ -34,7 +34,7 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
                   GestureDetector(
                     onTap: () {
                       isSupabaseLoggedSafely
-                          ? SnackbarUtil().showSnackbar('Test')
+                          ? SnackbarUtil().info('Test')
                           : showRequireLoginDialog();
                     },
                     child: Container(
@@ -52,7 +52,7 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
                   GestureDetector(
                     onTap: () {
                       isSupabaseLoggedSafely
-                          ? SnackbarUtil().showSnackbar('Test')
+                          ? SnackbarUtil().info('Test')
                           : showRequireLoginDialog();
                     },
                     child: Container(
@@ -88,7 +88,7 @@ class _TopRightCommunityState extends ConsumerState<TopRightCommunity> {
               GestureDetector(
                 onTap: () {
                   isSupabaseLoggedSafely
-                      ? SnackbarUtil().showSnackbar('Test')
+                      ? SnackbarUtil().info('Test')
                       : showRequireLoginDialog();
                 },
                 child: Stack(

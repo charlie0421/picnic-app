@@ -166,8 +166,9 @@ void showSimpleDialog({
     },
   );
 
-  SnackbarUtil().showSnackbar(
+  SnackbarUtil().info(
     'Dialog shown successfully!',
+    context: context,
     duration: const Duration(seconds: 3),
   );
 }

@@ -167,7 +167,7 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
         );
       } else {
         if (navigatorKey.currentContext != null) {
-          SnackbarUtil().showSnackbar(
+          SnackbarUtil().info(
             AppLocalizations.of(navigatorKey.currentContext!).common_success,
           );
         }
@@ -186,7 +186,9 @@ class _PostWriteViewState extends ConsumerState<PostWrite> {
         }
       }
 
-      SnackbarUtil().showSnackbar('Error saving post: $e');
+      SnackbarUtil().error(
+        'Error saving post: $e',
+      );
       rethrow;
     } finally {
       OverlayLoadingProgress.stop();

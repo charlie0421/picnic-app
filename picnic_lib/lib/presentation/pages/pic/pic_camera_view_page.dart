@@ -493,9 +493,15 @@ class _PicCameraViewState extends ConsumerState<PicCameraViewPage> {
           name: 'captured_image',
         );
 
-        SnackbarUtil().showSnackbar(result['isSuccess']
-            ? 'message_pic_pic_save_success'
-            : 'message_pic_pic_save_fail');
+        if (result['isSuccess']) {
+          SnackbarUtil().info(
+            AppLocalizations.of(context).message_pic_pic_save_success,
+          );
+        } else {
+          SnackbarUtil().error(
+            AppLocalizations.of(context).message_pic_pic_save_fail,
+          );
+        }
       }
     } catch (e, s) {
       logger.e("Error saving image: $e", stackTrace: s);

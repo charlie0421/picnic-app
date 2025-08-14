@@ -73,7 +73,7 @@ class CelebListItem extends ConsumerWidget {
                           if (await getBookmarkCount(asyncCelebListState) >=
                               5) {
                             if (navigatorKey.currentContext != null) {
-                              SnackbarUtil().showSnackbar(
+                              SnackbarUtil().error(
                                 AppLocalizations.of(navigatorKey.currentContext!).toast_max_five_celeb,
                               );
                             }

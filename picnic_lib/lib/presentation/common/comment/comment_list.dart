@@ -152,7 +152,7 @@ class _CommentListState extends ConsumerState<CommentList> {
       if (!_isDisposed) {
         if (!context.mounted) return;
         if (navigatorKey.currentContext != null) {
-          SnackbarUtil().showSnackbar(
+          SnackbarUtil().error(
               AppLocalizations.of(navigatorKey.currentContext!)
                   .error_action_failed);
         }

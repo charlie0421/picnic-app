@@ -22,6 +22,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
@@ -474,13 +475,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       // 웹 환경에서는 스킵
       if (UniversalPlatform.isWeb) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('웹 환경에서는 패치 기능을 사용할 수 없습니다.'),
-              duration: Duration(seconds: 2),
-              backgroundColor: Colors.orange,
-            ),
-          );
+          SnackbarUtil()
+              .warning('웹 환경에서는 패치 기능을 사용할 수 없습니다.', context: context);
         }
         return;
       }
@@ -489,62 +485,41 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       final patchStatus = await ShorebirdUtils.checkPatchStatusForSettings();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(patchStatus),
-            duration: Duration(seconds: 3),
-            backgroundColor: patchStatus.contains('업데이트 가능')
-                ? Colors.blue
-                : patchStatus.contains('최신')
-                    ? Colors.green
-                    : Colors.grey,
-            action: patchStatus.contains('업데이트 가능')
-                ? SnackBarAction(
-                    label: '업데이트',
-                    textColor: Colors.white,
-                    onPressed: () async {
-                      try {
-                        await ShorebirdUtils.checkAndUpdate();
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('패치 업데이트 완료! 앱을 재시작하세요.'),
-                              backgroundColor: Colors.green,
-                              action: SnackBarAction(
-                                label: '재시작',
-                                textColor: Colors.white,
-                                onPressed: () => Phoenix.rebirth(context),
-                              ),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('패치 업데이트 실패: $e'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    },
-                  )
-                : null,
-          ),
-        );
+        final hasUpdate = patchStatus.contains('업데이트 가능');
+        if (hasUpdate) {
+          SnackbarUtil().info(
+            patchStatus,
+            context: context,
+            actionLabel: '업데이트',
+            onAction: () async {
+              try {
+                await ShorebirdUtils.checkAndUpdate();
+                if (mounted) {
+                  SnackbarUtil().success(
+                    '패치 업데이트 완료! 앱을 재시작하세요.',
+                    context: context,
+                    actionLabel: '재시작',
+                    onAction: () => Phoenix.rebirth(context),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  SnackbarUtil().error('패치 업데이트 실패: $e', context: context);
+                }
+              }
+            },
+          );
+        } else if (patchStatus.contains('최신')) {
+          SnackbarUtil().success(patchStatus, context: context);
+        } else {
+          SnackbarUtil().info(patchStatus, context: context);
+        }
       }
     } catch (e, stackTrace) {
       logger.e('❌ 패치 상태 확인 중 오류 발생: $e', stackTrace: stackTrace);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('패치 상태 확인 실패: $e'),
-            duration: Duration(seconds: 3),
-            backgroundColor: Colors.red,
-          ),
-        );
+        SnackbarUtil().error('패치 상태 확인 실패: $e', context: context);
       }
     } finally {
       if (mounted) {

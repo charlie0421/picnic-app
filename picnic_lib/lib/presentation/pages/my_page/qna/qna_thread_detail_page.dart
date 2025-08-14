@@ -18,6 +18,7 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 class QnaThreadDetailPage extends ConsumerStatefulWidget {
   final QnaThread thread;
@@ -95,22 +96,16 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           _attachments = [];
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(AppLocalizations.of(context).qna_message_sent_success),
-            duration: const Duration(seconds: 2),
-          ),
+        SnackbarUtil().success(
+          AppLocalizations.of(context).qna_message_sent_success,
+          context: context,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                '${AppLocalizations.of(context).qna_message_sent_fail}: $e'),
-            duration: const Duration(seconds: 2),
-          ),
+        SnackbarUtil().error(
+          '${AppLocalizations.of(context).qna_message_sent_fail}: $e',
+          context: context,
         );
       }
     } finally {

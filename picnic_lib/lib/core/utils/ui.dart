@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../../presentation/providers/global_media_query.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 void showOverlayToast(BuildContext context, Widget child) {
   // 1) 가능한 모든 경로로 OverlayState 획득 시도
@@ -35,14 +36,17 @@ void showOverlayToast(BuildContext context, Widget child) {
     return;
   }
 
-  // 2) Fallback: ScaffoldMessenger 스낵바로 표시
-  final messenger = ScaffoldMessenger.maybeOf(context);
+  // 2) Fallback: 스낵바로 표시 (가능하면 현재 컨텍스트, 아니면 전역 키)
+  final messenger = ScaffoldMessenger.maybeOf(context) ??
+      SnackbarUtil.scaffoldMessengerKey.currentState;
   if (messenger != null) {
-    messenger.showSnackBar(SnackBar(
-      content: child,
-      duration: const Duration(seconds: 1),
-      behavior: SnackBarBehavior.floating,
-    ));
+    messenger.showSnackBar(
+      SnackBar(
+        content: child,
+        duration: const Duration(seconds: 1),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
     return;
   }
 

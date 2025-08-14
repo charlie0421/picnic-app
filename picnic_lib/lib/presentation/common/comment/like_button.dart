@@ -127,7 +127,7 @@ class LikeButtonState extends ConsumerState<LikeButton>
         isLiked = widget.isLiked;
       });
 
-      SnackbarUtil().showSnackbar(
+      SnackbarUtil().error(
           AppLocalizations.of(context).post_comment_like_processing_fail);
       rethrow;
     } finally {

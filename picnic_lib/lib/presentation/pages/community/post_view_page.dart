@@ -323,9 +323,10 @@ class _PostViewPageState extends ConsumerState<PostViewPage> {
                 logger.e('Error deleting post: $e', stackTrace: s);
                 if (!_isDisposed) {
                   if (navigatorKey.currentContext != null) {
-                    SnackbarUtil().showSnackbar(
-                        AppLocalizations.of(navigatorKey.currentContext!)
-                            .error_delete_post);
+                    SnackbarUtil().error(
+                      AppLocalizations.of(navigatorKey.currentContext!)
+                          .error_delete_post,
+                    );
                   }
                 }
               }

@@ -195,7 +195,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
   Future<void> _submitReport() async {
     if (_selectedReason == null) {
       SnackbarUtil()
-          .showSnackbar(AppLocalizations.of(context).post_report_reason_input);
+          .info(AppLocalizations.of(context).post_report_reason_input);
       return;
     }
 
@@ -237,7 +237,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
 
       if (!mounted) return;
 
-      SnackbarUtil().showSnackbar(
+      SnackbarUtil().info(
         AppLocalizations.of(context).post_report_success,
       );
 
@@ -252,8 +252,9 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         _isSubmitting = false;
       });
 
-      SnackbarUtil().showSnackbar(AppLocalizations.of(context).post_report_fail,
-          backgroundColor: Colors.red);
+      SnackbarUtil().error(
+        AppLocalizations.of(context).post_report_fail,
+      );
       rethrow;
     }
   }

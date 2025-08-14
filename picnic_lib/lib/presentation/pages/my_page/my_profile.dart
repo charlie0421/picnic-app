@@ -179,7 +179,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
 
             if (navigatorKey.currentContext != null) {
-              SnackbarUtil().showSnackbar(
+              SnackbarUtil().info(
                   AppLocalizations.of(navigatorKey.currentContext!)
                       .common_success);
             }
@@ -190,7 +190,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           logger.e('error', error: e, stackTrace: s);
 
           if (navigatorKey.currentContext != null) {
-            SnackbarUtil().showSnackbar(
+            SnackbarUtil().error(
                 AppLocalizations.of(navigatorKey.currentContext!).common_fail);
           }
           rethrow;
@@ -345,7 +345,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
         if (!mounted) return;
         if (navigatorKey.currentContext != null) {
           showSimpleDialog(
-              content: AppLocalizations.of(navigatorKey.currentContext!).withdrawal_success);
+              content: AppLocalizations.of(navigatorKey.currentContext!)
+                  .withdrawal_success);
         }
       } else {
         throw Exception('Failed to delete user: ${response.body}');
@@ -479,15 +480,17 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   // 닉네임 변경 성공
                   if (navigatorKey.currentContext != null) {
                     showSimpleDialog(
-                        content: AppLocalizations.of(navigatorKey.currentContext!)
-                            .message_update_nickname_success);
+                        content:
+                            AppLocalizations.of(navigatorKey.currentContext!)
+                                .message_update_nickname_success);
                   }
                 } else {
                   // 닉네임 변경 실패 (중복 또는 오류)
                   if (navigatorKey.currentContext != null) {
                     showSimpleDialog(
-                        content: AppLocalizations.of(navigatorKey.currentContext!)
-                            .message_update_nickname_fail);
+                        content:
+                            AppLocalizations.of(navigatorKey.currentContext!)
+                                .message_update_nickname_fail);
                   }
                 }
                 OverlayLoadingProgress.stop();

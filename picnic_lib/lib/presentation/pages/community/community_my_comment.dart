@@ -90,9 +90,9 @@ class _CommunityMyCommentState extends ConsumerState<CommunityMyComment> {
 
       if (!mounted) return;
 
-      SnackbarUtil().showSnackbar(
+      SnackbarUtil().error(
         AppLocalizations.of(context).post_comment_delete_fail,
-        backgroundColor: Colors.red,
+        context: context,
       );
       rethrow;
     }

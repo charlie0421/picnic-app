@@ -421,9 +421,8 @@ class _MyPageState extends ConsumerState<MyPage> {
                     logger.e('언어 변경 중 오류 발생', error: e, stackTrace: stackTrace);
 
                     if (mounted && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('언어 변경 중 오류가 발생했습니다.')),
-                      );
+                      SnackbarUtil()
+                          .error('언어 변경 중 오류가 발생했습니다.', context: context);
                     }
                   }
                 }

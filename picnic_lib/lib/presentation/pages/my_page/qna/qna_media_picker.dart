@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 class PickMediaResult {
   PickMediaResult({required this.selectedFiles, required this.oversizedFiles});
@@ -45,20 +46,13 @@ Future<PickMediaResult> pickQnaMedia({
     }
 
     if (oversizedFiles.isNotEmpty) {
-      final messenger = ScaffoldMessenger.maybeOf(context);
-      if (messenger != null) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).file_too_large_message(
-                oversizedFiles.join(', '),
-                maxFileSizeInBytes ~/ (1024 * 1024),
-              ),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      SnackbarUtil().warning(
+        AppLocalizations.of(context).file_too_large_message(
+          oversizedFiles.join(', '),
+          maxFileSizeInBytes ~/ (1024 * 1024),
+        ),
+        context: context,
+      );
     }
   }
 

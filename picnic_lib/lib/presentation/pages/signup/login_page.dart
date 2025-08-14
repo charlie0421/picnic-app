@@ -7,9 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/config/environment.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
-import 'package:fluwx/fluwx.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -26,8 +24,12 @@ import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart'
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:screen_protector/screen_protector.dart' as sp;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:fluwx/fluwx.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   static const String routeName = '/login';
@@ -44,8 +46,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       GlobalKey<LoadingOverlayWithIconState>();
 
   String? lastProvider;
-  bool _isWeChatInstalled = false;
-  final Fluwx _fluwx = Fluwx();
 
   @override
   void initState() {
@@ -58,28 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           lastProvider = provider;
         });
       }
-
-      // WeChat 설치 여부 확인 (모바일에서만)
-      if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-        try {
-          await _fluwx.registerApi(
-            appId: Environment.wechatAppId,
-            universalLink: Environment.wechatUniversalLink,
-          );
-          final installed = await _fluwx.isWeChatInstalled;
-          if (mounted) {
-            setState(() {
-              _isWeChatInstalled = installed;
-            });
-          }
-        } catch (_) {
-          if (mounted) {
-            setState(() {
-              _isWeChatInstalled = false;
-            });
-          }
-        }
-      }
+      // WeChat 설치 여부 사전 체크는 생략 (버튼은 모바일에서 항상 노출)
     });
   }
 
@@ -292,10 +271,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               context: context,
               useSafeArea: true,
               showDragHandle: true,
-              builder: (context) {
+              backgroundColor: AppColors.grey00,
+              builder: (ctx) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 40),
-                  child: _buildLoginOptions(context, ref),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+                  child: _buildLoginOptions(ctx, ref),
                 );
               },
             );
@@ -316,8 +296,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           if (isIOS()) _buildAppleLogin(context),
           _buildGoogleLogin(context),
           _buildKakaoLogin(context),
-          if ((UniversalPlatform.isAndroid || UniversalPlatform.isIOS) &&
-              _isWeChatInstalled)
+          if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS)
             _buildWeChatLogin(context),
         ],
       ),
@@ -409,22 +388,35 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-              await _executeWithLoading(
-                () async {
-                  if (kIsWeb) {
-                    await supabase.auth.signInWithOAuth(
-                      OAuthProvider.apple,
-                      redirectTo: '${Environment.webDomain}/auth/callback',
-                    );
-                  } else {
-                    final user = await _authService
-                        .signInWithProvider(OAuthProvider.apple);
-                    if (user != null) {
-                      _handleSuccessfulLogin('apple');
-                    }
+              // 바텀시트가 열린 상태에서 인증 UI를 띄우면 겹침/흰 화면 이슈가 발생할 수 있어 먼저 닫습니다.
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+                await Future.delayed(const Duration(milliseconds: 150));
+              }
+              if (kIsWeb) {
+                await _executeWithLoading(() async {
+                  await supabase.auth.signInWithOAuth(
+                    OAuthProvider.apple,
+                    redirectTo: '${Environment.webDomain}/auth/callback',
+                  );
+                });
+              } else {
+                // 모바일 네이티브 로그인 UI 표시 시 화면보호 해제 → 인증 → 재설정
+                try {
+                  await sp.ScreenProtector.preventScreenshotOff();
+                } catch (_) {}
+                try {
+                  final user = await _authService
+                      .signInWithProvider(OAuthProvider.apple);
+                  if (user != null) {
+                    _handleSuccessfulLogin('apple');
                   }
-                },
-              );
+                } finally {
+                  try {
+                    await sp.ScreenProtector.preventScreenshotOn();
+                  } catch (_) {}
+                }
+              }
             } on PicnicAuthException catch (e) {
               if (e.code == 'canceled') {
                 return; // 사용자가 취소한 경우 아무것도 하지 않음
@@ -494,22 +486,33 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-              await _executeWithLoading(
-                () async {
-                  if (kIsWeb) {
-                    await supabase.auth.signInWithOAuth(
-                      OAuthProvider.google,
-                      redirectTo: '${Environment.webDomain}/auth/callback',
-                    );
-                  } else {
-                    final user = await _authService
-                        .signInWithProvider(OAuthProvider.google);
-                    if (user != null) {
-                      _handleSuccessfulLogin('google');
-                    }
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+                await Future.delayed(const Duration(milliseconds: 150));
+              }
+              if (kIsWeb) {
+                await _executeWithLoading(() async {
+                  await supabase.auth.signInWithOAuth(
+                    OAuthProvider.google,
+                    redirectTo: '${Environment.webDomain}/auth/callback',
+                  );
+                });
+              } else {
+                try {
+                  await sp.ScreenProtector.preventScreenshotOff();
+                } catch (_) {}
+                try {
+                  final user = await _authService
+                      .signInWithProvider(OAuthProvider.google);
+                  if (user != null) {
+                    _handleSuccessfulLogin('google');
                   }
-                },
-              );
+                } finally {
+                  try {
+                    await sp.ScreenProtector.preventScreenshotOn();
+                  } catch (_) {}
+                }
+              }
             } on PicnicAuthException catch (e) {
               if (e.code == 'canceled') {
                 return; // 사용자가 취소한 경우 아무것도 하지 않음
@@ -579,23 +582,34 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-              await _executeWithLoading(
-                () async {
-                  if (kIsWeb) {
-                    await supabase.auth.signInWithOAuth(
-                      OAuthProvider.kakao,
-                      redirectTo: '${Environment.webDomain}/auth/callback',
-                      scopes: 'account_email profile_image profile_nickname',
-                    );
-                  } else {
-                    final user = await _authService
-                        .signInWithProvider(OAuthProvider.kakao);
-                    if (user != null) {
-                      _handleSuccessfulLogin('kakao');
-                    }
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+                await Future.delayed(const Duration(milliseconds: 150));
+              }
+              if (kIsWeb) {
+                await _executeWithLoading(() async {
+                  await supabase.auth.signInWithOAuth(
+                    OAuthProvider.kakao,
+                    redirectTo: '${Environment.webDomain}/auth/callback',
+                    scopes: 'account_email profile_image profile_nickname',
+                  );
+                });
+              } else {
+                try {
+                  await sp.ScreenProtector.preventScreenshotOff();
+                } catch (_) {}
+                try {
+                  final user = await _authService
+                      .signInWithProvider(OAuthProvider.kakao);
+                  if (user != null) {
+                    _handleSuccessfulLogin('kakao');
                   }
-                },
-              );
+                } finally {
+                  try {
+                    await sp.ScreenProtector.preventScreenshotOn();
+                  } catch (_) {}
+                }
+              }
             } on PicnicAuthException catch (e) {
               if (e.code == 'canceled') {
                 return; // 사용자가 취소한 경우 아무것도 하지 않음
@@ -664,12 +678,56 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         GestureDetector(
           onTap: () async {
             try {
-              await _executeWithLoading(() async {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+                await Future.delayed(const Duration(milliseconds: 150));
+              }
+              // 위챗 설치 여부 확인 후 미설치 시 스토어 이동 팝업
+              if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+                try {
+                  final fluwx = Fluwx();
+                  await fluwx.registerApi(
+                    appId: Environment.wechatAppId,
+                    universalLink: Environment.wechatUniversalLink,
+                  );
+                  final installed = await fluwx.isWeChatInstalled;
+                  if (!installed) {
+                    if (navigatorKey.currentContext != null) {
+                      showSimpleDialog(
+                        content:
+                            AppLocalizations.of(navigatorKey.currentContext!)
+                                .label_login_with_wechat,
+                        onOk: () async {
+                          // 스토어로 이동
+                          final uri = UniversalPlatform.isIOS
+                              ? Uri.parse(
+                                  'itms-apps://itunes.apple.com/app/id414478124')
+                              : Uri.parse('market://details?id=com.tencent.mm');
+                          try {
+                            await launchUrl(uri,
+                                mode: LaunchMode.externalApplication);
+                          } catch (_) {}
+                          Navigator.of(navigatorKey.currentContext!).pop();
+                        },
+                      );
+                    }
+                    return;
+                  }
+                } catch (_) {}
+              }
+              try {
+                await sp.ScreenProtector.preventScreenshotOff();
+              } catch (_) {}
+              try {
                 final user = await _authService.signInWithWeChat();
                 if (user != null) {
                   _handleSuccessfulLogin('wechat');
                 }
-              });
+              } finally {
+                try {
+                  await sp.ScreenProtector.preventScreenshotOn();
+                } catch (_) {}
+              }
             } on PicnicAuthException catch (e) {
               if (e.code == 'canceled') {
                 return;
@@ -714,8 +772,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // 머티리얼에 기본 위챗 아이콘이 없어 FontAwesome 대체
-                  FaIcon(FontAwesomeIcons.weixin,
+                  const FaIcon(FontAwesomeIcons.weixin,
                       color: AppColors.grey800, size: 20),
                   SizedBox(width: 8.w),
                   Text('Login with WeChat',

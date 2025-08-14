@@ -199,14 +199,14 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       _onTextChanged();
       _focusNode.unfocus();
 
-      SnackbarUtil().showSnackbar(
+      SnackbarUtil().info(
           AppLocalizations.of(context).post_comment_registered_comment);
     } catch (e, s) {
       if (!mounted) return;
 
-      SnackbarUtil().showSnackbar(
+      SnackbarUtil().error(
         AppLocalizations.of(context).post_comment_register_fail,
-        backgroundColor: Colors.red,
+        context: context,
         duration: const Duration(seconds: 2),
       );
 

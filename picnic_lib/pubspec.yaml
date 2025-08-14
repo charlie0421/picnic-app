@@ -55,6 +55,7 @@ dependencies:
   google_sign_in: ^6.2.2
   sign_in_with_apple: ^7.0.1
   kakao_flutter_sdk_user: ^1.9.6
+  fluwx: ^4.5.0
   firebase_core: ^3.9.0
   image: ^4.3.0
   image_gallery_saver_plus: ^4.0.0-0.alpha
@@ -102,7 +103,6 @@ dependencies:
   googleapis_auth: ^2.0.0
   json_annotation: ^4.9.0
   uuid: ^4.5.1
-  fluwx: ^5.5.4
 
 dev_dependencies:
   flutter_test:

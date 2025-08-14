@@ -38,6 +38,8 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
   pod 'Ads-Global', '6.5.0.9'
+  # Ensure WeChat SDK headers are integrated for fluwx
+  pod 'WechatOpenSDK-XCFramework'
 
   target 'RunnerTests' do
     inherit! :search_paths
@@ -52,6 +54,13 @@ post_install do |installer|
       config.build_settings['FRAMEWORK_SEARCH_PATHS'] = ['$(inherited)', '$(PROJECT_DIR)/Frameworks']
       config.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks']
       config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -ObjC'
+      # Ensure WeChat SDK headers are visible to dependent pods like fluwx
+      # Matches the active slice inside the XCFramework
+      config.build_settings['HEADER_SEARCH_PATHS'] = [
+        '$(inherited)',
+        '$(PODS_ROOT)/WechatOpenSDK-XCFramework/WechatOpenSDK.xcframework/ios-arm64/WechatOpenSDK.framework/Headers',
+        '$(PODS_ROOT)/WechatOpenSDK-XCFramework/WechatOpenSDK.xcframework/ios-arm64_x86_64-simulator/WechatOpenSDK.framework/Headers'
+      ]
       
       # if target.name == 'Ads-Global' || target.name.include?('Runner')
       #   config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -lz -lsqlite3 -lbz2 -lresolv -lc++ -lxml2 -ObjC'

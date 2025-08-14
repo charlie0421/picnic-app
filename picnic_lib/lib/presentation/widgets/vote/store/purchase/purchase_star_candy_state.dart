@@ -27,6 +27,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_t
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
+import 'package:picnic_lib/core/utils/snackbar_util.dart';
 
 import 'handlers/restore_purchase_handler.dart';
 import 'handlers/purchase_safety_manager.dart';
@@ -701,7 +702,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
               AppLocalizations.of(context).dialog_message_purchase_failed);
         } else {
           // ✅ 취소: 쿨타임 적용하지 않음
-          logger.i('[PurchaseStarCandyState] Purchase canceled - no error dialog');
+          logger.i(
+              '[PurchaseStarCandyState] Purchase canceled - no error dialog');
         }
       }
     }
@@ -879,7 +881,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     }
 
     if (!_safetyManager.canAttemptPurchaseForProduct(productId)) {
-      logger.w('[PurchaseStarCandyState] Purchase cooldown active (per product)');
+      logger
+          .w('[PurchaseStarCandyState] Purchase cooldown active (per product)');
       // 일반 쿨다운 문구 제거 → 스토어 처리 중 문구로 통일
       showSimpleDialog(
           content:
@@ -1148,12 +1151,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                           backgroundColor: Colors.red[600]),
                       onPressed: () {
                         _purchaseService.enableForceTimeout();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'Force Timeout ON - Purchase will now timeout after 3 seconds!'),
-                            backgroundColor: Colors.red[600],
-                          ),
+                        SnackbarUtil().warning(
+                          'Force Timeout ON - Purchase will now timeout after 3 seconds!',
+                          context: context,
                         );
                       },
                       child: Text('Force Timeout ON',
@@ -1164,10 +1164,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                           backgroundColor: Colors.grey[600]),
                       onPressed: () {
                         _purchaseService.disableForceTimeout();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(
-                                  'Force Timeout OFF - Normal purchase process')),
+                        SnackbarUtil().info(
+                          'Force Timeout OFF - Normal purchase process',
+                          context: context,
                         );
                       },
                       child: Text('Force Timeout OFF',
@@ -1193,10 +1192,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('instant');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    // TODO: i18n - 국제화 적용 필요
-                    SnackBar(content: Text('Instant Timeout (100ms)')),
-                  );
+                  SnackbarUtil()
+                      .info('Instant Timeout (100ms)', context: context);
                 },
                 child: Text('100ms', style: TextStyle(fontSize: 12)),
               ),
@@ -1205,10 +1202,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                     backgroundColor: Colors.deepOrange),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('ultrafast');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    // TODO: i18n - 국제화 적용 필요
-                    SnackBar(content: Text('Ultra Fast Timeout (500ms)')),
-                  );
+                  SnackbarUtil()
+                      .info('Ultra Fast Timeout (500ms)', context: context);
                 },
                 child: Text('500ms', style: TextStyle(fontSize: 12)),
               ),
@@ -1216,10 +1211,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('debug');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    // TODO: i18n - 국제화 적용 필요
-                    SnackBar(content: Text('Debug Timeout (3 seconds)')),
-                  );
+                  SnackbarUtil()
+                      .info('Debug Timeout (3 seconds)', context: context);
                 },
                 child: Text('3sec', style: TextStyle(fontSize: 12)),
               ),
@@ -1227,10 +1220,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                 onPressed: () {
                   _purchaseService.setTimeoutMode('normal');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    // TODO: i18n - 국제화 적용 필요
-                    SnackBar(content: Text('Normal Timeout (30 seconds)')),
-                  );
+                  SnackbarUtil()
+                      .info('Normal Timeout (30 seconds)', context: context);
                 },
                 child: Text('30sec', style: TextStyle(fontSize: 12)),
               ),
@@ -1250,11 +1241,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
                 onPressed: () {
                   _purchaseService.enableSlowPurchase();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    // TODO: i18n - 국제화 적용 필요
-                    SnackBar(
-                        content: Text('Purchase Delay ON - 5 second delay')),
-                  );
+                  SnackbarUtil().warning('Purchase Delay ON - 5 second delay',
+                      context: context);
                 },
                 // TODO: i18n - 국제화 적용 필요
                 child: Text('Delay ON', style: TextStyle(fontSize: 12)),
@@ -1263,10 +1251,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                 onPressed: () {
                   _purchaseService.disableSlowPurchase();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    // TODO: i18n - 국제화 적용 필요
-                    SnackBar(content: Text('Purchase Delay OFF')),
-                  );
+                  SnackbarUtil().info('Purchase Delay OFF', context: context);
                 },
                 // TODO: i18n - 국제화 적용 필요
                 child: Text('Delay OFF', style: TextStyle(fontSize: 12)),
@@ -1297,12 +1282,10 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                       '복원 디버그 버튼 눌림 ($platformEmoji ${platform.name}) - 조용히 무시');
 
                   if (kDebugMode) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            '$platformEmoji ${platform.name}: Restore Ignored'),
-                        duration: Duration(seconds: 1),
-                      ),
+                    SnackbarUtil().info(
+                      '$platformEmoji ${platform.name}: Restore Ignored',
+                      context: context,
+                      duration: const Duration(seconds: 1),
                     );
                   }
                 },

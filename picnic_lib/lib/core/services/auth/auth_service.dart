@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/core/services/auth/social_login/wechat_login.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
@@ -56,7 +57,9 @@ class AuthService {
   static Map<supa.OAuthProvider, SocialLogin> _createDefaultLoginProviders() =>
       {
         supa.OAuthProvider.google: GoogleLogin(GoogleSignIn(
-          clientId: Environment.googleClientId,
+          // iOS에서는 GoogleService-Info.plist의 CLIENT_ID를 사용해야 하므로
+          // clientId를 전달하지 않습니다. (전달 시 불일치로 흰 화면/실패 가능)
+          clientId: UniversalPlatform.isIOS ? null : Environment.googleClientId,
           serverClientId: Environment.googleServerClientId,
         )),
         supa.OAuthProvider.apple: AppleLogin(),

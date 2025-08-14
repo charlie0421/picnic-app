@@ -67,7 +67,7 @@ class _CommentPopupMenuState extends ConsumerState<CommentPopupMenu> {
             logger.e('exception:', error: e, stackTrace: s);
 
             if (mounted) {
-              SnackbarUtil().showSnackbar(
+              SnackbarUtil().error(
                   AppLocalizations.of(context).post_comment_delete_fail);
             }
             rethrow;
