@@ -14,6 +14,9 @@ const parsedPoolSize = parseInt(Deno.env.get('DB_POOL_SIZE') ?? '1', 10);
 const poolSize = Number.isFinite(parsedPoolSize) && parsedPoolSize > 0 ? parsedPoolSize : 1;
 const pool = new Pool(databaseUrl, poolSize, true);
 
+// 일반 별사탕 → 투표수 환산 비율 (예: 30개 = 1투표)
+const REGULAR_CANDY_PER_VOTE = 30;
+
 interface JmaVotingRequest {
   vote_id: number;
   vote_item_id: number;
@@ -140,7 +143,7 @@ async function createVotePick(
   starCandyUsage: number,
   starCandyBonusUsage: number
 ) {
-  const regularVotesFromStarCandy = Math.floor(starCandyUsage / 3);
+  const regularVotesFromStarCandy = Math.floor(starCandyUsage / REGULAR_CANDY_PER_VOTE);
   const { rows } = await queryWithClient(client, `
     INSERT INTO vote_pick (
       vote_id, vote_item_id, user_id, amount, 
@@ -159,25 +162,20 @@ async function createVotePick(
   return rows[0];
 }
 
-// vote_item 업데이트 (분리된 총합 포함)
-async function updateVoteItem(client: any, vote_item_id: number, amount: number, starCandyUsage: number, starCandyBonusUsage: number) {
-  const regularVotesFromStarCandy = Math.floor(starCandyUsage / 3);
+// vote_item 최신 합계 재조회 (트리거 반영값 읽기)
+async function readUpdatedVoteItem(client: any, vote_item_id: number) {
   const { rows } = await queryWithClient(client, `
-    UPDATE vote_item
-    SET 
-      vote_total = vote_total + $2,
-      star_candy_total = star_candy_total + $3,
-      star_candy_bonus_total = star_candy_bonus_total + $4,
-      updated_at = NOW()
+    SELECT id, vote_total, star_candy_total, star_candy_bonus_total
+    FROM vote_item
     WHERE id = $1
-    RETURNING id, vote_total, star_candy_total, star_candy_bonus_total
-  `, vote_item_id, amount, regularVotesFromStarCandy, starCandyBonusUsage);
+    FOR SHARE
+  `, vote_item_id);
 
   if (rows.length === 0) {
     throw new Error('Vote item not found');
   }
 
-  console.log(`Updated vote_item: ID=${vote_item_id}, new vote_total=${rows[0].vote_total}, star_candy_total=${rows[0].star_candy_total}, star_candy_bonus_total=${rows[0].star_candy_bonus_total}`);
+  console.log(`Read vote_item totals: ID=${vote_item_id}, vote_total=${rows[0].vote_total}, star_candy_total=${rows[0].star_candy_total}, star_candy_bonus_total=${rows[0].star_candy_bonus_total}`);
   return rows[0];
 }
 
@@ -203,6 +201,10 @@ Deno.serve(async (req) => {
       bonus_votes_used = 0
     }: JmaVotingRequest = await req.json();
 
+    // 입력 정규화: 클라이언트가 star_candy_usage를 "투표 수"로 보낸 경우 호환 처리
+    let scUsage = Number(star_candy_usage) || 0;
+    let scbUsage = Number(star_candy_bonus_usage) || 0;
+
     // 입력 검증
     if (!vote_id || !vote_item_id || amount === undefined || !user_id || 
         star_candy_usage === undefined || star_candy_bonus_usage === undefined) {
@@ -218,14 +220,37 @@ Deno.serve(async (req) => {
     }
 
     // 사용량 검증 (별사탕 사용량으로 계산한 투표 수가 amount와 일치해야 함)
-    const calculatedVotes = Math.floor(star_candy_usage / 3) + star_candy_bonus_usage;
+    let calculatedVotes = Math.floor(scUsage / REGULAR_CANDY_PER_VOTE) + scbUsage;
     if (calculatedVotes !== amount) {
+      // 호환 1: 별사탕만 사용했고 scUsage가 투표 수로 온 경우
+      if (scbUsage === 0 && scUsage === amount) {
+        scUsage = amount * REGULAR_CANDY_PER_VOTE;
+        calculatedVotes = Math.floor(scUsage / REGULAR_CANDY_PER_VOTE) + scbUsage;
+      }
+      // 호환 2: 별사탕+보너스 혼합이고 (scUsage+scbUsage==amount)이면 scUsage를 투표 수로 간주 후 보정
+      else if (scUsage + scbUsage === amount) {
+        const votesFromRegular = amount - scbUsage;
+        scUsage = votesFromRegular * REGULAR_CANDY_PER_VOTE;
+        calculatedVotes = Math.floor(scUsage / REGULAR_CANDY_PER_VOTE) + scbUsage;
+      }
+    }
+    if (calculatedVotes !== amount) {
+      console.warn('[jma-v2] Usage validation failed', {
+        vote_id,
+        vote_item_id,
+        user_id,
+        amount,
+        star_candy_usage: scUsage,
+        star_candy_bonus_usage: scbUsage,
+        calculatedVotes,
+        rate: REGULAR_CANDY_PER_VOTE
+      });
       return new Response(
         JSON.stringify({ 
           error: 'Usage validation failed',
           message: 'Calculated votes from star candy usage must equal amount',
-          star_candy_usage,
-          star_candy_bonus_usage,
+          star_candy_usage: scUsage,
+          star_candy_bonus_usage: scbUsage,
           calculated_votes: calculatedVotes,
           amount
         }),
@@ -242,7 +267,7 @@ Deno.serve(async (req) => {
       await client.queryObject('BEGIN');
 
       // JMA 보너스 투표 일일 제한 확인 (투표별로 보너스 사용량이 있는 경우만)
-      if (star_candy_bonus_usage > 0) {
+      if (scbUsage > 0) {
         const limitCheck = await checkJmaBonusVoteLimit(client, user_id, vote_id);
         if (!limitCheck.canVote) {
           await client.queryObject('ROLLBACK');
@@ -275,12 +300,12 @@ Deno.serve(async (req) => {
     }
 
     // 잔액 충분한지 확인
-    if (user_profiles.star_candy < star_candy_usage) {
+    if (user_profiles.star_candy < scUsage) {
       await client.queryObject('ROLLBACK');
       return new Response(
         JSON.stringify({ 
           error: 'Insufficient star_candy',
-          required: star_candy_usage,
+          required: scUsage,
           available: user_profiles.star_candy
         }),
         { 
@@ -290,12 +315,12 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (user_profiles.star_candy_bonus < star_candy_bonus_usage) {
+    if (user_profiles.star_candy_bonus < scbUsage) {
       await client.queryObject('ROLLBACK');
       return new Response(
         JSON.stringify({ 
           error: 'Insufficient star_candy_bonus',
-          required: star_candy_bonus_usage,
+          required: scbUsage,
           available: user_profiles.star_candy_bonus
         }),
         { 
@@ -312,27 +337,21 @@ Deno.serve(async (req) => {
         vote_item_id, 
         user_id, 
         amount, 
-        star_candy_usage, 
-        star_candy_bonus_usage
+        scUsage, 
+        scbUsage
       );
 
       // 2. 별사탕 차감
       const updatedUser = await deductStarCandyWithUsage(
         client,
         user_id, 
-        star_candy_usage, 
-        star_candy_bonus_usage,
+        scUsage, 
+        scbUsage,
         votePick.id
       );
 
-      // 3. vote_item 업데이트
-      const updatedVoteItem = await updateVoteItem(
-        client,
-        vote_item_id, 
-        amount, 
-        star_candy_usage, 
-        star_candy_bonus_usage
-      );
+      // 3. 트리거가 반영한 최신 합계 읽기
+      const updatedVoteItem = await readUpdatedVoteItem(client, vote_item_id);
 
       await client.queryObject('COMMIT');
 
@@ -354,11 +373,11 @@ Deno.serve(async (req) => {
               star_candy: updatedUser.star_candy,
               star_candy_bonus: updatedUser.star_candy_bonus
             },
-            usage: {
-              star_candy_usage,
-              star_candy_bonus_usage,
-              total_amount: amount
-            }
+          usage: {
+            star_candy_usage: scUsage,
+            star_candy_bonus_usage: scbUsage,
+            total_amount: amount
+          }
           }
         }),
         { 

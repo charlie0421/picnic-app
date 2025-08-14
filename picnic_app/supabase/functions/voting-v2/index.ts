@@ -219,32 +219,22 @@ async function performTransaction(
       WHERE id = $3
     `, voteResult.star_candy_used, voteResult.star_candy_bonus_used, vote_pick_id);
     
-    // 3. vote_item 총계 업데이트 (분리된 사용량 포함)
-    const voteTotalResult = await queryWithClient(connection, `
+    // 3. 트리거가 반영한 최신 합계 조회 (덮어쓰기 없이 읽기만)
+    const updatedTotalsResult = await queryWithClient(connection, `
       SELECT vote_total, star_candy_total, star_candy_bonus_total
       FROM vote_item
       WHERE id = $1
     `, vote_item_id);
-    
-    const existingVoteTotal = voteTotalResult.rows.length > 0 ? voteTotalResult.rows[0].vote_total : 0;
-    const existingStarCandyTotal = voteTotalResult.rows.length > 0 ? voteTotalResult.rows[0].star_candy_total : 0;
-    const existingStarCandyBonusTotal = voteTotalResult.rows.length > 0 ? voteTotalResult.rows[0].star_candy_bonus_total : 0;
-    
-    await queryWithClient(connection, `
-      UPDATE vote_item
-      SET 
-        vote_total = vote_total + $1,
-        star_candy_total = star_candy_total + $2,
-        star_candy_bonus_total = star_candy_bonus_total + $3
-      WHERE id = $4
-    `, amount, voteResult.star_candy_used, voteResult.star_candy_bonus_used, vote_item_id);
-    
+
+    const updatedVoteTotal = updatedTotalsResult.rows.length > 0 ? updatedTotalsResult.rows[0].vote_total : 0;
+    const existingVoteTotal = updatedVoteTotal - amount;
+
     await connection.queryObject('COMMIT');
     
     return {
       existingVoteTotal,
       addedVoteTotal: amount,
-      updatedVoteTotal: existingVoteTotal + amount,
+      updatedVoteTotal,
       starCandyUsed: voteResult.star_candy_used,
       starCandyBonusUsed: voteResult.star_candy_bonus_used,
       updatedAt: new Date().toISOString()
