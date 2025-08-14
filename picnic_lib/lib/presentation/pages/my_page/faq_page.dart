@@ -20,6 +20,7 @@ class _FAQPageState extends ConsumerState<FAQPage> {
   List<Map<String, dynamic>> _faqs = [];
   String? _selectedCategory;
   List<String> _categories = ['ALL'];
+  List<Map<String, dynamic>> _categoriesData = [];
 
   String _getLocalizedText(Map<String, dynamic> json, String language) {
     if (json[language] != null) {
@@ -28,23 +29,21 @@ class _FAQPageState extends ConsumerState<FAQPage> {
     return json['en'] ?? '';
   }
 
-  String _getLocalizedCategory(String category) {
-    switch (category) {
-      case 'ALL':
-        return AppLocalizations.of(context).faq_category_all;
-      case 'ACCOUNT':
-        return AppLocalizations.of(context).faq_category_account;
-      case 'PAYMENT':
-        return AppLocalizations.of(context).faq_category_payment;
-      case 'SERVICE':
-        return AppLocalizations.of(context).faq_category_service;
-      case 'GENERAL':
-        return AppLocalizations.of(context).faq_category_general;
-      case 'ETC':
-        return AppLocalizations.of(context).faq_category_etc;
-      default:
-        return category;
+  String _getLocalizedCategoryLabel(String categoryCode, String language) {
+    if (categoryCode == 'ALL') {
+      return AppLocalizations.of(context).faq_category_all;
     }
+    try {
+      final Map<String, dynamic> found = _categoriesData.firstWhere(
+        (c) => c['code'] == categoryCode,
+        orElse: () => <String, dynamic>{},
+      );
+      if (found.isNotEmpty && found['label'] is Map<String, dynamic>) {
+        return _getLocalizedText(
+            found['label'] as Map<String, dynamic>, language);
+      }
+    } catch (_) {}
+    return categoryCode;
   }
 
   @override
@@ -61,15 +60,31 @@ class _FAQPageState extends ConsumerState<FAQPage> {
 
   Future<void> _fetchPage() async {
     try {
-      final response = await Supabase.instance.client
+      final client = Supabase.instance.client;
+
+      final faqsFuture = client
           .from('faqs')
           .select()
           .eq('status', 'PUBLISHED')
           .order('order_number');
 
+      final categoriesFuture = client
+          .from('faq_categories')
+          .select('code,label,order_number,active')
+          .eq('active', true)
+          .order('order_number');
+
+      final results = await Future.wait([faqsFuture, categoriesFuture]);
+      final faqsResponse = results[0] as List<dynamic>;
+      final categoriesResponse = results[1] as List<dynamic>;
+
       setState(() {
-        _faqs = response;
-        _categories = ['ALL', 'ACCOUNT', 'PAYMENT', 'SERVICE', 'GENERAL'];
+        _faqs = faqsResponse.cast<Map<String, dynamic>>();
+        _categoriesData = categoriesResponse.cast<Map<String, dynamic>>();
+        _categories = [
+          'ALL',
+          ..._categoriesData.map((e) => e['code']).whereType<String>().toList(),
+        ];
       });
     } catch (error) {
       logger.e('FAQ 데이터 가져오기 오류', error: error);
@@ -100,7 +115,7 @@ class _FAQPageState extends ConsumerState<FAQPage> {
                   padding: EdgeInsets.only(right: 8.w),
                   child: ChoiceChip(
                     label: Text(
-                      _getLocalizedCategory(category),
+                      _getLocalizedCategoryLabel(category, currentLanguage),
                       style: getTextStyle(
                         AppTypo.caption12M,
                         _selectedCategory == category
@@ -141,7 +156,8 @@ class _FAQPageState extends ConsumerState<FAQPage> {
                         children: [
                           if (faq['category'] != null)
                             Text(
-                              _getLocalizedCategory(faq['category']),
+                              _getLocalizedCategoryLabel(
+                                  faq['category'], currentLanguage),
                               style: getTextStyle(
                                   AppTypo.body14M, AppColors.primary500),
                             ),
