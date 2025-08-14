@@ -210,6 +210,13 @@ class AuthService {
         return false;
       }
 
+      // 리프레시 토큰이 없으면 에러를 발생시키지 않고 조용히 스킵
+      final refreshToken = session.refreshToken;
+      if (refreshToken == null || refreshToken.isEmpty) {
+        logger.w('No refresh token available - skipping refresh');
+        return false;
+      }
+
       final response =
           await supabase.auth.refreshSession().timeout(_timeouts.tokenRefresh);
 
@@ -220,6 +227,12 @@ class AuthService {
 
       return false;
     } catch (e, s) {
+      // 세션 누락(400)과 같은 케이스는 사용자 흐름상 정상적인 상황일 수 있으므로 경고만 남기고 종료
+      if (e is AuthException && e.statusCode == "400") {
+        logger.w('Refresh skipped due to missing auth session (400)');
+        return false;
+      }
+
       logger.e('Error refreshing session', error: e, stackTrace: s);
       await _handleAuthError(e);
       return false;
