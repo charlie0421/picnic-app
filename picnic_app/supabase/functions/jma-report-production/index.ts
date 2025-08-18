@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { createCorsHeaders, createOptionsResponse } from './_shared/cors.ts'
 
 const PRODUCTION_DOMAIN = 'https://lite-be.cfanfever.com'
 const AUTH_ENDPOINT = '/api/v1/access_token'
@@ -70,11 +70,27 @@ async function getAccessToken(): Promise<string> {
 }
 
 serve(async (req) => {
+  const corsHeaders = createCorsHeaders(req.headers.get('Origin') ?? '')
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return createOptionsResponse(req.headers.get('Origin'), {})
   }
 
   try {
+    // 컷오프: 2025-08-29 13:00:00 KST 이후에는 실행하지 않음
+    const nowUtc = new Date()
+    const cutoffUtcMs = Date.parse('2025-08-29T13:00:00+09:00')
+    console.log('[jma-report-production] invoked', {
+      nowUtc: nowUtc.toISOString(),
+      cutoffKst: '2025-08-29T13:00:00+09:00',
+    })
+    if (nowUtc.getTime() >= cutoffUtcMs) {
+      console.log('[jma-report-production] skipped: after cutoff 2025-08-29 13:00 KST')
+      return new Response(JSON.stringify({ success: true, message: 'Skipped: after cutoff (2025-08-29 13:00 KST)' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      })
+    }
+
     const accessToken = await getAccessToken()
 
     const supabaseClient = createClient(
@@ -83,7 +99,6 @@ serve(async (req) => {
     )
 
     // 현재 진행 중인 투표와 관련된 모든 vote_item 정보를 가져옵니다.
-    const now = new Date().toISOString()
     const { data: voteItems, error: dbError } = await supabaseClient
       .from('vote_item')
       .select(`
@@ -100,11 +115,13 @@ serve(async (req) => {
       `)
       .eq('vote.is_partnership', true)
       .eq('vote.partner', 'jma')
-      .filter('vote.start_at', 'lte', now)
-      .filter('vote.stop_at', 'gte', now)
+      // 시간 조건 제거: 요청된 ID 범위를 우선 적용
+      .filter('vote.id', 'gte', 120)
+      .filter('vote.id', 'lte', 129)
 
     if (dbError) throw dbError
     if (!voteItems || voteItems.length === 0) {
+      console.log('[jma-report-production] no active vote items for range {120..129} with partner=jma')
       return new Response(JSON.stringify({ success: true, message: 'No active votes to report.' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -114,36 +131,82 @@ serve(async (req) => {
     console.log(`Found ${voteItems.length} active vote items to report.`)
 
     // API 명세에 맞는 데이터만 필터링합니다.
-    const awardRegex = /^[A-Z]{2}\s\d{2}$/
-    const talentNumberRegex = /^[A-Z]{2}\s\d{2}-\d{2,3}$/
+    // - 대소문자/공백 차이를 허용하도록 정규화 후 검사
+    const awardRegex = /^[A-Z]{2}\s?\d{2}$/
+    const talentNumberRegex = /^[A-Z]{2}\s?\d{2}-\d{2,3}$/
 
+    let invalidLogCount = 0
     const validVoteItems = voteItems.filter(item => {
       const vote = item.vote
       const artist = item.artist
       
-      const award = vote?.vote_sub_category
-      const talentNumber = artist?.partner_data
+      const awardRaw = vote?.vote_sub_category?.toString().trim()
+      const talentRaw = artist?.partner_data?.toString().trim()
+      const award = awardRaw ? awardRaw.toUpperCase().replace(/\s+/g, ' ') : undefined
+      const talentNumber = talentRaw ? talentRaw.toUpperCase().replace(/\s+/g, ' ') : undefined
 
       // artist, vote, partner_data, vote_sub_category 모두 존재해야 합니다.
       if (!artist || !vote || !talentNumber || !award) {
+        if (invalidLogCount < 30) {
+          console.log('[Invalid Item] missing fields', {
+            hasArtist: !!artist,
+            hasVote: !!vote,
+            awardRaw: awardRaw ?? null,
+            talentRaw: talentRaw ?? null,
+          })
+          invalidLogCount++
+        }
         return false
       }
 
       // API 형식에 맞는지 정규식으로 검증합니다.
-      return awardRegex.test(award) && talentNumberRegex.test(talentNumber)
+      const isAwardValid = awardRegex.test(award)
+      const isTalentValid = talentNumberRegex.test(talentNumber)
+      const isValid = isAwardValid && isTalentValid
+      if (!isValid && invalidLogCount < 30) {
+        console.log('[Invalid Item] pattern mismatch', {
+          award,
+          talentNumber,
+          isAwardValid,
+          isTalentValid,
+        })
+        invalidLogCount++
+      }
+      return isValid
     })
 
     console.log(`Found ${validVoteItems.length} valid items to send after filtering.`)
 
+    // 폴백: 정규식 미일치 시 award/talent_number 존재 여부만 확인 후 전송
+    let itemsToSend = validVoteItems
     if (validVoteItems.length === 0) {
-      return new Response(JSON.stringify({ success: true, message: 'No valid votes to report.' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
+      const fallbackItems = voteItems.filter(item => {
+        const awardRaw = item.vote?.vote_sub_category?.toString().trim()
+        const talentRaw = item.artist?.partner_data?.toString().trim()
+        return !!awardRaw && !!talentRaw
       })
+      console.log(`Using fallback items due to zero valid matches. Fallback count: ${fallbackItems.length}`)
+
+      // 디버깅용 샘플 값 로깅 (최대 10건)
+      fallbackItems.slice(0, 10).forEach((it, idx) => {
+        console.log(`[Fallback Sample ${idx+1}]`, {
+          award: it.vote?.vote_sub_category,
+          talent_number: it.artist?.partner_data,
+        })
+      })
+
+      if (fallbackItems.length === 0) {
+        console.log('[jma-report-production] no fallback items either (award/talent missing)')
+        return new Response(JSON.stringify({ success: true, message: 'No valid votes to report.' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
+      }
+      itemsToSend = fallbackItems
     }
 
     // vote.id 오름차순, 그 다음 vote_total 내림차순으로 정렬합니다.
-    const sortedVoteItems = validVoteItems.sort((a, b) => {
+    const sortedVoteItems = itemsToSend.sort((a, b) => {
       const voteIdA = a.vote?.id || 0;
       const voteIdB = b.vote?.id || 0;
       const voteTotalA = a.vote_total || 0;
