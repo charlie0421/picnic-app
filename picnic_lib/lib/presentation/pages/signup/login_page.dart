@@ -296,8 +296,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           if (isIOS()) _buildAppleLogin(context),
           _buildGoogleLogin(context),
           _buildKakaoLogin(context),
-          if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS)
-            _buildWeChatLogin(context),
+          // WeChat 버튼 숨김 (요청에 따라 주석 처리)
+          // if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS)
+          //   _buildWeChatLogin(context),
         ],
       ),
     );
