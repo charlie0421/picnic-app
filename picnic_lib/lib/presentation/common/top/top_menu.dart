@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/presentation/common/area_selector.dart';
 import 'package:picnic_lib/presentation/common/common_my_point_info.dart';
@@ -29,6 +30,21 @@ class _TopState extends ConsumerState<TopMenu> {
   void initState() {
     super.initState();
     // _setupRealtime();
+  }
+
+  Color _getPortalColor(PortalType portalType) {
+    switch (portalType) {
+      case PortalType.vote:
+        return voteMainColor;
+      case PortalType.pic:
+        return picMainColor;
+      case PortalType.community:
+        return communityMainColor;
+      case PortalType.novel:
+        return novelMainColor;
+      default:
+        return AppColors.primary500;
+    }
   }
 
   bool _isVoteHomePage(NavigationStack? stack) {
@@ -110,7 +126,7 @@ class _TopState extends ConsumerState<TopMenu> {
 
     return Container(
       height: 54,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10),
+      padding: EdgeInsets.only(left: 12.w, right: 16.w, top: 10, bottom: 10),
       child: Stack(
         children: [
           Container(
@@ -128,22 +144,43 @@ class _TopState extends ConsumerState<TopMenu> {
             top: 0,
             bottom: 0,
             child: _shouldShowBackButton(navigationInfo)
-                ? Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
+                ? Material(
+                    color: Colors.transparent,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
                       onTap: () {
                         _handleBackButtonTap(
                             navigationInfo, navigationInfoNotifier);
                       },
-                      child: SizedBox(
-                        width: 24.w,
-                        height: 24,
-                        child: SvgPicture.asset(
-                          package: 'picnic_lib',
-                          'assets/icons/arrow_left_style=line.svg',
-                          width: 24.w,
-                          height: 24,
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _getPortalColor(navigationInfo.portalType),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _getPortalColor(navigationInfo.portalType)
+                                  .withOpacity(0.25),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: SizedBox(
+                          width: 48.w,
+                          height: 48,
+                          child: Center(
+                            child: SvgPicture.asset(
+                              package: 'picnic_lib',
+                              'assets/icons/arrow_left_style=line.svg',
+                              width: 24.w,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.grey00,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

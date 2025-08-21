@@ -36,9 +36,14 @@ class NavigationInfo extends _$NavigationInfo {
       logger.d('📱 Going back to page: ${currentPage.runtimeType}');
       logger.d('📱 Stack length after pop: ${voteNavigationStack.length}');
 
+      final isAtRoot = voteNavigationStack.length <= 1;
       state = state.copyWith(
         voteNavigationStack: voteNavigationStack,
         currentScreen: currentPage,
+        // 루트로 돌아오면 포탈/탑메뉴/바텀네비 복원
+        showPortal: isAtRoot ? true : state.showPortal,
+        showTopMenu: isAtRoot ? true : state.showTopMenu,
+        showBottomNavigation: isAtRoot ? true : state.showBottomNavigation,
       );
     } else {
       logger.d('📱 Cannot go back: stack has only one page or is null');
@@ -55,9 +60,13 @@ class NavigationInfo extends _$NavigationInfo {
       logger.d('🖼️ Going back to PIC page: ${currentPage.runtimeType}');
       logger.d('🖼️ Stack length after pop: ${voteNavigationStack.length}');
 
+      final isAtRoot = voteNavigationStack.length <= 1;
       state = state.copyWith(
         voteNavigationStack: voteNavigationStack,
         currentScreen: currentPage,
+        showPortal: isAtRoot ? true : state.showPortal,
+        showTopMenu: isAtRoot ? true : state.showTopMenu,
+        showBottomNavigation: isAtRoot ? true : state.showBottomNavigation,
       );
     } else {
       logger.d('🖼️ Cannot go back: PIC stack has only one page or is null');
@@ -74,9 +83,13 @@ class NavigationInfo extends _$NavigationInfo {
       logger.d('📚 Going back to NOVEL page: ${currentPage.runtimeType}');
       logger.d('📚 Stack length after pop: ${voteNavigationStack.length}');
 
+      final isAtRoot = voteNavigationStack.length <= 1;
       state = state.copyWith(
         voteNavigationStack: voteNavigationStack,
         currentScreen: currentPage,
+        showPortal: isAtRoot ? true : state.showPortal,
+        showTopMenu: isAtRoot ? true : state.showTopMenu,
+        showBottomNavigation: isAtRoot ? true : state.showBottomNavigation,
       );
     } else {
       logger.d('📚 Cannot go back: NOVEL stack has only one page or is null');
@@ -93,9 +106,13 @@ class NavigationInfo extends _$NavigationInfo {
       logger.d('🔙 Going back to page: ${currentPage.runtimeType}');
       logger.d('🔙 Stack length after pop: ${communityNavigationStack.length}');
 
+      final isAtRoot = communityNavigationStack.length <= 1;
       state = state.copyWith(
         communityNavigationStack: communityNavigationStack,
         currentScreen: currentPage,
+        showPortal: isAtRoot ? true : state.showPortal,
+        showTopMenu: isAtRoot ? true : state.showTopMenu,
+        showBottomNavigation: isAtRoot ? true : state.showBottomNavigation,
       );
     } else {
       logger.d('🔙 Cannot go back: stack has only one page or is null');

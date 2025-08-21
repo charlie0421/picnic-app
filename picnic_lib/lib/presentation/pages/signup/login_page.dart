@@ -108,19 +108,34 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: () {
-                            if (Navigator.of(context).canPop()) {
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: SvgPicture.asset(
-                            package: 'picnic_lib',
-                            'assets/icons/arrow_left_style=line.svg',
-                            width: 24.w,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(
-                                AppColors.grey900, BlendMode.srcIn),
+                        child: Material(
+                          color: AppColors.grey200,
+                          elevation: 3,
+                          shadowColor: AppColors.grey900.withOpacity(0.18),
+                          shape: const CircleBorder(),
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: () {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: SizedBox(
+                              width: 42,
+                              height: 42,
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  package: 'picnic_lib',
+                                  'assets/icons/arrow_left_style=line.svg',
+                                  width: 20,
+                                  height: 20,
+                                  colorFilter: const ColorFilter.mode(
+                                    AppColors.grey900,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),

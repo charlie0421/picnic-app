@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/policy.dart';
@@ -49,7 +48,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
     return Column(
       children: [
         SizedBox(
-          height: 25,
+          height: 48,
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -59,18 +58,34 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                 textAlign: TextAlign.center,
               ),
               Positioned(
-                left: 10.w,
-                child: GestureDetector(
-                  onTap: () {
-                    navigationInfoNotifier.goBackSignUp();
-                  },
-                  child: SvgPicture.asset(
-                    package: 'picnic_lib',
-                    'assets/icons/arrow_left_style=line.svg',
-                    width: 24.w,
-                    height: 24,
-                    colorFilter: const ColorFilter.mode(
-                        AppColors.grey900, BlendMode.srcIn),
+                left: 8,
+                top: 3,
+                child: Material(
+                  color: AppColors.grey200,
+                  elevation: 3,
+                  shadowColor: AppColors.grey900.withOpacity(0.18),
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () {
+                      navigationInfoNotifier.goBackSignUp();
+                    },
+                    child: SizedBox(
+                      width: 42,
+                      height: 42,
+                      child: Center(
+                        child: SvgPicture.asset(
+                          package: 'picnic_lib',
+                          'assets/icons/arrow_left_style=line.svg',
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.grey900,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
