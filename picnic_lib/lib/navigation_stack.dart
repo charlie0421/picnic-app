@@ -36,6 +36,9 @@ class NavigationStack {
   // Gets the length of the stack
   int get length => _list.length;
 
+  // Expose a read-only view of the items for rendering without copying
+  List<Widget> get items => List.unmodifiable(_list);
+
   // Clears all elements from the stack
   void clear() {
     _list.clear();

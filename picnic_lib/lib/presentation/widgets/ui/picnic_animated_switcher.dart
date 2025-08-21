@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -17,77 +15,46 @@ class PicnicAnimatedSwitcher extends ConsumerStatefulWidget {
 
 class _PicnicAnimatedSwitcherState
     extends ConsumerState<PicnicAnimatedSwitcher> {
-  Widget? _previousTopWidget;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void _triggerAnimation() {
-    if (mounted) {
-      setState(() {});
-
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          setState(() {});
-        }
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
-    // 현재 포털 타입에 따라 해당하는 NavigationStack을 선택
-    Widget? currentTopWidget;
+    // 현재 포털 타입에 따라 해당하는 NavigationStack의 모든 위젯을 가져와서
+    // IndexedStack으로 유지하여 상태(스크롤 등)를 보존한다.
+    List<Widget> stackChildren;
     switch (navigationInfo.portalType) {
       case PortalType.vote:
-        currentTopWidget = navigationInfo.voteNavigationStack?.peek();
+        stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
         break;
       case PortalType.community:
-        currentTopWidget = navigationInfo.communityNavigationStack?.peek();
+        stackChildren =
+            navigationInfo.communityNavigationStack?.items ?? const [];
         break;
       case PortalType.pic:
-        currentTopWidget = navigationInfo.voteNavigationStack
-            ?.peek(); // pic은 아직 별도 스택이 없어서 vote 스택 사용
+        // pic은 현재 vote 스택 공유
+        stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
         break;
       case PortalType.novel:
-        currentTopWidget = navigationInfo.voteNavigationStack
-            ?.peek(); // novel도 아직 별도 스택이 없어서 vote 스택 사용
+        // novel도 현재 vote 스택 공유
+        stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
         break;
       default:
-        currentTopWidget = navigationInfo.voteNavigationStack?.peek();
+        stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
     }
 
-    // 스택의 최상위 위젯이 변경될 때마다 애니메이션을 트리거합니다.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (currentTopWidget != null && currentTopWidget != _previousTopWidget) {
-        _triggerAnimation();
-        _previousTopWidget = currentTopWidget;
-      }
-    });
+    final currentIndex =
+        stackChildren.isNotEmpty ? stackChildren.length - 1 : 0;
 
-    return Stack(
-      children: [
-        AnimatedSwitcher(
-          key: ValueKey(currentTopWidget.hashCode),
-          duration: const Duration(milliseconds: 500),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-          child: Container(
-            padding: navigationInfo.showBottomNavigation
-                ? EdgeInsets.only(bottom: getBottomPadding(context) + 52)
-                : EdgeInsets.only(bottom: getBottomPadding(context)),
-            child: currentTopWidget ?? Container(),
-          ),
-        ),
-      ],
+    return Container(
+      padding: navigationInfo.showBottomNavigation
+          ? EdgeInsets.only(bottom: getBottomPadding(context) + 52)
+          : EdgeInsets.only(bottom: getBottomPadding(context)),
+      child: stackChildren.isNotEmpty
+          ? IndexedStack(
+              index: currentIndex,
+              children: stackChildren,
+            )
+          : Container(),
     );
   }
 }
