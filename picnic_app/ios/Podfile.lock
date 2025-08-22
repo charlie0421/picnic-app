@@ -152,7 +152,7 @@ PODS:
     - fluwx/pay (= 0.0.1)
   - fluwx/pay (0.0.1):
     - Flutter
-    - WechatOpenSDK-XCFramework (~> 2.0.4)
+    - WechatOpenSDK-XCFramework (~> 2.0.5)
   - Google-Mobile-Ads-SDK (12.2.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - google_mobile_ads (6.0.0):
@@ -543,7 +543,7 @@ SPEC CHECKSUMS:
   flutter_keyboard_visibility_temp_fork: 8a8809c4129e31d25fca77446e0f3fd548122ced
   flutter_native_splash: df59bb2e1421aa0282cb2e95618af4dcb0c56c29
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
-  fluwx: daa284756ce53442b3d0417ceeda66e981906811
+  fluwx: 95a2274c23418c1098940bd00dcfe7c975bb0550
   Google-Mobile-Ads-SDK: 1dfb0c3cb46c7e2b00b0f4de74a1e06d9ea25d67
   google_mobile_ads: cab27248050510554aa646195eacc393ce7406ad
   google_sign_in_ios: 7411fab6948df90490dc4620ecbcabdc3ca04017
