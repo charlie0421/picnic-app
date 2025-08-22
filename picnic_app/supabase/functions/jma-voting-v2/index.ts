@@ -52,20 +52,26 @@ async function getUserProfiles(supabaseClient: any, user_id: string) {
   }
 }
 
-// JMA 일일 보너스 투표 제한 확인 (투표별로 하루 5개) - KST 기준
+// JMA 일일 보너스 투표 제한 확인 (투표별로 하루 5개)
 async function checkJmaBonusVoteLimit(client: any, user_id: string, vote_id: number): Promise<{ canVote: boolean, dailyCount: number }> {
-  // 특정 투표에 대한 오늘(KST) 보너스 별사탕 사용량 총합 확인
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // 특정 투표에 대한 오늘 보너스 별사탕 사용량 총합 확인
   const { rows } = await queryWithClient(client, `
     SELECT COALESCE(SUM(star_candy_bonus_usage), 0) as total_usage
     FROM vote_pick
     WHERE user_id = $1
     AND vote_id = $2
     AND star_candy_bonus_usage > 0
-    AND (created_at AT TIME ZONE 'Asia/Seoul')::date = (NOW() AT TIME ZONE 'Asia/Seoul')::date
-  `, user_id, vote_id);
+    AND created_at >= $3
+    AND created_at < $4
+  `, user_id, vote_id, today.toISOString(), tomorrow.toISOString());
 
   const bonusUsageTotal = parseInt(rows[0].total_usage);
-  console.log(`User ${user_id} bonus usage total for vote ${vote_id} today (KST): ${bonusUsageTotal}`);
+  console.log(`User ${user_id} bonus usage total for vote ${vote_id} today: ${bonusUsageTotal}`);
   
   return {
     canVote: bonusUsageTotal < 5, // 5개 미만이면 허용
@@ -259,23 +265,18 @@ Deno.serve(async (req) => {
     const client = await pool.connect();
     try {
       await client.queryObject('BEGIN');
-      // 동시성 제어: 동일 사용자/투표 조합에 대해 트랜잭션 범위 어드바이저리 락
-      await queryWithClient(client, `SELECT pg_advisory_xact_lock(hashtext($1), $2)`, user_id, vote_id);
 
       // JMA 보너스 투표 일일 제한 확인 (투표별로 보너스 사용량이 있는 경우만)
       if (scbUsage > 0) {
         const limitCheck = await checkJmaBonusVoteLimit(client, user_id, vote_id);
-        const remaining = Math.max(0, 5 - (Number(limitCheck.dailyCount) || 0));
-        if (!limitCheck.canVote || scbUsage > remaining) {
+        if (!limitCheck.canVote) {
           await client.queryObject('ROLLBACK');
           return new Response(
             JSON.stringify({ 
               error: 'JMA daily bonus vote limit exceeded',
               message: '이 투표에 대해 하루 최대 5번까지 보너스 투표할 수 있습니다.',
               dailyCount: limitCheck.dailyCount,
-              limit: 5,
-              requested: scbUsage,
-              remaining
+              limit: 5
             }),
             { 
               status: 429,

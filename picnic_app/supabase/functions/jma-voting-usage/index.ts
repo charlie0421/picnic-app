@@ -38,20 +38,26 @@ async function queryDatabase(query: string, ...args: any[]) {
   }
 }
 
-// JMA 일일 보너스 투표 제한 확인 (투표별로 하루 5개) - KST 기준
+// JMA 일일 보너스 투표 제한 확인 (투표별로 하루 5개) - UTC 기준
 async function checkJmaBonusVoteLimit(user_id: string, vote_id: number): Promise<{ canVote: boolean, dailyCount: number }> {
-  // 특정 투표에 대한 오늘(KST) 보너스 별사탕 사용량 총합 확인
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0); // UTC 기준으로 설정
+  const tomorrow = new Date(today);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+
+  // 특정 투표에 대한 오늘 보너스 별사탕 사용량 총합 확인
   const { rows } = await queryDatabase(`
     SELECT COALESCE(SUM(star_candy_bonus_usage), 0) as total_usage
     FROM vote_pick
     WHERE user_id = $1
     AND vote_id = $2
     AND star_candy_bonus_usage > 0
-    AND (created_at AT TIME ZONE 'Asia/Seoul')::date = (NOW() AT TIME ZONE 'Asia/Seoul')::date
-  `, user_id, vote_id);
+    AND created_at >= $3
+    AND created_at < $4
+  `, user_id, vote_id, today.toISOString(), tomorrow.toISOString());
 
   const bonusUsageTotal = parseInt(rows[0].total_usage);
-  console.log(`User ${user_id} bonus usage total for vote ${vote_id} today (KST): ${bonusUsageTotal}`);
+  console.log(`User ${user_id} bonus usage total for vote ${vote_id} today: ${bonusUsageTotal}`);
   
   return {
     canVote: bonusUsageTotal < 5, // 5개 미만이면 허용
