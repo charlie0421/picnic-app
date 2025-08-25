@@ -192,3 +192,8 @@ entrypoint = "./functions/jma-report-stage/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/jma-report-production/index.ts"
+
+[functions.expiring-bonus]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/expiring-bonus/index.ts"

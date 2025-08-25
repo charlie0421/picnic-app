@@ -194,14 +194,40 @@ Future<bool> agreement(Ref ref) async {
 Future<List<Map<String, dynamic>?>?> expireBonus(Ref ref) async {
   logger.i('Calculating expire bonus');
   try {
-    final response = await supabase
-        .rpc('get_expiring_bonus_prediction_v2', params: {'uri': ''});
-    if (response != null && response is List) {
-      logger.i('Expire bonus calculated: $response');
-      return List<Map<String, dynamic>>.from(response);
-    } else {
-      throw Exception('Unexpected response format');
+    final response = await supabase.functions.invoke(
+      'expiring-bonus',
+      body: {},
+    );
+    logger.i('[expireBonus] HTTP status: ${response.status}');
+    // response.data는 string일 수 있음
+    final raw = response.data;
+    logger.i('[expireBonus] raw length: ${raw is String ? raw.length : -1}');
+    if (response.status != 200) {
+      logger.e('[expireBonus] non-200: ${response.status} body: $raw');
+      throw Exception('expiring-bonus failed: ${response.status}');
     }
+
+    final parsed = raw is String ? jsonDecode(raw) : raw;
+    if (parsed is List) {
+      logger.i('[expireBonus] parsed length: ${parsed.length}');
+      // 각 항목 키 존재 여부 점검
+      for (final item in parsed) {
+        if (item is Map<String, dynamic>) {
+          logger.i(
+              '[expireBonus] item month=${item['prediction_month']} amount=${item['expiring_amount']}');
+        }
+      }
+      return List<Map<String, dynamic>>.from(parsed);
+    }
+
+    // 서버가 {data:[...]} 형태로 돌려주는 경우 방어
+    if (parsed is Map && parsed['data'] is List) {
+      final list = List<Map<String, dynamic>>.from(parsed['data'] as List);
+      logger.i('[expireBonus] parsed(data) length: ${list.length}');
+      return list;
+    }
+
+    throw Exception('Unexpected response format: ${parsed.runtimeType}');
   } catch (e, s) {
     logger.e('Error calculating expire bonus', error: e, stackTrace: s);
     Sentry.captureException(e, stackTrace: s);
