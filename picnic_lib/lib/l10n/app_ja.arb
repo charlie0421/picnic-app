@@ -2684,7 +2684,11 @@
   },
   "qna_file_size_limit_notice": "最大 {maxSize}MB までファイルを添付できます。",
   "@qna_file_size_limit_notice": {
-    "description": "Auto-generated metadata for key 'qna_file_size_limit_notice'."
+    "placeholders": {
+      "maxSize": {
+        "type": "int"
+      }
+    }
   },
   "qna_cannot_send_message_closed": "このお問い合わせは終了しているため、メッセージを送信できません。",
   "@qna_cannot_send_message_closed": {
