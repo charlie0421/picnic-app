@@ -177,7 +177,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get compatibility_purchase_confirm_title => 'スターキャンディで購入';
 
   @override
-  String compatibility_purchase_message(Object artistName) {
+  String compatibility_purchase_message(String artistName) {
     return '私と「$artistName」の相性スコアが気になる方は？';
   }
 
@@ -192,7 +192,7 @@ class AppLocalizationsJa extends AppLocalizations {
       'ピクニック #피크닠 #아이돌궁합 #Goonghap #피크닠궁합 #궁합';
 
   @override
-  String compatibility_share_message(Object artistName) {
+  String compatibility_share_message(String artistName) {
     return '私と$artistName の輝くケミは何％かな？ドキドキが止まらない！';
   }
 
@@ -591,12 +591,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fortune_share_hashtag => '#picnic #신년운세 #フォーチュネテラー';
 
   @override
-  String fortune_share_message(Object artistName) {
+  String fortune_share_message(String artistName) {
     return '想知道$artistName在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！\n#picnic #新年运势 #Fourtuneteller\n';
   }
 
   @override
-  String fortune_title(Object year) {
+  String fortune_title(int year) {
     return '$year年の運勢';
   }
 
@@ -628,7 +628,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_ads_get_star_candy => '広告を見て星飴をもらう';
 
   @override
-  String label_ads_limits(Object daily, Object hourly) {
+  String label_ads_limits(int hourly, int daily) {
     return '1時間あたり$hourly回、1日$daily回';
   }
 
@@ -978,17 +978,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_tabbar_vote_upcoming => '予定';
 
   @override
-  String label_time_ago_day(Object day) {
+  String label_time_ago_day(int day) {
     return '$day日前';
   }
 
   @override
-  String label_time_ago_hour(Object hour) {
+  String label_time_ago_hour(int hour) {
     return '$hour時間前';
   }
 
   @override
-  String label_time_ago_minute(Object minute) {
+  String label_time_ago_minute(int minute) {
     return '$minute分前';
   }
 
@@ -1370,7 +1370,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get post_not_found => '投稿が見つかりません。';
 
   @override
-  String post_replying_comment(Object nickname) {
+  String post_replying_comment(String nickname) {
     return '$nicknameさんへの返信中...';
   }
 
@@ -1511,7 +1511,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_content_hint => 'お問い合わせ内容を詳しく入力してください';
 
   @override
-  String get qna_content_min_length => '内容は10文字以上で入力してください。';
+  String get qna_content_min_length => 'お問い合わせ内容は最低10文字以上入力してください';
 
   @override
   String get qna_content_required => 'お問い合わせ内容を入力してください';
@@ -1599,11 +1599,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_mark_resolved_success => 'Changed to resolved';
 
   @override
-  String get qna_no_answer_yet => 'まだ回答がありません。しばらくお待ちください。';
-
-  @override
-  String get qna_no_inquiries =>
-      'No inquiries found. Press the + button to create a new one.';
+  String get qna_no_inquiries => 'No inquiry history';
 
   @override
   String get qna_no_inquiries_subtitle =>
@@ -1638,7 +1634,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_status_answered => '回答済み';
 
   @override
-  String get qna_status_pending => 'Awaiting Response';
+  String get qna_status_pending => '保留中';
 
   @override
   String get qna_status_resolved => '解決済み';
@@ -1662,7 +1658,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_title_hint => 'お問い合わせの概要を簡潔に入力してください';
 
   @override
-  String get qna_title_min_length => '件名は5文字以上で入力してください。';
+  String get qna_title_min_length => 'タイトルは最低5文字以上入力してください';
 
   @override
   String get qna_title_required => 'タイトルを入力してください';
@@ -1719,8 +1715,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get success => '成功';
 
   @override
-  String text_achievement(Object count) {
-    return '🎉 これまでに\$$count個の目標達成！ 🎉';
+  String text_achievement(int count) {
+    return '🎉 これまでに$count個の目標達成！ 🎉';
   }
 
   @override
@@ -1796,8 +1792,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get text_star_candy => 'スターキャンディー';
 
   @override
-  String text_star_candy_with_bonus(Object num1) {
-    return '$num1個  +$num1個のボーナス';
+  String text_star_candy_with_bonus(int num1) {
+    return '$num1個 + $num1個のボーナス';
   }
 
   @override
@@ -1819,7 +1815,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get text_vote_ended => '終了';
 
   @override
-  String text_vote_rank(Object rank) {
+  String text_vote_rank(int rank) {
     return '$rank位';
   }
 
@@ -1827,7 +1823,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get text_vote_rank_in_reward => 'ランクインリワード';
 
   @override
-  String text_vote_reward(Object count) {
+  String text_vote_reward(int count) {
     return '$count 報酬';
   }
 
@@ -1877,12 +1873,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get update_cannot_open_appstore => 'アプリストアを開くことができません。';
 
   @override
-  String update_recommend_text(Object version) {
+  String update_recommend_text(String version) {
     return '新しいバージョン($version)が利用可能です。';
   }
 
   @override
-  String update_required_text(Object version) {
+  String update_required_text(String version) {
     return '新しいバージョン($version)へのアップデートが必要です。';
   }
 
@@ -1918,7 +1914,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vote_item_request_current_item_request => '現在のアイテムリクエスト';
 
   @override
-  String vote_item_request_item_request_count(Object count) {
+  String vote_item_request_item_request_count(int count) {
     return '$count アイテムリクエスト';
   }
 
@@ -1962,7 +1958,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vote_item_request_title => 'アーティスト投票リクエスト';
 
   @override
-  String vote_item_request_total_item_requests(Object count) {
+  String vote_item_request_total_item_requests(int count) {
     return '$count のアイテムリクエストの総数';
   }
 
@@ -2052,7 +2048,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get capture_failed => 'キャプチャに失敗しました';
 
   @override
-  String get qna_submit_success => 'お問い合わせが正常に送信されました。';
+  String get qna_submit_success => 'お問い合わせが正常に送信されました';
 
   @override
   String get qna_submit_error => 'お問い合わせの送信中にエラーが発生しました';
@@ -2065,52 +2061,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get qna_list_title => 'Q&Aリスト';
-
-  @override
-  String get qna_list_error_title => 'Failed to load inquiries';
-
-  @override
-  String get qna_list_retry_button => 'Retry';
-
-  @override
-  String get qna_list_empty_description =>
-      'If you have any questions, feel free to ask!';
-
-  @override
-  String get qna_create_title => '新規お問い合わせ';
-
-  @override
-  String get qna_form_title => '件名';
-
-  @override
-  String get qna_form_title_empty => '件名を入力してください。';
-
-  @override
-  String get qna_form_content => '内容';
-
-  @override
-  String get qna_form_content_empty => 'お問い合わせ内容を入力してください。';
-
-  @override
-  String get qna_message_hint => 'メッセージを入力';
-
-  @override
-  String get qna_error_message => 'エラーが発生しました';
-
-  @override
-  String get qna_empty_list => 'お問い合わせ履歴がありません';
-
-  @override
-  String get qna_create_first => '最初の質問を書いてください';
-
-  @override
-  String get days_ago => '日前';
-
-  @override
-  String get hours_ago => '時間前';
-
-  @override
-  String get minutes_ago => '分前';
 
   @override
   String get starCandy100 => 'スターキャンディ100個';
@@ -2143,17 +2093,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vote_item_request_no_search_results => '検索結果がありません';
 
   @override
-  String jma_voting_star_candy_shortage(Object shortage) {
+  String jma_voting_star_candy_shortage(int shortage) {
     return 'スターキャンディが$shortage個不足しています。';
   }
 
   @override
-  String jma_voting_max_votes_exceeded(Object maxVotes) {
+  String jma_voting_max_votes_exceeded(int maxVotes) {
     return '現在の最大投票可能数は$maxVotes個です。';
   }
 
   @override
-  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+  String jma_voting_daily_limit_remaining(int remaining, int max) {
     return '今日の残りボーナス投票数: $remaining回 (最大$max回)';
   }
 
@@ -2170,23 +2120,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get jma_voting_use_all => 'すべて使用';
 
   @override
-  String jma_voting_max_usable(Object amount) {
+  String jma_voting_max_usable(int amount) {
     return '最大$amount個使用可能';
   }
 
   @override
-  String jma_voting_bonus_only(Object amount, Object votes) {
+  String jma_voting_bonus_only(int amount, int votes) {
     return 'ボーナススターキャンディ$amount個使用 → $votes票';
   }
 
   @override
-  String jma_voting_bonus_plus_regular(
-      Object bonus, Object regular, Object votes) {
+  String jma_voting_bonus_plus_regular(int bonus, int regular, int votes) {
     return 'ボーナス$bonus個 + スターキャンディ$regular個 → $votes票';
   }
 
   @override
-  String jma_voting_regular_only(Object amount, Object votes) {
+  String jma_voting_regular_only(int amount, int votes) {
     return 'スターキャンディ$amount個 → $votes票';
   }
 
@@ -2290,22 +2239,22 @@ class AppLocalizationsJa extends AppLocalizations {
       '__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)';
 
   @override
-  String get qna_form_title_hint => '件名は5文字以上で入力してください。';
+  String get qna_form_title_hint => '5文字以上の件名を入力してください。';
 
   @override
-  String get qna_form_content_hint => '内容は10文字以上で入力してください。';
+  String get qna_form_content_hint => '10文字以上の内容を入力してください。';
 
   @override
-  String get qna_attach_image => '画像添付';
+  String get qna_attach_image => '画像を添付';
 
   @override
-  String get qna_attach_file => 'ファイル添付';
+  String get qna_attach_file => 'ファイルを添付';
 
   @override
   String get qna_attach_media => 'Attach Photo/Video';
 
   @override
-  String file_too_large_message(Object fileName, Object maxSize) {
+  String file_too_large_message(String fileName, int maxSize) {
     return '$fileName exceeds the ${maxSize}MB size limit.';
   }
 
@@ -2313,25 +2262,31 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qna_submit_fail => 'お問い合わせの送信に失敗しました';
 
   @override
-  String qna_file_size_limit_notice(Object maxSize) {
-    return '最大${maxSize}MBまでのファイルを添付できます。';
+  String qna_file_size_limit_notice(int maxSize) {
+    return '最大 ${maxSize}MB までファイルを添付できます。';
   }
 
   @override
   String get qna_cannot_send_message_closed =>
-      'このお問い合わせは終了したため、これ以上メッセージを送信できません。';
+      'このお問い合わせは終了しているため、メッセージを送信できません。';
 
   @override
-  String get qna_message_sent_success => 'メッセージを正常に送信しました。';
+  String get qna_message_sent_success => 'メッセージを送信しました。';
 
   @override
   String get qna_message_sent_fail => 'メッセージの送信に失敗しました';
+
+  @override
+  String get qna_no_answer_yet => 'まだ回答がありません';
 
   @override
   String get qna_add_media_tooltip => 'メディアを追加';
 
   @override
   String get qna_load_fail_title => 'お問い合わせの読み込みに失敗しました';
+
+  @override
+  String get qna_message_hint => 'メッセージを入力';
 
   @override
   String get jmaVoteTicket => 'JMA投票券';
@@ -2350,4 +2305,27 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get label_my_vote_history => '私の投票履歴';
+
+  @override
+  String get error_verification_timeout =>
+      'Purchase processing timed out. Please check your network connection and try again.';
+
+  @override
+  String get error_authentication_timeout =>
+      'Touch ID/Face ID authentication timed out. Please try again.';
+
+  @override
+  String get qna_answer_title => 'Answer';
+
+  @override
+  String get qna_created_at => 'Created at';
+
+  @override
+  String get qna_info_title => 'Inquiry Info';
+
+  @override
+  String get qna_empty_message => 'No inquiries';
+
+  @override
+  String get search_artist_hint => 'Search for artist or group';
 }

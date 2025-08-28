@@ -178,7 +178,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get compatibility_purchase_confirm_title => '스타캔디로 구매';
 
   @override
-  String compatibility_purchase_message(Object artistName) {
+  String compatibility_purchase_message(String artistName) {
     return '$artistName과 나의 궁합 점수를 알고 싶다면?';
   }
 
@@ -192,7 +192,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get compatibility_share_hashtag => '#피크닉 #피크닠 #아이돌궁합 #Goonghap #피크닠궁합';
 
   @override
-  String compatibility_share_message(Object artistName) {
+  String compatibility_share_message(String artistName) {
     return '$artistName과 나의 빛나는 케미 궁합은 몇 퍼센트일까? 두근두근!';
   }
 
@@ -590,12 +590,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get fortune_share_hashtag => '#picnic #신년운세 #Fourtuneteller';
 
   @override
-  String fortune_share_message(Object artistName) {
+  String fortune_share_message(String artistName) {
     return 'Curious about $artistName\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!';
   }
 
   @override
-  String fortune_title(Object year) {
+  String fortune_title(int year) {
     return '$year년 운세';
   }
 
@@ -627,7 +627,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_ads_get_star_candy => '광고에서 스타캔디 받기';
 
   @override
-  String label_ads_limits(Object daily, Object hourly) {
+  String label_ads_limits(int hourly, int daily) {
     return '시간당 $hourly회, 일일 $daily회';
   }
 
@@ -977,17 +977,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get label_tabbar_vote_upcoming => '예정됨';
 
   @override
-  String label_time_ago_day(Object day) {
+  String label_time_ago_day(int day) {
     return '$day일 전';
   }
 
   @override
-  String label_time_ago_hour(Object hour) {
+  String label_time_ago_hour(int hour) {
     return '$hour시간 전';
   }
 
   @override
-  String label_time_ago_minute(Object minute) {
+  String label_time_ago_minute(int minute) {
     return '$minute분 전';
   }
 
@@ -1366,7 +1366,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get post_not_found => '게시글을 찾을 수 없습니다.';
 
   @override
-  String post_replying_comment(Object nickname) {
+  String post_replying_comment(String nickname) {
     return '$nickname님에게 답글 중...';
   }
 
@@ -1595,9 +1595,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_mark_resolved_success => '해결됨으로 변경되었습니다';
 
   @override
-  String get qna_no_answer_yet => '아직 답변이 없습니다. 잠시만 기다려주세요.';
-
-  @override
   String get qna_no_inquiries => '문의 내역이 없습니다';
 
   @override
@@ -1644,7 +1641,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_status_open => '진행중';
 
   @override
-  String get qna_status_in_progress => 'In Progress';
+  String get qna_status_in_progress => '진행 중';
 
   @override
   String get qna_submit_button => '문의 등록';
@@ -1713,7 +1710,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get success => '성공';
 
   @override
-  String text_achievement(Object count) {
+  String text_achievement(int count) {
     return '🎉 지금까지 \$$count개의 목표를 달성했습니다! 🎉';
   }
 
@@ -1789,7 +1786,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get text_star_candy => '스타캔디';
 
   @override
-  String text_star_candy_with_bonus(Object num1) {
+  String text_star_candy_with_bonus(int num1) {
     return '$num1 + $num1 보너스';
   }
 
@@ -1812,7 +1809,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get text_vote_ended => '종료됨';
 
   @override
-  String text_vote_rank(Object rank) {
+  String text_vote_rank(int rank) {
     return '순위 $rank';
   }
 
@@ -1820,7 +1817,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get text_vote_rank_in_reward => '리워드 순위';
 
   @override
-  String text_vote_reward(Object count) {
+  String text_vote_reward(int count) {
     return '$count개 리워드';
   }
 
@@ -1870,12 +1867,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get update_cannot_open_appstore => '앱 스토어를 열 수 없습니다.';
 
   @override
-  String update_recommend_text(Object version) {
+  String update_recommend_text(String version) {
     return '새 버전 ($version)이 사용 가능합니다.';
   }
 
   @override
-  String update_required_text(Object version) {
+  String update_required_text(String version) {
     return '새 버전 ($version)으로 업데이트해야 합니다.';
   }
 
@@ -1911,7 +1908,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vote_item_request_current_item_request => '현재 아이템 요청';
 
   @override
-  String vote_item_request_item_request_count(Object count) {
+  String vote_item_request_item_request_count(int count) {
     return '$count개 아이템 요청';
   }
 
@@ -1955,7 +1952,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vote_item_request_title => '투표 후보 신청';
 
   @override
-  String vote_item_request_total_item_requests(Object count) {
+  String vote_item_request_total_item_requests(int count) {
     return '총 $count개 아이템 요청';
   }
 
@@ -2056,52 +2053,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_list_title => '문의 내역';
 
   @override
-  String get qna_list_error_title => 'Failed to load inquiries';
-
-  @override
-  String get qna_list_retry_button => 'Retry';
-
-  @override
-  String get qna_list_empty_description =>
-      'If you have any questions, feel free to ask!';
-
-  @override
-  String get qna_create_title => '새 문의 작성';
-
-  @override
-  String get qna_form_title => '제목';
-
-  @override
-  String get qna_form_title_empty => '제목을 입력해주세요.';
-
-  @override
-  String get qna_form_content => '내용';
-
-  @override
-  String get qna_form_content_empty => '문의 내용을 입력해주세요.';
-
-  @override
-  String get qna_message_hint => '메시지를 입력하세요';
-
-  @override
-  String get qna_error_message => '오류가 발생했습니다';
-
-  @override
-  String get qna_empty_list => '문의 내역이 없습니다';
-
-  @override
-  String get qna_create_first => '첫 번째 질문을 작성해보세요';
-
-  @override
-  String get days_ago => '일 전';
-
-  @override
-  String get hours_ago => '시간 전';
-
-  @override
-  String get minutes_ago => '분 전';
-
-  @override
   String get starCandy100 => '스타캔디 100개';
 
   @override
@@ -2132,17 +2083,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vote_item_request_no_search_results => '투표 신청 검색 결과가 없습니다';
 
   @override
-  String jma_voting_star_candy_shortage(Object shortage) {
+  String jma_voting_star_candy_shortage(int shortage) {
     return '별사탕이 $shortage개 부족합니다.';
   }
 
   @override
-  String jma_voting_max_votes_exceeded(Object maxVotes) {
+  String jma_voting_max_votes_exceeded(int maxVotes) {
     return '현재 최대 가능 투표수는 $maxVotes개 입니다.';
   }
 
   @override
-  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+  String jma_voting_daily_limit_remaining(int remaining, int max) {
     return '오늘 남은 보너스 투표 갯수: $remaining회 (최대 $max회)';
   }
 
@@ -2159,23 +2110,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get jma_voting_use_all => '전체 사용';
 
   @override
-  String jma_voting_max_usable(Object amount) {
+  String jma_voting_max_usable(int amount) {
     return '최대 $amount개 사용 가능';
   }
 
   @override
-  String jma_voting_bonus_only(Object amount, Object votes) {
+  String jma_voting_bonus_only(int amount, int votes) {
     return '보너스 별사탕 $amount개 사용 → $votes 투표';
   }
 
   @override
-  String jma_voting_bonus_plus_regular(
-      Object bonus, Object regular, Object votes) {
+  String jma_voting_bonus_plus_regular(int bonus, int regular, int votes) {
     return '보너스 $bonus개 + 별사탕 $regular개 → $votes 투표';
   }
 
   @override
-  String jma_voting_regular_only(Object amount, Object votes) {
+  String jma_voting_regular_only(int amount, int votes) {
     return '별사탕 $amount개 → $votes 투표';
   }
 
@@ -2199,13 +2149,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get jma_voting_exchange_failed_title => '교환 실패';
 
   @override
-  String get search_input_text_hint => 'Search';
+  String get search_input_text_hint => '검색';
 
   @override
-  String get submit => 'Submit';
+  String get submit => '제출';
 
   @override
-  String get next => 'Next';
+  String get next => '다음';
 
   @override
   String get bonus_candy_expiration_policy_title => '보너스 스타캔디 소멸 정책';
@@ -2297,7 +2247,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_attach_media => '사진/동영상 첨부';
 
   @override
-  String file_too_large_message(Object fileName, Object maxSize) {
+  String file_too_large_message(String fileName, int maxSize) {
     return '$fileName 파일은 ${maxSize}MB 크기를 초과할 수 없습니다.';
   }
 
@@ -2305,7 +2255,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_submit_fail => '문의 등록에 실패했습니다';
 
   @override
-  String qna_file_size_limit_notice(Object maxSize) {
+  String qna_file_size_limit_notice(int maxSize) {
     return '최대 ${maxSize}MB까지 파일을 첨부할 수 있습니다.';
   }
 
@@ -2319,10 +2269,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qna_message_sent_fail => '메시지 전송에 실패했습니다';
 
   @override
+  String get qna_no_answer_yet => '아직 답변이 없습니다. 잠시만 기다려주세요.';
+
+  @override
   String get qna_add_media_tooltip => '미디어 추가';
 
   @override
   String get qna_load_fail_title => '문의 내역을 불러오는데 실패했습니다';
+
+  @override
+  String get qna_message_hint => '메시지를 입력하세요';
 
   @override
   String get jmaVoteTicket => 'JMA 투표권';
@@ -2341,4 +2297,27 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get label_my_vote_history => '나의 투표 이력';
+
+  @override
+  String get error_verification_timeout =>
+      '구매 처리 시간이 초과되었습니다. 네트워크 연결을 확인하고 다시 시도해 주세요.';
+
+  @override
+  String get error_authentication_timeout =>
+      'Touch ID/Face ID 인증 시간이 초과되었습니다. 다시 시도해 주세요.';
+
+  @override
+  String get qna_answer_title => '답변';
+
+  @override
+  String get qna_created_at => '작성일';
+
+  @override
+  String get qna_info_title => '문의 정보';
+
+  @override
+  String get qna_empty_message => 'QnA가 없습니다';
+
+  @override
+  String get search_artist_hint => '아티스트나 그룹을 검색하세요';
 }

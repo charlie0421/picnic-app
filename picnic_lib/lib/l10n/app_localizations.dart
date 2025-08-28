@@ -66,7 +66,7 @@ import 'app_localizations_zh.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -89,11 +89,11 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -101,7 +101,7 @@ abstract class AppLocalizations {
     Locale('id'),
     Locale('ja'),
     Locale('ko'),
-    Locale('zh')
+    Locale('zh'),
   ];
 
   /// No description provided for @achieve.
@@ -438,7 +438,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'If I want to know the Goong-hap score between me and the {artistName}?'**
-  String compatibility_purchase_message(Object artistName);
+  String compatibility_purchase_message(String artistName);
 
   /// No description provided for @compatibility_remain_star_candy.
   ///
@@ -462,7 +462,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'What percentage is my shining chemistry compatibility with {artistName} ? My heart is racing!'**
-  String compatibility_share_message(Object artistName);
+  String compatibility_share_message(String artistName);
 
   /// No description provided for @compatibility_snackbar_error.
   ///
@@ -1230,13 +1230,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Curious about {artistName}\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!'**
-  String fortune_share_message(Object artistName);
+  String fortune_share_message(String artistName);
 
   /// No description provided for @fortune_title.
   ///
   /// In en, this message translates to:
   /// **'Fortune of {year}'**
-  String fortune_title(Object year);
+  String fortune_title(int year);
 
   /// No description provided for @fortune_total_title.
   ///
@@ -1296,7 +1296,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{hourly} per hour, {daily} per day'**
-  String label_ads_limits(Object daily, Object hourly);
+  String label_ads_limits(int hourly, int daily);
 
   /// No description provided for @label_ads_load_fail.
   ///
@@ -1992,19 +1992,19 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{day} days ago'**
-  String label_time_ago_day(Object day);
+  String label_time_ago_day(int day);
 
   /// No description provided for @label_time_ago_hour.
   ///
   /// In en, this message translates to:
   /// **'{hour} hours ago'**
-  String label_time_ago_hour(Object hour);
+  String label_time_ago_hour(int hour);
 
   /// No description provided for @label_time_ago_minute.
   ///
   /// In en, this message translates to:
   /// **'{minute} minutes ago'**
-  String label_time_ago_minute(Object minute);
+  String label_time_ago_minute(int minute);
 
   /// No description provided for @label_time_ago_right_now.
   ///
@@ -2754,7 +2754,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Replying to {nickname}...'**
-  String post_replying_comment(Object nickname);
+  String post_replying_comment(String nickname);
 
   /// No description provided for @post_report_fail.
   ///
@@ -3023,7 +3023,7 @@ abstract class AppLocalizations {
   /// No description provided for @qna_content_min_length.
   ///
   /// In en, this message translates to:
-  /// **'Content must be at least 10 characters long.'**
+  /// **'Inquiry content must be at least 10 characters'**
   String get qna_content_min_length;
 
   /// No description provided for @qna_content_required.
@@ -3194,16 +3194,10 @@ abstract class AppLocalizations {
   /// **'Changed to resolved'**
   String get qna_mark_resolved_success;
 
-  /// No description provided for @qna_no_answer_yet.
-  ///
-  /// In en, this message translates to:
-  /// **'No answer yet'**
-  String get qna_no_answer_yet;
-
   /// No description provided for @qna_no_inquiries.
   ///
   /// In en, this message translates to:
-  /// **'No inquiries found. Press the + button to create a new one.'**
+  /// **'No inquiry history'**
   String get qna_no_inquiries;
 
   /// No description provided for @qna_no_inquiries_subtitle.
@@ -3317,7 +3311,7 @@ abstract class AppLocalizations {
   /// No description provided for @qna_title_min_length.
   ///
   /// In en, this message translates to:
-  /// **'Title must be at least 5 characters long.'**
+  /// **'Title must be at least 5 characters'**
   String get qna_title_min_length;
 
   /// No description provided for @qna_title_required.
@@ -3431,8 +3425,8 @@ abstract class AppLocalizations {
   /// No description provided for @text_achievement.
   ///
   /// In en, this message translates to:
-  /// **'🎉 You\'ve reached \${count} goals so far! 🎉'**
-  String text_achievement(Object count);
+  /// **'🎉 You\'ve reached {count} goals so far! 🎉'**
+  String text_achievement(int count);
 
   /// No description provided for @text_ads_random.
   ///
@@ -3576,7 +3570,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{num1} + {num1} Bonuses'**
-  String text_star_candy_with_bonus(Object num1);
+  String text_star_candy_with_bonus(int num1);
 
   /// No description provided for @text_this_time_vote.
   ///
@@ -3618,7 +3612,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Rank {rank}'**
-  String text_vote_rank(Object rank);
+  String text_vote_rank(int rank);
 
   /// No description provided for @text_vote_rank_in_reward.
   ///
@@ -3630,7 +3624,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} reward'**
-  String text_vote_reward(Object count);
+  String text_vote_reward(int count);
 
   /// No description provided for @text_vote_where_is_my_bias.
   ///
@@ -3726,13 +3720,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'A new version ({version}) is available.'**
-  String update_recommend_text(Object version);
+  String update_recommend_text(String version);
 
   /// No description provided for @update_required_text.
   ///
   /// In en, this message translates to:
   /// **'You need to update to a new version ({version}).'**
-  String update_required_text(Object version);
+  String update_required_text(String version);
 
   /// No description provided for @update_required_title.
   ///
@@ -3798,7 +3792,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} artists requests'**
-  String vote_item_request_item_request_count(Object count);
+  String vote_item_request_item_request_count(int count);
 
   /// No description provided for @vote_item_request_no_item_request_yet.
   ///
@@ -3882,7 +3876,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Total {count} artists requests'**
-  String vote_item_request_total_item_requests(Object count);
+  String vote_item_request_total_item_requests(int count);
 
   /// No description provided for @vote_item_request_user_info_not_found.
   ///
@@ -4049,7 +4043,7 @@ abstract class AppLocalizations {
   /// No description provided for @qna_submit_success.
   ///
   /// In en, this message translates to:
-  /// **'Inquiry submitted successfully.'**
+  /// **'Your inquiry has been successfully submitted'**
   String get qna_submit_success;
 
   /// No description provided for @qna_submit_error.
@@ -4075,96 +4069,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My Inquiries'**
   String get qna_list_title;
-
-  /// No description provided for @qna_list_error_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to load inquiries'**
-  String get qna_list_error_title;
-
-  /// No description provided for @qna_list_retry_button.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry'**
-  String get qna_list_retry_button;
-
-  /// No description provided for @qna_list_empty_description.
-  ///
-  /// In en, this message translates to:
-  /// **'If you have any questions, feel free to ask!'**
-  String get qna_list_empty_description;
-
-  /// No description provided for @qna_create_title.
-  ///
-  /// In en, this message translates to:
-  /// **'New Inquiry'**
-  String get qna_create_title;
-
-  /// No description provided for @qna_form_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Title'**
-  String get qna_form_title;
-
-  /// No description provided for @qna_form_title_empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter a title.'**
-  String get qna_form_title_empty;
-
-  /// No description provided for @qna_form_content.
-  ///
-  /// In en, this message translates to:
-  /// **'Content'**
-  String get qna_form_content;
-
-  /// No description provided for @qna_form_content_empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter the content of your inquiry.'**
-  String get qna_form_content_empty;
-
-  /// No description provided for @qna_message_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a message'**
-  String get qna_message_hint;
-
-  /// No description provided for @qna_error_message.
-  ///
-  /// In en, this message translates to:
-  /// **'An error occurred'**
-  String get qna_error_message;
-
-  /// No description provided for @qna_empty_list.
-  ///
-  /// In en, this message translates to:
-  /// **'No inquiry history'**
-  String get qna_empty_list;
-
-  /// No description provided for @qna_create_first.
-  ///
-  /// In en, this message translates to:
-  /// **'Write your first question'**
-  String get qna_create_first;
-
-  /// No description provided for @days_ago.
-  ///
-  /// In en, this message translates to:
-  /// **' days ago'**
-  String get days_ago;
-
-  /// No description provided for @hours_ago.
-  ///
-  /// In en, this message translates to:
-  /// **' hours ago'**
-  String get hours_ago;
-
-  /// No description provided for @minutes_ago.
-  ///
-  /// In en, this message translates to:
-  /// **' minutes ago'**
-  String get minutes_ago;
 
   /// No description provided for @starCandy100.
   ///
@@ -4230,19 +4134,19 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'You need {shortage} more star candies.'**
-  String jma_voting_star_candy_shortage(Object shortage);
+  String jma_voting_star_candy_shortage(int shortage);
 
   /// No description provided for @jma_voting_max_votes_exceeded.
   ///
   /// In en, this message translates to:
   /// **'The current maximum possible votes is {maxVotes}.'**
-  String jma_voting_max_votes_exceeded(Object maxVotes);
+  String jma_voting_max_votes_exceeded(int maxVotes);
 
   /// No description provided for @jma_voting_daily_limit_remaining.
   ///
   /// In en, this message translates to:
   /// **'Today\'s remaining bonus votes: {remaining} times (max {max} times)'**
-  String jma_voting_daily_limit_remaining(Object max, Object remaining);
+  String jma_voting_daily_limit_remaining(int remaining, int max);
 
   /// No description provided for @jma_voting_daily_limit_exhausted.
   ///
@@ -4272,26 +4176,25 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Maximum {amount} available'**
-  String jma_voting_max_usable(Object amount);
+  String jma_voting_max_usable(int amount);
 
   /// No description provided for @jma_voting_bonus_only.
   ///
   /// In en, this message translates to:
   /// **'Use {amount} bonus Star Candy → {votes} votes'**
-  String jma_voting_bonus_only(Object amount, Object votes);
+  String jma_voting_bonus_only(int amount, int votes);
 
   /// No description provided for @jma_voting_bonus_plus_regular.
   ///
   /// In en, this message translates to:
   /// **'Bonus {bonus} + Star Candy {regular} → {votes} votes'**
-  String jma_voting_bonus_plus_regular(
-      Object bonus, Object regular, Object votes);
+  String jma_voting_bonus_plus_regular(int bonus, int regular, int votes);
 
   /// No description provided for @jma_voting_regular_only.
   ///
   /// In en, this message translates to:
   /// **'Star Candy {amount} → {votes} votes'**
-  String jma_voting_regular_only(Object amount, Object votes);
+  String jma_voting_regular_only(int amount, int votes);
 
   /// No description provided for @jma_voting_input_amount.
   ///
@@ -4513,7 +4416,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{fileName} exceeds the {maxSize}MB size limit.'**
-  String file_too_large_message(Object fileName, Object maxSize);
+  String file_too_large_message(String fileName, int maxSize);
 
   /// No description provided for @qna_submit_fail.
   ///
@@ -4525,7 +4428,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'You can attach files up to {maxSize}MB.'**
-  String qna_file_size_limit_notice(Object maxSize);
+  String qna_file_size_limit_notice(int maxSize);
 
   /// No description provided for @qna_cannot_send_message_closed.
   ///
@@ -4545,6 +4448,12 @@ abstract class AppLocalizations {
   /// **'Failed to send message'**
   String get qna_message_sent_fail;
 
+  /// No description provided for @qna_no_answer_yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer yet'**
+  String get qna_no_answer_yet;
+
   /// No description provided for @qna_add_media_tooltip.
   ///
   /// In en, this message translates to:
@@ -4556,6 +4465,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to load inquiries'**
   String get qna_load_fail_title;
+
+  /// No description provided for @qna_message_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter message'**
+  String get qna_message_hint;
 
   /// No description provided for @jmaVoteTicket.
   ///
@@ -4592,6 +4507,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My Vote History'**
   String get label_my_vote_history;
+
+  /// No description provided for @error_verification_timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase processing timed out. Please check your network connection and try again.'**
+  String get error_verification_timeout;
+
+  /// No description provided for @error_authentication_timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Touch ID/Face ID authentication timed out. Please try again.'**
+  String get error_authentication_timeout;
+
+  /// No description provided for @qna_answer_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer'**
+  String get qna_answer_title;
+
+  /// No description provided for @qna_created_at.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get qna_created_at;
+
+  /// No description provided for @qna_info_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Inquiry Info'**
+  String get qna_info_title;
+
+  /// No description provided for @qna_empty_message.
+  ///
+  /// In en, this message translates to:
+  /// **'No inquiries'**
+  String get qna_empty_message;
+
+  /// No description provided for @search_artist_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for artist or group'**
+  String get search_artist_hint;
 }
 
 class _AppLocalizationsDelegate
@@ -4627,8 +4584,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

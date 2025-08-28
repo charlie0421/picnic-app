@@ -185,7 +185,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get compatibility_purchase_confirm_title => 'Beli dengan Star Candy';
 
   @override
-  String compatibility_purchase_message(Object artistName) {
+  String compatibility_purchase_message(String artistName) {
     return 'Jika saya ingin mengetahui skor Goong-hap antara saya dan $artistName?';
   }
 
@@ -200,7 +200,7 @@ class AppLocalizationsId extends AppLocalizations {
       'ピクニック #피크닠 #아이돌궁 #Goonghap #피크닠합 #궁합';
 
   @override
-  String compatibility_share_message(Object artistName) {
+  String compatibility_share_message(String artistName) {
     return 'Berapa persen kompatibilitas kimia bersinar saya dengan $artistName ? Jantungku berdegup kencang!';
   }
 
@@ -619,12 +619,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get fortune_share_hashtag => '#piknik #신년운세 #Fourtuneteller';
 
   @override
-  String fortune_share_message(Object artistName) {
+  String fortune_share_message(String artistName) {
     return 'Penasaran dengan kekayaan ${artistName}di tahun 2025? Datanglah ke #피크닠 sekarang! Mari temukan takdir yang bersinar itu bersama-sama!';
   }
 
   @override
-  String fortune_title(Object year) {
+  String fortune_title(int year) {
     return 'Keberuntungan dari $year';
   }
 
@@ -657,7 +657,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_ads_get_star_candy => 'Dapatkan Permen Bintang dari Iklan';
 
   @override
-  String label_ads_limits(Object daily, Object hourly) {
+  String label_ads_limits(int hourly, int daily) {
     return '$hourly per jam, $daily per hari';
   }
 
@@ -1014,17 +1014,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_tabbar_vote_upcoming => 'Mendatang';
 
   @override
-  String label_time_ago_day(Object day) {
+  String label_time_ago_day(int day) {
     return '$day beberapa hari yang lalu';
   }
 
   @override
-  String label_time_ago_hour(Object hour) {
+  String label_time_ago_hour(int hour) {
     return '$hour beberapa jam yang lalu';
   }
 
   @override
-  String label_time_ago_minute(Object minute) {
+  String label_time_ago_minute(int minute) {
     return '$minute beberapa menit yang lalu';
   }
 
@@ -1425,7 +1425,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get post_not_found => 'Tidak ada tulisan yang ditemukan.';
 
   @override
-  String post_replying_comment(Object nickname) {
+  String post_replying_comment(String nickname) {
     return 'Membalas ke $nickname...';
   }
 
@@ -1575,8 +1575,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_content_hint => 'Masukkan isi konsultasi dengan detail';
 
   @override
-  String get qna_content_min_length =>
-      'Konten harus memiliki panjang minimal 10 karakter.';
+  String get qna_content_min_length => 'Isi konsultasi minimal 10 karakter';
 
   @override
   String get qna_content_required => 'Harap masukkan isi konsultasi';
@@ -1668,11 +1667,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_mark_resolved_success => 'Changed to resolved';
 
   @override
-  String get qna_no_answer_yet => 'Belum ada jawaban. Harap tunggu sebentar.';
-
-  @override
-  String get qna_no_inquiries =>
-      'No inquiries found. Press the + button to create a new one.';
+  String get qna_no_inquiries => 'No inquiry history';
 
   @override
   String get qna_no_inquiries_subtitle =>
@@ -1722,7 +1717,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_status_in_progress => 'In Progress';
 
   @override
-  String get qna_submit_button => 'Kirim Pertanyaan';
+  String get qna_submit_button => 'Daftar Konsultasi';
 
   @override
   String get qna_title => 'Judul';
@@ -1731,8 +1726,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_title_hint => 'Masukkan ringkasan konsultasi dengan singkat';
 
   @override
-  String get qna_title_min_length =>
-      'Judul harus memiliki panjang minimal 5 karakter.';
+  String get qna_title_min_length => 'Judul minimal 5 karakter';
 
   @override
   String get qna_title_required => 'Harap masukkan judul';
@@ -1789,8 +1783,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get success => 'Berhasil';
 
   @override
-  String text_achievement(Object count) {
-    return '🎉 Anda telah mencapai target \$$count sejauh ini! 🎉';
+  String text_achievement(int count) {
+    return '🎉 Anda telah mencapai $count target sejauh ini! 🎉';
   }
 
   @override
@@ -1871,7 +1865,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_star_candy => 'Bintang Permen';
 
   @override
-  String text_star_candy_with_bonus(Object num1) {
+  String text_star_candy_with_bonus(int num1) {
     return '$num1 + $num1 Bonus';
   }
 
@@ -1894,7 +1888,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_vote_ended => 'Berakhir';
 
   @override
-  String text_vote_rank(Object rank) {
+  String text_vote_rank(int rank) {
     return 'Rank $rank';
   }
 
@@ -1902,7 +1896,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_vote_rank_in_reward => 'Peringkat dalam Penghargaan';
 
   @override
-  String text_vote_reward(Object count) {
+  String text_vote_reward(int count) {
     return '$count hadiah';
   }
 
@@ -1954,12 +1948,12 @@ class AppLocalizationsId extends AppLocalizations {
       'Saya tidak bisa membuka toko aplikasi.';
 
   @override
-  String update_recommend_text(Object version) {
+  String update_recommend_text(String version) {
     return 'Versi baru ($version) tersedia.';
   }
 
   @override
-  String update_required_text(Object version) {
+  String update_required_text(String version) {
     return 'Anda perlu memperbarui ke versi baru ($version).';
   }
 
@@ -1999,7 +1993,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Permohonan Item Saat Ini';
 
   @override
-  String vote_item_request_item_request_count(Object count) {
+  String vote_item_request_item_request_count(int count) {
     return '$count permintaan item';
   }
 
@@ -2046,7 +2040,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Permintaan Pemungutan Suara untuk Seniman';
 
   @override
-  String vote_item_request_total_item_requests(Object count) {
+  String vote_item_request_total_item_requests(int count) {
     return 'Total permintaan item $count';
   }
 
@@ -2138,7 +2132,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get capture_failed => 'Gagal menangkap';
 
   @override
-  String get qna_submit_success => 'Pertanyaan berhasil dikirim.';
+  String get qna_submit_success => 'Pertanyaan Anda berhasil dikirim';
 
   @override
   String get qna_submit_error => 'Terjadi kesalahan saat mengirim pertanyaan';
@@ -2153,52 +2147,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_list_title => 'Daftar Q&A';
-
-  @override
-  String get qna_list_error_title => 'Failed to load inquiries';
-
-  @override
-  String get qna_list_retry_button => 'Retry';
-
-  @override
-  String get qna_list_empty_description =>
-      'If you have any questions, feel free to ask!';
-
-  @override
-  String get qna_create_title => 'Pertanyaan Baru';
-
-  @override
-  String get qna_form_title => 'Judul';
-
-  @override
-  String get qna_form_title_empty => 'Harap masukkan judul.';
-
-  @override
-  String get qna_form_content => 'Konten';
-
-  @override
-  String get qna_form_content_empty => 'Harap masukkan konten pertanyaan Anda.';
-
-  @override
-  String get qna_message_hint => 'Masukkan pesan';
-
-  @override
-  String get qna_error_message => 'Terjadi kesalahan';
-
-  @override
-  String get qna_empty_list => 'Tidak ada riwayat pertanyaan';
-
-  @override
-  String get qna_create_first => 'Tulis pertanyaan pertama Anda';
-
-  @override
-  String get days_ago => ' hari lalu';
-
-  @override
-  String get hours_ago => ' jam lalu';
-
-  @override
-  String get minutes_ago => ' menit lalu';
 
   @override
   String get starCandy100 => '100 Star Candy';
@@ -2231,17 +2179,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get vote_item_request_no_search_results => 'Tidak ada hasil pencarian';
 
   @override
-  String jma_voting_star_candy_shortage(Object shortage) {
+  String jma_voting_star_candy_shortage(int shortage) {
     return 'Anda kekurangan $shortage permen bintang.';
   }
 
   @override
-  String jma_voting_max_votes_exceeded(Object maxVotes) {
+  String jma_voting_max_votes_exceeded(int maxVotes) {
     return 'Jumlah maksimum vote yang dapat dilakukan saat ini adalah $maxVotes.';
   }
 
   @override
-  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+  String jma_voting_daily_limit_remaining(int remaining, int max) {
     return 'Sisa vote bonus hari ini: $remaining kali (maksimal $max kali)';
   }
 
@@ -2259,23 +2207,22 @@ class AppLocalizationsId extends AppLocalizations {
   String get jma_voting_use_all => 'Gunakan Semua';
 
   @override
-  String jma_voting_max_usable(Object amount) {
+  String jma_voting_max_usable(int amount) {
     return 'Maksimal $amount tersedia';
   }
 
   @override
-  String jma_voting_bonus_only(Object amount, Object votes) {
+  String jma_voting_bonus_only(int amount, int votes) {
     return 'Gunakan $amount Star Candy bonus → $votes vote';
   }
 
   @override
-  String jma_voting_bonus_plus_regular(
-      Object bonus, Object regular, Object votes) {
+  String jma_voting_bonus_plus_regular(int bonus, int regular, int votes) {
     return 'Bonus $bonus + Star Candy $regular → $votes vote';
   }
 
   @override
-  String jma_voting_regular_only(Object amount, Object votes) {
+  String jma_voting_regular_only(int amount, int votes) {
     return 'Star Candy $amount → $votes vote';
   }
 
@@ -2391,11 +2338,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_form_title_hint =>
-      'Harap masukkan judul setidaknya 5 karakter.';
+      'Silakan masukkan judul minimal 5 karakter.';
 
   @override
   String get qna_form_content_hint =>
-      'Harap masukkan konten setidaknya 10 karakter.';
+      'Silakan masukkan konten minimal 10 karakter.';
 
   @override
   String get qna_attach_image => 'Lampirkan Gambar';
@@ -2407,21 +2354,21 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_attach_media => 'Attach Photo/Video';
 
   @override
-  String file_too_large_message(Object fileName, Object maxSize) {
+  String file_too_large_message(String fileName, int maxSize) {
     return '$fileName exceeds the ${maxSize}MB size limit.';
   }
 
   @override
-  String get qna_submit_fail => 'Gagal mengirimkan pertanyaan';
+  String get qna_submit_fail => 'Gagal mengirim pertanyaan';
 
   @override
-  String qna_file_size_limit_notice(Object maxSize) {
-    return 'Anda dapat melampirkan file hingga ${maxSize}MB.';
+  String qna_file_size_limit_notice(int maxSize) {
+    return 'Anda dapat melampirkan berkas hingga ${maxSize}MB.';
   }
 
   @override
   String get qna_cannot_send_message_closed =>
-      'Pertanyaan ini telah ditutup dan Anda tidak dapat lagi mengirim pesan.';
+      'Konsultasi ini telah ditutup dan Anda tidak dapat lagi mengirim pesan.';
 
   @override
   String get qna_message_sent_success => 'Pesan berhasil dikirim.';
@@ -2430,10 +2377,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_message_sent_fail => 'Gagal mengirim pesan';
 
   @override
-  String get qna_add_media_tooltip => 'Tambah Media';
+  String get qna_no_answer_yet => 'Belum ada jawaban';
 
   @override
-  String get qna_load_fail_title => 'Gagal memuat pertanyaan';
+  String get qna_add_media_tooltip => 'Tambahkan Media';
+
+  @override
+  String get qna_load_fail_title => 'Gagal memuat konsultasi';
+
+  @override
+  String get qna_message_hint => 'Masukkan pesan';
 
   @override
   String get jmaVoteTicket => 'JMA Vote Ticket';
@@ -2452,4 +2405,27 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get label_my_vote_history => 'Riwayat Voting Saya';
+
+  @override
+  String get error_verification_timeout =>
+      'Purchase processing timed out. Please check your network connection and try again.';
+
+  @override
+  String get error_authentication_timeout =>
+      'Touch ID/Face ID authentication timed out. Please try again.';
+
+  @override
+  String get qna_answer_title => 'Answer';
+
+  @override
+  String get qna_created_at => 'Created at';
+
+  @override
+  String get qna_info_title => 'Inquiry Info';
+
+  @override
+  String get qna_empty_message => 'No inquiries';
+
+  @override
+  String get search_artist_hint => 'Search for artist or group';
 }

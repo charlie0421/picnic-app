@@ -177,7 +177,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get compatibility_purchase_confirm_title => '用星星糖果购买';
 
   @override
-  String compatibility_purchase_message(Object artistName) {
+  String compatibility_purchase_message(String artistName) {
     return '如果我想知道我和 $artistName之间的 Goong-hap 分数？';
   }
 
@@ -192,7 +192,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합';
 
   @override
-  String compatibility_share_message(Object artistName) {
+  String compatibility_share_message(String artistName) {
     return '我的闪亮化学兼容性与 $artistName 的百分比是多少？?我的心在狂跳';
   }
 
@@ -583,12 +583,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fortune_share_hashtag => '#picnic #신년운세 #Fourtuneteller';
 
   @override
-  String fortune_share_message(Object artistName) {
+  String fortune_share_message(String artistName) {
     return '对 $artistName的 2025 年财富感到好奇？现在就来 #피크닠！让我们一起探索那闪耀的命运！';
   }
 
   @override
-  String fortune_title(Object year) {
+  String fortune_title(int year) {
     return '$year财富';
   }
 
@@ -620,7 +620,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_ads_get_star_candy => '从广告中获取星星糖果';
 
   @override
-  String label_ads_limits(Object daily, Object hourly) {
+  String label_ads_limits(int hourly, int daily) {
     return '$hourly 每小时， $daily 每天';
   }
 
@@ -970,17 +970,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label_tabbar_vote_upcoming => '即将推出';
 
   @override
-  String label_time_ago_day(Object day) {
+  String label_time_ago_day(int day) {
     return '$day 日前';
   }
 
   @override
-  String label_time_ago_hour(Object hour) {
+  String label_time_ago_hour(int hour) {
     return '$hour 小时前';
   }
 
   @override
-  String label_time_ago_minute(Object minute) {
+  String label_time_ago_minute(int minute) {
     return '$minute 分钟前';
   }
 
@@ -1358,7 +1358,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get post_not_found => '未找到任何帖子。';
 
   @override
-  String post_replying_comment(Object nickname) {
+  String post_replying_comment(String nickname) {
     return '回复 $nickname...';
   }
 
@@ -1496,7 +1496,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_content_hint => '请详细输入咨询内容';
 
   @override
-  String get qna_content_min_length => '内容至少需要10个字符。';
+  String get qna_content_min_length => '咨询内容至少需要10个字符';
 
   @override
   String get qna_content_required => '请输入咨询内容';
@@ -1584,9 +1584,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_mark_resolved_success => 'Changed to resolved';
 
   @override
-  String get qna_no_answer_yet => '还没有答案。请稍等。';
-
-  @override
   String get qna_no_inquiries => '没有找到咨询。按+按钮创建一个新的。';
 
   @override
@@ -1636,7 +1633,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_status_in_progress => 'In Progress';
 
   @override
-  String get qna_submit_button => '提交查询';
+  String get qna_submit_button => '提交咨询';
 
   @override
   String get qna_title => '标题';
@@ -1645,7 +1642,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_title_hint => '请简洁地输入咨询概要';
 
   @override
-  String get qna_title_min_length => '标题至少需要5个字符。';
+  String get qna_title_min_length => '标题至少需要5个字符';
 
   @override
   String get qna_title_required => '请输入标题';
@@ -1702,8 +1699,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get success => '成功';
 
   @override
-  String text_achievement(Object count) {
-    return '到目前为止，您已实现 \$$count 目标！🎉';
+  String text_achievement(int count) {
+    return '到目前为止，您已实现 $count 目标！🎉';
   }
 
   @override
@@ -1778,7 +1775,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_star_candy => '星形糖果';
 
   @override
-  String text_star_candy_with_bonus(Object num1) {
+  String text_star_candy_with_bonus(int num1) {
     return '$num1 + $num1 奖金';
   }
 
@@ -1801,7 +1798,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_vote_ended => '已结束';
 
   @override
-  String text_vote_rank(Object rank) {
+  String text_vote_rank(int rank) {
     return '排名 $rank';
   }
 
@@ -1809,7 +1806,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get text_vote_rank_in_reward => '奖励排名';
 
   @override
-  String text_vote_reward(Object count) {
+  String text_vote_reward(int count) {
     return '$count 奖励';
   }
 
@@ -1859,12 +1856,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get update_cannot_open_appstore => '我无法打开应用程序商店。';
 
   @override
-  String update_recommend_text(Object version) {
+  String update_recommend_text(String version) {
     return '新版本 ($version) 已发布。';
   }
 
   @override
-  String update_required_text(Object version) {
+  String update_required_text(String version) {
     return '您需要更新到新版本 ($version)。';
   }
 
@@ -1899,7 +1896,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vote_item_request_current_item_request => '当前项目请求';
 
   @override
-  String vote_item_request_item_request_count(Object count) {
+  String vote_item_request_item_request_count(int count) {
     return '$count 项目请求';
   }
 
@@ -1943,7 +1940,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vote_item_request_title => '投票艺术家请求';
 
   @override
-  String vote_item_request_total_item_requests(Object count) {
+  String vote_item_request_total_item_requests(int count) {
     return '总 $count 项请求';
   }
 
@@ -2032,65 +2029,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get capture_failed => '截图失败';
 
   @override
-  String get qna_submit_success => '查询已成功提交。';
+  String get qna_submit_success =>
+      'Your inquiry has been successfully submitted';
 
   @override
   String get qna_submit_error => '提交咨询失败，请重试。';
 
   @override
-  String get qna_title_too_short => '请输入至少2个字符的标题';
+  String get qna_title_too_short =>
+      'Please enter at least 2 characters for the title';
 
   @override
-  String get qna_content_too_short => '请输入至少10个字符的内容';
+  String get qna_content_too_short =>
+      'Please enter at least 10 characters for the content';
 
   @override
   String get qna_list_title => '咨询列表';
-
-  @override
-  String get qna_list_error_title => 'Failed to load inquiries';
-
-  @override
-  String get qna_list_retry_button => 'Retry';
-
-  @override
-  String get qna_list_empty_description =>
-      'If you have any questions, feel free to ask!';
-
-  @override
-  String get qna_create_title => '新的询问';
-
-  @override
-  String get qna_form_title => '标题';
-
-  @override
-  String get qna_form_title_empty => '请输入标题。';
-
-  @override
-  String get qna_form_content => '内容';
-
-  @override
-  String get qna_form_content_empty => '请输入您的查询内容。';
-
-  @override
-  String get qna_message_hint => '输入消息';
-
-  @override
-  String get qna_error_message => 'An error occurred';
-
-  @override
-  String get qna_empty_list => 'No inquiry history';
-
-  @override
-  String get qna_create_first => 'Write your first question';
-
-  @override
-  String get days_ago => ' days ago';
-
-  @override
-  String get hours_ago => ' hours ago';
-
-  @override
-  String get minutes_ago => ' minutes ago';
 
   @override
   String get starCandy100 => '100 Star Candy';
@@ -2123,17 +2077,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vote_item_request_no_search_results => 'No search results';
 
   @override
-  String jma_voting_star_candy_shortage(Object shortage) {
+  String jma_voting_star_candy_shortage(int shortage) {
     return 'You need $shortage more star candies.';
   }
 
   @override
-  String jma_voting_max_votes_exceeded(Object maxVotes) {
+  String jma_voting_max_votes_exceeded(int maxVotes) {
     return 'The current maximum possible votes is $maxVotes.';
   }
 
   @override
-  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+  String jma_voting_daily_limit_remaining(int remaining, int max) {
     return 'Today\'s remaining bonus votes: $remaining times (max $max times)';
   }
 
@@ -2151,23 +2105,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get jma_voting_use_all => 'Use All';
 
   @override
-  String jma_voting_max_usable(Object amount) {
+  String jma_voting_max_usable(int amount) {
     return 'Maximum $amount available';
   }
 
   @override
-  String jma_voting_bonus_only(Object amount, Object votes) {
+  String jma_voting_bonus_only(int amount, int votes) {
     return 'Use $amount bonus Star Candy → $votes votes';
   }
 
   @override
-  String jma_voting_bonus_plus_regular(
-      Object bonus, Object regular, Object votes) {
+  String jma_voting_bonus_plus_regular(int bonus, int regular, int votes) {
     return 'Bonus $bonus + Star Candy $regular → $votes votes';
   }
 
   @override
-  String jma_voting_regular_only(Object amount, Object votes) {
+  String jma_voting_regular_only(int amount, int votes) {
     return 'Star Candy $amount → $votes votes';
   }
 
@@ -2194,86 +2147,95 @@ class AppLocalizationsZh extends AppLocalizations {
   String get jma_voting_exchange_failed_title => 'Exchange Failed';
 
   @override
-  String get search_input_text_hint => '搜索';
+  String get search_input_text_hint => 'Search';
 
   @override
-  String get submit => '提交';
+  String get submit => 'Submit';
 
   @override
-  String get next => '下一个';
+  String get next => 'Next';
 
   @override
-  String get bonus_candy_expiration_policy_title => '奖励星星糖果失效规定';
+  String get bonus_candy_expiration_policy_title =>
+      'Bonus Star Candy Expiration Policy';
 
   @override
-  String get expiring_soon_bonus_candy => '即将过期的奖励星星糖果';
+  String get expiring_soon_bonus_candy => 'Expiring Bonus Star Candy';
 
   @override
-  String get expiring_bonus_candy_guide => '即将过期的奖励指南';
+  String get expiring_bonus_candy_guide => 'Expiring Bonus Guide';
 
   @override
-  String get bonus_candy_expiration_policy_load_fail => '加载即将过期的奖励信息失败。';
+  String get bonus_candy_expiration_policy_load_fail =>
+      'Failed to load expiring bonus information.';
 
   @override
-  String get bonus_candy_expiration_time_title => '失效时间点';
+  String get bonus_candy_expiration_time_title => 'Expiration Time';
 
   @override
-  String get bonus_candy_policy_title => '奖励星星糖果政策';
+  String get bonus_candy_policy_title => 'Bonus Star Candy Policy';
 
   @override
-  String get bonus_candy_policy_1 => '- 从免费充电站获得的奖励星星糖果和购买时额外赠送的奖励星星糖果有有效期。';
+  String get bonus_candy_policy_1 =>
+      '- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.';
 
   @override
-  String get bonus_candy_policy_2 => '- 使用星星糖果时，将优先扣除有效期临近的奖励星星糖果。';
+  String get bonus_candy_policy_2 =>
+      '- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.';
 
   @override
-  String get bonus_candy_policy_3 => '- 已失效的奖励星星糖果无法恢复，请务必在有效期内使用。';
+  String get bonus_candy_policy_3 =>
+      '- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.';
 
   @override
-  String get bonus_candy_expiration_policy_earn_period => '赚取期间';
+  String get bonus_candy_expiration_policy_earn_period => 'Earn Period';
 
   @override
-  String get bonus_candy_expiration_policy_expiration_date => '到期日期';
+  String get bonus_candy_expiration_policy_expiration_date => 'Expiration Date';
 
   @override
-  String get bonus_candy_earn_period_1_to_15 => '1日 00:00:00 ~ 15日 23:59:59';
+  String get bonus_candy_earn_period_1_to_15 => '1st 00:00:00 ~ 15th 23:59:59';
 
   @override
-  String get bonus_candy_earn_period_16_to_end => '16日 00:00:00 ~ 月底 23:59:59';
+  String get bonus_candy_earn_period_16_to_end =>
+      '16th 00:00:00 ~ end of month 23:59:59';
 
   @override
-  String get bonus_candy_expiration_next_month => '次月15日 00:00:00';
+  String get bonus_candy_expiration_next_month => 'Next month 15th 00:00:00';
 
   @override
-  String get bonus_candy_expiration_month_after_next => '下下月15日 00:00:00';
+  String get bonus_candy_expiration_month_after_next =>
+      'Month after next 15th 00:00:00';
 
   @override
-  String get bonus_candy_example_title => '例子';
+  String get bonus_candy_example_title => 'Example';
 
   @override
-  String get bonus_candy_example_earn_date => '赚取日期';
+  String get bonus_candy_example_earn_date => 'Earn Date';
 
   @override
-  String get bonus_candy_example_expiration_date => '到期日期';
+  String get bonus_candy_example_expiration_date => 'Expiration Date';
 
   @override
-  String get bonus_candy_example_1_earn => '__MONTH__月10日 14:00(KST)';
+  String get bonus_candy_example_1_earn => '__MONTH__ 10th 14:00(KST)';
 
   @override
-  String get bonus_candy_example_1_expire => '__NEXT_MONTH__月15日 00:00(KST)';
+  String get bonus_candy_example_1_expire => '__NEXT_MONTH__ 15th 00:00(KST)';
 
   @override
-  String get bonus_candy_example_2_earn => '__MONTH__月20日 14:00(KST)';
+  String get bonus_candy_example_2_earn => '__MONTH__ 20th 14:00(KST)';
 
   @override
   String get bonus_candy_example_2_expire =>
-      '__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)';
+      '__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)';
 
   @override
-  String get qna_form_title_hint => '请输入至少5个字符的标题。';
+  String get qna_form_title_hint =>
+      'Please enter a title of at least 5 characters.';
 
   @override
-  String get qna_form_content_hint => '请输入至少10个字符的内容。';
+  String get qna_form_content_hint =>
+      'Please enter content of at least 10 characters.';
 
   @override
   String get qna_attach_image => '附上图片';
@@ -2285,7 +2247,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_attach_media => 'Attach Photo/Video';
 
   @override
-  String file_too_large_message(Object fileName, Object maxSize) {
+  String file_too_large_message(String fileName, int maxSize) {
     return '$fileName exceeds the ${maxSize}MB size limit.';
   }
 
@@ -2293,7 +2255,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_submit_fail => '提交查询失败';
 
   @override
-  String qna_file_size_limit_notice(Object maxSize) {
+  String qna_file_size_limit_notice(int maxSize) {
     return '最大可附加${maxSize}MB的文件。';
   }
 
@@ -2307,10 +2269,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qna_message_sent_fail => '发送消息失败';
 
   @override
+  String get qna_no_answer_yet => '还没有答案。请稍等。';
+
+  @override
   String get qna_add_media_tooltip => '添加媒体';
 
   @override
   String get qna_load_fail_title => '加载查询失败';
+
+  @override
+  String get qna_message_hint => '输入消息';
 
   @override
   String get jmaVoteTicket => 'JMA Vote Ticket';
@@ -2329,4 +2297,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get label_my_vote_history => '我的投票历史';
+
+  @override
+  String get error_verification_timeout =>
+      'Purchase processing timed out. Please check your network connection and try again.';
+
+  @override
+  String get error_authentication_timeout =>
+      'Touch ID/Face ID authentication timed out. Please try again.';
+
+  @override
+  String get qna_answer_title => 'Answer';
+
+  @override
+  String get qna_created_at => 'Created at';
+
+  @override
+  String get qna_info_title => 'Inquiry Info';
+
+  @override
+  String get qna_empty_message => 'No inquiries';
+
+  @override
+  String get search_artist_hint => 'Search for artist or group';
 }

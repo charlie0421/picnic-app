@@ -184,7 +184,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compatibility_purchase_confirm_title => 'Purchase with Star Candy';
 
   @override
-  String compatibility_purchase_message(Object artistName) {
+  String compatibility_purchase_message(String artistName) {
     return 'If I want to know the Goong-hap score between me and the $artistName?';
   }
 
@@ -199,7 +199,7 @@ class AppLocalizationsEn extends AppLocalizations {
       '#Picnic #피크닠 #아이돌궁합 #Goonghap #피크닠궁합';
 
   @override
-  String compatibility_share_message(Object artistName) {
+  String compatibility_share_message(String artistName) {
     return 'What percentage is my shining chemistry compatibility with $artistName ? My heart is racing!';
   }
 
@@ -618,12 +618,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fortune_share_hashtag => '#picnic #신년운세 #Fourtuneteller';
 
   @override
-  String fortune_share_message(Object artistName) {
+  String fortune_share_message(String artistName) {
     return 'Curious about $artistName\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!';
   }
 
   @override
-  String fortune_title(Object year) {
+  String fortune_title(int year) {
     return 'Fortune of $year';
   }
 
@@ -656,7 +656,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_ads_get_star_candy => 'Get Star Candy from Ads';
 
   @override
-  String label_ads_limits(Object daily, Object hourly) {
+  String label_ads_limits(int hourly, int daily) {
     return '$hourly per hour, $daily per day';
   }
 
@@ -1010,17 +1010,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
-  String label_time_ago_day(Object day) {
+  String label_time_ago_day(int day) {
     return '$day days ago';
   }
 
   @override
-  String label_time_ago_hour(Object hour) {
+  String label_time_ago_hour(int hour) {
     return '$hour hours ago';
   }
 
   @override
-  String label_time_ago_minute(Object minute) {
+  String label_time_ago_minute(int minute) {
     return '$minute minutes ago';
   }
 
@@ -1418,7 +1418,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get post_not_found => 'No posts were found.';
 
   @override
-  String post_replying_comment(Object nickname) {
+  String post_replying_comment(String nickname) {
     return 'Replying to $nickname...';
   }
 
@@ -1570,7 +1570,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qna_content_min_length =>
-      'Content must be at least 10 characters long.';
+      'Inquiry content must be at least 10 characters';
 
   @override
   String get qna_content_required => 'Please enter inquiry content';
@@ -1661,11 +1661,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_mark_resolved_success => 'Changed to resolved';
 
   @override
-  String get qna_no_answer_yet => 'No answer yet';
-
-  @override
-  String get qna_no_inquiries =>
-      'No inquiries found. Press the + button to create a new one.';
+  String get qna_no_inquiries => 'No inquiry history';
 
   @override
   String get qna_no_inquiries_subtitle =>
@@ -1724,8 +1720,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_title_hint => 'Please enter a brief summary of your inquiry';
 
   @override
-  String get qna_title_min_length =>
-      'Title must be at least 5 characters long.';
+  String get qna_title_min_length => 'Title must be at least 5 characters';
 
   @override
   String get qna_title_required => 'Please enter a title';
@@ -1782,8 +1777,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get success => 'Success';
 
   @override
-  String text_achievement(Object count) {
-    return '🎉 You\'ve reached \$$count goals so far! 🎉';
+  String text_achievement(int count) {
+    return '🎉 You\'ve reached $count goals so far! 🎉';
   }
 
   @override
@@ -1862,7 +1857,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_star_candy => 'Star Candy';
 
   @override
-  String text_star_candy_with_bonus(Object num1) {
+  String text_star_candy_with_bonus(int num1) {
     return '$num1 + $num1 Bonuses';
   }
 
@@ -1885,7 +1880,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_vote_ended => 'Ended';
 
   @override
-  String text_vote_rank(Object rank) {
+  String text_vote_rank(int rank) {
     return 'Rank $rank';
   }
 
@@ -1893,7 +1888,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get text_vote_rank_in_reward => 'Rank in Rewards';
 
   @override
-  String text_vote_reward(Object count) {
+  String text_vote_reward(int count) {
     return '$count reward';
   }
 
@@ -1944,12 +1939,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get update_cannot_open_appstore => 'I can\'t open the app store.';
 
   @override
-  String update_recommend_text(Object version) {
+  String update_recommend_text(String version) {
     return 'A new version ($version) is available.';
   }
 
   @override
-  String update_required_text(Object version) {
+  String update_required_text(String version) {
     return 'You need to update to a new version ($version).';
   }
 
@@ -1986,7 +1981,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vote_item_request_current_item_request => 'Current Artist Request';
 
   @override
-  String vote_item_request_item_request_count(Object count) {
+  String vote_item_request_item_request_count(int count) {
     return '$count artists requests';
   }
 
@@ -2032,7 +2027,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vote_item_request_title => 'Vote Artist Request';
 
   @override
-  String vote_item_request_total_item_requests(Object count) {
+  String vote_item_request_total_item_requests(int count) {
     return 'Total $count artists requests';
   }
 
@@ -2125,7 +2120,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get capture_failed => 'Capture failed';
 
   @override
-  String get qna_submit_success => 'Inquiry submitted successfully.';
+  String get qna_submit_success =>
+      'Your inquiry has been successfully submitted';
 
   @override
   String get qna_submit_error =>
@@ -2141,53 +2137,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qna_list_title => 'My Inquiries';
-
-  @override
-  String get qna_list_error_title => 'Failed to load inquiries';
-
-  @override
-  String get qna_list_retry_button => 'Retry';
-
-  @override
-  String get qna_list_empty_description =>
-      'If you have any questions, feel free to ask!';
-
-  @override
-  String get qna_create_title => 'New Inquiry';
-
-  @override
-  String get qna_form_title => 'Title';
-
-  @override
-  String get qna_form_title_empty => 'Please enter a title.';
-
-  @override
-  String get qna_form_content => 'Content';
-
-  @override
-  String get qna_form_content_empty =>
-      'Please enter the content of your inquiry.';
-
-  @override
-  String get qna_message_hint => 'Enter a message';
-
-  @override
-  String get qna_error_message => 'An error occurred';
-
-  @override
-  String get qna_empty_list => 'No inquiry history';
-
-  @override
-  String get qna_create_first => 'Write your first question';
-
-  @override
-  String get days_ago => ' days ago';
-
-  @override
-  String get hours_ago => ' hours ago';
-
-  @override
-  String get minutes_ago => ' minutes ago';
 
   @override
   String get starCandy100 => '100 Star Candy';
@@ -2220,17 +2169,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vote_item_request_no_search_results => 'No search results';
 
   @override
-  String jma_voting_star_candy_shortage(Object shortage) {
+  String jma_voting_star_candy_shortage(int shortage) {
     return 'You need $shortage more star candies.';
   }
 
   @override
-  String jma_voting_max_votes_exceeded(Object maxVotes) {
+  String jma_voting_max_votes_exceeded(int maxVotes) {
     return 'The current maximum possible votes is $maxVotes.';
   }
 
   @override
-  String jma_voting_daily_limit_remaining(Object max, Object remaining) {
+  String jma_voting_daily_limit_remaining(int remaining, int max) {
     return 'Today\'s remaining bonus votes: $remaining times (max $max times)';
   }
 
@@ -2248,23 +2197,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jma_voting_use_all => 'Use All';
 
   @override
-  String jma_voting_max_usable(Object amount) {
+  String jma_voting_max_usable(int amount) {
     return 'Maximum $amount available';
   }
 
   @override
-  String jma_voting_bonus_only(Object amount, Object votes) {
+  String jma_voting_bonus_only(int amount, int votes) {
     return 'Use $amount bonus Star Candy → $votes votes';
   }
 
   @override
-  String jma_voting_bonus_plus_regular(
-      Object bonus, Object regular, Object votes) {
+  String jma_voting_bonus_plus_regular(int bonus, int regular, int votes) {
     return 'Bonus $bonus + Star Candy $regular → $votes votes';
   }
 
   @override
-  String jma_voting_regular_only(Object amount, Object votes) {
+  String jma_voting_regular_only(int amount, int votes) {
     return 'Star Candy $amount → $votes votes';
   }
 
@@ -2391,7 +2339,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_attach_media => 'Attach Photo/Video';
 
   @override
-  String file_too_large_message(Object fileName, Object maxSize) {
+  String file_too_large_message(String fileName, int maxSize) {
     return '$fileName exceeds the ${maxSize}MB size limit.';
   }
 
@@ -2399,7 +2347,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_submit_fail => 'Failed to submit inquiry';
 
   @override
-  String qna_file_size_limit_notice(Object maxSize) {
+  String qna_file_size_limit_notice(int maxSize) {
     return 'You can attach files up to ${maxSize}MB.';
   }
 
@@ -2414,10 +2362,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qna_message_sent_fail => 'Failed to send message';
 
   @override
+  String get qna_no_answer_yet => 'No answer yet';
+
+  @override
   String get qna_add_media_tooltip => 'Add Media';
 
   @override
   String get qna_load_fail_title => 'Failed to load inquiries';
+
+  @override
+  String get qna_message_hint => 'Enter message';
 
   @override
   String get jmaVoteTicket => 'JMA Vote Ticket';
@@ -2436,4 +2390,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get label_my_vote_history => 'My Vote History';
+
+  @override
+  String get error_verification_timeout =>
+      'Purchase processing timed out. Please check your network connection and try again.';
+
+  @override
+  String get error_authentication_timeout =>
+      'Touch ID/Face ID authentication timed out. Please try again.';
+
+  @override
+  String get qna_answer_title => 'Answer';
+
+  @override
+  String get qna_created_at => 'Created at';
+
+  @override
+  String get qna_info_title => 'Inquiry Info';
+
+  @override
+  String get qna_empty_message => 'No inquiries';
+
+  @override
+  String get search_artist_hint => 'Search for artist or group';
 }
