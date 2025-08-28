@@ -5,8 +5,8 @@ version: 0.0.1
 publish_to: none
 
 environment:
-  sdk: ^3.6.0
-  flutter: ">=3.0.0"
+  sdk: ^3.9.0
+  flutter: ">=3.22.0"
 
 dependencies:
   flutter:
@@ -32,16 +32,16 @@ dependencies:
   image_picker: ^1.1.2
   riverpod: ^2.6.1
   package_info_plus: ^8.1.2
-  flutter_riverpod: ^2.4.9
+  flutter_riverpod: ^2.6.1
   flutter_svg: ^2.0.16
   load_switch: ^2.1.0
-  riverpod_annotation: ^2.3.3
+  riverpod_annotation: ^2.6.1
   flutter_quill: ^11.4.1
   intl: ^0.20.2
   camera: ^0.11.1
   flutter_screenutil: ^5.9.3
   overlay_loading_progress: ^1.0.1
-  reflectable: ^4.0.10
+  
   cached_network_image: ^3.4.1
   card_swiper: ^3.0.1
   infinite_scroll_pagination: ^5.0.0
@@ -52,11 +52,11 @@ dependencies:
   screen_protector: ^1.4.2+1
   bubble_box: ^0.5.3
   supabase_flutter: ^2.9.1
-  google_sign_in: ^6.2.2
+  google_sign_in: ^7.1.1
   sign_in_with_apple: ^7.0.1
   kakao_flutter_sdk_user: ^1.9.6
   fluwx: ^5.7.1
-  firebase_core: ^3.9.0
+  firebase_core: ^4.0.0
   image: ^4.3.0
   image_gallery_saver_plus: ^4.0.0-0.alpha
   in_app_purchase: ^3.2.0
@@ -72,11 +72,11 @@ dependencies:
   chewie: ^1.7.5
   video_thumbnail: ^0.5.6
   deepl_dart: ^2.0.0
-  firebase_analytics: ^11.3.6
+  firebase_analytics: ^12.0.0
   timezone: ^0.10.0
   connectivity_plus: ^6.1.1
   image_cropper: ^9.0.0
-  flutter_inappwebview: ^6.1.5
+  flutter_inappwebview: ^6.1.7
   version: ^3.0.2
   rxdart: ^0.28.0
   universal_html: ^2.2.4
@@ -94,7 +94,7 @@ dependencies:
   path: ^1.9.0
   stack_trace: ^1.11.1
   in_app_purchase_android: ^0.4.0+1
-  in_app_purchase_storekit: 0.4.2
+  in_app_purchase_storekit: ^0.4.4
   tapjoy_offerwall: ^14.2.1
   flutter_branch_sdk: ^8.3.2
   unity_ads_plugin: ^0.3.23
@@ -109,14 +109,13 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   json_serializable: ^6.9.0
-  riverpod_generator: ^2.3.9
+  riverpod_generator: ^2.6.4
   intl_utils: ^2.8.7
   build_runner: ^2.4.13
-  custom_lint: ^0.7.0
-  riverpod_lint: ^2.6.3
+  
   change_app_package_name: ^1.4.0
-  freezed: ^2.5.7
-  intl_translation: ^0.20.1
+  freezed: ^2.5.8
+  
   delete_un_used_assets: ^1.0.1
   flutter_assets_cleaner: ^0.0.9
   test: ^1.25.15

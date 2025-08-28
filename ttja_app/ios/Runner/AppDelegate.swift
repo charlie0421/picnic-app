@@ -1,5 +1,7 @@
 import Flutter
+#if canImport(PAGAdSDK)
 import PAGAdSDK
+#endif
 import PincruxOfferwall
 import UIKit
 
@@ -14,6 +16,7 @@ import UIKit
     ) -> Bool {
         let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
 
+        #if canImport(PAGAdSDK)
         // Pangle 채널 생성 및 저장
         let pangleChannel = FlutterMethodChannel(
             name: "pangle_native_channel",
@@ -26,6 +29,7 @@ import UIKit
         pangleChannel.setMethodCallHandler { [weak self] call, result in
             self?.pangleAdManager?.handleMethodCall(call, result: result)
         }
+        #endif
 
         let methodChannel = FlutterMethodChannel(
             name: "com.pincrux.offerwall.flutter", binaryMessenger: controller.binaryMessenger)
