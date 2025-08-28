@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/core/services/auth/social_login/wechat_login.dart';
-import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/social_login/apple_login.dart';
 import 'package:picnic_lib/core/services/auth/social_login/google_login.dart';
@@ -50,18 +47,14 @@ class AuthService {
     SecureStorageService? storageService,
     NetworkConnectivityService? networkService,
     Map<supa.OAuthProvider, SocialLogin>? loginProviders,
-  })  : _storageService = storageService ?? SecureStorageService(),
-        _networkService = networkService ?? NetworkConnectivityService(),
-        _loginProviders = loginProviders ?? _createDefaultLoginProviders();
+  }) : _storageService = storageService ?? SecureStorageService(),
+       _networkService = networkService ?? NetworkConnectivityService(),
+       _loginProviders = loginProviders ?? _createDefaultLoginProviders();
 
   static Map<supa.OAuthProvider, SocialLogin> _createDefaultLoginProviders() =>
       {
-        supa.OAuthProvider.google: GoogleLogin(GoogleSignIn(
-          // iOS에서는 GoogleService-Info.plist의 CLIENT_ID를 사용해야 하므로
-          // clientId를 전달하지 않습니다. (전달 시 불일치로 흰 화면/실패 가능)
-          clientId: UniversalPlatform.isIOS ? null : Environment.googleClientId,
-          serverClientId: Environment.googleServerClientId,
-        )),
+        // Google 로그인 재활성화 - 플랫폼별 권장 설정 적용
+        supa.OAuthProvider.google: GoogleLogin(),
         supa.OAuthProvider.apple: AppleLogin(),
         supa.OAuthProvider.kakao: KakaoLogin(),
         // WeChat 지원 추가
@@ -178,8 +171,11 @@ class AuthService {
           return true;
         }
       } catch (e, s) {
-        logger.e('Session recovery failed, trying refresh',
-            error: e, stackTrace: s);
+        logger.e(
+          'Session recovery failed, trying refresh',
+          error: e,
+          stackTrace: s,
+        );
       }
 
       // 복구 실패시 refresh 시도
@@ -192,8 +188,9 @@ class AuthService {
   }
 
   bool _isSessionExpired(Session session) {
-    final expiresAt =
-        DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000);
+    final expiresAt = DateTime.fromMillisecondsSinceEpoch(
+      session.expiresAt! * 1000,
+    );
     return DateTime.now().isAfter(expiresAt);
   }
 
@@ -217,8 +214,9 @@ class AuthService {
         return false;
       }
 
-      final response =
-          await supabase.auth.refreshSession().timeout(_timeouts.tokenRefresh);
+      final response = await supabase.auth.refreshSession().timeout(
+        _timeouts.tokenRefresh,
+      );
 
       if (response.session != null) {
         await _saveAndNotifySession(response.session!);
@@ -271,15 +269,19 @@ class AuthService {
       final parts = jwt.split('.');
       if (parts.length != 3) throw const FormatException('Invalid JWT format');
 
-      final payload =
-          String.fromCharCodes(base64Url.decode(base64Url.normalize(parts[1])));
+      final payload = String.fromCharCodes(
+        base64Url.decode(base64Url.normalize(parts[1])),
+      );
       final data = jsonDecode(payload);
 
       final provider = data['provider'] as String?;
       return _parseProvider(provider);
     } catch (e, s) {
-      logger.e('Error extracting provider from session',
-          error: e, stackTrace: s);
+      logger.e(
+        'Error extracting provider from session',
+        error: e,
+        stackTrace: s,
+      );
       return supa.OAuthProvider.google; // 기본값 반환
     }
   }

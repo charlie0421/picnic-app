@@ -42,10 +42,11 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
     ref.watch(userInfoProvider);
 
     return asyncPolicyState.when(
-        data: (data) => _buildPrivacy(data),
-        error: (error, stackTrace) =>
-            buildErrorView(context, error: error, stackTrace: stackTrace),
-        loading: () => buildLoadingOverlay());
+      data: (data) => _buildPrivacy(data),
+      error: (error, stackTrace) =>
+          buildErrorView(context, error: error, stackTrace: stackTrace),
+      loading: () => buildLoadingOverlay(),
+    );
   }
 
   Widget _buildPrivacy(PolicyModel data) {
@@ -70,7 +71,7 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
                 child: Material(
                   color: AppColors.grey200,
                   elevation: 3,
-                  shadowColor: AppColors.grey900.withOpacity(0.18),
+                  shadowColor: AppColors.grey900.withValues(alpha: 0.18),
                   shape: const CircleBorder(),
                   child: InkWell(
                     customBorder: const CircleBorder(),
@@ -99,17 +100,16 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
             ],
           ),
         ),
-        const SizedBox(
-          height: 5,
-        ),
+        const SizedBox(height: 5),
         Expanded(
           child: Container(
             color: AppColors.grey100,
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Markdown(
-                data: Localizations.localeOf(context).languageCode == 'ko'
-                    ? data.privacyKo.content
-                    : data.privacyEn.content),
+              data: Localizations.localeOf(context).languageCode == 'ko'
+                  ? data.privacyKo.content
+                  : data.privacyEn.content,
+            ),
           ),
         ),
         SizedBox(
@@ -119,89 +119,99 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      OverlayLoadingProgress.start(context);
+                onPressed: () async {
+                  try {
+                    OverlayLoadingProgress.start(context);
 
-                      bool ret = await ref.read(setAgreementProvider.future);
-                      logger.i(ret);
-                      if (ret == true) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          showSimpleDialog(
-                              title: AppLocalizations.of(context)
-                                  .title_dialog_success,
-                              contentWidget: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    AppLocalizations.of(context)
-                                        .message_agreement_success,
-                                    style: getTextStyle(
-                                        AppTypo.body16R, AppColors.grey900),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    formatCurrentTime(),
-                                    style: getTextStyle(
-                                        AppTypo.caption10SB, AppColors.grey500),
-                                  ),
-                                ],
-                              ),
-                              onOk: () {
-                                navigationInfoNotifier.setResetStackSignUp();
-                                final navContext = navigatorKey.currentContext;
-                                if (navContext != null && navContext.mounted) {
-                                  Navigator.of(navContext).pop();
-                                  Navigator.of(navContext).pop();
-                                }
-                              });
-                        });
-                      } else {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          showSimpleDialog(
-                              title: AppLocalizations.of(context)
-                                  .title_dialog_error,
-                              content: AppLocalizations.of(context)
-                                  .message_agreement_fail,
-                              onOk: () {
-                                final navContext = navigatorKey.currentContext;
-                                if (navContext != null && navContext.mounted) {
-                                  Navigator.of(navContext).pop();
-                                }
-                              });
-                        });
-                      }
-                    } catch (e, s) {
-                      logger.e('error', error: e, stackTrace: s);
-                      Sentry.captureException(
-                        e,
-                        stackTrace: s,
-                      );
-
+                    bool ret = await ref.read(setAgreementProvider.future);
+                    logger.i(ret);
+                    if (ret == true) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         showSimpleDialog(
-                            title:
-                                AppLocalizations.of(context).title_dialog_error,
-                            content: AppLocalizations.of(context)
-                                .message_agreement_fail,
-                            onOk: () {
-                              final navContext = navigatorKey.currentContext;
-                              if (navContext != null && navContext.mounted) {
-                                Navigator.of(navContext).pop();
-                              }
-                            });
+                          title: AppLocalizations.of(
+                            context,
+                          ).title_dialog_success,
+                          contentWidget: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                ).message_agreement_success,
+                                style: getTextStyle(
+                                  AppTypo.body16R,
+                                  AppColors.grey900,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                formatCurrentTime(),
+                                style: getTextStyle(
+                                  AppTypo.caption10SB,
+                                  AppColors.grey500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          onOk: () {
+                            navigationInfoNotifier.setResetStackSignUp();
+                            final navContext = navigatorKey.currentContext;
+                            if (navContext != null && navContext.mounted) {
+                              Navigator.of(navContext).pop();
+                              Navigator.of(navContext).pop();
+                            }
+                          },
+                        );
                       });
-                      rethrow;
-                    } finally {
-                      OverlayLoadingProgress.stop();
+                    } else {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        showSimpleDialog(
+                          title: AppLocalizations.of(
+                            context,
+                          ).title_dialog_error,
+                          content: AppLocalizations.of(
+                            context,
+                          ).message_agreement_fail,
+                          onOk: () {
+                            final navContext = navigatorKey.currentContext;
+                            if (navContext != null && navContext.mounted) {
+                              Navigator.of(navContext).pop();
+                            }
+                          },
+                        );
+                      });
                     }
-                  },
-                  child: Text(
-                      AppLocalizations.of(context).label_button_agreement,
-                      style: getTextStyle(AppTypo.body16B, AppColors.grey00))),
+                  } catch (e, s) {
+                    logger.e('error', error: e, stackTrace: s);
+                    Sentry.captureException(e, stackTrace: s);
+
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      showSimpleDialog(
+                        title: AppLocalizations.of(context).title_dialog_error,
+                        content: AppLocalizations.of(
+                          context,
+                        ).message_agreement_fail,
+                        onOk: () {
+                          final navContext = navigatorKey.currentContext;
+                          if (navContext != null && navContext.mounted) {
+                            Navigator.of(navContext).pop();
+                          }
+                        },
+                      );
+                    });
+                    rethrow;
+                  } finally {
+                    OverlayLoadingProgress.stop();
+                  }
+                },
+                child: Text(
+                  AppLocalizations.of(context).label_button_agreement,
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey00),
+                ),
+              ),
             ],
           ),
-        )
+        ),
       ],
     );
   }

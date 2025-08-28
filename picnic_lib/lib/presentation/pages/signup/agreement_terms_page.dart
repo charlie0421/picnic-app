@@ -36,10 +36,11 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
     ref.watch(userInfoProvider);
 
     return asyncPolicyState.when(
-        data: (PolicyModel data) => _buildTerms(data),
-        error: (error, stackTrace) =>
-            buildErrorView(context, error: error, stackTrace: stackTrace),
-        loading: () => buildLoadingOverlay());
+      data: (PolicyModel data) => _buildTerms(data),
+      error: (error, stackTrace) =>
+          buildErrorView(context, error: error, stackTrace: stackTrace),
+      loading: () => buildLoadingOverlay(),
+    );
   }
 
   Widget _buildTerms(PolicyModel data) {
@@ -63,7 +64,7 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
                 child: Material(
                   color: AppColors.grey200,
                   elevation: 3,
-                  shadowColor: AppColors.grey900.withOpacity(0.18),
+                  shadowColor: AppColors.grey900.withValues(alpha: 0.18),
                   shape: const CircleBorder(),
                   child: InkWell(
                     customBorder: const CircleBorder(),
@@ -92,17 +93,16 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
             ],
           ),
         ),
-        const SizedBox(
-          height: 5,
-        ),
+        const SizedBox(height: 5),
         Expanded(
           child: Container(
             color: AppColors.grey100,
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Markdown(
-                data: Localizations.localeOf(context).languageCode == 'ko'
-                    ? data.termsKo.content
-                    : data.termsEn.content),
+              data: Localizations.localeOf(context).languageCode == 'ko'
+                  ? data.termsKo.content
+                  : data.termsEn.content,
+            ),
           ),
         ),
         SizedBox(
@@ -112,14 +112,17 @@ class _AgreementTermsPageState extends ConsumerState<AgreementTermsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ElevatedButton(
-                  onPressed: () => navigationInfoNotifier
-                      .setCurrentSignUpPage(const AgreementPrivacyPage()),
-                  child: Text(
-                      AppLocalizations.of(context).label_button_agreement,
-                      style: getTextStyle(AppTypo.body16B, AppColors.grey00))),
+                onPressed: () => navigationInfoNotifier.setCurrentSignUpPage(
+                  const AgreementPrivacyPage(),
+                ),
+                child: Text(
+                  AppLocalizations.of(context).label_button_agreement,
+                  style: getTextStyle(AppTypo.body16B, AppColors.grey00),
+                ),
+              ),
             ],
           ),
-        )
+        ),
       ],
     );
   }

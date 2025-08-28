@@ -39,21 +39,15 @@ class FetchVoteAchieveFamily extends Family<AsyncValue<List<VoteAchieve>?>> {
   const FetchVoteAchieveFamily();
 
   /// See also [fetchVoteAchieve].
-  FetchVoteAchieveProvider call({
-    required int voteId,
-  }) {
-    return FetchVoteAchieveProvider(
-      voteId: voteId,
-    );
+  FetchVoteAchieveProvider call({required int voteId}) {
+    return FetchVoteAchieveProvider(voteId: voteId);
   }
 
   @override
   FetchVoteAchieveProvider getProviderOverride(
     covariant FetchVoteAchieveProvider provider,
   ) {
-    return call(
-      voteId: provider.voteId,
-    );
+    return call(voteId: provider.voteId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -75,24 +69,19 @@ class FetchVoteAchieveFamily extends Family<AsyncValue<List<VoteAchieve>?>> {
 class FetchVoteAchieveProvider
     extends AutoDisposeFutureProvider<List<VoteAchieve>?> {
   /// See also [fetchVoteAchieve].
-  FetchVoteAchieveProvider({
-    required int voteId,
-  }) : this._internal(
-          (ref) => fetchVoteAchieve(
-            ref as FetchVoteAchieveRef,
-            voteId: voteId,
-          ),
-          from: fetchVoteAchieveProvider,
-          name: r'fetchVoteAchieveProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$fetchVoteAchieveHash,
-          dependencies: FetchVoteAchieveFamily._dependencies,
-          allTransitiveDependencies:
-              FetchVoteAchieveFamily._allTransitiveDependencies,
-          voteId: voteId,
-        );
+  FetchVoteAchieveProvider({required int voteId})
+    : this._internal(
+        (ref) => fetchVoteAchieve(ref as FetchVoteAchieveRef, voteId: voteId),
+        from: fetchVoteAchieveProvider,
+        name: r'fetchVoteAchieveProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$fetchVoteAchieveHash,
+        dependencies: FetchVoteAchieveFamily._dependencies,
+        allTransitiveDependencies:
+            FetchVoteAchieveFamily._allTransitiveDependencies,
+        voteId: voteId,
+      );
 
   FetchVoteAchieveProvider._internal(
     super._createNotifier, {
@@ -186,20 +175,14 @@ class AsyncVoteDetailFamily extends Family<AsyncValue<VoteModel?>> {
     required int voteId,
     VotePortal votePortal = VotePortal.vote,
   }) {
-    return AsyncVoteDetailProvider(
-      voteId: voteId,
-      votePortal: votePortal,
-    );
+    return AsyncVoteDetailProvider(voteId: voteId, votePortal: votePortal);
   }
 
   @override
   AsyncVoteDetailProvider getProviderOverride(
     covariant AsyncVoteDetailProvider provider,
   ) {
-    return call(
-      voteId: provider.voteId,
-      votePortal: provider.votePortal,
-    );
+    return call(voteId: provider.voteId, votePortal: provider.votePortal);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -225,21 +208,20 @@ class AsyncVoteDetailProvider
     required int voteId,
     VotePortal votePortal = VotePortal.vote,
   }) : this._internal(
-          () => AsyncVoteDetail()
-            ..voteId = voteId
-            ..votePortal = votePortal,
-          from: asyncVoteDetailProvider,
-          name: r'asyncVoteDetailProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$asyncVoteDetailHash,
-          dependencies: AsyncVoteDetailFamily._dependencies,
-          allTransitiveDependencies:
-              AsyncVoteDetailFamily._allTransitiveDependencies,
-          voteId: voteId,
-          votePortal: votePortal,
-        );
+         () => AsyncVoteDetail()
+           ..voteId = voteId
+           ..votePortal = votePortal,
+         from: asyncVoteDetailProvider,
+         name: r'asyncVoteDetailProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$asyncVoteDetailHash,
+         dependencies: AsyncVoteDetailFamily._dependencies,
+         allTransitiveDependencies:
+             AsyncVoteDetailFamily._allTransitiveDependencies,
+         voteId: voteId,
+         votePortal: votePortal,
+       );
 
   AsyncVoteDetailProvider._internal(
     super._createNotifier, {
@@ -256,13 +238,8 @@ class AsyncVoteDetailProvider
   final VotePortal votePortal;
 
   @override
-  FutureOr<VoteModel?> runNotifierBuild(
-    covariant AsyncVoteDetail notifier,
-  ) {
-    return notifier.build(
-      voteId: voteId,
-      votePortal: votePortal,
-    );
+  FutureOr<VoteModel?> runNotifierBuild(covariant AsyncVoteDetail notifier) {
+    return notifier.build(voteId: voteId, votePortal: votePortal);
   }
 
   @override
@@ -286,7 +263,7 @@ class AsyncVoteDetailProvider
 
   @override
   AutoDisposeAsyncNotifierProviderElement<AsyncVoteDetail, VoteModel?>
-      createElement() {
+  createElement() {
     return _AsyncVoteDetailProviderElement(this);
   }
 
@@ -355,20 +332,14 @@ class AsyncVoteItemListFamily extends Family<AsyncValue<List<VoteItemModel?>>> {
     required int voteId,
     VotePortal votePortal = VotePortal.vote,
   }) {
-    return AsyncVoteItemListProvider(
-      voteId: voteId,
-      votePortal: votePortal,
-    );
+    return AsyncVoteItemListProvider(voteId: voteId, votePortal: votePortal);
   }
 
   @override
   AsyncVoteItemListProvider getProviderOverride(
     covariant AsyncVoteItemListProvider provider,
   ) {
-    return call(
-      voteId: provider.voteId,
-      votePortal: provider.votePortal,
-    );
+    return call(voteId: provider.voteId, votePortal: provider.votePortal);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -387,28 +358,31 @@ class AsyncVoteItemListFamily extends Family<AsyncValue<List<VoteItemModel?>>> {
 }
 
 /// See also [AsyncVoteItemList].
-class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    AsyncVoteItemList, List<VoteItemModel?>> {
+class AsyncVoteItemListProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          AsyncVoteItemList,
+          List<VoteItemModel?>
+        > {
   /// See also [AsyncVoteItemList].
   AsyncVoteItemListProvider({
     required int voteId,
     VotePortal votePortal = VotePortal.vote,
   }) : this._internal(
-          () => AsyncVoteItemList()
-            ..voteId = voteId
-            ..votePortal = votePortal,
-          from: asyncVoteItemListProvider,
-          name: r'asyncVoteItemListProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$asyncVoteItemListHash,
-          dependencies: AsyncVoteItemListFamily._dependencies,
-          allTransitiveDependencies:
-              AsyncVoteItemListFamily._allTransitiveDependencies,
-          voteId: voteId,
-          votePortal: votePortal,
-        );
+         () => AsyncVoteItemList()
+           ..voteId = voteId
+           ..votePortal = votePortal,
+         from: asyncVoteItemListProvider,
+         name: r'asyncVoteItemListProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$asyncVoteItemListHash,
+         dependencies: AsyncVoteItemListFamily._dependencies,
+         allTransitiveDependencies:
+             AsyncVoteItemListFamily._allTransitiveDependencies,
+         voteId: voteId,
+         votePortal: votePortal,
+       );
 
   AsyncVoteItemListProvider._internal(
     super._createNotifier, {
@@ -428,10 +402,7 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   FutureOr<List<VoteItemModel?>> runNotifierBuild(
     covariant AsyncVoteItemList notifier,
   ) {
-    return notifier.build(
-      voteId: voteId,
-      votePortal: votePortal,
-    );
+    return notifier.build(voteId: voteId, votePortal: votePortal);
   }
 
   @override
@@ -454,8 +425,11 @@ class AsyncVoteItemListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<AsyncVoteItemList,
-      List<VoteItemModel?>> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<
+    AsyncVoteItemList,
+    List<VoteItemModel?>
+  >
+  createElement() {
     return _AsyncVoteItemListProviderElement(this);
   }
 
@@ -488,8 +462,12 @@ mixin AsyncVoteItemListRef
 }
 
 class _AsyncVoteItemListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncVoteItemList,
-        List<VoteItemModel?>> with AsyncVoteItemListRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          AsyncVoteItemList,
+          List<VoteItemModel?>
+        >
+    with AsyncVoteItemListRef {
   _AsyncVoteItemListProviderElement(super.provider);
 
   @override
@@ -497,5 +475,6 @@ class _AsyncVoteItemListProviderElement
   @override
   VotePortal get votePortal => (origin as AsyncVoteItemListProvider).votePortal;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

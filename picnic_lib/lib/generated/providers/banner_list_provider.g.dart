@@ -33,9 +33,7 @@ abstract class _$AsyncBannerList
     extends BuildlessAutoDisposeAsyncNotifier<List<BannerModel>> {
   late final String location;
 
-  FutureOr<List<BannerModel>> build({
-    required String location,
-  });
+  FutureOr<List<BannerModel>> build({required String location});
 }
 
 /// See also [AsyncBannerList].
@@ -48,21 +46,15 @@ class AsyncBannerListFamily extends Family<AsyncValue<List<BannerModel>>> {
   const AsyncBannerListFamily();
 
   /// See also [AsyncBannerList].
-  AsyncBannerListProvider call({
-    required String location,
-  }) {
-    return AsyncBannerListProvider(
-      location: location,
-    );
+  AsyncBannerListProvider call({required String location}) {
+    return AsyncBannerListProvider(location: location);
   }
 
   @override
   AsyncBannerListProvider getProviderOverride(
     covariant AsyncBannerListProvider provider,
   ) {
-    return call(
-      location: provider.location,
-    );
+    return call(location: provider.location);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -81,24 +73,26 @@ class AsyncBannerListFamily extends Family<AsyncValue<List<BannerModel>>> {
 }
 
 /// See also [AsyncBannerList].
-class AsyncBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    AsyncBannerList, List<BannerModel>> {
+class AsyncBannerListProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          AsyncBannerList,
+          List<BannerModel>
+        > {
   /// See also [AsyncBannerList].
-  AsyncBannerListProvider({
-    required String location,
-  }) : this._internal(
-          () => AsyncBannerList()..location = location,
-          from: asyncBannerListProvider,
-          name: r'asyncBannerListProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$asyncBannerListHash,
-          dependencies: AsyncBannerListFamily._dependencies,
-          allTransitiveDependencies:
-              AsyncBannerListFamily._allTransitiveDependencies,
-          location: location,
-        );
+  AsyncBannerListProvider({required String location})
+    : this._internal(
+        () => AsyncBannerList()..location = location,
+        from: asyncBannerListProvider,
+        name: r'asyncBannerListProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$asyncBannerListHash,
+        dependencies: AsyncBannerListFamily._dependencies,
+        allTransitiveDependencies:
+            AsyncBannerListFamily._allTransitiveDependencies,
+        location: location,
+      );
 
   AsyncBannerListProvider._internal(
     super._createNotifier, {
@@ -116,9 +110,7 @@ class AsyncBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   FutureOr<List<BannerModel>> runNotifierBuild(
     covariant AsyncBannerList notifier,
   ) {
-    return notifier.build(
-      location: location,
-    );
+    return notifier.build(location: location);
   }
 
   @override
@@ -139,7 +131,7 @@ class AsyncBannerListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   AutoDisposeAsyncNotifierProviderElement<AsyncBannerList, List<BannerModel>>
-      createElement() {
+  createElement() {
     return _AsyncBannerListProviderElement(this);
   }
 
@@ -166,12 +158,17 @@ mixin AsyncBannerListRef
 }
 
 class _AsyncBannerListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncBannerList,
-        List<BannerModel>> with AsyncBannerListRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          AsyncBannerList,
+          List<BannerModel>
+        >
+    with AsyncBannerListRef {
   _AsyncBannerListProviderElement(super.provider);
 
   @override
   String get location => (origin as AsyncBannerListProvider).location;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

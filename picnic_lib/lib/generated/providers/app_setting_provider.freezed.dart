@@ -12,7 +12,8 @@ part of '../../presentation/providers/app_setting_provider.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$Setting {
@@ -32,11 +33,12 @@ abstract class $SettingCopyWith<$Res> {
   factory $SettingCopyWith(Setting value, $Res Function(Setting) then) =
       _$SettingCopyWithImpl<$Res, Setting>;
   @useResult
-  $Res call(
-      {ThemeMode themeMode,
-      bool postAnonymousMode,
-      String language,
-      String area});
+  $Res call({
+    ThemeMode themeMode,
+    bool postAnonymousMode,
+    String language,
+    String area,
+  });
 }
 
 /// @nodoc
@@ -59,39 +61,44 @@ class _$SettingCopyWithImpl<$Res, $Val extends Setting>
     Object? language = null,
     Object? area = null,
   }) {
-    return _then(_value.copyWith(
-      themeMode: null == themeMode
-          ? _value.themeMode
-          : themeMode // ignore: cast_nullable_to_non_nullable
-              as ThemeMode,
-      postAnonymousMode: null == postAnonymousMode
-          ? _value.postAnonymousMode
-          : postAnonymousMode // ignore: cast_nullable_to_non_nullable
-              as bool,
-      language: null == language
-          ? _value.language
-          : language // ignore: cast_nullable_to_non_nullable
-              as String,
-      area: null == area
-          ? _value.area
-          : area // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            themeMode: null == themeMode
+                ? _value.themeMode
+                : themeMode // ignore: cast_nullable_to_non_nullable
+                      as ThemeMode,
+            postAnonymousMode: null == postAnonymousMode
+                ? _value.postAnonymousMode
+                : postAnonymousMode // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            language: null == language
+                ? _value.language
+                : language // ignore: cast_nullable_to_non_nullable
+                      as String,
+            area: null == area
+                ? _value.area
+                : area // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$SettingImplCopyWith<$Res> implements $SettingCopyWith<$Res> {
   factory _$$SettingImplCopyWith(
-          _$SettingImpl value, $Res Function(_$SettingImpl) then) =
-      __$$SettingImplCopyWithImpl<$Res>;
+    _$SettingImpl value,
+    $Res Function(_$SettingImpl) then,
+  ) = __$$SettingImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {ThemeMode themeMode,
-      bool postAnonymousMode,
-      String language,
-      String area});
+  $Res call({
+    ThemeMode themeMode,
+    bool postAnonymousMode,
+    String language,
+    String area,
+  });
 }
 
 /// @nodoc
@@ -99,8 +106,9 @@ class __$$SettingImplCopyWithImpl<$Res>
     extends _$SettingCopyWithImpl<$Res, _$SettingImpl>
     implements _$$SettingImplCopyWith<$Res> {
   __$$SettingImplCopyWithImpl(
-      _$SettingImpl _value, $Res Function(_$SettingImpl) _then)
-      : super(_value, _then);
+    _$SettingImpl _value,
+    $Res Function(_$SettingImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of Setting
   /// with the given fields replaced by the non-null parameter values.
@@ -112,36 +120,38 @@ class __$$SettingImplCopyWithImpl<$Res>
     Object? language = null,
     Object? area = null,
   }) {
-    return _then(_$SettingImpl(
-      themeMode: null == themeMode
-          ? _value.themeMode
-          : themeMode // ignore: cast_nullable_to_non_nullable
-              as ThemeMode,
-      postAnonymousMode: null == postAnonymousMode
-          ? _value.postAnonymousMode
-          : postAnonymousMode // ignore: cast_nullable_to_non_nullable
-              as bool,
-      language: null == language
-          ? _value.language
-          : language // ignore: cast_nullable_to_non_nullable
-              as String,
-      area: null == area
-          ? _value.area
-          : area // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+    return _then(
+      _$SettingImpl(
+        themeMode: null == themeMode
+            ? _value.themeMode
+            : themeMode // ignore: cast_nullable_to_non_nullable
+                  as ThemeMode,
+        postAnonymousMode: null == postAnonymousMode
+            ? _value.postAnonymousMode
+            : postAnonymousMode // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        language: null == language
+            ? _value.language
+            : language // ignore: cast_nullable_to_non_nullable
+                  as String,
+        area: null == area
+            ? _value.area
+            : area // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
 /// @nodoc
 
 class _$SettingImpl extends _Setting {
-  const _$SettingImpl(
-      {this.themeMode = ThemeMode.system,
-      this.postAnonymousMode = false,
-      this.language = 'ko',
-      this.area = 'all'})
-      : super._();
+  const _$SettingImpl({
+    this.themeMode = ThemeMode.system,
+    this.postAnonymousMode = false,
+    this.language = 'ko',
+    this.area = 'all',
+  }) : super._();
 
   @override
   @JsonKey()
@@ -189,11 +199,12 @@ class _$SettingImpl extends _Setting {
 }
 
 abstract class _Setting extends Setting {
-  const factory _Setting(
-      {final ThemeMode themeMode,
-      final bool postAnonymousMode,
-      final String language,
-      final String area}) = _$SettingImpl;
+  const factory _Setting({
+    final ThemeMode themeMode,
+    final bool postAnonymousMode,
+    final String language,
+    final String area,
+  }) = _$SettingImpl;
   const _Setting._() : super._();
 
   @override

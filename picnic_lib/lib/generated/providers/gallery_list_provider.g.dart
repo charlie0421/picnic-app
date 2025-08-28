@@ -10,16 +10,19 @@ String _$asyncGalleryListHash() => r'fcf8a83c0433cd5d535b625b543f3f8b643c9d4b';
 
 /// See also [AsyncGalleryList].
 @ProviderFor(AsyncGalleryList)
-final asyncGalleryListProvider = AutoDisposeAsyncNotifierProvider<
-    AsyncGalleryList, List<GalleryModel>>.internal(
-  AsyncGalleryList.new,
-  name: r'asyncGalleryListProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$asyncGalleryListHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final asyncGalleryListProvider =
+    AutoDisposeAsyncNotifierProvider<
+      AsyncGalleryList,
+      List<GalleryModel>
+    >.internal(
+      AsyncGalleryList.new,
+      name: r'asyncGalleryListProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$asyncGalleryListHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$AsyncGalleryList = AutoDisposeAsyncNotifier<List<GalleryModel>>;
 String _$selectedGalleryIdHash() => r'f9c59fefd740c43c42e7777b3634ca015bfb2573';
@@ -28,14 +31,14 @@ String _$selectedGalleryIdHash() => r'f9c59fefd740c43c42e7777b3634ca015bfb2573';
 @ProviderFor(SelectedGalleryId)
 final selectedGalleryIdProvider =
     AutoDisposeNotifierProvider<SelectedGalleryId, int>.internal(
-  SelectedGalleryId.new,
-  name: r'selectedGalleryIdProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$selectedGalleryIdHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      SelectedGalleryId.new,
+      name: r'selectedGalleryIdProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$selectedGalleryIdHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SelectedGalleryId = AutoDisposeNotifier<int>;
 String _$asyncCelebGalleryListHash() =>
@@ -66,9 +69,7 @@ abstract class _$AsyncCelebGalleryList
     extends BuildlessAutoDisposeAsyncNotifier<List<GalleryModel>> {
   late final int celebId;
 
-  FutureOr<List<GalleryModel>> build(
-    int celebId,
-  );
+  FutureOr<List<GalleryModel>> build(int celebId);
 }
 
 /// See also [AsyncCelebGalleryList].
@@ -82,21 +83,15 @@ class AsyncCelebGalleryListFamily
   const AsyncCelebGalleryListFamily();
 
   /// See also [AsyncCelebGalleryList].
-  AsyncCelebGalleryListProvider call(
-    int celebId,
-  ) {
-    return AsyncCelebGalleryListProvider(
-      celebId,
-    );
+  AsyncCelebGalleryListProvider call(int celebId) {
+    return AsyncCelebGalleryListProvider(celebId);
   }
 
   @override
   AsyncCelebGalleryListProvider getProviderOverride(
     covariant AsyncCelebGalleryListProvider provider,
   ) {
-    return call(
-      provider.celebId,
-    );
+    return call(provider.celebId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -116,24 +111,25 @@ class AsyncCelebGalleryListFamily
 
 /// See also [AsyncCelebGalleryList].
 class AsyncCelebGalleryListProvider
-    extends AutoDisposeAsyncNotifierProviderImpl<AsyncCelebGalleryList,
-        List<GalleryModel>> {
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          AsyncCelebGalleryList,
+          List<GalleryModel>
+        > {
   /// See also [AsyncCelebGalleryList].
-  AsyncCelebGalleryListProvider(
-    int celebId,
-  ) : this._internal(
-          () => AsyncCelebGalleryList()..celebId = celebId,
-          from: asyncCelebGalleryListProvider,
-          name: r'asyncCelebGalleryListProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$asyncCelebGalleryListHash,
-          dependencies: AsyncCelebGalleryListFamily._dependencies,
-          allTransitiveDependencies:
-              AsyncCelebGalleryListFamily._allTransitiveDependencies,
-          celebId: celebId,
-        );
+  AsyncCelebGalleryListProvider(int celebId)
+    : this._internal(
+        () => AsyncCelebGalleryList()..celebId = celebId,
+        from: asyncCelebGalleryListProvider,
+        name: r'asyncCelebGalleryListProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$asyncCelebGalleryListHash,
+        dependencies: AsyncCelebGalleryListFamily._dependencies,
+        allTransitiveDependencies:
+            AsyncCelebGalleryListFamily._allTransitiveDependencies,
+        celebId: celebId,
+      );
 
   AsyncCelebGalleryListProvider._internal(
     super._createNotifier, {
@@ -151,9 +147,7 @@ class AsyncCelebGalleryListProvider
   FutureOr<List<GalleryModel>> runNotifierBuild(
     covariant AsyncCelebGalleryList notifier,
   ) {
-    return notifier.build(
-      celebId,
-    );
+    return notifier.build(celebId);
   }
 
   @override
@@ -173,8 +167,11 @@ class AsyncCelebGalleryListProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<AsyncCelebGalleryList,
-      List<GalleryModel>> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<
+    AsyncCelebGalleryList,
+    List<GalleryModel>
+  >
+  createElement() {
     return _AsyncCelebGalleryListProviderElement(this);
   }
 
@@ -201,12 +198,17 @@ mixin AsyncCelebGalleryListRef
 }
 
 class _AsyncCelebGalleryListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncCelebGalleryList,
-        List<GalleryModel>> with AsyncCelebGalleryListRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          AsyncCelebGalleryList,
+          List<GalleryModel>
+        >
+    with AsyncCelebGalleryListRef {
   _AsyncCelebGalleryListProviderElement(super.provider);
 
   @override
   int get celebId => (origin as AsyncCelebGalleryListProvider).celebId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

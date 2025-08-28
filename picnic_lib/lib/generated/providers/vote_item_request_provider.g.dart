@@ -15,14 +15,14 @@ String _$voteItemRequestRepositoryHash() =>
 @ProviderFor(voteItemRequestRepository)
 final voteItemRequestRepositoryProvider =
     Provider<VoteItemRequestRepository>.internal(
-  voteItemRequestRepository,
-  name: r'voteItemRequestRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$voteItemRequestRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      voteItemRequestRepository,
+      name: r'voteItemRequestRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$voteItemRequestRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element

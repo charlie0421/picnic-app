@@ -30,7 +30,9 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _showFullScreenImage(
-                      context, widget.article.articleImage![index].image ?? ''),
+                    context,
+                    widget.article.articleImage![index].image ?? '',
+                  ),
                   child: Hero(
                     tag: 'imageHero${widget.article.articleImage![index].id}',
                     child: Stack(
@@ -45,9 +47,10 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
                           ),
                         ),
                         Positioned(
-                            top: 10.h,
-                            right: 10.w,
-                            child: _buildBookmark(widget.article, index))
+                          top: 10.h,
+                          right: 10.w,
+                          child: _buildBookmark(widget.article, index),
+                        ),
                       ],
                     ),
                   ),
@@ -56,7 +59,9 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
               itemCount: widget.article.articleImage!.length,
               pagination: SwiperPagination(
                 builder: DotSwiperPaginationBuilder(
-                    color: Colors.grey, activeColor: picMainColor),
+                  color: Colors.grey,
+                  activeColor: picMainColor,
+                ),
               ),
             )
           : SizedBox(width: 300.w, height: 300),
@@ -98,7 +103,7 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false, // set to false
-        pageBuilder: (_, __, ___) => FullScreenImageViewer(imageUrl: imageUrl),
+        pageBuilder: (_, _, _) => FullScreenImageViewer(imageUrl: imageUrl),
       ),
     );
   }
@@ -106,26 +111,22 @@ class _ArticleImagesState extends ConsumerState<ArticleImages> {
   Widget _buildBookmark(ArticleModel article, int index) {
     return article.articleImage![index].articleImageUser!.isNotEmpty
         ? IconButton(
-            icon: Icon(
-              Icons.bookmark,
-              color: picMainColor,
-            ),
+            icon: Icon(Icons.bookmark, color: picMainColor),
             onPressed: () {},
           )
         : IconButton(
-            icon: Icon(
-              Icons.bookmark_border,
-              color: picMainColor,
-            ),
+            icon: Icon(Icons.bookmark_border, color: picMainColor),
             onPressed: () {
               showModalBottomSheet(
-                  isScrollControlled: true,
-                  context: context,
-                  useRootNavigator: true,
-                  useSafeArea: true,
-                  builder: (BuildContext context) =>
-                      AlbumList(imageId: article.articleImage![index].id));
-            });
+                isScrollControlled: true,
+                context: context,
+                useRootNavigator: true,
+                useSafeArea: true,
+                builder: (BuildContext context) =>
+                    AlbumList(imageId: article.articleImage![index].id),
+              );
+            },
+          );
   }
 }
 
@@ -158,7 +159,8 @@ class _FullScreenImageViewerState extends ConsumerState<FullScreenImageViewer>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(
-          milliseconds: 300), // Define the duration of the animation
+        milliseconds: 300,
+      ), // Define the duration of the animation
     );
 
     _animationController.addListener(() {
@@ -250,17 +252,17 @@ class _FullScreenImageViewerState extends ConsumerState<FullScreenImageViewer>
 
     final offset = _controller.toScene(position);
     final zoomed = Matrix4.identity()
-      ..translate(
-          -offset.dx * (targetScale - 1), -offset.dy * (targetScale - 1))
-      ..scale(targetScale);
+      ..translateByDouble(
+        -offset.dx * (targetScale - 1),
+        -offset.dy * (targetScale - 1),
+        0.0,
+        1.0,
+      )
+      ..scaleByDouble(targetScale, targetScale, targetScale, 1.0);
 
-    _animation = Matrix4Tween(
-      begin: _controller.value,
-      end: zoomed,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _animation = Matrix4Tween(begin: _controller.value, end: zoomed).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
     _animationController.forward(from: 0.0);
   }

@@ -6,20 +6,20 @@ part of '../../presentation/providers/navigation_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$navigationInfoHash() => r'cdc808fd540573a337f8632c1d8b94adbb02e20d';
+String _$navigationInfoHash() => r'6a9ae999a0d29ff053baa9cfdb7861472fa2ac36';
 
 /// See also [NavigationInfo].
 @ProviderFor(NavigationInfo)
 final navigationInfoProvider =
     NotifierProvider<NavigationInfo, Navigation>.internal(
-  NavigationInfo.new,
-  name: r'navigationInfoProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$navigationInfoHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      NavigationInfo.new,
+      name: r'navigationInfoProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$navigationInfoHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$NavigationInfo = Notifier<Navigation>;
 // ignore_for_file: type=lint

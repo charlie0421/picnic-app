@@ -9,12 +9,13 @@ String formatTimeAgo(BuildContext context, DateTime timestamp) {
   final difference = now.difference(timestamp);
 
   if (difference.inDays >= 1) {
-    return AppLocalizations.of(context).label_time_ago_day(difference.inDays.toString());
+    return AppLocalizations.of(context).label_time_ago_day(difference.inDays);
   } else if (difference.inHours >= 1) {
-    return AppLocalizations.of(context).label_time_ago_hour(difference.inHours.toString());
+    return AppLocalizations.of(context).label_time_ago_hour(difference.inHours);
   } else if (difference.inMinutes >= 1) {
-    return AppLocalizations.of(context)
-        .label_time_ago_minute(difference.inMinutes.toString());
+    return AppLocalizations.of(
+      context,
+    ).label_time_ago_minute(difference.inMinutes);
   } else {
     return AppLocalizations.of(context).label_time_ago_right_now;
   }
@@ -22,17 +23,26 @@ String formatTimeAgo(BuildContext context, DateTime timestamp) {
 
 String formatCurrentTime() {
   var now = DateTime.now();
-  var formatter = DateFormat('yyyy-MM-dd HH:mm:ss', Localizations.localeOf(navigatorKey.currentContext!).languageCode);
+  var formatter = DateFormat(
+    'yyyy-MM-dd HH:mm:ss',
+    Localizations.localeOf(navigatorKey.currentContext!).languageCode,
+  );
   return formatter.format(now);
 }
 
 String formatDateTimeYYYYMMDD(DateTime dateTime) {
-  var formatter = DateFormat('yyyy.MM.dd', Localizations.localeOf(navigatorKey.currentContext!).languageCode);
+  var formatter = DateFormat(
+    'yyyy.MM.dd',
+    Localizations.localeOf(navigatorKey.currentContext!).languageCode,
+  );
   return formatter.format(dateTime);
 }
 
 String formatDateTimeYYYYMMDDHHM(DateTime dateTime) {
-  var formatter = DateFormat('yyyy.MM.dd HH:mm', Localizations.localeOf(navigatorKey.currentContext!).languageCode);
+  var formatter = DateFormat(
+    'yyyy.MM.dd HH:mm',
+    Localizations.localeOf(navigatorKey.currentContext!).languageCode,
+  );
   return formatter.format(dateTime);
 }
 

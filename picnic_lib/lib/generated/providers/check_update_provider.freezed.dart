@@ -12,7 +12,8 @@ part of '../../presentation/providers/check_update_provider.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$UpdateInfo {
@@ -32,15 +33,17 @@ mixin _$UpdateInfo {
 /// @nodoc
 abstract class $UpdateInfoCopyWith<$Res> {
   factory $UpdateInfoCopyWith(
-          UpdateInfo value, $Res Function(UpdateInfo) then) =
-      _$UpdateInfoCopyWithImpl<$Res, UpdateInfo>;
+    UpdateInfo value,
+    $Res Function(UpdateInfo) then,
+  ) = _$UpdateInfoCopyWithImpl<$Res, UpdateInfo>;
   @useResult
-  $Res call(
-      {UpdateStatus status,
-      String currentVersion,
-      String latestVersion,
-      String forceVersion,
-      String? url});
+  $Res call({
+    UpdateStatus status,
+    String currentVersion,
+    String latestVersion,
+    String forceVersion,
+    String? url,
+  });
 }
 
 /// @nodoc
@@ -64,28 +67,31 @@ class _$UpdateInfoCopyWithImpl<$Res, $Val extends UpdateInfo>
     Object? forceVersion = null,
     Object? url = freezed,
   }) {
-    return _then(_value.copyWith(
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as UpdateStatus,
-      currentVersion: null == currentVersion
-          ? _value.currentVersion
-          : currentVersion // ignore: cast_nullable_to_non_nullable
-              as String,
-      latestVersion: null == latestVersion
-          ? _value.latestVersion
-          : latestVersion // ignore: cast_nullable_to_non_nullable
-              as String,
-      forceVersion: null == forceVersion
-          ? _value.forceVersion
-          : forceVersion // ignore: cast_nullable_to_non_nullable
-              as String,
-      url: freezed == url
-          ? _value.url
-          : url // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as UpdateStatus,
+            currentVersion: null == currentVersion
+                ? _value.currentVersion
+                : currentVersion // ignore: cast_nullable_to_non_nullable
+                      as String,
+            latestVersion: null == latestVersion
+                ? _value.latestVersion
+                : latestVersion // ignore: cast_nullable_to_non_nullable
+                      as String,
+            forceVersion: null == forceVersion
+                ? _value.forceVersion
+                : forceVersion // ignore: cast_nullable_to_non_nullable
+                      as String,
+            url: freezed == url
+                ? _value.url
+                : url // ignore: cast_nullable_to_non_nullable
+                      as String?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -93,16 +99,18 @@ class _$UpdateInfoCopyWithImpl<$Res, $Val extends UpdateInfo>
 abstract class _$$UpdateInfoImplCopyWith<$Res>
     implements $UpdateInfoCopyWith<$Res> {
   factory _$$UpdateInfoImplCopyWith(
-          _$UpdateInfoImpl value, $Res Function(_$UpdateInfoImpl) then) =
-      __$$UpdateInfoImplCopyWithImpl<$Res>;
+    _$UpdateInfoImpl value,
+    $Res Function(_$UpdateInfoImpl) then,
+  ) = __$$UpdateInfoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {UpdateStatus status,
-      String currentVersion,
-      String latestVersion,
-      String forceVersion,
-      String? url});
+  $Res call({
+    UpdateStatus status,
+    String currentVersion,
+    String latestVersion,
+    String forceVersion,
+    String? url,
+  });
 }
 
 /// @nodoc
@@ -110,8 +118,9 @@ class __$$UpdateInfoImplCopyWithImpl<$Res>
     extends _$UpdateInfoCopyWithImpl<$Res, _$UpdateInfoImpl>
     implements _$$UpdateInfoImplCopyWith<$Res> {
   __$$UpdateInfoImplCopyWithImpl(
-      _$UpdateInfoImpl _value, $Res Function(_$UpdateInfoImpl) _then)
-      : super(_value, _then);
+    _$UpdateInfoImpl _value,
+    $Res Function(_$UpdateInfoImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of UpdateInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -124,41 +133,43 @@ class __$$UpdateInfoImplCopyWithImpl<$Res>
     Object? forceVersion = null,
     Object? url = freezed,
   }) {
-    return _then(_$UpdateInfoImpl(
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as UpdateStatus,
-      currentVersion: null == currentVersion
-          ? _value.currentVersion
-          : currentVersion // ignore: cast_nullable_to_non_nullable
-              as String,
-      latestVersion: null == latestVersion
-          ? _value.latestVersion
-          : latestVersion // ignore: cast_nullable_to_non_nullable
-              as String,
-      forceVersion: null == forceVersion
-          ? _value.forceVersion
-          : forceVersion // ignore: cast_nullable_to_non_nullable
-              as String,
-      url: freezed == url
-          ? _value.url
-          : url // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$UpdateInfoImpl(
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as UpdateStatus,
+        currentVersion: null == currentVersion
+            ? _value.currentVersion
+            : currentVersion // ignore: cast_nullable_to_non_nullable
+                  as String,
+        latestVersion: null == latestVersion
+            ? _value.latestVersion
+            : latestVersion // ignore: cast_nullable_to_non_nullable
+                  as String,
+        forceVersion: null == forceVersion
+            ? _value.forceVersion
+            : forceVersion // ignore: cast_nullable_to_non_nullable
+                  as String,
+        url: freezed == url
+            ? _value.url
+            : url // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 
 class _$UpdateInfoImpl extends _UpdateInfo {
-  const _$UpdateInfoImpl(
-      {required this.status,
-      required this.currentVersion,
-      required this.latestVersion,
-      required this.forceVersion,
-      this.url})
-      : super._();
+  const _$UpdateInfoImpl({
+    required this.status,
+    required this.currentVersion,
+    required this.latestVersion,
+    required this.forceVersion,
+    this.url,
+  }) : super._();
 
   @override
   final UpdateStatus status;
@@ -193,7 +204,13 @@ class _$UpdateInfoImpl extends _UpdateInfo {
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, status, currentVersion, latestVersion, forceVersion, url);
+    runtimeType,
+    status,
+    currentVersion,
+    latestVersion,
+    forceVersion,
+    url,
+  );
 
   /// Create a copy of UpdateInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -205,12 +222,13 @@ class _$UpdateInfoImpl extends _UpdateInfo {
 }
 
 abstract class _UpdateInfo extends UpdateInfo {
-  const factory _UpdateInfo(
-      {required final UpdateStatus status,
-      required final String currentVersion,
-      required final String latestVersion,
-      required final String forceVersion,
-      final String? url}) = _$UpdateInfoImpl;
+  const factory _UpdateInfo({
+    required final UpdateStatus status,
+    required final String currentVersion,
+    required final String latestVersion,
+    required final String forceVersion,
+    final String? url,
+  }) = _$UpdateInfoImpl;
   const _UpdateInfo._() : super._();
 
   @override

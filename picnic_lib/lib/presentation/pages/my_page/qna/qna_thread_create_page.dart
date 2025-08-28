@@ -13,10 +13,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 class QnaThreadCreatePage extends StatefulWidget {
   final String userId;
 
-  const QnaThreadCreatePage({
-    super.key,
-    required this.userId,
-  });
+  const QnaThreadCreatePage({super.key, required this.userId});
 
   @override
   State<QnaThreadCreatePage> createState() => _QnaThreadCreatePageState();
@@ -128,7 +125,7 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
           Scaffold(
             appBar: AppBar(
               title: Text(
-                AppLocalizations.of(context).qna_create_title,
+                AppLocalizations.of(context).qna_create_page_title,
                 style: getTextStyle(AppTypo.body14M, AppColors.grey900),
               ),
               backgroundColor: AppColors.grey00,
@@ -145,10 +142,14 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary500,
                       foregroundColor: Colors.white,
-                      textStyle:
-                          getTextStyle(AppTypo.caption12M, AppColors.grey00),
+                      textStyle: getTextStyle(
+                        AppTypo.caption12M,
+                        AppColors.grey00,
+                      ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -168,17 +169,20 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                     TextFormField(
                       controller: _titleController,
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context).qna_form_title,
+                        labelText: AppLocalizations.of(context).qna_title,
                         hintText:
                             AppLocalizations.of(context).qna_form_title_hint,
-                        hintStyle:
-                            getTextStyle(AppTypo.caption12R, AppColors.grey500),
+                        hintStyle: getTextStyle(
+                          AppTypo.caption12R,
+                          AppColors.grey500,
+                        ),
                         border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().length < 5) {
-                          return AppLocalizations.of(context)
-                              .qna_title_min_length;
+                          return AppLocalizations.of(
+                            context,
+                          ).qna_title_min_length;
                         }
                         return null;
                       },
@@ -188,19 +192,21 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                       controller: _contentController,
                       maxLines: 10,
                       decoration: InputDecoration(
-                        labelText:
-                            AppLocalizations.of(context).qna_form_content,
+                        labelText: AppLocalizations.of(context).qna_content,
                         hintText:
                             AppLocalizations.of(context).qna_form_content_hint,
-                        hintStyle:
-                            getTextStyle(AppTypo.caption12R, AppColors.grey500),
+                        hintStyle: getTextStyle(
+                          AppTypo.caption12R,
+                          AppColors.grey500,
+                        ),
                         alignLabelWithHint: true,
                         border: const OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().length < 10) {
-                          return AppLocalizations.of(context)
-                              .qna_content_min_length;
+                          return AppLocalizations.of(
+                            context,
+                          ).qna_content_min_length;
                         }
                         return null;
                       },
@@ -215,9 +221,7 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
           if (_isSubmitting || _isAttaching)
             Container(
               color: Colors.black.withAlpha(128),
-              child: const Center(
-                child: LoadingView(),
-              ),
+              child: const Center(child: LoadingView()),
             ),
         ],
       ),
@@ -263,26 +267,27 @@ class _QnaThreadCreatePageState extends State<QnaThreadCreatePage> {
                         child: SizedBox(
                           width: 80,
                           height: 80,
-                          child: isImage
-                              ? ImageThumbnailFromFile(
-                                  file: file,
-                                  width: 80,
-                                  height: 80,
-                                  borderRadius: 8,
-                                  fit: BoxFit.cover,
-                                )
-                              : isVideo
+                          child:
+                              isImage
+                                  ? ImageThumbnailFromFile(
+                                    file: file,
+                                    width: 80,
+                                    height: 80,
+                                    borderRadius: 8,
+                                    fit: BoxFit.cover,
+                                  )
+                                  : isVideo
                                   ? VideoThumbnailFromFile(file: file)
                                   : Container(
-                                      decoration: BoxDecoration(
-                                        color: AppColors.grey200,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        Icons.insert_drive_file,
-                                        color: AppColors.grey500,
-                                      ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.grey200,
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
+                                    child: Icon(
+                                      Icons.insert_drive_file,
+                                      color: AppColors.grey500,
+                                    ),
+                                  ),
                         ),
                       ),
                       Positioned(

@@ -7,10 +7,7 @@ class CustomDropdownMenuItem {
   final String value;
   final String text;
 
-  CustomDropdownMenuItem({
-    required this.value,
-    required this.text,
-  });
+  CustomDropdownMenuItem({required this.value, required this.text});
 }
 
 class CustomDropdown extends StatelessWidget {
@@ -36,14 +33,11 @@ class CustomDropdown extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppColors.grey300,
-            width: 1,
-          ),
+          border: Border.all(color: AppColors.grey300, width: 1),
         ),
         child: DropdownButtonFormField<String>(
           key: key,
-          value: value,
+          initialValue: value,
           icon: Transform.rotate(
             angle: 1.57,
             child: SvgPicture.asset(

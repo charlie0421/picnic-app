@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_app/firebase_options.dart';
-import 'package:picnic_app/main.reflectable.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -26,8 +25,6 @@ import 'package:picnic_lib/core/utils/shorebird_utils.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
 
-
-
 void main() async {
   // ENVIRONMENT dart-define 값을 동적으로 읽기 (기본값: dev)
   const environment =
@@ -40,6 +37,5 @@ void main() async {
     appBuilder: () => Phoenix(
       child: const App(),
     ),
-    reflectableInitializer: initializeReflectable,
   );
 }

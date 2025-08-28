@@ -1,7 +1,1 @@
-import 'package:reflectable/reflectable.dart';
-
-class Reflector extends Reflectable {
-  const Reflector() : super(invokingCapability, declarationsCapability);
-}
-
-const reflector = Reflector();
+// reflectable 제거됨: 더 이상 사용하지 않음

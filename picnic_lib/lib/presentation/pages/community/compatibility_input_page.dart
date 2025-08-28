@@ -20,10 +20,7 @@ import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart'
 import 'package:picnic_lib/ui/style.dart';
 
 class CompatibilityInputPage extends ConsumerStatefulWidget {
-  const CompatibilityInputPage({
-    super.key,
-    required this.artist,
-  });
+  const CompatibilityInputPage({super.key, required this.artist});
 
   final ArtistModel artist;
 
@@ -57,7 +54,9 @@ class _CompatibilityInputScreenState
 
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
             showPortal: true,
             showTopMenu: true,
             topRightMenu: TopRightType.board,
@@ -99,8 +98,11 @@ class _CompatibilityInputScreenState
         },
         loading: () => null,
         error: (error, stack) {
-          logger.e('Error loading user profile',
-              error: error, stackTrace: stack);
+          logger.e(
+            'Error loading user profile',
+            error: error,
+            stackTrace: stack,
+          );
         },
       );
     } catch (e, s) {
@@ -269,8 +271,9 @@ class _CompatibilityInputScreenState
                 borderRadius: BorderRadius.circular(16),
               ),
               title: Text(
-                AppLocalizations.of(context)
-                    .compatibility_perfect_score_exists_title,
+                AppLocalizations.of(
+                  context,
+                ).compatibility_perfect_score_exists_title,
                 style: getTextStyle(AppTypo.title18B, AppColors.grey900),
               ),
               content: Column(
@@ -278,8 +281,9 @@ class _CompatibilityInputScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)
-                        .compatibility_perfect_score_exists,
+                    AppLocalizations.of(
+                      context,
+                    ).compatibility_perfect_score_exists,
                     style: getTextStyle(AppTypo.body14R, AppColors.grey900),
                   ),
                   const SizedBox(height: 8),
@@ -298,8 +302,9 @@ class _CompatibilityInputScreenState
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(context)
-                        .compatibility_new_compatibility_ask,
+                    AppLocalizations.of(
+                      context,
+                    ).compatibility_new_compatibility_ask,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                   ),
                 ],
@@ -353,8 +358,9 @@ class _CompatibilityInputScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)
-                        .compatibility_duplicate_data_message,
+                    AppLocalizations.of(
+                      context,
+                    ).compatibility_duplicate_data_message,
                     style: getTextStyle(AppTypo.body14R, AppColors.grey900),
                   ),
                   const SizedBox(height: 8),
@@ -373,8 +379,9 @@ class _CompatibilityInputScreenState
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(context)
-                        .compatibility_new_compatibility_ask,
+                    AppLocalizations.of(
+                      context,
+                    ).compatibility_new_compatibility_ask,
                     style: getTextStyle(AppTypo.body14M, AppColors.grey900),
                   ),
                 ],
@@ -409,12 +416,15 @@ class _CompatibilityInputScreenState
   }
 
   void _showLoadingMessage() {
-    SnackbarUtil()
-        .info(AppLocalizations.of(context).compatibility_snackbar_start);
+    SnackbarUtil().info(
+      AppLocalizations.of(context).compatibility_snackbar_start,
+    );
   }
 
   Future<void> _saveUserProfile() async {
-    await ref.read(userInfoProvider.notifier).updateProfile(
+    await ref
+        .read(userInfoProvider.notifier)
+        .updateProfile(
           gender: _gender,
           birthDate: _birthDate,
           birthTime: _birthTime,
@@ -422,7 +432,9 @@ class _CompatibilityInputScreenState
   }
 
   Future<CompatibilityModel?> _createCompatibility() async {
-    return await ref.read(compatibilityProvider.notifier).createCompatibility(
+    return await ref
+        .read(compatibilityProvider.notifier)
+        .createCompatibility(
           artist: widget.artist,
           birthDate: _birthDate!,
           gender: _gender!,
@@ -431,28 +443,28 @@ class _CompatibilityInputScreenState
   }
 
   void _navigateToResult(CompatibilityModel compatibility) {
-    ref.read(navigationInfoProvider.notifier).setCommunityCurrentPage(
-          CompatibilityLoadingPage(
-            compatibility: compatibility,
-          ),
+    ref
+        .read(navigationInfoProvider.notifier)
+        .setCommunityCurrentPage(
+          CompatibilityLoadingPage(compatibility: compatibility),
         );
   }
 
   void _showValidationError() {
     String message;
     if (_birthDate == null) {
-      message =
-          AppLocalizations.of(context).compatibility_snackbar_need_birthday;
+      message = AppLocalizations.of(
+        context,
+      ).compatibility_snackbar_need_birthday;
     } else if (_gender == null) {
       message = AppLocalizations.of(context).compatibility_snackbar_need_gender;
     } else {
-      message = AppLocalizations.of(context)
-          .compatibility_snackbar_need_profile_save_agree;
+      message = AppLocalizations.of(
+        context,
+      ).compatibility_snackbar_need_profile_save_agree;
     }
 
-    SnackbarUtil().error(
-      message,
-    );
+    SnackbarUtil().error(message);
   }
 
   void _showErrorMessage() {
@@ -474,7 +486,7 @@ class _CompatibilityInputScreenState
             end: Alignment.bottomCenter,
             colors: [
               AppColors.primary500.withValues(alpha: 0.8),
-              AppColors.secondary500.withValues(alpha: 0.8)
+              AppColors.secondary500.withValues(alpha: 0.8),
             ],
           ),
         ),
@@ -487,9 +499,7 @@ class _CompatibilityInputScreenState
               strokeWidth: 3,
             ),
             const SizedBox(height: 12),
-            CompatibilityCard(
-              artist: widget.artist,
-            ),
+            CompatibilityCard(artist: widget.artist),
             const SizedBox(height: 8),
             FortuneDivider(color: AppColors.grey00),
             StrokedText(
@@ -531,8 +541,10 @@ class _CompatibilityInputScreenState
                       children: [
                         Text(
                           AppLocalizations.of(context).compatibility_gender,
-                          style:
-                              getTextStyle(AppTypo.body14B, AppColors.grey900),
+                          style: getTextStyle(
+                            AppTypo.body14B,
+                            AppColors.grey900,
+                          ),
                         ),
                         SizedBox(height: 16),
                         _buildGenderSelection(),
@@ -573,22 +585,28 @@ class _CompatibilityInputScreenState
                       borderRadius: BorderRadius.circular(16),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppLocalizations.of(context)
-                                  .compatibility_birthday,
+                              AppLocalizations.of(
+                                context,
+                              ).compatibility_birthday,
                               style: getTextStyle(
-                                  AppTypo.body14B, AppColors.grey900),
+                                AppTypo.body14B,
+                                AppColors.grey900,
+                              ),
                             ),
                             const SizedBox(height: 12),
                             Container(
                               height: 26,
                               alignment: Alignment.centerLeft,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
@@ -598,8 +616,9 @@ class _CompatibilityInputScreenState
                               ),
                               child: Text(
                                 _birthDate == null
-                                    ? AppLocalizations.of(context)
-                                        .compatibility_birthday
+                                    ? AppLocalizations.of(
+                                        context,
+                                      ).compatibility_birthday
                                     : formatDateTimeYYYYMMDD(_birthDate!),
                                 style: getTextStyle(
                                   AppTypo.caption12M,
@@ -646,7 +665,9 @@ class _CompatibilityInputScreenState
                     child: Container(
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 8),
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -654,8 +675,9 @@ class _CompatibilityInputScreenState
                           Row(
                             children: [
                               Text(
-                                AppLocalizations.of(context)
-                                    .compatibility_birthtime,
+                                AppLocalizations.of(
+                                  context,
+                                ).compatibility_birthtime,
                                 style: getTextStyle(
                                   AppTypo.body14B,
                                   AppColors.grey900,
@@ -663,8 +685,9 @@ class _CompatibilityInputScreenState
                               ),
                               SizedBox(width: 8),
                               Text(
-                                AppLocalizations.of(context)
-                                    .compatibility_birthtime_subtitle,
+                                AppLocalizations.of(
+                                  context,
+                                ).compatibility_birthtime_subtitle,
                                 style: getTextStyle(
                                   AppTypo.caption10SB,
                                   AppColors.point900,
@@ -689,42 +712,43 @@ class _CompatibilityInputScreenState
                                     horizontal: 6,
                                   ),
                                 ),
-                                value: _birthTime,
+                                initialValue: _birthTime,
                                 items: [
                                   DropdownMenuItem(
                                     value: null,
                                     child: Text(
-                                      AppLocalizations.of(context)
-                                          .compatibility_time_slot_unknown,
+                                      AppLocalizations.of(
+                                        context,
+                                      ).compatibility_time_slot_unknown,
                                       style: getTextStyle(
                                         AppTypo.caption10SB,
                                         AppColors.grey900,
                                       ),
                                     ),
                                   ),
-                                  ...?_timeSlots?.asMap().entries.map(
-                                    (entry) {
-                                      final index = entry.key;
-                                      final time = entry.value;
-                                      final parts = time.split('|');
-                                      final text = parts[0];
-                                      final textTime = parts[1];
-                                      final icon =
-                                          parts.length > 2 ? parts[2] : '';
+                                  ...?_timeSlots?.asMap().entries.map((entry) {
+                                    final index = entry.key;
+                                    final time = entry.value;
+                                    final parts = time.split('|');
+                                    final text = parts[0];
+                                    final textTime = parts[1];
+                                    final icon = parts.length > 2
+                                        ? parts[2]
+                                        : '';
 
-                                      return DropdownMenuItem(
-                                          value: (index + 1).toString(),
-                                          child: Text(
-                                            '${icon.isNotEmpty ? '$icon ' : ''}$text $textTime',
-                                            style: getTextStyle(
-                                              AppTypo.caption10SB,
-                                              AppColors.grey900,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ));
-                                    },
-                                  ),
+                                    return DropdownMenuItem(
+                                      value: (index + 1).toString(),
+                                      child: Text(
+                                        '${icon.isNotEmpty ? '$icon ' : ''}$text $textTime',
+                                        style: getTextStyle(
+                                          AppTypo.caption10SB,
+                                          AppColors.grey900,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    );
+                                  }),
                                 ],
                                 onChanged: (value) {
                                   setState(() {
@@ -803,10 +827,13 @@ class _CompatibilityInputScreenState
                         ),
                         SizedBox(width: 8),
                         Text(
-                          AppLocalizations.of(context)
-                              .compatibility_analyze_start,
-                          style:
-                              getTextStyle(AppTypo.body16B, AppColors.grey00),
+                          AppLocalizations.of(
+                            context,
+                          ).compatibility_analyze_start,
+                          style: getTextStyle(
+                            AppTypo.body16B,
+                            AppColors.grey00,
+                          ),
                         ),
                       ],
                     ),
@@ -829,11 +856,11 @@ class _CompatibilityInputScreenState
     List<Map<String, String>> genderOptions = [
       {
         'value': 'male',
-        'label': AppLocalizations.of(context).compatibility_gender_male
+        'label': AppLocalizations.of(context).compatibility_gender_male,
       },
       {
         'value': 'female',
-        'label': AppLocalizations.of(context).compatibility_gender_female
+        'label': AppLocalizations.of(context).compatibility_gender_female,
       },
     ];
 

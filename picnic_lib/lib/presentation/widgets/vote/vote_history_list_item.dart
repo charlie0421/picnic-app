@@ -21,7 +21,7 @@ class VoteHistoryListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             spreadRadius: 0,
             blurRadius: 20,
             offset: const Offset(0, 4),
@@ -36,10 +36,7 @@ class VoteHistoryListItem extends StatelessWidget {
           _VoteInfo(item: item),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 12.h),
-            child: Divider(
-              color: AppColors.grey200,
-              height: 1.h,
-            ),
+            child: Divider(color: AppColors.grey200, height: 1.h),
           ),
           _VoteUsage(item: item),
         ],
@@ -62,10 +59,7 @@ class _VoteHistoryHeader extends StatelessWidget {
       children: [
         Text(
           DateFormat('yyyy.MM.dd HH:mm:ss').format(item.createdAt!),
-          style: getTextStyle(
-            AppTypo.caption12R,
-            AppColors.grey600,
-          ),
+          style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
         ),
         if (isPartnership)
           Image.asset(
@@ -73,18 +67,11 @@ class _VoteHistoryHeader extends StatelessWidget {
             package: 'picnic_lib',
             width: 24,
             height: 24,
-            errorBuilder: (context, error, stackTrace) => Image.asset(
-              'assets/app_icon_128.png',
-              width: 24,
-              height: 24,
-            ),
+            errorBuilder: (context, error, stackTrace) =>
+                Image.asset('assets/app_icon_128.png', width: 24, height: 24),
           )
         else
-          Image.asset(
-            'assets/app_icon_128.png',
-            width: 24,
-            height: 24,
-          ),
+          Image.asset('assets/app_icon_128.png', width: 24, height: 24),
       ],
     );
   }
@@ -98,18 +85,16 @@ class _VoteInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final artistName = getLocaleTextFromJson(item.voteItem.artist?.name ?? {});
-    final groupName =
-        getLocaleTextFromJson(item.voteItem.artist?.artistGroup?.name ?? {});
+    final groupName = getLocaleTextFromJson(
+      item.voteItem.artist?.artistGroup?.name ?? {},
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           getLocaleTextFromJson(item.vote.title),
-          style: getTextStyle(
-            AppTypo.body14M,
-            AppColors.grey900,
-          ),
+          style: getTextStyle(AppTypo.body14M, AppColors.grey900),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -120,18 +105,14 @@ class _VoteInfo extends StatelessWidget {
             children: [
               Flexible(
                 child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
-                    color: AppColors.point500.withOpacity(0.1),
+                    color: AppColors.point500.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Text(
                     artistName,
-                    style: getTextStyle(
-                      AppTypo.caption12B,
-                      AppColors.point900,
-                    ),
+                    style: getTextStyle(AppTypo.caption12B, AppColors.point900),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -142,18 +123,15 @@ class _VoteInfo extends StatelessWidget {
                 Flexible(
                   child: Text(
                     groupName,
-                    style: getTextStyle(
-                      AppTypo.caption12M,
-                      AppColors.grey600,
-                    ),
+                    style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ]
+              ],
             ],
           ),
-        ]
+        ],
       ],
     );
   }
@@ -239,7 +217,7 @@ class _VoteUsage extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: AppColors.grey100.withOpacity(0.6),
+        color: AppColors.grey100.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(30.r),
       ),
       child: Row(

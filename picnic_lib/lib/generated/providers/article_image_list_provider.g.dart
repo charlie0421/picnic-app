@@ -34,9 +34,7 @@ abstract class _$AsyncArticleImageList
     extends BuildlessAutoDisposeAsyncNotifier<List<ArticleImageModel>> {
   late final int galleryId;
 
-  FutureOr<List<ArticleImageModel>> build({
-    required int galleryId,
-  });
+  FutureOr<List<ArticleImageModel>> build({required int galleryId});
 }
 
 /// See also [AsyncArticleImageList].
@@ -50,21 +48,15 @@ class AsyncArticleImageListFamily
   const AsyncArticleImageListFamily();
 
   /// See also [AsyncArticleImageList].
-  AsyncArticleImageListProvider call({
-    required int galleryId,
-  }) {
-    return AsyncArticleImageListProvider(
-      galleryId: galleryId,
-    );
+  AsyncArticleImageListProvider call({required int galleryId}) {
+    return AsyncArticleImageListProvider(galleryId: galleryId);
   }
 
   @override
   AsyncArticleImageListProvider getProviderOverride(
     covariant AsyncArticleImageListProvider provider,
   ) {
-    return call(
-      galleryId: provider.galleryId,
-    );
+    return call(galleryId: provider.galleryId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -84,24 +76,25 @@ class AsyncArticleImageListFamily
 
 /// See also [AsyncArticleImageList].
 class AsyncArticleImageListProvider
-    extends AutoDisposeAsyncNotifierProviderImpl<AsyncArticleImageList,
-        List<ArticleImageModel>> {
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          AsyncArticleImageList,
+          List<ArticleImageModel>
+        > {
   /// See also [AsyncArticleImageList].
-  AsyncArticleImageListProvider({
-    required int galleryId,
-  }) : this._internal(
-          () => AsyncArticleImageList()..galleryId = galleryId,
-          from: asyncArticleImageListProvider,
-          name: r'asyncArticleImageListProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$asyncArticleImageListHash,
-          dependencies: AsyncArticleImageListFamily._dependencies,
-          allTransitiveDependencies:
-              AsyncArticleImageListFamily._allTransitiveDependencies,
-          galleryId: galleryId,
-        );
+  AsyncArticleImageListProvider({required int galleryId})
+    : this._internal(
+        () => AsyncArticleImageList()..galleryId = galleryId,
+        from: asyncArticleImageListProvider,
+        name: r'asyncArticleImageListProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$asyncArticleImageListHash,
+        dependencies: AsyncArticleImageListFamily._dependencies,
+        allTransitiveDependencies:
+            AsyncArticleImageListFamily._allTransitiveDependencies,
+        galleryId: galleryId,
+      );
 
   AsyncArticleImageListProvider._internal(
     super._createNotifier, {
@@ -119,9 +112,7 @@ class AsyncArticleImageListProvider
   FutureOr<List<ArticleImageModel>> runNotifierBuild(
     covariant AsyncArticleImageList notifier,
   ) {
-    return notifier.build(
-      galleryId: galleryId,
-    );
+    return notifier.build(galleryId: galleryId);
   }
 
   @override
@@ -141,8 +132,11 @@ class AsyncArticleImageListProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<AsyncArticleImageList,
-      List<ArticleImageModel>> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<
+    AsyncArticleImageList,
+    List<ArticleImageModel>
+  >
+  createElement() {
     return _AsyncArticleImageListProviderElement(this);
   }
 
@@ -170,12 +164,17 @@ mixin AsyncArticleImageListRef
 }
 
 class _AsyncArticleImageListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncArticleImageList,
-        List<ArticleImageModel>> with AsyncArticleImageListRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          AsyncArticleImageList,
+          List<ArticleImageModel>
+        >
+    with AsyncArticleImageListRef {
   _AsyncArticleImageListProviderElement(super.provider);
 
   @override
   int get galleryId => (origin as AsyncArticleImageListProvider).galleryId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

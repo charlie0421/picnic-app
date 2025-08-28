@@ -12,13 +12,14 @@ String _$appSettingHash() => r'b2ea200487f6d843649b49f2fbd21ea3f0f3fbe7';
 @ProviderFor(AppSetting)
 final appSettingProvider =
     AutoDisposeNotifierProvider<AppSetting, Setting>.internal(
-  AppSetting.new,
-  name: r'appSettingProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$appSettingHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      AppSetting.new,
+      name: r'appSettingProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$appSettingHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$AppSetting = AutoDisposeNotifier<Setting>;
 // ignore_for_file: type=lint

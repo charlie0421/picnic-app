@@ -10,16 +10,19 @@ String _$appInitializationHash() => r'9fb44682164a1e03f2b30f9ec4f02db40ee041b2';
 
 /// See also [AppInitialization].
 @ProviderFor(AppInitialization)
-final appInitializationProvider = AutoDisposeNotifierProvider<AppInitialization,
-    AppInitializationState>.internal(
-  AppInitialization.new,
-  name: r'appInitializationProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$appInitializationHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final appInitializationProvider =
+    AutoDisposeNotifierProvider<
+      AppInitialization,
+      AppInitializationState
+    >.internal(
+      AppInitialization.new,
+      name: r'appInitializationProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$appInitializationHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$AppInitialization = AutoDisposeNotifier<AppInitializationState>;
 // ignore_for_file: type=lint

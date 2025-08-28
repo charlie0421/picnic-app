@@ -1,13 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:picnic_lib/reflector.dart';
-import 'package:reflectable/reflectable.dart';
+// reflectable 제거로 인해 reflection 기반 비교를 안전한 필드 비교로 대체
 
 class LoggingObserver extends ProviderObserver {
   @override
-  void didUpdateProvider(ProviderBase provider, Object? previousValue,
-      Object? newValue, ProviderContainer container) {
+  void didUpdateProvider(
+    ProviderBase provider,
+    Object? previousValue,
+    Object? newValue,
+    ProviderContainer container,
+  ) {
     if (previousValue == null || newValue == null) {
       return;
     }
@@ -50,35 +53,15 @@ class LoggingObserver extends ProviderObserver {
       return;
     }
 
-    try {
-      // 객체의 실제 타입에 기반한 리플렉션
-      InstanceMirror oldMirror = reflector.reflect(oldObj);
-      InstanceMirror newMirror = reflector.reflect(newObj);
-
-      // oldObj의 타입을 가져옴
-      Type oldType = oldObj.runtimeType;
-
-      // 해당 타입의 선언을 가져옴
-      ClassMirror classMirror = reflector.reflectType(oldType) as ClassMirror;
-
-      // 필드를 순회하며 변경사항 감지
-      for (var field
-          in classMirror.declarations.values.whereType<VariableMirror>()) {
-        var oldValue = oldMirror.invokeGetter(field.simpleName);
-        var newValue = newMirror.invokeGetter(field.simpleName);
-
-        if (kDebugMode) {
-          if (oldValue != newValue) {
-            print(
-                'Field ${field.simpleName} changed from $oldValue to $newValue');
-          }
-        }
-      }
-    } catch (e) {
-      // 안전하게 오류 처리 - reflection 오류 무시
-      if (kDebugMode) {
-        print('Reflection error ignored: $e');
-      }
+    // 간단 비교: 객체의 문자열 표현과 해시코드를 이용한 변경 탐지
+    // (필요시 개별 도메인 타입에 대한 커스텀 비교 로직을 추가 권장)
+    final oldDesc =
+        '${oldObj.runtimeType}:${oldObj.hashCode}:${oldObj.toString()}';
+    final newDesc =
+        '${newObj.runtimeType}:${newObj.hashCode}:${newObj.toString()}';
+    if (kDebugMode && oldDesc != newDesc) {
+      // 개발 중 변경 감지 로그는 debugPrint 사용
+      debugPrint('Object changed: $oldDesc -> $newDesc');
     }
   }
 }

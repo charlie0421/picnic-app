@@ -13,8 +13,9 @@ String _$checkUpdateHash() => r'91cad81f81a16ece43384daf2772d6dd7c3e51e2';
 final checkUpdateProvider = AutoDisposeFutureProvider<UpdateInfo?>.internal(
   checkUpdate,
   name: r'checkUpdateProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$checkUpdateHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$checkUpdateHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

@@ -12,14 +12,14 @@ String _$isScreenProtectorHash() => r'f793b7bae09c42940652dcaddf5dbffc4bbc1e9a';
 @ProviderFor(IsScreenProtector)
 final isScreenProtectorProvider =
     AutoDisposeNotifierProvider<IsScreenProtector, bool>.internal(
-  IsScreenProtector.new,
-  name: r'isScreenProtectorProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$isScreenProtectorHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      IsScreenProtector.new,
+      name: r'isScreenProtectorProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$isScreenProtectorHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$IsScreenProtector = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint

@@ -11,16 +11,19 @@ String _$asyncVoteArtistListHash() =>
 
 /// See also [AsyncVoteArtistList].
 @ProviderFor(AsyncVoteArtistList)
-final asyncVoteArtistListProvider = AutoDisposeAsyncNotifierProvider<
-    AsyncVoteArtistList, List<ArtistModel>>.internal(
-  AsyncVoteArtistList.new,
-  name: r'asyncVoteArtistListProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$asyncVoteArtistListHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final asyncVoteArtistListProvider =
+    AutoDisposeAsyncNotifierProvider<
+      AsyncVoteArtistList,
+      List<ArtistModel>
+    >.internal(
+      AsyncVoteArtistList.new,
+      name: r'asyncVoteArtistListProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$asyncVoteArtistListHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$AsyncVoteArtistList = AutoDisposeAsyncNotifier<List<ArtistModel>>;
 // ignore_for_file: type=lint

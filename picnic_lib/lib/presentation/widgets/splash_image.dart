@@ -85,7 +85,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
   Future<void> _checkForUpdatesStable() async {
     if (UniversalPlatform.isWeb || _patchCheckCompleted) {
       logger.i(
-          '패치 체크 스킵: 웹환경=${UniversalPlatform.isWeb}, 완료됨=$_patchCheckCompleted');
+        '패치 체크 스킵: 웹환경=${UniversalPlatform.isWeb}, 완료됨=$_patchCheckCompleted',
+      );
       return;
     }
 
@@ -139,9 +140,12 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     }
   }
 
-  /// 새로운 패치가 있는 경우 처리
+  // Deprecated/unused: 최신 플로우에서는 auto_update로 대체됨
+  // ignore: unused_element
   Future<void> _handleOutdatedUpdate(
-      shorebird.ShorebirdUpdater updater, int? currentPatchNumber) async {
+    shorebird.ShorebirdUpdater updater,
+    int? currentPatchNumber,
+  ) async {
     setStateIfMounted(() {
       _updateStatus = 'Downloading update...';
     });
@@ -164,7 +168,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
       if (patchBefore?.number != patchAfter?.number) {
         logger.i(
-            '🎉 패치가 성공적으로 적용됨 (${patchBefore?.number} → ${patchAfter?.number})');
+          '🎉 패치가 성공적으로 적용됨 (${patchBefore?.number} → ${patchAfter?.number})',
+        );
 
         // PatchInfoProvider 업데이트 - 재시작 필요 상태
         _updatePatchInfoProvider({
@@ -197,7 +202,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
     }
   }
 
-  /// 재시작이 필요한 경우 처리
+  // Deprecated/unused: 최신 플로우에서는 auto_update로 대체됨
+  // ignore: unused_element
   Future<void> _handleRestartRequired(int? currentPatchNumber) async {
     logger.w('🔄 재시작이 필요한 상태 감지 - 패치 번호: $currentPatchNumber');
 
@@ -374,7 +380,8 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
 
     // 현재 표시할 상태 메시지 결정
     String? currentStatusMessage = widget.statusMessage ?? _updateStatus;
-    bool showStatus = (widget.enablePatchCheck &&
+    bool showStatus =
+        (widget.enablePatchCheck &&
             (_isCheckingUpdate || _updateStatus.isNotEmpty)) ||
         (widget.statusMessage != null && widget.statusMessage!.isNotEmpty);
 
@@ -382,10 +389,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
       fit: StackFit.expand,
       children: [
         // 1) 기본(로컬) 스플래시 이미지
-        Image.asset(
-          'assets/splash.webp',
-          fit: BoxFit.cover,
-        ),
+        Image.asset('assets/splash.webp', fit: BoxFit.cover),
 
         // 2) 서버에서 조회된 이미지가 있으면 덮어씌우기
         if (scheduledSplashUrl != null)
@@ -410,8 +414,10 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
                   children: [
                     Text(
                       currentStatusMessage,
-                      style: getTextStyle(AppTypo.body14B, AppColors.grey00)
-                          .copyWith(decoration: TextDecoration.none),
+                      style: getTextStyle(
+                        AppTypo.body14B,
+                        AppColors.grey00,
+                      ).copyWith(decoration: TextDecoration.none),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(width: 16),

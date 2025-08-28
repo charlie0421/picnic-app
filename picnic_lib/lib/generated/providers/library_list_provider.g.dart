@@ -10,16 +10,19 @@ String _$asyncLibraryListHash() => r'5501bb3a9e0c19dd29b34eea22490f1fb20e24cd';
 
 /// See also [AsyncLibraryList].
 @ProviderFor(AsyncLibraryList)
-final asyncLibraryListProvider = AutoDisposeAsyncNotifierProvider<
-    AsyncLibraryList, List<LibraryModel>?>.internal(
-  AsyncLibraryList.new,
-  name: r'asyncLibraryListProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$asyncLibraryListHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final asyncLibraryListProvider =
+    AutoDisposeAsyncNotifierProvider<
+      AsyncLibraryList,
+      List<LibraryModel>?
+    >.internal(
+      AsyncLibraryList.new,
+      name: r'asyncLibraryListProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$asyncLibraryListHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$AsyncLibraryList = AutoDisposeAsyncNotifier<List<LibraryModel>?>;
 // ignore_for_file: type=lint

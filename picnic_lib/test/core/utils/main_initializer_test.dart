@@ -7,7 +7,6 @@ void main() {
   group('MainInitializer', () {
     late Widget Function() mockAppBuilder;
     late FirebaseOptions mockFirebaseOptions;
-    late Function() mockReflectableInitializer;
 
     setUp(() {
       mockAppBuilder = () => const Text('Test App');
@@ -17,19 +16,18 @@ void main() {
         messagingSenderId: 'test_messaging_sender_id',
         projectId: 'test_project_id',
       );
-      mockReflectableInitializer = () {};
     });
 
     test('initializeApp 메서드의 타입 확인', () {
       // initializeApp 메서드의 반환 타입 확인
       expect(
-          MainInitializer.initializeApp(
-            environment: 'test',
-            firebaseOptions: mockFirebaseOptions,
-            appBuilder: mockAppBuilder,
-            reflectableInitializer: mockReflectableInitializer,
-          ),
-          isA<Future<void>>());
+        MainInitializer.initializeApp(
+          environment: 'test',
+          firebaseOptions: mockFirebaseOptions,
+          appBuilder: mockAppBuilder,
+        ),
+        isA<Future<void>>(),
+      );
     });
 
     test('initializeLanguageAsync 메서드의 타입 확인', () {

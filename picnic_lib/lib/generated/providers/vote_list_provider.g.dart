@@ -116,8 +116,9 @@ class AsyncVoteListFamily extends Family<AsyncValue<List<VoteModel>>> {
 }
 
 /// See also [AsyncVoteList].
-class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    AsyncVoteList, List<VoteModel>> {
+class AsyncVoteListProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<AsyncVoteList, List<VoteModel>> {
   /// See also [AsyncVoteList].
   AsyncVoteListProvider(
     int page,
@@ -129,33 +130,32 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required VoteStatus status,
     required VoteCategory category,
   }) : this._internal(
-          () => AsyncVoteList()
-            ..page = page
-            ..limit = limit
-            ..sort = sort
-            ..order = order
-            ..area = area
-            ..votePortal = votePortal
-            ..status = status
-            ..category = category,
-          from: asyncVoteListProvider,
-          name: r'asyncVoteListProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$asyncVoteListHash,
-          dependencies: AsyncVoteListFamily._dependencies,
-          allTransitiveDependencies:
-              AsyncVoteListFamily._allTransitiveDependencies,
-          page: page,
-          limit: limit,
-          sort: sort,
-          order: order,
-          area: area,
-          votePortal: votePortal,
-          status: status,
-          category: category,
-        );
+         () => AsyncVoteList()
+           ..page = page
+           ..limit = limit
+           ..sort = sort
+           ..order = order
+           ..area = area
+           ..votePortal = votePortal
+           ..status = status
+           ..category = category,
+         from: asyncVoteListProvider,
+         name: r'asyncVoteListProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$asyncVoteListHash,
+         dependencies: AsyncVoteListFamily._dependencies,
+         allTransitiveDependencies:
+             AsyncVoteListFamily._allTransitiveDependencies,
+         page: page,
+         limit: limit,
+         sort: sort,
+         order: order,
+         area: area,
+         votePortal: votePortal,
+         status: status,
+         category: category,
+       );
 
   AsyncVoteListProvider._internal(
     super._createNotifier, {
@@ -184,9 +184,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final VoteCategory category;
 
   @override
-  FutureOr<List<VoteModel>> runNotifierBuild(
-    covariant AsyncVoteList notifier,
-  ) {
+  FutureOr<List<VoteModel>> runNotifierBuild(covariant AsyncVoteList notifier) {
     return notifier.build(
       page,
       limit,
@@ -232,7 +230,7 @@ class AsyncVoteListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   AutoDisposeAsyncNotifierProviderElement<AsyncVoteList, List<VoteModel>>
-      createElement() {
+  createElement() {
     return _AsyncVoteListProviderElement(this);
   }
 
@@ -294,8 +292,9 @@ mixin AsyncVoteListRef on AutoDisposeAsyncNotifierProviderRef<List<VoteModel>> {
 }
 
 class _AsyncVoteListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncVoteList,
-        List<VoteModel>> with AsyncVoteListRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<AsyncVoteList, List<VoteModel>>
+    with AsyncVoteListRef {
   _AsyncVoteListProviderElement(super.provider);
 
   @override
@@ -322,13 +321,14 @@ String _$sortOptionHash() => r'8d0e51b1242be85e0437cebf8d5053fbce6dd7fe';
 @ProviderFor(SortOption)
 final sortOptionProvider =
     AutoDisposeNotifierProvider<SortOption, SortOptionType>.internal(
-  SortOption.new,
-  name: r'sortOptionProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$sortOptionHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      SortOption.new,
+      name: r'sortOptionProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$sortOptionHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SortOption = AutoDisposeNotifier<SortOptionType>;
 String _$commentCountHash() => r'5687d5fee456a37c642c76eefe393e1d11162b55';
@@ -336,9 +336,7 @@ String _$commentCountHash() => r'5687d5fee456a37c642c76eefe393e1d11162b55';
 abstract class _$CommentCount extends BuildlessAutoDisposeAsyncNotifier<int> {
   late final int articleId;
 
-  FutureOr<int> build(
-    int articleId,
-  );
+  FutureOr<int> build(int articleId);
 }
 
 /// See also [CommentCount].
@@ -351,21 +349,15 @@ class CommentCountFamily extends Family<AsyncValue<int>> {
   const CommentCountFamily();
 
   /// See also [CommentCount].
-  CommentCountProvider call(
-    int articleId,
-  ) {
-    return CommentCountProvider(
-      articleId,
-    );
+  CommentCountProvider call(int articleId) {
+    return CommentCountProvider(articleId);
   }
 
   @override
   CommentCountProvider getProviderOverride(
     covariant CommentCountProvider provider,
   ) {
-    return call(
-      provider.articleId,
-    );
+    return call(provider.articleId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -387,21 +379,19 @@ class CommentCountFamily extends Family<AsyncValue<int>> {
 class CommentCountProvider
     extends AutoDisposeAsyncNotifierProviderImpl<CommentCount, int> {
   /// See also [CommentCount].
-  CommentCountProvider(
-    int articleId,
-  ) : this._internal(
-          () => CommentCount()..articleId = articleId,
-          from: commentCountProvider,
-          name: r'commentCountProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$commentCountHash,
-          dependencies: CommentCountFamily._dependencies,
-          allTransitiveDependencies:
-              CommentCountFamily._allTransitiveDependencies,
-          articleId: articleId,
-        );
+  CommentCountProvider(int articleId)
+    : this._internal(
+        () => CommentCount()..articleId = articleId,
+        from: commentCountProvider,
+        name: r'commentCountProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$commentCountHash,
+        dependencies: CommentCountFamily._dependencies,
+        allTransitiveDependencies:
+            CommentCountFamily._allTransitiveDependencies,
+        articleId: articleId,
+      );
 
   CommentCountProvider._internal(
     super._createNotifier, {
@@ -416,12 +406,8 @@ class CommentCountProvider
   final int articleId;
 
   @override
-  FutureOr<int> runNotifierBuild(
-    covariant CommentCount notifier,
-  ) {
-    return notifier.build(
-      articleId,
-    );
+  FutureOr<int> runNotifierBuild(covariant CommentCount notifier) {
+    return notifier.build(articleId);
   }
 
   @override
@@ -474,5 +460,6 @@ class _CommentCountProviderElement
   @override
   int get articleId => (origin as CommentCountProvider).articleId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

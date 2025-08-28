@@ -101,8 +101,12 @@ class CommentsNotifierFamily extends Family<AsyncValue<List<CommentModel>>> {
 }
 
 /// See also [CommentsNotifier].
-class CommentsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    CommentsNotifier, List<CommentModel>> {
+class CommentsNotifierProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          CommentsNotifier,
+          List<CommentModel>
+        > {
   /// See also [CommentsNotifier].
   CommentsNotifierProvider(
     String postId,
@@ -111,27 +115,26 @@ class CommentsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
     bool includeDeleted = true,
     bool includeReported = true,
   }) : this._internal(
-          () => CommentsNotifier()
-            ..postId = postId
-            ..page = page
-            ..limit = limit
-            ..includeDeleted = includeDeleted
-            ..includeReported = includeReported,
-          from: commentsNotifierProvider,
-          name: r'commentsNotifierProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$commentsNotifierHash,
-          dependencies: CommentsNotifierFamily._dependencies,
-          allTransitiveDependencies:
-              CommentsNotifierFamily._allTransitiveDependencies,
-          postId: postId,
-          page: page,
-          limit: limit,
-          includeDeleted: includeDeleted,
-          includeReported: includeReported,
-        );
+         () => CommentsNotifier()
+           ..postId = postId
+           ..page = page
+           ..limit = limit
+           ..includeDeleted = includeDeleted
+           ..includeReported = includeReported,
+         from: commentsNotifierProvider,
+         name: r'commentsNotifierProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$commentsNotifierHash,
+         dependencies: CommentsNotifierFamily._dependencies,
+         allTransitiveDependencies:
+             CommentsNotifierFamily._allTransitiveDependencies,
+         postId: postId,
+         page: page,
+         limit: limit,
+         includeDeleted: includeDeleted,
+         includeReported: includeReported,
+       );
 
   CommentsNotifierProvider._internal(
     super._createNotifier, {
@@ -193,7 +196,7 @@ class CommentsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   AutoDisposeAsyncNotifierProviderElement<CommentsNotifier, List<CommentModel>>
-      createElement() {
+  createElement() {
     return _CommentsNotifierProviderElement(this);
   }
 
@@ -241,8 +244,12 @@ mixin CommentsNotifierRef
 }
 
 class _CommentsNotifierProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<CommentsNotifier,
-        List<CommentModel>> with CommentsNotifierRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          CommentsNotifier,
+          List<CommentModel>
+        >
+    with CommentsNotifierRef {
   _CommentsNotifierProviderElement(super.provider);
 
   @override
@@ -335,8 +342,12 @@ class UserCommentsNotifierFamily
 }
 
 /// See also [UserCommentsNotifier].
-class UserCommentsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    UserCommentsNotifier, List<CommentModel>> {
+class UserCommentsNotifierProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          UserCommentsNotifier,
+          List<CommentModel>
+        > {
   /// See also [UserCommentsNotifier].
   UserCommentsNotifierProvider(
     String userId,
@@ -345,27 +356,26 @@ class UserCommentsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
     bool includeDeleted = true,
     bool includeReported = true,
   }) : this._internal(
-          () => UserCommentsNotifier()
-            ..userId = userId
-            ..page = page
-            ..limit = limit
-            ..includeDeleted = includeDeleted
-            ..includeReported = includeReported,
-          from: userCommentsNotifierProvider,
-          name: r'userCommentsNotifierProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$userCommentsNotifierHash,
-          dependencies: UserCommentsNotifierFamily._dependencies,
-          allTransitiveDependencies:
-              UserCommentsNotifierFamily._allTransitiveDependencies,
-          userId: userId,
-          page: page,
-          limit: limit,
-          includeDeleted: includeDeleted,
-          includeReported: includeReported,
-        );
+         () => UserCommentsNotifier()
+           ..userId = userId
+           ..page = page
+           ..limit = limit
+           ..includeDeleted = includeDeleted
+           ..includeReported = includeReported,
+         from: userCommentsNotifierProvider,
+         name: r'userCommentsNotifierProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$userCommentsNotifierHash,
+         dependencies: UserCommentsNotifierFamily._dependencies,
+         allTransitiveDependencies:
+             UserCommentsNotifierFamily._allTransitiveDependencies,
+         userId: userId,
+         page: page,
+         limit: limit,
+         includeDeleted: includeDeleted,
+         includeReported: includeReported,
+       );
 
   UserCommentsNotifierProvider._internal(
     super._createNotifier, {
@@ -426,8 +436,11 @@ class UserCommentsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<UserCommentsNotifier,
-      List<CommentModel>> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<
+    UserCommentsNotifier,
+    List<CommentModel>
+  >
+  createElement() {
     return _UserCommentsNotifierProviderElement(this);
   }
 
@@ -475,8 +488,12 @@ mixin UserCommentsNotifierRef
 }
 
 class _UserCommentsNotifierProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<UserCommentsNotifier,
-        List<CommentModel>> with UserCommentsNotifierRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          UserCommentsNotifier,
+          List<CommentModel>
+        >
+    with UserCommentsNotifierRef {
   _UserCommentsNotifierProviderElement(super.provider);
 
   @override
@@ -500,14 +517,14 @@ String _$commentTranslationNotifierHash() =>
 @ProviderFor(CommentTranslationNotifier)
 final commentTranslationNotifierProvider =
     AutoDisposeAsyncNotifierProvider<CommentTranslationNotifier, void>.internal(
-  CommentTranslationNotifier.new,
-  name: r'commentTranslationNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$commentTranslationNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      CommentTranslationNotifier.new,
+      name: r'commentTranslationNotifierProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$commentTranslationNotifierHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$CommentTranslationNotifier = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint

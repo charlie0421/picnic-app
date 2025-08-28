@@ -13,14 +13,14 @@ String _$communityStateInfoHash() =>
 @ProviderFor(CommunityStateInfo)
 final communityStateInfoProvider =
     NotifierProvider<CommunityStateInfo, CommunityState>.internal(
-  CommunityStateInfo.new,
-  name: r'communityStateInfoProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$communityStateInfoHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      CommunityStateInfo.new,
+      name: r'communityStateInfoProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$communityStateInfoHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$CommunityStateInfo = Notifier<CommunityState>;
 // ignore_for_file: type=lint

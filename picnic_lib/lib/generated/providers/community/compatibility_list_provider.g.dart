@@ -33,9 +33,7 @@ abstract class _$CompatibilityList
     extends BuildlessAutoDisposeNotifier<CompatibilityHistoryModel> {
   late final int? artistId;
 
-  CompatibilityHistoryModel build({
-    int? artistId,
-  });
+  CompatibilityHistoryModel build({int? artistId});
 }
 
 /// See also [CompatibilityList].
@@ -48,21 +46,15 @@ class CompatibilityListFamily extends Family<CompatibilityHistoryModel> {
   const CompatibilityListFamily();
 
   /// See also [CompatibilityList].
-  CompatibilityListProvider call({
-    int? artistId,
-  }) {
-    return CompatibilityListProvider(
-      artistId: artistId,
-    );
+  CompatibilityListProvider call({int? artistId}) {
+    return CompatibilityListProvider(artistId: artistId);
   }
 
   @override
   CompatibilityListProvider getProviderOverride(
     covariant CompatibilityListProvider provider,
   ) {
-    return call(
-      artistId: provider.artistId,
-    );
+    return call(artistId: provider.artistId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -81,24 +73,26 @@ class CompatibilityListFamily extends Family<CompatibilityHistoryModel> {
 }
 
 /// See also [CompatibilityList].
-class CompatibilityListProvider extends AutoDisposeNotifierProviderImpl<
-    CompatibilityList, CompatibilityHistoryModel> {
+class CompatibilityListProvider
+    extends
+        AutoDisposeNotifierProviderImpl<
+          CompatibilityList,
+          CompatibilityHistoryModel
+        > {
   /// See also [CompatibilityList].
-  CompatibilityListProvider({
-    int? artistId,
-  }) : this._internal(
-          () => CompatibilityList()..artistId = artistId,
-          from: compatibilityListProvider,
-          name: r'compatibilityListProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$compatibilityListHash,
-          dependencies: CompatibilityListFamily._dependencies,
-          allTransitiveDependencies:
-              CompatibilityListFamily._allTransitiveDependencies,
-          artistId: artistId,
-        );
+  CompatibilityListProvider({int? artistId})
+    : this._internal(
+        () => CompatibilityList()..artistId = artistId,
+        from: compatibilityListProvider,
+        name: r'compatibilityListProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$compatibilityListHash,
+        dependencies: CompatibilityListFamily._dependencies,
+        allTransitiveDependencies:
+            CompatibilityListFamily._allTransitiveDependencies,
+        artistId: artistId,
+      );
 
   CompatibilityListProvider._internal(
     super._createNotifier, {
@@ -116,9 +110,7 @@ class CompatibilityListProvider extends AutoDisposeNotifierProviderImpl<
   CompatibilityHistoryModel runNotifierBuild(
     covariant CompatibilityList notifier,
   ) {
-    return notifier.build(
-      artistId: artistId,
-    );
+    return notifier.build(artistId: artistId);
   }
 
   @override
@@ -138,8 +130,11 @@ class CompatibilityListProvider extends AutoDisposeNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeNotifierProviderElement<CompatibilityList,
-      CompatibilityHistoryModel> createElement() {
+  AutoDisposeNotifierProviderElement<
+    CompatibilityList,
+    CompatibilityHistoryModel
+  >
+  createElement() {
     return _CompatibilityListProviderElement(this);
   }
 
@@ -166,12 +161,17 @@ mixin CompatibilityListRef
 }
 
 class _CompatibilityListProviderElement
-    extends AutoDisposeNotifierProviderElement<CompatibilityList,
-        CompatibilityHistoryModel> with CompatibilityListRef {
+    extends
+        AutoDisposeNotifierProviderElement<
+          CompatibilityList,
+          CompatibilityHistoryModel
+        >
+    with CompatibilityListRef {
   _CompatibilityListProviderElement(super.provider);
 
   @override
   int? get artistId => (origin as CompatibilityListProvider).artistId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

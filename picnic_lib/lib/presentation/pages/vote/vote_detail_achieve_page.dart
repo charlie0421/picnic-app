@@ -35,8 +35,11 @@ class VoteDetailAchievePage extends ConsumerStatefulWidget {
   final int voteId;
   final VotePortal votePortal;
 
-  const VoteDetailAchievePage(
-      {super.key, required this.voteId, this.votePortal = VotePortal.vote});
+  const VoteDetailAchievePage({
+    super.key,
+    required this.voteId,
+    this.votePortal = VotePortal.vote,
+  });
 
   @override
   ConsumerState<VoteDetailAchievePage> createState() =>
@@ -56,16 +59,20 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _confettiController =
-        ConfettiController(duration: const Duration(seconds: 2));
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
     _setupTimer();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: false,
-          showTopMenu: true,
-          showBottomNavigation: false,
-          pageTitle: AppLocalizations.of(context).page_title_vote_detail);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: false,
+            showTopMenu: true,
+            showBottomNavigation: false,
+            pageTitle: AppLocalizations.of(context).page_title_vote_detail,
+          );
     });
   }
 
@@ -90,7 +97,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   }
 
   void _checkMilestoneAchievement(
-      int currentVotes, List<VoteAchieve> achievements) {
+    int currentVotes,
+    List<VoteAchieve> achievements,
+  ) {
     final sortedAchievements = List<VoteAchieve>.from(achievements)
       ..sort((a, b) => a.amount.compareTo(b.amount));
 
@@ -124,224 +133,265 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
     Timer? autoCloseTimer;
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Material(
-        color: Colors.black.withValues(alpha: 0.7),
-        child: Stack(
-          children: [
-            // Confetti effects
-            Positioned.fill(
-              child: ConfettiWidget(
-                confettiController: _confettiController,
-                blastDirection: pi / 2,
-                maxBlastForce: 8,
-                minBlastForce: 4,
-                emissionFrequency: 0.08,
-                numberOfParticles: 80,
-                gravity: 0.15,
-                shouldLoop: false,
-                colors: const [
-                  Colors.amber,
-                  Colors.amberAccent,
-                  Colors.yellow,
-                  Colors.green,
-                  Colors.blue,
-                  Colors.pink,
-                  Colors.orange,
-                  Colors.purple,
-                  Colors.red,
-                ],
-                createParticlePath: (size) {
-                  final path = Path();
-                  if (Random().nextBool()) {
-                    path.addOval(
-                        Rect.fromCircle(center: Offset.zero, radius: 6.0));
-                  } else {
-                    final star = Path();
-                    for (var i = 0; i < 5; i++) {
-                      final angle = -pi / 2 + (i * 4 * pi / 5);
-                      final point = Offset(cos(angle) * 6, sin(angle) * 6);
-                      if (i == 0) {
-                        star.moveTo(point.dx, point.dy);
+      builder:
+          (context) => Material(
+            color: Colors.black.withValues(alpha: 0.7),
+            child: Stack(
+              children: [
+                // Confetti effects
+                Positioned.fill(
+                  child: ConfettiWidget(
+                    confettiController: _confettiController,
+                    blastDirection: pi / 2,
+                    maxBlastForce: 8,
+                    minBlastForce: 4,
+                    emissionFrequency: 0.08,
+                    numberOfParticles: 80,
+                    gravity: 0.15,
+                    shouldLoop: false,
+                    colors: const [
+                      Colors.amber,
+                      Colors.amberAccent,
+                      Colors.yellow,
+                      Colors.green,
+                      Colors.blue,
+                      Colors.pink,
+                      Colors.orange,
+                      Colors.purple,
+                      Colors.red,
+                    ],
+                    createParticlePath: (size) {
+                      final path = Path();
+                      if (Random().nextBool()) {
+                        path.addOval(
+                          Rect.fromCircle(center: Offset.zero, radius: 6.0),
+                        );
                       } else {
-                        star.lineTo(point.dx, point.dy);
+                        final star = Path();
+                        for (var i = 0; i < 5; i++) {
+                          final angle = -pi / 2 + (i * 4 * pi / 5);
+                          final point = Offset(cos(angle) * 6, sin(angle) * 6);
+                          if (i == 0) {
+                            star.moveTo(point.dx, point.dy);
+                          } else {
+                            star.lineTo(point.dx, point.dy);
+                          }
+                        }
+                        path.addPath(star, Offset.zero);
                       }
-                    }
-                    path.addPath(star, Offset.zero);
-                  }
-                  return path;
-                },
-              ),
-            ),
-            // Achievement popup
-            Center(
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: const Duration(milliseconds: 700),
-                curve: Curves.elasticOut,
-                onEnd: () {
-                  autoCloseTimer = Timer(const Duration(seconds: 3), () {
-                    if (_overlayEntry?.mounted ?? false) {
-                      _overlayEntry?.remove();
-                      _overlayEntry = null;
-                    }
-                  });
-                },
-                builder: (context, value, child) {
-                  return Transform.scale(
-                    scale: value,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: commonGradient,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary500.withValues(alpha: 0.4),
-                            blurRadius: 15,
-                            spreadRadius: 3,
+                      return path;
+                    },
+                  ),
+                ),
+                // Achievement popup
+                Center(
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    duration: const Duration(milliseconds: 700),
+                    curve: Curves.elasticOut,
+                    onEnd: () {
+                      autoCloseTimer = Timer(const Duration(seconds: 3), () {
+                        if (_overlayEntry?.mounted ?? false) {
+                          _overlayEntry?.remove();
+                          _overlayEntry = null;
+                        }
+                      });
+                    },
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            gradient: commonGradient,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary500.withValues(
+                                  alpha: 0.4,
+                                ),
+                                blurRadius: 15,
+                                spreadRadius: 3,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context).text_achievement(
-                                  achievements.length.toString()),
-                              style: getTextStyle(
-                                  AppTypo.title18B, AppColors.grey00),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Wrap(
-                            spacing: 16,
-                            runSpacing: 16,
-                            alignment: WrapAlignment.center,
-                            children: achievements.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final achievement = entry.value;
-                              final isNewlyAchieved = !_achievedMilestones
-                                  .contains(achievement.amount);
-                              final isEven = index.isEven;
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  ).text_achievement(achievements.length),
+                                  style: getTextStyle(
+                                    AppTypo.title18B,
+                                    AppColors.grey00,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Wrap(
+                                spacing: 16,
+                                runSpacing: 16,
+                                alignment: WrapAlignment.center,
+                                children:
+                                    achievements.asMap().entries.map((entry) {
+                                      final index = entry.key;
+                                      final achievement = entry.value;
+                                      final isNewlyAchieved =
+                                          !_achievedMilestones.contains(
+                                            achievement.amount,
+                                          );
+                                      final isEven = index.isEven;
 
-                              return TweenAnimationBuilder<double>(
-                                tween: Tween(begin: 0.0, end: 1.0),
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeOutBack,
-                                builder: (context, scale, child) {
-                                  return Transform.scale(
-                                    scale: scale,
-                                    child: Container(
-                                      width: 150,
-                                      margin: EdgeInsets.only(
-                                        top: isEven ? 0 : 20,
-                                        bottom: isEven ? 20 : 0,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            Colors.black.withValues(alpha: 0.2),
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color: isNewlyAchieved
-                                              ? AppColors.primary500
-                                              : AppColors.grey00
-                                                  .withValues(alpha: 0.3),
-                                          width: isNewlyAchieved ? 2 : 1,
+                                      return TweenAnimationBuilder<double>(
+                                        tween: Tween(begin: 0.0, end: 1.0),
+                                        duration: const Duration(
+                                          milliseconds: 500,
                                         ),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          if (achievement.reward.thumbnail !=
-                                              null)
-                                            Container(
-                                              width: 80,
-                                              height: 80,
-                                              margin: const EdgeInsets.only(
-                                                top: 16,
-                                                bottom: 12,
+                                        curve: Curves.easeOutBack,
+                                        builder: (context, scale, child) {
+                                          return Transform.scale(
+                                            scale: scale,
+                                            child: Container(
+                                              width: 150,
+                                              margin: EdgeInsets.only(
+                                                top: isEven ? 0 : 20,
+                                                bottom: isEven ? 20 : 0,
                                               ),
                                               decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: AppColors.grey00,
-                                                  width: 2,
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.2,
                                                 ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: AppColors.grey00
-                                                        .withValues(alpha: 0.2),
-                                                    blurRadius: 4,
-                                                    spreadRadius: 1,
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                border: Border.all(
+                                                  color:
+                                                      isNewlyAchieved
+                                                          ? AppColors.primary500
+                                                          : AppColors.grey00
+                                                              .withValues(
+                                                                alpha: 0.3,
+                                                              ),
+                                                  width:
+                                                      isNewlyAchieved ? 2 : 1,
+                                                ),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  if (achievement
+                                                          .reward
+                                                          .thumbnail !=
+                                                      null)
+                                                    Container(
+                                                      width: 80,
+                                                      height: 80,
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                            top: 16,
+                                                            bottom: 12,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color:
+                                                              AppColors.grey00,
+                                                          width: 2,
+                                                        ),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: AppColors
+                                                                .grey00
+                                                                .withValues(
+                                                                  alpha: 0.2,
+                                                                ),
+                                                            blurRadius: 4,
+                                                            spreadRadius: 1,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              40,
+                                                            ),
+                                                        child:
+                                                            PicnicCachedNetworkImage(
+                                                              imageUrl:
+                                                                  achievement
+                                                                      .reward
+                                                                      .thumbnail!,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  Text(
+                                                    formatNumberWithComma(
+                                                      achievement.amount
+                                                          .toString(),
+                                                    ),
+                                                    style: getTextStyle(
+                                                      AppTypo.body16B,
+                                                      AppColors.grey00,
+                                                    ),
                                                   ),
+                                                  if (achievement
+                                                          .reward
+                                                          .title !=
+                                                      null)
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                            vertical: 8,
+                                                          ),
+                                                      child: Text(
+                                                        getLocaleTextFromJson(
+                                                          achievement
+                                                              .reward
+                                                              .title!,
+                                                        ),
+                                                        style: getTextStyle(
+                                                          AppTypo.caption12R,
+                                                          AppColors.grey00,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        maxLines: 2,
+                                                        overflow:
+                                                            TextOverflow
+                                                                .ellipsis,
+                                                      ),
+                                                    ),
                                                 ],
                                               ),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(40),
-                                                child: PicnicCachedNetworkImage(
-                                                  imageUrl: achievement
-                                                      .reward.thumbnail!,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
                                             ),
-                                          Text(
-                                            formatNumberWithComma(
-                                                achievement.amount.toString()),
-                                            style: getTextStyle(
-                                              AppTypo.body16B,
-                                              AppColors.grey00,
-                                            ),
-                                          ),
-                                          if (achievement.reward.title != null)
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
-                                              child: Text(
-                                                getLocaleTextFromJson(
-                                                    achievement.reward.title!),
-                                                style: getTextStyle(
-                                                  AppTypo.caption12R,
-                                                  AppColors.grey00,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }).toList(),
+                                          );
+                                        },
+                                      );
+                                    }).toList(),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
 
     autoCloseTimer?.cancel();
@@ -351,80 +401,95 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   @override
   Widget build(BuildContext context) {
     return ref
-        .watch(asyncVoteItemListProvider(
-            voteId: widget.voteId, votePortal: widget.votePortal))
+        .watch(
+          asyncVoteItemListProvider(
+            voteId: widget.voteId,
+            votePortal: widget.votePortal,
+          ),
+        )
         .when(
-            data: (data) {
-              if (data.isEmpty) return const SizedBox.shrink();
-              return Column(
-                children: [
-                  _buildVoteInfo(),
-                  _buildAchieveItem(data[0]!),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      child: Column(
-                        children: [_buildLevelItem(data[0]!)],
-                      ),
-                    ),
+          data: (data) {
+            if (data.isEmpty) return const SizedBox.shrink();
+            return Column(
+              children: [
+                _buildVoteInfo(),
+                _buildAchieveItem(data[0]!),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    child: Column(children: [_buildLevelItem(data[0]!)]),
                   ),
-                ],
-              );
-            },
-            loading: () => _buildLoadingShimmer(),
-            error: (error, stackTrace) => buildErrorView(context,
-                error: error.toString(), stackTrace: stackTrace));
+                ),
+              ],
+            );
+          },
+          loading: () => _buildLoadingShimmer(),
+          error:
+              (error, stackTrace) => buildErrorView(
+                context,
+                error: error.toString(),
+                stackTrace: stackTrace,
+              ),
+        );
   }
 
   Widget _buildVoteInfo() {
     final width = MediaQuery.of(context).size.width;
-    return ref.watch(asyncVoteDetailProvider(voteId: widget.voteId)).when(
-        data: (voteModel) {
-          if (voteModel == null) return const SizedBox.shrink();
+    return ref
+        .watch(asyncVoteDetailProvider(voteId: widget.voteId))
+        .when(
+          data: (voteModel) {
+            if (voteModel == null) return const SizedBox.shrink();
 
-          return Column(
-            children: [
-              if (voteModel.mainImage != null &&
-                  voteModel.mainImage!.isNotEmpty)
-                SizedBox(
-                  width: width,
-                  child: PicnicCachedNetworkImage(
-                    imageUrl: voteModel.mainImage!,
+            return Column(
+              children: [
+                if (voteModel.mainImage != null &&
+                    voteModel.mainImage!.isNotEmpty)
+                  SizedBox(
                     width: width,
-                    memCacheWidth: width.toInt(),
+                    child: PicnicCachedNetworkImage(
+                      imageUrl: voteModel.mainImage!,
+                      width: width,
+                      memCacheWidth: width.toInt(),
+                    ),
+                  ),
+                const SizedBox(height: 36),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 57.w),
+                  child: VoteCommonTitle(
+                    title: getLocaleTextFromJson(voteModel.title),
                   ),
                 ),
-              const SizedBox(height: 36),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 57.w),
-                child: VoteCommonTitle(
-                    title: getLocaleTextFromJson(voteModel.title)),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 18,
-                child: Text(
-                  '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt!.toLocal())} ~ '
-                  '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stopAt!.toLocal())} '
-                  '(${getShortTimeZoneIdentifier()})',
-                  style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 18,
+                  child: Text(
+                    '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.startAt!.toLocal())} ~ '
+                    '${DateFormat('yyyy.MM.dd HH:mm').format(voteModel.stopAt!.toLocal())} '
+                    '(${getShortTimeZoneIdentifier()})',
+                    style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: BannerAdWidget(
-                  configKey: 'VOTE_DETAIL',
-                  adSize: AdSize.largeBanner,
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: BannerAdWidget(
+                    configKey: 'VOTE_DETAIL',
+                    adSize: AdSize.largeBanner,
+                  ),
                 ),
+                const SizedBox(height: 18),
+              ],
+            );
+          },
+          loading: () => _buildLoadingShimmer(),
+          error:
+              (error, stackTrace) => buildErrorView(
+                context,
+                error: error.toString(),
+                stackTrace: stackTrace,
               ),
-              const SizedBox(height: 18),
-            ],
-          );
-        },
-        loading: () => _buildLoadingShimmer(),
-        error: (error, stackTrace) => buildErrorView(context,
-            error: error.toString(), stackTrace: stackTrace));
+        );
   }
 
   Widget _buildAchieveItem(VoteItemModel data) {
@@ -445,107 +510,117 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FutureBuilder<List<VoteAchieve>?>(
-                future: fetchVoteAchieve(ref, voteId: widget.voteId),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Container();
+              future: fetchVoteAchieve(ref, voteId: widget.voteId),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Container();
+                }
+
+                final achievements = snapshot.data!;
+                _achievements = achievements; // 캐시를 위해 저장
+
+                final mainMilestones = _generateMilestonesFromAchievements(
+                  achievements,
+                );
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && !_isDisposed) {
+                    _checkMilestoneAchievement(data.voteTotal!, achievements);
                   }
+                });
 
-                  final achievements = snapshot.data!;
-                  _achievements = achievements; // 캐시를 위해 저장
+                final levels = _generateLevels(mainMilestones);
+                var rewardIndex = 0;
 
-                  final mainMilestones =
-                      _generateMilestonesFromAchievements(achievements);
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: List.generate(levels.length, (index) {
+                      final currentLevel = levels[index];
+                      final isAchieved = data.voteTotal! >= currentLevel;
+                      final isMainMilestone = mainMilestones.contains(
+                        currentLevel,
+                      );
 
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted && !_isDisposed) {
-                      _checkMilestoneAchievement(data.voteTotal!, achievements);
-                    }
-                  });
-
-                  final levels = _generateLevels(mainMilestones);
-                  var rewardIndex = 0;
-
-                  return Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: List.generate(
-                        levels.length,
-                        (index) {
-                          final currentLevel = levels[index];
-                          final isAchieved = data.voteTotal! >= currentLevel;
-                          final isMainMilestone =
-                              mainMilestones.contains(currentLevel);
-
-                          return Row(
-                            children: [
-                              if (isMainMilestone && currentLevel > 0)
-                                _buildRewardInfo(
-                                    achievements, rewardIndex++, isAchieved)
-                              else
-                                const SizedBox(width: 180),
-                              SizedBox(width: 5.w),
-                              Container(
-                                width: 80,
-                                height: 50,
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  currentLevel == 0
-                                      ? '0'
-                                      : formatNumberWithComma(
-                                          currentLevel.toString()),
-                                  style: getTextStyle(
-                                      isMainMilestone
-                                          ? AppTypo.caption12B
-                                          : AppTypo.caption12R,
-                                      isAchieved
-                                          ? AppColors.primary500
-                                          : AppColors.grey400),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                              SizedBox(width: 5.w),
-                              Container(
-                                width: 10.w,
-                                height: 2,
-                                color: isAchieved
+                      return Row(
+                        children: [
+                          if (isMainMilestone && currentLevel > 0)
+                            _buildRewardInfo(
+                              achievements,
+                              rewardIndex++,
+                              isAchieved,
+                            )
+                          else
+                            const SizedBox(width: 180),
+                          SizedBox(width: 5.w),
+                          Container(
+                            width: 80,
+                            height: 50,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              currentLevel == 0
+                                  ? '0'
+                                  : formatNumberWithComma(
+                                    currentLevel.toString(),
+                                  ),
+                              style: getTextStyle(
+                                isMainMilestone
+                                    ? AppTypo.caption12B
+                                    : AppTypo.caption12R,
+                                isAchieved
                                     ? AppColors.primary500
                                     : AppColors.grey400,
                               ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                }),
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                          SizedBox(width: 5.w),
+                          Container(
+                            width: 10.w,
+                            height: 2,
+                            color:
+                                isAchieved
+                                    ? AppColors.primary500
+                                    : AppColors.grey400,
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                );
+              },
+            ),
             SizedBox(width: 8.w),
             FutureBuilder<List<VoteAchieve>?>(
-                future: fetchVoteAchieve(ref, voteId: widget.voteId),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Container();
-                  }
+              future: fetchVoteAchieve(ref, voteId: widget.voteId),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Container();
+                }
 
-                  final achievements = snapshot.data!;
-                  final mainMilestones =
-                      _generateMilestonesFromAchievements(achievements);
+                final achievements = snapshot.data!;
+                final mainMilestones = _generateMilestonesFromAchievements(
+                  achievements,
+                );
 
-                  final progressHeight =
-                      50 * _calculateTotalSteps(mainMilestones).toDouble() - 50;
-                  return Container(
-                    width: 20,
-                    height: progressHeight,
-                    padding: const EdgeInsets.symmetric(vertical: 0),
-                    alignment: Alignment.center,
-                    child: LayoutBuilder(builder: (context, constraints) {
+                final progressHeight =
+                    50 * _calculateTotalSteps(mainMilestones).toDouble() - 50;
+                return Container(
+                  width: 20,
+                  height: progressHeight,
+                  padding: const EdgeInsets.symmetric(vertical: 0),
+                  alignment: Alignment.center,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
                       final allLevels = _generateLevels(mainMilestones);
                       final voteTotal = data.voteTotal ?? 0;
 
                       // 개선된 진행률 계산 로직
-                      double exactProgress =
-                          _calculateExactProgress(voteTotal, allLevels);
+                      double exactProgress = _calculateExactProgress(
+                        voteTotal,
+                        allLevels,
+                      );
 
                       return FAProgressBar(
                         key: ValueKey(voteTotal),
@@ -559,9 +634,11 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                         progressGradient: commonGradientVertical,
                         displayText: null, // 텍스트 표시 제거
                       );
-                    }),
-                  );
-                }),
+                    },
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -592,31 +669,42 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                     RichText(
                       overflow: TextOverflow.ellipsis,
                       text: TextSpan(
-                          children: (item.artist?.id ?? 0) != 0
-                              ? [
+                        children:
+                            (item.artist?.id ?? 0) != 0
+                                ? [
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artist?.name ?? {}),
+                                      item.artist?.name ?? {},
+                                    ),
                                     style: getTextStyle(
-                                        AppTypo.body14B, AppColors.grey900),
+                                      AppTypo.body14B,
+                                      AppColors.grey900,
+                                    ),
                                   ),
                                   const TextSpan(text: ' '),
                                   if (item.artist?.artistGroup?.name != null)
                                     TextSpan(
                                       text: getLocaleTextFromJson(
-                                          item.artist!.artistGroup!.name),
-                                      style: getTextStyle(AppTypo.caption10SB,
-                                          AppColors.grey600),
+                                        item.artist!.artistGroup!.name,
+                                      ),
+                                      style: getTextStyle(
+                                        AppTypo.caption10SB,
+                                        AppColors.grey600,
+                                      ),
                                     ),
                                 ]
-                              : [
+                                : [
                                   TextSpan(
                                     text: getLocaleTextFromJson(
-                                        item.artistGroup?.name ?? {}),
+                                      item.artistGroup?.name ?? {},
+                                    ),
                                     style: getTextStyle(
-                                        AppTypo.body14B, AppColors.grey900),
+                                      AppTypo.body14B,
+                                      AppColors.grey900,
+                                    ),
                                   ),
-                                ]),
+                                ],
+                      ),
                     ),
                     const SizedBox(height: 8),
                     _buildVoteCountContainer(item, item.voteTotal!),
@@ -658,7 +746,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(39),
         child: PicnicCachedNetworkImage(
-          imageUrl: ((item.artist?.id ?? 0) != 0
+          imageUrl:
+              ((item.artist?.id ?? 0) != 0
                   ? item.artist?.image
                   : item.artistGroup?.image) ??
               '',
@@ -692,19 +781,22 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
           height: 20,
           padding: EdgeInsets.only(right: 16.w, bottom: 3),
           alignment: Alignment.centerRight,
-          child: hasChanged
-              ? AnimatedDigitWidget(
-                  value: item.voteTotal,
-                  enableSeparator: true,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  textStyle:
-                      getTextStyle(AppTypo.caption10SB, AppColors.grey00),
-                )
-              : Text(
-                  NumberFormat('#,###').format(item.voteTotal),
-                  style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
-                ),
+          child:
+              hasChanged
+                  ? AnimatedDigitWidget(
+                    value: item.voteTotal,
+                    enableSeparator: true,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                    textStyle: getTextStyle(
+                      AppTypo.caption10SB,
+                      AppColors.grey00,
+                    ),
+                  )
+                  : Text(
+                    NumberFormat('#,###').format(item.voteTotal),
+                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+                  ),
         ),
         if (voteCountDiff > 0)
           Positioned(
@@ -723,7 +815,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                     child: Text(
                       '+$voteCountDiff',
                       style: getTextStyle(
-                          AppTypo.caption10SB, AppColors.primary500),
+                        AppTypo.caption10SB,
+                        AppColors.primary500,
+                      ),
                     ),
                   ),
                 );
@@ -739,23 +833,28 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
         ref.read(asyncVoteDetailProvider(voteId: widget.voteId)).value!;
     if (voteDetail.isEnded!) {
       showSimpleDialog(
-          content: AppLocalizations.of(context).message_vote_is_ended);
+        content: AppLocalizations.of(context).message_vote_is_ended,
+      );
     } else if (voteDetail.isUpcoming!) {
       showSimpleDialog(
-          content: AppLocalizations.of(context).message_vote_is_upcoming);
+        content: AppLocalizations.of(context).message_vote_is_upcoming,
+      );
     } else {
       isSupabaseLoggedSafely
           ? showVotingDialog(
-              context: context,
-              voteModel: voteDetail,
-              voteItemModel: item,
-            )
+            context: context,
+            voteModel: voteDetail,
+            voteItemModel: item,
+          )
           : showRequireLoginDialog();
     }
   }
 
   Widget _buildRewardInfo(
-      List<VoteAchieve> achievements, int rewardIndex, bool isAchieved) {
+    List<VoteAchieve> achievements,
+    int rewardIndex,
+    bool isAchieved,
+  ) {
     return GestureDetector(
       onTap: () {
         showRewardDialog(context, achievements[rewardIndex].reward);
@@ -772,24 +871,25 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                 children: [
                   Text(
                     '${AppLocalizations.of(context).reward}${rewardIndex + 1}',
-                    style: getTextStyle(AppTypo.caption12B,
-                        isAchieved ? AppColors.primary500 : AppColors.grey400),
+                    style: getTextStyle(
+                      AppTypo.caption12B,
+                      isAchieved ? AppColors.primary500 : AppColors.grey400,
+                    ),
                   ),
                   Text(
                     getLocaleTextFromJson(
-                        achievements[rewardIndex].reward.title!),
+                      achievements[rewardIndex].reward.title!,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: getTextStyle(
-                            AppTypo.caption12B,
-                            isAchieved
-                                ? AppColors.primary500
-                                : AppColors.grey400)
-                        .copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationColor: isAchieved
-                                ? AppColors.primary500
-                                : AppColors.grey400),
+                      AppTypo.caption12B,
+                      isAchieved ? AppColors.primary500 : AppColors.grey400,
+                    ).copyWith(
+                      decoration: TextDecoration.underline,
+                      decorationColor:
+                          isAchieved ? AppColors.primary500 : AppColors.grey400,
+                    ),
                   ),
                 ],
               ),
@@ -823,9 +923,10 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                   height: 50,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
-                    color: isAchieved
-                        ? null
-                        : AppColors.grey400.withValues(alpha: 0.5),
+                    color:
+                        isAchieved
+                            ? null
+                            : AppColors.grey400.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -837,7 +938,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
   }
 
   List<int> _generateMilestonesFromAchievements(
-      List<VoteAchieve> achievements) {
+    List<VoteAchieve> achievements,
+  ) {
     List<int> milestones = [0];
     milestones.addAll(achievements.map((achieve) => achieve.amount));
     return milestones;
@@ -971,7 +1073,10 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                              height: 16, width: 120.w, color: Colors.white),
+                            height: 16,
+                            width: 120.w,
+                            color: Colors.white,
+                          ),
                           const SizedBox(height: 8),
                           Container(height: 14, color: Colors.white),
                         ],

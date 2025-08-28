@@ -62,8 +62,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         setState(() {});
       });
 
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-          pageTitle: AppLocalizations.of(context).mypage_setting);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(
+            pageTitle: AppLocalizations.of(context).mypage_setting,
+          );
     });
   }
 
@@ -75,271 +78,275 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final patchInfo = ref.watch(patchInfoProvider);
 
     return userInfoState.when(
-        data: (data) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: ListView(
-                children: [
-                  const SizedBox(height: 16),
-                  Text(AppLocalizations.of(context).label_setting_alarm,
-                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  const SizedBox(height: 4),
-                  PicnicListItem(
-                    leading:
-                        AppLocalizations.of(context).label_setting_push_alarm,
-                    assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    tailing: LoadSwitch(
-                      width: 48.w,
-                      height: 28,
-                      value: value1,
-                      future: _getFuture1,
-                      style: SpinStyle.material,
-                      curveIn: Curves.easeInBack,
-                      curveOut: Curves.easeOutBack,
-                      animationDuration: const Duration(milliseconds: 500),
-                      thumbDecoration: (value, isActive) => BoxDecoration(
-                        gradient: switchThumbGradient,
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      switchDecoration: (
-                        value,
-                        isActive,
-                      ) =>
-                          BoxDecoration(
-                        color: value ? AppColors.primary500 : AppColors.grey200,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [switchBoxShadow],
-                      ),
-                      spinColor: (value) =>
-                          value ? AppColors.primary500 : AppColors.primary500,
-                      spinStrokeWidth: 1,
-                      onChange: (v) {
-                        value1 = v;
-                        setState(() {});
-                      },
-                      onTap: (v) {},
-                    ),
-                  ),
-                  PicnicListItem(
-                    leading:
-                        AppLocalizations.of(context).label_setting_event_alarm,
-                    title: Container(
-                      margin: EdgeInsets.only(left: 8.w),
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .label_setting_event_alarm_desc,
-                        style:
-                            getTextStyle(AppTypo.caption12R, AppColors.grey600),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    tailing: LoadSwitch(
-                      width: 48.w,
-                      height: 28,
-                      value: value2,
-                      future: _getFuture2,
-                      style: SpinStyle.material,
-                      curveIn: Curves.easeInBack,
-                      curveOut: Curves.easeOutBack,
-                      animationDuration: const Duration(milliseconds: 500),
-                      thumbDecoration: (value, isActive) => BoxDecoration(
-                        gradient: switchThumbGradient,
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      switchDecoration: (
-                        value,
-                        isActive,
-                      ) =>
-                          BoxDecoration(
-                        color: value ? AppColors.primary500 : AppColors.grey200,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [switchBoxShadow],
-                      ),
-                      spinColor: (value) =>
-                          value ? AppColors.primary500 : AppColors.primary500,
-                      spinStrokeWidth: 1,
-                      onChange: (v) {
-                        value2 = v;
-                        setState(() {});
-                      },
-                      onTap: (v) {},
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(AppLocalizations.of(context).label_setting_storage,
-                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  PicnicListItem(
-                      leading: AppLocalizations.of(context)
-                          .label_setting_remove_cache,
-                      assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      onTap: () async {
-                        OverlayLoadingProgress.start(context);
-                        final cacheManager = DefaultCacheManager();
-                        cacheManager.emptyCache().then((value) {
-                          OverlayLoadingProgress.stop();
-                          if (navigatorKey.currentContext != null) {
-                            showSimpleDialog(
-                                content: AppLocalizations.of(
-                                        navigatorKey.currentContext!)
-                                    .message_setting_remove_cache,
-                                onOk: () => Navigator.of(context).pop());
-                          }
-                        });
-                      }),
-                  const SizedBox(height: 24),
-                  Text(AppLocalizations.of(context).label_setting_appinfo,
-                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  updateChecker.when(
-                      data: (info) {
-                        if (info == null) {
-                          return Container();
-                        }
-                        switch (info.status) {
-                          case UpdateStatus.needPatch:
-                            return PicnicListItem(
-                              leading:
-                                  '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
-                              title: Container(
-                                margin: EdgeInsets.only(right: 8.w),
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
-                                  style: getTextStyle(
-                                      AppTypo.caption12B, AppColors.primary500),
-                                ),
-                              ),
-                              assetPath:
-                                  'assets/icons/arrow_right_style=line.svg',
-                            );
-                          case UpdateStatus.updateRequired:
-                            return PicnicListItem(
-                              leading:
-                                  '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
-                              title: Container(
-                                margin: EdgeInsets.only(right: 8.w),
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
-                                  style: getTextStyle(
-                                      AppTypo.caption12B, AppColors.primary500),
-                                  textAlign: TextAlign.start,
-                                ),
-                              ),
-                              assetPath:
-                                  'assets/icons/arrow_right_style=line.svg',
-                              onTap: () async {
-                                (await canLaunchUrlString(info.url!))
-                                    ? launchUrlString(info.url!)
-                                    : throw AppLocalizations.of(
-                                            navigatorKey.currentContext!)
-                                        .update_cannot_open_appstore;
-                              },
-                            );
-                          case UpdateStatus.updateRecommended:
-                            return PicnicListItem(
-                              leading:
-                                  '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
-                              title: Container(
-                                margin: EdgeInsets.only(right: 8.w),
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
-                                  style: getTextStyle(
-                                      AppTypo.caption12B, AppColors.primary500),
-                                  textAlign: TextAlign.start,
-                                ),
-                              ),
-                              assetPath:
-                                  'assets/icons/arrow_right_style=line.svg',
-                              onTap: () async {
-                                (await canLaunchUrlString(info.url!))
-                                    ? launchUrlString(info.url!)
-                                    : throw AppLocalizations.of(
-                                            navigatorKey.currentContext!)
-                                        .update_cannot_open_appstore;
-                              },
-                            );
-                          case UpdateStatus.upToDate:
-                            return PicnicListItem(
-                              leading:
-                                  '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
-                              title: Container(
-                                margin: EdgeInsets.only(right: 8.w),
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '${AppLocalizations.of(context).label_setting_recent_version_up_to_date} 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
-                                  style: getTextStyle(AppTypo.caption12B,
-                                      AppColors.secondary500),
-                                  textAlign: TextAlign.start,
-                                ),
-                              ),
-                              assetPath:
-                                  'assets/icons/arrow_right_style=line.svg',
-                            );
-                        }
-                      },
-                      loading: () => ui.buildLoadingOverlay(),
-                      error: (_, __) => Container()),
-                  // 패치 정보 및 수동 재시작
-                  PicnicListItem(
-                    leading: 'Patch Status',
-                    title: Container(
-                      margin: EdgeInsets.only(right: 8.w),
-                      alignment: Alignment.centerRight,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_isCheckingPatch)
-                                Container(
-                                  width: 12.w,
-                                  height: 12.w,
-                                  margin: EdgeInsets.only(right: 6.w),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 1.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        AppColors.primary500),
-                                  ),
-                                ),
-                              Text(
-                                _isCheckingPatch
-                                    ? 'Checking...'
-                                    : patchInfo.displayInfo,
-                                style: getTextStyle(
-                                    AppTypo.caption12B,
-                                    patchInfo.canRestart
-                                        ? AppColors.primary500
-                                        : AppColors.secondary500),
-                                textAlign: TextAlign.end,
-                              ),
-                            ],
-                          ),
-                          if (patchInfo.lastChecked != null &&
-                              !_isCheckingPatch)
-                            Text(
-                              'Last checked: ${_formatTime(patchInfo.lastChecked!)}',
-                              style: getTextStyle(
-                                  AppTypo.caption10SB, AppColors.grey500),
-                              textAlign: TextAlign.end,
-                            ),
-                        ],
-                      ),
-                    ),
-                    assetPath: 'assets/icons/arrow_right_style=line.svg',
-                    onTap: () => _handlePatchStatusTap(),
-                    tailing: patchInfo.canRestart
-                        ? _buildRestartButton(context, patchInfo)
-                        : const SizedBox.shrink(),
-                  ),
-                ],
+      data: (data) => Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        child: ListView(
+          children: [
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context).label_setting_alarm,
+              style: getTextStyle(AppTypo.body14B, AppColors.grey600),
+            ),
+            const SizedBox(height: 4),
+            PicnicListItem(
+              leading: AppLocalizations.of(context).label_setting_push_alarm,
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
+              tailing: LoadSwitch(
+                width: 48.w,
+                height: 28,
+                value: value1,
+                future: _getFuture1,
+                style: SpinStyle.material,
+                curveIn: Curves.easeInBack,
+                curveOut: Curves.easeOutBack,
+                animationDuration: const Duration(milliseconds: 500),
+                thumbDecoration: (value, isActive) => BoxDecoration(
+                  gradient: switchThumbGradient,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                switchDecoration: (value, isActive) => BoxDecoration(
+                  color: value ? AppColors.primary500 : AppColors.grey200,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [switchBoxShadow],
+                ),
+                spinColor: (value) =>
+                    value ? AppColors.primary500 : AppColors.primary500,
+                spinStrokeWidth: 1,
+                onChange: (v) {
+                  value1 = v;
+                  setState(() {});
+                },
+                onTap: (v) {},
               ),
             ),
-        loading: () => ui.buildLoadingOverlay(),
-        error: (error, stackTrace) => Container());
+            PicnicListItem(
+              leading: AppLocalizations.of(context).label_setting_event_alarm,
+              title: Container(
+                margin: EdgeInsets.only(left: 8.w),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  AppLocalizations.of(context).label_setting_event_alarm_desc,
+                  style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
+              tailing: LoadSwitch(
+                width: 48.w,
+                height: 28,
+                value: value2,
+                future: _getFuture2,
+                style: SpinStyle.material,
+                curveIn: Curves.easeInBack,
+                curveOut: Curves.easeOutBack,
+                animationDuration: const Duration(milliseconds: 500),
+                thumbDecoration: (value, isActive) => BoxDecoration(
+                  gradient: switchThumbGradient,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                switchDecoration: (value, isActive) => BoxDecoration(
+                  color: value ? AppColors.primary500 : AppColors.grey200,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [switchBoxShadow],
+                ),
+                spinColor: (value) =>
+                    value ? AppColors.primary500 : AppColors.primary500,
+                spinStrokeWidth: 1,
+                onChange: (v) {
+                  value2 = v;
+                  setState(() {});
+                },
+                onTap: (v) {},
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context).label_setting_storage,
+              style: getTextStyle(AppTypo.body14B, AppColors.grey600),
+            ),
+            PicnicListItem(
+              leading: AppLocalizations.of(context).label_setting_remove_cache,
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
+              onTap: () async {
+                OverlayLoadingProgress.start(context);
+                final cacheManager = DefaultCacheManager();
+                cacheManager.emptyCache().then((value) {
+                  OverlayLoadingProgress.stop();
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      content: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).message_setting_remove_cache,
+                      onOk: () => Navigator.of(context).pop(),
+                    );
+                  }
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context).label_setting_appinfo,
+              style: getTextStyle(AppTypo.body14B, AppColors.grey600),
+            ),
+            updateChecker.when(
+              data: (info) {
+                if (info == null) {
+                  return Container();
+                }
+                switch (info.status) {
+                  case UpdateStatus.needPatch:
+                    return PicnicListItem(
+                      leading:
+                          '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
+                      title: Container(
+                        margin: EdgeInsets.only(right: 8.w),
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            AppColors.primary500,
+                          ),
+                        ),
+                      ),
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    );
+                  case UpdateStatus.updateRequired:
+                    return PicnicListItem(
+                      leading:
+                          '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
+                      title: Container(
+                        margin: EdgeInsets.only(right: 8.w),
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            AppColors.primary500,
+                          ),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      onTap: () async {
+                        (await canLaunchUrlString(info.url!))
+                            ? launchUrlString(info.url!)
+                            : throw AppLocalizations.of(
+                                navigatorKey.currentContext!,
+                              ).update_cannot_open_appstore;
+                      },
+                    );
+                  case UpdateStatus.updateRecommended:
+                    return PicnicListItem(
+                      leading:
+                          '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
+                      title: Container(
+                        margin: EdgeInsets.only(right: 8.w),
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '${AppLocalizations.of(context).label_setting_recent_version} (${info.latestVersion}) 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            AppColors.primary500,
+                          ),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                      onTap: () async {
+                        (await canLaunchUrlString(info.url!))
+                            ? launchUrlString(info.url!)
+                            : throw AppLocalizations.of(
+                                navigatorKey.currentContext!,
+                              ).update_cannot_open_appstore;
+                      },
+                    );
+                  case UpdateStatus.upToDate:
+                    return PicnicListItem(
+                      leading:
+                          '${AppLocalizations.of(context).label_setting_current_version} ${info.currentVersion}',
+                      title: Container(
+                        margin: EdgeInsets.only(right: 8.w),
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '${AppLocalizations.of(context).label_setting_recent_version_up_to_date} 빌드: $buildNumber${patchInfo.currentPatch != null ? ' / 패치: ${patchInfo.currentPatch}' : ''}',
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            AppColors.secondary500,
+                          ),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    );
+                }
+              },
+              loading: () => ui.buildLoadingOverlay(),
+              error: (_, _) => Container(),
+            ),
+            // 패치 정보 및 수동 재시작
+            PicnicListItem(
+              leading: 'Patch Status',
+              title: Container(
+                margin: EdgeInsets.only(right: 8.w),
+                alignment: Alignment.centerRight,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_isCheckingPatch)
+                          Container(
+                            width: 12.w,
+                            height: 12.w,
+                            margin: EdgeInsets.only(right: 6.w),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.primary500,
+                              ),
+                            ),
+                          ),
+                        Text(
+                          _isCheckingPatch
+                              ? 'Checking...'
+                              : patchInfo.displayInfo,
+                          style: getTextStyle(
+                            AppTypo.caption12B,
+                            patchInfo.canRestart
+                                ? AppColors.primary500
+                                : AppColors.secondary500,
+                          ),
+                          textAlign: TextAlign.end,
+                        ),
+                      ],
+                    ),
+                    if (patchInfo.lastChecked != null && !_isCheckingPatch)
+                      Text(
+                        'Last checked: ${_formatTime(patchInfo.lastChecked!)}',
+                        style: getTextStyle(
+                          AppTypo.caption10SB,
+                          AppColors.grey500,
+                        ),
+                        textAlign: TextAlign.end,
+                      ),
+                  ],
+                ),
+              ),
+              assetPath: 'assets/icons/arrow_right_style=line.svg',
+              onTap: () => _handlePatchStatusTap(),
+              tailing: patchInfo.canRestart
+                  ? _buildRestartButton(context, patchInfo)
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+      loading: () => ui.buildLoadingOverlay(),
+      error: (error, stackTrace) => Container(),
+    );
   }
 
   /// 시간 포맷팅 (HH:mm 형식)
@@ -397,7 +404,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   /// 수동 재시작 처리
   Future<void> _handleManualRestart(
-      BuildContext context, PatchInfo patchInfo) async {
+    BuildContext context,
+    PatchInfo patchInfo,
+  ) async {
     if (!patchInfo.canRestart || _isRestartingApp) return;
 
     // 확인 다이얼로그 표시
@@ -475,8 +484,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       // 웹 환경에서는 스킵
       if (UniversalPlatform.isWeb) {
         if (mounted) {
-          SnackbarUtil()
-              .warning('웹 환경에서는 패치 기능을 사용할 수 없습니다.', context: context);
+          SnackbarUtil().warning(
+            '웹 환경에서는 패치 기능을 사용할 수 없습니다.',
+            context: context,
+          );
         }
         return;
       }

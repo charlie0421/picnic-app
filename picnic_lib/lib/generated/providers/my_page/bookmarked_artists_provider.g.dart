@@ -11,16 +11,19 @@ String _$asyncBookmarkedArtistsHash() =>
 
 /// See also [AsyncBookmarkedArtists].
 @ProviderFor(AsyncBookmarkedArtists)
-final asyncBookmarkedArtistsProvider = AutoDisposeAsyncNotifierProvider<
-    AsyncBookmarkedArtists, List<ArtistModel>>.internal(
-  AsyncBookmarkedArtists.new,
-  name: r'asyncBookmarkedArtistsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$asyncBookmarkedArtistsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final asyncBookmarkedArtistsProvider =
+    AutoDisposeAsyncNotifierProvider<
+      AsyncBookmarkedArtists,
+      List<ArtistModel>
+    >.internal(
+      AsyncBookmarkedArtists.new,
+      name: r'asyncBookmarkedArtistsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$asyncBookmarkedArtistsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$AsyncBookmarkedArtists = AutoDisposeAsyncNotifier<List<ArtistModel>>;
 // ignore_for_file: type=lint

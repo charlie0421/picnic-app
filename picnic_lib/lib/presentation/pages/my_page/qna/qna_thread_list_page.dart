@@ -16,10 +16,7 @@ import 'package:shimmer/shimmer.dart';
 class QnaThreadListPage extends ConsumerStatefulWidget {
   final String userId;
 
-  const QnaThreadListPage({
-    super.key,
-    required this.userId,
-  });
+  const QnaThreadListPage({super.key, required this.userId});
 
   @override
   ConsumerState<QnaThreadListPage> createState() => _QnaThreadListPageState();
@@ -39,7 +36,9 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(
             pageTitle: AppLocalizations.of(context).qna_list_title,
           );
     });
@@ -78,8 +77,9 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
         });
       }
 
-      final lastId =
-          isInitial || _threadList.isEmpty ? null : _threadList.last.id;
+      final lastId = isInitial || _threadList.isEmpty
+          ? null
+          : _threadList.last.id;
       final threads = await _repository.getQaThreadList(
         userId: widget.userId,
         lastId: lastId,
@@ -137,12 +137,10 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
         elevation: 6,
         icon: const Icon(Icons.edit),
         label: Text(
-          AppLocalizations.of(context).qna_create_title,
+          AppLocalizations.of(context).qna_create_page_title,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       body: _buildBody(),
     );
@@ -159,22 +157,14 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
         if (_errorMessage != null && _threadList.isEmpty) {
           return CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              SliverFillRemaining(
-                child: _buildErrorView(),
-              ),
-            ],
+            slivers: [SliverFillRemaining(child: _buildErrorView())],
           );
         }
 
         if (_threadList.isEmpty) {
           return CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              SliverFillRemaining(
-                child: _buildEmptyView(),
-              ),
-            ],
+            slivers: [SliverFillRemaining(child: _buildEmptyView())],
           );
         }
 
@@ -223,11 +213,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
                 color: Colors.white,
               ),
               const SizedBox(height: 8.0),
-              Container(
-                width: 150.0,
-                height: 16.0,
-                color: Colors.white,
-              ),
+              Container(width: 150.0, height: 16.0, color: Colors.white),
             ],
           ),
         ),
@@ -263,7 +249,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
               foregroundColor: Colors.white,
               backgroundColor: AppColors.primary500,
             ),
-          )
+          ),
         ],
       ),
     );
@@ -286,7 +272,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
           borderRadius: BorderRadius.circular(12.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 5,
               offset: const Offset(0, 2),
@@ -323,9 +309,11 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
                   return const SizedBox.shrink();
                 }
                 final att = snapshot.data!;
-                final isImage = (att.fileType?.startsWith('image/') ?? false) ||
+                final isImage =
+                    (att.fileType?.startsWith('image/') ?? false) ||
                     ['jpg', 'jpeg', 'png', 'gif'].any(
-                        (ext) => att.fileName.toLowerCase().endsWith('.$ext'));
+                      (ext) => att.fileName.toLowerCase().endsWith('.$ext'),
+                    );
                 final isVideo = att.fileType?.startsWith('video/') ?? false;
 
                 final url = _repository.getPublicUrl(att.filePath);
@@ -342,30 +330,32 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
                               fit: BoxFit.cover,
                             )
                           : isVideo
-                              ? Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    VideoThumbnailFromUrl(
-                                      videoUrl: url,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    const Align(
-                                      alignment: Alignment.center,
-                                      child: Icon(
-                                        Icons.play_circle_fill,
-                                        color: Colors.white,
-                                        size: 48,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Container(
-                                  color: AppColors.grey200,
-                                  child: const Center(
-                                    child: Icon(Icons.insert_drive_file,
-                                        color: Colors.grey),
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                VideoThumbnailFromUrl(
+                                  videoUrl: url,
+                                  fit: BoxFit.cover,
+                                ),
+                                const Align(
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.play_circle_fill,
+                                    color: Colors.white,
+                                    size: 48,
                                   ),
                                 ),
+                              ],
+                            )
+                          : Container(
+                              color: AppColors.grey200,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.insert_drive_file,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
                     ),
                   ),
                 );
@@ -377,8 +367,9 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
                 Icon(Icons.schedule, size: 14, color: Colors.grey[600]),
                 const SizedBox(width: 4),
                 Text(
-                  DateFormat('yyyy-MM-dd HH:mm')
-                      .format(thread.updatedAt.toLocal()),
+                  DateFormat(
+                    'yyyy-MM-dd HH:mm',
+                  ).format(thread.updatedAt.toLocal()),
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
@@ -401,7 +392,10 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage> {
       label: Text(
         statusText,
         style: TextStyle(
-            color: textColor, fontSize: 12, fontWeight: FontWeight.w500),
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       backgroundColor: chipColor,
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),

@@ -39,21 +39,13 @@ class GetArtistFamily extends Family<AsyncValue<ArtistModel>> {
   const GetArtistFamily();
 
   /// See also [getArtist].
-  GetArtistProvider call(
-    int artistId,
-  ) {
-    return GetArtistProvider(
-      artistId,
-    );
+  GetArtistProvider call(int artistId) {
+    return GetArtistProvider(artistId);
   }
 
   @override
-  GetArtistProvider getProviderOverride(
-    covariant GetArtistProvider provider,
-  ) {
-    return call(
-      provider.artistId,
-    );
+  GetArtistProvider getProviderOverride(covariant GetArtistProvider provider) {
+    return call(provider.artistId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -74,23 +66,18 @@ class GetArtistFamily extends Family<AsyncValue<ArtistModel>> {
 /// See also [getArtist].
 class GetArtistProvider extends AutoDisposeFutureProvider<ArtistModel> {
   /// See also [getArtist].
-  GetArtistProvider(
-    int artistId,
-  ) : this._internal(
-          (ref) => getArtist(
-            ref as GetArtistRef,
-            artistId,
-          ),
-          from: getArtistProvider,
-          name: r'getArtistProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$getArtistHash,
-          dependencies: GetArtistFamily._dependencies,
-          allTransitiveDependencies: GetArtistFamily._allTransitiveDependencies,
-          artistId: artistId,
-        );
+  GetArtistProvider(int artistId)
+    : this._internal(
+        (ref) => getArtist(ref as GetArtistRef, artistId),
+        from: getArtistProvider,
+        name: r'getArtistProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$getArtistHash,
+        dependencies: GetArtistFamily._dependencies,
+        allTransitiveDependencies: GetArtistFamily._allTransitiveDependencies,
+        artistId: artistId,
+      );
 
   GetArtistProvider._internal(
     super._createNotifier, {
@@ -149,11 +136,13 @@ mixin GetArtistRef on AutoDisposeFutureProviderRef<ArtistModel> {
 }
 
 class _GetArtistProviderElement
-    extends AutoDisposeFutureProviderElement<ArtistModel> with GetArtistRef {
+    extends AutoDisposeFutureProviderElement<ArtistModel>
+    with GetArtistRef {
   _GetArtistProviderElement(super.provider);
 
   @override
   int get artistId => (origin as GetArtistProvider).artistId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

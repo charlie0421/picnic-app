@@ -12,13 +12,14 @@ String _$asyncPolicyHash() => r'2743672128cbfebfa5678d96c0ce2f48f6ce091a';
 @ProviderFor(AsyncPolicy)
 final asyncPolicyProvider =
     AutoDisposeAsyncNotifierProvider<AsyncPolicy, PolicyModel>.internal(
-  AsyncPolicy.new,
-  name: r'asyncPolicyProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$asyncPolicyHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      AsyncPolicy.new,
+      name: r'asyncPolicyProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$asyncPolicyHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$AsyncPolicy = AutoDisposeAsyncNotifier<PolicyModel>;
 // ignore_for_file: type=lint

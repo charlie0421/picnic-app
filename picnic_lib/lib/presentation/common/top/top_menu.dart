@@ -160,7 +160,7 @@ class _TopState extends ConsumerState<TopMenu> {
                           boxShadow: [
                             BoxShadow(
                               color: _getPortalColor(navigationInfo.portalType)
-                                  .withOpacity(0.25),
+                                  .withValues(alpha: 0.25),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),

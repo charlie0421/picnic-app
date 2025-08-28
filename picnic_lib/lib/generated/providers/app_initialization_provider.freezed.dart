@@ -12,7 +12,8 @@ part of '../../presentation/providers/app_initialization_provider.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$AppInitializationState {
@@ -31,23 +32,27 @@ mixin _$AppInitializationState {
 
 /// @nodoc
 abstract class $AppInitializationStateCopyWith<$Res> {
-  factory $AppInitializationStateCopyWith(AppInitializationState value,
-          $Res Function(AppInitializationState) then) =
-      _$AppInitializationStateCopyWithImpl<$Res, AppInitializationState>;
+  factory $AppInitializationStateCopyWith(
+    AppInitializationState value,
+    $Res Function(AppInitializationState) then,
+  ) = _$AppInitializationStateCopyWithImpl<$Res, AppInitializationState>;
   @useResult
-  $Res call(
-      {bool hasNetwork,
-      bool isBanned,
-      bool isInitialized,
-      bool isUpdateRequired,
-      UpdateInfo? updateInfo});
+  $Res call({
+    bool hasNetwork,
+    bool isBanned,
+    bool isInitialized,
+    bool isUpdateRequired,
+    UpdateInfo? updateInfo,
+  });
 
   $UpdateInfoCopyWith<$Res>? get updateInfo;
 }
 
 /// @nodoc
-class _$AppInitializationStateCopyWithImpl<$Res,
-        $Val extends AppInitializationState>
+class _$AppInitializationStateCopyWithImpl<
+  $Res,
+  $Val extends AppInitializationState
+>
     implements $AppInitializationStateCopyWith<$Res> {
   _$AppInitializationStateCopyWithImpl(this._value, this._then);
 
@@ -67,28 +72,31 @@ class _$AppInitializationStateCopyWithImpl<$Res,
     Object? isUpdateRequired = null,
     Object? updateInfo = freezed,
   }) {
-    return _then(_value.copyWith(
-      hasNetwork: null == hasNetwork
-          ? _value.hasNetwork
-          : hasNetwork // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isBanned: null == isBanned
-          ? _value.isBanned
-          : isBanned // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isInitialized: null == isInitialized
-          ? _value.isInitialized
-          : isInitialized // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isUpdateRequired: null == isUpdateRequired
-          ? _value.isUpdateRequired
-          : isUpdateRequired // ignore: cast_nullable_to_non_nullable
-              as bool,
-      updateInfo: freezed == updateInfo
-          ? _value.updateInfo
-          : updateInfo // ignore: cast_nullable_to_non_nullable
-              as UpdateInfo?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            hasNetwork: null == hasNetwork
+                ? _value.hasNetwork
+                : hasNetwork // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isBanned: null == isBanned
+                ? _value.isBanned
+                : isBanned // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isInitialized: null == isInitialized
+                ? _value.isInitialized
+                : isInitialized // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isUpdateRequired: null == isUpdateRequired
+                ? _value.isUpdateRequired
+                : isUpdateRequired // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            updateInfo: freezed == updateInfo
+                ? _value.updateInfo
+                : updateInfo // ignore: cast_nullable_to_non_nullable
+                      as UpdateInfo?,
+          )
+          as $Val,
+    );
   }
 
   /// Create a copy of AppInitializationState
@@ -110,17 +118,18 @@ class _$AppInitializationStateCopyWithImpl<$Res,
 abstract class _$$AppInitializationStateImplCopyWith<$Res>
     implements $AppInitializationStateCopyWith<$Res> {
   factory _$$AppInitializationStateImplCopyWith(
-          _$AppInitializationStateImpl value,
-          $Res Function(_$AppInitializationStateImpl) then) =
-      __$$AppInitializationStateImplCopyWithImpl<$Res>;
+    _$AppInitializationStateImpl value,
+    $Res Function(_$AppInitializationStateImpl) then,
+  ) = __$$AppInitializationStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {bool hasNetwork,
-      bool isBanned,
-      bool isInitialized,
-      bool isUpdateRequired,
-      UpdateInfo? updateInfo});
+  $Res call({
+    bool hasNetwork,
+    bool isBanned,
+    bool isInitialized,
+    bool isUpdateRequired,
+    UpdateInfo? updateInfo,
+  });
 
   @override
   $UpdateInfoCopyWith<$Res>? get updateInfo;
@@ -128,13 +137,13 @@ abstract class _$$AppInitializationStateImplCopyWith<$Res>
 
 /// @nodoc
 class __$$AppInitializationStateImplCopyWithImpl<$Res>
-    extends _$AppInitializationStateCopyWithImpl<$Res,
-        _$AppInitializationStateImpl>
+    extends
+        _$AppInitializationStateCopyWithImpl<$Res, _$AppInitializationStateImpl>
     implements _$$AppInitializationStateImplCopyWith<$Res> {
   __$$AppInitializationStateImplCopyWithImpl(
-      _$AppInitializationStateImpl _value,
-      $Res Function(_$AppInitializationStateImpl) _then)
-      : super(_value, _then);
+    _$AppInitializationStateImpl _value,
+    $Res Function(_$AppInitializationStateImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of AppInitializationState
   /// with the given fields replaced by the non-null parameter values.
@@ -147,40 +156,43 @@ class __$$AppInitializationStateImplCopyWithImpl<$Res>
     Object? isUpdateRequired = null,
     Object? updateInfo = freezed,
   }) {
-    return _then(_$AppInitializationStateImpl(
-      hasNetwork: null == hasNetwork
-          ? _value.hasNetwork
-          : hasNetwork // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isBanned: null == isBanned
-          ? _value.isBanned
-          : isBanned // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isInitialized: null == isInitialized
-          ? _value.isInitialized
-          : isInitialized // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isUpdateRequired: null == isUpdateRequired
-          ? _value.isUpdateRequired
-          : isUpdateRequired // ignore: cast_nullable_to_non_nullable
-              as bool,
-      updateInfo: freezed == updateInfo
-          ? _value.updateInfo
-          : updateInfo // ignore: cast_nullable_to_non_nullable
-              as UpdateInfo?,
-    ));
+    return _then(
+      _$AppInitializationStateImpl(
+        hasNetwork: null == hasNetwork
+            ? _value.hasNetwork
+            : hasNetwork // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isBanned: null == isBanned
+            ? _value.isBanned
+            : isBanned // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isInitialized: null == isInitialized
+            ? _value.isInitialized
+            : isInitialized // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isUpdateRequired: null == isUpdateRequired
+            ? _value.isUpdateRequired
+            : isUpdateRequired // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        updateInfo: freezed == updateInfo
+            ? _value.updateInfo
+            : updateInfo // ignore: cast_nullable_to_non_nullable
+                  as UpdateInfo?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 
 class _$AppInitializationStateImpl implements _AppInitializationState {
-  const _$AppInitializationStateImpl(
-      {this.hasNetwork = true,
-      this.isBanned = false,
-      this.isInitialized = false,
-      this.isUpdateRequired = false,
-      this.updateInfo});
+  const _$AppInitializationStateImpl({
+    this.hasNetwork = true,
+    this.isBanned = false,
+    this.isInitialized = false,
+    this.isUpdateRequired = false,
+    this.updateInfo,
+  });
 
   @override
   @JsonKey()
@@ -220,8 +232,14 @@ class _$AppInitializationStateImpl implements _AppInitializationState {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, hasNetwork, isBanned,
-      isInitialized, isUpdateRequired, updateInfo);
+  int get hashCode => Object.hash(
+    runtimeType,
+    hasNetwork,
+    isBanned,
+    isInitialized,
+    isUpdateRequired,
+    updateInfo,
+  );
 
   /// Create a copy of AppInitializationState
   /// with the given fields replaced by the non-null parameter values.
@@ -229,17 +247,21 @@ class _$AppInitializationStateImpl implements _AppInitializationState {
   @override
   @pragma('vm:prefer-inline')
   _$$AppInitializationStateImplCopyWith<_$AppInitializationStateImpl>
-      get copyWith => __$$AppInitializationStateImplCopyWithImpl<
-          _$AppInitializationStateImpl>(this, _$identity);
+  get copyWith =>
+      __$$AppInitializationStateImplCopyWithImpl<_$AppInitializationStateImpl>(
+        this,
+        _$identity,
+      );
 }
 
 abstract class _AppInitializationState implements AppInitializationState {
-  const factory _AppInitializationState(
-      {final bool hasNetwork,
-      final bool isBanned,
-      final bool isInitialized,
-      final bool isUpdateRequired,
-      final UpdateInfo? updateInfo}) = _$AppInitializationStateImpl;
+  const factory _AppInitializationState({
+    final bool hasNetwork,
+    final bool isBanned,
+    final bool isInitialized,
+    final bool isUpdateRequired,
+    final UpdateInfo? updateInfo,
+  }) = _$AppInitializationStateImpl;
 
   @override
   bool get hasNetwork;
@@ -257,5 +279,5 @@ abstract class _AppInitializationState implements AppInitializationState {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AppInitializationStateImplCopyWith<_$AppInitializationStateImpl>
-      get copyWith => throw _privateConstructorUsedError;
+  get copyWith => throw _privateConstructorUsedError;
 }

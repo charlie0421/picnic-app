@@ -297,7 +297,7 @@ class _CommentListState extends ConsumerState<CommentList> {
                     ],
                   ),
                 ),
-                itemBuilder: (_, item, __) => _buildCommentItem(item),
+                itemBuilder: (_, item, _) => _buildCommentItem(item),
               ),
             ));
   }

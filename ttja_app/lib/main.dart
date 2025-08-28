@@ -10,7 +10,6 @@ import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 
 import 'package:ttja_app/app.dart';
 import 'package:ttja_app/firebase_options.dart';
-import 'package:ttja_app/main.reflectable.dart';
 
 // 전역 언어 상태를 저장하는 변수
 bool isLanguageInitialized = false;
@@ -24,7 +23,6 @@ void main() async {
     appBuilder: () => Phoenix(
       child: const App(),
     ),
-    reflectableInitializer: initializeReflectable,
   );
 }
 

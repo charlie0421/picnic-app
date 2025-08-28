@@ -63,9 +63,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
   }
 
   /// 로그인 프로세스 중 로딩 상태를 안전하게 관리하는 유틸리티 메서드
-  Future<T> _executeWithLoading<T>(
-    Future<T> Function() operation,
-  ) async {
+  Future<T> _executeWithLoading<T>(Future<T> Function() operation) async {
     try {
       _loadingKey.currentState?.show();
       return await operation();
@@ -111,7 +109,9 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                         child: Material(
                           color: AppColors.grey200,
                           elevation: 3,
-                          shadowColor: AppColors.grey900.withOpacity(0.18),
+                          shadowColor: AppColors.grey900.withValues(
+                            alpha: 0.18,
+                          ),
                           shape: const CircleBorder(),
                           child: InkWell(
                             customBorder: const CircleBorder(),
@@ -159,12 +159,11 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
     return Swiper(
       itemCount: 2,
       autoplay: true,
-      pagination: SwiperPagination(
-        builder: CustomPaginationBuilder(),
-      ),
+      pagination: SwiperPagination(builder: CustomPaginationBuilder()),
       itemBuilder: (BuildContext context, int index) {
         return Image.asset(
-            'assets/login/${Localizations.localeOf(context).languageCode}_${index + 1}.png');
+          'assets/login/${Localizations.localeOf(context).languageCode}_${index + 1}.png',
+        );
       },
     );
   }
@@ -198,11 +197,12 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
                       child: Text(
                         entry.value,
                         style: getTextStyle(
-                            AppTypo.body14B,
-                            Localizations.localeOf(context).languageCode ==
-                                    entry.key
-                                ? AppColors.grey800
-                                : AppColors.grey400),
+                          AppTypo.body14B,
+                          Localizations.localeOf(context).languageCode ==
+                                  entry.key
+                              ? AppColors.grey800
+                              : AppColors.grey400,
+                        ),
                       ),
                     ),
                   );
@@ -226,8 +226,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/global_style=line.svg',
-              colorFilter:
-                  ColorFilter.mode(AppColors.primary500, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                AppColors.primary500,
+                BlendMode.srcIn,
+              ),
               width: 20.w,
               height: 20,
             ),
@@ -246,8 +248,10 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
               child: SvgPicture.asset(
                 package: 'picnic_lib',
                 'assets/icons/play_style=fill.svg',
-                colorFilter:
-                    const ColorFilter.mode(AppColors.grey900, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(
+                  AppColors.grey900,
+                  BlendMode.srcIn,
+                ),
                 width: 20.w,
                 height: 20,
               ),
@@ -265,14 +269,16 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           backgroundColor: WidgetStateProperty.all(AppColors.primary500),
           foregroundColor: WidgetStateProperty.all(AppColors.grey00),
           textStyle: WidgetStateProperty.all(
-              getTextStyle(AppTypo.title18SB, AppColors.grey00)),
+            getTextStyle(AppTypo.title18SB, AppColors.grey00),
+          ),
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
               side: BorderSide(
-                  color: AppColors.secondary500,
-                  width: 1,
-                  strokeAlign: BorderSide.strokeAlignInside),
+                color: AppColors.secondary500,
+                width: 1,
+                strokeAlign: BorderSide.strokeAlignInside,
+              ),
             ),
           ),
         ),
@@ -312,8 +318,7 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           _buildGoogleLogin(context),
           _buildKakaoLogin(context),
           // WeChat 버튼 숨김 (요청에 따라 주석 처리)
-          // if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS)
-          //   _buildWeChatLogin(context),
+          _buildWeChatLogin(context),
         ],
       ),
     );
@@ -333,474 +338,520 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
         }
       }
 
-      await _executeWithLoading(
-        () async {
-          final user = supabase.auth.currentUser;
-          if (user == null) {
-            throw Exception('Failed to get current user');
-          }
+      await _executeWithLoading(() async {
+        final user = supabase.auth.currentUser;
+        if (user == null) {
+          throw Exception('Failed to get current user');
+        }
 
-          final userProfile =
-              await ref.read(userInfoProvider.notifier).getUserProfiles();
+        final userProfile = await ref
+            .read(userInfoProvider.notifier)
+            .getUserProfiles();
 
-          if (userProfile == null) {
-            ref
-                .read(navigationInfoProvider.notifier)
-                .setCurrentSignUpPage(const AgreementTermsPage());
-            final navContext = navigatorKey.currentContext;
-            if (navContext != null && navContext.mounted) {
-              Navigator.of(navContext).pop();
-            }
-          } else if (userProfile.deletedAt != null) {
-            if (navigatorKey.currentContext != null) {
-              showSimpleDialog(
-                  content: AppLocalizations.of(navigatorKey.currentContext!)
-                      .error_message_withdrawal,
-                  onOk: () {
-                    ref.read(userInfoProvider.notifier).logout();
-                    final navContext = navigatorKey.currentContext;
-                    if (navContext != null && navContext.mounted) {
-                      Navigator.of(navContext).pop();
-                    }
-                  });
-            }
-          } else if (userProfile.userAgreement == null) {
-            ref
-                .read(navigationInfoProvider.notifier)
-                .setCurrentSignUpPage(const AgreementTermsPage());
-            final navContext = navigatorKey.currentContext;
-            if (navContext != null && navContext.mounted) {
-              Navigator.of(navContext).pop();
-            }
-          } else {
-            ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
-            final navContext = navigatorKey.currentContext;
-            if (navContext != null && navContext.mounted) {
-              Navigator.of(navContext).pop();
-              Navigator.of(navContext).pop();
-            }
+        if (userProfile == null) {
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setCurrentSignUpPage(const AgreementTermsPage());
+          final navContext = navigatorKey.currentContext;
+          if (navContext != null && navContext.mounted) {
+            Navigator.of(navContext).pop();
           }
-        },
-      );
+        } else if (userProfile.deletedAt != null) {
+          if (navigatorKey.currentContext != null) {
+            showSimpleDialog(
+              content: AppLocalizations.of(
+                navigatorKey.currentContext!,
+              ).error_message_withdrawal,
+              onOk: () {
+                ref.read(userInfoProvider.notifier).logout();
+                final navContext = navigatorKey.currentContext;
+                if (navContext != null && navContext.mounted) {
+                  Navigator.of(navContext).pop();
+                }
+              },
+            );
+          }
+        } else if (userProfile.userAgreement == null) {
+          ref
+              .read(navigationInfoProvider.notifier)
+              .setCurrentSignUpPage(const AgreementTermsPage());
+          final navContext = navigatorKey.currentContext;
+          if (navContext != null && navContext.mounted) {
+            Navigator.of(navContext).pop();
+          }
+        } else {
+          ref.read(navigationInfoProvider.notifier).setResetStackMyPage();
+          final navContext = navigatorKey.currentContext;
+          if (navContext != null && navContext.mounted) {
+            Navigator.of(navContext).pop();
+            Navigator.of(navContext).pop();
+          }
+        }
+      });
     } catch (e, s) {
       logger.e('error', error: e, stackTrace: s);
       if (navigatorKey.currentContext != null) {
         showSimpleDialog(
-            title:
-                AppLocalizations.of(navigatorKey.currentContext!).error_title,
-            content: AppLocalizations.of(navigatorKey.currentContext!)
-                .error_message_login_failed,
-            onOk: () {
-              Navigator.of(navigatorKey.currentContext!).pop();
-            });
+          title: AppLocalizations.of(navigatorKey.currentContext!).error_title,
+          content: AppLocalizations.of(
+            navigatorKey.currentContext!,
+          ).error_message_login_failed,
+          onOk: () {
+            Navigator.of(navigatorKey.currentContext!).pop();
+          },
+        );
       }
       rethrow;
     }
   }
 
   Widget _buildAppleLogin(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Stack(children: [
-        GestureDetector(
-          onTap: () async {
-            try {
-              // 바텀시트가 열린 상태에서 인증 UI를 띄우면 겹침/흰 화면 이슈가 발생할 수 있어 먼저 닫습니다.
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-                await Future.delayed(const Duration(milliseconds: 150));
-              }
-              if (kIsWeb) {
-                await _executeWithLoading(() async {
-                  await supabase.auth.signInWithOAuth(
-                    OAuthProvider.apple,
-                    redirectTo: '${Environment.webDomain}/auth/callback',
-                  );
-                });
-              } else {
-                // 모바일 네이티브 로그인 UI 표시 시 화면보호 해제 → 인증 → 재설정
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            GestureDetector(
+              onTap: () async {
                 try {
-                  await sp.ScreenProtector.preventScreenshotOff();
-                } catch (_) {}
-                try {
-                  final user = await _authService
-                      .signInWithProvider(OAuthProvider.apple);
-                  if (user != null) {
-                    _handleSuccessfulLogin('apple');
+                  // 바텀시트가 열린 상태에서 인증 UI를 띄우면 겹침/흰 화면 이슈가 발생할 수 있어 먼저 닫습니다.
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                    await Future.delayed(const Duration(milliseconds: 150));
                   }
-                } finally {
-                  try {
-                    await sp.ScreenProtector.preventScreenshotOn();
-                  } catch (_) {}
-                }
-              }
-            } on PicnicAuthException catch (e) {
-              if (e.code == 'canceled') {
-                return; // 사용자가 취소한 경우 아무것도 하지 않음
-              }
+                  if (kIsWeb) {
+                    await _executeWithLoading(() async {
+                      await supabase.auth.signInWithOAuth(
+                        OAuthProvider.apple,
+                        redirectTo: '${Environment.webDomain}/auth/callback',
+                      );
+                    });
+                  } else {
+                    // 모바일 네이티브 로그인 UI 표시 시 화면보호 해제 → 인증 → 재설정
+                    try {
+                      await sp.ScreenProtector.preventScreenshotOff();
+                    } catch (_) {}
+                    try {
+                      final user = await _authService.signInWithProvider(
+                        OAuthProvider.apple,
+                      );
+                      if (user != null) {
+                        _handleSuccessfulLogin('apple');
+                      }
+                    } finally {
+                      try {
+                        await sp.ScreenProtector.preventScreenshotOn();
+                      } catch (_) {}
+                    }
+                  }
+                } on PicnicAuthException catch (e) {
+                  if (e.code == 'canceled') {
+                    return; // 사용자가 취소한 경우 아무것도 하지 않음
+                  }
 
-              if (navigatorKey.currentContext != null) {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_title,
-                    content: e.message,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              }
-            } catch (e, s) {
-              logger.e('Error signing in with Apple: $e', stackTrace: s);
-              if (navigatorKey.currentContext != null) {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_title,
-                    content: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_message_login_failed,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              }
-              rethrow;
-            }
-          },
-          child: Center(
-            child: Container(
-              width: 240,
-              height: 44,
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey400, width: 1),
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.black,
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                      package: 'picnic_lib',
-                      'assets/icons/login/apple.svg',
-                      width: 20.w,
-                      height: 20),
-                  SizedBox(width: 8.w),
-                  Text('Login with Apple',
-                      style: getTextStyle(AppTypo.body14M, AppColors.grey00)),
-                ],
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      type: DialogType.error,
+                      title: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_title,
+                      content: e.message,
+                      onOk: () {
+                        Navigator.of(navigatorKey.currentContext!).pop();
+                      },
+                    );
+                  }
+                } catch (e, s) {
+                  logger.e('Error signing in with Apple: $e', stackTrace: s);
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      type: DialogType.error,
+                      title: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_title,
+                      content: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_message_login_failed,
+                      onOk: () {
+                        Navigator.of(navigatorKey.currentContext!).pop();
+                      },
+                    );
+                  }
+                  rethrow;
+                }
+              },
+              child: Center(
+                child: Container(
+                  width: 240,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.grey400, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.black,
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/login/apple.svg',
+                        width: 20.w,
+                        height: 20,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Login with Apple',
+                        style: getTextStyle(AppTypo.body14M, AppColors.grey00),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        if (lastProvider == 'apple') const LastProvider(),
-      ]);
-    });
+            if (lastProvider == 'apple') const LastProvider(),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildGoogleLogin(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Stack(children: [
-        GestureDetector(
-          onTap: () async {
-            try {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-                await Future.delayed(const Duration(milliseconds: 150));
-              }
-              if (kIsWeb) {
-                await _executeWithLoading(() async {
-                  await supabase.auth.signInWithOAuth(
-                    OAuthProvider.google,
-                    redirectTo: '${Environment.webDomain}/auth/callback',
-                  );
-                });
-              } else {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            GestureDetector(
+              onTap: () async {
                 try {
-                  await sp.ScreenProtector.preventScreenshotOff();
-                } catch (_) {}
-                try {
-                  final user = await _authService
-                      .signInWithProvider(OAuthProvider.google);
-                  if (user != null) {
-                    _handleSuccessfulLogin('google');
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                    await Future.delayed(const Duration(milliseconds: 150));
                   }
-                } finally {
                   try {
-                    await sp.ScreenProtector.preventScreenshotOn();
-                  } catch (_) {}
-                }
-              }
-            } on PicnicAuthException catch (e) {
-              if (e.code == 'canceled') {
-                return; // 사용자가 취소한 경우 아무것도 하지 않음
-              }
+                    final user = await _authService.signInWithProvider(
+                      OAuthProvider.google,
+                    );
+                    if (user != null) {
+                      _handleSuccessfulLogin('google');
+                    }
+                  } catch (e, s) {
+                    logger.e('Error signing in with Google: $e', stackTrace: s);
+                  }
+                } on PicnicAuthException catch (e) {
+                  if (e.code == 'canceled') {
+                    return; // 사용자가 취소한 경우 아무것도 하지 않음
+                  }
 
-              if (navigatorKey.currentContext != null) {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_title,
-                    content: e.message,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              }
-            } catch (e, s) {
-              logger.e('Error signing in with Google: $e', stackTrace: s);
-              if (navigatorKey.currentContext != null) {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_title,
-                    content: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_message_login_failed,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              }
-              rethrow;
-            }
-          },
-          child: Center(
-            child: Container(
-              width: 240,
-              height: 44,
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey400, width: 1),
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.white,
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                      package: 'picnic_lib',
-                      'assets/icons/login/google.png',
-                      width: 20.w,
-                      height: 20),
-                  SizedBox(width: 8.w),
-                  Text('Login with Google',
-                      style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
-                ],
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      type: DialogType.error,
+                      title: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_title,
+                      content: e.message,
+                      onOk: () {
+                        Navigator.of(navigatorKey.currentContext!).pop();
+                      },
+                    );
+                  }
+                } catch (e, s) {
+                  logger.e('Error signing in with Google: $e', stackTrace: s);
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      type: DialogType.error,
+                      title: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_title,
+                      content: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_message_login_failed,
+                      onOk: () {
+                        Navigator.of(navigatorKey.currentContext!).pop();
+                      },
+                    );
+                  }
+                  rethrow;
+                }
+              },
+              child: Center(
+                child: Container(
+                  width: 240,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.grey400, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/login/google.png',
+                        width: 20.w,
+                        height: 20,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Login with Google',
+                        style: getTextStyle(AppTypo.body14M, AppColors.grey800),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        if (lastProvider == 'google') const LastProvider(),
-      ]);
-    });
+            if (lastProvider == 'google') const LastProvider(),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildKakaoLogin(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Stack(children: [
-        GestureDetector(
-          onTap: () async {
-            try {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-                await Future.delayed(const Duration(milliseconds: 150));
-              }
-              if (kIsWeb) {
-                await _executeWithLoading(() async {
-                  await supabase.auth.signInWithOAuth(
-                    OAuthProvider.kakao,
-                    redirectTo: '${Environment.webDomain}/auth/callback',
-                    scopes: 'account_email profile_image profile_nickname',
-                  );
-                });
-              } else {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            GestureDetector(
+              onTap: () async {
                 try {
-                  await sp.ScreenProtector.preventScreenshotOff();
-                } catch (_) {}
-                try {
-                  final user = await _authService
-                      .signInWithProvider(OAuthProvider.kakao);
-                  if (user != null) {
-                    _handleSuccessfulLogin('kakao');
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                    await Future.delayed(const Duration(milliseconds: 150));
                   }
-                } finally {
-                  try {
-                    await sp.ScreenProtector.preventScreenshotOn();
-                  } catch (_) {}
+                  if (kIsWeb) {
+                    await _executeWithLoading(() async {
+                      await supabase.auth.signInWithOAuth(
+                        OAuthProvider.kakao,
+                        redirectTo: '${Environment.webDomain}/auth/callback',
+                        scopes: 'account_email profile_image profile_nickname',
+                      );
+                    });
+                  } else {
+                    try {
+                      await sp.ScreenProtector.preventScreenshotOff();
+                    } catch (_) {}
+                    try {
+                      final user = await _authService.signInWithProvider(
+                        OAuthProvider.kakao,
+                      );
+                      if (user != null) {
+                        _handleSuccessfulLogin('kakao');
+                      }
+                    } finally {
+                      try {
+                        await sp.ScreenProtector.preventScreenshotOn();
+                      } catch (_) {}
+                    }
+                  }
+                } on PicnicAuthException catch (e) {
+                  if (e.code == 'canceled') {
+                    return; // 사용자가 취소한 경우 아무것도 하지 않음
+                  }
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      type: DialogType.error,
+                      title: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_title,
+                      content: e.message,
+                      onOk: () {
+                        Navigator.of(navigatorKey.currentContext!).pop();
+                      },
+                    );
+                  }
+                } catch (e, s) {
+                  logger.e('Error signing in with Kakao: $e', stackTrace: s);
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      type: DialogType.error,
+                      title: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_title,
+                      content: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_message_login_failed,
+                      onOk: () {
+                        Navigator.of(navigatorKey.currentContext!).pop();
+                      },
+                    );
+                  }
+                  rethrow;
                 }
-              }
-            } on PicnicAuthException catch (e) {
-              if (e.code == 'canceled') {
-                return; // 사용자가 취소한 경우 아무것도 하지 않음
-              }
-              if (navigatorKey.currentContext != null) {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_title,
-                    content: e.message,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              }
-            } catch (e, s) {
-              logger.e('Error signing in with Kakao: $e', stackTrace: s);
-              if (navigatorKey.currentContext != null) {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_title,
-                    content: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_message_login_failed,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              }
-              rethrow;
-            }
-          },
-          child: Center(
-            child: Container(
-              width: 240,
-              height: 44,
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey400, width: 1),
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.yellow,
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                      package: 'picnic_lib',
-                      'assets/icons/login/kakao.png',
-                      width: 20.w,
-                      height: 20),
-                  SizedBox(width: 8.w),
-                  Text('Login with Kakao',
-                      style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
-                ],
+              },
+              child: Center(
+                child: Container(
+                  width: 240,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.grey400, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.yellow,
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/login/kakao.png',
+                        width: 20.w,
+                        height: 20,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Login with Kakao',
+                        style: getTextStyle(AppTypo.body14M, AppColors.grey800),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        if (lastProvider == 'kakao') const LastProvider(),
-      ]);
-    });
+            if (lastProvider == 'kakao') const LastProvider(),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildWeChatLogin(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Stack(children: [
-        GestureDetector(
-          onTap: () async {
-            try {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-                await Future.delayed(const Duration(milliseconds: 150));
-              }
-              // 위챗 설치 여부 확인 후 미설치 시 스토어 이동 팝업
-              if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            GestureDetector(
+              onTap: () async {
                 try {
-                  final fluwx = Fluwx();
-                  await fluwx.registerApi(
-                    appId: Environment.wechatAppId,
-                    universalLink: Environment.wechatUniversalLink,
-                  );
-                  final installed = await fluwx.isWeChatInstalled;
-                  if (!installed) {
-                    if (navigatorKey.currentContext != null) {
-                      showSimpleDialog(
-                        content:
-                            AppLocalizations.of(navigatorKey.currentContext!)
-                                .label_login_with_wechat,
-                        onOk: () async {
-                          // 스토어로 이동
-                          final uri = UniversalPlatform.isIOS
-                              ? Uri.parse(
-                                  'itms-apps://itunes.apple.com/app/id414478124')
-                              : Uri.parse('market://details?id=com.tencent.mm');
-                          try {
-                            await launchUrl(uri,
-                                mode: LaunchMode.externalApplication);
-                          } catch (_) {}
-                          Navigator.of(navigatorKey.currentContext!).pop();
-                        },
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                    await Future.delayed(const Duration(milliseconds: 150));
+                  }
+                  // 위챗 설치 여부 확인 후 미설치 시 스토어 이동 팝업
+                  if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+                    try {
+                      final fluwx = Fluwx();
+                      await fluwx.registerApi(
+                        appId: Environment.wechatAppId,
+                        universalLink: Environment.wechatUniversalLink,
                       );
+                      final installed = await fluwx.isWeChatInstalled;
+                      if (!installed) {
+                        if (navigatorKey.currentContext != null) {
+                          showSimpleDialog(
+                            content: AppLocalizations.of(
+                              navigatorKey.currentContext!,
+                            ).label_login_with_wechat,
+                            onOk: () async {
+                              // 스토어로 이동
+                              final uri = UniversalPlatform.isIOS
+                                  ? Uri.parse(
+                                      'itms-apps://itunes.apple.com/app/id414478124',
+                                    )
+                                  : Uri.parse(
+                                      'market://details?id=com.tencent.mm',
+                                    );
+                              try {
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              } catch (_) {}
+                              Navigator.of(navigatorKey.currentContext!).pop();
+                            },
+                          );
+                        }
+                        return;
+                      }
+                    } catch (_) {}
+                  }
+                  try {
+                    await sp.ScreenProtector.preventScreenshotOff();
+                  } catch (_) {}
+                  try {
+                    final user = await _authService.signInWithWeChat();
+                    if (user != null) {
+                      _handleSuccessfulLogin('wechat');
                     }
+                  } finally {
+                    try {
+                      await sp.ScreenProtector.preventScreenshotOn();
+                    } catch (_) {}
+                  }
+                } on PicnicAuthException catch (e) {
+                  if (e.code == 'canceled') {
                     return;
                   }
-                } catch (_) {}
-              }
-              try {
-                await sp.ScreenProtector.preventScreenshotOff();
-              } catch (_) {}
-              try {
-                final user = await _authService.signInWithWeChat();
-                if (user != null) {
-                  _handleSuccessfulLogin('wechat');
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      type: DialogType.error,
+                      title: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_title,
+                      content: e.message,
+                      onOk: () {
+                        Navigator.of(navigatorKey.currentContext!).pop();
+                      },
+                    );
+                  }
+                } catch (e, s) {
+                  logger.e('Error signing in with WeChat: $e', stackTrace: s);
+                  if (navigatorKey.currentContext != null) {
+                    showSimpleDialog(
+                      type: DialogType.error,
+                      title: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_title,
+                      content: AppLocalizations.of(
+                        navigatorKey.currentContext!,
+                      ).error_message_login_failed,
+                      onOk: () {
+                        Navigator.of(navigatorKey.currentContext!).pop();
+                      },
+                    );
+                  }
+                  rethrow;
                 }
-              } finally {
-                try {
-                  await sp.ScreenProtector.preventScreenshotOn();
-                } catch (_) {}
-              }
-            } on PicnicAuthException catch (e) {
-              if (e.code == 'canceled') {
-                return;
-              }
-              if (navigatorKey.currentContext != null) {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_title,
-                    content: e.message,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              }
-            } catch (e, s) {
-              logger.e('Error signing in with WeChat: $e', stackTrace: s);
-              if (navigatorKey.currentContext != null) {
-                showSimpleDialog(
-                    type: DialogType.error,
-                    title: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_title,
-                    content: AppLocalizations.of(navigatorKey.currentContext!)
-                        .error_message_login_failed,
-                    onOk: () {
-                      Navigator.of(navigatorKey.currentContext!).pop();
-                    });
-              }
-              rethrow;
-            }
-          },
-          child: Center(
-            child: Container(
-              width: 240,
-              height: 44,
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.grey400, width: 1),
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.white,
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const FaIcon(FontAwesomeIcons.weixin,
-                      color: AppColors.grey800, size: 20),
-                  SizedBox(width: 8.w),
-                  Text('Login with WeChat',
-                      style: getTextStyle(AppTypo.body14M, AppColors.grey800)),
-                ],
+              },
+              child: Center(
+                child: Container(
+                  width: 240,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.grey400, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const FaIcon(
+                        FontAwesomeIcons.weixin,
+                        color: AppColors.grey800,
+                        size: 20,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Login with WeChat',
+                        style: getTextStyle(AppTypo.body14M, AppColors.grey800),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        if (lastProvider == 'wechat') const LastProvider(),
-      ]);
-    });
+            if (lastProvider == 'wechat') const LastProvider(),
+          ],
+        );
+      },
+    );
   }
 }
 

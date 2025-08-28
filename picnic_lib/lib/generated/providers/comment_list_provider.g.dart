@@ -86,28 +86,28 @@ class AsyncCommentListFamily extends Family<AsyncValue<CommentState>> {
 }
 
 /// See also [AsyncCommentList].
-class AsyncCommentListProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    AsyncCommentList, CommentState> {
+class AsyncCommentListProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<AsyncCommentList, CommentState> {
   /// See also [AsyncCommentList].
   AsyncCommentListProvider({
     required int articleId,
     required PagingController<int, CommentModel> pagingController,
   }) : this._internal(
-          () => AsyncCommentList()
-            ..articleId = articleId
-            ..pagingController = pagingController,
-          from: asyncCommentListProvider,
-          name: r'asyncCommentListProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$asyncCommentListHash,
-          dependencies: AsyncCommentListFamily._dependencies,
-          allTransitiveDependencies:
-              AsyncCommentListFamily._allTransitiveDependencies,
-          articleId: articleId,
-          pagingController: pagingController,
-        );
+         () => AsyncCommentList()
+           ..articleId = articleId
+           ..pagingController = pagingController,
+         from: asyncCommentListProvider,
+         name: r'asyncCommentListProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$asyncCommentListHash,
+         dependencies: AsyncCommentListFamily._dependencies,
+         allTransitiveDependencies:
+             AsyncCommentListFamily._allTransitiveDependencies,
+         articleId: articleId,
+         pagingController: pagingController,
+       );
 
   AsyncCommentListProvider._internal(
     super._createNotifier, {
@@ -124,9 +124,7 @@ class AsyncCommentListProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final PagingController<int, CommentModel> pagingController;
 
   @override
-  FutureOr<CommentState> runNotifierBuild(
-    covariant AsyncCommentList notifier,
-  ) {
+  FutureOr<CommentState> runNotifierBuild(covariant AsyncCommentList notifier) {
     return notifier.build(
       articleId: articleId,
       pagingController: pagingController,
@@ -154,7 +152,7 @@ class AsyncCommentListProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   AutoDisposeAsyncNotifierProviderElement<AsyncCommentList, CommentState>
-      createElement() {
+  createElement() {
     return _AsyncCommentListProviderElement(this);
   }
 
@@ -186,8 +184,9 @@ mixin AsyncCommentListRef on AutoDisposeAsyncNotifierProviderRef<CommentState> {
 }
 
 class _AsyncCommentListProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<AsyncCommentList,
-        CommentState> with AsyncCommentListRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<AsyncCommentList, CommentState>
+    with AsyncCommentListRef {
   _AsyncCommentListProviderElement(super.provider);
 
   @override
@@ -203,13 +202,14 @@ String _$parentItemHash() => r'30d7e81bfa5563d77693ce2e504753acaddecca4';
 @ProviderFor(ParentItem)
 final parentItemProvider =
     AutoDisposeNotifierProvider<ParentItem, CommentModel?>.internal(
-  ParentItem.new,
-  name: r'parentItemProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$parentItemHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      ParentItem.new,
+      name: r'parentItemProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$parentItemHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$ParentItem = AutoDisposeNotifier<CommentModel?>;
 // ignore_for_file: type=lint

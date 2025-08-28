@@ -39,27 +39,15 @@ class PostsByArtistFamily extends Family<AsyncValue<List<PostModel>?>> {
   const PostsByArtistFamily();
 
   /// See also [postsByArtist].
-  PostsByArtistProvider call(
-    int artistId,
-    int limit,
-    int page,
-  ) {
-    return PostsByArtistProvider(
-      artistId,
-      limit,
-      page,
-    );
+  PostsByArtistProvider call(int artistId, int limit, int page) {
+    return PostsByArtistProvider(artistId, limit, page);
   }
 
   @override
   PostsByArtistProvider getProviderOverride(
     covariant PostsByArtistProvider provider,
   ) {
-    return call(
-      provider.artistId,
-      provider.limit,
-      provider.page,
-    );
+    return call(provider.artistId, provider.limit, provider.page);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -81,30 +69,21 @@ class PostsByArtistFamily extends Family<AsyncValue<List<PostModel>?>> {
 class PostsByArtistProvider
     extends AutoDisposeFutureProvider<List<PostModel>?> {
   /// See also [postsByArtist].
-  PostsByArtistProvider(
-    int artistId,
-    int limit,
-    int page,
-  ) : this._internal(
-          (ref) => postsByArtist(
-            ref as PostsByArtistRef,
-            artistId,
-            limit,
-            page,
-          ),
-          from: postsByArtistProvider,
-          name: r'postsByArtistProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$postsByArtistHash,
-          dependencies: PostsByArtistFamily._dependencies,
-          allTransitiveDependencies:
-              PostsByArtistFamily._allTransitiveDependencies,
-          artistId: artistId,
-          limit: limit,
-          page: page,
-        );
+  PostsByArtistProvider(int artistId, int limit, int page)
+    : this._internal(
+        (ref) => postsByArtist(ref as PostsByArtistRef, artistId, limit, page),
+        from: postsByArtistProvider,
+        name: r'postsByArtistProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$postsByArtistHash,
+        dependencies: PostsByArtistFamily._dependencies,
+        allTransitiveDependencies:
+            PostsByArtistFamily._allTransitiveDependencies,
+        artistId: artistId,
+        limit: limit,
+        page: page,
+      );
 
   PostsByArtistProvider._internal(
     super._createNotifier, {
@@ -204,27 +183,15 @@ class PostsByBoardFamily extends Family<AsyncValue<List<PostModel>?>> {
   const PostsByBoardFamily();
 
   /// See also [postsByBoard].
-  PostsByBoardProvider call(
-    String boardId,
-    int limit,
-    int page,
-  ) {
-    return PostsByBoardProvider(
-      boardId,
-      limit,
-      page,
-    );
+  PostsByBoardProvider call(String boardId, int limit, int page) {
+    return PostsByBoardProvider(boardId, limit, page);
   }
 
   @override
   PostsByBoardProvider getProviderOverride(
     covariant PostsByBoardProvider provider,
   ) {
-    return call(
-      provider.boardId,
-      provider.limit,
-      provider.page,
-    );
+    return call(provider.boardId, provider.limit, provider.page);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -245,30 +212,21 @@ class PostsByBoardFamily extends Family<AsyncValue<List<PostModel>?>> {
 /// See also [postsByBoard].
 class PostsByBoardProvider extends AutoDisposeFutureProvider<List<PostModel>?> {
   /// See also [postsByBoard].
-  PostsByBoardProvider(
-    String boardId,
-    int limit,
-    int page,
-  ) : this._internal(
-          (ref) => postsByBoard(
-            ref as PostsByBoardRef,
-            boardId,
-            limit,
-            page,
-          ),
-          from: postsByBoardProvider,
-          name: r'postsByBoardProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$postsByBoardHash,
-          dependencies: PostsByBoardFamily._dependencies,
-          allTransitiveDependencies:
-              PostsByBoardFamily._allTransitiveDependencies,
-          boardId: boardId,
-          limit: limit,
-          page: page,
-        );
+  PostsByBoardProvider(String boardId, int limit, int page)
+    : this._internal(
+        (ref) => postsByBoard(ref as PostsByBoardRef, boardId, limit, page),
+        from: postsByBoardProvider,
+        name: r'postsByBoardProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$postsByBoardHash,
+        dependencies: PostsByBoardFamily._dependencies,
+        allTransitiveDependencies:
+            PostsByBoardFamily._allTransitiveDependencies,
+        boardId: boardId,
+        limit: limit,
+        page: page,
+      );
 
   PostsByBoardProvider._internal(
     super._createNotifier, {
@@ -368,18 +326,8 @@ class PostsByQueryFamily extends Family<AsyncValue<List<PostModel>?>> {
   const PostsByQueryFamily();
 
   /// See also [postsByQuery].
-  PostsByQueryProvider call(
-    int artistId,
-    String query,
-    int page,
-    int limit,
-  ) {
-    return PostsByQueryProvider(
-      artistId,
-      query,
-      page,
-      limit,
-    );
+  PostsByQueryProvider call(int artistId, String query, int page, int limit) {
+    return PostsByQueryProvider(artistId, query, page, limit);
   }
 
   @override
@@ -412,33 +360,23 @@ class PostsByQueryFamily extends Family<AsyncValue<List<PostModel>?>> {
 /// See also [postsByQuery].
 class PostsByQueryProvider extends AutoDisposeFutureProvider<List<PostModel>?> {
   /// See also [postsByQuery].
-  PostsByQueryProvider(
-    int artistId,
-    String query,
-    int page,
-    int limit,
-  ) : this._internal(
-          (ref) => postsByQuery(
-            ref as PostsByQueryRef,
-            artistId,
-            query,
-            page,
-            limit,
-          ),
-          from: postsByQueryProvider,
-          name: r'postsByQueryProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$postsByQueryHash,
-          dependencies: PostsByQueryFamily._dependencies,
-          allTransitiveDependencies:
-              PostsByQueryFamily._allTransitiveDependencies,
-          artistId: artistId,
-          query: query,
-          page: page,
-          limit: limit,
-        );
+  PostsByQueryProvider(int artistId, String query, int page, int limit)
+    : this._internal(
+        (ref) =>
+            postsByQuery(ref as PostsByQueryRef, artistId, query, page, limit),
+        from: postsByQueryProvider,
+        name: r'postsByQueryProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$postsByQueryHash,
+        dependencies: PostsByQueryFamily._dependencies,
+        allTransitiveDependencies:
+            PostsByQueryFamily._allTransitiveDependencies,
+        artistId: artistId,
+        query: query,
+        page: page,
+        limit: limit,
+      );
 
   PostsByQueryProvider._internal(
     super._createNotifier, {
@@ -548,20 +486,12 @@ class PostByIdFamily extends Family<AsyncValue<PostModel?>> {
   const PostByIdFamily();
 
   /// See also [postById].
-  PostByIdProvider call(
-    String postId, {
-    bool isIncrementViewCount = true,
-  }) {
-    return PostByIdProvider(
-      postId,
-      isIncrementViewCount: isIncrementViewCount,
-    );
+  PostByIdProvider call(String postId, {bool isIncrementViewCount = true}) {
+    return PostByIdProvider(postId, isIncrementViewCount: isIncrementViewCount);
   }
 
   @override
-  PostByIdProvider getProviderOverride(
-    covariant PostByIdProvider provider,
-  ) {
+  PostByIdProvider getProviderOverride(covariant PostByIdProvider provider) {
     return call(
       provider.postId,
       isIncrementViewCount: provider.isIncrementViewCount,
@@ -586,26 +516,23 @@ class PostByIdFamily extends Family<AsyncValue<PostModel?>> {
 /// See also [postById].
 class PostByIdProvider extends AutoDisposeFutureProvider<PostModel?> {
   /// See also [postById].
-  PostByIdProvider(
-    String postId, {
-    bool isIncrementViewCount = true,
-  }) : this._internal(
-          (ref) => postById(
-            ref as PostByIdRef,
-            postId,
-            isIncrementViewCount: isIncrementViewCount,
-          ),
-          from: postByIdProvider,
-          name: r'postByIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$postByIdHash,
-          dependencies: PostByIdFamily._dependencies,
-          allTransitiveDependencies: PostByIdFamily._allTransitiveDependencies,
-          postId: postId,
+  PostByIdProvider(String postId, {bool isIncrementViewCount = true})
+    : this._internal(
+        (ref) => postById(
+          ref as PostByIdRef,
+          postId,
           isIncrementViewCount: isIncrementViewCount,
-        );
+        ),
+        from: postByIdProvider,
+        name: r'postByIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$postByIdHash,
+        dependencies: PostByIdFamily._dependencies,
+        allTransitiveDependencies: PostByIdFamily._allTransitiveDependencies,
+        postId: postId,
+        isIncrementViewCount: isIncrementViewCount,
+      );
 
   PostByIdProvider._internal(
     super._createNotifier, {
@@ -673,7 +600,8 @@ mixin PostByIdRef on AutoDisposeFutureProviderRef<PostModel?> {
 }
 
 class _PostByIdProviderElement
-    extends AutoDisposeFutureProviderElement<PostModel?> with PostByIdRef {
+    extends AutoDisposeFutureProviderElement<PostModel?>
+    with PostByIdRef {
   _PostByIdProviderElement(super.provider);
 
   @override
@@ -695,27 +623,15 @@ class PostsByUserFamily extends Family<AsyncValue<List<PostModel>>> {
   const PostsByUserFamily();
 
   /// See also [postsByUser].
-  PostsByUserProvider call(
-    String userId,
-    int limit,
-    int page,
-  ) {
-    return PostsByUserProvider(
-      userId,
-      limit,
-      page,
-    );
+  PostsByUserProvider call(String userId, int limit, int page) {
+    return PostsByUserProvider(userId, limit, page);
   }
 
   @override
   PostsByUserProvider getProviderOverride(
     covariant PostsByUserProvider provider,
   ) {
-    return call(
-      provider.userId,
-      provider.limit,
-      provider.page,
-    );
+    return call(provider.userId, provider.limit, provider.page);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -736,30 +652,20 @@ class PostsByUserFamily extends Family<AsyncValue<List<PostModel>>> {
 /// See also [postsByUser].
 class PostsByUserProvider extends AutoDisposeFutureProvider<List<PostModel>> {
   /// See also [postsByUser].
-  PostsByUserProvider(
-    String userId,
-    int limit,
-    int page,
-  ) : this._internal(
-          (ref) => postsByUser(
-            ref as PostsByUserRef,
-            userId,
-            limit,
-            page,
-          ),
-          from: postsByUserProvider,
-          name: r'postsByUserProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$postsByUserHash,
-          dependencies: PostsByUserFamily._dependencies,
-          allTransitiveDependencies:
-              PostsByUserFamily._allTransitiveDependencies,
-          userId: userId,
-          limit: limit,
-          page: page,
-        );
+  PostsByUserProvider(String userId, int limit, int page)
+    : this._internal(
+        (ref) => postsByUser(ref as PostsByUserRef, userId, limit, page),
+        from: postsByUserProvider,
+        name: r'postsByUserProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$postsByUserHash,
+        dependencies: PostsByUserFamily._dependencies,
+        allTransitiveDependencies: PostsByUserFamily._allTransitiveDependencies,
+        userId: userId,
+        limit: limit,
+        page: page,
+      );
 
   PostsByUserProvider._internal(
     super._createNotifier, {
@@ -861,27 +767,15 @@ class PostsScrapedByUserFamily
   const PostsScrapedByUserFamily();
 
   /// See also [postsScrapedByUser].
-  PostsScrapedByUserProvider call(
-    String userId,
-    int limit,
-    int page,
-  ) {
-    return PostsScrapedByUserProvider(
-      userId,
-      limit,
-      page,
-    );
+  PostsScrapedByUserProvider call(String userId, int limit, int page) {
+    return PostsScrapedByUserProvider(userId, limit, page);
   }
 
   @override
   PostsScrapedByUserProvider getProviderOverride(
     covariant PostsScrapedByUserProvider provider,
   ) {
-    return call(
-      provider.userId,
-      provider.limit,
-      provider.page,
-    );
+    return call(provider.userId, provider.limit, provider.page);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -903,30 +797,26 @@ class PostsScrapedByUserFamily
 class PostsScrapedByUserProvider
     extends AutoDisposeFutureProvider<List<PostScrapModel>> {
   /// See also [postsScrapedByUser].
-  PostsScrapedByUserProvider(
-    String userId,
-    int limit,
-    int page,
-  ) : this._internal(
-          (ref) => postsScrapedByUser(
-            ref as PostsScrapedByUserRef,
-            userId,
-            limit,
-            page,
-          ),
-          from: postsScrapedByUserProvider,
-          name: r'postsScrapedByUserProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$postsScrapedByUserHash,
-          dependencies: PostsScrapedByUserFamily._dependencies,
-          allTransitiveDependencies:
-              PostsScrapedByUserFamily._allTransitiveDependencies,
-          userId: userId,
-          limit: limit,
-          page: page,
-        );
+  PostsScrapedByUserProvider(String userId, int limit, int page)
+    : this._internal(
+        (ref) => postsScrapedByUser(
+          ref as PostsScrapedByUserRef,
+          userId,
+          limit,
+          page,
+        ),
+        from: postsScrapedByUserProvider,
+        name: r'postsScrapedByUserProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$postsScrapedByUserHash,
+        dependencies: PostsScrapedByUserFamily._dependencies,
+        allTransitiveDependencies:
+            PostsScrapedByUserFamily._allTransitiveDependencies,
+        userId: userId,
+        limit: limit,
+        page: page,
+      );
 
   PostsScrapedByUserProvider._internal(
     super._createNotifier, {
@@ -947,7 +837,7 @@ class PostsScrapedByUserProvider
   @override
   Override overrideWith(
     FutureOr<List<PostScrapModel>> Function(PostsScrapedByUserRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -1034,12 +924,7 @@ class ReportPostFamily extends Family<AsyncValue<void>> {
     String text, {
     bool blockUser = false,
   }) {
-    return ReportPostProvider(
-      post,
-      reason,
-      text,
-      blockUser: blockUser,
-    );
+    return ReportPostProvider(post, reason, text, blockUser: blockUser);
   }
 
   @override
@@ -1078,27 +963,25 @@ class ReportPostProvider extends AutoDisposeFutureProvider<void> {
     String text, {
     bool blockUser = false,
   }) : this._internal(
-          (ref) => reportPost(
-            ref as ReportPostRef,
-            post,
-            reason,
-            text,
-            blockUser: blockUser,
-          ),
-          from: reportPostProvider,
-          name: r'reportPostProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$reportPostHash,
-          dependencies: ReportPostFamily._dependencies,
-          allTransitiveDependencies:
-              ReportPostFamily._allTransitiveDependencies,
-          post: post,
-          reason: reason,
-          text: text,
-          blockUser: blockUser,
-        );
+         (ref) => reportPost(
+           ref as ReportPostRef,
+           post,
+           reason,
+           text,
+           blockUser: blockUser,
+         ),
+         from: reportPostProvider,
+         name: r'reportPostProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$reportPostHash,
+         dependencies: ReportPostFamily._dependencies,
+         allTransitiveDependencies: ReportPostFamily._allTransitiveDependencies,
+         post: post,
+         reason: reason,
+         text: text,
+         blockUser: blockUser,
+       );
 
   ReportPostProvider._internal(
     super._createNotifier, {
@@ -1207,21 +1090,15 @@ class DeletePostFamily extends Family<AsyncValue<void>> {
   const DeletePostFamily();
 
   /// See also [deletePost].
-  DeletePostProvider call(
-    String postId,
-  ) {
-    return DeletePostProvider(
-      postId,
-    );
+  DeletePostProvider call(String postId) {
+    return DeletePostProvider(postId);
   }
 
   @override
   DeletePostProvider getProviderOverride(
     covariant DeletePostProvider provider,
   ) {
-    return call(
-      provider.postId,
-    );
+    return call(provider.postId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -1242,24 +1119,18 @@ class DeletePostFamily extends Family<AsyncValue<void>> {
 /// See also [deletePost].
 class DeletePostProvider extends AutoDisposeFutureProvider<void> {
   /// See also [deletePost].
-  DeletePostProvider(
-    String postId,
-  ) : this._internal(
-          (ref) => deletePost(
-            ref as DeletePostRef,
-            postId,
-          ),
-          from: deletePostProvider,
-          name: r'deletePostProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$deletePostHash,
-          dependencies: DeletePostFamily._dependencies,
-          allTransitiveDependencies:
-              DeletePostFamily._allTransitiveDependencies,
-          postId: postId,
-        );
+  DeletePostProvider(String postId)
+    : this._internal(
+        (ref) => deletePost(ref as DeletePostRef, postId),
+        from: deletePostProvider,
+        name: r'deletePostProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$deletePostHash,
+        dependencies: DeletePostFamily._dependencies,
+        allTransitiveDependencies: DeletePostFamily._allTransitiveDependencies,
+        postId: postId,
+      );
 
   DeletePostProvider._internal(
     super._createNotifier, {
@@ -1337,21 +1208,13 @@ class ScrapPostFamily extends Family<AsyncValue<void>> {
   const ScrapPostFamily();
 
   /// See also [scrapPost].
-  ScrapPostProvider call(
-    String postId,
-  ) {
-    return ScrapPostProvider(
-      postId,
-    );
+  ScrapPostProvider call(String postId) {
+    return ScrapPostProvider(postId);
   }
 
   @override
-  ScrapPostProvider getProviderOverride(
-    covariant ScrapPostProvider provider,
-  ) {
-    return call(
-      provider.postId,
-    );
+  ScrapPostProvider getProviderOverride(covariant ScrapPostProvider provider) {
+    return call(provider.postId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -1372,23 +1235,18 @@ class ScrapPostFamily extends Family<AsyncValue<void>> {
 /// See also [scrapPost].
 class ScrapPostProvider extends AutoDisposeFutureProvider<void> {
   /// See also [scrapPost].
-  ScrapPostProvider(
-    String postId,
-  ) : this._internal(
-          (ref) => scrapPost(
-            ref as ScrapPostRef,
-            postId,
-          ),
-          from: scrapPostProvider,
-          name: r'scrapPostProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$scrapPostHash,
-          dependencies: ScrapPostFamily._dependencies,
-          allTransitiveDependencies: ScrapPostFamily._allTransitiveDependencies,
-          postId: postId,
-        );
+  ScrapPostProvider(String postId)
+    : this._internal(
+        (ref) => scrapPost(ref as ScrapPostRef, postId),
+        from: scrapPostProvider,
+        name: r'scrapPostProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$scrapPostHash,
+        dependencies: ScrapPostFamily._dependencies,
+        allTransitiveDependencies: ScrapPostFamily._allTransitiveDependencies,
+        postId: postId,
+      );
 
   ScrapPostProvider._internal(
     super._createNotifier, {
@@ -1403,9 +1261,7 @@ class ScrapPostProvider extends AutoDisposeFutureProvider<void> {
   final String postId;
 
   @override
-  Override overrideWith(
-    FutureOr<void> Function(ScrapPostRef provider) create,
-  ) {
+  Override overrideWith(FutureOr<void> Function(ScrapPostRef provider) create) {
     return ProviderOverride(
       origin: this,
       override: ScrapPostProvider._internal(
@@ -1466,24 +1322,15 @@ class UnscrapPostFamily extends Family<AsyncValue<void>> {
   const UnscrapPostFamily();
 
   /// See also [unscrapPost].
-  UnscrapPostProvider call(
-    String postId,
-    String userId,
-  ) {
-    return UnscrapPostProvider(
-      postId,
-      userId,
-    );
+  UnscrapPostProvider call(String postId, String userId) {
+    return UnscrapPostProvider(postId, userId);
   }
 
   @override
   UnscrapPostProvider getProviderOverride(
     covariant UnscrapPostProvider provider,
   ) {
-    return call(
-      provider.postId,
-      provider.userId,
-    );
+    return call(provider.postId, provider.userId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -1504,27 +1351,19 @@ class UnscrapPostFamily extends Family<AsyncValue<void>> {
 /// See also [unscrapPost].
 class UnscrapPostProvider extends AutoDisposeFutureProvider<void> {
   /// See also [unscrapPost].
-  UnscrapPostProvider(
-    String postId,
-    String userId,
-  ) : this._internal(
-          (ref) => unscrapPost(
-            ref as UnscrapPostRef,
-            postId,
-            userId,
-          ),
-          from: unscrapPostProvider,
-          name: r'unscrapPostProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$unscrapPostHash,
-          dependencies: UnscrapPostFamily._dependencies,
-          allTransitiveDependencies:
-              UnscrapPostFamily._allTransitiveDependencies,
-          postId: postId,
-          userId: userId,
-        );
+  UnscrapPostProvider(String postId, String userId)
+    : this._internal(
+        (ref) => unscrapPost(ref as UnscrapPostRef, postId, userId),
+        from: unscrapPostProvider,
+        name: r'unscrapPostProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$unscrapPostHash,
+        dependencies: UnscrapPostFamily._dependencies,
+        allTransitiveDependencies: UnscrapPostFamily._allTransitiveDependencies,
+        postId: postId,
+        userId: userId,
+      );
 
   UnscrapPostProvider._internal(
     super._createNotifier, {
@@ -1600,5 +1439,6 @@ class _UnscrapPostProviderElement extends AutoDisposeFutureProviderElement<void>
   @override
   String get userId => (origin as UnscrapPostProvider).userId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

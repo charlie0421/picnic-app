@@ -8,13 +8,11 @@ import 'package:picnic_lib/navigation_stack.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
-import 'package:picnic_lib/reflector.dart';
 
-part '../../../generated/providers/models/common/navigation.freezed.dart';
+part '../../../generated/models/common/navigation.freezed.dart';
 
 enum TopRightType { none, common, board, postView, community }
 
-@reflector
 @freezed
 class Navigation with _$Navigation {
   const Navigation._();
@@ -43,7 +41,7 @@ class Navigation with _$Navigation {
     // 초기 투표 페이지는 인덱스 0에 해당하는 페이지를 로드
     final initialVotePage =
         NavigationConfigs.getPageWidget(PortalType.vote, 0) ??
-            const VoteHomePage();
+        const VoteHomePage();
 
     return Navigation(
       voteNavigationStack: NavigationStack()..push(initialVotePage),
@@ -54,30 +52,48 @@ class Navigation with _$Navigation {
 
   Future<Navigation> load() async {
     String? portalString = await globalStorage.loadData(
-        'portalString', PortalType.vote.name.toString());
-    String? voteBottomNavigationIndexString =
-        await globalStorage.loadData('voteBottomNavigationIndex', '0');
-    String? picBottomNavigationIndexString =
-        await globalStorage.loadData('picBottomNavigationIndex', '0');
-    String? communityBottomNavigationIndexString =
-        await globalStorage.loadData('communityBottomNavigationIndex', '0');
-    String? novelBottomNavigationIndexString =
-        await globalStorage.loadData('novelBottomNavigationIndex', '0');
+      'portalString',
+      PortalType.vote.name.toString(),
+    );
+    String? voteBottomNavigationIndexString = await globalStorage.loadData(
+      'voteBottomNavigationIndex',
+      '0',
+    );
+    String? picBottomNavigationIndexString = await globalStorage.loadData(
+      'picBottomNavigationIndex',
+      '0',
+    );
+    String? communityBottomNavigationIndexString = await globalStorage.loadData(
+      'communityBottomNavigationIndex',
+      '0',
+    );
+    String? novelBottomNavigationIndexString = await globalStorage.loadData(
+      'novelBottomNavigationIndex',
+      '0',
+    );
 
     PortalType newPortalType = PortalTypeExtension.fromString(
-        portalString ?? PortalType.vote.name.toString());
-    int newVoteBottomNavigationIndex =
-        int.parse(voteBottomNavigationIndexString!);
-    int newPicBottomNavigationIndex =
-        int.parse(picBottomNavigationIndexString!);
-    int newCommunityBottomNavigationIndex =
-        int.parse(communityBottomNavigationIndexString!);
-    int newNovelBottomNavigationIndex =
-        int.parse(novelBottomNavigationIndexString!);
+      portalString ?? PortalType.vote.name.toString(),
+    );
+    int newVoteBottomNavigationIndex = int.parse(
+      voteBottomNavigationIndexString!,
+    );
+    int newPicBottomNavigationIndex = int.parse(
+      picBottomNavigationIndexString!,
+    );
+    int newCommunityBottomNavigationIndex = int.parse(
+      communityBottomNavigationIndexString!,
+    );
+    int newNovelBottomNavigationIndex = int.parse(
+      novelBottomNavigationIndexString!,
+    );
 
     // 저장된 인덱스에 맞는 페이지를 로드
-    final savedVotePage = NavigationConfigs.getPageWidget(
-            PortalType.vote, newVoteBottomNavigationIndex) ??
+    final savedVotePage =
+        NavigationConfigs.getPageWidget(
+          PortalType.vote,
+          newVoteBottomNavigationIndex,
+        ) ??
         const VoteHomePage();
 
     return Navigation(

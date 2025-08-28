@@ -56,7 +56,7 @@ class VoteCardColumnHorizontal extends StatelessWidget {
             child: FadeTransition(
               opacity: opacityAnimation,
               child: Text(
-                AppLocalizations.of(context).text_vote_rank(rank.toString()),
+                AppLocalizations.of(context).text_vote_rank(rank),
                 style: getTextStyle(AppTypo.caption12B, AppColors.point900),
                 textAlign: TextAlign.center,
               ),

@@ -8,12 +8,12 @@ ThemeData voteThemeLight = ThemeData.light().copyWith(
     backgroundColor: voteMainColor,
     foregroundColor: Colors.white,
   ),
-  bottomAppBarTheme: const BottomAppBarTheme(
-    color: Colors.transparent,
-  ),
+  // bottomAppBarTheme는 Flutter 버전에 따라 타입 차이가 있어 일단 기본값 사용
   scaffoldBackgroundColor: AppColors.grey00,
   elevatedButtonTheme: getElevatedButtonThemeData(
-      borderColor: AppColors.sub500, textColor: AppColors.grey00),
+    borderColor: AppColors.sub500,
+    textColor: AppColors.grey00,
+  ),
   tabBarTheme: commonTabBarTheme,
   switchTheme: commonSwitchTheme,
   colorScheme: const ColorScheme(

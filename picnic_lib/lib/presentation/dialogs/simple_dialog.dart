@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
@@ -79,9 +78,7 @@ void showSimpleDialog({
             alignment: Alignment.center,
             child: Container(
               width: getPlatformScreenSize(context).width,
-              constraints: BoxConstraints(
-                minWidth: 151.w,
-              ),
+              constraints: BoxConstraints(minWidth: 151.w),
               padding: EdgeInsets.only(
                 top: 28,
                 bottom: 20,
@@ -91,15 +88,16 @@ void showSimpleDialog({
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: type == DialogType.error
-                    ? [
-                        BoxShadow(
-                          color: AppColors.grey300,
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        )
-                      ]
-                    : null,
+                boxShadow:
+                    type == DialogType.error
+                        ? [
+                          BoxShadow(
+                            color: AppColors.grey300,
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
+                        ]
+                        : null,
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -126,11 +124,11 @@ void showSimpleDialog({
                         content,
                         style: getTextStyle(AppTypo.body14R, contentColor),
                         textAlign: TextAlign.center,
-                      )
+                      ),
                     ],
                     if (contentWidget != null) ...[
                       const SizedBox(height: 12),
-                      contentWidget
+                      contentWidget,
                     ],
                     const SizedBox(height: 28),
                     Row(
@@ -179,14 +177,12 @@ void showSimpleErrorDialog(
   String displayMessage = message;
   if (error != null) {
     final errorMsg = error.toString();
-    final truncatedError = truncateError && errorMsg.length > 150
-        ? '${errorMsg.substring(0, 150)}...'
-        : errorMsg;
+    final truncatedError =
+        truncateError && errorMsg.length > 150
+            ? '${errorMsg.substring(0, 150)}...'
+            : errorMsg;
     displayMessage = '$message\n\n$truncatedError';
   }
 
-  showSimpleDialog(
-    type: type,
-    content: displayMessage,
-  );
+  showSimpleDialog(type: type, content: displayMessage);
 }

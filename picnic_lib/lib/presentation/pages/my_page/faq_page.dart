@@ -40,7 +40,9 @@ class _FAQPageState extends ConsumerState<FAQPage> {
       );
       if (found.isNotEmpty && found['label'] is Map<String, dynamic>) {
         return _getLocalizedText(
-            found['label'] as Map<String, dynamic>, language);
+          found['label'] as Map<String, dynamic>,
+          language,
+        );
       }
     } catch (_) {}
     return categoryCode;
@@ -52,8 +54,11 @@ class _FAQPageState extends ConsumerState<FAQPage> {
     _selectedCategory = 'ALL';
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-          pageTitle: AppLocalizations.of(context).label_mypage_faq);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(
+            pageTitle: AppLocalizations.of(context).label_mypage_faq,
+          );
       _fetchPage();
     });
   }
@@ -83,7 +88,7 @@ class _FAQPageState extends ConsumerState<FAQPage> {
         _categoriesData = categoriesResponse.cast<Map<String, dynamic>>();
         _categories = [
           'ALL',
-          ..._categoriesData.map((e) => e['code']).whereType<String>().toList(),
+          ..._categoriesData.map((e) => e['code']).whereType<String>(),
         ];
       });
     } catch (error) {
@@ -126,8 +131,10 @@ class _FAQPageState extends ConsumerState<FAQPage> {
                     selected: _selectedCategory == category,
                     selectedColor: AppColors.primary500,
                     backgroundColor: AppColors.grey100,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
                     labelPadding: EdgeInsets.symmetric(horizontal: 4.w),
                     onSelected: (selected) {
                       if (selected) {
@@ -145,8 +152,10 @@ class _FAQPageState extends ConsumerState<FAQPage> {
         Expanded(
           child: filteredFaqs.isNotEmpty
               ? ListView.builder(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 16.h,
+                  ),
                   itemCount: filteredFaqs.length,
                   itemBuilder: (context, index) {
                     final faq = filteredFaqs[index];
@@ -157,15 +166,21 @@ class _FAQPageState extends ConsumerState<FAQPage> {
                           if (faq['category'] != null)
                             Text(
                               _getLocalizedCategoryLabel(
-                                  faq['category'], currentLanguage),
+                                faq['category'],
+                                currentLanguage,
+                              ),
                               style: getTextStyle(
-                                  AppTypo.body14M, AppColors.primary500),
+                                AppTypo.body14M,
+                                AppColors.primary500,
+                              ),
                             ),
                           SizedBox(height: 4.h),
                           Text(
                             _getLocalizedText(faq['question'], currentLanguage),
                             style: getTextStyle(
-                                AppTypo.body14B, AppColors.grey900),
+                              AppTypo.body14B,
+                              AppColors.grey900,
+                            ),
                           ),
                         ],
                       ),
@@ -175,7 +190,9 @@ class _FAQPageState extends ConsumerState<FAQPage> {
                           child: Text(
                             _getLocalizedText(faq['answer'], currentLanguage),
                             style: getTextStyle(
-                                AppTypo.body14M, AppColors.grey700),
+                              AppTypo.body14M,
+                              AppColors.grey700,
+                            ),
                           ),
                         ),
                       ],
@@ -183,8 +200,10 @@ class _FAQPageState extends ConsumerState<FAQPage> {
                   },
                 )
               : NoItemContainer(
-                  message: AppLocalizations.of(context)
-                      .common_text_no_search_result),
+                  message: AppLocalizations.of(
+                    context,
+                  ).common_text_no_search_result,
+                ),
         ),
       ],
     );

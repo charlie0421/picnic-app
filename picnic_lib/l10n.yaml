@@ -2,7 +2,6 @@ arb-dir: lib/l10n
 template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations
-synthetic-package: false
 nullable-getter: false
 # 메타데이터 경고 억제 설정 (안전장치)
 require-resource-attributes: false

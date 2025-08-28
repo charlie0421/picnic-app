@@ -44,10 +44,17 @@ abstract class AdPlatform {
     logger.w('[$id${tag != null ? ':$tag' : ''}] $message', error: error);
   }
 
-  void logError(String message,
-      {String? tag, dynamic error, StackTrace? stackTrace}) {
-    logger.e('[$id${tag != null ? ':$tag' : ''}] $message',
-        error: error, stackTrace: stackTrace);
+  void logError(
+    String message, {
+    String? tag,
+    dynamic error,
+    StackTrace? stackTrace,
+  }) {
+    logger.e(
+      '[$id${tag != null ? ':$tag' : ''}] $message',
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   void startPerformanceLog(String operation) {
@@ -139,15 +146,13 @@ abstract class AdPlatform {
 
       final allowed = response.data['allowed'] as bool?;
       if (allowed != true) {
-        final limits = (response.data['limits']
-            as Map<String, dynamic>)[platform] as Map<String, dynamic>;
-        _handleExceededAdsLimit(
-          response.data['nextAvailableTime'],
-          {
-            'hourly': limits['hourly'] as int,
-            'daily': limits['daily'] as int,
-          },
-        );
+        final limits =
+            (response.data['limits'] as Map<String, dynamic>)[platform]
+                as Map<String, dynamic>;
+        _handleExceededAdsLimit(response.data['nextAvailableTime'], {
+          'hourly': limits['hourly'] as int,
+          'daily': limits['daily'] as int,
+        });
         return false;
       }
       return true;
@@ -155,8 +160,9 @@ abstract class AdPlatform {
       logger.e('Error in checkAdsLimit', error: e, stackTrace: s);
       if (context.mounted && !isDisposed) {
         showSimpleDialog(
-            content: AppLocalizations.of(context).label_ads_load_fail,
-            type: DialogType.error);
+          content: AppLocalizations.of(context).label_ads_load_fail,
+          type: DialogType.error,
+        );
       }
       return false;
     }
@@ -164,7 +170,9 @@ abstract class AdPlatform {
 
   // 공통 로직: 광고 제한 초과 처리
   void _handleExceededAdsLimit(
-      String? nextAvailableTimeStr, Map<String, int>? limits) {
+    String? nextAvailableTimeStr,
+    Map<String, int>? limits,
+  ) {
     if (nextAvailableTimeStr == null || !context.mounted || isDisposed) return;
 
     final nextAvailableTime = DateTime.parse(nextAvailableTimeStr).toLocal();
@@ -174,31 +182,40 @@ abstract class AdPlatform {
       contentWidget: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(AppLocalizations.of(context).label_ads_exceeded,
-              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-              textAlign: TextAlign.center),
+          Text(
+            AppLocalizations.of(context).label_ads_exceeded,
+            style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 16),
           UnderlinedText(
             text: AppLocalizations.of(context).label_ads_limits(
-                limits?['hourly'].toString() ?? '0',
-                limits?['daily'].toString() ?? '0'),
+              (limits?['hourly'] as num?)?.toInt() ?? 0,
+              (limits?['daily'] as num?)?.toInt() ?? 0,
+            ),
             textStyle: getTextStyle(AppTypo.body14M, AppColors.grey600),
           ),
           const SizedBox(height: 16),
-          Text(AppLocalizations.of(context).ads_available_time,
-              style: getTextStyle(AppTypo.body14M, AppColors.grey900),
-              textAlign: TextAlign.center),
-          Text(formatter.format(nextAvailableTime),
-              style: getTextStyle(AppTypo.caption12B, AppColors.grey600),
-              textAlign: TextAlign.center),
+          Text(
+            AppLocalizations.of(context).ads_available_time,
+            style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            formatter.format(nextAvailableTime),
+            style: getTextStyle(AppTypo.caption12B, AppColors.grey600),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
   }
 
   // 공통 로직: 전체 오류 처리 흐름
-  Future<void> safelyExecute(Future<void> Function() action,
-      {bool isMission = false}) async {
+  Future<void> safelyExecute(
+    Future<void> Function() action, {
+    bool isMission = false,
+  }) async {
     if (!await checkLogin()) return;
 
     try {
@@ -234,8 +251,13 @@ abstract class AdPlatform {
   }
 
   // 공통 로직: 광고 로딩 실패 로깅
-  void logAdLoadFailure(String platform, dynamic error, String adId,
-      String message, StackTrace? stackTrace) {
+  void logAdLoadFailure(
+    String platform,
+    dynamic error,
+    String adId,
+    String message,
+    StackTrace? stackTrace,
+  ) {
     logger.e(message, error: error);
 
     // No Fill 에러 감지 및 처리
@@ -266,8 +288,9 @@ abstract class AdPlatform {
     // 일반 에러 시 사용자에게 에러 다이얼로그 표시
     if (context.mounted && !isDisposed) {
       showSimpleDialog(
-          content: AppLocalizations.of(context).label_ads_load_fail,
-          type: DialogType.error);
+        content: AppLocalizations.of(context).label_ads_load_fail,
+        type: DialogType.error,
+      );
     }
   }
 
@@ -303,13 +326,19 @@ abstract class AdPlatform {
   // No Fill 에러 시 표시할 간단한 다이얼로그
   void _showNoFillDialog() {
     showSimpleDialog(
-        title: AppLocalizations.of(context).dialog_title_ads_exhausted,
-        content: AppLocalizations.of(context).dialog_content_ads_exhausted);
+      title: AppLocalizations.of(context).dialog_title_ads_exhausted,
+      content: AppLocalizations.of(context).dialog_content_ads_exhausted,
+    );
   }
 
   // 공통 로직: 광고 표시 실패 로깅
-  void logAdShowFailure(String platform, dynamic error, String adId,
-      String message, StackTrace? stackTrace) {
+  void logAdShowFailure(
+    String platform,
+    dynamic error,
+    String adId,
+    String message,
+    StackTrace? stackTrace,
+  ) {
     logger.e(message, error: error, stackTrace: stackTrace);
 
     Sentry.captureException(

@@ -85,25 +85,23 @@ class GetFortuneProvider extends AutoDisposeFutureProvider<FortuneModel> {
     required int year,
     String language = 'ko',
   }) : this._internal(
-          (ref) => getFortune(
-            ref as GetFortuneRef,
-            artistId: artistId,
-            year: year,
-            language: language,
-          ),
-          from: getFortuneProvider,
-          name: r'getFortuneProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$getFortuneHash,
-          dependencies: GetFortuneFamily._dependencies,
-          allTransitiveDependencies:
-              GetFortuneFamily._allTransitiveDependencies,
-          artistId: artistId,
-          year: year,
-          language: language,
-        );
+         (ref) => getFortune(
+           ref as GetFortuneRef,
+           artistId: artistId,
+           year: year,
+           language: language,
+         ),
+         from: getFortuneProvider,
+         name: r'getFortuneProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$getFortuneHash,
+         dependencies: GetFortuneFamily._dependencies,
+         allTransitiveDependencies: GetFortuneFamily._allTransitiveDependencies,
+         artistId: artistId,
+         year: year,
+         language: language,
+       );
 
   GetFortuneProvider._internal(
     super._createNotifier, {
@@ -179,7 +177,8 @@ mixin GetFortuneRef on AutoDisposeFutureProviderRef<FortuneModel> {
 }
 
 class _GetFortuneProviderElement
-    extends AutoDisposeFutureProviderElement<FortuneModel> with GetFortuneRef {
+    extends AutoDisposeFutureProviderElement<FortuneModel>
+    with GetFortuneRef {
   _GetFortuneProviderElement(super.provider);
 
   @override
@@ -189,5 +188,6 @@ class _GetFortuneProviderElement
   @override
   String get language => (origin as GetFortuneProvider).language;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

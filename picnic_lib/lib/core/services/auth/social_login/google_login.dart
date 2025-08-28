@@ -1,35 +1,41 @@
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/core/errors/auth_exception.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/common/social_login_result.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 
 class GoogleLogin implements SocialLogin {
-  final GoogleSignIn _googleSignIn;
-
-  GoogleLogin(this._googleSignIn);
+  GoogleLogin();
 
   @override
   Future<SocialLoginResult> login() async {
     try {
-      final googleUser = await _googleSignIn.signIn();
-      logger.d('Google Sign In attempt result: $googleUser'); // 수정된 로그
+      // google_sign_in 7.x API: singleton + initialize + authenticate
+      // iOS는 Info.plist 설정을 사용하므로 clientId를 명시하지 않음
+      await GoogleSignIn.instance.initialize(
+        clientId: UniversalPlatform.isIOS ? null : Environment.googleClientId,
+        serverClientId: Environment.googleServerClientId,
+      );
 
-      if (googleUser == null) {
-        logger.w('Google Sign In was canceled by user');
-        throw PicnicAuthExceptions.canceled();
-      }
+      final account = await GoogleSignIn.instance.authenticate(
+        scopeHint: const <String>['email', 'profile'],
+      );
+      logger.d('Google Sign In attempt result: $account');
 
-      final googleAuth = await googleUser.authentication;
-      logger.d('Google Auth completed successfully');
+      final googleAuth = account.authentication;
+      logger.d('Google authentication tokens extracted');
 
       return SocialLoginResult(
         idToken: googleAuth.idToken,
-        accessToken: googleAuth.accessToken,
+        // google_sign_in 7.x는 accessToken 제공 방식이 변경됨 (clientAuthorization 등 사용)
+        // Supabase는 idToken 기반 로그인만 필요하므로 accessToken은 생략 가능
+        accessToken: null,
         userData: {
-          'email': googleUser.email,
-          'name': googleUser.displayName,
-          'photoUrl': googleUser.photoUrl,
+          'email': account.email,
+          'name': account.displayName,
+          'photoUrl': account.photoUrl,
         },
       );
     } catch (e, s) {
@@ -57,7 +63,7 @@ class GoogleLogin implements SocialLogin {
   @override
   Future<void> logout() async {
     try {
-      await _googleSignIn.signOut();
+      await GoogleSignIn.instance.signOut();
     } catch (e, s) {
       logger.e('Google logout error', error: e, stackTrace: s);
       throw PicnicAuthExceptions.unknown(originalError: e);

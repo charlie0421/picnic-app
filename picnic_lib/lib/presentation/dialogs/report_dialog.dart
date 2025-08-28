@@ -89,25 +89,38 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
   }
 
   Widget _buildReasonOptions() {
-    return Column(
-      children: _reasons.asMap().entries.map((entry) {
-        return CustomRadioListTile(
-          title: entry.value,
-          value: entry.key,
-          groupValue: _selectedReason,
-          onChanged: _isSubmitting
-              ? null
-              : (int? newValue) {
-                  setState(() {
-                    _selectedReason = newValue;
-                    if (newValue != 4) {
-                      _otherReasonController.clear();
-                      _errorText = null;
-                    }
-                  });
-                },
-        );
-      }).toList(),
+    return RadioGroup<int>(
+      groupValue: _selectedReason,
+      onChanged: (int? newValue) {
+        if (_isSubmitting) return;
+        setState(() {
+          _selectedReason = newValue;
+          if (newValue != 4) {
+            _otherReasonController.clear();
+            _errorText = null;
+          }
+        });
+      },
+      child: Column(
+        children: _reasons.asMap().entries.map((entry) {
+          return CustomRadioListTile(
+            title: entry.value,
+            value: entry.key,
+            groupValue: _selectedReason,
+            onChanged: _isSubmitting
+                ? null
+                : (int? newValue) {
+                    setState(() {
+                      _selectedReason = newValue;
+                      if (newValue != 4) {
+                        _otherReasonController.clear();
+                        _errorText = null;
+                      }
+                    });
+                  },
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -122,24 +135,15 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         enabled: !_isSubmitting,
         decoration: InputDecoration(
           hintText: AppLocalizations.of(context).post_report_other_input,
-          hintStyle: TextStyle(
-            fontSize: 16.sp,
-            color: AppColors.grey400,
-          ),
+          hintStyle: TextStyle(fontSize: 16.sp, color: AppColors.grey400),
           errorText: _errorText,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30.0),
-            borderSide: BorderSide(
-              color: AppColors.primary500,
-              width: 1,
-            ),
+            borderSide: BorderSide(color: AppColors.primary500, width: 1),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30.0),
-            borderSide: const BorderSide(
-              color: AppColors.grey300,
-              width: 1,
-            ),
+            borderSide: const BorderSide(color: AppColors.grey300, width: 1),
           ),
           contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7),
           counterText: '${_otherReasonController.text.length}/$_maxLength',
@@ -194,8 +198,9 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
 
   Future<void> _submitReport() async {
     if (_selectedReason == null) {
-      SnackbarUtil()
-          .info(AppLocalizations.of(context).post_report_reason_input);
+      SnackbarUtil().info(
+        AppLocalizations.of(context).post_report_reason_input,
+      );
       return;
     }
 
@@ -237,9 +242,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
 
       if (!mounted) return;
 
-      SnackbarUtil().info(
-        AppLocalizations.of(context).post_report_success,
-      );
+      SnackbarUtil().info(AppLocalizations.of(context).post_report_success);
 
       if (context.mounted) {
         Navigator.of(context).pop(true);
@@ -252,9 +255,7 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
         _isSubmitting = false;
       });
 
-      SnackbarUtil().error(
-        AppLocalizations.of(context).post_report_fail,
-      );
+      SnackbarUtil().error(AppLocalizations.of(context).post_report_fail);
       rethrow;
     }
   }
@@ -348,20 +349,18 @@ class CustomRadioListTile extends StatelessWidget {
               height: 24,
               child: Radio<int>(
                 value: value,
-                groupValue: groupValue,
-                onChanged: onChanged,
                 activeColor: AppColors.primary500,
-                fillColor: WidgetStateProperty.resolveWith<Color>(
-                  (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return AppColors.primary500;
-                    }
-                    if (states.contains(WidgetState.disabled)) {
-                      return AppColors.grey300;
-                    }
+                fillColor: WidgetStateProperty.resolveWith<Color>((
+                  Set<WidgetState> states,
+                ) {
+                  if (states.contains(WidgetState.selected)) {
+                    return AppColors.primary500;
+                  }
+                  if (states.contains(WidgetState.disabled)) {
                     return AppColors.grey300;
-                  },
-                ),
+                  }
+                  return AppColors.grey300;
+                }),
               ),
             ),
             const SizedBox(width: 8),

@@ -12,13 +12,14 @@ String _$platformInfoHash() => r'491cd7b94516091c9b95f4d4f6dc641500801cd7';
 @ProviderFor(PlatformInfo)
 final platformInfoProvider =
     AutoDisposeAsyncNotifierProvider<PlatformInfo, PackageInfo>.internal(
-  PlatformInfo.new,
-  name: r'platformInfoProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$platformInfoHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      PlatformInfo.new,
+      name: r'platformInfoProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$platformInfoHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$PlatformInfo = AutoDisposeAsyncNotifier<PackageInfo>;
 // ignore_for_file: type=lint

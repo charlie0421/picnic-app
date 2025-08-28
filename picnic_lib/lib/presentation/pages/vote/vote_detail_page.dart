@@ -44,8 +44,11 @@ class VoteDetailPage extends ConsumerStatefulWidget {
   final int voteId;
   final VotePortal votePortal;
 
-  const VoteDetailPage(
-      {super.key, required this.voteId, this.votePortal = VotePortal.vote});
+  const VoteDetailPage({
+    super.key,
+    required this.voteId,
+    this.votePortal = VotePortal.vote,
+  });
 
   @override
   ConsumerState<VoteDetailPage> createState() => _VoteDetailPageState();
@@ -82,11 +85,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _initializeRanks();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
-          showPortal: false,
-          showTopMenu: true,
-          showBottomNavigation: false,
-          pageTitle: AppLocalizations.of(context).page_title_vote_detail);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
+            showPortal: false,
+            showTopMenu: true,
+            showBottomNavigation: false,
+            pageTitle: AppLocalizations.of(context).page_title_vote_detail,
+          );
     });
   }
 
@@ -122,8 +128,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
   void _initializeRanks() {
     final items = ref
-        .read(asyncVoteItemListProvider(
-            voteId: widget.voteId, votePortal: widget.votePortal))
+        .read(
+          asyncVoteItemListProvider(
+            voteId: widget.voteId,
+            votePortal: widget.votePortal,
+          ),
+        )
         .value;
     if (items != null) {
       _updateRanks(items);
@@ -194,20 +204,33 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     if (_isSaving) return;
     ShareUtils.shareToSocial(
       _captureKey,
-      message: getLocaleTextFromJson(ref
-          .read(asyncVoteDetailProvider(
-              voteId: widget.voteId, votePortal: widget.votePortal))
-          .value!
-          .title),
+      message: getLocaleTextFromJson(
+        ref
+            .read(
+              asyncVoteDetailProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ),
+            )
+            .value!
+            .title,
+      ),
       hashtag:
           '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(ref.read(asyncVoteDetailProvider(voteId: widget.voteId, votePortal: widget.votePortal)).value!.title).replaceAll(' ', '')}',
       downloadLink: await createBranchLink(
-          getLocaleTextFromJson(ref
-              .read(asyncVoteDetailProvider(
-                  voteId: widget.voteId, votePortal: widget.votePortal))
+        getLocaleTextFromJson(
+          ref
+              .read(
+                asyncVoteDetailProvider(
+                  voteId: widget.voteId,
+                  votePortal: widget.votePortal,
+                ),
+              )
               .value!
-              .title),
-          '${Environment.appLinkPrefix}/vote/detail/${widget.voteId}'),
+              .title,
+        ),
+        '${Environment.appLinkPrefix}/vote/detail/${widget.voteId}',
+      ),
       onStart: () {
         _loadingKey.currentState?.show();
         if (mounted) {
@@ -254,7 +277,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   bool _areDataListsEqual(
-      List<VoteItemModel?> list1, List<VoteItemModel?> list2) {
+    List<VoteItemModel?> list1,
+    List<VoteItemModel?> list2,
+  ) {
     if (list1.length != list2.length) return false;
 
     for (int i = 0; i < list1.length; i++) {
@@ -293,8 +318,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
     logger.d('🔍 검색어: "$query"');
 
-    final result =
-        List<int>.generate(data.length, (index) => index).where((index) {
+    final result = List<int>.generate(data.length, (index) => index).where((
+      index,
+    ) {
       final item = data[index]!;
       final lowerQuery = query.toLowerCase();
 
@@ -308,12 +334,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         logger.d('👤 아티스트 (한국어): "$artistNameKo"');
         logger.d('👤 아티스트 (영어): "$artistNameEn"');
         logger.d(
-            '👤 아티스트 초성: "${KoreanSearchUtils.extractKoreanInitials(artistNameKo)}"');
+          '👤 아티스트 초성: "${KoreanSearchUtils.extractKoreanInitials(artistNameKo)}"',
+        );
 
         if ((artistNameKo.isNotEmpty &&
                 (artistNameKo.toLowerCase().contains(lowerQuery) ||
                     KoreanSearchUtils.matchesKoreanInitials(
-                        artistNameKo, query))) ||
+                      artistNameKo,
+                      query,
+                    ))) ||
             (artistNameEn.isNotEmpty &&
                 artistNameEn.toLowerCase().contains(lowerQuery))) {
           logger.d('✅ 아티스트 이름 매칭: "$artistNameKo" / "$artistNameEn"');
@@ -330,16 +359,20 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           logger.d('🎵 아티스트의 그룹 (한국어): "$artistGroupNameKo"');
           logger.d('🎵 아티스트의 그룹 (영어): "$artistGroupNameEn"');
           logger.d(
-              '🎵 아티스트의 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(artistGroupNameKo)}"');
+            '🎵 아티스트의 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(artistGroupNameKo)}"',
+          );
 
           if ((artistGroupNameKo.isNotEmpty &&
                   (artistGroupNameKo.toLowerCase().contains(lowerQuery) ||
                       KoreanSearchUtils.matchesKoreanInitials(
-                          artistGroupNameKo, query))) ||
+                        artistGroupNameKo,
+                        query,
+                      ))) ||
               (artistGroupNameEn.isNotEmpty &&
                   artistGroupNameEn.toLowerCase().contains(lowerQuery))) {
             logger.d(
-                '✅ 아티스트의 그룹명 매칭: "$artistGroupNameKo" / "$artistGroupNameEn"');
+              '✅ 아티스트의 그룹명 매칭: "$artistGroupNameKo" / "$artistGroupNameEn"',
+            );
             return true;
           }
         }
@@ -353,12 +386,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         logger.d('🎭 직접 그룹 (한국어): "$groupNameKo"');
         logger.d('🎭 직접 그룹 (영어): "$groupNameEn"');
         logger.d(
-            '🎭 직접 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(groupNameKo)}"');
+          '🎭 직접 그룹 초성: "${KoreanSearchUtils.extractKoreanInitials(groupNameKo)}"',
+        );
 
         if ((groupNameKo.isNotEmpty &&
                 (groupNameKo.toLowerCase().contains(lowerQuery) ||
                     KoreanSearchUtils.matchesKoreanInitials(
-                        groupNameKo, query))) ||
+                      groupNameKo,
+                      query,
+                    ))) ||
             (groupNameEn.isNotEmpty &&
                 groupNameEn.toLowerCase().contains(lowerQuery))) {
           logger.d('✅ 직접 그룹명 매칭: "$groupNameKo" / "$groupNameEn"');
@@ -417,8 +453,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
             Container(
               color: AppColors.grey00,
               child: ref
-                  .watch(asyncVoteDetailProvider(
-                      voteId: widget.voteId, votePortal: widget.votePortal))
+                  .watch(
+                    asyncVoteDetailProvider(
+                      voteId: widget.voteId,
+                      votePortal: widget.votePortal,
+                    ),
+                  )
                   .when(
                     data: (voteModel) {
                       if (voteModel == null) return const SizedBox.shrink();
@@ -453,8 +493,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       );
                     },
                     loading: () => _buildLoadingShimmer(),
-                    error: (error, stackTrace) => buildErrorView(context,
-                        error: error.toString(), stackTrace: stackTrace),
+                    error: (error, stackTrace) => buildErrorView(
+                      context,
+                      error: error.toString(),
+                      stackTrace: stackTrace,
+                    ),
                   ),
             ),
           ],
@@ -499,41 +542,45 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 AppLocalizations.of(context).text_vote_rank_in_reward,
                 style: getTextStyle(AppTypo.body14B, AppColors.primary500),
               ),
-              ...voteModel.reward!.map((rewardModel) => GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => showRewardDialog(context, rewardModel),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4.0),
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          IntrinsicWidth(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  getLocaleTextFromJson(rewardModel.title!),
-                                  style: getTextStyle(
-                                      AppTypo.caption12R, AppColors.grey900),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
+              ...voteModel.reward!.map(
+                (rewardModel) => GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => showRewardDialog(context, rewardModel),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4.0),
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        IntrinsicWidth(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                getLocaleTextFromJson(rewardModel.title!),
+                                style: getTextStyle(
+                                  AppTypo.caption12R,
+                                  AppColors.grey900,
                                 ),
-                                const SizedBox(height: 2),
-                                Container(
-                                  height: 0.5,
-                                  width: double.infinity,
-                                  color: AppColors.grey700,
-                                ),
-                              ],
-                            ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 2),
+                              Container(
+                                height: 0.5,
+                                width: double.infinity,
+                                color: AppColors.grey700,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ))
+                  ),
+                ),
+              ),
             ],
           ),
         // 신청 버튼 추가 (예정된 투표와 진행 중인 투표에만 표시)
@@ -559,8 +606,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
   }
 
   Widget _buildVoteItemList(BuildContext context) {
-    final dataAsync = ref.watch(asyncVoteItemListProvider(
-        voteId: widget.voteId, votePortal: widget.votePortal));
+    final dataAsync = ref.watch(
+      asyncVoteItemListProvider(
+        voteId: widget.voteId,
+        votePortal: widget.votePortal,
+      ),
+    );
 
     return dataAsync.when(
       data: (data) {
@@ -584,47 +635,58 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 ),
                 child: Padding(
                   padding: EdgeInsets.only(
-                          top: 56, left: 16.w, right: 16.w, bottom: 100)
-                      .r, // 하단 패딩 추가로 스크롤 여백 확보
+                    top: 56,
+                    left: 16.w,
+                    right: 16.w,
+                    bottom: 100,
+                  ).r, // 하단 패딩 추가로 스크롤 여백 확보
                   child: filteredIndices.isEmpty && _searchQuery.isNotEmpty
                       ? SizedBox(
                           height: 200,
                           child: Center(
-                            child: Text(AppLocalizations.of(context)
-                                .text_no_search_result),
+                            child: Text(
+                              AppLocalizations.of(
+                                context,
+                              ).text_no_search_result,
+                            ),
                           ),
                         )
                       : Column(
                           children: [
-                            for (int index = 0;
-                                index < filteredIndices.length;
-                                index++)
+                            for (
+                              int index = 0;
+                              index < filteredIndices.length;
+                              index++
+                            )
                               Builder(
                                 builder: (context) {
                                   // 안전성 체크 추가
                                   if (index >= filteredIndices.length) {
                                     logger.w(
-                                        '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}');
+                                      '📋 인덱스 초과 - index: $index, filteredLength: ${filteredIndices.length}',
+                                    );
                                     return const SizedBox.shrink();
                                   }
 
                                   final itemIndex = filteredIndices[index];
                                   if (itemIndex >= data.length) {
                                     logger.w(
-                                        '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}');
+                                      '📋 데이터 인덱스 초과 - itemIndex: $itemIndex, dataLength: ${data.length}',
+                                    );
                                     return const SizedBox.shrink();
                                   }
 
                                   final item = data[itemIndex];
                                   if (item == null) {
                                     logger.w(
-                                        '📋 null 아이템 - itemIndex: $itemIndex');
+                                      '📋 null 아이템 - itemIndex: $itemIndex',
+                                    );
                                     return const SizedBox.shrink();
                                   }
 
                                   final previousVoteCount =
                                       _previousVoteCounts[item.id] ??
-                                          item.voteTotal;
+                                      item.voteTotal;
                                   final voteCountDiff =
                                       item.voteTotal! - previousVoteCount!;
                                   final actualRank =
@@ -635,8 +697,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                       previousRank != actualRank;
 
                                   // PostFrameCallback을 더 안전하게 처리
-                                  WidgetsBinding.instance
-                                      .addPostFrameCallback((_) {
+                                  WidgetsBinding.instance.addPostFrameCallback((
+                                    _,
+                                  ) {
                                     if (mounted) {
                                       _previousVoteCounts[item.id] =
                                           item.voteTotal!;
@@ -646,10 +709,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
                                   return RepaintBoundary(
                                     key: ValueKey(
-                                        'vote_item_${item.id}'), // 검색어 제거하여 안정적인 키 사용
+                                      'vote_item_${item.id}',
+                                    ), // 검색어 제거하여 안정적인 키 사용
                                     child: Padding(
                                       padding: EdgeInsets.only(
-                                          bottom: 16), // 24에서 16으로 더 감소
+                                        bottom: 16,
+                                      ), // 24에서 16으로 더 감소
                                       child: _buildVoteItemWithHighlight(
                                         item: item,
                                         index: itemIndex,
@@ -679,8 +744,11 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       error: (error, stackTrace) {
         logger.e('❌ 투표 아이템 로딩 실패: $error');
         return SliverToBoxAdapter(
-          child: buildErrorView(context,
-              error: error.toString(), stackTrace: stackTrace),
+          child: buildErrorView(
+            context,
+            error: error.toString(),
+            stackTrace: stackTrace,
+          ),
         );
       },
     );
@@ -747,8 +815,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           decoration: BoxDecoration(
             color: rankChanged
                 ? (rankUp
-                    ? Colors.blue.withValues(alpha: 0.18)
-                    : Colors.red.withValues(alpha: 0.18))
+                      ? Colors.blue.withValues(alpha: 0.18)
+                      : Colors.red.withValues(alpha: 0.18))
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8.r),
           ),
@@ -756,8 +824,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
             behavior: HitTestBehavior.opaque,
             onTap: () => _handleVoteItemTap(context, item, index),
             child: Container(
-              constraints:
-                  BoxConstraints(minHeight: 55), // 45에서 55로 증가하여 오버플로우 해결
+              constraints: BoxConstraints(
+                minHeight: 55,
+              ), // 45에서 55로 증가하여 오버플로우 해결
               padding: EdgeInsets.symmetric(vertical: 6.h), // 패딩도 약간 증가
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -775,8 +844,10 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                             )
                           : Text(
                               actualRank.toString(), // 4위 이하는 숫자만 표시
-                              style: getTextStyle(AppTypo.body16B,
-                                  AppColors.point900), // 더 큰 폰트
+                              style: getTextStyle(
+                                AppTypo.body16B,
+                                AppColors.point900,
+                              ), // 더 큰 폰트
                               textAlign: TextAlign.center,
                             ),
                     ),
@@ -796,15 +867,18 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                           maxLines: 1, // 2줄에서 1줄로 변경
                           text: TextSpan(
                             style: getTextStyle(
-                                AppTypo.body14B, AppColors.grey900),
+                              AppTypo.body14B,
+                              AppColors.grey900,
+                            ),
                             children: (item.artist?.id ?? 0) != 0
                                 ? [
                                     // 아티스트 이름에 하이라이트 적용
-                                    ...KoreanSearchUtils
-                                        .buildHighlightedTextSpans(
+                                    ...KoreanSearchUtils.buildHighlightedTextSpans(
                                       item.artist?.name != null
                                           ? _getMatchingText(
-                                              item.artist!.name, searchQuery)
+                                              item.artist!.name,
+                                              searchQuery,
+                                            )
                                           : '',
                                       searchQuery,
                                     ),
@@ -812,50 +886,55 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                     if (item.artist?.artistGroup?.name !=
                                             null &&
                                         _getMatchingText(
-                                                item.artist!.artistGroup!.name,
-                                                searchQuery)
-                                            .isNotEmpty)
+                                          item.artist!.artistGroup!.name,
+                                          searchQuery,
+                                        ).isNotEmpty)
                                       TextSpan(
                                         text: ' (',
-                                        style: getTextStyle(AppTypo.caption10SB,
-                                            AppColors.grey600),
+                                        style: getTextStyle(
+                                          AppTypo.caption10SB,
+                                          AppColors.grey600,
+                                        ),
                                       ),
                                     if (item.artist?.artistGroup?.name !=
                                             null &&
                                         _getMatchingText(
-                                                item.artist!.artistGroup!.name,
-                                                searchQuery)
-                                            .isNotEmpty)
-                                      ...KoreanSearchUtils
-                                          .buildHighlightedTextSpans(
+                                          item.artist!.artistGroup!.name,
+                                          searchQuery,
+                                        ).isNotEmpty)
+                                      ...KoreanSearchUtils.buildHighlightedTextSpans(
                                         _getMatchingText(
-                                            item.artist!.artistGroup!.name,
-                                            searchQuery),
+                                          item.artist!.artistGroup!.name,
+                                          searchQuery,
+                                        ),
                                         searchQuery,
                                         baseStyle: getTextStyle(
-                                            AppTypo.caption10SB,
-                                            AppColors.grey600),
+                                          AppTypo.caption10SB,
+                                          AppColors.grey600,
+                                        ),
                                       ),
                                     if (item.artist?.artistGroup?.name !=
                                             null &&
                                         _getMatchingText(
-                                                item.artist!.artistGroup!.name,
-                                                searchQuery)
-                                            .isNotEmpty)
+                                          item.artist!.artistGroup!.name,
+                                          searchQuery,
+                                        ).isNotEmpty)
                                       TextSpan(
                                         text: ')',
-                                        style: getTextStyle(AppTypo.caption10SB,
-                                            AppColors.grey600),
+                                        style: getTextStyle(
+                                          AppTypo.caption10SB,
+                                          AppColors.grey600,
+                                        ),
                                       ),
                                   ]
                                 : [
                                     // 그룹명에 하이라이트 적용
-                                    ...KoreanSearchUtils
-                                        .buildHighlightedTextSpans(
+                                    ...KoreanSearchUtils.buildHighlightedTextSpans(
                                       item.artistGroup?.name != null
                                           ? _getMatchingText(
                                               item.artistGroup!.name,
-                                              searchQuery)
+                                              searchQuery,
+                                            )
                                           : '',
                                       searchQuery,
                                     ),
@@ -873,8 +952,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       width: 24.w,
                       height: 24,
                       child: SvgPicture.asset(
-                          package: 'picnic_lib',
-                          'assets/icons/star_candy_icon.svg'),
+                        package: 'picnic_lib',
+                        'assets/icons/star_candy_icon.svg',
+                      ),
                     ),
                 ],
               ),
@@ -906,8 +986,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     return Consumer(
       builder: (context, ref, _) {
         return ref
-            .watch(asyncVoteItemListProvider(
-                voteId: widget.voteId, votePortal: widget.votePortal))
+            .watch(
+              asyncVoteItemListProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ),
+            )
             .when(
               data: (data) {
                 return Container(
@@ -925,7 +1009,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         for (int i = 0; i < 3 && i < data.length; i++)
                           Padding(
                             padding: EdgeInsets.only(
-                                bottom: i < 2 ? 16 : 16), // 36에서 16으로 감소
+                              bottom: i < 2 ? 16 : 16,
+                            ), // 36에서 16으로 감소
                             child: VoteItemWidget(
                               item: data[i]!,
                               index: i,
@@ -938,10 +1023,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                               onTap: () =>
                                   _handleVoteItemTap(context, data[i]!, i),
                               artistImage: _buildArtistImage(data[i]!, i),
-                              voteCountContainer:
-                                  _buildVoteCountContainer(data[i]!, 0),
+                              voteCountContainer: _buildVoteCountContainer(
+                                data[i]!,
+                                0,
+                              ),
                               rankText: _buildRankText(
-                                  _currentRanks[data[i]!.id] ?? 1, data[i]!),
+                                _currentRanks[data[i]!.id] ?? 1,
+                                data[i]!,
+                              ),
                             ),
                           ),
                       ],
@@ -950,14 +1039,14 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 );
               },
               loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             );
       },
     );
   }
 
   String _buildRankText(int rank, VoteItemModel currentItem) {
-    return AppLocalizations.of(context).text_vote_rank(rank.toString());
+    return AppLocalizations.of(context).text_vote_rank(rank);
   }
 
   /// 상대 경로를 절대 경로로 변환하는 메서드
@@ -979,8 +1068,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           ? cdnUrl.substring(0, cdnUrl.length - 1)
           : cdnUrl;
       // 이미지 URL 앞의 슬래시 제거
-      final cleanImageUrl =
-          imageUrl.startsWith('/') ? imageUrl.substring(1) : imageUrl;
+      final cleanImageUrl = imageUrl.startsWith('/')
+          ? imageUrl.substring(1)
+          : imageUrl;
 
       final fullUrl = '$cleanCdnUrl/$cleanImageUrl';
       return fullUrl;
@@ -1001,7 +1091,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
       final fullImageUrl = _makeFullImageUrl(imageUrl);
 
       // URL 유효성 검사 강화
-      final hasValidImageUrl = fullImageUrl.isNotEmpty &&
+      final hasValidImageUrl =
+          fullImageUrl.isNotEmpty &&
           (fullImageUrl.startsWith('http://') ||
               fullImageUrl.startsWith('https://'));
 
@@ -1009,7 +1100,8 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
       if (!hasValidImageUrl) {
         logger.w(
-            '🖼️ 유효하지 않은 이미지 URL - ID: ${item.id}, 원본: "$imageUrl", 전체: "$fullImageUrl"');
+          '🖼️ 유효하지 않은 이미지 URL - ID: ${item.id}, 원본: "$imageUrl", 전체: "$fullImageUrl"',
+        );
       }
 
       return SizedBox(
@@ -1122,11 +1214,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         width: 39,
         height: 39,
         color: AppColors.grey200,
-        child: Icon(
-          Icons.person,
-          size: 20,
-          color: AppColors.grey400,
-        ),
+        child: Icon(Icons.person, size: 20, color: AppColors.grey400),
       ),
     );
   }
@@ -1161,13 +1249,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       enableSeparator: true,
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.easeInOut,
-                      textStyle:
-                          getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+                      textStyle: getTextStyle(
+                        AppTypo.caption10SB,
+                        AppColors.grey00,
+                      ),
                     )
                   : Text(
                       NumberFormat('#,###').format(item.voteTotal),
-                      style:
-                          getTextStyle(AppTypo.caption10SB, AppColors.grey00),
+                      style: getTextStyle(
+                        AppTypo.caption10SB,
+                        AppColors.grey00,
+                      ),
                     ),
             ),
           ),
@@ -1188,7 +1280,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       child: Text(
                         '+$voteCountDiff',
                         style: getTextStyle(
-                            AppTypo.caption10SB, AppColors.primary500),
+                          AppTypo.caption10SB,
+                          AppColors.primary500,
+                        ),
                       ),
                     ),
                   );
@@ -1204,10 +1298,15 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
     logger.d('🔥 _handleVoteItemTap 호출됨 - index: $index');
     final isAdmin =
         ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
-            false;
-    final isJmaVote = ref
-            .read(asyncVoteDetailProvider(
-                voteId: widget.voteId, votePortal: widget.votePortal))
+        false;
+    final isJmaVote =
+        ref
+            .read(
+              asyncVoteDetailProvider(
+                voteId: widget.voteId,
+                votePortal: widget.votePortal,
+              ),
+            )
             .value!
             .partner
             ?.toLowerCase() ==
@@ -1221,8 +1320,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
           ? showVotingDialog(
               context: context,
               voteModel: ref
-                  .read(asyncVoteDetailProvider(
-                      voteId: widget.voteId, votePortal: widget.votePortal))
+                  .read(
+                    asyncVoteDetailProvider(
+                      voteId: widget.voteId,
+                      votePortal: widget.votePortal,
+                    ),
+                  )
                   .value!,
               voteItemModel: item,
               portalType: widget.votePortal,
@@ -1233,17 +1336,23 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
     if (isEnded) {
       showSimpleDialog(
-          content: AppLocalizations.of(context).message_vote_is_ended);
+        content: AppLocalizations.of(context).message_vote_is_ended,
+      );
     } else if (isUpcoming) {
       showSimpleDialog(
-          content: AppLocalizations.of(context).message_vote_is_upcoming);
+        content: AppLocalizations.of(context).message_vote_is_upcoming,
+      );
     } else {
       isSupabaseLoggedSafely
           ? showVotingDialog(
               context: context,
               voteModel: ref
-                  .read(asyncVoteDetailProvider(
-                      voteId: widget.voteId, votePortal: widget.votePortal))
+                  .read(
+                    asyncVoteDetailProvider(
+                      voteId: widget.voteId,
+                      votePortal: widget.votePortal,
+                    ),
+                  )
                   .value!,
               voteItemModel: item,
               portalType: widget.votePortal,
@@ -1321,13 +1430,17 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
 
                           // 신청 다이얼로그 표시
                           final voteModel = ref
-                              .read(asyncVoteDetailProvider(
+                              .read(
+                                asyncVoteDetailProvider(
                                   voteId: widget.voteId,
-                                  votePortal: widget.votePortal))
+                                  votePortal: widget.votePortal,
+                                ),
+                              )
                               .value;
 
                           logger.d(
-                              '🔥 voteModel 상태: ${voteModel != null ? "존재함" : "null"}');
+                            '🔥 voteModel 상태: ${voteModel != null ? "존재함" : "null"}',
+                          );
 
                           if (voteModel != null) {
                             logger.d('🔥 showVoteItemRequestDialog 호출 시작');
@@ -1361,8 +1474,9 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                   child: Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.2),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Icon(
@@ -1385,23 +1499,27 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                 return Opacity(
                                   opacity: safeOpacity,
                                   child: Text(
-                                    AppLocalizations.of(context)
-                                        .vote_item_request_button,
-                                    style: getTextStyle(
-                                            AppTypo.body14B, AppColors.grey00)
-                                        .copyWith(
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.3,
-                                      shadows: [
-                                        Shadow(
-                                          color: Colors.black
-                                              .withValues(alpha: 0.3),
-                                          offset: const Offset(0, 1),
-                                          blurRadius: 2,
+                                    AppLocalizations.of(
+                                      context,
+                                    ).vote_item_request_button,
+                                    style:
+                                        getTextStyle(
+                                          AppTypo.body14B,
+                                          AppColors.grey00,
+                                        ).copyWith(
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.3,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.3,
+                                              ),
+                                              offset: const Offset(0, 1),
+                                              blurRadius: 2,
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
                                     textAlign: TextAlign.center,
                                   ),
                                 );
@@ -1471,9 +1589,7 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
               ],
             ),
           ),
-          SliverToBoxAdapter(
-            child: _buildVoteListSkeleton(),
-          ),
+          SliverToBoxAdapter(child: _buildVoteListSkeleton()),
         ],
       ),
     );
@@ -1561,8 +1677,12 @@ class _VoteDetailPageState extends ConsumerState<VoteDetailPage>
         color: Colors.white,
       ),
       child: Padding(
-        padding:
-            EdgeInsets.only(top: 56, left: 16.w, right: 16.w, bottom: 24).r,
+        padding: EdgeInsets.only(
+          top: 56,
+          left: 16.w,
+          right: 16.w,
+          bottom: 24,
+        ).r,
         child: Column(
           children: [
             // 검색박스 스켈레톤

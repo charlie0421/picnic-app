@@ -90,11 +90,13 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       if (userId.isEmpty) return;
 
       // 전용 엣지 함수를 통해 일일 사용량 조회 (UTC 기준)
-      final response =
-          await supabase.functions.invoke('jma-voting-usage', queryParameters: {
-        'user_id': userId,
-        'vote_id': widget.voteModel.id.toString(),
-      });
+      final response = await supabase.functions.invoke(
+        'jma-voting-usage',
+        queryParameters: {
+          'user_id': userId,
+          'vote_id': widget.voteModel.id.toString(),
+        },
+      );
 
       if (response.status == 200 && response.data != null) {
         final data = response.data as Map<String, dynamic>;
@@ -106,7 +108,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         }
       } else {
         logger.e(
-            'Failed to load daily vote count from usage function: ${response.status}');
+          'Failed to load daily vote count from usage function: ${response.status}',
+        );
         if (mounted) {
           setState(() {
             _dailyVoteCount = 0; // 기본값으로 설정
@@ -213,16 +216,17 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       // 최대 투표 가능 수량 초과 검증
       if (voteAmount > maxPossibleVotes) {
         canVote = false;
-        validationMessage = AppLocalizations.of(context)
-            .jma_voting_max_votes_exceeded(
-                formatNumberWithComma(maxPossibleVotes));
+        validationMessage = AppLocalizations.of(
+          context,
+        ).jma_voting_max_votes_exceeded(maxPossibleVotes);
       }
       // 총 별사탕(보너스 포함) 부족 검증
       else if (requiredStarCandy > totalStarCandy) {
         canVote = false;
         final shortfall = requiredStarCandy - totalStarCandy;
-        validationMessage = AppLocalizations.of(context)
-            .jma_voting_star_candy_shortage(formatNumberWithComma(shortfall));
+        validationMessage = AppLocalizations.of(
+          context,
+        ).jma_voting_star_candy_shortage(shortfall);
       } else {
         canVote = true;
         validationMessage = '';
@@ -251,8 +255,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   @override
   Widget build(BuildContext context) {
     final myStarCandy = _getMyStarCandy();
-    final userId =
-        ref.watch(userInfoProvider.select((value) => value.value?.id ?? ''));
+    final userId = ref.watch(
+      userInfoProvider.select((value) => value.value?.id ?? ''),
+    );
 
     // 키보드 높이 감지
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
@@ -274,7 +279,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       child: AlertDialog(
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.symmetric(
-            horizontal: 16.w, vertical: isKeyboardVisible ? 20 : 40),
+          horizontal: 16.w,
+          vertical: isKeyboardVisible ? 20 : 40,
+        ),
         contentPadding: EdgeInsets.zero,
         content: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
@@ -289,9 +296,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               showCloseButton: false,
               content: Container(
                 constraints: BoxConstraints(
-                  maxHeight: isKeyboardVisible
-                      ? availableHeight * 0.85
-                      : availableHeight * 0.75,
+                  maxHeight:
+                      isKeyboardVisible
+                          ? availableHeight * 0.85
+                          : availableHeight * 0.75,
                   minHeight: 200,
                   maxWidth: MediaQuery.of(context).size.width - 32.w,
                 ),
@@ -307,7 +315,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                         physics: BouncingScrollPhysics(),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 20.w), // 6 → 20으로 증가
+                            horizontal: 20.w,
+                          ), // 6 → 20으로 증가
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -336,7 +345,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   Widget _buildJmaHeader() {
     return Container(
       padding: EdgeInsets.symmetric(
-          horizontal: 16.w, vertical: 8), // 12,6 → 16,8로 복원
+        horizontal: 16.w,
+        vertical: 8,
+      ), // 12,6 → 16,8로 복원
       decoration: BoxDecoration(
         gradient: commonGradient,
         borderRadius: BorderRadius.circular(20),
@@ -371,10 +382,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           SizedBox(width: 8.w), // 6 → 8로 복원
           Text(
             'Jupiter Music Awards',
-            style: getTextStyle(
-              AppTypo.caption12B,
-              Colors.white,
-            ),
+            style: getTextStyle(AppTypo.caption12B, Colors.white),
           ),
         ],
       ),
@@ -424,17 +432,19 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       height: 36,
       decoration: BoxDecoration(
         border: Border.all(
-          color: !_canVote && _hasValue
-              ? AppColors.statusError
-              : AppColors.primary500,
+          color:
+              !_canVote && _hasValue
+                  ? AppColors.statusError
+                  : AppColors.primary500,
           width: 2,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: !_canVote && _hasValue
-                ? AppColors.statusError.withValues(alpha: 0.2)
-                : AppColors.primary500.withValues(alpha: 0.2),
+            color:
+                !_canVote && _hasValue
+                    ? AppColors.statusError.withValues(alpha: 0.2)
+                    : AppColors.primary500.withValues(alpha: 0.2),
             blurRadius: 6,
             offset: Offset(0, 2),
           ),
@@ -505,8 +515,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                     final formattedText = formatNumberWithComma(newText);
                     return TextEditingValue(
                       text: formattedText,
-                      selection:
-                          TextSelection.collapsed(offset: formattedText.length),
+                      selection: TextSelection.collapsed(
+                        offset: formattedText.length,
+                      ),
                     );
                   }),
                 ],
@@ -541,41 +552,42 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Column(
-              children: AppLocalizations.of(context)
-                  .jma_voting_info_text
-                  .split('\n')
-                  .map((line) {
-                final text = line.startsWith('-')
-                    ? line.substring(1).trim()
-                    : line.trim();
-                if (text.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '• ',
-                        style: getTextStyle(
-                          AppTypo.caption12R,
-                          AppColors.grey700,
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          text,
-                          style: getTextStyle(
-                            AppTypo.caption12R,
-                            AppColors.grey700,
+              children:
+                  AppLocalizations.of(
+                    context,
+                  ).jma_voting_info_text.split('\n').map((line) {
+                    final text =
+                        line.startsWith('-')
+                            ? line.substring(1).trim()
+                            : line.trim();
+                    if (text.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '• ',
+                            style: getTextStyle(
+                              AppTypo.caption12R,
+                              AppColors.grey700,
+                            ),
                           ),
-                        ),
+                          Expanded(
+                            child: Text(
+                              text,
+                              style: getTextStyle(
+                                AppTypo.caption12R,
+                                AppColors.grey700,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                    );
+                  }).toList(),
             ),
           ),
       ],
@@ -606,32 +618,30 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
             height: 60.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.primary500,
-                width: 2,
-              ),
+              border: Border.all(color: AppColors.primary500, width: 2),
             ),
             child: ClipOval(
-              child: imageUrl != null && imageUrl.isNotEmpty
-                  ? PicnicCachedNetworkImage(
-                      imageUrl: imageUrl,
-                      width: 60.w,
-                      height: 60.w,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      width: 60.w,
-                      height: 60.w,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.grey200,
+              child:
+                  imageUrl != null && imageUrl.isNotEmpty
+                      ? PicnicCachedNetworkImage(
+                        imageUrl: imageUrl,
+                        width: 60.w,
+                        height: 60.w,
+                        fit: BoxFit.cover,
+                      )
+                      : Container(
+                        width: 60.w,
+                        height: 60.w,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.grey200,
+                        ),
+                        child: Icon(
+                          Icons.person,
+                          size: 30.w,
+                          color: AppColors.grey500,
+                        ),
                       ),
-                      child: Icon(
-                        Icons.person,
-                        size: 30.w,
-                        color: AppColors.grey500,
-                      ),
-                    ),
             ),
           ),
           SizedBox(width: 12), // 10 → 12로 복원
@@ -641,20 +651,25 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: isKeyboardVisible
-                ? CrossAxisAlignment.center // 키보드 시 중앙 정렬
-                : CrossAxisAlignment.start, // 평상시 왼쪽 정렬
+            crossAxisAlignment:
+                isKeyboardVisible
+                    ? CrossAxisAlignment
+                        .center // 키보드 시 중앙 정렬
+                    : CrossAxisAlignment.start, // 평상시 왼쪽 정렬
             children: [
               // 메인 아티스트 이름
               Text(
                 getLocaleTextFromJson(
-                    (widget.voteItemModel.artist?.id ?? 0) != 0
-                        ? widget.voteItemModel.artist?.name ?? {}
-                        : widget.voteItemModel.artistGroup?.name ?? {}),
+                  (widget.voteItemModel.artist?.id ?? 0) != 0
+                      ? widget.voteItemModel.artist?.name ?? {}
+                      : widget.voteItemModel.artistGroup?.name ?? {},
+                ),
                 style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-                textAlign: isKeyboardVisible
-                    ? TextAlign.center // 키보드 시 중앙 정렬
-                    : TextAlign.start, // 평상시 왼쪽 정렬
+                textAlign:
+                    isKeyboardVisible
+                        ? TextAlign
+                            .center // 키보드 시 중앙 정렬
+                        : TextAlign.start, // 평상시 왼쪽 정렬
               ),
 
               // 그룹 이름 (솔로 아티스트의 경우)
@@ -663,11 +678,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                 SizedBox(height: 2),
                 Text(
                   getLocaleTextFromJson(
-                      widget.voteItemModel.artist!.artistGroup!.name),
+                    widget.voteItemModel.artist!.artistGroup!.name,
+                  ),
                   style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
-                  textAlign: isKeyboardVisible
-                      ? TextAlign.center // 키보드 시 중앙 정렬
-                      : TextAlign.start, // 평상시 왼쪽 정렬
+                  textAlign:
+                      isKeyboardVisible
+                          ? TextAlign
+                              .center // 키보드 시 중앙 정렬
+                          : TextAlign.start, // 평상시 왼쪽 정렬
                 ),
               ],
             ],
@@ -696,10 +714,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           // 나의 별사탕 섹션
           Text(
             AppLocalizations.of(context).jma_voting_my_star_candy,
-            style: getTextStyle(
-              AppTypo.caption12B,
-              AppColors.grey700,
-            ),
+            style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
           ),
 
           // 보유량 표시
@@ -719,10 +734,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   SizedBox(width: 3),
                   Text(
                     formatNumberWithComma(myStarCandy),
-                    style: getTextStyle(
-                      AppTypo.caption12B,
-                      AppColors.grey600,
-                    ),
+                    style: getTextStyle(AppTypo.caption12B, AppColors.grey600),
                   ),
                 ],
               ),
@@ -754,10 +766,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           Stack(
             alignment: Alignment.center,
             children: [
-              const Divider(
-                color: AppColors.grey300,
-                thickness: 1,
-              ),
+              const Divider(color: AppColors.grey300, thickness: 1),
               Container(
                 color: AppColors.grey100,
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -773,10 +782,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           // 사용가능 별사탕 섹션
           Text(
             AppLocalizations.of(context).jma_voting_usable_jma_votes,
-            style: getTextStyle(
-              AppTypo.caption12B,
-              AppColors.primary500,
-            ),
+            style: getTextStyle(AppTypo.caption12B, AppColors.primary500),
           ),
           SizedBox(height: 4),
 
@@ -845,9 +851,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         color: remainingVotes > 0 ? Colors.blue.shade50 : Colors.red.shade50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-            color:
-                remainingVotes > 0 ? Colors.blue.shade200 : Colors.red.shade200,
-            width: 1),
+          color:
+              remainingVotes > 0 ? Colors.blue.shade200 : Colors.red.shade200,
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
@@ -861,13 +868,15 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           Expanded(
             child: Text(
               remainingVotes > 0
-                  ? AppLocalizations.of(context)
-                      .jma_voting_daily_limit_remaining(
-                      _isDailyVoteCountLoaded ? _maxDailyVotes : '-',
-                      _isDailyVoteCountLoaded ? remainingVotes : '-',
-                    )
-                  : AppLocalizations.of(context)
-                      .jma_voting_daily_limit_exhausted,
+                  ? AppLocalizations.of(
+                    context,
+                  ).jma_voting_daily_limit_remaining(
+                    _isDailyVoteCountLoaded ? _maxDailyVotes : 0,
+                    _isDailyVoteCountLoaded ? remainingVotes : 0,
+                  )
+                  : AppLocalizations.of(
+                    context,
+                  ).jma_voting_daily_limit_exhausted,
               style: getTextStyle(
                 AppTypo.caption10SB,
                 remainingVotes > 0 ? Colors.blue.shade700 : Colors.red.shade700,
@@ -969,20 +978,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               ),
               child: Text(
                 'Admin',
-                style: getTextStyle(
-                  AppTypo.caption10SB,
-                  Colors.white,
-                ),
+                style: getTextStyle(AppTypo.caption10SB, Colors.white),
               ),
             ),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
                 _getCalculationResultMessage(),
-                style: getTextStyle(
-                  AppTypo.caption12M,
-                  AppColors.primary500,
-                ),
+                style: getTextStyle(AppTypo.caption12M, AppColors.primary500),
               ),
             ),
           ],
@@ -1091,10 +1094,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           width: double.infinity,
           child: Text(
             '${formatNumberWithComma(voteAmount)}개의 투표를 진행합니다.',
-            style: getTextStyle(
-              AppTypo.caption10SB,
-              AppColors.primary500,
-            ),
+            style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
             textAlign: TextAlign.left,
           ),
         );
@@ -1114,20 +1114,21 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           gradient: _canVote ? commonGradient : null,
           color: _canVote ? null : AppColors.grey300,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: _canVote
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary500.withValues(alpha: 0.4),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                  BoxShadow(
-                    color: AppColors.secondary500.withValues(alpha: 0.2),
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ]
-              : null,
+          boxShadow:
+              _canVote
+                  ? [
+                    BoxShadow(
+                      color: AppColors.primary500.withValues(alpha: 0.4),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                    BoxShadow(
+                      color: AppColors.secondary500.withValues(alpha: 0.2),
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ]
+                  : null,
         ),
         alignment: Alignment.center,
         child: Row(
@@ -1191,7 +1192,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
   // 교환과 투표를 함께 수행하는 함수
   Future<void> _performExchangeAndVoting(
-      int voteAmount, String userId, int bonusVotesUsed) async {
+    int voteAmount,
+    String userId,
+    int bonusVotesUsed,
+  ) async {
     try {
       // 투표 수행 (교환 로직이 내장됨)
       await _performVoting(voteAmount, userId, bonusVotesUsed);
@@ -1243,7 +1247,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   Future<void> _performVoting(
-      int voteAmount, String userId, int bonusVotesUsed) async {
+    int voteAmount,
+    String userId,
+    int bonusVotesUsed,
+  ) async {
     try {
       // PIC에서는 JMA 보팅이 지원되지 않음
       if (widget.portalType == VotePortal.pic) {
@@ -1255,14 +1262,17 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       final usage = _calculateUsage(requiredStarCandy);
 
       // 새로운 jma-voting-v2 엣지 함수 사용
-      final response = await supabase.functions.invoke('jma-voting-v2', body: {
-        'vote_id': widget.voteModel.id,
-        'vote_item_id': widget.voteItemModel.id,
-        'amount': voteAmount, // 투표 수
-        'star_candy_usage': usage['star_candy_usage'],
-        'star_candy_bonus_usage': usage['star_candy_bonus_usage'],
-        'user_id': userId,
-      });
+      final response = await supabase.functions.invoke(
+        'jma-voting-v2',
+        body: {
+          'vote_id': widget.voteModel.id,
+          'vote_item_id': widget.voteItemModel.id,
+          'amount': voteAmount, // 투표 수
+          'star_candy_usage': usage['star_candy_usage'],
+          'star_candy_bonus_usage': usage['star_candy_bonus_usage'],
+          'user_id': userId,
+        },
+      );
 
       if (response.status != 200) {
         // Edge function에서 일일 제한 오류 처리

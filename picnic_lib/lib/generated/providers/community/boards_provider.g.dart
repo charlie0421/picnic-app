@@ -33,9 +33,7 @@ abstract class _$BoardDetail
     extends BuildlessAutoDisposeAsyncNotifier<BoardModel?> {
   late final String boardId;
 
-  FutureOr<BoardModel?> build(
-    String boardId,
-  );
+  FutureOr<BoardModel?> build(String boardId);
 }
 
 /// See also [BoardDetail].
@@ -48,21 +46,15 @@ class BoardDetailFamily extends Family<AsyncValue<BoardModel?>> {
   const BoardDetailFamily();
 
   /// See also [BoardDetail].
-  BoardDetailProvider call(
-    String boardId,
-  ) {
-    return BoardDetailProvider(
-      boardId,
-    );
+  BoardDetailProvider call(String boardId) {
+    return BoardDetailProvider(boardId);
   }
 
   @override
   BoardDetailProvider getProviderOverride(
     covariant BoardDetailProvider provider,
   ) {
-    return call(
-      provider.boardId,
-    );
+    return call(provider.boardId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -84,21 +76,18 @@ class BoardDetailFamily extends Family<AsyncValue<BoardModel?>> {
 class BoardDetailProvider
     extends AutoDisposeAsyncNotifierProviderImpl<BoardDetail, BoardModel?> {
   /// See also [BoardDetail].
-  BoardDetailProvider(
-    String boardId,
-  ) : this._internal(
-          () => BoardDetail()..boardId = boardId,
-          from: boardDetailProvider,
-          name: r'boardDetailProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$boardDetailHash,
-          dependencies: BoardDetailFamily._dependencies,
-          allTransitiveDependencies:
-              BoardDetailFamily._allTransitiveDependencies,
-          boardId: boardId,
-        );
+  BoardDetailProvider(String boardId)
+    : this._internal(
+        () => BoardDetail()..boardId = boardId,
+        from: boardDetailProvider,
+        name: r'boardDetailProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$boardDetailHash,
+        dependencies: BoardDetailFamily._dependencies,
+        allTransitiveDependencies: BoardDetailFamily._allTransitiveDependencies,
+        boardId: boardId,
+      );
 
   BoardDetailProvider._internal(
     super._createNotifier, {
@@ -113,12 +102,8 @@ class BoardDetailProvider
   final String boardId;
 
   @override
-  FutureOr<BoardModel?> runNotifierBuild(
-    covariant BoardDetail notifier,
-  ) {
-    return notifier.build(
-      boardId,
-    );
+  FutureOr<BoardModel?> runNotifierBuild(covariant BoardDetail notifier) {
+    return notifier.build(boardId);
   }
 
   @override
@@ -139,7 +124,7 @@ class BoardDetailProvider
 
   @override
   AutoDisposeAsyncNotifierProviderElement<BoardDetail, BoardModel?>
-      createElement() {
+  createElement() {
     return _BoardDetailProviderElement(this);
   }
 
@@ -179,9 +164,7 @@ abstract class _$BoardsNotifier
     extends BuildlessAutoDisposeAsyncNotifier<List<BoardModel>?> {
   late final int artistId;
 
-  FutureOr<List<BoardModel>?> build(
-    int artistId,
-  );
+  FutureOr<List<BoardModel>?> build(int artistId);
 }
 
 /// See also [BoardsNotifier].
@@ -194,21 +177,15 @@ class BoardsNotifierFamily extends Family<AsyncValue<List<BoardModel>?>> {
   const BoardsNotifierFamily();
 
   /// See also [BoardsNotifier].
-  BoardsNotifierProvider call(
-    int artistId,
-  ) {
-    return BoardsNotifierProvider(
-      artistId,
-    );
+  BoardsNotifierProvider call(int artistId) {
+    return BoardsNotifierProvider(artistId);
   }
 
   @override
   BoardsNotifierProvider getProviderOverride(
     covariant BoardsNotifierProvider provider,
   ) {
-    return call(
-      provider.artistId,
-    );
+    return call(provider.artistId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -227,24 +204,26 @@ class BoardsNotifierFamily extends Family<AsyncValue<List<BoardModel>?>> {
 }
 
 /// See also [BoardsNotifier].
-class BoardsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    BoardsNotifier, List<BoardModel>?> {
+class BoardsNotifierProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          BoardsNotifier,
+          List<BoardModel>?
+        > {
   /// See also [BoardsNotifier].
-  BoardsNotifierProvider(
-    int artistId,
-  ) : this._internal(
-          () => BoardsNotifier()..artistId = artistId,
-          from: boardsNotifierProvider,
-          name: r'boardsNotifierProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$boardsNotifierHash,
-          dependencies: BoardsNotifierFamily._dependencies,
-          allTransitiveDependencies:
-              BoardsNotifierFamily._allTransitiveDependencies,
-          artistId: artistId,
-        );
+  BoardsNotifierProvider(int artistId)
+    : this._internal(
+        () => BoardsNotifier()..artistId = artistId,
+        from: boardsNotifierProvider,
+        name: r'boardsNotifierProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$boardsNotifierHash,
+        dependencies: BoardsNotifierFamily._dependencies,
+        allTransitiveDependencies:
+            BoardsNotifierFamily._allTransitiveDependencies,
+        artistId: artistId,
+      );
 
   BoardsNotifierProvider._internal(
     super._createNotifier, {
@@ -262,9 +241,7 @@ class BoardsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
   FutureOr<List<BoardModel>?> runNotifierBuild(
     covariant BoardsNotifier notifier,
   ) {
-    return notifier.build(
-      artistId,
-    );
+    return notifier.build(artistId);
   }
 
   @override
@@ -285,7 +262,7 @@ class BoardsNotifierProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   AutoDisposeAsyncNotifierProviderElement<BoardsNotifier, List<BoardModel>?>
-      createElement() {
+  createElement() {
     return _BoardsNotifierProviderElement(this);
   }
 
@@ -312,8 +289,12 @@ mixin BoardsNotifierRef
 }
 
 class _BoardsNotifierProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<BoardsNotifier,
-        List<BoardModel>?> with BoardsNotifierRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          BoardsNotifier,
+          List<BoardModel>?
+        >
+    with BoardsNotifierRef {
   _BoardsNotifierProviderElement(super.provider);
 
   @override
@@ -329,11 +310,7 @@ abstract class _$BoardsByArtistNameNotifier
   late final int page;
   late final int limit;
 
-  FutureOr<List<BoardModel>?> build(
-    String query,
-    int page,
-    int limit,
-  );
+  FutureOr<List<BoardModel>?> build(String query, int page, int limit);
 }
 
 /// See also [BoardsByArtistNameNotifier].
@@ -347,27 +324,15 @@ class BoardsByArtistNameNotifierFamily
   const BoardsByArtistNameNotifierFamily();
 
   /// See also [BoardsByArtistNameNotifier].
-  BoardsByArtistNameNotifierProvider call(
-    String query,
-    int page,
-    int limit,
-  ) {
-    return BoardsByArtistNameNotifierProvider(
-      query,
-      page,
-      limit,
-    );
+  BoardsByArtistNameNotifierProvider call(String query, int page, int limit) {
+    return BoardsByArtistNameNotifierProvider(query, page, limit);
   }
 
   @override
   BoardsByArtistNameNotifierProvider getProviderOverride(
     covariant BoardsByArtistNameNotifierProvider provider,
   ) {
-    return call(
-      provider.query,
-      provider.page,
-      provider.limit,
-    );
+    return call(provider.query, provider.page, provider.limit);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -387,31 +352,30 @@ class BoardsByArtistNameNotifierFamily
 
 /// See also [BoardsByArtistNameNotifier].
 class BoardsByArtistNameNotifierProvider
-    extends AutoDisposeAsyncNotifierProviderImpl<BoardsByArtistNameNotifier,
-        List<BoardModel>?> {
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          BoardsByArtistNameNotifier,
+          List<BoardModel>?
+        > {
   /// See also [BoardsByArtistNameNotifier].
-  BoardsByArtistNameNotifierProvider(
-    String query,
-    int page,
-    int limit,
-  ) : this._internal(
-          () => BoardsByArtistNameNotifier()
-            ..query = query
-            ..page = page
-            ..limit = limit,
-          from: boardsByArtistNameNotifierProvider,
-          name: r'boardsByArtistNameNotifierProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$boardsByArtistNameNotifierHash,
-          dependencies: BoardsByArtistNameNotifierFamily._dependencies,
-          allTransitiveDependencies:
-              BoardsByArtistNameNotifierFamily._allTransitiveDependencies,
-          query: query,
-          page: page,
-          limit: limit,
-        );
+  BoardsByArtistNameNotifierProvider(String query, int page, int limit)
+    : this._internal(
+        () => BoardsByArtistNameNotifier()
+          ..query = query
+          ..page = page
+          ..limit = limit,
+        from: boardsByArtistNameNotifierProvider,
+        name: r'boardsByArtistNameNotifierProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$boardsByArtistNameNotifierHash,
+        dependencies: BoardsByArtistNameNotifierFamily._dependencies,
+        allTransitiveDependencies:
+            BoardsByArtistNameNotifierFamily._allTransitiveDependencies,
+        query: query,
+        page: page,
+        limit: limit,
+      );
 
   BoardsByArtistNameNotifierProvider._internal(
     super._createNotifier, {
@@ -433,11 +397,7 @@ class BoardsByArtistNameNotifierProvider
   FutureOr<List<BoardModel>?> runNotifierBuild(
     covariant BoardsByArtistNameNotifier notifier,
   ) {
-    return notifier.build(
-      query,
-      page,
-      limit,
-    );
+    return notifier.build(query, page, limit);
   }
 
   @override
@@ -462,8 +422,11 @@ class BoardsByArtistNameNotifierProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<BoardsByArtistNameNotifier,
-      List<BoardModel>?> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<
+    BoardsByArtistNameNotifier,
+    List<BoardModel>?
+  >
+  createElement() {
     return _BoardsByArtistNameNotifierProviderElement(this);
   }
 
@@ -501,8 +464,12 @@ mixin BoardsByArtistNameNotifierRef
 }
 
 class _BoardsByArtistNameNotifierProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<BoardsByArtistNameNotifier,
-        List<BoardModel>?> with BoardsByArtistNameNotifierRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          BoardsByArtistNameNotifier,
+          List<BoardModel>?
+        >
+    with BoardsByArtistNameNotifierRef {
   _BoardsByArtistNameNotifierProviderElement(super.provider);
 
   @override
@@ -518,16 +485,19 @@ String _$boardRequestNotifierHash() =>
 
 /// See also [BoardRequestNotifier].
 @ProviderFor(BoardRequestNotifier)
-final boardRequestNotifierProvider = AutoDisposeAsyncNotifierProvider<
-    BoardRequestNotifier, BoardModel?>.internal(
-  BoardRequestNotifier.new,
-  name: r'boardRequestNotifierProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$boardRequestNotifierHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final boardRequestNotifierProvider =
+    AutoDisposeAsyncNotifierProvider<
+      BoardRequestNotifier,
+      BoardModel?
+    >.internal(
+      BoardRequestNotifier.new,
+      name: r'boardRequestNotifierProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$boardRequestNotifierHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$BoardRequestNotifier = AutoDisposeAsyncNotifier<BoardModel?>;
 // ignore_for_file: type=lint

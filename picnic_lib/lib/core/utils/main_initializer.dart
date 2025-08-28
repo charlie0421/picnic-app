@@ -28,12 +28,10 @@ class MainInitializer {
   /// [firebaseOptions] Firebase 초기화 옵션
   /// [appBuilder] 초기화 완료 후 앱 위젯을 생성할 함수
   /// [loadGeneratedTranslations] 앱별 생성된 번역 파일 로드 함수
-  /// [reflectableInitializer] 리플렉션 초기화 함수
   static Future<void> initializeApp({
     required String environment,
     required FirebaseOptions firebaseOptions,
     required Widget Function() appBuilder,
-    required Function() reflectableInitializer,
   }) async {
     await runZonedGuarded(() async {
       try {
@@ -76,9 +74,6 @@ class MainInitializer {
         if (UniversalPlatform.isMobile) {
           await AppInitializer.initializeTimezone();
         }
-
-        // 리플렉션 초기화
-        reflectableInitializer();
 
         // 프라이버시 동의 초기화 (모바일 전용)
         if (UniversalPlatform.isMobile) {
