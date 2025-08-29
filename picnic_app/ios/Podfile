@@ -18,7 +18,16 @@ project 'Runner', {
 def flutter_root
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   unless File.exist?(generated_xcode_build_settings_path)
-    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+    puts "⚠️  #{generated_xcode_build_settings_path} not found. Running Flutter setup to generate it..."
+    # Ensure Flutter tool has the artifacts and dependencies to generate iOS configs
+    system("cd .. && flutter packages pub get")
+    system("cd .. && flutter precache --ios")
+    system("cd .. && flutter build ios --config-only")
+
+    # Re-check after generation attempt
+    unless File.exist?(generated_xcode_build_settings_path)
+      raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+    end
   end
 
   File.foreach(generated_xcode_build_settings_path) do |line|

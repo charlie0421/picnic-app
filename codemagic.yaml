@@ -14,12 +14,12 @@ workflows:
         - app_store_connect
         - shorebird-config
         - picnic_env
-      flutter: 3.32.5
+      flutter: 3.35.2
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
         # 명시적 Flutter 버전 고정 (Shorebird 호환성)
-        FLUTTER_VERSION: "3.32.5"
+        FLUTTER_VERSION: "3.35.2"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -416,14 +416,14 @@ workflows:
           else
             FLUTTER_VERSION=$(flutter --version | grep -E "Flutter [0-9]+\.[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | head -1)
             if [ -z "$FLUTTER_VERSION" ]; then
-              FLUTTER_VERSION="3.32.5"  # 최종 폴백값
+              FLUTTER_VERSION="3.35.2"  # 최종 폴백값
             fi
             echo "🎯 자동 감지된 Flutter 버전: $FLUTTER_VERSION"
           fi
           
           RELEASE_RESULT=$(shorebird release ios \
             --dart-define=ENVIRONMENT=prod \
-            --flutter-version=3.32.5 2>&1)
+            --flutter-version=3.35.2 2>&1)
           RELEASE_EXIT_CODE=$?
           
           echo "릴리즈 결과:"
@@ -488,7 +488,7 @@ workflows:
         - google_play
         - shorebird-config
         - picnic_env
-      flutter: 3.32.5
+      flutter: 3.35.2
       java: 17
       vars:
         PATH: $PATH:$HOME/.shorebird/bin
@@ -496,7 +496,7 @@ workflows:
         # CodeMagic이 android_signing을 인식하도록 강제 설정
         FLUTTER_BUILD_MODE: "release"
         # 명시적 Flutter 버전 고정 (Shorebird 호환성)
-        FLUTTER_VERSION: "3.32.5"
+        FLUTTER_VERSION: "3.35.2"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -745,7 +745,7 @@ workflows:
           else
             FLUTTER_VERSION=$(flutter --version | grep -E "Flutter [0-9]+\.[0-9]+\.[0-9]+" | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" | head -1)
             if [ -z "$FLUTTER_VERSION" ]; then
-              FLUTTER_VERSION="3.32.5"  # 최종 폴백값
+              FLUTTER_VERSION="3.35.2"  # 최종 폴백값
             fi
             echo "🎯 자동 감지된 Flutter 버전: $FLUTTER_VERSION"
           fi
@@ -753,7 +753,7 @@ workflows:
           # --verbose 플래그와 명시적 Flutter 버전 3.32.5 사용 (Shorebird 호환성)
           RELEASE_RESULT=$(shorebird release android \
             --dart-define=ENVIRONMENT=prod \
-            --flutter-version=3.32.5 \
+            --flutter-version=3.35.2 \
             --verbose 2>&1)
           RELEASE_EXIT_CODE=$?
           
@@ -936,12 +936,12 @@ workflows:
         - app_store_connect
         - shorebird-config
         - picnic_env
-      flutter: 3.32.5
+      flutter: 3.35.2
       vars:
         APP_NAME: "picnic_app"
         BUNDLE_ID: "io.iconcasting.picnic.app"
         # 명시적 Flutter 버전 고정 (Shorebird 호환성)
-        FLUTTER_VERSION: "3.32.5"
+        FLUTTER_VERSION: "3.35.2"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
