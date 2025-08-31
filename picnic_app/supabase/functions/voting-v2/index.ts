@@ -10,6 +10,9 @@ const databaseUrl = Deno.env.get('DB_POOLED_URL') ?? Deno.env.get('SUPABASE_DB_U
 const parsedPoolSize = parseInt(Deno.env.get('DB_POOL_SIZE') ?? '1', 10);
 const poolSize = Number.isFinite(parsedPoolSize) && parsedPoolSize > 0 ? parsedPoolSize : 1;
 const pool = new Pool(databaseUrl, poolSize, true);
+// Rate limit configs
+const RATE_LIMIT_WINDOW_SECONDS = 10;
+const RATE_LIMIT_MAX_REQUESTS = 3; // per user or IP within window
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -93,6 +96,69 @@ async function getUserProfiles(supabaseClient, user_id) {
       user_profiles: null,
       error
     };
+  }
+}
+// --- Utility: client IP extraction ---
+function getClientIp(req) {
+  const xf = req.headers.get('x-forwarded-for') || req.headers.get('X-Forwarded-For') || '';
+  if (xf) {
+    const parts = xf.split(',').map((s)=>s.trim()).filter(Boolean);
+    if (parts.length > 0) return parts[0];
+  }
+  return req.headers.get('x-real-ip') || req.headers.get('X-Real-IP') || 'unknown';
+}
+
+// --- Request logging (table with graceful fallback) ---
+async function ensureRequestLogTable() {
+  try {
+    await queryDatabase(`
+      CREATE TABLE IF NOT EXISTS function_request_log (
+        id BIGSERIAL PRIMARY KEY,
+        ts TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        function_name TEXT NOT NULL,
+        user_id UUID,
+        ip TEXT,
+        ok BOOLEAN,
+        code INT,
+        reason TEXT,
+        meta JSONB
+      );
+    `);
+    await queryDatabase(`CREATE INDEX IF NOT EXISTS idx_frlog_user_ts ON function_request_log (user_id, ts DESC);`);
+    await queryDatabase(`CREATE INDEX IF NOT EXISTS idx_frlog_ip_ts ON function_request_log (ip, ts DESC);`);
+    await queryDatabase(`CREATE INDEX IF NOT EXISTS idx_frlog_fn_ts ON function_request_log (function_name, ts DESC);`);
+  } catch (e) {
+    console.warn('[voting-v2] ensureRequestLogTable failed (fallback to console only)', e);
+  }
+}
+
+async function logRequestEvent({ functionName, userId, ip, ok, code, reason, meta }) {
+  try {
+    await queryDatabase(
+      `INSERT INTO function_request_log (function_name, user_id, ip, ok, code, reason, meta)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      functionName, userId || null, ip || null, ok, code || null, reason || null, meta ? JSON.stringify(meta) : null
+    );
+  } catch (e) {
+    console.warn('[voting-v2] logRequestEvent fallback console', { functionName, userId, ip, ok, code, reason, meta, error: String(e) });
+  }
+}
+
+async function checkRateLimit({ functionName, userId, ip }) {
+  try {
+    const { rows } = await queryDatabase(
+      `SELECT COUNT(*)::int AS cnt
+         FROM function_request_log
+        WHERE function_name = $1
+          AND ts > NOW() - INTERVAL '${RATE_LIMIT_WINDOW_SECONDS} seconds'
+          AND (user_id = $2 OR ip = $3)`,
+      functionName, userId || null, ip || null
+    );
+    const cnt = rows?.[0]?.cnt ?? 0;
+    return cnt >= RATE_LIMIT_MAX_REQUESTS;
+  } catch (e) {
+    console.warn('[voting-v2] checkRateLimit failed, skipping RL', e);
+    return false;
   }
 }
 // 투표 오픈 여부 확인 (DB 시간 기준, KST/UTC 혼선 방지)
@@ -301,6 +367,8 @@ Deno.serve(async (req)=>{
     }
   });
   try {
+    const ip = getClientIp(req);
+    await ensureRequestLogTable();
     const { vote_id, vote_item_id, amount, user_id, star_candy_usage, star_candy_bonus_usage } = await req.json();
     console.log('Request data:', {
       vote_id,
@@ -312,6 +380,7 @@ Deno.serve(async (req)=>{
     });
     // 입력 검증
     if (!vote_id || !vote_item_id || !amount || !user_id) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'missing_fields', meta: { vote_id, vote_item_id } });
       return new Response(JSON.stringify({
         error: 'Missing required fields'
       }), {
@@ -329,21 +398,27 @@ Deno.serve(async (req)=>{
     const starCandyUsageNum = Number(star_candy_usage);
     const starCandyBonusUsageNum = Number(star_candy_bonus_usage);
     if (!Number.isFinite(voteIdNum) || !Number.isInteger(voteIdNum) || voteIdNum <= 0) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_vote_id', meta: { vote_id } });
       return new Response(JSON.stringify({ error: 'Invalid vote_id' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (!Number.isFinite(voteItemIdNum) || !Number.isInteger(voteItemIdNum) || voteItemIdNum <= 0) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_vote_item_id', meta: { vote_item_id } });
       return new Response(JSON.stringify({ error: 'Invalid vote_item_id' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (!Number.isFinite(amountNum) || !Number.isInteger(amountNum) || amountNum <= 0) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_amount', meta: { amount } });
       return new Response(JSON.stringify({ error: 'Invalid amount' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (!Number.isFinite(starCandyUsageNum) || !Number.isInteger(starCandyUsageNum) || starCandyUsageNum < 0) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_star_candy_usage', meta: { star_candy_usage } });
       return new Response(JSON.stringify({ error: 'Invalid star_candy_usage' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (!Number.isFinite(starCandyBonusUsageNum) || !Number.isInteger(starCandyBonusUsageNum) || starCandyBonusUsageNum < 0) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_star_candy_bonus_usage', meta: { star_candy_bonus_usage } });
       return new Response(JSON.stringify({ error: 'Invalid star_candy_bonus_usage' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (starCandyUsageNum + starCandyBonusUsageNum !== amountNum) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'usage_mismatch', meta: { amount: amountNum, star_candy_usage: starCandyUsageNum, star_candy_bonus_usage: starCandyBonusUsageNum } });
       return new Response(JSON.stringify({
         error: 'Usage amounts do not match total amount'
       }), {
@@ -357,6 +432,7 @@ Deno.serve(async (req)=>{
     // 사용자 확인
     const { user_profiles, error: userError } = await getUserProfiles(supabaseClient, user_id);
     if (userError || !user_profiles) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'user_not_found' });
       return new Response(JSON.stringify({
         error: 'User not found or other error occurred'
       }), {
@@ -365,6 +441,12 @@ Deno.serve(async (req)=>{
         },
         status: 400
       });
+    }
+    // Rate limit check (user 또는 IP)
+    const isRateLimited = await checkRateLimit({ functionName: 'voting-v2', userId: user_id, ip });
+    if (isRateLimited) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 429, reason: 'rate_limited' });
+      return new Response(JSON.stringify({ error: 'Too many requests' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 });
     }
     // 보유 잔액(표 단위) 기준 절대 상한 검증: amount ≤ star_candy + star_candy_bonus
     {
@@ -396,6 +478,7 @@ Deno.serve(async (req)=>{
         const message = openCheck.reason === 'ended'
           ? '투표가 마감되었습니다.'
           : (openCheck.reason === 'not_started' ? '투표가 아직 시작되지 않았습니다.' : '투표 참여가 불가합니다.');
+        await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 403, reason: 'vote_closed', meta: { reason: openCheck.reason } });
         return new Response(JSON.stringify({
           error: 'Vote closed',
           message,
@@ -409,6 +492,7 @@ Deno.serve(async (req)=>{
         });
       }
       const transactionResult = await performTransaction(connection, voteIdNum, voteItemIdNum, amountNum, user_id, starCandyUsageNum, starCandyBonusUsageNum);
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: true, code: 200, reason: 'ok', meta: { vote_id: voteIdNum, vote_item_id: voteItemIdNum, amount: amountNum } });
       return new Response(JSON.stringify(transactionResult), {
         headers: {
           ...corsHeaders,
@@ -418,6 +502,7 @@ Deno.serve(async (req)=>{
       });
     } catch (e) {
       console.error('Error occurred during transaction:', e);
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 500, reason: 'tx_error', meta: { error: String(e?.message || e) } });
       throw e;
     } finally{
       try {
@@ -428,6 +513,10 @@ Deno.serve(async (req)=>{
     }
   } catch (error) {
     console.error('Unexpected error occurred:', error);
+    try {
+      const ip = getClientIp(req);
+      await logRequestEvent({ functionName: 'voting-v2', userId: null, ip, ok: false, code: 500, reason: 'unexpected', meta: { error: String(error?.message || error) } });
+    } catch (_) {}
     return new Response(JSON.stringify({
       error: 'Unexpected error occurred'
     }), {
