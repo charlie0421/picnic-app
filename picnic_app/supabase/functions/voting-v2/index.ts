@@ -278,7 +278,9 @@ async function canVoteAndDeduct(client, user_id, vote_amount, vote_pick_id) {
         AND (u.star_candy + u.star_candy_bonus) >= $2
       RETURNING 
         GREATEST($2 - LEAST(u.star_candy_bonus, $2), 0)::int AS star_candy_used,
-        LEAST(u.star_candy_bonus, $2)::int                AS star_candy_bonus_used
+        LEAST(u.star_candy_bonus, $2)::int                  AS star_candy_bonus_used,
+        u.star_candy::int                                    AS star_candy_remaining,
+        u.star_candy_bonus::int                               AS star_candy_bonus_remaining
     `, user_id, vote_amount);
     if (updateRes.rows.length === 0) {
       return { success: false, star_candy_used: 0, star_candy_bonus_used: 0 };
@@ -289,8 +291,8 @@ async function canVoteAndDeduct(client, user_id, vote_amount, vote_pick_id) {
     if (star_candy_bonus_used > 0) {
       await queryWithClient(client, `
         INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
-        VALUES ($1, $2, $2, NULL, $3)
-      `, user_id, star_candy_bonus_used, vote_pick_id);
+        VALUES ($1, $2, $3, NULL, $4)
+      `, user_id, star_candy_bonus_used, updateRes.rows[0].star_candy_bonus_remaining, vote_pick_id);
     }
     if (star_candy_used > 0) {
       await queryWithClient(client, `
