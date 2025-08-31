@@ -10,9 +10,7 @@ const databaseUrl = Deno.env.get('DB_POOLED_URL') ?? Deno.env.get('SUPABASE_DB_U
 const parsedPoolSize = parseInt(Deno.env.get('DB_POOL_SIZE') ?? '1', 10);
 const poolSize = Number.isFinite(parsedPoolSize) && parsedPoolSize > 0 ? parsedPoolSize : 1;
 const pool = new Pool(databaseUrl, poolSize, true);
-// Rate limit configs
-const RATE_LIMIT_WINDOW_SECONDS = 10;
-const RATE_LIMIT_MAX_REQUESTS = 3; // per user or IP within window
+// (removed) function_request_log 관련 기능 비활성화
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -116,7 +114,7 @@ async function spendBonusBuckets(client, user_id, bonusToUse, vote_pick_id) {
     // 사용 로그(잔액은 트리거 합산 대상 아님: NULL)
     await queryWithClient(client, `
       INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
-      VALUES ($1, $2, NULL, $3, $4)
+      VALUES ($1, $2, 0, $3, $4)
     `, user_id, use, bucketId, vote_pick_id);
     remaining -= use;
     consumed += use;
@@ -149,58 +147,7 @@ function getClientIp(req) {
 }
 
 // --- Request logging (table with graceful fallback) ---
-async function ensureRequestLogTable() {
-  try {
-    await queryDatabase(`
-      CREATE TABLE IF NOT EXISTS function_request_log (
-        id BIGSERIAL PRIMARY KEY,
-        ts TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        function_name TEXT NOT NULL,
-        user_id UUID,
-        ip TEXT,
-        ok BOOLEAN,
-        code INT,
-        reason TEXT,
-        meta JSONB
-      );
-    `);
-    await queryDatabase(`CREATE INDEX IF NOT EXISTS idx_frlog_user_ts ON function_request_log (user_id, ts DESC);`);
-    await queryDatabase(`CREATE INDEX IF NOT EXISTS idx_frlog_ip_ts ON function_request_log (ip, ts DESC);`);
-    await queryDatabase(`CREATE INDEX IF NOT EXISTS idx_frlog_fn_ts ON function_request_log (function_name, ts DESC);`);
-  } catch (e) {
-    console.warn('[voting-v2] ensureRequestLogTable failed (fallback to console only)', e);
-  }
-}
-
-async function logRequestEvent({ functionName, userId, ip, ok, code, reason, meta }) {
-  try {
-    await queryDatabase(
-      `INSERT INTO function_request_log (function_name, user_id, ip, ok, code, reason, meta)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      functionName, userId || null, ip || null, ok, code || null, reason || null, meta ? JSON.stringify(meta) : null
-    );
-  } catch (e) {
-    console.warn('[voting-v2] logRequestEvent fallback console', { functionName, userId, ip, ok, code, reason, meta, error: String(e) });
-  }
-}
-
-async function checkRateLimit({ functionName, userId, ip }) {
-  try {
-    const { rows } = await queryDatabase(
-      `SELECT COUNT(*)::int AS cnt
-         FROM function_request_log
-        WHERE function_name = $1
-          AND ts > NOW() - INTERVAL '${RATE_LIMIT_WINDOW_SECONDS} seconds'
-          AND (user_id = $2 OR ip = $3)`,
-      functionName, userId || null, ip || null
-    );
-    const cnt = rows?.[0]?.cnt ?? 0;
-    return cnt >= RATE_LIMIT_MAX_REQUESTS;
-  } catch (e) {
-    console.warn('[voting-v2] checkRateLimit failed, skipping RL', e);
-    return false;
-  }
-}
+// function_request_log/레이트리밋 제거
 // 투표 오픈 여부 확인 (DB 시간 기준, KST/UTC 혼선 방지)
 async function ensureVoteOpenDb(client, vote_id) {
   try {
@@ -312,7 +259,7 @@ async function canVoteAndDeduct(client, user_id, vote_amount, vote_pick_id) {
     if (star_candy_bonus_used > 0) {
       await queryWithClient(client, `
         INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
-        VALUES ($1, $2, NULL, NULL, $3)
+        VALUES ($1, $2, 0, NULL, $3)
       `, user_id, star_candy_bonus_used, vote_pick_id);
     }
     if (star_candy_used > 0) {
@@ -395,7 +342,6 @@ Deno.serve(async (req)=>{
   });
   try {
     const ip = getClientIp(req);
-    await ensureRequestLogTable();
     const { vote_id, vote_item_id, amount, user_id, star_candy_usage, star_candy_bonus_usage } = await req.json();
     console.log('Request data:', {
       vote_id,
@@ -408,7 +354,6 @@ Deno.serve(async (req)=>{
     // 입력 검증
     if (!vote_id || !vote_item_id || !amount || !user_id) {
       console.warn('[voting-v2] missing_fields', { ip, vote_id, vote_item_id, amount, user_id });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'missing_fields', meta: { vote_id, vote_item_id } });
       return new Response(JSON.stringify({
         error: 'Missing required fields'
       }), {
@@ -427,32 +372,26 @@ Deno.serve(async (req)=>{
     const starCandyBonusUsageNum = Number(star_candy_bonus_usage);
     if (!Number.isFinite(voteIdNum) || !Number.isInteger(voteIdNum) || voteIdNum <= 0) {
       console.warn('[voting-v2] invalid_vote_id', { ip, vote_id });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_vote_id', meta: { vote_id } });
       return new Response(JSON.stringify({ error: 'Invalid vote_id' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (!Number.isFinite(voteItemIdNum) || !Number.isInteger(voteItemIdNum) || voteItemIdNum <= 0) {
       console.warn('[voting-v2] invalid_vote_item_id', { ip, vote_item_id });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_vote_item_id', meta: { vote_item_id } });
       return new Response(JSON.stringify({ error: 'Invalid vote_item_id' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (!Number.isFinite(amountNum) || !Number.isInteger(amountNum) || amountNum <= 0) {
       console.warn('[voting-v2] invalid_amount', { ip, amount });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_amount', meta: { amount } });
       return new Response(JSON.stringify({ error: 'Invalid amount' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (!Number.isFinite(starCandyUsageNum) || !Number.isInteger(starCandyUsageNum) || starCandyUsageNum < 0) {
       console.warn('[voting-v2] invalid_star_candy_usage', { ip, star_candy_usage });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_star_candy_usage', meta: { star_candy_usage } });
       return new Response(JSON.stringify({ error: 'Invalid star_candy_usage' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (!Number.isFinite(starCandyBonusUsageNum) || !Number.isInteger(starCandyBonusUsageNum) || starCandyBonusUsageNum < 0) {
       console.warn('[voting-v2] invalid_star_candy_bonus_usage', { ip, star_candy_bonus_usage });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'invalid_star_candy_bonus_usage', meta: { star_candy_bonus_usage } });
       return new Response(JSON.stringify({ error: 'Invalid star_candy_bonus_usage' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
     }
     if (starCandyUsageNum + starCandyBonusUsageNum !== amountNum) {
       console.warn('[voting-v2] usage_mismatch', { ip, amount: amountNum, star_candy_usage: starCandyUsageNum, star_candy_bonus_usage: starCandyBonusUsageNum });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'usage_mismatch', meta: { amount: amountNum, star_candy_usage: starCandyUsageNum, star_candy_bonus_usage: starCandyBonusUsageNum } });
       return new Response(JSON.stringify({
         error: 'Usage amounts do not match total amount'
       }), {
@@ -467,7 +406,6 @@ Deno.serve(async (req)=>{
     const { user_profiles, error: userError } = await getUserProfiles(supabaseClient, user_id);
     if (userError || !user_profiles) {
       console.warn('[voting-v2] user_not_found', { ip, user_id, userError });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 400, reason: 'user_not_found' });
       return new Response(JSON.stringify({
         error: 'User not found or other error occurred'
       }), {
@@ -480,16 +418,10 @@ Deno.serve(async (req)=>{
     // 삭제(비활성) 사용자 차단: deleted_at이 null이 아니면 투표 불가
     if (user_profiles.deleted_at) {
       console.warn('[voting-v2] user_deleted', { ip, user_id, deleted_at: user_profiles.deleted_at });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 403, reason: 'user_deleted' });
       return new Response(JSON.stringify({ error: 'User is deleted or deactivated' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 });
     }
     // Rate limit check (user 또는 IP)
-    const isRateLimited = await checkRateLimit({ functionName: 'voting-v2', userId: user_id, ip });
-    if (isRateLimited) {
-      console.warn('[voting-v2] rate_limited', { ip, user_id });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 429, reason: 'rate_limited' });
-      return new Response(JSON.stringify({ error: 'Too many requests' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 });
-    }
+    // (rate limit removed)
     // 보유 잔액(표 단위) 기준 절대 상한 검증: amount ≤ star_candy + star_candy_bonus
     {
       const regularAvailable = Number(user_profiles.star_candy) || 0;
@@ -522,7 +454,6 @@ Deno.serve(async (req)=>{
           ? '투표가 마감되었습니다.'
           : (openCheck.reason === 'not_started' ? '투표가 아직 시작되지 않았습니다.' : '투표 참여가 불가합니다.');
         console.warn('[voting-v2] vote_closed', { ip, user_id, vote_id: voteIdNum, reason: openCheck.reason });
-        await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 403, reason: 'vote_closed', meta: { reason: openCheck.reason } });
         return new Response(JSON.stringify({
           error: 'Vote closed',
           message,
@@ -536,7 +467,6 @@ Deno.serve(async (req)=>{
         });
       }
       const transactionResult = await performTransaction(connection, voteIdNum, voteItemIdNum, amountNum, user_id, starCandyUsageNum, starCandyBonusUsageNum);
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: true, code: 200, reason: 'ok', meta: { vote_id: voteIdNum, vote_item_id: voteItemIdNum, amount: amountNum } });
       return new Response(JSON.stringify(transactionResult), {
         headers: {
           ...corsHeaders,
@@ -546,7 +476,6 @@ Deno.serve(async (req)=>{
       });
     } catch (e) {
       console.error('[voting-v2] tx_error', { ip, user_id, vote_id: voteIdNum, vote_item_id: voteItemIdNum, amount: amountNum, error: String(e?.message || e) });
-      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 500, reason: 'tx_error', meta: { error: String(e?.message || e) } });
       throw e;
     } finally{
       try {
@@ -557,10 +486,7 @@ Deno.serve(async (req)=>{
     }
   } catch (error) {
     console.error('[voting-v2] unexpected', { error: String(error?.message || error) });
-    try {
-      const ip = getClientIp(req);
-      await logRequestEvent({ functionName: 'voting-v2', userId: null, ip, ok: false, code: 500, reason: 'unexpected', meta: { error: String(error?.message || error) } });
-    } catch (_) {}
+    // removed function_request_log
     return new Response(JSON.stringify({
       error: 'Unexpected error occurred'
     }), {
