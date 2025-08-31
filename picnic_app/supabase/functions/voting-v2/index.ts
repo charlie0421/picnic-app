@@ -442,6 +442,11 @@ Deno.serve(async (req)=>{
         status: 400
       });
     }
+    // 삭제(비활성) 사용자 차단: deleted_at이 null이 아니면 투표 불가
+    if (user_profiles.deleted_at) {
+      await logRequestEvent({ functionName: 'voting-v2', userId: user_id, ip, ok: false, code: 403, reason: 'user_deleted' });
+      return new Response(JSON.stringify({ error: 'User is deleted or deactivated' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 });
+    }
     // Rate limit check (user 또는 IP)
     const isRateLimited = await checkRateLimit({ functionName: 'voting-v2', userId: user_id, ip });
     if (isRateLimited) {
