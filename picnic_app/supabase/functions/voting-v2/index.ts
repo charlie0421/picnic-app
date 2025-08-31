@@ -291,8 +291,8 @@ async function canVoteAndDeduct(client, user_id, vote_amount, vote_pick_id) {
     if (star_candy_bonus_used > 0) {
       await queryWithClient(client, `
         INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
-        VALUES ($1, $2, $3, NULL, $4)
-      `, user_id, star_candy_bonus_used, updateRes.rows[0].star_candy_bonus_remaining, vote_pick_id);
+        VALUES ($1, $2, NULL, NULL, $3)
+      `, user_id, star_candy_bonus_used, vote_pick_id);
     }
     if (star_candy_used > 0) {
       await queryWithClient(client, `
