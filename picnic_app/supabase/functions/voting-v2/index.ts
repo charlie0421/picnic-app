@@ -83,6 +83,46 @@ async function queryWithClient(client, query, ...args) {
     throw error;
   }
 }
+
+// 보너스 버킷에서 사용량 차감 (가까운 만료일 순)
+async function spendBonusBuckets(client, user_id, bonusToUse, vote_pick_id) {
+  let remaining = Number(bonusToUse) || 0;
+  if (remaining <= 0) return 0;
+  // 만료 임박 순서로 버킷 잠금 후 차감
+  const { rows } = await queryWithClient(client, `
+    SELECT id, remain_amount::int AS remain_amount
+    FROM star_candy_bonus_history
+    WHERE user_id = $1
+      AND parent_id IS NULL
+      AND deleted_at IS NULL
+      AND remain_amount > 0
+      AND expired_dt > (now() AT TIME ZONE 'Asia/Seoul')
+    ORDER BY expired_dt ASC
+    FOR UPDATE SKIP LOCKED
+  `, user_id);
+  let consumed = 0;
+  for (const row of rows) {
+    if (remaining <= 0) break;
+    const bucketId = row.id;
+    const bucketRemain = Number(row.remain_amount) || 0;
+    if (bucketRemain <= 0) continue;
+    const use = Math.min(bucketRemain, remaining);
+    // 버킷 차감
+    await queryWithClient(client, `
+      UPDATE star_candy_bonus_history
+      SET remain_amount = GREATEST(remain_amount - $1, 0), updated_at = NOW()
+      WHERE id = $2
+    `, use, bucketId);
+    // 사용 로그(잔액은 트리거 합산 대상 아님: NULL)
+    await queryWithClient(client, `
+      INSERT INTO star_candy_bonus_history (user_id, amount, remain_amount, parent_id, vote_pick_id)
+      VALUES ($1, $2, NULL, $3, $4)
+    `, user_id, use, bucketId, vote_pick_id);
+    remaining -= use;
+    consumed += use;
+  }
+  return consumed;
+}
 async function getUserProfiles(supabaseClient, user_id) {
   try {
     const { data: user_profiles, error } = await supabaseClient.from('user_profiles').select('*').eq('id', user_id).single();
@@ -323,6 +363,10 @@ async function performTransaction(connection, vote_id, vote_item_id, amount, use
       const voteResult = await canVoteAndDeduct(connection, user_id, amount, vote_pick_id);
       if (!voteResult.success) {
         throw new Error('Insufficient star_candy and star_candy_bonus to vote');
+      }
+      // 보너스 사용이 있었다면 보너스 버킷(만료일 기준)에서 실제 차감 내역을 남긴다
+      if (voteResult.star_candy_bonus_used > 0) {
+        await spendBonusBuckets(connection, user_id, voteResult.star_candy_bonus_used, vote_pick_id);
       }
       await queryWithClient(connection, `
         UPDATE vote_pick
