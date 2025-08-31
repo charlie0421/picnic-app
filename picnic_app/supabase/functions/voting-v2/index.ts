@@ -204,72 +204,53 @@ async function checkRateLimit({ functionName, userId, ip }) {
 // 투표 오픈 여부 확인 (DB 시간 기준, KST/UTC 혼선 방지)
 async function ensureVoteOpenDb(client, vote_id) {
   try {
-    // 1) end_at 기준 시도
-    try {
-      const { rows } = await queryWithClient(client, `
-        SELECT 
-          (
-            start_at IS NULL OR
-            CASE WHEN pg_typeof(start_at)::text = 'timestamp without time zone'
-                 THEN (now() AT TIME ZONE 'Asia/Seoul')::timestamp >= start_at
-                 ELSE now() >= start_at
-            END
-          ) AS started,
-          (
-            end_at IS NULL OR 
-            CASE WHEN pg_typeof(end_at)::text = 'timestamp without time zone'
-                 THEN (now() AT TIME ZONE 'Asia/Seoul')::timestamp < end_at
-                 ELSE now() < end_at
-            END
-          ) AS not_ended
-        FROM vote
-        WHERE id = $1
-        FOR SHARE
-      `, vote_id);
-      if (!rows || rows.length === 0) {
-        return { open: false, reason: 'not_found' };
-      }
-      const { started, not_ended } = rows[0];
-      const open = Boolean(started) && Boolean(not_ended);
-      let reason = null;
-      if (!started) reason = 'not_started';
-      else if (!not_ended) reason = 'ended';
-      return { open, reason };
-    } catch (e1) {
-      console.warn('[voting-v2] end_at check failed; trying stop_at fallback', e1);
-      // 2) stop_at 기준 폴백 (일부 스키마에서 사용)
-      const { rows } = await queryWithClient(client, `
-        SELECT 
-          (
-            start_at IS NULL OR
-            CASE WHEN pg_typeof(start_at)::text = 'timestamp without time zone'
-                 THEN (now() AT TIME ZONE 'Asia/Seoul')::timestamp >= start_at
-                 ELSE now() >= start_at
-            END
-          ) AS started,
-          (
-            stop_at IS NULL OR 
-            CASE WHEN pg_typeof(stop_at)::text = 'timestamp without time zone'
-                 THEN (now() AT TIME ZONE 'Asia/Seoul')::timestamp < stop_at
-                 ELSE now() < stop_at
-            END
-          ) AS not_ended
-        FROM vote
-        WHERE id = $1
-        FOR SHARE
-      `, vote_id);
-      if (!rows || rows.length === 0) {
-        return { open: false, reason: 'not_found' };
-      }
-      const { started, not_ended } = rows[0];
-      const open = Boolean(started) && Boolean(not_ended);
-      let reason = null;
-      if (!started) reason = 'not_started';
-      else if (!not_ended) reason = 'ended';
-      return { open, reason };
+    // 스키마 점검: end_at/stop_at 존재 여부 확인
+    const meta = await queryWithClient(client, `
+      SELECT
+        MAX(CASE WHEN column_name = 'end_at' THEN 1 ELSE 0 END)::int AS has_end,
+        MAX(CASE WHEN column_name = 'stop_at' THEN 1 ELSE 0 END)::int AS has_stop
+      FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = 'vote'
+    `);
+    const hasEnd = (meta.rows?.[0]?.has_end ?? 0) === 1;
+    const hasStop = (meta.rows?.[0]?.has_stop ?? 0) === 1;
+
+    if (!hasEnd && !hasStop) {
+      console.warn('[voting-v2] vote table has no end_at/stop_at; allowing by default');
+      return { open: true, reason: 'no_end_or_stop' };
     }
+
+    const timeCol = hasEnd ? 'end_at' : 'stop_at';
+    const { rows } = await queryWithClient(client, `
+      SELECT 
+        (
+          start_at IS NULL OR
+          CASE WHEN pg_typeof(start_at)::text = 'timestamp without time zone'
+               THEN (now() AT TIME ZONE 'Asia/Seoul')::timestamp >= start_at
+               ELSE now() >= start_at
+          END
+        ) AS started,
+        (
+          ${hasEnd ? 'end_at' : 'stop_at'} IS NULL OR 
+          CASE WHEN pg_typeof(${hasEnd ? 'end_at' : 'stop_at'})::text = 'timestamp without time zone'
+               THEN (now() AT TIME ZONE 'Asia/Seoul')::timestamp < ${hasEnd ? 'end_at' : 'stop_at'}
+               ELSE now() < ${hasEnd ? 'end_at' : 'stop_at'}
+          END
+        ) AS not_ended
+      FROM vote
+      WHERE id = $1
+      FOR SHARE
+    `, vote_id);
+    if (!rows || rows.length === 0) {
+      return { open: false, reason: 'not_found' };
+    }
+    const { started, not_ended } = rows[0];
+    const open = Boolean(started) && Boolean(not_ended);
+    let reason = null;
+    if (!started) reason = 'not_started';
+    else if (!not_ended) reason = 'ended';
+    return { open, reason };
   } catch (e) {
-    // 스키마에 start_at/end_at 중 일부가 없더라도 서비스 중단을 피하기 위해 경고 후 통과
     console.warn('[voting-v2] ensureVoteOpenDb check failed; skipping with warning', e);
     return { open: true, reason: 'schema_unknown' };
   }
