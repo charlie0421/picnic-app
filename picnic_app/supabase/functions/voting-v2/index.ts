@@ -322,7 +322,28 @@ Deno.serve(async (req)=>{
         status: 400
       });
     }
-    if (star_candy_usage + star_candy_bonus_usage !== amount) {
+    // 정규화 및 강력한 유효성 검사 (음수/비정수/NaN 차단)
+    const voteIdNum = Number(vote_id);
+    const voteItemIdNum = Number(vote_item_id);
+    const amountNum = Number(amount);
+    const starCandyUsageNum = Number(star_candy_usage);
+    const starCandyBonusUsageNum = Number(star_candy_bonus_usage);
+    if (!Number.isFinite(voteIdNum) || !Number.isInteger(voteIdNum) || voteIdNum <= 0) {
+      return new Response(JSON.stringify({ error: 'Invalid vote_id' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
+    }
+    if (!Number.isFinite(voteItemIdNum) || !Number.isInteger(voteItemIdNum) || voteItemIdNum <= 0) {
+      return new Response(JSON.stringify({ error: 'Invalid vote_item_id' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
+    }
+    if (!Number.isFinite(amountNum) || !Number.isInteger(amountNum) || amountNum <= 0) {
+      return new Response(JSON.stringify({ error: 'Invalid amount' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
+    }
+    if (!Number.isFinite(starCandyUsageNum) || !Number.isInteger(starCandyUsageNum) || starCandyUsageNum < 0) {
+      return new Response(JSON.stringify({ error: 'Invalid star_candy_usage' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
+    }
+    if (!Number.isFinite(starCandyBonusUsageNum) || !Number.isInteger(starCandyBonusUsageNum) || starCandyBonusUsageNum < 0) {
+      return new Response(JSON.stringify({ error: 'Invalid star_candy_bonus_usage' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 });
+    }
+    if (starCandyUsageNum + starCandyBonusUsageNum !== amountNum) {
       return new Response(JSON.stringify({
         error: 'Usage amounts do not match total amount'
       }), {
@@ -370,7 +391,7 @@ Deno.serve(async (req)=>{
     const connection = await pool.connect();
     try {
       // 투표 오픈/마감 확인 (트랜잭션 시작 전 빠르게 차단)
-      const openCheck = await ensureVoteOpenDb(connection, vote_id);
+      const openCheck = await ensureVoteOpenDb(connection, voteIdNum);
       if (!openCheck.open) {
         const message = openCheck.reason === 'ended'
           ? '투표가 마감되었습니다.'
@@ -387,7 +408,7 @@ Deno.serve(async (req)=>{
           status: 403
         });
       }
-      const transactionResult = await performTransaction(connection, vote_id, vote_item_id, amount, user_id, star_candy_usage, star_candy_bonus_usage);
+      const transactionResult = await performTransaction(connection, voteIdNum, voteItemIdNum, amountNum, user_id, starCandyUsageNum, starCandyBonusUsageNum);
       return new Response(JSON.stringify(transactionResult), {
         headers: {
           ...corsHeaders,
