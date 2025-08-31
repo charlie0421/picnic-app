@@ -345,6 +345,28 @@ Deno.serve(async (req)=>{
         status: 400
       });
     }
+    // 보유 잔액(표 단위) 기준 절대 상한 검증: amount ≤ star_candy + star_candy_bonus
+    {
+      const regularAvailable = Number(user_profiles.star_candy) || 0;
+      const bonusAvailable = Number(user_profiles.star_candy_bonus) || 0;
+      const maxPossibleVotes = regularAvailable + bonusAvailable;
+      if (amount > maxPossibleVotes) {
+        return new Response(JSON.stringify({
+          error: 'Vote amount exceeds available balance',
+          message: '보유한 별사탕/보너스보다 많은 수의 투표는 할 수 없습니다.',
+          requested: amount,
+          max_possible: maxPossibleVotes,
+          regular_available: regularAvailable,
+          bonus_available: bonusAvailable
+        }), {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          },
+          status: 400
+        });
+      }
+    }
     const connection = await pool.connect();
     try {
       // 투표 오픈/마감 확인 (트랜잭션 시작 전 빠르게 차단)
