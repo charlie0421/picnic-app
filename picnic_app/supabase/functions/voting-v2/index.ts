@@ -237,18 +237,23 @@ async function canVoteAndDeduct(client, user_id, vote_amount, vote_pick_id) {
   try {
     // 원자 차감: 단일 UPDATE에서 보너스 우선 사용을 계산하고 동시에 차감
     const updateRes = await queryWithClient(client, `
+      WITH orig AS (
+        SELECT u.star_candy AS star_candy, u.star_candy_bonus AS star_candy_bonus
+        FROM user_profiles u
+        WHERE u.id = $1
+        FOR UPDATE
+      )
       UPDATE user_profiles u
       SET 
-        star_candy_bonus = u.star_candy_bonus - LEAST(u.star_candy_bonus, $2),
-        star_candy       = u.star_candy - GREATEST($2 - LEAST(u.star_candy_bonus, $2), 0),
+        star_candy_bonus = u.star_candy_bonus - LEAST(orig.star_candy_bonus, $2),
+        star_candy       = u.star_candy - GREATEST($2 - LEAST(orig.star_candy_bonus, $2), 0),
         updated_at       = NOW()
+      FROM orig
       WHERE u.id = $1
-        AND (u.star_candy + u.star_candy_bonus) >= $2
+        AND (orig.star_candy + orig.star_candy_bonus) >= $2
       RETURNING 
-        GREATEST($2 - LEAST(u.star_candy_bonus, $2), 0)::int AS star_candy_used,
-        LEAST(u.star_candy_bonus, $2)::int                  AS star_candy_bonus_used,
-        u.star_candy::int                                    AS star_candy_remaining,
-        u.star_candy_bonus::int                               AS star_candy_bonus_remaining
+        GREATEST($2 - LEAST(orig.star_candy_bonus, $2), 0)::int AS star_candy_used,
+        LEAST(orig.star_candy_bonus, $2)::int                  AS star_candy_bonus_used
     `, user_id, vote_amount);
     if (updateRes.rows.length === 0) {
       return { success: false, star_candy_used: 0, star_candy_bonus_used: 0 };
