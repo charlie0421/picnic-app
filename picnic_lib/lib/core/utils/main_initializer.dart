@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
@@ -25,88 +24,88 @@ class MainInitializer {
   /// 앱 초기화를 위한 main 함수 래퍼
   ///
   /// [environment] 환경 설정 ('prod', 'dev' 등)
-  /// [firebaseOptions] Firebase 초기화 옵션
+  /// Firebase는 현재 비활성화됨
   /// [appBuilder] 초기화 완료 후 앱 위젯을 생성할 함수
   /// [loadGeneratedTranslations] 앱별 생성된 번역 파일 로드 함수
   static Future<void> initializeApp({
     required String environment,
-    required FirebaseOptions firebaseOptions,
+    // FirebaseOptions 제거됨
     required Widget Function() appBuilder,
   }) async {
-    await runZonedGuarded(() async {
-      try {
-        logger.i('앱 초기화 시작...');
+    await runZonedGuarded(
+      () async {
+        try {
+          logger.i('앱 초기화 시작...');
 
-        // Flutter 바인딩 초기화
-        WidgetsFlutterBinding.ensureInitialized();
+          // Flutter 바인딩 초기화
+          WidgetsFlutterBinding.ensureInitialized();
 
-        // ScreenUtil 초기화 - 먼저 처리하여 다른 초기화 과정에서 사용 가능하도록 함
-        await _initializeScreenUtil();
+          // ScreenUtil 초기화 - 먼저 처리하여 다른 초기화 과정에서 사용 가능하도록 함
+          await _initializeScreenUtil();
 
-        // 기본 서비스 초기화
-        await AppInitializer.initializeBasics();
-        await AppInitializer.initializeEnvironment(environment);
-        await AppInitializer.initializeSentry();
+          // 기본 서비스 초기화
+          await AppInitializer.initializeBasics();
+          await AppInitializer.initializeEnvironment(environment);
+          await AppInitializer.initializeSentry();
 
-        // Supabase 초기화
-        await initializeSupabase();
+          // Supabase 초기화
+          await initializeSupabase();
 
-        // Supabase 헬스체크 실행 (개발 환경에서만)
-        if (kDebugMode) {
-          await SupabaseHealthCheck.runHealthCheckOnAppStart();
-        }
+          // Supabase 헬스체크 실행 (개발 환경에서만)
+          if (kDebugMode) {
+            await SupabaseHealthCheck.runHealthCheckOnAppStart();
+          }
 
-        // 모바일 전용 초기화 로직
-        if (UniversalPlatform.isMobile) {
-          await AppInitializer.initializeWebP();
-          await AppInitializer.initializeTapjoy();
-        }
+          // 모바일 전용 초기화 로직
+          if (UniversalPlatform.isMobile) {
+            await AppInitializer.initializeWebP();
+            await AppInitializer.initializeTapjoy();
+          }
 
-        // Firebase 초기화
-        await Firebase.initializeApp(
-          options: firebaseOptions,
-        );
+          // Firebase 제거됨
 
-        // 인증 서비스 초기화
-        await AppInitializer.initializeAuth();
+          // 인증 서비스 초기화
+          await AppInitializer.initializeAuth();
 
-        // 타임존 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile) {
-          await AppInitializer.initializeTimezone();
-        }
+          // 타임존 초기화 (모바일 전용)
+          if (UniversalPlatform.isMobile) {
+            await AppInitializer.initializeTimezone();
+          }
 
-        // 프라이버시 동의 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile) {
-          await AppInitializer.initializePrivacyConsent();
-        }
+          // 프라이버시 동의 초기화 (모바일 전용)
+          if (UniversalPlatform.isMobile) {
+            await AppInitializer.initializePrivacyConsent();
+          }
 
-        // Branch SDK 초기화 (모바일 전용)
-        if (UniversalPlatform.isMobile) {
-          await FlutterBranchSdk.init(
-            enableLogging: true,
-            branchAttributionLevel: BranchAttributionLevel.NONE,
+          // Branch SDK 초기화 (모바일 전용)
+          if (UniversalPlatform.isMobile) {
+            await FlutterBranchSdk.init(
+              enableLogging: true,
+              branchAttributionLevel: BranchAttributionLevel.NONE,
+            );
+          }
+
+          logger.i('앱 시작 중...');
+          // 앱 위젯 생성 후 ProviderScope으로 래핑
+          final appWidget = ProviderScope(
+            observers: [LoggingObserver()],
+            child: appBuilder(),
           );
+
+          // Flutter의 runApp 호출 - 기본 Flutter 함수 사용
+          runApp(appWidget);
+
+          logger.i('앱 시작 완료');
+        } catch (e, s) {
+          logger.e('초기화 중 오류 발생', error: e, stackTrace: s);
+          rethrow;
         }
-
-        logger.i('앱 시작 중...');
-        // 앱 위젯 생성 후 ProviderScope으로 래핑
-        final appWidget = ProviderScope(
-          observers: [LoggingObserver()],
-          child: appBuilder(),
-        );
-
-        // Flutter의 runApp 호출 - 기본 Flutter 함수 사용
-        runApp(appWidget);
-
-        logger.i('앱 시작 완료');
-      } catch (e, s) {
-        logger.e('초기화 중 오류 발생', error: e, stackTrace: s);
-        rethrow;
-      }
-    }, (Object error, StackTrace s) async {
-      logger.e('치명적 오류 발생', error: error, stackTrace: s);
-      await Sentry.captureException(error, stackTrace: s);
-    });
+      },
+      (Object error, StackTrace s) async {
+        logger.e('치명적 오류 발생', error: error, stackTrace: s);
+        await Sentry.captureException(error, stackTrace: s);
+      },
+    );
   }
 
   /// ScreenUtil을 초기화하는 메서드

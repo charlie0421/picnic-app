@@ -2,14 +2,12 @@
 
 import 'dart:async';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:picnic_app/app.dart';
-import 'package:picnic_app/firebase_options.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -33,7 +31,6 @@ void main() async {
   // MainInitializer를 사용하여 앱 초기화
   await MainInitializer.initializeApp(
     environment: environment, // 동적 환경값 사용
-    firebaseOptions: DefaultFirebaseOptions.currentPlatform,
     appBuilder: () => Phoenix(
       child: const App(),
     ),

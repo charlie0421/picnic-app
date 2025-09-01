@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
@@ -6,28 +5,18 @@ import 'package:picnic_lib/core/utils/main_initializer.dart';
 void main() {
   group('MainInitializer', () {
     late Widget Function() mockAppBuilder;
-    late FirebaseOptions mockFirebaseOptions;
 
     setUp(() {
       mockAppBuilder = () => const Text('Test App');
-      mockFirebaseOptions = const FirebaseOptions(
-        apiKey: 'test_api_key',
-        appId: 'test_app_id',
-        messagingSenderId: 'test_messaging_sender_id',
-        projectId: 'test_project_id',
-      );
     });
 
-    test('initializeApp 메서드의 타입 확인', () {
+    test('initializeApp 메서드의 타입 확인', () async {
       // initializeApp 메서드의 반환 타입 확인
-      expect(
-        MainInitializer.initializeApp(
-          environment: 'test',
-          firebaseOptions: mockFirebaseOptions,
-          appBuilder: mockAppBuilder,
-        ),
-        isA<Future<void>>(),
+      final future = MainInitializer.initializeApp(
+        environment: 'test',
+        appBuilder: mockAppBuilder,
       );
+      expect(future, isA<Future<void>>());
     });
 
     test('initializeLanguageAsync 메서드의 타입 확인', () {
