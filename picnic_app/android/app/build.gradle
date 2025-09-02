@@ -2,9 +2,10 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
 }
 
-// Firebase 제거: google-services 플러그인 적용 제거
+// Firebase Analytics를 위해 google-services 플러그인 적용
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')

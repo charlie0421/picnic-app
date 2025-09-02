@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,12 +10,14 @@ import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/logging_observer.dart';
+import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 
 import 'package:picnic_lib/core/utils/supabase_health_check.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:intl/intl.dart';
 
 /// main.dart 파일에서 공통으로 사용되는 초기화 로직을 담은 유틸리티 클래스
 ///
@@ -29,7 +32,7 @@ class MainInitializer {
   /// [loadGeneratedTranslations] 앱별 생성된 번역 파일 로드 함수
   static Future<void> initializeApp({
     required String environment,
-    // FirebaseOptions 제거됨
+    FirebaseOptions? firebaseOptions,
     required Widget Function() appBuilder,
   }) async {
     await runZonedGuarded(
@@ -62,10 +65,24 @@ class MainInitializer {
             await AppInitializer.initializeTapjoy();
           }
 
-          // Firebase 제거됨
+          // Firebase 초기화 (옵션이 제공된 경우에만)
+          if (firebaseOptions != null) {
+            await Firebase.initializeApp(options: firebaseOptions);
+          }
 
           // 인증 서비스 초기화
           await AppInitializer.initializeAuth();
+
+          // 사용자/세션 속성 설정 (가능한 정보만 우선 반영)
+          try {
+            final user = supabase.auth.currentUser;
+            if (user != null) {
+              await AppAnalytics.setUserAndSessionProperties(
+                userId: user.id,
+                locale: Intl.getCurrentLocale(),
+              );
+            }
+          } catch (_) {}
 
           // 타임존 초기화 (모바일 전용)
           if (UniversalPlatform.isMobile) {

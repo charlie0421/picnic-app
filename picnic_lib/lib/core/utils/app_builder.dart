@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:picnic_lib/core/utils/app_lifecycle_initializer.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/locale_service.dart';
 
 import 'package:screen_protector/screen_protector.dart';
@@ -45,7 +47,8 @@ class AppBuilder {
       // ScreenUtil 초기화 오류를 잡아 처리하는 builder 추가
       builder: (context, child) {
         // child가 null인 경우에도 안전하게 처리
-        final safeChild = child ??
+        final safeChild =
+            child ??
             _buildOverlaySupport(
               navigatorKey: navigatorKey,
               scaffoldKey: scaffoldKey,
@@ -124,6 +127,7 @@ class AppBuilder {
 
     return MaterialApp(
       navigatorKey: navigatorKey,
+      navigatorObservers: AppAnalytics.buildNavigatorObservers(),
       // 원복: 앱에서 전달한 scaffoldKey 사용
       scaffoldMessengerKey: scaffoldKey,
       title: title,
@@ -139,6 +143,16 @@ class AppBuilder {
         if (locale != null) {
           LocaleService.instance.updateLanguageCode(locale.languageCode);
           // logger.i('LocaleService 업데이트: ${locale.languageCode}');
+          // Analytics locale 동기화 (로그인 사용자에 한함)
+          try {
+            final user = supabase.auth.currentUser;
+            if (user != null) {
+              AppAnalytics.setUserAndSessionProperties(
+                userId: user.id,
+                locale: locale.languageCode,
+              );
+            }
+          } catch (_) {}
         }
         return locale;
       },
