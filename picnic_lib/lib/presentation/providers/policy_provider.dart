@@ -36,16 +36,24 @@ class AsyncPolicy extends _$AsyncPolicy {
 
   Future<PolicyModel> _fetch() async {
     try {
-      final response = await supabase.from('policy').select();
+      // 최신 생성일 순으로 정렬하여 각 타입/언어 조합의 최신 항목을 선택한다
+      final response = await supabase
+          .from('policy')
+          .select()
+          .order('created_at', ascending: false);
       return PolicyModel.fromJson({
         'terms_ko': response.firstWhere(
-            (test) => test['type'] == 'terms' && test['language'] == 'ko'),
+          (test) => test['type'] == 'terms' && test['language'] == 'ko',
+        ),
         'terms_en': response.firstWhere(
-            (test) => test['type'] == 'terms' && test['language'] == 'en'),
+          (test) => test['type'] == 'terms' && test['language'] == 'en',
+        ),
         'privacy_ko': response.firstWhere(
-            (test) => test['type'] == 'privacy' && test['language'] == 'ko'),
+          (test) => test['type'] == 'privacy' && test['language'] == 'ko',
+        ),
         'privacy_en': response.firstWhere(
-            (test) => test['type'] == 'privacy' && test['language'] == 'en'),
+          (test) => test['type'] == 'privacy' && test['language'] == 'en',
+        ),
       });
 
       // return PolicyModel.fromJson(response);

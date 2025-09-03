@@ -34,6 +34,7 @@ import 'package:picnic_lib/presentation/providers/screen_infos_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/utils/device_debug_info.dart';
 import 'package:picnic_app/bottom_navigation_menu.dart';
+import 'package:picnic_lib/core/constatns/constants.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -218,7 +219,8 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     }
 
     // 현재 언어 정보 로깅
-    final currentLocale = Locale(appSettingState.language);
+    // 'zh_CN' / 'zh_TW' 등 언어_국가 코드를 지원
+    final currentLocale = parseLocale(appSettingState.language);
     // logger.i('현재 언어: ${currentLocale.languageCode}');
 
     // 라우트 처리

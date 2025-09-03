@@ -15,45 +15,9 @@
   "@anonymous_mode": {
     "description": "Auto-generated metadata for key 'anonymous_mode'."
   },
-  "appTitle": "Picnic",
-  "@appTitle": {
-    "description": "Auto-generated metadata for key 'appTitle'."
-  },
-  "app_name": "ピクニック",
-  "@app_name": {
-    "description": "Auto-generated metadata for key 'app_name'."
-  },
-  "application_reason_hint": "Enter application reason (optional)",
-  "@application_reason_hint": {
-    "description": "Auto-generated metadata for key 'application_reason_hint'."
-  },
-  "application_reason_label": "Application Reason",
-  "@application_reason_label": {
-    "description": "Auto-generated metadata for key 'application_reason_label'."
-  },
-  "application_success": "Vote candidate application has been completed.",
-  "@application_success": {
-    "description": "Auto-generated metadata for key 'application_success'."
-  },
-  "artist_name_hint": "Enter artist name",
-  "@artist_name_hint": {
-    "description": "Auto-generated metadata for key 'artist_name_hint'."
-  },
-  "artist_name_label": "Artist Name",
-  "@artist_name_label": {
-    "description": "Auto-generated metadata for key 'artist_name_label'."
-  },
   "block_user_label": "ユーザーブロック",
   "@block_user_label": {
     "description": "Auto-generated metadata for key 'block_user_label'."
-  },
-  "bonus_candy_awarded": "星飴が支給されました。",
-  "@bonus_candy_awarded": {
-    "description": "Auto-generated metadata for key 'bonus_candy_awarded'."
-  },
-  "button_apply_as_candidate": "候補者応募",
-  "@button_apply_as_candidate": {
-    "description": "Auto-generated metadata for key 'button_apply_as_candidate'."
   },
   "button_cancel": "キャンセル",
   "@button_cancel": {
@@ -70,26 +34,6 @@
   "button_ok": "確認",
   "@button_ok": {
     "description": "Auto-generated metadata for key 'button_ok'."
-  },
-  "button_pic_pic_save": "保存する",
-  "@button_pic_pic_save": {
-    "description": "Auto-generated metadata for key 'button_pic_pic_save'."
-  },
-  "candy_disappear_next_month": "消滅予定ボーナス星空キャンディー😢(笑)",
-  "@candy_disappear_next_month": {
-    "description": "Auto-generated metadata for key 'candy_disappear_next_month'."
-  },
-  "candy_usage_policy_contents": "今月獲得したボーナススターキャンディーは、翌月15日に消滅します。",
-  "@candy_usage_policy_contents": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_contents'."
-  },
-  "candy_usage_policy_contents2": "星飴を使用する場合、消滅が近い星飴が優先的に使用されます。",
-  "@candy_usage_policy_contents2": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_contents2'."
-  },
-  "candy_usage_policy_title": "スターキャンディー使用ポリシー",
-  "@candy_usage_policy_title": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_title'."
   },
   "comments": "コメント",
   "@comments": {
@@ -159,17 +103,9 @@
   "@compatibility_birthtime": {
     "description": "Auto-generated metadata for key 'compatibility_birthtime'."
   },
-  "compatibility_birthtime_subtitle": "精度が上がります！",
-  "@compatibility_birthtime_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
-  },
   "compatibility_couple_style": "カップルスタイル",
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
-  },
-  "compatibility_duplicate_data_message": "同じ条件の相性データが既に存在します。",
-  "@compatibility_duplicate_data_message": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
   "compatibility_duplicate_data_title": "既に存在する相性データ",
   "@compatibility_duplicate_data_title": {
@@ -195,37 +131,13 @@
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_new_compatibility_ask": "新しい相性を見ませんか？",
-  "@compatibility_new_compatibility_ask": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
-  },
   "compatibility_page_title": "相性",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
-  "compatibility_perfect_score_exists": "当該条件の相性データは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。",
-  "@compatibility_perfect_score_exists": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
-  },
-  "compatibility_perfect_score_exists_title": "すでに当選した相性データ",
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
-  },
   "compatibility_purchase_confirm_message": "スターキャンディ100個を使用してGoong-Hap結果を確認します。",
   "@compatibility_purchase_confirm_message": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
-  },
-  "compatibility_purchase_confirm_title": "スターキャンディで購入",
-  "@compatibility_purchase_confirm_title": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
-  },
-  "compatibility_purchase_message": "私と「{artistName}」の相性スコアが気になる方は？",
-  "@compatibility_purchase_message": {
-    "placeholders": {
-      "artistName": {
-        "type": "String"
-      }
-    }
   },
   "compatibility_remain_star_candy": "残りの星飴",
   "@compatibility_remain_star_candy": {
@@ -251,49 +163,17 @@
   "@compatibility_snackbar_error": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
   },
-  "compatibility_snackbar_need_birthday": "生年月日を入力してください。",
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
-  },
-  "compatibility_snackbar_need_birthtime": "出生時刻を入力してください。",
-  "@compatibility_snackbar_need_birthtime": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthtime'."
-  },
   "compatibility_snackbar_need_gender": "性別を選択してください。",
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
-  },
-  "compatibility_snackbar_need_profile_save_agree": "プロフィール保存に同意してください。",
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
   },
   "compatibility_snackbar_start": "相性を分析し始めます。",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_status_completed": "完了",
-  "@compatibility_status_completed": {
-    "description": "Auto-generated metadata for key 'compatibility_status_completed'."
-  },
-  "compatibility_status_error": "エラー",
-  "@compatibility_status_error": {
-    "description": "Auto-generated metadata for key 'compatibility_status_error'."
-  },
-  "compatibility_status_input": "入力中",
-  "@compatibility_status_input": {
-    "description": "Auto-generated metadata for key 'compatibility_status_input'."
-  },
-  "compatibility_status_pending": "分析中",
-  "@compatibility_status_pending": {
-    "description": "Auto-generated metadata for key 'compatibility_status_pending'."
-  },
   "compatibility_style_title": "相性スタイル",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
-  },
-  "compatibility_summary_title": "相性の概要",
-  "@compatibility_summary_title": {
-    "description": "Auto-generated metadata for key 'compatibility_summary_title'."
   },
   "compatibility_time_slot1": "子の刻(ね)|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
@@ -343,10 +223,6 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_time_slot_unknown": "不明",
-  "@compatibility_time_slot_unknown": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
-  },
   "compatibility_tips_title": "相性のヒント",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
@@ -379,29 +255,13 @@
   "@dialog_content_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_content_ads_exhausted'."
   },
-  "dialog_content_ads_loading": "広告の読み込み中です。",
-  "@dialog_content_ads_loading": {
-    "description": "Auto-generated metadata for key 'dialog_content_ads_loading'."
-  },
-  "dialog_content_ads_retrying": "広告を再呼び出し中です。しばらくしてからもう一度お試しください。",
-  "@dialog_content_ads_retrying": {
-    "description": "Auto-generated metadata for key 'dialog_content_ads_retrying'."
-  },
   "dialog_content_login_required": "ログインが必要です",
   "@dialog_content_login_required": {
     "description": "Auto-generated metadata for key 'dialog_content_login_required'."
   },
-  "dialog_login_required_description": "この機能を使用するにはログインが必要です。ログインしますか？",
-  "@dialog_login_required_description": {
-    "description": "Auto-generated metadata for key 'dialog_login_required_description'."
-  },
   "dialog_message_can_resignup": "今すぐ退会した場合、再入会可能日",
   "@dialog_message_can_resignup": {
     "description": "Auto-generated metadata for key 'dialog_message_can_resignup'."
-  },
-  "dialog_message_purchase_canceled": "購入がキャンセルされました。",
-  "@dialog_message_purchase_canceled": {
-    "description": "Auto-generated metadata for key 'dialog_message_purchase_canceled'."
   },
   "dialog_message_purchase_failed": "購入中にエラーが発生しました。 後ほど再試行してください。",
   "@dialog_message_purchase_failed": {
@@ -410,14 +270,6 @@
   "dialog_message_purchase_success": "購入が正常に完了しました。",
   "@dialog_message_purchase_success": {
     "description": "Auto-generated metadata for key 'dialog_message_purchase_success'."
-  },
-  "dialog_purchases_fail": "購入に失敗しました。",
-  "@dialog_purchases_fail": {
-    "description": "Auto-generated metadata for key 'dialog_purchases_fail'."
-  },
-  "dialog_purchases_success": "購入が完了しました。",
-  "@dialog_purchases_success": {
-    "description": "Auto-generated metadata for key 'dialog_purchases_success'."
   },
   "dialog_title_ads_exhausted": "広告完売しました",
   "@dialog_title_ads_exhausted": {
@@ -431,133 +283,25 @@
   "@dialog_will_delete_star_candy": {
     "description": "Auto-generated metadata for key 'dialog_will_delete_star_candy'."
   },
-  "dialog_withdraw_button_cancel": "もう一度考えてみます",
-  "@dialog_withdraw_button_cancel": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_button_cancel'."
-  },
-  "dialog_withdraw_button_ok": "退会する",
-  "@dialog_withdraw_button_ok": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
-  },
-  "dialog_withdraw_error": "退会中にエラーが発生しました。",
-  "@dialog_withdraw_error": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_error'."
-  },
   "dialog_withdraw_message": "退会時、ピクニックで保有している星キャンディーとアカウント情報は即座に削除され、再入会時、既存の情報及びデータは復旧されません。",
   "@dialog_withdraw_message": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_message'."
-  },
-  "dialog_withdraw_success": "退会が正常に処理されました。",
-  "@dialog_withdraw_success": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_success'."
   },
   "dialog_withdraw_title": "本当に退会しますか？",
   "@dialog_withdraw_title": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_title'."
   },
-  "download_android_button": "Google Playでダウンロード",
-  "@download_android_button": {
-    "description": "Auto-generated metadata for key 'download_android_button'."
-  },
-  "download_apk_button": "ダイレクトAPKダウンロード",
-  "@download_apk_button": {
-    "description": "Auto-generated metadata for key 'download_apk_button'."
-  },
-  "download_coming_soon": "近日公開",
-  "@download_coming_soon": {
-    "description": "Auto-generated metadata for key 'download_coming_soon'."
-  },
-  "download_description": "K-Popアーティスト向けの投票とメディアプラットフォーム",
-  "@download_description": {
-    "description": "Auto-generated metadata for key 'download_description'."
-  },
-  "download_feature_media": "メディアギャラリー",
-  "@download_feature_media": {
-    "description": "Auto-generated metadata for key 'download_feature_media'."
-  },
-  "download_feature_rewards": "特典システム",
-  "@download_feature_rewards": {
-    "description": "Auto-generated metadata for key 'download_feature_rewards'."
-  },
-  "download_feature_voting": "アーティスト投票",
-  "@download_feature_voting": {
-    "description": "Auto-generated metadata for key 'download_feature_voting'."
-  },
-  "download_features_title": "ピクニックの主要な機能",
-  "@download_features_title": {
-    "description": "Auto-generated metadata for key 'download_features_title'."
-  },
-  "download_ios_button": "App Storeでダウンロード",
-  "@download_ios_button": {
-    "description": "Auto-generated metadata for key 'download_ios_button'."
-  },
-  "download_link_copied": "コピー完了！",
-  "@download_link_copied": {
-    "description": "Auto-generated metadata for key 'download_link_copied'."
-  },
-  "download_link_copy": "リンクをコピー",
-  "@download_link_copy": {
-    "description": "Auto-generated metadata for key 'download_link_copy'."
-  },
-  "download_page_title": "ピクニック アプリをダウンロード",
-  "@download_page_title": {
-    "description": "Auto-generated metadata for key 'download_page_title'."
-  },
-  "download_qr_description": "スマートフォンでQRコードをスキャンしてください。",
-  "@download_qr_description": {
-    "description": "Auto-generated metadata for key 'download_qr_description'."
-  },
-  "download_qr_title": "QRコードでクイックダウンロード",
-  "@download_qr_title": {
-    "description": "Auto-generated metadata for key 'download_qr_title'."
-  },
-  "download_subtitle": "今すぐPicnicアプリをダウンロードして、お気に入りのK-Popアーティストを応援しよう！",
-  "@download_subtitle": {
-    "description": "Auto-generated metadata for key 'download_subtitle'."
-  },
   "error_action_failed": "作業中にエラーが発生しました。",
   "@error_action_failed": {
     "description": "Auto-generated metadata for key 'error_action_failed'."
-  },
-  "error_application_reason_required": "Application reason is required",
-  "@error_application_reason_required": {
-    "description": "Auto-generated metadata for key 'error_application_reason_required'."
-  },
-  "error_artist_not_selected": "Please select an artist",
-  "@error_artist_not_selected": {
-    "description": "Auto-generated metadata for key 'error_artist_not_selected'."
   },
   "error_content_parse": "コンテンツ解析中にエラーが発生しました。",
   "@error_content_parse": {
     "description": "Auto-generated metadata for key 'error_content_parse'."
   },
-  "error_delete_post": "投稿の削除中にエラーが発生しました。",
-  "@error_delete_post": {
-    "description": "Auto-generated metadata for key 'error_delete_post'."
-  },
   "error_invalid_data": "無効なデータです。",
   "@error_invalid_data": {
     "description": "Auto-generated metadata for key 'error_invalid_data'."
-  },
-  "error_loading_more_comments": "コメントの読み込み中にエラーが発生しました。",
-  "@error_loading_more_comments": {
-    "description": "Auto-generated metadata for key 'error_loading_more_comments'."
-  },
-  "error_loading_page": "ページの読み込み中にエラーが発生しました。",
-  "@error_loading_page": {
-    "description": "Auto-generated metadata for key 'error_loading_page'."
-  },
-  "error_message_login_failed": "ログイン中にエラーが発生しました。",
-  "@error_message_login_failed": {
-    "description": "Auto-generated metadata for key 'error_message_login_failed'."
-  },
-  "error_message_no_user": "会員情報が存在しません。",
-  "@error_message_no_user": {
-    "description": "Auto-generated metadata for key 'error_message_no_user'."
-  },
-  "error_message_withdrawal": "退会した会員です。",
-  "@error_message_withdrawal": {
-    "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
   "error_network_connection": "ネットワーク接続を確認してください。",
   "@error_network_connection": {
@@ -575,65 +319,9 @@
   "@error_unknown": {
     "description": "Auto-generated metadata for key 'error_unknown'."
   },
-  "exception_auth_message_apple_invalid_response": "Appleのサーバーから無効な応答を受け取りました。\nもう一度お試しください。",
-  "@exception_auth_message_apple_invalid_response": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_apple_invalid_response'."
-  },
-  "exception_auth_message_apple_sign_in_failed": "Appleログインに失敗しました。\nもう一度お試しください。",
-  "@exception_auth_message_apple_sign_in_failed": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_apple_sign_in_failed'."
-  },
-  "exception_auth_message_common_cancel": "ログインがキャンセルされました。",
-  "@exception_auth_message_common_cancel": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_cancel'."
-  },
-  "exception_auth_message_common_invalid_token": "認証トークンが無効です。\n再試行してください。",
-  "@exception_auth_message_common_invalid_token": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_invalid_token'."
-  },
-  "exception_auth_message_common_network": "ネットワーク接続を確認してください。",
-  "@exception_auth_message_common_network": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_network'."
-  },
-  "exception_auth_message_common_unknown": "ログイン中に不明なエラーが発生しました。\nしばらくしてから再試行してください。",
-  "@exception_auth_message_common_unknown": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_unknown'."
-  },
-  "exception_auth_message_common_unsupported_provider": "サポートされていないログイン方法です",
-  "@exception_auth_message_common_unsupported_provider": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_unsupported_provider'."
-  },
-  "exception_auth_message_google_google_play_service": "Google Play Servicesエラーが発生しました。\nGoogle Play Servicesを更新するか、デバイスを再起動してください。",
-  "@exception_auth_message_google_google_play_service": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_google_google_play_service'."
-  },
-  "exception_auth_message_kakao_not_supported": "カカオトークのアプリでログインできません。\nカカオアカウントでログインを試みます。",
-  "@exception_auth_message_kakao_not_supported": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_kakao_not_supported'."
-  },
-  "faq_category_account": "アカウント",
-  "@faq_category_account": {
-    "description": "Auto-generated metadata for key 'faq_category_account'."
-  },
   "faq_category_all": "すべて",
   "@faq_category_all": {
     "description": "Auto-generated metadata for key 'faq_category_all'."
-  },
-  "faq_category_etc": "その他",
-  "@faq_category_etc": {
-    "description": "Auto-generated metadata for key 'faq_category_etc'."
-  },
-  "faq_category_general": "一般",
-  "@faq_category_general": {
-    "description": "Auto-generated metadata for key 'faq_category_general'."
-  },
-  "faq_category_payment": "支払い",
-  "@faq_category_payment": {
-    "description": "Auto-generated metadata for key 'faq_category_payment'."
-  },
-  "faq_category_service": "サービス",
-  "@faq_category_service": {
-    "description": "Auto-generated metadata for key 'faq_category_service'."
   },
   "fortune_advice": "アドバイス",
   "@fortune_advice": {
@@ -670,10 +358,6 @@
   "fortune_lucky_days": "ラッキー曜日",
   "@fortune_lucky_days": {
     "description": "Auto-generated metadata for key 'fortune_lucky_days'."
-  },
-  "fortune_lucky_direction": "幸運の方位",
-  "@fortune_lucky_direction": {
-    "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
   },
   "fortune_lucky_keyword": "幸運のキーワード",
   "@fortune_lucky_keyword": {
@@ -739,37 +423,9 @@
   "@fortune_monthly": {
     "description": "Auto-generated metadata for key 'fortune_monthly'."
   },
-  "fortune_purchase_by_one_click": "すぐに支払い",
-  "@fortune_purchase_by_one_click": {
-    "description": "Auto-generated metadata for key 'fortune_purchase_by_one_click'."
-  },
-  "fortune_purchase_by_star_candy": "スターキャンディで確認",
-  "@fortune_purchase_by_star_candy": {
-    "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
-  },
   "fortune_relationship": "対人関係",
   "@fortune_relationship": {
     "description": "Auto-generated metadata for key 'fortune_relationship'."
-  },
-  "fortune_share_hashtag": "#picnic #신년운세 #フォーチュネテラー",
-  "@fortune_share_hashtag": {
-    "description": "Auto-generated metadata for key 'fortune_share_hashtag'."
-  },
-  "fortune_share_message": "想知道{artistName}在2025年的运势吗？快来#피크닠吧！一起揭晓闪耀的运势吧！\n#picnic #新年运势 #Fourtuneteller\n",
-  "@fortune_share_message": {
-    "placeholders": {
-      "artistName": {
-        "type": "String"
-      }
-    }
-  },
-  "fortune_title": "{year}年の運勢",
-  "@fortune_title": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
   },
   "fortune_total_title": "総合占い",
   "@fortune_total_title": {
@@ -778,14 +434,6 @@
   "fortune_with_me": "アーティストと私の相性",
   "@fortune_with_me": {
     "description": "Auto-generated metadata for key 'fortune_with_me'."
-  },
-  "group_name_hint": "Enter group name (optional)",
-  "@group_name_hint": {
-    "description": "Auto-generated metadata for key 'group_name_hint'."
-  },
-  "group_name_label": "Group Name",
-  "@group_name_label": {
-    "description": "Auto-generated metadata for key 'group_name_label'."
   },
   "hint_library_add": "アルバム名",
   "@hint_library_add": {
@@ -822,18 +470,6 @@
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
   },
-  "label_ads_load_timeout": "広告の読み込みがタイムアウトしました。もう一度お試しください。",
-  "@label_ads_load_timeout": {
-    "description": "Auto-generated metadata for key 'label_ads_load_timeout'."
-  },
-  "label_ads_next_available_time": "次の広告視聴可能時間。",
-  "@label_ads_next_available_time": {
-    "description": "Auto-generated metadata for key 'label_ads_next_available_time'."
-  },
-  "label_ads_reward_fail": "報酬の獲得に失敗しました。もう一度お試しください。",
-  "@label_ads_reward_fail": {
-    "description": "Auto-generated metadata for key 'label_ads_reward_fail'."
-  },
   "label_ads_sdk_init_fail": "SDK初期化に失敗しました。もう一度お試しください。",
   "@label_ads_sdk_init_fail": {
     "description": "Auto-generated metadata for key 'label_ads_sdk_init_fail'."
@@ -853,18 +489,6 @@
   "label_album_add": "新しいアルバムを追加",
   "@label_album_add": {
     "description": "Auto-generated metadata for key 'label_album_add'."
-  },
-  "label_area_filter_all": "All",
-  "@label_area_filter_all": {
-    "description": "Auto-generated metadata for key 'label_area_filter_all'."
-  },
-  "label_area_filter_kpop": "K-POP",
-  "@label_area_filter_kpop": {
-    "description": "Auto-generated metadata for key 'label_area_filter_kpop'."
-  },
-  "label_area_filter_musical": "K-MUSICAL",
-  "@label_area_filter_musical": {
-    "description": "Auto-generated metadata for key 'label_area_filter_musical'."
   },
   "label_article_comment_empty": "最初のコメントの主人公になりましょう！",
   "@label_article_comment_empty": {
@@ -886,25 +510,9 @@
   "@label_button_close": {
     "description": "Auto-generated metadata for key 'label_button_close'."
   },
-  "label_button_disagreement": "非同意",
-  "@label_button_disagreement": {
-    "description": "Auto-generated metadata for key 'label_button_disagreement'."
-  },
-  "label_button_mission_and_charge": "ミッションして充電する",
-  "@label_button_mission_and_charge": {
-    "description": "Auto-generated metadata for key 'label_button_mission_and_charge'."
-  },
   "label_button_recharge": "充電する",
   "@label_button_recharge": {
     "description": "Auto-generated metadata for key 'label_button_recharge'."
-  },
-  "label_button_save_vote_paper": "投票券の保存",
-  "@label_button_save_vote_paper": {
-    "description": "Auto-generated metadata for key 'label_button_save_vote_paper'."
-  },
-  "label_button_share": "シェアする",
-  "@label_button_share": {
-    "description": "Auto-generated metadata for key 'label_button_share'."
   },
   "label_button_view_policy": "ポリシーを見る",
   "@label_button_view_policy": {
@@ -913,22 +521,6 @@
   "label_button_vote": "投票する",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
-  },
-  "label_button_vote_ended": "投票終了",
-  "@label_button_vote_ended": {
-    "description": "Auto-generated metadata for key 'label_button_vote_ended'."
-  },
-  "label_button_vote_upcoming": "投票予定",
-  "@label_button_vote_upcoming": {
-    "description": "Auto-generated metadata for key 'label_button_vote_upcoming'."
-  },
-  "label_button_watch_and_charge": "広告を見てチャージする",
-  "@label_button_watch_and_charge": {
-    "description": "Auto-generated metadata for key 'label_button_watch_and_charge'."
-  },
-  "label_celeb_ask_to_you": "アーティストがあなたに尋ねる！",
-  "@label_celeb_ask_to_you": {
-    "description": "Auto-generated metadata for key 'label_celeb_ask_to_you'."
   },
   "label_celeb_gallery": "アーティストギャラリー",
   "@label_celeb_gallery": {
@@ -942,10 +534,6 @@
   "@label_checkbox_entire_use": {
     "description": "Auto-generated metadata for key 'label_checkbox_entire_use'."
   },
-  "label_current_language": "現在の言語",
-  "@label_current_language": {
-    "description": "Auto-generated metadata for key 'label_current_language'."
-  },
   "label_draw_image": "ランダム画像獲得チャンス",
   "@label_draw_image": {
     "description": "Auto-generated metadata for key 'label_draw_image'."
@@ -957,18 +545,6 @@
   "label_dropdown_recent": "最新順",
   "@label_dropdown_recent": {
     "description": "Auto-generated metadata for key 'label_dropdown_recent'."
-  },
-  "label_find_celeb": "その他のアーティストを探す",
-  "@label_find_celeb": {
-    "description": "Auto-generated metadata for key 'label_find_celeb'."
-  },
-  "label_gallery_tab_article": "記事",
-  "@label_gallery_tab_article": {
-    "description": "Auto-generated metadata for key 'label_gallery_tab_article'."
-  },
-  "label_gallery_tab_chat": "チャット",
-  "@label_gallery_tab_chat": {
-    "description": "Auto-generated metadata for key 'label_gallery_tab_chat'."
   },
   "label_global_recommendation": "グローバルおすすめ",
   "@label_global_recommendation": {
@@ -1006,37 +582,9 @@
   "@label_library_tab_pic": {
     "description": "Auto-generated metadata for key 'label_library_tab_pic'."
   },
-  "label_list_more": "もっと見る",
-  "@label_list_more": {
-    "description": "Auto-generated metadata for key 'label_list_more'."
-  },
   "label_loading_ads": "広告読み込み中",
   "@label_loading_ads": {
     "description": "Auto-generated metadata for key 'label_loading_ads'."
-  },
-  "label_loading_ads_fail": "広告の読み込みに失敗",
-  "@label_loading_ads_fail": {
-    "description": "Auto-generated metadata for key 'label_loading_ads_fail'."
-  },
-  "label_login_with_apple": "Appleでログイン",
-  "@label_login_with_apple": {
-    "description": "Auto-generated metadata for key 'label_login_with_apple'."
-  },
-  "label_login_with_google": "Googleでログイン",
-  "@label_login_with_google": {
-    "description": "Auto-generated metadata for key 'label_login_with_google'."
-  },
-  "label_login_with_kakao": "Kakaoでログイン",
-  "@label_login_with_kakao": {
-    "description": "Auto-generated metadata for key 'label_login_with_kakao'."
-  },
-  "label_login_with_wechat": "WeChatでログイン",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
-  "label_mission": "ミッションをする",
-  "@label_mission": {
-    "description": "Auto-generated metadata for key 'label_mission'."
   },
   "label_mission_get_star_candy": "ミッションで星飴をもらう",
   "@label_mission_get_star_candy": {
@@ -1050,14 +598,6 @@
   "@label_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'label_moveto_celeb_gallery'."
   },
-  "label_mypage_charge_history": "料金内訳 (Admin)",
-  "@label_mypage_charge_history": {
-    "description": "Charge history menu for admin users"
-  },
-  "label_mypage_customer_center": "お客様センター",
-  "@label_mypage_customer_center": {
-    "description": "Auto-generated metadata for key 'label_mypage_customer_center'."
-  },
   "label_mypage_faq": "FAQ（よくある質問）",
   "@label_mypage_faq": {
     "description": "Auto-generated metadata for key 'label_mypage_faq'."
@@ -1065,10 +605,6 @@
   "label_mypage_logout": "ログアウト",
   "@label_mypage_logout": {
     "description": "Auto-generated metadata for key 'label_mypage_logout'."
-  },
-  "label_mypage_membership_history": "メンバーシップ履歴",
-  "@label_mypage_membership_history": {
-    "description": "Auto-generated metadata for key 'label_mypage_membership_history'."
   },
   "label_mypage_my_artist": "私のアーティスト",
   "@label_mypage_my_artist": {
@@ -1110,10 +646,6 @@
   "@label_mypage_withdrawal": {
     "description": "Auto-generated metadata for key 'label_mypage_withdrawal'."
   },
-  "label_no_ads": "広告なし",
-  "@label_no_ads": {
-    "description": "Auto-generated metadata for key 'label_no_ads'."
-  },
   "label_no_celeb": "まだブックマークしたアーティストはいません！",
   "@label_no_celeb": {
     "description": "Auto-generated metadata for key 'label_no_celeb'."
@@ -1122,29 +654,9 @@
   "@label_pic_chart": {
     "description": "Auto-generated metadata for key 'label_pic_chart'."
   },
-  "label_pic_image_cropping": "画像の切り抜き",
-  "@label_pic_image_cropping": {
-    "description": "Auto-generated metadata for key 'label_pic_image_cropping'."
-  },
-  "label_pic_pic_initializing_camera": "カメラの初期化中...",
-  "@label_pic_pic_initializing_camera": {
-    "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
-  },
   "label_pic_pic_save_gallery": "ギャラリーに保存",
   "@label_pic_pic_save_gallery": {
     "description": "Auto-generated metadata for key 'label_pic_pic_save_gallery'."
-  },
-  "label_pic_pic_synthesizing_image": "画像合成中...",
-  "@label_pic_pic_synthesizing_image": {
-    "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
-  },
-  "label_popup_close": "閉じる",
-  "@label_popup_close": {
-    "description": "Auto-generated metadata for key 'label_popup_close'."
-  },
-  "label_popup_hide_7days": "7日間表示しない",
-  "@label_popup_hide_7days": {
-    "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
   },
   "label_read_more_comment": "コメントをもっと見る",
   "@label_read_more_comment": {
@@ -1157,22 +669,6 @@
   "label_retry": "再試行する",
   "@label_retry": {
     "description": "Auto-generated metadata for key 'label_retry'."
-  },
-  "label_reward_location": "ロケーション",
-  "@label_reward_location": {
-    "description": "Auto-generated metadata for key 'label_reward_location'."
-  },
-  "label_reward_overview": "概要",
-  "@label_reward_overview": {
-    "description": "Auto-generated metadata for key 'label_reward_overview'."
-  },
-  "label_reward_size": "サイズ",
-  "@label_reward_size": {
-    "description": "Auto-generated metadata for key 'label_reward_size'."
-  },
-  "label_screen_title_agreement": "規約に同意する",
-  "@label_screen_title_agreement": {
-    "description": "Auto-generated metadata for key 'label_screen_title_agreement'."
   },
   "label_setting_alarm": "お知らせ",
   "@label_setting_alarm": {
@@ -1214,69 +710,21 @@
   "@label_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'label_setting_remove_cache'."
   },
-  "label_setting_remove_cache_complete": "完了",
-  "@label_setting_remove_cache_complete": {
-    "description": "Auto-generated metadata for key 'label_setting_remove_cache_complete'."
-  },
   "label_setting_storage": "ストレージスペース管理",
   "@label_setting_storage": {
     "description": "Auto-generated metadata for key 'label_setting_storage'."
-  },
-  "label_setting_update": "最新情報",
-  "@label_setting_update": {
-    "description": "Auto-generated metadata for key 'label_setting_update'."
   },
   "label_star_candy_pouch": "スターキャンディーの袋",
   "@label_star_candy_pouch": {
     "description": "Auto-generated metadata for key 'label_star_candy_pouch'."
   },
-  "label_tab_buy_star_candy": "スターキャンディーの購入",
-  "@label_tab_buy_star_candy": {
-    "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
-  },
-  "label_tab_free_charge_station": "無料充電ステーション",
-  "@label_tab_free_charge_station": {
-    "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
-  },
-  "label_tab_my_artist": "マイアーティスト",
-  "@label_tab_my_artist": {
-    "description": "Auto-generated metadata for key 'label_tab_my_artist'."
-  },
-  "label_tab_search_my_artist": "マイアーティストを探す",
-  "@label_tab_search_my_artist": {
-    "description": "Auto-generated metadata for key 'label_tab_search_my_artist'."
-  },
-  "label_tabbar_picchart_daily": "日足チャート",
-  "@label_tabbar_picchart_daily": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_daily'."
-  },
-  "label_tabbar_picchart_monthly": "月間チャート",
-  "@label_tabbar_picchart_monthly": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_monthly'."
-  },
-  "label_tabbar_picchart_weekly": "週間チャート",
-  "@label_tabbar_picchart_weekly": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_weekly'."
-  },
   "label_tabbar_vote_active": "進行中",
   "@label_tabbar_vote_active": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_active'."
   },
-  "label_tabbar_vote_all": "全体",
-  "@label_tabbar_vote_all": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_all'."
-  },
   "label_tabbar_vote_end": "終了",
   "@label_tabbar_vote_end": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_end'."
-  },
-  "label_tabbar_vote_image": "Image Vote",
-  "@label_tabbar_vote_image": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_image'."
-  },
-  "label_tabbar_vote_upcoming": "予定",
-  "@label_tabbar_vote_upcoming": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
   },
   "label_time_ago_day": "{day}日前",
   "@label_time_ago_day": {
@@ -1294,21 +742,9 @@
       }
     }
   },
-  "label_time_ago_minute": "{minute}分前",
-  "@label_time_ago_minute": {
-    "placeholders": {
-      "minute": {
-        "type": "int"
-      }
-    }
-  },
   "label_time_ago_right_now": "先ほど",
   "@label_time_ago_right_now": {
     "description": "Auto-generated metadata for key 'label_time_ago_right_now'."
-  },
-  "label_title_comment": "コメント",
-  "@label_title_comment": {
-    "description": "Auto-generated metadata for key 'label_title_comment'."
   },
   "label_title_report": "報告する",
   "@label_title_report": {
@@ -1318,33 +754,9 @@
   "@label_unlimited_rewards": {
     "description": "Auto-generated metadata for key 'label_unlimited_rewards'."
   },
-  "label_various_rewards": "様々な報酬",
-  "@label_various_rewards": {
-    "description": "Auto-generated metadata for key 'label_various_rewards'."
-  },
-  "label_vote_achieve": "達成投票",
-  "@label_vote_achieve": {
-    "description": "Auto-generated metadata for key 'label_vote_achieve'."
-  },
-  "label_vote_birthday": "誕生日",
-  "@label_vote_birthday": {
-    "description": "Auto-generated metadata for key 'label_vote_birthday'."
-  },
-  "label_vote_comback": "カムバック投票",
-  "@label_vote_comback": {
-    "description": "Auto-generated metadata for key 'label_vote_comback'."
-  },
-  "label_vote_debut": "デビュー",
-  "@label_vote_debut": {
-    "description": "Auto-generated metadata for key 'label_vote_debut'."
-  },
   "label_vote_end": "投票終了",
   "@label_vote_end": {
     "description": "Auto-generated metadata for key 'label_vote_end'."
-  },
-  "label_vote_image": "イメージ",
-  "@label_vote_image": {
-    "description": "Auto-generated metadata for key 'label_vote_image'."
   },
   "label_vote_reward_list": "リワードリスト",
   "@label_vote_reward_list": {
@@ -1354,29 +766,9 @@
   "@label_vote_screen_title": {
     "description": "Auto-generated metadata for key 'label_vote_screen_title'."
   },
-  "label_vote_shining": "輝く投票",
-  "@label_vote_shining": {
-    "description": "Auto-generated metadata for key 'label_vote_shining'."
-  },
-  "label_vote_tab_birthday": "誕生日投票",
-  "@label_vote_tab_birthday": {
-    "description": "Auto-generated metadata for key 'label_vote_tab_birthday'."
-  },
-  "label_vote_tab_pic": "PIC投票",
-  "@label_vote_tab_pic": {
-    "description": "Auto-generated metadata for key 'label_vote_tab_pic'."
-  },
   "label_vote_upcoming": "投票開始まで",
   "@label_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_vote_upcoming'."
-  },
-  "label_vote_vote_gather": "投票集を見る",
-  "@label_vote_vote_gather": {
-    "description": "Auto-generated metadata for key 'label_vote_vote_gather'."
-  },
-  "label_watch_ads": "広告を見る",
-  "@label_watch_ads": {
-    "description": "Auto-generated metadata for key 'label_watch_ads'."
   },
   "label_watch_ads_short": "広告",
   "@label_watch_ads_short": {
@@ -1385,22 +777,6 @@
   "lable_my_celeb": "私のアーティスト",
   "@lable_my_celeb": {
     "description": "Auto-generated metadata for key 'lable_my_celeb'."
-  },
-  "login_simple_login": "簡易ログイン",
-  "@login_simple_login": {
-    "description": "Auto-generated metadata for key 'login_simple_login'."
-  },
-  "login_simple_login_guide": "アカウントをお持ちでない場合、上記のソーシャルログインで自動的に登録されます",
-  "@login_simple_login_guide": {
-    "description": "Auto-generated metadata for key 'login_simple_login_guide'."
-  },
-  "login_title": "ピクニックで特別な瞬間を見つけよう",
-  "@login_title": {
-    "description": "Auto-generated metadata for key 'login_title'."
-  },
-  "message_agreement_success": "規約の同意が完了しました。",
-  "@message_agreement_success": {
-    "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
   "message_error_occurred": "エラーが発生しました。",
   "@message_error_occurred": {
@@ -1426,26 +802,6 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
-  "message_report_confirm": "申告しますか？",
-  "@message_report_confirm": {
-    "description": "Auto-generated metadata for key 'message_report_confirm'."
-  },
-  "message_report_ok": "申告が完了しました。",
-  "@message_report_ok": {
-    "description": "Auto-generated metadata for key 'message_report_ok'."
-  },
-  "message_setting_remove_cache": "キャッシュメモリの削除が完了しました",
-  "@message_setting_remove_cache": {
-    "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
-  },
-  "message_update_nickname_fail": "ニックネームの変更に失敗しました。\n別のニックネームを選択してください。",
-  "@message_update_nickname_fail": {
-    "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
-  },
-  "message_update_nickname_success": "ニックネームが正常に変更されました。",
-  "@message_update_nickname_success": {
-    "description": "Auto-generated metadata for key 'message_update_nickname_success'."
-  },
   "message_vote_is_ended": "投票は終了しました",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1458,141 +814,29 @@
   "@my_info": {
     "description": "Auto-generated metadata for key 'my_info'."
   },
-  "mypage_comment": "コメント管理",
-  "@mypage_comment": {
-    "description": "Auto-generated metadata for key 'mypage_comment'."
-  },
-  "mypage_language": "言語設定",
-  "@mypage_language": {
-    "description": "Auto-generated metadata for key 'mypage_language'."
-  },
-  "mypage_purchases": "私の購入",
-  "@mypage_purchases": {
-    "description": "Auto-generated metadata for key 'mypage_purchases'."
-  },
   "mypage_setting": "設定",
   "@mypage_setting": {
     "description": "Auto-generated metadata for key 'mypage_setting'."
-  },
-  "mypage_subscription": "購読情報",
-  "@mypage_subscription": {
-    "description": "Auto-generated metadata for key 'mypage_subscription'."
-  },
-  "nav_ads": "広告",
-  "@nav_ads": {
-    "description": "Auto-generated metadata for key 'nav_ads'."
-  },
-  "nav_board": "掲示板",
-  "@nav_board": {
-    "description": "Auto-generated metadata for key 'nav_board'."
-  },
-  "nav_gallery": "ギャラリー",
-  "@nav_gallery": {
-    "description": "Auto-generated metadata for key 'nav_gallery'."
-  },
-  "nav_home": "ホーム",
-  "@nav_home": {
-    "description": "Auto-generated metadata for key 'nav_home'."
-  },
-  "nav_library": "ライブラリ",
-  "@nav_library": {
-    "description": "Auto-generated metadata for key 'nav_library'."
   },
   "nav_media": "メディア",
   "@nav_media": {
     "description": "Auto-generated metadata for key 'nav_media'."
   },
-  "nav_my": "マイ",
-  "@nav_my": {
-    "description": "Auto-generated metadata for key 'nav_my'."
-  },
-  "nav_picchart": "PICチャート",
-  "@nav_picchart": {
-    "description": "Auto-generated metadata for key 'nav_picchart'."
-  },
-  "nav_purchases": "購入",
-  "@nav_purchases": {
-    "description": "Auto-generated metadata for key 'nav_purchases'."
-  },
-  "nav_rewards": "リワード",
-  "@nav_rewards": {
-    "description": "Auto-generated metadata for key 'nav_rewards'."
-  },
-  "nav_setting": "設定",
-  "@nav_setting": {
-    "description": "Auto-generated metadata for key 'nav_setting'."
-  },
-  "nav_store": "ショップ",
-  "@nav_store": {
-    "description": "Auto-generated metadata for key 'nav_store'."
-  },
-  "nav_subscription": "サブスクリプション",
-  "@nav_subscription": {
-    "description": "Auto-generated metadata for key 'nav_subscription'."
-  },
-  "nav_vote": "投票",
-  "@nav_vote": {
-    "description": "Auto-generated metadata for key 'nav_vote'."
-  },
   "nickname_validation_error": "20文字以内、特殊文字を除くことができます。",
   "@nickname_validation_error": {
     "description": "Auto-generated metadata for key 'nickname_validation_error'."
-  },
-  "no_search_results": "No search results found",
-  "@no_search_results": {
-    "description": "Auto-generated metadata for key 'no_search_results'."
-  },
-  "optional": "オプション",
-  "@optional": {
-    "description": "Auto-generated metadata for key 'optional'."
   },
   "page_title_mypage": "マイページ",
   "@page_title_mypage": {
     "description": "Auto-generated metadata for key 'page_title_mypage'."
   },
-  "page_title_myprofile": "私のプロフィール",
-  "@page_title_myprofile": {
-    "description": "Auto-generated metadata for key 'page_title_myprofile'."
-  },
   "page_title_post_write": "投稿の作成",
   "@page_title_post_write": {
     "description": "Auto-generated metadata for key 'page_title_post_write'."
   },
-  "page_title_privacy": "個人情報保護方針",
-  "@page_title_privacy": {
-    "description": "Auto-generated metadata for key 'page_title_privacy'."
-  },
-  "page_title_setting": "環境設定",
-  "@page_title_setting": {
-    "description": "Auto-generated metadata for key 'page_title_setting'."
-  },
-  "page_title_terms_of_use": "利用規約",
-  "@page_title_terms_of_use": {
-    "description": "Auto-generated metadata for key 'page_title_terms_of_use'."
-  },
   "page_title_vote_detail": "投票する",
   "@page_title_vote_detail": {
     "description": "Auto-generated metadata for key 'page_title_vote_detail'."
-  },
-  "page_title_vote_gather": "投票集を見る",
-  "@page_title_vote_gather": {
-    "description": "Auto-generated metadata for key 'page_title_vote_gather'."
-  },
-  "patch_check": "パッチをチェックする",
-  "@patch_check": {
-    "description": "Auto-generated metadata for key 'patch_check'."
-  },
-  "patch_error": "パッチが失敗した",
-  "@patch_error": {
-    "description": "Auto-generated metadata for key 'patch_error'."
-  },
-  "patch_install": "パッチをインストールする",
-  "@patch_install": {
-    "description": "Auto-generated metadata for key 'patch_install'."
-  },
-  "patch_restart_app": "アプリを再起動する",
-  "@patch_restart_app": {
-    "description": "Auto-generated metadata for key 'patch_restart_app'."
   },
   "popup_label_delete": "削除",
   "@popup_label_delete": {
@@ -1601,10 +845,6 @@
   "post_anonymous": "匿名投稿",
   "@post_anonymous": {
     "description": "Auto-generated metadata for key 'post_anonymous'."
-  },
-  "post_ask_go_to_temporary_save_list": "一時保存リストに移動しますか？",
-  "@post_ask_go_to_temporary_save_list": {
-    "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
   },
   "post_board_already_exist": "すでに存在する掲示板です。",
   "@post_board_already_exist": {
@@ -1618,29 +858,9 @@
   "@post_board_create_request_condition": {
     "description": "Auto-generated metadata for key 'post_board_create_request_condition'."
   },
-  "post_board_create_request_label": "掲示板オープンリクエスト",
-  "@post_board_create_request_label": {
-    "description": "Auto-generated metadata for key 'post_board_create_request_label'."
-  },
-  "post_board_create_request_reviewing": "掲示板オープンリクエスト検討中",
-  "@post_board_create_request_reviewing": {
-    "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
-  },
   "post_board_request_label": "オープンリクエスト",
   "@post_board_request_label": {
     "description": "Auto-generated metadata for key 'post_board_request_label'."
-  },
-  "post_cannot_open_youtube": "Youtubeを開くことができません。",
-  "@post_cannot_open_youtube": {
-    "description": "Auto-generated metadata for key 'post_cannot_open_youtube'."
-  },
-  "post_comment_action_show_original": "原文を見る",
-  "@post_comment_action_show_original": {
-    "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
-  },
-  "post_comment_action_show_translation": "翻訳を見る",
-  "@post_comment_action_show_translation": {
-    "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
   },
   "post_comment_action_translate": "翻訳",
   "@post_comment_action_translate": {
@@ -1681,10 +901,6 @@
   "post_comment_reported_comment": "報告されたコメントです。",
   "@post_comment_reported_comment": {
     "description": "Auto-generated metadata for key 'post_comment_reported_comment'."
-  },
-  "post_comment_translate_complete": "翻訳が完了しました。",
-  "@post_comment_translate_complete": {
-    "description": "Auto-generated metadata for key 'post_comment_translate_complete'."
   },
   "post_comment_translate_fail": "翻訳に失敗しました。",
   "@post_comment_translate_fail": {
@@ -1738,25 +954,9 @@
   "@post_insert_link": {
     "description": "Auto-generated metadata for key 'post_insert_link'."
   },
-  "post_loading_post_fail": "投稿の読み込みに失敗しました。",
-  "@post_loading_post_fail": {
-    "description": "Auto-generated metadata for key 'post_loading_post_fail'."
-  },
   "post_minor_board_condition": "説明は5文字以上20文字以内で入力してください。",
   "@post_minor_board_condition": {
     "description": "Auto-generated metadata for key 'post_minor_board_condition'."
-  },
-  "post_minor_board_create_request_message": "* 掲示板オープンリクエストのメッセージ。",
-  "@post_minor_board_create_request_message": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
-  },
-  "post_minor_board_create_request_message_condition": "掲示板オープンリクエストメッセージは10文字以上入力してください。",
-  "@post_minor_board_create_request_message_condition": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
-  },
-  "post_minor_board_create_request_message_input": "掲示板オープンリクエストメッセージを入力してください。",
-  "@post_minor_board_create_request_message_input": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
   },
   "post_minor_board_description": "マイナー掲示板の説明",
   "@post_minor_board_description": {
@@ -1797,14 +997,6 @@
   "post_not_found": "投稿が見つかりません。",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."
-  },
-  "post_replying_comment": "{nickname}さんへの返信中...",
-  "@post_replying_comment": {
-    "placeholders": {
-      "nickname": {
-        "type": "String"
-      }
-    }
   },
   "post_report_fail": "申告に失敗しました。",
   "@post_report_fail": {
@@ -1850,21 +1042,9 @@
   "@post_report_success": {
     "description": "Auto-generated metadata for key 'post_report_success'."
   },
-  "post_temporary_save_complete": "一時保存完了。",
-  "@post_temporary_save_complete": {
-    "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
-  },
   "post_title_placeholder": "タイトルを入力してください。",
   "@post_title_placeholder": {
     "description": "Auto-generated metadata for key 'post_title_placeholder'."
-  },
-  "post_write_board_post": "投稿する",
-  "@post_write_board_post": {
-    "description": "Auto-generated metadata for key 'post_write_board_post'."
-  },
-  "post_write_post_recommend_write": "投稿をお願いします。",
-  "@post_write_post_recommend_write": {
-    "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
   },
   "post_youtube_link": "ユーチューブリンク",
   "@post_youtube_link": {
@@ -1882,37 +1062,9 @@
   "@purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'purchase_confirm_title'."
   },
-  "purchase_cooldown_message": "しばらくしてから再度お試しください。",
-  "@purchase_cooldown_message": {
-    "description": "Auto-generated metadata for key 'purchase_cooldown_message'."
-  },
   "previousTransactionPendingError": "前回の決済がストアで処理中です。しばらくしてからもう一度お試しください。",
   "@previousTransactionPendingError": {
     "description": "Auto-generated metadata for key 'previousTransactionPendingError'."
-  },
-  "error_user_not_authenticated": "サインインが必要です。もう一度ログインしてください。",
-  "@error_user_not_authenticated": {
-    "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
-  },
-  "error_product_not_found": "購入した商品が見つかりません。",
-  "@error_product_not_found": {
-    "description": "Auto-generated metadata for key 'error_product_not_found'."
-  },
-  "error_receipt_verification_failed": "レシートの検証に失敗しました。",
-  "@error_receipt_verification_failed": {
-    "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
-  },
-  "error_duplicate_purchase": "この購入はすでに処理されています。",
-  "@error_duplicate_purchase": {
-    "description": "Auto-generated metadata for key 'error_duplicate_purchase'."
-  },
-  "error_initializing": "初期化中です。しばらくしてからもう一度お試しください。",
-  "@error_initializing": {
-    "description": "Auto-generated metadata for key 'error_initializing'."
-  },
-  "error_purchase_in_progress": "購入を処理中です。しばらくお待ちください。",
-  "@error_purchase_in_progress": {
-    "description": "Auto-generated metadata for key 'error_purchase_in_progress'."
   },
   "purchase_in_progress_message": "決済処理中です。しばらくお待ちください。",
   "@purchase_in_progress_message": {
@@ -1930,173 +1082,17 @@
   "@purchase_payment_amount": {
     "description": "Auto-generated metadata for key 'purchase_payment_amount'."
   },
-  "purchase_restore_success_message": "購入の復元が完了しました。\\nスターキャンディの残高をご確認ください。",
-  "@purchase_restore_success_message": {
-    "description": "Auto-generated metadata for key 'purchase_restore_success_message'."
-  },
-  "purchase_restore_wait_message": "購入処理中です。完了後に再度お試しください。",
-  "@purchase_restore_wait_message": {
-    "description": "Auto-generated metadata for key 'purchase_restore_wait_message'."
-  },
-  "purchase_timeout_message": "購入処理に時間がかかりすぎています。\\nしばらくしてから再度お試しください。",
-  "@purchase_timeout_message": {
-    "description": "Auto-generated metadata for key 'purchase_timeout_message'."
-  },
   "purchase_web_message": "アプリ決済ができない方のための決済画面です。\n あらかじめ乱数IDをコピーしてください。\n コピー後、下のボタンを押して支払いを行ってください。",
   "@purchase_web_message": {
     "description": "Auto-generated metadata for key 'purchase_web_message'."
-  },
-  "qna_actions": "Actions",
-  "@qna_actions": {
-    "description": "Auto-generated metadata for key 'qna_actions'."
-  },
-  "qna_answer": "Answer",
-  "@qna_answer": {
-    "description": "Auto-generated metadata for key 'qna_answer'."
-  },
-  "qna_answered_at": "Answered at",
-  "@qna_answered_at": {
-    "description": "Auto-generated metadata for key 'qna_answered_at'."
-  },
-  "qna_answered_by": "Answered by",
-  "@qna_answered_by": {
-    "description": "Auto-generated metadata for key 'qna_answered_by'."
-  },
-  "qna_attached_files": "添付ファイル",
-  "@qna_attached_files": {
-    "description": "Auto-generated metadata for key 'qna_attached_files'."
-  },
-  "qna_attachments": "Attachments",
-  "@qna_attachments": {
-    "description": "Auto-generated metadata for key 'qna_attachments'."
-  },
-  "qna_cancel": "キャンセル",
-  "@qna_cancel": {
-    "description": "Auto-generated metadata for key 'qna_cancel'."
   },
   "qna_content": "Content",
   "@qna_content": {
     "description": "Auto-generated metadata for key 'qna_content'."
   },
-  "qna_content_hint": "お問い合わせ内容を詳しく入力してください",
-  "@qna_content_hint": {
-    "description": "Auto-generated metadata for key 'qna_content_hint'."
-  },
-  "qna_content_min_length": "お問い合わせ内容は最低10文字以上入力してください",
-  "@qna_content_min_length": {
-    "description": "Auto-generated metadata for key 'qna_content_min_length'."
-  },
-  "qna_content_required": "お問い合わせ内容を入力してください",
-  "@qna_content_required": {
-    "description": "Auto-generated metadata for key 'qna_content_required'."
-  },
-  "qna_create_failed": "お問い合わせ登録失敗：",
-  "@qna_create_failed": {
-    "description": "Auto-generated metadata for key 'qna_create_failed'."
-  },
   "qna_create_page_title": "お問い合わせ作成",
   "@qna_create_page_title": {
     "description": "Auto-generated metadata for key 'qna_create_page_title'."
-  },
-  "qna_create_success": "お問い合わせが正常に登録されました",
-  "@qna_create_success": {
-    "description": "Auto-generated metadata for key 'qna_create_success'."
-  },
-  "qna_delete": "削除",
-  "@qna_delete": {
-    "description": "Auto-generated metadata for key 'qna_delete'."
-  },
-  "qna_delete_confirm": "削除",
-  "@qna_delete_confirm": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm'."
-  },
-  "qna_delete_confirm_content": "このお問い合わせを削除しますか？\n削除後は復元できません。",
-  "@qna_delete_confirm_content": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm_content'."
-  },
-  "qna_delete_confirm_title": "Delete Inquiry",
-  "@qna_delete_confirm_title": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm_title'."
-  },
-  "qna_delete_failed": "削除に失敗しました",
-  "@qna_delete_failed": {
-    "description": "Auto-generated metadata for key 'qna_delete_failed'."
-  },
-  "qna_delete_success": "お問い合わせが削除されました",
-  "@qna_delete_success": {
-    "description": "Auto-generated metadata for key 'qna_delete_success'."
-  },
-  "qna_detail_page_title": "お問い合わせ詳細",
-  "@qna_detail_page_title": {
-    "description": "Auto-generated metadata for key 'qna_detail_page_title'."
-  },
-  "qna_download_file": "Download File",
-  "@qna_download_file": {
-    "description": "Auto-generated metadata for key 'qna_download_file'."
-  },
-  "qna_edit": "修正",
-  "@qna_edit": {
-    "description": "Auto-generated metadata for key 'qna_edit'."
-  },
-  "qna_file_attach_label": "ファイル添付",
-  "@qna_file_attach_label": {
-    "description": "Auto-generated metadata for key 'qna_file_attach_label'."
-  },
-  "qna_file_select": "ファイル選択",
-  "@qna_file_select": {
-    "description": "Auto-generated metadata for key 'qna_file_select'."
-  },
-  "qna_file_type_document": "Document",
-  "@qna_file_type_document": {
-    "description": "Auto-generated metadata for key 'qna_file_type_document'."
-  },
-  "qna_file_type_image": "Image",
-  "@qna_file_type_image": {
-    "description": "Auto-generated metadata for key 'qna_file_type_image'."
-  },
-  "qna_file_type_other": "Other",
-  "@qna_file_type_other": {
-    "description": "Auto-generated metadata for key 'qna_file_type_other'."
-  },
-  "qna_file_upload_info": "• 最大10MBまでアップロード可能\n• 対応形式：画像（jpg、png、gif）、文書（pdf、doc、txt）",
-  "@qna_file_upload_info": {
-    "description": "Auto-generated metadata for key 'qna_file_upload_info'."
-  },
-  "qna_file_uploading_button": "ファイルアップロード中...",
-  "@qna_file_uploading_button": {
-    "description": "Auto-generated metadata for key 'qna_file_uploading_button'."
-  },
-  "qna_loading_error": "Error occurred while loading",
-  "@qna_loading_error": {
-    "description": "Auto-generated metadata for key 'qna_loading_error'."
-  },
-  "qna_login_required": "ログインが必要です",
-  "@qna_login_required": {
-    "description": "Auto-generated metadata for key 'qna_login_required'."
-  },
-  "qna_login_required_create": "QnA作成のためには\nまずログインしてください",
-  "@qna_login_required_create": {
-    "description": "Auto-generated metadata for key 'qna_login_required_create'."
-  },
-  "qna_login_required_detail": "QnA詳細情報を見るには\nまずログインしてください",
-  "@qna_login_required_detail": {
-    "description": "Auto-generated metadata for key 'qna_login_required_detail'."
-  },
-  "qna_login_required_service": "QnAサービスをご利用いただくには\nまずログインしてください",
-  "@qna_login_required_service": {
-    "description": "Auto-generated metadata for key 'qna_login_required_service'."
-  },
-  "qna_mark_resolved": "解決済みにする",
-  "@qna_mark_resolved": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved'."
-  },
-  "qna_mark_resolved_failed": "Failed to change status",
-  "@qna_mark_resolved_failed": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved_failed'."
-  },
-  "qna_mark_resolved_success": "Changed to resolved",
-  "@qna_mark_resolved_success": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved_success'."
   },
   "qna_no_answer_yet": "まだ回答がありません",
   "@qna_no_answer_yet": {
@@ -2105,50 +1101,6 @@
   "qna_no_inquiries": "No inquiry history",
   "@qna_no_inquiries": {
     "description": "Auto-generated metadata for key 'qna_no_inquiries'."
-  },
-  "qna_no_inquiries_subtitle": "If you have any questions\nfeel free to contact us anytime",
-  "@qna_no_inquiries_subtitle": {
-    "description": "Auto-generated metadata for key 'qna_no_inquiries_subtitle'."
-  },
-  "qna_page_title": "QnA お問い合わせ (Admin)",
-  "@qna_page_title": {
-    "description": "Auto-generated metadata for key 'qna_page_title'."
-  },
-  "qna_privacy_notice": "お問い合わせ処理のため、入力された情報が収集・利用されます。詳細はプライバシーポリシーをご確認ください。",
-  "@qna_privacy_notice": {
-    "description": "Auto-generated metadata for key 'qna_privacy_notice'."
-  },
-  "qna_question": "Question",
-  "@qna_question": {
-    "description": "Auto-generated metadata for key 'qna_question'."
-  },
-  "qna_refresh_pull": "Pull to refresh",
-  "@qna_refresh_pull": {
-    "description": "Auto-generated metadata for key 'qna_refresh_pull'."
-  },
-  "qna_statistics_answered": "Answered",
-  "@qna_statistics_answered": {
-    "description": "Auto-generated metadata for key 'qna_statistics_answered'."
-  },
-  "qna_statistics_pending": "Awaiting Response",
-  "@qna_statistics_pending": {
-    "description": "Auto-generated metadata for key 'qna_statistics_pending'."
-  },
-  "qna_statistics_resolved": "Resolved",
-  "@qna_statistics_resolved": {
-    "description": "Auto-generated metadata for key 'qna_statistics_resolved'."
-  },
-  "qna_statistics_title": "Inquiry Status",
-  "@qna_statistics_title": {
-    "description": "Auto-generated metadata for key 'qna_statistics_title'."
-  },
-  "qna_status_answered": "回答済み",
-  "@qna_status_answered": {
-    "description": "Auto-generated metadata for key 'qna_status_answered'."
-  },
-  "qna_status_resolved": "解決済み",
-  "@qna_status_resolved": {
-    "description": "Auto-generated metadata for key 'qna_status_resolved'."
   },
   "qna_status_closed": "終了",
   "@qna_status_closed": {
@@ -2162,38 +1114,6 @@
   "@qna_title": {
     "description": "Auto-generated metadata for key 'qna_title'."
   },
-  "qna_title_hint": "お問い合わせの概要を簡潔に入力してください",
-  "@qna_title_hint": {
-    "description": "Auto-generated metadata for key 'qna_title_hint'."
-  },
-  "qna_title_min_length": "タイトルは最低5文字以上入力してください",
-  "@qna_title_min_length": {
-    "description": "Auto-generated metadata for key 'qna_title_min_length'."
-  },
-  "qna_title_required": "タイトルを入力してください",
-  "@qna_title_required": {
-    "description": "Auto-generated metadata for key 'qna_title_required'."
-  },
-  "qna_upload_complete": "アップロード完了",
-  "@qna_upload_complete": {
-    "description": "Auto-generated metadata for key 'qna_upload_complete'."
-  },
-  "qna_upload_waiting": "アップロード待ち",
-  "@qna_upload_waiting": {
-    "description": "Auto-generated metadata for key 'qna_upload_waiting'."
-  },
-  "qna_uploading": "アップロード中...",
-  "@qna_uploading": {
-    "description": "Auto-generated metadata for key 'qna_uploading'."
-  },
-  "qna_validation_failed": "入力内容をご確認ください。",
-  "@qna_validation_failed": {
-    "description": "Auto-generated metadata for key 'qna_validation_failed'."
-  },
-  "qna_write_inquiry": "New Inquiry",
-  "@qna_write_inquiry": {
-    "description": "Auto-generated metadata for key 'qna_write_inquiry'."
-  },
   "replies": "コメント",
   "@replies": {
     "description": "Auto-generated metadata for key 'replies'."
@@ -2206,10 +1126,6 @@
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
-  "searching": "検索中...",
-  "@searching": {
-    "description": "Auto-generated metadata for key 'searching'."
-  },
   "seconds": "蝋燭",
   "@seconds": {
     "description": "Auto-generated metadata for key 'seconds'."
@@ -2217,70 +1133,6 @@
   "share": "共有",
   "@share": {
     "description": "Auto-generated metadata for key 'share'."
-  },
-  "share_image_fail": "画像共有に失敗",
-  "@share_image_fail": {
-    "description": "Auto-generated metadata for key 'share_image_fail'."
-  },
-  "share_image_success": "画像共有成功",
-  "@share_image_success": {
-    "description": "Auto-generated metadata for key 'share_image_success'."
-  },
-  "share_no_twitter": "Xアプリがありません。",
-  "@share_no_twitter": {
-    "description": "Auto-generated metadata for key 'share_no_twitter'."
-  },
-  "share_twitter": "Twitter共有",
-  "@share_twitter": {
-    "description": "Auto-generated metadata for key 'share_twitter'."
-  },
-  "submit_application": "Submit Application",
-  "@submit_application": {
-    "description": "Auto-generated metadata for key 'submit_application'."
-  },
-  "success": "成功",
-  "@success": {
-    "description": "Auto-generated metadata for key 'success'."
-  },
-  "text_achievement": "🎉 これまでに{count}個の目標達成！ 🎉",
-  "@text_achievement": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "text_ads_random": "広告表示とランダム画像収集。",
-  "@text_ads_random": {
-    "description": "Auto-generated metadata for key 'text_ads_random'."
-  },
-  "text_bonus": "ボーナス",
-  "@text_bonus": {
-    "description": "Auto-generated metadata for key 'text_bonus'."
-  },
-  "text_bookmark_failed": "ブックマーク解除に失敗しました",
-  "@text_bookmark_failed": {
-    "description": "Auto-generated metadata for key 'text_bookmark_failed'."
-  },
-  "text_bookmark_over_5": "ブックマークは最大5個まで可能です。",
-  "@text_bookmark_over_5": {
-    "description": "Auto-generated metadata for key 'text_bookmark_over_5'."
-  },
-  "text_comming_soon_pic_chart1": "ピックチャートへようこそ！\n2024年11月にお会いしましょう！",
-  "@text_comming_soon_pic_chart1": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart1'."
-  },
-  "text_comming_soon_pic_chart2": "ピックチャートは、日次、週次、月次のスコアを反映している\nピクニックならではの新しいチャートです。",
-  "@text_comming_soon_pic_chart2": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart2'."
-  },
-  "text_comming_soon_pic_chart3": "リアルタイムで反映される\nアーティストのブランド評判をご確認ください！",
-  "@text_comming_soon_pic_chart3": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart3'."
-  },
-  "text_comming_soon_pic_chart_title": "ピクチャーチャートとは？",
-  "@text_comming_soon_pic_chart_title": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart_title'."
   },
   "text_community_board_search": "アーティスト掲示板検索",
   "@text_community_board_search": {
@@ -2293,22 +1145,6 @@
   "text_copied_address": "アドレスがコピーされました。",
   "@text_copied_address": {
     "description": "Auto-generated metadata for key 'text_copied_address'."
-  },
-  "text_dialog_ad_dismissed": "広告を途中で止めました。",
-  "@text_dialog_ad_dismissed": {
-    "description": "Auto-generated metadata for key 'text_dialog_ad_dismissed'."
-  },
-  "text_dialog_ad_failed_to_show": "広告の読み込みに失敗",
-  "@text_dialog_ad_failed_to_show": {
-    "description": "Auto-generated metadata for key 'text_dialog_ad_failed_to_show'."
-  },
-  "text_dialog_star_candy_received": "星飴が支給されました。",
-  "@text_dialog_star_candy_received": {
-    "description": "Auto-generated metadata for key 'text_dialog_star_candy_received'."
-  },
-  "text_dialog_vote_amount_should_not_zero": "投票数は0にすることはできません。",
-  "@text_dialog_vote_amount_should_not_zero": {
-    "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
   },
   "text_draw_image": "全ギャラリーのうち、1枚の画像を確定的に所蔵",
   "@text_draw_image": {
@@ -2326,10 +1162,6 @@
   "@text_need_recharge": {
     "description": "Auto-generated metadata for key 'text_need_recharge'."
   },
-  "text_no_artist": "アーティストがいません",
-  "@text_no_artist": {
-    "description": "Auto-generated metadata for key 'text_no_artist'."
-  },
   "text_no_search_result": "検索結果がありません。",
   "@text_no_search_result": {
     "description": "Auto-generated metadata for key 'text_no_search_result'."
@@ -2338,41 +1170,9 @@
   "@text_purchase_vat_included": {
     "description": "Auto-generated metadata for key 'text_purchase_vat_included'."
   },
-  "text_star_candy": "スターキャンディー",
-  "@text_star_candy": {
-    "description": "Auto-generated metadata for key 'text_star_candy'."
-  },
-  "text_star_candy_with_bonus": "{num1}個 + {num1}個のボーナス",
-  "@text_star_candy_with_bonus": {
-    "placeholders": {
-      "num1": {
-        "type": "int"
-      }
-    }
-  },
-  "text_this_time_vote": "今回の投票",
-  "@text_this_time_vote": {
-    "description": "Auto-generated metadata for key 'text_this_time_vote'."
-  },
   "text_vote_complete": "投票完了",
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
-  },
-  "text_jma_vote_ticket": "JMA投票権",
-  "@text_jma_vote_ticket": {
-    "description": "Auto-generated metadata for key 'text_jma_vote_ticket'."
-  },
-  "text_vote_countdown_end": "終了まで",
-  "@text_vote_countdown_end": {
-    "description": "Auto-generated metadata for key 'text_vote_countdown_end'."
-  },
-  "text_vote_countdown_start": "開始まで",
-  "@text_vote_countdown_start": {
-    "description": "Auto-generated metadata for key 'text_vote_countdown_start'."
-  },
-  "text_vote_ended": "終了",
-  "@text_vote_ended": {
-    "description": "Auto-generated metadata for key 'text_vote_ended'."
   },
   "text_vote_rank": "{rank}位",
   "@text_vote_rank": {
@@ -2386,57 +1186,13 @@
   "@text_vote_rank_in_reward": {
     "description": "Auto-generated metadata for key 'text_vote_rank_in_reward'."
   },
-  "text_vote_reward": "{count} 報酬",
-  "@text_vote_reward": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "text_vote_where_is_my_bias": "私のお気に入りはどこ？",
   "@text_vote_where_is_my_bias": {
     "description": "Auto-generated metadata for key 'text_vote_where_is_my_bias'."
   },
-  "time_days_ago": "日前",
-  "@time_days_ago": {
-    "description": "Auto-generated metadata for key 'time_days_ago'."
-  },
-  "time_hours_ago": "時間前",
-  "@time_hours_ago": {
-    "description": "Auto-generated metadata for key 'time_hours_ago'."
-  },
-  "time_just_now": "たった今",
-  "@time_just_now": {
-    "description": "Auto-generated metadata for key 'time_just_now'."
-  },
-  "time_minutes_ago": "分前",
-  "@time_minutes_ago": {
-    "description": "Auto-generated metadata for key 'time_minutes_ago'."
-  },
-  "time_unit_day": "日",
-  "@time_unit_day": {
-    "description": "Auto-generated metadata for key 'time_unit_day'."
-  },
-  "time_unit_hour": "時",
-  "@time_unit_hour": {
-    "description": "Auto-generated metadata for key 'time_unit_hour'."
-  },
-  "time_unit_minute": "分",
-  "@time_unit_minute": {
-    "description": "Auto-generated metadata for key 'time_unit_minute'."
-  },
-  "time_unit_second": "秒",
-  "@time_unit_second": {
-    "description": "Auto-generated metadata for key 'time_unit_second'."
-  },
   "title_dialog_library_add": "新しいアルバムを追加",
   "@title_dialog_library_add": {
     "description": "Auto-generated metadata for key 'title_dialog_library_add'."
-  },
-  "title_dialog_success": "成功",
-  "@title_dialog_success": {
-    "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
   "title_select_language": "言語の選択",
   "@title_select_language": {
@@ -2454,22 +1210,6 @@
   "@update_cannot_open_appstore": {
     "description": "Auto-generated metadata for key 'update_cannot_open_appstore'."
   },
-  "update_recommend_text": "新しいバージョン({version})が利用可能です。",
-  "@update_recommend_text": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "update_required_text": "新しいバージョン({version})へのアップデートが必要です。",
-  "@update_required_text": {
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "update_required_title": "アップデートが必要です。",
   "@update_required_title": {
     "description": "Auto-generated metadata for key 'update_required_title'."
@@ -2478,61 +1218,13 @@
   "@views": {
     "description": "Auto-generated metadata for key 'views'."
   },
-  "vote_item_request_addition_request": "投票項目の追加リクエスト",
-  "@vote_item_request_addition_request": {
-    "description": "Auto-generated metadata for key 'vote_item_request_addition_request'."
-  },
-  "vote_item_request_already_applied_artist": "このアーティストへの応募は既に完了しています。",
-  "@vote_item_request_already_applied_artist": {
-    "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
-  },
-  "vote_item_request_already_registered": "既に登録済み",
-  "@vote_item_request_already_registered": {
-    "description": "Auto-generated metadata for key 'vote_item_request_already_registered'."
-  },
-  "vote_item_request_artist_name_missing": "アーティスト名が入力されていません",
-  "@vote_item_request_artist_name_missing": {
-    "description": "Auto-generated metadata for key 'vote_item_request_artist_name_missing'."
-  },
-  "vote_item_request_button": "投票候補者への応募",
-  "@vote_item_request_button": {
-    "description": "Auto-generated metadata for key 'vote_item_request_button'."
-  },
   "vote_item_request_can_apply": "適用可能",
   "@vote_item_request_can_apply": {
     "description": "Auto-generated metadata for key 'vote_item_request_can_apply'."
   },
-  "vote_item_request_count": "数",
-  "@vote_item_request_count": {
-    "description": "Auto-generated metadata for key 'vote_item_request_count'."
-  },
-  "vote_item_request_current_item_request": "現在のアイテムリクエスト",
-  "@vote_item_request_current_item_request": {
-    "description": "Auto-generated metadata for key 'vote_item_request_current_item_request'."
-  },
-  "vote_item_request_item_request_count": "{count} アイテムリクエスト",
-  "@vote_item_request_item_request_count": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "vote_item_request_no_item_request_yet": "まだアイテムのリクエストはありません",
-  "@vote_item_request_no_item_request_yet": {
-    "description": "Auto-generated metadata for key 'vote_item_request_no_item_request_yet'."
-  },
   "vote_item_request_search_artist": "アーティスト検索",
   "@vote_item_request_search_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist'."
-  },
-  "vote_item_request_search_artist_hint": "アーティストまたはグループを検索",
-  "@vote_item_request_search_artist_hint": {
-    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_hint'."
-  },
-  "vote_item_request_search_artist_prompt": "アーティストを検索して応募する",
-  "@vote_item_request_search_artist_prompt": {
-    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_prompt'."
   },
   "vote_item_request_status": "リクエストのステータス",
   "@vote_item_request_status": {
@@ -2542,14 +1234,6 @@
   "@vote_item_request_status_approved": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_approved'."
   },
-  "vote_item_request_status_cancelled": "キャンセルされました",
-  "@vote_item_request_status_cancelled": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
-  },
-  "vote_item_request_status_in_progress": "進行中",
-  "@vote_item_request_status_in_progress": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
-  },
   "vote_item_request_status_pending": "保留中",
   "@vote_item_request_status_pending": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_pending'."
@@ -2557,10 +1241,6 @@
   "vote_item_request_status_rejected": "却下されました",
   "@vote_item_request_status_rejected": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_rejected'."
-  },
-  "vote_item_request_status_unknown": "不明",
-  "@vote_item_request_status_unknown": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
   },
   "vote_item_request_submit": "送信",
   "@vote_item_request_submit": {
@@ -2570,49 +1250,13 @@
   "@vote_item_request_title": {
     "description": "Auto-generated metadata for key 'vote_item_request_title'."
   },
-  "vote_item_request_total_item_requests": "{count} のアイテムリクエストの総数",
-  "@vote_item_request_total_item_requests": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "vote_item_request_user_info_not_found": "ユーザー情報が見つかりませんでした。",
-  "@vote_item_request_user_info_not_found": {
-    "description": "Auto-generated metadata for key 'vote_item_request_user_info_not_found'."
-  },
-  "vote_period": "Vote Period",
-  "@vote_period": {
-    "description": "Auto-generated metadata for key 'vote_period'."
-  },
-  "vote_result_save_button": "結果保存",
-  "@vote_result_save_button": {
-    "description": "Auto-generated metadata for key 'vote_result_save_button'."
-  },
-  "vote_result_share_button": "結果共有",
-  "@vote_result_share_button": {
-    "description": "Auto-generated metadata for key 'vote_result_share_button'."
-  },
   "vote_share_message": "投票完了！",
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
-  "voting_limit_text": "トラフィック急増防止のため、全体の使用は一度に1万個まで可能です。",
-  "@voting_limit_text": {
-    "description": "Auto-generated metadata for key 'voting_limit_text'."
-  },
-  "voting_limit_warning": "最大1万個までしかできません",
-  "@voting_limit_warning": {
-    "description": "Auto-generated metadata for key 'voting_limit_warning'."
-  },
   "voting_share_benefit_text": "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
-  },
-  "withdrawal_success": "退会が正常に処理されました。",
-  "@withdrawal_success": {
-    "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
   "title_dialog_error": "エラー",
   "@title_dialog_error": {
@@ -2625,18 +1269,6 @@
   "qna_submit_success": "お問い合わせが正常に送信されました",
   "@qna_submit_success": {
     "description": "Auto-generated metadata for key 'qna_submit_success'."
-  },
-  "qna_submit_error": "お問い合わせの送信中にエラーが発生しました",
-  "@qna_submit_error": {
-    "description": "Auto-generated metadata for key 'qna_submit_error'."
-  },
-  "qna_title_too_short": "タイトルは2文字以上入力してください",
-  "@qna_title_too_short": {
-    "description": "Auto-generated metadata for key 'qna_title_too_short'."
-  },
-  "qna_content_too_short": "内容は10文字以上入力してください",
-  "@qna_content_too_short": {
-    "description": "Auto-generated metadata for key 'qna_content_too_short'."
   },
   "qna_list_title": "Q&Aリスト",
   "@qna_list_title": {
@@ -2670,14 +1302,6 @@
   "@qna_form_content_empty": {
     "description": "Auto-generated metadata for key 'qna_form_content_empty'."
   },
-  "qna_attach_image": "画像を添付",
-  "@qna_attach_image": {
-    "description": "Auto-generated metadata for key 'qna_attach_image'."
-  },
-  "qna_attach_file": "ファイルを添付",
-  "@qna_attach_file": {
-    "description": "Auto-generated metadata for key 'qna_attach_file'."
-  },
   "qna_submit_fail": "お問い合わせの送信に失敗しました",
   "@qna_submit_fail": {
     "description": "Auto-generated metadata for key 'qna_submit_fail'."
@@ -2709,10 +1333,6 @@
   "qna_load_fail_title": "お問い合わせの読み込みに失敗しました",
   "@qna_load_fail_title": {
     "description": "Auto-generated metadata for key 'qna_load_fail_title'."
-  },
-  "qna_status_pending": "保留中",
-  "@qna_status_pending": {
-    "description": "Auto-generated metadata for key 'qna_status_pending'."
   },
   "qna_message_hint": "メッセージを入力",
   "@qna_message_hint": {
@@ -2786,37 +1406,6 @@
   "@vote_item_request_waiting": {
     "description": "Auto-generated metadata for key 'vote_item_request_waiting'."
   },
-  "jma_voting_star_candy_shortage": "スターキャンディが{shortage}個不足しています。",
-  "@jma_voting_star_candy_shortage": {
-    "placeholders": {
-      "shortage": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_max_votes_exceeded": "現在の最大投票可能数は{maxVotes}個です。",
-  "@jma_voting_max_votes_exceeded": {
-    "placeholders": {
-      "maxVotes": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_daily_limit_remaining": "今日の残りボーナス投票数: {remaining}回 (最大{max}回)",
-  "@jma_voting_daily_limit_remaining": {
-    "placeholders": {
-      "remaining": {
-        "type": "int"
-      },
-      "max": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_daily_limit_exhausted": "今日のボーナス投票数をすべて使用しました。",
-  "@jma_voting_daily_limit_exhausted": {
-    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
-  },
   "jma_voting_my_star_candy": "私のスターキャンディ",
   "@jma_voting_my_star_candy": {
     "description": "Auto-generated metadata for key 'jma_voting_my_star_candy'."
@@ -2829,57 +1418,9 @@
   "@jma_voting_use_all": {
     "description": "Auto-generated metadata for key 'jma_voting_use_all'."
   },
-  "jma_voting_max_usable": "最大{amount}個使用可能",
-  "@jma_voting_max_usable": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_bonus_only": "ボーナススターキャンディ{amount}個使用 → {votes}票",
-  "@jma_voting_bonus_only": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      },
-      "votes": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_bonus_plus_regular": "ボーナス{bonus}個 + スターキャンディ{regular}個 → {votes}票",
-  "@jma_voting_bonus_plus_regular": {
-    "placeholders": {
-      "bonus": {
-        "type": "int"
-      },
-      "regular": {
-        "type": "int"
-      },
-      "votes": {
-        "type": "int"
-      }
-    }
-  },
-  "jma_voting_regular_only": "スターキャンディ{amount}個 → {votes}票",
-  "@jma_voting_regular_only": {
-    "placeholders": {
-      "amount": {
-        "type": "int"
-      },
-      "votes": {
-        "type": "int"
-      }
-    }
-  },
   "jma_voting_input_amount": "スターキャンディの数量を入力してください。",
   "@jma_voting_input_amount": {
     "description": "Auto-generated metadata for key 'jma_voting_input_amount'."
-  },
-  "jma_voting_info_text": "-ボーナススターキャンディーは1日最大5個までJMA投票に使用可能です。\n-必要なスターキャンディーは自動的に変換されます。(30スターキャンディー = 1 JMA投票)\n-投票に参加すると、ジャカルタコンサートに自動的に応募されます。",
-  "@jma_voting_info_text": {
-    "description": "Auto-generated metadata for key 'jma_voting_info_text'."
   },
   "jma_voting_daily_limit_error": "1日最大5回まで投票できます。",
   "@jma_voting_daily_limit_error": {
@@ -2897,149 +1438,21 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "bonus_candy_expiration_policy_title": "ボーナススターキャンディの失効規定",
-  "@bonus_candy_expiration_policy_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_title'."
-  },
-  "expiring_soon_bonus_candy": "失効予定ボーナス",
-  "@expiring_soon_bonus_candy": {
-    "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
-  },
   "expiring_bonus_candy_guide": "消滅予定ボーナス案内",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
-  },
-  "bonus_candy_expiration_policy_load_fail": "失効予定のボーナス情報の読み込みに失敗しました。",
-  "@bonus_candy_expiration_policy_load_fail": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
-  },
-  "bonus_candy_expiration_time_title": "失効時点",
-  "@bonus_candy_expiration_time_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
-  },
-  "bonus_candy_policy_title": "ボーナススターキャンディのポリシー",
-  "@bonus_candy_policy_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
-  },
-  "bonus_candy_policy_1": "- 無料チャージステーションからのボーナススターキャンディ、および購入時のボーナススターキャンディには有効期限があります。",
-  "@bonus_candy_policy_1": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
-  },
-  "bonus_candy_policy_2": "- スターキャンディを使用する際、有効期限が最も近いボーナススターキャンディから先に消費されます。",
-  "@bonus_candy_policy_2": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
-  },
-  "bonus_candy_policy_3": "- 有効期限が切れたボーナススターキャンディは復元できませんので、期間内に必ずご使用ください。",
-  "@bonus_candy_policy_3": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
-  },
-  "bonus_candy_expiration_policy_earn_period": "獲得期間",
-  "@bonus_candy_expiration_policy_earn_period": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
-  },
-  "bonus_candy_expiration_policy_expiration_date": "失効日時",
-  "@bonus_candy_expiration_policy_expiration_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
-  },
-  "bonus_candy_earn_period_1_to_15": "1日 00:00:00 ～ 15日 23:59:59",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
-  },
-  "bonus_candy_earn_period_16_to_end": "16日 00:00:00 ～ 月末 23:59:59",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
-  },
-  "bonus_candy_expiration_next_month": "翌月15日 00:00:00",
-  "@bonus_candy_expiration_next_month": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
-  },
-  "bonus_candy_expiration_month_after_next": "翌々月15日 00:00:00",
-  "@bonus_candy_expiration_month_after_next": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
-  },
-  "bonus_candy_example_title": "例",
-  "@bonus_candy_example_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
-  },
-  "bonus_candy_example_earn_date": "獲得日",
-  "@bonus_candy_example_earn_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
-  },
-  "bonus_candy_example_expiration_date": "失効日",
-  "@bonus_candy_example_expiration_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
-  },
-  "bonus_candy_example_1_earn": "__MONTH__月10日 14:00(KST)",
-  "@bonus_candy_example_1_earn": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
-  },
-  "bonus_candy_example_1_expire": "__NEXT_MONTH__月15日 00:00(KST)",
-  "@bonus_candy_example_1_expire": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
-  },
-  "bonus_candy_example_2_earn": "__MONTH__月20日 14:00(KST)",
-  "@bonus_candy_example_2_earn": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
-  },
-  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)",
-  "@bonus_candy_example_2_expire": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
   },
   "retry": "再試行",
   "@retry": {
     "description": "Auto-generated metadata for key 'retry'."
   },
-  "jmaVoteTicket": "JMA投票券",
-  "@jmaVoteTicket": {
-    "description": "Auto-generated metadata for key 'jmaVoteTicket'."
-  },
-  "paid": "有料",
-  "@paid": {
-    "description": "Auto-generated metadata for key 'paid'."
-  },
-  "bonus": "ボーナス",
-  "@bonus": {
-    "description": "Auto-generated metadata for key 'bonus'."
-  },
-  "voteTypePicnic": "Picnic",
-  "@voteTypePicnic": {
-    "description": "Auto-generated metadata for key 'voteTypePicnic'."
-  },
-  "voteTypeJma": "JMA",
-  "@voteTypeJma": {
-    "description": "Auto-generated metadata for key 'voteTypeJma'."
-  },
   "label_my_vote_history": "私の投票履歴",
   "@label_my_vote_history": {
     "description": "Auto-generated metadata for key 'label_my_vote_history'."
   },
-  "qna_answer_title": "Answer",
-  "@qna_answer_title": {
-    "description": "Auto-generated metadata for key 'qna_answer_title'."
-  },
-  "qna_created_at": "Created at",
-  "@qna_created_at": {
-    "description": "Auto-generated metadata for key 'qna_created_at'."
-  },
-  "qna_info_title": "Inquiry Info",
-  "@qna_info_title": {
-    "description": "Auto-generated metadata for key 'qna_info_title'."
-  },
-  "qna_empty_message": "No inquiries",
-  "@qna_empty_message": {
-    "description": "Auto-generated metadata for key 'qna_empty_message'."
-  },
-  "search_artist_hint": "Search for artist or group",
-  "@search_artist_hint": {
-    "description": "Auto-generated metadata for key 'search_artist_hint'."
-  },
   "qna_status_open": "Open",
   "@qna_status_open": {
     "description": "Auto-generated metadata for key 'qna_status_open'."
-  },
-  "qna_status_in_progress": "In Progress",
-  "@qna_status_in_progress": {
-    "description": "Auto-generated metadata for key 'qna_status_in_progress'."
   },
   "cancel": "Cancel",
   "@cancel": {
@@ -3052,10 +1465,6 @@
   "loading": "Loading...",
   "@loading": {
     "description": "Auto-generated metadata for key 'loading'."
-  },
-  "just_now": "Just now",
-  "@just_now": {
-    "description": "Auto-generated metadata for key 'just_now'."
   },
   "update": "Update",
   "@update": {
@@ -3093,10 +1502,6 @@
   "@notice_pinned": {
     "description": "Auto-generated metadata for key 'notice_pinned'."
   },
-  "message_agreement_fail": "Terms agreement required",
-  "@message_agreement_fail": {
-    "description": "Auto-generated metadata for key 'message_agreement_fail'."
-  },
   "qna_list_error_title": "Failed to load inquiries",
   "@qna_list_error_title": {
     "description": "Auto-generated metadata for key 'qna_list_error_title'."
@@ -3108,18 +1513,6 @@
   "qna_list_empty_description": "If you have any questions, feel free to ask!",
   "@qna_list_empty_description": {
     "description": "Auto-generated metadata for key 'qna_list_empty_description'."
-  },
-  "search_input_text_hint": "Search",
-  "@search_input_text_hint": {
-    "description": "Auto-generated metadata for key 'search_input_text_hint'."
-  },
-  "submit": "Submit",
-  "@submit": {
-    "description": "Auto-generated metadata for key 'submit'."
-  },
-  "next": "Next",
-  "@next": {
-    "description": "Auto-generated metadata for key 'next'."
   },
   "qna_attach_media": "Attach Photo/Video",
   "@qna_attach_media": {
@@ -3136,13 +1529,396 @@
       }
     }
   },
-  "error_verification_timeout": "Purchase processing timed out. Please check your network connection and try again.",
-  "@error_verification_timeout": {
-    "description": "Auto-generated metadata for key 'error_verification_timeout'."
+  "@@locale": "ja",
+  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__月15日 00:00(KST)",
+  "@bonus_candy_example_2_expire": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
   },
-  "error_authentication_timeout": "Touch ID/Face ID authentication timed out. Please try again.",
-  "@error_authentication_timeout": {
-    "description": "Auto-generated metadata for key 'error_authentication_timeout'."
+  "bonus_candy_example_earn_date": "獲得日",
+  "@bonus_candy_example_earn_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
   },
-  "@@locale": "ja"
+  "vote_item_request_status_unknown": "不明",
+  "@vote_item_request_status_unknown": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
+  },
+  "bonus_candy_expiration_policy_load_fail": "失効予定のボーナス情報の読み込みに失敗しました。",
+  "@bonus_candy_expiration_policy_load_fail": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
+  },
+  "bonus_candy_example_1_expire": "__NEXT_MONTH__月15日 00:00(KST)",
+  "@bonus_candy_example_1_expire": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
+  },
+  "vote_item_request_status_in_progress": "進行中",
+  "@vote_item_request_status_in_progress": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
+  },
+  "bonus_candy_policy_2": "- スターキャンディを使用する際、有効期限が最も近いボーナススターキャンディから先に消費されます。",
+  "@bonus_candy_policy_2": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
+  },
+  "compatibility_purchase_message": "私と「{artistName}」の相性スコアが気になる方は？",
+  "@compatibility_purchase_message": {
+    "placeholders": {
+      "artistName": {
+        "type": "String"
+      }
+    }
+  },
+  "label_mypage_charge_history": "料金内訳 (Admin)",
+  "@label_mypage_charge_history": {
+    "description": "Charge history menu for admin users"
+  },
+  "compatibility_time_slot_unknown": "不明",
+  "@compatibility_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  },
+  "label_popup_hide_7days": "7日間表示しない",
+  "@label_popup_hide_7days": {
+    "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
+  },
+  "expiring_soon_bonus_candy": "失効予定ボーナス",
+  "@expiring_soon_bonus_candy": {
+    "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
+  },
+  "bonus_candy_expiration_policy_earn_period": "獲得期間",
+  "@bonus_candy_expiration_policy_earn_period": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
+  },
+  "message_setting_remove_cache": "キャッシュメモリの削除が完了しました",
+  "@message_setting_remove_cache": {
+    "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
+  },
+  "error_loading_more_comments": "コメントの読み込み中にエラーが発生しました。",
+  "@error_loading_more_comments": {
+    "description": "Auto-generated metadata for key 'error_loading_more_comments'."
+  },
+  "purchase_timeout_message": "購入処理に時間がかかりすぎています。\\nしばらくしてから再度お試しください。",
+  "@purchase_timeout_message": {
+    "description": "Auto-generated metadata for key 'purchase_timeout_message'."
+  },
+  "label_tabbar_vote_upcoming": "予定",
+  "@label_tabbar_vote_upcoming": {
+    "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
+  },
+  "bonus_candy_example_1_earn": "__MONTH__月10日 14:00(KST)",
+  "@bonus_candy_example_1_earn": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
+  },
+  "error_receipt_verification_failed": "レシートの検証に失敗しました。",
+  "@error_receipt_verification_failed": {
+    "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
+  },
+  "vote_item_request_status_cancelled": "キャンセルされました",
+  "@vote_item_request_status_cancelled": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
+  },
+  "post_write_board_post": "投稿する",
+  "@post_write_board_post": {
+    "description": "Auto-generated metadata for key 'post_write_board_post'."
+  },
+  "bonus_candy_policy_3": "- 有効期限が切れたボーナススターキャンディは復元できませんので、期間内に必ずご使用ください。",
+  "@bonus_candy_policy_3": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
+  },
+  "message_update_nickname_fail": "ニックネームの変更に失敗しました。\n別のニックネームを選択してください。",
+  "@message_update_nickname_fail": {
+    "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
+  },
+  "bonus_candy_expiration_time_title": "失効時点",
+  "@bonus_candy_expiration_time_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
+  },
+  "post_comment_action_show_translation": "翻訳を見る",
+  "@post_comment_action_show_translation": {
+    "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
+  },
+  "fortune_lucky_direction": "幸運の方位",
+  "@fortune_lucky_direction": {
+    "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
+  },
+  "error_message_login_failed": "ログイン中にエラーが発生しました。",
+  "@error_message_login_failed": {
+    "description": "Auto-generated metadata for key 'error_message_login_failed'."
+  },
+  "dialog_withdraw_button_ok": "退会する",
+  "@dialog_withdraw_button_ok": {
+    "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
+  },
+  "compatibility_birthtime_subtitle": "精度が上がります！",
+  "@compatibility_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  },
+  "title_dialog_success": "成功",
+  "@title_dialog_success": {
+    "description": "Auto-generated metadata for key 'title_dialog_success'."
+  },
+  "bonus_candy_policy_title": "ボーナススターキャンディのポリシー",
+  "@bonus_candy_policy_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
+  },
+  "bonus_candy_example_expiration_date": "失効日",
+  "@bonus_candy_example_expiration_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
+  },
+  "label_tab_free_charge_station": "無料充電ステーション",
+  "@label_tab_free_charge_station": {
+    "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
+  },
+  "error_user_not_authenticated": "サインインが必要です。もう一度ログインしてください。",
+  "@error_user_not_authenticated": {
+    "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
+  },
+  "text_dialog_vote_amount_should_not_zero": "投票数は0にすることはできません。",
+  "@text_dialog_vote_amount_should_not_zero": {
+    "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
+  },
+  "message_agreement_success": "規約の同意が完了しました。",
+  "@message_agreement_success": {
+    "description": "Auto-generated metadata for key 'message_agreement_success'."
+  },
+  "bonus_candy_earn_period_1_to_15": "1日 00:00:00 ～ 15日 23:59:59",
+  "@bonus_candy_earn_period_1_to_15": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  },
+  "compatibility_snackbar_need_birthday": "生年月日を入力してください。",
+  "@compatibility_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  },
+  "update_recommend_text": "新しいバージョン({version})が利用可能です。",
+  "@update_recommend_text": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "error_product_not_found": "購入した商品が見つかりません。",
+  "@error_product_not_found": {
+    "description": "Auto-generated metadata for key 'error_product_not_found'."
+  },
+  "label_popup_close": "閉じる",
+  "@label_popup_close": {
+    "description": "Auto-generated metadata for key 'label_popup_close'."
+  },
+  "jma_voting_info_text": "-ボーナススターキャンディーは1日最大5個までJMA投票に使用可能です。\n-必要なスターキャンディーは自動的に変換されます。(30スターキャンディー = 1 JMA投票)\n-投票に参加すると、ジャカルタコンサートに自動的に応募されます。",
+  "@jma_voting_info_text": {
+    "description": "Auto-generated metadata for key 'jma_voting_info_text'."
+  },
+  "vote_item_request_search_artist_hint": "アーティストまたはグループを検索",
+  "@vote_item_request_search_artist_hint": {
+    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_hint'."
+  },
+  "bonus_candy_expiration_month_after_next": "翌々月15日 00:00:00",
+  "@bonus_candy_expiration_month_after_next": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
+  },
+  "post_comment_action_show_original": "原文を見る",
+  "@post_comment_action_show_original": {
+    "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
+  },
+  "compatibility_snackbar_need_profile_save_agree": "プロフィール保存に同意してください。",
+  "@compatibility_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  },
+  "qna_content_min_length": "お問い合わせ内容は最低10文字以上入力してください",
+  "@qna_content_min_length": {
+    "description": "Auto-generated metadata for key 'qna_content_min_length'."
+  },
+  "post_ask_go_to_temporary_save_list": "一時保存リストに移動しますか？",
+  "@post_ask_go_to_temporary_save_list": {
+    "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
+  },
+  "label_pic_pic_synthesizing_image": "画像合成中...",
+  "@label_pic_pic_synthesizing_image": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
+  },
+  "label_tab_buy_star_candy": "スターキャンディーの購入",
+  "@label_tab_buy_star_candy": {
+    "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
+  },
+  "jma_voting_max_votes_exceeded": "現在の最大投票可能数は{maxVotes}個です。",
+  "@jma_voting_max_votes_exceeded": {
+    "placeholders": {
+      "maxVotes": {
+        "type": "int"
+      }
+    }
+  },
+  "jma_voting_daily_limit_remaining": "今日の残りボーナス投票数: {remaining}回 (最大{max}回)",
+  "@jma_voting_daily_limit_remaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "post_temporary_save_complete": "一時保存完了。",
+  "@post_temporary_save_complete": {
+    "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
+  },
+  "bonus_candy_example_title": "例",
+  "@bonus_candy_example_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
+  },
+  "label_pic_pic_initializing_camera": "カメラの初期化中...",
+  "@label_pic_pic_initializing_camera": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
+  },
+  "post_write_post_recommend_write": "投稿をお願いします。",
+  "@post_write_post_recommend_write": {
+    "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
+  },
+  "jma_voting_daily_limit_exhausted": "今日のボーナス投票数をすべて使用しました。",
+  "@jma_voting_daily_limit_exhausted": {
+    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
+  },
+  "bonus_candy_policy_1": "- 無料チャージステーションからのボーナススターキャンディ、および購入時のボーナススターキャンディには有効期限があります。",
+  "@bonus_candy_policy_1": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
+  },
+  "compatibility_perfect_score_exists_title": "すでに当選した相性データ",
+  "@compatibility_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  },
+  "compatibility_duplicate_data_message": "同じ条件の相性データが既に存在します。",
+  "@compatibility_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  },
+  "label_time_ago_minute": "{minute}分前",
+  "@label_time_ago_minute": {
+    "placeholders": {
+      "minute": {
+        "type": "int"
+      }
+    }
+  },
+  "update_required_text": "新しいバージョン({version})へのアップデートが必要です。",
+  "@update_required_text": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "jma_voting_star_candy_shortage": "スターキャンディが{shortage}個不足しています。",
+  "@jma_voting_star_candy_shortage": {
+    "placeholders": {
+      "shortage": {
+        "type": "int"
+      }
+    }
+  },
+  "bonus_candy_earn_period_16_to_end": "16日 00:00:00 ～ 月末 23:59:59",
+  "@bonus_candy_earn_period_16_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  },
+  "error_message_withdrawal": "退会した会員です。",
+  "@error_message_withdrawal": {
+    "description": "Auto-generated metadata for key 'error_message_withdrawal'."
+  },
+  "text_achievement": "🎉 これまでに{count}個の目標達成！ 🎉",
+  "@text_achievement": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "label_login_with_wechat": "WeChatでログイン",
+  "@label_login_with_wechat": {
+    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
+  },
+  "withdrawal_success": "退会が正常に処理されました。",
+  "@withdrawal_success": {
+    "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "vote_item_request_already_applied_artist": "このアーティストへの応募は既に完了しています。",
+  "@vote_item_request_already_applied_artist": {
+    "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
+  },
+  "bonus_candy_expiration_policy_expiration_date": "失効日時",
+  "@bonus_candy_expiration_policy_expiration_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
+  },
+  "bonus_candy_example_2_earn": "__MONTH__月20日 14:00(KST)",
+  "@bonus_candy_example_2_earn": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
+  },
+  "message_agreement_fail": "Terms agreement required",
+  "@message_agreement_fail": {
+    "description": "Auto-generated metadata for key 'message_agreement_fail'."
+  },
+  "vote_item_request_button": "投票候補者への応募",
+  "@vote_item_request_button": {
+    "description": "Auto-generated metadata for key 'vote_item_request_button'."
+  },
+  "bonus_candy_expiration_next_month": "翌月15日 00:00:00",
+  "@bonus_candy_expiration_next_month": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
+  },
+  "error_delete_post": "投稿の削除中にエラーが発生しました。",
+  "@error_delete_post": {
+    "description": "Auto-generated metadata for key 'error_delete_post'."
+  },
+  "qna_title_min_length": "タイトルは最低5文字以上入力してください",
+  "@qna_title_min_length": {
+    "description": "Auto-generated metadata for key 'qna_title_min_length'."
+  },
+  "message_update_nickname_success": "ニックネームが正常に変更されました。",
+  "@message_update_nickname_success": {
+    "description": "Auto-generated metadata for key 'message_update_nickname_success'."
+  },
+  "compatibility_new_compatibility_ask": "新しい相性を見ませんか？",
+  "@compatibility_new_compatibility_ask": {
+    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  },
+  "post_replying_comment": "{nickname}さんへの返信中...",
+  "@post_replying_comment": {
+    "placeholders": {
+      "nickname": {
+        "type": "String"
+      }
+    }
+  },
+  "button_pic_pic_save": "保存する",
+  "@button_pic_pic_save": {
+    "description": "Auto-generated metadata for key 'button_pic_pic_save'."
+  },
+  "compatibility_perfect_score_exists": "当該条件の相性データは既にリワード当選履歴があるため、追加のリワードの支給は難しいことをご了承ください。",
+  "@compatibility_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  },
+  "post_minor_board_create_request_message_input": "掲示板オープンリクエストメッセージを入力してください。",
+  "@post_minor_board_create_request_message_input": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
+  },
+  "fortune_purchase_by_star_candy": "スターキャンディで確認",
+  "@fortune_purchase_by_star_candy": {
+    "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
+  },
+  "post_minor_board_create_request_message_condition": "掲示板オープンリクエストメッセージは10文字以上入力してください。",
+  "@post_minor_board_create_request_message_condition": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
+  },
+  "post_board_create_request_reviewing": "掲示板オープンリクエスト検討中",
+  "@post_board_create_request_reviewing": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
+  },
+  "post_minor_board_create_request_message": "* 掲示板オープンリクエストのメッセージ。",
+  "@post_minor_board_create_request_message": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
+  },
+  "compatibility_purchase_confirm_title": "スターキャンディで購入",
+  "@compatibility_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  },
+  "post_board_create_request_label": "掲示板オープンリクエスト",
+  "@post_board_create_request_label": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  }
 }

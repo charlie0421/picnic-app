@@ -15,34 +15,6 @@
   "@anonymous_mode": {
     "description": "Auto-generated metadata for key 'anonymous_mode'."
   },
-  "appTitle": "피크닠",
-  "@appTitle": {
-    "description": "The title of the application"
-  },
-  "app_name": "피크닠",
-  "@app_name": {
-    "description": "Auto-generated metadata for key 'app_name'."
-  },
-  "application_reason_hint": "신청 사유를 입력하세요 (선택사항)",
-  "@application_reason_hint": {
-    "description": "Hint text for application reason field"
-  },
-  "application_reason_label": "신청 사유",
-  "@application_reason_label": {
-    "description": "Label for application reason field"
-  },
-  "application_success": "투표 후보 신청이 완료되었습니다.",
-  "@application_success": {
-    "description": "Success message for application submission"
-  },
-  "artist_name_hint": "아티스트명을 입력하세요",
-  "@artist_name_hint": {
-    "description": "Hint text for artist name field"
-  },
-  "artist_name_label": "아티스트명",
-  "@artist_name_label": {
-    "description": "Label for artist name field"
-  },
   "ban_contact": "문의사항이 있으시면 고객센터로 연락해주세요.",
   "@ban_contact": {
     "description": "Contact information for banned users"
@@ -58,14 +30,6 @@
   "block_user_label": "사용자 차단",
   "@block_user_label": {
     "description": "Auto-generated metadata for key 'block_user_label'."
-  },
-  "bonus_candy_awarded": "스타캔디가 지급되었습니다.",
-  "@bonus_candy_awarded": {
-    "description": "Auto-generated metadata for key 'bonus_candy_awarded'."
-  },
-  "button_apply_as_candidate": "후보 신청",
-  "@button_apply_as_candidate": {
-    "description": "Auto-generated metadata for key 'button_apply_as_candidate'."
   },
   "button_cancel": "취소",
   "@button_cancel": {
@@ -83,29 +47,9 @@
   "@button_ok": {
     "description": "Auto-generated metadata for key 'button_ok'."
   },
-  "button_pic_pic_save": "저장",
-  "@button_pic_pic_save": {
-    "description": "Auto-generated metadata for key 'button_pic_pic_save'."
-  },
   "cancel": "취소",
   "@cancel": {
     "description": "Auto-generated metadata for key 'cancel'."
-  },
-  "candy_disappear_next_month": "만료 예정 보너스 스타캔디 😢",
-  "@candy_disappear_next_month": {
-    "description": "Auto-generated metadata for key 'candy_disappear_next_month'."
-  },
-  "candy_usage_policy_contents": "이번 달에 획득한 보너스 스타캔디는 다음 달 15일에 만료됩니다.",
-  "@candy_usage_policy_contents": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_contents'."
-  },
-  "candy_usage_policy_contents2": "스타캔디 사용 시 만료 예정인 스타캔디가 우선 사용됩니다.",
-  "@candy_usage_policy_contents2": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_contents2'."
-  },
-  "candy_usage_policy_title": "스타캔디 사용 정책",
-  "@candy_usage_policy_title": {
-    "description": "Auto-generated metadata for key 'candy_usage_policy_title'."
   },
   "capture_failed": "캡처 실패",
   "@capture_failed": {
@@ -179,17 +123,9 @@
   "@compatibility_birthtime": {
     "description": "Auto-generated metadata for key 'compatibility_birthtime'."
   },
-  "compatibility_birthtime_subtitle": "정확도 향상!",
-  "@compatibility_birthtime_subtitle": {
-    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
-  },
   "compatibility_couple_style": "커플 스타일",
   "@compatibility_couple_style": {
     "description": "Auto-generated metadata for key 'compatibility_couple_style'."
-  },
-  "compatibility_duplicate_data_message": "동일한 조건의 궁합 데이터가 이미 존재합니다.",
-  "@compatibility_duplicate_data_message": {
-    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
   },
   "compatibility_duplicate_data_title": "이미 존재하는 궁합 데이터",
   "@compatibility_duplicate_data_title": {
@@ -223,33 +159,13 @@
   "@compatibility_new_compatibility": {
     "description": "Auto-generated metadata for key 'compatibility_new_compatibility'."
   },
-  "compatibility_new_compatibility_ask": "새로운 궁합을 보고 싶나요?",
-  "@compatibility_new_compatibility_ask": {
-    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
-  },
   "compatibility_page_title": "궁합",
   "@compatibility_page_title": {
     "description": "Auto-generated metadata for key 'compatibility_page_title'."
   },
-  "compatibility_perfect_score_exists": "이 조건의 궁합 데이터는 이미 리워드를 받았으므로 추가 리워드를 지급할 수 없습니다.",
-  "@compatibility_perfect_score_exists": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
-  },
-  "compatibility_perfect_score_exists_title": "이미 우승한 궁합 데이터",
-  "@compatibility_perfect_score_exists_title": {
-    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
-  },
   "compatibility_purchase_confirm_message": "스타캔디 100개를 사용하여 궁합 결과를 확인합니다.",
   "@compatibility_purchase_confirm_message": {
     "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_message'."
-  },
-  "compatibility_purchase_confirm_title": "스타캔디로 구매",
-  "@compatibility_purchase_confirm_title": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
-  },
-  "compatibility_purchase_message": "{artistName}과 나의 궁합 점수를 알고 싶다면?",
-  "@compatibility_purchase_message": {
-    "description": "Auto-generated metadata for key 'compatibility_purchase_message'."
   },
   "compatibility_remain_star_candy": "남은 스타캔디",
   "@compatibility_remain_star_candy": {
@@ -271,49 +187,17 @@
   "@compatibility_snackbar_error": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_error'."
   },
-  "compatibility_snackbar_need_birthday": "생년월일을 입력해주세요.",
-  "@compatibility_snackbar_need_birthday": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
-  },
-  "compatibility_snackbar_need_birthtime": "출생 시간을 입력해주세요.",
-  "@compatibility_snackbar_need_birthtime": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthtime'."
-  },
   "compatibility_snackbar_need_gender": "성별을 선택해주세요.",
   "@compatibility_snackbar_need_gender": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_need_gender'."
-  },
-  "compatibility_snackbar_need_profile_save_agree": "프로필 저장에 동의해주세요.",
-  "@compatibility_snackbar_need_profile_save_agree": {
-    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
   },
   "compatibility_snackbar_start": "궁합 분석을 시작합니다.",
   "@compatibility_snackbar_start": {
     "description": "Auto-generated metadata for key 'compatibility_snackbar_start'."
   },
-  "compatibility_status_completed": "완료",
-  "@compatibility_status_completed": {
-    "description": "Auto-generated metadata for key 'compatibility_status_completed'."
-  },
-  "compatibility_status_error": "오류",
-  "@compatibility_status_error": {
-    "description": "Auto-generated metadata for key 'compatibility_status_error'."
-  },
-  "compatibility_status_input": "입력 중",
-  "@compatibility_status_input": {
-    "description": "Auto-generated metadata for key 'compatibility_status_input'."
-  },
-  "compatibility_status_pending": "분석 중",
-  "@compatibility_status_pending": {
-    "description": "Auto-generated metadata for key 'compatibility_status_pending'."
-  },
   "compatibility_style_title": "궁합 스타일",
   "@compatibility_style_title": {
     "description": "Auto-generated metadata for key 'compatibility_style_title'."
-  },
-  "compatibility_summary_title": "궁합 요약",
-  "@compatibility_summary_title": {
-    "description": "Auto-generated metadata for key 'compatibility_summary_title'."
   },
   "compatibility_time_slot1": "자시|(23:30-01:29)|🐀",
   "@compatibility_time_slot1": {
@@ -363,10 +247,6 @@
   "@compatibility_time_slot9": {
     "description": "Auto-generated metadata for key 'compatibility_time_slot9'."
   },
-  "compatibility_time_slot_unknown": "모름",
-  "@compatibility_time_slot_unknown": {
-    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
-  },
   "compatibility_tips_title": "궁합 팁",
   "@compatibility_tips_title": {
     "description": "Auto-generated metadata for key 'compatibility_tips_title'."
@@ -407,29 +287,13 @@
   "@dialog_content_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_content_ads_exhausted'."
   },
-  "dialog_content_ads_loading": "광고를 로딩하고 있습니다.",
-  "@dialog_content_ads_loading": {
-    "description": "Auto-generated metadata for key 'dialog_content_ads_loading'."
-  },
-  "dialog_content_ads_retrying": "광고를 다시 로딩하고 있습니다. 잠시 후 다시 시도해주세요.",
-  "@dialog_content_ads_retrying": {
-    "description": "Auto-generated metadata for key 'dialog_content_ads_retrying'."
-  },
   "dialog_content_login_required": "로그인이 필요합니다",
   "@dialog_content_login_required": {
     "description": "Auto-generated metadata for key 'dialog_content_login_required'."
   },
-  "dialog_login_required_description": "이 기능을 사용하려면 로그인이 필요합니다. 로그인하시겠습니까?",
-  "@dialog_login_required_description": {
-    "description": "Auto-generated metadata for key 'dialog_login_required_description'."
-  },
   "dialog_message_can_resignup": "지금 탈퇴하면 언제 다시 가입할 수 있나요?",
   "@dialog_message_can_resignup": {
     "description": "Auto-generated metadata for key 'dialog_message_can_resignup'."
-  },
-  "dialog_message_purchase_canceled": "구매가 취소되었습니다.",
-  "@dialog_message_purchase_canceled": {
-    "description": "Auto-generated metadata for key 'dialog_message_purchase_canceled'."
   },
   "dialog_message_purchase_failed": "구매 중 오류가 발생했습니다. 나중에 다시 시도해주세요.",
   "@dialog_message_purchase_failed": {
@@ -438,14 +302,6 @@
   "dialog_message_purchase_success": "구매가 성공적으로 완료되었습니다.",
   "@dialog_message_purchase_success": {
     "description": "Auto-generated metadata for key 'dialog_message_purchase_success'."
-  },
-  "dialog_purchases_fail": "구매에 실패했습니다.",
-  "@dialog_purchases_fail": {
-    "description": "Auto-generated metadata for key 'dialog_purchases_fail'."
-  },
-  "dialog_purchases_success": "구매가 완료되었습니다.",
-  "@dialog_purchases_success": {
-    "description": "Auto-generated metadata for key 'dialog_purchases_success'."
   },
   "dialog_title_ads_exhausted": "모든 광고 소진",
   "@dialog_title_ads_exhausted": {
@@ -459,89 +315,13 @@
   "@dialog_will_delete_star_candy": {
     "description": "Auto-generated metadata for key 'dialog_will_delete_star_candy'."
   },
-  "dialog_withdraw_button_cancel": "다시 한 번 생각해보겠습니다.",
-  "@dialog_withdraw_button_cancel": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_button_cancel'."
-  },
-  "dialog_withdraw_button_ok": "탈퇴하기",
-  "@dialog_withdraw_button_ok": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
-  },
-  "dialog_withdraw_error": "탈퇴 중 오류가 발생했습니다.",
-  "@dialog_withdraw_error": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_error'."
-  },
   "dialog_withdraw_message": "탈퇴하시면 피크닠의 스타캔디와 계정 정보가 즉시 삭제되며, 재가입 시 기존 정보와 데이터는 복구되지 않습니다.",
   "@dialog_withdraw_message": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_message'."
   },
-  "dialog_withdraw_success": "회원탈퇴가 성공적으로 처리되었습니다.",
-  "@dialog_withdraw_success": {
-    "description": "Auto-generated metadata for key 'dialog_withdraw_success'."
-  },
   "dialog_withdraw_title": "정말 떠나시겠습니까?",
   "@dialog_withdraw_title": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_title'."
-  },
-  "download_android_button": "Google Play에서 받기",
-  "@download_android_button": {
-    "description": "Auto-generated metadata for key 'download_android_button'."
-  },
-  "download_apk_button": "APK 직접 다운로드",
-  "@download_apk_button": {
-    "description": "Auto-generated metadata for key 'download_apk_button'."
-  },
-  "download_coming_soon": "곧 출시",
-  "@download_coming_soon": {
-    "description": "Auto-generated metadata for key 'download_coming_soon'."
-  },
-  "download_description": "K-Pop 아티스트를 위한 투표 및 미디어 플랫폼",
-  "@download_description": {
-    "description": "Auto-generated metadata for key 'download_description'."
-  },
-  "download_feature_media": "미디어 갤러리",
-  "@download_feature_media": {
-    "description": "Auto-generated metadata for key 'download_feature_media'."
-  },
-  "download_feature_rewards": "리워드 초ystem",
-  "@download_feature_rewards": {
-    "description": "Auto-generated metadata for key 'download_feature_rewards'."
-  },
-  "download_feature_voting": "아티스트 투표",
-  "@download_feature_voting": {
-    "description": "Auto-generated metadata for key 'download_feature_voting'."
-  },
-  "download_features_title": "피크닠 주요 기능",
-  "@download_features_title": {
-    "description": "Auto-generated metadata for key 'download_features_title'."
-  },
-  "download_ios_button": "App Store에서 다운로드",
-  "@download_ios_button": {
-    "description": "Auto-generated metadata for key 'download_ios_button'."
-  },
-  "download_link_copied": "복사됨!",
-  "@download_link_copied": {
-    "description": "Auto-generated metadata for key 'download_link_copied'."
-  },
-  "download_link_copy": "링크 복사",
-  "@download_link_copy": {
-    "description": "Auto-generated metadata for key 'download_link_copy'."
-  },
-  "download_page_title": "피크닠 앱 다운로드",
-  "@download_page_title": {
-    "description": "Auto-generated metadata for key 'download_page_title'."
-  },
-  "download_qr_description": "스마트폰으로 QR 코드를 스캔하세요",
-  "@download_qr_description": {
-    "description": "Auto-generated metadata for key 'download_qr_description'."
-  },
-  "download_qr_title": "QR 코드로 빠른 다운로드",
-  "@download_qr_title": {
-    "description": "Auto-generated metadata for key 'download_qr_title'."
-  },
-  "download_subtitle": "지금 피크닠 앱을 다운로드하고 좋아하는 K-Pop 아티스트를 응원하세요!",
-  "@download_subtitle": {
-    "description": "Auto-generated metadata for key 'download_subtitle'."
   },
   "error": "오류",
   "@error": {
@@ -551,45 +331,13 @@
   "@error_action_failed": {
     "description": "Auto-generated metadata for key 'error_action_failed'."
   },
-  "error_application_reason_required": "신청 사유를 입력해주세요",
-  "@error_application_reason_required": {
-    "description": "Error message when application reason is empty"
-  },
-  "error_artist_not_selected": "아티스트를 선택해주세요",
-  "@error_artist_not_selected": {
-    "description": "Error message when no artist is selected"
-  },
   "error_content_parse": "콘텐츠 파싱 중 오류가 발생했습니다.",
   "@error_content_parse": {
     "description": "Auto-generated metadata for key 'error_content_parse'."
   },
-  "error_delete_post": "게시글 삭제 중 오류가 발생했습니다.",
-  "@error_delete_post": {
-    "description": "Auto-generated metadata for key 'error_delete_post'."
-  },
   "error_invalid_data": "잘못된 데이터.",
   "@error_invalid_data": {
     "description": "Auto-generated metadata for key 'error_invalid_data'."
-  },
-  "error_loading_more_comments": "댓글 로딩 중 오류가 발생했습니다.",
-  "@error_loading_more_comments": {
-    "description": "Auto-generated metadata for key 'error_loading_more_comments'."
-  },
-  "error_loading_page": "페이지 로딩 중 오류가 발생했습니다.",
-  "@error_loading_page": {
-    "description": "Auto-generated metadata for key 'error_loading_page'."
-  },
-  "error_message_login_failed": "로그인 중 오류가 발생했습니다.",
-  "@error_message_login_failed": {
-    "description": "Auto-generated metadata for key 'error_message_login_failed'."
-  },
-  "error_message_no_user": "회원 정보가 존재하지 않습니다.",
-  "@error_message_no_user": {
-    "description": "Auto-generated metadata for key 'error_message_no_user'."
-  },
-  "error_message_withdrawal": "탈퇴한 회원입니다.",
-  "@error_message_withdrawal": {
-    "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
   "error_network_connection": "네트워크 연결을 확인하세요.",
   "@error_network_connection": {
@@ -607,65 +355,9 @@
   "@error_unknown": {
     "description": "Auto-generated metadata for key 'error_unknown'."
   },
-  "exception_auth_message_apple_invalid_response": "Apple 서버로부터 잘못된 응답을 받았습니다.\n다시 시도해주세요.",
-  "@exception_auth_message_apple_invalid_response": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_apple_invalid_response'."
-  },
-  "exception_auth_message_apple_sign_in_failed": "Apple 로그인에 실패했습니다.\n다시 시도해주세요.",
-  "@exception_auth_message_apple_sign_in_failed": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_apple_sign_in_failed'."
-  },
-  "exception_auth_message_common_cancel": "로그인이 취소되었습니다.",
-  "@exception_auth_message_common_cancel": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_cancel'."
-  },
-  "exception_auth_message_common_invalid_token": "인증 토큰이 유효하지 않습니다.\n다시 시도해주세요.",
-  "@exception_auth_message_common_invalid_token": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_invalid_token'."
-  },
-  "exception_auth_message_common_network": "네트워크 연결을 확인하세요.",
-  "@exception_auth_message_common_network": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_network'."
-  },
-  "exception_auth_message_common_unknown": "로그인 중 알 수 없는 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.",
-  "@exception_auth_message_common_unknown": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_unknown'."
-  },
-  "exception_auth_message_common_unsupported_provider": "지원하지 않는 로그인 방식입니다.",
-  "@exception_auth_message_common_unsupported_provider": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_common_unsupported_provider'."
-  },
-  "exception_auth_message_google_google_play_service": "Google Play 서비스 오류가 발생했습니다.\nGoogle Play 서비스를 업데이트하거나 기기를 재시작해주세요.",
-  "@exception_auth_message_google_google_play_service": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_google_google_play_service'."
-  },
-  "exception_auth_message_kakao_not_supported": "카카오톡 앱으로 로그인할 수 없습니다.\n카카오 계정으로 로그인을 시도해보세요.",
-  "@exception_auth_message_kakao_not_supported": {
-    "description": "Auto-generated metadata for key 'exception_auth_message_kakao_not_supported'."
-  },
-  "faq_category_account": "계정",
-  "@faq_category_account": {
-    "description": "Auto-generated metadata for key 'faq_category_account'."
-  },
   "faq_category_all": "전체",
   "@faq_category_all": {
     "description": "Auto-generated metadata for key 'faq_category_all'."
-  },
-  "faq_category_etc": "기타",
-  "@faq_category_etc": {
-    "description": "Auto-generated metadata for key 'faq_category_etc'."
-  },
-  "faq_category_general": "일반",
-  "@faq_category_general": {
-    "description": "Auto-generated metadata for key 'faq_category_general'."
-  },
-  "faq_category_payment": "결제",
-  "@faq_category_payment": {
-    "description": "Auto-generated metadata for key 'faq_category_payment'."
-  },
-  "faq_category_service": "서비스",
-  "@faq_category_service": {
-    "description": "Auto-generated metadata for key 'faq_category_service'."
   },
   "fortune_advice": "조언",
   "@fortune_advice": {
@@ -702,10 +394,6 @@
   "fortune_lucky_days": "행운의 요일",
   "@fortune_lucky_days": {
     "description": "Auto-generated metadata for key 'fortune_lucky_days'."
-  },
-  "fortune_lucky_direction": "행운의 방향",
-  "@fortune_lucky_direction": {
-    "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
   },
   "fortune_lucky_keyword": "행운의 키워드",
   "@fortune_lucky_keyword": {
@@ -771,29 +459,9 @@
   "@fortune_monthly": {
     "description": "Auto-generated metadata for key 'fortune_monthly'."
   },
-  "fortune_purchase_by_one_click": "지금 결제",
-  "@fortune_purchase_by_one_click": {
-    "description": "Auto-generated metadata for key 'fortune_purchase_by_one_click'."
-  },
-  "fortune_purchase_by_star_candy": "스타캔디로 확인",
-  "@fortune_purchase_by_star_candy": {
-    "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
-  },
   "fortune_relationship": "인간관계",
   "@fortune_relationship": {
     "description": "Auto-generated metadata for key 'fortune_relationship'."
-  },
-  "fortune_share_hashtag": "#picnic #신년운세 #Fourtuneteller",
-  "@fortune_share_hashtag": {
-    "description": "Auto-generated metadata for key 'fortune_share_hashtag'."
-  },
-  "fortune_share_message": "Curious about {artistName}'s 2025 fortune? Come to #피크닠 now! Let's discover that shining destiny together!",
-  "@fortune_share_message": {
-    "description": "Auto-generated metadata for key 'fortune_share_message'."
-  },
-  "fortune_title": "{year}년 운세",
-  "@fortune_title": {
-    "description": "Auto-generated metadata for key 'fortune_title'."
   },
   "fortune_total_title": "종합 운세",
   "@fortune_total_title": {
@@ -802,14 +470,6 @@
   "fortune_with_me": "나와의 궁합",
   "@fortune_with_me": {
     "description": "Auto-generated metadata for key 'fortune_with_me'."
-  },
-  "group_name_hint": "그룹명을 입력하세요 (선택사항)",
-  "@group_name_hint": {
-    "description": "Hint text for group name field"
-  },
-  "group_name_label": "그룹명",
-  "@group_name_label": {
-    "description": "Label for group name field"
   },
   "hint_library_add": "앨범명",
   "@hint_library_add": {
@@ -827,10 +487,6 @@
   "@image_save_success": {
     "description": "Auto-generated metadata for key 'image_save_success'."
   },
-  "just_now": "방금 전",
-  "@just_now": {
-    "description": "Auto-generated metadata for key 'just_now'."
-  },
   "label_ads_exceeded": "이 버튼의 광고 시청 횟수를 초과했습니다.",
   "@label_ads_exceeded": {
     "description": "Auto-generated metadata for key 'label_ads_exceeded'."
@@ -846,18 +502,6 @@
   "label_ads_load_fail": "광고 로드에 실패했습니다. 다시 시도해주세요.",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
-  },
-  "label_ads_load_timeout": "광고 로딩 시간 초과. Please try again.",
-  "@label_ads_load_timeout": {
-    "description": "Auto-generated metadata for key 'label_ads_load_timeout'."
-  },
-  "label_ads_next_available_time": "다음 광고 이용 가능 시간",
-  "@label_ads_next_available_time": {
-    "description": "Auto-generated metadata for key 'label_ads_next_available_time'."
-  },
-  "label_ads_reward_fail": "리워드 받기에 실패했습니다. 다시 시도해주세요.",
-  "@label_ads_reward_fail": {
-    "description": "Auto-generated metadata for key 'label_ads_reward_fail'."
   },
   "label_ads_sdk_init_fail": "SDK 초기화에 실패했습니다. 다시 시도해주세요.",
   "@label_ads_sdk_init_fail": {
@@ -879,18 +523,6 @@
   "@label_album_add": {
     "description": "Auto-generated metadata for key 'label_album_add'."
   },
-  "label_area_filter_all": "전체",
-  "@label_area_filter_all": {
-    "description": "Auto-generated metadata for key 'label_area_filter_all'."
-  },
-  "label_area_filter_kpop": "K-POP",
-  "@label_area_filter_kpop": {
-    "description": "Auto-generated metadata for key 'label_area_filter_kpop'."
-  },
-  "label_area_filter_musical": "K-뮤지컬",
-  "@label_area_filter_musical": {
-    "description": "Auto-generated metadata for key 'label_area_filter_musical'."
-  },
   "label_article_comment_empty": "첫 번째 댓글을 남겨보세요!",
   "@label_article_comment_empty": {
     "description": "Auto-generated metadata for key 'label_article_comment_empty'."
@@ -911,25 +543,9 @@
   "@label_button_close": {
     "description": "Auto-generated metadata for key 'label_button_close'."
   },
-  "label_button_disagreement": "동의하지 않음",
-  "@label_button_disagreement": {
-    "description": "Auto-generated metadata for key 'label_button_disagreement'."
-  },
-  "label_button_mission_and_charge": "미션 및 충전",
-  "@label_button_mission_and_charge": {
-    "description": "Auto-generated metadata for key 'label_button_mission_and_charge'."
-  },
   "label_button_recharge": "충전",
   "@label_button_recharge": {
     "description": "Auto-generated metadata for key 'label_button_recharge'."
-  },
-  "label_button_save_vote_paper": "투표용지 저장",
-  "@label_button_save_vote_paper": {
-    "description": "Auto-generated metadata for key 'label_button_save_vote_paper'."
-  },
-  "label_button_share": "공유",
-  "@label_button_share": {
-    "description": "Auto-generated metadata for key 'label_button_share'."
   },
   "label_button_view_policy": "정책보기",
   "@label_button_view_policy": {
@@ -938,22 +554,6 @@
   "label_button_vote": "투표",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
-  },
-  "label_button_vote_ended": "투표 종료",
-  "@label_button_vote_ended": {
-    "description": "Auto-generated metadata for key 'label_button_vote_ended'."
-  },
-  "label_button_vote_upcoming": "투표 예정",
-  "@label_button_vote_upcoming": {
-    "description": "Auto-generated metadata for key 'label_button_vote_upcoming'."
-  },
-  "label_button_watch_and_charge": "광고 시청 및 충전",
-  "@label_button_watch_and_charge": {
-    "description": "Auto-generated metadata for key 'label_button_watch_and_charge'."
-  },
-  "label_celeb_ask_to_you": "아티스트가 묻습니다!",
-  "@label_celeb_ask_to_you": {
-    "description": "Auto-generated metadata for key 'label_celeb_ask_to_you'."
   },
   "label_celeb_gallery": "아티스트 갤러리",
   "@label_celeb_gallery": {
@@ -967,10 +567,6 @@
   "@label_checkbox_entire_use": {
     "description": "Auto-generated metadata for key 'label_checkbox_entire_use'."
   },
-  "label_current_language": "현재 언어",
-  "@label_current_language": {
-    "description": "Auto-generated metadata for key 'label_current_language'."
-  },
   "label_draw_image": "랜덤 이미지 당첨 기회",
   "@label_draw_image": {
     "description": "Auto-generated metadata for key 'label_draw_image'."
@@ -982,18 +578,6 @@
   "label_dropdown_recent": "최신순",
   "@label_dropdown_recent": {
     "description": "Auto-generated metadata for key 'label_dropdown_recent'."
-  },
-  "label_find_celeb": "더 많은 아티스트 찾기",
-  "@label_find_celeb": {
-    "description": "Auto-generated metadata for key 'label_find_celeb'."
-  },
-  "label_gallery_tab_article": "게시글",
-  "@label_gallery_tab_article": {
-    "description": "Auto-generated metadata for key 'label_gallery_tab_article'."
-  },
-  "label_gallery_tab_chat": "채팅",
-  "@label_gallery_tab_chat": {
-    "description": "Auto-generated metadata for key 'label_gallery_tab_chat'."
   },
   "label_global_recommendation": "글로벌 픽",
   "@label_global_recommendation": {
@@ -1031,37 +615,9 @@
   "@label_library_tab_pic": {
     "description": "Auto-generated metadata for key 'label_library_tab_pic'."
   },
-  "label_list_more": "더보기",
-  "@label_list_more": {
-    "description": "Auto-generated metadata for key 'label_list_more'."
-  },
   "label_loading_ads": "광고 로딩 중",
   "@label_loading_ads": {
     "description": "Auto-generated metadata for key 'label_loading_ads'."
-  },
-  "label_loading_ads_fail": "광고 로딩 실패",
-  "@label_loading_ads_fail": {
-    "description": "Auto-generated metadata for key 'label_loading_ads_fail'."
-  },
-  "label_login_with_apple": "Apple로 로그인",
-  "@label_login_with_apple": {
-    "description": "Auto-generated metadata for key 'label_login_with_apple'."
-  },
-  "label_login_with_google": "Google로 로그인",
-  "@label_login_with_google": {
-    "description": "Auto-generated metadata for key 'label_login_with_google'."
-  },
-  "label_login_with_kakao": "카카오로 로그인",
-  "@label_login_with_kakao": {
-    "description": "Auto-generated metadata for key 'label_login_with_kakao'."
-  },
-  "label_login_with_wechat": "WeChat으로 로그인",
-  "@label_login_with_wechat": {
-    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
-  },
-  "label_mission": "미션",
-  "@label_mission": {
-    "description": "Auto-generated metadata for key 'label_mission'."
   },
   "label_mission_get_star_candy": "미션에서 스타캔디 받기",
   "@label_mission_get_star_candy": {
@@ -1075,14 +631,6 @@
   "@label_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'label_moveto_celeb_gallery'."
   },
-  "label_mypage_charge_history": "충전 내역 (관리자)",
-  "@label_mypage_charge_history": {
-    "description": "Charge history menu for admin users"
-  },
-  "label_mypage_customer_center": "고객센터",
-  "@label_mypage_customer_center": {
-    "description": "Auto-generated metadata for key 'label_mypage_customer_center'."
-  },
   "label_mypage_faq": "자주 묻는 질문",
   "@label_mypage_faq": {
     "description": "Auto-generated metadata for key 'label_mypage_faq'."
@@ -1090,10 +638,6 @@
   "label_mypage_logout": "Log out",
   "@label_mypage_logout": {
     "description": "Auto-generated metadata for key 'label_mypage_logout'."
-  },
-  "label_mypage_membership_history": "멤버십 이력",
-  "@label_mypage_membership_history": {
-    "description": "Auto-generated metadata for key 'label_mypage_membership_history'."
   },
   "label_mypage_my_artist": "내 아티스트",
   "@label_mypage_my_artist": {
@@ -1135,10 +679,6 @@
   "@label_mypage_withdrawal": {
     "description": "Auto-generated metadata for key 'label_mypage_withdrawal'."
   },
-  "label_no_ads": "광고 없음",
-  "@label_no_ads": {
-    "description": "Auto-generated metadata for key 'label_no_ads'."
-  },
   "label_no_celeb": "아직 북마크한 아티스트가 없습니다!",
   "@label_no_celeb": {
     "description": "Auto-generated metadata for key 'label_no_celeb'."
@@ -1147,29 +687,9 @@
   "@label_pic_chart": {
     "description": "Auto-generated metadata for key 'label_pic_chart'."
   },
-  "label_pic_image_cropping": "이미지 자르기",
-  "@label_pic_image_cropping": {
-    "description": "Auto-generated metadata for key 'label_pic_image_cropping'."
-  },
-  "label_pic_pic_initializing_camera": "카메라 초기화 중...",
-  "@label_pic_pic_initializing_camera": {
-    "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
-  },
   "label_pic_pic_save_gallery": "갤러리에 저장",
   "@label_pic_pic_save_gallery": {
     "description": "Auto-generated metadata for key 'label_pic_pic_save_gallery'."
-  },
-  "label_pic_pic_synthesizing_image": "이미지 합성 중...",
-  "@label_pic_pic_synthesizing_image": {
-    "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
-  },
-  "label_popup_close": "닫기",
-  "@label_popup_close": {
-    "description": "Auto-generated metadata for key 'label_popup_close'."
-  },
-  "label_popup_hide_7days": "7일간 보지 않기",
-  "@label_popup_hide_7days": {
-    "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
   },
   "label_read_more_comment": "댓글 더보기",
   "@label_read_more_comment": {
@@ -1182,22 +702,6 @@
   "label_retry": "재시도",
   "@label_retry": {
     "description": "Auto-generated metadata for key 'label_retry'."
-  },
-  "label_reward_location": "위치",
-  "@label_reward_location": {
-    "description": "Auto-generated metadata for key 'label_reward_location'."
-  },
-  "label_reward_overview": "개요",
-  "@label_reward_overview": {
-    "description": "Auto-generated metadata for key 'label_reward_overview'."
-  },
-  "label_reward_size": "크기",
-  "@label_reward_size": {
-    "description": "Auto-generated metadata for key 'label_reward_size'."
-  },
-  "label_screen_title_agreement": "약관 동의",
-  "@label_screen_title_agreement": {
-    "description": "Auto-generated metadata for key 'label_screen_title_agreement'."
   },
   "label_setting_alarm": "알림",
   "@label_setting_alarm": {
@@ -1239,69 +743,21 @@
   "@label_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'label_setting_remove_cache'."
   },
-  "label_setting_remove_cache_complete": "완료",
-  "@label_setting_remove_cache_complete": {
-    "description": "Auto-generated metadata for key 'label_setting_remove_cache_complete'."
-  },
   "label_setting_storage": "저장소 관리",
   "@label_setting_storage": {
     "description": "Auto-generated metadata for key 'label_setting_storage'."
-  },
-  "label_setting_update": "업데이트",
-  "@label_setting_update": {
-    "description": "Auto-generated metadata for key 'label_setting_update'."
   },
   "label_star_candy_pouch": "스타캔디 파우치",
   "@label_star_candy_pouch": {
     "description": "Auto-generated metadata for key 'label_star_candy_pouch'."
   },
-  "label_tab_buy_star_candy": "스타캔디 구매",
-  "@label_tab_buy_star_candy": {
-    "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
-  },
-  "label_tab_free_charge_station": "무료 충전소",
-  "@label_tab_free_charge_station": {
-    "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
-  },
-  "label_tab_my_artist": "내 아티스트",
-  "@label_tab_my_artist": {
-    "description": "Auto-generated metadata for key 'label_tab_my_artist'."
-  },
-  "label_tab_search_my_artist": "내 아티스트 찾기",
-  "@label_tab_search_my_artist": {
-    "description": "Auto-generated metadata for key 'label_tab_search_my_artist'."
-  },
-  "label_tabbar_picchart_daily": "일간 차트",
-  "@label_tabbar_picchart_daily": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_daily'."
-  },
-  "label_tabbar_picchart_monthly": "월간 차트",
-  "@label_tabbar_picchart_monthly": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_monthly'."
-  },
-  "label_tabbar_picchart_weekly": "주간 차트",
-  "@label_tabbar_picchart_weekly": {
-    "description": "Auto-generated metadata for key 'label_tabbar_picchart_weekly'."
-  },
   "label_tabbar_vote_active": "진행중",
   "@label_tabbar_vote_active": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_active'."
   },
-  "label_tabbar_vote_all": "전체",
-  "@label_tabbar_vote_all": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_all'."
-  },
   "label_tabbar_vote_end": "종료됨",
   "@label_tabbar_vote_end": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_end'."
-  },
-  "label_tabbar_vote_image": "이미지 투표",
-  "@label_tabbar_vote_image": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_image'."
-  },
-  "label_tabbar_vote_upcoming": "예정됨",
-  "@label_tabbar_vote_upcoming": {
-    "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
   },
   "label_time_ago_day": "{day}일 전",
   "@label_time_ago_day": {
@@ -1311,17 +767,9 @@
   "@label_time_ago_hour": {
     "description": "Auto-generated metadata for key 'label_time_ago_hour'."
   },
-  "label_time_ago_minute": "{minute}분 전",
-  "@label_time_ago_minute": {
-    "description": "Auto-generated metadata for key 'label_time_ago_minute'."
-  },
   "label_time_ago_right_now": "방금 전",
   "@label_time_ago_right_now": {
     "description": "Auto-generated metadata for key 'label_time_ago_right_now'."
-  },
-  "label_title_comment": "댓글",
-  "@label_title_comment": {
-    "description": "Auto-generated metadata for key 'label_title_comment'."
   },
   "label_title_report": "신고하기",
   "@label_title_report": {
@@ -1331,33 +779,9 @@
   "@label_unlimited_rewards": {
     "description": "Auto-generated metadata for key 'label_unlimited_rewards'."
   },
-  "label_various_rewards": "다양한 리워드",
-  "@label_various_rewards": {
-    "description": "Auto-generated metadata for key 'label_various_rewards'."
-  },
-  "label_vote_achieve": "성과 투표",
-  "@label_vote_achieve": {
-    "description": "Auto-generated metadata for key 'label_vote_achieve'."
-  },
-  "label_vote_birthday": "생일",
-  "@label_vote_birthday": {
-    "description": "Auto-generated metadata for key 'label_vote_birthday'."
-  },
-  "label_vote_comback": "컴백 투표",
-  "@label_vote_comback": {
-    "description": "Auto-generated metadata for key 'label_vote_comback'."
-  },
-  "label_vote_debut": "데뷔",
-  "@label_vote_debut": {
-    "description": "Auto-generated metadata for key 'label_vote_debut'."
-  },
   "label_vote_end": "투표 마감",
   "@label_vote_end": {
     "description": "Auto-generated metadata for key 'label_vote_end'."
-  },
-  "label_vote_image": "이미지",
-  "@label_vote_image": {
-    "description": "Auto-generated metadata for key 'label_vote_image'."
   },
   "label_vote_reward_list": "리워드 목록",
   "@label_vote_reward_list": {
@@ -1367,29 +791,9 @@
   "@label_vote_screen_title": {
     "description": "Auto-generated metadata for key 'label_vote_screen_title'."
   },
-  "label_vote_shining": "샤이닝 투표",
-  "@label_vote_shining": {
-    "description": "Auto-generated metadata for key 'label_vote_shining'."
-  },
-  "label_vote_tab_birthday": "생일 투표",
-  "@label_vote_tab_birthday": {
-    "description": "Auto-generated metadata for key 'label_vote_tab_birthday'."
-  },
-  "label_vote_tab_pic": "PIC 투표",
-  "@label_vote_tab_pic": {
-    "description": "Auto-generated metadata for key 'label_vote_tab_pic'."
-  },
   "label_vote_upcoming": "투표 시작까지",
   "@label_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_vote_upcoming'."
-  },
-  "label_vote_vote_gather": "투표 수집 중",
-  "@label_vote_vote_gather": {
-    "description": "Auto-generated metadata for key 'label_vote_vote_gather'."
-  },
-  "label_watch_ads": "광고 시청",
-  "@label_watch_ads": {
-    "description": "Auto-generated metadata for key 'label_watch_ads'."
   },
   "label_watch_ads_short": "시청",
   "@label_watch_ads_short": {
@@ -1402,26 +806,6 @@
   "loading": "로딩 중...",
   "@loading": {
     "description": "Auto-generated metadata for key 'loading'."
-  },
-  "login_simple_login": "간편 로그인",
-  "@login_simple_login": {
-    "description": "Auto-generated metadata for key 'login_simple_login'."
-  },
-  "login_simple_login_guide": "계정이 없으신가요? 위의 소셜 로그인으로 자동 가입됩니다",
-  "@login_simple_login_guide": {
-    "description": "Auto-generated metadata for key 'login_simple_login_guide'."
-  },
-  "login_title": "피크닠에서 특별한 순간을 찾아보세요",
-  "@login_title": {
-    "description": "Auto-generated metadata for key 'login_title'."
-  },
-  "message_agreement_fail": "약관 동의가 필요합니다",
-  "@message_agreement_fail": {
-    "description": "Auto-generated metadata for key 'message_agreement_fail'."
-  },
-  "message_agreement_success": "약관 동의가 완료되었습니다.",
-  "@message_agreement_success": {
-    "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
   "message_error_occurred": "오류가 발생했습니다.",
   "@message_error_occurred": {
@@ -1447,26 +831,6 @@
   "@message_pic_pic_save_success": {
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
-  "message_report_confirm": "신고하시겠습니까?",
-  "@message_report_confirm": {
-    "description": "Auto-generated metadata for key 'message_report_confirm'."
-  },
-  "message_report_ok": "신고가 완료되었습니다.",
-  "@message_report_ok": {
-    "description": "Auto-generated metadata for key 'message_report_ok'."
-  },
-  "message_setting_remove_cache": "캐시 메모리 삭제가 완료되었습니다.",
-  "@message_setting_remove_cache": {
-    "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
-  },
-  "message_update_nickname_fail": "닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.",
-  "@message_update_nickname_fail": {
-    "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
-  },
-  "message_update_nickname_success": "닉네임이 성공적으로 변경되었습니다.",
-  "@message_update_nickname_success": {
-    "description": "Auto-generated metadata for key 'message_update_nickname_success'."
-  },
   "message_vote_is_ended": "투표 마감됨",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
@@ -1483,81 +847,13 @@
   "@my_info": {
     "description": "Auto-generated metadata for key 'my_info'."
   },
-  "mypage_comment": "댓글 관리",
-  "@mypage_comment": {
-    "description": "Auto-generated metadata for key 'mypage_comment'."
-  },
-  "mypage_language": "언어 설정",
-  "@mypage_language": {
-    "description": "Auto-generated metadata for key 'mypage_language'."
-  },
-  "mypage_purchases": "내 구매내역",
-  "@mypage_purchases": {
-    "description": "Auto-generated metadata for key 'mypage_purchases'."
-  },
   "mypage_setting": "설정",
   "@mypage_setting": {
     "description": "Auto-generated metadata for key 'mypage_setting'."
   },
-  "mypage_subscription": "구독 정보",
-  "@mypage_subscription": {
-    "description": "Auto-generated metadata for key 'mypage_subscription'."
-  },
-  "nav_ads": "광고",
-  "@nav_ads": {
-    "description": "Auto-generated metadata for key 'nav_ads'."
-  },
-  "nav_board": "게시판",
-  "@nav_board": {
-    "description": "Auto-generated metadata for key 'nav_board'."
-  },
-  "nav_gallery": "갤러리",
-  "@nav_gallery": {
-    "description": "Auto-generated metadata for key 'nav_gallery'."
-  },
-  "nav_home": "홈",
-  "@nav_home": {
-    "description": "Auto-generated metadata for key 'nav_home'."
-  },
-  "nav_library": "라이브러리",
-  "@nav_library": {
-    "description": "Auto-generated metadata for key 'nav_library'."
-  },
   "nav_media": "미디어",
   "@nav_media": {
     "description": "Auto-generated metadata for key 'nav_media'."
-  },
-  "nav_my": "나의",
-  "@nav_my": {
-    "description": "Auto-generated metadata for key 'nav_my'."
-  },
-  "nav_picchart": "PIC 차트",
-  "@nav_picchart": {
-    "description": "Auto-generated metadata for key 'nav_picchart'."
-  },
-  "nav_purchases": "구매",
-  "@nav_purchases": {
-    "description": "Auto-generated metadata for key 'nav_purchases'."
-  },
-  "nav_rewards": "리워드",
-  "@nav_rewards": {
-    "description": "Auto-generated metadata for key 'nav_rewards'."
-  },
-  "nav_setting": "설정",
-  "@nav_setting": {
-    "description": "Auto-generated metadata for key 'nav_setting'."
-  },
-  "nav_store": "상점",
-  "@nav_store": {
-    "description": "Auto-generated metadata for key 'nav_store'."
-  },
-  "nav_subscription": "구독",
-  "@nav_subscription": {
-    "description": "Auto-generated metadata for key 'nav_subscription'."
-  },
-  "nav_vote": "투표",
-  "@nav_vote": {
-    "description": "Auto-generated metadata for key 'nav_vote'."
   },
   "network_error_message": "인터넷 연결을 확인해주세요.",
   "@network_error_message": {
@@ -1571,65 +867,21 @@
   "@nickname_validation_error": {
     "description": "Auto-generated metadata for key 'nickname_validation_error'."
   },
-  "no_search_results": "검색 결과가 없습니다",
-  "@no_search_results": {
-    "description": "Text shown when no search results are found"
-  },
   "notice_pinned": "고정",
   "@notice_pinned": {
     "description": "Auto-generated metadata for key 'notice_pinned'."
-  },
-  "optional": "선택사항",
-  "@optional": {
-    "description": "Auto-generated metadata for key 'optional'."
   },
   "page_title_mypage": "내 페이지",
   "@page_title_mypage": {
     "description": "Auto-generated metadata for key 'page_title_mypage'."
   },
-  "page_title_myprofile": "내 프로필",
-  "@page_title_myprofile": {
-    "description": "Auto-generated metadata for key 'page_title_myprofile'."
-  },
   "page_title_post_write": "게시글 작성",
   "@page_title_post_write": {
     "description": "Auto-generated metadata for key 'page_title_post_write'."
   },
-  "page_title_privacy": "개인정보처리방침",
-  "@page_title_privacy": {
-    "description": "Auto-generated metadata for key 'page_title_privacy'."
-  },
-  "page_title_setting": "환경설정",
-  "@page_title_setting": {
-    "description": "Auto-generated metadata for key 'page_title_setting'."
-  },
-  "page_title_terms_of_use": "이용약관",
-  "@page_title_terms_of_use": {
-    "description": "Auto-generated metadata for key 'page_title_terms_of_use'."
-  },
   "page_title_vote_detail": "투표",
   "@page_title_vote_detail": {
     "description": "Auto-generated metadata for key 'page_title_vote_detail'."
-  },
-  "page_title_vote_gather": "투표 수집 중",
-  "@page_title_vote_gather": {
-    "description": "Auto-generated metadata for key 'page_title_vote_gather'."
-  },
-  "patch_check": "패치 확인 중",
-  "@patch_check": {
-    "description": "Auto-generated metadata for key 'patch_check'."
-  },
-  "patch_error": "패치 실패",
-  "@patch_error": {
-    "description": "Auto-generated metadata for key 'patch_error'."
-  },
-  "patch_install": "패치 설치 중",
-  "@patch_install": {
-    "description": "Auto-generated metadata for key 'patch_install'."
-  },
-  "patch_restart_app": "앱 재시작 중",
-  "@patch_restart_app": {
-    "description": "Auto-generated metadata for key 'patch_restart_app'."
   },
   "popup_label_delete": "삭제",
   "@popup_label_delete": {
@@ -1638,10 +890,6 @@
   "post_anonymous": "익명 게시",
   "@post_anonymous": {
     "description": "Auto-generated metadata for key 'post_anonymous'."
-  },
-  "post_ask_go_to_temporary_save_list": "임시저장 목록으로 가시겠습니까?",
-  "@post_ask_go_to_temporary_save_list": {
-    "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
   },
   "post_board_already_exist": "이미 존재하는 게시판입니다.",
   "@post_board_already_exist": {
@@ -1655,29 +903,9 @@
   "@post_board_create_request_condition": {
     "description": "Auto-generated metadata for key 'post_board_create_request_condition'."
   },
-  "post_board_create_request_label": "게시판 개설 요청",
-  "@post_board_create_request_label": {
-    "description": "Auto-generated metadata for key 'post_board_create_request_label'."
-  },
-  "post_board_create_request_reviewing": "게시판 개설 요청 검토 중",
-  "@post_board_create_request_reviewing": {
-    "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
-  },
   "post_board_request_label": "개설 요청",
   "@post_board_request_label": {
     "description": "Auto-generated metadata for key 'post_board_request_label'."
-  },
-  "post_cannot_open_youtube": "유튜브를 열 수 없습니다.",
-  "@post_cannot_open_youtube": {
-    "description": "Auto-generated metadata for key 'post_cannot_open_youtube'."
-  },
-  "post_comment_action_show_original": "원문 보기",
-  "@post_comment_action_show_original": {
-    "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
-  },
-  "post_comment_action_show_translation": "번역 보기",
-  "@post_comment_action_show_translation": {
-    "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
   },
   "post_comment_action_translate": "번역",
   "@post_comment_action_translate": {
@@ -1718,10 +946,6 @@
   "post_comment_reported_comment": "신고된 댓글입니다.",
   "@post_comment_reported_comment": {
     "description": "Auto-generated metadata for key 'post_comment_reported_comment'."
-  },
-  "post_comment_translate_complete": "번역이 완료되었습니다.",
-  "@post_comment_translate_complete": {
-    "description": "Auto-generated metadata for key 'post_comment_translate_complete'."
   },
   "post_comment_translate_fail": "번역에 실패했습니다.",
   "@post_comment_translate_fail": {
@@ -1775,25 +999,9 @@
   "@post_insert_link": {
     "description": "Auto-generated metadata for key 'post_insert_link'."
   },
-  "post_loading_post_fail": "게시글 로드에 실패했습니다.",
-  "@post_loading_post_fail": {
-    "description": "Auto-generated metadata for key 'post_loading_post_fail'."
-  },
   "post_minor_board_condition": "5자 이상 20자 이하로 설명을 입력해주세요.",
   "@post_minor_board_condition": {
     "description": "Auto-generated metadata for key 'post_minor_board_condition'."
-  },
-  "post_minor_board_create_request_message": "* 게시판 개설 요청 메시지",
-  "@post_minor_board_create_request_message": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
-  },
-  "post_minor_board_create_request_message_condition": "게시판 개설 요청 메시지를 10자 이상 포함해주세요.",
-  "@post_minor_board_create_request_message_condition": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
-  },
-  "post_minor_board_create_request_message_input": "게시판 개설 요청 메시지를 입력하세요.",
-  "@post_minor_board_create_request_message_input": {
-    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
   },
   "post_minor_board_description": "소게시판 설명",
   "@post_minor_board_description": {
@@ -1834,10 +1042,6 @@
   "post_not_found": "게시글을 찾을 수 없습니다.",
   "@post_not_found": {
     "description": "Auto-generated metadata for key 'post_not_found'."
-  },
-  "post_replying_comment": "{nickname}님에게 답글 중...",
-  "@post_replying_comment": {
-    "description": "Auto-generated metadata for key 'post_replying_comment'."
   },
   "post_report_fail": "신고에 실패했습니다.",
   "@post_report_fail": {
@@ -1883,21 +1087,9 @@
   "@post_report_success": {
     "description": "Auto-generated metadata for key 'post_report_success'."
   },
-  "post_temporary_save_complete": "임시저장 완료",
-  "@post_temporary_save_complete": {
-    "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
-  },
   "post_title_placeholder": "제목을 입력해주세요.",
   "@post_title_placeholder": {
     "description": "Auto-generated metadata for key 'post_title_placeholder'."
-  },
-  "post_write_board_post": "게시글 작성",
-  "@post_write_board_post": {
-    "description": "Auto-generated metadata for key 'post_write_board_post'."
-  },
-  "post_write_post_recommend_write": "Please create a post.",
-  "@post_write_post_recommend_write": {
-    "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
   },
   "post_youtube_link": "유튜브 링크",
   "@post_youtube_link": {
@@ -1915,45 +1107,9 @@
   "@purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'purchase_confirm_title'."
   },
-  "purchase_cooldown_message": "잠시 후 다시 시도해주세요.",
-  "@purchase_cooldown_message": {
-    "description": "Auto-generated metadata for key 'purchase_cooldown_message'."
-  },
   "previousTransactionPendingError": "이전 결제가 스토어에서 처리 중입니다. 잠시 후 다시 시도해 주세요.",
   "@previousTransactionPendingError": {
     "description": "Auto-generated metadata for key 'previousTransactionPendingError'."
-  },
-  "error_user_not_authenticated": "사용자 인증이 필요합니다. 다시 로그인해주세요.",
-  "@error_user_not_authenticated": {
-    "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
-  },
-  "error_product_not_found": "구매한 상품을 찾을 수 없습니다.",
-  "@error_product_not_found": {
-    "description": "Auto-generated metadata for key 'error_product_not_found'."
-  },
-  "error_receipt_verification_failed": "영수증 검증에 실패했습니다.",
-  "@error_receipt_verification_failed": {
-    "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
-  },
-  "error_duplicate_purchase": "이미 처리된 구매입니다.",
-  "@error_duplicate_purchase": {
-    "description": "Auto-generated metadata for key 'error_duplicate_purchase'."
-  },
-  "error_initializing": "초기화 중입니다. 잠시 후 다시 시도해주세요.",
-  "@error_initializing": {
-    "description": "Auto-generated metadata for key 'error_initializing'."
-  },
-  "error_purchase_in_progress": "구매가 진행 중입니다. 잠시만 기다려주세요.",
-  "@error_purchase_in_progress": {
-    "description": "Auto-generated metadata for key 'error_purchase_in_progress'."
-  },
-  "error_verification_timeout": "구매 처리 시간이 초과되었습니다. 네트워크 연결을 확인하고 다시 시도해 주세요.",
-  "@error_verification_timeout": {
-    "description": "Auto-generated metadata for key 'error_verification_timeout'."
-  },
-  "error_authentication_timeout": "Touch ID/Face ID 인증 시간이 초과되었습니다. 다시 시도해 주세요.",
-  "@error_authentication_timeout": {
-    "description": "Auto-generated metadata for key 'error_authentication_timeout'."
   },
   "purchase_in_progress_message": "구매가 진행 중입니다. 잠시만 기다려주세요.",
   "@purchase_in_progress_message": {
@@ -1971,77 +1127,13 @@
   "@purchase_payment_amount": {
     "description": "Auto-generated metadata for key 'purchase_payment_amount'."
   },
-  "purchase_restore_success_message": "구매 복원이 완료되었습니다.\n스타캔디 잔액을 확인해주세요.",
-  "@purchase_restore_success_message": {
-    "description": "Auto-generated metadata for key 'purchase_restore_success_message'."
-  },
-  "purchase_restore_wait_message": "구매가 진행 중입니다. 완료 후 다시 시도해주세요.",
-  "@purchase_restore_wait_message": {
-    "description": "Auto-generated metadata for key 'purchase_restore_wait_message'."
-  },
-  "purchase_timeout_message": "구매 처리 시간이 너무 오래 걸리고 있습니다.\n나중에 다시 시도해주세요.",
-  "@purchase_timeout_message": {
-    "description": "Auto-generated metadata for key 'purchase_timeout_message'."
-  },
   "purchase_web_message": "앱에서 결제할 수 없는 분들을 위한 결제 창입니다.\n미리 랜덤 ID를 복사해주세요.\n복사 후 아래 버튼을 눌러 결제를 진행해주세요.",
   "@purchase_web_message": {
     "description": "Auto-generated metadata for key 'purchase_web_message'."
   },
-  "qna_actions": "동작",
-  "@qna_actions": {
-    "description": "Auto-generated metadata for key 'qna_actions'."
-  },
-  "qna_answer": "답변",
-  "@qna_answer": {
-    "description": "Auto-generated metadata for key 'qna_answer'."
-  },
-  "qna_answer_title": "답변",
-  "@qna_answer_title": {
-    "description": "Auto-generated metadata for key 'qna_answer_title'."
-  },
-  "qna_answered_at": "답변일",
-  "@qna_answered_at": {
-    "description": "Auto-generated metadata for key 'qna_answered_at'."
-  },
-  "qna_answered_by": "답변자",
-  "@qna_answered_by": {
-    "description": "Auto-generated metadata for key 'qna_answered_by'."
-  },
-  "qna_attached_files": "첨부 파일",
-  "@qna_attached_files": {
-    "description": "Auto-generated metadata for key 'qna_attached_files'."
-  },
-  "qna_attachments": "첨부파일",
-  "@qna_attachments": {
-    "description": "Auto-generated metadata for key 'qna_attachments'."
-  },
-  "qna_cancel": "취소",
-  "@qna_cancel": {
-    "description": "Auto-generated metadata for key 'qna_cancel'."
-  },
   "qna_content": "내용",
   "@qna_content": {
     "description": "QnA content field"
-  },
-  "qna_content_hint": "문의 내용을 자세히 입력해 주세요",
-  "@qna_content_hint": {
-    "description": "QnA content hint"
-  },
-  "qna_content_min_length": "내용은 최소 10자 이상 입력해주세요.",
-  "@qna_content_min_length": {
-    "description": "Auto-generated metadata for key 'qna_content_min_length'."
-  },
-  "qna_content_required": "내용을 입력해 주세요",
-  "@qna_content_required": {
-    "description": "QnA content required error"
-  },
-  "qna_content_too_short": "내용을 10자 이상 입력해주세요",
-  "@qna_content_too_short": {
-    "description": "QnA content too short error"
-  },
-  "qna_create_failed": "문의 접수에 실패했습니다:",
-  "@qna_create_failed": {
-    "description": "Auto-generated metadata for key 'qna_create_failed'."
   },
   "qna_create_first": "첫 번째 질문을 작성해보세요",
   "@qna_create_first": {
@@ -2051,50 +1143,6 @@
   "@qna_create_page_title": {
     "description": "QnA create page title"
   },
-  "qna_create_success": "문의가 성공적으로 접수되었습니다",
-  "@qna_create_success": {
-    "description": "Auto-generated metadata for key 'qna_create_success'."
-  },
-  "qna_created_at": "작성일",
-  "@qna_created_at": {
-    "description": "Auto-generated metadata for key 'qna_created_at'."
-  },
-  "qna_delete": "삭제",
-  "@qna_delete": {
-    "description": "Auto-generated metadata for key 'qna_delete'."
-  },
-  "qna_delete_confirm": "삭제",
-  "@qna_delete_confirm": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm'."
-  },
-  "qna_delete_confirm_content": "이 문의를 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.",
-  "@qna_delete_confirm_content": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm_content'."
-  },
-  "qna_delete_confirm_title": "문의 삭제",
-  "@qna_delete_confirm_title": {
-    "description": "Auto-generated metadata for key 'qna_delete_confirm_title'."
-  },
-  "qna_delete_failed": "삭제에 실패했습니다",
-  "@qna_delete_failed": {
-    "description": "Auto-generated metadata for key 'qna_delete_failed'."
-  },
-  "qna_delete_success": "문의가 삭제되었습니다",
-  "@qna_delete_success": {
-    "description": "Auto-generated metadata for key 'qna_delete_success'."
-  },
-  "qna_detail_page_title": "문의 상세",
-  "@qna_detail_page_title": {
-    "description": "QnA detail page title"
-  },
-  "qna_download_file": "파일 다운로드",
-  "@qna_download_file": {
-    "description": "Auto-generated metadata for key 'qna_download_file'."
-  },
-  "qna_edit": "편집",
-  "@qna_edit": {
-    "description": "Auto-generated metadata for key 'qna_edit'."
-  },
   "qna_empty_description": "첫 번째 질문을 작성해보세요",
   "@qna_empty_description": {
     "description": "Auto-generated metadata for key 'qna_empty_description'."
@@ -2103,45 +1151,9 @@
   "@qna_empty_list": {
     "description": "Auto-generated metadata for key 'qna_empty_list'."
   },
-  "qna_empty_message": "QnA가 없습니다",
-  "@qna_empty_message": {
-    "description": "Auto-generated metadata for key 'qna_empty_message'."
-  },
   "qna_error_message": "오류가 발생했습니다",
   "@qna_error_message": {
     "description": "Auto-generated metadata for key 'qna_error_message'."
-  },
-  "qna_file_attach_label": "파일 첨부",
-  "@qna_file_attach_label": {
-    "description": "Auto-generated metadata for key 'qna_file_attach_label'."
-  },
-  "qna_file_select": "파일 선택",
-  "@qna_file_select": {
-    "description": "Auto-generated metadata for key 'qna_file_select'."
-  },
-  "qna_file_type_document": "문서",
-  "@qna_file_type_document": {
-    "description": "Auto-generated metadata for key 'qna_file_type_document'."
-  },
-  "qna_file_type_image": "이미지",
-  "@qna_file_type_image": {
-    "description": "Auto-generated metadata for key 'qna_file_type_image'."
-  },
-  "qna_file_type_other": "기타",
-  "@qna_file_type_other": {
-    "description": "Auto-generated metadata for key 'qna_file_type_other'."
-  },
-  "qna_file_upload_info": "• 최대 10MB 업로드 가능\n• 지원 형식: 이미지 (jpg, png, gif), 문서 (pdf, doc, txt)",
-  "@qna_file_upload_info": {
-    "description": "Auto-generated metadata for key 'qna_file_upload_info'."
-  },
-  "qna_file_uploading_button": "파일 업로드 중...",
-  "@qna_file_uploading_button": {
-    "description": "Auto-generated metadata for key 'qna_file_uploading_button'."
-  },
-  "qna_info_title": "문의 정보",
-  "@qna_info_title": {
-    "description": "Auto-generated metadata for key 'qna_info_title'."
   },
   "qna_list_title": "문의 내역",
   "@qna_list_title": {
@@ -2158,10 +1170,6 @@
   "qna_submit_success": "문의가 성공적으로 등록되었습니다.",
   "@qna_submit_success": {
     "description": "QnA submit success message"
-  },
-  "qna_submit_error": "문의 접수 중 오류가 발생했습니다",
-  "@qna_submit_error": {
-    "description": "QnA submit error message"
   },
   "qna_form_title": "제목",
   "@qna_form_title": {
@@ -2187,53 +1195,9 @@
   "@qna_load_error": {
     "description": "Auto-generated metadata for key 'qna_load_error'."
   },
-  "qna_loading_error": "로딩 중 오류가 발생했습니다",
-  "@qna_loading_error": {
-    "description": "Auto-generated metadata for key 'qna_loading_error'."
-  },
-  "qna_login_required": "로그인이 필요합니다",
-  "@qna_login_required": {
-    "description": "Login required message"
-  },
-  "qna_login_required_create": "QnA 작성을 위해\n먼저 로그인을 해주세요",
-  "@qna_login_required_create": {
-    "description": "Login required for create message"
-  },
-  "qna_login_required_detail": "QnA 상세 정보를 보시려면\n먼저 로그인을 해주세요",
-  "@qna_login_required_detail": {
-    "description": "Login required for detail message"
-  },
-  "qna_login_required_service": "QnA 서비스를 이용하시려면\n먼저 로그인을 해주세요",
-  "@qna_login_required_service": {
-    "description": "Login required for service message"
-  },
-  "qna_mark_resolved": "해결됨으로 표시",
-  "@qna_mark_resolved": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved'."
-  },
-  "qna_mark_resolved_failed": "상태 변경에 실패했습니다",
-  "@qna_mark_resolved_failed": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved_failed'."
-  },
-  "qna_mark_resolved_success": "해결됨으로 변경되었습니다",
-  "@qna_mark_resolved_success": {
-    "description": "Auto-generated metadata for key 'qna_mark_resolved_success'."
-  },
   "qna_no_answer_yet": "아직 답변이 없습니다. 잠시만 기다려주세요.",
   "@qna_no_answer_yet": {
     "description": "Auto-generated metadata for key 'qna_no_answer_yet'."
-  },
-  "qna_no_inquiries_subtitle": "궁금한 점이 있으시면\n언제든지 문의해 주세요",
-  "@qna_no_inquiries_subtitle": {
-    "description": "No inquiries subtitle"
-  },
-  "qna_page_title": "QnA 문의 (관리자)",
-  "@qna_page_title": {
-    "description": "QnA page title"
-  },
-  "qna_privacy_notice": "입력하신 정보는 문의 처리를 위해 수집 및 이용됩니다. 자세한 내용은 개인정보처리방침을 확인해주세요.",
-  "@qna_privacy_notice": {
-    "description": "Auto-generated metadata for key 'qna_privacy_notice'."
   },
   "qna_private": "비공개",
   "@qna_private": {
@@ -2251,37 +1215,9 @@
   "@qna_public_status": {
     "description": "Auto-generated metadata for key 'qna_public_status'."
   },
-  "qna_question": "질문",
-  "@qna_question": {
-    "description": "Auto-generated metadata for key 'qna_question'."
-  },
-  "qna_refresh_pull": "당겨서 새로고침",
-  "@qna_refresh_pull": {
-    "description": "Auto-generated metadata for key 'qna_refresh_pull'."
-  },
-  "qna_statistics_answered": "답변 완료",
-  "@qna_statistics_answered": {
-    "description": "QnA statistics answered"
-  },
-  "qna_statistics_pending": "답변 대기",
-  "@qna_statistics_pending": {
-    "description": "QnA statistics pending"
-  },
-  "qna_statistics_resolved": "해결됨",
-  "@qna_statistics_resolved": {
-    "description": "QnA statistics resolved"
-  },
-  "qna_statistics_title": "문의 현황",
-  "@qna_statistics_title": {
-    "description": "QnA statistics title"
-  },
   "qna_status": "상태",
   "@qna_status": {
     "description": "Auto-generated metadata for key 'qna_status'."
-  },
-  "qna_status_answered": "답변 완료",
-  "@qna_status_answered": {
-    "description": "QnA answered status"
   },
   "qna_status_closed": "종료",
   "@qna_status_closed": {
@@ -2291,18 +1227,6 @@
   "@qna_status_open": {
     "description": "Auto-generated metadata for key 'qna_status_open'."
   },
-  "qna_status_in_progress": "진행 중",
-  "@qna_status_in_progress": {
-    "description": "Auto-generated metadata for key 'qna_status_in_progress'."
-  },
-  "qna_status_pending": "답변 대기",
-  "@qna_status_pending": {
-    "description": "QnA pending status"
-  },
-  "qna_status_resolved": "해결됨",
-  "@qna_status_resolved": {
-    "description": "QnA resolved status"
-  },
   "qna_submit_button": "문의 등록",
   "@qna_submit_button": {
     "description": "QnA submit button"
@@ -2311,45 +1235,9 @@
   "@qna_title": {
     "description": "QnA title field"
   },
-  "qna_title_hint": "문의 제목을 간단히 입력해 주세요",
-  "@qna_title_hint": {
-    "description": "QnA title hint"
-  },
-  "qna_title_min_length": "제목은 최소 5자 이상 입력해주세요.",
-  "@qna_title_min_length": {
-    "description": "Auto-generated metadata for key 'qna_title_min_length'."
-  },
-  "qna_title_required": "제목을 입력해 주세요",
-  "@qna_title_required": {
-    "description": "QnA title required error"
-  },
-  "qna_title_too_short": "제목을 2자 이상 입력해주세요",
-  "@qna_title_too_short": {
-    "description": "QnA title too short error"
-  },
   "qna_updated_at": "수정일",
   "@qna_updated_at": {
     "description": "Auto-generated metadata for key 'qna_updated_at'."
-  },
-  "qna_upload_complete": "업로드 완료",
-  "@qna_upload_complete": {
-    "description": "Auto-generated metadata for key 'qna_upload_complete'."
-  },
-  "qna_upload_waiting": "업로드 대기 중",
-  "@qna_upload_waiting": {
-    "description": "Auto-generated metadata for key 'qna_upload_waiting'."
-  },
-  "qna_uploading": "업로드 중...",
-  "@qna_uploading": {
-    "description": "Auto-generated metadata for key 'qna_uploading'."
-  },
-  "qna_validation_failed": "입력 내용을 확인해주세요.",
-  "@qna_validation_failed": {
-    "description": "Auto-generated metadata for key 'qna_validation_failed'."
-  },
-  "qna_write_inquiry": "새 문의 작성",
-  "@qna_write_inquiry": {
-    "description": "Write inquiry button"
   },
   "replies": "댓글",
   "@replies": {
@@ -2367,18 +1255,6 @@
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
-  "search_artist_hint": "아티스트나 그룹을 검색하세요",
-  "@search_artist_hint": {
-    "description": "Auto-generated metadata for key 'search_artist_hint'."
-  },
-  "searching": "검색 중...",
-  "@searching": {
-    "description": "Auto-generated metadata for key 'searching'."
-  },
-  "search_input_text_hint": "검색",
-  "@search_input_text_hint": {
-    "description": "Auto-generated metadata for key 'search_input_text_hint'."
-  },
   "seconds": "초",
   "@seconds": {
     "description": "Auto-generated metadata for key 'seconds'."
@@ -2386,22 +1262,6 @@
   "share": "공유",
   "@share": {
     "description": "Auto-generated metadata for key 'share'."
-  },
-  "share_image_fail": "이미지 공유에 실패했습니다",
-  "@share_image_fail": {
-    "description": "Auto-generated metadata for key 'share_image_fail'."
-  },
-  "share_image_success": "이미지를 성공적으로 공유했습니다",
-  "@share_image_success": {
-    "description": "Auto-generated metadata for key 'share_image_success'."
-  },
-  "share_no_twitter": "X 앱이 없습니다.",
-  "@share_no_twitter": {
-    "description": "Auto-generated metadata for key 'share_no_twitter'."
-  },
-  "share_twitter": "트위터에서 공유",
-  "@share_twitter": {
-    "description": "Auto-generated metadata for key 'share_twitter'."
   },
   "starCandy100": "스타캔디 100개",
   "@starCandy100": {
@@ -2435,50 +1295,6 @@
   "@starCandy600": {
     "description": "Auto-generated metadata for key 'starCandy600'."
   },
-  "submit_application": "신청하기",
-  "@submit_application": {
-    "description": "Submit button text"
-  },
-  "success": "성공",
-  "@success": {
-    "description": "Auto-generated metadata for key 'success'."
-  },
-  "text_achievement": "🎉 지금까지 ${count}개의 목표를 달성했습니다! 🎉",
-  "@text_achievement": {
-    "description": "Auto-generated metadata for key 'text_achievement'."
-  },
-  "text_ads_random": "광고 시청 및 랜덤 이미지 수집.",
-  "@text_ads_random": {
-    "description": "Auto-generated metadata for key 'text_ads_random'."
-  },
-  "text_bonus": "보너스",
-  "@text_bonus": {
-    "description": "Auto-generated metadata for key 'text_bonus'."
-  },
-  "text_bookmark_failed": "실패 to unbookmark",
-  "@text_bookmark_failed": {
-    "description": "Auto-generated metadata for key 'text_bookmark_failed'."
-  },
-  "text_bookmark_over_5": "최대 5개까지 북마크할 수 있습니다",
-  "@text_bookmark_over_5": {
-    "description": "Auto-generated metadata for key 'text_bookmark_over_5'."
-  },
-  "text_comming_soon_pic_chart1": "핔차트에 오신 것을 환영합니다!\n2024년 11월에 만나요!",
-  "@text_comming_soon_pic_chart1": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart1'."
-  },
-  "text_comming_soon_pic_chart2": "핔차트는 일간, 주간, 월간 점수를 반영하는 피크닠만의 새로운 차트입니다.\n일간, 주간, 월간 점수를 반영하는 피크닠의 새로운 차트입니다.",
-  "@text_comming_soon_pic_chart2": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart2'."
-  },
-  "text_comming_soon_pic_chart3": "아티스트의 브랜드 평판을\n실시간으로 반영받으세요!",
-  "@text_comming_soon_pic_chart3": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart3'."
-  },
-  "text_comming_soon_pic_chart_title": "핔차트란?",
-  "@text_comming_soon_pic_chart_title": {
-    "description": "Auto-generated metadata for key 'text_comming_soon_pic_chart_title'."
-  },
   "text_community_board_search": "아티스트 게시판 검색",
   "@text_community_board_search": {
     "description": "Auto-generated metadata for key 'text_community_board_search'."
@@ -2490,22 +1306,6 @@
   "text_copied_address": "주소가 복사되었습니다.",
   "@text_copied_address": {
     "description": "Auto-generated metadata for key 'text_copied_address'."
-  },
-  "text_dialog_ad_dismissed": "광고가 중간에 중단되었습니다.",
-  "@text_dialog_ad_dismissed": {
-    "description": "Auto-generated metadata for key 'text_dialog_ad_dismissed'."
-  },
-  "text_dialog_ad_failed_to_show": "광고 로딩에 실패했습니다.",
-  "@text_dialog_ad_failed_to_show": {
-    "description": "Auto-generated metadata for key 'text_dialog_ad_failed_to_show'."
-  },
-  "text_dialog_star_candy_received": "스타캔디가 지급되었습니다.",
-  "@text_dialog_star_candy_received": {
-    "description": "Auto-generated metadata for key 'text_dialog_star_candy_received'."
-  },
-  "text_dialog_vote_amount_should_not_zero": "투표 수는 0이 될 수 없습니다.",
-  "@text_dialog_vote_amount_should_not_zero": {
-    "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
   },
   "text_draw_image": "전체 갤러리에서 이미지 1개 소유권을 확인했습니다.",
   "@text_draw_image": {
@@ -2523,10 +1323,6 @@
   "@text_need_recharge": {
     "description": "Auto-generated metadata for key 'text_need_recharge'."
   },
-  "text_no_artist": "아티스트 없음",
-  "@text_no_artist": {
-    "description": "Auto-generated metadata for key 'text_no_artist'."
-  },
   "text_no_search_result": "검색 결과가 없습니다.",
   "@text_no_search_result": {
     "description": "Auto-generated metadata for key 'text_no_search_result'."
@@ -2535,37 +1331,9 @@
   "@text_purchase_vat_included": {
     "description": "Auto-generated metadata for key 'text_purchase_vat_included'."
   },
-  "text_star_candy": "스타캔디",
-  "@text_star_candy": {
-    "description": "Auto-generated metadata for key 'text_star_candy'."
-  },
-  "text_star_candy_with_bonus": "{num1} + {num1} 보너스",
-  "@text_star_candy_with_bonus": {
-    "description": "Auto-generated metadata for key 'text_star_candy_with_bonus'."
-  },
-  "text_this_time_vote": "이번 투표",
-  "@text_this_time_vote": {
-    "description": "Auto-generated metadata for key 'text_this_time_vote'."
-  },
   "text_vote_complete": "투표 완료",
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
-  },
-  "text_jma_vote_ticket": "JMA 투표권",
-  "@text_jma_vote_ticket": {
-    "description": "Auto-generated metadata for key 'text_jma_vote_ticket'."
-  },
-  "text_vote_countdown_end": "종료까지",
-  "@text_vote_countdown_end": {
-    "description": "Auto-generated metadata for key 'text_vote_countdown_end'."
-  },
-  "text_vote_countdown_start": "시작까지",
-  "@text_vote_countdown_start": {
-    "description": "Auto-generated metadata for key 'text_vote_countdown_start'."
-  },
-  "text_vote_ended": "종료됨",
-  "@text_vote_ended": {
-    "description": "Auto-generated metadata for key 'text_vote_ended'."
   },
   "text_vote_rank": "순위 {rank}",
   "@text_vote_rank": {
@@ -2575,45 +1343,9 @@
   "@text_vote_rank_in_reward": {
     "description": "Auto-generated metadata for key 'text_vote_rank_in_reward'."
   },
-  "text_vote_reward": "{count}개 리워드",
-  "@text_vote_reward": {
-    "description": "Auto-generated metadata for key 'text_vote_reward'."
-  },
   "text_vote_where_is_my_bias": "내 최애는 어디에?",
   "@text_vote_where_is_my_bias": {
     "description": "Auto-generated metadata for key 'text_vote_where_is_my_bias'."
-  },
-  "time_days_ago": "일 전",
-  "@time_days_ago": {
-    "description": "Auto-generated metadata for key 'time_days_ago'."
-  },
-  "time_hours_ago": "시간 전",
-  "@time_hours_ago": {
-    "description": "Auto-generated metadata for key 'time_hours_ago'."
-  },
-  "time_just_now": "방금 전",
-  "@time_just_now": {
-    "description": "Auto-generated metadata for key 'time_just_now'."
-  },
-  "time_minutes_ago": "분 전",
-  "@time_minutes_ago": {
-    "description": "Auto-generated metadata for key 'time_minutes_ago'."
-  },
-  "time_unit_day": "일",
-  "@time_unit_day": {
-    "description": "Auto-generated metadata for key 'time_unit_day'."
-  },
-  "time_unit_hour": "시",
-  "@time_unit_hour": {
-    "description": "Auto-generated metadata for key 'time_unit_hour'."
-  },
-  "time_unit_minute": "분",
-  "@time_unit_minute": {
-    "description": "Auto-generated metadata for key 'time_unit_minute'."
-  },
-  "time_unit_second": "초",
-  "@time_unit_second": {
-    "description": "Auto-generated metadata for key 'time_unit_second'."
   },
   "title_dialog_error": "오류",
   "@title_dialog_error": {
@@ -2622,10 +1354,6 @@
   "title_dialog_library_add": "새 앨범 추가",
   "@title_dialog_library_add": {
     "description": "Auto-generated metadata for key 'title_dialog_library_add'."
-  },
-  "title_dialog_success": "성공",
-  "@title_dialog_success": {
-    "description": "Auto-generated metadata for key 'title_dialog_success'."
   },
   "title_select_language": "언어 선택",
   "@title_select_language": {
@@ -2647,81 +1375,33 @@
   "@update_cannot_open_appstore": {
     "description": "Auto-generated metadata for key 'update_cannot_open_appstore'."
   },
-  "update_recommend_text": "새 버전 ({version})이 사용 가능합니다.",
-  "@update_recommend_text": {
-    "description": "Auto-generated metadata for key 'update_recommend_text'."
-  },
   "update_required_message": "앱 업데이트가 필요합니다",
   "@update_required_message": {
     "description": "Auto-generated metadata for key 'update_required_message'."
-  },
-  "update_required_text": "새 버전 ({version})으로 업데이트해야 합니다.",
-  "@update_required_text": {
-    "description": "Auto-generated metadata for key 'update_required_text'."
   },
   "update_required_title": "업데이트가 필요합니다.",
   "@update_required_title": {
     "description": "Auto-generated metadata for key 'update_required_title'."
   },
-  "submit": "제출",
-  "@submit": {
-    "description": "Auto-generated metadata for key 'submit'."
-  },
-  "next": "다음",
-  "@next": {
-    "description": "Auto-generated metadata for key 'next'."
-  },
   "views": "조회수",
   "@views": {
     "description": "Auto-generated metadata for key 'views'."
-  },
-  "vote_item_request_addition_request": "투표 아이템 추가 신청",
-  "@vote_item_request_addition_request": {
-    "description": "Auto-generated metadata for key 'vote_item_request_addition_request'."
-  },
-  "vote_item_request_already_applied_artist": "이미 해당 아티스트에 대해 신청하셨습니다.",
-  "@vote_item_request_already_applied_artist": {
-    "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
-  },
-  "vote_item_request_already_registered": "이미 등록됨",
-  "@vote_item_request_already_registered": {
-    "description": "Auto-generated metadata for key 'vote_item_request_already_registered'."
   },
   "vote_item_request_application_count": "신청 {count}개",
   "@vote_item_request_application_count": {
     "description": "Auto-generated metadata for key 'vote_item_request_application_count'."
   },
-  "vote_item_request_artist_name_missing": "아티스트명 없음",
-  "@vote_item_request_artist_name_missing": {
-    "description": "Auto-generated metadata for key 'vote_item_request_artist_name_missing'."
-  },
-  "vote_item_request_button": "투표 신청하기",
-  "@vote_item_request_button": {
-    "description": "Auto-generated metadata for key 'vote_item_request_button'."
-  },
   "vote_item_request_can_apply": "신청 가능",
   "@vote_item_request_can_apply": {
     "description": "Auto-generated metadata for key 'vote_item_request_can_apply'."
-  },
-  "vote_item_request_count": "개수",
-  "@vote_item_request_count": {
-    "description": "Auto-generated metadata for key 'vote_item_request_count'."
   },
   "vote_item_request_current_applications": "현재 신청 목록",
   "@vote_item_request_current_applications": {
     "description": "Auto-generated metadata for key 'vote_item_request_current_applications'."
   },
-  "vote_item_request_current_item_request": "현재 아이템 요청",
-  "@vote_item_request_current_item_request": {
-    "description": "Auto-generated metadata for key 'vote_item_request_current_item_request'."
-  },
   "vote_item_request_error": "투표 신청 중 오류가 발생했습니다.",
   "@vote_item_request_error": {
     "description": "Auto-generated metadata for key 'vote_item_request_error'."
-  },
-  "vote_item_request_item_request_count": "{count}개 아이템 요청",
-  "@vote_item_request_item_request_count": {
-    "description": "Auto-generated metadata for key 'vote_item_request_item_request_count'."
   },
   "vote_item_request_my_list": "내 신청",
   "@vote_item_request_my_list": {
@@ -2739,10 +1419,6 @@
   "@vote_item_request_no_applications_yet": {
     "description": "Auto-generated metadata for key 'vote_item_request_no_applications_yet'."
   },
-  "vote_item_request_no_item_request_yet": "아직 아이템 요청이 없습니다",
-  "@vote_item_request_no_item_request_yet": {
-    "description": "Auto-generated metadata for key 'vote_item_request_no_item_request_yet'."
-  },
   "vote_item_request_no_search_results": "투표 신청 검색 결과가 없습니다",
   "@vote_item_request_no_search_results": {
     "description": "Auto-generated metadata for key 'vote_item_request_no_search_results'."
@@ -2759,14 +1435,6 @@
   "@vote_item_request_search_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist'."
   },
-  "vote_item_request_search_artist_hint": "아티스트나 그룹을 검색하세요",
-  "@vote_item_request_search_artist_hint": {
-    "description": "Hint text for artist search field"
-  },
-  "vote_item_request_search_artist_prompt": "아티스트를 검색하여 신청하세요",
-  "@vote_item_request_search_artist_prompt": {
-    "description": "Auto-generated metadata for key 'vote_item_request_search_artist_prompt'."
-  },
   "vote_item_request_status": "요청 상태",
   "@vote_item_request_status": {
     "description": "Auto-generated metadata for key 'vote_item_request_status'."
@@ -2775,14 +1443,6 @@
   "@vote_item_request_status_approved": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_approved'."
   },
-  "vote_item_request_status_cancelled": "취소됨",
-  "@vote_item_request_status_cancelled": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
-  },
-  "vote_item_request_status_in_progress": "진행중",
-  "@vote_item_request_status_in_progress": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
-  },
   "vote_item_request_status_pending": "대기중",
   "@vote_item_request_status_pending": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_pending'."
@@ -2790,10 +1450,6 @@
   "vote_item_request_status_rejected": "거절됨",
   "@vote_item_request_status_rejected": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_rejected'."
-  },
-  "vote_item_request_status_unknown": "알 수 없음",
-  "@vote_item_request_status_unknown": {
-    "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
   },
   "vote_item_request_submit": "신청",
   "@vote_item_request_submit": {
@@ -2811,65 +1467,17 @@
   "@vote_item_request_total_applications": {
     "description": "Auto-generated metadata for key 'vote_item_request_total_applications'."
   },
-  "vote_item_request_total_item_requests": "총 {count}개 아이템 요청",
-  "@vote_item_request_total_item_requests": {
-    "description": "Auto-generated metadata for key 'vote_item_request_total_item_requests'."
-  },
-  "vote_item_request_user_info_not_found": "사용자 정보를 찾을 수 없습니다.",
-  "@vote_item_request_user_info_not_found": {
-    "description": "Auto-generated metadata for key 'vote_item_request_user_info_not_found'."
-  },
   "vote_item_request_waiting": "대기 중",
   "@vote_item_request_waiting": {
     "description": "Auto-generated metadata for key 'vote_item_request_waiting'."
-  },
-  "vote_period": "투표 기간",
-  "@vote_period": {
-    "description": "Label for vote period"
-  },
-  "vote_result_save_button": "결과 저장",
-  "@vote_result_save_button": {
-    "description": "Auto-generated metadata for key 'vote_result_save_button'."
-  },
-  "vote_result_share_button": "결과 공유",
-  "@vote_result_share_button": {
-    "description": "Auto-generated metadata for key 'vote_result_share_button'."
   },
   "vote_share_message": "투표했습니다!",
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
-  "voting_limit_text": "트래픽 급증 방지를 위해 한 번에 총 사용량이 10,000개로 제한됩니다.",
-  "@voting_limit_text": {
-    "description": "Auto-generated metadata for key 'voting_limit_text'."
-  },
-  "voting_limit_warning": "최대 10,000개까지만 허용됩니다.",
-  "@voting_limit_warning": {
-    "description": "Auto-generated metadata for key 'voting_limit_warning'."
-  },
   "voting_share_benefit_text": "100표마다 보너스 스타캔디 1개 획득 및 공유!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
-  },
-  "withdrawal_success": "회원탈퇴가 성공적으로 처리되었습니다.",
-  "@withdrawal_success": {
-    "description": "Auto-generated metadata for key 'withdrawal_success'."
-  },
-  "jma_voting_star_candy_shortage": "별사탕이 {shortage}개 부족합니다.",
-  "@jma_voting_star_candy_shortage": {
-    "description": "Auto-generated metadata for key 'jma_voting_star_candy_shortage'."
-  },
-  "jma_voting_max_votes_exceeded": "현재 최대 가능 투표수는 {maxVotes}개 입니다.",
-  "@jma_voting_max_votes_exceeded": {
-    "description": "Auto-generated metadata for key 'jma_voting_max_votes_exceeded'."
-  },
-  "jma_voting_daily_limit_remaining": "오늘 남은 보너스 투표 갯수: {remaining}회 (최대 {max}회)",
-  "@jma_voting_daily_limit_remaining": {
-    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_remaining'."
-  },
-  "jma_voting_daily_limit_exhausted": "오늘 보너스 투표 갯수를 모두 사용했습니다.",
-  "@jma_voting_daily_limit_exhausted": {
-    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
   },
   "jma_voting_my_star_candy": "나의 별사탕",
   "@jma_voting_my_star_candy": {
@@ -2883,29 +1491,9 @@
   "@jma_voting_use_all": {
     "description": "Auto-generated metadata for key 'jma_voting_use_all'."
   },
-  "jma_voting_max_usable": "최대 {amount}개 사용 가능",
-  "@jma_voting_max_usable": {
-    "description": "Auto-generated metadata for key 'jma_voting_max_usable'."
-  },
-  "jma_voting_bonus_only": "보너스 별사탕 {amount}개 사용 → {votes} 투표",
-  "@jma_voting_bonus_only": {
-    "description": "Auto-generated metadata for key 'jma_voting_bonus_only'."
-  },
-  "jma_voting_bonus_plus_regular": "보너스 {bonus}개 + 별사탕 {regular}개 → {votes} 투표",
-  "@jma_voting_bonus_plus_regular": {
-    "description": "Auto-generated metadata for key 'jma_voting_bonus_plus_regular'."
-  },
-  "jma_voting_regular_only": "별사탕 {amount}개 → {votes} 투표",
-  "@jma_voting_regular_only": {
-    "description": "Auto-generated metadata for key 'jma_voting_regular_only'."
-  },
   "jma_voting_input_amount": "별사탕 수량을 입력해주세요.",
   "@jma_voting_input_amount": {
     "description": "Auto-generated metadata for key 'jma_voting_input_amount'."
-  },
-  "jma_voting_info_text": "-보너스 스타캔디는 1일 최대 5개까지 JMA 투표에 사용 가능합니다.\n-필요한 스타캔디는 자동으로 변환됩니다.(30star Candy = 1JMA Vote)\n-투표 참여 시 자카르타 콘서트에 자동 응모됩니다.",
-  "@jma_voting_info_text": {
-    "description": "Auto-generated metadata for key 'jma_voting_info_text'."
   },
   "jma_voting_daily_limit_error": "하루 최대 5번까지 투표할 수 있습니다.",
   "@jma_voting_daily_limit_error": {
@@ -2923,93 +1511,9 @@
   "@jma_voting_exchange_failed_title": {
     "description": "Auto-generated metadata for key 'jma_voting_exchange_failed_title'."
   },
-  "bonus_candy_expiration_policy_title": "보너스 스타캔디 소멸 정책",
-  "@bonus_candy_expiration_policy_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_title'."
-  },
-  "bonus_candy_expiration_policy_load_fail": "소멸 예정 보너스 정보를 불러오는데 실패했습니다.",
-  "@bonus_candy_expiration_policy_load_fail": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
-  },
-  "expiring_soon_bonus_candy": "소멸 예정 보너스 스타캔디",
-  "@expiring_soon_bonus_candy": {
-    "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
-  },
   "expiring_bonus_candy_guide": "소멸 예정 보너스 안내",
   "@expiring_bonus_candy_guide": {
     "description": "Auto-generated metadata for key 'expiring_bonus_candy_guide'."
-  },
-  "bonus_candy_expiration_time_title": "소멸 시점 안내",
-  "@bonus_candy_expiration_time_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
-  },
-  "bonus_candy_policy_title": "보너스 스타캔디 정책",
-  "@bonus_candy_policy_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
-  },
-  "bonus_candy_policy_1": "- 무료 충전소 적립 보너스 별사탕, 구매 시 추가로 지급된 보너스 별사탕은 소멸 기한이 정해져 있습니다.",
-  "@bonus_candy_policy_1": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
-  },
-  "bonus_candy_policy_2": "- 스타캔디 사용 시, 소멸일이 임박한 보너스 스타캔디부터 순서대로 차감됩니다.",
-  "@bonus_candy_policy_2": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
-  },
-  "bonus_candy_policy_3": "- 소멸된 보너스 스타캔디는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.",
-  "@bonus_candy_policy_3": {
-    "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
-  },
-  "bonus_candy_earn_period_1_to_15": "01일 00:00:00(KST) ~ 14일 23:59:59(KST)",
-  "@bonus_candy_earn_period_1_to_15": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
-  },
-  "bonus_candy_earn_period_16_to_end": "15일 00:00:00(KST) ~ 말일 23:59:59(KST)",
-  "@bonus_candy_earn_period_16_to_end": {
-    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
-  },
-  "bonus_candy_expiration_next_month": "다음달 15일 00:00:00(KST)",
-  "@bonus_candy_expiration_next_month": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
-  },
-  "bonus_candy_expiration_month_after_next": "다다음달 15일 00:00:00(KST)",
-  "@bonus_candy_expiration_month_after_next": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
-  },
-  "bonus_candy_expiration_policy_earn_period": "적립 기간",
-  "@bonus_candy_expiration_policy_earn_period": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
-  },
-  "bonus_candy_expiration_policy_expiration_date": "소멸 시점",
-  "@bonus_candy_expiration_policy_expiration_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
-  },
-  "bonus_candy_example_title": "예시",
-  "@bonus_candy_example_title": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
-  },
-  "bonus_candy_example_earn_date": "적립일",
-  "@bonus_candy_example_earn_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
-  },
-  "bonus_candy_example_expiration_date": "소멸일",
-  "@bonus_candy_example_expiration_date": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
-  },
-  "bonus_candy_example_1_earn": "__MONTH__월 10일 14:00(KST)",
-  "@bonus_candy_example_1_earn": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
-  },
-  "bonus_candy_example_1_expire": "__NEXT_MONTH__월 15일 00:00(KST)",
-  "@bonus_candy_example_1_expire": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
-  },
-  "bonus_candy_example_2_earn": "__MONTH__월 20일 14:00(KST)",
-  "@bonus_candy_example_2_earn": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
-  },
-  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__월 15일 00:00(KST)",
-  "@bonus_candy_example_2_expire": {
-    "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
   },
   "qna_form_title_hint": "제목을 5자 이상 입력해주세요.",
   "@qna_form_title_hint": {
@@ -3018,14 +1522,6 @@
   "qna_form_content_hint": "내용을 10자 이상 입력해주세요.",
   "@qna_form_content_hint": {
     "description": "Auto-generated metadata for key 'qna_form_content_hint'."
-  },
-  "qna_attach_image": "이미지 첨부",
-  "@qna_attach_image": {
-    "description": "Auto-generated metadata for key 'qna_attach_image'."
-  },
-  "qna_attach_file": "파일 첨부",
-  "@qna_attach_file": {
-    "description": "Auto-generated metadata for key 'qna_attach_file'."
   },
   "qna_attach_media": "사진/동영상 첨부",
   "@qna_attach_media": {
@@ -3063,29 +1559,361 @@
   "@qna_load_fail_title": {
     "description": "Auto-generated metadata for key 'qna_load_fail_title'."
   },
-  "jmaVoteTicket": "JMA 투표권",
-  "@jmaVoteTicket": {
-    "description": "Auto-generated metadata for key 'jmaVoteTicket'."
-  },
-  "paid": "유료",
-  "@paid": {
-    "description": "Auto-generated metadata for key 'paid'."
-  },
-  "bonus": "보너스",
-  "@bonus": {
-    "description": "Auto-generated metadata for key 'bonus'."
-  },
-  "voteTypePicnic": "Picnic",
-  "@voteTypePicnic": {
-    "description": "Auto-generated metadata for key 'voteTypePicnic'."
-  },
-  "voteTypeJma": "JMA",
-  "@voteTypeJma": {
-    "description": "Auto-generated metadata for key 'voteTypeJma'."
-  },
   "label_my_vote_history": "나의 투표 이력",
   "@label_my_vote_history": {
     "description": "Auto-generated metadata for key 'label_my_vote_history'."
   },
-  "@@locale": "ko"
+  "@@locale": "ko",
+  "bonus_candy_example_2_expire": "__THE_MONTH_AFTER_NEXT__월 15일 00:00(KST)",
+  "@bonus_candy_example_2_expire": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
+  },
+  "bonus_candy_example_earn_date": "적립일",
+  "@bonus_candy_example_earn_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
+  },
+  "vote_item_request_status_unknown": "알 수 없음",
+  "@vote_item_request_status_unknown": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
+  },
+  "bonus_candy_expiration_policy_load_fail": "소멸 예정 보너스 정보를 불러오는데 실패했습니다.",
+  "@bonus_candy_expiration_policy_load_fail": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
+  },
+  "bonus_candy_example_1_expire": "__NEXT_MONTH__월 15일 00:00(KST)",
+  "@bonus_candy_example_1_expire": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
+  },
+  "vote_item_request_status_in_progress": "진행중",
+  "@vote_item_request_status_in_progress": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
+  },
+  "bonus_candy_policy_2": "- 스타캔디 사용 시, 소멸일이 임박한 보너스 스타캔디부터 순서대로 차감됩니다.",
+  "@bonus_candy_policy_2": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_2'."
+  },
+  "compatibility_purchase_message": "{artistName}과 나의 궁합 점수를 알고 싶다면?",
+  "@compatibility_purchase_message": {
+    "description": "Auto-generated metadata for key 'compatibility_purchase_message'."
+  },
+  "label_mypage_charge_history": "충전 내역 (관리자)",
+  "@label_mypage_charge_history": {
+    "description": "Charge history menu for admin users"
+  },
+  "compatibility_time_slot_unknown": "모름",
+  "@compatibility_time_slot_unknown": {
+    "description": "Auto-generated metadata for key 'compatibility_time_slot_unknown'."
+  },
+  "label_popup_hide_7days": "7일간 보지 않기",
+  "@label_popup_hide_7days": {
+    "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
+  },
+  "expiring_soon_bonus_candy": "소멸 예정 보너스 스타캔디",
+  "@expiring_soon_bonus_candy": {
+    "description": "Auto-generated metadata for key 'expiring_soon_bonus_candy'."
+  },
+  "bonus_candy_expiration_policy_earn_period": "적립 기간",
+  "@bonus_candy_expiration_policy_earn_period": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
+  },
+  "message_setting_remove_cache": "캐시 메모리 삭제가 완료되었습니다.",
+  "@message_setting_remove_cache": {
+    "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
+  },
+  "error_loading_more_comments": "댓글 로딩 중 오류가 발생했습니다.",
+  "@error_loading_more_comments": {
+    "description": "Auto-generated metadata for key 'error_loading_more_comments'."
+  },
+  "purchase_timeout_message": "구매 처리 시간이 너무 오래 걸리고 있습니다.\n나중에 다시 시도해주세요.",
+  "@purchase_timeout_message": {
+    "description": "Auto-generated metadata for key 'purchase_timeout_message'."
+  },
+  "label_tabbar_vote_upcoming": "예정됨",
+  "@label_tabbar_vote_upcoming": {
+    "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
+  },
+  "bonus_candy_example_1_earn": "__MONTH__월 10일 14:00(KST)",
+  "@bonus_candy_example_1_earn": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
+  },
+  "error_receipt_verification_failed": "영수증 검증에 실패했습니다.",
+  "@error_receipt_verification_failed": {
+    "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
+  },
+  "vote_item_request_status_cancelled": "취소됨",
+  "@vote_item_request_status_cancelled": {
+    "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
+  },
+  "post_write_board_post": "게시글 작성",
+  "@post_write_board_post": {
+    "description": "Auto-generated metadata for key 'post_write_board_post'."
+  },
+  "bonus_candy_policy_3": "- 소멸된 보너스 스타캔디는 복구되지 않으니, 기간 내에 꼭 사용해 주세요.",
+  "@bonus_candy_policy_3": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
+  },
+  "message_update_nickname_fail": "닉네임 변경에 실패했습니다.\n다른 닉네임을 선택해주세요.",
+  "@message_update_nickname_fail": {
+    "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
+  },
+  "bonus_candy_expiration_time_title": "소멸 시점 안내",
+  "@bonus_candy_expiration_time_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_time_title'."
+  },
+  "post_comment_action_show_translation": "번역 보기",
+  "@post_comment_action_show_translation": {
+    "description": "Auto-generated metadata for key 'post_comment_action_show_translation'."
+  },
+  "fortune_lucky_direction": "행운의 방향",
+  "@fortune_lucky_direction": {
+    "description": "Auto-generated metadata for key 'fortune_lucky_direction'."
+  },
+  "error_message_login_failed": "로그인 중 오류가 발생했습니다.",
+  "@error_message_login_failed": {
+    "description": "Auto-generated metadata for key 'error_message_login_failed'."
+  },
+  "dialog_withdraw_button_ok": "탈퇴하기",
+  "@dialog_withdraw_button_ok": {
+    "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
+  },
+  "compatibility_birthtime_subtitle": "정확도 향상!",
+  "@compatibility_birthtime_subtitle": {
+    "description": "Auto-generated metadata for key 'compatibility_birthtime_subtitle'."
+  },
+  "title_dialog_success": "성공",
+  "@title_dialog_success": {
+    "description": "Auto-generated metadata for key 'title_dialog_success'."
+  },
+  "bonus_candy_policy_title": "보너스 스타캔디 정책",
+  "@bonus_candy_policy_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_title'."
+  },
+  "bonus_candy_example_expiration_date": "소멸일",
+  "@bonus_candy_example_expiration_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
+  },
+  "label_tab_free_charge_station": "무료 충전소",
+  "@label_tab_free_charge_station": {
+    "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
+  },
+  "error_user_not_authenticated": "사용자 인증이 필요합니다. 다시 로그인해주세요.",
+  "@error_user_not_authenticated": {
+    "description": "Auto-generated metadata for key 'error_user_not_authenticated'."
+  },
+  "text_dialog_vote_amount_should_not_zero": "투표 수는 0이 될 수 없습니다.",
+  "@text_dialog_vote_amount_should_not_zero": {
+    "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
+  },
+  "message_agreement_success": "약관 동의가 완료되었습니다.",
+  "@message_agreement_success": {
+    "description": "Auto-generated metadata for key 'message_agreement_success'."
+  },
+  "bonus_candy_earn_period_1_to_15": "01일 00:00:00(KST) ~ 14일 23:59:59(KST)",
+  "@bonus_candy_earn_period_1_to_15": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'."
+  },
+  "compatibility_snackbar_need_birthday": "생년월일을 입력해주세요.",
+  "@compatibility_snackbar_need_birthday": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_birthday'."
+  },
+  "update_recommend_text": "새 버전 ({version})이 사용 가능합니다.",
+  "@update_recommend_text": {
+    "description": "Auto-generated metadata for key 'update_recommend_text'."
+  },
+  "error_product_not_found": "구매한 상품을 찾을 수 없습니다.",
+  "@error_product_not_found": {
+    "description": "Auto-generated metadata for key 'error_product_not_found'."
+  },
+  "label_popup_close": "닫기",
+  "@label_popup_close": {
+    "description": "Auto-generated metadata for key 'label_popup_close'."
+  },
+  "jma_voting_info_text": "-보너스 스타캔디는 1일 최대 5개까지 JMA 투표에 사용 가능합니다.\n-필요한 스타캔디는 자동으로 변환됩니다.(30star Candy = 1JMA Vote)\n-투표 참여 시 자카르타 콘서트에 자동 응모됩니다.",
+  "@jma_voting_info_text": {
+    "description": "Auto-generated metadata for key 'jma_voting_info_text'."
+  },
+  "vote_item_request_search_artist_hint": "아티스트나 그룹을 검색하세요",
+  "@vote_item_request_search_artist_hint": {
+    "description": "Hint text for artist search field"
+  },
+  "bonus_candy_expiration_month_after_next": "다다음달 15일 00:00:00(KST)",
+  "@bonus_candy_expiration_month_after_next": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'."
+  },
+  "post_comment_action_show_original": "원문 보기",
+  "@post_comment_action_show_original": {
+    "description": "Auto-generated metadata for key 'post_comment_action_show_original'."
+  },
+  "compatibility_snackbar_need_profile_save_agree": "프로필 저장에 동의해주세요.",
+  "@compatibility_snackbar_need_profile_save_agree": {
+    "description": "Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'."
+  },
+  "qna_content_min_length": "내용은 최소 10자 이상 입력해주세요.",
+  "@qna_content_min_length": {
+    "description": "Auto-generated metadata for key 'qna_content_min_length'."
+  },
+  "post_ask_go_to_temporary_save_list": "임시저장 목록으로 가시겠습니까?",
+  "@post_ask_go_to_temporary_save_list": {
+    "description": "Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'."
+  },
+  "label_pic_pic_synthesizing_image": "이미지 합성 중...",
+  "@label_pic_pic_synthesizing_image": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
+  },
+  "label_tab_buy_star_candy": "스타캔디 구매",
+  "@label_tab_buy_star_candy": {
+    "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
+  },
+  "jma_voting_max_votes_exceeded": "현재 최대 가능 투표수는 {maxVotes}개 입니다.",
+  "@jma_voting_max_votes_exceeded": {
+    "description": "Auto-generated metadata for key 'jma_voting_max_votes_exceeded'."
+  },
+  "jma_voting_daily_limit_remaining": "오늘 남은 보너스 투표 갯수: {remaining}회 (최대 {max}회)",
+  "@jma_voting_daily_limit_remaining": {
+    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_remaining'."
+  },
+  "post_temporary_save_complete": "임시저장 완료",
+  "@post_temporary_save_complete": {
+    "description": "Auto-generated metadata for key 'post_temporary_save_complete'."
+  },
+  "bonus_candy_example_title": "예시",
+  "@bonus_candy_example_title": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_title'."
+  },
+  "label_pic_pic_initializing_camera": "카메라 초기화 중...",
+  "@label_pic_pic_initializing_camera": {
+    "description": "Auto-generated metadata for key 'label_pic_pic_initializing_camera'."
+  },
+  "post_write_post_recommend_write": "Please create a post.",
+  "@post_write_post_recommend_write": {
+    "description": "Auto-generated metadata for key 'post_write_post_recommend_write'."
+  },
+  "jma_voting_daily_limit_exhausted": "오늘 보너스 투표 갯수를 모두 사용했습니다.",
+  "@jma_voting_daily_limit_exhausted": {
+    "description": "Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'."
+  },
+  "bonus_candy_policy_1": "- 무료 충전소 적립 보너스 별사탕, 구매 시 추가로 지급된 보너스 별사탕은 소멸 기한이 정해져 있습니다.",
+  "@bonus_candy_policy_1": {
+    "description": "Auto-generated metadata for key 'bonus_candy_policy_1'."
+  },
+  "compatibility_perfect_score_exists_title": "이미 우승한 궁합 데이터",
+  "@compatibility_perfect_score_exists_title": {
+    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists_title'."
+  },
+  "compatibility_duplicate_data_message": "동일한 조건의 궁합 데이터가 이미 존재합니다.",
+  "@compatibility_duplicate_data_message": {
+    "description": "Auto-generated metadata for key 'compatibility_duplicate_data_message'."
+  },
+  "label_time_ago_minute": "{minute}분 전",
+  "@label_time_ago_minute": {
+    "description": "Auto-generated metadata for key 'label_time_ago_minute'."
+  },
+  "update_required_text": "새 버전 ({version})으로 업데이트해야 합니다.",
+  "@update_required_text": {
+    "description": "Auto-generated metadata for key 'update_required_text'."
+  },
+  "jma_voting_star_candy_shortage": "별사탕이 {shortage}개 부족합니다.",
+  "@jma_voting_star_candy_shortage": {
+    "description": "Auto-generated metadata for key 'jma_voting_star_candy_shortage'."
+  },
+  "bonus_candy_earn_period_16_to_end": "15일 00:00:00(KST) ~ 말일 23:59:59(KST)",
+  "@bonus_candy_earn_period_16_to_end": {
+    "description": "Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'."
+  },
+  "error_message_withdrawal": "탈퇴한 회원입니다.",
+  "@error_message_withdrawal": {
+    "description": "Auto-generated metadata for key 'error_message_withdrawal'."
+  },
+  "text_achievement": "🎉 지금까지 ${count}개의 목표를 달성했습니다! 🎉",
+  "@text_achievement": {
+    "description": "Auto-generated metadata for key 'text_achievement'."
+  },
+  "label_login_with_wechat": "WeChat으로 로그인",
+  "@label_login_with_wechat": {
+    "description": "Auto-generated metadata for key 'label_login_with_wechat'."
+  },
+  "withdrawal_success": "회원탈퇴가 성공적으로 처리되었습니다.",
+  "@withdrawal_success": {
+    "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "vote_item_request_already_applied_artist": "이미 해당 아티스트에 대해 신청하셨습니다.",
+  "@vote_item_request_already_applied_artist": {
+    "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
+  },
+  "bonus_candy_expiration_policy_expiration_date": "소멸 시점",
+  "@bonus_candy_expiration_policy_expiration_date": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
+  },
+  "bonus_candy_example_2_earn": "__MONTH__월 20일 14:00(KST)",
+  "@bonus_candy_example_2_earn": {
+    "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
+  },
+  "message_agreement_fail": "약관 동의가 필요합니다",
+  "@message_agreement_fail": {
+    "description": "Auto-generated metadata for key 'message_agreement_fail'."
+  },
+  "vote_item_request_button": "투표 신청하기",
+  "@vote_item_request_button": {
+    "description": "Auto-generated metadata for key 'vote_item_request_button'."
+  },
+  "bonus_candy_expiration_next_month": "다음달 15일 00:00:00(KST)",
+  "@bonus_candy_expiration_next_month": {
+    "description": "Auto-generated metadata for key 'bonus_candy_expiration_next_month'."
+  },
+  "error_delete_post": "게시글 삭제 중 오류가 발생했습니다.",
+  "@error_delete_post": {
+    "description": "Auto-generated metadata for key 'error_delete_post'."
+  },
+  "qna_title_min_length": "제목은 최소 5자 이상 입력해주세요.",
+  "@qna_title_min_length": {
+    "description": "Auto-generated metadata for key 'qna_title_min_length'."
+  },
+  "message_update_nickname_success": "닉네임이 성공적으로 변경되었습니다.",
+  "@message_update_nickname_success": {
+    "description": "Auto-generated metadata for key 'message_update_nickname_success'."
+  },
+  "compatibility_new_compatibility_ask": "새로운 궁합을 보고 싶나요?",
+  "@compatibility_new_compatibility_ask": {
+    "description": "Auto-generated metadata for key 'compatibility_new_compatibility_ask'."
+  },
+  "post_replying_comment": "{nickname}님에게 답글 중...",
+  "@post_replying_comment": {
+    "description": "Auto-generated metadata for key 'post_replying_comment'."
+  },
+  "button_pic_pic_save": "저장",
+  "@button_pic_pic_save": {
+    "description": "Auto-generated metadata for key 'button_pic_pic_save'."
+  },
+  "compatibility_perfect_score_exists": "이 조건의 궁합 데이터는 이미 리워드를 받았으므로 추가 리워드를 지급할 수 없습니다.",
+  "@compatibility_perfect_score_exists": {
+    "description": "Auto-generated metadata for key 'compatibility_perfect_score_exists'."
+  },
+  "post_minor_board_create_request_message_input": "게시판 개설 요청 메시지를 입력하세요.",
+  "@post_minor_board_create_request_message_input": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_input'."
+  },
+  "fortune_purchase_by_star_candy": "스타캔디로 확인",
+  "@fortune_purchase_by_star_candy": {
+    "description": "Auto-generated metadata for key 'fortune_purchase_by_star_candy'."
+  },
+  "post_minor_board_create_request_message_condition": "게시판 개설 요청 메시지를 10자 이상 포함해주세요.",
+  "@post_minor_board_create_request_message_condition": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message_condition'."
+  },
+  "post_board_create_request_reviewing": "게시판 개설 요청 검토 중",
+  "@post_board_create_request_reviewing": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_reviewing'."
+  },
+  "post_minor_board_create_request_message": "* 게시판 개설 요청 메시지",
+  "@post_minor_board_create_request_message": {
+    "description": "Auto-generated metadata for key 'post_minor_board_create_request_message'."
+  },
+  "compatibility_purchase_confirm_title": "스타캔디로 구매",
+  "@compatibility_purchase_confirm_title": {
+    "description": "Auto-generated metadata for key 'compatibility_purchase_confirm_title'."
+  },
+  "post_board_create_request_label": "게시판 개설 요청",
+  "@post_board_create_request_label": {
+    "description": "Auto-generated metadata for key 'post_board_create_request_label'."
+  }
 }

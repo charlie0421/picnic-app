@@ -102,6 +102,8 @@ abstract class AppLocalizations {
     Locale('ja'),
     Locale('ko'),
     Locale('zh'),
+    Locale('zh', 'CN'),
+    Locale('zh', 'TW'),
   ];
 
   /// Auto-generated metadata for key 'achieve'.
@@ -128,65 +130,11 @@ abstract class AppLocalizations {
   /// **'Anonymous Mode'**
   String get anonymous_mode;
 
-  /// Auto-generated metadata for key 'appTitle'.
-  ///
-  /// In en, this message translates to:
-  /// **'Picnic'**
-  String get appTitle;
-
-  /// Auto-generated metadata for key 'app_name'.
-  ///
-  /// In en, this message translates to:
-  /// **'Picnic'**
-  String get app_name;
-
-  /// Auto-generated metadata for key 'application_reason_hint'.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter application reason (optional)'**
-  String get application_reason_hint;
-
-  /// Auto-generated metadata for key 'application_reason_label'.
-  ///
-  /// In en, this message translates to:
-  /// **'Application Reason'**
-  String get application_reason_label;
-
-  /// Auto-generated metadata for key 'application_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Vote candidate application has been completed.'**
-  String get application_success;
-
-  /// Auto-generated metadata for key 'artist_name_hint'.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter artist name'**
-  String get artist_name_hint;
-
-  /// Auto-generated metadata for key 'artist_name_label'.
-  ///
-  /// In en, this message translates to:
-  /// **'Artist Name'**
-  String get artist_name_label;
-
   /// Auto-generated metadata for key 'block_user_label'.
   ///
   /// In en, this message translates to:
   /// **'Blocking users'**
   String get block_user_label;
-
-  /// Auto-generated metadata for key 'bonus_candy_awarded'.
-  ///
-  /// In en, this message translates to:
-  /// **'Star candy has been awarded.'**
-  String get bonus_candy_awarded;
-
-  /// Auto-generated metadata for key 'button_apply_as_candidate'.
-  ///
-  /// In en, this message translates to:
-  /// **'Candidate Application'**
-  String get button_apply_as_candidate;
 
   /// Auto-generated metadata for key 'button_cancel'.
   ///
@@ -211,36 +159,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm'**
   String get button_ok;
-
-  /// Auto-generated metadata for key 'button_pic_pic_save'.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get button_pic_pic_save;
-
-  /// Auto-generated metadata for key 'candy_disappear_next_month'.
-  ///
-  /// In en, this message translates to:
-  /// **'Expiring Bonus Starchies 😢'**
-  String get candy_disappear_next_month;
-
-  /// Auto-generated metadata for key 'candy_usage_policy_contents'.
-  ///
-  /// In en, this message translates to:
-  /// **'Bonus Star Candy earned in the current month will expire on the 15th of the following month.'**
-  String get candy_usage_policy_contents;
-
-  /// Auto-generated metadata for key 'candy_usage_policy_contents2'.
-  ///
-  /// In en, this message translates to:
-  /// **'When using Star Candy, Star Candy that is about to expire is prioritized.'**
-  String get candy_usage_policy_contents2;
-
-  /// Auto-generated metadata for key 'candy_usage_policy_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Starchies Usage Policy'**
-  String get candy_usage_policy_title;
 
   /// Auto-generated metadata for key 'comments'.
   ///
@@ -344,23 +262,11 @@ abstract class AppLocalizations {
   /// **'Birth time'**
   String get compatibility_birthtime;
 
-  /// Auto-generated metadata for key 'compatibility_birthtime_subtitle'.
-  ///
-  /// In en, this message translates to:
-  /// **'Increase accuracy!'**
-  String get compatibility_birthtime_subtitle;
-
   /// Auto-generated metadata for key 'compatibility_couple_style'.
   ///
   /// In en, this message translates to:
   /// **'Couple styles'**
   String get compatibility_couple_style;
-
-  /// Auto-generated metadata for key 'compatibility_duplicate_data_message'.
-  ///
-  /// In en, this message translates to:
-  /// **'Compatibility data with the same conditions already exists.'**
-  String get compatibility_duplicate_data_message;
 
   /// Auto-generated metadata for key 'compatibility_duplicate_data_title'.
   ///
@@ -398,47 +304,17 @@ abstract class AppLocalizations {
   /// **'Calculate New Goong-Hap'**
   String get compatibility_new_compatibility;
 
-  /// Auto-generated metadata for key 'compatibility_new_compatibility_ask'.
-  ///
-  /// In en, this message translates to:
-  /// **'Want to see a new Goong-Hap?'**
-  String get compatibility_new_compatibility_ask;
-
   /// Auto-generated metadata for key 'compatibility_page_title'.
   ///
   /// In en, this message translates to:
   /// **'Compatibility'**
   String get compatibility_page_title;
 
-  /// Auto-generated metadata for key 'compatibility_perfect_score_exists'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.'**
-  String get compatibility_perfect_score_exists;
-
-  /// Auto-generated metadata for key 'compatibility_perfect_score_exists_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Already Winning Matches Data'**
-  String get compatibility_perfect_score_exists_title;
-
   /// Auto-generated metadata for key 'compatibility_purchase_confirm_message'.
   ///
   /// In en, this message translates to:
   /// **'Use 100 Star Candy to check Goong-Hap results.'**
   String get compatibility_purchase_confirm_message;
-
-  /// Auto-generated metadata for key 'compatibility_purchase_confirm_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Purchase with Star Candy'**
-  String get compatibility_purchase_confirm_title;
-
-  /// No description provided for @compatibility_purchase_message.
-  ///
-  /// In en, this message translates to:
-  /// **'If I want to know the Goong-hap score between me and the {artistName}?'**
-  String compatibility_purchase_message(String artistName);
 
   /// Auto-generated metadata for key 'compatibility_remain_star_candy'.
   ///
@@ -470,29 +346,11 @@ abstract class AppLocalizations {
   /// **'An error occurred.'**
   String get compatibility_snackbar_error;
 
-  /// Auto-generated metadata for key 'compatibility_snackbar_need_birthday'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter your date of birth.'**
-  String get compatibility_snackbar_need_birthday;
-
-  /// Auto-generated metadata for key 'compatibility_snackbar_need_birthtime'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter your birth time.'**
-  String get compatibility_snackbar_need_birthtime;
-
   /// Auto-generated metadata for key 'compatibility_snackbar_need_gender'.
   ///
   /// In en, this message translates to:
   /// **'Please select a gender.'**
   String get compatibility_snackbar_need_gender;
-
-  /// Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'.
-  ///
-  /// In en, this message translates to:
-  /// **'Give your consent to save your profile.'**
-  String get compatibility_snackbar_need_profile_save_agree;
 
   /// Auto-generated metadata for key 'compatibility_snackbar_start'.
   ///
@@ -500,41 +358,11 @@ abstract class AppLocalizations {
   /// **'Start analyzing compatibility.'**
   String get compatibility_snackbar_start;
 
-  /// Auto-generated metadata for key 'compatibility_status_completed'.
-  ///
-  /// In en, this message translates to:
-  /// **'Done'**
-  String get compatibility_status_completed;
-
-  /// Auto-generated metadata for key 'compatibility_status_error'.
-  ///
-  /// In en, this message translates to:
-  /// **'Error'**
-  String get compatibility_status_error;
-
-  /// Auto-generated metadata for key 'compatibility_status_input'.
-  ///
-  /// In en, this message translates to:
-  /// **'Typing'**
-  String get compatibility_status_input;
-
-  /// Auto-generated metadata for key 'compatibility_status_pending'.
-  ///
-  /// In en, this message translates to:
-  /// **'Analyzing'**
-  String get compatibility_status_pending;
-
   /// Auto-generated metadata for key 'compatibility_style_title'.
   ///
   /// In en, this message translates to:
   /// **'Compatibility styles'**
   String get compatibility_style_title;
-
-  /// Auto-generated metadata for key 'compatibility_summary_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Compatibility summary'**
-  String get compatibility_summary_title;
 
   /// Auto-generated metadata for key 'compatibility_time_slot1'.
   ///
@@ -608,12 +436,6 @@ abstract class AppLocalizations {
   /// **'Hour of the Monkey|(15:30-17:29)|🐒'**
   String get compatibility_time_slot9;
 
-  /// Auto-generated metadata for key 'compatibility_time_slot_unknown'.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t know'**
-  String get compatibility_time_slot_unknown;
-
   /// Auto-generated metadata for key 'compatibility_tips_title'.
   ///
   /// In en, this message translates to:
@@ -662,41 +484,17 @@ abstract class AppLocalizations {
   /// **'All ads have been exhausted. Please try again next time.'**
   String get dialog_content_ads_exhausted;
 
-  /// Auto-generated metadata for key 'dialog_content_ads_loading'.
-  ///
-  /// In en, this message translates to:
-  /// **'Ads are loading.'**
-  String get dialog_content_ads_loading;
-
-  /// Auto-generated metadata for key 'dialog_content_ads_retrying'.
-  ///
-  /// In en, this message translates to:
-  /// **'The ad is reloading. Please try again in a moment.'**
-  String get dialog_content_ads_retrying;
-
   /// Auto-generated metadata for key 'dialog_content_login_required'.
   ///
   /// In en, this message translates to:
   /// **'Login required'**
   String get dialog_content_login_required;
 
-  /// Auto-generated metadata for key 'dialog_login_required_description'.
-  ///
-  /// In en, this message translates to:
-  /// **'You need to login to use this feature. Would you like to login?'**
-  String get dialog_login_required_description;
-
   /// Auto-generated metadata for key 'dialog_message_can_resignup'.
   ///
   /// In en, this message translates to:
   /// **'When you can rejoin if you cancel your membership now?'**
   String get dialog_message_can_resignup;
-
-  /// Auto-generated metadata for key 'dialog_message_purchase_canceled'.
-  ///
-  /// In en, this message translates to:
-  /// **'Your purchase has been canceled.'**
-  String get dialog_message_purchase_canceled;
 
   /// Auto-generated metadata for key 'dialog_message_purchase_failed'.
   ///
@@ -709,18 +507,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your purchase has been successfully completed.'**
   String get dialog_message_purchase_success;
-
-  /// Auto-generated metadata for key 'dialog_purchases_fail'.
-  ///
-  /// In en, this message translates to:
-  /// **'The purchase failed.'**
-  String get dialog_purchases_fail;
-
-  /// Auto-generated metadata for key 'dialog_purchases_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Your purchase is complete.'**
-  String get dialog_purchases_success;
 
   /// Auto-generated metadata for key 'dialog_title_ads_exhausted'.
   ///
@@ -740,35 +526,11 @@ abstract class AppLocalizations {
   /// **'Star Candies to be deleted'**
   String get dialog_will_delete_star_candy;
 
-  /// Auto-generated metadata for key 'dialog_withdraw_button_cancel'.
-  ///
-  /// In en, this message translates to:
-  /// **'Let me think about this one more time.'**
-  String get dialog_withdraw_button_cancel;
-
-  /// Auto-generated metadata for key 'dialog_withdraw_button_ok'.
-  ///
-  /// In en, this message translates to:
-  /// **'Unsubscribing'**
-  String get dialog_withdraw_button_ok;
-
-  /// Auto-generated metadata for key 'dialog_withdraw_error'.
-  ///
-  /// In en, this message translates to:
-  /// **'An error occurred during unsubscribe.'**
-  String get dialog_withdraw_error;
-
   /// Auto-generated metadata for key 'dialog_withdraw_message'.
   ///
   /// In en, this message translates to:
   /// **'If you cancel your membership, your star candy and account information on Picnic will be deleted immediately, and your existing information and data will not be restored when you rejoin.'**
   String get dialog_withdraw_message;
-
-  /// Auto-generated metadata for key 'dialog_withdraw_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'The unsubscribe was processed successfully.'**
-  String get dialog_withdraw_success;
 
   /// Auto-generated metadata for key 'dialog_withdraw_title'.
   ///
@@ -776,113 +538,11 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to leave?'**
   String get dialog_withdraw_title;
 
-  /// Auto-generated metadata for key 'download_android_button'.
-  ///
-  /// In en, this message translates to:
-  /// **'Get it on Google Play'**
-  String get download_android_button;
-
-  /// Auto-generated metadata for key 'download_apk_button'.
-  ///
-  /// In en, this message translates to:
-  /// **'Direct APK Download'**
-  String get download_apk_button;
-
-  /// Auto-generated metadata for key 'download_coming_soon'.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming Soon'**
-  String get download_coming_soon;
-
-  /// Auto-generated metadata for key 'download_description'.
-  ///
-  /// In en, this message translates to:
-  /// **'Voting and media platform for K-Pop artists'**
-  String get download_description;
-
-  /// Auto-generated metadata for key 'download_feature_media'.
-  ///
-  /// In en, this message translates to:
-  /// **'Media Gallery'**
-  String get download_feature_media;
-
-  /// Auto-generated metadata for key 'download_feature_rewards'.
-  ///
-  /// In en, this message translates to:
-  /// **'Reward System'**
-  String get download_feature_rewards;
-
-  /// Auto-generated metadata for key 'download_feature_voting'.
-  ///
-  /// In en, this message translates to:
-  /// **'Artist Voting'**
-  String get download_feature_voting;
-
-  /// Auto-generated metadata for key 'download_features_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Picnic Key Features'**
-  String get download_features_title;
-
-  /// Auto-generated metadata for key 'download_ios_button'.
-  ///
-  /// In en, this message translates to:
-  /// **'Download on App Store'**
-  String get download_ios_button;
-
-  /// Auto-generated metadata for key 'download_link_copied'.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied!'**
-  String get download_link_copied;
-
-  /// Auto-generated metadata for key 'download_link_copy'.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy Link'**
-  String get download_link_copy;
-
-  /// Auto-generated metadata for key 'download_page_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Download Picnic App'**
-  String get download_page_title;
-
-  /// Auto-generated metadata for key 'download_qr_description'.
-  ///
-  /// In en, this message translates to:
-  /// **'Scan the QR code with your smartphone'**
-  String get download_qr_description;
-
-  /// Auto-generated metadata for key 'download_qr_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Quick Download with QR Code'**
-  String get download_qr_title;
-
-  /// Auto-generated metadata for key 'download_subtitle'.
-  ///
-  /// In en, this message translates to:
-  /// **'Download the Picnic app now and support your favorite K-Pop artists!'**
-  String get download_subtitle;
-
   /// Auto-generated metadata for key 'error_action_failed'.
   ///
   /// In en, this message translates to:
   /// **'An error occurred while performing the operation.'**
   String get error_action_failed;
-
-  /// Auto-generated metadata for key 'error_application_reason_required'.
-  ///
-  /// In en, this message translates to:
-  /// **'Application reason is required'**
-  String get error_application_reason_required;
-
-  /// Auto-generated metadata for key 'error_artist_not_selected'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please select an artist'**
-  String get error_artist_not_selected;
 
   /// Auto-generated metadata for key 'error_content_parse'.
   ///
@@ -890,47 +550,11 @@ abstract class AppLocalizations {
   /// **'An error occurred while parsing the content.'**
   String get error_content_parse;
 
-  /// Auto-generated metadata for key 'error_delete_post'.
-  ///
-  /// In en, this message translates to:
-  /// **'An error occurred while deleting the post.'**
-  String get error_delete_post;
-
   /// Auto-generated metadata for key 'error_invalid_data'.
   ///
   /// In en, this message translates to:
   /// **'Invalid data.'**
   String get error_invalid_data;
-
-  /// Auto-generated metadata for key 'error_loading_more_comments'.
-  ///
-  /// In en, this message translates to:
-  /// **'There was an error loading the comment.'**
-  String get error_loading_more_comments;
-
-  /// Auto-generated metadata for key 'error_loading_page'.
-  ///
-  /// In en, this message translates to:
-  /// **'An error occurred while loading the page.'**
-  String get error_loading_page;
-
-  /// Auto-generated metadata for key 'error_message_login_failed'.
-  ///
-  /// In en, this message translates to:
-  /// **'An error occurred during login.'**
-  String get error_message_login_failed;
-
-  /// Auto-generated metadata for key 'error_message_no_user'.
-  ///
-  /// In en, this message translates to:
-  /// **'The membership information doesn\'t exist.'**
-  String get error_message_no_user;
-
-  /// Auto-generated metadata for key 'error_message_withdrawal'.
-  ///
-  /// In en, this message translates to:
-  /// **'A member who has unsubscribed.'**
-  String get error_message_withdrawal;
 
   /// Auto-generated metadata for key 'error_network_connection'.
   ///
@@ -956,95 +580,11 @@ abstract class AppLocalizations {
   /// **'An unknown error occurred.'**
   String get error_unknown;
 
-  /// Auto-generated metadata for key 'exception_auth_message_apple_invalid_response'.
-  ///
-  /// In en, this message translates to:
-  /// **'We received an invalid response from the Apple server.\nPlease try again.'**
-  String get exception_auth_message_apple_invalid_response;
-
-  /// Auto-generated metadata for key 'exception_auth_message_apple_sign_in_failed'.
-  ///
-  /// In en, this message translates to:
-  /// **'Apple sign-in failed.\nPlease try again.'**
-  String get exception_auth_message_apple_sign_in_failed;
-
-  /// Auto-generated metadata for key 'exception_auth_message_common_cancel'.
-  ///
-  /// In en, this message translates to:
-  /// **'Your login has been canceled.'**
-  String get exception_auth_message_common_cancel;
-
-  /// Auto-generated metadata for key 'exception_auth_message_common_invalid_token'.
-  ///
-  /// In en, this message translates to:
-  /// **'The authentication token is invalid.\nPlease try again.'**
-  String get exception_auth_message_common_invalid_token;
-
-  /// Auto-generated metadata for key 'exception_auth_message_common_network'.
-  ///
-  /// In en, this message translates to:
-  /// **'Check your network connection.'**
-  String get exception_auth_message_common_network;
-
-  /// Auto-generated metadata for key 'exception_auth_message_common_unknown'.
-  ///
-  /// In en, this message translates to:
-  /// **'An unknown error occurred during login.\nPlease try again in a moment.'**
-  String get exception_auth_message_common_unknown;
-
-  /// Auto-generated metadata for key 'exception_auth_message_common_unsupported_provider'.
-  ///
-  /// In en, this message translates to:
-  /// **'This login method is not supported.'**
-  String get exception_auth_message_common_unsupported_provider;
-
-  /// Auto-generated metadata for key 'exception_auth_message_google_google_play_service'.
-  ///
-  /// In en, this message translates to:
-  /// **'A Google Play Services error has occurred.\nPlease update Google Play Services or restart your device.'**
-  String get exception_auth_message_google_google_play_service;
-
-  /// Auto-generated metadata for key 'exception_auth_message_kakao_not_supported'.
-  ///
-  /// In en, this message translates to:
-  /// **'I can\'t sign in with the KakaoTalk app.\nTry signing in with your Kakao account.'**
-  String get exception_auth_message_kakao_not_supported;
-
-  /// Auto-generated metadata for key 'faq_category_account'.
-  ///
-  /// In en, this message translates to:
-  /// **'Account'**
-  String get faq_category_account;
-
   /// Auto-generated metadata for key 'faq_category_all'.
   ///
   /// In en, this message translates to:
   /// **'All'**
   String get faq_category_all;
-
-  /// Auto-generated metadata for key 'faq_category_etc'.
-  ///
-  /// In en, this message translates to:
-  /// **'Etc'**
-  String get faq_category_etc;
-
-  /// Auto-generated metadata for key 'faq_category_general'.
-  ///
-  /// In en, this message translates to:
-  /// **'General'**
-  String get faq_category_general;
-
-  /// Auto-generated metadata for key 'faq_category_payment'.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment'**
-  String get faq_category_payment;
-
-  /// Auto-generated metadata for key 'faq_category_service'.
-  ///
-  /// In en, this message translates to:
-  /// **'Service'**
-  String get faq_category_service;
 
   /// Auto-generated metadata for key 'fortune_advice'.
   ///
@@ -1099,12 +639,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lucky days of the week'**
   String get fortune_lucky_days;
-
-  /// Auto-generated metadata for key 'fortune_lucky_direction'.
-  ///
-  /// In en, this message translates to:
-  /// **'Direction of Fortune'**
-  String get fortune_lucky_direction;
 
   /// Auto-generated metadata for key 'fortune_lucky_keyword'.
   ///
@@ -1202,41 +736,11 @@ abstract class AppLocalizations {
   /// **'Monthly Fortune'**
   String get fortune_monthly;
 
-  /// Auto-generated metadata for key 'fortune_purchase_by_one_click'.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay Now'**
-  String get fortune_purchase_by_one_click;
-
-  /// Auto-generated metadata for key 'fortune_purchase_by_star_candy'.
-  ///
-  /// In en, this message translates to:
-  /// **'Check with StarCandy'**
-  String get fortune_purchase_by_star_candy;
-
   /// Auto-generated metadata for key 'fortune_relationship'.
   ///
   /// In en, this message translates to:
   /// **'Interpersonal'**
   String get fortune_relationship;
-
-  /// Auto-generated metadata for key 'fortune_share_hashtag'.
-  ///
-  /// In en, this message translates to:
-  /// **'#picnic #신년운세 #Fourtuneteller'**
-  String get fortune_share_hashtag;
-
-  /// No description provided for @fortune_share_message.
-  ///
-  /// In en, this message translates to:
-  /// **'Curious about {artistName}\'s 2025 fortune? Come to #피크닠 now! Let\'s discover that shining destiny together!'**
-  String fortune_share_message(String artistName);
-
-  /// No description provided for @fortune_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Fortune of {year}'**
-  String fortune_title(int year);
 
   /// Auto-generated metadata for key 'fortune_total_title'.
   ///
@@ -1249,18 +753,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Goong-Hap with me'**
   String get fortune_with_me;
-
-  /// Auto-generated metadata for key 'group_name_hint'.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter group name (optional)'**
-  String get group_name_hint;
-
-  /// Auto-generated metadata for key 'group_name_label'.
-  ///
-  /// In en, this message translates to:
-  /// **'Group Name'**
-  String get group_name_label;
 
   /// Auto-generated metadata for key 'hint_library_add'.
   ///
@@ -1304,24 +796,6 @@ abstract class AppLocalizations {
   /// **'Failed to load ad. Please try again.'**
   String get label_ads_load_fail;
 
-  /// Auto-generated metadata for key 'label_ads_load_timeout'.
-  ///
-  /// In en, this message translates to:
-  /// **'Ad loading timed out. Please try again.'**
-  String get label_ads_load_timeout;
-
-  /// Auto-generated metadata for key 'label_ads_next_available_time'.
-  ///
-  /// In en, this message translates to:
-  /// **'When the next ad will be available.'**
-  String get label_ads_next_available_time;
-
-  /// Auto-generated metadata for key 'label_ads_reward_fail'.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to get reward. Please try again.'**
-  String get label_ads_reward_fail;
-
   /// Auto-generated metadata for key 'label_ads_sdk_init_fail'.
   ///
   /// In en, this message translates to:
@@ -1351,24 +825,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a new album'**
   String get label_album_add;
-
-  /// Auto-generated metadata for key 'label_area_filter_all'.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get label_area_filter_all;
-
-  /// Auto-generated metadata for key 'label_area_filter_kpop'.
-  ///
-  /// In en, this message translates to:
-  /// **'K-POP'**
-  String get label_area_filter_kpop;
-
-  /// Auto-generated metadata for key 'label_area_filter_musical'.
-  ///
-  /// In en, this message translates to:
-  /// **'K-MUSICAL'**
-  String get label_area_filter_musical;
 
   /// Auto-generated metadata for key 'label_article_comment_empty'.
   ///
@@ -1400,35 +856,11 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get label_button_close;
 
-  /// Auto-generated metadata for key 'label_button_disagreement'.
-  ///
-  /// In en, this message translates to:
-  /// **'Non-Consent'**
-  String get label_button_disagreement;
-
-  /// Auto-generated metadata for key 'label_button_mission_and_charge'.
-  ///
-  /// In en, this message translates to:
-  /// **'Mission and charge'**
-  String get label_button_mission_and_charge;
-
   /// Auto-generated metadata for key 'label_button_recharge'.
   ///
   /// In en, this message translates to:
   /// **'Charging'**
   String get label_button_recharge;
-
-  /// Auto-generated metadata for key 'label_button_save_vote_paper'.
-  ///
-  /// In en, this message translates to:
-  /// **'Save your ballot'**
-  String get label_button_save_vote_paper;
-
-  /// Auto-generated metadata for key 'label_button_share'.
-  ///
-  /// In en, this message translates to:
-  /// **'Share'**
-  String get label_button_share;
 
   /// Auto-generated metadata for key 'label_button_view_policy'.
   ///
@@ -1441,30 +873,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vote'**
   String get label_button_vote;
-
-  /// Auto-generated metadata for key 'label_button_vote_ended'.
-  ///
-  /// In en, this message translates to:
-  /// **'Vote Ended'**
-  String get label_button_vote_ended;
-
-  /// Auto-generated metadata for key 'label_button_vote_upcoming'.
-  ///
-  /// In en, this message translates to:
-  /// **'Vote Upcoming'**
-  String get label_button_vote_upcoming;
-
-  /// Auto-generated metadata for key 'label_button_watch_and_charge'.
-  ///
-  /// In en, this message translates to:
-  /// **'Viewing and charging for ads'**
-  String get label_button_watch_and_charge;
-
-  /// Auto-generated metadata for key 'label_celeb_ask_to_you'.
-  ///
-  /// In en, this message translates to:
-  /// **'The Artist Asks You!'**
-  String get label_celeb_ask_to_you;
 
   /// Auto-generated metadata for key 'label_celeb_gallery'.
   ///
@@ -1484,12 +892,6 @@ abstract class AppLocalizations {
   /// **'Full Use'**
   String get label_checkbox_entire_use;
 
-  /// Auto-generated metadata for key 'label_current_language'.
-  ///
-  /// In en, this message translates to:
-  /// **'Current language'**
-  String get label_current_language;
-
   /// Auto-generated metadata for key 'label_draw_image'.
   ///
   /// In en, this message translates to:
@@ -1507,24 +909,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Newest'**
   String get label_dropdown_recent;
-
-  /// Auto-generated metadata for key 'label_find_celeb'.
-  ///
-  /// In en, this message translates to:
-  /// **'Find more artists'**
-  String get label_find_celeb;
-
-  /// Auto-generated metadata for key 'label_gallery_tab_article'.
-  ///
-  /// In en, this message translates to:
-  /// **'Articles'**
-  String get label_gallery_tab_article;
-
-  /// Auto-generated metadata for key 'label_gallery_tab_chat'.
-  ///
-  /// In en, this message translates to:
-  /// **'Chat'**
-  String get label_gallery_tab_chat;
 
   /// Auto-generated metadata for key 'label_global_recommendation'.
   ///
@@ -1580,53 +964,11 @@ abstract class AppLocalizations {
   /// **'PIC'**
   String get label_library_tab_pic;
 
-  /// Auto-generated metadata for key 'label_list_more'.
-  ///
-  /// In en, this message translates to:
-  /// **'More'**
-  String get label_list_more;
-
   /// Auto-generated metadata for key 'label_loading_ads'.
   ///
   /// In en, this message translates to:
   /// **'Loading ad'**
   String get label_loading_ads;
-
-  /// Auto-generated metadata for key 'label_loading_ads_fail'.
-  ///
-  /// In en, this message translates to:
-  /// **'Ads fail to load'**
-  String get label_loading_ads_fail;
-
-  /// Auto-generated metadata for key 'label_login_with_apple'.
-  ///
-  /// In en, this message translates to:
-  /// **'Login with Apple'**
-  String get label_login_with_apple;
-
-  /// Auto-generated metadata for key 'label_login_with_google'.
-  ///
-  /// In en, this message translates to:
-  /// **'Login with Google'**
-  String get label_login_with_google;
-
-  /// Auto-generated metadata for key 'label_login_with_kakao'.
-  ///
-  /// In en, this message translates to:
-  /// **'Login with Kakao'**
-  String get label_login_with_kakao;
-
-  /// Auto-generated metadata for key 'label_login_with_wechat'.
-  ///
-  /// In en, this message translates to:
-  /// **'Login with WeChat'**
-  String get label_login_with_wechat;
-
-  /// Auto-generated metadata for key 'label_mission'.
-  ///
-  /// In en, this message translates to:
-  /// **'Mission'**
-  String get label_mission;
 
   /// Auto-generated metadata for key 'label_mission_get_star_candy'.
   ///
@@ -1646,18 +988,6 @@ abstract class AppLocalizations {
   /// **'Go to the Artist Gallery'**
   String get label_moveto_celeb_gallery;
 
-  /// Charge history menu for admin users
-  ///
-  /// In en, this message translates to:
-  /// **'Charges (Admin)'**
-  String get label_mypage_charge_history;
-
-  /// Auto-generated metadata for key 'label_mypage_customer_center'.
-  ///
-  /// In en, this message translates to:
-  /// **'Help Center'**
-  String get label_mypage_customer_center;
-
   /// Auto-generated metadata for key 'label_mypage_faq'.
   ///
   /// In en, this message translates to:
@@ -1669,12 +999,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log out'**
   String get label_mypage_logout;
-
-  /// Auto-generated metadata for key 'label_mypage_membership_history'.
-  ///
-  /// In en, this message translates to:
-  /// **'Membership history'**
-  String get label_mypage_membership_history;
 
   /// Auto-generated metadata for key 'label_mypage_my_artist'.
   ///
@@ -1736,12 +1060,6 @@ abstract class AppLocalizations {
   /// **'Withdrawal'**
   String get label_mypage_withdrawal;
 
-  /// Auto-generated metadata for key 'label_no_ads'.
-  ///
-  /// In en, this message translates to:
-  /// **'No ads'**
-  String get label_no_ads;
-
   /// Auto-generated metadata for key 'label_no_celeb'.
   ///
   /// In en, this message translates to:
@@ -1754,41 +1072,11 @@ abstract class AppLocalizations {
   /// **'Pic Chart'**
   String get label_pic_chart;
 
-  /// Auto-generated metadata for key 'label_pic_image_cropping'.
-  ///
-  /// In en, this message translates to:
-  /// **'Crop an image'**
-  String get label_pic_image_cropping;
-
-  /// Auto-generated metadata for key 'label_pic_pic_initializing_camera'.
-  ///
-  /// In en, this message translates to:
-  /// **'Initializing camera...'**
-  String get label_pic_pic_initializing_camera;
-
   /// Auto-generated metadata for key 'label_pic_pic_save_gallery'.
   ///
   /// In en, this message translates to:
   /// **'Save to Gallery'**
   String get label_pic_pic_save_gallery;
-
-  /// Auto-generated metadata for key 'label_pic_pic_synthesizing_image'.
-  ///
-  /// In en, this message translates to:
-  /// **'Compositing an image...'**
-  String get label_pic_pic_synthesizing_image;
-
-  /// Auto-generated metadata for key 'label_popup_close'.
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get label_popup_close;
-
-  /// Auto-generated metadata for key 'label_popup_hide_7days'.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t view for 7 days'**
-  String get label_popup_hide_7days;
 
   /// Auto-generated metadata for key 'label_read_more_comment'.
   ///
@@ -1807,30 +1095,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retrying'**
   String get label_retry;
-
-  /// Auto-generated metadata for key 'label_reward_location'.
-  ///
-  /// In en, this message translates to:
-  /// **'Location'**
-  String get label_reward_location;
-
-  /// Auto-generated metadata for key 'label_reward_overview'.
-  ///
-  /// In en, this message translates to:
-  /// **'Overview'**
-  String get label_reward_overview;
-
-  /// Auto-generated metadata for key 'label_reward_size'.
-  ///
-  /// In en, this message translates to:
-  /// **'Size'**
-  String get label_reward_size;
-
-  /// Auto-generated metadata for key 'label_screen_title_agreement'.
-  ///
-  /// In en, this message translates to:
-  /// **'Accept the terms'**
-  String get label_screen_title_agreement;
 
   /// Auto-generated metadata for key 'label_setting_alarm'.
   ///
@@ -1892,23 +1156,11 @@ abstract class AppLocalizations {
   /// **'Delete cache memory'**
   String get label_setting_remove_cache;
 
-  /// Auto-generated metadata for key 'label_setting_remove_cache_complete'.
-  ///
-  /// In en, this message translates to:
-  /// **'Done'**
-  String get label_setting_remove_cache_complete;
-
   /// Auto-generated metadata for key 'label_setting_storage'.
   ///
   /// In en, this message translates to:
   /// **'Manage storage'**
   String get label_setting_storage;
-
-  /// Auto-generated metadata for key 'label_setting_update'.
-  ///
-  /// In en, this message translates to:
-  /// **'Update'**
-  String get label_setting_update;
 
   /// Auto-generated metadata for key 'label_star_candy_pouch'.
   ///
@@ -1916,77 +1168,17 @@ abstract class AppLocalizations {
   /// **'Star Candy Pouch'**
   String get label_star_candy_pouch;
 
-  /// Auto-generated metadata for key 'label_tab_buy_star_candy'.
-  ///
-  /// In en, this message translates to:
-  /// **'Buy star candy'**
-  String get label_tab_buy_star_candy;
-
-  /// Auto-generated metadata for key 'label_tab_free_charge_station'.
-  ///
-  /// In en, this message translates to:
-  /// **'Free charging stations'**
-  String get label_tab_free_charge_station;
-
-  /// Auto-generated metadata for key 'label_tab_my_artist'.
-  ///
-  /// In en, this message translates to:
-  /// **'MyArtist'**
-  String get label_tab_my_artist;
-
-  /// Auto-generated metadata for key 'label_tab_search_my_artist'.
-  ///
-  /// In en, this message translates to:
-  /// **'Find MyArtist'**
-  String get label_tab_search_my_artist;
-
-  /// Auto-generated metadata for key 'label_tabbar_picchart_daily'.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily charts'**
-  String get label_tabbar_picchart_daily;
-
-  /// Auto-generated metadata for key 'label_tabbar_picchart_monthly'.
-  ///
-  /// In en, this message translates to:
-  /// **'Monthly Charts'**
-  String get label_tabbar_picchart_monthly;
-
-  /// Auto-generated metadata for key 'label_tabbar_picchart_weekly'.
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly charts'**
-  String get label_tabbar_picchart_weekly;
-
   /// Auto-generated metadata for key 'label_tabbar_vote_active'.
   ///
   /// In en, this message translates to:
   /// **'In Progress'**
   String get label_tabbar_vote_active;
 
-  /// Auto-generated metadata for key 'label_tabbar_vote_all'.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get label_tabbar_vote_all;
-
   /// Auto-generated metadata for key 'label_tabbar_vote_end'.
   ///
   /// In en, this message translates to:
   /// **'Closed'**
   String get label_tabbar_vote_end;
-
-  /// Auto-generated metadata for key 'label_tabbar_vote_image'.
-  ///
-  /// In en, this message translates to:
-  /// **'Image Vote'**
-  String get label_tabbar_vote_image;
-
-  /// Auto-generated metadata for key 'label_tabbar_vote_upcoming'.
-  ///
-  /// In en, this message translates to:
-  /// **'Upcoming'**
-  String get label_tabbar_vote_upcoming;
 
   /// No description provided for @label_time_ago_day.
   ///
@@ -2000,23 +1192,11 @@ abstract class AppLocalizations {
   /// **'{hour} hours ago'**
   String label_time_ago_hour(int hour);
 
-  /// No description provided for @label_time_ago_minute.
-  ///
-  /// In en, this message translates to:
-  /// **'{minute} minutes ago'**
-  String label_time_ago_minute(int minute);
-
   /// Auto-generated metadata for key 'label_time_ago_right_now'.
   ///
   /// In en, this message translates to:
   /// **'Just a moment ago'**
   String get label_time_ago_right_now;
-
-  /// Auto-generated metadata for key 'label_title_comment'.
-  ///
-  /// In en, this message translates to:
-  /// **'Comments'**
-  String get label_title_comment;
 
   /// Auto-generated metadata for key 'label_title_report'.
   ///
@@ -2030,47 +1210,11 @@ abstract class AppLocalizations {
   /// **'Unlimited rewards'**
   String get label_unlimited_rewards;
 
-  /// Auto-generated metadata for key 'label_various_rewards'.
-  ///
-  /// In en, this message translates to:
-  /// **'Various rewards'**
-  String get label_various_rewards;
-
-  /// Auto-generated metadata for key 'label_vote_achieve'.
-  ///
-  /// In en, this message translates to:
-  /// **'Achievement Vote'**
-  String get label_vote_achieve;
-
-  /// Auto-generated metadata for key 'label_vote_birthday'.
-  ///
-  /// In en, this message translates to:
-  /// **'Birthday'**
-  String get label_vote_birthday;
-
-  /// Auto-generated metadata for key 'label_vote_comback'.
-  ///
-  /// In en, this message translates to:
-  /// **'Comeback Vote'**
-  String get label_vote_comback;
-
-  /// Auto-generated metadata for key 'label_vote_debut'.
-  ///
-  /// In en, this message translates to:
-  /// **'Debut'**
-  String get label_vote_debut;
-
   /// Auto-generated metadata for key 'label_vote_end'.
   ///
   /// In en, this message translates to:
   /// **'Close the poll'**
   String get label_vote_end;
-
-  /// Auto-generated metadata for key 'label_vote_image'.
-  ///
-  /// In en, this message translates to:
-  /// **'Image'**
-  String get label_vote_image;
 
   /// Auto-generated metadata for key 'label_vote_reward_list'.
   ///
@@ -2084,41 +1228,11 @@ abstract class AppLocalizations {
   /// **'Voting'**
   String get label_vote_screen_title;
 
-  /// Auto-generated metadata for key 'label_vote_shining'.
-  ///
-  /// In en, this message translates to:
-  /// **'Shining Vote'**
-  String get label_vote_shining;
-
-  /// Auto-generated metadata for key 'label_vote_tab_birthday'.
-  ///
-  /// In en, this message translates to:
-  /// **'Birthday polls'**
-  String get label_vote_tab_birthday;
-
-  /// Auto-generated metadata for key 'label_vote_tab_pic'.
-  ///
-  /// In en, this message translates to:
-  /// **'PIC voting'**
-  String get label_vote_tab_pic;
-
   /// Auto-generated metadata for key 'label_vote_upcoming'.
   ///
   /// In en, this message translates to:
   /// **'Until voting begins'**
   String get label_vote_upcoming;
-
-  /// Auto-generated metadata for key 'label_vote_vote_gather'.
-  ///
-  /// In en, this message translates to:
-  /// **'Collecting votes'**
-  String get label_vote_vote_gather;
-
-  /// Auto-generated metadata for key 'label_watch_ads'.
-  ///
-  /// In en, this message translates to:
-  /// **'View ads'**
-  String get label_watch_ads;
 
   /// Auto-generated metadata for key 'label_watch_ads_short'.
   ///
@@ -2131,30 +1245,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My Artists'**
   String get lable_my_celeb;
-
-  /// Auto-generated metadata for key 'login_simple_login'.
-  ///
-  /// In en, this message translates to:
-  /// **'Simple Login'**
-  String get login_simple_login;
-
-  /// Auto-generated metadata for key 'login_simple_login_guide'.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t have an account? You\'ll be automatically signed up with your social login above'**
-  String get login_simple_login_guide;
-
-  /// Auto-generated metadata for key 'login_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Find special moments at a picnic'**
-  String get login_title;
-
-  /// Auto-generated metadata for key 'message_agreement_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Acceptance of the terms is complete.'**
-  String get message_agreement_success;
 
   /// Auto-generated metadata for key 'message_error_occurred'.
   ///
@@ -2192,36 +1282,6 @@ abstract class AppLocalizations {
   /// **'The image has been saved.'**
   String get message_pic_pic_save_success;
 
-  /// Auto-generated metadata for key 'message_report_confirm'.
-  ///
-  /// In en, this message translates to:
-  /// **'Want to report?'**
-  String get message_report_confirm;
-
-  /// Auto-generated metadata for key 'message_report_ok'.
-  ///
-  /// In en, this message translates to:
-  /// **'The report is complete.'**
-  String get message_report_ok;
-
-  /// Auto-generated metadata for key 'message_setting_remove_cache'.
-  ///
-  /// In en, this message translates to:
-  /// **'Cache memory deletion is complete.'**
-  String get message_setting_remove_cache;
-
-  /// Auto-generated metadata for key 'message_update_nickname_fail'.
-  ///
-  /// In en, this message translates to:
-  /// **'Nickname change failed.\nPlease select a different nickname.'**
-  String get message_update_nickname_fail;
-
-  /// Auto-generated metadata for key 'message_update_nickname_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Your nickname has been successfully changed.'**
-  String get message_update_nickname_success;
-
   /// Auto-generated metadata for key 'message_vote_is_ended'.
   ///
   /// In en, this message translates to:
@@ -2240,65 +1300,11 @@ abstract class AppLocalizations {
   /// **'My Information'**
   String get my_info;
 
-  /// Auto-generated metadata for key 'mypage_comment'.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage comments'**
-  String get mypage_comment;
-
-  /// Auto-generated metadata for key 'mypage_language'.
-  ///
-  /// In en, this message translates to:
-  /// **'Language settings'**
-  String get mypage_language;
-
-  /// Auto-generated metadata for key 'mypage_purchases'.
-  ///
-  /// In en, this message translates to:
-  /// **'My purchases'**
-  String get mypage_purchases;
-
   /// Auto-generated metadata for key 'mypage_setting'.
   ///
   /// In en, this message translates to:
   /// **'Settings'**
   String get mypage_setting;
-
-  /// Auto-generated metadata for key 'mypage_subscription'.
-  ///
-  /// In en, this message translates to:
-  /// **'Subscription information'**
-  String get mypage_subscription;
-
-  /// Auto-generated metadata for key 'nav_ads'.
-  ///
-  /// In en, this message translates to:
-  /// **'Ads'**
-  String get nav_ads;
-
-  /// Auto-generated metadata for key 'nav_board'.
-  ///
-  /// In en, this message translates to:
-  /// **'Boards'**
-  String get nav_board;
-
-  /// Auto-generated metadata for key 'nav_gallery'.
-  ///
-  /// In en, this message translates to:
-  /// **'Gallery'**
-  String get nav_gallery;
-
-  /// Auto-generated metadata for key 'nav_home'.
-  ///
-  /// In en, this message translates to:
-  /// **'Home'**
-  String get nav_home;
-
-  /// Auto-generated metadata for key 'nav_library'.
-  ///
-  /// In en, this message translates to:
-  /// **'Libraries'**
-  String get nav_library;
 
   /// Auto-generated metadata for key 'nav_media'.
   ///
@@ -2306,71 +1312,11 @@ abstract class AppLocalizations {
   /// **'Media'**
   String get nav_media;
 
-  /// Auto-generated metadata for key 'nav_my'.
-  ///
-  /// In en, this message translates to:
-  /// **'My'**
-  String get nav_my;
-
-  /// Auto-generated metadata for key 'nav_picchart'.
-  ///
-  /// In en, this message translates to:
-  /// **'PIC Charts'**
-  String get nav_picchart;
-
-  /// Auto-generated metadata for key 'nav_purchases'.
-  ///
-  /// In en, this message translates to:
-  /// **'Purchase'**
-  String get nav_purchases;
-
-  /// Auto-generated metadata for key 'nav_rewards'.
-  ///
-  /// In en, this message translates to:
-  /// **'Reward'**
-  String get nav_rewards;
-
-  /// Auto-generated metadata for key 'nav_setting'.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get nav_setting;
-
-  /// Auto-generated metadata for key 'nav_store'.
-  ///
-  /// In en, this message translates to:
-  /// **'Shop'**
-  String get nav_store;
-
-  /// Auto-generated metadata for key 'nav_subscription'.
-  ///
-  /// In en, this message translates to:
-  /// **'Subscriptions'**
-  String get nav_subscription;
-
-  /// Auto-generated metadata for key 'nav_vote'.
-  ///
-  /// In en, this message translates to:
-  /// **'Voting'**
-  String get nav_vote;
-
   /// Auto-generated metadata for key 'nickname_validation_error'.
   ///
   /// In en, this message translates to:
   /// **'20 characters or less, excluding special characters.'**
   String get nickname_validation_error;
-
-  /// Auto-generated metadata for key 'no_search_results'.
-  ///
-  /// In en, this message translates to:
-  /// **'No search results found'**
-  String get no_search_results;
-
-  /// Auto-generated metadata for key 'optional'.
-  ///
-  /// In en, this message translates to:
-  /// **'Optional'**
-  String get optional;
 
   /// Auto-generated metadata for key 'page_title_mypage'.
   ///
@@ -2378,71 +1324,17 @@ abstract class AppLocalizations {
   /// **'My Page'**
   String get page_title_mypage;
 
-  /// Auto-generated metadata for key 'page_title_myprofile'.
-  ///
-  /// In en, this message translates to:
-  /// **'My profile'**
-  String get page_title_myprofile;
-
   /// Auto-generated metadata for key 'page_title_post_write'.
   ///
   /// In en, this message translates to:
   /// **'Create a post'**
   String get page_title_post_write;
 
-  /// Auto-generated metadata for key 'page_title_privacy'.
-  ///
-  /// In en, this message translates to:
-  /// **'Privacy Policy'**
-  String get page_title_privacy;
-
-  /// Auto-generated metadata for key 'page_title_setting'.
-  ///
-  /// In en, this message translates to:
-  /// **'Preferences'**
-  String get page_title_setting;
-
-  /// Auto-generated metadata for key 'page_title_terms_of_use'.
-  ///
-  /// In en, this message translates to:
-  /// **'Terms of Use'**
-  String get page_title_terms_of_use;
-
   /// Auto-generated metadata for key 'page_title_vote_detail'.
   ///
   /// In en, this message translates to:
   /// **'Vote'**
   String get page_title_vote_detail;
-
-  /// Auto-generated metadata for key 'page_title_vote_gather'.
-  ///
-  /// In en, this message translates to:
-  /// **'Collecting votes'**
-  String get page_title_vote_gather;
-
-  /// Auto-generated metadata for key 'patch_check'.
-  ///
-  /// In en, this message translates to:
-  /// **'Checking for patches'**
-  String get patch_check;
-
-  /// Auto-generated metadata for key 'patch_error'.
-  ///
-  /// In en, this message translates to:
-  /// **'Patch failed'**
-  String get patch_error;
-
-  /// Auto-generated metadata for key 'patch_install'.
-  ///
-  /// In en, this message translates to:
-  /// **'Installing patch'**
-  String get patch_install;
-
-  /// Auto-generated metadata for key 'patch_restart_app'.
-  ///
-  /// In en, this message translates to:
-  /// **'Restarting app'**
-  String get patch_restart_app;
 
   /// Auto-generated metadata for key 'popup_label_delete'.
   ///
@@ -2455,12 +1347,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Anonymous posting'**
   String get post_anonymous;
-
-  /// Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'.
-  ///
-  /// In en, this message translates to:
-  /// **'Want to go to the Drafts list?'**
-  String get post_ask_go_to_temporary_save_list;
 
   /// Auto-generated metadata for key 'post_board_already_exist'.
   ///
@@ -2480,41 +1366,11 @@ abstract class AppLocalizations {
   /// **'*Only one minor board can be applied per ID.'**
   String get post_board_create_request_condition;
 
-  /// Auto-generated metadata for key 'post_board_create_request_label'.
-  ///
-  /// In en, this message translates to:
-  /// **'Request to open a board'**
-  String get post_board_create_request_label;
-
-  /// Auto-generated metadata for key 'post_board_create_request_reviewing'.
-  ///
-  /// In en, this message translates to:
-  /// **'Reviewing a request to open a board'**
-  String get post_board_create_request_reviewing;
-
   /// Auto-generated metadata for key 'post_board_request_label'.
   ///
   /// In en, this message translates to:
   /// **'Open requests'**
   String get post_board_request_label;
-
-  /// Auto-generated metadata for key 'post_cannot_open_youtube'.
-  ///
-  /// In en, this message translates to:
-  /// **'I can\'t open Youtube.'**
-  String get post_cannot_open_youtube;
-
-  /// Auto-generated metadata for key 'post_comment_action_show_original'.
-  ///
-  /// In en, this message translates to:
-  /// **'View full text'**
-  String get post_comment_action_show_original;
-
-  /// Auto-generated metadata for key 'post_comment_action_show_translation'.
-  ///
-  /// In en, this message translates to:
-  /// **'View translations'**
-  String get post_comment_action_show_translation;
 
   /// Auto-generated metadata for key 'post_comment_action_translate'.
   ///
@@ -2575,12 +1431,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is a reported comment.'**
   String get post_comment_reported_comment;
-
-  /// Auto-generated metadata for key 'post_comment_translate_complete'.
-  ///
-  /// In en, this message translates to:
-  /// **'The translation is complete.'**
-  String get post_comment_translate_complete;
 
   /// Auto-generated metadata for key 'post_comment_translate_fail'.
   ///
@@ -2660,35 +1510,11 @@ abstract class AppLocalizations {
   /// **'Inserting links'**
   String get post_insert_link;
 
-  /// Auto-generated metadata for key 'post_loading_post_fail'.
-  ///
-  /// In en, this message translates to:
-  /// **'The post failed to load.'**
-  String get post_loading_post_fail;
-
   /// Auto-generated metadata for key 'post_minor_board_condition'.
   ///
   /// In en, this message translates to:
   /// **'Please enter a description of at least 5 characters and no more than 20 characters.'**
   String get post_minor_board_condition;
-
-  /// Auto-generated metadata for key 'post_minor_board_create_request_message'.
-  ///
-  /// In en, this message translates to:
-  /// **'* Message requesting to open a board.'**
-  String get post_minor_board_create_request_message;
-
-  /// Auto-generated metadata for key 'post_minor_board_create_request_message_condition'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please include at least 10 characters in your message requesting to open a board.'**
-  String get post_minor_board_create_request_message_condition;
-
-  /// Auto-generated metadata for key 'post_minor_board_create_request_message_input'.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a message requesting to open a board.'**
-  String get post_minor_board_create_request_message_input;
 
   /// Auto-generated metadata for key 'post_minor_board_description'.
   ///
@@ -2749,12 +1575,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No posts were found.'**
   String get post_not_found;
-
-  /// No description provided for @post_replying_comment.
-  ///
-  /// In en, this message translates to:
-  /// **'Replying to {nickname}...'**
-  String post_replying_comment(String nickname);
 
   /// Auto-generated metadata for key 'post_report_fail'.
   ///
@@ -2822,29 +1642,11 @@ abstract class AppLocalizations {
   /// **'The report is complete.'**
   String get post_report_success;
 
-  /// Auto-generated metadata for key 'post_temporary_save_complete'.
-  ///
-  /// In en, this message translates to:
-  /// **'Draft complete.'**
-  String get post_temporary_save_complete;
-
   /// Auto-generated metadata for key 'post_title_placeholder'.
   ///
   /// In en, this message translates to:
   /// **'Please enter a title.'**
   String get post_title_placeholder;
-
-  /// Auto-generated metadata for key 'post_write_board_post'.
-  ///
-  /// In en, this message translates to:
-  /// **'Create a post'**
-  String get post_write_board_post;
-
-  /// Auto-generated metadata for key 'post_write_post_recommend_write'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please create a post.'**
-  String get post_write_post_recommend_write;
 
   /// Auto-generated metadata for key 'post_youtube_link'.
   ///
@@ -2870,53 +1672,11 @@ abstract class AppLocalizations {
   /// **'Purchase Confirmation'**
   String get purchase_confirm_title;
 
-  /// Auto-generated metadata for key 'purchase_cooldown_message'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please try again in a moment.'**
-  String get purchase_cooldown_message;
-
   /// Auto-generated metadata for key 'previousTransactionPendingError'.
   ///
   /// In en, this message translates to:
   /// **'Your previous payment is still being processed by the Store. Please try again shortly.'**
   String get previousTransactionPendingError;
-
-  /// Auto-generated metadata for key 'error_user_not_authenticated'.
-  ///
-  /// In en, this message translates to:
-  /// **'You need to sign in. Please log in again.'**
-  String get error_user_not_authenticated;
-
-  /// Auto-generated metadata for key 'error_product_not_found'.
-  ///
-  /// In en, this message translates to:
-  /// **'We couldn\'t find the purchased product.'**
-  String get error_product_not_found;
-
-  /// Auto-generated metadata for key 'error_receipt_verification_failed'.
-  ///
-  /// In en, this message translates to:
-  /// **'Receipt verification failed.'**
-  String get error_receipt_verification_failed;
-
-  /// Auto-generated metadata for key 'error_duplicate_purchase'.
-  ///
-  /// In en, this message translates to:
-  /// **'This purchase has already been processed.'**
-  String get error_duplicate_purchase;
-
-  /// Auto-generated metadata for key 'error_initializing'.
-  ///
-  /// In en, this message translates to:
-  /// **'Initializing. Please try again shortly.'**
-  String get error_initializing;
-
-  /// Auto-generated metadata for key 'error_purchase_in_progress'.
-  ///
-  /// In en, this message translates to:
-  /// **'A purchase is in progress. Please wait.'**
-  String get error_purchase_in_progress;
 
   /// Auto-generated metadata for key 'purchase_in_progress_message'.
   ///
@@ -2942,71 +1702,11 @@ abstract class AppLocalizations {
   /// **'Payment Amount'**
   String get purchase_payment_amount;
 
-  /// Auto-generated metadata for key 'purchase_restore_success_message'.
-  ///
-  /// In en, this message translates to:
-  /// **'Purchase restoration completed.\nPlease check your star candy balance.'**
-  String get purchase_restore_success_message;
-
-  /// Auto-generated metadata for key 'purchase_restore_wait_message'.
-  ///
-  /// In en, this message translates to:
-  /// **'Purchase is in progress. Please try again after completion.'**
-  String get purchase_restore_wait_message;
-
-  /// Auto-generated metadata for key 'purchase_timeout_message'.
-  ///
-  /// In en, this message translates to:
-  /// **'Purchase processing is taking too long.\nPlease try again later.'**
-  String get purchase_timeout_message;
-
   /// Auto-generated metadata for key 'purchase_web_message'.
   ///
   /// In en, this message translates to:
   /// **'This is the payment window for those who can\'t pay with the app.\n Please copy the random ID in advance.\n After copying it, click the button below to proceed with the payment.'**
   String get purchase_web_message;
-
-  /// Auto-generated metadata for key 'qna_actions'.
-  ///
-  /// In en, this message translates to:
-  /// **'Actions'**
-  String get qna_actions;
-
-  /// Auto-generated metadata for key 'qna_answer'.
-  ///
-  /// In en, this message translates to:
-  /// **'Answer'**
-  String get qna_answer;
-
-  /// Auto-generated metadata for key 'qna_answered_at'.
-  ///
-  /// In en, this message translates to:
-  /// **'Answered at'**
-  String get qna_answered_at;
-
-  /// Auto-generated metadata for key 'qna_answered_by'.
-  ///
-  /// In en, this message translates to:
-  /// **'Answered by'**
-  String get qna_answered_by;
-
-  /// Auto-generated metadata for key 'qna_attached_files'.
-  ///
-  /// In en, this message translates to:
-  /// **'Attached Files'**
-  String get qna_attached_files;
-
-  /// Auto-generated metadata for key 'qna_attachments'.
-  ///
-  /// In en, this message translates to:
-  /// **'Attachments'**
-  String get qna_attachments;
-
-  /// Auto-generated metadata for key 'qna_cancel'.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get qna_cancel;
 
   /// Auto-generated metadata for key 'qna_content'.
   ///
@@ -3014,263 +1714,17 @@ abstract class AppLocalizations {
   /// **'Content'**
   String get qna_content;
 
-  /// Auto-generated metadata for key 'qna_content_hint'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter your inquiry in detail'**
-  String get qna_content_hint;
-
-  /// Auto-generated metadata for key 'qna_content_min_length'.
-  ///
-  /// In en, this message translates to:
-  /// **'Inquiry content must be at least 10 characters'**
-  String get qna_content_min_length;
-
-  /// Auto-generated metadata for key 'qna_content_required'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter inquiry content'**
-  String get qna_content_required;
-
-  /// Auto-generated metadata for key 'qna_create_failed'.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to submit inquiry:'**
-  String get qna_create_failed;
-
   /// Auto-generated metadata for key 'qna_create_page_title'.
   ///
   /// In en, this message translates to:
   /// **'Create Inquiry'**
   String get qna_create_page_title;
 
-  /// Auto-generated metadata for key 'qna_create_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Inquiry has been successfully submitted'**
-  String get qna_create_success;
-
-  /// Auto-generated metadata for key 'qna_delete'.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get qna_delete;
-
-  /// Auto-generated metadata for key 'qna_delete_confirm'.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get qna_delete_confirm;
-
-  /// Auto-generated metadata for key 'qna_delete_confirm_content'.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete this inquiry?\nIt cannot be recovered after deletion.'**
-  String get qna_delete_confirm_content;
-
-  /// Auto-generated metadata for key 'qna_delete_confirm_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete Inquiry'**
-  String get qna_delete_confirm_title;
-
-  /// Auto-generated metadata for key 'qna_delete_failed'.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to delete'**
-  String get qna_delete_failed;
-
-  /// Auto-generated metadata for key 'qna_delete_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Inquiry has been deleted'**
-  String get qna_delete_success;
-
-  /// Auto-generated metadata for key 'qna_detail_page_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Inquiry Details'**
-  String get qna_detail_page_title;
-
-  /// Auto-generated metadata for key 'qna_download_file'.
-  ///
-  /// In en, this message translates to:
-  /// **'Download File'**
-  String get qna_download_file;
-
-  /// Auto-generated metadata for key 'qna_edit'.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit'**
-  String get qna_edit;
-
-  /// Auto-generated metadata for key 'qna_file_attach_label'.
-  ///
-  /// In en, this message translates to:
-  /// **'File Attachment'**
-  String get qna_file_attach_label;
-
-  /// Auto-generated metadata for key 'qna_file_select'.
-  ///
-  /// In en, this message translates to:
-  /// **'Select File'**
-  String get qna_file_select;
-
-  /// Auto-generated metadata for key 'qna_file_type_document'.
-  ///
-  /// In en, this message translates to:
-  /// **'Document'**
-  String get qna_file_type_document;
-
-  /// Auto-generated metadata for key 'qna_file_type_image'.
-  ///
-  /// In en, this message translates to:
-  /// **'Image'**
-  String get qna_file_type_image;
-
-  /// Auto-generated metadata for key 'qna_file_type_other'.
-  ///
-  /// In en, this message translates to:
-  /// **'Other'**
-  String get qna_file_type_other;
-
-  /// Auto-generated metadata for key 'qna_file_upload_info'.
-  ///
-  /// In en, this message translates to:
-  /// **'• Maximum 10MB upload allowed\n• Supported formats: Images (jpg, png, gif), Documents (pdf, doc, txt)'**
-  String get qna_file_upload_info;
-
-  /// Auto-generated metadata for key 'qna_file_uploading_button'.
-  ///
-  /// In en, this message translates to:
-  /// **'File Uploading...'**
-  String get qna_file_uploading_button;
-
-  /// Auto-generated metadata for key 'qna_loading_error'.
-  ///
-  /// In en, this message translates to:
-  /// **'Error occurred while loading'**
-  String get qna_loading_error;
-
-  /// Auto-generated metadata for key 'qna_login_required'.
-  ///
-  /// In en, this message translates to:
-  /// **'Login Required'**
-  String get qna_login_required;
-
-  /// Auto-generated metadata for key 'qna_login_required_create'.
-  ///
-  /// In en, this message translates to:
-  /// **'To create QnA\nplease login first'**
-  String get qna_login_required_create;
-
-  /// Auto-generated metadata for key 'qna_login_required_detail'.
-  ///
-  /// In en, this message translates to:
-  /// **'To view QnA details\nplease login first'**
-  String get qna_login_required_detail;
-
-  /// Auto-generated metadata for key 'qna_login_required_service'.
-  ///
-  /// In en, this message translates to:
-  /// **'To use QnA service\nplease login first'**
-  String get qna_login_required_service;
-
-  /// Auto-generated metadata for key 'qna_mark_resolved'.
-  ///
-  /// In en, this message translates to:
-  /// **'Mark as Resolved'**
-  String get qna_mark_resolved;
-
-  /// Auto-generated metadata for key 'qna_mark_resolved_failed'.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to change status'**
-  String get qna_mark_resolved_failed;
-
-  /// Auto-generated metadata for key 'qna_mark_resolved_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Changed to resolved'**
-  String get qna_mark_resolved_success;
-
   /// Auto-generated metadata for key 'qna_no_inquiries'.
   ///
   /// In en, this message translates to:
   /// **'No inquiry history'**
   String get qna_no_inquiries;
-
-  /// Auto-generated metadata for key 'qna_no_inquiries_subtitle'.
-  ///
-  /// In en, this message translates to:
-  /// **'If you have any questions\nfeel free to contact us anytime'**
-  String get qna_no_inquiries_subtitle;
-
-  /// Auto-generated metadata for key 'qna_page_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'QnA Inquiry (Admin)'**
-  String get qna_page_title;
-
-  /// Auto-generated metadata for key 'qna_privacy_notice'.
-  ///
-  /// In en, this message translates to:
-  /// **'Information you enter will be collected and used for inquiry processing. Please check our privacy policy for details.'**
-  String get qna_privacy_notice;
-
-  /// Auto-generated metadata for key 'qna_question'.
-  ///
-  /// In en, this message translates to:
-  /// **'Question'**
-  String get qna_question;
-
-  /// Auto-generated metadata for key 'qna_refresh_pull'.
-  ///
-  /// In en, this message translates to:
-  /// **'Pull to refresh'**
-  String get qna_refresh_pull;
-
-  /// Auto-generated metadata for key 'qna_statistics_answered'.
-  ///
-  /// In en, this message translates to:
-  /// **'Answered'**
-  String get qna_statistics_answered;
-
-  /// Auto-generated metadata for key 'qna_statistics_pending'.
-  ///
-  /// In en, this message translates to:
-  /// **'Awaiting Response'**
-  String get qna_statistics_pending;
-
-  /// Auto-generated metadata for key 'qna_statistics_resolved'.
-  ///
-  /// In en, this message translates to:
-  /// **'Resolved'**
-  String get qna_statistics_resolved;
-
-  /// Auto-generated metadata for key 'qna_statistics_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Inquiry Status'**
-  String get qna_statistics_title;
-
-  /// Auto-generated metadata for key 'qna_status_answered'.
-  ///
-  /// In en, this message translates to:
-  /// **'Answered'**
-  String get qna_status_answered;
-
-  /// Auto-generated metadata for key 'qna_status_pending'.
-  ///
-  /// In en, this message translates to:
-  /// **'Awaiting Response'**
-  String get qna_status_pending;
-
-  /// Auto-generated metadata for key 'qna_status_resolved'.
-  ///
-  /// In en, this message translates to:
-  /// **'Resolved'**
-  String get qna_status_resolved;
 
   /// Auto-generated metadata for key 'qna_status_closed'.
   ///
@@ -3284,12 +1738,6 @@ abstract class AppLocalizations {
   /// **'Open'**
   String get qna_status_open;
 
-  /// Auto-generated metadata for key 'qna_status_in_progress'.
-  ///
-  /// In en, this message translates to:
-  /// **'In Progress'**
-  String get qna_status_in_progress;
-
   /// Auto-generated metadata for key 'qna_submit_button'.
   ///
   /// In en, this message translates to:
@@ -3301,54 +1749,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Title'**
   String get qna_title;
-
-  /// Auto-generated metadata for key 'qna_title_hint'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter a brief summary of your inquiry'**
-  String get qna_title_hint;
-
-  /// Auto-generated metadata for key 'qna_title_min_length'.
-  ///
-  /// In en, this message translates to:
-  /// **'Title must be at least 5 characters'**
-  String get qna_title_min_length;
-
-  /// Auto-generated metadata for key 'qna_title_required'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter a title'**
-  String get qna_title_required;
-
-  /// Auto-generated metadata for key 'qna_upload_complete'.
-  ///
-  /// In en, this message translates to:
-  /// **'Upload Complete'**
-  String get qna_upload_complete;
-
-  /// Auto-generated metadata for key 'qna_upload_waiting'.
-  ///
-  /// In en, this message translates to:
-  /// **'Upload Waiting'**
-  String get qna_upload_waiting;
-
-  /// Auto-generated metadata for key 'qna_uploading'.
-  ///
-  /// In en, this message translates to:
-  /// **'Uploading...'**
-  String get qna_uploading;
-
-  /// Auto-generated metadata for key 'qna_validation_failed'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please check your input.'**
-  String get qna_validation_failed;
-
-  /// Auto-generated metadata for key 'qna_write_inquiry'.
-  ///
-  /// In en, this message translates to:
-  /// **'New Inquiry'**
-  String get qna_write_inquiry;
 
   /// Auto-generated metadata for key 'replies'.
   ///
@@ -3368,12 +1768,6 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get save;
 
-  /// Auto-generated metadata for key 'searching'.
-  ///
-  /// In en, this message translates to:
-  /// **'Searching...'**
-  String get searching;
-
   /// Auto-generated metadata for key 'seconds'.
   ///
   /// In en, this message translates to:
@@ -3385,96 +1779,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share'**
   String get share;
-
-  /// Auto-generated metadata for key 'share_image_fail'.
-  ///
-  /// In en, this message translates to:
-  /// **'Image sharing failed'**
-  String get share_image_fail;
-
-  /// Auto-generated metadata for key 'share_image_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Shared image successfully'**
-  String get share_image_success;
-
-  /// Auto-generated metadata for key 'share_no_twitter'.
-  ///
-  /// In en, this message translates to:
-  /// **'X app is missing.'**
-  String get share_no_twitter;
-
-  /// Auto-generated metadata for key 'share_twitter'.
-  ///
-  /// In en, this message translates to:
-  /// **'Share on Twitter'**
-  String get share_twitter;
-
-  /// Auto-generated metadata for key 'submit_application'.
-  ///
-  /// In en, this message translates to:
-  /// **'Submit Application'**
-  String get submit_application;
-
-  /// Auto-generated metadata for key 'success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Success'**
-  String get success;
-
-  /// No description provided for @text_achievement.
-  ///
-  /// In en, this message translates to:
-  /// **'🎉 You\'ve reached {count} goals so far! 🎉'**
-  String text_achievement(int count);
-
-  /// Auto-generated metadata for key 'text_ads_random'.
-  ///
-  /// In en, this message translates to:
-  /// **'Viewing ads and collecting random images.'**
-  String get text_ads_random;
-
-  /// Auto-generated metadata for key 'text_bonus'.
-  ///
-  /// In en, this message translates to:
-  /// **'Bonuses'**
-  String get text_bonus;
-
-  /// Auto-generated metadata for key 'text_bookmark_failed'.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to unbookmark'**
-  String get text_bookmark_failed;
-
-  /// Auto-generated metadata for key 'text_bookmark_over_5'.
-  ///
-  /// In en, this message translates to:
-  /// **'You can have up to five bookmarks'**
-  String get text_bookmark_over_5;
-
-  /// Auto-generated metadata for key 'text_comming_soon_pic_chart1'.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to Peek Charts!\nSee you in November 2024!'**
-  String get text_comming_soon_pic_chart1;
-
-  /// Auto-generated metadata for key 'text_comming_soon_pic_chart2'.
-  ///
-  /// In en, this message translates to:
-  /// **'Pie charts are a new chart unique to Peeknick that reflects daily, weekly, and monthly scores.\nPeeknick\'s new chart that reflects daily, weekly, and monthly scores.'**
-  String get text_comming_soon_pic_chart2;
-
-  /// Auto-generated metadata for key 'text_comming_soon_pic_chart3'.
-  ///
-  /// In en, this message translates to:
-  /// **'Get a real-time reflection\nartist\'s brand reputation in real-time!'**
-  String get text_comming_soon_pic_chart3;
-
-  /// Auto-generated metadata for key 'text_comming_soon_pic_chart_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'What is a PicChart?'**
-  String get text_comming_soon_pic_chart_title;
 
   /// Auto-generated metadata for key 'text_community_board_search'.
   ///
@@ -3493,30 +1797,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The address has been copied.'**
   String get text_copied_address;
-
-  /// Auto-generated metadata for key 'text_dialog_ad_dismissed'.
-  ///
-  /// In en, this message translates to:
-  /// **'The ad stopped midway through.'**
-  String get text_dialog_ad_dismissed;
-
-  /// Auto-generated metadata for key 'text_dialog_ad_failed_to_show'.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to load ads.'**
-  String get text_dialog_ad_failed_to_show;
-
-  /// Auto-generated metadata for key 'text_dialog_star_candy_received'.
-  ///
-  /// In en, this message translates to:
-  /// **'Star candy has been awarded.'**
-  String get text_dialog_star_candy_received;
-
-  /// Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'.
-  ///
-  /// In en, this message translates to:
-  /// **'The number of votes cannot be zero.'**
-  String get text_dialog_vote_amount_should_not_zero;
 
   /// Auto-generated metadata for key 'text_draw_image'.
   ///
@@ -3542,12 +1822,6 @@ abstract class AppLocalizations {
   /// **'Requires charging.'**
   String get text_need_recharge;
 
-  /// Auto-generated metadata for key 'text_no_artist'.
-  ///
-  /// In en, this message translates to:
-  /// **'No artist'**
-  String get text_no_artist;
-
   /// Auto-generated metadata for key 'text_no_search_result'.
   ///
   /// In en, this message translates to:
@@ -3560,53 +1834,11 @@ abstract class AppLocalizations {
   /// **'*Price includes VAT.'**
   String get text_purchase_vat_included;
 
-  /// Auto-generated metadata for key 'text_star_candy'.
-  ///
-  /// In en, this message translates to:
-  /// **'Star Candy'**
-  String get text_star_candy;
-
-  /// No description provided for @text_star_candy_with_bonus.
-  ///
-  /// In en, this message translates to:
-  /// **'{num1} + {num1} Bonuses'**
-  String text_star_candy_with_bonus(int num1);
-
-  /// Auto-generated metadata for key 'text_this_time_vote'.
-  ///
-  /// In en, this message translates to:
-  /// **'This Vote'**
-  String get text_this_time_vote;
-
   /// Auto-generated metadata for key 'text_vote_complete'.
   ///
   /// In en, this message translates to:
   /// **'Voting complete'**
   String get text_vote_complete;
-
-  /// Auto-generated metadata for key 'text_jma_vote_ticket'.
-  ///
-  /// In en, this message translates to:
-  /// **'JMA Vote Ticket'**
-  String get text_jma_vote_ticket;
-
-  /// Auto-generated metadata for key 'text_vote_countdown_end'.
-  ///
-  /// In en, this message translates to:
-  /// **'Until End'**
-  String get text_vote_countdown_end;
-
-  /// Auto-generated metadata for key 'text_vote_countdown_start'.
-  ///
-  /// In en, this message translates to:
-  /// **'Until Start'**
-  String get text_vote_countdown_start;
-
-  /// Auto-generated metadata for key 'text_vote_ended'.
-  ///
-  /// In en, this message translates to:
-  /// **'Ended'**
-  String get text_vote_ended;
 
   /// No description provided for @text_vote_rank.
   ///
@@ -3620,77 +1852,17 @@ abstract class AppLocalizations {
   /// **'Rank in Rewards'**
   String get text_vote_rank_in_reward;
 
-  /// No description provided for @text_vote_reward.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} reward'**
-  String text_vote_reward(int count);
-
   /// Auto-generated metadata for key 'text_vote_where_is_my_bias'.
   ///
   /// In en, this message translates to:
   /// **'Where\'s My Favorite?'**
   String get text_vote_where_is_my_bias;
 
-  /// Auto-generated metadata for key 'time_days_ago'.
-  ///
-  /// In en, this message translates to:
-  /// **'days ago'**
-  String get time_days_ago;
-
-  /// Auto-generated metadata for key 'time_hours_ago'.
-  ///
-  /// In en, this message translates to:
-  /// **'hours ago'**
-  String get time_hours_ago;
-
-  /// Auto-generated metadata for key 'time_just_now'.
-  ///
-  /// In en, this message translates to:
-  /// **'just now'**
-  String get time_just_now;
-
-  /// Auto-generated metadata for key 'time_minutes_ago'.
-  ///
-  /// In en, this message translates to:
-  /// **'minutes ago'**
-  String get time_minutes_ago;
-
-  /// Auto-generated metadata for key 'time_unit_day'.
-  ///
-  /// In en, this message translates to:
-  /// **'D'**
-  String get time_unit_day;
-
-  /// Auto-generated metadata for key 'time_unit_hour'.
-  ///
-  /// In en, this message translates to:
-  /// **'H'**
-  String get time_unit_hour;
-
-  /// Auto-generated metadata for key 'time_unit_minute'.
-  ///
-  /// In en, this message translates to:
-  /// **'M'**
-  String get time_unit_minute;
-
-  /// Auto-generated metadata for key 'time_unit_second'.
-  ///
-  /// In en, this message translates to:
-  /// **'S'**
-  String get time_unit_second;
-
   /// Auto-generated metadata for key 'title_dialog_library_add'.
   ///
   /// In en, this message translates to:
   /// **'Add a new album'**
   String get title_dialog_library_add;
-
-  /// Auto-generated metadata for key 'title_dialog_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'Success'**
-  String get title_dialog_success;
 
   /// Auto-generated metadata for key 'title_select_language'.
   ///
@@ -3716,18 +1888,6 @@ abstract class AppLocalizations {
   /// **'I can\'t open the app store.'**
   String get update_cannot_open_appstore;
 
-  /// No description provided for @update_recommend_text.
-  ///
-  /// In en, this message translates to:
-  /// **'A new version ({version}) is available.'**
-  String update_recommend_text(String version);
-
-  /// No description provided for @update_required_text.
-  ///
-  /// In en, this message translates to:
-  /// **'You need to update to a new version ({version}).'**
-  String update_required_text(String version);
-
   /// Auto-generated metadata for key 'update_required_title'.
   ///
   /// In en, this message translates to:
@@ -3740,83 +1900,17 @@ abstract class AppLocalizations {
   /// **'Views'**
   String get views;
 
-  /// Auto-generated metadata for key 'vote_item_request_addition_request'.
-  ///
-  /// In en, this message translates to:
-  /// **'Vote artists addition request'**
-  String get vote_item_request_addition_request;
-
-  /// Auto-generated metadata for key 'vote_item_request_already_applied_artist'.
-  ///
-  /// In en, this message translates to:
-  /// **'You have already applied for this artist.'**
-  String get vote_item_request_already_applied_artist;
-
-  /// Auto-generated metadata for key 'vote_item_request_already_registered'.
-  ///
-  /// In en, this message translates to:
-  /// **'Already registered'**
-  String get vote_item_request_already_registered;
-
-  /// Auto-generated metadata for key 'vote_item_request_artist_name_missing'.
-  ///
-  /// In en, this message translates to:
-  /// **'Artist name missing'**
-  String get vote_item_request_artist_name_missing;
-
-  /// Auto-generated metadata for key 'vote_item_request_button'.
-  ///
-  /// In en, this message translates to:
-  /// **'Apply for Vote Candidate'**
-  String get vote_item_request_button;
-
   /// Auto-generated metadata for key 'vote_item_request_can_apply'.
   ///
   /// In en, this message translates to:
   /// **'Can apply'**
   String get vote_item_request_can_apply;
 
-  /// Auto-generated metadata for key 'vote_item_request_count'.
-  ///
-  /// In en, this message translates to:
-  /// **'count'**
-  String get vote_item_request_count;
-
-  /// Auto-generated metadata for key 'vote_item_request_current_item_request'.
-  ///
-  /// In en, this message translates to:
-  /// **'Current Artist Request'**
-  String get vote_item_request_current_item_request;
-
-  /// No description provided for @vote_item_request_item_request_count.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} artists requests'**
-  String vote_item_request_item_request_count(int count);
-
-  /// Auto-generated metadata for key 'vote_item_request_no_item_request_yet'.
-  ///
-  /// In en, this message translates to:
-  /// **'No artist request yet'**
-  String get vote_item_request_no_item_request_yet;
-
   /// Auto-generated metadata for key 'vote_item_request_search_artist'.
   ///
   /// In en, this message translates to:
   /// **'Search Artist'**
   String get vote_item_request_search_artist;
-
-  /// Auto-generated metadata for key 'vote_item_request_search_artist_hint'.
-  ///
-  /// In en, this message translates to:
-  /// **'Search for artist or group'**
-  String get vote_item_request_search_artist_hint;
-
-  /// Auto-generated metadata for key 'vote_item_request_search_artist_prompt'.
-  ///
-  /// In en, this message translates to:
-  /// **'Search for an artist to apply'**
-  String get vote_item_request_search_artist_prompt;
 
   /// Auto-generated metadata for key 'vote_item_request_status'.
   ///
@@ -3830,18 +1924,6 @@ abstract class AppLocalizations {
   /// **'Approved'**
   String get vote_item_request_status_approved;
 
-  /// Auto-generated metadata for key 'vote_item_request_status_cancelled'.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancelled'**
-  String get vote_item_request_status_cancelled;
-
-  /// Auto-generated metadata for key 'vote_item_request_status_in_progress'.
-  ///
-  /// In en, this message translates to:
-  /// **'In Progress'**
-  String get vote_item_request_status_in_progress;
-
   /// Auto-generated metadata for key 'vote_item_request_status_pending'.
   ///
   /// In en, this message translates to:
@@ -3853,12 +1935,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rejected'**
   String get vote_item_request_status_rejected;
-
-  /// Auto-generated metadata for key 'vote_item_request_status_unknown'.
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown'**
-  String get vote_item_request_status_unknown;
 
   /// Auto-generated metadata for key 'vote_item_request_submit'.
   ///
@@ -3872,65 +1948,17 @@ abstract class AppLocalizations {
   /// **'Vote Artist Request'**
   String get vote_item_request_title;
 
-  /// No description provided for @vote_item_request_total_item_requests.
-  ///
-  /// In en, this message translates to:
-  /// **'Total {count} artists requests'**
-  String vote_item_request_total_item_requests(int count);
-
-  /// Auto-generated metadata for key 'vote_item_request_user_info_not_found'.
-  ///
-  /// In en, this message translates to:
-  /// **'User information not found.'**
-  String get vote_item_request_user_info_not_found;
-
-  /// Auto-generated metadata for key 'vote_period'.
-  ///
-  /// In en, this message translates to:
-  /// **'Vote Period'**
-  String get vote_period;
-
-  /// Auto-generated metadata for key 'vote_result_save_button'.
-  ///
-  /// In en, this message translates to:
-  /// **'Save the results'**
-  String get vote_result_save_button;
-
-  /// Auto-generated metadata for key 'vote_result_share_button'.
-  ///
-  /// In en, this message translates to:
-  /// **'Share your results'**
-  String get vote_result_share_button;
-
   /// Auto-generated metadata for key 'vote_share_message'.
   ///
   /// In en, this message translates to:
   /// **'Voted!'**
   String get vote_share_message;
 
-  /// Auto-generated metadata for key 'voting_limit_text'.
-  ///
-  /// In en, this message translates to:
-  /// **'To prevent traffic surges, total usage is limited to 10,000 at a time.'**
-  String get voting_limit_text;
-
-  /// Auto-generated metadata for key 'voting_limit_warning'.
-  ///
-  /// In en, this message translates to:
-  /// **'Only up to 10,000 is allowed.'**
-  String get voting_limit_warning;
-
   /// Auto-generated metadata for key 'voting_share_benefit_text'.
   ///
   /// In en, this message translates to:
   /// **'Get 1 bonus star candy for every 100 votes and share!'**
   String get voting_share_benefit_text;
-
-  /// Auto-generated metadata for key 'withdrawal_success'.
-  ///
-  /// In en, this message translates to:
-  /// **'The unsubscribe was processed successfully.'**
-  String get withdrawal_success;
 
   /// Auto-generated metadata for key 'cancel'.
   ///
@@ -3949,12 +1977,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading...'**
   String get loading;
-
-  /// Auto-generated metadata for key 'just_now'.
-  ///
-  /// In en, this message translates to:
-  /// **'Just now'**
-  String get just_now;
 
   /// Auto-generated metadata for key 'retry'.
   ///
@@ -4016,12 +2038,6 @@ abstract class AppLocalizations {
   /// **'Pinned'**
   String get notice_pinned;
 
-  /// Auto-generated metadata for key 'message_agreement_fail'.
-  ///
-  /// In en, this message translates to:
-  /// **'Terms agreement required'**
-  String get message_agreement_fail;
-
   /// Auto-generated metadata for key 'title_dialog_error'.
   ///
   /// In en, this message translates to:
@@ -4045,24 +2061,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your inquiry has been successfully submitted'**
   String get qna_submit_success;
-
-  /// Auto-generated metadata for key 'qna_submit_error'.
-  ///
-  /// In en, this message translates to:
-  /// **'An error occurred while submitting your inquiry'**
-  String get qna_submit_error;
-
-  /// Auto-generated metadata for key 'qna_title_too_short'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter at least 2 characters for the title'**
-  String get qna_title_too_short;
-
-  /// Auto-generated metadata for key 'qna_content_too_short'.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter at least 10 characters for the content'**
-  String get qna_content_too_short;
 
   /// Auto-generated metadata for key 'qna_list_title'.
   ///
@@ -4130,30 +2128,6 @@ abstract class AppLocalizations {
   /// **'No search results'**
   String get vote_item_request_no_search_results;
 
-  /// No description provided for @jma_voting_star_candy_shortage.
-  ///
-  /// In en, this message translates to:
-  /// **'You need {shortage} more star candies.'**
-  String jma_voting_star_candy_shortage(int shortage);
-
-  /// No description provided for @jma_voting_max_votes_exceeded.
-  ///
-  /// In en, this message translates to:
-  /// **'The current maximum possible votes is {maxVotes}.'**
-  String jma_voting_max_votes_exceeded(int maxVotes);
-
-  /// No description provided for @jma_voting_daily_limit_remaining.
-  ///
-  /// In en, this message translates to:
-  /// **'Today\'s remaining bonus votes: {remaining} times (max {max} times)'**
-  String jma_voting_daily_limit_remaining(int remaining, int max);
-
-  /// Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'.
-  ///
-  /// In en, this message translates to:
-  /// **'You have used all bonus votes for today.'**
-  String get jma_voting_daily_limit_exhausted;
-
   /// Auto-generated metadata for key 'jma_voting_my_star_candy'.
   ///
   /// In en, this message translates to:
@@ -4172,41 +2146,11 @@ abstract class AppLocalizations {
   /// **'Use All'**
   String get jma_voting_use_all;
 
-  /// No description provided for @jma_voting_max_usable.
-  ///
-  /// In en, this message translates to:
-  /// **'Maximum {amount} available'**
-  String jma_voting_max_usable(int amount);
-
-  /// No description provided for @jma_voting_bonus_only.
-  ///
-  /// In en, this message translates to:
-  /// **'Use {amount} bonus Star Candy → {votes} votes'**
-  String jma_voting_bonus_only(int amount, int votes);
-
-  /// No description provided for @jma_voting_bonus_plus_regular.
-  ///
-  /// In en, this message translates to:
-  /// **'Bonus {bonus} + Star Candy {regular} → {votes} votes'**
-  String jma_voting_bonus_plus_regular(int bonus, int regular, int votes);
-
-  /// No description provided for @jma_voting_regular_only.
-  ///
-  /// In en, this message translates to:
-  /// **'Star Candy {amount} → {votes} votes'**
-  String jma_voting_regular_only(int amount, int votes);
-
   /// Auto-generated metadata for key 'jma_voting_input_amount'.
   ///
   /// In en, this message translates to:
   /// **'Please enter the amount of Star Candy.'**
   String get jma_voting_input_amount;
-
-  /// Auto-generated metadata for key 'jma_voting_info_text'.
-  ///
-  /// In en, this message translates to:
-  /// **'-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.'**
-  String get jma_voting_info_text;
 
   /// Auto-generated metadata for key 'jma_voting_daily_limit_error'.
   ///
@@ -4232,155 +2176,11 @@ abstract class AppLocalizations {
   /// **'Exchange Failed'**
   String get jma_voting_exchange_failed_title;
 
-  /// Auto-generated metadata for key 'search_input_text_hint'.
-  ///
-  /// In en, this message translates to:
-  /// **'Search'**
-  String get search_input_text_hint;
-
-  /// Auto-generated metadata for key 'submit'.
-  ///
-  /// In en, this message translates to:
-  /// **'Submit'**
-  String get submit;
-
-  /// Auto-generated metadata for key 'next'.
-  ///
-  /// In en, this message translates to:
-  /// **'Next'**
-  String get next;
-
-  /// Auto-generated metadata for key 'bonus_candy_expiration_policy_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Bonus Star Candy Expiration Policy'**
-  String get bonus_candy_expiration_policy_title;
-
-  /// Auto-generated metadata for key 'expiring_soon_bonus_candy'.
-  ///
-  /// In en, this message translates to:
-  /// **'Expiring Bonus Star Candy'**
-  String get expiring_soon_bonus_candy;
-
   /// Auto-generated metadata for key 'expiring_bonus_candy_guide'.
   ///
   /// In en, this message translates to:
   /// **'Expiring Bonus Guide'**
   String get expiring_bonus_candy_guide;
-
-  /// Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to load expiring bonus information.'**
-  String get bonus_candy_expiration_policy_load_fail;
-
-  /// Auto-generated metadata for key 'bonus_candy_expiration_time_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Expiration Time'**
-  String get bonus_candy_expiration_time_title;
-
-  /// Auto-generated metadata for key 'bonus_candy_policy_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Bonus Star Candy Policy'**
-  String get bonus_candy_policy_title;
-
-  /// Auto-generated metadata for key 'bonus_candy_policy_1'.
-  ///
-  /// In en, this message translates to:
-  /// **'- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.'**
-  String get bonus_candy_policy_1;
-
-  /// Auto-generated metadata for key 'bonus_candy_policy_2'.
-  ///
-  /// In en, this message translates to:
-  /// **'- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.'**
-  String get bonus_candy_policy_2;
-
-  /// Auto-generated metadata for key 'bonus_candy_policy_3'.
-  ///
-  /// In en, this message translates to:
-  /// **'- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.'**
-  String get bonus_candy_policy_3;
-
-  /// Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'.
-  ///
-  /// In en, this message translates to:
-  /// **'Earn Period'**
-  String get bonus_candy_expiration_policy_earn_period;
-
-  /// Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'.
-  ///
-  /// In en, this message translates to:
-  /// **'Expiration Date'**
-  String get bonus_candy_expiration_policy_expiration_date;
-
-  /// Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'.
-  ///
-  /// In en, this message translates to:
-  /// **'1st 00:00:00 ~ 15th 23:59:59'**
-  String get bonus_candy_earn_period_1_to_15;
-
-  /// Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'.
-  ///
-  /// In en, this message translates to:
-  /// **'16th 00:00:00 ~ end of month 23:59:59'**
-  String get bonus_candy_earn_period_16_to_end;
-
-  /// Auto-generated metadata for key 'bonus_candy_expiration_next_month'.
-  ///
-  /// In en, this message translates to:
-  /// **'Next month 15th 00:00:00'**
-  String get bonus_candy_expiration_next_month;
-
-  /// Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'.
-  ///
-  /// In en, this message translates to:
-  /// **'Month after next 15th 00:00:00'**
-  String get bonus_candy_expiration_month_after_next;
-
-  /// Auto-generated metadata for key 'bonus_candy_example_title'.
-  ///
-  /// In en, this message translates to:
-  /// **'Example'**
-  String get bonus_candy_example_title;
-
-  /// Auto-generated metadata for key 'bonus_candy_example_earn_date'.
-  ///
-  /// In en, this message translates to:
-  /// **'Earn Date'**
-  String get bonus_candy_example_earn_date;
-
-  /// Auto-generated metadata for key 'bonus_candy_example_expiration_date'.
-  ///
-  /// In en, this message translates to:
-  /// **'Expiration Date'**
-  String get bonus_candy_example_expiration_date;
-
-  /// Auto-generated metadata for key 'bonus_candy_example_1_earn'.
-  ///
-  /// In en, this message translates to:
-  /// **'__MONTH__ 10th 14:00(KST)'**
-  String get bonus_candy_example_1_earn;
-
-  /// Auto-generated metadata for key 'bonus_candy_example_1_expire'.
-  ///
-  /// In en, this message translates to:
-  /// **'__NEXT_MONTH__ 15th 00:00(KST)'**
-  String get bonus_candy_example_1_expire;
-
-  /// Auto-generated metadata for key 'bonus_candy_example_2_earn'.
-  ///
-  /// In en, this message translates to:
-  /// **'__MONTH__ 20th 14:00(KST)'**
-  String get bonus_candy_example_2_earn;
-
-  /// Auto-generated metadata for key 'bonus_candy_example_2_expire'.
-  ///
-  /// In en, this message translates to:
-  /// **'__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)'**
-  String get bonus_candy_example_2_expire;
 
   /// Auto-generated metadata for key 'qna_form_title_hint'.
   ///
@@ -4393,18 +2193,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter content of at least 10 characters.'**
   String get qna_form_content_hint;
-
-  /// Auto-generated metadata for key 'qna_attach_image'.
-  ///
-  /// In en, this message translates to:
-  /// **'Attach Image'**
-  String get qna_attach_image;
-
-  /// Auto-generated metadata for key 'qna_attach_file'.
-  ///
-  /// In en, this message translates to:
-  /// **'Attach File'**
-  String get qna_attach_file;
 
   /// Auto-generated metadata for key 'qna_attach_media'.
   ///
@@ -4472,83 +2260,539 @@ abstract class AppLocalizations {
   /// **'Enter message'**
   String get qna_message_hint;
 
-  /// Auto-generated metadata for key 'jmaVoteTicket'.
-  ///
-  /// In en, this message translates to:
-  /// **'JMA Vote Ticket'**
-  String get jmaVoteTicket;
-
-  /// Auto-generated metadata for key 'paid'.
-  ///
-  /// In en, this message translates to:
-  /// **'Paid'**
-  String get paid;
-
-  /// Auto-generated metadata for key 'bonus'.
-  ///
-  /// In en, this message translates to:
-  /// **'Bonus'**
-  String get bonus;
-
-  /// Auto-generated metadata for key 'voteTypePicnic'.
-  ///
-  /// In en, this message translates to:
-  /// **'Picnic'**
-  String get voteTypePicnic;
-
-  /// Auto-generated metadata for key 'voteTypeJma'.
-  ///
-  /// In en, this message translates to:
-  /// **'JMA'**
-  String get voteTypeJma;
-
   /// Auto-generated metadata for key 'label_my_vote_history'.
   ///
   /// In en, this message translates to:
   /// **'My Vote History'**
   String get label_my_vote_history;
 
-  /// Auto-generated metadata for key 'error_verification_timeout'.
+  /// Auto-generated metadata for key 'bonus_candy_example_2_expire'.
   ///
   /// In en, this message translates to:
-  /// **'Purchase processing timed out. Please check your network connection and try again.'**
-  String get error_verification_timeout;
+  /// **'__THE_MONTH_AFTER_NEXT__ 15th 00:00(KST)'**
+  String get bonus_candy_example_2_expire;
 
-  /// Auto-generated metadata for key 'error_authentication_timeout'.
+  /// Auto-generated metadata for key 'bonus_candy_example_earn_date'.
   ///
   /// In en, this message translates to:
-  /// **'Touch ID/Face ID authentication timed out. Please try again.'**
-  String get error_authentication_timeout;
+  /// **'Earn Date'**
+  String get bonus_candy_example_earn_date;
 
-  /// Auto-generated metadata for key 'qna_answer_title'.
+  /// Auto-generated metadata for key 'vote_item_request_status_unknown'.
   ///
   /// In en, this message translates to:
-  /// **'Answer'**
-  String get qna_answer_title;
+  /// **'Unknown'**
+  String get vote_item_request_status_unknown;
 
-  /// Auto-generated metadata for key 'qna_created_at'.
+  /// Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'.
   ///
   /// In en, this message translates to:
-  /// **'Created at'**
-  String get qna_created_at;
+  /// **'Failed to load expiring bonus information.'**
+  String get bonus_candy_expiration_policy_load_fail;
 
-  /// Auto-generated metadata for key 'qna_info_title'.
+  /// Auto-generated metadata for key 'bonus_candy_example_1_expire'.
   ///
   /// In en, this message translates to:
-  /// **'Inquiry Info'**
-  String get qna_info_title;
+  /// **'__NEXT_MONTH__ 15th 00:00(KST)'**
+  String get bonus_candy_example_1_expire;
 
-  /// Auto-generated metadata for key 'qna_empty_message'.
+  /// Auto-generated metadata for key 'vote_item_request_status_in_progress'.
   ///
   /// In en, this message translates to:
-  /// **'No inquiries'**
-  String get qna_empty_message;
+  /// **'In Progress'**
+  String get vote_item_request_status_in_progress;
 
-  /// Auto-generated metadata for key 'search_artist_hint'.
+  /// Auto-generated metadata for key 'bonus_candy_policy_2'.
+  ///
+  /// In en, this message translates to:
+  /// **'- When using Star Candy, the Bonus Star Candy with the nearest expiration date will be deducted first.'**
+  String get bonus_candy_policy_2;
+
+  /// No description provided for @compatibility_purchase_message.
+  ///
+  /// In en, this message translates to:
+  /// **'If I want to know the Goong-hap score between me and the {artistName}?'**
+  String compatibility_purchase_message(String artistName);
+
+  /// Charge history menu for admin users
+  ///
+  /// In en, this message translates to:
+  /// **'Charges (Admin)'**
+  String get label_mypage_charge_history;
+
+  /// Auto-generated metadata for key 'compatibility_time_slot_unknown'.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t know'**
+  String get compatibility_time_slot_unknown;
+
+  /// Auto-generated metadata for key 'label_popup_hide_7days'.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t view for 7 days'**
+  String get label_popup_hide_7days;
+
+  /// Auto-generated metadata for key 'expiring_soon_bonus_candy'.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiring Bonus Star Candy'**
+  String get expiring_soon_bonus_candy;
+
+  /// Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn Period'**
+  String get bonus_candy_expiration_policy_earn_period;
+
+  /// Auto-generated metadata for key 'message_setting_remove_cache'.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache memory deletion is complete.'**
+  String get message_setting_remove_cache;
+
+  /// Auto-generated metadata for key 'error_loading_more_comments'.
+  ///
+  /// In en, this message translates to:
+  /// **'There was an error loading the comment.'**
+  String get error_loading_more_comments;
+
+  /// Auto-generated metadata for key 'purchase_timeout_message'.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase processing is taking too long.\nPlease try again later.'**
+  String get purchase_timeout_message;
+
+  /// Auto-generated metadata for key 'label_tabbar_vote_upcoming'.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get label_tabbar_vote_upcoming;
+
+  /// Auto-generated metadata for key 'bonus_candy_example_1_earn'.
+  ///
+  /// In en, this message translates to:
+  /// **'__MONTH__ 10th 14:00(KST)'**
+  String get bonus_candy_example_1_earn;
+
+  /// Auto-generated metadata for key 'error_receipt_verification_failed'.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt verification failed.'**
+  String get error_receipt_verification_failed;
+
+  /// Auto-generated metadata for key 'vote_item_request_status_cancelled'.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get vote_item_request_status_cancelled;
+
+  /// Auto-generated metadata for key 'post_write_board_post'.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a post'**
+  String get post_write_board_post;
+
+  /// Auto-generated metadata for key 'bonus_candy_policy_3'.
+  ///
+  /// In en, this message translates to:
+  /// **'- Expired Bonus Star Candy cannot be recovered, so please be sure to use it within the period.'**
+  String get bonus_candy_policy_3;
+
+  /// Auto-generated metadata for key 'message_update_nickname_fail'.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname change failed.\nPlease select a different nickname.'**
+  String get message_update_nickname_fail;
+
+  /// Auto-generated metadata for key 'bonus_candy_expiration_time_title'.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration Time'**
+  String get bonus_candy_expiration_time_title;
+
+  /// Auto-generated metadata for key 'post_comment_action_show_translation'.
+  ///
+  /// In en, this message translates to:
+  /// **'View translations'**
+  String get post_comment_action_show_translation;
+
+  /// Auto-generated metadata for key 'fortune_lucky_direction'.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction of Fortune'**
+  String get fortune_lucky_direction;
+
+  /// Auto-generated metadata for key 'error_message_login_failed'.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during login.'**
+  String get error_message_login_failed;
+
+  /// Auto-generated metadata for key 'dialog_withdraw_button_ok'.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsubscribing'**
+  String get dialog_withdraw_button_ok;
+
+  /// Auto-generated metadata for key 'compatibility_birthtime_subtitle'.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase accuracy!'**
+  String get compatibility_birthtime_subtitle;
+
+  /// Auto-generated metadata for key 'title_dialog_success'.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get title_dialog_success;
+
+  /// Auto-generated metadata for key 'bonus_candy_policy_title'.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus Star Candy Policy'**
+  String get bonus_candy_policy_title;
+
+  /// Auto-generated metadata for key 'bonus_candy_example_expiration_date'.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration Date'**
+  String get bonus_candy_example_expiration_date;
+
+  /// Auto-generated metadata for key 'label_tab_free_charge_station'.
+  ///
+  /// In en, this message translates to:
+  /// **'Free charging stations'**
+  String get label_tab_free_charge_station;
+
+  /// Auto-generated metadata for key 'error_user_not_authenticated'.
+  ///
+  /// In en, this message translates to:
+  /// **'You need to sign in. Please log in again.'**
+  String get error_user_not_authenticated;
+
+  /// Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'.
+  ///
+  /// In en, this message translates to:
+  /// **'The number of votes cannot be zero.'**
+  String get text_dialog_vote_amount_should_not_zero;
+
+  /// Auto-generated metadata for key 'message_agreement_success'.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptance of the terms is complete.'**
+  String get message_agreement_success;
+
+  /// Auto-generated metadata for key 'bonus_candy_earn_period_1_to_15'.
+  ///
+  /// In en, this message translates to:
+  /// **'1st 00:00:00 ~ 15th 23:59:59'**
+  String get bonus_candy_earn_period_1_to_15;
+
+  /// Auto-generated metadata for key 'compatibility_snackbar_need_birthday'.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your date of birth.'**
+  String get compatibility_snackbar_need_birthday;
+
+  /// No description provided for @update_recommend_text.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version ({version}) is available.'**
+  String update_recommend_text(String version);
+
+  /// Auto-generated metadata for key 'error_product_not_found'.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find the purchased product.'**
+  String get error_product_not_found;
+
+  /// Auto-generated metadata for key 'label_popup_close'.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get label_popup_close;
+
+  /// Auto-generated metadata for key 'jma_voting_info_text'.
+  ///
+  /// In en, this message translates to:
+  /// **'-Bonus star candy can be used for JMA voting up to 5 times a day.\n-The required star candy is automatically converted. (30 Star Candy = 1 JMA Vote)\n-Participation in the vote will automatically enter you into the Jakarta concert.'**
+  String get jma_voting_info_text;
+
+  /// Auto-generated metadata for key 'vote_item_request_search_artist_hint'.
   ///
   /// In en, this message translates to:
   /// **'Search for artist or group'**
-  String get search_artist_hint;
+  String get vote_item_request_search_artist_hint;
+
+  /// Auto-generated metadata for key 'bonus_candy_expiration_month_after_next'.
+  ///
+  /// In en, this message translates to:
+  /// **'Month after next 15th 00:00:00'**
+  String get bonus_candy_expiration_month_after_next;
+
+  /// Auto-generated metadata for key 'post_comment_action_show_original'.
+  ///
+  /// In en, this message translates to:
+  /// **'View full text'**
+  String get post_comment_action_show_original;
+
+  /// Auto-generated metadata for key 'compatibility_snackbar_need_profile_save_agree'.
+  ///
+  /// In en, this message translates to:
+  /// **'Give your consent to save your profile.'**
+  String get compatibility_snackbar_need_profile_save_agree;
+
+  /// Auto-generated metadata for key 'qna_content_min_length'.
+  ///
+  /// In en, this message translates to:
+  /// **'Inquiry content must be at least 10 characters'**
+  String get qna_content_min_length;
+
+  /// Auto-generated metadata for key 'post_ask_go_to_temporary_save_list'.
+  ///
+  /// In en, this message translates to:
+  /// **'Want to go to the Drafts list?'**
+  String get post_ask_go_to_temporary_save_list;
+
+  /// Auto-generated metadata for key 'label_pic_pic_synthesizing_image'.
+  ///
+  /// In en, this message translates to:
+  /// **'Compositing an image...'**
+  String get label_pic_pic_synthesizing_image;
+
+  /// Auto-generated metadata for key 'label_tab_buy_star_candy'.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy star candy'**
+  String get label_tab_buy_star_candy;
+
+  /// No description provided for @jma_voting_max_votes_exceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'The current maximum possible votes is {maxVotes}.'**
+  String jma_voting_max_votes_exceeded(int maxVotes);
+
+  /// No description provided for @jma_voting_daily_limit_remaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s remaining bonus votes: {remaining} times (max {max} times)'**
+  String jma_voting_daily_limit_remaining(int remaining, int max);
+
+  /// Auto-generated metadata for key 'post_temporary_save_complete'.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft complete.'**
+  String get post_temporary_save_complete;
+
+  /// Auto-generated metadata for key 'bonus_candy_example_title'.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get bonus_candy_example_title;
+
+  /// Auto-generated metadata for key 'label_pic_pic_initializing_camera'.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing camera...'**
+  String get label_pic_pic_initializing_camera;
+
+  /// Auto-generated metadata for key 'post_write_post_recommend_write'.
+  ///
+  /// In en, this message translates to:
+  /// **'Please create a post.'**
+  String get post_write_post_recommend_write;
+
+  /// Auto-generated metadata for key 'jma_voting_daily_limit_exhausted'.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used all bonus votes for today.'**
+  String get jma_voting_daily_limit_exhausted;
+
+  /// Auto-generated metadata for key 'bonus_candy_policy_1'.
+  ///
+  /// In en, this message translates to:
+  /// **'- Bonus Star Candy from free charging stations and bonus Star Candy from purchases have an expiration date.'**
+  String get bonus_candy_policy_1;
+
+  /// Auto-generated metadata for key 'compatibility_perfect_score_exists_title'.
+  ///
+  /// In en, this message translates to:
+  /// **'Already Winning Matches Data'**
+  String get compatibility_perfect_score_exists_title;
+
+  /// Auto-generated metadata for key 'compatibility_duplicate_data_message'.
+  ///
+  /// In en, this message translates to:
+  /// **'Compatibility data with the same conditions already exists.'**
+  String get compatibility_duplicate_data_message;
+
+  /// No description provided for @label_time_ago_minute.
+  ///
+  /// In en, this message translates to:
+  /// **'{minute} minutes ago'**
+  String label_time_ago_minute(int minute);
+
+  /// No description provided for @update_required_text.
+  ///
+  /// In en, this message translates to:
+  /// **'You need to update to a new version ({version}).'**
+  String update_required_text(String version);
+
+  /// No description provided for @jma_voting_star_candy_shortage.
+  ///
+  /// In en, this message translates to:
+  /// **'You need {shortage} more star candies.'**
+  String jma_voting_star_candy_shortage(int shortage);
+
+  /// Auto-generated metadata for key 'bonus_candy_earn_period_16_to_end'.
+  ///
+  /// In en, this message translates to:
+  /// **'16th 00:00:00 ~ end of month 23:59:59'**
+  String get bonus_candy_earn_period_16_to_end;
+
+  /// Auto-generated metadata for key 'error_message_withdrawal'.
+  ///
+  /// In en, this message translates to:
+  /// **'A member who has unsubscribed.'**
+  String get error_message_withdrawal;
+
+  /// No description provided for @text_achievement.
+  ///
+  /// In en, this message translates to:
+  /// **'🎉 You\'ve reached {count} goals so far! 🎉'**
+  String text_achievement(int count);
+
+  /// Auto-generated metadata for key 'label_login_with_wechat'.
+  ///
+  /// In en, this message translates to:
+  /// **'Login with WeChat'**
+  String get label_login_with_wechat;
+
+  /// Auto-generated metadata for key 'withdrawal_success'.
+  ///
+  /// In en, this message translates to:
+  /// **'The unsubscribe was processed successfully.'**
+  String get withdrawal_success;
+
+  /// Auto-generated metadata for key 'vote_item_request_already_applied_artist'.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already applied for this artist.'**
+  String get vote_item_request_already_applied_artist;
+
+  /// Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration Date'**
+  String get bonus_candy_expiration_policy_expiration_date;
+
+  /// Auto-generated metadata for key 'bonus_candy_example_2_earn'.
+  ///
+  /// In en, this message translates to:
+  /// **'__MONTH__ 20th 14:00(KST)'**
+  String get bonus_candy_example_2_earn;
+
+  /// Auto-generated metadata for key 'message_agreement_fail'.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms agreement required'**
+  String get message_agreement_fail;
+
+  /// Auto-generated metadata for key 'vote_item_request_button'.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply for Vote Candidate'**
+  String get vote_item_request_button;
+
+  /// Auto-generated metadata for key 'bonus_candy_expiration_next_month'.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month 15th 00:00:00'**
+  String get bonus_candy_expiration_next_month;
+
+  /// Auto-generated metadata for key 'error_delete_post'.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while deleting the post.'**
+  String get error_delete_post;
+
+  /// Auto-generated metadata for key 'qna_title_min_length'.
+  ///
+  /// In en, this message translates to:
+  /// **'Title must be at least 5 characters'**
+  String get qna_title_min_length;
+
+  /// Auto-generated metadata for key 'message_update_nickname_success'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your nickname has been successfully changed.'**
+  String get message_update_nickname_success;
+
+  /// Auto-generated metadata for key 'compatibility_new_compatibility_ask'.
+  ///
+  /// In en, this message translates to:
+  /// **'Want to see a new Goong-Hap?'**
+  String get compatibility_new_compatibility_ask;
+
+  /// No description provided for @post_replying_comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to {nickname}...'**
+  String post_replying_comment(String nickname);
+
+  /// Auto-generated metadata for key 'button_pic_pic_save'.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get button_pic_pic_save;
+
+  /// Auto-generated metadata for key 'compatibility_perfect_score_exists'.
+  ///
+  /// In en, this message translates to:
+  /// **'Please note that the compatibility data for this condition has already earned rewards, so we are unable to award additional rewards.'**
+  String get compatibility_perfect_score_exists;
+
+  /// Auto-generated metadata for key 'post_minor_board_create_request_message_input'.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a message requesting to open a board.'**
+  String get post_minor_board_create_request_message_input;
+
+  /// Auto-generated metadata for key 'fortune_purchase_by_star_candy'.
+  ///
+  /// In en, this message translates to:
+  /// **'Check with StarCandy'**
+  String get fortune_purchase_by_star_candy;
+
+  /// Auto-generated metadata for key 'post_minor_board_create_request_message_condition'.
+  ///
+  /// In en, this message translates to:
+  /// **'Please include at least 10 characters in your message requesting to open a board.'**
+  String get post_minor_board_create_request_message_condition;
+
+  /// Auto-generated metadata for key 'post_board_create_request_reviewing'.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewing a request to open a board'**
+  String get post_board_create_request_reviewing;
+
+  /// Auto-generated metadata for key 'post_minor_board_create_request_message'.
+  ///
+  /// In en, this message translates to:
+  /// **'* Message requesting to open a board.'**
+  String get post_minor_board_create_request_message;
+
+  /// Auto-generated metadata for key 'compatibility_purchase_confirm_title'.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase with Star Candy'**
+  String get compatibility_purchase_confirm_title;
+
+  /// Auto-generated metadata for key 'post_board_create_request_label'.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to open a board'**
+  String get post_board_create_request_label;
 }
 
 class _AppLocalizationsDelegate
@@ -4569,6 +2813,20 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'zh':
+      {
+        switch (locale.countryCode) {
+          case 'CN':
+            return AppLocalizationsZhCn();
+          case 'TW':
+            return AppLocalizationsZhTw();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en':

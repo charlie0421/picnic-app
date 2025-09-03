@@ -34,6 +34,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 import 'package:picnic_lib/presentation/screens/privacy.dart';
 import 'package:picnic_lib/presentation/screens/terms.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -58,7 +59,8 @@ class AppInitializer {
 
   /// MaterialApp 초기화 대기
   static Future<void> _waitForMaterialAppInitialization(
-      BuildContext context) async {
+    BuildContext context,
+  ) async {
     // MaterialApp이 초기화될 때까지 잠시 대기
     await Future.delayed(const Duration(milliseconds: 200));
     logger.d('MaterialApp 초기화 대기 완료');
@@ -72,32 +74,31 @@ class AppInitializer {
 
   static Future<void> initializeSentry() async {
     logger.i('Initializing Sentry...');
-    await SentryFlutter.init(
-      (options) {
-        options.dsn =
-            kIsWeb ? Environment.sentryWebDsn : Environment.sentryAppDsn;
-        options.tracesSampleRate = Environment.sentryTraceSampleRate;
-        options.profilesSampleRate = Environment.sentryProfileSampleRate;
-        options.enableAutoSessionTracking = !kDebugMode;
-        // Session replay는 Sentry 9.0.0에서 API가 변경됨 - 추후 업데이트 필요
-        // options.experimental.replay.sessionSampleRate = Environment.sentrySessionSampleRate;
-        // options.experimental.replay.onErrorSampleRate = Environment.sentryErrorSampleRate;
-        options.debug = kDebugMode;
-        options.maxBreadcrumbs = 50;
-        options.attachStacktrace = true;
-        options.enableAutoNativeBreadcrumbs = true;
-        options.enableNativeCrashHandling = true;
-        options.enableTimeToFullDisplayTracing = false;
-        options.addInAppInclude('sentry-debug-meta.properties');
+    await SentryFlutter.init((options) {
+      options.dsn = kIsWeb
+          ? Environment.sentryWebDsn
+          : Environment.sentryAppDsn;
+      options.tracesSampleRate = Environment.sentryTraceSampleRate;
+      options.profilesSampleRate = Environment.sentryProfileSampleRate;
+      options.enableAutoSessionTracking = !kDebugMode;
+      // Session replay는 Sentry 9.0.0에서 API가 변경됨 - 추후 업데이트 필요
+      // options.experimental.replay.sessionSampleRate = Environment.sentrySessionSampleRate;
+      // options.experimental.replay.onErrorSampleRate = Environment.sentryErrorSampleRate;
+      options.debug = kDebugMode;
+      options.maxBreadcrumbs = 50;
+      options.attachStacktrace = true;
+      options.enableAutoNativeBreadcrumbs = true;
+      options.enableNativeCrashHandling = true;
+      options.enableTimeToFullDisplayTracing = false;
+      options.addInAppInclude('sentry-debug-meta.properties');
 
-        options.beforeSend = (event, hint) {
-          if (!Environment.enableSentry || kDebugMode) {
-            return null;
-          }
-          return event;
-        };
-      },
-    );
+      options.beforeSend = (event, hint) {
+        if (!Environment.enableSentry || kDebugMode) {
+          return null;
+        }
+        return event;
+      };
+    });
     logger.i('Sentry initialized');
   }
 
@@ -109,23 +110,13 @@ class AppInitializer {
         error: details.exception,
         stackTrace: details.stack,
       );
-      Sentry.captureException(
-        details.exception,
-        stackTrace: details.stack,
-      );
+      Sentry.captureException(details.exception, stackTrace: details.stack);
     };
 
     PlatformDispatcher.instance.onError = (error, stack) {
       // Dart Isolate 에러 (비동기 등)
-      logger.e(
-        'Unhandled Asynchronous Error',
-        error: error,
-        stackTrace: stack,
-      );
-      Sentry.captureException(
-        error,
-        stackTrace: stack,
-      );
+      logger.e('Unhandled Asynchronous Error', error: error, stackTrace: stack);
+      Sentry.captureException(error, stackTrace: stack);
       return true; // 에러가 처리되었음을 알림
     };
   }
@@ -247,8 +238,9 @@ class AppInitializer {
     const storage = FlutterSecureStorage();
     final storageData = await storage.readAll();
 
-    final storageDataString =
-        storageData.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+    final storageDataString = storageData.entries
+        .map((e) => '${e.key}: ${e.value}')
+        .join('\n');
     logger.i(storageDataString);
   }
 
@@ -257,7 +249,9 @@ class AppInitializer {
   }
 
   static Future<void> initializeAppWithSplash(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     try {
       final startTime = DateTime.now();
       logger.i('앱 초기화 시작: ${startTime.toString()}');
@@ -293,10 +287,10 @@ class AppInitializer {
   }
 
   static Future<void> initializeWebApp(
-      BuildContext context, WidgetRef ref) async {
-    await Future.wait([
-      initializeApp(context, ref),
-    ]);
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    await Future.wait([initializeApp(context, ref)]);
   }
 
   static Future<void> initializeApp(BuildContext context, WidgetRef ref) async {
@@ -382,16 +376,15 @@ class AppInitializer {
 
       if (!context.mounted) return;
 
-      ref.read(appInitializationProvider.notifier).updateState(
-            isInitialized: true,
-          );
+      ref
+          .read(appInitializationProvider.notifier)
+          .updateState(isInitialized: true);
     } catch (e, s) {
       logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: s);
       if (context.mounted) {
-        ref.read(appInitializationProvider.notifier).updateState(
-              hasNetwork: false,
-              isInitialized: true,
-            );
+        ref
+            .read(appInitializationProvider.notifier)
+            .updateState(hasNetwork: false, isInitialized: true);
       }
     }
   }
@@ -401,9 +394,9 @@ class AppInitializer {
     final hasNetwork = await networkService.checkOnlineStatus();
     logger.i('네트워크 상태 확인: $hasNetwork');
 
-    ref.read(appInitializationProvider.notifier).updateState(
-          hasNetwork: hasNetwork,
-        );
+    ref
+        .read(appInitializationProvider.notifier)
+        .updateState(hasNetwork: hasNetwork);
 
     if (hasNetwork) {
       try {
@@ -413,10 +406,11 @@ class AppInitializer {
 
         ref
             .read(appInitializationProvider.notifier)
-            .updateState(updateInfo: updateInfo
-                // 강업 테스트
-                // updateInfo?.copyWith(status: UpdateStatus.updateRequired),
-                );
+            .updateState(
+              updateInfo: updateInfo,
+              // 강업 테스트
+              // updateInfo?.copyWith(status: UpdateStatus.updateRequired),
+            );
 
         // 강제 업데이트가 필요한 경우, 밴 체크를 하지 않고 바로 업데이트 화면으로
         if (updateInfo?.status == UpdateStatus.updateRequired) {
@@ -432,9 +426,9 @@ class AppInitializer {
           logger.i('디바이스 상태 - 가상머신: $isVirtualDevice, 차단: $isBanned');
         }
 
-        ref.read(appInitializationProvider.notifier).updateState(
-              isBanned: isBanned,
-            );
+        ref
+            .read(appInitializationProvider.notifier)
+            .updateState(isBanned: isBanned);
       } catch (e, s) {
         logger.e('모바일 초기화 중 오류 발생:', error: e, stackTrace: s);
       }
@@ -457,9 +451,9 @@ class AppInitializer {
     final isOnline = await networkService.checkOnlineStatus();
     logger.i('Network check: $isOnline');
 
-    ref.read(appInitializationProvider.notifier).updateState(
-          hasNetwork: isOnline,
-        );
+    ref
+        .read(appInitializationProvider.notifier)
+        .updateState(hasNetwork: isOnline);
   }
 
   static Future<void> initializeSystemUI() async {
@@ -492,9 +486,7 @@ class AppInitializer {
           // Android 버전별 SystemUiMode 설정
           if (androidSdkVersion >= 35) {
             // Android 15+ (갤럭시 S25 등 최신 기기)
-            await SystemChrome.setEnabledSystemUIMode(
-              SystemUiMode.edgeToEdge,
-            );
+            await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
             SystemChrome.setSystemUIOverlayStyle(
               const SystemUiOverlayStyle(
@@ -506,10 +498,7 @@ class AppInitializer {
           } else if (androidSdkVersion >= 30) {
             await SystemChrome.setEnabledSystemUIMode(
               SystemUiMode.manual,
-              overlays: [
-                SystemUiOverlay.top,
-                SystemUiOverlay.bottom,
-              ],
+              overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
             );
 
             SystemChrome.setSystemUIOverlayStyle(
@@ -520,10 +509,7 @@ class AppInitializer {
           } else {
             await SystemChrome.setEnabledSystemUIMode(
               SystemUiMode.manual,
-              overlays: [
-                SystemUiOverlay.top,
-                SystemUiOverlay.bottom,
-              ],
+              overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
             );
           }
         } catch (e, s) {
@@ -564,8 +550,36 @@ class AppInitializer {
             logger.e('getUserProfiles 호출 중 오류: $e');
             // ref가 더 이상 유효하지 않을 수 있으므로 무시
           }
+          try {
+            final user = supabase.auth.currentUser;
+            if (user != null) {
+              String? userRole;
+              try {
+                final p = ref.read(userInfoProvider).valueOrNull;
+                if (p != null) {
+                  userRole = p.isAdmin == true ? 'admin' : 'user';
+                }
+              } catch (_) {}
+
+              String? locale;
+              try {
+                final appSetting = ref.read(appSettingProvider);
+                if (appSetting.language.isNotEmpty) {
+                  locale = appSetting.language;
+                }
+              } catch (_) {}
+
+              await AppAnalytics.setUserAndSessionProperties(
+                userId: user.id,
+                userRole: userRole,
+                locale: locale,
+                isTester: kDebugMode,
+              );
+            }
+          } catch (_) {}
         } else if (data.event == AuthChangeEvent.signedOut) {
           logger.i('User signed out');
+          await AppAnalytics.clearUserAndSessionProperties();
         }
       } catch (e, s) {
         logger.e('인증 상태 변경 처리 중 오류:', error: e, stackTrace: s);
@@ -577,22 +591,25 @@ class AppInitializer {
   }
 
   static void setupBranchListener(WidgetRef ref) {
-    FlutterBranchSdk.listSession().listen((data) {
-      try {
-        logger.i('Incoming Branch link data: $data');
-        if (data.containsKey("+clicked_branch_link") &&
-            data["+clicked_branch_link"] == true) {
-          // 링크 클릭 시 처리 로직
-          final longUrl = data["\$desktop_url"];
-          // longUrl을 사용하여 원하는 페이지로 이동
-          handleDeepLink(ref, longUrl);
+    FlutterBranchSdk.listSession().listen(
+      (data) {
+        try {
+          logger.i('Incoming Branch link data: $data');
+          if (data.containsKey("+clicked_branch_link") &&
+              data["+clicked_branch_link"] == true) {
+            // 링크 클릭 시 처리 로직
+            final longUrl = data["\$desktop_url"];
+            // longUrl을 사용하여 원하는 페이지로 이동
+            handleDeepLink(ref, longUrl);
+          }
+        } catch (e, s) {
+          logger.e('Branch link 처리 중 오류:', error: e, stackTrace: s);
         }
-      } catch (e, s) {
-        logger.e('Branch link 처리 중 오류:', error: e, stackTrace: s);
-      }
-    }, onError: (error) {
-      logger.e('Branch link error: $error');
-    });
+      },
+      onError: (error) {
+        logger.e('Branch link error: $error');
+      },
+    );
 
     // 필요한 경우 나중에 구독 취소 로직 추가
   }
@@ -611,9 +628,7 @@ class AppInitializer {
           case 'vote':
             switch (page) {
               case 'list':
-                navigationNotifier.setCurrentPage(
-                  const VoteListPage(),
-                );
+                navigationNotifier.setCurrentPage(const VoteListPage());
                 break;
               case 'detail':
                 final voteId = uri.pathSegments[2];
@@ -634,14 +649,10 @@ class AppInitializer {
             navigationNotifier.setPortal(PortalType.community);
             switch (page) {
               case 'home':
-                navigationNotifier.setCurrentPage(
-                  const CommunityHomePage(),
-                );
+                navigationNotifier.setCurrentPage(const CommunityHomePage());
                 break;
               case 'board_list':
-                navigationNotifier.setCurrentPage(
-                  const BoardListPage(),
-                );
+                navigationNotifier.setCurrentPage(const BoardListPage());
                 break;
               case 'board_detail':
                 final artistId = uri.pathSegments[2];

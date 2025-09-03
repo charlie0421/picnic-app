@@ -55,7 +55,8 @@ class PurchaseService {
     try {
       logger.i('=== Purchase Handling Started ===');
       logger.i(
-          'Processing: ${purchaseDetails.productID} (${purchaseDetails.status})');
+        'Processing: ${purchaseDetails.productID} (${purchaseDetails.status})',
+      );
 
       switch (purchaseDetails.status) {
         case PurchaseStatus.pending:
@@ -129,17 +130,14 @@ class PurchaseService {
       return {
         'success': false,
         'wasCancelled': false,
-        'errorMessage': '로그인이 필요합니다'
+        'errorMessage': '로그인이 필요합니다',
       };
     }
 
     try {
       // 🛡️ 1. 강화된 중복 방지 검증
-      final validation =
-          await duplicatePreventionService.validatePurchaseAttempt(
-        productId,
-        currentUser.id,
-      );
+      final validation = await duplicatePreventionService
+          .validatePurchaseAttempt(productId, currentUser.id);
 
       if (!validation.allowed) {
         logger.w('🚫 구매 중복 방지 검증 실패: ${validation.reason}');
@@ -156,7 +154,9 @@ class PurchaseService {
 
       // 🛡️ 2. 구매 시도 등록 (중복 방지 서비스에)
       duplicatePreventionService.registerPurchaseAttempt(
-          productId, currentUser.id);
+        productId,
+        currentUser.id,
+      );
 
       // 3. 제품 정보 확인
       final storeProducts = await ref.read(storeProductsProvider.future);
@@ -165,8 +165,11 @@ class PurchaseService {
           .getProductDetailById(productId);
 
       if (serverProduct == null) {
-        duplicatePreventionService.completePurchase(productId, currentUser.id,
-            success: false);
+        duplicatePreventionService.completePurchase(
+          productId,
+          currentUser.id,
+          success: false,
+        );
         throw Exception('서버에서 상품 정보를 찾을 수 없습니다');
       }
 
@@ -176,35 +179,44 @@ class PurchaseService {
 
       // 🛡️ 5. Touch ID/Face ID 인증 시작 등록
       duplicatePreventionService.registerAuthenticationStart(
-          productId, currentUser.id);
+        productId,
+        currentUser.id,
+      );
 
       // 6. 실제 구매 시작
       final productDetails = _findProductDetails(storeProducts, serverProduct);
       logger.i('🚀 StoreKit 구매 프로세스 시작 (Touch ID/Face ID 인증 포함)');
 
-      final purchaseResult =
-          await inAppPurchaseService.makePurchase(productDetails);
+      final purchaseResult = await inAppPurchaseService.makePurchase(
+        productDetails,
+      );
 
       if (!purchaseResult) {
         // 🔍 구매 실패 시 취소인지 실제 에러인지 구분
         if (inAppPurchaseService.lastPurchaseWasCancelled) {
           logger.i('🚫 구매 취소: $productId');
           _processingProducts.remove(productId);
-          duplicatePreventionService.completePurchase(productId, currentUser.id,
-              success: false);
+          duplicatePreventionService.completePurchase(
+            productId,
+            currentUser.id,
+            success: false,
+          );
           // 취소는 에러가 아니므로 onError 호출하지 않음
           return {'success': false, 'wasCancelled': true, 'errorMessage': null};
         } else {
           logger.w('❌ 구매 요청 시작 실패: $productId');
           _processingProducts.remove(productId);
-          duplicatePreventionService.completePurchase(productId, currentUser.id,
-              success: false);
+          duplicatePreventionService.completePurchase(
+            productId,
+            currentUser.id,
+            success: false,
+          );
           const errorMessage = '구매 요청을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.';
           onError(errorMessage);
           return {
             'success': false,
             'wasCancelled': false,
-            'errorMessage': errorMessage
+            'errorMessage': errorMessage,
           };
         }
       } else {
@@ -215,8 +227,11 @@ class PurchaseService {
     } catch (e, s) {
       logger.e('Error during purchase initiation: $e', stackTrace: s);
       _processingProducts.remove(productId);
-      duplicatePreventionService.completePurchase(productId, currentUser.id,
-          success: false);
+      duplicatePreventionService.completePurchase(
+        productId,
+        currentUser.id,
+        success: false,
+      );
 
       // 사용자 친화적 오류 메시지
       String userMessage = '구매 시작 중 오류가 발생했습니다';
@@ -230,7 +245,7 @@ class PurchaseService {
       return {
         'success': false,
         'wasCancelled': false,
-        'errorMessage': userMessage
+        'errorMessage': userMessage,
       };
     }
   }
@@ -301,8 +316,10 @@ class PurchaseService {
       final currentUser = supabase.auth.currentUser;
       if (currentUser != null) {
         duplicatePreventionService.completePurchase(
-            purchaseDetails.productID, currentUser.id,
-            success: false);
+          purchaseDetails.productID,
+          currentUser.id,
+          success: false,
+        );
       }
       onError(PurchaseConstants.errPrevTransactionPending);
       rethrow;
@@ -348,8 +365,10 @@ class PurchaseService {
       final currentUser = supabase.auth.currentUser;
       if (currentUser != null) {
         duplicatePreventionService.completePurchase(
-            purchaseDetails.productID, currentUser.id,
-            success: true);
+          purchaseDetails.productID,
+          currentUser.id,
+          success: true,
+        );
       }
 
       onSuccess();
@@ -362,14 +381,18 @@ class PurchaseService {
       final currentUser = supabase.auth.currentUser;
       if (currentUser != null) {
         duplicatePreventionService.completePurchase(
-            purchaseDetails.productID, currentUser.id,
-            success: false);
+          purchaseDetails.productID,
+          currentUser.id,
+          success: false,
+        );
       }
 
       // 중복 감지 시: 서비스 레벨 실패 처리 + 남은 쿨다운 안내 메시지 구성
       duplicatePreventionService.completePurchase(
-          purchaseDetails.productID, supabase.auth.currentUser?.id ?? '',
-          success: false);
+        purchaseDetails.productID,
+        supabase.auth.currentUser?.id ?? '',
+        success: false,
+      );
 
       // JWS 재사용: 명확한 안내 메시지 키 전달
       onError(PurchaseConstants.errPrevTransactionPending);
@@ -381,8 +404,10 @@ class PurchaseService {
       final currentUser = supabase.auth.currentUser;
       if (currentUser != null) {
         duplicatePreventionService.completePurchase(
-            purchaseDetails.productID, currentUser.id,
-            success: false);
+          purchaseDetails.productID,
+          currentUser.id,
+          success: false,
+        );
       }
 
       onError(_getDetailedErrorMessage(e));
@@ -424,7 +449,8 @@ class PurchaseService {
     logger.i('🔍 영수증 데이터 검증 시작 ($platform)');
     logger.i('  - Receipt length: ${receiptData.length} characters');
     logger.i(
-        '  - Receipt preview: ${receiptData.length > 50 ? "${receiptData.substring(0, 50)}..." : receiptData}');
+      '  - Receipt preview: ${receiptData.length > 50 ? "${receiptData.substring(0, 50)}..." : receiptData}',
+    );
 
     if (receiptData.isEmpty) {
       logger.e('❌ 영수증 데이터가 비어있음 ($platform)');
@@ -465,13 +491,17 @@ class PurchaseService {
     );
 
     logger.i('애널리틱스 로깅...');
-    await analyticsService.logPurchaseEvent(productDetails);
+    await analyticsService.logPurchaseEvent(
+      productDetails,
+      transactionId: purchaseDetails.purchaseID,
+    );
     logger.i('애널리틱스 로깅 완료');
   }
 
   /// 구매 완료 처리
   Future<void> _completePurchaseIfNeeded(
-      PurchaseDetails purchaseDetails) async {
+    PurchaseDetails purchaseDetails,
+  ) async {
     if (purchaseDetails.pendingCompletePurchase) {
       logger.i('구매 완료 처리 중...');
       await inAppPurchaseService.completePurchase(purchaseDetails);
@@ -556,7 +586,9 @@ class PurchaseService {
     if (currentUser != null) {
       // 🛡️ 중복 방지 서비스에서 백그라운드 구매로 전환
       duplicatePreventionService.handlePurchaseTimeout(
-          productId, currentUser.id);
+        productId,
+        currentUser.id,
+      );
     }
 
     if (_processingProducts.contains(productId)) {
@@ -640,6 +672,7 @@ class PurchaseService {
   /// 🧪 현재 디버그 상태와 진행 중인 구매 상태 출력
   void printDebugStatus() {
     logger.i(
-        '🧪 === 구매 디버그 상태 ===\n🧪 디버그 모드: ${inAppPurchaseService.debugMode ? "활성화" : "비활성화"}\n🧪 타임아웃 모드: ${inAppPurchaseService.debugTimeoutMode}\n🧪 구매 지연: ${inAppPurchaseService.simulateSlowPurchase ? "활성화" : "비활성화"}\n🎯 강제 타임아웃: ${inAppPurchaseService.forceTimeoutSimulation ? "활성화" : "비활성화"}\n🧪 진행 중인 구매: ${_processingProducts.length}개${_processingProducts.isNotEmpty ? '\n${_processingProducts.map((productId) => '🧪   → $productId').join('\n')}' : ''}\n🧪 ========================');
+      '🧪 === 구매 디버그 상태 ===\n🧪 디버그 모드: ${inAppPurchaseService.debugMode ? "활성화" : "비활성화"}\n🧪 타임아웃 모드: ${inAppPurchaseService.debugTimeoutMode}\n🧪 구매 지연: ${inAppPurchaseService.simulateSlowPurchase ? "활성화" : "비활성화"}\n🎯 강제 타임아웃: ${inAppPurchaseService.forceTimeoutSimulation ? "활성화" : "비활성화"}\n🧪 진행 중인 구매: ${_processingProducts.length}개${_processingProducts.isNotEmpty ? '\n${_processingProducts.map((productId) => '🧪   → $productId').join('\n')}' : ''}\n🧪 ========================',
+    );
   }
 }

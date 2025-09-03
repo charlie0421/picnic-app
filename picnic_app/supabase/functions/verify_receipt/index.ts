@@ -303,17 +303,7 @@ async function verifyAndroidPurchase(productId, purchaseToken) {
     }
     throw e;
   }
-  // 2) 프로필 증가 (히스토리 삽입 성공시에만)
-  const { data: profileData, error: profileError } = await supabase.from('user_profiles').select('star_candy, star_candy_bonus').eq('id', userId).single();
-  if (profileError) throw profileError;
-  const updatedStarCandy = (profileData?.star_candy ?? 0) + (star_candy ?? 0);
-  const updatedStarCandyBonus = (profileData?.star_candy_bonus ?? 0) + (star_candy_bonus ?? 0);
-  const { error: updateError } = await supabase.from('user_profiles').update({
-    star_candy: updatedStarCandy,
-    star_candy_bonus: updatedStarCandyBonus
-  }).eq('id', userId);
-  if (updateError) throw updateError;
-  // 3) 보너스 히스토리 (있을 때만). 23505는 무시
+  // 2) 보너스 히스토리 (있을 때만) → 트리거가 user_profiles.star_candy_bonus를 일괄 재계산
   if ((star_candy_bonus ?? 0) > 0) {
     const now = new Date();
     const expireDate = new Date(now.getFullYear(), now.getMonth() + 1, 15).toISOString();
@@ -329,6 +319,15 @@ async function verifyAndroidPurchase(productId, purchaseToken) {
       throw bonusHistoryError;
     }
   }
+
+  // 3) 프로필 별사탕 증가만 수행 (보너스는 트리거가 일괄 재계산)
+  const { data: profileData, error: profileError } = await supabase.from('user_profiles').select('star_candy').eq('id', userId).single();
+  if (profileError) throw profileError;
+  const updatedStarCandy = (profileData?.star_candy ?? 0) + (star_candy ?? 0);
+  const { error: updateError } = await supabase.from('user_profiles').update({
+    star_candy: updatedStarCandy
+  }).eq('id', userId);
+  if (updateError) throw updateError;
 }
 /* -------------------- Entrypoint -------------------- */ Deno.serve(async (request)=>{
   const reqId = (crypto as any).randomUUID ? (crypto as any).randomUUID() : `${Date.now().toString(36)}_${Math.random().toString(36).slice(2,10)}`;

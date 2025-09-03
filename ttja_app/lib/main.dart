@@ -9,7 +9,6 @@ import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 
 import 'package:ttja_app/app.dart';
-import 'package:ttja_app/firebase_options.dart';
 
 // 전역 언어 상태를 저장하는 변수
 bool isLanguageInitialized = false;
@@ -19,7 +18,6 @@ void main() async {
   // MainInitializer를 사용하여 앱 초기화
   await MainInitializer.initializeApp(
     environment: 'prod',
-    firebaseOptions: DefaultFirebaseOptions.currentPlatform,
     appBuilder: () => Phoenix(
       child: const App(),
     ),

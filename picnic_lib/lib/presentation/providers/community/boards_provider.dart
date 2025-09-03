@@ -46,7 +46,8 @@ class BoardsNotifier extends _$BoardsNotifier {
       final response = await supabase
           .from('boards')
           .select(
-              'name, board_id, artist_id, description, is_official, features, status, creator_id, artist(*, artist_group(*))')
+            'name, board_id, artist_id, description, is_official, features, status, creator_id, artist(*, artist_group(*))',
+          )
           .eq('artist_id', artistId)
           .eq('status', 'approved')
           .order('is_official', ascending: false)
@@ -73,18 +74,23 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
   }
 
   Future<List<BoardModel>?> _fetchBoardsByArtistName(
-      String query, int page, int limit) async {
+    String query,
+    int page,
+    int limit,
+  ) async {
     try {
       if (query.isEmpty) {
         final response = await supabase
             .from('boards')
             .select(
-                'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))')
+              'name, board_id, artist_id, description, is_official, features, artist!inner(*, artist_group(*))',
+            )
             .neq('artist_id', 0)
             .eq('status', 'approved')
             .order(
-                'artist(name->>${Localizations.localeOf(navigatorKey.currentContext!).languageCode})',
-                ascending: true)
+              'artist(name->>${Localizations.localeOf(navigatorKey.currentContext!).languageCode == 'zh' ? 'zh_CN' : Localizations.localeOf(navigatorKey.currentContext!).languageCode})',
+              ascending: true,
+            )
             .order('is_official', ascending: false)
             .order('order', ascending: true)
             .range(page * limit, (page + 1) * limit - 1);
@@ -97,13 +103,17 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
         query: query,
         page: page,
         limit: limit,
-        language:
-            Localizations.localeOf(navigatorKey.currentContext!).languageCode,
+        language: Localizations.localeOf(
+          navigatorKey.currentContext!,
+        ).languageCode,
         useCache: true,
       );
     } catch (e, s) {
-      logger.e('Error fetching boards by artist name:',
-          error: e, stackTrace: s);
+      logger.e(
+        'Error fetching boards by artist name:',
+        error: e,
+        stackTrace: s,
+      );
       return Future.error(e);
     }
   }
@@ -111,7 +121,8 @@ class BoardsByArtistNameNotifier extends _$BoardsByArtistNameNotifier {
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(
-        () => _fetchBoardsByArtistName(query, page, limit));
+      () => _fetchBoardsByArtistName(query, page, limit),
+    );
   }
 }
 
@@ -127,7 +138,8 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
       final response = await supabase
           .from('boards')
           .select(
-              'name, board_id, artist_id, description, is_official, request_message')
+            'name, board_id, artist_id, description, is_official, request_message',
+          )
           .eq('creator_id', supabase.auth.currentUser!.id)
           .eq('status', 'pending')
           .maybeSingle();
@@ -144,7 +156,9 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
       final response = await supabase
           .from('boards')
           .select()
-          .or('name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh.eq.$title')
+          .or(
+            'name->>ko.eq.$title,name->>en.eq.$title,name->>ja.eq.$title,name->>zh_CN.eq.$title,name->>zh.eq.$title',
+          )
           .maybeSingle();
 
       return response == null ? null : BoardModel.fromJson(response);
@@ -154,8 +168,12 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
     }
   }
 
-  Future<void> createBoard(int artistId, String title, String description,
-      String requestMessage) async {
+  Future<void> createBoard(
+    int artistId,
+    String title,
+    String description,
+    String requestMessage,
+  ) async {
     try {
       final user = supabase.auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
@@ -166,6 +184,7 @@ class BoardRequestNotifier extends _$BoardRequestNotifier {
           'ko': title,
           'en': title,
           'ja': title,
+          'zh_CN': title,
           'zh': title,
         },
         'description': description,

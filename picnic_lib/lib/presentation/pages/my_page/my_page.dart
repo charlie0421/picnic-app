@@ -55,8 +55,11 @@ class _MyPageState extends ConsumerState<MyPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-          pageTitle: AppLocalizations.of(context).page_title_mypage);
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(
+            pageTitle: AppLocalizations.of(context).page_title_mypage,
+          );
 
       // 앱 시작 시 언어 설정 확인
       final currentLanguage = ref.read(appSettingProvider).language;
@@ -77,95 +80,104 @@ class _MyPageState extends ConsumerState<MyPage> {
     });
 
     return userInfoState.when(
-        data: (data) {
-          return Scaffold(
-            body: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: ListView(
-                children: [
-                  const SizedBox(height: 24),
-                  // 프로필
-                  data != null ? _buildProfile() : _buildNonLogin(),
-                  // 캔디 정보
-                  isSupabaseLoggedSafely
-                      ? const Align(
-                          alignment: Alignment.centerLeft,
-                          child: StarCandyInfoText(
-                              alignment: MainAxisAlignment.start))
-                      : const SizedBox(height: 16),
+      data: (data) {
+        return Scaffold(
+          body: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: ListView(
+              children: [
+                const SizedBox(height: 24),
+                // 프로필
+                data != null ? _buildProfile() : _buildNonLogin(),
+                // 캔디 정보
+                isSupabaseLoggedSafely
+                    ? const Align(
+                        alignment: Alignment.centerLeft,
+                        child: StarCandyInfoText(
+                          alignment: MainAxisAlignment.start,
+                        ),
+                      )
+                    : const SizedBox(height: 16),
 
-                  // Language
-                  Text(AppLocalizations.of(context).label_setting_language,
-                      style: getTextStyle(AppTypo.body14B, AppColors.grey600)),
-                  _buildLanguageSelector(),
-                  const Divider(color: AppColors.grey200),
+                // Language
+                Text(
+                  AppLocalizations.of(context).label_setting_language,
+                  style: getTextStyle(AppTypo.body14B, AppColors.grey600),
+                ),
+                _buildLanguageSelector(),
+                const Divider(color: AppColors.grey200),
 
-                  // My artist
-                  _buildMyArtist(),
-                  const Divider(color: AppColors.grey200),
+                // My artist
+                _buildMyArtist(),
+                const Divider(color: AppColors.grey200),
 
-                  // Notice
+                // Notice
+                PicnicListItem(
+                  leading: AppLocalizations.of(context).label_mypage_notice,
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: () => ref
+                      .read(navigationInfoProvider.notifier)
+                      .setCurrentMyPage(const NoticePage()),
+                ),
+                // FAQ
+                PicnicListItem(
+                  leading: AppLocalizations.of(context).label_mypage_faq,
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: () => ref
+                      .read(navigationInfoProvider.notifier)
+                      .setCurrentMyPage(const FAQPage()),
+                ),
+                // QnA
+                if (data != null && data.id != null)
                   PicnicListItem(
-                      leading: AppLocalizations.of(context).label_mypage_notice,
-                      assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      onTap: () => ref
-                          .read(navigationInfoProvider.notifier)
-                          .setCurrentMyPage(const NoticePage())),
-                  // FAQ
-                  PicnicListItem(
-                      leading: AppLocalizations.of(context).label_mypage_faq,
-                      assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      onTap: () => ref
-                          .read(navigationInfoProvider.notifier)
-                          .setCurrentMyPage(const FAQPage())),
-                  // QnA
-                  if (data != null && data.id != null)
-                    PicnicListItem(
-                        leading: "QnA",
-                        assetPath: 'assets/icons/arrow_right_style=line.svg',
-                        onTap: () => ref
+                    leading: "QnA",
+                    assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    onTap: () => ref
+                        .read(navigationInfoProvider.notifier)
+                        .setCurrentMyPage(QnaThreadListPage(userId: data.id!)),
+                  ),
+
+                // Voting History
+                PicnicListItem(
+                  leading: AppLocalizations.of(context).label_my_vote_history,
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: () => data != null
+                      ? ref
                             .read(navigationInfoProvider.notifier)
-                            .setCurrentMyPage(
-                                QnaThreadListPage(userId: data.id!))),
+                            .setCurrentMyPage(const VoteHistoryPage())
+                      : showRequireLoginDialog(),
+                ),
 
-                  // Voting History
+                // Setting
+                PicnicListItem(
+                  leading: AppLocalizations.of(context).label_mypage_setting,
+                  assetPath: 'assets/icons/arrow_right_style=line.svg',
+                  onTap: () => ref
+                      .read(navigationInfoProvider.notifier)
+                      .setCurrentMyPage(const SettingPage()),
+                ),
+
+                // --- Admin / Test Menus ---
+                if (data != null && (data.isAdmin ?? false))
+                  const Divider(color: AppColors.grey200),
+
+                // 충전내역
+                if (data != null && (data.isAdmin ?? false))
                   PicnicListItem(
-                      leading:
-                          AppLocalizations.of(context).label_my_vote_history,
-                      assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      onTap: () => data != null
-                          ? ref
-                              .read(navigationInfoProvider.notifier)
-                              .setCurrentMyPage(const VoteHistoryPage())
-                          : showRequireLoginDialog()),
-
-                  // Setting
-                  PicnicListItem(
-                      leading:
-                          AppLocalizations.of(context).label_mypage_setting,
-                      assetPath: 'assets/icons/arrow_right_style=line.svg',
-                      onTap: () => ref
-                          .read(navigationInfoProvider.notifier)
-                          .setCurrentMyPage(const SettingPage())),
-
-                  // --- Admin / Test Menus ---
-                  if (data != null && (data.isAdmin ?? false))
-                    const Divider(color: AppColors.grey200),
-
-                  // 충전내역
-                  if (data != null && (data.isAdmin ?? false))
-                    PicnicListItem(
-                        leading: AppLocalizations.of(context)
-                            .label_mypage_charge_history,
-                        assetPath: 'assets/icons/arrow_right_style=line.svg',
-                        onTap: () {}),
-                ],
-              ),
+                    leading: AppLocalizations.of(
+                      context,
+                    ).label_mypage_charge_history,
+                    assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    onTap: () {},
+                  ),
+              ],
             ),
-          );
-        },
-        loading: () => ui.buildLoadingOverlay(),
-        error: (error, stackTrace) => Container());
+          ),
+        );
+      },
+      loading: () => ui.buildLoadingOverlay(),
+      error: (error, stackTrace) => Container(),
+    );
   }
 
   Widget _buildNonLogin() {
@@ -194,18 +206,21 @@ class _MyPageState extends ConsumerState<MyPage> {
             ),
           ),
           SizedBox(width: 16.w),
-          Text(AppLocalizations.of(context).label_mypage_should_login,
-              style: getTextStyle(AppTypo.title18B, AppColors.grey900)),
+          Text(
+            AppLocalizations.of(context).label_mypage_should_login,
+            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          ),
           SizedBox(width: 16.w),
           SvgPicture.asset(
-              package: 'picnic_lib',
-              'assets/icons/setting_style=line.svg',
-              width: 20.w,
-              height: 20.w,
-              colorFilter: const ColorFilter.mode(
-                AppColors.grey900,
-                BlendMode.srcIn,
-              )),
+            package: 'picnic_lib',
+            'assets/icons/setting_style=line.svg',
+            width: 20.w,
+            height: 20.w,
+            colorFilter: const ColorFilter.mode(
+              AppColors.grey900,
+              BlendMode.srcIn,
+            ),
+          ),
         ],
       ),
     );
@@ -237,14 +252,15 @@ class _MyPageState extends ConsumerState<MyPage> {
                 ),
                 SizedBox(width: 8.w),
                 SvgPicture.asset(
-                    package: 'picnic_lib',
-                    'assets/icons/setting_style=line.svg',
-                    width: 20.w,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.grey900,
-                      BlendMode.srcIn,
-                    )),
+                  package: 'picnic_lib',
+                  'assets/icons/setting_style=line.svg',
+                  width: 20.w,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.grey900,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ],
             );
           },
@@ -288,19 +304,22 @@ class _MyPageState extends ConsumerState<MyPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(AppLocalizations.of(context).label_mypage_my_artist,
-                        style: getTextStyle(AppTypo.body16M)),
+                    Text(
+                      AppLocalizations.of(context).label_mypage_my_artist,
+                      style: getTextStyle(AppTypo.body16M),
+                    ),
                   ],
                 ),
                 SvgPicture.asset(
-                    package: 'picnic_lib',
-                    'assets/icons/arrow_right_style=line.svg',
-                    width: 20.w,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.grey900,
-                      BlendMode.srcIn,
-                    )),
+                  package: 'picnic_lib',
+                  'assets/icons/arrow_right_style=line.svg',
+                  width: 20.w,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.grey900,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ],
             ),
           ),
@@ -314,10 +333,12 @@ class _MyPageState extends ConsumerState<MyPage> {
                         return Container(
                           alignment: Alignment.center,
                           child: Text(
-                              AppLocalizations.of(context)
-                                  .label_mypage_no_artist,
-                              style: getTextStyle(
-                                  AppTypo.title18B, AppColors.primary500)),
+                            AppLocalizations.of(context).label_mypage_no_artist,
+                            style: getTextStyle(
+                              AppTypo.title18B,
+                              AppColors.primary500,
+                            ),
+                          ),
                         );
                       }
                       return ListView.separated(
@@ -346,9 +367,9 @@ class _MyPageState extends ConsumerState<MyPage> {
               : Container(
                   alignment: Alignment.center,
                   child: Text(
-                      AppLocalizations.of(context).label_mypage_should_login,
-                      style:
-                          getTextStyle(AppTypo.title18B, AppColors.primary500)),
+                    AppLocalizations.of(context).label_mypage_should_login,
+                    style: getTextStyle(AppTypo.title18B, AppColors.primary500),
+                  ),
                 ),
           const SizedBox(height: 16),
         ],
@@ -358,29 +379,30 @@ class _MyPageState extends ConsumerState<MyPage> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-        baseColor: AppColors.grey200,
-        highlightColor: AppColors.grey100,
-        child: ListView.separated(
-          itemCount: 5,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) => Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                width: 60.w,
-                height: 60.w,
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.grey200,
-                  borderRadius: BorderRadius.circular(30),
-                ),
+      baseColor: AppColors.grey200,
+      highlightColor: AppColors.grey100,
+      child: ListView.separated(
+        itemCount: 5,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) => Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              width: 60.w,
+              height: 60.w,
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.grey200,
+                borderRadius: BorderRadius.circular(30),
               ),
-            ],
-          ),
-          separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(width: 14.w);
-          },
-        ));
+            ),
+          ],
+        ),
+        separatorBuilder: (BuildContext context, int index) {
+          return SizedBox(width: 14.w);
+        },
+      ),
+    );
   }
 
   // 언어 선택기 위젯
@@ -421,8 +443,10 @@ class _MyPageState extends ConsumerState<MyPage> {
                     logger.e('언어 변경 중 오류 발생', error: e, stackTrace: stackTrace);
 
                     if (mounted && context.mounted) {
-                      SnackbarUtil()
-                          .error('언어 변경 중 오류가 발생했습니다.', context: context);
+                      SnackbarUtil().error(
+                        '언어 변경 중 오류가 발생했습니다.',
+                        context: context,
+                      );
                     }
                   }
                 }
@@ -434,21 +458,53 @@ class _MyPageState extends ConsumerState<MyPage> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       alignment: Alignment.center,
                       child: Text(
-                          AppLocalizations.of(context).title_select_language,
-                          style:
-                              getTextStyle(AppTypo.body16B, AppColors.grey900)),
+                        AppLocalizations.of(context).title_select_language,
+                        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                      ),
                     ),
                     Divider(height: 1, color: AppColors.grey100),
-                    _buildLanguageOptionItem(context, 'ko', '한국어',
-                        selectedLanguage, onLanguageSelected),
-                    _buildLanguageOptionItem(context, 'en', 'English',
-                        selectedLanguage, onLanguageSelected),
-                    _buildLanguageOptionItem(context, 'ja', '日本語',
-                        selectedLanguage, onLanguageSelected),
-                    _buildLanguageOptionItem(context, 'zh', '中文',
-                        selectedLanguage, onLanguageSelected),
-                    _buildLanguageOptionItem(context, 'id', 'Indonesia',
-                        selectedLanguage, onLanguageSelected),
+                    _buildLanguageOptionItem(
+                      context,
+                      'ko',
+                      '한국어',
+                      selectedLanguage,
+                      onLanguageSelected,
+                    ),
+                    _buildLanguageOptionItem(
+                      context,
+                      'en',
+                      'English',
+                      selectedLanguage,
+                      onLanguageSelected,
+                    ),
+                    _buildLanguageOptionItem(
+                      context,
+                      'ja',
+                      '日本語',
+                      selectedLanguage,
+                      onLanguageSelected,
+                    ),
+                    _buildLanguageOptionItem(
+                      context,
+                      'zh_CN',
+                      '简体中文',
+                      selectedLanguage,
+                      onLanguageSelected,
+                    ),
+                    _buildLanguageOptionItem(
+                      context,
+                      'zh_TW',
+                      '繁體中文',
+                      selectedLanguage,
+                      onLanguageSelected,
+                    ),
+                    _buildLanguageOptionItem(
+                      context,
+                      'id',
+                      'Indonesia',
+                      selectedLanguage,
+                      onLanguageSelected,
+                    ),
                     SizedBox(height: 32),
                   ],
                 );
@@ -463,7 +519,7 @@ class _MyPageState extends ConsumerState<MyPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              languageMap[currentLanguage] ?? 'Unknown',
+              languageMap[currentLanguage] ?? currentLanguage,
               style: getTextStyle(AppTypo.body14M, AppColors.grey900),
             ),
             SvgPicture.asset(
@@ -477,8 +533,13 @@ class _MyPageState extends ConsumerState<MyPage> {
   }
 
   // 언어 옵션 아이템 (바텀시트 내부용)
-  Widget _buildLanguageOptionItem(BuildContext context, String langCode,
-      String label, String currentLanguage, Function(String) onSelect) {
+  Widget _buildLanguageOptionItem(
+    BuildContext context,
+    String langCode,
+    String label,
+    String currentLanguage,
+    Function(String) onSelect,
+  ) {
     final isSelected = langCode == currentLanguage;
 
     return GestureDetector(
